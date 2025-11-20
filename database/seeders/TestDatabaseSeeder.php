@@ -1,0 +1,82 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+class TestDatabaseSeeder extends Seeder
+{
+    /**
+     * Seed the application's database with test data.
+     * 
+     * This seeder orchestrates all test seeders in the correct order,
+     * wraps operations in a transaction for rollback on failure,
+     * and provides comprehensive error handling and logging.
+     */
+    public function run(): void
+    {
+        try {
+            DB::beginTransaction();
+
+            Log::info('Starting test database seeding...');
+
+            // 1. Seed providers first (no tenant dependency)
+            $this->call(ProvidersSeeder::class);
+            Log::info('✓ Providers seeded');
+
+            // 2. Seed test users with known credentials
+            $this->call(TestUsersSeeder::class);
+            Log::info('✓ Test users seeded');
+
+            // 3. Seed test buildings with realistic addresses
+            $this->call(TestBuildingsSeeder::class);
+            Log::info('✓ Test buildings seeded');
+
+            // 4. Seed test properties (apartments and houses)
+            $this->call(TestPropertiesSeeder::class);
+            Log::info('✓ Test properties seeded');
+
+            // 5. Seed test tenants (renters) linked to properties
+            $this->call(TestTenantsSeeder::class);
+            Log::info('✓ Test tenants seeded');
+
+            // 6. Seed test meters for each property
+            $this->call(TestMetersSeeder::class);
+            Log::info('✓ Test meters seeded');
+
+            // 7. Seed test meter readings (3+ months history)
+            $this->call(TestMeterReadingsSeeder::class);
+            Log::info('✓ Test meter readings seeded');
+
+            // 8. Seed test tariffs for all providers
+            $this->call(TestTariffsSeeder::class);
+            Log::info('✓ Test tariffs seeded');
+
+            // 9. Seed test invoices in different states
+            $this->call(TestInvoicesSeeder::class);
+            Log::info('✓ Test invoices seeded');
+
+            DB::commit();
+
+            Log::info('Test database seeding completed successfully!');
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            Log::error('Test database seeding failed', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            $this->command->error('Test database seeding failed: ' . $e->getMessage());
+            $this->command->error('All changes have been rolled back.');
+            
+            throw $e;
+        }
+    }
+}
+

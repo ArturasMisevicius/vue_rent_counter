@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Code Quality Analyzer automat",
+  "description": "Automatically analyzes modified source code files for potential improvements including code smells, design patterns, best practices, readability, maintainability, and performance optimizations. Makes automatic improvements while preserving functionality.",
+  "version": "2",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "/app/**/*.php",
+      "/resources/**/*.blade.php"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "**Comprehensive Code Analysis and Refactoring Plan**\n\n- use MCP servers, use mcp services\n\n- do not change files in vendors files and folders\n\nAnalyze the specified code file to identify areas for improvement and refactoring. The analysis must cover the following critical aspects:\n\n1. **Code Smells**: Scrutinize for common issues such as **Long Methods**, **Duplicated Code**, **Large Classes**, excessive parameters, **Feature Envy**, and **Data Clumps**.\n2. **Design Patterns**: Propose the integration of suitable design patterns (e.g., **Strategy**, **Factory**, **Repository**, **Observer**) where they would significantly enhance structure and flexibility.\n3. **Best Practices**: Evaluate adherence to coding standards (**PSR-12**), proper utilization of **type hints**, robust **error handling** mechanisms, implementation of **Dependency Injection**, and compliance with **SOLID principles**.\n4. **Readability**: Assess the quality of **naming conventions**, method complexity (Cyclomatic Complexity), comment clarity, and overall code organization.\n5. **Maintainability**: Identify indicators of high coupling, insufficient abstraction, use of **magic numbers**, and hardcoded values.\n6. **Performance**: Pinpoint performance bottlenecks, including **N+1 queries**, unnecessary loops, inefficient algorithms, missing database indexes, and opportunities for **eager loading**.\n7. **Laravel-Specific**: Verify the correct application of **Eloquent relationships**, **query scopes**, **Form Requests**, appropriate use of a service layer, and adherence to **Resource Controller** conventions.\n\n**Refactoring/Improvement Steps:**\n\nBased on the analysis, perform the necessary refactorings and improvements. All changes must:\n* Strictly adhere to the project's **coding standards** (PSR-12, mandatory type hints).\n* Respect the existing **multi-tenancy architecture** and design patterns.\n* **Maintain test coverage and compatibility** with the current system.\n* **Create tests** for existing, untested functionality; **run all tests**; and **fix any resulting errors**.\n\n**Output Requirement:**\n\nProvide a brief summary detailing the refactorings and improvements that have been implemented in the file."
+  },
+  "workspaceFolderName": "vue_rent_counter",
+  "shortName": "code-quality-analyzer automat"
+}
