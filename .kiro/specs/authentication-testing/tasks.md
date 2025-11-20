@@ -9,7 +9,12 @@
   - Assign appropriate UserRole enum values
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
-- [ ]* 1.1 Write property test for test user tenant assignment
+- [x] 1.1 Write property test for test user tenant assignment
+
+
+
+
+
   - **Property 1: Test user tenant assignment**
   - **Validates: Requirements 1.4**
 
@@ -48,7 +53,12 @@
   - Set installation_date to 2 years ago
   - _Requirements: 5.2_
 
-- [ ]* 5.1 Write property test for complete meter coverage
+- [x] 5.1 Write property test for complete meter coverage
+
+
+
+
+
   - **Property 8: Complete meter coverage**
   - **Validates: Requirements 5.2**
 
@@ -61,7 +71,13 @@
   - Ensure monotonically increasing values
   - _Requirements: 5.3_
 
-- [ ]* 6.1 Write property test for meter reading storage completeness
+- [x] 6.1 Write property test for meter reading storage completeness
+
+
+
+
+
+
   - **Property 9: Meter reading storage completeness**
   - **Validates: Requirements 6.1**
 
@@ -83,12 +99,23 @@
   - Snapshot tariff rates in invoice_items
   - Calculate total_amount from invoice items
   - _Requirements: 5.5_
+-
 
-- [ ]* 8.1 Write property test for invoice itemization by utility type
+- [x] 8.1 Write property test for invoice itemization by utility type
+
+
+
+
   - **Property 15: Invoice itemization by utility type**
   - **Validates: Requirements 7.2**
+-
 
-- [ ]* 8.2 Write property test for tariff rate snapshotting
+- [x] 8.2 Write property test for tariff rate snapshotting
+
+
+
+
+
   - **Property 16: Tariff rate snapshotting**
   - **Validates: Requirements 7.3**
 
@@ -130,11 +157,22 @@
   - Test logout clears session
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ]* 13.1 Write property test for valid credentials authentication
+- [x] 13.1 Write property test for valid credentials authentication
+
+
+
+
+
   - **Property 2: Valid credentials authentication**
   - **Validates: Requirements 2.1**
 
-- [ ]* 13.2 Write property test for invalid credentials rejection
+- [x] 13.2 Write property test for invalid credentials rejection
+
+
+
+
+
+
   - **Property 3: Invalid credentials rejection**
   - **Validates: Requirements 2.2**
 
@@ -160,12 +198,29 @@
   - Test manager from tenant 1 cannot access tenant 2 property (404)
   - Test property queries automatically filter by tenant_id
   - _Requirements: 4.1, 4.2_
+- [x] 16.1 Write property test for manager property isolation
 
-- [ ]* 16.1 Write property test for manager property isolation
+
+
+
+
+
+
+
+
+- [ ] 16.1 Write property test for manager property isolation
+
+
   - **Property 4: Manager property isolation**
   - **Validates: Requirements 4.1**
 
-- [ ]* 16.2 Write property test for cross-tenant property access prevention
+
+- [x] 16.2 Write property test for cross-tenant property access prevention
+
+
+
+
+
   - **Property 5: Cross-tenant property access prevention**
   - **Validates: Requirements 4.2**
 
@@ -175,12 +230,29 @@
   - Test tenant cannot access another tenant's invoice (404)
   - Test admin can see invoices from all tenants
   - _Requirements: 4.3, 4.4, 4.5_
+-
 
-- [ ]* 17.1 Write property test for tenant invoice isolation
+- [x] 17.1 Write property test for tenant invoice isolation
+
+
+
+
+
   - **Property 6: Tenant invoice isolation**
   - **Validates: Requirements 4.3**
 
-- [ ]* 17.2 Write property test for cross-tenant invoice access prevention
+
+
+
+- [x] 17.2 Write property test for cross-tenant invoice access prevention
+
+
+
+
+
+
+
+
   - **Property 7: Cross-tenant invoice access prevention**
   - **Validates: Requirements 4.4**
 
@@ -192,20 +264,37 @@
   - Test multi-zone meter accepts separate zone readings
   - Test audit trail is created for readings
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
+- [x] 18.1 Write property test for meter reading monotonicity enforcement
 
-- [ ]* 18.1 Write property test for meter reading monotonicity enforcement
   - **Property 10: Meter reading monotonicity enforcement**
   - **Validates: Requirements 6.2**
 
-- [ ]* 18.2 Write property test for meter reading temporal validation
+- [x] 18.2 Write property test for meter reading temporal validation
+
+
+
+
+
   - **Property 11: Meter reading temporal validation**
   - **Validates: Requirements 6.3**
 
-- [ ]* 18.3 Write property test for multi-zone meter reading support
+
+- [x] 18.3 Write property test for multi-zone meter reading support
+
+
+
+
+
   - **Property 12: Multi-zone meter reading support**
   - **Validates: Requirements 6.4**
+- [x] 18.4 Write property test for meter reading audit trail creation
 
-- [ ]* 18.4 Write property test for meter reading audit trail creation
+
+
+
+- [ ] 18.4 Write property test for meter reading audit trail creation
+
+
   - **Property 13: Meter reading audit trail creation**
   - **Validates: Requirements 6.5**
 
@@ -217,16 +306,23 @@
   - Test finalized invoice cannot be modified
   - Test finalized invoice is not recalculated when tariffs change
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
+-
 
-- [ ]* 19.1 Write property test for invoice calculation from readings
+- [x] 19.1 Write property test for invoice calculation from readings
+
+
+
+
   - **Property 14: Invoice calculation from readings**
   - **Validates: Requirements 7.1**
 
-- [ ]* 19.2 Write property test for invoice immutability after finalization
+- [x] 19.2 Write property test for invoice immutability after finalization
   - **Property 17: Invoice immutability after finalization**
   - **Validates: Requirements 7.4**
 
-- [ ]* 19.3 Write property test for finalized invoice tariff independence
+- [x] 19.3 Write property test for finalized invoice tariff independence
+
+
   - **Property 18: Finalized invoice tariff independence**
   - **Validates: Requirements 7.5**
 
@@ -239,23 +335,47 @@
   - Test weekend rates are applied correctly
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ]* 20.1 Write property test for time-of-use zone overlap validation
+- [x] 20.1 Write property test for time-of-use zone overlap validation
+
+
+
+
+
+
   - **Property 19: Time-of-use zone overlap validation**
   - **Validates: Requirements 8.1**
 
-- [ ]* 20.2 Write property test for time-of-use zone coverage validation
+- [ ] 20.2 Write property test for time-of-use zone coverage validation
+
   - **Property 20: Time-of-use zone coverage validation**
   - **Validates: Requirements 8.2**
+-
 
-- [ ]* 20.3 Write property test for tariff temporal selection
+- [x] 20.3 Write property test for tariff temporal selection
+
+
+
+
+
   - **Property 21: Tariff temporal selection**
   - **Validates: Requirements 8.3**
 
-- [ ]* 20.4 Write property test for tariff precedence with overlaps
+- [x] 20.4 Write property test for tariff precedence with overlaps
+
+
+
+
+
   - **Property 22: Tariff precedence with overlaps**
   - **Validates: Requirements 8.4**
 
-- [ ]* 20.5 Write property test for weekend tariff rate application
+
+- [x] 20.5 Write property test for weekend tariff rate application
+
+
+
+
+
   - **Property 23: Weekend tariff rate application**
   - **Validates: Requirements 8.5**
 
@@ -267,20 +387,36 @@
   - Test circulation costs are distributed correctly (equal or by area)
   - Test gyvatukas appears as separate invoice item
   - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
+- [ ] 21.1 Write property test for summer gyvatukas calculation formula
 
-- [ ]* 21.1 Write property test for summer gyvatukas calculation formula
+
+- [ ] 21.1 Write property test for summer gyvatukas calculation formula
+
+
   - **Property 24: Summer gyvatukas calculation formula**
   - **Validates: Requirements 9.1**
 
-- [ ]* 21.2 Write property test for winter gyvatukas norm application
+- [ ] 21.2 Write property test for winter gyvatukas norm application
+
+
+
+
   - **Property 25: Winter gyvatukas norm application**
   - **Validates: Requirements 9.2**
 
-- [ ]* 21.3 Write property test for circulation cost distribution
+- [ ] 21.3 Write property test for circulation cost distribution
+
+
+
+
   - **Property 26: Circulation cost distribution**
   - **Validates: Requirements 9.4**
 
-- [ ]* 21.4 Write property test for gyvatukas invoice itemization
+- [ ] 21.4 Write property test for gyvatukas invoice itemization
+
+
+
+
   - **Property 27: Gyvatukas invoice itemization**
   - **Validates: Requirements 9.5**
 

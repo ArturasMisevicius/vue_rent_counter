@@ -18,5 +18,29 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // Handle authorization exceptions with user-friendly messages (Requirement 9.4)
+        $exceptions->render(function (\Illuminate\Auth\Access\AuthorizationException $e, \Illuminate\Http\Request $request) {
+            // Log the authorization failure
+            \Illuminate\Support\Facades\Log::warning('Authorization exception caught', [
+                'user_id' => auth()->id(),
+                'user_email' => auth()->user()?->email,
+                'user_role' => auth()->user()?->role?->value,
+                'url' => $request->fullUrl(),
+                'message' => $e->getMessage(),
+                'timestamp' => now()->toDateTimeString(),
+            ]);
+
+            // Return user-friendly error response
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'You do not have permission to perform this action.',
+                    'error' => $e->getMessage() ?: 'Access denied',
+                ], 403);
+            }
+
+            // For web requests, show the 403 error page
+            return response()->view('errors.403', [
+                'exception' => $e,
+            ], 403);
+        });
     })->create();
