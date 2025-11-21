@@ -13,19 +13,48 @@ class BuildingPolicy
      */
     public function viewAny(User $user): bool
     {
+        // Superadmin can view all buildings
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
         // Admins and managers can view buildings (filtered by tenant scope)
-        return $user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER;
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+            return true;
+        }
+
+        // Tenants can view buildings (filtered to their property's building)
+        if ($user->role === UserRole::TENANT) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Determine whether the user can view the building.
+     * Adds tenant_id ownership checks.
+     * Ensures tenant can only access their property's building.
      */
     public function view(User $user, Building $building): bool
     {
+        // Superadmin can view any building
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
         // Admins and managers can view buildings within their tenant
         if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
-            // Tenant scope will automatically filter, but we verify explicitly
+            // Verify building belongs to their tenant_id
             return $building->tenant_id === $user->tenant_id;
+        }
+
+        // Tenants can only view their property's building
+        if ($user->role === UserRole::TENANT && $user->property_id) {
+            $property = $user->property;
+            if ($property) {
+                return $property->building_id === $building->id;
+            }
         }
 
         return false;
@@ -36,6 +65,11 @@ class BuildingPolicy
      */
     public function create(User $user): bool
     {
+        // Superadmin can create buildings
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
         // Admins and managers can create buildings
         return $user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER;
     }
@@ -45,6 +79,11 @@ class BuildingPolicy
      */
     public function update(User $user, Building $building): bool
     {
+        // Superadmin can update any building
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
         // Admins and managers can update buildings within their tenant
         if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $building->tenant_id === $user->tenant_id;
@@ -58,7 +97,12 @@ class BuildingPolicy
      */
     public function delete(User $user, Building $building): bool
     {
-        // Only admins can delete buildings
+        // Superadmin can delete any building
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
+        // Only admins can delete buildings within their tenant
         if ($user->role === UserRole::ADMIN) {
             return $building->tenant_id === $user->tenant_id;
         }
@@ -71,8 +115,17 @@ class BuildingPolicy
      */
     public function restore(User $user, Building $building): bool
     {
-        // Only admins can restore buildings
-        return $user->role === UserRole::ADMIN;
+        // Superadmin can restore any building
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
+        // Only admins can restore buildings within their tenant
+        if ($user->role === UserRole::ADMIN) {
+            return $building->tenant_id === $user->tenant_id;
+        }
+
+        return false;
     }
 
     /**
@@ -80,7 +133,7 @@ class BuildingPolicy
      */
     public function forceDelete(User $user, Building $building): bool
     {
-        // Only admins can force delete buildings
-        return $user->role === UserRole::ADMIN;
+        // Only superadmin can force delete buildings
+        return $user->role === UserRole::SUPERADMIN;
     }
 }

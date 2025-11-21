@@ -19,23 +19,25 @@ class MeterPolicy
 
     /**
      * Determine whether the user can view the meter.
+     * Adds tenant_id ownership checks.
+     * Ensures tenant can only access their property's meters.
      */
     public function view(User $user, Meter $meter): bool
     {
+        // Superadmin can view any meter
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
         // Admins and managers can view all meters within their tenant
         if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $meter->property->tenant_id === $user->tenant_id;
         }
 
-        // Tenants can view meters for their properties
+        // Tenants can only view meters for their assigned property
         if ($user->role === UserRole::TENANT) {
-            $tenant = $user->tenant;
-            if (!$tenant) {
-                return false;
-            }
-
-            // Check if the meter belongs to one of the tenant's properties
-            return $meter->property->tenants()->where('id', $tenant->id)->exists();
+            // Check if the meter belongs to the tenant's assigned property
+            return $meter->property_id === $user->property_id;
         }
 
         return false;
@@ -46,6 +48,11 @@ class MeterPolicy
      */
     public function create(User $user): bool
     {
+        // Superadmin can create meters
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
         // Admins and managers can create meters
         return $user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER;
     }
@@ -55,6 +62,11 @@ class MeterPolicy
      */
     public function update(User $user, Meter $meter): bool
     {
+        // Superadmin can update any meter
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
         // Admins and managers can update meters within their tenant
         if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $meter->property->tenant_id === $user->tenant_id;
@@ -68,7 +80,12 @@ class MeterPolicy
      */
     public function delete(User $user, Meter $meter): bool
     {
-        // Only admins can delete meters
+        // Superadmin can delete any meter
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
+        // Only admins can delete meters within their tenant
         if ($user->role === UserRole::ADMIN) {
             return $meter->property->tenant_id === $user->tenant_id;
         }
@@ -81,8 +98,17 @@ class MeterPolicy
      */
     public function restore(User $user, Meter $meter): bool
     {
-        // Only admins can restore meters
-        return $user->role === UserRole::ADMIN;
+        // Superadmin can restore any meter
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
+        // Only admins can restore meters within their tenant
+        if ($user->role === UserRole::ADMIN) {
+            return $meter->property->tenant_id === $user->tenant_id;
+        }
+
+        return false;
     }
 
     /**
@@ -90,7 +116,7 @@ class MeterPolicy
      */
     public function forceDelete(User $user, Meter $meter): bool
     {
-        // Only admins can force delete meters
-        return $user->role === UserRole::ADMIN;
+        // Only superadmin can force delete meters
+        return $user->role === UserRole::SUPERADMIN;
     }
 }

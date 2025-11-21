@@ -108,10 +108,17 @@ class MeterReadingResource extends Resource
                     ->suffix('units')
                     ->live(onBlur: true)
                     ->rules([
+                        'required',
+                        'numeric',
+                        'min:0',
                         // Validation from StoreMeterReadingRequest and UpdateMeterReadingRequest
                         // Implements monotonicity validation (Property 3)
                         fn (Get $get, ?MeterReading $record): \Closure => function (string $attribute, $value, \Closure $fail) use ($get, $record) {
-                            // Skip validation if meter is not selected
+                            // Skip validation if value is not numeric or meter is not selected
+                            if (!is_numeric($value)) {
+                                return;
+                            }
+                            
                             $meterId = $get('meter_id');
                             if (!$meterId) {
                                 return;
@@ -161,6 +168,9 @@ class MeterReadingResource extends Resource
                     ->live(onBlur: true)
                     ->helperText('Optional: For multi-zone meters (e.g., day/night)')
                     ->rules([
+                        'nullable',
+                        'string',
+                        'max:50',
                         // Validation from StoreMeterReadingRequest
                         // Validates zone support (Property 4)
                         fn (Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {

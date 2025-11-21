@@ -1,0 +1,169 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use App\Enums\UserRole;
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
+
+class EnsureHierarchicalAccess
+{
+    /**
+     * Handle an incoming request.
+     *
+     * Validates user can access requested resource based on hierarchical relationships.
+     * Checks tenant_id and property_id relationships.
+     * Returns 403 if access denied.
+     *
+     * Requirements: 12.5, 13.3
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        // Superadmin has unrestricted access
+        if ($user->role === UserRole::SUPERADMIN) {
+            return $next($request);
+        }
+
+        // Validate hierarchical access based on route parameters
+        if (!$this->validateHierarchicalAccess($request, $user)) {
+            $this->logAccessDenial($request, $user);
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'You do not have permission to access this resource.',
+                ], 403);
+            }
+
+            abort(403, 'You do not have permission to access this resource.');
+        }
+
+        return $next($request);
+    }
+
+    /**
+     * Validate hierarchical access based on user role and route parameters.
+     */
+    protected function validateHierarchicalAccess(Request $request, $user): bool
+    {
+        // Admin role: validate tenant_id matches
+        if ($user->role === UserRole::ADMIN) {
+            return $this->validateAdminAccess($request, $user);
+        }
+
+        // Tenant role: validate both tenant_id and property_id match
+        if ($user->role === UserRole::TENANT) {
+            return $this->validateTenantAccess($request, $user);
+        }
+
+        // Manager role: validate tenant_id matches (similar to admin)
+        if ($user->role === UserRole::MANAGER) {
+            return $this->validateAdminAccess($request, $user);
+        }
+
+        return true;
+    }
+
+    /**
+     * Validate admin/manager access to resources.
+     */
+    protected function validateAdminAccess(Request $request, $user): bool
+    {
+        // Check route parameters for resources that have tenant_id
+        $resourceModels = [
+            'building' => \App\Models\Building::class,
+            'property' => \App\Models\Property::class,
+            'meter' => \App\Models\Meter::class,
+            'meterReading' => \App\Models\MeterReading::class,
+            'invoice' => \App\Models\Invoice::class,
+            'user' => \App\Models\User::class,
+        ];
+
+        foreach ($resourceModels as $param => $modelClass) {
+            $resourceId = $request->route($param);
+            
+            if ($resourceId) {
+                $resource = $modelClass::find($resourceId);
+                
+                if ($resource && isset($resource->tenant_id)) {
+                    // Validate tenant_id matches
+                    if ($resource->tenant_id !== $user->tenant_id) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Validate tenant access to resources.
+     */
+    protected function validateTenantAccess(Request $request, $user): bool
+    {
+        // First validate tenant_id matches (same as admin)
+        if (!$this->validateAdminAccess($request, $user)) {
+            return false;
+        }
+
+        // Additionally validate property_id for tenant-specific resources
+        $propertyResourceModels = [
+            'property' => \App\Models\Property::class,
+            'meter' => \App\Models\Meter::class,
+            'meterReading' => \App\Models\MeterReading::class,
+            'invoice' => \App\Models\Invoice::class,
+        ];
+
+        foreach ($propertyResourceModels as $param => $modelClass) {
+            $resourceId = $request->route($param);
+            
+            if ($resourceId) {
+                $resource = $modelClass::find($resourceId);
+                
+                if ($resource) {
+                    // For property, check direct match
+                    if ($param === 'property') {
+                        if ($resource->id !== $user->property_id) {
+                            return false;
+                        }
+                    } else {
+                        // For other resources, check if they belong to tenant's property
+                        if (isset($resource->property_id) && $resource->property_id !== $user->property_id) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Log access denial for audit purposes.
+     */
+    protected function logAccessDenial(Request $request, $user): void
+    {
+        Log::warning('Hierarchical access denied', [
+            'user_id' => $user->id,
+            'user_email' => $user->email,
+            'user_role' => $user->role->value,
+            'user_tenant_id' => $user->tenant_id,
+            'user_property_id' => $user->property_id,
+            'url' => $request->fullUrl(),
+            'method' => $request->method(),
+            'route_parameters' => $request->route()->parameters(),
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+    }
+}

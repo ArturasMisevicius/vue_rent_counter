@@ -9,21 +9,52 @@ class UserPolicy
 {
     /**
      * Determine whether the user can view any users.
+     * Respects role hierarchy: superadmin sees all, admin sees their tenants.
      */
     public function viewAny(User $user): bool
     {
-        // Only admins can view the user list
-        return $user->role === UserRole::ADMIN;
+        // Superadmin can view all users
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
+        // Admins can view users within their tenant (their created tenants)
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Determine whether the user can view the user.
+     * Checks parent-child relationships in hierarchy.
      */
     public function view(User $user, User $model): bool
     {
-        // Admins can view any user
-        if ($user->role === UserRole::ADMIN) {
+        // Superadmin can view any user
+        if ($user->role === UserRole::SUPERADMIN) {
             return true;
+        }
+
+        // Admins can view users within their tenant
+        if ($user->role === UserRole::ADMIN) {
+            // Can view themselves
+            if ($user->id === $model->id) {
+                return true;
+            }
+
+            // Can view their child users (tenants they created)
+            if ($model->parent_user_id === $user->id) {
+                return true;
+            }
+
+            // Can view other users in their tenant (for admin viewing other admins' data)
+            if ($model->tenant_id === $user->tenant_id) {
+                return true;
+            }
+
+            return false;
         }
 
         // Users can view their own profile
@@ -32,21 +63,47 @@ class UserPolicy
 
     /**
      * Determine whether the user can create users.
+     * Allows superadmin→admin, admin→tenant creation.
      */
     public function create(User $user): bool
     {
-        // Only admins can create users
-        return $user->role === UserRole::ADMIN;
+        // Superadmin can create admin accounts
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
+        // Admins can create tenant accounts
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Determine whether the user can update the user.
+     * Includes ownership checks based on hierarchy.
      */
     public function update(User $user, User $model): bool
     {
-        // Admins can update any user
-        if ($user->role === UserRole::ADMIN) {
+        // Superadmin can update any user
+        if ($user->role === UserRole::SUPERADMIN) {
             return true;
+        }
+
+        // Admins can update users within their hierarchy
+        if ($user->role === UserRole::ADMIN) {
+            // Can update themselves
+            if ($user->id === $model->id) {
+                return true;
+            }
+
+            // Can update their child users (tenants they created)
+            if ($model->parent_user_id === $user->id) {
+                return true;
+            }
+
+            return false;
         }
 
         // Users can update their own profile
@@ -55,12 +112,26 @@ class UserPolicy
 
     /**
      * Determine whether the user can delete the user.
+     * Includes ownership checks and prevents self-deletion.
      */
     public function delete(User $user, User $model): bool
     {
-        // Only admins can delete users
         // Cannot delete yourself
-        return $user->role === UserRole::ADMIN && $user->id !== $model->id;
+        if ($user->id === $model->id) {
+            return false;
+        }
+
+        // Superadmin can delete any user (except themselves)
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
+        // Admins can delete their child users (tenants they created)
+        if ($user->role === UserRole::ADMIN) {
+            return $model->parent_user_id === $user->id;
+        }
+
+        return false;
     }
 
     /**
@@ -68,8 +139,17 @@ class UserPolicy
      */
     public function restore(User $user, User $model): bool
     {
-        // Only admins can restore users
-        return $user->role === UserRole::ADMIN;
+        // Superadmin can restore any user
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
+        // Admins can restore their child users
+        if ($user->role === UserRole::ADMIN) {
+            return $model->parent_user_id === $user->id;
+        }
+
+        return false;
     }
 
     /**
@@ -77,7 +157,7 @@ class UserPolicy
      */
     public function forceDelete(User $user, User $model): bool
     {
-        // Only admins can force delete users
-        return $user->role === UserRole::ADMIN;
+        // Only superadmin can force delete users
+        return $user->role === UserRole::SUPERADMIN;
     }
 }

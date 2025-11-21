@@ -61,8 +61,10 @@ class BuildingResource extends Resource
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull()
+                    ->validationAttribute('address')
                     ->validationMessages([
                         'required' => 'The building address is required.',
+                        'max' => 'The building address may not be greater than 255 characters.',
                     ]),
                 
                 Forms\Components\TextInput::make('total_apartments')
@@ -71,9 +73,12 @@ class BuildingResource extends Resource
                     ->numeric()
                     ->minValue(1)
                     ->maxValue(1000)
+                    ->integer()
+                    ->validationAttribute('total_apartments')
                     ->validationMessages([
                         'required' => 'The total number of apartments is required.',
                         'numeric' => 'The total number of apartments must be a whole number.',
+                        'integer' => 'The total number of apartments must be a whole number.',
                         'min' => 'The building must have at least 1 apartment.',
                         'max' => 'The building cannot have more than 1,000 apartments.',
                     ]),

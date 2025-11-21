@@ -3,8 +3,11 @@
 namespace App\Filament\Resources\BuildingResource\Pages;
 
 use App\Filament\Resources\BuildingResource;
+use App\Http\Requests\StoreBuildingRequest;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class CreateBuilding extends CreateRecord
 {
@@ -23,5 +26,16 @@ class CreateBuilding extends CreateRecord
         $data['tenant_id'] = auth()->user()->tenant_id;
         
         return $data;
+    }
+
+    /**
+     * Validate the form data using StoreBuildingRequest rules.
+     *
+     * @throws ValidationException
+     */
+    protected function getFormValidationRules(): array
+    {
+        $request = new StoreBuildingRequest();
+        return $request->rules();
     }
 }

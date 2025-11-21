@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Scopes\TenantScope;
+use App\Scopes\HierarchicalScope;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +17,7 @@ class Building extends Model
      */
     protected static function booted(): void
     {
-        static::addGlobalScope(new TenantScope);
+        static::addGlobalScope(new HierarchicalScope);
     }
 
     /**

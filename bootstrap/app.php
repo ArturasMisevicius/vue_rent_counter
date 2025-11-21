@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'tenant.context' => \App\Http\Middleware\EnsureTenantContext::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'subscription.check' => \App\Http\Middleware\CheckSubscriptionStatus::class,
+            'hierarchical.access' => \App\Http\Middleware\EnsureHierarchicalAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

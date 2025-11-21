@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Scopes\TenantScope;
+use App\Scopes\HierarchicalScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,7 +18,7 @@ class Tenant extends Model
      */
     protected static function booted(): void
     {
-        static::addGlobalScope(new TenantScope);
+        static::addGlobalScope(new HierarchicalScope);
     }
 
     /**

@@ -50,7 +50,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->midd
 // ============================================================================
 // ADMIN ROUTES
 // ============================================================================
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin', 'subscription.check'])->prefix('admin')->name('admin.')->group(function () {
     
     // Dashboard
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -84,7 +84,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 // ============================================================================
 // MANAGER ROUTES
 // ============================================================================
-Route::middleware(['auth', 'role:manager'])->prefix('manager')->name('manager.')->group(function () {
+Route::middleware(['auth', 'role:manager', 'subscription.check'])->prefix('manager')->name('manager.')->group(function () {
     
     // Dashboard
     Route::get('/dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');
@@ -162,7 +162,7 @@ Route::middleware(['auth', 'role:tenant'])->prefix('tenant')->name('tenant.')->g
 // ============================================================================
 // SHARED ROUTES (ADMIN & MANAGER)
 // ============================================================================
-Route::middleware(['auth', 'role:admin,manager'])->group(function () {
+Route::middleware(['auth', 'role:admin,manager', 'subscription.check'])->group(function () {
     
     // Buildings
     Route::resource('buildings', BuildingController::class);

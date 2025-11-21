@@ -13,30 +13,46 @@ class PropertyPolicy
      */
     public function viewAny(User $user): bool
     {
+        // Superadmin can view all properties
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
         // Admins and managers can view properties (filtered by tenant scope)
-        return $user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER;
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+            return true;
+        }
+
+        // Tenants can view their assigned property
+        if ($user->role === UserRole::TENANT) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Determine whether the user can view the property.
+     * Verifies property belongs to admin's tenant_id.
+     * Allows tenant to view only their assigned property.
      */
     public function view(User $user, Property $property): bool
     {
+        // Superadmin can view any property
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
         // Admins and managers can view properties within their tenant
         if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
-            // Tenant scope will automatically filter, but we verify explicitly
+            // Verify property belongs to admin's tenant_id
             return $property->tenant_id === $user->tenant_id;
         }
 
-        // Tenants can view their own property
+        // Tenants can only view their assigned property
         if ($user->role === UserRole::TENANT) {
-            $tenant = $user->tenant;
-            if (!$tenant) {
-                return false;
-            }
-
-            // Check if the tenant is renting this property
-            return $property->tenants()->where('id', $tenant->id)->exists();
+            // Check if this property is assigned to the tenant user
+            return $user->property_id === $property->id;
         }
 
         return false;
@@ -47,6 +63,11 @@ class PropertyPolicy
      */
     public function create(User $user): bool
     {
+        // Superadmin can create properties
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
         // Admins and managers can create properties
         return $user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER;
     }
@@ -56,6 +77,11 @@ class PropertyPolicy
      */
     public function update(User $user, Property $property): bool
     {
+        // Superadmin can update any property
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
         // Admins and managers can update properties within their tenant
         if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $property->tenant_id === $user->tenant_id;
@@ -69,7 +95,12 @@ class PropertyPolicy
      */
     public function delete(User $user, Property $property): bool
     {
-        // Only admins can delete properties
+        // Superadmin can delete any property
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
+        // Only admins can delete properties within their tenant
         if ($user->role === UserRole::ADMIN) {
             return $property->tenant_id === $user->tenant_id;
         }
@@ -82,8 +113,17 @@ class PropertyPolicy
      */
     public function restore(User $user, Property $property): bool
     {
-        // Only admins can restore properties
-        return $user->role === UserRole::ADMIN;
+        // Superadmin can restore any property
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
+        // Only admins can restore properties within their tenant
+        if ($user->role === UserRole::ADMIN) {
+            return $property->tenant_id === $user->tenant_id;
+        }
+
+        return false;
     }
 
     /**
@@ -91,7 +131,7 @@ class PropertyPolicy
      */
     public function forceDelete(User $user, Property $property): bool
     {
-        // Only admins can force delete properties
-        return $user->role === UserRole::ADMIN;
+        // Only superadmin can force delete properties
+        return $user->role === UserRole::SUPERADMIN;
     }
 }

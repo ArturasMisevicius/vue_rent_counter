@@ -1,0 +1,102 @@
+<?php
+
+namespace App\Models;
+
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Subscription extends Model
+{
+    use HasFactory;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'user_id',
+        'plan_type',
+        'status',
+        'starts_at',
+        'expires_at',
+        'max_properties',
+        'max_tenants',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'starts_at' => 'datetime',
+        'expires_at' => 'datetime',
+        'max_properties' => 'integer',
+        'max_tenants' => 'integer',
+    ];
+
+    /**
+     * Get the user that owns the subscription.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Check if the subscription is currently active.
+     */
+    public function isActive(): bool
+    {
+        return $this->status === 'active' 
+            && $this->expires_at->isFuture();
+    }
+
+    /**
+     * Check if the subscription has expired.
+     */
+    public function isExpired(): bool
+    {
+        return $this->expires_at->isPast();
+    }
+
+    /**
+     * Get the number of days until the subscription expires.
+     * Returns negative number if already expired.
+     */
+    public function daysUntilExpiry(): int
+    {
+        return now()->diffInDays($this->expires_at, false);
+    }
+
+    /**
+     * Check if the user can add another property within subscription limits.
+     */
+    public function canAddProperty(): bool
+    {
+        if (!$this->isActive()) {
+            return false;
+        }
+
+        $currentPropertyCount = $this->user->properties()->count();
+        
+        return $currentPropertyCount < $this->max_properties;
+    }
+
+    /**
+     * Check if the user can add another tenant within subscription limits.
+     */
+    public function canAddTenant(): bool
+    {
+        if (!$this->isActive()) {
+            return false;
+        }
+
+        $currentTenantCount = $this->user->childUsers()->where('role', 'tenant')->count();
+        
+        return $currentTenantCount < $this->max_tenants;
+    }
+}
