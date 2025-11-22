@@ -194,9 +194,17 @@ test('logout invalidates session', function () {
 });
 
 test('authenticated admin can access admin dashboard', function () {
-    // Create and authenticate admin
+    // Create and authenticate admin with active subscription
     $admin = User::factory()->create([
         'role' => UserRole::ADMIN,
+    ]);
+    
+    // Create active subscription for admin
+    \App\Models\Subscription::factory()->create([
+        'user_id' => $admin->id,
+        'status' => 'active',
+        'starts_at' => now(),
+        'expires_at' => now()->addYear(),
     ]);
     
     $this->actingAs($admin);

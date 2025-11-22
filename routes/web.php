@@ -3,7 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Superadmin\DashboardController as SuperadminDashboardController;
+use App\Http\Controllers\Superadmin\OrganizationController as SuperadminOrganizationController;
+use App\Http\Controllers\Superadmin\SubscriptionController as SuperadminSubscriptionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\TenantController as AdminTenantController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\ProviderController as AdminProviderController;
 use App\Http\Controllers\Admin\TariffController as AdminTariffController;
@@ -48,12 +53,56 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
 // ============================================================================
+// SUPERADMIN ROUTES
+// ============================================================================
+Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {
+    
+    // Dashboard
+    Route::get('/dashboard', [SuperadminDashboardController::class, 'index'])->name('dashboard');
+    
+    // Organization Management
+    Route::get('organizations', [SuperadminOrganizationController::class, 'index'])->name('organizations.index');
+    Route::get('organizations/create', [SuperadminOrganizationController::class, 'create'])->name('organizations.create');
+    Route::post('organizations', [SuperadminOrganizationController::class, 'store'])->name('organizations.store');
+    Route::get('organizations/{user}', [SuperadminOrganizationController::class, 'show'])->name('organizations.show');
+    Route::get('organizations/{user}/edit', [SuperadminOrganizationController::class, 'edit'])->name('organizations.edit');
+    Route::put('organizations/{user}', [SuperadminOrganizationController::class, 'update'])->name('organizations.update');
+    Route::delete('organizations/{user}', [SuperadminOrganizationController::class, 'destroy'])->name('organizations.destroy');
+    
+    // Subscription Management
+    Route::get('subscriptions', [SuperadminSubscriptionController::class, 'index'])->name('subscriptions.index');
+    Route::get('subscriptions/{subscription}', [SuperadminSubscriptionController::class, 'show'])->name('subscriptions.show');
+    Route::get('subscriptions/{subscription}/edit', [SuperadminSubscriptionController::class, 'edit'])->name('subscriptions.edit');
+    Route::put('subscriptions/{subscription}', [SuperadminSubscriptionController::class, 'update'])->name('subscriptions.update');
+    Route::post('subscriptions/{subscription}/renew', [SuperadminSubscriptionController::class, 'renew'])->name('subscriptions.renew');
+    Route::post('subscriptions/{subscription}/suspend', [SuperadminSubscriptionController::class, 'suspend'])->name('subscriptions.suspend');
+    Route::post('subscriptions/{subscription}/cancel', [SuperadminSubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+});
+
+// ============================================================================
 // ADMIN ROUTES
 // ============================================================================
 Route::middleware(['auth', 'role:admin', 'subscription.check'])->prefix('admin')->name('admin.')->group(function () {
     
     // Dashboard
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    
+    // Profile Management
+    Route::get('profile', [AdminProfileController::class, 'show'])->name('profile.show');
+    Route::put('profile', [AdminProfileController::class, 'update'])->name('profile.update');
+    
+    // Tenant Management
+    Route::get('tenants', [AdminTenantController::class, 'index'])->name('tenants.index');
+    Route::get('tenants/create', [AdminTenantController::class, 'create'])->name('tenants.create');
+    Route::post('tenants', [AdminTenantController::class, 'store'])->name('tenants.store');
+    Route::get('tenants/{user}', [AdminTenantController::class, 'show'])->name('tenants.show');
+    Route::get('tenants/{user}/edit', [AdminTenantController::class, 'edit'])->name('tenants.edit');
+    Route::put('tenants/{user}', [AdminTenantController::class, 'update'])->name('tenants.update');
+    Route::delete('tenants/{user}', [AdminTenantController::class, 'destroy'])->name('tenants.destroy');
+    Route::get('tenants/{user}/reassign', [AdminTenantController::class, 'showReassignForm'])->name('tenants.reassign');
+    Route::post('tenants/{user}/reassign', [AdminTenantController::class, 'reassign'])->name('tenants.reassign.store');
+    Route::post('tenants/{user}/deactivate', [AdminTenantController::class, 'deactivate'])->name('tenants.deactivate');
+    Route::post('tenants/{user}/reactivate', [AdminTenantController::class, 'reactivate'])->name('tenants.reactivate');
     
     // User Management
     Route::resource('users', AdminUserController::class);

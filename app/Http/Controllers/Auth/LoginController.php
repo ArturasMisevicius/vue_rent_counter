@@ -21,12 +21,21 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
-
             $user = Auth::user();
             
-            // Redirect based on role
+            // Check if account is deactivated (Requirements: 7.1, 8.4)
+            if (!$user->is_active) {
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => 'Your account has been deactivated. Please contact your administrator for assistance.',
+                ])->onlyInput('email');
+            }
+
+            $request->session()->regenerate();
+            
+            // Redirect based on role (Requirements: 1.1, 8.1)
             return match($user->role->value) {
+                'superadmin' => redirect()->intended('/superadmin/dashboard'),
                 'admin' => redirect()->intended('/admin/dashboard'),
                 'manager' => redirect()->intended('/manager/dashboard'),
                 'tenant' => redirect()->intended('/tenant/dashboard'),

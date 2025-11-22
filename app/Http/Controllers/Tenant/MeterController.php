@@ -11,9 +11,11 @@ class MeterController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $tenant = $user->tenant ?? null;
-        $property = $tenant?->property;
         
+        // Get assigned property from hierarchical user model
+        $property = $user->property;
+        
+        // Verify property_id filtering is applied
         $meters = $property 
             ? $property->meters()->with(['readings' => function ($query) {
                 $query->latest('reading_date')->limit(1);
@@ -26,11 +28,13 @@ class MeterController extends Controller
     public function show(Request $request, Meter $meter)
     {
         $user = $request->user();
-        $tenant = $user->tenant ?? null;
-        $property = $tenant?->property;
         
+        // Get assigned property from hierarchical user model
+        $property = $user->property;
+        
+        // Verify property_id filtering - tenant can only view meters for their assigned property
         if (!$property || $meter->property_id !== $property->id) {
-            abort(403);
+            abort(403, 'You do not have permission to view this meter.');
         }
 
         // Eager load readings and property for the meter

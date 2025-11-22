@@ -215,9 +215,9 @@ test('BuildingResource create page automatically assigns tenant_id from authenti
     expect($createdBuilding->total_apartments)->toBe($totalApartments);
 })->repeat(100);
 
-// Feature: filament-admin-panel, Property 16: Tenant scope isolation for buildings
-// Validates: Requirements 7.1
-test('Admin users can access buildings from all tenants', function () {
+// Feature: hierarchical-user-management, Property 1: Superadmin unrestricted access
+// Validates: Requirements 1.4, 12.2, 13.1
+test('Superadmin users can access buildings from all tenants', function () {
     // Generate random tenant IDs
     $tenantId1 = fake()->numberBetween(1, 1000);
     $tenantId2 = fake()->numberBetween(1001, 2000);
@@ -235,24 +235,24 @@ test('Admin users can access buildings from all tenants', function () {
         'total_apartments' => fake()->numberBetween(5, 100),
     ]);
     
-    // Create an admin user (admins have null tenant_id)
-    $admin = User::factory()->create([
-        'role' => UserRole::ADMIN,
+    // Create a superadmin user (superadmins have null tenant_id)
+    $superadmin = User::factory()->create([
+        'role' => UserRole::SUPERADMIN,
         'tenant_id' => null,
     ]);
     
-    // Act as admin
-    $this->actingAs($admin);
+    // Act as superadmin
+    $this->actingAs($superadmin);
     session(['tenant_id' => null]);
     
-    // Property: Admin should be able to see buildings from all tenants
+    // Property: Superadmin should be able to see buildings from all tenants
     $component = Livewire::test(BuildingResource\Pages\ListBuildings::class);
     
     $component->assertSuccessful();
     
     $tableRecords = $component->instance()->getTableRecords();
     
-    // Property: Admin should see at least the two buildings we created
+    // Property: Superadmin should see at least the two buildings we created
     expect($tableRecords->count())->toBeGreaterThanOrEqual(2);
     
     // Verify both buildings are accessible
@@ -260,7 +260,7 @@ test('Admin users can access buildings from all tenants', function () {
     expect($tableRecordIds)->toContain($building1->id);
     expect($tableRecordIds)->toContain($building2->id);
     
-    // Property: Admin should be able to edit buildings from any tenant
+    // Property: Superadmin should be able to edit buildings from any tenant
     $component1 = Livewire::test(BuildingResource\Pages\EditBuilding::class, [
         'record' => $building1->id,
     ]);

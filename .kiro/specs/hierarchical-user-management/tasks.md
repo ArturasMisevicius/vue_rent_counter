@@ -96,8 +96,16 @@
     - **Property 13: Audit logging completeness**
     - **Validates: Requirements 1.5, 14.1, 14.2, 14.3, 14.4**
 
-- [x] 4. Implement HierarchicalScope
+- [ ] 4. Implement HierarchicalScope
+
+
+
+
+
+
   - [x] 4.1 Create HierarchicalScope class
+
+
     - Implement apply() method with role-based filtering
     - Superadmin: no filtering
     - Admin: filter by tenant_id
@@ -105,6 +113,8 @@
     - _Requirements: 12.1, 12.2, 12.3, 12.4_
   
   - [x] 4.2 Apply HierarchicalScope to relevant models
+
+
     - Add scope to Property, Building, Meter, MeterReading, Invoice models
     - Ensure scope is applied in booted() method
     - _Requirements: 3.3, 4.3, 8.2, 9.1, 11.1_
@@ -113,16 +123,22 @@
     - **Property 1: Superadmin unrestricted access**
     - **Validates: Requirements 1.4, 12.2, 13.1**
   
-  - [ ]* 4.4 Write property test for admin tenant isolation
+  - [x] 4.4 Write property test for admin tenant isolation
     - **Property 2: Admin tenant isolation**
     - **Validates: Requirements 3.3, 4.3, 12.3**
   
-  - [ ]* 4.5 Write property test for tenant property isolation
+  - [ ] 4.5 Write property test for tenant property isolation
+
+
     - **Property 3: Tenant property isolation**
     - **Validates: Requirements 8.2, 9.1, 11.1, 12.4**
 
-- [x] 5. Update authorization policies
+- [-] 5. Update authorization policies
+
+
+
   - [x] 5.1 Update UserPolicy with hierarchical checks
+
     - Update viewAny() to respect role hierarchy
     - Update view() to check parent-child relationships
     - Update create() to allow superadmin→admin, admin→tenant
@@ -130,16 +146,20 @@
     - _Requirements: 13.1, 13.2, 13.3, 13.4_
   
   - [x] 5.2 Update PropertyPolicy with admin ownership checks
+
     - Verify property belongs to admin's tenant_id
     - Allow tenant to view only their assigned property
     - _Requirements: 4.3, 8.2_
   
   - [x] 5.3 Create SubscriptionPolicy
+
     - Implement view(), update(), renew() methods
     - Allow superadmin full access, admin can view/renew own
     - _Requirements: 2.5, 15.3_
   
-  - [x] 5.4 Update BuildingPolicy, MeterPolicy, InvoicePolicy
+  - [ ] 5.4 Update BuildingPolicy, MeterPolicy, InvoicePolicy
+
+
     - Add tenant_id ownership checks
     - Ensure tenant can only access their property's data
     - _Requirements: 4.5, 9.1, 11.1_
@@ -148,29 +168,33 @@
     - **Property 7: Cross-tenant access denial**
     - **Validates: Requirements 12.5, 13.3**
   
-  - [ ]* 5.6 Write property test for property assignment validation
+  - [x] 5.6 Write property test for property assignment validation
     - **Property 8: Property assignment validation**
     - **Validates: Requirements 5.3, 6.1**
   
-  - [ ]* 5.7 Write property test for user role-based permissions
+  - [x] 5.7 Write property test for user role-based permissions
     - **Property 18: User role-based permissions**
     - **Validates: Requirements 13.4**
+-
 
-- [x] 6. Create middleware for subscription and hierarchical access
-  - [x] 6.1 Create CheckSubscriptionStatus middleware
+- [ ] 6. Create middleware for subscription and hierarchical access
+
+  - [ ] 6.1 Create CheckSubscriptionStatus middleware
+
+
     - Check if user is admin role
     - Verify subscription exists and is active
     - Allow read-only for expired subscriptions
     - Redirect to subscription page if needed
     - _Requirements: 3.4, 3.5_
   
-  - [x] 6.2 Create EnsureHierarchicalAccess middleware
+  - [ ] 6.2 Create EnsureHierarchicalAccess middleware
     - Validate user can access requested resource
     - Check tenant_id and property_id relationships
     - Return 403 if access denied
     - _Requirements: 12.5, 13.3_
   
-  - [x] 6.3 Register middleware in HTTP Kernel
+  - [ ] 6.3 Register middleware in HTTP Kernel
     - Add to route middleware groups
     - Apply to appropriate route groups
     - _Requirements: 3.4, 12.5_
@@ -185,12 +209,20 @@
     - InvalidPropertyAssignmentException
     - CannotDeleteWithDependenciesException
     - _Requirements: 7.1, 5.3, 7.5_
-
-- [x] 8. Implement Superadmin dashboard and management interfaces
-
+- [-] 8. Implement Superadmin dashboard and management interfaces
 
 
-  - [x] 8.1 Create SuperadminController with dashboard method
+
+
+
+
+
+- [ ] 8. Implement Superadmin dashboard and management interfaces
+
+
+
+  - [-] 8.1 Create SuperadminController with dashboard method
+
 
 
     - Display statistics across all organizations
@@ -232,11 +264,14 @@
     - Renewal and cancellation actions
     - _Requirements: 2.4, 2.5_
   
-  - [ ]* 8.6 Write property test for data aggregation accuracy
+  - [ ] 8.6 Write property test for data aggregation accuracy
+
+
     - **Property 19: Data aggregation accuracy**
     - **Validates: Requirements 17.1, 17.3, 18.1**
 
 - [x] 9. Implement Admin dashboard and tenant management
+
 
 
 
@@ -249,8 +284,8 @@
     - Display usage statistics against subscription limits
     - _Requirements: 18.1, 18.2, 15.3_
   
-  - [x] 9.2 Update admin dashboard view
 
+  - [x] 9.2 Update admin dashboard view
 
     - Update resources/views/admin/dashboard.blade.php to show subscription status
     - Add subscription limit indicators (properties used/max, tenants used/max)
@@ -274,6 +309,7 @@
   
   - [x] 9.5 Implement account activation/deactivation UI
 
+
     - Add toggle active status button in tenant views
     - Display active/inactive indicators in tenant list
     - Show deactivation reason and date
@@ -287,15 +323,12 @@
     - Show renewal reminders
     - _Requirements: 15.1, 15.2, 15.4_
   
-  - [ ]* 9.7 Write property test for resource creation inherits tenant_id
+  - [x] 9.7 Write property test for resource creation inherits tenant_id
     - **Property 6: Resource creation inherits tenant_id**
     - **Validates: Requirements 4.1, 4.4, 13.2**
 
-- [-] 10. Implement Tenant dashboard and profile
-
-
-  - [x] 10.1 Update Tenant/DashboardController dashboard method
-
+- [ ] 10. Implement Tenant dashboard and profile
+  - [ ] 10.1 Update Tenant/DashboardController dashboard method
     - Display assigned property information
     - Show current meter readings and consumption
     - Display unpaid invoice balance
@@ -326,11 +359,11 @@
     - Ensure password change functionality works
     - _Requirements: 16.1, 16.2, 16.3, 16.4_
   
-  - [ ]* 10.6 Write property test for profile data completeness
+  - [x] 10.6 Write property test for profile data completeness
     - **Property 20: Profile data completeness**
     - **Validates: Requirements 15.1, 16.1**
 
-- [ ] 11. Implement email notifications
+- [x] 11. Implement email notifications
   - [x] 11.1 Create WelcomeEmail notification
     - Send to new tenant accounts
     - Include login credentials and property information
@@ -341,17 +374,17 @@
     - Include old and new property details
     - _Requirements: 6.5_
   
-  - [ ] 11.3 Create SubscriptionExpiryWarningEmail notification
+  - [x] 11.3 Create SubscriptionExpiryWarningEmail notification
     - Send when subscription is near expiry
     - Include renewal instructions
     - _Requirements: 15.4_
   
-  - [ ] 11.4 Create MeterReadingSubmittedEmail notification
+  - [x] 11.4 Create MeterReadingSubmittedEmail notification
     - Send to admin when tenant submits reading
     - Include reading details
     - _Requirements: 10.4_
   
-  - [ ]* 11.5 Write property test for email notifications
+  - [x] 11.5 Write property test for email notifications
     - **Property 16: Email notification on account actions**
     - **Validates: Requirements 5.4, 6.5**
 
@@ -368,39 +401,39 @@
     - Apply CheckSubscriptionStatus middleware only to admin routes, not superadmin
     - _Requirements: 1.1, 3.4, 8.2_
   
-  - [ ]* 12.3 Write property test for account deactivation prevents login
+  - [x] 12.3 Write property test for account deactivation prevents login
     - **Property 11: Account deactivation prevents login**
     - **Validates: Requirements 7.1, 8.4**
   
-  - [ ]* 12.4 Write property test for account reactivation restores login
+  - [x] 12.4 Write property test for account reactivation restores login
     - **Property 12: Account reactivation restores login**
     - **Validates: Requirements 7.3**
 
-- [ ] 13. Create database seeders and factories
+- [x] 13. Create database seeders and factories
   - [x] 13.1 Create SubscriptionFactory
     - Generate subscriptions with various statuses and plans
     - _Requirements: 2.3, 2.4_
   
-  - [ ] 13.2 Update UserFactory for hierarchical users
+  - [x] 13.2 Update UserFactory for hierarchical users
     - Update to generate superadmin, admin, and tenant users
     - Set appropriate tenant_id and property_id
     - Set parent_user_id for tenants
     - Set organization_name for admins
     - _Requirements: 2.2, 5.2_
   
-  - [ ] 13.3 Create HierarchicalUsersSeeder
+  - [x] 13.3 Create HierarchicalUsersSeeder
     - Seed one superadmin account (email: superadmin@example.com)
     - Seed multiple admins with subscriptions and organization names
     - Seed tenants for each admin with property assignments
     - _Requirements: 1.1, 2.1, 5.1_
   
-  - [ ] 13.4 Update existing seeders to respect tenant_id
+  - [x] 13.4 Update existing seeders to respect tenant_id
     - Update TestUsersSeeder, TestPropertiesSeeder, TestBuildingsSeeder
     - Ensure all seeded data has appropriate tenant_id
     - _Requirements: 4.1, 4.4_
 
-- [ ] 14. Create data migration command
-  - [ ] 14.1 Create MigrateToHierarchicalUsersCommand
+- [x] 14. Create data migration command
+  - [x] 14.1 Create MigrateToHierarchicalUsersCommand
     - Create artisan command to update existing data
     - Assign unique tenant_id to existing admin/manager users
     - Convert existing 'manager' role to 'admin' role
@@ -408,31 +441,28 @@
     - Set is_active = true for all existing users
     - _Requirements: 2.2, 3.2_
   
-  - [ ] 14.2 Add rollback functionality to command
+  - [x] 14.2 Add rollback functionality to command
     - Add --rollback option to revert changes if needed
     - _Requirements: N/A (deployment safety)_
 
-- [ ] 15. Checkpoint - Ensure all tests pass
+- [ ] 15. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 16. Update documentation
-  - [ ] 16.1 Update README.md with hierarchical user structure
+- [x] 16. Update documentation
+  - [x] 16.1 Update README.md with hierarchical user structure
     - Document three-tier hierarchy (Superadmin → Admin → Tenant)
     - Explain subscription model and limits
     - Document new user roles and their permissions
     - _Requirements: N/A (documentation)_
   
-  - [ ] 16.2 Create HIERARCHICAL_USER_GUIDE.md
+  - [x] 16.2 Create HIERARCHICAL_USER_GUIDE.md
     - Superadmin guide for managing organizations and subscriptions
     - Admin guide for managing tenants and properties
     - Tenant guide for using the system
     - _Requirements: N/A (documentation)_
   
-  - [ ] 16.3 Update SETUP.md with migration instructions
+  - [x] 16.3 Update SETUP.md with migration instructions
     - Document how to run MigrateToHierarchicalUsersCommand
     - Document how to seed hierarchical users
     - Document new environment variables for subscription limits
     - _Requirements: N/A (documentation)_
-
-- [ ] 17. Final checkpoint - Ensure all tests pass
-  - Ensure all tests pass, ask the user if questions arise.

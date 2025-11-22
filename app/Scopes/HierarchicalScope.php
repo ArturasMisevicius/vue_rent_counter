@@ -3,6 +3,7 @@
 namespace App\Scopes;
 
 use App\Enums\UserRole;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
@@ -12,75 +13,84 @@ class HierarchicalScope implements Scope
 {
     /**
      * Apply the scope to a given Eloquent query builder.
-     * 
-     * Filters data based on user role:
-     * - Superadmin: no filtering (sees all data)
-     * - Admin: filters by tenant_id
-     * - Tenant: filters by tenant_id and property_id
-     * 
-     * Falls back to session-based tenant_id if no authenticated user.
      */
     public function apply(Builder $builder, Model $model): void
     {
         $user = Auth::user();
 
-        // If authenticated user exists, use role-based filtering
-        if ($user) {
-            // Superadmin sees everything - no filtering
-            if ($user->role === UserRole::SUPERADMIN) {
-                return;
-            }
+        if (!$user instanceof User) {
+            return;
+        }
 
-            // Admin and Manager roles filter by tenant_id
-            if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Apply role-based filtering
+        switch ($user->role) {
+            case UserRole::SUPERADMIN:
+                // Superadmin: no filtering - can see all data
+                break;
+
+            case UserRole::ADMIN:
+            case UserRole::MANAGER:
+                // Admin/Manager: filter by tenant_id
                 if ($user->tenant_id !== null) {
                     $builder->where($model->qualifyColumn('tenant_id'), '=', $user->tenant_id);
                 }
-                return;
-            }
+                break;
 
-            // Tenant role filters by both tenant_id and property_id
-            if ($user->role === UserRole::TENANT) {
+            case UserRole::TENANT:
+                // Tenant: filter by tenant_id and property_id
                 if ($user->tenant_id !== null) {
                     $builder->where($model->qualifyColumn('tenant_id'), '=', $user->tenant_id);
                 }
                 
-                // Additionally filter by property_id if the model has this column
-                if ($user->property_id !== null) {
-                    if ($this->modelHasPropertyId($model)) {
-                        // Model has property_id column (e.g., Meter, Tenant)
+                // Additional property_id filtering for tenant role
+                if ($user->property_id !== null && $model->getTable() !== 'users') {
+                    // Check if the model has a property_id column
+                    if (in_array('property_id', $model->getFillable()) || 
+                        $model->getConnection()->getSchemaBuilder()->hasColumn($model->getTable(), 'property_id')) {
                         $builder->where($model->qualifyColumn('property_id'), '=', $user->property_id);
-                    } elseif ($model->getTable() === 'properties') {
-                        // Special case: Property model - filter by id
-                        $builder->where($model->qualifyColumn('id'), '=', $user->property_id);
                     }
                 }
-                return;
-            }
-        }
-
-        // Fall back to session-based tenant_id (for backward compatibility and testing)
-        $tenantId = $this->getTenantId();
-        if ($tenantId !== null) {
-            $builder->where($model->qualifyColumn('tenant_id'), '=', $tenantId);
+                break;
         }
     }
 
     /**
-     * Get the current tenant ID from session.
+     * Determine if the scope should be applied to the given model.
      */
-    protected function getTenantId(): ?int
+    public function shouldApplyScope(User $user): bool
     {
-        return session('tenant_id');
+        return $user->role !== UserRole::SUPERADMIN;
     }
 
     /**
-     * Check if the model has a property_id column.
+     * Get the filtering criteria for the given user.
      */
-    protected function modelHasPropertyId(Model $model): bool
+    public function getFilterCriteria(User $user): array
     {
-        // Check if property_id is in the fillable array
-        // This is more reliable than checking attributes which may not be set yet
-        return in_array('property_id', $model->getFillable());
+        $criteria = [];
+
+        switch ($user->role) {
+            case UserRole::SUPERADMIN:
+                // No filtering criteria
+                break;
+
+            case UserRole::ADMIN:
+            case UserRole::MANAGER:
+                if ($user->tenant_id !== null) {
+                    $criteria['tenant_id'] = $user->tenant_id;
+                }
+                break;
+
+            case UserRole::TENANT:
+                if ($user->tenant_id !== null) {
+                    $criteria['tenant_id'] = $user->tenant_id;
+                }
+                if ($user->property_id !== null) {
+                    $criteria['property_id'] = $user->property_id;
+                }
+                break;
+        }
+
+        return $criteria;
     }
 }

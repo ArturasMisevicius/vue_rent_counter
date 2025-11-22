@@ -10,17 +10,24 @@ class PropertyController extends Controller
     public function show(Request $request)
     {
         $user = $request->user();
-        $tenant = $user->tenant ?? null;
-        $property = $tenant?->property;
+        
+        // Get assigned property from hierarchical user model
+        $property = $user->property;
+        
+        // Eager load relationships
+        if ($property) {
+            $property->load(['meters', 'building']);
+        }
 
-        return view('tenant.property.show', compact('property', 'tenant'));
+        return view('tenant.property.show', compact('property'));
     }
 
     public function meters(Request $request)
     {
         $user = $request->user();
-        $tenant = $user->tenant ?? null;
-        $property = $tenant?->property;
+        
+        // Get assigned property from hierarchical user model
+        $property = $user->property;
         $meters = $property?->meters ?? collect();
 
         return view('tenant.property.meters', compact('meters', 'property'));
