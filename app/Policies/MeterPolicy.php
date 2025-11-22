@@ -21,6 +21,8 @@ class MeterPolicy
      * Determine whether the user can view the meter.
      * Adds tenant_id ownership checks.
      * Ensures tenant can only access their property's meters.
+     * 
+     * Requirements: 9.1, 13.3
      */
     public function view(User $user, Meter $meter): bool
     {
@@ -77,6 +79,8 @@ class MeterPolicy
 
     /**
      * Determine whether the user can delete the meter.
+     * 
+     * Requirements: 9.1, 13.3
      */
     public function delete(User $user, Meter $meter): bool
     {
@@ -85,8 +89,8 @@ class MeterPolicy
             return true;
         }
 
-        // Only admins can delete meters within their tenant
-        if ($user->role === UserRole::ADMIN) {
+        // Admins and managers can delete meters within their tenant (Requirement 9.1, 13.3)
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $meter->property->tenant_id === $user->tenant_id;
         }
 
@@ -95,6 +99,8 @@ class MeterPolicy
 
     /**
      * Determine whether the user can restore the meter.
+     * 
+     * Requirements: 9.1, 13.3
      */
     public function restore(User $user, Meter $meter): bool
     {
@@ -103,8 +109,8 @@ class MeterPolicy
             return true;
         }
 
-        // Only admins can restore meters within their tenant
-        if ($user->role === UserRole::ADMIN) {
+        // Admins and managers can restore meters within their tenant (Requirement 9.1, 13.3)
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $meter->property->tenant_id === $user->tenant_id;
         }
 

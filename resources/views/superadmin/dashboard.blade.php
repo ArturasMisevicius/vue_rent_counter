@@ -169,8 +169,8 @@
                         <div class="text-sm text-gray-600">{{ $admin->email }}</div>
                     </div>
                     <div class="text-right">
-                        <div class="text-sm text-gray-600">Last login:</div>
-                        <div class="text-sm font-medium">{{ $admin->last_login_at?->diffForHumans() ?? 'Never' }}</div>
+                        <div class="text-sm text-gray-600">Last activity:</div>
+                        <div class="text-sm font-medium">{{ $admin->updated_at->diffForHumans() }}</div>
                     </div>
                 </div>
                 @empty

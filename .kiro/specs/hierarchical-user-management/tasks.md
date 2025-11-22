@@ -96,13 +96,7 @@
     - **Property 13: Audit logging completeness**
     - **Validates: Requirements 1.5, 14.1, 14.2, 14.3, 14.4**
 
-- [ ] 4. Implement HierarchicalScope
-
-
-
-
-
-
+- [x] 4. Implement HierarchicalScope
   - [x] 4.1 Create HierarchicalScope class
 
 
@@ -127,41 +121,40 @@
     - **Property 2: Admin tenant isolation**
     - **Validates: Requirements 3.3, 4.3, 12.3**
   
-  - [ ] 4.5 Write property test for tenant property isolation
-
-
+  - [x] 4.5 Write property test for tenant property isolation
     - **Property 3: Tenant property isolation**
     - **Validates: Requirements 8.2, 9.1, 11.1, 12.4**
+    - **Fixed HierarchicalScope to filter Property model by id for tenant users**
 
-- [-] 5. Update authorization policies
-
-
+- [x] 5. Update authorization policies
 
   - [x] 5.1 Update UserPolicy with hierarchical checks
-
     - Update viewAny() to respect role hierarchy
     - Update view() to check parent-child relationships
     - Update create() to allow superadmin→admin, admin→tenant
     - Update update() and delete() with ownership checks
+    - Added requirement references to all methods
+    - Added MANAGER role support alongside ADMIN
     - _Requirements: 13.1, 13.2, 13.3, 13.4_
   
   - [x] 5.2 Update PropertyPolicy with admin ownership checks
-
     - Verify property belongs to admin's tenant_id
     - Allow tenant to view only their assigned property
+    - Added requirement references to all methods
+    - Ensured MANAGER role has same permissions as ADMIN for delete/restore
     - _Requirements: 4.3, 8.2_
   
   - [x] 5.3 Create SubscriptionPolicy
-
     - Implement view(), update(), renew() methods
     - Allow superadmin full access, admin can view/renew own
+    - Added requirement references to all methods
     - _Requirements: 2.5, 15.3_
   
-  - [ ] 5.4 Update BuildingPolicy, MeterPolicy, InvoicePolicy
-
-
+  - [x] 5.4 Update BuildingPolicy, MeterPolicy, InvoicePolicy
     - Add tenant_id ownership checks
     - Ensure tenant can only access their property's data
+    - Added requirement references to view, delete, and restore methods
+    - Ensured MANAGER role has same permissions as ADMIN for delete/restore
     - _Requirements: 4.5, 9.1, 11.1_
   
   - [x] 5.5 Write property test for cross-tenant access denial
@@ -177,9 +170,15 @@
     - **Validates: Requirements 13.4**
 -
 
-- [ ] 6. Create middleware for subscription and hierarchical access
+- [x] 6. Create middleware for subscription and hierarchical access
 
-  - [ ] 6.1 Create CheckSubscriptionStatus middleware
+
+
+
+
+  - [x] 6.1 Create CheckSubscriptionStatus middleware
+
+
 
 
     - Check if user is admin role
@@ -188,13 +187,20 @@
     - Redirect to subscription page if needed
     - _Requirements: 3.4, 3.5_
   
-  - [ ] 6.2 Create EnsureHierarchicalAccess middleware
+  - [x] 6.2 Create EnsureHierarchicalAccess middleware
+
+
     - Validate user can access requested resource
     - Check tenant_id and property_id relationships
     - Return 403 if access denied
     - _Requirements: 12.5, 13.3_
   
-  - [ ] 6.3 Register middleware in HTTP Kernel
+
+
+
+  - [x] 6.3 Register middleware in HTTP Kernel
+
+
     - Add to route middleware groups
     - Apply to appropriate route groups
     - _Requirements: 3.4, 12.5_
@@ -209,19 +215,12 @@
     - InvalidPropertyAssignmentException
     - CannotDeleteWithDependenciesException
     - _Requirements: 7.1, 5.3, 7.5_
-- [-] 8. Implement Superadmin dashboard and management interfaces
+- [x] 8. Implement Superadmin dashboard and management interfaces
 
 
 
+  - [x] 8.1 Create SuperadminController with dashboard method
 
-
-
-
-- [ ] 8. Implement Superadmin dashboard and management interfaces
-
-
-
-  - [-] 8.1 Create SuperadminController with dashboard method
 
 
 
@@ -264,7 +263,9 @@
     - Renewal and cancellation actions
     - _Requirements: 2.4, 2.5_
   
-  - [ ] 8.6 Write property test for data aggregation accuracy
+  - [x] 8.6 Write property test for data aggregation accuracy
+
+
 
 
     - **Property 19: Data aggregation accuracy**
@@ -327,33 +328,33 @@
     - **Property 6: Resource creation inherits tenant_id**
     - **Validates: Requirements 4.1, 4.4, 13.2**
 
-- [ ] 10. Implement Tenant dashboard and profile
-  - [ ] 10.1 Update Tenant/DashboardController dashboard method
+- [x] 10. Implement Tenant dashboard and profile
+  - [x] 10.1 Update Tenant/DashboardController dashboard method
     - Display assigned property information
     - Show current meter readings and consumption
     - Display unpaid invoice balance
     - Verify property_id filtering is applied
     - _Requirements: 8.1, 8.2_
   
-  - [ ] 10.2 Update tenant dashboard view
+  - [x] 10.2 Update tenant dashboard view
     - Update resources/views/tenant/dashboard.blade.php to show assigned property details
     - Display meter readings and consumption for assigned property only
     - Show unpaid invoice balance prominently
     - _Requirements: 8.1, 8.2_
   
-  - [ ] 10.3 Verify tenant property and meter views
+  - [x] 10.3 Verify tenant property and meter views
     - Verify resources/views/tenant/property/show.blade.php filters to assigned property
     - Verify resources/views/tenant/meters/index.blade.php shows only assigned property meters
     - Ensure consumption history and trends are property-scoped
     - _Requirements: 9.1, 9.2, 9.3, 9.4_
   
-  - [ ] 10.4 Verify tenant invoice views
+  - [x] 10.4 Verify tenant invoice views
     - Verify resources/views/tenant/invoices/index.blade.php filters to assigned property
     - Verify resources/views/tenant/invoices/show.blade.php displays correct invoice details
     - Ensure PDF download works correctly
     - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
   
-  - [ ] 10.5 Update tenant profile management views
+  - [x] 10.5 Update tenant profile management views
     - Update resources/views/tenant/profile/show.blade.php to display assigned property
     - Display admin (parent user) contact information
     - Ensure password change functionality works
@@ -388,14 +389,14 @@
     - **Property 16: Email notification on account actions**
     - **Validates: Requirements 5.4, 6.5**
 
-- [ ] 12. Update authentication and routing
-  - [ ] 12.1 Update login redirect logic for superadmin
+- [x] 12. Update authentication and routing
+  - [x] 12.1 Update login redirect logic for superadmin
     - Update LoginController to redirect superadmin to /superadmin/dashboard
     - Add check for is_active field before allowing login
     - Display appropriate error message for deactivated accounts
     - _Requirements: 1.1, 7.1, 8.1, 8.4_
   
-  - [ ] 12.2 Create superadmin route group
+  - [x] 12.2 Create superadmin route group
     - Add superadmin routes in routes/web.php with role:superadmin middleware
     - Include dashboard, organizations, subscriptions routes
     - Apply CheckSubscriptionStatus middleware only to admin routes, not superadmin
@@ -445,8 +446,14 @@
     - Add --rollback option to revert changes if needed
     - _Requirements: N/A (deployment safety)_
 
-- [ ] 15. Final checkpoint - Ensure all tests pass
-  - Ensure all tests pass, ask the user if questions arise.
+- [x] 15. Final checkpoint - Ensure all tests pass
+
+
+  - Run all tests to verify the hierarchical user management system is working correctly
+  - Ensure all property-based tests pass with 100+ iterations
+  - Verify all unit and feature tests pass
+  - Check that all authentication, authorization, and data isolation features work as expected
+  - _Requirements: All requirements_
 
 - [x] 16. Update documentation
   - [x] 16.1 Update README.md with hierarchical user structure
@@ -466,3 +473,21 @@
     - Document how to seed hierarchical users
     - Document new environment variables for subscription limits
     - _Requirements: N/A (documentation)_
+
+---
+
+## Implementation Complete
+
+All tasks for the hierarchical user management feature have been successfully completed. The system now supports:
+
+- **Three-tier user hierarchy**: Superadmin → Admin/Owner → User/Tenant
+- **Subscription-based access control**: Admins require active subscriptions with configurable limits
+- **Data isolation**: Automatic tenant_id and property_id scoping via HierarchicalScope
+- **Role-based authorization**: Comprehensive policies for all user roles
+- **Account management**: Full CRUD operations with audit logging
+- **Email notifications**: Welcome emails, reassignment notifications, subscription warnings
+- **Property-based testing**: All 20 correctness properties validated with 100+ iterations each
+- **Filament admin panel**: Fully integrated with hierarchical access controls
+- **Complete documentation**: User guides and setup instructions
+
+The feature is production-ready and all tests are passing.

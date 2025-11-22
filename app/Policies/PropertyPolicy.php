@@ -10,6 +10,8 @@ class PropertyPolicy
 {
     /**
      * Determine whether the user can view any properties.
+     * 
+     * Requirements: 4.3, 8.2
      */
     public function viewAny(User $user): bool
     {
@@ -18,12 +20,12 @@ class PropertyPolicy
             return true;
         }
 
-        // Admins and managers can view properties (filtered by tenant scope)
+        // Admins and managers can view properties (filtered by tenant scope) (Requirement 4.3)
         if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return true;
         }
 
-        // Tenants can view their assigned property
+        // Tenants can view their assigned property (Requirement 8.2)
         if ($user->role === UserRole::TENANT) {
             return true;
         }
@@ -35,6 +37,8 @@ class PropertyPolicy
      * Determine whether the user can view the property.
      * Verifies property belongs to admin's tenant_id.
      * Allows tenant to view only their assigned property.
+     * 
+     * Requirements: 4.3, 8.2
      */
     public function view(User $user, Property $property): bool
     {
@@ -45,11 +49,11 @@ class PropertyPolicy
 
         // Admins and managers can view properties within their tenant
         if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
-            // Verify property belongs to admin's tenant_id
+            // Verify property belongs to admin's tenant_id (Requirement 4.3)
             return $property->tenant_id === $user->tenant_id;
         }
 
-        // Tenants can only view their assigned property
+        // Tenants can only view their assigned property (Requirement 8.2)
         if ($user->role === UserRole::TENANT) {
             // Check if this property is assigned to the tenant user
             return $user->property_id === $property->id;
@@ -60,6 +64,8 @@ class PropertyPolicy
 
     /**
      * Determine whether the user can create properties.
+     * 
+     * Requirements: 4.1, 13.2
      */
     public function create(User $user): bool
     {
@@ -68,12 +74,14 @@ class PropertyPolicy
             return true;
         }
 
-        // Admins and managers can create properties
+        // Admins and managers can create properties (Requirement 4.1, 13.2)
         return $user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER;
     }
 
     /**
      * Determine whether the user can update the property.
+     * 
+     * Requirements: 4.3, 13.3
      */
     public function update(User $user, Property $property): bool
     {
@@ -82,7 +90,7 @@ class PropertyPolicy
             return true;
         }
 
-        // Admins and managers can update properties within their tenant
+        // Admins and managers can update properties within their tenant (Requirement 4.3, 13.3)
         if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $property->tenant_id === $user->tenant_id;
         }
@@ -92,6 +100,8 @@ class PropertyPolicy
 
     /**
      * Determine whether the user can delete the property.
+     * 
+     * Requirements: 4.3, 13.3
      */
     public function delete(User $user, Property $property): bool
     {
@@ -100,8 +110,8 @@ class PropertyPolicy
             return true;
         }
 
-        // Only admins can delete properties within their tenant
-        if ($user->role === UserRole::ADMIN) {
+        // Admins and managers can delete properties within their tenant (Requirement 4.3, 13.3)
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $property->tenant_id === $user->tenant_id;
         }
 
@@ -110,6 +120,8 @@ class PropertyPolicy
 
     /**
      * Determine whether the user can restore the property.
+     * 
+     * Requirements: 4.3, 13.3
      */
     public function restore(User $user, Property $property): bool
     {
@@ -118,8 +130,8 @@ class PropertyPolicy
             return true;
         }
 
-        // Only admins can restore properties within their tenant
-        if ($user->role === UserRole::ADMIN) {
+        // Admins and managers can restore properties within their tenant (Requirement 4.3, 13.3)
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $property->tenant_id === $user->tenant_id;
         }
 
@@ -128,10 +140,12 @@ class PropertyPolicy
 
     /**
      * Determine whether the user can permanently delete the property.
+     * 
+     * Requirements: 13.1
      */
     public function forceDelete(User $user, Property $property): bool
     {
-        // Only superadmin can force delete properties
+        // Only superadmin can force delete properties (Requirement 13.1)
         return $user->role === UserRole::SUPERADMIN;
     }
 }

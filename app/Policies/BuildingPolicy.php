@@ -35,6 +35,8 @@ class BuildingPolicy
      * Determine whether the user can view the building.
      * Adds tenant_id ownership checks.
      * Ensures tenant can only access their property's building.
+     * 
+     * Requirements: 4.5, 9.1
      */
     public function view(User $user, Building $building): bool
     {
@@ -94,6 +96,8 @@ class BuildingPolicy
 
     /**
      * Determine whether the user can delete the building.
+     * 
+     * Requirements: 4.5, 13.3
      */
     public function delete(User $user, Building $building): bool
     {
@@ -102,8 +106,8 @@ class BuildingPolicy
             return true;
         }
 
-        // Only admins can delete buildings within their tenant
-        if ($user->role === UserRole::ADMIN) {
+        // Admins and managers can delete buildings within their tenant (Requirement 4.5, 13.3)
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $building->tenant_id === $user->tenant_id;
         }
 
@@ -112,6 +116,8 @@ class BuildingPolicy
 
     /**
      * Determine whether the user can restore the building.
+     * 
+     * Requirements: 4.5, 13.3
      */
     public function restore(User $user, Building $building): bool
     {
@@ -120,8 +126,8 @@ class BuildingPolicy
             return true;
         }
 
-        // Only admins can restore buildings within their tenant
-        if ($user->role === UserRole::ADMIN) {
+        // Admins and managers can restore buildings within their tenant (Requirement 4.5, 13.3)
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $building->tenant_id === $user->tenant_id;
         }
 

@@ -78,7 +78,6 @@ test('superadmin can access all resources across all tenant_ids', function () {
             
             $invoice = Invoice::factory()->create([
                 'tenant_id' => $admin->tenant_id,
-                'property_id' => $property->id,
             ]);
             $allInvoices[] = $invoice->id;
             

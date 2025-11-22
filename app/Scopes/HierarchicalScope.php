@@ -16,6 +16,11 @@ class HierarchicalScope implements Scope
      */
     public function apply(Builder $builder, Model $model): void
     {
+        // Don't apply scope if no user is authenticated (e.g., during login)
+        if (!Auth::check()) {
+            return;
+        }
+
         $user = Auth::user();
 
         if (!$user instanceof User) {
@@ -44,10 +49,15 @@ class HierarchicalScope implements Scope
                 
                 // Additional property_id filtering for tenant role
                 if ($user->property_id !== null && $model->getTable() !== 'users') {
-                    // Check if the model has a property_id column
-                    if (in_array('property_id', $model->getFillable()) || 
-                        $model->getConnection()->getSchemaBuilder()->hasColumn($model->getTable(), 'property_id')) {
-                        $builder->where($model->qualifyColumn('property_id'), '=', $user->property_id);
+                    // Special case: Property model - filter by id instead of property_id
+                    if ($model->getTable() === 'properties') {
+                        $builder->where($model->qualifyColumn('id'), '=', $user->property_id);
+                    } else {
+                        // Check if the model has a property_id column
+                        if (in_array('property_id', $model->getFillable()) || 
+                            $model->getConnection()->getSchemaBuilder()->hasColumn($model->getTable(), 'property_id')) {
+                            $builder->where($model->qualifyColumn('property_id'), '=', $user->property_id);
+                        }
                     }
                 }
                 break;

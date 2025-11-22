@@ -58,11 +58,10 @@ class DashboardController extends Controller
             ->count();
         $totalInvoices = Invoice::withoutGlobalScopes()->count();
         
-        // Get recent admin activity (last 10 logins)
+        // Get recent admin activity (last 10 created/updated)
         $recentActivity = User::withoutGlobalScopes()
             ->where('role', UserRole::ADMIN)
-            ->whereNotNull('last_login_at')
-            ->orderBy('last_login_at', 'desc')
+            ->orderBy('updated_at', 'desc')
             ->take(10)
             ->get();
         

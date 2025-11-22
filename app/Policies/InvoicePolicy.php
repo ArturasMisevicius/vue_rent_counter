@@ -21,6 +21,8 @@ class InvoicePolicy
      * Determine whether the user can view the invoice.
      * Adds tenant_id ownership checks.
      * Ensures tenant can only access their property's invoices.
+     * 
+     * Requirements: 11.1, 13.3
      */
     public function view(User $user, Invoice $invoice): bool
     {
@@ -102,6 +104,8 @@ class InvoicePolicy
 
     /**
      * Determine whether the user can delete the invoice.
+     * 
+     * Requirements: 11.1, 13.3
      */
     public function delete(User $user, Invoice $invoice): bool
     {
@@ -115,8 +119,8 @@ class InvoicePolicy
             return true;
         }
 
-        // Only admins can delete invoices within their tenant
-        if ($user->role === UserRole::ADMIN) {
+        // Admins and managers can delete invoices within their tenant (Requirement 11.1, 13.3)
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $invoice->tenant_id === $user->tenant_id;
         }
 
@@ -125,6 +129,8 @@ class InvoicePolicy
 
     /**
      * Determine whether the user can restore the invoice.
+     * 
+     * Requirements: 11.1, 13.3
      */
     public function restore(User $user, Invoice $invoice): bool
     {
@@ -133,8 +139,8 @@ class InvoicePolicy
             return true;
         }
 
-        // Only admins can restore invoices within their tenant
-        if ($user->role === UserRole::ADMIN) {
+        // Admins and managers can restore invoices within their tenant (Requirement 11.1, 13.3)
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $invoice->tenant_id === $user->tenant_id;
         }
 
