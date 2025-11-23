@@ -57,6 +57,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                \App\Http\Middleware\EnsureUserIsAdminOrManager::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
@@ -84,6 +85,11 @@ class AdminPanelProvider extends PanelProvider
      */
     public function boot(): void
     {
+        // Define gate for admin panel access
+        \Illuminate\Support\Facades\Gate::define('access-admin-panel', function ($user) {
+            return $user->role === \App\Enums\UserRole::ADMIN || $user->role === \App\Enums\UserRole::MANAGER;
+        });
+        
         // Log authorization failures for security monitoring (Requirement 9.4)
         \Illuminate\Support\Facades\Gate::after(function ($user, $ability, $result, $arguments) {
             if ($result === false) {

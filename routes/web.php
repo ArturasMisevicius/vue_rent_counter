@@ -39,7 +39,29 @@ use App\Http\Controllers\InvoiceItemController;
 use App\Http\Controllers\ReportController;
 
 // Public routes
-Route::get('/', \App\Http\Controllers\WelcomeController::class);
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return app(\App\Http\Controllers\WelcomeController::class)();
+});
+
+// Unified dashboard route - redirects based on user role
+Route::get('/dashboard', function () {
+    if (!auth()->check()) {
+        return redirect()->route('login');
+    }
+
+    $user = auth()->user();
+
+    return match ($user->role->value) {
+        'superadmin' => redirect()->route('superadmin.dashboard'),
+        'admin' => redirect('/admin'), // Filament panel
+        'manager' => redirect()->route('manager.dashboard'),
+        'tenant' => redirect()->route('tenant.dashboard'),
+        default => abort(403, 'Invalid user role'),
+    };
+})->middleware('auth')->name('dashboard');
 
 Route::post('/locale', [LocaleController::class, 'store'])
     ->middleware('web')

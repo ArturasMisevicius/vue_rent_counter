@@ -74,12 +74,22 @@ abstract class TestCase extends BaseTestCase
     /**
      * Create a test property for a specific tenant.
      * 
-     * @param int $tenantId
+     * @param int|array $tenantIdOrAttributes
      * @param array $attributes
      * @return Property
      */
-    protected function createTestProperty(int $tenantId = 1, array $attributes = []): Property
+    protected function createTestProperty(int|array $tenantIdOrAttributes = 1, array $attributes = []): Property
     {
+        // Support both calling patterns:
+        // createTestProperty(1, ['key' => 'value'])
+        // createTestProperty(['tenant_id' => 1, 'key' => 'value'])
+        if (is_array($tenantIdOrAttributes)) {
+            $attributes = $tenantIdOrAttributes;
+            $tenantId = $attributes['tenant_id'] ?? 1;
+        } else {
+            $tenantId = $tenantIdOrAttributes;
+        }
+        
         return Property::factory()->create(array_merge([
             'tenant_id' => $tenantId,
             'address' => 'Test Address ' . uniqid(),

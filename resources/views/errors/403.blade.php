@@ -28,7 +28,7 @@
                 @auth
                     @php
                         $dashboardRoute = match(auth()->user()->role->value) {
-                            'admin' => route('admin.dashboard'),
+                            'admin' => '/admin',
                             'manager' => route('manager.dashboard'),
                             'tenant' => route('tenant.dashboard'),
                             default => url('/')

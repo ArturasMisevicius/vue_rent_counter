@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasFactory, Notifiable;
 
@@ -66,6 +68,21 @@ class User extends Authenticatable
             'role' => UserRole::class,
             'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Determine if the user can access the Filament admin panel.
+     * 
+     * Requirements: 9.1, 9.2, 9.3
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // Only admin and manager roles can access the admin panel
+        if ($panel->getId() === 'admin') {
+            return $this->role === UserRole::ADMIN || $this->role === UserRole::MANAGER;
+        }
+
+        return false;
     }
 
     /**
