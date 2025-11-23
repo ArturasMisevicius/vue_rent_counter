@@ -89,8 +89,11 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
 });
 
 // ============================================================================
-// ADMIN ROUTES
+// ADMIN ROUTES (Legacy - these routes are deprecated, use Filament panel at /admin instead)
 // ============================================================================
+// Note: Commented out to avoid conflict with Filament panel at /admin
+// All admin functionality is now handled through Filament Resources
+/*
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     
     // Dashboard
@@ -138,6 +141,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('settings/run-backup', [AdminSettingsController::class, 'runBackup'])->name('settings.run-backup');
     Route::post('settings/clear-cache', [AdminSettingsController::class, 'clearCache'])->name('settings.clear-cache');
 });
+*/
 
 // ============================================================================
 // MANAGER ROUTES

@@ -34,12 +34,13 @@ class LoginController extends Controller
             $request->session()->regenerate();
             
             // Redirect based on role (Requirements: 1.1, 8.1)
+            // Note: Using direct redirect() instead of intended() to ensure correct dashboard
             return match($user->role->value) {
-                'superadmin' => redirect()->intended('/superadmin/dashboard'),
-                'admin' => redirect()->intended('/admin/dashboard'),
-                'manager' => redirect()->intended('/manager/dashboard'),
-                'tenant' => redirect()->intended('/tenant/dashboard'),
-                default => redirect()->intended('/'),
+                'superadmin' => redirect('/superadmin/dashboard'),
+                'admin' => redirect('/admin'),
+                'manager' => redirect('/manager/dashboard'),
+                'tenant' => redirect('/tenant/dashboard'),
+                default => redirect('/'),
             };
         }
 

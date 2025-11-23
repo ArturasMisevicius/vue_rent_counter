@@ -17,10 +17,14 @@ class User extends Authenticatable
 
     /**
      * The "booted" method of the model.
+     * 
+     * Note: HierarchicalScope is NOT applied to User model to avoid
+     * circular dependency during authentication. User filtering is
+     * handled through policies and controller-level authorization.
      */
     protected static function booted(): void
     {
-        static::addGlobalScope(new HierarchicalScope);
+        // No global scope for User model
     }
 
     /**
