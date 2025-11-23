@@ -42,10 +42,10 @@ class ConsumptionData
     {
         return [
             'start_reading_id' => $this->startReading->id,
-            'start_value' => $this->startReading->value,
+            'start_value' => (float) $this->startReading->value,
             'start_date' => $this->startReading->reading_date->toDateString(),
             'end_reading_id' => $this->endReading->id,
-            'end_value' => $this->endReading->value,
+            'end_value' => (float) $this->endReading->value,
             'end_date' => $this->endReading->reading_date->toDateString(),
             'zone' => $this->zone,
             'consumption' => $this->amount(),

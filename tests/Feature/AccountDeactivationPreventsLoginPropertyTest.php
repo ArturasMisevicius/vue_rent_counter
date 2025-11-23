@@ -5,8 +5,13 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->withoutMiddleware(ValidateCsrfToken::class);
+});
 
 // Feature: hierarchical-user-management, Property 11: Account deactivation prevents login
 // Validates: Requirements 7.1, 8.4

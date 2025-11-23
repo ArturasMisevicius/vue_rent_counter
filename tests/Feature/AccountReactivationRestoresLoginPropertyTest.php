@@ -4,10 +4,15 @@ use App\Enums\UserRole;
 use App\Models\User;
 use App\Models\Subscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->withoutMiddleware(ValidateCsrfToken::class);
+});
 
 // Feature: hierarchical-user-management, Property 12: Account reactivation restores login
 // Validates: Requirements 7.3

@@ -5,6 +5,7 @@ require_once __DIR__.'/../app/Support/helpers.php';
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,6 +21,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'subscription.check' => \App\Http\Middleware\CheckSubscriptionStatus::class,
             'hierarchical.access' => \App\Http\Middleware\EnsureHierarchicalAccess::class,
         ]);
+
+        if (app()->runningUnitTests()) {
+            $middleware->remove(ValidateCsrfToken::class);
+            $middleware->removeFromGroup('web', ValidateCsrfToken::class);
+        }
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Handle authorization exceptions with user-friendly messages (Requirement 9.4)

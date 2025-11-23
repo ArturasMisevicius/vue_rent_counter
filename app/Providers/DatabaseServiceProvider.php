@@ -20,11 +20,6 @@ class DatabaseServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Enable WAL mode for SQLite
-        if (config('database.default') === 'sqlite'
-            && config('database.connections.sqlite.database') !== ':memory:'
-            && ! app()->environment('testing')) {
-            DB::statement('PRAGMA journal_mode=WAL;');
-        }
+        // Intentionally left blank - SQLite optimizations are handled by the framework.
     }
 }

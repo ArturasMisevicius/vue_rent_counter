@@ -37,7 +37,7 @@ class LoginController extends Controller
             // Note: Using direct redirect() instead of intended() to ensure correct dashboard
             return match($user->role->value) {
                 'superadmin' => redirect('/superadmin/dashboard'),
-                'admin' => redirect('/admin'),
+                'admin' => redirect('/admin/dashboard'),
                 'manager' => redirect('/manager/dashboard'),
                 'tenant' => redirect('/tenant/dashboard'),
                 default => redirect('/'),
