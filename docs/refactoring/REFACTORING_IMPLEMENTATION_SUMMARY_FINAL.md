@@ -164,7 +164,7 @@ if (!$provider) {
 
 ---
 
-## Previously Completed Refactorings (from REFACTORING_SUMMARY.md)
+## Previously Completed Refactorings (from docs/refactoring/REFACTORING_SUMMARY.md)
 
 ### 5. ✅ Value Objects & DTOs
 **File**: `app/ValueObjects/InvoiceItemData.php`

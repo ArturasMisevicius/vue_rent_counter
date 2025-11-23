@@ -5,223 +5,308 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Vilnius Utilities Billing')</title>
-    
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Manrope"', 'system-ui', 'sans-serif'],
+                        display: ['"Space Grotesk"', '"Manrope"', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        midnight: '#0f172a',
+                        skyline: '#38bdf8',
+                        indigoInk: '#6366f1',
+                    },
+                    boxShadow: {
+                        glow: '0 15px 45px rgba(99, 102, 241, 0.25)',
+                    },
+                },
+            },
+        };
+    </script>
+
     <!-- Tailwind CSS via CDN (for development) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Alpine.js via CDN -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
+
+    <style>
+        :root {
+            color-scheme: light;
+        }
+
+        body {
+            font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+            background:
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.12), transparent 25%),
+                radial-gradient(circle at 90% 10%, rgba(56, 189, 248, 0.12), transparent 22%),
+                radial-gradient(circle at 40% 80%, rgba(56, 189, 248, 0.08), transparent 30%),
+                linear-gradient(135deg, #f8fafc 0%, #eef2ff 35%, #f8fafc 100%);
+            min-height: 100vh;
+        }
+    </style>
+
     @stack('styles')
 </head>
-<body class="bg-gray-100">
+<body class="text-slate-900 antialiased">
     <div id="app">
         <!-- Navigation -->
-        <nav class="bg-indigo-600" x-data="{ mobileMenuOpen: false }">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="sticky top-0 z-40 border-b border-white/40 bg-white/80 backdrop-blur-xl shadow-[0_10px_50px_rgba(15,23,42,0.08)]" x-data="{ mobileMenuOpen: false }">
+            <div class="absolute inset-0 bg-gradient-to-r from-indigo-600/15 via-sky-500/10 to-indigo-500/15"></div>
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
-                    <div class="flex">
-                        <div class="flex-shrink-0 flex items-center">
-                            <a href="{{ url('/') }}" class="text-xl font-bold text-white">
-                                Vilnius Utilities
-                            </a>
-                        </div>
-                        
-                        <!-- Desktop Navigation -->
-                        <div class="hidden md:ml-6 md:flex md:space-x-4">
-                            @auth
-                                @php
-                                    $currentRoute = Route::currentRouteName();
-                                    $activeClass = 'bg-indigo-700 text-white';
-                                    $inactiveClass = 'text-white hover:bg-indigo-500';
-                                @endphp
-                                
-                                {{-- Admin Navigation --}}
-                                @if(auth()->user()->role->value === 'admin')
-                                    <a href="{{ route('admin.dashboard') }}" class="{{ str_starts_with($currentRoute, 'admin.dashboard') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Dashboard
-                                    </a>
-                                    <a href="{{ route('admin.users.index') }}" class="{{ str_starts_with($currentRoute, 'admin.users') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Users
-                                    </a>
-                                    <a href="{{ route('admin.providers.index') }}" class="{{ str_starts_with($currentRoute, 'admin.providers') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Providers
-                                    </a>
-                                    <a href="{{ route('admin.tariffs.index') }}" class="{{ str_starts_with($currentRoute, 'admin.tariffs') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Tariffs
-                                    </a>
-                                    <a href="{{ route('admin.settings.index') }}" class="{{ str_starts_with($currentRoute, 'admin.settings') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Settings
-                                    </a>
-                                    <a href="{{ route('admin.audit.index') }}" class="{{ str_starts_with($currentRoute, 'admin.audit') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Audit
-                                    </a>
-                                @endif
-                                
-                                {{-- Manager Navigation --}}
-                                @if(auth()->user()->role->value === 'manager')
-                                    <a href="{{ route('manager.dashboard') }}" class="{{ str_starts_with($currentRoute, 'manager.dashboard') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Dashboard
-                                    </a>
-                                    <a href="{{ route('manager.properties.index') }}" class="{{ str_starts_with($currentRoute, 'manager.properties') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Properties
-                                    </a>
-                                    <a href="{{ route('manager.buildings.index') }}" class="{{ str_starts_with($currentRoute, 'manager.buildings') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Buildings
-                                    </a>
-                                    <a href="{{ route('manager.meters.index') }}" class="{{ str_starts_with($currentRoute, 'manager.meters') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Meters
-                                    </a>
-                                    <a href="{{ route('manager.meter-readings.index') }}" class="{{ str_starts_with($currentRoute, 'manager.meter-readings') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Readings
-                                    </a>
-                                    <a href="{{ route('manager.invoices.index') }}" class="{{ str_starts_with($currentRoute, 'manager.invoices') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Invoices
-                                    </a>
-                                    <a href="{{ route('manager.reports.index') }}" class="{{ str_starts_with($currentRoute, 'manager.reports') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Reports
-                                    </a>
-                                @endif
-                                
-                                {{-- Tenant Navigation --}}
-                                @if(auth()->user()->role->value === 'tenant')
-                                    <a href="{{ route('tenant.dashboard') }}" class="{{ str_starts_with($currentRoute, 'tenant.dashboard') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Dashboard
-                                    </a>
-                                    <a href="{{ route('tenant.property.show') }}" class="{{ str_starts_with($currentRoute, 'tenant.property') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        My Property
-                                    </a>
-                                    <a href="{{ route('tenant.meters.index') }}" class="{{ str_starts_with($currentRoute, 'tenant.meters') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Meters
-                                    </a>
-                                    <a href="{{ route('tenant.meter-readings.index') }}" class="{{ str_starts_with($currentRoute, 'tenant.meter-readings') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Readings
-                                    </a>
-                                    <a href="{{ route('tenant.invoices.index') }}" class="{{ str_starts_with($currentRoute, 'tenant.invoices') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Invoices
-                                    </a>
-                                    <a href="{{ route('tenant.profile.show') }}" class="{{ str_starts_with($currentRoute, 'tenant.profile') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-md text-sm font-medium inline-flex items-center">
-                                        Profile
-                                    </a>
-                                @endif
-                            @endauth
-                        </div>
+                    <div class="flex items-center gap-3">
+                        <a href="{{ url('/') }}" class="flex items-center gap-3 group">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-400 text-white font-display text-lg shadow-glow transition-transform duration-300 group-hover:-translate-y-1">V</span>
+                            <div class="leading-tight">
+                                <p class="text-[11px] uppercase tracking-[0.22em] text-slate-500">Vilnius Utilities</p>
+                                <p class="font-display text-lg text-slate-900">Rent Counter</p>
+                            </div>
+                        </a>
                     </div>
-                    
+
+                    <!-- Desktop Navigation -->
+                    <div class="hidden md:flex md:items-center md:space-x-1">
+                        @auth
+                            @php
+                                $currentRoute = Route::currentRouteName();
+                                $activeClass = 'bg-gradient-to-r from-indigo-500 to-sky-500 text-white shadow-md shadow-indigo-500/30';
+                                $inactiveClass = 'text-slate-700 hover:text-slate-900 hover:bg-slate-100';
+                            @endphp
+
+                            {{-- Admin Navigation --}}
+                            @if(auth()->user()->role->value === 'admin')
+                                <a href="{{ route('admin.dashboard') }}" class="{{ str_starts_with($currentRoute, 'admin.dashboard') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.dashboard') }}
+                                </a>
+                                <a href="{{ route('admin.users.index') }}" class="{{ str_starts_with($currentRoute, 'admin.users') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.users') }}
+                                </a>
+                                <a href="{{ route('admin.providers.index') }}" class="{{ str_starts_with($currentRoute, 'admin.providers') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.providers') }}
+                                </a>
+                                <a href="{{ route('admin.tariffs.index') }}" class="{{ str_starts_with($currentRoute, 'admin.tariffs') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.tariffs') }}
+                                </a>
+                                <a href="{{ route('admin.settings.index') }}" class="{{ str_starts_with($currentRoute, 'admin.settings') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.settings') }}
+                                </a>
+                                <a href="{{ route('admin.audit.index') }}" class="{{ str_starts_with($currentRoute, 'admin.audit') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.audit') }}
+                                </a>
+                            @endif
+
+                            {{-- Manager Navigation --}}
+                            @if(auth()->user()->role->value === 'manager')
+                                <a href="{{ route('manager.dashboard') }}" class="{{ str_starts_with($currentRoute, 'manager.dashboard') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.dashboard') }}
+                                </a>
+                                <a href="{{ route('manager.properties.index') }}" class="{{ str_starts_with($currentRoute, 'manager.properties') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.properties') }}
+                                </a>
+                                <a href="{{ route('manager.buildings.index') }}" class="{{ str_starts_with($currentRoute, 'manager.buildings') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.buildings') }}
+                                </a>
+                                <a href="{{ route('manager.meters.index') }}" class="{{ str_starts_with($currentRoute, 'manager.meters') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.meters') }}
+                                </a>
+                                <a href="{{ route('manager.meter-readings.index') }}" class="{{ str_starts_with($currentRoute, 'manager.meter-readings') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.readings') }}
+                                </a>
+                                <a href="{{ route('manager.invoices.index') }}" class="{{ str_starts_with($currentRoute, 'manager.invoices') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.invoices') }}
+                                </a>
+                                <a href="{{ route('manager.reports.index') }}" class="{{ str_starts_with($currentRoute, 'manager.reports') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.reports') }}
+                                </a>
+                            @endif
+
+                            {{-- Tenant Navigation --}}
+                            @if(auth()->user()->role->value === 'tenant')
+                                <a href="{{ route('tenant.dashboard') }}" class="{{ str_starts_with($currentRoute, 'tenant.dashboard') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.dashboard') }}
+                                </a>
+                                <a href="{{ route('tenant.property.show') }}" class="{{ str_starts_with($currentRoute, 'tenant.property') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.properties') }}
+                                </a>
+                                <a href="{{ route('tenant.meters.index') }}" class="{{ str_starts_with($currentRoute, 'tenant.meters') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.meters') }}
+                                </a>
+                                <a href="{{ route('tenant.meter-readings.index') }}" class="{{ str_starts_with($currentRoute, 'tenant.meter-readings') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.readings') }}
+                                </a>
+                                <a href="{{ route('tenant.invoices.index') }}" class="{{ str_starts_with($currentRoute, 'tenant.invoices') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.invoices') }}
+                                </a>
+                                <a href="{{ route('tenant.profile.show') }}" class="{{ str_starts_with($currentRoute, 'tenant.profile') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.profile') }}
+                                </a>
+                            @endif
+                        @endauth
+                    </div>
+
                     @auth
-                    <div class="hidden md:flex md:items-center">
-                        <span class="text-white text-sm mr-4">
-                            {{ auth()->user()->name }} 
-                            <span class="text-indigo-200">({{ enum_label(auth()->user()->role) }})</span>
-                        </span>
-                        <form method="POST" action="{{ route('logout') }}" class="inline">
-                            @csrf
-                            <button type="submit" class="text-white hover:bg-indigo-500 px-3 py-2 rounded-md text-sm font-medium">
-                                Logout
+                        @php
+                            $languages = \App\Models\Language::query()->where('is_active', true)->orderBy('display_order')->get();
+                            $currentLocale = app()->getLocale();
+                            $canSwitchLocale = Route::has('locale.set');
+                        @endphp
+                        <div class="hidden md:flex md:items-center md:gap-3">
+                            <span class="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-3 py-1.5 text-sm font-semibold shadow-md shadow-slate-900/20">
+                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/15 border border-white/10 font-display text-sm">
+                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                </span>
+                                <span>{{ auth()->user()->name }}</span>
+                                <span class="text-slate-200 text-xs font-medium">({{ enum_label(auth()->user()->role) }})</span>
+                            </span>
+                            @if($canSwitchLocale)
+                                <form method="POST" action="{{ route('locale.set') }}">
+                                    @csrf
+                                    <select name="locale" onchange="this.form.submit()" class="bg-white/80 border border-slate-200 text-sm rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                        @foreach($languages as $language)
+                                            <option value="{{ $language->code }}" {{ $language->code === $currentLocale ? 'selected' : '' }}>
+                                                {{ $language->native_name ?? $language->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </form>
+                            @endif
+                            <form method="POST" action="{{ route('logout') }}" class="inline">
+                                @csrf
+                                <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white/80 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:shadow-md hover:border-slate-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12" />
+                                    </svg>
+                                    {{ __('app.nav.logout') }}
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Mobile menu button -->
+                        <div class="flex items-center md:hidden">
+                            <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-slate-700 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <span class="sr-only">Open main menu</span>
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                                </svg>
                             </button>
-                        </form>
-                    </div>
-                    
-                    <!-- Mobile menu button -->
-                    <div class="flex items-center md:hidden">
-                        <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-indigo-200 hover:text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
-                            <span class="sr-only">Open main menu</span>
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                            </svg>
-                        </button>
-                    </div>
+                        </div>
                     @endauth
                 </div>
             </div>
 
             <!-- Mobile menu -->
             @auth
-            <div x-show="mobileMenuOpen" x-transition class="md:hidden">
-                <div class="space-y-1 px-2 pb-3 pt-2">
+            <div x-show="mobileMenuOpen" x-transition class="md:hidden bg-white/95 backdrop-blur border-t border-slate-200 shadow-lg">
+                <div class="space-y-1 px-4 pb-4 pt-3">
                     @php
                         $currentRoute = Route::currentRouteName();
-                        $mobileActiveClass = 'bg-indigo-700 text-white';
-                        $mobileInactiveClass = 'text-white hover:bg-indigo-500';
+                        $mobileActiveClass = 'bg-gradient-to-r from-indigo-500 to-sky-500 text-white shadow-indigo-500/30';
+                        $mobileInactiveClass = 'text-slate-700 hover:text-slate-900 hover:bg-slate-100';
                     @endphp
-                    
+
                     {{-- Admin Mobile Navigation --}}
                     @if(auth()->user()->role->value === 'admin')
-                        <a href="{{ route('admin.dashboard') }}" class="{{ str_starts_with($currentRoute, 'admin.dashboard') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Dashboard
+                        <a href="{{ route('admin.dashboard') }}" class="{{ str_starts_with($currentRoute, 'admin.dashboard') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.dashboard') }}
                         </a>
-                        <a href="{{ route('admin.users.index') }}" class="{{ str_starts_with($currentRoute, 'admin.users') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Users
+                        <a href="{{ route('admin.users.index') }}" class="{{ str_starts_with($currentRoute, 'admin.users') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.users') }}
                         </a>
-                        <a href="{{ route('admin.providers.index') }}" class="{{ str_starts_with($currentRoute, 'admin.providers') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Providers
+                        <a href="{{ route('admin.providers.index') }}" class="{{ str_starts_with($currentRoute, 'admin.providers') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.providers') }}
                         </a>
-                        <a href="{{ route('admin.tariffs.index') }}" class="{{ str_starts_with($currentRoute, 'admin.tariffs') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Tariffs
+                        <a href="{{ route('admin.tariffs.index') }}" class="{{ str_starts_with($currentRoute, 'admin.tariffs') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.tariffs') }}
                         </a>
-                        <a href="{{ route('admin.settings.index') }}" class="{{ str_starts_with($currentRoute, 'admin.settings') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Settings
+                        <a href="{{ route('admin.settings.index') }}" class="{{ str_starts_with($currentRoute, 'admin.settings') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.settings') }}
                         </a>
-                        <a href="{{ route('admin.audit.index') }}" class="{{ str_starts_with($currentRoute, 'admin.audit') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Audit
+                        <a href="{{ route('admin.audit.index') }}" class="{{ str_starts_with($currentRoute, 'admin.audit') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.audit') }}
                         </a>
                     @endif
-                    
+
                     {{-- Manager Mobile Navigation --}}
                     @if(auth()->user()->role->value === 'manager')
-                        <a href="{{ route('manager.dashboard') }}" class="{{ str_starts_with($currentRoute, 'manager.dashboard') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Dashboard
+                        <a href="{{ route('manager.dashboard') }}" class="{{ str_starts_with($currentRoute, 'manager.dashboard') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.dashboard') }}
                         </a>
-                        <a href="{{ route('manager.properties.index') }}" class="{{ str_starts_with($currentRoute, 'manager.properties') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Properties
+                        <a href="{{ route('manager.properties.index') }}" class="{{ str_starts_with($currentRoute, 'manager.properties') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.properties') }}
                         </a>
-                        <a href="{{ route('manager.buildings.index') }}" class="{{ str_starts_with($currentRoute, 'manager.buildings') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Buildings
+                        <a href="{{ route('manager.buildings.index') }}" class="{{ str_starts_with($currentRoute, 'manager.buildings') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.buildings') }}
                         </a>
-                        <a href="{{ route('manager.meters.index') }}" class="{{ str_starts_with($currentRoute, 'manager.meters') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Meters
+                        <a href="{{ route('manager.meters.index') }}" class="{{ str_starts_with($currentRoute, 'manager.meters') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.meters') }}
                         </a>
-                        <a href="{{ route('manager.meter-readings.index') }}" class="{{ str_starts_with($currentRoute, 'manager.meter-readings') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Readings
+                        <a href="{{ route('manager.meter-readings.index') }}" class="{{ str_starts_with($currentRoute, 'manager.meter-readings') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.readings') }}
                         </a>
-                        <a href="{{ route('manager.invoices.index') }}" class="{{ str_starts_with($currentRoute, 'manager.invoices') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Invoices
+                        <a href="{{ route('manager.invoices.index') }}" class="{{ str_starts_with($currentRoute, 'manager.invoices') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.invoices') }}
                         </a>
-                        <a href="{{ route('manager.reports.index') }}" class="{{ str_starts_with($currentRoute, 'manager.reports') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Reports
+                        <a href="{{ route('manager.reports.index') }}" class="{{ str_starts_with($currentRoute, 'manager.reports') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.reports') }}
                         </a>
                     @endif
-                    
+
                     {{-- Tenant Mobile Navigation --}}
                     @if(auth()->user()->role->value === 'tenant')
-                        <a href="{{ route('tenant.dashboard') }}" class="{{ str_starts_with($currentRoute, 'tenant.dashboard') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Dashboard
+                        <a href="{{ route('tenant.dashboard') }}" class="{{ str_starts_with($currentRoute, 'tenant.dashboard') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.dashboard') }}
                         </a>
-                        <a href="{{ route('tenant.property.show') }}" class="{{ str_starts_with($currentRoute, 'tenant.property') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            My Property
+                        <a href="{{ route('tenant.property.show') }}" class="{{ str_starts_with($currentRoute, 'tenant.property') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.properties') }}
                         </a>
-                        <a href="{{ route('tenant.meters.index') }}" class="{{ str_starts_with($currentRoute, 'tenant.meters') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Meters
+                        <a href="{{ route('tenant.meters.index') }}" class="{{ str_starts_with($currentRoute, 'tenant.meters') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.meters') }}
                         </a>
-                        <a href="{{ route('tenant.meter-readings.index') }}" class="{{ str_starts_with($currentRoute, 'tenant.meter-readings') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Readings
+                        <a href="{{ route('tenant.meter-readings.index') }}" class="{{ str_starts_with($currentRoute, 'tenant.meter-readings') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.readings') }}
                         </a>
-                        <a href="{{ route('tenant.invoices.index') }}" class="{{ str_starts_with($currentRoute, 'tenant.invoices') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Invoices
+                        <a href="{{ route('tenant.invoices.index') }}" class="{{ str_starts_with($currentRoute, 'tenant.invoices') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.invoices') }}
                         </a>
-                        <a href="{{ route('tenant.profile.show') }}" class="{{ str_starts_with($currentRoute, 'tenant.profile') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-md text-base font-medium">
-                            Profile
+                        <a href="{{ route('tenant.profile.show') }}" class="{{ str_starts_with($currentRoute, 'tenant.profile') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.profile') }}
                         </a>
                     @endif
-                    
-                    <div class="border-t border-indigo-500 pt-2 mt-2">
-                        <div class="px-3 py-2 text-white text-sm">
-                            {{ auth()->user()->name }} <span class="text-indigo-200">({{ enum_label(auth()->user()->role) }})</span>
+
+                    <div class="border-t border-slate-200 pt-2 mt-2">
+                        <div class="px-3 py-2 text-sm font-semibold text-slate-800 flex items-center gap-2">
+                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500 text-white font-display">
+                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            </span>
+                            <div class="leading-tight">
+                                <p>{{ auth()->user()->name }}</p>
+                                <p class="text-xs text-slate-500">{{ enum_label(auth()->user()->role) }}</p>
+                            </div>
                         </div>
+                        @if($canSwitchLocale)
+                            <form method="POST" action="{{ route('locale.set') }}" class="px-3 py-2">
+                                @csrf
+                                <select name="locale" onchange="this.form.submit()" class="w-full bg-white border border-slate-200 text-sm rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                                    @foreach($languages as $language)
+                                        <option value="{{ $language->code }}" {{ $language->code === $currentLocale ? 'selected' : '' }}>
+                                            {{ $language->native_name ?? $language->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </form>
+                        @endif
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="text-white hover:bg-indigo-500 block w-full text-left px-3 py-2 rounded-md text-base font-medium">
-                                Logout
+                            <button type="submit" class="text-slate-700 hover:text-slate-900 hover:bg-slate-100 block w-full text-left px-3 py-2 rounded-lg text-base font-semibold">
+                                {{ __('app.nav.logout') }}
                             </button>
                         </form>
                     </div>
@@ -233,32 +318,54 @@
         <!-- Flash Messages -->
         @if(session('success'))
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)">
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                <span class="block sm:inline">{{ session('success') }}</span>
-                <button @click="show = false" class="absolute top-0 bottom-0 right-0 px-4 py-3">
-                    <svg class="fill-current h-6 w-6 text-green-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                        <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
-                    </svg>
-                </button>
+            <div class="relative overflow-hidden rounded-2xl border border-emerald-200/80 bg-white/85 shadow-lg shadow-emerald-200/40" role="alert">
+                <div class="absolute inset-0 bg-gradient-to-r from-emerald-50 via-white to-emerald-50"></div>
+                <div class="relative flex items-start gap-3 p-4">
+                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div class="flex-1 text-sm text-emerald-900">
+                        {{ session('success') }}
+                    </div>
+                    <button @click="show = false" class="text-emerald-500 hover:text-emerald-700 focus:outline-none">
+                        <span class="sr-only">Dismiss</span>
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M6 18L18 6" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
         @endif
 
         @if(session('error'))
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)">
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                <span class="block sm:inline">{{ session('error') }}</span>
-                <button @click="show = false" class="absolute top-0 bottom-0 right-0 px-4 py-3">
-                    <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                        <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
-                    </svg>
-                </button>
+            <div class="relative overflow-hidden rounded-2xl border border-rose-200/90 bg-white/90 shadow-lg shadow-rose-200/50" role="alert">
+                <div class="absolute inset-0 bg-gradient-to-r from-rose-50 via-white to-rose-50"></div>
+                <div class="relative flex items-start gap-3 p-4">
+                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-100 text-rose-700">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M4.93 4.93l14.14 14.14M4.93 19.07 19.07 4.93" />
+                        </svg>
+                    </div>
+                    <div class="flex-1 text-sm text-rose-900">
+                        {{ session('error') }}
+                    </div>
+                    <button @click="show = false" class="text-rose-500 hover:text-rose-700 focus:outline-none">
+                        <span class="sr-only">Dismiss</span>
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M6 18L18 6" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
         @endif
 
         <!-- Main Content -->
-        <main class="py-6">
+        <main class="py-10 relative">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Breadcrumbs -->
                 @auth

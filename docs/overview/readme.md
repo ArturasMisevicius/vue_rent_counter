@@ -194,7 +194,7 @@ php artisan migrate
 
 5. Seed initial data (optional):
 ```bash
-php artisan db:seed --class=HierarchicalUsersSeeder
+php artisan db:seed
 ```
 
 6. Start development server:
@@ -244,21 +244,80 @@ Run with coverage:
 php artisan test --coverage
 ```
 
-## Default Accounts
+## Seeded User Accounts
 
-After seeding with `HierarchicalUsersSeeder`:
+After running `php artisan db:seed`, the following users are created. **All users have the password: `password`**
 
-**Superadmin:**
-- Email: superadmin@example.com
-- Password: password
+### Superadmin Account
 
-**Admin (Sample Organization):**
-- Email: admin@example.com
-- Password: password
+| Email | Password | Role | Tenant ID | Description |
+|-------|----------|------|-----------|-------------|
+| `superadmin@example.com` | `password` | Superadmin | `null` | System owner with unrestricted access to all organizations and data. Can manage all admins, subscriptions, and view system-wide statistics. |
 
-**Tenant (Sample):**
-- Email: tenant@example.com
-- Password: password
+### Admin Accounts (Property Owners/Organizations)
+
+| Email | Password | Role | Tenant ID | Organization | Subscription Plan | Subscription Status | Max Properties | Max Tenants | Notes |
+|-------|----------|------|-----------|--------------|-------------------|---------------------|----------------|-------------|-------|
+| `admin@test.com` | `password` | Admin | 1 | Test Organization 1 | Professional | Active | 50 | 200 | Primary admin for tenant 1 test data |
+| `admin1@example.com` | `password` | Admin | 1 | Vilnius Properties Ltd | Professional | Active | 50 | 200 | Additional admin for tenant 1, used for hierarchical tenant users |
+| `manager2@test.com` | `password` | Admin | 2 | Test Organization 2 | Basic | Active | 10 | 50 | Primary admin for tenant 2 test data, subscription expires in 6 months |
+| `admin2@example.com` | `password` | Admin | 2 | Baltic Real Estate | Basic | Active | 10 | 50 | Additional admin for tenant 2, used for hierarchical tenant users, subscription expires in 6 months |
+| `admin3@example.com` | `password` | Admin | 3 | Old Town Management | Basic | **Expired** | 10 | 50 | Admin with expired subscription (expired 10 days ago), demonstrates read-only access |
+
+### Manager Accounts (Legacy Role)
+
+| Email | Password | Role | Tenant ID | Description |
+|-------|----------|------|-----------|-------------|
+| `manager@test.com` | `password` | Manager | 1 | Legacy manager role for tenant 1, used for meter reading entry and property management |
+
+### Tenant Accounts (Apartment Residents)
+
+#### Tenant ID 1 - Test Organization Users
+
+| Email | Password | Role | Tenant ID | Property Assignment | Parent Admin | Status |
+|-------|----------|------|-----------|---------------------|--------------|--------|
+| `tenant@test.com` | `password` | Tenant | 1 | Property 1 | admin@test.com | Active |
+| `tenant2@test.com` | `password` | Tenant | 1 | Property 2 | admin@test.com | Active |
+| `jonas.petraitis@example.com` | `password` | Tenant | 1 | Property 1 | admin1@example.com | Active |
+| `ona.kazlauskiene@example.com` | `password` | Tenant | 1 | Property 2 | admin1@example.com | Active |
+| `petras.jonaitis@example.com` | `password` | Tenant | 1 | Property 3 | admin1@example.com | Active |
+| `deactivated@example.com` | `password` | Tenant | 1 | Property 1 | admin1@example.com | **Inactive** |
+
+#### Tenant ID 2 - Test Organization Users
+
+| Email | Password | Role | Tenant ID | Property Assignment | Parent Admin | Status |
+|-------|----------|------|-----------|---------------------|--------------|--------|
+| `tenant3@test.com` | `password` | Tenant | 2 | Property 1 | manager2@test.com | Active |
+| `marija.vasiliauskaite@example.com` | `password` | Tenant | 2 | Property 1 | admin2@example.com | Active |
+| `andrius.butkus@example.com` | `password` | Tenant | 2 | Property 2 | admin2@example.com | Active |
+
+### User Account Summary
+
+- **Total Users**: 16
+  - 1 Superadmin
+  - 5 Admin accounts (4 active subscriptions, 1 expired)
+  - 1 Manager account (legacy role)
+  - 9 Tenant accounts (8 active, 1 inactive)
+
+- **Organizations**: 5
+  - Test Organization 1 (tenant_id: 1)
+  - Vilnius Properties Ltd (tenant_id: 1)
+  - Test Organization 2 (tenant_id: 2)
+  - Baltic Real Estate (tenant_id: 2)
+  - Old Town Management (tenant_id: 3, expired subscription)
+
+### Important Notes
+
+1. **Password**: All users share the same password: `password`
+2. **Subscription Status**: 
+   - Active subscriptions allow full access
+   - Expired subscriptions (admin3@example.com) provide read-only access
+3. **Data Isolation**: 
+   - Admins can only see data for their `tenant_id`
+   - Tenants can only see data for their assigned `property_id`
+   - Superadmin can see all data across all tenants
+4. **Property Assignment**: Tenant users are assigned to specific properties. The exact property IDs depend on the order properties are seeded.
+5. **Inactive Users**: The `deactivated@example.com` account demonstrates inactive user handling - they cannot log in but their data is preserved.
 
 ## Documentation
 

@@ -277,7 +277,7 @@ Total: 3 queries
    - Migration guide
    - Rollback plan
 
-2. **REFACTORING_SUMMARY.md**
+2. **docs/refactoring/REFACTORING_SUMMARY.md**
    - Executive summary
    - Quick reference
    - Deployment checklist

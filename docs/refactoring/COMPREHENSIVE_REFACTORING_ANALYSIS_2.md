@@ -26,7 +26,7 @@ The analysis was conducted using:
 ### 1.2 Feature Envy
 **Location**: `BillingService::calculateAndCreateItem()`
 - **Issue**: Method has 8 parameters, indicating tight coupling with multiple data structures
-- **Already Addressed**: Refactored to use `InvoiceItemData` value object (see REFACTORING_SUMMARY.md)
+- **Already Addressed**: Refactored to use `InvoiceItemData` value object (see docs/refactoring/REFACTORING_SUMMARY.md)
 - **Status**: ✅ RESOLVED
 
 ### 1.3 Data Clumps

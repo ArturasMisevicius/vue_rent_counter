@@ -12,8 +12,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            TestDatabaseSeeder::class,
-            HierarchicalUsersSeeder::class,
+            LanguageSeeder::class,
+            TestDatabaseSeeder::class, // Includes UsersSeeder after properties are created
+            FaqSeeder::class,
         ]);
     }
 }

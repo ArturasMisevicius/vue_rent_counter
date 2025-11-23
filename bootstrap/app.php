@@ -20,12 +20,15 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'subscription.check' => \App\Http\Middleware\CheckSubscriptionStatus::class,
             'hierarchical.access' => \App\Http\Middleware\EnsureHierarchicalAccess::class,
+            'locale' => \App\Http\Middleware\SetLocale::class,
         ]);
 
         if (app()->runningUnitTests()) {
             $middleware->remove(ValidateCsrfToken::class);
             $middleware->removeFromGroup('web', ValidateCsrfToken::class);
         }
+
+        $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Handle authorization exceptions with user-friendly messages (Requirement 9.4)

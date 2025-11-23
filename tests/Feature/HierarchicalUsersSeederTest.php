@@ -9,13 +9,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('HierarchicalUsersSeeder creates superadmin account', function () {
+test('UsersSeeder creates superadmin account', function () {
     // Seed buildings and properties first
     $this->seed(\Database\Seeders\TestBuildingsSeeder::class);
     $this->seed(\Database\Seeders\TestPropertiesSeeder::class);
     
-    // Seed hierarchical users
-    $this->seed(\Database\Seeders\HierarchicalUsersSeeder::class);
+    // Seed users
+    $this->seed(\Database\Seeders\UsersSeeder::class);
     
     $superadmin = User::where('email', 'superadmin@example.com')->first();
     
@@ -25,10 +25,10 @@ test('HierarchicalUsersSeeder creates superadmin account', function () {
         ->and($superadmin->is_active)->toBeTrue();
 });
 
-test('HierarchicalUsersSeeder creates admin accounts with subscriptions', function () {
+test('UsersSeeder creates admin accounts with subscriptions', function () {
     $this->seed(\Database\Seeders\TestBuildingsSeeder::class);
     $this->seed(\Database\Seeders\TestPropertiesSeeder::class);
-    $this->seed(\Database\Seeders\HierarchicalUsersSeeder::class);
+    $this->seed(\Database\Seeders\UsersSeeder::class);
     
     $admin1 = User::where('email', 'admin1@example.com')->first();
     
@@ -42,10 +42,10 @@ test('HierarchicalUsersSeeder creates admin accounts with subscriptions', functi
         ->and($admin1->subscription->status)->toBe('active');
 });
 
-test('HierarchicalUsersSeeder creates tenant accounts with property assignments', function () {
+test('UsersSeeder creates tenant accounts with property assignments', function () {
     $this->seed(\Database\Seeders\TestBuildingsSeeder::class);
     $this->seed(\Database\Seeders\TestPropertiesSeeder::class);
-    $this->seed(\Database\Seeders\HierarchicalUsersSeeder::class);
+    $this->seed(\Database\Seeders\UsersSeeder::class);
     
     $tenant = User::where('email', 'jonas.petraitis@example.com')->first();
     
@@ -62,10 +62,10 @@ test('HierarchicalUsersSeeder creates tenant accounts with property assignments'
         ->and($tenant->parentUser->email)->toBe('admin1@example.com');
 });
 
-test('HierarchicalUsersSeeder creates inactive tenant', function () {
+test('UsersSeeder creates inactive tenant', function () {
     $this->seed(\Database\Seeders\TestBuildingsSeeder::class);
     $this->seed(\Database\Seeders\TestPropertiesSeeder::class);
-    $this->seed(\Database\Seeders\HierarchicalUsersSeeder::class);
+    $this->seed(\Database\Seeders\UsersSeeder::class);
     
     $inactiveTenant = User::where('email', 'deactivated@example.com')->first();
     
@@ -73,10 +73,10 @@ test('HierarchicalUsersSeeder creates inactive tenant', function () {
         ->and($inactiveTenant->is_active)->toBeFalse();
 });
 
-test('HierarchicalUsersSeeder creates admin with expired subscription', function () {
+test('UsersSeeder creates admin with expired subscription', function () {
     $this->seed(\Database\Seeders\TestBuildingsSeeder::class);
     $this->seed(\Database\Seeders\TestPropertiesSeeder::class);
-    $this->seed(\Database\Seeders\HierarchicalUsersSeeder::class);
+    $this->seed(\Database\Seeders\UsersSeeder::class);
     
     $admin3 = User::where('email', 'admin3@example.com')->first();
     
@@ -86,10 +86,10 @@ test('HierarchicalUsersSeeder creates admin with expired subscription', function
         ->and($admin3->subscription->expires_at)->toBeLessThan(now());
 });
 
-test('TestUsersSeeder creates hierarchical test users', function () {
+test('UsersSeeder creates hierarchical test users', function () {
     $this->seed(\Database\Seeders\TestBuildingsSeeder::class);
     $this->seed(\Database\Seeders\TestPropertiesSeeder::class);
-    $this->seed(\Database\Seeders\TestUsersSeeder::class);
+    $this->seed(\Database\Seeders\UsersSeeder::class);
     
     $admin = User::where('email', 'admin@test.com')->first();
     
@@ -108,10 +108,10 @@ test('TestUsersSeeder creates hierarchical test users', function () {
         ->and($tenant->parent_user_id)->toBe($admin->id);
 });
 
-test('TestUsersSeeder respects tenant_id isolation', function () {
+test('UsersSeeder respects tenant_id isolation', function () {
     $this->seed(\Database\Seeders\TestBuildingsSeeder::class);
     $this->seed(\Database\Seeders\TestPropertiesSeeder::class);
-    $this->seed(\Database\Seeders\TestUsersSeeder::class);
+    $this->seed(\Database\Seeders\UsersSeeder::class);
     
     $admin1 = User::where('email', 'admin@test.com')->first();
     $admin2 = User::where('email', 'manager2@test.com')->first();

@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "name": "Landing Content Sync",
+  "description": "Keeps the main page features/FAQ in sync whenever landing data changes.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "config/landing.php",
+      "resources/views/welcome.blade.php",
+      "app/Models/Faq.php",
+      "database/migrations/*faq*.php",
+      "app/Filament/Resources/FaqResource/**"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Update the landing page feature + FAQ blocks to reflect any new or changed records.\n\n- use MCP servers, use mcp services\n\nSteps:\n1) Mirror any new features from `config/landing.php` onto the main page feature grid (add cards, icons, descriptions).\n2) Ensure FAQ on the main page pulls published items from the database first, and falls back to config defaults. If FAQ content changed, refresh the landing view copy.\n3) Keep CTA links to login/register visible when routes exist.\n4) Confirm styling stays consistent with the upgraded landing design (gradients, rounded cards, CTA buttons)."
+  },
+  "workspaceFolderName": "vue_rent_counter",
+  "shortName": "landing-content-sync"
+}

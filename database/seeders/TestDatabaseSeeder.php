@@ -22,6 +22,10 @@ class TestDatabaseSeeder extends Seeder
 
             Log::info('Starting test database seeding...');
 
+            // 0. Seed languages and FAQ defaults early
+            $this->call(LanguageSeeder::class);
+            $this->call(FaqSeeder::class);
+
             // 1. Seed organizations, invitations, and activity logs
             $this->call(OrganizationSeeder::class);
             Log::info('✓ Organizations seeded');
@@ -38,9 +42,10 @@ class TestDatabaseSeeder extends Seeder
             $this->call(TestPropertiesSeeder::class);
             Log::info('✓ Test properties seeded');
 
-            // 5. Seed test users with known credentials
-            $this->call(TestUsersSeeder::class);
-            Log::info('✓ Test users seeded');
+            // 5. Seed users (superadmin, admins, managers, tenants)
+            // Must be called after properties are created for tenant user assignments
+            $this->call(UsersSeeder::class);
+            Log::info('✓ Users seeded');
 
             // 6. Seed test tenants (renters) linked to properties
             $this->call(TestTenantsSeeder::class);

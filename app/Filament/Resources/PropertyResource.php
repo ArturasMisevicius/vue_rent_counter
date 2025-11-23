@@ -1,24 +1,50 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources;
 
 use App\Enums\PropertyType;
+use App\Enums\UserRole;
+use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\PropertyResource\Pages;
 use App\Filament\Resources\PropertyResource\RelationManagers;
-use App\Models\Building;
 use App\Models\Property;
-use App\Models\Tenant;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Filament resource for managing properties.
+ *
+ * Provides CRUD operations for properties with:
+ * - Tenant-scoped data access
+ * - Role-based navigation visibility
+ * - Localized validation messages
+ * - Relationship management (buildings, tenants, meters)
+ *
+ * @see \App\Models\Property
+ * @see \App\Policies\PropertyPolicy
+ * @see \App\Filament\Concerns\HasTranslatedValidation
+ */
 class PropertyResource extends Resource
 {
+    use HasTranslatedValidation;
+
     protected static ?string $model = Property::class;
+
+    /**
+     * Translation prefix for validation messages.
+     *
+     * Used by HasTranslatedValidation trait to load messages from
+     * lang/{locale}/properties.php under the 'validation' key.
+     */
+    protected static string $translationPrefix = 'properties.validation';
 
     protected static ?string $navigationIcon = 'heroicon-o-home';
 
@@ -28,114 +54,134 @@ class PropertyResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    // Integrate PropertyPolicy for authorization (Requirement 9.5)
-    public static function canViewAny(): bool
-    {
-        return auth()->check() && auth()->user()->can('viewAny', Property::class);
-    }
+    protected static ?string $recordTitleAttribute = 'address';
 
-    public static function canCreate(): bool
-    {
-        return auth()->check() && auth()->user()->can('create', Property::class);
-    }
-
-    public static function canEdit($record): bool
-    {
-        return auth()->check() && auth()->user()->can('update', $record);
-    }
-
-    public static function canDelete($record): bool
-    {
-        return auth()->check() && auth()->user()->can('delete', $record);
-    }
-
-    // Hide from tenant users (Requirements 9.1, 9.2, 9.3)
+    /**
+     * Hide from tenant users (Requirements 9.1, 9.2, 9.3).
+     * Policies handle granular authorization (Requirement 9.5).
+     */
     public static function shouldRegisterNavigation(): bool
     {
-        return auth()->check() && auth()->user()->role !== \App\Enums\UserRole::TENANT;
+        $user = auth()->user();
+
+        return $user instanceof User && $user->role !== UserRole::TENANT;
+    }
+
+    /**
+     * Get the displayable label for the resource.
+     */
+    public static function getLabel(): string
+    {
+        return __('properties.labels.property');
+    }
+
+    /**
+     * Get the displayable plural label for the resource.
+     */
+    public static function getPluralLabel(): string
+    {
+        return __('properties.labels.properties');
     }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('address')
-                    ->label('Address')
-                    ->required()
-                    ->maxLength(255)
-                    ->validationMessages([
-                        'required' => 'The property address is required.',
-                    ]),
-                
-                Forms\Components\Select::make('type')
-                    ->label('Property Type')
-                    ->options(PropertyType::class)
-                    ->required()
-                    ->native(false)
-                    ->validationMessages([
-                        'required' => 'The property type is required.',
-                    ]),
-                
-                Forms\Components\Select::make('building_id')
-                    ->label('Building')
-                    ->relationship('building', 'address', function (Builder $query) {
-                        // Filter buildings by authenticated user's tenant_id (Requirement 4.3, 12.3)
-                        $user = auth()->user();
-                        if ($user && $user->tenant_id) {
-                            $query->where('tenant_id', $user->tenant_id);
-                        }
-                    })
-                    ->searchable()
-                    ->preload()
-                    ->nullable()
-                    ->validationMessages([
-                        'exists' => 'The selected building does not exist.',
-                    ]),
-                
-                Forms\Components\TextInput::make('area_sqm')
-                    ->label('Area')
-                    ->required()
-                    ->numeric()
-                    ->minValue(0)
-                    ->maxValue(10000)
-                    ->suffix('m²')
-                    ->step(0.01)
-                    ->validationMessages([
-                        'required' => 'The property area is required.',
-                        'numeric' => 'The property area must be a number.',
-                        'min' => 'The property area must be at least 0 square meters.',
-                        'max' => 'The property area cannot exceed 10,000 square meters.',
-                    ]),
-                
-                Forms\Components\Select::make('tenants')
-                    ->label('Tenant')
-                    ->relationship('tenants', 'name', function (Builder $query) {
-                        // Filter tenants by authenticated user's tenant_id (Requirement 5.3)
-                        $user = auth()->user();
-                        if ($user && $user->tenant_id) {
-                            $query->where('tenant_id', $user->tenant_id)
-                                  ->where('role', \App\Enums\UserRole::TENANT);
-                        }
-                    })
-                    ->searchable()
-                    ->preload()
-                    ->nullable()
-                    ->helperText('Optional: Assign a tenant to this property'),
+                Forms\Components\Section::make(__('properties.sections.property_details'))
+                    ->description(__('properties.sections.property_details_description'))
+                    ->schema([
+                        Forms\Components\TextInput::make('address')
+                            ->label(__('properties.labels.address'))
+                            ->placeholder(__('properties.placeholders.address'))
+                            ->helperText(__('properties.helper_text.address'))
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull()
+                            ->validationMessages(self::getValidationMessages('address')),
+
+                        Forms\Components\Select::make('type')
+                            ->label(__('properties.labels.type'))
+                            ->options(PropertyType::class)
+                            ->required()
+                            ->native(false)
+                            ->helperText(__('properties.helper_text.type'))
+                            ->validationMessages(self::getValidationMessages('type')),
+
+                        Forms\Components\TextInput::make('area_sqm')
+                            ->label(__('properties.labels.area'))
+                            ->placeholder(__('properties.placeholders.area'))
+                            ->helperText(__('properties.helper_text.area'))
+                            ->required()
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(10000)
+                            ->suffix('m²')
+                            ->step(0.01)
+                            ->validationMessages(self::getValidationMessages('area_sqm')),
+                    ])
+                    ->columns(2),
+
+                Forms\Components\Section::make(__('properties.sections.additional_info'))
+                    ->description(__('properties.sections.additional_info_description'))
+                    ->schema([
+                        Forms\Components\Select::make('building_id')
+                            ->label(__('properties.labels.building'))
+                            ->relationship(
+                                name: 'building',
+                                titleAttribute: 'address',
+                                modifyQueryUsing: fn (Builder $query) => self::scopeToUserTenant($query)
+                            )
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->validationMessages(self::getValidationMessages('building_id')),
+
+                        Forms\Components\Select::make('tenants')
+                            ->label(__('properties.labels.current_tenant'))
+                            ->relationship(
+                                name: 'tenants',
+                                titleAttribute: 'name',
+                                modifyQueryUsing: fn (Builder $query) => $query
+                                    ->tap(fn ($q) => self::scopeToUserTenant($q))
+                                    ->where('role', UserRole::TENANT)
+                            )
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->helperText(__('properties.helper_text.tenant_available')),
+                    ])
+                    ->columns(2),
             ]);
+    }
+
+    /**
+     * Scope query to authenticated user's tenant (Requirements 4.3, 12.3).
+     */
+    protected static function scopeToUserTenant(Builder $query): Builder
+    {
+        $user = auth()->user();
+
+        if ($user instanceof User && $user->tenant_id) {
+            $query->where('tenant_id', $user->tenant_id);
+        }
+
+        return $query;
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->searchable()
             ->columns([
                 Tables\Columns\TextColumn::make('address')
-                    ->label('Address')
+                    ->label(__('properties.labels.address'))
                     ->searchable()
-                    ->sortable(),
-                
+                    ->sortable()
+                    ->copyable()
+                    ->copyMessage(__('properties.tooltips.copy_address'))
+                    ->weight('medium'),
+
                 Tables\Columns\TextColumn::make('type')
-                    ->label('Property Type')
+                    ->label(__('properties.labels.type'))
                     ->badge()
                     ->color(fn (PropertyType $state): string => match ($state) {
                         PropertyType::APARTMENT => 'info',
@@ -143,64 +189,134 @@ class PropertyResource extends Resource
                     })
                     ->formatStateUsing(fn (?PropertyType $state): ?string => $state?->label())
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('building.address')
-                    ->label('Building')
+                    ->label(__('properties.labels.building'))
                     ->searchable()
                     ->sortable()
-                    ->toggleable(),
-                
+                    ->toggleable()
+                    ->placeholder('—'),
+
                 Tables\Columns\TextColumn::make('tenants.name')
-                    ->label('Tenant')
+                    ->label(__('properties.labels.current_tenant'))
                     ->searchable()
                     ->sortable()
-                    ->toggleable(),
-                
+                    ->toggleable()
+                    ->badge()
+                    ->color('success')
+                    ->placeholder(__('properties.badges.vacant'))
+                    ->tooltip(fn (?Model $record): ?string => $record?->tenants?->first()?->name
+                            ? __('properties.tooltips.occupied_by', ['name' => $record->tenants->first()->name])
+                            : __('properties.tooltips.no_tenant')
+                    ),
+
                 Tables\Columns\TextColumn::make('area_sqm')
-                    ->label('Area')
+                    ->label(__('properties.labels.area'))
                     ->numeric(decimalPlaces: 2)
                     ->suffix(' m²')
-                    ->sortable(),
-                
+                    ->sortable()
+                    ->alignEnd(),
+
+                Tables\Columns\TextColumn::make('meters_count')
+                    ->label(__('properties.labels.installed_meters'))
+                    ->counts('meters')
+                    ->badge()
+                    ->color('gray')
+                    ->tooltip(__('properties.tooltips.meters_count'))
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created At')
+                    ->label(__('properties.labels.created'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
-                    ->label('Property Type')
+                    ->label(__('properties.filters.type'))
                     ->options(PropertyType::labels())
                     ->native(false),
-                
+
                 Tables\Filters\SelectFilter::make('building_id')
-                    ->label('Building')
+                    ->label(__('properties.filters.building'))
                     ->relationship('building', 'address')
                     ->searchable()
                     ->preload()
                     ->native(false),
+
+                Tables\Filters\Filter::make('vacant')
+                    ->label(__('properties.filters.vacant'))
+                    ->query(fn (Builder $query): Builder => $query->doesntHave('tenants'))
+                    ->toggle(),
+
+                Tables\Filters\Filter::make('large_properties')
+                    ->label(__('properties.filters.large_properties'))
+                    ->query(fn (Builder $query): Builder => $query->where('area_sqm', '>', 100))
+                    ->toggle(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->iconButton(),
+                Tables\Actions\DeleteAction::make()
+                    ->iconButton(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->requiresConfirmation()
-                        ->modalHeading('Delete Properties')
-                        ->modalDescription('Are you sure you want to delete these properties? This will also affect related meters and readings.')
-                        ->modalSubmitActionLabel('Yes, delete them'),
+                        ->modalHeading(__('properties.modals.delete_confirmation'))
+                        ->modalDescription(__('properties.modals.delete_confirmation'))
+                        ->successNotificationTitle(__('properties.notifications.bulk_deleted.title')),
                 ]),
             ])
-            ->defaultSort('address', 'asc');
+            ->emptyStateHeading(__('properties.empty_state.heading'))
+            ->emptyStateDescription(__('properties.empty_state.description'))
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make()
+                    ->label(__('properties.actions.add_first_property')),
+            ])
+            ->defaultSort('address', 'asc')
+            ->persistSortInSession()
+            ->persistSearchInSession()
+            ->persistFiltersInSession();
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\MetersRelationManager::class,
         ];
+    }
+
+    /**
+     * Get the navigation badge for the resource.
+     */
+    public static function getNavigationBadge(): ?string
+    {
+        $user = auth()->user();
+
+        if (! $user instanceof User) {
+            return null;
+        }
+
+        $query = static::getModel()::query();
+
+        // Apply tenant scope for non-superadmin users
+        if ($user->role !== UserRole::SUPERADMIN && $user->tenant_id) {
+            $query->where('tenant_id', $user->tenant_id);
+        }
+
+        $count = $query->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    /**
+     * Get the navigation badge color for the resource.
+     */
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'primary';
     }
 
     public static function getPages(): array

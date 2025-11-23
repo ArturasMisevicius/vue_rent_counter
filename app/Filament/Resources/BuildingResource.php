@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\BuildingResource\Pages;
 use App\Filament\Resources\BuildingResource\RelationManagers;
 use App\Models\Building;
@@ -10,12 +13,14 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BuildingResource extends Resource
 {
+    use HasTranslatedValidation;
+
     protected static ?string $model = Building::class;
+
+    protected static string $translationPrefix = 'buildings.validation';
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
 
@@ -62,11 +67,8 @@ class BuildingResource extends Resource
                     ->maxLength(255)
                     ->columnSpanFull()
                     ->validationAttribute('address')
-                    ->validationMessages([
-                        'required' => 'The building address is required.',
-                        'max' => 'The building address may not be greater than 255 characters.',
-                    ]),
-                
+                    ->validationMessages(self::getValidationMessages('address')),
+
                 Forms\Components\TextInput::make('total_apartments')
                     ->label('Total Apartments')
                     ->required()
@@ -75,13 +77,7 @@ class BuildingResource extends Resource
                     ->maxValue(1000)
                     ->integer()
                     ->validationAttribute('total_apartments')
-                    ->validationMessages([
-                        'required' => 'The total number of apartments is required.',
-                        'numeric' => 'The total number of apartments must be a whole number.',
-                        'integer' => 'The total number of apartments must be a whole number.',
-                        'min' => 'The building must have at least 1 apartment.',
-                        'max' => 'The building cannot have more than 1,000 apartments.',
-                    ]),
+                    ->validationMessages(self::getValidationMessages('total_apartments')),
             ]);
     }
 
@@ -94,17 +90,17 @@ class BuildingResource extends Resource
                     ->label('Address')
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('total_apartments')
                     ->label('Total Apartments')
                     ->numeric()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('properties_count')
                     ->label('Property Count')
                     ->counts('properties')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime()

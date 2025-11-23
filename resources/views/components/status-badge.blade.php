@@ -18,15 +18,25 @@ if (!$label) {
 }
 
 $classes = match($status) {
-    'draft' => 'bg-yellow-100 text-yellow-800',
-    'finalized' => 'bg-blue-100 text-blue-800',
-    'paid' => 'bg-green-100 text-green-800',
-    'active' => 'bg-green-100 text-green-800',
-    'inactive' => 'bg-gray-100 text-gray-800',
-    default => 'bg-gray-100 text-gray-800',
+    'draft' => 'bg-amber-50 text-amber-700 border-amber-200',
+    'finalized' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    'paid' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    'active' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    'inactive' => 'bg-slate-100 text-slate-700 border-slate-200',
+    default => 'bg-slate-100 text-slate-700 border-slate-200',
+};
+
+$dotClass = match($status) {
+    'draft' => 'bg-amber-400',
+    'finalized' => 'bg-indigo-500',
+    'paid' => 'bg-emerald-500',
+    'active' => 'bg-emerald-500',
+    'inactive' => 'bg-slate-400',
+    default => 'bg-slate-400',
 };
 @endphp
 
-<span {{ $attributes->merge(['class' => "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium $classes"]) }}>
-    {{ $label }}
+<span {{ $attributes->merge(['class' => "inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border $classes"]) }}>
+    <span class="h-2.5 w-2.5 rounded-full {{ $dotClass }}"></span>
+    <span>{{ $label }}</span>
 </span>

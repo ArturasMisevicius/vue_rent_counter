@@ -51,6 +51,9 @@ This document summarizes the verification of the Filament admin panel integratio
 - ✅ Filters by tenant_id and property_id for tenant users
 - ✅ Tenant dropdown shows only accessible tenants
 - ✅ Status changes respect finalization rules
+- ✅ Finalization action visible only for draft invoices
+- ✅ Finalization validates via InvoiceService before persisting
+- ✅ Finalized invoices become immutable (except status changes)
 
 **Subscription Resource:**
 - ✅ Only accessible to superadmin
@@ -158,6 +161,44 @@ The Filament integration is also extensively covered by existing property-based 
 - `FilamentUserConditionalTenantRequirementPropertyTest` - 100 iterations
 - `FilamentUserValidationConsistencyPropertyTest` - 100 iterations
 
+## Invoice Finalization Feature
+
+### Implementation Details
+
+**Location:** `app/Filament/Resources/InvoiceResource/Pages/ViewInvoice.php`
+
+**Action Configuration:**
+- Label: "Finalize Invoice"
+- Icon: `heroicon-o-lock-closed`
+- Color: `warning`
+- Requires confirmation modal
+- Visible only for draft invoices with finalize permission
+
+**Validation (via InvoiceService):**
+- Invoice must have at least one item
+- Total amount must be greater than zero
+- All items must have valid description, unit_price, quantity
+- Billing period start must be before end
+
+**Authorization:**
+- Superadmin: Can finalize any invoice
+- Admin/Manager: Can finalize invoices within their tenant_id
+- Tenant: Cannot finalize invoices
+
+**Immutability:**
+- Once finalized, invoice data cannot be modified
+- Only status changes allowed (e.g., FINALIZED → PAID)
+- Enforced via Invoice model observer
+
+**User Feedback:**
+- Success notification on finalization
+- Danger notification with specific error on validation failure
+- UI automatically refreshes to show updated status
+
+**Documentation:**
+- Usage guide: `docs/filament/INVOICE_FINALIZATION_ACTION.md`
+- API reference: `docs/api/INVOICE_FINALIZATION_API.md`
+
 ## Conclusion
 
 The Filament admin panel is fully integrated with the hierarchical user management system. All resources properly implement:
@@ -167,5 +208,6 @@ The Filament admin panel is fully integrated with the hierarchical user manageme
 3. **Form validations** - All forms enforce business rules and data integrity
 4. **Error handling** - Clear error messages and proper HTTP status codes
 5. **Navigation visibility** - Resources shown/hidden based on user role
+6. **Invoice finalization** - Proper validation, authorization, and immutability enforcement
 
 The integration is production-ready and fully tested with both unit tests and property-based tests providing comprehensive coverage.

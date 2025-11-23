@@ -42,10 +42,16 @@ return new class extends Migration
                   ->nullable()
                   ->after('is_active');
             
-            // Add indexes for performance
-            $table->index(['tenant_id', 'role'], 'users_tenant_role_index');
-            $table->index('parent_user_id', 'users_parent_user_id_index');
-            $table->index('property_id', 'users_property_id_index');
+            // Add indexes for performance (check if they exist first)
+            if (!$this->indexExists('users', 'users_tenant_role_index')) {
+                $table->index(['tenant_id', 'role'], 'users_tenant_role_index');
+            }
+            if (!$this->indexExists('users', 'users_parent_user_id_index')) {
+                $table->index('parent_user_id', 'users_parent_user_id_index');
+            }
+            if (!$this->indexExists('users', 'users_property_id_index')) {
+                $table->index('property_id', 'users_property_id_index');
+            }
         });
     }
 
@@ -55,10 +61,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Drop indexes first
-            $table->dropIndex('users_tenant_role_index');
-            $table->dropIndex('users_parent_user_id_index');
-            $table->dropIndex('users_property_id_index');
+            // Drop indexes first (only if they exist)
+            $this->dropIndexIfExists($table, 'users_tenant_role_index');
+            $this->dropIndexIfExists($table, 'users_parent_user_id_index');
+            $this->dropIndexIfExists($table, 'users_property_id_index');
             
             // Drop foreign keys
             $table->dropForeign(['property_id']);
@@ -67,5 +73,59 @@ return new class extends Migration
             // Drop columns
             $table->dropColumn(['property_id', 'parent_user_id', 'is_active', 'organization_name']);
         });
+    }
+
+    /**
+     * Check if an index exists on a table.
+     */
+    private function indexExists(string $table, string $indexName): bool
+    {
+        try {
+            $connection = Schema::getConnection();
+            $driver = $connection->getDriverName();
+            
+            if ($driver === 'sqlite') {
+                $indexes = $connection->select("SELECT name FROM sqlite_master WHERE type='index' AND name=?", [$indexName]);
+                return !empty($indexes);
+            }
+            
+            $database = $connection->getDatabaseName();
+            
+            if ($driver === 'mysql') {
+                $result = $connection->select(
+                    "SELECT COUNT(*) as count 
+                     FROM information_schema.statistics 
+                     WHERE table_schema = ? 
+                     AND table_name = ? 
+                     AND index_name = ?",
+                    [$database, $table, $indexName]
+                );
+            } else {
+                $result = $connection->select(
+                    "SELECT COUNT(*) as count 
+                     FROM pg_indexes 
+                     WHERE schemaname = 'public' 
+                     AND tablename = ? 
+                     AND indexname = ?",
+                    [$table, $indexName]
+                );
+            }
+            
+            return isset($result[0]) && $result[0]->count > 0;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Drop an index if it exists.
+     */
+    private function dropIndexIfExists(Blueprint $table, string $indexName): void
+    {
+        try {
+            $table->dropIndex($indexName);
+        } catch (\Exception $e) {
+            // Index doesn't exist, ignore
+        }
     }
 };

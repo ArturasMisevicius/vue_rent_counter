@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources;
 
 use App\Enums\UserRole;
+use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\Property;
 use App\Models\Tenant;
 use App\Models\User;
@@ -14,12 +16,15 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
+    use HasTranslatedValidation;
+
     protected static ?string $model = User::class;
+
+    protected static string $translationPrefix = 'users.validation';
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
@@ -64,24 +69,16 @@ class UserResource extends Resource
                     ->label('Name')
                     ->required()
                     ->maxLength(255)
-                    ->validationMessages([
-                        'required' => 'The name is required.',
-                        'max' => 'The name cannot exceed 255 characters.',
-                    ]),
-                
+                    ->validationMessages(self::getValidationMessages('name')),
+
                 Forms\Components\TextInput::make('email')
                     ->label('Email')
                     ->email()
                     ->required()
                     ->maxLength(255)
                     ->unique(ignoreRecord: true)
-                    ->validationMessages([
-                        'required' => 'The email is required.',
-                        'email' => 'The email must be a valid email address.',
-                        'unique' => 'This email address is already registered.',
-                        'max' => 'The email cannot exceed 255 characters.',
-                    ]),
-                
+                    ->validationMessages(self::getValidationMessages('email')),
+
                 Forms\Components\TextInput::make('password')
                     ->label('Password')
                     ->password()
@@ -90,21 +87,15 @@ class UserResource extends Resource
                     ->dehydrated(fn ($state) => filled($state))
                     ->minLength(8)
                     ->confirmed()
-                    ->validationMessages([
-                        'required' => 'The password is required.',
-                        'min' => 'Password must be at least 8 characters.',
-                        'confirmed' => 'Password confirmation does not match.',
-                    ]),
-                
+                    ->validationMessages(self::getValidationMessages('password')),
+
                 Forms\Components\TextInput::make('password_confirmation')
                     ->label('Confirm Password')
                     ->password()
                     ->required(fn (string $context): bool => $context === 'create')
                     ->dehydrated(false)
-                    ->validationMessages([
-                        'required' => 'Password confirmation is required.',
-                    ]),
-                
+                    ->validationMessages(self::getValidationMessages('password_confirmation')),
+
                 Forms\Components\Select::make('role')
                     ->label('Role')
                     ->options([
@@ -121,25 +112,18 @@ class UserResource extends Resource
                             $set('tenant_id', null);
                         }
                     })
-                    ->validationMessages([
-                        'required' => 'The role is required.',
-                    ]),
-                
+                    ->validationMessages(self::getValidationMessages('role')),
+
                 // Organization name for admin role (Requirement 2.1)
                 Forms\Components\TextInput::make('organization_name')
                     ->label('Organization Name')
                     ->maxLength(255)
-                    ->required(fn (Forms\Get $get): bool => 
-                        $get('role') === UserRole::ADMIN->value
+                    ->required(fn (Forms\Get $get): bool => $get('role') === UserRole::ADMIN->value
                     )
-                    ->visible(fn (Forms\Get $get): bool => 
-                        $get('role') === UserRole::ADMIN->value
+                    ->visible(fn (Forms\Get $get): bool => $get('role') === UserRole::ADMIN->value
                     )
-                    ->validationMessages([
-                        'required' => 'Organization name is required for admin users.',
-                        'max' => 'Organization name cannot exceed 255 characters.',
-                    ]),
-                
+                    ->validationMessages(self::getValidationMessages('organization_name')),
+
                 // Property assignment for tenant role (Requirement 5.1, 5.2)
                 Forms\Components\Select::make('property_id')
                     ->label('Assigned Property')
@@ -152,35 +136,27 @@ class UserResource extends Resource
                     })
                     ->searchable()
                     ->preload()
-                    ->required(fn (Forms\Get $get): bool => 
-                        $get('role') === UserRole::TENANT->value
+                    ->required(fn (Forms\Get $get): bool => $get('role') === UserRole::TENANT->value
                     )
-                    ->visible(fn (Forms\Get $get): bool => 
-                        $get('role') === UserRole::TENANT->value
+                    ->visible(fn (Forms\Get $get): bool => $get('role') === UserRole::TENANT->value
                     )
-                    ->validationMessages([
-                        'required' => 'Property assignment is required for tenant users.',
-                        'exists' => 'The selected property does not exist.',
-                    ]),
-                
+                    ->validationMessages(self::getValidationMessages('properties')),
+
                 // Parent user (admin who created this tenant) - auto-set, display only
                 Forms\Components\Select::make('parent_user_id')
                     ->label('Created By (Admin)')
                     ->relationship('parentUser', 'name')
                     ->disabled()
                     ->dehydrated(false)
-                    ->visible(fn (Forms\Get $get, ?User $record): bool => 
-                        $record && $record->parent_user_id !== null
+                    ->visible(fn (Forms\Get $get, ?User $record): bool => $record && $record->parent_user_id !== null
                     ),
-                
+
                 // Account activation status (Requirement 7.1)
                 Forms\Components\Toggle::make('is_active')
                     ->label('Account Active')
                     ->default(true)
                     ->helperText('Deactivated accounts cannot log in')
-                    ->validationMessages([
-                        'boolean' => 'Account status must be active or inactive.',
-                    ]),
+                    ->validationMessages(self::getValidationMessages('is_active')),
             ]);
     }
 
@@ -193,12 +169,12 @@ class UserResource extends Resource
                     ->label('Name')
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('email')
                     ->label('Email')
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('role')
                     ->label('Role')
                     ->badge()
@@ -209,14 +185,14 @@ class UserResource extends Resource
                     })
                     ->formatStateUsing(fn (?UserRole $state): ?string => $state?->label())
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('organization_name')
                     ->label('Organization')
                     ->searchable()
                     ->sortable()
                     ->toggleable()
                     ->placeholder('N/A'),
-                
+
                 Tables\Columns\TextColumn::make('property.address')
                     ->label('Assigned Property')
                     ->searchable()
@@ -224,20 +200,20 @@ class UserResource extends Resource
                     ->toggleable()
                     ->limit(30)
                     ->placeholder('N/A'),
-                
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Active')
                     ->boolean()
                     ->sortable()
                     ->toggleable(),
-                
+
                 Tables\Columns\TextColumn::make('parentUser.name')
                     ->label('Created By')
                     ->searchable()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->placeholder('N/A'),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime()

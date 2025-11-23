@@ -19,16 +19,34 @@ class Invoice extends Model
      */
     protected static function booted(): void
     {
-        // Prevent modification of finalized invoices
+        // Prevent modification of finalized or paid invoices
         static::updating(function ($invoice) {
             $originalStatus = $invoice->getOriginal('status');
             
-            // If the original status was FINALIZED
-            if ($originalStatus === InvoiceStatus::FINALIZED->value || $originalStatus === InvoiceStatus::FINALIZED) {
+            // If the original status was FINALIZED or PAID
+            $isImmutable = $originalStatus === InvoiceStatus::FINALIZED->value 
+                || $originalStatus === InvoiceStatus::FINALIZED
+                || $originalStatus === InvoiceStatus::PAID->value
+                || $originalStatus === InvoiceStatus::PAID;
+            
+            if ($isImmutable) {
                 // Allow only status changes (e.g., from FINALIZED to PAID)
                 $dirtyAttributes = array_keys($invoice->getDirty());
+                
+                // If only status is changing, allow it
                 if (count($dirtyAttributes) === 1 && in_array('status', $dirtyAttributes)) {
-                    return true;
+                    return; // Continue with save
+                }
+                
+                // If status is changing along with other fields, allow only status
+                if (in_array('status', $dirtyAttributes)) {
+                    // Reset all non-status changes
+                    foreach ($dirtyAttributes as $attr) {
+                        if ($attr !== 'status') {
+                            $invoice->$attr = $invoice->getOriginal($attr);
+                        }
+                    }
+                    return; // Continue with save (status only)
                 }
                 
                 // Prevent all other modifications by throwing exception

@@ -22,16 +22,69 @@ This command will:
 
 ### Test User Credentials
 
-All test users use the password: `password`
+**All test users use the password: `password`**
 
-| Role    | Email                  | Password | Tenant ID | Description                    |
-|---------|------------------------|----------|-----------|--------------------------------|
-| Admin   | admin@test.com         | password | 1         | Full system access             |
-| Manager | manager@test.com       | password | 1         | Tenant 1 property manager      |
-| Manager | manager2@test.com      | password | 2         | Tenant 2 property manager      |
-| Tenant  | tenant@test.com        | password | 1         | Tenant 1 renter (Property 1)   |
-| Tenant  | tenant2@test.com       | password | 1         | Tenant 1 renter (Property 2)   |
-| Tenant  | tenant3@test.com       | password | 2         | Tenant 2 renter                |
+#### Superadmin
+
+| Email | Password | Role | Tenant ID | Description |
+|-------|----------|------|-----------|-------------|
+| `superadmin@example.com` | `password` | Superadmin | `null` | System owner with unrestricted access to all organizations and data |
+
+#### Admin Accounts
+
+| Email | Password | Role | Tenant ID | Organization | Subscription Plan | Status | Max Properties | Max Tenants |
+|-------|----------|------|-----------|--------------|-------------------|--------|----------------|-------------|
+| `admin@test.com` | `password` | Admin | 1 | Test Organization 1 | Professional | Active | 50 | 200 |
+| `admin1@example.com` | `password` | Admin | 1 | Vilnius Properties Ltd | Professional | Active | 50 | 200 |
+| `manager2@test.com` | `password` | Admin | 2 | Test Organization 2 | Basic | Active | 10 | 50 |
+| `admin2@example.com` | `password` | Admin | 2 | Baltic Real Estate | Basic | Active | 10 | 50 |
+| `admin3@example.com` | `password` | Admin | 3 | Old Town Management | Basic | **Expired** | 10 | 50 |
+
+#### Manager Account (Legacy Role)
+
+| Email | Password | Role | Tenant ID | Description |
+|-------|----------|------|-----------|-------------|
+| `manager@test.com` | `password` | Manager | 1 | Legacy manager role for tenant 1, used for meter reading entry |
+
+#### Tenant Accounts
+
+| Email | Password | Role | Tenant ID | Property Assignment | Parent Admin | Status |
+|-------|----------|------|-----------|---------------------|--------------|--------|
+| `tenant@test.com` | `password` | Tenant | 1 | Property 1 | admin@test.com | Active |
+| `tenant2@test.com` | `password` | Tenant | 1 | Property 2 | admin@test.com | Active |
+| `tenant3@test.com` | `password` | Tenant | 2 | Property 1 | manager2@test.com | Active |
+| `jonas.petraitis@example.com` | `password` | Tenant | 1 | Property 1 | admin1@example.com | Active |
+| `ona.kazlauskiene@example.com` | `password` | Tenant | 1 | Property 2 | admin1@example.com | Active |
+| `petras.jonaitis@example.com` | `password` | Tenant | 1 | Property 3 | admin1@example.com | Active |
+| `marija.vasiliauskaite@example.com` | `password` | Tenant | 2 | Property 1 | admin2@example.com | Active |
+| `andrius.butkus@example.com` | `password` | Tenant | 2 | Property 2 | admin2@example.com | Active |
+| `deactivated@example.com` | `password` | Tenant | 1 | Property 1 | admin1@example.com | **Inactive** |
+
+### User Account Summary
+
+- **Total**: 16 users
+  - 1 Superadmin
+  - 5 Admin accounts (4 active, 1 expired subscription)
+  - 1 Manager account
+  - 9 Tenant accounts (8 active, 1 inactive)
+
+### Important Notes
+
+1. **Subscription Status**: 
+   - `admin3@example.com` has an expired subscription and will have read-only access
+   - All other admins have active subscriptions
+2. **Data Isolation**: 
+   - Admins can only access data for their `tenant_id`
+   - Tenants can only access data for their assigned `property_id`
+   - Superadmin can access all data
+3. **Inactive User**: 
+   - `deactivated@example.com` cannot log in but data is preserved for testing inactive user handling
+4. **Property Assignment**: 
+   - Exact property IDs depend on seeding order
+   - Use `php artisan tinker` to check actual property assignments:
+     ```php
+     User::where('email', 'tenant@test.com')->first()->property_id
+     ```
 
 ### Accessing Dashboards
 

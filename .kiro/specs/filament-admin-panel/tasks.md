@@ -58,16 +58,16 @@
   - **Property 3: Monotonicity enforcement**
   - **Validates: Requirements 2.5**
 
-- [ ] 3. Implement PropertyResource
+- [-] 3. Implement PropertyResource
 
-- [ ] 3.1 Create PropertyResource with table and form schemas
+- [x] 3.1 Create PropertyResource with table and form schemas
   - Run `php artisan make:filament-resource Property`
   - Define table columns: address, property type, building, tenant, area
   - Define form fields: address, property type, building select, area, tenant select
   - Configure navigation icon and label
   - _Requirements: 3.1, 3.2, 3.3_
 
-- [ ] 3.2 Integrate StorePropertyRequest validation and auto-tenant assignment
+- [x] 3.2 Integrate StorePropertyRequest validation and auto-tenant assignment
   - Extract validation rules from StorePropertyRequest
   - Apply rules to form schema
   - Implement automatic tenant_id assignment from session
@@ -86,9 +86,9 @@
   - **Property 6: Automatic tenant assignment**
   - **Validates: Requirements 3.5**
 
-- [ ] 4. Implement InvoiceResource
+- [-] 4. Implement InvoiceResource
 
-- [ ] 4.1 Create InvoiceResource with table and form schemas
+- [x] 4.1 Create InvoiceResource with table and form schemas
   - Run `php artisan make:filament-resource Invoice`
   - Define table columns: invoice number, property, billing period, total amount, status
   - Define form fields: property select, billing period dates, status
@@ -96,19 +96,22 @@
   - Add status filter (draft, finalized, paid)
   - _Requirements: 4.1, 4.2, 4.4, 4.6_
 
-- [ ] 4.2 Implement invoice items relationship manager
+- [x] 4.2 Implement invoice items relationship manager
   - Create relationship manager for invoice items
   - Display snapshotted pricing details
   - Configure columns for item display
   - _Requirements: 4.3_
 
-- [ ] 4.3 Implement invoice finalization action
-  - Create custom action for finalizing invoices
-  - Integrate FinalizeInvoiceRequest validation
-  - Disable editing for finalized invoices
+- [x] 4.3 Implement invoice finalization action
+  - ✅ Created InvoiceService for business logic separation
+  - ✅ Implemented finalize action in ViewInvoice page
+  - ✅ Integrated validation through InvoiceService
+  - ✅ Disabled editing for finalized invoices via policy
+  - ✅ Added comprehensive unit tests for InvoiceService
+  - ✅ Added Filament action tests
   - _Requirements: 4.5_
 
-- [ ] 4.4 Write property test for tenant scope isolation
+- [x] 4.4 Write property test for tenant scope isolation
   - **Property 7: Tenant scope isolation for invoices**
   - **Validates: Requirements 4.1**
 
@@ -116,7 +119,10 @@
   - **Property 8: Invoice items visibility**
   - **Validates: Requirements 4.3**
 
-- [ ] 4.6 Write property test for finalization immutability
+- [x] 4.6 Write property test for finalization immutability
+  - ✅ Created FilamentInvoiceFinalizationImmutabilityPropertyTest.php
+  - ✅ Tests finalization prevents modifications
+  - ✅ Tests status-only changes are allowed
   - **Property 9: Invoice finalization immutability**
   - **Validates: Requirements 4.5**
 

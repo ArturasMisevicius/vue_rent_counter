@@ -28,6 +28,7 @@ use App\Http\Controllers\Tenant\InvoiceController as TenantInvoiceController;
 use App\Http\Controllers\Tenant\PropertyController as TenantPropertyController;
 use App\Http\Controllers\Tenant\MeterController as TenantMeterController;
 use App\Http\Controllers\Tenant\MeterReadingController as TenantMeterReadingController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\BuildingController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\TenantController;
@@ -41,6 +42,10 @@ use App\Http\Controllers\ReportController;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::post('/locale', [LocaleController::class, 'store'])
+    ->middleware('web')
+    ->name('locale.set');
 
 // Debug route to test if routing works
 Route::get('/test-debug', function () {

@@ -13,7 +13,7 @@ use Database\Seeders\TestMetersSeeder;
 use Database\Seeders\TestPropertiesSeeder;
 use Database\Seeders\TestTariffsSeeder;
 use Database\Seeders\TestTenantsSeeder;
-use Database\Seeders\TestUsersSeeder;
+use Database\Seeders\UsersSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -21,7 +21,7 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     // Seed all prerequisite data
     $this->seed(ProvidersSeeder::class);
-    $this->seed(TestUsersSeeder::class);
+    $this->seed(UsersSeeder::class);
     $this->seed(TestBuildingsSeeder::class);
     $this->seed(TestPropertiesSeeder::class);
     $this->seed(TestTenantsSeeder::class);

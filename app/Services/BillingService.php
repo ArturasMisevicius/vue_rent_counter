@@ -300,19 +300,16 @@ class BillingService
     /**
      * Finalize an invoice, making it immutable.
      * 
-     * Sets the finalized_at timestamp and changes status to FINALIZED.
-     * After finalization, the invoice cannot be modified.
-     *
+     * Delegates to InvoiceService for proper validation and finalization.
+     * 
+     * @deprecated Use InvoiceService::finalize() directly
      * @param Invoice $invoice The invoice to finalize
      * @return void
      * @throws InvoiceAlreadyFinalizedException
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function finalizeInvoice(Invoice $invoice): void
     {
-        if ($invoice->isFinalized()) {
-            throw new InvoiceAlreadyFinalizedException($invoice->id);
-        }
-
-        $invoice->finalize();
+        app(InvoiceService::class)->finalize($invoice);
     }
 }

@@ -30,7 +30,7 @@ class TestMeterReadingsSeeder extends Seeder
         
         if (!$manager) {
             throw new \RuntimeException(
-                'No manager user found. Run TestUsersSeeder first.'
+                'No manager user found. Run UsersSeeder first.'
             );
         }
 

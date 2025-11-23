@@ -24,7 +24,7 @@ uses(RefreshDatabase::class);
 // Validates: Requirements 1.4
 test('all test users created by seeder have non-null tenant_id', function () {
     // Run the test seeder
-    $this->artisan('db:seed', ['--class' => 'TestUsersSeeder']);
+    $this->artisan('db:seed', ['--class' => 'UsersSeeder']);
     
     // Get all test users
     $testEmails = [

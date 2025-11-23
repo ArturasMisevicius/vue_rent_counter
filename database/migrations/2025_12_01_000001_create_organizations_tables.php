@@ -74,8 +74,12 @@ return new class extends Migration
         });
 
         Schema::table('meter_reading_audits', function (Blueprint $table) {
-            $table->index('meter_reading_id', 'meter_reading_audits_meter_index');
-            $table->index('changed_by_user_id', 'meter_reading_audits_changed_by_index');
+            if (!$this->indexExists('meter_reading_audits', 'meter_reading_audits_meter_index')) {
+                $table->index('meter_reading_id', 'meter_reading_audits_meter_index');
+            }
+            if (!$this->indexExists('meter_reading_audits', 'meter_reading_audits_changed_by_index')) {
+                $table->index('changed_by_user_id', 'meter_reading_audits_changed_by_index');
+            }
         });
     }
 
@@ -85,12 +89,66 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('meter_reading_audits', function (Blueprint $table) {
-            $table->dropIndex('meter_reading_audits_meter_index');
-            $table->dropIndex('meter_reading_audits_changed_by_index');
+            $this->dropIndexIfExists($table, 'meter_reading_audits_meter_index');
+            $this->dropIndexIfExists($table, 'meter_reading_audits_changed_by_index');
         });
 
         Schema::dropIfExists('organization_invitations');
         Schema::dropIfExists('organization_activity_log');
         Schema::dropIfExists('organizations');
+    }
+
+    /**
+     * Check if an index exists on a table.
+     */
+    private function indexExists(string $table, string $indexName): bool
+    {
+        try {
+            $connection = Schema::getConnection();
+            $driver = $connection->getDriverName();
+            
+            if ($driver === 'sqlite') {
+                $indexes = $connection->select("SELECT name FROM sqlite_master WHERE type='index' AND name=?", [$indexName]);
+                return !empty($indexes);
+            }
+            
+            $database = $connection->getDatabaseName();
+            
+            if ($driver === 'mysql') {
+                $result = $connection->select(
+                    "SELECT COUNT(*) as count 
+                     FROM information_schema.statistics 
+                     WHERE table_schema = ? 
+                     AND table_name = ? 
+                     AND index_name = ?",
+                    [$database, $table, $indexName]
+                );
+            } else {
+                $result = $connection->select(
+                    "SELECT COUNT(*) as count 
+                     FROM pg_indexes 
+                     WHERE schemaname = 'public' 
+                     AND tablename = ? 
+                     AND indexname = ?",
+                    [$table, $indexName]
+                );
+            }
+            
+            return isset($result[0]) && $result[0]->count > 0;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Drop an index if it exists.
+     */
+    private function dropIndexIfExists(Blueprint $table, string $indexName): void
+    {
+        try {
+            $table->dropIndex($indexName);
+        } catch (\Exception $e) {
+            // Index doesn't exist, ignore
+        }
     }
 };

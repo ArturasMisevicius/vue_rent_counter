@@ -15,6 +15,8 @@ return [
     */
 
     'labels' => [
+        'property' => 'Property',
+        'properties' => 'Properties',
         'address' => 'Address',
         'type' => 'Property Type',
         'area' => 'Area (m²)',
@@ -58,6 +60,7 @@ return [
 
     'filters' => [
         'type' => 'Property Type',
+        'building' => 'Building',
         'occupancy' => 'Occupancy Status',
         'all_properties' => 'All Properties',
         'occupied' => 'Occupied',

@@ -163,35 +163,51 @@ Run with rollback capability:
 php artisan migrate:hierarchical-users --rollback
 ```
 
-### Seeding Hierarchical Users
+### Seeding Users
 
-For development or testing, seed hierarchical user data:
+For development or testing, seed user data:
 
 ```bash
-php artisan db:seed --class=HierarchicalUsersSeeder
+# Seed all data (users, properties, meters, etc.)
+php artisan db:seed
+
+# Or seed only users (requires properties to exist first)
+php artisan db:seed --class=UsersSeeder
 ```
 
-#### What the Seeder Creates
+#### What the UsersSeeder Creates
 
-1. **Superadmin Account**:
-   - Email: superadmin@example.com
-   - Password: password
+The `UsersSeeder` creates a comprehensive set of test users for development and testing:
+
+1. **Superadmin Account** (1 user):
+   - Email: `superadmin@example.com`
+   - Password: `password`
    - Role: superadmin
-   - Full system access
+   - Full system access across all tenants
 
-2. **Admin Accounts** (3 sample organizations):
-   - Email: admin@example.com, admin2@example.com, admin3@example.com
-   - Password: password
-   - Role: admin
-   - Each with unique `tenant_id`
-   - Each with active subscription
+2. **Admin Accounts** (5 users across 3 tenant IDs):
+   - **Tenant 1**: `admin@test.com` (Test Organization 1), `admin1@example.com` (Vilnius Properties Ltd)
+   - **Tenant 2**: `manager2@test.com` (Test Organization 2), `admin2@example.com` (Baltic Real Estate)
+   - **Tenant 3**: `admin3@example.com` (Old Town Management - **expired subscription**)
+   - All passwords: `password`
+   - Each with active subscription (except admin3 which is expired)
+   - Subscription plans: Professional (50 properties, 200 tenants) or Basic (10 properties, 50 tenants)
 
-3. **Tenant Accounts** (2-3 per admin):
-   - Email: tenant@example.com, tenant2@example.com, etc.
-   - Password: password
-   - Role: tenant
-   - Assigned to properties
-   - Inherit admin's `tenant_id`
+3. **Manager Account** (1 user, legacy role):
+   - Email: `manager@test.com`
+   - Password: `password`
+   - Role: manager
+   - Tenant ID: 1
+   - Used for meter reading entry and property management
+
+4. **Tenant Accounts** (9 users):
+   - **Tenant ID 1**: 6 tenant users assigned to various properties
+   - **Tenant ID 2**: 3 tenant users assigned to properties
+   - All passwords: `password`
+   - Each assigned to a specific property
+   - One inactive tenant (`deactivated@example.com`) for testing inactive user handling
+
+See the [README.md](../overview/readme.md#seeded-user-accounts) for complete user account details.
 
 ### Fresh Installation with Hierarchical Users
 
@@ -201,11 +217,15 @@ For a completely fresh installation:
 # Drop all tables and re-run migrations
 php artisan migrate:fresh
 
-# Seed hierarchical users
-php artisan db:seed --class=HierarchicalUsersSeeder
+# Seed all data (users, properties, meters, readings, invoices, etc.)
+php artisan db:seed
 
-# Optionally seed additional test data
+# Or seed in steps:
+# 1. Seed base data (properties, buildings, etc.)
 php artisan db:seed --class=TestDatabaseSeeder
+
+# 2. Users are automatically seeded by TestDatabaseSeeder
+# (UsersSeeder is called after properties are created)
 ```
 
 ### Updating Existing Installation

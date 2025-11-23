@@ -28,6 +28,17 @@ class InvoiceResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    /**
+     * Eager load relationships to prevent N+1 queries.
+     *
+     * @return array<string>
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with(['items', 'tenant.property']);
+    }
+
     // Integrate InvoicePolicy for authorization (Requirement 9.5)
     public static function canViewAny(): bool
     {

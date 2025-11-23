@@ -1,24 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources;
 
 use App\Enums\MeterType;
+use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\MeterResource\Pages;
-use App\Filament\Resources\MeterResource\RelationManagers;
 use App\Models\Meter;
-use App\Models\Property;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Validation\Rule;
 
 class MeterResource extends Resource
 {
+    use HasTranslatedValidation;
+
     protected static ?string $model = Meter::class;
+
+    protected static string $translationPrefix = 'meters.validation';
 
     protected static ?string $navigationIcon = 'heroicon-o-cpu-chip';
 
@@ -67,7 +70,7 @@ class MeterResource extends Resource
                         $user = auth()->user();
                         if ($user && $user->tenant_id) {
                             $query->where('tenant_id', $user->tenant_id);
-                            
+
                             // For tenant users, filter by property_id as well
                             if ($user->role === \App\Enums\UserRole::TENANT && $user->property_id) {
                                 $query->where('id', $user->property_id);
@@ -77,40 +80,29 @@ class MeterResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required()
-                    ->validationMessages([
-                        'required' => 'The property is required.',
-                        'exists' => 'The selected property does not exist.',
-                    ]),
-                
+                    ->validationMessages(self::getValidationMessages('property_id')),
+
                 Forms\Components\Select::make('type')
                     ->label('Meter Type')
                     ->options(MeterType::class)
                     ->required()
                     ->native(false)
-                    ->validationMessages([
-                        'required' => 'The meter type is required.',
-                    ]),
-                
+                    ->validationMessages(self::getValidationMessages('type')),
+
                 Forms\Components\TextInput::make('serial_number')
                     ->label('Serial Number')
                     ->required()
                     ->maxLength(255)
                     ->unique(ignoreRecord: true)
-                    ->validationMessages([
-                        'required' => 'The meter serial number is required.',
-                        'unique' => 'This serial number is already registered.',
-                    ]),
-                
+                    ->validationMessages(self::getValidationMessages('serial_number')),
+
                 Forms\Components\DatePicker::make('installation_date')
                     ->label('Installation Date')
                     ->required()
                     ->maxDate(now())
                     ->native(false)
-                    ->validationMessages([
-                        'required' => 'The installation date is required.',
-                        'before_or_equal' => 'The installation date cannot be in the future.',
-                    ]),
-                
+                    ->validationMessages(self::getValidationMessages('installation_date')),
+
                 Forms\Components\Toggle::make('supports_zones')
                     ->label('Supports Time-of-Use Zones')
                     ->helperText('Enable for electricity meters with day/night rate capability')
@@ -127,7 +119,7 @@ class MeterResource extends Resource
                     ->label('Property')
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('type')
                     ->label('Meter Type')
                     ->badge()
@@ -139,23 +131,23 @@ class MeterResource extends Resource
                     })
                     ->formatStateUsing(fn (?MeterType $state): ?string => $state?->label())
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('serial_number')
                     ->label('Serial Number')
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('installation_date')
                     ->label('Installation Date')
                     ->date()
                     ->sortable(),
-                
+
                 Tables\Columns\IconColumn::make('supports_zones')
                     ->label('Zones')
                     ->boolean()
                     ->sortable()
                     ->toggleable(),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime()
@@ -167,7 +159,7 @@ class MeterResource extends Resource
                     ->label('Meter Type')
                     ->options(MeterType::labels())
                     ->native(false),
-                
+
                 Tables\Filters\TernaryFilter::make('supports_zones')
                     ->label('Supports Zones')
                     ->placeholder('All meters')

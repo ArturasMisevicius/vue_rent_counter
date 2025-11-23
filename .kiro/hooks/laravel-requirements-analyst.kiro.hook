@@ -4,7 +4,10 @@
   "description": "Translates business goals into concrete specs for BlogNews—data models, validation, policies, UX, tests, and rollout notes.",
   "version": "2",
   "when": {
-    "type": "userPrompt"
+    "type": "fileEdited",
+    "patterns": [
+      "app/**/*.php"
+    ]
   },
   "then": {
     "type": "askAgent",
