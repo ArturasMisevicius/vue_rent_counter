@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Scopes\HierarchicalScope;
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,15 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Tenant extends Model
 {
-    use HasFactory;
-
-    /**
-     * The "booted" method of the model.
-     */
-    protected static function booted(): void
-    {
-        static::addGlobalScope(new HierarchicalScope);
-    }
+    use HasFactory, BelongsToTenant;
 
     /**
      * The attributes that are mass assignable.

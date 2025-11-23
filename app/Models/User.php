@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
-use App\Scopes\HierarchicalScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,7 +17,7 @@ class User extends Authenticatable
     /**
      * The "booted" method of the model.
      * 
-     * Note: HierarchicalScope is NOT applied to User model to avoid
+     * Note: Tenant scoping is NOT applied to User model to avoid
      * circular dependency during authentication. User filtering is
      * handled through policies and controller-level authorization.
      */
@@ -67,6 +66,29 @@ class User extends Authenticatable
             'role' => UserRole::class,
             'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Role helpers for clearer intent across tenant-aware services.
+     */
+    public function isSuperadmin(): bool
+    {
+        return $this->role === UserRole::SUPERADMIN;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === UserRole::ADMIN;
+    }
+
+    public function isManager(): bool
+    {
+        return $this->role === UserRole::MANAGER;
+    }
+
+    public function isTenantUser(): bool
+    {
+        return $this->role === UserRole::TENANT;
     }
 
     /**

@@ -2,9 +2,14 @@
 
 namespace App\Scopes;
 
+use App\Enums\UserRole;
+use App\Models\User;
+use App\Services\TenantContext;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class TenantScope implements Scope
 {
@@ -13,18 +18,63 @@ class TenantScope implements Scope
      */
     public function apply(Builder $builder, Model $model): void
     {
-        $tenantId = $this->getTenantId();
+        if (! $this->hasTenantColumn($model)) {
+            return;
+        }
 
-        if ($tenantId !== null) {
-            $builder->where($model->qualifyColumn('tenant_id'), '=', $tenantId);
+        $user = Auth::user();
+
+        // Superadmins see everything
+        if ($user instanceof User && $user->isSuperadmin()) {
+            return;
+        }
+
+        $tenantId = TenantContext::id() ?? ($user?->tenant_id);
+
+        if ($tenantId === null) {
+            return;
+        }
+
+        $builder->where($model->qualifyColumn('tenant_id'), '=', $tenantId);
+
+        // Tenants should be limited to their property when applicable
+        if ($user instanceof User
+            && $user->role === UserRole::TENANT
+            && $user->property_id !== null
+            && $this->hasPropertyColumn($model)
+            && $model->getTable() !== 'users') {
+            if ($model->getTable() === 'properties') {
+                $builder->where($model->qualifyColumn('id'), '=', $user->property_id);
+            } else {
+                $builder->where($model->qualifyColumn('property_id'), '=', $user->property_id);
+            }
         }
     }
 
     /**
-     * Get the current tenant ID from session.
+     * Register builder macros for bypassing or overriding the scope.
      */
-    protected function getTenantId(): ?int
+    public function extend(Builder $builder): void
     {
-        return session('tenant_id');
+        $builder->macro('withoutTenantScope', function (Builder $builder) {
+            return $builder->withoutGlobalScope($this);
+        });
+
+        $builder->macro('forTenant', function (Builder $builder, int $tenantId) {
+            return $builder->withoutGlobalScope($this)
+                ->where($builder->getModel()->qualifyColumn('tenant_id'), $tenantId);
+        });
+    }
+
+    protected function hasTenantColumn(Model $model): bool
+    {
+        return in_array('tenant_id', $model->getFillable(), true)
+            || Schema::hasColumn($model->getTable(), 'tenant_id');
+    }
+
+    protected function hasPropertyColumn(Model $model): bool
+    {
+        return in_array('property_id', $model->getFillable(), true)
+            || Schema::hasColumn($model->getTable(), 'property_id');
     }
 }

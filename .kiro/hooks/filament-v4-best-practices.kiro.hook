@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Filament V4 Best Practices Assistant",
+  "description": "Automatically provides Filament V4 best practices, optimization tips, and implementation guidance when working with Filament resources, pages, widgets, or relation managers. Helps ensure production-ready admin panels following all Filament V4 conventions.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "app/Filament/**/*.php"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "You are a Filament V4 expert. The user has just edited a Filament file. Review the file and provide:\n\n1. **Best Practices Check**: Analyze if the implementation follows Filament V4 best practices for:\n   - Form component usage and validation\n   - Table column optimization and performance\n   - Filter implementation and UX\n   - Action grouping and organization\n   - Relationship manager setup\n   - Global search configuration\n   - Authorization and policies integration\n\n2. **Optimization Suggestions**: Identify opportunities for:\n   - Performance improvements (eager loading, query optimization)\n   - Better UX (tooltips, descriptions, icons, colors)\n   - Code organization (sections, tabs, collapsible areas)\n   - Reusability (custom actions, shared components)\n\n3. **Missing Features**: Suggest commonly needed features that might be missing:\n   - Bulk actions\n   - Export/import capabilities\n   - Custom actions for workflow\n   - Notifications and feedback\n   - Infolists for view pages\n   - Widgets for dashboards\n\n4. **Code Examples**: Provide specific code snippets for any improvements, following Filament V4 syntax and conventions.\n\n5. **Multi-tenancy Considerations**: Since this is a multi-tenant application, ensure:\n   - Tenant scoping is properly applied\n   - Authorization checks respect tenant boundaries\n   - Global scopes are correctly configured\n\nKeep suggestions practical and production-ready. Focus on the most impactful improvements first."
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "Laravel Code Refactoring Assistant",
+  "description": "Analyzes Laravel/PHP files for code smells and modernizes them with BlogNews conventions (Laravel 12, Livewire-first, strict types).",
+  "version": "2",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "app/**/*.php"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "You are a code refactoring expert. Modernize the edited Laravel/PHP file while preserving behavior and BlogNews conventions.\n\nPROJECT CONTEXT: Laravel 12, strict types, Livewire Volt/Flux admin, Tailwind 4, Sanctum. Shared traits/scopes for tables, design tokens for UI, quality gates with Pint + PHPStan max + Pest/Playwright.\n\nDELIVERABLES:\n1) Quick quality score (1-10) with key strengths + critical issues.\n2) Identified code smells (lines + severity) and duplication opportunities.\n3) Refactoring plan using modern Laravel patterns (scopes/services/DTOs/enums/early returns) and simplifications.\n4) Proposed code snippets showing the improved structure (concise, behavior-safe).\n5) Tests to add/update (Pest/Playwright/property) plus risk mitigation/rollback notes.\n6) Documentation or typing improvements (PHPDoc, types, visibility, strictness).\n\nGUARDRAILS: Maintain contracts/policies, keep translations and accessibility intact, avoid over-abstraction, respect performance (eager loading, caching), keep backward compatibility. Be specific and actionable.\n\ndo it all, do all changes, use mcp, use another sources, do all code changes"
+  },
+  "workspaceFolderName": "blognews",
+  "shortName": "laravel-code-refactor"
+}

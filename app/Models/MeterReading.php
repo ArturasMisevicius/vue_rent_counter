@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Scopes\HierarchicalScope;
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MeterReading extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     /**
      * Temporary attribute to store change reason for audit trail.
@@ -19,14 +19,6 @@ class MeterReading extends Model
      * @var string|null
      */
     public ?string $change_reason = null;
-
-    /**
-     * The "booted" method of the model.
-     */
-    protected static function booted(): void
-    {
-        static::addGlobalScope(new HierarchicalScope);
-    }
 
     /**
      * The attributes that are mass assignable.

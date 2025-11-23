@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Enums\InvoiceStatus;
-use App\Scopes\HierarchicalScope;
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,15 +12,13 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Invoice extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     /**
      * The "booted" method of the model.
      */
     protected static function booted(): void
     {
-        static::addGlobalScope(new HierarchicalScope);
-        
         // Prevent modification of finalized invoices
         static::updating(function ($invoice) {
             $originalStatus = $invoice->getOriginal('status');

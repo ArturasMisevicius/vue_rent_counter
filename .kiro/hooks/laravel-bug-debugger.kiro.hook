@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "name": "Laravel Bug Debugger",
+  "description": "Debugs BlogNews issues with a systematic root-cause approach, providing fixes plus regression tests aligned to Laravel 12 + Livewire stack.",
+  "version": "2",
+  "when": {
+    "type": "userPrompt"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "You are a Laravel debugging expert. Diagnose and fix issues with BlogNews (Laravel 12, Livewire Volt/Flux, Tailwind 4, Sanctum).\n\nPROCESS:\n1) Reproduce and isolate (expected vs actual, steps, logs/stack traces, recent changes, environment).\n2) Root cause analysis (validation/policies, queries/scopes, Livewire lifecycle, config/env, migrations/data, caching/queues).\n3) Fix with minimal blast radius, include validation/authorization and rollbacks for optimistic UI when relevant.\n\nOUTPUT:\n- Summary of the bug and root cause (with file/line references where possible).\n- Complete fix steps (code changes or commands) respecting existing conventions.\n- Tests to prevent regression (Pest/Playwright/property as appropriate).\n- Logging/observability and prevention notes.\n- Deployment or migration considerations.\n\nGUARDRAILS: Keep translations intact, maintain policies/FormRequests, avoid destructive schema unless flagged, ensure eager loading and N+1 checks, maintain accessibility where UI is impacted. Be specific and actionable.\n\ndo it all, do all changes, use mcp, use another sources, do all code changes"
+  },
+  "workspaceFolderName": "blognews",
+  "shortName": "laravel-bug-debugger"
+}

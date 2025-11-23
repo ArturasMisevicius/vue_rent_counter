@@ -1,111 +1,94 @@
 # Technology Stack
 
-## Framework & Language
+## Backend
 
-- **Laravel 11** (PHP 8.2+)
-- **Pest PHP** (v2.36+) for testing with property-based testing approach
-- **Alpine.js** (loaded via CDN, no build step required)
+- **Framework**: Laravel 12 (PHP 8.3+)
+- **Real-time**: Livewire 3 with Volt (single-file components)
+- **UI Components**: Livewire Flux + Blade component primitives
+- **Authentication**: Laravel Sanctum, email verification for comments
+- **Database**: SQLite (dev), MySQL/PostgreSQL (production)
+- **Caching/Queues**: File cache by default; Horizon-ready queue config; broadcast-less stack (Livewire handles interactivity)
+- **Security**: CSP + security headers (`config/security.php`), FormRequests + Policies gate admin surface
 
-## Database
+## Frontend
 
-- **SQLite** with Write-Ahead Logging (WAL mode) enabled
-- Foreign key constraints enforced (`DB_FOREIGN_KEYS=true`)
-- Configured via `DatabaseServiceProvider` for WAL mode initialization
+- **CSS**: TailwindCSS 4 driven by design tokens
+- **JavaScript**: AlpineJS 3, TypeScript-first utilities
+- **Build Tool**: Vite 7 with Laravel plugin
+- **Markdown Editor**: EasyMDE with autosave + preview
+- **UI Patterns**: Optimistic UI helpers, modal-heavy workflows, keyboard shortcuts
 
-## Key Dependencies
+## Testing
 
-### Production
-- `laravel/framework`: ^11.0
-- `laravel/tinker`: ^2.9
-- `spatie/laravel-backup`: ^9.3
+- **PHP Testing**: PestPHP 4 with PHPUnit 12 runner
+- **Browser Testing**: Playwright for admin/public flows
+- **Test Suites**: Browser, Feature, Unit, JS/TS
+- **Property-Based Testing**: `tests/Helpers/PropertyTesting.php` powers property suites (posts, comments, news filters)
+- **Accessibility**: Lighthouse + manual keyboard/screen-reader checks documented in `docs/`
 
-### Development
-- `pestphp/pest`: ^2.36
-- `pestphp/pest-plugin-laravel`: ^2.4
-- `laravel/pint`: ^1.13 (code style)
-- `spatie/laravel-ignition`: ^2.4 (error pages)
+## Code Quality
 
-### Frontend
-- `vite`: ^5.0
-- `laravel-vite-plugin`: ^1.0
-- `axios`: ^1.6.4
-- Alpine.js (CDN)
+- **Style**: Laravel Pint (PSR-12 baseline)
+- **Static Analysis**: PHPStan (max level)
+- **Refactoring**: Rector automation + targeted audits
+- **Frontend**: Prettier with Tailwind plugin; ESLint config co-located with Vite
+- **Docs**: phpDocumentor configuration for API docs; rich in-repo guides
 
 ## Common Commands
 
+### Setup
+```bash
+composer install           # Install PHP dependencies
+npm install                # Install Node dependencies
+php artisan key:generate   # Generate app key
+php artisan migrate        # Run migrations
+php artisan storage:link   # Link storage
+npm run build              # Build assets
+php artisan admin:create   # Create admin user
+```
+
 ### Development
 ```bash
-# Start development server
-php artisan serve
+php artisan serve          # Start dev server
+npm run dev                # Start Vite dev server
+composer dev               # Run server + queue + logs + vite concurrently
+php artisan pail           # Tail logs
+```
 
-# Run tests
-php artisan test
+### Testing
+```bash
+php artisan test                       # Run all tests
+php artisan test --parallel            # Parallel runs
+php artisan test --testsuite=Unit      # Specific suite
+npm run playwright:install             # Install Playwright browsers (one-time)
+```
 
-# Run specific test file
-php artisan test tests/Unit/TariffResolverTest.php
-
-# Run tests with coverage
-php artisan test --coverage
-
-# Code style fixing
-./vendor/bin/pint
+### Code Quality
+```bash
+./vendor/bin/pint                 # Auto-format code
+./vendor/bin/pint --test          # Check style compliance
+./vendor/bin/phpstan analyse      # Run static analysis
+rector                            # Automated refactoring
+npm run lint                      # Frontend lint/format
+composer test                     # Aggregate quality checks
 ```
 
 ### Database
 ```bash
-# Run migrations
-php artisan migrate
-
-# Fresh migration with seeding
-php artisan migrate:fresh --seed
-
-# Check WAL mode
-php artisan tinker --execute="echo DB::select('PRAGMA journal_mode;')[0]->journal_mode;"
-
-# Check foreign keys
-php artisan tinker --execute="echo DB::select('PRAGMA foreign_keys;')[0]->foreign_keys;"
+php artisan migrate               # Run migrations
+php artisan migrate:fresh --seed  # Fresh DB with seed data
+php artisan db:seed               # Seed database
+php artisan tinker                # Interactive shell
 ```
 
-### Artisan
-```bash
-# Create model with migration and factory
-php artisan make:model ModelName -mf
+## Configuration Files
 
-# Create form request
-php artisan make:request StoreModelRequest
-
-# Create service class
-php artisan make:class Services/ServiceName
-
-# Create enum
-php artisan make:enum EnumName
-
-# Clear caches
-php artisan optimize:clear
-```
-
-## Build System
-
-No JavaScript build step required for development. Alpine.js is loaded via CDN. Vite is configured for production asset compilation if needed:
-
-```bash
-# Build assets for production
-npm run build
-
-# Watch assets during development (optional)
-npm run dev
-```
-
-## Testing Philosophy
-
-- **Property-based testing**: Each correctness property runs 100+ iterations with randomized inputs
-- **Test tagging**: All property tests include comments referencing design document properties
-- **Pest syntax**: Use `test()` and `expect()` over PHPUnit class-based tests
-- **Factory usage**: Leverage factories for test data generation
-
-## Code Style
-
-- PSR-12 compliant (enforced by Laravel Pint)
-- Type hints required for method parameters and return types
-- DocBlocks for public methods explaining purpose and parameters
-- Enum usage for fixed value sets (PropertyType, MeterType, InvoiceStatus, etc.)
+- `config/blog.php` - Blog-specific settings (tags, comments, demo mode, EasyMDE)
+- `config/interface.php` - Admin UI configuration (debounce, bulk limits, optimistic UI)
+- `config/design-tokens.php` - Design system tokens
+- `config/security.php` - Security headers, CSP, frame/source policies
+- `pint.json` - Code style rules
+- `phpstan.neon` - Static analysis configuration
+- `phpunit.xml` - Test configuration
+- `vite.config.js` - Frontend build configuration
+- `tailwind.config.js` - Tailwind customization

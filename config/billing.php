@@ -60,4 +60,20 @@ return [
         'default_due_days' => 14,  // Days until invoice is due
         'late_payment_fee_percentage' => 0.05,  // 5% late fee
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Property Defaults
+    |--------------------------------------------------------------------------
+    |
+    | Default values for property creation in the admin panel.
+    |
+    */
+
+    'property' => [
+        'default_apartment_area' => env('DEFAULT_APARTMENT_AREA', 50),  // m²
+        'default_house_area' => env('DEFAULT_HOUSE_AREA', 120),  // m²
+        'min_area' => 0,
+        'max_area' => 10000,
+    ],
 ];

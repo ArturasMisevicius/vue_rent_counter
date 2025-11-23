@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Zero-Downtime Migration Strategy",
+  "description": "Automatically generates production-ready zero-downtime migration strategies with complete code, rollback plans, and deployment steps when database migration files are created or modified. Includes pre-migration analysis, dual-write strategies, backfill jobs, data verification, and monitoring guidance for tables with millions of records.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "database/migrations/*.php"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A database migration file has been modified. Analyze this migration and provide a comprehensive ZERO-DOWNTIME MIGRATION STRATEGY including:\n\n1. PRE-MIGRATION ANALYSIS:\n   - Estimate table size and migration time\n   - Identify potential blocking queries\n   - Analyze current table locks and indexes\n   - Check replication lag considerations\n\n2. DETAILED MIGRATION STEPS:\n   - Step 1: Add new structure (nullable columns first, concurrent indexes)\n   - Step 2: Dual-write strategy (write to both old and new structures)\n   - Step 3: Backfill data (chunked processing with progress tracking)\n   - Step 4: Verify data integrity (validation queries)\n   - Step 5: Switch over (start reading from new structure)\n   - Step 6: Cleanup (remove old structure after soak period)\n\n3. SPECIFIC STRATEGIES FOR:\n   - Adding columns (nullable first, backfill, then add constraints)\n   - Changing column types (new column strategy with transformation)\n   - Adding indexes (CREATE INDEX CONCURRENTLY for PostgreSQL, Online DDL for MySQL)\n   - Modifying constraints\n\n4. COMPLETE CODE IMPLEMENTATION:\n   - Production-ready migration file with up() and down() methods\n   - Background job for data backfill with chunking strategy\n   - Validation queries for data integrity checks\n   - Monitoring queries for replication lag and table locks\n\n5. ROLLBACK PLAN:\n   - Step-by-step rollback procedures\n   - Data consistency during rollback\n   - Quick rollback vs full rollback scenarios\n\n6. MONITORING & VERIFICATION:\n   - Replication lag monitoring\n   - Table lock detection\n   - Query performance metrics\n   - Error rate tracking\n   - Migration progress tracking\n\n7. DEPLOYMENT CHECKLIST:\n   - Exact commands to run in order\n   - Verification checkpoints\n   - Go/no-go decision points\n   - Stakeholder communication plan\n\n8. TESTING STRATEGY:\n   - Test on production-like data volumes\n   - Simulate production traffic\n   - Test rollback procedures\n\nProvide complete, production-ready code that can be deployed immediately. Consider the SQLite database with WAL mode enabled and the Laravel 11 framework context. Include specific considerations for multi-tenant data isolation if the migration affects tenant-scoped tables."
+  }
+}

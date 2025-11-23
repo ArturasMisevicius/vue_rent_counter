@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Scopes\HierarchicalScope;
+use App\Traits\BelongsToTenant;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,15 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Building extends Model
 {
-    use HasFactory;
-
-    /**
-     * The "booted" method of the model.
-     */
-    protected static function booted(): void
-    {
-        static::addGlobalScope(new HierarchicalScope);
-    }
+    use HasFactory, BelongsToTenant;
 
     /**
      * The attributes that are mass assignable.

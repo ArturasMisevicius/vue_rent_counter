@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Database Schema Designer",
+  "description": "Automatically generates complete database schema documentation including ERD, migrations with indexes, Eloquent models with relationships, pivot tables, polymorphic relationships, seeders, factories, and query optimization strategies when migration files are created or edited",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "database/migrations/*.php"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A migration file has been modified. Please analyze the current database schema and provide:\n\n1. **Entity-Relationship Diagram**: Describe all entities, their attributes, and relationships in detail (or ASCII art)\n\n2. **Complete Migration Analysis**:\n   - Review execution order of all migrations\n   - Identify all foreign key constraints and their cascade rules\n   - List all indexes (single column, composite, unique, full-text)\n   - Document check constraints\n   - Note default values and column types (ENUM vs VARCHAR, INT vs BIGINT, DECIMAL precision)\n\n3. **Eloquent Models Review**:\n   - All relationships with proper inverse relationships\n   - Casts for JSON, date, boolean fields\n   - Accessors and Mutators for computed fields\n   - Scopes for common queries (especially TenantScope)\n   - Soft deletes where appropriate\n   - Observers for lifecycle events\n   - fillable/guarded properties\n   - Validation rules in form requests\n\n4. **Pivot Tables**:\n   - Identify any many-to-many relationships\n   - Complete pivot migrations with additional data\n   - Pivot model classes if needed\n   - Timestamps on pivot tables\n\n5. **Polymorphic Relationships**:\n   - Identify opportunities for polymorphic relationships\n   - Complete setup if applicable\n   - Querying strategies\n\n6. **Database Seeding**:\n   - Review factory definitions for all models\n   - Seeders for initial data\n   - Realistic test data generation\n\n7. **Query Optimization**:\n   - Most common queries for this schema\n   - Optimized Eloquent versions\n   - Index strategy explained\n   - Performance considerations for SQLite with WAL mode\n\n**Database Context**:\n- Using: SQLite with WAL mode enabled\n- Foreign keys enforced via DatabaseServiceProvider\n- Multi-tenancy via TenantScope global scope\n- Expected data volume: Small to medium (property management companies with 100-1000 properties)\n\n**Advanced Features**:\n- JSON columns for tariff configurations\n- Audit trails for meter reading corrections\n- Snapshot-based invoicing (preserves historical prices)\n- Seasonal calculations (gyvatukas)\n\nProvide production-ready analysis with complete code examples where improvements are needed."
+  }
+}
