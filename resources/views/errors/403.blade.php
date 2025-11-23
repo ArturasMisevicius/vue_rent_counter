@@ -28,7 +28,7 @@
                 @auth
                     @php
                         $dashboardRoute = match(auth()->user()->role->value) {
-                            'admin' => '/admin',
+                            'admin' => route('filament.admin.pages.dashboard'),
                             'manager' => route('manager.dashboard'),
                             'tenant' => route('tenant.dashboard'),
                             default => url('/')

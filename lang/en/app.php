@@ -28,4 +28,12 @@ return [
         'go_to_app' => 'Go to app',
         'create_account' => 'Create account',
     ],
+    'auth' => [
+        'authentication_required' => 'Authentication required.',
+        'no_permission_admin_panel' => 'You do not have permission to access the admin panel.',
+        'too_many_attempts' => 'Too many failed attempts. Please try again later.',
+    ],
+    'demo' => [
+        'mutations_disabled' => 'Modifications are disabled in demo mode.',
+    ],
 ];

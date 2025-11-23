@@ -542,7 +542,7 @@ Feature tests will verify HTTP request/response cycles:
 
 ### External Dependencies
 
-- Laravel 11 framework
+- Laravel 12 framework
 - Laravel Sanctum or Passport for API authentication (if needed)
 - Laravel Notifications for email sending
 - Laravel Queue for background job processing

@@ -1,217 +1,156 @@
-# Superadmin CRUD Resources
+# Superadmin Resources
 
-## Overview
+This document outlines all Filament resources that are restricted to superadmin access only.
 
-Complete Filament CRUD resources for superadmin dashboard management, providing full control over organizations, subscriptions, and activity logs.
+## Superadmin-Only Resources
 
-## Created Resources
+The following resources are accessible only to users with the `SUPERADMIN` role:
 
-### 1. OrganizationResource (`/admin/organizations`)
+### 1. FAQ Resource (`FaqResource`)
+- **Model**: `App\Models\Faq`
+- **Navigation Group**: System
+- **Navigation Sort**: 10
+- **Purpose**: Manage frequently asked questions displayed on the public landing page
+- **Features**:
+  - Question and answer management
+  - Category organization
+  - Display order control
+  - Publish/draft status
+  - Rich text editor for answers
 
-**Purpose**: Manage multi-tenant organizations (property management companies)
+### 2. Organization Resource (`OrganizationResource`)
+- **Model**: `App\Models\Organization`
+- **Navigation Group**: System Management
+- **Navigation Sort**: 1
+- **Purpose**: Manage organizations and their subscriptions
+- **Features**:
+  - Organization details (name, slug, email, phone, domain)
+  - Subscription plans (basic, professional, enterprise)
+  - Property and user limits
+  - Regional settings (timezone, locale, currency)
+  - Suspension management
+  - Trial period tracking
 
-**Features**:
-- Full CRUD operations (Create, Read, Update, Delete)
-- Organization details: name, slug, email, phone, domain
-- Subscription & limits: plan type, max properties, max users
-- Regional settings: timezone, locale, currency
-- Status management: active/inactive, suspension with reason
-- Trial and subscription end dates
-- Usage statistics: properties, users, buildings, invoices
-- Remaining quotas display
+### 3. Subscription Resource (`SubscriptionResource`)
+- **Model**: `App\Models\Subscription`
+- **Navigation Group**: System Management
+- **Navigation Sort**: 2
+- **Purpose**: Manage subscription lifecycle and limits
+- **Features**:
+  - Plan type management
+  - Subscription period tracking
+  - Property and tenant limits
+  - Status management (active, expired, suspended, cancelled)
+  - Renewal actions
+  - Expiry warnings
 
-**Actions**:
-- Suspend organization (with reason)
-- Reactivate suspended organization
-- View detailed organization info with usage stats
+### 4. Organization Activity Log Resource (`OrganizationActivityLogResource`)
+- **Model**: `App\Models\OrganizationActivityLog`
+- **Navigation Group**: System Management
+- **Navigation Sort**: 3
+- **Purpose**: Audit trail for organization-level activities
+- **Features**:
+  - Read-only access (no create/edit)
+  - Activity tracking by organization and user
+  - Action type filtering (create, update, delete, view)
+  - IP address logging
+  - Date range filtering
 
-**Filters**:
-- Plan type (basic, professional, enterprise)
-- Active/inactive status
-- Expired subscriptions
-- Expiring soon (14 days)
+### 5. Language Resource (`LanguageResource`)
+- **Model**: `App\Models\Language`
+- **Navigation Group**: System
+- **Purpose**: Manage available languages in the system
+- **Features**:
+  - Language code and name management
+  - Active/inactive status
+  - System-wide language configuration
 
-**Navigation**: System Management group, visible only to superadmins
+### 6. Translation Resource (`TranslationResource`)
+- **Model**: `App\Models\Translation`
+- **Navigation Group**: System
+- **Purpose**: Manage translation strings across languages
+- **Features**:
+  - Translation key management
+  - Multi-language support
+  - Group organization
+  - Translation status tracking
 
----
+## Authorization Pattern
 
-### 2. SubscriptionResource (`/admin/subscriptions`)
+All superadmin resources follow this authorization pattern:
 
-**Purpose**: Manage organization subscriptions and limits
-
-**Features**:
-- Full CRUD operations
-- Subscription details: plan type, status, dates
-- Limits: max properties, max tenants
-- Usage tracking: properties used/remaining, tenants used/remaining
-- Days until expiry calculation
-- Organization association
-
-**Actions**:
-- Renew subscription (set new expiration date)
-- Suspend active subscription
-- Activate suspended/expired subscription
-
-**Filters**:
-- Plan type (basic, professional, enterprise)
-- Status (active, expired, suspended, cancelled)
-- Expiring soon (14 days)
-- Expired subscriptions
-
-**Navigation**: System Management group, visible only to superadmins
-
----
-
-### 3. OrganizationActivityLogResource (`/admin/organization-activity-logs`)
-
-**Purpose**: Audit trail for all organization activities
-
-**Features**:
-- Read-only resource (logs created automatically)
-- Activity details: timestamp, organization, user, action
-- Resource tracking: type and ID
-- Request information: IP address, user agent
-- Metadata display (JSON formatted)
-
-**Filters**:
-- Organization
-- User
-- Action type (create, update, delete, view)
-- Date range
-
-**Navigation**: System Management group, visible only to superadmins
-
-**Note**: Cannot create or edit logs manually - they're generated automatically by the system
-
----
-
-## Policies
-
-### OrganizationPolicy
-- All operations restricted to superadmin only
-- Enforces tenant isolation at policy level
-
-### SubscriptionPolicy (Enhanced)
-- Superadmin: full access to all subscriptions
-- Admin: can view and renew their own subscription
-- All modifications restricted to superadmin
-
-### OrganizationActivityLogPolicy
-- View: superadmin only
-- Create/Update: disabled (automatic logging)
-- Delete: superadmin only
-
----
-
-## Integration Points
-
-### AppServiceProvider
-Policies registered in `app/Providers/AppServiceProvider.php`:
 ```php
-protected $policies = [
-    // ... existing policies
-    \App\Models\Organization::class => \App\Policies\OrganizationPolicy::class,
-    \App\Models\OrganizationActivityLog::class => \App\Policies\OrganizationActivityLogPolicy::class,
-    \App\Models\Subscription::class => \App\Policies\SubscriptionPolicy::class,
-];
+public static function shouldRegisterNavigation(): bool
+{
+    return auth()->user()?->isSuperadmin() ?? false;
+}
+
+public static function canViewAny(): bool
+{
+    return auth()->user()?->isSuperadmin() ?? false;
+}
+
+public static function canCreate(): bool
+{
+    return auth()->user()?->isSuperadmin() ?? false;
+}
+
+public static function canEdit($record): bool
+{
+    return auth()->user()?->isSuperadmin() ?? false;
+}
+
+public static function canDelete($record): bool
+{
+    return auth()->user()?->isSuperadmin() ?? false;
+}
+
+public static function canView($record): bool
+{
+    return auth()->user()?->isSuperadmin() ?? false;
+}
 ```
 
-### Routes
-- Filament routes: `/admin/organizations`, `/admin/subscriptions`, `/admin/organization-activity-logs`
-- Legacy routes: `/superadmin/organizations`, `/superadmin/subscriptions` (still functional)
+## Admin-Level Resources
 
-### Navigation
-All resources grouped under "System Management" in Filament sidebar, visible only when:
-```php
-auth()->user()?->isSuperadmin() ?? false
-```
+For comparison, these resources are accessible to ADMIN role users:
 
----
+- **UserResource**: User management within organization
+- **TariffResource**: Tariff configuration
+- **ProviderResource**: Utility provider management
+- **BuildingResource**: Building management
+- **PropertyResource**: Property management
+- **MeterResource**: Meter management
+- **MeterReadingResource**: Meter reading management
+- **InvoiceResource**: Invoice management
 
-## Usage Examples
+## Security Notes
 
-### Creating an Organization
-1. Navigate to `/admin/organizations`
-2. Click "New Organization"
-3. Fill in organization details
-4. Select plan type (auto-populates limits)
-5. Set subscription dates
-6. Configure regional settings
-7. Save
-
-### Managing Subscriptions
-1. Navigate to `/admin/subscriptions`
-2. Filter by status or expiring soon
-3. Click on subscription to view details
-4. Use actions to renew, suspend, or activate
-5. View usage statistics vs limits
-
-### Viewing Activity Logs
-1. Navigate to `/admin/organization-activity-logs`
-2. Filter by organization, user, or date range
-3. Click on log entry to view full details
-4. Review metadata and request information
-
----
-
-## Data Models
-
-### Organization
-- Primary tenant entity in multi-tenancy architecture
-- Tracks plan, limits, settings, features
-- Auto-generates unique slug from name
-- Initializes default settings and features on creation
-
-### Subscription
-- Belongs to User (admin role)
-- Tracks plan type, status, dates, limits
-- Provides helper methods: `isActive()`, `isExpired()`, `daysUntilExpiry()`
-- Enforces property and tenant quotas
-
-### OrganizationActivityLog
-- Immutable audit trail
-- Captures action, resource, metadata
-- Records IP address and user agent
-- Automatic creation via `OrganizationActivityLog::log()`
-
----
-
-## Security Considerations
-
-1. **Authorization**: All resources check `isSuperadmin()` before display
-2. **Tenant Isolation**: Uses `withoutGlobalScopes()` to access cross-tenant data
-3. **Audit Trail**: All organization changes logged automatically
-4. **Immutable Logs**: Activity logs cannot be edited, only viewed/deleted by superadmin
-5. **Suspension Tracking**: Suspension reason and timestamp captured for accountability
-
----
+1. All superadmin resources use `withoutGlobalScopes()` in their Eloquent queries to access data across all tenants
+2. Navigation visibility is controlled by `shouldRegisterNavigation()` method
+3. All CRUD operations are protected by authorization methods
+4. Activity logs are read-only to preserve audit integrity
+5. Superadmin role is checked using the `isSuperadmin()` helper method on the User model
 
 ## Testing
 
-Run Filament resource tests:
-```bash
-php artisan test --filter=Filament
+When testing superadmin resources:
+
+```php
+// Create a superadmin user
+$superadmin = User::factory()->create([
+    'role' => UserRole::SUPERADMIN,
+]);
+
+// Act as superadmin
+$this->actingAs($superadmin);
+
+// Test resource access
+$this->get(FaqResource::getUrl('index'))->assertSuccessful();
 ```
 
-Verify routes:
-```bash
-php artisan route:list --path=admin | grep -E "(organization|subscription)"
-```
+## Related Documentation
 
-Check policies:
-```bash
-php artisan tinker
->>> $user = User::where('role', 'superadmin')->first();
->>> Gate::forUser($user)->allows('viewAny', Organization::class);
-```
-
----
-
-## Future Enhancements
-
-- [ ] Bulk organization operations (suspend, reactivate)
-- [ ] Subscription renewal reminders (automated emails)
-- [ ] Organization usage charts and analytics
-- [ ] Export activity logs to CSV/PDF
-- [ ] Organization invitation system integration
-- [ ] Custom plan creation interface
+- [Hierarchical User Management Spec](../../.kiro/specs/hierarchical-user-management/)
+- [Filament Admin Panel Spec](../../.kiro/specs/filament-admin-panel/)
+- [Authorization Fix Summary](../../AUTHORIZATION_FIX_SUMMARY.md)

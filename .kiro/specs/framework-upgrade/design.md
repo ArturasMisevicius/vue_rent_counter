@@ -2,17 +2,17 @@
 
 ## Overview
 
-This design outlines the architecture and approach for upgrading the Vilnius Utilities Billing Platform from Laravel 11 + Filament 3 to Laravel 12+ + Filament 4+, along with Tailwind CSS 4+ and all related dependencies. The upgrade will be performed in phases to minimize risk, with comprehensive testing at each stage to ensure system integrity.
+This design outlines the architecture and approach for upgrading the Vilnius Utilities Billing Platform to Laravel 12+ + Filament 4+, along with Tailwind CSS 4+ and all related dependencies. The upgrade will be performed in phases to minimize risk, with comprehensive testing at each stage to ensure system integrity.
 
 The current stack includes:
-- Laravel 11.x with PHP 8.2+
-- Filament 3.x for admin panels
+- Laravel 12.x with PHP 8.3+ (8.2 minimum)
+- Filament 4.x (Livewire 3) for admin panels
 - Tailwind CSS (CDN-delivered)
 - Spatie packages for backup and multi-tenancy
 - Pest/PHPUnit for testing
 
 The target stack will include:
-- Laravel 12.x with PHP 8.3+ support
+- Laravel 12.x with PHP 8.3+ support (recommended runtime)
 - Filament 4.x with improved performance and DX
 - Tailwind CSS 4.x with modern CSS features
 - Updated Spatie packages
@@ -34,22 +34,21 @@ The upgrade follows a **phased rollout** approach:
 
 ### Risk Mitigation
 
-- **Git branching**: Perform upgrade in a dedicated `upgrade/laravel-12-filament-4` branch
-- **Incremental commits**: Commit after each successful phase
+- **Incremental commits**: Commit after each successful phase on `main`
 - **Test-driven**: Run full test suite after each phase
 - **Rollback plan**: Document rollback steps for each phase
 - **Staging deployment**: Test on staging environment before production
 
 ### Compatibility Matrix
 
-| Component | Current | Target | Breaking Changes |
-|-----------|---------|--------|------------------|
-| Laravel | 11.x | 12.x | Middleware, routing, validation |
-| Filament | 3.x | 4.x | Resource API, form/table builders |
-| PHP | 8.2+ | 8.3+ | Minor deprecations |
-| Tailwind | 3.x (CDN) | 4.x (CDN) | Configuration, utilities |
-| Pest | 2.36 | 3.x | Plugin API changes |
-| Spatie Backup | 9.3 | 10.x | Configuration updates |
+| Component | Current | Target | Breaking Changes / Focus |
+|-----------|---------|--------|--------------------------|
+| Laravel | 12.x | 12.x (latest) | Verify middleware/config alignment, adopt new helpers |
+| Filament | 4.x | 4.x (latest minor) | Livewire 3 hydration, form/table API tuning, asset/caching optimizations |
+| PHP | 8.3+ | 8.3+ | Minor deprecations |
+| Tailwind | 4.x (CDN) | 4.x (CDN) | Utility changes, CSS layering |
+| Pest | 3.x | 3.x | Plugin API changes |
+| Spatie Backup | 10.x | 10.x | Configuration updates |
 
 ## Components and Interfaces
 
@@ -111,22 +110,18 @@ The upgrade follows a **phased rollout** approach:
 
 **Migration Pattern**:
 ```php
-// Filament 3 (current)
+// Filament 4 (current) - favor Livewire 3 features and lazy hydration for performance
 public static function form(Form $form): Form
 {
-    return $form->schema([
-        TextInput::make('name')->required(),
-    ]);
+    return $form
+        ->schema([
+            Forms\Components\TextInput::make('name')
+                ->required()
+                ->live(onBlur: true), // reduces rerenders while still validating promptly
+        ])
+        ->columns(2); // keep layout lean for faster hydration
 }
 
-// Filament 4 (target) - API may change
-public static function form(Form $form): Form
-{
-    return $form->schema([
-        Forms\Components\TextInput::make('name')
-            ->required(),
-    ]);
-}
 ```
 
 ### 4. Middleware Migrator
@@ -217,7 +212,7 @@ Models may require updates for:
 
 Example:
 ```php
-// Current (Laravel 11)
+// Current (Laravel 12)
 protected $casts = [
     'published_at' => 'datetime',
 ];
@@ -438,7 +433,6 @@ test('all Filament resources render without errors', function () {
 - Document current versions of all dependencies
 - Run baseline test suite and capture results
 - Run performance benchmarks and capture metrics
-- Create upgrade branch
 
 **Deliverables**:
 - Git tag: `pre-upgrade-baseline`
@@ -595,7 +589,7 @@ test('all Filament resources render without errors', function () {
 
 If critical issues are discovered after deployment:
 
-1. **Revert Git branch**: `git checkout main && git reset --hard pre-upgrade-baseline`
+1. **Revert repository**: `git checkout main && git reset --hard pre-upgrade-baseline`
 2. **Restore dependencies**: `composer install && npm install`
 3. **Restore database**: Restore from backup if migrations were run
 4. **Clear caches**: `php artisan cache:clear && php artisan config:clear`
@@ -653,7 +647,7 @@ If issues are discovered in a specific phase:
 
 ### Staging Deployment
 
-1. Deploy upgrade branch to staging environment
+1. Deploy main to staging environment
 2. Run full test suite on staging
 3. Perform manual testing of critical workflows
 4. Run performance benchmarks
@@ -663,7 +657,7 @@ If issues are discovered in a specific phase:
 
 1. Schedule maintenance window (if needed)
 2. Create production database backup
-3. Deploy upgrade branch to production
+3. Deploy main to production
 4. Run migrations (if any)
 5. Clear all caches
 6. Verify deployment with smoke tests

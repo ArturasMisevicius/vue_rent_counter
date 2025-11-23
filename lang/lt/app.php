@@ -28,4 +28,12 @@ return [
         'go_to_app' => 'Eiti į programą',
         'create_account' => 'Sukurti paskyrą',
     ],
+    'auth' => [
+        'authentication_required' => 'Reikalinga autentifikacija.',
+        'no_permission_admin_panel' => 'Neturite leidimo pasiekti administravimo skydelį.',
+        'too_many_attempts' => 'Per daug nesėkmingų bandymų. Bandykite dar kartą vėliau.',
+    ],
+    'demo' => [
+        'mutations_disabled' => 'Pakeitimai išjungti demonstracinėje versijoje.',
+    ],
 ];

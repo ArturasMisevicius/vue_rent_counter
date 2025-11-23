@@ -210,7 +210,7 @@ test('authenticated admin can access admin dashboard', function () {
     $this->actingAs($admin);
 
     // Access admin dashboard
-    $response = $this->get('/admin/dashboard');
+    $response = $this->get(route('filament.admin.pages.dashboard'));
 
     // Assert successful access
     $response->assertOk();
@@ -248,10 +248,10 @@ test('authenticated tenant can access tenant dashboard', function () {
 
 test('unauthenticated user cannot access admin dashboard', function () {
     // Attempt to access admin dashboard without authentication
-    $response = $this->get('/admin/dashboard');
+    $response = $this->get(route('filament.admin.pages.dashboard'));
 
     // Assert redirected to login
-    $response->assertRedirect('/login');
+    $response->assertRedirect(route('filament.admin.auth.login'));
 });
 
 test('unauthenticated user cannot access manager dashboard', function () {

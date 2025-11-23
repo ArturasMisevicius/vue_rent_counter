@@ -2,7 +2,7 @@
 
 ## Vilnius Utilities Billing Platform
 
-Modern, multi-tenant utility and rental management for Lithuanian property portfolios. Built on Laravel 11 with Filament, it tracks buildings, meters, invoices, and tenants through role-aware dashboards, guards every request with tenant scope, and keeps gyvatukas/tariff math auditable.
+Modern, multi-tenant utility and rental management for Lithuanian property portfolios. Built on Laravel 12 with Filament, it tracks buildings, meters, invoices, and tenants through role-aware dashboards, guards every request with tenant scope, and keeps gyvatukas/tariff math auditable.
 
 ## Core Purpose
 

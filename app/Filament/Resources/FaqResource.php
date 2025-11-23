@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\FaqResource\Pages;
 use App\Models\Faq;
 use Filament\Forms;
@@ -18,33 +19,33 @@ class FaqResource extends Resource
 
     protected static ?string $navigationLabel = 'FAQ';
 
-    protected static ?string $navigationGroup = 'Content';
+    protected static ?string $navigationGroup = 'System';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 10;
 
     public static function shouldRegisterNavigation(): bool
     {
-        return auth()->check() && auth()->user()->role === \App\Enums\UserRole::ADMIN;
+        return auth()->check() && auth()->user()->role === UserRole::SUPERADMIN;
     }
 
     public static function canViewAny(): bool
     {
-        return auth()->check() && auth()->user()->role === \App\Enums\UserRole::ADMIN;
+        return auth()->check() && auth()->user()->role === UserRole::SUPERADMIN;
     }
 
     public static function canCreate(): bool
     {
-        return auth()->check() && auth()->user()->role === \App\Enums\UserRole::ADMIN;
+        return auth()->check() && auth()->user()->role === UserRole::SUPERADMIN;
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->check() && auth()->user()->role === \App\Enums\UserRole::ADMIN;
+        return auth()->check() && auth()->user()->role === UserRole::SUPERADMIN;
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->check() && auth()->user()->role === \App\Enums\UserRole::ADMIN;
+        return auth()->check() && auth()->user()->role === UserRole::SUPERADMIN;
     }
 
     public static function form(Form $form): Form

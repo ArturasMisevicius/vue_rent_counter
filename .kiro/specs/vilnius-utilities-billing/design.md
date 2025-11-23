@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Vilnius Utilities Billing System is a monolithic Laravel 11/12 application using SQLite as the primary database. The architecture follows the "Majestic Monolith" pattern, consolidating all business logic, data access, and presentation layers within a single deployable unit. The system eliminates the complexity of separate frontend/backend codebases by using server-side rendering (Blade templates) enhanced with Alpine.js for reactive UI components.
+The Vilnius Utilities Billing System is a monolithic Laravel 12 application using SQLite as the primary database. The architecture follows the "Majestic Monolith" pattern, consolidating all business logic, data access, and presentation layers within a single deployable unit. The system eliminates the complexity of separate frontend/backend codebases by using server-side rendering (Blade templates) enhanced with Alpine.js for reactive UI components.
 
 The core domain revolves around three Lithuanian utility providers (Ignitis for electricity, Vilniaus Vandenys for water, Vilniaus Energija for heating) and their unique billing rules, particularly the seasonal "gyvatukas" (circulation fee) calculation that differs between heating and non-heating seasons.
 
@@ -881,4 +881,3 @@ public function ignitis(): static
 - Run extended property tests (1000 iterations) nightly
 - Run performance benchmarks weekly
 - Test backup/restore procedures monthly
-

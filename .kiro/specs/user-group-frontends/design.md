@@ -685,7 +685,7 @@ While not part of the automated test suite, manual browser testing should verify
 
 ## Dependencies
 
-- **Laravel 11**: Framework foundation
+- **Laravel 12**: Framework foundation
 - **Blade**: Templating engine
 - **Alpine.js**: Client-side interactivity (loaded via CDN)
 - **Tailwind CSS**: Styling (loaded via CDN)
