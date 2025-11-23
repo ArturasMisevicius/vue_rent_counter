@@ -2,9 +2,12 @@
 
 namespace App\Providers\Filament;
 
+use App\Enums\UserRole;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -59,7 +62,18 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 'panels::auth.login.form.after',
                 fn (): string => ''
-            );
+            )
+            // Configure navigation based on user role (Requirement 1.1, 13.1)
+            ->navigationGroups([
+                NavigationGroup::make('Administration')
+                    ->collapsed(false),
+                NavigationGroup::make('Property Management')
+                    ->collapsed(false),
+                NavigationGroup::make('Billing')
+                    ->collapsed(false),
+                NavigationGroup::make('System')
+                    ->collapsed(true),
+            ]);
     }
 
     /**

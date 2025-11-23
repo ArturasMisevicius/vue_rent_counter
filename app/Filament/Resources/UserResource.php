@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Enums\UserRole;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
+use App\Models\Property;
 use App\Models\Tenant;
 use App\Models\User;
 use Filament\Forms;
@@ -124,19 +125,61 @@ class UserResource extends Resource
                         'required' => 'The role is required.',
                     ]),
                 
-                Forms\Components\Select::make('tenant_id')
-                    ->label('Tenant')
-                    ->options(Tenant::all()->pluck('name', 'id'))
-                    ->searchable()
+                // Organization name for admin role (Requirement 2.1)
+                Forms\Components\TextInput::make('organization_name')
+                    ->label('Organization Name')
+                    ->maxLength(255)
                     ->required(fn (Forms\Get $get): bool => 
-                        in_array($get('role'), [UserRole::MANAGER->value, UserRole::TENANT->value])
+                        $get('role') === UserRole::ADMIN->value
                     )
-                    ->hidden(fn (Forms\Get $get): bool => 
+                    ->visible(fn (Forms\Get $get): bool => 
                         $get('role') === UserRole::ADMIN->value
                     )
                     ->validationMessages([
-                        'required' => 'The tenant is required for manager and tenant roles.',
-                        'exists' => 'The selected tenant does not exist.',
+                        'required' => 'Organization name is required for admin users.',
+                        'max' => 'Organization name cannot exceed 255 characters.',
+                    ]),
+                
+                // Property assignment for tenant role (Requirement 5.1, 5.2)
+                Forms\Components\Select::make('property_id')
+                    ->label('Assigned Property')
+                    ->relationship('property', 'address', function (Builder $query) {
+                        // Filter properties by authenticated user's tenant_id
+                        $user = auth()->user();
+                        if ($user && $user->tenant_id) {
+                            $query->where('tenant_id', $user->tenant_id);
+                        }
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->required(fn (Forms\Get $get): bool => 
+                        $get('role') === UserRole::TENANT->value
+                    )
+                    ->visible(fn (Forms\Get $get): bool => 
+                        $get('role') === UserRole::TENANT->value
+                    )
+                    ->validationMessages([
+                        'required' => 'Property assignment is required for tenant users.',
+                        'exists' => 'The selected property does not exist.',
+                    ]),
+                
+                // Parent user (admin who created this tenant) - auto-set, display only
+                Forms\Components\Select::make('parent_user_id')
+                    ->label('Created By (Admin)')
+                    ->relationship('parentUser', 'name')
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->visible(fn (Forms\Get $get, ?User $record): bool => 
+                        $record && $record->parent_user_id !== null
+                    ),
+                
+                // Account activation status (Requirement 7.1)
+                Forms\Components\Toggle::make('is_active')
+                    ->label('Account Active')
+                    ->default(true)
+                    ->helperText('Deactivated accounts cannot log in')
+                    ->validationMessages([
+                        'boolean' => 'Account status must be active or inactive.',
                     ]),
             ]);
     }
@@ -166,12 +209,33 @@ class UserResource extends Resource
                     })
                     ->sortable(),
                 
-                Tables\Columns\TextColumn::make('tenant_id')
-                    ->label('Tenant')
-                    ->formatStateUsing(fn ($state) => $state ? Tenant::find($state)?->name : 'N/A')
+                Tables\Columns\TextColumn::make('organization_name')
+                    ->label('Organization')
                     ->searchable()
                     ->sortable()
+                    ->toggleable()
+                    ->placeholder('N/A'),
+                
+                Tables\Columns\TextColumn::make('property.address')
+                    ->label('Assigned Property')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->limit(30)
+                    ->placeholder('N/A'),
+                
+                Tables\Columns\IconColumn::make('is_active')
+                    ->label('Active')
+                    ->boolean()
+                    ->sortable()
                     ->toggleable(),
+                
+                Tables\Columns\TextColumn::make('parentUser.name')
+                    ->label('Created By')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('N/A'),
                 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created At')

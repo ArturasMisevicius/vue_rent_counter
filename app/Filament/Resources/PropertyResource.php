@@ -81,8 +81,15 @@ class PropertyResource extends Resource
                 
                 Forms\Components\Select::make('building_id')
                     ->label('Building')
-                    ->options(Building::all()->pluck('address', 'id'))
+                    ->relationship('building', 'address', function (Builder $query) {
+                        // Filter buildings by authenticated user's tenant_id (Requirement 4.3, 12.3)
+                        $user = auth()->user();
+                        if ($user && $user->tenant_id) {
+                            $query->where('tenant_id', $user->tenant_id);
+                        }
+                    })
                     ->searchable()
+                    ->preload()
                     ->nullable()
                     ->validationMessages([
                         'exists' => 'The selected building does not exist.',
@@ -105,8 +112,16 @@ class PropertyResource extends Resource
                 
                 Forms\Components\Select::make('tenants')
                     ->label('Tenant')
-                    ->relationship('tenants', 'name')
+                    ->relationship('tenants', 'name', function (Builder $query) {
+                        // Filter tenants by authenticated user's tenant_id (Requirement 5.3)
+                        $user = auth()->user();
+                        if ($user && $user->tenant_id) {
+                            $query->where('tenant_id', $user->tenant_id)
+                                  ->where('role', \App\Enums\UserRole::TENANT);
+                        }
+                    })
                     ->searchable()
+                    ->preload()
                     ->nullable()
                     ->helperText('Optional: Assign a tenant to this property'),
             ]);

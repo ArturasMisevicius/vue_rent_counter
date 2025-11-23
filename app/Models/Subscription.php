@@ -69,7 +69,7 @@ class Subscription extends Model
      */
     public function daysUntilExpiry(): int
     {
-        return now()->diffInDays($this->expires_at, false);
+        return (int) now()->diffInDays($this->expires_at, false);
     }
 
     /**

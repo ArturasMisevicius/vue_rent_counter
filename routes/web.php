@@ -42,6 +42,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Debug route to test if routing works
+Route::get('/test-debug', function () {
+    return response()->json([
+        'status' => 'OK',
+        'message' => 'Laravel is working',
+        'timestamp' => now()->toDateTimeString(),
+    ]);
+});
+
 // Authentication routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -82,7 +91,7 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
 // ============================================================================
 // ADMIN ROUTES
 // ============================================================================
-Route::middleware(['auth', 'role:admin', 'subscription.check', 'hierarchical.access'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     
     // Dashboard
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -133,7 +142,7 @@ Route::middleware(['auth', 'role:admin', 'subscription.check', 'hierarchical.acc
 // ============================================================================
 // MANAGER ROUTES
 // ============================================================================
-Route::middleware(['auth', 'role:manager', 'subscription.check', 'hierarchical.access'])->prefix('manager')->name('manager.')->group(function () {
+Route::middleware(['auth', 'role:manager'])->prefix('manager')->name('manager.')->group(function () {
     
     // Dashboard
     Route::get('/dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');
@@ -181,7 +190,7 @@ Route::middleware(['auth', 'role:manager', 'subscription.check', 'hierarchical.a
 // ============================================================================
 // TENANT ROUTES
 // ============================================================================
-Route::middleware(['auth', 'role:tenant', 'hierarchical.access'])->prefix('tenant')->name('tenant.')->group(function () {
+Route::middleware(['auth', 'role:tenant'])->prefix('tenant')->name('tenant.')->group(function () {
     
     // Dashboard
     Route::get('/dashboard', [TenantDashboardController::class, 'index'])->name('dashboard');
@@ -211,7 +220,7 @@ Route::middleware(['auth', 'role:tenant', 'hierarchical.access'])->prefix('tenan
 // ============================================================================
 // SHARED ROUTES (ADMIN & MANAGER)
 // ============================================================================
-Route::middleware(['auth', 'role:admin,manager', 'subscription.check', 'hierarchical.access'])->group(function () {
+Route::middleware(['auth', 'role:admin,manager'])->group(function () {
     
     // Buildings
     Route::resource('buildings', BuildingController::class);

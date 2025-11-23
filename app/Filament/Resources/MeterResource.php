@@ -62,8 +62,20 @@ class MeterResource extends Resource
             ->schema([
                 Forms\Components\Select::make('property_id')
                     ->label('Property')
-                    ->options(Property::all()->pluck('address', 'id'))
+                    ->relationship('property', 'address', function (Builder $query) {
+                        // Filter properties by authenticated user's tenant_id (Requirement 9.1, 12.4)
+                        $user = auth()->user();
+                        if ($user && $user->tenant_id) {
+                            $query->where('tenant_id', $user->tenant_id);
+                            
+                            // For tenant users, filter by property_id as well
+                            if ($user->role === \App\Enums\UserRole::TENANT && $user->property_id) {
+                                $query->where('id', $user->property_id);
+                            }
+                        }
+                    })
                     ->searchable()
+                    ->preload()
                     ->required()
                     ->validationMessages([
                         'required' => 'The property is required.',

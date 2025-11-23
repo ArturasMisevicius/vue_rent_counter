@@ -10,6 +10,7 @@ use App\Models\Property;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -63,22 +64,45 @@ class MeterReadingResource extends Resource
             ->schema([
                 Forms\Components\Select::make('property_id')
                     ->label('Property')
-                    ->options(Property::all()->pluck('address', 'id'))
+                    ->relationship('meter.property', 'address', function (Builder $query) {
+                        // Filter properties by authenticated user's tenant_id (Requirement 9.1, 10.1, 12.4)
+                        $user = auth()->user();
+                        if ($user && $user->tenant_id) {
+                            $query->where('tenant_id', $user->tenant_id);
+                            
+                            // For tenant users, filter by property_id as well
+                            if ($user->role === \App\Enums\UserRole::TENANT && $user->property_id) {
+                                $query->where('id', $user->property_id);
+                            }
+                        }
+                    })
                     ->searchable()
+                    ->preload()
                     ->required()
                     ->live()
                     ->afterStateUpdated(fn (Forms\Set $set) => $set('meter_id', null)),
                 
                 Forms\Components\Select::make('meter_id')
                     ->label('Meter')
-                    ->options(fn (Get $get): Collection => 
-                        Meter::query()
-                            ->where('property_id', $get('property_id'))
-                            ->get()
-                            ->mapWithKeys(fn (Meter $meter) => [
-                                $meter->id => "{$meter->type->value} - {$meter->serial_number}"
-                            ])
-                    )
+                    ->options(function (Get $get): Collection {
+                        $query = Meter::query();
+                        
+                        // Filter by property if selected
+                        if ($get('property_id')) {
+                            $query->where('property_id', $get('property_id'));
+                        }
+                        
+                        // Filter by authenticated user's tenant_id (Requirement 9.1, 10.1, 12.4)
+                        $user = auth()->user();
+                        if ($user && $user->tenant_id) {
+                            $query->where('tenant_id', $user->tenant_id);
+                        }
+                        
+                        return $query->get()
+                            ->mapWithKeys(function (Meter $meter) {
+                                return [$meter->id => "{$meter->type->value} - {$meter->serial_number}"];
+                            });
+                    })
                     ->searchable()
                     ->required()
                     ->disabled(fn (Get $get): bool => !$get('property_id'))

@@ -27,9 +27,25 @@
         </div>
     </div>
 
-    @if(auth()->user()->role->value === 'admin' && isset($subscription))
+    @if(auth()->user()->role->value === 'admin')
         <!-- Subscription Status Banner -->
-        @if($subscriptionStatus === 'expired')
+        @if($subscriptionStatus === 'no_subscription')
+            <div class="mt-6 rounded-md bg-red-50 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <h3 class="text-sm font-medium text-red-800">No Active Subscription</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <p>You do not have an active subscription. Please contact support to activate your account.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @elseif($subscriptionStatus === 'expired' && isset($subscription))
             <div class="mt-6 rounded-md bg-red-50 p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
@@ -50,7 +66,7 @@
                     </div>
                 </div>
             </div>
-        @elseif($subscriptionStatus === 'expiring_soon')
+        @elseif($subscriptionStatus === 'expiring_soon' && isset($subscription))
             <div class="mt-6 rounded-md bg-yellow-50 p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
@@ -73,20 +89,21 @@
             </div>
         @endif
 
-        <!-- Subscription Limits Card -->
-        <div class="mt-6">
-            <x-card title="Subscription Status">
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">Plan Type</p>
-                            <p class="text-sm text-gray-500">{{ ucfirst($subscription->plan_type) }}</p>
+        @if(isset($subscription))
+            <!-- Subscription Limits Card -->
+            <div class="mt-6">
+                <x-card title="Subscription Status">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Plan Type</p>
+                                <p class="text-sm text-gray-500">{{ ucfirst($subscription->plan_type) }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-900">Expires</p>
+                                <p class="text-sm text-gray-500">{{ $subscription->expires_at->format('M d, Y') }}</p>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <p class="text-sm font-medium text-gray-900">Expires</p>
-                            <p class="text-sm text-gray-500">{{ $subscription->expires_at->format('M d, Y') }}</p>
-                        </div>
-                    </div>
 
                     @if(isset($usageStats))
                         <!-- Properties Usage -->
@@ -120,6 +137,7 @@
                 </div>
             </x-card>
         </div>
+        @endif
     @endif
 
     <!-- Primary Stats Grid -->

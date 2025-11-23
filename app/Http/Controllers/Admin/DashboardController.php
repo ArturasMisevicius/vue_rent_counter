@@ -45,7 +45,7 @@ class DashboardController extends Controller
         
         if ($subscription) {
             $daysUntilExpiry = $subscription->daysUntilExpiry();
-            $showExpiryWarning = $daysUntilExpiry <= 14 && $daysUntilExpiry > 0;
+            $showExpiryWarning = $daysUntilExpiry !== null && $daysUntilExpiry <= 14 && $daysUntilExpiry > 0;
             
             if ($subscription->isExpired()) {
                 $subscriptionStatus = 'expired';
@@ -54,6 +54,9 @@ class DashboardController extends Controller
             } else {
                 $subscriptionStatus = 'active';
             }
+        } else {
+            // No subscription - set default status
+            $subscriptionStatus = 'no_subscription';
         }
         
         // Portfolio statistics (scoped to admin's tenant_id)

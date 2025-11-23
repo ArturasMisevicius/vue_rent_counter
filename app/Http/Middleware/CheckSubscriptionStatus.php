@@ -33,6 +33,12 @@ class CheckSubscriptionStatus
         $subscription = $user->subscription;
         
         if (!$subscription) {
+            // Allow access to dashboard to see subscription warning
+            if ($request->routeIs('admin.dashboard')) {
+                session()->flash('error', 'No active subscription found. Please contact support.');
+                return $next($request);
+            }
+            
             return $this->redirectToSubscriptionPage(
                 'No active subscription found. Please contact support.'
             );

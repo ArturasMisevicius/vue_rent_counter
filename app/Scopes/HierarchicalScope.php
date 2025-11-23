@@ -27,6 +27,14 @@ class HierarchicalScope implements Scope
             return;
         }
 
+        // Check if the model has tenant_id column before applying scope
+        $hasTenantId = in_array('tenant_id', $model->getFillable()) || 
+                        \Illuminate\Support\Facades\Schema::hasColumn($model->getTable(), 'tenant_id');
+
+        if (!$hasTenantId) {
+            return;
+        }
+
         // Apply role-based filtering
         switch ($user->role) {
             case UserRole::SUPERADMIN:
@@ -55,7 +63,7 @@ class HierarchicalScope implements Scope
                     } else {
                         // Check if the model has a property_id column
                         if (in_array('property_id', $model->getFillable()) || 
-                            $model->getConnection()->getSchemaBuilder()->hasColumn($model->getTable(), 'property_id')) {
+                            \Illuminate\Support\Facades\Schema::hasColumn($model->getTable(), 'property_id')) {
                             $builder->where($model->qualifyColumn('property_id'), '=', $user->property_id);
                         }
                     }

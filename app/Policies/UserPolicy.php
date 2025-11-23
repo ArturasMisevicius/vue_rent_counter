@@ -20,8 +20,8 @@ class UserPolicy
             return true;
         }
 
-        // Admins and Managers can view users within their tenant (their created tenants)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Only admins can view users list (their created tenants)
+        if ($user->role === UserRole::ADMIN) {
             return true;
         }
 

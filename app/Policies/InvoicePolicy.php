@@ -36,10 +36,17 @@ class InvoicePolicy
             return $invoice->tenant_id === $user->tenant_id;
         }
 
-        // Tenants can only view invoices for their assigned property
+        // Tenants can only view invoices assigned to them
         if ($user->role === UserRole::TENANT) {
-            // Check if the invoice belongs to the tenant's assigned property
-            return $invoice->property_id === $user->property_id;
+            // Find the Tenant model associated with this User (by email)
+            $tenant = \App\Models\Tenant::where('email', $user->email)->first();
+            
+            if (!$tenant) {
+                return false;
+            }
+            
+            // Check if the invoice is assigned to this tenant
+            return $invoice->tenant_renter_id === $tenant->id;
         }
 
         return false;
@@ -64,14 +71,17 @@ class InvoicePolicy
      */
     public function update(User $user, Invoice $invoice): bool
     {
+        // Finalized invoices cannot be updated (except by superadmin for status changes)
+        if ($invoice->isFinalized() && $user->role !== UserRole::SUPERADMIN) {
+            return false;
+        }
+
         // Superadmin can update any invoice
         if ($user->role === UserRole::SUPERADMIN) {
             return true;
         }
 
-        // Admins and managers can view the edit form for invoices within their tenant
-        // (form fields will be disabled for finalized invoices)
-        // Actual modification attempts are blocked at the model level
+        // Admins and managers can update draft invoices within their tenant
         if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $invoice->tenant_id === $user->tenant_id;
         }
@@ -119,8 +129,8 @@ class InvoicePolicy
             return true;
         }
 
-        // Admins and managers can delete invoices within their tenant (Requirement 11.1, 13.3)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Only admins can delete invoices within their tenant (Requirement 11.1, 13.3)
+        if ($user->role === UserRole::ADMIN) {
             return $invoice->tenant_id === $user->tenant_id;
         }
 
@@ -139,8 +149,8 @@ class InvoicePolicy
             return true;
         }
 
-        // Admins and managers can restore invoices within their tenant (Requirement 11.1, 13.3)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Only admins can restore invoices within their tenant (Requirement 11.1, 13.3)
+        if ($user->role === UserRole::ADMIN) {
             return $invoice->tenant_id === $user->tenant_id;
         }
 

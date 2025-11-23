@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Invoice extends Model
 {
@@ -75,6 +76,21 @@ class Invoice extends Model
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class, 'tenant_renter_id');
+    }
+
+    /**
+     * Get the property through the tenant.
+     */
+    public function property(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Property::class,
+            Tenant::class,
+            'id',              // Foreign key on tenants table
+            'id',              // Foreign key on properties table
+            'tenant_renter_id', // Local key on invoices table
+            'property_id'      // Local key on tenants table
+        );
     }
 
     /**

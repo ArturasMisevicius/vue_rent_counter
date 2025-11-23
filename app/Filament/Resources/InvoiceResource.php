@@ -62,8 +62,15 @@ class InvoiceResource extends Resource
             ->schema([
                 Forms\Components\Select::make('tenant_renter_id')
                     ->label('Tenant')
-                    ->options(Tenant::all()->pluck('name', 'id'))
+                    ->relationship('tenant', 'name', function (Builder $query) {
+                        // Filter tenants by authenticated user's tenant_id (Requirement 11.1, 12.4)
+                        $user = auth()->user();
+                        if ($user && $user->tenant_id) {
+                            $query->where('tenant_id', $user->tenant_id);
+                        }
+                    })
                     ->searchable()
+                    ->preload()
                     ->required()
                     ->disabled(fn (?Invoice $record): bool => $record?->isFinalized() ?? false)
                     ->validationMessages([
