@@ -1,0 +1,50 @@
+
+  .................................................................⨯..........
+  ............................................................................
+  ............................................................................
+  ............................................................................
+  ............................................................................
+  ............................................................................
+  ............................................................................
+  ............................................................................
+  ............................................................⨯
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\BillingServiceTest > finalizeInvo…  ValidationException   
+  Cannot finalize invoice: invoice has no items
+
+  at vendor/laravel/framework/src/Illuminate/Validation/ValidationException.php:71
+     67▕      * @return static
+     68▕      */
+     69▕     public static function withMessages(array $messages)
+     70▕     {
+  ➜  71▕         return new static(tap(ValidatorFacade::make([], []), function ($validator) use ($messages) {
+     72▕             foreach ($messages as $key => $value) {
+     73▕                 foreach (Arr::wrap($value) as $message) {
+     74▕                     $validator->errors()->add($key, $message);
+     75▕                 }
+
+      [2m+1 vendor frames [22m
+  2   app/Services/InvoiceService.php:85
+  3   app/Services/InvoiceService.php:39
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\CorrectnessPropertiesTest > meter reading modification…   
+  Expecting null not to be null .
+
+  at tests/Unit/CorrectnessPropertiesTest.php:189
+    185▕     
+    186▕     if ($audit) {
+    187▕         expect((float)$audit->old_value)->toBe($oldValue);
+    188▕         expect((float)$audit->new_value)->toBe($newValue);
+  ➜ 189▕         expect($audit->changed_by_user_id)->not->toBeNull();
+    190▕     }
+    191▕ })->repeat(100);
+    192▕ 
+    193▕ // Feature: vilnius-utilities-billing, Property 24: Invoice itemization completeness
+
+  1   tests/Unit/CorrectnessPropertiesTest.php:189
+
+
+  Tests:    2 failed, 667 passed, [2m32068 pending[22m (1581 assertions)
+  Duration: 21.84s
+

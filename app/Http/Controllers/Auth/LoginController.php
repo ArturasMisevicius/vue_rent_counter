@@ -11,8 +11,16 @@ class LoginController extends Controller
     public function showLoginForm()
     {
         $users = \App\Models\User::with(['property', 'subscription'])
-            ->orderBy('role')
-            ->orderBy('name')
+            ->orderByRaw("
+                CASE role
+                    WHEN 'superadmin' THEN 1
+                    WHEN 'admin' THEN 2
+                    WHEN 'manager' THEN 3
+                    WHEN 'tenant' THEN 4
+                    ELSE 5
+                END
+            ")
+            ->orderBy('is_active', 'desc')
             ->get();
 
         return view('auth.login', compact('users'));
