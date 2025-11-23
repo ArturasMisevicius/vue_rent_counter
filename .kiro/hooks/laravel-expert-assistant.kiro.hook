@@ -1,7 +1,7 @@
 {
   "enabled": true,
   "name": "Laravel Expert Code Generator",
-  "description": "Generates/assesses Laravel code with BlogNews conventions (Laravel 12, Livewire-first admin, strict types, PSR-12, SOLID).",
+  "description": "Generates/assesses Laravel code with project conventions (Laravel 11, Filament v4 admin, strict types, PSR-12, SOLID).",
   "version": "2",
   "when": {
     "type": "fileEdited",
@@ -11,7 +11,7 @@
   },
   "then": {
     "type": "askAgent",
-    "prompt": "You are an expert Laravel developer. Generate and assess code against BlogNews standards.\n\n- use MCP servers, use mcp services\n\nPROJECT CONTEXT: Laravel 12; Livewire Volt/Flux admin; Tailwind 4; Sanctum; strict types; policies + FormRequests guard mutations; shared Livewire traits and query scopes keep tables consistent; design tokens drive UI.\n\nEXPECTATIONS:\n- PSR-12, typed signatures, concise DocBlocks only where valuable.\n- Controllers thin; business logic in services/scopes/traits; Livewire components lean with validated state.\n- Use FormRequests for validation, policies/authorizes for security, eager loading to avoid N+1.\n- Respect localization and accessibility; avoid hardcoded strings and inline styles.\n\nDELIVERABLES:\n1) Improvements/fixes for the edited file (code-level suggestions, Laravel features to leverage).\n2) Security/performance notes (auth, validation, caching, eager loading, error handling).\n3) Test recommendations (Pest/Playwright/property) tied to the change.\n4) Brief example snippets if proposing structural changes.\n\nGUARDRAILS: Preserve behavior/back-compat; keep migrations additive; adhere to existing naming/routing patterns; keep optimistic UI/URL state in mind for Livewire. Be specific and actionable.\n\ndo it all, do all changes, use mcp, use another sources, do all code changes"
+    "prompt": "You are an expert Laravel developer. Generate and assess code against project standards.\n\n- use MCP servers, use mcp services\n\nPROJECT CONTEXT: Laravel 11; Filament v4 admin; multi-tenant architecture; strict types; policies + FormRequests guard mutations; query scopes for tenant isolation.\n\nEXPECTATIONS:\n- PSR-12, typed signatures, concise DocBlocks only where valuable.\n- Controllers thin; business logic in services/scopes/traits; Livewire components lean with validated state.\n- Use FormRequests for validation, policies/authorizes for security, eager loading to avoid N+1.\n- Respect localization and accessibility; avoid hardcoded strings and inline styles.\n\nDELIVERABLES:\n1) Improvements/fixes for the edited file (code-level suggestions, Laravel features to leverage).\n2) Security/performance notes (auth, validation, caching, eager loading, error handling).\n3) Test recommendations (Pest/Playwright/property) tied to the change.\n4) Brief example snippets if proposing structural changes.\n\nGUARDRAILS: Preserve behavior/back-compat; keep migrations additive; adhere to existing naming/routing patterns; keep optimistic UI/URL state in mind for Livewire. Be specific and actionable.\n\ndo it all, do all changes, use mcp, use another sources, do all code changes"
   },
   "workspaceFolderName": "vue_rent_counter",
   "shortName": "laravel-expert-assistant"

@@ -1,7 +1,7 @@
 {
   "enabled": true,
   "name": "Laravel Documentation Generator",
-  "description": "Produces concise, accurate documentation for BlogNews changes—DocBlocks, usage notes, and doc updates aligned with Laravel 12 + Livewire stack.",
+  "description": "Produces concise, accurate documentation—DocBlocks, usage notes, and doc updates aligned with Laravel 11 + Filament stack.",
   "version": "2",
   "when": {
     "type": "fileEdited",
@@ -17,7 +17,7 @@
   },
   "then": {
     "type": "askAgent",
-    "prompt": "You are a Laravel documentation specialist. Generate/update documentation for the edited file.\n\n- use MCP servers, use mcp services\n\nPROJECT CONTEXT: BlogNews (Laravel 12, Livewire, Flux admin, Tailwind 4 + design tokens, Sanctum). Docs live in `docs/` and `.kiro/`, quality gates with Pint + PHPStan + Pest/Playwright.\n\nDELIVERABLES:\n1) Code-level docs: DocBlocks with @param/@return/@throws, types, and intent; brief inline notes only for non-obvious logic.\n2) Usage guidance: short examples or usage notes for controllers/services/Livewire components/resources.\n3) API docs (if applicable): routes/methods, validation rules, auth requirements, request/response shapes, error cases.\n4) Architecture notes: component role, relationships/dependencies, data flow, patterns used.\n5) Related doc updates: suggest README/docs/.kiro entries to refresh; call out changelog-worthy items.\n\nSTANDARDS: Clear, concise, Laravel-conventional; no redundant comments; keep localization/accessibility/policies in mind; ensure consistency with design tokens and URL-state patterns where UI is involved.\n\ndo it all, do all changes, use mcp, use another sources, do all code changes"
+    "prompt": "You are a Laravel documentation specialist. Generate/update documentation for the edited file.\n\n- use MCP servers, use mcp services\n\nPROJECT CONTEXT: Laravel 11, Filament v4 admin, multi-tenant utilities billing platform. Docs live in `docs/` and `.kiro/`, quality gates with Pint + PHPStan + Pest.\n\nDELIVERABLES:\n1) Code-level docs: DocBlocks with @param/@return/@throws, types, and intent; brief inline notes only for non-obvious logic.\n2) Usage guidance: short examples or usage notes for controllers/services/Livewire components/resources.\n3) API docs (if applicable): routes/methods, validation rules, auth requirements, request/response shapes, error cases.\n4) Architecture notes: component role, relationships/dependencies, data flow, patterns used.\n5) Related doc updates: suggest README/docs/.kiro entries to refresh; call out changelog-worthy items.\n\nSTANDARDS: Clear, concise, Laravel-conventional; no redundant comments; keep localization/accessibility/policies in mind; ensure consistency with design tokens and URL-state patterns where UI is involved.\n\ndo it all, do all changes, use mcp, use another sources, do all code changes"
   },
   "workspaceFolderName": "vue_rent_counter",
   "shortName": "laravel-doc-generator"

@@ -3,7 +3,7 @@
 - [x] 1. Install and configure Filament foundation
 
 - [x] 1.1 Install Filament packages via Composer
-  - Run `composer require filament/filament:"^3.0"`
+  - Run `composer require filament/filament:"^4.0"`
   - Verify installation in composer.json
   - _Requirements: 1.1_
 

@@ -10,7 +10,12 @@ class LoginController extends Controller
 {
     public function showLoginForm()
     {
-        return view('auth.login');
+        $users = \App\Models\User::with(['property', 'subscription'])
+            ->orderBy('role')
+            ->orderBy('name')
+            ->get();
+
+        return view('auth.login', compact('users'));
     }
 
     public function login(Request $request)

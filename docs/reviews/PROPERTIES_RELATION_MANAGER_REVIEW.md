@@ -2,8 +2,8 @@
 
 **Date**: 2025-11-23  
 **Reviewer**: Kiro AI  
-**Project**: Laravel Blog News (Multi-tenant Utility Billing System)  
-**Standards**: Laravel 12, PHP 8.3, BlogNews Quality Gates
+**Project**: Multi-tenant Utility Billing System  
+**Standards**: Laravel 11, PHP 8.2+, Project Quality Gates
 
 ---
 
@@ -27,7 +27,7 @@ The diff shows validation improvements, but the full file review reveals **criti
 **File**: `app/Filament/Resources/BuildingResource/RelationManagers/PropertiesRelationManager.php`  
 **Lines**: Throughout
 
-**Issue**: All UI strings are hardcoded in English, violating BlogNews operating principles:
+**Issue**: All UI strings are hardcoded in English, violating project operating principles:
 > "Keep UI copy localized; never hardcode strings in Blade/JS."
 
 **Examples**:
@@ -473,7 +473,7 @@ php artisan make:migration create_property_tenant_pivot_table
 
 ## 14. CONCLUSION
 
-The PropertiesRelationManager has solid architecture and follows most BlogNews standards, but requires **critical fixes** before production:
+The PropertiesRelationManager has solid architecture and follows most project standards, but requires **critical fixes** before production:
 
 1. ✅ **Localization** - All strings now use translation keys
 2. ✅ **Model Relationship** - Fixed to BelongsToMany

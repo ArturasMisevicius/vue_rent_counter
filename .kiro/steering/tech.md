@@ -3,7 +3,7 @@
 ## Backend
 
 - **Framework**: Laravel 11 with PHP 8.2+; Filesystem-backed tenancy enforced by `BelongsToTenant`, `TenantScope`, and `TenantContext`.
-- **Admin Layer**: Filament 3 resources (Properties, Buildings, Meters, MeterReadings, Invoices, Tariffs, Providers, Users, Subscriptions) with navigation visibility controlled by role-aware `can*` methods.
+- **Admin Layer**: Filament 4 resources (Properties, Buildings, Meters, MeterReadings, Invoices, Tariffs, Providers, Users, Subscriptions) with navigation visibility controlled by role-aware `can*` methods.
 - **Billing**: `BillingService`, `TariffResolver`, `GyvatukasCalculator`, `BillingCalculatorFactory`, and `MeterReadingObserver` manage tariff snapshots, gyvatukas seasons, meter readings audits, and invoice recalculations.
 - **Multi-tenancy & security**: Policies gate every resource/action; sessions regenerate on login, and superadmin-only switches respect `TenantContext::switch`.
 - **Persistence**: SQLite (dev) plus MySQL/PostgreSQL (prod) with WAL mode enabled and nightly Spatie backups (`config/backup.php`), ensuring `php artisan backup:run` succeeds even under load.

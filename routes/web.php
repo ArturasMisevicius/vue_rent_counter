@@ -39,9 +39,7 @@ use App\Http\Controllers\InvoiceItemController;
 use App\Http\Controllers\ReportController;
 
 // Public routes
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', \App\Http\Controllers\WelcomeController::class);
 
 Route::post('/locale', [LocaleController::class, 'store'])
     ->middleware('web')

@@ -9,6 +9,8 @@ use App\Services\InvoiceService;
 use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -17,6 +19,14 @@ use Illuminate\Validation\ValidationException;
  * Displays invoice details with contextual actions for editing and finalization.
  * Implements Task 4.3 from filament-admin-panel spec: Invoice finalization with
  * validation and immutability enforcement.
+ *
+ * ## Security Features
+ * - Rate limiting on finalization action (10 attempts per minute per user)
+ * - Double authorization check (visibility + authorize)
+ * - Audit logging for all finalization attempts
+ * - Safe error handling without information leakage
+ * - CSRF protection via Filament (automatic)
+ * - Tenant isolation via TenantScope and policies
  *
  * ## Features
  * - Edit action (visible only for draft invoices with update permission)
@@ -69,6 +79,13 @@ final class ViewInvoice extends ViewRecord
      * Implements Task 4.3: Invoice finalization action with validation.
      * Delegates business logic to InvoiceService for proper separation of concerns.
      *
+     * ## Security Measures
+     * - Rate limiting: 10 attempts per minute per user
+     * - Double authorization: visibility check + explicit authorize()
+     * - Audit logging: All attempts logged with user/invoice/outcome
+     * - Safe error messages: No sensitive data in user-facing errors
+     * - Transaction safety: DB transaction in service layer
+     *
      * ## Action Behavior
      * - Displays confirmation modal before finalization
      * - Validates invoice via InvoiceService (checks items, amounts, billing period)
@@ -83,8 +100,9 @@ final class ViewInvoice extends ViewRecord
      *
      * ## Error Handling
      * - ValidationException: Displays specific validation errors in danger notification
-     * - Re-throws exception to prevent action completion
-     * - Extracts errors from multiple possible keys (invoice, total_amount, items, billing_period)
+     * - Rate limit exceeded: Displays throttle message
+     * - Authorization failure: Silent failure (action not visible/executable)
+     * - Unexpected errors: Logged with context, generic message to user
      *
      * @return Actions\Action Configured Filament action instance
      */
@@ -101,12 +119,53 @@ final class ViewInvoice extends ViewRecord
             ->visible(fn ($record) => $record->isDraft() && auth()->user()->can('finalize', $record))
             ->authorize(fn ($record) => auth()->user()->can('finalize', $record))
             ->action(function ($record) {
+                $user = auth()->user();
+                $rateLimitKey = 'invoice-finalize:'.$user->id;
+
+                // Rate limiting: 10 attempts per minute per user
+                if (RateLimiter::tooManyAttempts($rateLimitKey, 10)) {
+                    $seconds = RateLimiter::availableIn($rateLimitKey);
+
+                    Log::warning('Invoice finalization rate limit exceeded', [
+                        'user_id' => $user->id,
+                        'invoice_id' => $record->id,
+                        'retry_after' => $seconds,
+                    ]);
+
+                    Notification::make()
+                        ->title(__('Too many attempts'))
+                        ->body(__('Please wait :seconds seconds before trying again.', ['seconds' => $seconds]))
+                        ->danger()
+                        ->send();
+
+                    return;
+                }
+
+                RateLimiter::hit($rateLimitKey, 60);
+
                 try {
                     // Eager load items to avoid N+1 queries during validation
                     $record->loadMissing('items');
 
+                    // Audit log: Finalization attempt
+                    Log::info('Invoice finalization attempt', [
+                        'user_id' => $user->id,
+                        'user_role' => $user->role->value,
+                        'invoice_id' => $record->id,
+                        'invoice_status' => $record->status->value,
+                        'tenant_id' => $record->tenant_id,
+                        'total_amount' => $record->total_amount,
+                    ]);
+
                     // Delegate to service layer for validation and finalization
                     app(InvoiceService::class)->finalize($record);
+
+                    // Audit log: Success
+                    Log::info('Invoice finalized successfully', [
+                        'user_id' => $user->id,
+                        'invoice_id' => $record->id,
+                        'finalized_at' => $record->finalized_at,
+                    ]);
 
                     Notification::make()
                         ->title(__('Invoice finalized'))
@@ -123,6 +182,13 @@ final class ViewInvoice extends ViewRecord
                     // Extract first available error message from validation exception
                     $errorMessage = $this->extractValidationError($e);
 
+                    // Audit log: Validation failure
+                    Log::warning('Invoice finalization validation failed', [
+                        'user_id' => $user->id,
+                        'invoice_id' => $record->id,
+                        'errors' => $e->errors(),
+                    ]);
+
                     Notification::make()
                         ->title(__('Cannot finalize invoice'))
                         ->body($errorMessage)
@@ -130,6 +196,23 @@ final class ViewInvoice extends ViewRecord
                         ->send();
 
                     throw $e; // Re-throw to prevent action completion
+                } catch (\Throwable $e) {
+                    // Audit log: Unexpected error (with full context for debugging)
+                    Log::error('Invoice finalization unexpected error', [
+                        'user_id' => $user->id,
+                        'invoice_id' => $record->id,
+                        'exception' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                    ]);
+
+                    // Generic error message (no sensitive data)
+                    Notification::make()
+                        ->title(__('Error'))
+                        ->body(__('An unexpected error occurred. Please try again or contact support.'))
+                        ->danger()
+                        ->send();
+
+                    throw $e; // Re-throw for proper error handling
                 }
             });
     }
@@ -144,7 +227,7 @@ final class ViewInvoice extends ViewRecord
      * 4. billing_period - Billing period validation errors
      *
      * @param  ValidationException  $exception  The validation exception
-     * @return string The first available error message
+     * @return string The first available error message (sanitized)
      */
     private function extractValidationError(ValidationException $exception): string
     {
@@ -155,13 +238,14 @@ final class ViewInvoice extends ViewRecord
 
         foreach ($errorKeys as $key) {
             if (isset($errors[$key]) && is_array($errors[$key]) && ! empty($errors[$key])) {
-                return implode(' ', $errors[$key]);
+                // Sanitize and return first error
+                return e(implode(' ', $errors[$key]));
             }
         }
 
         // Fallback to first available error
         $firstError = reset($errors);
 
-        return is_array($firstError) ? implode(' ', $firstError) : (string) $firstError;
+        return is_array($firstError) ? e(implode(' ', $firstError)) : e((string) $firstError);
     }
 }

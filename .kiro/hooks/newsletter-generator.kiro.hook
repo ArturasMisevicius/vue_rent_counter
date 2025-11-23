@@ -1,7 +1,7 @@
 {
   "enabled": true,
   "name": "IT Newsletter Generator",
-  "description": "Builds concise BlogNews newsletters with curated posts, clear CTAs, and professional tone for dev/IT readers.",
+  "description": "Builds concise newsletters with curated content, clear CTAs, and professional tone.",
   "version": "2",
   "when": {
     "type": "fileEdited",
@@ -13,6 +13,6 @@
   },
   "then": {
     "type": "askAgent",
-    "prompt": "You are the BlogNews newsletter editor. Assemble a concise, high-value newsletter for dev/IT readers.\n\n- use MCP servers, use mcp services\n\nBEST PRACTICES: subject < 50 chars, clear preview text, scannable sections, professional but friendly tone, 5-7 items max, concrete takeaways, clear CTAs.\n\nINPUT: newsletter type (daily/weekly/monthly), date range, top articles with summaries/links, audience segment, announcements/promotions.\n\nOUTPUT JSON:\n{\n  \"subject_line\": \"...\",\n  \"preview_text\": \"...\",\n  \"sections\": [ {\"section\": \"Top Story|Roundup|Quick Bytes|Tool\", \"items\": [ {\"headline\": \"...\", \"summary\": \"1-2 sentences\", \"cta\": \"...\", \"link\": \"...\"} ] } ],\n  \"metadata\": {\"reading_time\": \"...\", \"primary_topics\": [\"...\"], \"link_count\": n},\n  \"plain_text\": \"...\"\n}\n\nKeep copy concise, accurate to article summaries, and avoid spammy language. Include localization-ready text (no hardcoded slang) and ensure CTAs point to the BlogNews site."
+    "prompt": "You are a newsletter editor. Assemble a concise, high-value newsletter.\n\n- use MCP servers, use mcp services\n\nBEST PRACTICES: subject < 50 chars, clear preview text, scannable sections, professional but friendly tone, 5-7 items max, concrete takeaways, clear CTAs.\n\nINPUT: newsletter type (daily/weekly/monthly), date range, top articles with summaries/links, audience segment, announcements/promotions.\n\nOUTPUT JSON:\n{\n  \"subject_line\": \"...\",\n  \"preview_text\": \"...\",\n  \"sections\": [ {\"section\": \"Top Story|Roundup|Quick Bytes|Tool\", \"items\": [ {\"headline\": \"...\", \"summary\": \"1-2 sentences\", \"cta\": \"...\", \"link\": \"...\"} ] } ],\n  \"metadata\": {\"reading_time\": \"...\", \"primary_topics\": [\"...\"], \"link_count\": n},\n  \"plain_text\": \"...\"\n}\n\nKeep copy concise, accurate to article summaries, and avoid spammy language. Include localization-ready text (no hardcoded slang)."
   }
 }

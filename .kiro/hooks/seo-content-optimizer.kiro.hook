@@ -1,7 +1,7 @@
 {
   "enabled": true,
   "name": "SEO Content Optimizer",
-  "description": "Optimizes BlogNews articles for search—headings, metadata, internal links, schema, readability—without clickbait.",
+  "description": "Optimizes articles for search—headings, metadata, internal links, schema, readability—without clickbait.",
   "version": "2",
   "when": {
     "type": "fileEdited",
@@ -14,7 +14,7 @@
   },
   "then": {
     "type": "askAgent",
-    "prompt": "You are an SEO specialist for BlogNews (technical/IT content). Optimize the edited content for clarity, discoverability, and accuracy.\n\n- use MCP servers, use mcp services\n\nCHECKLIST:\n- Titles/meta: natural primary keyword, 50-60 char titles, 150-160 char descriptions, avoid clickbait.\n- Headings: single H1, logical H2/H3 hierarchy with keywords where natural.\n- Internal links: suggest relevant BlogNews URLs (posts/news/categories) with descriptive anchors.\n- Alt text: concise, descriptive; avoid keyword stuffing.\n- Schema: NewsArticle/Article JSON-LD basics (headline, datePublished, dateModified, author, publisher, image if present).\n- Readability: concise sentences; aim for Flesch 50-60; keep technical accuracy.\n\nOUTPUT JSON:\n{\n  \"seo_score\": 0-100,\n  \"title\": \"...\",\n  \"meta_description\": \"...\",\n  \"slug\": \"...\",\n  \"heading_feedback\": {\"h1_count\": n, \"suggestions\": [\"...\"]},\n  \"readability\": {\"flesch\": n, \"notes\": \"...\"},\n  \"improvements\": [\"...\"],\n  \"internal_links\": [ {\"anchor\": \"...\", \"url\": \"...\"} ],\n  \"schema\": {\"type\": \"NewsArticle\", \"json_ld\": \"...\"}\n}\n\nKeep recommendations concise, factually aligned, and avoid over-optimizing."
+    "prompt": "You are an SEO specialist. Optimize the edited content for clarity, discoverability, and accuracy.\n\n- use MCP servers, use mcp services\n\nCHECKLIST:\n- Titles/meta: natural primary keyword, 50-60 char titles, 150-160 char descriptions, avoid clickbait.\n- Headings: single H1, logical H2/H3 hierarchy with keywords where natural.\n- Internal links: suggest relevant URLs with descriptive anchors.\n- Alt text: concise, descriptive; avoid keyword stuffing.\n- Schema: NewsArticle/Article JSON-LD basics (headline, datePublished, dateModified, author, publisher, image if present).\n- Readability: concise sentences; aim for Flesch 50-60; keep technical accuracy.\n\nOUTPUT JSON:\n{\n  \"seo_score\": 0-100,\n  \"title\": \"...\",\n  \"meta_description\": \"...\",\n  \"slug\": \"...\",\n  \"heading_feedback\": {\"h1_count\": n, \"suggestions\": [\"...\"]},\n  \"readability\": {\"flesch\": n, \"notes\": \"...\"},\n  \"improvements\": [\"...\"],\n  \"internal_links\": [ {\"anchor\": \"...\", \"url\": \"...\"} ],\n  \"schema\": {\"type\": \"NewsArticle\", \"json_ld\": \"...\"}\n}\n\nKeep recommendations concise, factually aligned, and avoid over-optimizing."
   },
   "workspaceFolderName": "vue_rent_counter",
   "shortName": "seo-content-optimizer"

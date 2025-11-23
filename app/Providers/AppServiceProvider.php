@@ -23,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Building::class => \App\Policies\BuildingPolicy::class,
         \App\Models\Meter::class => \App\Policies\MeterPolicy::class,
         \App\Models\Provider::class => \App\Policies\ProviderPolicy::class,
+        \App\Models\Organization::class => \App\Policies\OrganizationPolicy::class,
+        \App\Models\OrganizationActivityLog::class => \App\Policies\OrganizationActivityLogPolicy::class,
+        \App\Models\Subscription::class => \App\Policies\SubscriptionPolicy::class,
     ];
 
     /**

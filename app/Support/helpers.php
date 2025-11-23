@@ -48,3 +48,25 @@ if (! function_exists('enum_label')) {
         return is_string($value) ? $value : (string) $value;
     }
 }
+
+if (! function_exists('svgIcon')) {
+    /**
+     * Render minimal SVG icons mapped by key for landing page features.
+     *
+     * Uses Heroicons via blade-heroicons package for maintainability.
+     * Icons are cached by the blade-icons package automatically.
+     *
+     * @deprecated Use @svg() directive or <x-icon> component directly in Blade templates
+     */
+    function svgIcon(string $key): string
+    {
+        $iconType = \App\Enums\IconType::fromLegacyKey($key);
+
+        try {
+            return svg($iconType->heroicon(), 'h-5 w-5')->toHtml();
+        } catch (\Throwable $e) {
+            // Fallback to default icon if specific icon not found
+            return svg(\App\Enums\IconType::DEFAULT->heroicon(), 'h-5 w-5')->toHtml();
+        }
+    }
+}

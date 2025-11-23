@@ -575,10 +575,10 @@ Integration tests will verify end-to-end workflows:
 
 ### New Dependencies
 
-- `filament/filament`: ^3.0 - Main Filament package
-- `filament/forms`: ^3.0 - Form builder (included with filament/filament)
-- `filament/tables`: ^3.0 - Table builder (included with filament/filament)
-- `filament/notifications`: ^3.0 - Notification system (included with filament/filament)
+- `filament/filament`: ^4.0 - Main Filament package
+- `filament/forms`: ^4.0 - Form builder (included with filament/filament)
+- `filament/tables`: ^4.0 - Table builder (included with filament/filament)
+- `filament/notifications`: ^4.0 - Notification system (included with filament/filament)
 
 ### Existing Dependencies (Retained)
 

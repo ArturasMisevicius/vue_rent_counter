@@ -33,23 +33,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-slate-50 antialiased">
-@php
-    $brand = config('landing.brand', []);
-    $features = config('landing.features', []);
-    $publishedFaqs = \App\Models\Faq::query()->published()->orderBy('display_order')->orderBy('id')->get();
-    $faqItems = $publishedFaqs->isNotEmpty()
-        ? $publishedFaqs->map(fn ($faq) => [
-            'question' => $faq->question,
-            'answer' => $faq->answer,
-            'category' => $faq->category,
-        ])
-        : collect(config('landing.faq', []));
-    $canLogin = Route::has('login');
-    $canRegister = Route::has('register');
-    $languages = \App\Models\Language::query()->where('is_active', true)->orderBy('display_order')->get();
-    $currentLocale = app()->getLocale();
-    $canSwitchLocale = Route::has('locale.set');
-@endphp
 
 <div class="relative overflow-hidden min-h-screen">
     <div class="pointer-events-none absolute inset-0">
@@ -202,7 +185,7 @@
                     <div class="group relative rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur transition hover:-translate-y-1 hover:border-white/20">
                         <div class="flex items-center justify-between">
                             <div class="h-11 w-11 rounded-xl bg-gradient-to-br from-indigo-500 to-sky-400 text-white inline-flex items-center justify-center shadow-glow">
-                                {!! svgIcon($feature['icon'] ?? 'sparkles') !!}
+                                {!! svgIcon($feature['icon'] ?? 'default') !!}
                             </div>
                             <span class="text-xs font-semibold text-slate-400">Trusted</span>
                         </div>
@@ -275,23 +258,5 @@
     </main>
 </div>
 
-@php
-    /**
-     * Render minimal icons mapped by key.
-     */
-    if (! function_exists('svgIcon')) {
-        function svgIcon(string $key): string {
-            return match($key) {
-                'meter' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3a9 9 0 0 0-9 9v4a2 2 0 0 0 2 2h2l1 3h8l1-3h2a2 2 0 0 0 2-2v-4a9 9 0 0 0-9-9Zm-5 9h.01M9 12h.01m2 0h.01m2 0h.01m2 0h.01"/></svg>',
-                'invoice' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7h8m-8 4h5m-5 4h3M6 21h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H9.5a2 2 0 0 0-1.414.586L6.586 4.086A2 2 0 0 1 5.172 4H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>',
-                'shield' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3 4.5 6v6c0 4.03 3.02 7.47 7.5 9 4.48-1.53 7.5-4.97 7.5-9V6L12 3Z"/></svg>',
-                'chart' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 19h16M7 16V9m5 7V5m5 11v-4"/></svg>',
-                'rocket' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 15h6m-3 0v3m0-3a9 9 0 0 0 9-9c-3.75 0-7.5 1.5-9 6-1.5-4.5-5.25-6-9-6a9 9 0 0 0 9 9Z"/></svg>',
-                'users' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 14a4 4 0 1 0-8 0m8 0a4 4 0 0 1 4 4v1m-4-5a4 4 0 0 1-4 4m0 0a4 4 0 0 1-4-4m4 4v2m-4-2a4 4 0 0 0-4 4v1m16-5v2"/></svg>',
-                default => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m9 12 2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>',
-            };
-        }
-    }
-@endphp
 </body>
 </html>
