@@ -17,7 +17,7 @@
 ### 2. Factory Pattern for Billing Calculators ✅
 **Implemented calculator factory to eliminate switch statements:**
 
-**New Classes:**
+**New Classes:** 
 - `BillingCalculator` (interface) - Contract for all calculators
 - `BillingCalculatorFactory` - Creates appropriate calculator based on meter type
 - `ElectricityCalculator` - Handles electricity billing
