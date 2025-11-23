@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OrganizationActivityLog extends Model
 {
+    use HasFactory;
+
     protected $table = 'organization_activity_log';
 
     protected $fillable = [

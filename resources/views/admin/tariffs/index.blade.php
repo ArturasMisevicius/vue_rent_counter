@@ -3,6 +3,7 @@
 @section('title', 'Tariffs Management')
 
 @section('content')
+@php($tariffTypeLabels = \App\Enums\TariffType::labels())
 <div class="px-4 sm:px-6 lg:px-8">
     <x-breadcrumbs>
         <x-breadcrumb-item :href="route('admin.dashboard')">Dashboard</x-breadcrumb-item>
@@ -59,7 +60,7 @@
                                 </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                     <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                                        {{ ucfirst(str_replace('_', ' ', $tariff->configuration['type'] ?? 'flat')) }}
+                                        {{ $tariffTypeLabels[$tariff->configuration['type'] ?? 'flat'] ?? ucfirst(str_replace('_', ' ', $tariff->configuration['type'] ?? 'flat')) }}
                                     </span>
                                 </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">

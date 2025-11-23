@@ -3,6 +3,7 @@
 @section('title', 'Invoices')
 
 @section('content')
+@php($invoiceStatusLabels = \App\Enums\InvoiceStatus::labels())
 <div class="px-4 sm:px-6 lg:px-8">
     <x-breadcrumbs>
         <x-breadcrumb-item href="{{ route('manager.dashboard') }}">Dashboard</x-breadcrumb-item>
@@ -35,9 +36,9 @@
                     onchange="this.form.submit()"
                 >
                     <option value="">All Statuses</option>
-                    <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Draft</option>
-                    <option value="finalized" {{ request('status') === 'finalized' ? 'selected' : '' }}>Finalized</option>
-                    <option value="paid" {{ request('status') === 'paid' ? 'selected' : '' }}>Paid</option>
+                    @foreach($invoiceStatusLabels as $value => $label)
+                        <option value="{{ $value }}" {{ request('status') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                    @endforeach
                 </select>
             </div>
             @if(request('status'))
@@ -88,7 +89,7 @@
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm">
                     <x-status-badge :status="$invoice->status->value">
-                        {{ ucfirst($invoice->status->value) }}
+                        {{ enum_label($invoice->status) }}
                     </x-status-badge>
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">

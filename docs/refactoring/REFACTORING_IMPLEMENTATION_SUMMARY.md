@@ -327,8 +327,8 @@ $readings = MeterReading::forPeriod($start, $end)
 7. `app/Services/TimeRangeValidator.php`
 8. `config/billing.php`
 9. `database/migrations/2025_11_18_000001_add_performance_indexes.php`
-10. `COMPREHENSIVE_REFACTORING_ANALYSIS.md`
-11. `REFACTORING_IMPLEMENTATION_SUMMARY.md`
+10. [COMPREHENSIVE_REFACTORING_ANALYSIS.md](COMPREHENSIVE_REFACTORING_ANALYSIS.md)
+11. [REFACTORING_IMPLEMENTATION_SUMMARY.md](REFACTORING_IMPLEMENTATION_SUMMARY.md)
 
 ### Modified (7 files)
 1. `app/Http/Requests/StoreTariffRequest.php` - Extracted validation logic

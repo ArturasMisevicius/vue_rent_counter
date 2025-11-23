@@ -26,7 +26,7 @@
                     @elseif($invoice->status->value === 'finalized') bg-blue-100 text-blue-800
                     @elseif($invoice->status->value === 'paid') bg-green-100 text-green-800
                     @endif">
-                    {{ ucfirst($invoice->status->value) }}
+                    {{ enum_label($invoice->status) }}
                 </span>
                 @if($invoice->finalized_at)
                     <p class="text-sm text-gray-500 mt-2">
@@ -167,9 +167,9 @@
                                         {{ $reading->meter->serial_number ?? 'N/A' }}
                                     </div>
                                     <div class="text-xs text-gray-500">
-                                        {{ ucfirst(str_replace('_', ' ', $reading->meter->type->value ?? '')) }}
+                                        {{ enum_label($reading->meter->type ?? null, \App\Enums\MeterType::class) }}
                                         @if($reading->zone)
-                                            ({{ $reading->zone }})
+                                            ({{ \App\Enums\TariffZone::tryFrom($reading->zone)?->label() ?? $reading->zone }})
                                         @endif
                                     </div>
                                 </td>

@@ -164,7 +164,7 @@ final class PropertiesRelationManagerRefactoringTest extends TestCase
         $content = file_get_contents($filename);
 
         expect($content)
-            ->toContain('new StorePropertyRequest()')
+            ->toContain('new StorePropertyRequest')
             ->toContain('$request->messages()');
     }
 

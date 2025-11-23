@@ -2,25 +2,24 @@
 
 ## Now (in-flight)
 
-- **Admin Livewire CRUD** (`.kiro/specs/admin-livewire-crud`): Complete Volt/Flux admin surface with inline edit, modals, bulk actions, and real-time validation across posts/categories/comments/users.
-- **Design System Upgrade** (`.kiro/specs/design-system-upgrade`): Finalize design tokens + UI primitives; harmonize admin/public components, introduce glass/animation options, and property-test variants.
-- **News Page Enhancements** (`.kiro/specs/news-page`): Dedicated `/news` with robust filters (categories, authors, date), URL-synced state, and eager-loading/index optimizations.
+- **Filament admin panel** (`.kiro/specs/filament-admin-panel`): Finish Filament resources for properties, buildings, meters, meter readings, invoices, tariffs, providers, users, and subscriptions plus the navigation/breadcrumb experience, validation consistency, and accessibility coverage already documented in the spec.
+- **Vilnius utilities billing** (`.kiro/specs/vilnius-utilities-billing`): Deliver gyvatukas calculations, multi-zone tariff selection, audited meter readings, invoice snapshotting, and WAL/backup requirements for Lithuanian billing rules.
+- **Hierarchical user management** (`.kiro/specs/hierarchical-user-management`): Keep validating the three-tier roles (superadmin, admin, tenant), subscription lifecycle, tenant assignments, and audit logging around account actions.
 
 ## Next (queued)
 
-- **Accessibility hardening**: Expand keyboard-only coverage for all modals/tables, add automated axe runs to CI, and document screen reader flows.
-- **Observability & Ops**: Add request/queue metrics, slow query logging, and per-action audit logs for admin bulk operations.
-- **Localization sweep**: Ensure 100% string coverage, add tooling to detect untranslated copy, and backfill Spanish parity for new components.
+- **Authentication testing** (`.kiro/specs/authentication-testing`): Wrap up optional property tests for gyvatukas formulas (Properties 24-27), complete remaining property tests around tariff overlaps/time-of-use coverage, and extend API/filament authorization coverage already outlined in `tasks.md`.
+- **Operational observability & backup sweeps**: Verify Spatie backup + WAL logs, improve `php artisan pail` guidance in docs/reviews, and review `SubscriptionService` reporting for superadmin dashboards so renewal notices stay accurate.
+- **User-group frontends cleanup** (`.kiro/specs/user-group-frontends`): Revisit tenant/admin Blade components, breadcrumb helpers, and documentation for the shared components (cards, data tables, modals) referenced in the spec.
 
 ## Later (backlog)
 
-- **Content workflows**: Draft support, scheduled publishing, and revision history with audit trails.
-- **Media pipeline**: Image optimization presets, responsive sources, and alt-text enforcement in forms.
-- **API surface**: Read-only REST endpoints for posts/news with signed preview tokens.
-- **Collaboration**: Notifications for comment moderation queues and optional Slack/webhook hooks.
+- **Property-based test backlog**: Finish the remaining optional property tests (invoice immutability, tariff snapshots, gyvatukas distributions) before shipping major billing changes.
+- **Localization parity**: Expand `lang/{en,lt,ru}` coverage, vet translation keys inside Filament/Blade, and add tooling for catching untranslated copy referenced in docs.
+- **API docs & automation**: Formalize meter/invoice API endpoints, add more `docs/api` guidance, and document `TESTING_GUIDE.md` workflows.
 
 ## Delivery Notes
 
-- Keep scope aligned with success metrics in `goals.md`.
-- Favor incremental rollout behind config flags; capture rollout notes in PR descriptions.
-- Each roadmap item should update `.kiro/specs/*` as implementation details evolve.
+- Keep every change tied to the goals/quality guards in this folder (especially `goals.md` and `quality.md`), and update the relevant `.kiro/specs/*` files when behavior shifts.
+- Run `php artisan test:setup --fresh` plus `php artisan test` before merging billing or Filament work; call out any skipped property suites.
+- Document customer-facing changes in `docs/overview/readme.md` and the broader `docs/frontend/` area, then link the updates inside the spec referenced above.

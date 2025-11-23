@@ -14,7 +14,7 @@ class TestBuildingsSeeder extends Seeder
     public function run(): void
     {
         // Building 1 for tenant 1 - Gedimino Avenue (prestigious central location)
-        Building::create([
+        Building::factory()->create([
             'tenant_id' => 1,
             'address' => 'Gedimino pr. 15, Vilnius',
             'total_apartments' => 12,
@@ -23,7 +23,7 @@ class TestBuildingsSeeder extends Seeder
         ]);
 
         // Building 2 for tenant 1 - Konstitucijos Avenue (modern business district)
-        Building::create([
+        Building::factory()->create([
             'tenant_id' => 1,
             'address' => 'Konstitucijos pr. 7, Vilnius',
             'total_apartments' => 8,
@@ -32,7 +32,7 @@ class TestBuildingsSeeder extends Seeder
         ]);
 
         // Building 3 for tenant 2 - Pilies Street (Old Town)
-        Building::create([
+        Building::factory()->create([
             'tenant_id' => 2,
             'address' => 'Pilies g. 22, Vilnius',
             'total_apartments' => 6,

@@ -6,6 +6,7 @@ use App\Enums\MeterType;
 use App\Enums\UserRole;
 use App\Models\Meter;
 use App\Models\MeterReading;
+use App\Models\MeterReadingAudit;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
@@ -51,6 +52,7 @@ class TestMeterReadingsSeeder extends Seeder
     {
         // Starting value for the meter
         $currentValue = $this->getInitialValue($meter->type);
+        $lastReading = null;
 
         // Create readings for last 3 months (plus current month = 4 readings total)
         for ($month = 3; $month >= 0; $month--) {
@@ -58,18 +60,28 @@ class TestMeterReadingsSeeder extends Seeder
 
             if ($meter->supports_zones) {
                 // Electricity meter with day/night zones
-                $this->createZonedReading($meter, $readingDate, $currentValue, 'day', $managerId);
+                $lastReading = $this->createZonedReading($meter, $readingDate, $currentValue, 'day', $managerId);
                 $this->createZonedReading($meter, $readingDate, $currentValue * 0.6, 'night', $managerId);
                 
                 // Increment for next month
                 $currentValue += $this->getIncrement($meter->type);
             } else {
                 // Single reading for non-zoned meters
-                $this->createSingleReading($meter, $readingDate, $currentValue, $managerId);
+                $lastReading = $this->createSingleReading($meter, $readingDate, $currentValue, $managerId);
                 
                 // Increment for next month
                 $currentValue += $this->getIncrement($meter->type);
             }
+        }
+
+        if ($lastReading) {
+            MeterReadingAudit::factory()->create([
+                'meter_reading_id' => $lastReading->id,
+                'changed_by_user_id' => $managerId,
+                'old_value' => $lastReading->value - 1,
+                'new_value' => $lastReading->value,
+                'change_reason' => 'Seeded verification adjustment',
+            ]);
         }
     }
 
@@ -80,11 +92,11 @@ class TestMeterReadingsSeeder extends Seeder
      * @param Carbon $readingDate
      * @param float $value
      * @param int $managerId
-     * @return void
+     * @return MeterReading
      */
-    private function createSingleReading(Meter $meter, Carbon $readingDate, float $value, int $managerId): void
+    private function createSingleReading(Meter $meter, Carbon $readingDate, float $value, int $managerId): MeterReading
     {
-        MeterReading::create([
+        return MeterReading::factory()->create([
             'tenant_id' => $meter->tenant_id,
             'meter_id' => $meter->id,
             'reading_date' => $readingDate,
@@ -102,11 +114,11 @@ class TestMeterReadingsSeeder extends Seeder
      * @param float $value
      * @param string $zone
      * @param int $managerId
-     * @return void
+     * @return MeterReading
      */
-    private function createZonedReading(Meter $meter, Carbon $readingDate, float $value, string $zone, int $managerId): void
+    private function createZonedReading(Meter $meter, Carbon $readingDate, float $value, string $zone, int $managerId): MeterReading
     {
-        MeterReading::create([
+        return MeterReading::factory()->create([
             'tenant_id' => $meter->tenant_id,
             'meter_id' => $meter->id,
             'reading_date' => $readingDate,

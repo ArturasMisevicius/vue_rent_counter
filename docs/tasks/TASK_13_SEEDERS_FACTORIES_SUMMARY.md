@@ -210,7 +210,7 @@ Admin 2 (admin2@example.com)
 1. `database/seeders/HierarchicalUsersSeeder.php` - New seeder for hierarchical users
 2. `tests/Unit/HierarchicalUserFactoryTest.php` - Unit tests for factory
 3. `tests/Feature/HierarchicalUsersSeederTest.php` - Feature tests for seeders
-4. `TASK_13_SEEDERS_FACTORIES_SUMMARY.md` - This summary document
+4. [TASK_13_SEEDERS_FACTORIES_SUMMARY.md](TASK_13_SEEDERS_FACTORIES_SUMMARY.md) - This summary document
 
 ### Modified Files:
 1. `database/factories/UserFactory.php` - Added hierarchical user support

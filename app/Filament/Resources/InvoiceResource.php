@@ -116,11 +116,7 @@ class InvoiceResource extends Resource
                 
                 Forms\Components\Select::make('status')
                     ->label('Status')
-                    ->options([
-                        InvoiceStatus::DRAFT->value => 'Draft',
-                        InvoiceStatus::FINALIZED->value => 'Finalized',
-                        InvoiceStatus::PAID->value => 'Paid',
-                    ])
+                    ->options(InvoiceStatus::class)
                     ->required()
                     ->native(false)
                     ->default(InvoiceStatus::DRAFT->value)
@@ -172,6 +168,7 @@ class InvoiceResource extends Resource
                         InvoiceStatus::FINALIZED => 'warning',
                         InvoiceStatus::PAID => 'success',
                     })
+                    ->formatStateUsing(fn (?InvoiceStatus $state): ?string => $state?->label())
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('created_at')
@@ -183,11 +180,7 @@ class InvoiceResource extends Resource
             ->filters([
                 SelectFilter::make('status')
                     ->label('Status')
-                    ->options([
-                        InvoiceStatus::DRAFT->value => 'Draft',
-                        InvoiceStatus::FINALIZED->value => 'Finalized',
-                        InvoiceStatus::PAID->value => 'Paid',
-                    ])
+                    ->options(InvoiceStatus::labels())
                     ->native(false),
             ])
             ->actions([
@@ -202,11 +195,7 @@ class InvoiceResource extends Resource
                         ->form([
                             Forms\Components\Select::make('status')
                                 ->label('New Status')
-                                ->options([
-                                    InvoiceStatus::DRAFT->value => 'Draft',
-                                    InvoiceStatus::FINALIZED->value => 'Finalized',
-                                    InvoiceStatus::PAID->value => 'Paid',
-                                ])
+                                ->options(InvoiceStatus::labels())
                                 ->required()
                                 ->native(false),
                         ])

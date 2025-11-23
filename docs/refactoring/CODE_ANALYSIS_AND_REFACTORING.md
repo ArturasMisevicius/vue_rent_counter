@@ -190,7 +190,7 @@ $tariff = new Tariff(['configuration' => [...]]);
 1. `database/factories/BuildingFactory.php` - Building test data generation
 2. `database/factories/TenantFactory.php` - Tenant test data generation
 3. `database/factories/InvoiceFactory.php` - Invoice test data generation with states
-4. `CODE_ANALYSIS_AND_REFACTORING.md` - This document
+4. [CODE_ANALYSIS_AND_REFACTORING.md](CODE_ANALYSIS_AND_REFACTORING.md) - This document
 
 ### Modified Files (8)
 1. `app/Models/Invoice.php` - Fixed tenant relationship

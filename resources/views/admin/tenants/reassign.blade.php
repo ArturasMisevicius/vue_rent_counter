@@ -60,7 +60,7 @@
                                 <div class="mt-2 text-sm text-blue-700">
                                     @if($tenant->property)
                                         <p class="font-medium">{{ $tenant->property->address }}</p>
-                                        <p class="mt-1">{{ ucfirst($tenant->property->type->value) }} - {{ $tenant->property->area }} m²</p>
+                                        <p class="mt-1">{{ enum_label($tenant->property->type) }} - {{ $tenant->property->area }} m²</p>
                                     @else
                                         <p>No property currently assigned</p>
                                     @endif
@@ -77,8 +77,8 @@
                                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                                 <option value="">Select a property</option>
                                 @foreach($properties as $property)
-                                    <option value="{{ $property->id }}">
-                                        {{ $property->address }} ({{ ucfirst($property->type->value) }} - {{ $property->area }} m²)
+                                <option value="{{ $property->id }}">
+                                        {{ $property->address }} ({{ enum_label($property->type) }} - {{ $property->area }} m²)
                                     </option>
                                 @endforeach
                             </select>

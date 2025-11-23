@@ -561,7 +561,7 @@
                                 </div>
                                 <div>
                                     <x-status-badge :status="$invoice->status->value">
-                                        {{ ucfirst($invoice->status->value) }}
+                                        {{ enum_label($invoice->status) }}
                                     </x-status-badge>
                                 </div>
                             </div>
@@ -582,7 +582,7 @@
                             <div class="flex items-center space-x-4">
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-medium text-gray-900 truncate">
-                                        {{ ucfirst(str_replace('_', ' ', $reading->meter->type->value)) }}
+                                        {{ enum_label($reading->meter->type) }}
                                     </p>
                                     <p class="text-sm text-gray-500 truncate">
                                         {{ $reading->meter->property->address ?? 'N/A' }}

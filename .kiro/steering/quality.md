@@ -2,21 +2,21 @@
 
 ## Quality Gates (must pass)
 
-- **Static**: Pint (auto + `--test`), PHPStan (max level), ESLint/Prettier (with Tailwind plugin), TypeScript build clean.
-- **Tests**: Pest suites (Unit, Feature, Browser when applicable), Playwright smoke for admin CRUD + public news filters, property tests for invariants (posts, comments, news filters).
-- **Accessibility**: Lighthouse ≥ 95, axe clean for key templates, keyboard-only runs through admin modals and tables.
-- **Performance**: Admin interactions median < 400ms; news page filters fast (< 350ms server processing) with indexes and eager loading.
-- **Security**: Policies enforced for admin routes/actions, CSP headers intact, no direct mass assignment without guarded fillables, validated input for all Livewire actions.
+- **Static**: `./vendor/bin/pint --test`, `./vendor/bin/phpstan analyse`, and any custom Rector/Formatter runs referenced in docs. Treat style or static warnings as blockers.
+- **Tests**: Pest + PHPUnit suites (Feature, Unit, Filament folders) plus property tests inside `tests/Feature/*PropertyTest.php` that enforce tenant isolation, tariff accuracy, gyvatukas math, and authorization.
+- **Accessibility & UX**: Blade components and Filament panels must render accessible markup with descriptive labels, focus outlines, and keyboard-friendly tables/filters; note CDN-based Tailwind & Alpine additions in `resources/views/layouts/app.blade.php`.
+- **Billing integrity**: Every invoice must snapshot tariffs/gyvatukas and include audited meter reading snapshots; `MeterReadingObserver` recalculations should not re-open finalized invoices.
+- **Security**: Policies guard Filament resources/controllers, `BelongsToTenant` enforces tenant scope, session regeneration and CSP/headers stay intact, and Spatie backup runs confirm data durability.
 
 ## Checklists
 
-- **Backend**: Strict types; early returns guard clauses; query scopes reused; avoid duplicated validation logic; cache heavy computations where safe.
-- **Livewire**: Public properties validated; emits/responds namespaced; optimistic UI includes rollback; bulk actions respect configured limits.
-- **Frontend**: Components lean on design tokens; ARIA labels set; loading/empty/error states present; avoid inline JS in Blade unless Alpine.
-- **Database**: Indexes on queryable columns; migrations reversible; seed data realistic; foreign keys enforced.
+- **Backend**: Keep services composable (`BillingService`, `TariffResolver`, `GyvatukasCalculator`, `AccountManagementService`); prefer FormRequests for validation and policies for every mutating action; guard `tenant_id` via `TenantScope`.
+- **Filament**: Resource forms reuse helpers (tenant filters, validation messages, `InvoiceItem` bulk updates); display togglable columns, rename badges, and always hide navigation from tenants when appropriate.
+- **Frontend**: Blade components under `resources/views/components/` supply consistent cards, tables, breadcrumbs, and modals; use Alpine CDN for inline reactivity and Tailwind CDN for styling, avoiding compiled assets unless necessary.
+- **Database**: Seeders (`TestBuildingsSeeder`, `TestMetersSeeder`, `TestInvoicesSeeder`, etc.) must stay deterministic; migrations keep foreign keys, indexes on `tenant_id`, `published_at`, `meter_id`, and use WAL with SQLite plus `spatie/laravel-backup` for persistence.
 
 ## Release Confidence
 
-- CI: composer test (aggregated quality), npm run lint, npm run build.
-- Smoke: Run Playwright admin smoke (login, post CRUD, comment moderation) and public news filter walk-through before tagging release.
-- Observability: Capture log noise via `php artisan pail`; ensure failure modes surface to UI with user-friendly copy.
+- Run `php artisan test:setup --fresh` to rebuild deterministic test data, then `php artisan test` (or targeted Pest suites) and property tests before merging.
+- Validate Filament dashboards with `tests/Feature/Filament*` and `tests/Feature/FilamentPanelAccessibilityTest.php`.
+- Ensure backup & observability checks (`spatie/laravel-backup` status, `php artisan pail` for logs when investigating) stay green; surface any `tenant_id` leaks via multi-tenancy tests before shipping.

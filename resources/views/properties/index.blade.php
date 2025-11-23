@@ -6,7 +6,7 @@
 <body>
     <h1>Properties</h1>
     @foreach($properties as $property)
-        <p>{{ $property->address }} - {{ $property->type->value }}</p>
+        <p>{{ $property->address }} - {{ enum_label($property->type) }}</p>
     @endforeach
 </body>
 </html>

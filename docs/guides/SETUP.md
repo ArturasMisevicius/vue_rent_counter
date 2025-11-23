@@ -444,7 +444,7 @@ $schedule->command('backup:run')->daily()->at('02:00');
 
 ## Additional Resources
 
-- [README.md](README.md) - Project overview and features
+- [README.md](../overview/readme.md) - Project overview and features
 - [HIERARCHICAL_USER_GUIDE.md](HIERARCHICAL_USER_GUIDE.md) - User guide for all roles
 - [TESTING_GUIDE.md](TESTING_GUIDE.md) - Testing approach and conventions
 - [Laravel Documentation](https://laravel.com/docs/11.x) - Framework documentation

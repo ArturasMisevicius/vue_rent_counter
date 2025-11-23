@@ -37,7 +37,7 @@
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Property Type</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ ucfirst($stats['property']->type->value) }}</dd>
+                        <dd class="mt-1 text-sm text-gray-900">{{ enum_label($stats['property']->type) }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-gray-500">Area</dt>
@@ -116,7 +116,7 @@
                             @foreach($stats['latest_readings'] as $reading)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {{ ucfirst(str_replace('_', ' ', $reading->meter->type->value)) }}
+                                    {{ enum_label($reading->meter->type) }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $reading->meter->serial_number }}

@@ -75,7 +75,7 @@
                 </div>
                 <div>
                     <dt class="text-sm font-medium text-gray-500">Property Type</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ ucfirst($user->property->type->value) }}</dd>
+                    <dd class="mt-1 text-sm text-gray-900">{{ enum_label($user->property->type) }}</dd>
                 </div>
                 <div>
                     <dt class="text-sm font-medium text-gray-500">Area</dt>

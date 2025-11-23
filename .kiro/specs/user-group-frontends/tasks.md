@@ -4,13 +4,13 @@
 
 All core implementation tasks for the user-group-frontends feature have been completed. The system now has:
 
-✅ **Complete Infrastructure**
+- [ ] **Complete Infrastructure**
 - All resource policies implemented (User, Property, Building, Meter, Provider, Invoice, MeterReading, Tariff, Settings)
 - Reusable Blade components (card, stat-card, data-table, status-badge, breadcrumbs, button, form-input, form-select, modal)
 - Role-based navigation with active state highlighting
 - Breadcrumb system with hierarchical navigation
 
-✅ **Admin Interface**
+- [ ] **Admin Interface**
 - Dashboard with system-wide statistics
 - User management (CRUD with validation)
 - Provider management (CRUD)
@@ -18,7 +18,7 @@ All core implementation tasks for the user-group-frontends feature have been com
 - Settings interface
 - Audit log interface
 
-✅ **Manager Interface**
+- [ ] **Manager Interface**
 - Dashboard with pending tasks
 - Property management (CRUD with tenant scope)
 - Building management (CRUD with gyvatukas display)
@@ -27,26 +27,26 @@ All core implementation tasks for the user-group-frontends feature have been com
 - Invoice management (generation, editing, finalization)
 - Reports interface (consumption, revenue, compliance)
 
-✅ **Tenant Interface**
+- [ ] **Tenant Interface**
 - Dashboard with consumption overview
 - Property view (read-only)
 - Meter views (with consumption trends)
 - Invoice views (with filtering and line items)
 - Profile management
 
-✅ **Error Handling & Validation**
+- [ ] **Error Handling & Validation**
 - Error pages (401, 403, 404, 422, 500)
 - Consistent validation error display
 - Flash message system
 
-✅ **Performance & UX**
+- [ ] **Performance & UX**
 - Pagination on all list views
 - Sortable table columns
 - Search and filtering
 - Eager loading to prevent N+1 queries
 - Dashboard caching (5 minutes)
 
-✅ **Property-Based Tests**
+- [ ] **Property-Based Tests**
 - Property 6: Tenant scope filtering (100 iterations)
 - Property 7: Manager property isolation (100 iterations)
 

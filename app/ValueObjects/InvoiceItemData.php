@@ -2,6 +2,8 @@
 
 namespace App\ValueObjects;
 
+use App\Enums\MeterType;
+use App\Enums\TariffZone;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Tariff;
@@ -30,16 +32,15 @@ readonly class InvoiceItemData
      */
     public function getDescription(): string
     {
-        $description = match ($this->meter->type->value) {
-            'electricity' => 'Electricity',
-            'water_cold' => 'Cold Water',
-            'water_hot' => 'Hot Water',
-            'heating' => 'Heating',
-            default => 'Utility',
-        };
+        $meterType = $this->meter->type instanceof MeterType
+            ? $this->meter->type
+            : MeterType::tryFrom((string) $this->meter->type);
+
+        $description = $meterType?->label() ?? ucfirst((string) $this->meter->type);
 
         if ($this->zone) {
-            $description .= " ({$this->zone})";
+            $zoneLabel = TariffZone::tryFrom($this->zone)?->label() ?? $this->zone;
+            $description .= " ({$zoneLabel})";
         }
 
         return $description;

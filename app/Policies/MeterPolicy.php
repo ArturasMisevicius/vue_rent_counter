@@ -39,7 +39,12 @@ class MeterPolicy
         // Tenants can only view meters for their assigned property
         if ($user->role === UserRole::TENANT) {
             // Check if the meter belongs to the tenant's assigned property
-            return $meter->property_id === $user->property_id;
+            if ($user->property_id !== null) {
+                return $meter->property_id === $user->property_id;
+            }
+
+            // Fallback to tenant model relation when property_id is not set on user
+            return $user->tenant && $user->tenant->property_id === $meter->property_id;
         }
 
         return false;
@@ -89,8 +94,8 @@ class MeterPolicy
             return true;
         }
 
-        // Admins and managers can delete meters within their tenant (Requirement 9.1, 13.3)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Admins can delete meters within their tenant (Requirement 9.1, 13.3)
+        if ($user->role === UserRole::ADMIN) {
             return $meter->property->tenant_id === $user->tenant_id;
         }
 

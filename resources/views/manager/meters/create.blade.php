@@ -3,6 +3,7 @@
 @section('title', 'Create Meter')
 
 @section('content')
+@php($meterTypeOptions = \App\Enums\MeterType::labels())
 <div class="px-4 sm:px-6 lg:px-8">
     <x-breadcrumbs>
         <x-breadcrumb-item href="{{ route('manager.dashboard') }}">Dashboard</x-breadcrumb-item>
@@ -35,12 +36,7 @@
                     <x-form-select
                         name="type"
                         label="Meter Type"
-                        :options="[
-                            'electricity' => 'Electricity',
-                            'water_cold' => 'Cold Water',
-                            'water_hot' => 'Hot Water',
-                            'heating' => 'Heating'
-                        ]"
+                        :options="$meterTypeOptions"
                         :selected="old('type')"
                         required
                     />

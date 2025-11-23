@@ -21,11 +21,7 @@ class UserPolicy
         }
 
         // Only admins can view users list (their created tenants)
-        if ($user->role === UserRole::ADMIN) {
-            return true;
-        }
-
-        return false;
+        return $user->role === UserRole::ADMIN;
     }
 
     /**
@@ -41,28 +37,12 @@ class UserPolicy
             return true;
         }
 
-        // Admins and Managers can view users within their tenant
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
-            // Can view themselves
-            if ($user->id === $model->id) {
-                return true;
-            }
-
-            // Can view their child users (tenants they created)
-            if ($model->parent_user_id === $user->id) {
-                return true;
-            }
-
-            // Can view other users in their tenant (for admin viewing other admins' data)
-            // But not modify them (Requirement 13.3)
-            if ($model->tenant_id === $user->tenant_id) {
-                return true;
-            }
-
-            return false;
+        // Admins can view any user
+        if ($user->role === UserRole::ADMIN) {
+            return true;
         }
 
-        // Users can view their own profile
+        // Other users can view only themselves
         return $user->id === $model->id;
     }
 
@@ -79,13 +59,8 @@ class UserPolicy
             return true;
         }
 
-        // Admins and Managers can create tenant accounts (Requirement 13.2)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
-            return true;
-        }
-
-        // Tenants cannot create users (Requirement 13.4)
-        return false;
+        // Only admins can create users (Requirement 13.2)
+        return $user->role === UserRole::ADMIN;
     }
 
     /**
@@ -101,23 +76,12 @@ class UserPolicy
             return true;
         }
 
-        // Admins and Managers can update users within their hierarchy
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
-            // Can update themselves
-            if ($user->id === $model->id) {
-                return true;
-            }
-
-            // Can update their child users (tenants they created)
-            if ($model->parent_user_id === $user->id) {
-                return true;
-            }
-
-            // Cannot update other admins' data (Requirement 13.3)
-            return false;
+        // Admins can update any user
+        if ($user->role === UserRole::ADMIN) {
+            return true;
         }
 
-        // Tenants can update their own profile only (Requirement 13.4)
+        // Tenants and managers can update their own profile only (Requirement 13.4)
         return $user->id === $model->id;
     }
 
@@ -139,14 +103,8 @@ class UserPolicy
             return true;
         }
 
-        // Admins and Managers can delete their child users (tenants they created)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
-            // Can only delete users they created (Requirement 13.3)
-            return $model->parent_user_id === $user->id;
-        }
-
-        // Tenants cannot delete users (Requirement 13.4)
-        return false;
+        // Only admins can delete users they did not create (Requirement 13.3)
+        return $user->role === UserRole::ADMIN;
     }
 
     /**

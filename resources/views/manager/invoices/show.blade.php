@@ -15,7 +15,7 @@
             <h1 class="text-2xl font-semibold text-gray-900">Invoice #{{ $invoice->id }}</h1>
             <p class="mt-2 text-sm text-gray-700">
                 <x-status-badge :status="$invoice->status->value">
-                    {{ ucfirst($invoice->status->value) }}
+                    {{ enum_label($invoice->status) }}
                 </x-status-badge>
             </p>
         </div>
@@ -65,7 +65,7 @@
                     <dt class="text-sm font-medium leading-6 text-gray-900">Status</dt>
                     <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                         <x-status-badge :status="$invoice->status->value">
-                            {{ ucfirst($invoice->status->value) }}
+                            {{ enum_label($invoice->status) }}
                         </x-status-badge>
                     </dd>
                 </div>

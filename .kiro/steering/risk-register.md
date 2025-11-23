@@ -2,11 +2,9 @@
 
 | Risk | Impact | Likelihood | Mitigation |
 | --- | --- | --- | --- |
-| Livewire regressions on optimistic UI | Broken admin actions / data loss | Medium | Expand Playwright + Pest coverage; include rollback paths; use per-action loading/error states. |
-| Translation drift (English vs Spanish) | Mixed-language UI, accessibility gaps | Medium | Enforce localization linting; block merges with missing keys; add tests for `lang` coverage. |
-| Slow news filters under load | Poor UX, higher bounce | Medium | Keep indexes on `published_at`, `slug`, foreign keys; eager load; paginate; cache filter metadata. |
-| Bulk actions over-processing | Lock contention, timeouts | Low | Respect configured bulk limits; queue long-running tasks; provide progress feedback. |
-| Security header misconfiguration | CSP bypass or frame injection | Low | Keep `config/security.php` source of truth; add test to assert headers; document allowed origins. |
-| Demo mode misuse in prod | Privilege escalation | Low | Highlight config flag in docs; ensure policies still enforced; disable admin:create auto-login in prod. |
-| Component divergence from design tokens | Visual inconsistency | Medium | Lint Tailwind usage; document variants; add property tests for token application. |
-| Accessibility regressions | Non-compliance | Medium | Run Lighthouse/axe regularly; keyboard walkthroughs for new modals/forms; central ARIA patterns. |
+| Cross-tenant data leakage (manager/admin/tenant) | System integrity compromised; potential data breach | Medium | Apply `BelongsToTenant`, `TenantScope`, `TenantContext`, and policies on every Filament resource/controller; property tests cover isolation (`MultiTenancyTest`, `InvoiceMultiTenancyTest`). |
+| Tariff/gyvatukas miscalculation | Incorrect invoicing, refunds, compliance issues | High | Snapshot tariffs and gyvatukas rules in `InvoiceItemData`, validate using `TariffResolver`/`GyvatukasCalculator`, and cover with `GyvatukasCalculationTest` plus property tests for time-of-use zones. |
+| Missing or invalid meter readings | Draft invoices stuck and inaccurate totals | Medium | Enforce monotonic/time validation in meter reading controllers/Filament, create audits via `MeterReadingObserver`, and log warnings when readings are absent; build UI feedback in meter-reading forms. |
+| Subscription/tenant quota drift | Admins blocked from onboarding tenants or tenants lose access | Medium | Lock tenant creation when quotas hit (`SubscriptionService`), surface expiring subscriptions through superadmin dashboard, and send `SubscriptionExpiryWarningEmail` ahead of renewals. |
+| Filament permission drift (navigation, bulk actions) | Unauthorized edits or hidden features | Medium | Test `shouldRegisterNavigation` per role, tie `can*` methods to policies, and double-check bulk actions (invoice status updates, property deletion) with property tests. |
+| Backup/WAL inconsistency | Data loss during deploys or concurrent writes | Low | Keep SQLite/WAL enabled, run Spatie backups nightly (`spatie/laravel-backup` config for SQLite), and add monitoring for `php artisan backup:run` + queue workers. |

@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\ServiceType;
+use App\Enums\TariffType;
+use App\Enums\WeekendLogic;
 use App\Filament\Resources\TariffResource\Pages;
 use App\Filament\Resources\TariffResource\RelationManagers;
 use App\Models\Provider;
@@ -105,10 +108,7 @@ class TariffResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('configuration.type')
                             ->label('Tariff Type')
-                            ->options([
-                                'flat' => 'Flat Rate',
-                                'time_of_use' => 'Time of Use',
-                            ])
+                            ->options(TariffType::labels())
                             ->required()
                             ->native(false)
                             ->live()
@@ -205,11 +205,7 @@ class TariffResource extends Resource
                         // Optional fields
                         Forms\Components\Select::make('configuration.weekend_logic')
                             ->label('Weekend Logic')
-                            ->options([
-                                'apply_night_rate' => 'Apply Night Rate',
-                                'apply_day_rate' => 'Apply Day Rate',
-                                'apply_weekend_rate' => 'Apply Weekend Rate',
-                            ])
+                            ->options(WeekendLogic::labels())
                             ->nullable()
                             ->native(false)
                             ->visible(fn (Get $get): bool => $get('configuration.type') === 'time_of_use')
@@ -241,13 +237,13 @@ class TariffResource extends Resource
                 Tables\Columns\TextColumn::make('provider.service_type')
                     ->label('Service Type')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'electricity' => 'warning',
-                        'water' => 'info',
-                        'heating' => 'danger',
+                    ->color(fn ($state): string => match ($state instanceof ServiceType ? $state : ServiceType::tryFrom((string) $state)) {
+                        ServiceType::ELECTRICITY => 'warning',
+                        ServiceType::WATER => 'info',
+                        ServiceType::HEATING => 'danger',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn (string $state): string => ucfirst($state))
+                    ->formatStateUsing(fn ($state): string => ($state instanceof ServiceType ? $state : ServiceType::tryFrom((string) $state))?->label() ?? (string) $state)
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('name')
@@ -258,16 +254,12 @@ class TariffResource extends Resource
                 Tables\Columns\TextColumn::make('configuration.type')
                     ->label('Tariff Type')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'flat' => 'success',
-                        'time_of_use' => 'info',
+                    ->color(fn (string $state): string => match (TariffType::tryFrom($state)) {
+                        TariffType::FLAT => 'success',
+                        TariffType::TIME_OF_USE => 'info',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'flat' => 'Flat Rate',
-                        'time_of_use' => 'Time of Use',
-                        default => $state,
-                    })
+                    ->formatStateUsing(fn (string $state): string => TariffType::tryFrom($state)?->label() ?? $state)
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('active_from')

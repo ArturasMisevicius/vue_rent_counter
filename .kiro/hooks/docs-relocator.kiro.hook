@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "name": "Docs Relocator",
+  "description": "Manually reorganizes Markdown into docs/ subfolders and refreshes inter-doc links using the relocation script.",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Run the Markdown relocation utility to regroup docs and refresh links.\n\n- use MCP servers, use mcp services\n\nSTEPS:\n1) Execute `node .kiro/scripts/relocate-markdown.js` from the repo root.\n2) Review the console log for moves/link rewrites.\n3) Run `rg \"\\\\.md\" docs` if you want to double-check link targets.\n4) Commit the updated docs tree.\n\nWHAT THE SCRIPT DOES:\n- Categorizes Markdown via keyword-based resolver and keeps existing docs/<category>/ placement stable.\n- Moves files into docs/<category>/ and creates folders as needed.\n- Rewrites Markdown links and inline code references to the new relative paths (case-insensitive matching for filenames).\n\nNote: The script is idempotent; rerun anytime new Markdown is added outside docs/."
+  },
+  "workspaceFolderName": "vue_rent_counter",
+  "shortName": "docs-relocator"
+}

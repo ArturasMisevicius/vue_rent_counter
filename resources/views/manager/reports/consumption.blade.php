@@ -80,7 +80,7 @@
                             {{ $reading->meter->serial_number }}
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                            <span class="capitalize">{{ str_replace('_', ' ', $reading->meter->type->value) }}</span>
+                            <span class="capitalize">{{ enum_label($reading->meter->type) }}</span>
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900 text-right">
                             {{ number_format($reading->value, 2) }}

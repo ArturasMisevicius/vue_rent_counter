@@ -22,13 +22,13 @@ class TestDatabaseSeeder extends Seeder
 
             Log::info('Starting test database seeding...');
 
-            // 1. Seed providers first (no tenant dependency)
+            // 1. Seed organizations, invitations, and activity logs
+            $this->call(OrganizationSeeder::class);
+            Log::info('✓ Organizations seeded');
+
+            // 2. Seed providers first (no tenant dependency)
             $this->call(ProvidersSeeder::class);
             Log::info('✓ Providers seeded');
-
-            // 2. Seed test users with known credentials
-            $this->call(TestUsersSeeder::class);
-            Log::info('✓ Test users seeded');
 
             // 3. Seed test buildings with realistic addresses
             $this->call(TestBuildingsSeeder::class);
@@ -38,23 +38,27 @@ class TestDatabaseSeeder extends Seeder
             $this->call(TestPropertiesSeeder::class);
             Log::info('✓ Test properties seeded');
 
-            // 5. Seed test tenants (renters) linked to properties
+            // 5. Seed test users with known credentials
+            $this->call(TestUsersSeeder::class);
+            Log::info('✓ Test users seeded');
+
+            // 6. Seed test tenants (renters) linked to properties
             $this->call(TestTenantsSeeder::class);
             Log::info('✓ Test tenants seeded');
 
-            // 6. Seed test meters for each property
+            // 7. Seed test meters for each property
             $this->call(TestMetersSeeder::class);
             Log::info('✓ Test meters seeded');
 
-            // 7. Seed test meter readings (3+ months history)
+            // 8. Seed test meter readings (3+ months history)
             $this->call(TestMeterReadingsSeeder::class);
             Log::info('✓ Test meter readings seeded');
 
-            // 8. Seed test tariffs for all providers
+            // 9. Seed test tariffs for all providers
             $this->call(TestTariffsSeeder::class);
             Log::info('✓ Test tariffs seeded');
 
-            // 9. Seed test invoices in different states
+            // 10. Seed test invoices in different states
             $this->call(TestInvoicesSeeder::class);
             Log::info('✓ Test invoices seeded');
 
@@ -79,4 +83,3 @@ class TestDatabaseSeeder extends Seeder
         }
     }
 }
-

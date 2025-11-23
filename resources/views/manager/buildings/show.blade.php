@@ -159,7 +159,7 @@
                             </a>
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                            <span class="capitalize">{{ $property->type->value }}</span>
+                            <span class="capitalize">{{ enum_label($property->type) }}</span>
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                             {{ number_format($property->area_sqm, 2) }} m²

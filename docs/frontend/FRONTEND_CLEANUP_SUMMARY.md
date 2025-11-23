@@ -89,7 +89,7 @@ Application verified working correctly:
 
 ## Documentation
 
-Created `resources/FRONTEND.md` documenting:
+Created [FRONTEND.md](FRONTEND.md) documenting:
 - Frontend architecture overview
 - Technology stack
 - Development workflow

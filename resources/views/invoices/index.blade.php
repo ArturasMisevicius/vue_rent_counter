@@ -65,7 +65,7 @@
                                 @elseif($invoice->status->value === 'finalized') bg-blue-100 text-blue-800
                                 @elseif($invoice->status->value === 'paid') bg-green-100 text-green-800
                                 @endif">
-                                {{ ucfirst($invoice->status->value) }}
+                                {{ enum_label($invoice->status) }}
                             </span>
                             <p class="text-2xl font-bold text-gray-900 mt-2">
                                 €{{ number_format($invoice->total_amount, 2) }}

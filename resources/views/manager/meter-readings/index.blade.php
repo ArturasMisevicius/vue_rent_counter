@@ -3,6 +3,7 @@
 @section('title', 'Meter Readings')
 
 @section('content')
+@php($meterTypeLabels = \App\Enums\MeterType::labels())
 <div class="px-4 sm:px-6 lg:px-8">
     <x-breadcrumbs>
         <x-breadcrumb-item href="{{ route('manager.dashboard') }}">Dashboard</x-breadcrumb-item>
@@ -51,10 +52,9 @@
                 <label for="meter_type" class="block text-sm font-medium text-gray-700">Meter Type</label>
                 <select name="meter_type" id="meter_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                     <option value="">All Types</option>
-                    <option value="electricity" {{ request('meter_type') === 'electricity' ? 'selected' : '' }}>Electricity</option>
-                    <option value="water_cold" {{ request('meter_type') === 'water_cold' ? 'selected' : '' }}>Cold Water</option>
-                    <option value="water_hot" {{ request('meter_type') === 'water_hot' ? 'selected' : '' }}>Hot Water</option>
-                    <option value="heating" {{ request('meter_type') === 'heating' ? 'selected' : '' }}>Heating</option>
+                    @foreach($meterTypeLabels as $value => $label)
+                        <option value="{{ $value }}" {{ request('meter_type') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                    @endforeach
                 </select>
             </div>
 
@@ -110,7 +110,7 @@
                                 </a>
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                <span class="capitalize">{{ str_replace('_', ' ', $reading->meter->type->value) }}</span>
+                                <span class="capitalize">{{ $reading->meter->type->label() }}</span>
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                 {{ number_format($reading->value, 2) }}
@@ -156,7 +156,7 @@
                         <svg class="h-5 w-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
-                        <span class="capitalize">{{ str_replace('_', ' ', $meterType) }}</span>
+                        <span class="capitalize">{{ $meterTypeLabels[$meterType] ?? $meterType }}</span>
                         <span class="ml-2 text-sm font-normal text-gray-500">({{ $typeReadings->count() }} readings)</span>
                     </h3>
                     
@@ -259,9 +259,9 @@
                             {{ $reading->meter->serial_number }}
                         </a>
                     </td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        <span class="capitalize">{{ str_replace('_', ' ', $reading->meter->type->value) }}</span>
-                    </td>
+                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                <span class="capitalize">{{ $reading->meter->type->label() }}</span>
+                            </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                         {{ number_format($reading->value, 2) }}
                     </td>

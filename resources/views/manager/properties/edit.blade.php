@@ -3,6 +3,7 @@
 @section('title', 'Edit Property')
 
 @section('content')
+@php($propertyTypeOptions = \App\Enums\PropertyType::labels())
 <div class="px-4 sm:px-6 lg:px-8">
     <x-breadcrumbs>
         <x-breadcrumb-item href="{{ route('manager.dashboard') }}">Dashboard</x-breadcrumb-item>
@@ -37,10 +38,7 @@
                     <x-form-select
                         name="type"
                         label="Property Type"
-                        :options="[
-                            'apartment' => 'Apartment',
-                            'house' => 'House'
-                        ]"
+                        :options="$propertyTypeOptions"
                         :selected="old('type', $property->type->value)"
                         required
                     />

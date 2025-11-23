@@ -53,7 +53,7 @@ class TestInvoicesSeeder extends Seeder
         $billingPeriodStart = Carbon::now()->startOfMonth();
         $billingPeriodEnd = Carbon::now()->endOfMonth();
 
-        $invoice = Invoice::create([
+        $invoice = Invoice::factory()->create([
             'tenant_id' => $tenant->tenant_id,
             'tenant_renter_id' => $tenant->id,
             'billing_period_start' => $billingPeriodStart,
@@ -77,7 +77,7 @@ class TestInvoicesSeeder extends Seeder
         $billingPeriodStart = Carbon::now()->subMonth()->startOfMonth();
         $billingPeriodEnd = Carbon::now()->subMonth()->endOfMonth();
 
-        $invoice = Invoice::create([
+        $invoice = Invoice::factory()->create([
             'tenant_id' => $tenant->tenant_id,
             'tenant_renter_id' => $tenant->id,
             'billing_period_start' => $billingPeriodStart,
@@ -101,7 +101,7 @@ class TestInvoicesSeeder extends Seeder
         $billingPeriodStart = Carbon::now()->subMonths(2)->startOfMonth();
         $billingPeriodEnd = Carbon::now()->subMonths(2)->endOfMonth();
 
-        $invoice = Invoice::create([
+        $invoice = Invoice::factory()->create([
             'tenant_id' => $tenant->tenant_id,
             'tenant_renter_id' => $tenant->id,
             'billing_period_start' => $billingPeriodStart,
@@ -210,7 +210,7 @@ class TestInvoicesSeeder extends Seeder
             $dayRate = $this->getZoneRate($config, 'day');
             $dayTotal = $dayConsumption * $dayRate;
 
-            InvoiceItem::create([
+            InvoiceItem::factory()->create([
                 'invoice_id' => $invoice->id,
                 'description' => 'Electricity (Day Rate)',
                 'quantity' => $dayConsumption,
@@ -246,7 +246,7 @@ class TestInvoicesSeeder extends Seeder
             $nightRate = $this->getZoneRate($config, 'night');
             $nightTotal = $nightConsumption * $nightRate;
 
-            InvoiceItem::create([
+            InvoiceItem::factory()->create([
                 'invoice_id' => $invoice->id,
                 'description' => 'Electricity (Night Rate)',
                 'quantity' => $nightConsumption,
@@ -299,7 +299,7 @@ class TestInvoicesSeeder extends Seeder
 
         $description = $this->getDescriptionForMeterType($meter->type);
 
-        InvoiceItem::create([
+        InvoiceItem::factory()->create([
             'invoice_id' => $invoice->id,
             'description' => $description,
             'quantity' => $consumption,

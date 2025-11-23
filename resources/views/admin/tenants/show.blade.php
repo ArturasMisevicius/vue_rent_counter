@@ -91,7 +91,7 @@
                     </div>
                     <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
                         <dt class="text-sm font-medium text-gray-500">Type</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{ ucfirst($tenant->property->type->value) }}</dd>
+                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{ enum_label($tenant->property->type) }}</dd>
                     </div>
                     <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
                         <dt class="text-sm font-medium text-gray-500">Area</dt>
@@ -165,7 +165,7 @@
                         <div class="flex items-center space-x-4">
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-gray-900 truncate">
-                                    {{ ucfirst(str_replace('_', ' ', $reading->meter->type->value)) }}
+                                    {{ enum_label($reading->meter->type) }}
                                 </p>
                                 <p class="text-sm text-gray-500 truncate">
                                     Reading: {{ number_format($reading->value, 2) }}

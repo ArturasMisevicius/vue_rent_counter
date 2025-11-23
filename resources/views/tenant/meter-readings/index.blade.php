@@ -3,6 +3,7 @@
 @section('title', 'My Consumption History')
 
 @section('content')
+@php($meterTypeLabels = \App\Enums\MeterType::labels())
 <div class="px-4 sm:px-6 lg:px-8" x-data="consumptionHistory()">
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
@@ -18,10 +19,9 @@
                 <label class="block text-sm font-medium text-gray-700">Meter Type</label>
                 <select x-model="filters.meterType" @change="applyFilters()" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                     <option value="">All Types</option>
-                    <option value="electricity">Electricity</option>
-                    <option value="water_cold">Cold Water</option>
-                    <option value="water_hot">Hot Water</option>
-                    <option value="heating">Heating</option>
+                    @foreach($meterTypeLabels as $value => $label)
+                        <option value="{{ $value }}">{{ $label }}</option>
+                    @endforeach
                 </select>
             </div>
 
@@ -91,10 +91,11 @@
 function consumptionHistory() {
     return {
         readings: @json($readings),
+        meterTypeLabels: @json($meterTypeLabels),
         filters: {
-            meterType: '',
-            dateFrom: '',
-            dateTo: ''
+            meterType: '{{ request('meter_type') }}',
+            dateFrom: '{{ request('date_from') }}',
+            dateTo: '{{ request('date_to') }}'
         },
         
         get groupedReadings() {
@@ -140,13 +141,7 @@ function consumptionHistory() {
         },
         
         formatMeterType(type) {
-            const types = {
-                'electricity': 'Electricity',
-                'water_cold': 'Cold Water',
-                'water_hot': 'Hot Water',
-                'heating': 'Heating'
-            };
-            return types[type] || type;
+            return this.meterTypeLabels[type] || type;
         },
         
         calculateConsumption(current, previous) {

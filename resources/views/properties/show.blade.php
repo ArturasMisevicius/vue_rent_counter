@@ -6,6 +6,6 @@
 <body>
     <h1>Property Details</h1>
     <p>Address: {{ $property->address }}</p>
-    <p>Type: {{ $property->type->value }}</p>
+    <p>Type: {{ enum_label($property->type) }}</p>
 </body>
 </html>

@@ -2,93 +2,78 @@
 
 ## Backend
 
-- **Framework**: Laravel 12 (PHP 8.3+)
-- **Real-time**: Livewire 3 with Volt (single-file components)
-- **UI Components**: Livewire Flux + Blade component primitives
-- **Authentication**: Laravel Sanctum, email verification for comments
-- **Database**: SQLite (dev), MySQL/PostgreSQL (production)
-- **Caching/Queues**: File cache by default; Horizon-ready queue config; broadcast-less stack (Livewire handles interactivity)
-- **Security**: CSP + security headers (`config/security.php`), FormRequests + Policies gate admin surface
+- **Framework**: Laravel 11 with PHP 8.2+; Filesystem-backed tenancy enforced by `BelongsToTenant`, `TenantScope`, and `TenantContext`.
+- **Admin Layer**: Filament 3 resources (Properties, Buildings, Meters, MeterReadings, Invoices, Tariffs, Providers, Users, Subscriptions) with navigation visibility controlled by role-aware `can*` methods.
+- **Billing**: `BillingService`, `TariffResolver`, `GyvatukasCalculator`, `BillingCalculatorFactory`, and `MeterReadingObserver` manage tariff snapshots, gyvatukas seasons, meter readings audits, and invoice recalculations.
+- **Multi-tenancy & security**: Policies gate every resource/action; sessions regenerate on login, and superadmin-only switches respect `TenantContext::switch`.
+- **Persistence**: SQLite (dev) plus MySQL/PostgreSQL (prod) with WAL mode enabled and nightly Spatie backups (`config/backup.php`), ensuring `php artisan backup:run` succeeds even under load.
 
 ## Frontend
 
-- **CSS**: TailwindCSS 4 driven by design tokens
-- **JavaScript**: AlpineJS 3, TypeScript-first utilities
-- **Build Tool**: Vite 7 with Laravel plugin
-- **Markdown Editor**: EasyMDE with autosave + preview
-- **UI Patterns**: Optimistic UI helpers, modal-heavy workflows, keyboard shortcuts
+- **Markup**: Blade templates share reusable components (`resources/views/components/`) for cards, data tables, breadcrumbs, modals, and meter-reading forms.
+- **Styling & interactivity**: Tailwind CSS and Alpine.js loaded via CDN in `layouts/app.blade.php`; Filament ships its own frontend bundle under `public/js/filament`.
+- **Assets**: `resources/js/bootstrap.js` wires Axios defaults; Vite (`vite.config.js`) is kept minimal for future custom builds but currently has no inputs.
 
 ## Testing
 
-- **PHP Testing**: PestPHP 4 with PHPUnit 12 runner
-- **Browser Testing**: Playwright for admin/public flows
-- **Test Suites**: Browser, Feature, Unit, JS/TS
-- **Property-Based Testing**: `tests/Helpers/PropertyTesting.php` powers property suites (posts, comments, news filters)
-- **Accessibility**: Lighthouse + manual keyboard/screen-reader checks documented in `docs/`
+- **Framework**: PestPHP with PHPUnit runner; `tests/Feature` includes API/Filament suites plus dozens of property-based tests (`*PropertyTest.php`).
+- **Deterministic data**: `TestDatabaseSeeder` orchestrates providers, users, buildings, properties, meters, readings, tariffs, and invoices; `php artisan test:setup --fresh` rebuilds that dataset.
+- **Property-based coverage**: Suites cover multi-tenancy, tariff selection, gyvatukas math, meter reading validation, invoice immutability, and authorization invariants (`FilamentMeterReadingMonotonicityPropertyTest`, `SubscriptionRenewalPropertyTest`, etc.).
+- **Accessibility/UX**: Accessibility tests include `FilamentPanelAccessibilityTest`, Breadcrumb/Navigation tests, and docs describing keyboard-first flows.
 
 ## Code Quality
 
-- **Style**: Laravel Pint (PSR-12 baseline)
-- **Static Analysis**: PHPStan (max level)
-- **Refactoring**: Rector automation + targeted audits
-- **Frontend**: Prettier with Tailwind plugin; ESLint config co-located with Vite
-- **Docs**: phpDocumentor configuration for API docs; rich in-repo guides
+- **Style/analysis**: `./vendor/bin/pint --test`, `./vendor/bin/phpstan analyse`, and optional Rector runs keep standards high.
+- **Documentation**: `docs/frontend/FRONTEND.md`, `docs/routes/ROUTES_IMPLEMENTATION_COMPLETE.md`, and `.kiro/specs/*` (filament, billing, hierarchical users, authentication testing) document intentions.
+- **Helpers**: `tests/TestCase.php` exposes `actingAsAdmin/Manager/Tenant`, `createTestProperty`, and `createTestMeterReading` helpers for repeatable property tests.
 
 ## Common Commands
 
 ### Setup
 ```bash
-composer install           # Install PHP dependencies
-npm install                # Install Node dependencies
-php artisan key:generate   # Generate app key
-php artisan migrate        # Run migrations
-php artisan storage:link   # Link storage
-npm run build              # Build assets
-php artisan admin:create   # Create admin user
+composer install
+npm install          # Optional until assets are added
+php artisan key:generate
+php artisan migrate
+php artisan storage:link
+php artisan test:setup --fresh
 ```
 
 ### Development
 ```bash
-php artisan serve          # Start dev server
-npm run dev                # Start Vite dev server
-composer dev               # Run server + queue + logs + vite concurrently
-php artisan pail           # Tail logs
+php artisan serve
+php artisan pail         # Tail Kafka-ish logs
+npx vite dev             # Only if you add compiled assets later
 ```
 
 ### Testing
 ```bash
-php artisan test                       # Run all tests
-php artisan test --parallel            # Parallel runs
-php artisan test --testsuite=Unit      # Specific suite
-npm run playwright:install             # Install Playwright browsers (one-time)
+php artisan test
+php artisan test --parallel
+./vendor/bin/pest --testsuite=Feature
 ```
 
 ### Code Quality
 ```bash
-./vendor/bin/pint                 # Auto-format code
-./vendor/bin/pint --test          # Check style compliance
-./vendor/bin/phpstan analyse      # Run static analysis
-rector                            # Automated refactoring
-npm run lint                      # Frontend lint/format
-composer test                     # Aggregate quality checks
+./vendor/bin/pint --test
+./vendor/bin/phpstan analyse
+rector
 ```
 
-### Database
+### Database & Backup
 ```bash
-php artisan migrate               # Run migrations
-php artisan migrate:fresh --seed  # Fresh DB with seed data
-php artisan db:seed               # Seed database
-php artisan tinker                # Interactive shell
+php artisan migrate
+php artisan migrate:fresh --seed
+php artisan db:seed
+php artisan backup:run
 ```
 
 ## Configuration Files
 
-- `config/blog.php` - Blog-specific settings (tags, comments, demo mode, EasyMDE)
-- `config/interface.php` - Admin UI configuration (debounce, bulk limits, optimistic UI)
-- `config/design-tokens.php` - Design system tokens
-- `config/security.php` - Security headers, CSP, frame/source policies
-- `pint.json` - Code style rules
-- `phpstan.neon` - Static analysis configuration
-- `phpunit.xml` - Test configuration
-- `vite.config.js` - Frontend build configuration
-- `tailwind.config.js` - Tailwind customization
+- `config/billing.php` – Rates, meter mapping, gyvatukas connection.
+- `config/gyvatukas.php` – Summer/winter logic and circulation formulas.
+- `config/subscription.php` – Seat limits, grace periods, automatic read-only mode.
+- `config/backup.php` – Spatie backup storing WAL files.
+- `config/auth.php`, `config/session.php`, `config/database.php` – Standard Laravel settings wired for multi-tenancy.
+- `pint.json`, `phpstan.neon`, `phpunit.xml` – Quality gate configuration.
+- `vite.config.js` – Placeholder for future asset builds; currently empty input list.

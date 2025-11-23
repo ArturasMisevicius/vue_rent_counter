@@ -22,7 +22,7 @@
                 <div class="px-4 py-5 sm:p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-medium text-gray-900">
-                            {{ ucfirst(str_replace('_', ' ', $meter->type->value)) }}
+                            {{ enum_label($meter->type) }}
                         </h3>
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                             Active

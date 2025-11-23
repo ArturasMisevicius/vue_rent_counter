@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Property extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use BelongsToTenant, HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -50,7 +50,7 @@ class Property extends Model
     /**
      * Get the tenants for this property.
      */
-    public function tenants(): HasMany
+    public function tenants(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Tenant::class);
     }

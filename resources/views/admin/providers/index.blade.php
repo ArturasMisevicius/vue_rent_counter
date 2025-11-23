@@ -47,7 +47,7 @@
                                 </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                     <x-status-badge :status="$provider->service_type->value">
-                                        {{ ucfirst($provider->service_type->value) }}
+                                        {{ enum_label($provider->service_type) }}
                                     </x-status-badge>
                                 </td>
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">

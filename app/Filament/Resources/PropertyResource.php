@@ -69,10 +69,7 @@ class PropertyResource extends Resource
                 
                 Forms\Components\Select::make('type')
                     ->label('Property Type')
-                    ->options([
-                        PropertyType::APARTMENT->value => 'Apartment',
-                        PropertyType::HOUSE->value => 'House',
-                    ])
+                    ->options(PropertyType::class)
                     ->required()
                     ->native(false)
                     ->validationMessages([
@@ -144,6 +141,7 @@ class PropertyResource extends Resource
                         PropertyType::APARTMENT => 'info',
                         PropertyType::HOUSE => 'success',
                     })
+                    ->formatStateUsing(fn (?PropertyType $state): ?string => $state?->label())
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('building.address')
@@ -173,10 +171,7 @@ class PropertyResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
                     ->label('Property Type')
-                    ->options([
-                        PropertyType::APARTMENT->value => 'Apartment',
-                        PropertyType::HOUSE->value => 'House',
-                    ])
+                    ->options(PropertyType::labels())
                     ->native(false),
                 
                 Tables\Filters\SelectFilter::make('building_id')

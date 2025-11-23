@@ -870,7 +870,7 @@ These tests generate random inputs and verify properties hold across all inputs.
 - **Laravel Documentation**: https://laravel.com/docs/11.x
 - **Pest PHP Documentation**: https://pestphp.com/docs
 - **SQLite Documentation**: https://www.sqlite.org/docs.html
-- **Project README**: See `README.md` for setup instructions
+- **Project README**: See [README.md](../overview/readme.md) for setup instructions
 - **Spec Documents**: See `.kiro/specs/authentication-testing/` for requirements and design
 
 ## Support

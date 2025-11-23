@@ -262,9 +262,9 @@ After seeding with `HierarchicalUsersSeeder`:
 
 ## Documentation
 
-- [Hierarchical User Guide](HIERARCHICAL_USER_GUIDE.md) - Detailed guide for each user role
-- [Setup Instructions](SETUP.md) - Installation and migration instructions
-- [Testing Guide](TESTING_GUIDE.md) - Testing approach and conventions
+- [Hierarchical User Guide](../guides/HIERARCHICAL_USER_GUIDE.md) - Detailed guide for each user role
+- [Setup Instructions](../guides/SETUP.md) - Installation and migration instructions
+- [Testing Guide](../guides/TESTING_GUIDE.md) - Testing approach and conventions
 
 ## License
 

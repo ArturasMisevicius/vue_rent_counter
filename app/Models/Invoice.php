@@ -176,8 +176,8 @@ class Invoice extends Model
      */
     public function scopeForPeriod($query, string $startDate, string $endDate)
     {
-        return $query->where('billing_period_start', '>=', $startDate)
-            ->where('billing_period_end', '<=', $endDate);
+        return $query->whereDate('billing_period_start', '>=', $startDate)
+            ->whereDate('billing_period_end', '<=', $endDate);
     }
 
     /**

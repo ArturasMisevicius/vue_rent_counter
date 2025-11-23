@@ -21,16 +21,7 @@ class PropertyPolicy
         }
 
         // Admins and managers can view properties (filtered by tenant scope) (Requirement 4.3)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
-            return true;
-        }
-
-        // Tenants can view their assigned property (Requirement 8.2)
-        if ($user->role === UserRole::TENANT) {
-            return true;
-        }
-
-        return false;
+        return $user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER;
     }
 
     /**
@@ -55,8 +46,12 @@ class PropertyPolicy
 
         // Tenants can only view their assigned property (Requirement 8.2)
         if ($user->role === UserRole::TENANT) {
-            // Check if this property is assigned to the tenant user
-            return $user->property_id === $property->id;
+            // Check if this property is assigned to the tenant user or linked tenant record
+            if ($user->property_id === $property->id) {
+                return true;
+            }
+
+            return $user->tenant && $user->tenant->property_id === $property->id;
         }
 
         return false;
@@ -110,8 +105,8 @@ class PropertyPolicy
             return true;
         }
 
-        // Admins and managers can delete properties within their tenant (Requirement 4.3, 13.3)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Admins can delete properties within their tenant (Requirement 4.3, 13.3)
+        if ($user->role === UserRole::ADMIN) {
             return $property->tenant_id === $user->tenant_id;
         }
 

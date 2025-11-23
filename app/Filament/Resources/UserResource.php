@@ -108,9 +108,9 @@ class UserResource extends Resource
                 Forms\Components\Select::make('role')
                     ->label('Role')
                     ->options([
-                        UserRole::ADMIN->value => 'Admin',
-                        UserRole::MANAGER->value => 'Manager',
-                        UserRole::TENANT->value => 'Tenant',
+                        UserRole::ADMIN->value => UserRole::ADMIN->label(),
+                        UserRole::MANAGER->value => UserRole::MANAGER->label(),
+                        UserRole::TENANT->value => UserRole::TENANT->label(),
                     ])
                     ->required()
                     ->native(false)
@@ -207,6 +207,7 @@ class UserResource extends Resource
                         UserRole::MANAGER => 'warning',
                         UserRole::TENANT => 'info',
                     })
+                    ->formatStateUsing(fn (?UserRole $state): ?string => $state?->label())
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('organization_name')

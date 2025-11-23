@@ -61,7 +61,7 @@
                             <option value="">Select a meter...</option>
                             @foreach($meters as $meter)
                             <option value="{{ $meter->id }}" {{ old('meter_id', request('meter_id')) == $meter->id ? 'selected' : '' }}>
-                                {{ $meter->serial_number }} - {{ $meter->property->address }} ({{ ucfirst(str_replace('_', ' ', $meter->type->value)) }})
+                                {{ $meter->serial_number }} - {{ $meter->property->address }} ({{ enum_label($meter->type) }})
                             </option>
                             @endforeach
                         </select>

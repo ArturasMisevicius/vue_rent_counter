@@ -26,7 +26,7 @@ class TestMetersSeeder extends Seeder
 
         foreach ($properties as $property) {
             // Electricity meter (supports day/night zones)
-            Meter::create([
+            Meter::factory()->create([
                 'tenant_id' => $property->tenant_id,
                 'serial_number' => 'EL-' . str_pad($property->id, 6, '0', STR_PAD_LEFT),
                 'type' => MeterType::ELECTRICITY,
@@ -36,7 +36,7 @@ class TestMetersSeeder extends Seeder
             ]);
 
             // Cold water meter
-            Meter::create([
+            Meter::factory()->create([
                 'tenant_id' => $property->tenant_id,
                 'serial_number' => 'WC-' . str_pad($property->id, 6, '0', STR_PAD_LEFT),
                 'type' => MeterType::WATER_COLD,
@@ -46,7 +46,7 @@ class TestMetersSeeder extends Seeder
             ]);
 
             // Hot water meter
-            Meter::create([
+            Meter::factory()->create([
                 'tenant_id' => $property->tenant_id,
                 'serial_number' => 'WH-' . str_pad($property->id, 6, '0', STR_PAD_LEFT),
                 'type' => MeterType::WATER_HOT,
@@ -57,7 +57,7 @@ class TestMetersSeeder extends Seeder
 
             // Heating meter (only for apartments in buildings)
             if ($property->building_id !== null) {
-                Meter::create([
+                Meter::factory()->create([
                     'tenant_id' => $property->tenant_id,
                     'serial_number' => 'HT-' . str_pad($property->id, 6, '0', STR_PAD_LEFT),
                     'type' => MeterType::HEATING,

@@ -5,7 +5,7 @@
 </head>
 <body>
     <h1>Meter Details</h1>
-    <p>Type: {{ $meter->type->value }}</p>
+    <p>Type: {{ enum_label($meter->type) }}</p>
     <p>Serial: {{ $meter->serial_number }}</p>
 </body>
 </html>

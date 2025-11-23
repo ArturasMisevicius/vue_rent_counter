@@ -3,6 +3,7 @@
 @section('title', 'Properties')
 
 @section('content')
+@php($propertyTypeLabels = \App\Enums\PropertyType::labels())
 <div class="px-4 sm:px-6 lg:px-8">
     <x-breadcrumbs>
         <x-breadcrumb-item href="{{ route('manager.dashboard') }}">Dashboard</x-breadcrumb-item>
@@ -36,8 +37,9 @@
                 <label for="property_type" class="block text-sm font-medium text-gray-700">Type</label>
                 <select name="property_type" id="property_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                     <option value="">All Types</option>
-                    <option value="apartment" {{ request('property_type') === 'apartment' ? 'selected' : '' }}>Apartment</option>
-                    <option value="house" {{ request('property_type') === 'house' ? 'selected' : '' }}>House</option>
+                    @foreach($propertyTypeLabels as $value => $label)
+                        <option value="{{ $value }}" {{ request('property_type') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                    @endforeach
                 </select>
             </div>
             <div class="sm:w-48">
@@ -88,7 +90,7 @@
                     </a>
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <span class="capitalize">{{ $property->type->value }}</span>
+                    <span class="capitalize">{{ $property->type->label() }}</span>
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     {{ number_format($property->area_sqm, 2) }} m²

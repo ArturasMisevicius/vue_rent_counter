@@ -14,36 +14,36 @@ class ProvidersSeeder extends Seeder
     public function run(): void
     {
         // Ignitis - Electricity provider
-        Provider::create([
-            'name' => 'Ignitis',
-            'service_type' => ServiceType::ELECTRICITY,
-            'contact_info' => [
-                'phone' => '+370 700 55 055',
-                'email' => 'info@ignitis.lt',
-                'website' => 'https://www.ignitis.lt',
-            ],
-        ]);
+        Provider::factory()
+            ->ignitis()
+            ->create([
+                'contact_info' => [
+                    'phone' => '+370 700 55 055',
+                    'email' => 'info@ignitis.lt',
+                    'website' => 'https://www.ignitis.lt',
+                ],
+            ]);
 
         // Vilniaus Vandenys - Water supply and sewage
-        Provider::create([
-            'name' => 'Vilniaus Vandenys',
-            'service_type' => ServiceType::WATER,
-            'contact_info' => [
-                'phone' => '+370 5 266 2600',
-                'email' => 'info@vv.lt',
-                'website' => 'https://www.vv.lt',
-            ],
-        ]);
+        Provider::factory()
+            ->vilniausVandenys()
+            ->create([
+                'contact_info' => [
+                    'phone' => '+370 5 266 2600',
+                    'email' => 'info@vv.lt',
+                    'website' => 'https://www.vv.lt',
+                ],
+            ]);
 
         // Vilniaus Energija - Heating provider
-        Provider::create([
-            'name' => 'Vilniaus Energija',
-            'service_type' => ServiceType::HEATING,
-            'contact_info' => [
-                'phone' => '+370 5 239 5555',
-                'email' => 'info@ve.lt',
-                'website' => 'https://www.ve.lt',
-            ],
-        ]);
+        Provider::factory()
+            ->vilniausEnergija()
+            ->create([
+                'contact_info' => [
+                    'phone' => '+370 5 239 5555',
+                    'email' => 'info@ve.lt',
+                    'website' => 'https://www.ve.lt',
+                ],
+            ]);
     }
 }

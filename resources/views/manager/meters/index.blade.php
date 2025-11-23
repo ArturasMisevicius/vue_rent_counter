@@ -47,7 +47,7 @@
                     </a>
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <span class="capitalize">{{ str_replace('_', ' ', $meter->type->value) }}</span>
+                    <span class="capitalize">{{ $meter->type->label() }}</span>
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     <a href="{{ route('manager.properties.show', $meter->property) }}" class="text-indigo-600 hover:text-indigo-900">

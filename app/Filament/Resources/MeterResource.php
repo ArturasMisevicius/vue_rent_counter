@@ -84,12 +84,7 @@ class MeterResource extends Resource
                 
                 Forms\Components\Select::make('type')
                     ->label('Meter Type')
-                    ->options([
-                        MeterType::ELECTRICITY->value => 'Electricity',
-                        MeterType::WATER_COLD->value => 'Cold Water',
-                        MeterType::WATER_HOT->value => 'Hot Water',
-                        MeterType::HEATING->value => 'Heating',
-                    ])
+                    ->options(MeterType::class)
                     ->required()
                     ->native(false)
                     ->validationMessages([
@@ -142,12 +137,7 @@ class MeterResource extends Resource
                         MeterType::WATER_HOT => 'danger',
                         MeterType::HEATING => 'success',
                     })
-                    ->formatStateUsing(fn (MeterType $state): string => match ($state) {
-                        MeterType::ELECTRICITY => 'Electricity',
-                        MeterType::WATER_COLD => 'Cold Water',
-                        MeterType::WATER_HOT => 'Hot Water',
-                        MeterType::HEATING => 'Heating',
-                    })
+                    ->formatStateUsing(fn (?MeterType $state): ?string => $state?->label())
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('serial_number')
@@ -175,12 +165,7 @@ class MeterResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
                     ->label('Meter Type')
-                    ->options([
-                        MeterType::ELECTRICITY->value => 'Electricity',
-                        MeterType::WATER_COLD->value => 'Cold Water',
-                        MeterType::WATER_HOT->value => 'Hot Water',
-                        MeterType::HEATING->value => 'Heating',
-                    ])
+                    ->options(MeterType::labels())
                     ->native(false),
                 
                 Tables\Filters\TernaryFilter::make('supports_zones')

@@ -30,7 +30,7 @@ class TestTenantsSeeder extends Seeder
         // Create tenant (renter) record for first property of tenant 1
         // Link to tenant@test.com user
         if ($tenant1Properties->count() > 0 && $tenantUser1) {
-            Tenant::create([
+            Tenant::factory()->create([
                 'tenant_id' => 1,
                 'name' => $tenantUser1->name,
                 'email' => $tenantUser1->email,
@@ -44,7 +44,7 @@ class TestTenantsSeeder extends Seeder
         // Create tenant (renter) record for second property of tenant 1
         // Link to tenant2@test.com user
         if ($tenant1Properties->count() > 1 && $tenantUser2) {
-            Tenant::create([
+            Tenant::factory()->create([
                 'tenant_id' => 1,
                 'name' => $tenantUser2->name,
                 'email' => $tenantUser2->email,
@@ -58,7 +58,7 @@ class TestTenantsSeeder extends Seeder
         // Create tenant (renter) record for first property of tenant 2
         // Link to tenant3@test.com user
         if ($tenant2Properties->count() > 0 && $tenantUser3) {
-            Tenant::create([
+            Tenant::factory()->create([
                 'tenant_id' => 2,
                 'name' => $tenantUser3->name,
                 'email' => $tenantUser3->email,
@@ -72,7 +72,7 @@ class TestTenantsSeeder extends Seeder
         // Create additional tenant (renter) for second property of tenant 2
         // This tenant doesn't have a user account (can't log in)
         if ($tenant2Properties->count() > 1) {
-            Tenant::create([
+            Tenant::factory()->create([
                 'tenant_id' => 2,
                 'name' => 'Jonas Petraitis',
                 'email' => 'jonas.petraitis@example.com',
@@ -84,4 +84,3 @@ class TestTenantsSeeder extends Seeder
         }
     }
 }
-

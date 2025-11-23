@@ -46,7 +46,7 @@
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                     <dt class="text-sm font-medium leading-6 text-gray-900">Type</dt>
                     <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                        <span class="capitalize">{{ $property->type->value }}</span>
+                        <span class="capitalize">{{ enum_label($property->type) }}</span>
                     </dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
@@ -129,7 +129,7 @@
                             </a>
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                            <span class="capitalize">{{ str_replace('_', ' ', $meter->type->value) }}</span>
+                            <span class="capitalize">{{ enum_label($meter->type) }}</span>
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                             {{ $meter->installation_date->format('M d, Y') }}

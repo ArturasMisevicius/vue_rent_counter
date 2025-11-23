@@ -94,7 +94,7 @@
                                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                     @if($audit->meterReading && $audit->meterReading->meter)
                                         <div class="font-medium text-gray-900">{{ $audit->meterReading->meter->serial_number }}</div>
-                                        <div class="text-xs text-gray-500">{{ ucfirst(str_replace('_', ' ', $audit->meterReading->meter->meter_type->value)) }}</div>
+                                        <div class="text-xs text-gray-500">{{ enum_label($audit->meterReading->meter->meter_type ?? null, \App\Enums\MeterType::class) }}</div>
                                     @else
                                         <span class="text-gray-400">N/A</span>
                                     @endif

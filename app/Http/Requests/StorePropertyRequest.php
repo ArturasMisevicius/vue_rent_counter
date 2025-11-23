@@ -40,14 +40,15 @@ class StorePropertyRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'address.required' => 'The property address is required.',
-            'type.required' => 'The property type is required.',
-            'type.enum' => 'The property type must be either apartment or house.',
-            'area_sqm.required' => 'The property area is required.',
-            'area_sqm.numeric' => 'The property area must be a number.',
-            'area_sqm.min' => 'The property area must be at least 0 square meters.',
-            'area_sqm.max' => 'The property area cannot exceed 10,000 square meters.',
-            'building_id.exists' => 'The selected building does not exist.',
+            'address.required' => __('properties.validation.address.required'),
+            'address.max' => __('properties.validation.address.max'),
+            'type.required' => __('properties.validation.type.required'),
+            'type.enum' => __('properties.validation.type.enum'),
+            'area_sqm.required' => __('properties.validation.area_sqm.required'),
+            'area_sqm.numeric' => __('properties.validation.area_sqm.numeric'),
+            'area_sqm.min' => __('properties.validation.area_sqm.min'),
+            'area_sqm.max' => __('properties.validation.area_sqm.max'),
+            'building_id.exists' => __('properties.validation.building_id.exists'),
         ];
     }
 

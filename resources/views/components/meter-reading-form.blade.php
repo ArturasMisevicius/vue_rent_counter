@@ -23,7 +23,7 @@
                             data-supports-zones="{{ $meter->supports_zones ? 'true' : 'false' }}"
                             data-serial="{{ $meter->serial_number }}"
                             data-property="{{ $meter->property->address ?? '' }}">
-                        {{ $meter->serial_number }} - {{ ucfirst($meter->type->value) }} ({{ $meter->property->address ?? 'N/A' }})
+                        {{ $meter->serial_number }} - {{ enum_label($meter->type) }} ({{ $meter->property->address ?? 'N/A' }})
                     </option>
                 @endforeach
             </select>

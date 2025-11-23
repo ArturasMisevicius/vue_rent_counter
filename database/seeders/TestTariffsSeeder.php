@@ -20,7 +20,7 @@ class TestTariffsSeeder extends Seeder
         $ignitis = Provider::where('name', 'Ignitis')->first();
         
         if ($ignitis) {
-            Tariff::create([
+            Tariff::factory()->create([
                 'provider_id' => $ignitis->id,
                 'name' => 'Ignitis Standard Time-of-Use',
                 'configuration' => [
@@ -52,7 +52,7 @@ class TestTariffsSeeder extends Seeder
         $vilniausVandenys = Provider::where('name', 'Vilniaus Vandenys')->first();
         
         if ($vilniausVandenys) {
-            Tariff::create([
+            Tariff::factory()->create([
                 'provider_id' => $vilniausVandenys->id,
                 'name' => 'VV Standard Water Rates',
                 'configuration' => [
@@ -71,7 +71,7 @@ class TestTariffsSeeder extends Seeder
         $vilniausEnergija = Provider::where('name', 'Vilniaus Energija')->first();
         
         if ($vilniausEnergija) {
-            Tariff::create([
+            Tariff::factory()->create([
                 'provider_id' => $vilniausEnergija->id,
                 'name' => 'VE Heating Standard',
                 'configuration' => [
@@ -86,4 +86,3 @@ class TestTariffsSeeder extends Seeder
         }
     }
 }
-

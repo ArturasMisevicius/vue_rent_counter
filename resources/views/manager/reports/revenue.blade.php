@@ -127,7 +127,7 @@
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm">
                             <x-status-badge :status="$invoice->status->value">
-                                {{ ucfirst($invoice->status->value) }}
+                                {{ enum_label($invoice->status) }}
                             </x-status-badge>
                         </td>
                     </tr>

@@ -69,11 +69,7 @@ class ProviderResource extends Resource
                         
                         Forms\Components\Select::make('service_type')
                             ->label('Service Type')
-                            ->options([
-                                ServiceType::ELECTRICITY->value => 'Electricity',
-                                ServiceType::WATER->value => 'Water',
-                                ServiceType::HEATING->value => 'Heating',
-                            ])
+                            ->options(ServiceType::class)
                             ->required()
                             ->native(false)
                             ->validationMessages([
@@ -113,7 +109,7 @@ class ProviderResource extends Resource
                         ServiceType::WATER => 'info',
                         ServiceType::HEATING => 'danger',
                     })
-                    ->formatStateUsing(fn (ServiceType $state): string => ucfirst($state->value))
+                    ->formatStateUsing(fn (?ServiceType $state): ?string => $state?->label())
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('contact_info')

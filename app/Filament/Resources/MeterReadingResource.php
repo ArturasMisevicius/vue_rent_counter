@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\MeterType;
+use App\Enums\TariffZone;
 use App\Filament\Resources\MeterReadingResource\Pages;
 use App\Filament\Resources\MeterReadingResource\RelationManagers;
 use App\Models\Meter;
@@ -100,7 +102,9 @@ class MeterReadingResource extends Resource
                         
                         return $query->get()
                             ->mapWithKeys(function (Meter $meter) {
-                                return [$meter->id => "{$meter->type->value} - {$meter->serial_number}"];
+                                $label = $meter->type->label();
+
+                                return [$meter->id => "{$label} - {$meter->serial_number}"];
                             });
                     })
                     ->searchable()
@@ -235,6 +239,7 @@ class MeterReadingResource extends Resource
                 Tables\Columns\TextColumn::make('meter.type')
                     ->label('Meter Type')
                     ->badge()
+                    ->formatStateUsing(fn (?MeterType $state): ?string => $state?->label())
                     ->searchable()
                     ->sortable(),
                 
@@ -260,6 +265,7 @@ class MeterReadingResource extends Resource
                 Tables\Columns\TextColumn::make('zone')
                     ->label('Zone')
                     ->searchable()
+                    ->formatStateUsing(fn (?string $state): string => $state ? (TariffZone::tryFrom($state)?->label() ?? $state) : '-')
                     ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('created_at')
@@ -303,12 +309,7 @@ class MeterReadingResource extends Resource
                 Tables\Filters\SelectFilter::make('meter.type')
                     ->label('Meter Type')
                     ->relationship('meter', 'type')
-                    ->options([
-                        'electricity' => 'Electricity',
-                        'water_cold' => 'Cold Water',
-                        'water_hot' => 'Hot Water',
-                        'heating' => 'Heating',
-                    ])
+                    ->options(MeterType::labels())
                     ->native(false),
             ])
             ->actions([

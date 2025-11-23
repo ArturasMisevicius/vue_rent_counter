@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+@php($invoiceStatusLabels = \App\Enums\InvoiceStatus::labels())
 <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold text-gray-800 mb-6">My Invoices</h1>
 
@@ -28,9 +29,9 @@
                     <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
                     <select name="status" id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                         <option value="">All Statuses</option>
-                        <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Draft</option>
-                        <option value="finalized" {{ request('status') === 'finalized' ? 'selected' : '' }}>Finalized</option>
-                        <option value="paid" {{ request('status') === 'paid' ? 'selected' : '' }}>Paid</option>
+                        @foreach($invoiceStatusLabels as $value => $label)
+                            <option value="{{ $value }}" {{ request('status') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
                     </select>
                 </div>
                 
@@ -90,7 +91,7 @@
                                 @elseif($invoice->status->value === 'finalized') bg-blue-100 text-blue-800
                                 @elseif($invoice->status->value === 'paid') bg-green-100 text-green-800
                                 @endif">
-                                {{ ucfirst($invoice->status->value) }}
+                                {{ enum_label($invoice->status) }}
                             </span>
                             <p class="text-2xl font-bold text-gray-900 mt-2">
                                 €{{ number_format($invoice->total_amount, 2) }}

@@ -112,7 +112,7 @@
                     <div class="hidden md:flex md:items-center">
                         <span class="text-white text-sm mr-4">
                             {{ auth()->user()->name }} 
-                            <span class="text-indigo-200">({{ ucfirst(auth()->user()->role->value) }})</span>
+                            <span class="text-indigo-200">({{ enum_label(auth()->user()->role) }})</span>
                         </span>
                         <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf
@@ -216,7 +216,7 @@
                     
                     <div class="border-t border-indigo-500 pt-2 mt-2">
                         <div class="px-3 py-2 text-white text-sm">
-                            {{ auth()->user()->name }} <span class="text-indigo-200">({{ ucfirst(auth()->user()->role->value) }})</span>
+                            {{ auth()->user()->name }} <span class="text-indigo-200">({{ enum_label(auth()->user()->role) }})</span>
                         </div>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

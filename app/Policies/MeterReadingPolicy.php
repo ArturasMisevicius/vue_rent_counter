@@ -36,7 +36,7 @@ class MeterReadingPolicy
 
             // Check if the meter belongs to one of the tenant's properties
             return $meterReading->meter->property->tenants()
-                ->where('id', $tenant->id)
+                ->where('tenants.id', $tenant->id)
                 ->exists();
         }
 

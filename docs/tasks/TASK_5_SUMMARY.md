@@ -62,13 +62,13 @@
 
 ### Documentation (2 files)
 
-8. **`FORM_REQUESTS_IMPLEMENTATION.md`**
+8. **[FORM_REQUESTS_IMPLEMENTATION.md](../implementation/FORM_REQUESTS_IMPLEMENTATION.md)**
    - Comprehensive documentation of all Form Requests
    - Detailed explanation of validation logic
    - Usage examples for each Form Request
    - Requirements and properties coverage mapping
 
-9. **`TASK_5_SUMMARY.md`** (this file)
+9. **[TASK_5_SUMMARY.md](TASK_5_SUMMARY.md)** (this file)
    - Summary of task completion
    - List of all created files
    - Requirements coverage

@@ -15,9 +15,12 @@ class TenantFactory extends Factory
 
     public function definition(): array
     {
+        $name = fake()->name();
+        
         return [
             'tenant_id' => 1,
-            'name' => fake()->name(),
+            'slug' => fake()->unique()->slug(),
+            'name' => $name,
             'email' => fake()->unique()->safeEmail(),
             'phone' => fake()->phoneNumber(),
             'property_id' => Property::factory(),

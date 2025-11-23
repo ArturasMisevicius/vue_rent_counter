@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ProviderResource\RelationManagers;
 
+use App\Enums\TariffType;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -37,16 +38,12 @@ class TariffsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('configuration.type')
                     ->label('Tariff Type')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'flat' => 'success',
-                        'time_of_use' => 'info',
+                    ->color(fn (string $state): string => match (TariffType::tryFrom($state)) {
+                        TariffType::FLAT => 'success',
+                        TariffType::TIME_OF_USE => 'info',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'flat' => 'Flat Rate',
-                        'time_of_use' => 'Time of Use',
-                        default => $state,
-                    })
+                    ->formatStateUsing(fn (string $state): string => TariffType::tryFrom($state)?->label() ?? $state)
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('active_from')

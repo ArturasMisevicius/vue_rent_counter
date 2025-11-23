@@ -19,16 +19,7 @@ class BuildingPolicy
         }
 
         // Admins and managers can view buildings (filtered by tenant scope)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
-            return true;
-        }
-
-        // Tenants can view buildings (filtered to their property's building)
-        if ($user->role === UserRole::TENANT) {
-            return true;
-        }
-
-        return false;
+        return $user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER;
     }
 
     /**
@@ -106,8 +97,8 @@ class BuildingPolicy
             return true;
         }
 
-        // Admins and managers can delete buildings within their tenant (Requirement 4.5, 13.3)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Admins can delete buildings within their tenant (Requirement 4.5, 13.3)
+        if ($user->role === UserRole::ADMIN) {
             return $building->tenant_id === $user->tenant_id;
         }
 

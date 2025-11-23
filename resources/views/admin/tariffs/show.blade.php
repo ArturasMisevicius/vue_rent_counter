@@ -48,7 +48,7 @@
                         <dt class="text-sm font-medium text-gray-500">Service Type</dt>
                         <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
                             <x-status-badge :status="$tariff->provider->service_type->value">
-                                {{ ucfirst($tariff->provider->service_type->value) }}
+                                {{ enum_label($tariff->provider->service_type) }}
                             </x-status-badge>
                         </dd>
                     </div>

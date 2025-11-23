@@ -1,6 +1,6 @@
 # Implementation Plan
 
-- [x] 1. Create test users seeder with known credentials
+- [ ] 1. Create test users seeder with known credentials
   - Create TestUsersSeeder class in database/seeders
   - Create admin user (admin@test.com, password, tenant_id=1)
   - Create manager users for tenant 1 and 2 (manager@test.com, manager2@test.com)
@@ -9,7 +9,7 @@
   - Assign appropriate UserRole enum values
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
-- [x] 1.1 Write property test for test user tenant assignment
+- [ ] 1.1 Write property test for test user tenant assignment
 
 
 
@@ -18,7 +18,7 @@
   - **Property 1: Test user tenant assignment**
   - **Validates: Requirements 1.4**
 
-- [x] 2. Create test buildings seeder with realistic addresses
+- [ ] 2. Create test buildings seeder with realistic addresses
   - Create TestBuildingsSeeder class
   - Create 2 buildings for tenant 1 with Vilnius addresses
   - Create 1 building for tenant 2
@@ -26,7 +26,7 @@
   - Set total_apartments for each building
   - _Requirements: 5.1_
 
-- [x] 3. Create test properties seeder
+- [ ] 3. Create test properties seeder
   - Create TestPropertiesSeeder class
   - Create 6 apartments for tenant 1 buildings
   - Create 1 standalone house for tenant 1
@@ -36,14 +36,14 @@
   - Link apartments to buildings, house has null building_id
   - _Requirements: 5.1_
 
-- [x] 4. Create test tenants (renters) seeder
+- [ ] 4. Create test tenants (renters) seeder
   - Create TestTenantsSeeder class
   - Create tenant records linked to properties
   - Set lease_start and lease_end dates
   - Link tenant email to user email for authentication
   - _Requirements: 5.1_
 
-- [x] 5. Create test meters seeder
+- [ ] 5. Create test meters seeder
   - Create TestMetersSeeder class
   - For each property, create electricity meter (supports_zones=true)
   - For each property, create water_cold meter
@@ -53,7 +53,7 @@
   - Set installation_date to 2 years ago
   - _Requirements: 5.2_
 
-- [x] 5.1 Write property test for complete meter coverage
+- [ ] 5.1 Write property test for complete meter coverage
 
 
 
@@ -62,7 +62,7 @@
   - **Property 8: Complete meter coverage**
   - **Validates: Requirements 5.2**
 
-- [x] 6. Create test meter readings seeder
+- [ ] 6. Create test meter readings seeder
   - Create TestMeterReadingsSeeder class
   - For each meter, create readings for last 3 months
   - For electricity meters, create separate day and night zone readings
@@ -71,7 +71,7 @@
   - Ensure monotonically increasing values
   - _Requirements: 5.3_
 
-- [x] 6.1 Write property test for meter reading storage completeness
+- [ ] 6.1 Write property test for meter reading storage completeness
 
 
 
@@ -81,7 +81,7 @@
   - **Property 9: Meter reading storage completeness**
   - **Validates: Requirements 6.1**
 
-- [x] 7. Create test tariffs seeder
+- [ ] 7. Create test tariffs seeder
   - Create TestTariffsSeeder class in database/seeders
   - Create Ignitis tariff with time-of-use configuration (day/night rates)
   - Create Vilniaus Vandenys tariff with flat rates (supply, sewage, fixed fee)
@@ -90,7 +90,7 @@
   - Use realistic Lithuanian rates
   - _Requirements: 5.4_
 
-- [x] 8. Create test invoices seeder
+- [ ] 8. Create test invoices seeder
   - Create TestInvoicesSeeder class in database/seeders
   - For each tenant, create draft invoice for current month
   - For each tenant, create finalized invoice for last month
@@ -101,7 +101,7 @@
   - _Requirements: 5.5_
 -
 
-- [x] 8.1 Write property test for invoice itemization by utility type
+- [ ] 8.1 Write property test for invoice itemization by utility type
 
 
 
@@ -110,7 +110,7 @@
   - **Validates: Requirements 7.2**
 -
 
-- [x] 8.2 Write property test for tariff rate snapshotting
+- [ ] 8.2 Write property test for tariff rate snapshotting
 
 
 
@@ -119,14 +119,14 @@
   - **Property 16: Tariff rate snapshotting**
   - **Validates: Requirements 7.3**
 
-- [x] 9. Create master test database seeder
+- [ ] 9. Create master test database seeder
   - Create TestDatabaseSeeder class
   - Call seeders in correct order (providers, users, buildings, properties, tenants, meters, readings, tariffs, invoices)
   - Wrap in database transaction for rollback on failure
   - Add error handling and logging
   - _Requirements: 11.3, 11.4_
 
-- [x] 10. Create test setup Artisan command
+- [ ] 10. Create test setup Artisan command
   - Create TestSetupCommand class (php artisan test:setup)
   - Add --fresh option to run migrate:fresh before seeding
   - Call TestDatabaseSeeder
@@ -134,12 +134,12 @@
   - Show summary of created data (buildings, properties, meters, etc.)
   - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
 
-- [x] 11. Update TestDatabaseSeeder to call TestTariffsSeeder and TestInvoicesSeeder
+- [ ] 11. Update TestDatabaseSeeder to call TestTariffsSeeder and TestInvoicesSeeder
   - Uncomment the calls to TestTariffsSeeder and TestInvoicesSeeder in TestDatabaseSeeder
   - Verify seeding order is correct
   - _Requirements: 11.3, 11.4_
 
-- [x] 12. Checkpoint - Verify test data creation
+- [ ] 12. Checkpoint - Verify test data creation
   - Run php artisan test:setup --fresh
   - Verify all test users are created
   - Verify buildings, properties, meters are created
@@ -148,7 +148,7 @@
   - Verify invoices in all states exist
   - Ensure all tests pass, ask the user if questions arise.
 
-- [x] 13. Write authentication tests
+- [ ] 13. Write authentication tests
   - Create AuthenticationTest.php in tests/Feature
   - Test login with valid admin credentials redirects to /admin/dashboard
   - Test login with valid manager credentials redirects to /manager/dashboard
@@ -157,7 +157,7 @@
   - Test logout clears session
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [x] 13.1 Write property test for valid credentials authentication
+- [ ] 13.1 Write property test for valid credentials authentication
 
 
 
@@ -166,7 +166,7 @@
   - **Property 2: Valid credentials authentication**
   - **Validates: Requirements 2.1**
 
-- [x] 13.2 Write property test for invalid credentials rejection
+- [ ] 13.2 Write property test for invalid credentials rejection
 
 
 
@@ -176,7 +176,7 @@
   - **Property 3: Invalid credentials rejection**
   - **Validates: Requirements 2.2**
 
-- [x] 14. Write authorization tests for tariff management
+- [ ] 14. Write authorization tests for tariff management
   - Create TariffAuthorizationTest.php in tests/Feature
   - Test admin can access /admin/tariffs (200 response)
   - Test manager accessing /admin/tariffs gets 403 error
@@ -184,7 +184,7 @@
   - Test admin can create, update, delete tariffs
   - _Requirements: 3.1, 3.2, 3.3_
 
-- [x] 15. Write authorization tests for meter reading management
+- [ ] 15. Write authorization tests for meter reading management
   - Create MeterReadingAuthorizationTest.php in tests/Feature
   - Test manager can access /meter-readings/create (200 response)
   - Test tenant accessing /meter-readings/create gets 403 error
@@ -192,13 +192,13 @@
   - Test tenant cannot submit meter readings
   - _Requirements: 3.4, 3.5_
 
-- [x] 16. Write multi-tenancy isolation tests for properties
+- [ ] 16. Write multi-tenancy isolation tests for properties
   - Create PropertyMultiTenancyTest.php in tests/Feature
   - Test manager from tenant 1 sees only tenant 1 properties
   - Test manager from tenant 1 cannot access tenant 2 property (404)
   - Test property queries automatically filter by tenant_id
   - _Requirements: 4.1, 4.2_
-- [x] 16.1 Write property test for manager property isolation
+- [ ] 16.1 Write property test for manager property isolation
 
 
 
@@ -215,7 +215,7 @@
   - **Validates: Requirements 4.1**
 
 
-- [x] 16.2 Write property test for cross-tenant property access prevention
+- [ ] 16.2 Write property test for cross-tenant property access prevention
 
 
 
@@ -224,7 +224,7 @@
   - **Property 5: Cross-tenant property access prevention**
   - **Validates: Requirements 4.2**
 
-- [x] 17. Write multi-tenancy isolation tests for invoices
+- [ ] 17. Write multi-tenancy isolation tests for invoices
   - Create InvoiceMultiTenancyTest.php in tests/Feature
   - Test tenant sees only their own invoices
   - Test tenant cannot access another tenant's invoice (404)
@@ -232,7 +232,7 @@
   - _Requirements: 4.3, 4.4, 4.5_
 -
 
-- [x] 17.1 Write property test for tenant invoice isolation
+- [ ] 17.1 Write property test for tenant invoice isolation
 
 
 
@@ -244,7 +244,7 @@
 
 
 
-- [x] 17.2 Write property test for cross-tenant invoice access prevention
+- [ ] 17.2 Write property test for cross-tenant invoice access prevention
 
 
 
@@ -256,7 +256,7 @@
   - **Property 7: Cross-tenant invoice access prevention**
   - **Validates: Requirements 4.4**
 
-- [x] 18. Write meter reading validation tests
+- [ ] 18. Write meter reading validation tests
   - Create MeterReadingValidationTest.php in tests/Feature
   - Test valid reading is stored with timestamp and user reference
   - Test reading lower than previous is rejected
@@ -264,12 +264,12 @@
   - Test multi-zone meter accepts separate zone readings
   - Test audit trail is created for readings
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
-- [x] 18.1 Write property test for meter reading monotonicity enforcement
+- [ ] 18.1 Write property test for meter reading monotonicity enforcement
 
   - **Property 10: Meter reading monotonicity enforcement**
   - **Validates: Requirements 6.2**
 
-- [x] 18.2 Write property test for meter reading temporal validation
+- [ ] 18.2 Write property test for meter reading temporal validation
 
 
 
@@ -279,7 +279,7 @@
   - **Validates: Requirements 6.3**
 
 
-- [x] 18.3 Write property test for multi-zone meter reading support
+- [ ] 18.3 Write property test for multi-zone meter reading support
 
 
 
@@ -287,7 +287,7 @@
 
   - **Property 12: Multi-zone meter reading support**
   - **Validates: Requirements 6.4**
-- [x] 18.4 Write property test for meter reading audit trail creation
+- [ ] 18.4 Write property test for meter reading audit trail creation
 
 
 
@@ -298,7 +298,7 @@
   - **Property 13: Meter reading audit trail creation**
   - **Validates: Requirements 6.5**
 
-- [x] 19. Write invoice generation tests
+- [ ] 19. Write invoice generation tests
   - Create InvoiceGenerationTest.php in tests/Feature
   - Test invoice is calculated from meter readings and tariffs
   - Test invoice items are created for each utility type
@@ -308,7 +308,7 @@
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 -
 
-- [x] 19.1 Write property test for invoice calculation from readings
+- [ ] 19.1 Write property test for invoice calculation from readings
 
 
 
@@ -316,17 +316,17 @@
   - **Property 14: Invoice calculation from readings**
   - **Validates: Requirements 7.1**
 
-- [x] 19.2 Write property test for invoice immutability after finalization
+- [ ] 19.2 Write property test for invoice immutability after finalization
   - **Property 17: Invoice immutability after finalization**
   - **Validates: Requirements 7.4**
 
-- [x] 19.3 Write property test for finalized invoice tariff independence
+- [ ] 19.3 Write property test for finalized invoice tariff independence
 
 
   - **Property 18: Finalized invoice tariff independence**
   - **Validates: Requirements 7.5**
 
-- [x] 20. Write tariff configuration validation tests
+- [ ] 20. Write tariff configuration validation tests
   - Create TariffConfigurationTest.php in tests/Feature
   - Test time-of-use zones cannot overlap
   - Test time-of-use zones must cover all 24 hours
@@ -335,7 +335,7 @@
   - Test weekend rates are applied correctly
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [x] 20.1 Write property test for time-of-use zone overlap validation
+- [ ] 20.1 Write property test for time-of-use zone overlap validation
 
 
 
@@ -351,7 +351,7 @@
   - **Validates: Requirements 8.2**
 -
 
-- [x] 20.3 Write property test for tariff temporal selection
+- [ ] 20.3 Write property test for tariff temporal selection
 
 
 
@@ -360,7 +360,7 @@
   - **Property 21: Tariff temporal selection**
   - **Validates: Requirements 8.3**
 
-- [x] 20.4 Write property test for tariff precedence with overlaps
+- [ ] 20.4 Write property test for tariff precedence with overlaps
 
 
 
@@ -370,7 +370,7 @@
   - **Validates: Requirements 8.4**
 
 
-- [x] 20.5 Write property test for weekend tariff rate application
+- [ ] 20.5 Write property test for weekend tariff rate application
 
 
 
@@ -379,7 +379,7 @@
   - **Property 23: Weekend tariff rate application**
   - **Validates: Requirements 8.5**
 
-- [x] 21. Write gyvatukas calculation tests
+- [ ] 21. Write gyvatukas calculation tests
   - Create GyvatukasCalculationTest.php in tests/Feature
   - Test summer gyvatukas uses formula Q_circ = Q_total - (V_water × c × ΔT)
   - Test winter gyvatukas uses stored summer average
@@ -420,7 +420,7 @@
   - **Property 27: Gyvatukas invoice itemization**
   - **Validates: Requirements 9.5**
 
-- [x] 22. Create testing documentation
+- [ ] 22. Create testing documentation
   - Create TESTING_GUIDE.md in project root
   - Document quick start with test:setup command
   - Create test user credentials reference table
@@ -430,7 +430,7 @@
   - Include test data reference (IDs, serial numbers, etc.)
   - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [x] 23. Add API endpoints for testing
+- [ ] 23. Add API endpoints for testing
   - Create MeterApiController with last-reading endpoint
   - Create API route for getting last meter reading (GET /api/meters/{id}/last-reading)
   - Create API route for submitting meter reading (POST /api/meter-readings)
@@ -442,14 +442,14 @@
   - Return JSON responses with appropriate status codes
   - _Requirements: 12.5_
 
-- [x] 24. Enhance login controller with session management
+- [ ] 24. Enhance login controller with session management
   - Verify tenant_id is set in session on successful login
   - Add session regeneration for security
   - Add remember me functionality
   - Add intended URL preservation for redirects
   - _Requirements: 2.1, 10.5_
 
-- [x] 25. Create test helper methods
+- [ ] 25. Create test helper methods
 
 
 
@@ -462,81 +462,81 @@
   - Add createTestMeterReading($meterId, $value) method
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [x] 26. Write property-based tests for authentication testing spec (Properties 1-13 completed)
+- [ ] 26. Write property-based tests for authentication testing spec (Properties 1-13 completed)
 
-- [x] 26.1 Write property test for test user tenant assignment
+- [ ] 26.1 Write property test for test user tenant assignment
   - **Property 1: Test user tenant assignment**
   - **Validates: Requirements 1.4**
   - Test that all test users created by seeder have non-null tenant_id
   - Run 100+ iterations with different seeder executions
 
-- [x] 26.2 Write property test for valid credentials authentication
+- [ ] 26.2 Write property test for valid credentials authentication
   - **Property 2: Valid credentials authentication**
   - **Validates: Requirements 2.1**
   - Test that any user with valid credentials successfully authenticates
   - Run 100+ iterations with randomly generated valid users
 
-- [x] 26.3 Write property test for invalid credentials rejection
+- [ ] 26.3 Write property test for invalid credentials rejection
   - **Property 3: Invalid credentials rejection**
   - **Validates: Requirements 2.2**
   - Test that any authentication attempt with invalid credentials fails
   - Run 100+ iterations with randomly generated invalid credentials
 
-- [x] 26.4 Write property test for manager property isolation
+- [ ] 26.4 Write property test for manager property isolation
   - **Property 4: Manager property isolation**
   - **Validates: Requirements 4.1**
   - Test that any manager user only sees properties from their tenant
   - Run 100+ iterations with randomly generated managers and properties
 
-- [x] 26.5 Write property test for cross-tenant property access prevention
+- [ ] 26.5 Write property test for cross-tenant property access prevention
   - **Property 5: Cross-tenant property access prevention**
   - **Validates: Requirements 4.2**
   - Test that any manager attempting to access cross-tenant property gets 404
   - Run 100+ iterations with randomly generated cross-tenant access attempts
 
-- [x] 26.6 Write property test for tenant invoice isolation
+- [ ] 26.6 Write property test for tenant invoice isolation
   - **Property 6: Tenant invoice isolation**
   - **Validates: Requirements 4.3**
   - Test that any tenant user only sees their own invoices
   - Run 100+ iterations with randomly generated tenants and invoices
 
-- [x] 26.7 Write property test for cross-tenant invoice access prevention
+- [ ] 26.7 Write property test for cross-tenant invoice access prevention
   - **Property 7: Cross-tenant invoice access prevention**
   - **Validates: Requirements 4.4**
   - Test that any tenant attempting to access another tenant's invoice gets 404
   - Run 100+ iterations with randomly generated cross-tenant invoice access attempts
 
-- [x] 26.8 Write property test for complete meter coverage
+- [ ] 26.8 Write property test for complete meter coverage
   - **Property 8: Complete meter coverage**
   - **Validates: Requirements 5.2**
   - Test that any property has all applicable meter types
   - Run 100+ iterations with randomly generated properties
 
-- [x] 26.9 Write property test for meter reading storage completeness
+- [ ] 26.9 Write property test for meter reading storage completeness
   - **Property 9: Meter reading storage completeness**
   - **Validates: Requirements 6.1**
   - Test that any stored meter reading has timestamp and user reference
   - Run 100+ iterations with randomly generated meter readings
 
-- [x] 26.10 Write property test for meter reading monotonicity enforcement
+- [ ] 26.10 Write property test for meter reading monotonicity enforcement
   - **Property 10: Meter reading monotonicity enforcement**
   - **Validates: Requirements 6.2**
   - Test that any reading lower than previous is rejected
   - Run 100+ iterations with randomly generated decreasing readings
 
-- [x] 26.11 Write property test for meter reading temporal validation
+- [ ] 26.11 Write property test for meter reading temporal validation
   - **Property 11: Meter reading temporal validation**
   - **Validates: Requirements 6.3**
   - Test that any reading with future date is rejected
   - Run 100+ iterations with randomly generated future dates
 
-- [x] 26.12 Write property test for multi-zone meter reading support
+- [ ] 26.12 Write property test for multi-zone meter reading support
   - **Property 12: Multi-zone meter reading support**
   - **Validates: Requirements 6.4**
   - Test that any multi-zone meter accepts separate zone readings
   - Run 100+ iterations with randomly generated zone readings
 
-- [x] 26.13 Write property test for meter reading audit trail creation
+- [ ] 26.13 Write property test for meter reading audit trail creation
   - **Property 13: Meter reading audit trail creation**
   - **Validates: Requirements 6.5**
   - Test that any stored reading creates audit trail
@@ -626,7 +626,7 @@
   - Test that any invoice with gyvatukas has separate line item
   - Run 100+ iterations with randomly generated gyvatukas invoices
 
-- [x] 27. Final checkpoint - Ensure all tests pass
+- [ ] 27. Final checkpoint - Ensure all tests pass
 
 
 
