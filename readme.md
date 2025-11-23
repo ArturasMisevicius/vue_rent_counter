@@ -15,7 +15,7 @@ The Vilnius Utilities Billing System is a monolithic Laravel 11 application that
 - **Snapshot Invoicing**: Historical pricing preservation for accurate billing
 - **Audit Logging**: Complete tracking of account management actions
 
-## User Hierarchy
+## User Hierarchy 
 
 The system implements a three-tier hierarchical user structure:
 
