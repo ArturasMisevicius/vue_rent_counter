@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Enums\UserRole;
 use App\Models\Invoice;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class InvoicePolicy
 {
@@ -43,8 +44,28 @@ class InvoicePolicy
 
         // Tenants can only view invoices assigned to them
         if ($user->role === UserRole::TENANT) {
-            return $invoice->tenant_id === $user->tenant_id
-                || $invoice->tenant_renter_id === optional($user->tenant)->id;
+            $tenantRecord = $user->tenant;
+
+            if (! $tenantRecord) {
+                return false;
+            }
+
+            $isOwner = $invoice->tenant_renter_id === $tenantRecord->id
+                && $invoice->tenant_id === $user->tenant_id;
+
+            Log::info('invoice_policy_tenant_view', [
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+                'user_tenant_id' => $user->tenant_id,
+                'tenant_record_id' => $tenantRecord->id,
+                'tenant_record_email' => $tenantRecord->email,
+                'tenant_record_tenant_id' => $tenantRecord->tenant_id,
+                'invoice_renter_id' => $invoice->tenant_renter_id,
+                'invoice_tenant_id' => $invoice->tenant_id,
+                'result' => $isOwner,
+            ]);
+
+            return $isOwner;
         }
 
         return false;

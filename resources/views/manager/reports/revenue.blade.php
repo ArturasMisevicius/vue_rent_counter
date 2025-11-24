@@ -12,15 +12,28 @@
 
     <div class="sm:flex sm:items-center sm:justify-between">
         <div class="sm:flex-auto">
-            <h1 class="text-3xl font-bold text-slate-900 font-display">Revenue Report</h1>
-            <p class="mt-2 text-sm text-slate-600">Billing revenue by period and invoice status</p>
+            <h1 class="text-2xl font-semibold text-slate-900">Revenue Report</h1>
+            <p class="mt-2 text-sm text-slate-700">Billing revenue by period and status</p>
+        </div>
+        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+            <form method="GET" action="{{ route('manager.reports.revenue.export') }}" class="inline">
+                <input type="hidden" name="start_date" value="{{ $startDate }}">
+                <input type="hidden" name="end_date" value="{{ $endDate }}">
+                <input type="hidden" name="building_id" value="{{ $buildingId }}">
+                <input type="hidden" name="status" value="{{ $status }}">
+                <x-button type="submit" variant="secondary">
+                    <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    Export CSV
+                </x-button>
+            </form>
         </div>
     </div>
 
-    <!-- Filters -->
-    <div class="mt-8">
-        <x-card title="Report Filters">
-            <form method="GET" action="{{ route('manager.reports.revenue') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div class="mt-6">
+        <x-card>
+            <form method="GET" action="{{ route('manager.reports.revenue') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-5">
                 <x-form-input
                     name="start_date"
                     label="Start Date"
@@ -35,6 +48,22 @@
                     :value="request('end_date', $endDate)"
                 />
 
+                <x-form-select
+                    name="building_id"
+                    label="Building"
+                    :options="$buildings->pluck('name', 'id')->toArray()"
+                    :selected="$buildingId"
+                    placeholder="All buildings..."
+                />
+
+                <x-form-select
+                    name="status"
+                    label="Status"
+                    :options="['draft' => 'Draft', 'finalized' => 'Finalized', 'paid' => 'Paid']"
+                    :selected="$status"
+                    placeholder="All statuses..."
+                />
+
                 <div class="flex items-end">
                     <x-button type="submit" class="w-full">
                         Generate Report
@@ -44,7 +73,6 @@
         </x-card>
     </div>
 
-    <!-- Summary Stats -->
     <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <x-stat-card>
             <x-slot name="icon">
@@ -54,6 +82,7 @@
             </x-slot>
             <x-slot name="label">Total Revenue</x-slot>
             <x-slot name="value">€{{ number_format($totalRevenue, 2) }}</x-slot>
+            <x-slot name="change">{{ $invoices->count() }} invoices</x-slot>
         </x-stat-card>
 
         <x-stat-card>
@@ -64,6 +93,7 @@
             </x-slot>
             <x-slot name="label">Paid</x-slot>
             <x-slot name="value">€{{ number_format($paidRevenue, 2) }}</x-slot>
+            <x-slot name="change">{{ number_format($paymentRate, 1) }}% payment rate</x-slot>
         </x-stat-card>
 
         <x-stat-card>
@@ -78,20 +108,101 @@
 
         <x-stat-card>
             <x-slot name="icon">
-                <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                <svg class="h-6 w-6 {{ $overdueAmount > 0 ? 'text-red-600' : 'text-yellow-600' }}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                 </svg>
             </x-slot>
-            <x-slot name="label">Draft</x-slot>
-            <x-slot name="value">€{{ number_format($draftRevenue, 2) }}</x-slot>
+            <x-slot name="label">Overdue</x-slot>
+            <x-slot name="value">€{{ number_format($overdueAmount, 2) }}</x-slot>
+            <x-slot name="change">{{ $overdueInvoices->count() }} invoices</x-slot>
         </x-stat-card>
     </div>
 
-    <!-- Invoice List -->
+    @if($revenueByMonth->isNotEmpty())
+    <div class="mt-8">
+        <x-card>
+            <x-slot name="title">Monthly Revenue Trend</x-slot>
+            
+            <div class="mt-4">
+                <div class="space-y-3">
+                    @foreach($revenueByMonth as $month => $data)
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-slate-900">{{ \Carbon\Carbon::parse($month)->format('F Y') }}</p>
+                                <p class="text-xs text-slate-600">{{ $data['count'] }} invoices</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-semibold text-slate-900">€{{ number_format($data['total'], 2) }}</p>
+                                <p class="text-xs text-emerald-600">€{{ number_format($data['paid'], 2) }} paid</p>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </x-card>
+    </div>
+    @endif
+
+    @if($revenueByBuilding->isNotEmpty())
+    <div class="mt-8">
+        <x-card>
+            <x-slot name="title">Revenue by Building</x-slot>
+            
+            <div class="mt-4">
+                <div class="hidden sm:block">
+                <x-data-table caption="Revenue breakdown by building">
+                    <x-slot name="header">
+                        <tr>
+                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">Building</th>
+                            <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-slate-900">Total Revenue</th>
+                            <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-slate-900">Invoices</th>
+                        </tr>
+                    </x-slot>
+
+                    @foreach($revenueByBuilding as $building => $data)
+                    <tr>
+                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 sm:pl-0">
+                            {{ $building }}
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900 text-right font-semibold">
+                            €{{ number_format($data['total'], 2) }}
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500 text-right">
+                            {{ $data['count'] }}
+                        </td>
+                    </tr>
+                    @endforeach
+                </x-data-table>
+                </div>
+                <div class="sm:hidden space-y-3">
+                    @foreach($revenueByBuilding as $building => $data)
+                    <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                        <p class="text-sm font-semibold text-slate-900">{{ $building }}</p>
+                        <div class="mt-2 flex items-center justify-between">
+                            <p class="text-xs text-slate-600">Revenue:</p>
+                            <p class="text-sm font-semibold text-slate-900">€{{ number_format($data['total'], 2) }}</p>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <p class="text-xs text-slate-600">Invoices:</p>
+                            <p class="text-xs text-slate-600">{{ $data['count'] }}</p>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </x-card>
+    </div>
+    @endif
+
     @if($invoices->isNotEmpty())
     <div class="mt-8">
-        <x-card title="Invoices">
-            <div class="hidden sm:block">
+        <x-card>
+            <x-slot name="title">Invoice Details</x-slot>
+            
+            <div class="mt-4">
+                <div class="hidden sm:block">
                 <x-data-table caption="Invoices in revenue report">
                     <x-slot name="header">
                         <tr>
@@ -105,23 +216,19 @@
                     </x-slot>
 
                     @foreach($invoices as $invoice)
-                    <tr class="hover:bg-slate-50/50 transition-colors">
+                    <tr>
                         <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 sm:pl-0">
-                            <a href="{{ route('manager.invoices.show', $invoice) }}" class="text-indigo-600 hover:text-indigo-900 transition-colors">
+                            <a href="{{ route('manager.invoices.show', $invoice) }}" class="text-indigo-600 hover:text-indigo-900">
                                 #{{ $invoice->id }}
                             </a>
                         </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-600">
-                            @if($invoice->tenant && $invoice->tenant->property)
-                                {{ $invoice->tenant->property->address }}
-                            @else
-                                <span class="text-slate-400">N/A</span>
-                            @endif
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
+                            {{ $invoice->tenant?->property?->address ?? 'N/A' }}
                         </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-600">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                             {{ $invoice->billing_period_start->format('M d') }} - {{ $invoice->billing_period_end->format('M d, Y') }}
                         </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm font-semibold text-slate-900 text-right tabular-nums">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900 text-right">
                             €{{ number_format($invoice->total_amount, 2) }}
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm">
@@ -129,7 +236,7 @@
                                 {{ enum_label($invoice->status) }}
                             </x-status-badge>
                         </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-600">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                             @if($invoice->due_date)
                                 @php($isOverdue = !$invoice->isPaid() && $invoice->due_date->isPast())
                                 <span class="{{ $isOverdue ? 'text-rose-600 font-semibold' : '' }}">
@@ -142,42 +249,37 @@
                     </tr>
                     @endforeach
                 </x-data-table>
-            </div>
-            <div class="sm:hidden space-y-3">
-                @foreach($invoices as $invoice)
-                <div class="rounded-xl border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <a href="{{ route('manager.invoices.show', $invoice) }}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-900">
-                                #{{ $invoice->id }}
-                            </a>
-                            <p class="text-xs text-slate-600 mt-1">
-                                {{ $invoice->billing_period_start->format('M d') }} - {{ $invoice->billing_period_end->format('M d, Y') }}
-                            </p>
-                            <p class="text-xs text-slate-600 mt-1">
-                                {{ $invoice->tenant?->property?->address ?? 'N/A' }}
-                            </p>
-                        </div>
-                        <div class="text-right">
-                            <x-status-badge :status="$invoice->status->value" />
-                            <p class="mt-1 text-sm font-semibold text-slate-900 tabular-nums">€{{ number_format($invoice->total_amount, 2) }}</p>
+                </div>
+                <div class="sm:hidden space-y-3">
+                    @foreach($invoices as $invoice)
+                    <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="text-sm font-semibold text-slate-900">#{{ $invoice->id }}</p>
+                                <p class="text-xs text-slate-600">
+                                    {{ $invoice->billing_period_start->format('M d') }} - {{ $invoice->billing_period_end->format('M d, Y') }}
+                                </p>
+                                <p class="text-xs text-slate-600 mt-1">
+                                    {{ $invoice->tenant?->property?->address ?? 'N/A' }}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <x-status-badge :status="$invoice->status->value" />
+                                <p class="mt-1 text-sm font-semibold text-slate-900">€{{ number_format($invoice->total_amount, 2) }}</p>
+                            </div>
                         </div>
                     </div>
+                    @endforeach
                 </div>
-                @endforeach
             </div>
         </x-card>
     </div>
     @else
     <div class="mt-8">
         <x-card>
-            <div class="text-center py-12">
-                <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                </svg>
-                <p class="mt-4 text-sm font-medium text-slate-900">No invoices found</p>
-                <p class="mt-1 text-sm text-slate-500">Try adjusting your date range</p>
-            </div>
+            <p class="text-center text-sm text-slate-500 py-8">
+                No invoices found for the selected period.
+            </p>
         </x-card>
     </div>
     @endif

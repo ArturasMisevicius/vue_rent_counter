@@ -109,6 +109,29 @@ return [
         ],
     ],
 
+    'filters' => [
+        'title' => 'Advanced Filters',
+        'reset' => 'Reset Filters',
+        'status' => 'Status',
+        'all_statuses' => 'All Statuses',
+        'property' => 'Property',
+        'all_properties' => 'All Properties',
+        'billing_period_from' => 'Billing Period From',
+        'billing_period_to' => 'Billing Period To',
+        'min_amount' => 'Minimum Amount',
+        'max_amount' => 'Maximum Amount',
+        'sort_by' => 'Sort By',
+        'sort_direction' => 'Sort Direction',
+        'sort' => [
+            'created_at' => 'Created Date',
+            'billing_period' => 'Billing Period',
+            'amount' => 'Amount',
+            'due_date' => 'Due Date',
+            'desc' => 'Descending',
+            'asc' => 'Ascending',
+        ],
+    ],
+
     'manager' => [
         'index' => [
             'title' => 'Invoices',

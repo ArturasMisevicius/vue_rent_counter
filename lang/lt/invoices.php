@@ -109,6 +109,29 @@ return [
         ],
     ],
 
+    'filters' => [
+        'title' => 'Išplėstiniai filtrai',
+        'reset' => 'Atstatyti filtrus',
+        'status' => 'Būsena',
+        'all_statuses' => 'Visos būsenos',
+        'property' => 'Objektas',
+        'all_properties' => 'Visi objektai',
+        'billing_period_from' => 'Laikotarpis nuo',
+        'billing_period_to' => 'Laikotarpis iki',
+        'min_amount' => 'Minimali suma',
+        'max_amount' => 'Maksimali suma',
+        'sort_by' => 'Rūšiuoti pagal',
+        'sort_direction' => 'Rūšiavimo kryptis',
+        'sort' => [
+            'created_at' => 'Sukūrimo data',
+            'billing_period' => 'Apskaitos laikotarpis',
+            'amount' => 'Suma',
+            'due_date' => 'Terminas',
+            'desc' => 'Mažėjančiai',
+            'asc' => 'Didėjančiai',
+        ],
+    ],
+
     'manager' => [
         'index' => [
             'title' => 'Sąskaitos',

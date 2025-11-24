@@ -6,6 +6,7 @@ namespace App\Filament\Resources\InvoiceResource\Pages;
 
 use App\Filament\Resources\InvoiceResource;
 use App\Services\InvoiceService;
+use App\Exceptions\InvoiceAlreadyFinalizedException;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
@@ -57,16 +58,6 @@ use Illuminate\Validation\ValidationException;
 final class ViewInvoice extends ViewRecord
 {
     protected static string $resource = InvoiceResource::class;
-
-    public function mount(int|string $record): void
-    {
-        Log::info('ViewInvoice mount', [
-            'user_id' => auth()->id(),
-            'user_role' => auth()->user()?->role->value,
-        ]);
-
-        parent::mount($record);
-    }
 
     protected function resolveRecord($key): Model
     {
@@ -165,6 +156,10 @@ final class ViewInvoice extends ViewRecord
 
                 // Rate limiting: 10 attempts per minute per user (count every attempt, even failed ones)
                 RateLimiter::hit($rateLimitKey, 60);
+
+                if ($record->isFinalized()) {
+                    throw new InvoiceAlreadyFinalizedException($record->id);
+                }
 
                 if (RateLimiter::tooManyAttempts($rateLimitKey, 10)) {
                     $seconds = RateLimiter::availableIn($rateLimitKey);

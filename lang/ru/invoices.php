@@ -109,6 +109,29 @@ return [
         ],
     ],
 
+    'filters' => [
+        'title' => 'Расширенные фильтры',
+        'reset' => 'Сбросить фильтры',
+        'status' => 'Статус',
+        'all_statuses' => 'Все статусы',
+        'property' => 'Объект',
+        'all_properties' => 'Все объекты',
+        'billing_period_from' => 'Период с',
+        'billing_period_to' => 'Период по',
+        'min_amount' => 'Минимальная сумма',
+        'max_amount' => 'Максимальная сумма',
+        'sort_by' => 'Сортировать по',
+        'sort_direction' => 'Направление сортировки',
+        'sort' => [
+            'created_at' => 'Дата создания',
+            'billing_period' => 'Расчетный период',
+            'amount' => 'Сумма',
+            'due_date' => 'Срок оплаты',
+            'desc' => 'По убыванию',
+            'asc' => 'По возрастанию',
+        ],
+    ],
+
     'manager' => [
         'index' => [
             'title' => 'Счета',

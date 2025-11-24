@@ -34,19 +34,19 @@ All core implementation tasks for the user-group-frontends feature have been com
 - Invoice views (with filtering and line items)
 - Profile management
 
-- [-] **Error Handling & Validation**
+- [x] **Error Handling & Validation**
 - Error pages (401, 403, 404, 422, 500)
 - Consistent validation error display
 - Flash message system
 
-- [ ] **Performance & UX**
+- [x] **Performance & UX**
 - Pagination on all list views
 - Sortable table columns
 - Search and filtering
 - Eager loading to prevent N+1 queries
 - Dashboard caching (5 minutes)
 
-- [ ] **Property-Based Tests**
+- [-] **Property-Based Tests**
 - Property 6: Tenant scope filtering (100 iterations)
 - Property 7: Manager property isolation (100 iterations)
 
