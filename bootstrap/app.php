@@ -31,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
         }
 
         $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
+        $middleware->appendToGroup('web', \App\Http\Middleware\HandleImpersonation::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Handle authorization exceptions with user-friendly messages (Requirement 9.4)
