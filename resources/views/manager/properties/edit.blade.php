@@ -14,8 +14,8 @@
 
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-gray-900">Edit Property</h1>
-            <p class="mt-2 text-sm text-gray-700">Update property information</p>
+            <h1 class="text-2xl font-semibold text-slate-900">Edit Property</h1>
+            <p class="mt-2 text-sm text-slate-700">Update property information</p>
         </div>
     </div>
 

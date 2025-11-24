@@ -47,7 +47,7 @@ beforeEach(function () {
 
     $this->subscription = Subscription::factory()->create([
         'user_id' => $this->admin->id,
-        'status' => 'active',
+        'status' => AppnumsSubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addYear(),
         'max_properties' => 10,
         'max_tenants' => 50,
@@ -65,7 +65,7 @@ beforeEach(function () {
 
     Subscription::factory()->create([
         'user_id' => $this->otherAdmin->id,
-        'status' => 'active',
+        'status' => AppnumsSubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addYear(),
     ]);
 
@@ -477,8 +477,8 @@ describe('Subscription Resource Access', function () {
 
         $subscriptionData = [
             'user_id' => $newAdmin->id,
-            'plan_type' => 'professional',
-            'status' => 'active',
+            'plan_type' => \App\Enums\SubscriptionPlanType::PROFESSIONAL->value,
+            'status' => \App\Enums\SubscriptionStatus::ACTIVE->value,
             'starts_at' => now()->format('Y-m-d H:i:s'),
             'expires_at' => now()->addYear()->format('Y-m-d H:i:s'),
             'max_properties' => 50,

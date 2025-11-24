@@ -1,14 +1,63 @@
 # Vilnius Utilities Billing System - Setup Guide
 
+## System Requirements
+
+### Required Software
+
+- **PHP**: 8.2 or higher (8.3+ recommended for optimal Laravel 12 performance)
+- **Composer**: Latest version (2.x)
+- **Database**: 
+  - SQLite 3.x (development)
+  - MySQL 8.0+ or PostgreSQL 13+ (production)
+- **Node.js**: 18.x or higher
+- **NPM**: 9.x or higher
+
+### Framework Versions
+
+This application uses the following major framework versions:
+
+- **Laravel**: 12.x
+- **Filament**: 4.x (admin panel framework)
+- **Tailwind CSS**: 4.x (utility-first CSS)
+- **Pest**: 3.x (testing framework)
+- **PHPUnit**: 11.x (test runner)
+- **Vite**: 5.x (build tool)
+
+### PHP Extensions
+
+Ensure the following PHP extensions are installed:
+- PDO (with SQLite, MySQL, or PostgreSQL driver)
+- OpenSSL
+- Mbstring
+- Tokenizer
+- XML
+- Ctype
+- JSON
+- BCMath
+- Fileinfo
+
 ## Initial Setup
 
-### 1. Prerequisites
+### 1. Prerequisites Check
 
-Ensure you have the following installed:
-- PHP 8.2 or higher
-- Composer
-- SQLite 3
-- Node.js and NPM (for asset compilation)
+Verify your system meets the requirements:
+
+```bash
+# Check PHP version (should be 8.2+, 8.3+ recommended)
+php -v
+
+# Check Composer version
+composer --version
+
+# Check Node.js version (should be 18+)
+node -v
+
+# Check NPM version
+npm -v
+
+# Check SQLite version
+sqlite3 --version
+```
 
 ### 2. Installation
 
@@ -24,6 +73,11 @@ composer install
 
 # Install Node dependencies
 npm install
+
+# Verify installations
+composer show laravel/framework  # Should show ^12.0
+composer show filament/filament   # Should show ^4.0
+npm list tailwindcss              # Should show ^4.0.0
 ```
 
 ### 3. Environment Configuration
@@ -105,12 +159,32 @@ Verify your configuration:
 # Run all tests
 php artisan test
 
-# Check WAL mode is enabled
+# Check Laravel version
+php artisan --version  # Should show Laravel Framework 12.x
+
+# Check Filament installation
+php artisan about | grep Filament  # Should show Filament 4.x
+
+# Check WAL mode is enabled (SQLite only)
 php artisan tinker --execute="echo DB::select('PRAGMA journal_mode;')[0]->journal_mode;"
 
-# Check foreign keys are enabled
+# Check foreign keys are enabled (SQLite only)
 php artisan tinker --execute="echo DB::select('PRAGMA foreign_keys;')[0]->foreign_keys;"
 ```
+
+### 7. Build Frontend Assets (Optional)
+
+If you're using compiled assets (currently optional):
+
+```bash
+# Development build with hot reload
+npm run dev
+
+# Production build
+npm run build
+```
+
+**Note**: The application currently uses CDN-delivered Tailwind CSS and Alpine.js, so building assets is optional unless you add custom JavaScript or CSS.
 
 ## Hierarchical User Management Setup
 
@@ -341,16 +415,36 @@ php artisan tinker
 ### Starting Development Server
 
 ```bash
+# Start Laravel development server
 php artisan serve
 ```
 
 Access the application at `http://localhost:8000`
+
+### Using Laravel Sail (Docker)
+
+Alternatively, use Laravel Sail for a containerized development environment:
+
+```bash
+# Start Sail containers
+./vendor/bin/sail up
+
+# Run artisan commands through Sail
+./vendor/bin/sail artisan migrate
+
+# Run tests through Sail
+./vendor/bin/sail test
+```
 
 ### Running Tests
 
 ```bash
 # Run all tests
 php artisan test
+
+# Run specific test suite
+php artisan test --testsuite=Feature
+php artisan test --testsuite=Unit
 
 # Run specific test file
 php artisan test tests/Feature/MultiTenancyTest.php
@@ -360,6 +454,26 @@ php artisan test --coverage
 
 # Run property-based tests only
 php artisan test --filter Property
+
+# Run tests in parallel (faster)
+php artisan test --parallel
+
+# Run with detailed output
+php artisan test --verbose
+```
+
+### Test Setup Command
+
+For reproducible test data:
+
+```bash
+# Fresh database with test data
+php artisan test:setup --fresh
+
+# This command:
+# 1. Drops all tables
+# 2. Runs migrations
+# 3. Seeds test data (users, properties, meters, readings, invoices)
 ```
 
 ### Code Style
@@ -367,7 +481,15 @@ php artisan test --filter Property
 Format code using Laravel Pint:
 
 ```bash
+# Fix code style issues
 ./vendor/bin/pint
+
+# Check code style without fixing
+./vendor/bin/pint --test
+
+# Fix specific files or directories
+./vendor/bin/pint app/Services
+./vendor/bin/pint app/Models/User.php
 ```
 
 ### Clearing Caches
@@ -390,11 +512,14 @@ php artisan view:clear
 - [ ] Update `.env` with production values
 - [ ] Set `APP_ENV=production`
 - [ ] Set `APP_DEBUG=false`
-- [ ] Configure production database
-- [ ] Set up email service
-- [ ] Configure backup schedule
-- [ ] Set up SSL certificate
-- [ ] Configure web server (Apache/Nginx)
+- [ ] Verify PHP 8.3+ is installed on production server
+- [ ] Configure production database (MySQL 8.0+ or PostgreSQL 13+)
+- [ ] Set up email service (SMTP/SES/Mailgun)
+- [ ] Configure backup schedule (Spatie Backup)
+- [ ] Set up SSL certificate (Let's Encrypt/Cloudflare)
+- [ ] Configure web server (Nginx recommended, Apache supported)
+- [ ] Set up queue worker (for background jobs)
+- [ ] Configure cron jobs for scheduled tasks
 
 ### Deployment Steps
 
@@ -405,8 +530,13 @@ git pull origin main
 
 2. **Install dependencies**:
 ```bash
+# Install PHP dependencies (production mode)
 composer install --optimize-autoloader --no-dev
-npm install
+
+# Install Node dependencies (if using compiled assets)
+npm ci --production
+
+# Build frontend assets (if using compiled assets)
 npm run build
 ```
 
@@ -415,17 +545,41 @@ npm run build
 php artisan migrate --force
 ```
 
-4. **Optimize application**:
+4. **Clear and optimize caches**:
 ```bash
+# Clear all caches
+php artisan optimize:clear
+
+# Rebuild optimized caches
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+php artisan event:cache
+
+# Optimize autoloader
+composer dump-autoload --optimize
 ```
 
 5. **Set permissions**:
 ```bash
-chmod -R 775 storage bootstrap/cache
+# Set correct ownership (adjust user/group as needed)
 chown -R www-data:www-data storage bootstrap/cache
+
+# Set correct permissions
+chmod -R 775 storage bootstrap/cache
+chmod -R 755 public
+```
+
+6. **Restart services**:
+```bash
+# Restart PHP-FPM (adjust service name as needed)
+sudo systemctl restart php8.3-fpm
+
+# Restart queue workers
+php artisan queue:restart
+
+# Restart web server
+sudo systemctl restart nginx
 ```
 
 ### Backup Configuration
@@ -462,12 +616,207 @@ Schedule automated backups in `app/Console/Kernel.php`:
 $schedule->command('backup:run')->daily()->at('02:00');
 ```
 
+## Framework Versions and Compatibility
+
+### Current Stack
+
+This application uses the following framework versions:
+
+| Component | Version | Notes |
+|-----------|---------|-------|
+| Laravel | 12.x | Latest stable release |
+| Filament | 4.x | Admin panel framework with Livewire 3 |
+| PHP | 8.2+ (8.3+ recommended) | Minimum 8.2, 8.3+ for best performance |
+| Tailwind CSS | 4.x | Utility-first CSS framework |
+| Alpine.js | 3.x | Lightweight JavaScript framework |
+| Pest | 3.x | Testing framework |
+| PHPUnit | 11.x | Test runner |
+| Vite | 5.x | Build tool |
+| Spatie Backup | 9.3+ | Backup solution |
+
+### Upgrade History
+
+The application has been upgraded from:
+- Laravel 11.x → Laravel 12.x
+- Filament 3.x → Filament 4.x
+- Tailwind CSS 3.x → Tailwind CSS 4.x
+- Pest 2.x → Pest 3.x
+- PHPUnit 10.x → PHPUnit 11.x
+
+See [Upgrade Guide](../upgrades/LARAVEL_12_FILAMENT_4_UPGRADE.md) for detailed migration notes.
+
+### PHP Version Recommendations
+
+- **Minimum**: PHP 8.2 (required)
+- **Recommended**: PHP 8.3+ (for optimal Laravel 12 performance)
+- **Production**: PHP 8.3+ with OPcache enabled
+
+### Database Compatibility
+
+| Database | Minimum Version | Recommended | Notes |
+|----------|----------------|-------------|-------|
+| SQLite | 3.35+ | 3.40+ | Development only, WAL mode required |
+| MySQL | 8.0+ | 8.0.30+ | Production recommended |
+| PostgreSQL | 13+ | 15+ | Production recommended |
+| MariaDB | 10.10+ | 10.11+ | Alternative to MySQL |
+
+### Node.js and NPM
+
+- **Node.js**: 18.x or higher (20.x LTS recommended)
+- **NPM**: 9.x or higher (10.x recommended)
+
+### Browser Support
+
+The admin panel (Filament) and frontend support:
+- Chrome/Edge: Last 2 versions
+- Firefox: Last 2 versions
+- Safari: Last 2 versions
+- Mobile browsers: iOS Safari 14+, Chrome Android 90+
+
 ## Additional Resources
 
-- [README.md](../overview/readme.md) - Project overview and features
+- [README.md](../../README.md) - Project overview and quick start
+- [Project Overview](../overview/readme.md) - Detailed feature documentation
 - [HIERARCHICAL_USER_GUIDE.md](HIERARCHICAL_USER_GUIDE.md) - User guide for all roles
 - [TESTING_GUIDE.md](TESTING_GUIDE.md) - Testing approach and conventions
-- [Laravel Documentation](https://laravel.com/docs/11.x) - Framework documentation
+- [Upgrade Guide](../upgrades/LARAVEL_12_FILAMENT_4_UPGRADE.md) - Framework upgrade notes
+- [Laravel 12 Documentation](https://laravel.com/docs/12.x) - Framework documentation
+- [Filament 4 Documentation](https://filamentphp.com/docs/4.x) - Admin panel documentation
+- [Tailwind CSS 4 Documentation](https://tailwindcss.com/docs) - CSS framework documentation
+
+## Troubleshooting
+
+### Common Setup Issues
+
+#### PHP Version Issues
+
+**Problem**: `composer install` fails with PHP version error
+
+**Solution**:
+```bash
+# Check current PHP version
+php -v
+
+# If using multiple PHP versions, specify the correct one
+/usr/bin/php8.3 /usr/local/bin/composer install
+
+# Or update your PATH to use PHP 8.3 by default
+```
+
+#### Composer Dependency Conflicts
+
+**Problem**: Composer reports version conflicts
+
+**Solution**:
+```bash
+# Clear Composer cache
+composer clear-cache
+
+# Update dependencies
+composer update
+
+# If issues persist, check for conflicting packages
+composer why-not laravel/framework 12.0
+```
+
+#### Node/NPM Version Issues
+
+**Problem**: `npm install` fails or Vite doesn't work
+
+**Solution**:
+```bash
+# Check Node.js version (should be 18+)
+node -v
+
+# Update Node.js using nvm (recommended)
+nvm install 18
+nvm use 18
+
+# Or update NPM
+npm install -g npm@latest
+
+# Clear NPM cache and reinstall
+rm -rf node_modules package-lock.json
+npm cache clean --force
+npm install
+```
+
+#### Database Connection Issues
+
+**Problem**: Cannot connect to database
+
+**Solution**:
+```bash
+# For SQLite, ensure file exists and is writable
+touch database/database.sqlite
+chmod 664 database/database.sqlite
+
+# For MySQL/PostgreSQL, verify credentials in .env
+php artisan tinker --execute="DB::connection()->getPdo();"
+```
+
+#### Filament Installation Issues
+
+**Problem**: Filament assets not loading or admin panel not working
+
+**Solution**:
+```bash
+# Publish Filament assets
+php artisan filament:assets
+
+# Clear all caches
+php artisan optimize:clear
+
+# Rebuild caches
+php artisan config:cache
+php artisan view:cache
+
+# Verify Filament version
+composer show filament/filament
+```
+
+#### Permission Issues
+
+**Problem**: Storage or cache directories not writable
+
+**Solution**:
+```bash
+# Set correct permissions
+chmod -R 775 storage bootstrap/cache
+
+# Set correct ownership (adjust user as needed)
+chown -R www-data:www-data storage bootstrap/cache
+
+# For development, you might need
+chmod -R 777 storage bootstrap/cache
+```
+
+#### Migration Issues
+
+**Problem**: Migrations fail or foreign key constraints error
+
+**Solution**:
+```bash
+# Ensure foreign keys are enabled (SQLite)
+# Add to .env:
+DB_FOREIGN_KEYS=true
+
+# Fresh migration (WARNING: destroys data)
+php artisan migrate:fresh
+
+# Or rollback and re-run
+php artisan migrate:rollback
+php artisan migrate
+```
+
+### Getting Help
+
+For technical support or questions:
+- Check the [documentation files](../)
+- Review the [test suite](../../tests/) for examples
+- Check [Laravel 12 upgrade guide](https://laravel.com/docs/12.x/upgrade)
+- Check [Filament 4 upgrade guide](https://filamentphp.com/docs/4.x/support/upgrade-guide)
+- Contact the system administrator
 
 ## Support
 

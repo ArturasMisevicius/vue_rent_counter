@@ -51,7 +51,7 @@ class InvoiceController extends Controller
         );
 
         return redirect()->route('invoices.show', $invoice)
-            ->with('success', 'Invoice created successfully.');
+            ->with('success', __('notifications.invoice.created'));
     }
 
     /**
@@ -69,7 +69,7 @@ class InvoiceController extends Controller
     public function edit(Invoice $invoice): \Illuminate\Http\RedirectResponse|\Illuminate\View\View
     {
         if (!$invoice->isDraft()) {
-            return back()->with('error', 'Only draft invoices can be edited.');
+            return back()->with('error', __('invoices.errors.edit_draft_only'));
         }
 
         $tenants = Tenant::with('property')->get();
@@ -82,7 +82,7 @@ class InvoiceController extends Controller
     public function update(StoreInvoiceRequest $request, Invoice $invoice): \Illuminate\Http\RedirectResponse
     {
         if (!$invoice->isDraft()) {
-            return back()->with('error', 'Only draft invoices can be updated.');
+            return back()->with('error', __('invoices.errors.update_draft_only'));
         }
 
         $validated = $request->validated();
@@ -90,7 +90,7 @@ class InvoiceController extends Controller
         $invoice->update($validated);
 
         return redirect()->route('invoices.show', $invoice)
-            ->with('success', 'Invoice updated successfully.');
+            ->with('success', __('notifications.invoice.updated'));
     }
 
     /**
@@ -99,13 +99,13 @@ class InvoiceController extends Controller
     public function destroy(Invoice $invoice): \Illuminate\Http\RedirectResponse
     {
         if (!$invoice->isDraft()) {
-            return back()->with('error', 'Only draft invoices can be deleted.');
+            return back()->with('error', __('invoices.errors.delete_draft_only'));
         }
 
         $invoice->delete();
 
         return redirect()->route('invoices.index')
-            ->with('success', 'Invoice deleted successfully.');
+            ->with('success', __('notifications.invoice.deleted'));
     }
 
     /**
@@ -114,12 +114,12 @@ class InvoiceController extends Controller
     public function finalize(Invoice $invoice): \Illuminate\Http\RedirectResponse
     {
         if (!$invoice->isDraft()) {
-            return back()->with('error', 'Invoice is already finalized.');
+            return back()->with('error', __('invoices.errors.already_finalized'));
         }
 
         $invoice->finalize();
 
-        return back()->with('success', 'Invoice finalized successfully.');
+        return back()->with('success', __('notifications.invoice.finalized'));
     }
 
     /**
@@ -128,21 +128,25 @@ class InvoiceController extends Controller
     public function markPaid(Invoice $invoice): \Illuminate\Http\RedirectResponse
     {
         if (!$invoice->isFinalized()) {
-            return back()->with('error', 'Only finalized invoices can be marked as paid.');
+            return back()->with('error', __('invoices.errors.mark_paid_finalized'));
         }
 
         $invoice->update(['status' => 'paid']);
 
-        return back()->with('success', 'Invoice marked as paid.');
+        return back()->with('success', __('notifications.invoice.marked_paid'));
     }
 
     /**
      * Generate PDF for an invoice.
      */
-    public function pdf(Invoice $invoice): \Illuminate\Http\JsonResponse
+    public function pdf(Invoice $invoice)
     {
-        // Future: Generate PDF
-        return response()->json(['message' => 'PDF generation not yet implemented']);
+        $this->authorize('view', $invoice);
+
+        $invoice->load(['items', 'tenant.property']);
+
+        // For now return HTML receipt; can be hooked into a PDF generator later.
+        return view('invoices.receipt', compact('invoice'));
     }
 
     /**
@@ -151,11 +155,11 @@ class InvoiceController extends Controller
     public function send(Invoice $invoice): \Illuminate\Http\RedirectResponse
     {
         if (!$invoice->isFinalized()) {
-            return back()->with('error', 'Only finalized invoices can be sent.');
+            return back()->with('error', __('invoices.errors.send_finalized_only'));
         }
 
         // Future: Send via email
-        return back()->with('success', 'Invoice sent successfully.');
+        return back()->with('success', __('notifications.invoice.sent'));
     }
 
     /**
@@ -179,7 +183,7 @@ class InvoiceController extends Controller
             $count++;
         }
 
-        return back()->with('success', "Generated {$count} invoices successfully.");
+        return back()->with('success', __('notifications.invoice.generated_bulk', ['count' => $count]));
     }
 
     /**

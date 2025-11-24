@@ -3,8 +3,8 @@
 <div class="invoice-summary bg-white/90 border border-slate-200/80 shadow-lg shadow-slate-200/60 rounded-2xl p-6 backdrop-blur-sm">
     {{-- Invoice Header --}}
     <div class="invoice-header mb-6">
-        <div class="flex justify-between items-start">
-            <div>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div class="space-y-1">
                 <h3 class="text-2xl font-bold text-slate-900 font-display">Invoice #{{ $invoice->id }}</h3>
                 <p class="text-slate-600 mt-1">
                     Period: {{ $invoice->billing_period_start->format('Y-m-d') }} - {{ $invoice->billing_period_end->format('Y-m-d') }}
@@ -20,8 +20,25 @@
                     @endif
                 @endif
             </div>
-            <div class="text-right space-y-2">
-                <x-status-badge :status="$invoice->status->value" class="justify-end" />
+            <div class="text-left sm:text-right space-y-2">
+                <x-status-badge :status="$invoice->status->value" class="justify-start sm:justify-end" />
+                @if($invoice->due_date)
+                    @php
+                        $isOverdue = method_exists($invoice, 'isOverdue') ? $invoice->isOverdue() : (!$invoice->isPaid() && $invoice->due_date->isPast());
+                    @endphp
+                    <p class="text-sm font-semibold {{ $isOverdue ? 'text-rose-600' : 'text-slate-700' }}">
+                        Due: {{ $invoice->due_date->format('Y-m-d') }}
+                        @if($isOverdue)
+                            <span class="ml-2 inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">Overdue</span>
+                        @endif
+                    </p>
+                @endif
+                @if($invoice->payment_reference)
+                    <p class="text-sm text-slate-700">Payment ref: {{ $invoice->payment_reference }}</p>
+                @endif
+                @if($invoice->paid_amount)
+                    <p class="text-sm text-slate-700">Paid amount: €{{ number_format($invoice->paid_amount, 2) }}</p>
+                @endif
                 @if($invoice->finalized_at)
                     <p class="text-sm text-slate-500 mt-2">
                         Finalized: {{ $invoice->finalized_at->format('Y-m-d H:i') }}
@@ -34,7 +51,7 @@
     {{-- Property Filter (for multi-property tenants) --}}
     @if($showPropertyFilter && count($properties) > 1)
         <div class="property-filter mb-6" x-data="{ selectedProperty: '' }">
-            <label for="property-filter" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="property-filter" class="block text-sm font-medium text-slate-700 mb-2">
                 Filter by Property
             </label>
             <select 
@@ -59,7 +76,7 @@
         @if($invoice->items->isEmpty())
             <p class="text-slate-500 italic">No items in this invoice.</p>
         @else
-            <div class="overflow-hidden rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="hidden sm:block overflow-hidden rounded-2xl border border-slate-200/80 shadow-sm">
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-gradient-to-r from-slate-50 via-white to-slate-50">
                         <tr>
@@ -85,7 +102,7 @@
                                         {{ $item->description }}
                                     </div>
                                     @if($item->meter_reading_snapshot)
-                                        <div class="text-xs text-gray-500 mt-1">
+                                        <div class="text-xs text-slate-500 mt-1">
                                             @if(isset($item->meter_reading_snapshot['previous_reading']))
                                                 Previous: {{ number_format($item->meter_reading_snapshot['previous_reading'], 2) }}
                                                 → Current: {{ number_format($item->meter_reading_snapshot['current_reading'], 2) }}
@@ -125,6 +142,38 @@
                     </tfoot>
                 </table>
             </div>
+            <div class="sm:hidden space-y-3">
+                @foreach($invoice->items as $item)
+                <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-slate-900">{{ $item->description }}</p>
+                            @if($item->meter_reading_snapshot)
+                                <p class="text-xs text-slate-500 mt-1">
+                                    @if(isset($item->meter_reading_snapshot['previous_reading']))
+                                        Prev: {{ number_format($item->meter_reading_snapshot['previous_reading'], 2) }}
+                                        → Curr: {{ number_format($item->meter_reading_snapshot['current_reading'], 2) }}
+                                    @endif
+                                </p>
+                            @endif
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-semibold text-slate-900">€{{ number_format($item->total, 2) }}</p>
+                        </div>
+                    </div>
+                    <div class="mt-2 grid grid-cols-2 gap-2 text-xs text-slate-600">
+                        <p>Consumption: <span class="font-semibold text-slate-900">{{ number_format($item->quantity, 2) }} {{ $item->unit ?? '' }}</span></p>
+                        <p class="text-right">Rate: <span class="font-semibold text-slate-900">€{{ number_format($item->unit_price, 4) }}</span></p>
+                    </div>
+                </div>
+                @endforeach
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-inner">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-bold text-slate-900">Total Amount</p>
+                        <p class="text-lg font-bold text-slate-900 font-display">€{{ number_format($invoice->total_amount, 2) }}</p>
+                    </div>
+                </div>
+            </div>
         @endif
     </div>
 
@@ -132,7 +181,7 @@
     @if(isset($consumptionHistory) && $consumptionHistory->isNotEmpty())
         <div class="consumption-history mt-8">
             <h4 class="text-lg font-semibold text-slate-900 mb-4 font-display">Consumption History</h4>
-            <div class="overflow-hidden rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="hidden sm:block overflow-hidden rounded-2xl border border-slate-200/80 shadow-sm">
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-gradient-to-r from-slate-50 via-white to-slate-50">
                         <tr>
@@ -181,6 +230,25 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+            <div class="sm:hidden space-y-3">
+                @foreach($consumptionHistory as $reading)
+                <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-semibold text-slate-900">{{ $reading->reading_date->format('Y-m-d') }}</p>
+                        <p class="text-xs font-semibold text-slate-500">
+                            {{ \App\Enums\TariffZone::tryFrom($reading->zone)?->label() ?? ($reading->zone ?? '—') }}
+                        </p>
+                    </div>
+                    <p class="mt-1 text-sm text-slate-700">
+                        Meter: <span class="font-semibold">{{ $reading->meter->serial_number ?? 'N/A' }}</span>
+                    </p>
+                    <div class="mt-1 grid grid-cols-2 gap-2 text-xs text-slate-600">
+                        <p>Reading: <span class="font-semibold text-slate-900">{{ number_format($reading->value, 2) }}</span></p>
+                        <p class="text-right">Consumption: <span class="font-semibold text-slate-900">{{ isset($reading->consumption) ? number_format($reading->consumption, 2) : '—' }}</span></p>
+                    </div>
+                </div>
+                @endforeach
             </div>
         </div>
     @endif

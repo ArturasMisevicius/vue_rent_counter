@@ -19,7 +19,13 @@ class InvoiceController extends Controller
         if (!$property) {
             $invoices = collect();
             $properties = collect();
-            return view('tenant.invoices.index', compact('invoices', 'properties'));
+            $invoiceStatusLabels = \App\Enums\InvoiceStatus::labels();
+            $statusStyles = [
+                'draft' => 'bg-amber-100 text-amber-800 ring-1 ring-amber-600/30',
+                'finalized' => 'bg-sky-100 text-sky-800 ring-1 ring-sky-600/30',
+                'paid' => 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-600/30',
+            ];
+            return view('tenant.invoices.index', compact('invoices', 'properties', 'invoiceStatusLabels', 'statusStyles'));
         }
         
         // Get tenant record for invoice lookup (legacy compatibility)
@@ -28,7 +34,13 @@ class InvoiceController extends Controller
         if (!$tenant) {
             $invoices = collect();
             $properties = collect([$property]);
-            return view('tenant.invoices.index', compact('invoices', 'properties'));
+            $invoiceStatusLabels = \App\Enums\InvoiceStatus::labels();
+            $statusStyles = [
+                'draft' => 'bg-amber-100 text-amber-800 ring-1 ring-amber-600/30',
+                'finalized' => 'bg-sky-100 text-sky-800 ring-1 ring-sky-600/30',
+                'paid' => 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-600/30',
+            ];
+            return view('tenant.invoices.index', compact('invoices', 'properties', 'invoiceStatusLabels', 'statusStyles'));
         }
         
         // Build invoice query filtered to assigned property
@@ -63,8 +75,16 @@ class InvoiceController extends Controller
         
         $invoices = $invoicesQuery->paginate(20)->withQueryString();
         $properties = collect([$property]);
+        
+        // Pass invoice status labels and styles to view
+        $invoiceStatusLabels = \App\Enums\InvoiceStatus::labels();
+        $statusStyles = [
+            'draft' => 'bg-amber-100 text-amber-800 ring-1 ring-amber-600/30',
+            'finalized' => 'bg-sky-100 text-sky-800 ring-1 ring-sky-600/30',
+            'paid' => 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-600/30',
+        ];
 
-        return view('tenant.invoices.index', compact('invoices', 'properties'));
+        return view('tenant.invoices.index', compact('invoices', 'properties', 'invoiceStatusLabels', 'statusStyles'));
     }
 
     public function show(Request $request, Invoice $invoice)
@@ -130,15 +150,16 @@ class InvoiceController extends Controller
         
         // Verify property_id filtering - tenant can only download PDFs for their assigned property
         if (!$tenant || $invoice->tenant_renter_id !== $tenant->id) {
-            abort(403, 'You do not have permission to download this invoice.');
+            abort(403, __('invoices.errors.unauthorized_download'));
         }
         
         // Additional check: ensure invoice is for the assigned property
         if ($invoice->tenant && $invoice->tenant->property_id !== $property?->id) {
-            abort(403, 'You do not have permission to download this invoice.');
+            abort(403, __('invoices.errors.unauthorized_download'));
         }
 
-        // Future: Generate PDF
-        return response()->json(['message' => 'PDF generation not yet implemented']);
+        // Render receipt view; for now, return HTML until PDF generation is wired
+        $invoice->load(['items', 'tenant.property']);
+        return view('tenant.invoices.receipt', compact('invoice'));
     }
 }

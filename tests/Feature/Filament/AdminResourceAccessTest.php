@@ -122,7 +122,9 @@ class AdminResourceAccessTest extends TestCase
     {
         $admin = $this->actingAsAdmin();
         $property = $this->createTestProperty(['tenant_id' => $admin->tenant_id]);
-        $meter = $property->meters()->first();
+        $meter = \App\Models\Meter::factory()->forProperty($property)->create([
+            'tenant_id' => $admin->tenant_id,
+        ]);
 
         $response = $this->get("/admin/meters/{$meter->id}/edit");
 
@@ -152,8 +154,10 @@ class AdminResourceAccessTest extends TestCase
     {
         $admin = $this->actingAsAdmin();
         $property = $this->createTestProperty(['tenant_id' => $admin->tenant_id]);
-        $meter = $property->meters()->first();
-        $reading = $this->createTestMeterReading(['meter_id' => $meter->id]);
+        $meter = \App\Models\Meter::factory()->forProperty($property)->create([
+            'tenant_id' => $admin->tenant_id,
+        ]);
+        $reading = $this->createTestMeterReading($meter->id, 123.45);
 
         $response = $this->get("/admin/meter-readings/{$reading->id}/edit");
 
@@ -183,9 +187,11 @@ class AdminResourceAccessTest extends TestCase
     {
         $admin = $this->actingAsAdmin();
         $property = $this->createTestProperty(['tenant_id' => $admin->tenant_id]);
-        $invoice = Invoice::factory()->create([
+        $tenant = \App\Models\Tenant::factory()->forProperty($property)->create([
             'tenant_id' => $admin->tenant_id,
-            'property_id' => $property->id,
+        ]);
+        $invoice = Invoice::factory()->forTenantRenter($tenant)->create([
+            'tenant_id' => $admin->tenant_id,
         ]);
 
         $response = $this->get("/admin/invoices/{$invoice->id}");
@@ -197,9 +203,11 @@ class AdminResourceAccessTest extends TestCase
     {
         $admin = $this->actingAsAdmin();
         $property = $this->createTestProperty(['tenant_id' => $admin->tenant_id]);
-        $invoice = Invoice::factory()->create([
+        $tenant = \App\Models\Tenant::factory()->forProperty($property)->create([
             'tenant_id' => $admin->tenant_id,
-            'property_id' => $property->id,
+        ]);
+        $invoice = Invoice::factory()->forTenantRenter($tenant)->create([
+            'tenant_id' => $admin->tenant_id,
             'finalized_at' => null,
         ]);
 

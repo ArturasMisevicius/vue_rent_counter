@@ -26,45 +26,45 @@ class TestMetersSeeder extends Seeder
 
         foreach ($properties as $property) {
             // Electricity meter (supports day/night zones)
-            Meter::factory()->create([
-                'tenant_id' => $property->tenant_id,
-                'serial_number' => 'EL-' . str_pad($property->id, 6, '0', STR_PAD_LEFT),
-                'type' => MeterType::ELECTRICITY,
-                'property_id' => $property->id,
-                'installation_date' => $installationDate,
-                'supports_zones' => true,
-            ]);
+            Meter::factory()
+                ->forProperty($property)
+                ->create([
+                    'serial_number' => 'EL-' . str_pad($property->id, 6, '0', STR_PAD_LEFT),
+                    'type' => MeterType::ELECTRICITY,
+                    'installation_date' => $installationDate,
+                    'supports_zones' => true,
+                ]);
 
             // Cold water meter
-            Meter::factory()->create([
-                'tenant_id' => $property->tenant_id,
-                'serial_number' => 'WC-' . str_pad($property->id, 6, '0', STR_PAD_LEFT),
-                'type' => MeterType::WATER_COLD,
-                'property_id' => $property->id,
-                'installation_date' => $installationDate,
-                'supports_zones' => false,
-            ]);
-
-            // Hot water meter
-            Meter::factory()->create([
-                'tenant_id' => $property->tenant_id,
-                'serial_number' => 'WH-' . str_pad($property->id, 6, '0', STR_PAD_LEFT),
-                'type' => MeterType::WATER_HOT,
-                'property_id' => $property->id,
-                'installation_date' => $installationDate,
-                'supports_zones' => false,
-            ]);
-
-            // Heating meter (only for apartments in buildings)
-            if ($property->building_id !== null) {
-                Meter::factory()->create([
-                    'tenant_id' => $property->tenant_id,
-                    'serial_number' => 'HT-' . str_pad($property->id, 6, '0', STR_PAD_LEFT),
-                    'type' => MeterType::HEATING,
-                    'property_id' => $property->id,
+            Meter::factory()
+                ->forProperty($property)
+                ->create([
+                    'serial_number' => 'WC-' . str_pad($property->id, 6, '0', STR_PAD_LEFT),
+                    'type' => MeterType::WATER_COLD,
                     'installation_date' => $installationDate,
                     'supports_zones' => false,
                 ]);
+
+            // Hot water meter
+            Meter::factory()
+                ->forProperty($property)
+                ->create([
+                    'serial_number' => 'WH-' . str_pad($property->id, 6, '0', STR_PAD_LEFT),
+                    'type' => MeterType::WATER_HOT,
+                    'installation_date' => $installationDate,
+                    'supports_zones' => false,
+                ]);
+
+            // Heating meter (only for apartments in buildings)
+            if ($property->building_id !== null) {
+                Meter::factory()
+                    ->forProperty($property)
+                    ->create([
+                        'serial_number' => 'HT-' . str_pad($property->id, 6, '0', STR_PAD_LEFT),
+                        'type' => MeterType::HEATING,
+                        'installation_date' => $installationDate,
+                        'supports_zones' => false,
+                    ]);
             }
         }
     }

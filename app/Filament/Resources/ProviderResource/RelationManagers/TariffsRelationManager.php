@@ -1,23 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\ProviderResource\RelationManagers;
 
 use App\Enums\TariffType;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Schemas\Schema;
 
+/**
+ * Relation manager for provider tariffs.
+ *
+ * Displays tariffs associated with a provider with:
+ * - Read-only view (tariffs managed via TariffResource)
+ * - Active status indicators
+ * - Tariff type badges
+ */
 class TariffsRelationManager extends RelationManager
 {
     protected static string $relationship = 'tariffs';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
@@ -75,7 +84,7 @@ class TariffsRelationManager extends RelationManager
                 // Don't allow creating tariffs from here - they should be created from TariffResource
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
+                Actions\ViewAction::make()
                     ->url(fn ($record): string => route('filament.admin.resources.tariffs.edit', ['record' => $record])),
             ])
             ->bulkActions([

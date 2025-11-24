@@ -90,7 +90,9 @@ class UpdateMeterReadingRequest extends FormRequest
         if ($previousReading && $newValue < $previousReading->value) {
             $validator->errors()->add(
                 'value',
-                "Reading cannot be lower than previous reading ({$previousReading->value})"
+                __('meter_readings.validation.custom.monotonicity_lower', [
+                    'previous' => $previousReading->value,
+                ])
             );
         }
     }
@@ -116,7 +118,9 @@ class UpdateMeterReadingRequest extends FormRequest
         if ($nextReading && $newValue > $nextReading->value) {
             $validator->errors()->add(
                 'value',
-                "Reading cannot be higher than next reading ({$nextReading->value})"
+                __('meter_readings.validation.custom.monotonicity_higher', [
+                    'next' => $nextReading->value,
+                ])
             );
         }
     }
@@ -129,14 +133,16 @@ class UpdateMeterReadingRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'value.required' => 'Meter reading is required',
-            'value.numeric' => 'Reading must be a number',
-            'value.min' => 'Reading must be a positive number',
-            'change_reason.required' => 'Change reason is required for audit trail',
-            'change_reason.min' => 'Change reason must be at least 10 characters',
-            'change_reason.max' => 'Change reason must not exceed 500 characters',
-            'reading_date.date' => 'Reading date must be a valid date',
-            'reading_date.before_or_equal' => 'Reading date cannot be in the future',
+            'value.required' => __('meter_readings.validation.value.required'),
+            'value.numeric' => __('meter_readings.validation.value.numeric'),
+            'value.min' => __('meter_readings.validation.value.min'),
+            'change_reason.required' => __('meter_readings.validation.change_reason.required'),
+            'change_reason.min' => __('meter_readings.validation.change_reason.min'),
+            'change_reason.max' => __('meter_readings.validation.change_reason.max'),
+            'reading_date.date' => __('meter_readings.validation.reading_date.date'),
+            'reading_date.before_or_equal' => __('meter_readings.validation.reading_date.before_or_equal'),
+            'zone.string' => __('meter_readings.validation.zone.string'),
+            'zone.max' => __('meter_readings.validation.zone.max'),
         ];
     }
 }

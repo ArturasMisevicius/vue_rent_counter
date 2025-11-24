@@ -2,11 +2,14 @@
 
 namespace App\Filament\Resources\SubscriptionResource\Pages;
 
+use BackedEnum;
+use App\Enums\SubscriptionPlanType;
+use App\Enums\SubscriptionStatus;
 use App\Filament\Resources\SubscriptionResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists;
-use Filament\Infolists\Infolist;
+use Filament\Schemas\Schema;
 
 class ViewSubscription extends ViewRecord
 {
@@ -19,9 +22,9 @@ class ViewSubscription extends ViewRecord
         ];
     }
 
-    public function infolist(Infolist $infolist): Infolist
+    public function infolist(Schema $schema): Schema
     {
-        return $infolist
+        return $schema
             ->schema([
                 Infolists\Components\Section::make('Organization')
                     ->schema([
@@ -37,19 +40,21 @@ class ViewSubscription extends ViewRecord
                     ->schema([
                         Infolists\Components\TextEntry::make('plan_type')
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                'basic' => 'gray',
-                                'professional' => 'info',
-                                'enterprise' => 'success',
+                            ->formatStateUsing(fn ($state) => enum_label($state, SubscriptionPlanType::class))
+                            ->color(fn ($state): string => match ($state instanceof BackedEnum ? $state->value : $state) {
+                                SubscriptionPlanType::BASIC->value => 'gray',
+                                SubscriptionPlanType::PROFESSIONAL->value => 'info',
+                                SubscriptionPlanType::ENTERPRISE->value => 'success',
                                 default => 'gray',
                             }),
                         Infolists\Components\TextEntry::make('status')
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                'active' => 'success',
-                                'expired' => 'danger',
-                                'suspended' => 'warning',
-                                'cancelled' => 'gray',
+                            ->formatStateUsing(fn ($state) => enum_label($state, SubscriptionStatus::class))
+                            ->color(fn ($state): string => match ($state instanceof BackedEnum ? $state->value : $state) {
+                                SubscriptionStatus::ACTIVE->value => 'success',
+                                SubscriptionStatus::EXPIRED->value => 'danger',
+                                SubscriptionStatus::SUSPENDED->value => 'warning',
+                                SubscriptionStatus::CANCELLED->value => 'gray',
                                 default => 'gray',
                             }),
                         Infolists\Components\TextEntry::make('starts_at')

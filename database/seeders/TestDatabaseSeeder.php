@@ -51,11 +51,15 @@ class TestDatabaseSeeder extends Seeder
             $this->call(TestTenantsSeeder::class);
             Log::info('✓ Test tenants seeded');
 
+            // 6.1 Seed historical tenant records for metrics
+            $this->call(TenantHistorySeeder::class);
+            Log::info('✓ Historical tenants seeded');
+
             // 7. Seed test meters for each property
             $this->call(TestMetersSeeder::class);
             Log::info('✓ Test meters seeded');
 
-            // 8. Seed test meter readings (3+ months history)
+            // 8. Seed test meter readings (12 months history)
             $this->call(TestMeterReadingsSeeder::class);
             Log::info('✓ Test meter readings seeded');
 

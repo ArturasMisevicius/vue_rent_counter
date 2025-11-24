@@ -1,6 +1,8 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionStatus;
+use App\Enums\SubscriptionPlanType;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Property;
@@ -16,11 +18,11 @@ uses(RefreshDatabase::class);
 // Validates: Requirements 17.1, 17.3, 18.1
 test('superadmin dashboard displays accurate subscription counts', function () {
     // Create a superadmin
-    $superadmin = User::factory()->create([
-        'role' => UserRole::SUPERADMIN,
-        'tenant_id' => null,
-        'is_active' => true,
-    ]);
+        $superadmin = User::factory()->create([
+            'role' => UserRole::SUPERADMIN,
+            'tenant_id' => null,
+            'is_active' => true,
+        ]);
     
     // Create the services
     $subscriptionService = app(SubscriptionService::class);
@@ -28,15 +30,12 @@ test('superadmin dashboard displays accurate subscription counts', function () {
     
     // Create random number of admin accounts with various subscription statuses
     $adminCount = fake()->numberBetween(3, 8);
-    $expectedCounts = [
-        'active' => 0,
-        'expired' => 0,
-        'suspended' => 0,
-        'cancelled' => 0,
-    ];
+    $expectedCounts = collect(SubscriptionStatus::values())
+        ->mapWithKeys(fn ($status) => [$status => 0])
+        ->all();
     
     for ($i = 0; $i < $adminCount; $i++) {
-        $status = fake()->randomElement(['active', 'expired', 'suspended', 'cancelled']);
+        $status = fake()->randomElement(SubscriptionStatus::values());
         $expectedCounts[$status]++;
         
         $adminData = [
@@ -44,7 +43,7 @@ test('superadmin dashboard displays accurate subscription counts', function () {
             'password' => 'password123',
             'name' => fake()->name(),
             'organization_name' => fake()->company(),
-            'plan_type' => fake()->randomElement(['basic', 'professional', 'enterprise']),
+            'plan_type' => fake()->randomElement(SubscriptionPlanType::values()),
             'expires_at' => now()->addDays(fake()->numberBetween(30, 365))->toDateString(),
         ];
         
@@ -59,10 +58,10 @@ test('superadmin dashboard displays accurate subscription counts', function () {
     
     // Get actual counts from database
     $totalSubscriptions = Subscription::count();
-    $activeSubscriptions = Subscription::where('status', 'active')->count();
-    $expiredSubscriptions = Subscription::where('status', 'expired')->count();
-    $suspendedSubscriptions = Subscription::where('status', 'suspended')->count();
-    $cancelledSubscriptions = Subscription::where('status', 'cancelled')->count();
+    $activeSubscriptions = Subscription::where('status', SubscriptionStatus::ACTIVE->value)->count();
+    $expiredSubscriptions = Subscription::where('status', SubscriptionStatus::EXPIRED->value)->count();
+    $suspendedSubscriptions = Subscription::where('status', SubscriptionStatus::SUSPENDED->value)->count();
+    $cancelledSubscriptions = Subscription::where('status', SubscriptionStatus::CANCELLED->value)->count();
     
     // Property: Dashboard counts should match actual database counts
     expect($totalSubscriptions)->toBe($adminCount)
@@ -101,7 +100,7 @@ test('superadmin dashboard displays accurate organization counts', function () {
             'password' => 'password123',
             'name' => fake()->name(),
             'organization_name' => fake()->company(),
-            'plan_type' => 'basic',
+            'plan_type' => SubscriptionPlanType::BASIC->value,
             'expires_at' => now()->addDays(365)->toDateString(),
         ];
         
@@ -156,7 +155,7 @@ test('superadmin dashboard displays accurate system-wide resource counts', funct
             'password' => 'password123',
             'name' => fake()->name(),
             'organization_name' => fake()->company(),
-            'plan_type' => 'professional',
+            'plan_type' => SubscriptionPlanType::PROFESSIONAL->value,
             'expires_at' => now()->addDays(365)->toDateString(),
         ];
         
@@ -244,7 +243,7 @@ test('admin dashboard displays accurate portfolio statistics', function () {
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'professional',
+        'plan_type' => SubscriptionPlanType::PROFESSIONAL->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -350,7 +349,7 @@ test('admin dashboard displays accurate subscription usage statistics', function
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'professional',
+        'plan_type' => SubscriptionPlanType::PROFESSIONAL->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -439,7 +438,7 @@ test('dashboard counts remain accurate after data modifications', function () {
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -545,7 +544,7 @@ test('superadmin dashboard aggregates data correctly across multiple organizatio
             'password' => 'password123',
             'name' => fake()->name(),
             'organization_name' => fake()->company(),
-            'plan_type' => fake()->randomElement(['basic', 'professional', 'enterprise']),
+            'plan_type' => fake()->randomElement(SubscriptionPlanType::values()),
             'expires_at' => now()->addDays(fake()->numberBetween(30, 365))->toDateString(),
         ];
         
@@ -623,7 +622,7 @@ test('admin dashboard only counts resources within their tenant_id scope', funct
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -634,7 +633,7 @@ test('admin dashboard only counts resources within their tenant_id scope', funct
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use UnitEnum;
 use App\Enums\MeterType;
 use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\MeterResource\Pages;
 use App\Models\Meter;
+use BackedEnum;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -23,13 +25,19 @@ class MeterResource extends Resource
 
     protected static string $translationPrefix = 'meters.validation';
 
-    protected static ?string $navigationIcon = 'heroicon-o-cpu-chip';
-
     protected static ?string $navigationLabel = 'Meters';
 
-    protected static ?string $navigationGroup = 'Operations';
-
     protected static ?int $navigationSort = 3;
+
+    public static function getNavigationIcon(): string|BackedEnum|null
+    {
+        return 'heroicon-o-cpu-chip';
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return 'Operations';
+    }
 
     // Integrate MeterPolicy for authorization (Requirement 9.5)
     public static function canViewAny(): bool
@@ -59,9 +67,9 @@ class MeterResource extends Resource
         return auth()->check();
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\Select::make('property_id')
                     ->label('Property')
@@ -84,7 +92,7 @@ class MeterResource extends Resource
 
                 Forms\Components\Select::make('type')
                     ->label('Meter Type')
-                    ->options(MeterType::class)
+                    ->options(MeterType::labels())
                     ->required()
                     ->native(false)
                     ->validationMessages(self::getValidationMessages('type')),
@@ -168,11 +176,11 @@ class MeterResource extends Resource
                     ->native(false),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Table row actions removed - use page header actions instead
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('property.address', 'asc');

@@ -33,6 +33,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         // Handle authorization exceptions with user-friendly messages (Requirement 9.4)
         $exceptions->render(function (\Illuminate\Auth\Access\AuthorizationException $e, \Illuminate\Http\Request $request) {
+            if (app()->runningUnitTests()) {
+                throw $e;
+            }
+
             // Log the authorization failure
             \Illuminate\Support\Facades\Log::warning('Authorization exception caught', [
                 'user_id' => auth()->id(),

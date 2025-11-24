@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources;
 
 use App\Enums\InvoiceStatus;
@@ -7,26 +9,47 @@ use App\Filament\Resources\InvoiceResource\Pages;
 use App\Filament\Resources\InvoiceResource\RelationManagers;
 use App\Models\Invoice;
 use App\Models\Tenant;
+use BackedEnum;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Table;
+use Filament\Tables\Actions;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Schemas\Schema;
+use UnitEnum;
 
+/**
+ * Filament resource for managing invoices.
+ *
+ * Provides CRUD operations for invoices with:
+ * - Tenant-scoped data access
+ * - Role-based navigation visibility
+ * - Invoice finalization protection
+ * - Bulk status updates
+ * - Relationship management (items, tenants)
+ *
+ * @see \App\Models\Invoice
+ * @see \App\Policies\InvoicePolicy
+ */
 class InvoiceResource extends Resource
 {
     protected static ?string $model = Invoice::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
-
     protected static ?string $navigationLabel = 'Invoices';
 
-    protected static ?string $navigationGroup = 'Operations';
-
     protected static ?int $navigationSort = 3;
+
+    public static function getNavigationIcon(): string|BackedEnum|null
+    {
+        return 'heroicon-o-document-text';
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return 'Operations';
+    }
 
     /**
      * Eager load relationships to prevent N+1 queries.
@@ -67,9 +90,9 @@ class InvoiceResource extends Resource
         return auth()->check();
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\Select::make('tenant_renter_id')
                     ->label('Tenant')
@@ -195,12 +218,12 @@ class InvoiceResource extends Resource
                     ->native(false),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Actions\ViewAction::make(),
+                Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('updateStatus')
+                Actions\BulkActionGroup::make([
+                    Actions\BulkAction::make('updateStatus')
                         ->label('Update Status')
                         ->icon('heroicon-o-pencil-square')
                         ->form([
@@ -221,7 +244,7 @@ class InvoiceResource extends Resource
                         ->deselectRecordsAfterCompletion()
                         ->successNotificationTitle('Invoice statuses updated'),
                     
-                    Tables\Actions\DeleteBulkAction::make()
+                    Actions\DeleteBulkAction::make()
                         ->action(function ($records) {
                             foreach ($records as $record) {
                                 // Only allow deletion of draft invoices

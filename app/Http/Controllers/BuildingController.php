@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CalculateGyvatukasRequest;
+use App\Http\Requests\StoreBuildingRequest;
+use App\Http\Requests\UpdateBuildingRequest;
 use App\Models\Building;
-use App\Services\GyvatukasCalculator;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class BuildingController extends Controller
 {
@@ -20,18 +21,14 @@ class BuildingController extends Controller
         return view('buildings.create');
     }
 
-    public function store(Request $request)
+    public function store(StoreBuildingRequest $request)
     {
-        $validated = $request->validate([
-            'tenant_id' => ['required', 'integer'],
-            'address' => ['required', 'string', 'max:255'],
-            'total_apartments' => ['required', 'integer', 'min:1'],
-        ]);
+        $validated = $request->validated();
 
         Building::create($validated);
 
         return redirect()->route('buildings.index')
-            ->with('success', 'Building created successfully.');
+            ->with('success', __('notifications.building.created'));
     }
 
     public function show(Building $building)
@@ -45,18 +42,14 @@ class BuildingController extends Controller
         return view('buildings.edit', compact('building'));
     }
 
-    public function update(Request $request, Building $building)
+    public function update(UpdateBuildingRequest $request, Building $building)
     {
-        $validated = $request->validate([
-            'tenant_id' => ['required', 'integer'],
-            'address' => ['required', 'string', 'max:255'],
-            'total_apartments' => ['required', 'integer', 'min:1'],
-        ]);
+        $validated = $request->validated();
 
         $building->update($validated);
 
         return redirect()->route('buildings.index')
-            ->with('success', 'Building updated successfully.');
+            ->with('success', __('notifications.building.updated'));
     }
 
     public function destroy(Building $building)
@@ -64,22 +57,19 @@ class BuildingController extends Controller
         $building->delete();
 
         return redirect()->route('buildings.index')
-            ->with('success', 'Building deleted successfully.');
+            ->with('success', __('notifications.building.deleted'));
     }
 
-    public function calculateGyvatukas(Request $request, Building $building)
+    public function calculateGyvatukas(CalculateGyvatukasRequest $request, Building $building)
     {
-        $validated = $request->validate([
-            'start_date' => ['required', 'date'],
-            'end_date' => ['required', 'date', 'after:start_date'],
-        ]);
-
-        $startDate = Carbon::parse($validated['start_date']);
-        $endDate = Carbon::parse($validated['end_date']);
+        $startDate = Carbon::parse($request->validated('start_date'));
+        $endDate = Carbon::parse($request->validated('end_date'));
 
         $average = $building->calculateSummerAverage($startDate, $endDate);
 
-        return back()->with('success', "Gyvatukas calculated: {$average} kWh");
+        return back()->with('success', __('notifications.building.gyvatukas', [
+            'average' => $average,
+        ]));
     }
 
     public function properties(Building $building)

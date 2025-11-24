@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionStatus;
 use App\Models\Building;
 use App\Models\Property;
 use App\Models\Subscription;
@@ -25,7 +26,7 @@ test('admin with expired subscription can perform read operations', function () 
     // Create expired subscription
     Subscription::factory()->expired()->create([
         'user_id' => $admin->id,
-        'status' => 'expired',
+        'status' => SubscriptionStatus::EXPIRED->value,
         'expires_at' => now()->subDays(fake()->numberBetween(1, 30)),
     ]);
     
@@ -90,7 +91,7 @@ test('admin with expired subscription cannot perform write operations on propert
     // Create expired subscription
     Subscription::factory()->expired()->create([
         'user_id' => $admin->id,
-        'status' => 'expired',
+        'status' => AppnumsSubscriptionStatus::EXPIRED->value,
         'expires_at' => now()->subDays(fake()->numberBetween(1, 30)),
     ]);
     
@@ -128,7 +129,7 @@ test('admin with expired subscription cannot perform write operations on buildin
     // Create expired subscription
     Subscription::factory()->expired()->create([
         'user_id' => $admin->id,
-        'status' => 'expired',
+        'status' => AppnumsSubscriptionStatus::EXPIRED->value,
         'expires_at' => now()->subDays(fake()->numberBetween(1, 30)),
     ]);
     
@@ -166,7 +167,7 @@ test('admin with expired subscription cannot update existing properties', functi
     // Create expired subscription
     Subscription::factory()->expired()->create([
         'user_id' => $admin->id,
-        'status' => 'expired',
+        'status' => AppnumsSubscriptionStatus::EXPIRED->value,
         'expires_at' => now()->subDays(fake()->numberBetween(1, 30)),
     ]);
     
@@ -212,7 +213,7 @@ test('admin with expired subscription cannot delete properties', function () {
     // Create expired subscription
     Subscription::factory()->expired()->create([
         'user_id' => $admin->id,
-        'status' => 'expired',
+        'status' => AppnumsSubscriptionStatus::EXPIRED->value,
         'expires_at' => now()->subDays(fake()->numberBetween(1, 30)),
     ]);
     
@@ -258,7 +259,7 @@ test('admin with active subscription can perform both read and write operations'
     // Create active subscription
     Subscription::factory()->create([
         'user_id' => $admin->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addDays(fake()->numberBetween(1, 365)),
         'max_properties' => 100,
         'max_tenants' => 500,

@@ -13,8 +13,13 @@ class MeterPolicy
      */
     public function viewAny(User $user): bool
     {
-        // All authenticated users can view meters (filtered by tenant scope)
-        return true;
+        // All authenticated roles can view meters
+        return in_array($user->role, [
+            UserRole::SUPERADMIN,
+            UserRole::ADMIN,
+            UserRole::MANAGER,
+            UserRole::TENANT,
+        ], true);
     }
 
     /**

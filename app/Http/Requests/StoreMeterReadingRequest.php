@@ -65,7 +65,9 @@ class StoreMeterReadingRequest extends FormRequest
         if ($previousReading && $this->input('value') < $previousReading->value) {
             $validator->errors()->add(
                 'value',
-                "Reading cannot be lower than previous reading ({$previousReading->value})"
+                __('meter_readings.validation.custom.monotonicity_lower', [
+                    'previous' => $previousReading->value,
+                ])
             );
         }
     }
@@ -82,17 +84,21 @@ class StoreMeterReadingRequest extends FormRequest
 
         $meter = Meter::find($meterId);
 
+        if (!$meter) {
+            return;
+        }
+
         if ($zone && !$meter->supports_zones) {
             $validator->errors()->add(
                 'zone',
-                'This meter does not support zone-based readings'
+                __('meter_readings.validation.custom.zone.unsupported')
             );
         }
 
         if (!$zone && $meter->supports_zones) {
             $validator->errors()->add(
                 'zone',
-                'Zone is required for meters that support multiple zones'
+                __('meter_readings.validation.custom.zone.required_for_multi_zone')
             );
         }
     }
@@ -105,14 +111,16 @@ class StoreMeterReadingRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'meter_id.required' => 'Meter is required',
-            'meter_id.exists' => 'Selected meter does not exist',
-            'reading_date.required' => 'Reading date is required',
-            'reading_date.date' => 'Reading date must be a valid date',
-            'reading_date.before_or_equal' => 'Reading date cannot be in the future',
-            'value.required' => 'Meter reading is required',
-            'value.numeric' => 'Reading must be a number',
-            'value.min' => 'Reading must be a positive number',
+            'meter_id.required' => __('meter_readings.validation.meter_id.required'),
+            'meter_id.exists' => __('meter_readings.validation.meter_id.exists'),
+            'reading_date.required' => __('meter_readings.validation.reading_date.required'),
+            'reading_date.date' => __('meter_readings.validation.reading_date.date'),
+            'reading_date.before_or_equal' => __('meter_readings.validation.reading_date.before_or_equal'),
+            'value.required' => __('meter_readings.validation.value.required'),
+            'value.numeric' => __('meter_readings.validation.value.numeric'),
+            'value.min' => __('meter_readings.validation.value.min'),
+            'zone.string' => __('meter_readings.validation.zone.string'),
+            'zone.max' => __('meter_readings.validation.zone.max'),
         ];
     }
 }

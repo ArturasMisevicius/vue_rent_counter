@@ -8,11 +8,13 @@ use App\Enums\InvoiceStatus;
 use App\Enums\UserRole;
 use App\Filament\Resources\InvoiceResource;
 use App\Models\Invoice;
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
@@ -36,23 +38,26 @@ class InvoiceFinalizationActionTest extends TestCase
         parent::setUp();
         RateLimiter::clear('invoice-finalize:*');
     }
-
-    /** @test */
+    #[Test]
     public function admin_can_finalize_valid_draft_invoice(): void
     {
         // Arrange
+        $tenant = Tenant::factory()->forTenantId(1)->create();
+
         $admin = User::factory()->create([
             'role' => UserRole::ADMIN,
-            'tenant_id' => 1,
+            'tenant_id' => $tenant->tenant_id,
         ]);
 
-        $invoice = Invoice::factory()->create([
-            'tenant_id' => 1,
-            'status' => InvoiceStatus::DRAFT,
-            'total_amount' => 150.00,
-            'billing_period_start' => now()->subMonth(),
-            'billing_period_end' => now(),
-        ]);
+        $invoice = Invoice::factory()
+            ->forTenantRenter($tenant)
+            ->create([
+                'tenant_id' => $tenant->tenant_id,
+                'status' => InvoiceStatus::DRAFT,
+                'total_amount' => 150.00,
+                'billing_period_start' => now()->subMonth(),
+                'billing_period_end' => now(),
+            ]);
 
         $invoice->items()->create([
             'description' => 'Electricity - Day Rate',
@@ -77,23 +82,26 @@ class InvoiceFinalizationActionTest extends TestCase
         $this->assertNotNull($invoice->finalized_at);
         $this->assertEquals(InvoiceStatus::FINALIZED, $invoice->status);
     }
-
-    /** @test */
+    #[Test]
     public function manager_can_finalize_invoice_in_their_tenant(): void
     {
         // Arrange
+        $tenant = Tenant::factory()->forTenantId(2)->create();
+
         $manager = User::factory()->create([
             'role' => UserRole::MANAGER,
-            'tenant_id' => 2,
+            'tenant_id' => $tenant->tenant_id,
         ]);
 
-        $invoice = Invoice::factory()->create([
-            'tenant_id' => 2,
-            'status' => InvoiceStatus::DRAFT,
-            'total_amount' => 200.00,
-            'billing_period_start' => now()->subMonth(),
-            'billing_period_end' => now(),
-        ]);
+        $invoice = Invoice::factory()
+            ->forTenantRenter($tenant)
+            ->create([
+                'tenant_id' => $tenant->tenant_id,
+                'status' => InvoiceStatus::DRAFT,
+                'total_amount' => 200.00,
+                'billing_period_start' => now()->subMonth(),
+                'billing_period_end' => now(),
+            ]);
 
         $invoice->items()->create([
             'description' => 'Water',
@@ -113,8 +121,7 @@ class InvoiceFinalizationActionTest extends TestCase
 
         $this->assertTrue($invoice->fresh()->isFinalized());
     }
-
-    /** @test */
+    #[Test]
     public function superadmin_can_finalize_any_tenant_invoice(): void
     {
         // Arrange
@@ -123,13 +130,17 @@ class InvoiceFinalizationActionTest extends TestCase
             'tenant_id' => null,
         ]);
 
-        $invoice = Invoice::factory()->create([
-            'tenant_id' => 999,
-            'status' => InvoiceStatus::DRAFT,
-            'total_amount' => 100.00,
-            'billing_period_start' => now()->subMonth(),
-            'billing_period_end' => now(),
-        ]);
+        $tenant = Tenant::factory()->forTenantId(999)->create();
+
+        $invoice = Invoice::factory()
+            ->forTenantRenter($tenant)
+            ->create([
+                'tenant_id' => $tenant->tenant_id,
+                'status' => InvoiceStatus::DRAFT,
+                'total_amount' => 100.00,
+                'billing_period_start' => now()->subMonth(),
+                'billing_period_end' => now(),
+            ]);
 
         $invoice->items()->create([
             'description' => 'Heating',
@@ -149,21 +160,24 @@ class InvoiceFinalizationActionTest extends TestCase
 
         $this->assertTrue($invoice->fresh()->isFinalized());
     }
-
-    /** @test */
+    #[Test]
     public function tenant_cannot_see_finalize_action(): void
     {
         // Arrange
+        $tenantModel = Tenant::factory()->forTenantId(1)->create();
+
         $tenant = User::factory()->create([
             'role' => UserRole::TENANT,
-            'tenant_id' => 1,
+            'tenant_id' => $tenantModel->tenant_id,
         ]);
 
-        $invoice = Invoice::factory()->create([
-            'tenant_id' => 1,
-            'status' => InvoiceStatus::DRAFT,
-            'total_amount' => 100.00,
-        ]);
+        $invoice = Invoice::factory()
+            ->forTenantRenter($tenantModel)
+            ->create([
+                'tenant_id' => $tenantModel->tenant_id,
+                'status' => InvoiceStatus::DRAFT,
+                'total_amount' => 100.00,
+            ]);
 
         $invoice->items()->create([
             'description' => 'Test',
@@ -186,25 +200,30 @@ class InvoiceFinalizationActionTest extends TestCase
         $this->assertNotNull($finalizeAction);
         $this->assertFalse($finalizeAction->isVisible());
     }
-
-    /** @test */
+    #[Test]
     public function admin_cannot_finalize_invoice_from_different_tenant(): void
     {
         // Arrange
+        $tenant1 = Tenant::factory()->forTenantId(1)->create();
+        $tenant2 = Tenant::factory()->forTenantId(2)->create();
+
         $admin1 = User::factory()->create([
             'role' => UserRole::ADMIN,
-            'tenant_id' => 1,
+            'tenant_id' => $tenant1->tenant_id,
         ]);
 
-        $invoice = Invoice::factory()->create([
-            'tenant_id' => 2,
-            'status' => InvoiceStatus::DRAFT,
-            'total_amount' => 100.00,
-        ]);
+        $invoice = Invoice::factory()
+            ->forTenantRenter($tenant2)
+            ->create([
+                'tenant_id' => $tenant2->tenant_id,
+                'status' => InvoiceStatus::DRAFT,
+                'total_amount' => 100.00,
+            ]);
 
         $this->actingAs($admin1);
 
         // Act & Assert - should throw authorization exception
+        $this->withoutExceptionHandling();
         $this->expectException(\Illuminate\Auth\Access\AuthorizationException::class);
 
         Livewire::test(InvoiceResource\Pages\ViewInvoice::class, [
@@ -212,22 +231,25 @@ class InvoiceFinalizationActionTest extends TestCase
         ])
             ->callAction('finalize');
     }
-
-    /** @test */
+    #[Test]
     public function finalize_action_not_visible_for_finalized_invoice(): void
     {
         // Arrange
+        $tenant = Tenant::factory()->forTenantId(1)->create();
+
         $admin = User::factory()->create([
             'role' => UserRole::ADMIN,
-            'tenant_id' => 1,
+            'tenant_id' => $tenant->tenant_id,
         ]);
 
-        $invoice = Invoice::factory()->create([
-            'tenant_id' => 1,
-            'status' => InvoiceStatus::FINALIZED,
-            'finalized_at' => now(),
-            'total_amount' => 100.00,
-        ]);
+        $invoice = Invoice::factory()
+            ->forTenantRenter($tenant)
+            ->create([
+                'tenant_id' => $tenant->tenant_id,
+                'status' => InvoiceStatus::FINALIZED,
+                'finalized_at' => now(),
+                'total_amount' => 100.00,
+            ]);
 
         $this->actingAs($admin);
 
@@ -243,8 +265,7 @@ class InvoiceFinalizationActionTest extends TestCase
         $this->assertNotNull($finalizeAction);
         $this->assertFalse($finalizeAction->isVisible());
     }
-
-    /** @test */
+    #[Test]
     public function finalize_action_not_visible_for_paid_invoice(): void
     {
         // Arrange
@@ -274,8 +295,7 @@ class InvoiceFinalizationActionTest extends TestCase
         $this->assertNotNull($finalizeAction);
         $this->assertFalse($finalizeAction->isVisible());
     }
-
-    /** @test */
+    #[Test]
     public function cannot_finalize_invoice_without_items(): void
     {
         // Arrange
@@ -304,8 +324,7 @@ class InvoiceFinalizationActionTest extends TestCase
 
         $this->assertTrue($invoice->fresh()->isDraft());
     }
-
-    /** @test */
+    #[Test]
     public function cannot_finalize_invoice_with_zero_total(): void
     {
         // Arrange
@@ -340,8 +359,7 @@ class InvoiceFinalizationActionTest extends TestCase
 
         $this->assertTrue($invoice->fresh()->isDraft());
     }
-
-    /** @test */
+    #[Test]
     public function cannot_finalize_invoice_with_invalid_billing_period(): void
     {
         // Arrange
@@ -376,8 +394,7 @@ class InvoiceFinalizationActionTest extends TestCase
 
         $this->assertTrue($invoice->fresh()->isDraft());
     }
-
-    /** @test */
+    #[Test]
     public function cannot_finalize_invoice_with_invalid_items(): void
     {
         // Arrange
@@ -412,8 +429,7 @@ class InvoiceFinalizationActionTest extends TestCase
 
         $this->assertTrue($invoice->fresh()->isDraft());
     }
-
-    /** @test */
+    #[Test]
     public function finalization_is_rate_limited(): void
     {
         // Arrange
@@ -458,8 +474,7 @@ class InvoiceFinalizationActionTest extends TestCase
             'Rate limit should be exceeded after 11 attempts'
         );
     }
-
-    /** @test */
+    #[Test]
     public function finalization_attempt_is_audit_logged(): void
     {
         // Arrange
@@ -503,8 +518,7 @@ class InvoiceFinalizationActionTest extends TestCase
                     && isset($context['invoice_status']);
             }));
     }
-
-    /** @test */
+    #[Test]
     public function successful_finalization_is_audit_logged(): void
     {
         // Arrange
@@ -546,8 +560,7 @@ class InvoiceFinalizationActionTest extends TestCase
                     && isset($context['finalized_at']);
             }));
     }
-
-    /** @test */
+    #[Test]
     public function validation_failure_is_audit_logged(): void
     {
         // Arrange
@@ -584,8 +597,7 @@ class InvoiceFinalizationActionTest extends TestCase
                     && isset($context['errors']);
             }));
     }
-
-    /** @test */
+    #[Test]
     public function finalization_refreshes_form_data(): void
     {
         // Arrange
@@ -623,8 +635,7 @@ class InvoiceFinalizationActionTest extends TestCase
         $this->assertEquals(InvoiceStatus::FINALIZED, $invoice->status);
         $this->assertNotNull($invoice->finalized_at);
     }
-
-    /** @test */
+    #[Test]
     public function concurrent_finalization_is_prevented(): void
     {
         // Arrange
@@ -665,8 +676,7 @@ class InvoiceFinalizationActionTest extends TestCase
         ])
             ->callAction('finalize');
     }
-
-    /** @test */
+    #[Test]
     public function rate_limit_key_is_user_specific(): void
     {
         // Arrange
@@ -706,8 +716,7 @@ class InvoiceFinalizationActionTest extends TestCase
         $rateLimitKey2 = 'invoice-finalize:'.$admin2->id;
         $this->assertFalse(RateLimiter::tooManyAttempts($rateLimitKey2, 10));
     }
-
-    /** @test */
+    #[Test]
     public function edit_action_visible_for_draft_invoice(): void
     {
         // Arrange
@@ -736,8 +745,7 @@ class InvoiceFinalizationActionTest extends TestCase
         $this->assertNotNull($editAction);
         $this->assertTrue($editAction->isVisible());
     }
-
-    /** @test */
+    #[Test]
     public function edit_action_not_visible_for_finalized_invoice(): void
     {
         // Arrange

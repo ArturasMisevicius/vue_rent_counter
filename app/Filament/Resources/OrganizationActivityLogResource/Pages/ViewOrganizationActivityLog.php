@@ -5,15 +5,15 @@ namespace App\Filament\Resources\OrganizationActivityLogResource\Pages;
 use App\Filament\Resources\OrganizationActivityLogResource;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists;
-use Filament\Infolists\Infolist;
+use Filament\Schemas\Schema;
 
 class ViewOrganizationActivityLog extends ViewRecord
 {
     protected static string $resource = OrganizationActivityLogResource::class;
 
-    public function infolist(Infolist $infolist): Infolist
+    public function infolist(Schema $schema): Schema
     {
-        return $infolist
+        return $schema
             ->schema([
                 Infolists\Components\Section::make('Activity Details')
                     ->schema([

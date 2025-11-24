@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreMeterRequest;
+use App\Http\Requests\UpdateMeterRequest;
 use App\Models\Meter;
 use App\Models\Property;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class MeterController extends Controller
 {
@@ -21,21 +22,14 @@ class MeterController extends Controller
         return view('meters.create', compact('properties'));
     }
 
-    public function store(Request $request)
+    public function store(StoreMeterRequest $request)
     {
-        $validated = $request->validate([
-            'tenant_id' => ['required', 'integer'],
-            'serial_number' => ['required', 'string', 'max:255', 'unique:meters'],
-            'type' => ['required', 'in:electricity,water_cold,water_hot,heating'],
-            'property_id' => ['required', 'exists:properties,id'],
-            'installation_date' => ['required', 'date'],
-            'supports_zones' => ['boolean'],
-        ]);
+        $validated = $request->validated();
 
         Meter::create($validated);
 
         return redirect()->route('meters.index')
-            ->with('success', 'Meter created successfully.');
+            ->with('success', __('notifications.meter.created'));
     }
 
     public function show(Meter $meter)
@@ -50,21 +44,14 @@ class MeterController extends Controller
         return view('meters.edit', compact('meter', 'properties'));
     }
 
-    public function update(Request $request, Meter $meter)
+    public function update(UpdateMeterRequest $request, Meter $meter)
     {
-        $validated = $request->validate([
-            'tenant_id' => ['required', 'integer'],
-            'serial_number' => ['required', 'string', 'max:255', 'unique:meters,serial_number,' . $meter->id],
-            'type' => ['required', 'in:electricity,water_cold,water_hot,heating'],
-            'property_id' => ['required', 'exists:properties,id'],
-            'installation_date' => ['required', 'date'],
-            'supports_zones' => ['boolean'],
-        ]);
+        $validated = $request->validated();
 
         $meter->update($validated);
 
         return redirect()->route('meters.index')
-            ->with('success', 'Meter updated successfully.');
+            ->with('success', __('notifications.meter.updated'));
     }
 
     public function destroy(Meter $meter)
@@ -72,7 +59,7 @@ class MeterController extends Controller
         $meter->delete();
 
         return redirect()->route('meters.index')
-            ->with('success', 'Meter deleted successfully.');
+            ->with('success', __('notifications.meter.deleted'));
     }
 
     public function readings(Meter $meter)

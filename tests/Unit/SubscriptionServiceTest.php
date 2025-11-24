@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\SubscriptionStatus;
 use App\Exceptions\SubscriptionExpiredException;
 use App\Exceptions\SubscriptionLimitExceededException;
 use App\Models\Property;
@@ -15,8 +16,8 @@ test('subscription service can create subscription', function () {
 
     expect($subscription)->toBeInstanceOf(Subscription::class)
         ->and($subscription->user_id)->toBe($user->id)
-        ->and($subscription->plan_type)->toBe('basic')
-        ->and($subscription->status)->toBe('active')
+        ->and($subscription->plan_type)->toBe(\App\Enums\SubscriptionPlanType::BASIC->value)
+        ->and($subscription->status)->toBe(SubscriptionStatus::ACTIVE->value)
         ->and($subscription->max_properties)->toBe(10)
         ->and($subscription->max_tenants)->toBe(50);
 });
@@ -28,7 +29,7 @@ test('subscription service can renew subscription', function () {
     $newExpiryDate = now()->addYear();
     $renewed = $service->renewSubscription($subscription, $newExpiryDate);
 
-    expect($renewed->status)->toBe('active')
+    expect($renewed->status)->toBe(SubscriptionStatus::ACTIVE->value)
         ->and($renewed->expires_at->format('Y-m-d'))->toBe($newExpiryDate->format('Y-m-d'));
 });
 
@@ -38,7 +39,7 @@ test('subscription service can suspend subscription', function () {
     
     $service->suspendSubscription($subscription, 'Payment failed');
 
-    expect($subscription->fresh()->status)->toBe('suspended');
+    expect($subscription->fresh()->status)->toBe(SubscriptionStatus::SUSPENDED->value);
 });
 
 test('subscription service can cancel subscription', function () {
@@ -47,14 +48,14 @@ test('subscription service can cancel subscription', function () {
     
     $service->cancelSubscription($subscription);
 
-    expect($subscription->fresh()->status)->toBe('cancelled');
+    expect($subscription->fresh()->status)->toBe(SubscriptionStatus::CANCELLED->value);
 });
 
 test('subscription service checkSubscriptionStatus returns correct data for user with subscription', function () {
     $user = User::factory()->create(['role' => 'admin', 'tenant_id' => 1]);
     $subscription = Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addDays(30),
     ]);
     $service = new SubscriptionService();
@@ -63,7 +64,7 @@ test('subscription service checkSubscriptionStatus returns correct data for user
 
     expect($status['has_subscription'])->toBeTrue()
         ->and($status['is_active'])->toBeTrue()
-        ->and($status['status'])->toBe('active')
+        ->and($status['status'])->toBe(SubscriptionStatus::ACTIVE->value)
         ->and($status['days_until_expiry'])->toBeGreaterThanOrEqual(29)
         ->and($status['days_until_expiry'])->toBeLessThanOrEqual(30);
 });
@@ -99,7 +100,7 @@ test('subscription service enforceSubscriptionLimits passes for active subscript
     $user = User::factory()->create(['role' => 'admin', 'tenant_id' => 1]);
     Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addMonth(),
     ]);
     $service = new SubscriptionService();
@@ -113,7 +114,7 @@ test('subscription service enforceSubscriptionLimits throws exception when prope
     $user = User::factory()->create(['role' => 'admin', 'tenant_id' => 1]);
     Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addMonth(),
         'max_properties' => 0,
     ]);
@@ -126,7 +127,7 @@ test('subscription service enforceSubscriptionLimits throws exception when tenan
     $user = User::factory()->create(['role' => 'admin', 'tenant_id' => 1]);
     Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addMonth(),
         'max_tenants' => 0,
     ]);

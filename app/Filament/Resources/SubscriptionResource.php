@@ -2,10 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use BackedEnum;
+use UnitEnum;
+use App\Enums\SubscriptionPlanType;
+use App\Enums\SubscriptionStatus;
 use App\Filament\Resources\SubscriptionResource\Pages;
 use App\Models\Subscription;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -15,11 +19,17 @@ class SubscriptionResource extends Resource
 {
     protected static ?string $model = Subscription::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-credit-card';
-
-    protected static ?string $navigationGroup = 'System Management';
-
     protected static ?int $navigationSort = 2;
+
+    public static function getNavigationIcon(): string|BackedEnum|null
+    {
+        return 'heroicon-o-credit-card';
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return 'System Management';
+    }
 
     public static function shouldRegisterNavigation(): bool
     {
@@ -51,9 +61,9 @@ class SubscriptionResource extends Resource
         return auth()->user()?->isSuperadmin() ?? false;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\Section::make('Subscription Details')
                     ->schema([
@@ -65,33 +75,25 @@ class SubscriptionResource extends Resource
                             ->helperText('Select the organization for this subscription'),
                         
                         Forms\Components\Select::make('plan_type')
-                            ->options([
-                                'basic' => 'Basic',
-                                'professional' => 'Professional',
-                                'enterprise' => 'Enterprise',
-                            ])
+                            ->options(SubscriptionPlanType::labels())
                             ->required()
-                            ->default('basic')
+                            ->default(SubscriptionPlanType::BASIC->value)
                             ->live()
                             ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                $plan = $state instanceof BackedEnum ? $state->value : $state;
                                 $limits = [
-                                    'basic' => ['properties' => 100, 'tenants' => 50],
-                                    'professional' => ['properties' => 500, 'tenants' => 250],
-                                    'enterprise' => ['properties' => 9999, 'tenants' => 9999],
+                                    SubscriptionPlanType::BASIC->value => ['properties' => 100, 'tenants' => 50],
+                                    SubscriptionPlanType::PROFESSIONAL->value => ['properties' => 500, 'tenants' => 250],
+                                    SubscriptionPlanType::ENTERPRISE->value => ['properties' => 9999, 'tenants' => 9999],
                                 ];
-                                $set('max_properties', $limits[$state]['properties']);
-                                $set('max_tenants', $limits[$state]['tenants']);
+                                $set('max_properties', $limits[$plan]['properties']);
+                                $set('max_tenants', $limits[$plan]['tenants']);
                             }),
                         
                         Forms\Components\Select::make('status')
-                            ->options([
-                                'active' => 'Active',
-                                'expired' => 'Expired',
-                                'suspended' => 'Suspended',
-                                'cancelled' => 'Cancelled',
-                            ])
+                            ->options(SubscriptionStatus::labels())
                             ->required()
-                            ->default('active'),
+                            ->default(SubscriptionStatus::ACTIVE->value),
                     ])->columns(3),
 
                 Forms\Components\Section::make('Subscription Period')
@@ -141,21 +143,23 @@ class SubscriptionResource extends Resource
                 
                 Tables\Columns\TextColumn::make('plan_type')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'basic' => 'gray',
-                        'professional' => 'info',
-                        'enterprise' => 'success',
+                    ->formatStateUsing(fn ($state) => enum_label($state, SubscriptionPlanType::class))
+                    ->color(fn ($state): string => match ($state instanceof BackedEnum ? $state->value : $state) {
+                        SubscriptionPlanType::BASIC->value => 'gray',
+                        SubscriptionPlanType::PROFESSIONAL->value => 'info',
+                        SubscriptionPlanType::ENTERPRISE->value => 'success',
                         default => 'gray',
                     })
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'active' => 'success',
-                        'expired' => 'danger',
-                        'suspended' => 'warning',
-                        'cancelled' => 'gray',
+                    ->formatStateUsing(fn ($state) => enum_label($state, SubscriptionStatus::class))
+                    ->color(fn ($state): string => match ($state instanceof BackedEnum ? $state->value : $state) {
+                        SubscriptionStatus::ACTIVE->value => 'success',
+                        SubscriptionStatus::EXPIRED->value => 'danger',
+                        SubscriptionStatus::SUSPENDED->value => 'warning',
+                        SubscriptionStatus::CANCELLED->value => 'gray',
                         default => 'gray',
                     })
                     ->sortable(),
@@ -192,23 +196,14 @@ class SubscriptionResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('plan_type')
-                    ->options([
-                        'basic' => 'Basic',
-                        'professional' => 'Professional',
-                        'enterprise' => 'Enterprise',
-                    ]),
+                    ->options(SubscriptionPlanType::labels()),
                 
                 Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'active' => 'Active',
-                        'expired' => 'Expired',
-                        'suspended' => 'Suspended',
-                        'cancelled' => 'Cancelled',
-                    ]),
+                    ->options(SubscriptionStatus::labels()),
                 
                 Tables\Filters\Filter::make('expiring_soon')
                     ->query(fn (Builder $query): Builder => $query
-                        ->where('status', 'active')
+                        ->where('status', SubscriptionStatus::ACTIVE->value)
                         ->where('expires_at', '>=', now())
                         ->where('expires_at', '<=', now()->addDays(14)))
                     ->label('Expiring Soon (14 days)'),
@@ -234,28 +229,162 @@ class SubscriptionResource extends Resource
                     ->action(function (Subscription $record, array $data) {
                         $record->update([
                             'expires_at' => $data['new_expires_at'],
-                            'status' => 'active',
+                            'status' => SubscriptionStatus::ACTIVE->value,
                         ]);
                     })
-                    ->requiresConfirmation(),
+                    ->visible(fn (Subscription $record) => in_array($record->status, [
+                        SubscriptionStatus::ACTIVE->value,
+                        SubscriptionStatus::EXPIRED->value,
+                    ], true))
+                    ->requiresConfirmation()
+                    ->successNotificationTitle('Subscription renewed successfully'),
                 
                 Tables\Actions\Action::make('suspend')
                     ->icon('heroicon-o-pause-circle')
                     ->color('warning')
                     ->requiresConfirmation()
-                    ->action(fn (Subscription $record) => $record->update(['status' => 'suspended']))
-                    ->visible(fn (Subscription $record) => $record->status === 'active'),
+                    ->action(fn (Subscription $record) => $record->update(['status' => SubscriptionStatus::SUSPENDED->value]))
+                    ->visible(fn (Subscription $record) => $record->status === SubscriptionStatus::ACTIVE->value)
+                    ->successNotificationTitle('Subscription suspended successfully'),
                 
                 Tables\Actions\Action::make('activate')
                     ->icon('heroicon-o-play-circle')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->action(fn (Subscription $record) => $record->update(['status' => 'active']))
-                    ->visible(fn (Subscription $record) => $record->status !== 'active'),
+                    ->action(fn (Subscription $record) => $record->update(['status' => SubscriptionStatus::ACTIVE->value]))
+                    ->visible(fn (Subscription $record) => $record->status !== SubscriptionStatus::ACTIVE->value)
+                    ->successNotificationTitle('Subscription activated successfully'),
+                
+                Tables\Actions\Action::make('view_usage')
+                    ->label('Usage')
+                    ->icon('heroicon-o-chart-bar-square')
+                    ->color('gray')
+                    ->modalHeading('Subscription Usage')
+                    ->modalContent(fn (Subscription $record): \Illuminate\Contracts\View\View => view(
+                        'filament.resources.subscription-usage',
+                        ['record' => $record]
+                    ))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Close'),
+                
+                Tables\Actions\Action::make('send_renewal_reminder')
+                    ->label('Send Reminder')
+                    ->icon('heroicon-o-envelope')
+                    ->color('info')
+                    ->requiresConfirmation()
+                    ->action(function (Subscription $record) {
+                        // Send renewal reminder email
+                        $record->user->notify(new \App\Notifications\SubscriptionExpiryWarningEmail($record));
+                        
+                        \Filament\Notifications\Notification::make()
+                            ->title('Renewal reminder sent')
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn (Subscription $record) => $record->status === SubscriptionStatus::ACTIVE->value && $record->daysUntilExpiry() <= 30),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('bulk_renew')
+                        ->label('Renew Selected')
+                        ->icon('heroicon-o-arrow-path')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->form([
+                            Forms\Components\Select::make('duration')
+                                ->label('Renewal Duration')
+                                ->options([
+                                    '1_month' => '1 Month',
+                                    '3_months' => '3 Months',
+                                    '6_months' => '6 Months',
+                                    '1_year' => '1 Year',
+                                ])
+                                ->required()
+                                ->default('1_year'),
+                        ])
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data) {
+                            $renewed = 0;
+                            $failed = 0;
+                            
+                            $durations = [
+                                '1_month' => 1,
+                                '3_months' => 3,
+                                '6_months' => 6,
+                                '1_year' => 12,
+                            ];
+                            
+                            $months = $durations[$data['duration']];
+                            
+                            foreach ($records as $record) {
+                                try {
+                                    $newExpiry = $record->expires_at->isPast() 
+                                        ? now()->addMonths($months)
+                                        : $record->expires_at->addMonths($months);
+                                    
+                                    $record->update([
+                                        'expires_at' => $newExpiry,
+                                        'status' => SubscriptionStatus::ACTIVE->value,
+                                    ]);
+                                    $renewed++;
+                                } catch (\Exception $e) {
+                                    $failed++;
+                                }
+                            }
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title("Renewed {$renewed} subscriptions" . ($failed > 0 ? ", {$failed} failed" : ''))
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    
+                    Tables\Actions\BulkAction::make('bulk_suspend')
+                        ->label('Suspend Selected')
+                        ->icon('heroicon-o-pause-circle')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $suspended = 0;
+                            
+                            foreach ($records as $record) {
+                                if ($record->status === SubscriptionStatus::ACTIVE->value) {
+                                    $record->update(['status' => SubscriptionStatus::SUSPENDED->value]);
+                                    $suspended++;
+                                }
+                            }
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title("Suspended {$suspended} subscriptions")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    
+                    Tables\Actions\BulkAction::make('bulk_activate')
+                        ->label('Activate Selected')
+                        ->icon('heroicon-o-play-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $activated = 0;
+                            
+                            foreach ($records as $record) {
+                                if ($record->status !== SubscriptionStatus::ACTIVE->value) {
+                                    $record->update(['status' => SubscriptionStatus::ACTIVE->value]);
+                                    $activated++;
+                                }
+                            }
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title("Activated {$activated} subscriptions")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    
+                    Tables\Actions\ExportBulkAction::make()
+                        ->label('Export Selected')
+                        ->icon('heroicon-o-arrow-down-tray'),
                 ]),
             ])
             ->defaultSort('expires_at', 'asc');

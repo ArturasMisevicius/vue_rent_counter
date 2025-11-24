@@ -22,6 +22,11 @@ class BreadcrumbHelper
         $parts = explode('.', $routeName);
         $role = $parts[0] ?? null;
 
+        // Managers: suppress breadcrumbs per requirement
+        if ($role === 'manager') {
+            return [];
+        }
+
         // Always start with dashboard
         if ($role && in_array($role, ['admin', 'manager', 'tenant'])) {
             $breadcrumbs[] = [

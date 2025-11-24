@@ -2,10 +2,17 @@
 
 namespace App\Filament\Resources;
 
+use BackedEnum;
+use UnitEnum;
+use App\Enums\SubscriptionPlanType;
 use App\Filament\Resources\OrganizationResource\Pages;
+use App\Filament\Resources\OrganizationResource\RelationManagers\ActivityLogsRelationManager;
+use App\Filament\Resources\OrganizationResource\RelationManagers\PropertiesRelationManager;
+use App\Filament\Resources\OrganizationResource\RelationManagers\SubscriptionsRelationManager;
+use App\Filament\Resources\OrganizationResource\RelationManagers\UsersRelationManager;
 use App\Models\Organization;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -15,11 +22,17 @@ class OrganizationResource extends Resource
 {
     protected static ?string $model = Organization::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
-
-    protected static ?string $navigationGroup = 'System Management';
-
     protected static ?int $navigationSort = 1;
+
+    public static function getNavigationIcon(): string|BackedEnum|null
+    {
+        return 'heroicon-o-building-office-2';
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return 'System Management';
+    }
 
     public static function shouldRegisterNavigation(): bool
     {
@@ -51,9 +64,9 @@ class OrganizationResource extends Resource
         return auth()->user()?->isSuperadmin() ?? false;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\Section::make('Organization Details')
                     ->schema([
@@ -86,22 +99,19 @@ class OrganizationResource extends Resource
                 Forms\Components\Section::make('Subscription & Limits')
                     ->schema([
                         Forms\Components\Select::make('plan')
-                            ->options([
-                                'basic' => 'Basic',
-                                'professional' => 'Professional',
-                                'enterprise' => 'Enterprise',
-                            ])
+                            ->options(SubscriptionPlanType::labels())
                             ->required()
-                            ->default('basic')
+                            ->default(SubscriptionPlanType::BASIC->value)
                             ->live()
                             ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                $plan = $state instanceof BackedEnum ? $state->value : $state;
                                 $limits = [
-                                    'basic' => ['properties' => 100, 'users' => 10],
-                                    'professional' => ['properties' => 500, 'users' => 50],
-                                    'enterprise' => ['properties' => 9999, 'users' => 999],
+                                    SubscriptionPlanType::BASIC->value => ['properties' => 100, 'users' => 10],
+                                    SubscriptionPlanType::PROFESSIONAL->value => ['properties' => 500, 'users' => 50],
+                                    SubscriptionPlanType::ENTERPRISE->value => ['properties' => 9999, 'users' => 999],
                                 ];
-                                $set('max_properties', $limits[$state]['properties']);
-                                $set('max_users', $limits[$state]['users']);
+                                $set('max_properties', $limits[$plan]['properties']);
+                                $set('max_users', $limits[$plan]['users']);
                             }),
                         
                         Forms\Components\TextInput::make('max_properties')
@@ -190,10 +200,11 @@ class OrganizationResource extends Resource
                 
                 Tables\Columns\TextColumn::make('plan')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'basic' => 'gray',
-                        'professional' => 'info',
-                        'enterprise' => 'success',
+                    ->formatStateUsing(fn ($state) => enum_label($state, SubscriptionPlanType::class))
+                    ->color(fn ($state): string => match ($state instanceof BackedEnum ? $state->value : $state) {
+                        SubscriptionPlanType::BASIC->value => 'gray',
+                        SubscriptionPlanType::PROFESSIONAL->value => 'info',
+                        SubscriptionPlanType::ENTERPRISE->value => 'success',
                         default => 'gray',
                     }),
                 
@@ -223,11 +234,7 @@ class OrganizationResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('plan')
-                    ->options([
-                        'basic' => 'Basic',
-                        'professional' => 'Professional',
-                        'enterprise' => 'Enterprise',
-                    ]),
+                    ->options(SubscriptionPlanType::labels()),
                 
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label('Active')
@@ -262,18 +269,196 @@ class OrganizationResource extends Resource
                     ->action(function (Organization $record, array $data) {
                         $record->suspend($data['reason']);
                     })
-                    ->visible(fn (Organization $record) => !$record->isSuspended()),
+                    ->visible(fn (Organization $record) => !$record->isSuspended())
+                    ->successNotificationTitle('Organization suspended successfully'),
                 
                 Tables\Actions\Action::make('reactivate')
                     ->icon('heroicon-o-play-circle')
                     ->color('success')
                     ->requiresConfirmation()
                     ->action(fn (Organization $record) => $record->reactivate())
-                    ->visible(fn (Organization $record) => $record->isSuspended()),
+                    ->visible(fn (Organization $record) => $record->isSuspended())
+                    ->successNotificationTitle('Organization reactivated successfully'),
+                
+                Tables\Actions\Action::make('impersonate')
+                    ->icon('heroicon-o-user-circle')
+                    ->color('info')
+                    ->requiresConfirmation()
+                    ->modalHeading('Impersonate Organization Admin')
+                    ->modalDescription('You will be logged in as this organization\'s admin. All actions will be logged.')
+                    ->form([
+                        Forms\Components\Textarea::make('reason')
+                            ->required()
+                            ->label('Reason for Impersonation')
+                            ->helperText('This will be logged in the audit trail')
+                            ->maxLength(500),
+                    ])
+                    ->action(function (Organization $record, array $data) {
+                        // Get the organization's admin user
+                        $adminUser = $record->users()->where('role', 'admin')->first();
+                        
+                        if (!$adminUser) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('No admin user found')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+                        
+                        // Store impersonation data in session
+                        session([
+                            'impersonating' => true,
+                            'impersonator_id' => auth()->id(),
+                            'impersonated_user_id' => $adminUser->id,
+                            'impersonation_reason' => $data['reason'],
+                            'impersonation_started_at' => now(),
+                        ]);
+                        
+                        // Log the impersonation
+                        \App\Models\OrganizationActivityLog::create([
+                            'organization_id' => $record->id,
+                            'user_id' => auth()->id(),
+                            'action' => 'impersonation_started',
+                            'resource_type' => \App\Models\User::class,
+                            'resource_id' => $adminUser->id,
+                            'after_data' => [
+                                'reason' => $data['reason'],
+                                'target_user' => $adminUser->email,
+                            ],
+                            'ip_address' => request()->ip(),
+                            'user_agent' => request()->userAgent(),
+                        ]);
+                        
+                        // Switch to the admin user
+                        auth()->login($adminUser);
+                        
+                        \Filament\Notifications\Notification::make()
+                            ->title('Impersonation started')
+                            ->success()
+                            ->send();
+                        
+                        // Redirect to their dashboard
+                        return redirect()->route('filament.admin.pages.dashboard');
+                    })
+                    ->visible(fn (Organization $record) => $record->is_active),
+                
+                Tables\Actions\Action::make('view_analytics')
+                    ->label('Analytics')
+                    ->icon('heroicon-o-chart-bar')
+                    ->color('gray')
+                    ->url(fn (Organization $record): string => '#')
+                    ->openUrlInNewTab(false)
+                    ->tooltip('View detailed analytics for this organization'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('bulk_suspend')
+                        ->label('Suspend Selected')
+                        ->icon('heroicon-o-pause-circle')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->form([
+                            Forms\Components\Textarea::make('reason')
+                                ->required()
+                                ->label('Suspension Reason')
+                                ->helperText('This reason will be applied to all selected organizations')
+                                ->maxLength(500),
+                        ])
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data) {
+                            $suspended = 0;
+                            $failed = 0;
+                            
+                            foreach ($records as $record) {
+                                try {
+                                    if (!$record->isSuspended()) {
+                                        $record->suspend($data['reason']);
+                                        $suspended++;
+                                    }
+                                } catch (\Exception $e) {
+                                    $failed++;
+                                }
+                            }
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title("Suspended {$suspended} organizations" . ($failed > 0 ? ", {$failed} failed" : ''))
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    
+                    Tables\Actions\BulkAction::make('bulk_reactivate')
+                        ->label('Reactivate Selected')
+                        ->icon('heroicon-o-play-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $reactivated = 0;
+                            $failed = 0;
+                            
+                            foreach ($records as $record) {
+                                try {
+                                    if ($record->isSuspended()) {
+                                        $record->reactivate();
+                                        $reactivated++;
+                                    }
+                                } catch (\Exception $e) {
+                                    $failed++;
+                                }
+                            }
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title("Reactivated {$reactivated} organizations" . ($failed > 0 ? ", {$failed} failed" : ''))
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    
+                    Tables\Actions\BulkAction::make('bulk_change_plan')
+                        ->label('Change Plan')
+                        ->icon('heroicon-o-arrow-path')
+                        ->color('info')
+                        ->requiresConfirmation()
+                        ->form([
+                            Forms\Components\Select::make('new_plan')
+                                ->label('New Plan')
+                                ->options(SubscriptionPlanType::labels())
+                                ->required()
+                                ->live()
+                                ->helperText('Resource limits will be updated automatically'),
+                        ])
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data) {
+                            $updated = 0;
+                            $failed = 0;
+                            
+                            $limits = [
+                                SubscriptionPlanType::BASIC->value => ['properties' => 100, 'users' => 10],
+                                SubscriptionPlanType::PROFESSIONAL->value => ['properties' => 500, 'users' => 50],
+                                SubscriptionPlanType::ENTERPRISE->value => ['properties' => 9999, 'users' => 999],
+                            ];
+                            
+                            foreach ($records as $record) {
+                                try {
+                                    $record->update([
+                                        'plan' => $data['new_plan'],
+                                        'max_properties' => $limits[$data['new_plan']]['properties'],
+                                        'max_users' => $limits[$data['new_plan']]['users'],
+                                    ]);
+                                    $updated++;
+                                } catch (\Exception $e) {
+                                    $failed++;
+                                }
+                            }
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title("Updated {$updated} organizations" . ($failed > 0 ? ", {$failed} failed" : ''))
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    
+                    Tables\Actions\ExportBulkAction::make()
+                        ->label('Export Selected')
+                        ->icon('heroicon-o-arrow-down-tray'),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');
@@ -282,7 +467,10 @@ class OrganizationResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            UsersRelationManager::class,
+            PropertiesRelationManager::class,
+            SubscriptionsRelationManager::class,
+            ActivityLogsRelationManager::class,
         ];
     }
 

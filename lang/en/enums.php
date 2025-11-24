@@ -48,4 +48,25 @@ return [
         'apply_day_rate' => 'Apply Day Rate on Weekends',
         'apply_weekend_rate' => 'Apply Special Weekend Rate',
     ],
+
+    'subscription_plan_type' => [
+        'basic' => 'Basic',
+        'professional' => 'Professional',
+        'enterprise' => 'Enterprise',
+    ],
+
+    'subscription_status' => [
+        'active' => 'Active',
+        'expired' => 'Expired',
+        'suspended' => 'Suspended',
+        'cancelled' => 'Cancelled',
+    ],
+
+    'user_assignment_action' => [
+        'created' => 'Created',
+        'assigned' => 'Assigned',
+        'reassigned' => 'Reassigned',
+        'deactivated' => 'Deactivated',
+        'reactivated' => 'Reactivated',
+    ],
 ];

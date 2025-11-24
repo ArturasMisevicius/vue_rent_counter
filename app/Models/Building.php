@@ -19,6 +19,7 @@ class Building extends Model
      */
     protected $fillable = [
         'tenant_id',
+        'name',
         'address',
         'total_apartments',
         'gyvatukas_summer_average',
@@ -33,7 +34,7 @@ class Building extends Model
     protected function casts(): array
     {
         return [
-            'gyvatukas_summer_average' => 'decimal:2',
+            'gyvatukas_summer_average' => 'float',
             'gyvatukas_last_calculated' => 'date',
         ];
     }
@@ -44,6 +45,14 @@ class Building extends Model
     public function properties(): HasMany
     {
         return $this->hasMany(Property::class);
+    }
+
+    /**
+     * Get a friendly display name for the building (falls back to address).
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        return $this->name ?: $this->address;
     }
 
     /**
@@ -77,7 +86,7 @@ class Building extends Model
         }
         
         // Calculate average
-        $average = $monthCount > 0 ? $totalCirculation / $monthCount : 0.0;
+        $average = $monthCount > 0 ? round($totalCirculation / $monthCount, 2) : 0.0;
         
         // Store the calculated average
         $this->gyvatukas_summer_average = $average;

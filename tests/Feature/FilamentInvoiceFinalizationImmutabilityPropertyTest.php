@@ -7,6 +7,7 @@ use App\Enums\UserRole;
 use App\Filament\Resources\InvoiceResource;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -19,31 +20,35 @@ uses(RefreshDatabase::class);
 test('Property 9: Once an invoice is finalized through Filament, it cannot be modified', function () {
     // Generate random tenant ID
     $tenantId = fake()->numberBetween(1, 1000);
+
+    $tenant = Tenant::factory()->forTenantId($tenantId)->create();
     
     // Create a manager for the tenant
     $manager = User::factory()->create([
         'role' => UserRole::MANAGER,
-        'tenant_id' => $tenantId,
+        'tenant_id' => $tenant->tenant_id,
     ]);
 
     // Create a draft invoice with random number of items
     $itemCount = fake()->numberBetween(1, 5);
     $totalAmount = fake()->randomFloat(2, 50, 500);
     
-    $invoice = Invoice::factory()->create([
-        'tenant_id' => $tenantId,
-        'status' => InvoiceStatus::DRAFT,
-        'total_amount' => $totalAmount,
-        'billing_period_start' => now()->subMonth(),
-        'billing_period_end' => now(),
-    ]);
+    $invoice = Invoice::factory()
+        ->forTenantRenter($tenant)
+        ->create([
+            'tenant_id' => $tenant->tenant_id,
+            'status' => InvoiceStatus::DRAFT,
+            'total_amount' => $totalAmount,
+            'billing_period_start' => now()->subMonth(),
+            'billing_period_end' => now(),
+        ]);
     
     InvoiceItem::factory()->count($itemCount)->create([
         'invoice_id' => $invoice->id,
     ]);
 
     $this->actingAs($manager);
-    session(['tenant_id' => $tenantId]);
+    session(['tenant_id' => $tenant->tenant_id]);
 
     // Property: Draft invoice should have finalize action visible
     $component = Livewire::test(InvoiceResource\Pages\ViewInvoice::class, [

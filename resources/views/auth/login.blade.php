@@ -4,34 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login - Vilnius Utilities · Rent Counter</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-
-    <script>
-        window.tailwind = window.tailwind || {};
-        window.tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Manrope"', 'system-ui', 'sans-serif'],
-                        display: ['"Space Grotesk"', '"Manrope"', 'system-ui', 'sans-serif'],
-                    },
-                    colors: {
-                        midnight: '#0f172a',
-                        skyline: '#38bdf8',
-                        indigoInk: '#6366f1',
-                    },
-                    boxShadow: {
-                        glow: '0 18px 50px rgba(99, 102, 241, 0.2)',
-                    },
-                },
-            },
-        };
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-slate-950 text-slate-50 antialiased">
 
@@ -131,7 +104,7 @@
 
                         <button 
                             type="submit"
-                            class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 via-indigo-600 to-sky-500 px-6 py-3.5 text-sm font-semibold text-white shadow-glow transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_rgba(99,102,241,0.4)] active:translate-y-0"
+                            class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 via-indigo-600 to-sky-500 px-6 py-3.5 text-sm font-semibold text-white shadow-glow transition-all duration-200 active:translate-y-0"
                         >
                             Sign In
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -162,7 +135,7 @@
                     </div>
                     <button 
                         @click="showTable = !showTable"
-                        class="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-white/90 hover:border-white/30 hover:bg-white/10 transition-all duration-200"
+                        class="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-white/90 transition-all duration-200"
                     >
                         <span x-text="showTable ? 'Hide' : 'Show'"></span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-200" :class="showTable ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -197,10 +170,10 @@
                             <tbody class="divide-y divide-white/5">
                                 @forelse($users as $user)
                                     <tr 
-                                        class="hover:bg-white/10 transition-all duration-200 cursor-pointer group"
+                                        class="transition-all duration-200 cursor-pointer"
                                         onclick="document.getElementById('email').value = '{{ $user->email }}'; document.getElementById('password').value = 'password'; document.getElementById('email').focus();"
                                     >
-                                        <td class="px-5 py-4 text-white font-medium group-hover:text-indigo-200 transition-colors">
+                                        <td class="px-5 py-4 text-white font-medium">
                                             <div class="flex items-center gap-3">
                                                 <div class="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-400 to-sky-400 flex items-center justify-center text-white font-semibold text-xs">
                                                     {{ strtoupper(substr($user->name, 0, 1)) }}
@@ -208,10 +181,10 @@
                                                 {{ $user->name }}
                                             </div>
                                         </td>
-                                        <td class="px-5 py-4 text-slate-300 group-hover:text-indigo-300 transition-colors font-mono text-xs">
+                                        <td class="px-5 py-4 text-slate-300 font-mono text-xs">
                                             {{ $user->email }}
                                         </td>
-                                        <td class="px-5 py-4 text-slate-300 group-hover:text-indigo-300 transition-colors font-mono text-xs">
+                                        <td class="px-5 py-4 text-slate-300 font-mono text-xs">
                                             password
                                         </td>
                                         <td class="px-5 py-4">

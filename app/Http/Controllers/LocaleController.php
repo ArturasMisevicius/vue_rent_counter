@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreLocaleRequest;
 use App\Models\Language;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class LocaleController extends Controller
 {
-    public function store(Request $request): RedirectResponse
+    public function store(StoreLocaleRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'locale' => ['required', 'string', 'max:5'],
-        ]);
+        $validated = $request->validated();
 
         if (! Schema::hasTable('languages')) {
             return back();

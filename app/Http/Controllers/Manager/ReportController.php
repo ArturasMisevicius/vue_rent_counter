@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers\Manager;
 
+use App\Enums\MeterType;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ManagerConsumptionReportRequest;
+use App\Http\Requests\ManagerMeterComplianceRequest;
+use App\Http\Requests\ManagerRevenueReportRequest;
+use App\Models\Building;
 use App\Models\Invoice;
+use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Property;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ReportController extends Controller
@@ -17,19 +24,109 @@ class ReportController extends Controller
      */
     public function index(): View
     {
-        return view('manager.reports.index');
+        // Quick stats for dashboard
+        $stats = [
+            'total_properties' => Property::count(),
+            'total_meters' => Meter::count(),
+            'readings_this_month' => MeterReading::whereMonth('reading_date', Carbon::now()->month)->count(),
+            'invoices_this_month' => Invoice::whereMonth('billing_period_start', Carbon::now()->month)->count(),
+        ];
+
+        return view('manager.reports.index', compact('stats'));
     }
 
     /**
      * Generate consumption report by property.
      */
-    public function consumption(Request $request): View
+    public function consumption(ManagerConsumptionReportRequest $request): View
     {
-        $validated = $request->validate([
-            'start_date' => ['nullable', 'date'],
-            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-            'property_id' => ['nullable', 'exists:properties,id'],
-        ]);
+        $validated = $request->validated();
+
+        $startDate = $validated['start_date'] ?? Carbon::now()->startOfMonth()->format('Y-m-d');
+        $endDate = $validated['end_date'] ?? Carbon::now()->endOfMonth()->format('Y-m-d');
+        $meterType = $validated['meter_type'] ?? null;
+        $buildingId = $validated['building_id'] ?? null;
+
+        $query = MeterReading::with(['meter.property.building'])
+            ->whereBetween('reading_date', [$startDate, $endDate]);
+
+        if (isset($validated['property_id'])) {
+            $query->whereHas('meter', function ($q) use ($validated) {
+                $q->where('property_id', $validated['property_id']);
+            });
+        }
+
+        if ($meterType) {
+            $query->whereHas('meter', function ($q) use ($meterType) {
+                $q->where('type', $meterType);
+            });
+        }
+
+        if ($buildingId) {
+            $query->whereHas('meter.property', function ($q) use ($buildingId) {
+                $q->where('building_id', $buildingId);
+            });
+        }
+
+        $readings = $query->get();
+
+        // Group by property
+        $readingsByProperty = $readings->groupBy('meter.property.address');
+
+        // Calculate consumption by meter type
+        $consumptionByType = $readings->groupBy('meter.type')->map(function ($typeReadings) {
+            return [
+                'count' => $typeReadings->count(),
+                'total' => $typeReadings->sum('value'),
+                'average' => $typeReadings->avg('value'),
+            ];
+        });
+
+        // Monthly trend data
+        $monthlyTrend = $readings->groupBy(function ($reading) {
+            return $reading->reading_date->format('Y-m');
+        })->map(function ($monthReadings) {
+            return [
+                'count' => $monthReadings->count(),
+                'total' => $monthReadings->sum('value'),
+            ];
+        })->sortKeys();
+
+        // Top consuming properties
+        $topProperties = $readings->groupBy('meter.property_id')->map(function ($propertyReadings) {
+            $property = $propertyReadings->first()->meter->property;
+            return [
+                'property' => $property,
+                'total_consumption' => $propertyReadings->sum('value'),
+                'reading_count' => $propertyReadings->count(),
+            ];
+        })->sortByDesc('total_consumption')->take(10);
+
+        $properties = Property::all();
+        $buildings = Building::all();
+        $meterTypes = MeterType::cases();
+
+        return view('manager.reports.consumption', compact(
+            'readingsByProperty',
+            'consumptionByType',
+            'monthlyTrend',
+            'topProperties',
+            'startDate',
+            'endDate',
+            'properties',
+            'buildings',
+            'meterTypes',
+            'meterType',
+            'buildingId'
+        ));
+    }
+
+    /**
+     * Export consumption report as CSV.
+     */
+    public function exportConsumption(ManagerConsumptionReportRequest $request): Response
+    {
+        $validated = $request->validated();
 
         $startDate = $validated['start_date'] ?? Carbon::now()->startOfMonth()->format('Y-m-d');
         $endDate = $validated['end_date'] ?? Carbon::now()->endOfMonth()->format('Y-m-d');
@@ -43,21 +140,121 @@ class ReportController extends Controller
             });
         }
 
-        $readings = $query->get()->groupBy('meter.property.address');
-        $properties = Property::all();
+        $readings = $query->get();
 
-        return view('manager.reports.consumption', compact('readings', 'startDate', 'endDate', 'properties'));
+        $csv = "Date,Property,Meter Serial,Meter Type,Value,Zone\n";
+        foreach ($readings as $reading) {
+            $csv .= sprintf(
+                "%s,%s,%s,%s,%s,%s\n",
+                $reading->reading_date->format('Y-m-d'),
+                $reading->meter->property->address ?? 'N/A',
+                $reading->meter->serial_number,
+                $reading->meter->type->value,
+                $reading->value,
+                $reading->zone ?? '-'
+            );
+        }
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="consumption-report-' . $startDate . '-to-' . $endDate . '.csv"',
+        ]);
     }
 
     /**
      * Generate revenue report by period.
      */
-    public function revenue(Request $request): View
+    public function revenue(ManagerRevenueReportRequest $request): View
     {
-        $validated = $request->validate([
-            'start_date' => ['nullable', 'date'],
-            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-        ]);
+        $validated = $request->validated();
+
+        $startDate = $validated['start_date'] ?? Carbon::now()->startOfMonth()->format('Y-m-d');
+        $endDate = $validated['end_date'] ?? Carbon::now()->endOfMonth()->format('Y-m-d');
+        $status = $validated['status'] ?? null;
+        $buildingId = $validated['building_id'] ?? null;
+
+        $query = Invoice::whereBetween('billing_period_start', [$startDate, $endDate])
+            ->with('tenant.property.building');
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($buildingId) {
+            $query->whereHas('tenant.property', function ($q) use ($buildingId) {
+                $q->where('building_id', $buildingId);
+            });
+        }
+
+        $invoices = $query->get();
+
+        $totalRevenue = $invoices->sum('total_amount');
+        $paidRevenue = $invoices->where('status.value', 'paid')->sum('total_amount');
+        $finalizedRevenue = $invoices->where('status.value', 'finalized')->sum('total_amount');
+        $draftRevenue = $invoices->where('status.value', 'draft')->sum('total_amount');
+
+        // Revenue by month
+        $revenueByMonth = $invoices->groupBy(function ($invoice) {
+            return $invoice->billing_period_start->format('Y-m');
+        })->map(function ($monthInvoices) {
+            return [
+                'total' => $monthInvoices->sum('total_amount'),
+                'paid' => $monthInvoices->where('status.value', 'paid')->sum('total_amount'),
+                'count' => $monthInvoices->count(),
+            ];
+        })->sortKeys();
+
+        // Revenue by building
+        $revenueByBuilding = $invoices->groupBy(function ($invoice) {
+            return $invoice->tenant?->property?->building?->name ?? 'Unassigned';
+        })->map(function ($buildingInvoices) {
+            return [
+                'total' => $buildingInvoices->sum('total_amount'),
+                'count' => $buildingInvoices->count(),
+            ];
+        })->sortByDesc('total');
+
+        // Overdue invoices
+        $overdueInvoices = $invoices->filter(function ($invoice) {
+            return $invoice->due_date && 
+                   $invoice->due_date->isPast() && 
+                   !in_array($invoice->status->value, ['paid']);
+        });
+
+        $overdueAmount = $overdueInvoices->sum('total_amount');
+
+        // Payment rate
+        $paymentRate = $invoices->count() > 0 
+            ? ($invoices->where('status.value', 'paid')->count() / $invoices->count()) * 100 
+            : 0;
+
+        $buildings = Building::all();
+
+        return view('manager.reports.revenue', compact(
+            'invoices',
+            'totalRevenue',
+            'paidRevenue',
+            'finalizedRevenue',
+            'draftRevenue',
+            'revenueByMonth',
+            'revenueByBuilding',
+            'overdueInvoices',
+            'overdueAmount',
+            'paymentRate',
+            'startDate',
+            'endDate',
+            'buildings',
+            'status',
+            'buildingId'
+        ));
+    }
+
+    /**
+     * Export revenue report as CSV.
+     */
+    public function exportRevenue(ManagerRevenueReportRequest $request): Response
+    {
+        $validated = $request->validated();
 
         $startDate = $validated['start_date'] ?? Carbon::now()->startOfMonth()->format('Y-m-d');
         $endDate = $validated['end_date'] ?? Carbon::now()->endOfMonth()->format('Y-m-d');
@@ -66,46 +263,67 @@ class ReportController extends Controller
             ->with('tenant.property')
             ->get();
 
-        $totalRevenue = $invoices->sum('total_amount');
-        $paidRevenue = $invoices->where('status->value', 'paid')->sum('total_amount');
-        $finalizedRevenue = $invoices->where('status->value', 'finalized')->sum('total_amount');
-        $draftRevenue = $invoices->where('status->value', 'draft')->sum('total_amount');
+        $csv = "Invoice ID,Property,Period Start,Period End,Amount,Status,Due Date,Paid Date\n";
+        foreach ($invoices as $invoice) {
+            $csv .= sprintf(
+                "%s,%s,%s,%s,%s,%s,%s,%s\n",
+                $invoice->id,
+                $invoice->tenant?->property?->address ?? 'N/A',
+                $invoice->billing_period_start->format('Y-m-d'),
+                $invoice->billing_period_end->format('Y-m-d'),
+                $invoice->total_amount,
+                $invoice->status->value,
+                $invoice->due_date?->format('Y-m-d') ?? '-',
+                $invoice->paid_at?->format('Y-m-d') ?? '-'
+            );
+        }
 
-        return view('manager.reports.revenue', compact(
-            'invoices',
-            'totalRevenue',
-            'paidRevenue',
-            'finalizedRevenue',
-            'draftRevenue',
-            'startDate',
-            'endDate'
-        ));
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="revenue-report-' . $startDate . '-to-' . $endDate . '.csv"',
+        ]);
     }
 
     /**
      * Generate meter reading compliance report.
      */
-    public function meterReadingCompliance(Request $request): View
+    public function meterReadingCompliance(ManagerMeterComplianceRequest $request): View
     {
-        $validated = $request->validate([
-            'month' => ['nullable', 'date_format:Y-m'],
-        ]);
+        $validated = $request->validated();
 
         $month = $validated['month'] ?? Carbon::now()->format('Y-m');
+        $buildingId = $validated['building_id'] ?? null;
         $startDate = Carbon::parse($month)->startOfMonth();
         $endDate = Carbon::parse($month)->endOfMonth();
 
         // Get all properties with their meters
-        $properties = Property::with(['meters' => function ($query) use ($startDate, $endDate) {
+        $query = Property::with(['meters' => function ($query) use ($startDate, $endDate) {
             $query->with(['readings' => function ($q) use ($startDate, $endDate) {
                 $q->whereBetween('reading_date', [$startDate, $endDate]);
             }]);
-        }])->get();
+        }, 'building']);
+
+        if ($buildingId) {
+            $query->where('building_id', $buildingId);
+        }
+
+        $properties = $query->get();
 
         // Calculate compliance
         $propertiesWithReadings = $properties->filter(function ($property) {
-            return $property->meters->every(function ($meter) {
+            return $property->meters->count() > 0 && $property->meters->every(function ($meter) {
                 return $meter->readings->isNotEmpty();
+            });
+        });
+
+        $propertiesWithPartialReadings = $properties->filter(function ($property) {
+            $metersWithReadings = $property->meters->filter(fn($meter) => $meter->readings->isNotEmpty())->count();
+            return $metersWithReadings > 0 && $metersWithReadings < $property->meters->count();
+        });
+
+        $propertiesWithNoReadings = $properties->filter(function ($property) {
+            return $property->meters->count() > 0 && $property->meters->every(function ($meter) {
+                return $meter->readings->isEmpty();
             });
         });
 
@@ -113,11 +331,89 @@ class ReportController extends Controller
             ? ($propertiesWithReadings->count() / $properties->count()) * 100 
             : 0;
 
+        // Compliance by building
+        $complianceByBuilding = $properties->groupBy('building.name')->map(function ($buildingProperties) {
+            $total = $buildingProperties->count();
+            $complete = $buildingProperties->filter(function ($property) {
+                return $property->meters->count() > 0 && $property->meters->every(function ($meter) {
+                    return $meter->readings->isNotEmpty();
+                });
+            })->count();
+
+            return [
+                'total' => $total,
+                'complete' => $complete,
+                'rate' => $total > 0 ? ($complete / $total) * 100 : 0,
+            ];
+        });
+
+        // Compliance by meter type
+        $complianceByMeterType = [];
+        foreach (MeterType::cases() as $type) {
+            $meters = Meter::where('type', $type)->get();
+            $metersWithReadings = $meters->filter(function ($meter) use ($startDate, $endDate) {
+                return $meter->readings()->whereBetween('reading_date', [$startDate, $endDate])->exists();
+            });
+
+            $complianceByMeterType[$type->value] = [
+                'total' => $meters->count(),
+                'complete' => $metersWithReadings->count(),
+                'rate' => $meters->count() > 0 ? ($metersWithReadings->count() / $meters->count()) * 100 : 0,
+            ];
+        }
+
+        $buildings = Building::all();
+
         return view('manager.reports.meter-reading-compliance', compact(
             'properties',
             'propertiesWithReadings',
+            'propertiesWithPartialReadings',
+            'propertiesWithNoReadings',
             'complianceRate',
-            'month'
+            'complianceByBuilding',
+            'complianceByMeterType',
+            'month',
+            'buildings',
+            'buildingId'
         ));
+    }
+
+    /**
+     * Export compliance report as CSV.
+     */
+    public function exportCompliance(ManagerMeterComplianceRequest $request): Response
+    {
+        $validated = $request->validated();
+
+        $month = $validated['month'] ?? Carbon::now()->format('Y-m');
+        $startDate = Carbon::parse($month)->startOfMonth();
+        $endDate = Carbon::parse($month)->endOfMonth();
+
+        $properties = Property::with(['meters' => function ($query) use ($startDate, $endDate) {
+            $query->with(['readings' => function ($q) use ($startDate, $endDate) {
+                $q->whereBetween('reading_date', [$startDate, $endDate]);
+            }]);
+        }])->get();
+
+        $csv = "Property,Building,Total Meters,Meters with Readings,Compliance Status\n";
+        foreach ($properties as $property) {
+            $totalMeters = $property->meters->count();
+            $metersWithReadings = $property->meters->filter(fn($meter) => $meter->readings->isNotEmpty())->count();
+            $status = $totalMeters > 0 && $totalMeters === $metersWithReadings ? 'Complete' : 'Incomplete';
+
+            $csv .= sprintf(
+                "%s,%s,%d,%d,%s\n",
+                $property->address,
+                $property->building?->name ?? 'N/A',
+                $totalMeters,
+                $metersWithReadings,
+                $status
+            );
+        }
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="compliance-report-' . $month . '.csv"',
+        ]);
     }
 }

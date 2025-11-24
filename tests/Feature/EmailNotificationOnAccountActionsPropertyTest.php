@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionPlanType;
 use App\Models\Building;
 use App\Models\Property;
 use App\Models\User;
@@ -35,7 +36,7 @@ test('tenant account creation queues welcome email notification', function () {
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => fake()->randomElement(['basic', 'professional', 'enterprise']),
+        'plan_type' => fake()->randomElement(SubscriptionPlanType::values()),
         'expires_at' => now()->addDays(fake()->numberBetween(30, 365))->toDateString(),
     ];
     
@@ -105,7 +106,10 @@ test('tenant reassignment queues reassignment email notification', function () {
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => fake()->randomElement(['professional', 'enterprise']),
+        'plan_type' => fake()->randomElement([
+            SubscriptionPlanType::PROFESSIONAL->value,
+            SubscriptionPlanType::ENTERPRISE->value,
+        ]),
         'expires_at' => now()->addDays(fake()->numberBetween(30, 365))->toDateString(),
     ];
     
@@ -186,7 +190,7 @@ test('multiple tenant creations queue separate welcome email notifications', fun
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'professional',
+        'plan_type' => SubscriptionPlanType::PROFESSIONAL->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -252,7 +256,7 @@ test('tenant reassignment to same property still queues notification', function 
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -307,7 +311,7 @@ test('email notifications are queued not sent immediately', function () {
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -372,7 +376,7 @@ test('no email notifications are sent for account deactivation or reactivation',
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     

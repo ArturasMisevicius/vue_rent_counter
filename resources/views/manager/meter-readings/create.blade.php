@@ -1,19 +1,19 @@
 @extends('layouts.app')
 
-@section('title', 'Create Meter Reading')
+@section('title', __('meter_readings.headings.create'))
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
     <x-breadcrumbs>
-        <x-breadcrumb-item href="{{ route('manager.dashboard') }}">Dashboard</x-breadcrumb-item>
-        <x-breadcrumb-item href="{{ route('manager.meter-readings.index') }}">Meter Readings</x-breadcrumb-item>
-        <x-breadcrumb-item :active="true">Create</x-breadcrumb-item>
+        <x-breadcrumb-item href="{{ route('manager.dashboard') }}">{{ __('app.nav.dashboard') }}</x-breadcrumb-item>
+        <x-breadcrumb-item href="{{ route('manager.meter-readings.index') }}">{{ __('meter_readings.headings.index') }}</x-breadcrumb-item>
+        <x-breadcrumb-item :active="true">{{ __('meter_readings.headings.create') }}</x-breadcrumb-item>
     </x-breadcrumbs>
 
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-gray-900">Create Meter Reading</h1>
-            <p class="mt-2 text-sm text-gray-700">Record a new utility consumption reading</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('meter_readings.headings.create') }}</h1>
+            <p class="mt-2 text-sm text-slate-700">{{ __('meter_readings.manager.show.description') }}</p>
         </div>
     </div>
 
@@ -35,16 +35,16 @@
                     <!-- Property Selection (for grouping) -->
                     <x-form-select
                         name="property_filter"
-                        label="Filter by Property (Optional)"
+                        label="{{ __('properties.labels.property') }}"
                         :options="$properties->pluck('address', 'id')->toArray()"
-                        placeholder="All properties..."
+                        placeholder="{{ __('properties.filters.all_properties') ?? __('properties.labels.properties') }}"
                         x-on:change="selectedMeter = null"
                     />
 
                     <!-- Meter Selection -->
                     <div>
-                        <label for="meter_id" class="block text-sm font-medium leading-6 text-gray-900">
-                            Meter 
+                        <label for="meter_id" class="block text-sm font-medium leading-6 text-slate-900">
+                            {{ __('meters.labels.meter') }} 
                             <span class="text-red-500">*</span>
                         </label>
                         <select
@@ -55,10 +55,10 @@
                             @class([
                                 'mt-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6',
                                 'text-red-900 ring-red-300 placeholder:text-red-300 focus:ring-red-500' => $errors->has('meter_id'),
-                                'text-gray-900 ring-gray-300 focus:ring-indigo-600' => !$errors->has('meter_id'),
+                                'text-slate-900 ring-slate-300 focus:ring-indigo-600' => !$errors->has('meter_id'),
                             ])
                         >
-                            <option value="">Select a meter...</option>
+                            <option value="">{{ __('meter_readings.manager.create.select_meter') }}</option>
                             @foreach($meters as $meter)
                             <option value="{{ $meter->id }}" {{ old('meter_id', request('meter_id')) == $meter->id ? 'selected' : '' }}>
                                 {{ $meter->serial_number }} - {{ $meter->property->address }} ({{ enum_label($meter->type) }})
@@ -72,7 +72,7 @@
 
                     <x-form-input
                         name="reading_date"
-                        label="Reading Date"
+                        label="{{ __('meter_readings.labels.reading_date') }}"
                         type="date"
                         :value="old('reading_date', now()->format('Y-m-d'))"
                         required
@@ -80,7 +80,7 @@
 
                     <x-form-input
                         name="value"
-                        label="Reading Value"
+                        label="{{ __('meter_readings.labels.value') }}"
                         type="number"
                         step="0.01"
                         :value="old('value')"
@@ -92,13 +92,13 @@
                     <div x-show="supportsZones" x-cloak>
                         <x-form-select
                             name="zone"
-                            label="Time-of-Use Zone"
+                            label="{{ __('meter_readings.labels.zone') }}"
                             :options="[
-                                'day' => 'Day Rate',
-                                'night' => 'Night Rate'
+                                'day' => __('meter_readings.manager.create.zone_options.day'),
+                                'night' => __('meter_readings.manager.create.zone_options.night')
                             ]"
                             :selected="old('zone')"
-                            placeholder="Select zone..."
+                            placeholder="{{ __('meter_readings.labels.zone') }}"
                         />
                     </div>
 
@@ -111,7 +111,7 @@
                             </div>
                             <div class="ml-3 flex-1">
                                 <p class="text-sm text-blue-700">
-                                    The reading value must be greater than or equal to the previous reading for this meter.
+                                    {{ __('meter_readings.validation.value.min') }}
                                 </p>
                             </div>
                         </div>
@@ -119,10 +119,10 @@
 
                     <div class="flex items-center justify-end gap-x-4">
                         <x-button href="{{ route('manager.meter-readings.index') }}" variant="secondary">
-                            Cancel
+                            {{ __('meter_readings.actions.back') }}
                         </x-button>
                         <x-button type="submit">
-                            Create Reading
+                            {{ __('meter_readings.headings.create') }}
                         </x-button>
                     </div>
                 </div>

@@ -43,7 +43,7 @@ class InvoiceItemFactory extends Factory
             'quantity' => $quantity,
             'unit' => fake()->randomElement(['kWh', 'm³', 'month']),
             'unit_price' => $unitPrice,
-            'total' => round($quantity * $unitPrice, 2),
+            'total' => null,
             'meter_reading_snapshot' => null,
         ];
     }
@@ -102,5 +102,33 @@ class InvoiceItemFactory extends Factory
             'unit' => 'kWh',
             'unit_price' => fake()->randomFloat(4, 0.08, 0.15),
         ]);
+    }
+
+    /**
+     * Attach the item to a specific invoice.
+     */
+    public function forInvoice(Invoice $invoice): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'invoice_id' => $invoice->id,
+        ]);
+    }
+
+    /**
+     * Keep the total in sync with quantity and unit_price.
+     */
+    public function configure(): static
+    {
+        return $this->afterMaking(function (InvoiceItem $item) {
+            if ($item->total === null) {
+                $item->total = round((float) $item->quantity * (float) $item->unit_price, 2);
+            }
+        })->afterCreating(function (InvoiceItem $item) {
+            if ($item->getRawOriginal('total') === null) {
+                $item->update([
+                    'total' => round((float) $item->quantity * (float) $item->unit_price, 2),
+                ]);
+            }
+        });
     }
 }

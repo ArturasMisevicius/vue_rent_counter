@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePropertyRequest;
+use App\Http\Requests\UpdatePropertyRequest;
 use App\Models\Building;
 use App\Models\Property;
-use Illuminate\Http\Request;
 
 class PropertyController extends Controller
 {
@@ -20,20 +21,14 @@ class PropertyController extends Controller
         return view('properties.create', compact('buildings'));
     }
 
-    public function store(Request $request)
+    public function store(StorePropertyRequest $request)
     {
-        $validated = $request->validate([
-            'tenant_id' => ['required', 'integer'],
-            'address' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'in:apartment,house'],
-            'area_sqm' => ['required', 'numeric', 'min:0'],
-            'building_id' => ['nullable', 'exists:buildings,id'],
-        ]);
+        $validated = $request->validated();
 
         Property::create($validated);
 
         return redirect()->route('properties.index')
-            ->with('success', 'Property created successfully.');
+            ->with('success', __('notifications.property.created'));
     }
 
     public function show(Property $property)
@@ -48,20 +43,14 @@ class PropertyController extends Controller
         return view('properties.edit', compact('property', 'buildings'));
     }
 
-    public function update(Request $request, Property $property)
+    public function update(UpdatePropertyRequest $request, Property $property)
     {
-        $validated = $request->validate([
-            'tenant_id' => ['required', 'integer'],
-            'address' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'in:apartment,house'],
-            'area_sqm' => ['required', 'numeric', 'min:0'],
-            'building_id' => ['nullable', 'exists:buildings,id'],
-        ]);
+        $validated = $request->validated();
 
         $property->update($validated);
 
         return redirect()->route('properties.index')
-            ->with('success', 'Property updated successfully.');
+            ->with('success', __('notifications.property.updated'));
     }
 
     public function destroy(Property $property)
@@ -69,7 +58,7 @@ class PropertyController extends Controller
         $property->delete();
 
         return redirect()->route('properties.index')
-            ->with('success', 'Property deleted successfully.');
+            ->with('success', __('notifications.property.deleted'));
     }
 
     public function meters(Property $property)

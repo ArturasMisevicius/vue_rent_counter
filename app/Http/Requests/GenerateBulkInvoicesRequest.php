@@ -25,7 +25,7 @@ class GenerateBulkInvoicesRequest extends FormRequest
             'billing_period_start' => ['required', 'date'],
             'billing_period_end' => ['required', 'date', 'after:billing_period_start'],
             'tenant_ids' => ['nullable', 'array'],
-            'tenant_ids.*' => ['exists:tenants,id'],
+            'tenant_ids.*' => ['integer', 'exists:tenants,id'],
         ];
     }
 
@@ -37,13 +37,14 @@ class GenerateBulkInvoicesRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'billing_period_start.required' => 'Billing period start date is required',
-            'billing_period_start.date' => 'Billing period start must be a valid date',
-            'billing_period_end.required' => 'Billing period end date is required',
-            'billing_period_end.date' => 'Billing period end must be a valid date',
-            'billing_period_end.after' => 'Billing period end must be after start date',
-            'tenant_ids.array' => 'Tenant IDs must be an array',
-            'tenant_ids.*.exists' => 'One or more selected tenants do not exist',
+            'billing_period_start.required' => __('invoices.validation.billing_period_start.required'),
+            'billing_period_start.date' => __('invoices.validation.billing_period_start.date'),
+            'billing_period_end.required' => __('invoices.validation.billing_period_end.required'),
+            'billing_period_end.date' => __('invoices.validation.billing_period_end.date'),
+            'billing_period_end.after' => __('invoices.validation.billing_period_end.after'),
+            'tenant_ids.array' => __('invoices.validation.tenant_ids.array'),
+            'tenant_ids.*.integer' => __('invoices.validation.tenant_ids.integer'),
+            'tenant_ids.*.exists' => __('invoices.validation.tenant_ids.exists'),
         ];
     }
 }

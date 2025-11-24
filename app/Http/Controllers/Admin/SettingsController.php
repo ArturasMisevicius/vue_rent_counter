@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Enums\UserRole;
-use Illuminate\Http\Request;
+use App\Http\Requests\UpdateSettingsRequest;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -35,20 +34,17 @@ class SettingsController extends Controller
     /**
      * Update system settings.
      */
-    public function update(Request $request)
+    public function update(UpdateSettingsRequest $request)
     {
         // Only admins can update settings
         $this->authorize('updateSettings');
         
-        $validated = $request->validate([
-            'app_name' => 'nullable|string|max:255',
-            'timezone' => 'nullable|string|in:Europe/Vilnius,UTC',
-        ]);
+        $validated = $request->validated();
         
         // Note: In a production environment, these would be stored in a settings table
         // or updated in the .env file. For now, we'll just show a success message.
         
-        return back()->with('success', 'Settings updated successfully. Note: Some changes may require updating the .env file and restarting the application.');
+        return back()->with('success', __('notifications.settings.updated'));
     }
 
     /**
@@ -61,9 +57,9 @@ class SettingsController extends Controller
         
         try {
             Artisan::call('backup:run');
-            return back()->with('success', 'Backup completed successfully.');
+            return back()->with('success', __('notifications.settings.backup_completed'));
         } catch (\Exception $e) {
-            return back()->with('error', 'Backup failed: ' . $e->getMessage());
+            return back()->with('error', __('notifications.settings.backup_failed', ['message' => $e->getMessage()]));
         }
     }
 
@@ -81,9 +77,9 @@ class SettingsController extends Controller
             Artisan::call('route:clear');
             Artisan::call('view:clear');
 
-            return back()->with('success', 'All caches cleared successfully.');
+            return back()->with('success', __('notifications.settings.cache_cleared'));
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to clear cache: ' . $e->getMessage());
+            return back()->with('error', __('notifications.settings.cache_failed', ['message' => $e->getMessage()]));
         }
     }
 

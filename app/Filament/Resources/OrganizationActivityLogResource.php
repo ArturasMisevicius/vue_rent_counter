@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources;
 
+use UnitEnum;
+use BackedEnum;
 use App\Filament\Resources\OrganizationActivityLogResource\Pages;
 use App\Models\OrganizationActivityLog;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -15,13 +17,19 @@ class OrganizationActivityLogResource extends Resource
 {
     protected static ?string $model = OrganizationActivityLog::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
-
-    protected static ?string $navigationGroup = 'System Management';
-
     protected static ?string $navigationLabel = 'Activity Logs';
 
     protected static ?int $navigationSort = 3;
+
+    public static function getNavigationIcon(): string|BackedEnum|null
+    {
+        return 'heroicon-o-clipboard-document-list';
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return 'System Management';
+    }
 
     public static function shouldRegisterNavigation(): bool
     {
@@ -53,9 +61,9 @@ class OrganizationActivityLogResource extends Resource
         return auth()->user()?->isSuperadmin() ?? false;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\TextInput::make('action')
                     ->disabled(),
@@ -151,12 +159,10 @@ class OrganizationActivityLogResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                // Table row actions removed - use page header actions instead
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Bulk actions removed for Filament 4 compatibility
             ])
             ->defaultSort('created_at', 'desc');
     }

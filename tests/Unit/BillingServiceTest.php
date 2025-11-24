@@ -6,6 +6,7 @@ use App\Enums\PropertyType;
 use App\Enums\ServiceType;
 use App\Models\Building;
 use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Property;
@@ -316,6 +317,13 @@ test('finalizeInvoice sets status and timestamp', function () {
         'tenant_id' => $this->tenantId,
         'status' => InvoiceStatus::DRAFT,
         'finalized_at' => null,
+    ]);
+
+    InvoiceItem::factory()->for($invoice)->create([
+        'quantity' => 1,
+        'unit' => 'unit',
+        'unit_price' => 10,
+        'total' => 10,
     ]);
 
     $billingService = app(BillingService::class);

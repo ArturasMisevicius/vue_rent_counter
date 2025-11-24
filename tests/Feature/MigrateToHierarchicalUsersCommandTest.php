@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionStatus;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -137,7 +138,7 @@ test('command rollback reverts admin to manager and removes subscriptions', func
     
     $subscription1 = Subscription::factory()->create([
         'user_id' => $admin1->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
     ]);
 
     $admin2 = User::factory()->create([
@@ -149,7 +150,7 @@ test('command rollback reverts admin to manager and removes subscriptions', func
     
     $subscription2 = Subscription::factory()->create([
         'user_id' => $admin2->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
     ]);
 
     expect(Subscription::count())->toBe(2);
@@ -185,7 +186,7 @@ test('command rollback can be cancelled', function () {
     
     $subscription = Subscription::factory()->create([
         'user_id' => $admin->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
     ]);
 
     // Run the rollback command but cancel it
@@ -209,7 +210,7 @@ test('command does not create duplicate subscriptions', function () {
     
     $existingSubscription = Subscription::factory()->create([
         'user_id' => $admin->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
     ]);
 
     $subscriptionCountBefore = Subscription::count();

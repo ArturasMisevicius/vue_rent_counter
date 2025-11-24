@@ -6,14 +6,14 @@
     <form @submit.prevent="submitReading" class="space-y-6">
         <!-- Meter Selection -->
         <div>
-            <label for="meter_id" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="meter_id" class="block text-sm font-medium text-slate-700 mb-2">
                 Select Meter
             </label>
             <select 
                 id="meter_id"
                 x-model="formData.meter_id" 
                 @change="onMeterChange()"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
             >
                 <option value="">-- Select a meter --</option>
@@ -31,14 +31,14 @@
 
         <!-- Provider Selection (Dynamic) -->
         <div x-show="formData.meter_id">
-            <label for="provider_id" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="provider_id" class="block text-sm font-medium text-slate-700 mb-2">
                 Select Provider
             </label>
             <select 
                 id="provider_id"
                 x-model="formData.provider_id" 
                 @change="onProviderChange()"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
             >
                 <option value="">-- Select a provider --</option>
@@ -50,14 +50,14 @@
 
         <!-- Tariff Selection (Dynamic) -->
         <div x-show="formData.provider_id">
-            <label for="tariff_id" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="tariff_id" class="block text-sm font-medium text-slate-700 mb-2">
                 Select Tariff
             </label>
             <select 
                 id="tariff_id"
                 x-model="formData.tariff_id"
                 @change="onTariffChange()"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
             >
                 <option value="">-- Select a tariff --</option>
@@ -72,11 +72,11 @@
             <h3 class="text-sm font-semibold text-blue-900 mb-2">Previous Reading</h3>
             <div class="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                    <span class="text-gray-600">Date:</span>
+                    <span class="text-slate-600">Date:</span>
                     <span class="font-medium ml-2" x-text="previousReading?.date || 'N/A'"></span>
                 </div>
                 <div>
-                    <span class="text-gray-600">Value:</span>
+                    <span class="text-slate-600">Value:</span>
                     <span class="font-medium ml-2" x-text="previousReading?.value || 'N/A'"></span>
                 </div>
             </div>
@@ -84,7 +84,7 @@
 
         <!-- Reading Date -->
         <div>
-            <label for="reading_date" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="reading_date" class="block text-sm font-medium text-slate-700 mb-2">
                 Reading Date
             </label>
             <input 
@@ -92,7 +92,7 @@
                 id="reading_date"
                 x-model="formData.reading_date"
                 :max="maxDate"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
             >
             <p x-show="errors.reading_date" class="mt-1 text-sm text-red-600" x-text="errors.reading_date"></p>
@@ -100,7 +100,7 @@
 
         <!-- Reading Value (Single or Multi-zone) -->
         <div x-show="!supportsZones">
-            <label for="value" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="value" class="block text-sm font-medium text-slate-700 mb-2">
                 Reading Value
             </label>
             <input 
@@ -111,7 +111,7 @@
                 step="0.01"
                 min="0"
                 class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2"
-                :class="errors.value ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'"
+                :class="errors.value ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 focus:ring-blue-500'"
                 required
             >
             <p x-show="errors.value" class="mt-1 text-sm text-red-600" x-text="errors.value"></p>
@@ -120,7 +120,7 @@
         <!-- Multi-zone Readings (for electricity with zones) -->
         <div x-show="supportsZones" class="space-y-4">
             <div>
-                <label for="day_value" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="day_value" class="block text-sm font-medium text-slate-700 mb-2">
                     Day Zone Reading
                 </label>
                 <input 
@@ -131,13 +131,13 @@
                     step="0.01"
                     min="0"
                     class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2"
-                    :class="errors.day_value ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'"
+                    :class="errors.day_value ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 focus:ring-blue-500'"
                 >
                 <p x-show="errors.day_value" class="mt-1 text-sm text-red-600" x-text="errors.day_value"></p>
             </div>
             
             <div>
-                <label for="night_value" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="night_value" class="block text-sm font-medium text-slate-700 mb-2">
                     Night Zone Reading
                 </label>
                 <input 
@@ -148,7 +148,7 @@
                     step="0.01"
                     min="0"
                     class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2"
-                    :class="errors.night_value ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'"
+                    :class="errors.night_value ? 'border-red-500 focus:ring-red-500' : 'border-slate-300 focus:ring-blue-500'"
                 >
                 <p x-show="errors.night_value" class="mt-1 text-sm text-red-600" x-text="errors.night_value"></p>
             </div>
@@ -158,7 +158,7 @@
         <div x-show="consumption !== null && consumption >= 0" class="bg-green-50 border border-green-200 rounded-md p-4">
             <h3 class="text-sm font-semibold text-green-900 mb-2">Consumption</h3>
             <div class="text-2xl font-bold text-green-700" x-text="consumption.toFixed(2)"></div>
-            <p class="text-sm text-gray-600 mt-1">
+            <p class="text-sm text-slate-600 mt-1">
                 <span x-text="meterType"></span> units
             </p>
         </div>
@@ -169,7 +169,7 @@
             <div class="text-2xl font-bold text-yellow-700">
                 €<span x-text="chargePreview.toFixed(2)"></span>
             </div>
-            <p class="text-sm text-gray-600 mt-1" x-show="selectedTariff">
+            <p class="text-sm text-slate-600 mt-1" x-show="selectedTariff">
                 Rate: €<span x-text="currentRate?.toFixed(4) || '0.0000'"></span> per unit
             </p>
         </div>
@@ -179,7 +179,7 @@
             <button 
                 type="button"
                 @click="resetForm()"
-                class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="px-4 py-2 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
                 Reset
             </button>

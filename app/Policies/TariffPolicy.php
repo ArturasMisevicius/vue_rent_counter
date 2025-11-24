@@ -13,8 +13,13 @@ class TariffPolicy
      */
     public function viewAny(User $user): bool
     {
-        // All authenticated users can view tariffs
-        return true;
+        // Tariffs are readable by all authenticated roles
+        return in_array($user->role, [
+            UserRole::SUPERADMIN,
+            UserRole::ADMIN,
+            UserRole::MANAGER,
+            UserRole::TENANT,
+        ], true);
     }
 
     /**
@@ -22,8 +27,13 @@ class TariffPolicy
      */
     public function view(User $user, Tariff $tariff): bool
     {
-        // All authenticated users can view individual tariffs
-        return true;
+        // Tariffs are readable by all authenticated roles
+        return in_array($user->role, [
+            UserRole::SUPERADMIN,
+            UserRole::ADMIN,
+            UserRole::MANAGER,
+            UserRole::TENANT,
+        ], true);
     }
 
     /**

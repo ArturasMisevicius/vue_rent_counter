@@ -6,12 +6,36 @@ use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Support\Str;
 
 class Tenant extends Model
 {
     use HasFactory, BelongsToTenant;
+
+    /**
+     * Automatically generate a unique slug if missing.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Tenant $tenant): void {
+            if (! empty($tenant->slug)) {
+                return;
+            }
+
+            $baseSlug = Str::slug($tenant->name ?? 'tenant-' . Str::random(8));
+            $slug = $baseSlug;
+            $counter = 1;
+
+            while (static::where('slug', $slug)->exists()) {
+                $slug = $baseSlug . '-' . $counter++;
+            }
+
+            $tenant->slug = $slug;
+        });
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -19,6 +43,7 @@ class Tenant extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'slug',
         'tenant_id',
         'name',
         'email',
@@ -47,6 +72,17 @@ class Tenant extends Model
     public function property(): BelongsTo
     {
         return $this->belongsTo(Property::class);
+    }
+
+    /**
+     * Historical property assignments for this tenant.
+     */
+    public function properties(): BelongsToMany
+    {
+        return $this->belongsToMany(Property::class, 'property_tenant')
+            ->withPivot(['assigned_at', 'vacated_at'])
+            ->withTimestamps()
+            ->orderByPivot('assigned_at', 'desc');
     }
 
     /**

@@ -31,7 +31,12 @@ class DashboardController extends Controller
         $cacheKey = "tenant_dashboard_{$user->id}";
         
         // Eager load property relationships
-        $property->load(['meters', 'building']);
+        $property->load([
+            'meters.readings' => function ($query) {
+                $query->latest('reading_date')->limit(2);
+            },
+            'building',
+        ]);
         
         // Cache statistics for 5 minutes per user
         $stats = Cache::remember($cacheKey, 300, function () use ($user, $property) {
@@ -63,12 +68,36 @@ class DashboardController extends Controller
                     ->count();
             }
             
+            // Build per-meter consumption comparisons using last two readings
+            $consumptionTrends = $property->meters->map(function ($meter) {
+                $readings = $meter->readings->sortByDesc('reading_date')->values();
+                $latest = $readings->get(0);
+                $previous = $readings->get(1);
+
+                $delta = null;
+                $percent = null;
+
+                if ($latest && $previous) {
+                    $delta = $latest->value - $previous->value;
+                    $percent = $previous->value != 0 ? ($delta / $previous->value) * 100 : null;
+                }
+
+                return [
+                    'meter' => $meter,
+                    'latest' => $latest,
+                    'previous' => $previous,
+                    'delta' => $delta,
+                    'percent' => $percent,
+                ];
+            });
+
             return [
                 'property' => $property,
                 'latest_readings' => $latestReadings,
                 'unpaid_balance' => $unpaidBalance,
                 'total_invoices' => $totalInvoices,
                 'unpaid_invoices' => $unpaidInvoices,
+                'consumption_trends' => $consumptionTrends,
             ];
         });
 

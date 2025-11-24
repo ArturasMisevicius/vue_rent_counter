@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Enums\SubscriptionPlanType;
+use App\Enums\SubscriptionStatus;
+use App\Http\Requests\RenewSubscriptionRequest;
+use App\Http\Requests\SuspendSubscriptionRequest;
+use App\Http\Requests\UpdateSubscriptionRequest;
 use App\Models\Subscription;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class SubscriptionController extends Controller
 {
@@ -24,18 +28,18 @@ class SubscriptionController extends Controller
         $query = Subscription::with('user');
         
         // Filter by status if provided
-        if ($request->filled('status')) {
+        if ($request->filled('status') && in_array($request->status, SubscriptionStatus::values(), true)) {
             $query->where('status', $request->status);
         }
         
         // Filter by plan type if provided
-        if ($request->filled('plan_type')) {
+        if ($request->filled('plan_type') && in_array($request->plan_type, SubscriptionPlanType::values(), true)) {
             $query->where('plan_type', $request->plan_type);
         }
         
         // Filter expiring soon
         if ($request->filled('expiring_soon')) {
-            $query->where('status', 'active')
+            $query->where('status', SubscriptionStatus::ACTIVE->value)
                   ->where('expires_at', '<=', now()->addDays(14))
                   ->where('expires_at', '>=', now());
         }
@@ -94,21 +98,15 @@ class SubscriptionController extends Controller
      * 
      * Requirements: 2.4, 2.5
      */
-    public function update(Request $request, Subscription $subscription)
+    public function update(UpdateSubscriptionRequest $request, Subscription $subscription)
     {
-        $validated = $request->validate([
-            'plan_type' => ['required', Rule::in(['basic', 'professional', 'enterprise'])],
-            'status' => ['required', Rule::in(['active', 'expired', 'suspended', 'cancelled'])],
-            'expires_at' => ['required', 'date'],
-            'max_properties' => ['required', 'integer', 'min:1'],
-            'max_tenants' => ['required', 'integer', 'min:1'],
-        ]);
+        $validated = $request->validated();
         
         $subscription->update($validated);
         
         return redirect()
             ->route('superadmin.subscriptions.show', $subscription)
-            ->with('success', 'Subscription updated successfully.');
+            ->with('success', __('notifications.subscription.updated'));
     }
 
     /**
@@ -116,11 +114,9 @@ class SubscriptionController extends Controller
      * 
      * Requirements: 2.4
      */
-    public function renew(Request $request, Subscription $subscription)
+    public function renew(RenewSubscriptionRequest $request, Subscription $subscription)
     {
-        $validated = $request->validate([
-            'expires_at' => ['required', 'date', 'after:today'],
-        ]);
+        $validated = $request->validated();
         
         $this->subscriptionService->renewSubscription(
             $subscription,
@@ -129,7 +125,7 @@ class SubscriptionController extends Controller
         
         return redirect()
             ->route('superadmin.subscriptions.show', $subscription)
-            ->with('success', 'Subscription renewed successfully.');
+            ->with('success', __('notifications.subscription.renewed'));
     }
 
     /**
@@ -137,17 +133,15 @@ class SubscriptionController extends Controller
      * 
      * Requirements: 2.4
      */
-    public function suspend(Request $request, Subscription $subscription)
+    public function suspend(SuspendSubscriptionRequest $request, Subscription $subscription)
     {
-        $validated = $request->validate([
-            'reason' => ['required', 'string', 'max:500'],
-        ]);
+        $validated = $request->validated();
         
         $this->subscriptionService->suspendSubscription($subscription, $validated['reason']);
         
         return redirect()
             ->route('superadmin.subscriptions.show', $subscription)
-            ->with('success', 'Subscription suspended successfully.');
+            ->with('success', __('notifications.subscription.suspended'));
     }
 
     /**
@@ -161,6 +155,6 @@ class SubscriptionController extends Controller
         
         return redirect()
             ->route('superadmin.subscriptions.show', $subscription)
-            ->with('success', 'Subscription cancelled successfully.');
+            ->with('success', __('notifications.subscription.cancelled'));
     }
 }

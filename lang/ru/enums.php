@@ -48,4 +48,25 @@ return [
         'apply_day_rate' => 'Применять дневной тариф в выходные',
         'apply_weekend_rate' => 'Применять тариф выходного дня',
     ],
+
+    'subscription_plan_type' => [
+        'basic' => 'Базовый',
+        'professional' => 'Профессиональный',
+        'enterprise' => 'Корпоративный',
+    ],
+
+    'subscription_status' => [
+        'active' => 'Активна',
+        'expired' => 'Истекла',
+        'suspended' => 'Приостановлена',
+        'cancelled' => 'Отменена',
+    ],
+
+    'user_assignment_action' => [
+        'created' => 'Создано',
+        'assigned' => 'Назначено',
+        'reassigned' => 'Переназначено',
+        'deactivated' => 'Деактивировано',
+        'reactivated' => 'Повторно активировано',
+    ],
 ];

@@ -70,6 +70,9 @@ return [
         'reassign_tenant' => 'Pakeisti nuomininką',
         'export_selected' => 'Eksportuoti pasirinktus',
         'add_first_property' => 'Pridėti pirmą nuosavybę',
+        'add' => 'Pridėti objektą',
+        'view' => 'Peržiūrėti',
+        'edit' => 'Redaguoti',
     ],
 
     'notifications' => [
@@ -115,6 +118,7 @@ return [
     'validation' => [
         'address' => [
             'required' => 'Nuosavybės adresas yra privalomas.',
+            'string' => 'Nuosavybės adresas turi būti tekstas.',
             'max' => 'Nuosavybės adresas negali būti ilgesnis nei 255 simboliai.',
             'invalid_characters' => 'Adrese yra netinkamų simbolių.',
             'prohibited_content' => 'Adrese yra draudžiamo turinio.',
@@ -135,6 +139,62 @@ return [
         ],
         'building_id' => [
             'exists' => 'Pasirinktas pastatas neegzistuoja.',
+        ],
+        'tenant_id' => [
+            'required' => 'Nuomininkas yra privalomas.',
+            'integer' => 'Nuomininko identifikatorius turi būti skaičius.',
+        ],
+        'property_id' => [
+            'required' => 'Reikia pasirinkti objektą.',
+            'exists' => 'Pasirinktas objektas neegzistuoja.',
+        ],
+    ],
+
+    'errors' => [
+        'has_relations' => 'Negalima ištrinti objekto, turinčio susietų skaitiklių ar nuomininkų.',
+    ],
+
+    'manager' => [
+        'index' => [
+            'title' => 'Objektai',
+            'description' => 'Visų jūsų portfelio objektų sąrašas.',
+            'caption' => 'Objektų sąrašas',
+            'filters' => [
+                'search' => 'Paieška',
+                'search_placeholder' => 'Ieškokite pagal adresą...',
+                'type' => 'Tipas',
+                'building' => 'Pastatas',
+                'all_types' => 'Visi tipai',
+                'all_buildings' => 'Visi pastatai',
+                'filter' => 'Filtruoti',
+                'clear' => 'Išvalyti',
+            ],
+            'headers' => [
+                'address' => 'Adresas',
+                'type' => 'Tipas',
+                'area' => 'Plotas',
+                'building' => 'Pastatas',
+                'meters' => 'Skaitikliai',
+                'tenants' => 'Nuomininkai',
+                'actions' => 'Veiksmai',
+            ],
+            'empty' => [
+                'text' => 'Objektų nerasta.',
+                'cta' => 'Sukurkite dabar',
+            ],
+        ],
+        'show' => [
+            'title' => 'Objekto detalės',
+            'description' => 'Objekto informacija ir susiję duomenys',
+            'information' => 'Objekto informacija',
+            'building_missing' => 'Nepriskirta pastatui',
+            'current_tenant' => 'Dabartinis nuomininkas',
+            'phone' => 'Telefonas',
+            'no_tenant' => 'Dabartinio nuomininko nėra',
+            'meters' => 'Skaitikliai',
+            'add_meter' => 'Pridėti skaitiklį',
+            'latest_reading' => 'Naujausias rodmuo',
+            'no_meters' => 'Šiam objektui skaitiklių nėra.',
         ],
     ],
 

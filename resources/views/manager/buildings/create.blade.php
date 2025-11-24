@@ -12,8 +12,8 @@
 
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-gray-900">Create Building</h1>
-            <p class="mt-2 text-sm text-gray-700">Add a new multi-unit building</p>
+            <h1 class="text-2xl font-semibold text-slate-900">Create Building</h1>
+            <p class="mt-2 text-sm text-slate-700">Add a new multi-unit building</p>
         </div>
     </div>
 
@@ -23,6 +23,15 @@
                 @csrf
 
                 <div class="space-y-6">
+                    <x-form-input
+                        name="name"
+                        label="Building Name"
+                        type="text"
+                        :value="old('name')"
+                        required
+                        placeholder="Gedimino 15"
+                    />
+
                     <x-form-input
                         name="address"
                         label="Address"

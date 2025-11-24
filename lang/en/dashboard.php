@@ -1,0 +1,150 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'manager' => [
+        'title' => 'Manager Dashboard',
+        'description' => 'Property management overview and pending tasks',
+        'stats' => [
+            'total_properties' => 'Total Properties',
+            'meters_pending' => 'Meters Pending Reading',
+            'draft_invoices' => 'Draft Invoices',
+            'active_meters' => 'Active Meters',
+            'active_tenants' => 'Active Tenants',
+            'overdue_invoices' => 'Overdue Invoices',
+        ],
+        'pending_section' => 'Properties Requiring Meter Readings',
+        'pending_meter_line' => '{1} :count meter needs reading for this month|[2,*] :count meters need reading for this month',
+        'quick_actions' => [
+            'view_buildings' => 'View Buildings',
+            'view_buildings_desc' => 'Manage multi-unit buildings',
+            'view_meters' => 'View Meters',
+            'view_meters_desc' => 'Manage utility meters',
+            'view_reports' => 'View Reports',
+            'view_reports_desc' => 'Analytics and insights',
+        ],
+        'sections' => [
+            'operations' => 'Operational Tasks',
+            'drafts' => 'Draft Invoices',
+            'recent' => 'Recent Invoices',
+            'shortcuts' => 'Manager Shortcuts',
+        ],
+        'hints' => [
+            'operations' => 'Meters that still need this month\'s readings.',
+            'drafts' => 'Finalize or send these before billing closes.',
+            'recent' => 'Latest billing activity across your portfolio.',
+            'shortcuts' => 'Jump into the manager tools you use most.',
+        ],
+        'empty' => [
+            'operations' => 'All meters are up to date for this month.',
+            'drafts' => 'No draft invoices right now.',
+            'recent' => 'No invoices yet for this period.',
+        ],
+    ],
+
+    'admin' => [
+        'stats' => [
+            'total_meter_readings' => 'Total Meter Readings',
+            'total_users' => 'Total Users',
+            'total_properties' => 'Total Properties',
+            'active_tenants' => 'Active Tenants',
+            'active_meters' => 'Active Meters',
+            'unpaid_invoices' => 'Unpaid Invoices',
+        ],
+        'breakdown' => [
+            'users_title' => 'User Breakdown',
+            'invoice_title' => 'Invoice Status',
+            'administrators' => 'Administrators',
+            'managers' => 'Managers',
+            'tenants' => 'Tenants',
+            'draft_invoices' => 'Draft Invoices',
+            'finalized_invoices' => 'Finalized Invoices',
+            'paid_invoices' => 'Paid Invoices',
+        ],
+        'activity' => [
+            'recent_portfolio' => 'Recent Portfolio Activity',
+            'recent_system' => 'Recent System Activity',
+            'recent_tenants' => 'Recently Created Tenants',
+            'recent_users' => 'Recently Created Users',
+            'recent_invoices' => 'Recently Created Invoices',
+            'recent_readings' => 'Recent Meter Readings',
+            'no_users' => 'No recent users',
+        ],
+        'quick' => [
+            'settings' => 'System Settings',
+            'settings_desc' => 'Configure system options',
+            'create_user' => 'Create New User',
+            'create_user_desc' => 'Add a new system user',
+        ],
+        'quick_actions' => [
+            'title' => 'Quick Actions',
+            'manage_tenants_title' => 'Manage Tenants',
+            'manage_tenants_desc' => 'View and manage tenant accounts',
+            'organization_profile_title' => 'Organization Profile',
+            'organization_profile_desc' => 'Manage profile and subscription',
+            'create_tenant_title' => 'Create New Tenant',
+            'create_tenant_desc' => 'Add a tenant to your portfolio',
+            'manage_users_title' => 'Manage Users',
+            'manage_users_desc' => 'User accounts and roles',
+        ],
+    ],
+
+    'tenant' => [
+        'title' => 'My Dashboard',
+        'description' => 'Your utility billing overview',
+        'alerts' => [
+            'no_property_title' => 'No Property Assigned',
+            'no_property_body' => 'You do not have a property assigned yet. Please contact your administrator.',
+        ],
+        'property' => [
+            'title' => 'My Property',
+            'address' => 'Address',
+            'type' => 'Property Type',
+            'area' => 'Area',
+            'building' => 'Building',
+        ],
+        'balance' => [
+            'title' => 'Unpaid Balance',
+            'outstanding' => 'Outstanding amount:',
+            'notice' => 'You have :count unpaid invoice(s). Please review and pay your outstanding bills.',
+            'cta' => 'View Invoices',
+        ],
+        'stats' => [
+            'total_invoices' => 'Total Invoices',
+            'unpaid_invoices' => 'Unpaid Invoices',
+            'active_meters' => 'Active Meters',
+        ],
+        'readings' => [
+            'title' => 'Recent Meter Readings',
+            'meter_type' => 'Meter Type',
+            'serial' => 'Serial Number',
+            'reading' => 'Reading',
+            'date' => 'Date',
+            'serial_short' => 'Serial:',
+            'units' => [
+                'electricity' => 'kWh',
+                'default' => 'm³',
+            ],
+        ],
+        'consumption' => [
+            'title' => 'Consumption Comparison',
+            'description' => 'Latest reading changes versus the previous entry for each meter.',
+            'need_more' => 'Need at least two readings per meter to show comparisons.',
+            'current' => 'current',
+            'previous' => 'Prev: :value on :date',
+            'since_last' => 'since last reading',
+            'missing_previous' => 'Need a previous reading to calculate change.',
+        ],
+        'quick_actions' => [
+            'title' => 'Quick Actions',
+            'description' => 'Jump to the most common pages in your portal.',
+            'invoices_title' => 'View My Invoices',
+            'invoices_desc' => 'Check your utility bills',
+            'meters_title' => 'My Meters',
+            'meters_desc' => 'View consumption history',
+            'property_title' => 'My Property',
+            'property_desc' => 'Property details',
+        ],
+    ],
+];

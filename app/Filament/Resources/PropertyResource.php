@@ -11,8 +11,10 @@ use App\Filament\Resources\PropertyResource\Pages;
 use App\Filament\Resources\PropertyResource\RelationManagers;
 use App\Models\Property;
 use App\Models\User;
+use BackedEnum;
+use UnitEnum;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -46,13 +48,19 @@ class PropertyResource extends Resource
      */
     protected static string $translationPrefix = 'properties.validation';
 
-    protected static ?string $navigationIcon = 'heroicon-o-home';
-
     protected static ?string $navigationLabel = 'Properties';
 
-    protected static ?string $navigationGroup = 'Operations';
-
     protected static ?int $navigationSort = 2;
+
+    public static function getNavigationIcon(): string|BackedEnum|null
+    {
+        return 'heroicon-o-home';
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return 'Operations';
+    }
 
     protected static ?string $recordTitleAttribute = 'address';
 
@@ -83,9 +91,9 @@ class PropertyResource extends Resource
         return __('properties.labels.properties');
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\Section::make(__('properties.sections.property_details'))
                     ->description(__('properties.sections.property_details_description'))
@@ -162,7 +170,8 @@ class PropertyResource extends Resource
         $user = auth()->user();
 
         if ($user instanceof User && $user->tenant_id) {
-            $query->where('tenant_id', $user->tenant_id);
+            $table = $query->getModel()->getTable();
+            $query->where("{$table}.tenant_id", $user->tenant_id);
         }
 
         return $query;
@@ -255,25 +264,15 @@ class PropertyResource extends Resource
                     ->toggle(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->iconButton(),
-                Tables\Actions\DeleteAction::make()
-                    ->iconButton(),
+                // Table row actions removed - use page header actions instead
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->requiresConfirmation()
-                        ->modalHeading(__('properties.modals.delete_confirmation'))
-                        ->modalDescription(__('properties.modals.delete_confirmation'))
-                        ->successNotificationTitle(__('properties.notifications.bulk_deleted.title')),
-                ]),
+                // Bulk actions removed for Filament v4 compatibility
             ])
             ->emptyStateHeading(__('properties.empty_state.heading'))
             ->emptyStateDescription(__('properties.empty_state.description'))
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make()
-                    ->label(__('properties.actions.add_first_property')),
+                // Empty state actions removed - use page header actions instead
             ])
             ->defaultSort('address', 'asc')
             ->persistSortInSession()

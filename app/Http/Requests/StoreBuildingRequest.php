@@ -22,6 +22,8 @@ class StoreBuildingRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'tenant_id' => ['required', 'integer'],
+            'name' => ['required', 'string', 'max:255'],
             'address' => ['required', 'string', 'max:255'],
             'total_apartments' => ['required', 'integer', 'min:1', 'max:1000'],
         ];
@@ -35,11 +37,18 @@ class StoreBuildingRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'address.required' => 'The building address is required.',
-            'total_apartments.required' => 'The total number of apartments is required.',
-            'total_apartments.integer' => 'The total number of apartments must be a whole number.',
-            'total_apartments.min' => 'The building must have at least 1 apartment.',
-            'total_apartments.max' => 'The building cannot have more than 1,000 apartments.',
+            'tenant_id.required' => __('buildings.validation.tenant_id.required'),
+            'tenant_id.integer' => __('buildings.validation.tenant_id.integer'),
+            'name.required' => __('buildings.validation.name.required'),
+            'name.string' => __('buildings.validation.name.string'),
+            'name.max' => __('buildings.validation.name.max'),
+            'address.required' => __('buildings.validation.address.required'),
+            'address.string' => __('buildings.validation.address.string'),
+            'address.max' => __('buildings.validation.address.max'),
+            'total_apartments.required' => __('buildings.validation.total_apartments.required'),
+            'total_apartments.integer' => __('buildings.validation.total_apartments.integer'),
+            'total_apartments.min' => __('buildings.validation.total_apartments.min'),
+            'total_apartments.max' => __('buildings.validation.total_apartments.max'),
         ];
     }
 

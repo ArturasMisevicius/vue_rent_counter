@@ -7,6 +7,8 @@ namespace Tests\Feature\Filament;
 use App\Enums\UserRole;
 use App\Models\Building;
 use App\Models\Invoice;
+use App\Models\Meter;
+use App\Models\MeterReadingAudit;
 use App\Models\MeterReading;
 use App\Models\Property;
 use App\Models\User;
@@ -65,7 +67,14 @@ class AdminDashboardTest extends TestCase
     {
         $admin = $this->actingAsAdmin();
 
-        // Create test data
+        // Track baseline counts, then create one of each
+        $basePropertyCount = Property::where('tenant_id', $admin->tenant_id)->count();
+        $baseBuildingCount = Building::where('tenant_id', $admin->tenant_id)->count();
+        $baseTenantUserCount = User::where('tenant_id', $admin->tenant_id)
+            ->where('role', UserRole::TENANT)
+            ->where('is_active', true)
+            ->count();
+
         $property = $this->createTestProperty(['tenant_id' => $admin->tenant_id]);
         $building = Building::factory()->create(['tenant_id' => $admin->tenant_id]);
         $tenant = User::factory()->create([
@@ -79,12 +88,21 @@ class AdminDashboardTest extends TestCase
         $response->assertStatus(200);
         
         // Verify the widget is registered and data is correct
-        $this->assertEquals(1, Property::where('tenant_id', $admin->tenant_id)->count());
-        $this->assertEquals(1, Building::where('tenant_id', $admin->tenant_id)->count());
-        $this->assertEquals(1, User::where('tenant_id', $admin->tenant_id)
-            ->where('role', UserRole::TENANT)
-            ->where('is_active', true)
-            ->count());
+        $this->assertEquals(
+            $basePropertyCount + 1,
+            Property::where('tenant_id', $admin->tenant_id)->count()
+        );
+        $this->assertEquals(
+            $baseBuildingCount + 1,
+            Building::where('tenant_id', $admin->tenant_id)->count()
+        );
+        $this->assertEquals(
+            $baseTenantUserCount + 1,
+            User::where('tenant_id', $admin->tenant_id)
+                ->where('role', UserRole::TENANT)
+                ->where('is_active', true)
+                ->count()
+        );
     }
 
     public function test_dashboard_shows_quick_actions_for_admin(): void
@@ -105,13 +123,17 @@ class AdminDashboardTest extends TestCase
     {
         $admin1 = $this->actingAsAdmin();
         
+        $admin1BasePropertyCount = Property::where('tenant_id', $admin1->tenant_id)->count();
+        $admin2TenantId = 9999;
+        $admin2BasePropertyCount = Property::where('tenant_id', $admin2TenantId)->count();
+
         // Create data for admin1's tenant
         $property1 = $this->createTestProperty(['tenant_id' => $admin1->tenant_id]);
         
         // Create another admin with different tenant
         $admin2 = User::factory()->create([
             'role' => UserRole::ADMIN,
-            'tenant_id' => 'tenant_' . uniqid(),
+            'tenant_id' => $admin2TenantId,
         ]);
         
         // Create data for admin2's tenant
@@ -121,14 +143,24 @@ class AdminDashboardTest extends TestCase
 
         $response->assertStatus(200);
         
-        // Should see count of 1 (only admin1's property)
-        $this->assertEquals(1, Property::where('tenant_id', $admin1->tenant_id)->count());
-        $this->assertEquals(1, Property::where('tenant_id', $admin2->tenant_id)->count());
+        // Should see counts relative to each tenant's base state
+        $this->assertEquals(
+            $admin1BasePropertyCount + 1,
+            Property::withoutGlobalScopes()->where('tenant_id', $admin1->tenant_id)->count()
+        );
+        $this->assertEquals(
+            $admin2BasePropertyCount + 1,
+            Property::withoutGlobalScopes()->where('tenant_id', $admin2->tenant_id)->count()
+        );
     }
 
     public function test_dashboard_shows_draft_invoices_count(): void
     {
         $admin = $this->actingAsAdmin();
+
+        $baseDraftCount = Invoice::where('tenant_id', $admin->tenant_id)
+            ->whereNull('finalized_at')
+            ->count();
 
         // Create draft invoices
         Invoice::factory()->count(3)->create([
@@ -149,30 +181,44 @@ class AdminDashboardTest extends TestCase
         $draftCount = Invoice::where('tenant_id', $admin->tenant_id)
             ->whereNull('finalized_at')
             ->count();
-        $this->assertEquals(3, $draftCount);
+        $this->assertEquals($baseDraftCount + 3, $draftCount);
     }
 
     public function test_dashboard_shows_pending_meter_readings(): void
     {
         $admin = $this->actingAsAdmin();
         $property = $this->createTestProperty(['tenant_id' => $admin->tenant_id]);
-        $meter = $property->meters()->first();
+        $meter = \App\Models\Meter::factory()->forProperty($property)->create([
+            'tenant_id' => $admin->tenant_id,
+        ]);
+
+        $basePendingCount = MeterReading::whereHas('meter', function ($query) use ($admin) {
+            $query->where('tenant_id', $admin->tenant_id);
+        })->whereDoesntHave('auditTrail')->count();
 
         // Create unverified readings
-        $this->createTestMeterReading([
-            'meter_id' => $meter->id,
-            'verified_at' => null,
-        ]);
+        $this->createTestMeterReading(
+            $meter->id,
+            100
+        );
 
-        $this->createTestMeterReading([
-            'meter_id' => $meter->id,
-            'verified_at' => null,
-        ]);
+        $this->createTestMeterReading(
+            $meter->id,
+            120
+        );
 
         // Create verified reading
-        $this->createTestMeterReading([
-            'meter_id' => $meter->id,
-            'verified_at' => now(),
+        $verifiedReading = $this->createTestMeterReading(
+            $meter->id,
+            140
+        );
+
+        MeterReadingAudit::factory()->create([
+            'meter_reading_id' => $verifiedReading->id,
+            'changed_by_user_id' => $admin->id,
+            'old_value' => $verifiedReading->value,
+            'new_value' => $verifiedReading->value,
+            'change_reason' => 'Seeded verification',
         ]);
 
         $response = $this->get('/admin');
@@ -181,14 +227,18 @@ class AdminDashboardTest extends TestCase
         
         $pendingCount = MeterReading::whereHas('meter', function ($query) use ($admin) {
             $query->where('tenant_id', $admin->tenant_id);
-        })->whereNull('verified_at')->count();
+        })->whereDoesntHave('auditTrail')->count();
         
-        $this->assertEquals(2, $pendingCount);
+        $this->assertEquals($basePendingCount + 2, $pendingCount);
     }
 
     public function test_dashboard_calculates_monthly_revenue(): void
     {
         $admin = $this->actingAsAdmin();
+        $baseMonthlyRevenue = Invoice::where('tenant_id', $admin->tenant_id)
+            ->whereNotNull('finalized_at')
+            ->whereMonth('created_at', now()->month)
+            ->sum('total_amount');
 
         // Create finalized invoices for this month
         Invoice::factory()->create([
@@ -222,7 +272,7 @@ class AdminDashboardTest extends TestCase
             ->whereMonth('created_at', now()->month)
             ->sum('total_amount');
         
-        $this->assertEquals(25000, $monthlyRevenue); // €250.00
+        $this->assertEquals($baseMonthlyRevenue + 25000, $monthlyRevenue); // €250.00 above baseline
     }
 
     public function test_manager_sees_limited_stats(): void

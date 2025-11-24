@@ -59,3 +59,9 @@ Deliver a single-pane control center where:
 - Building a public headless CMS or marketing site; focus is utility/account operations.
 - Billing for markets outside the Lithuanian gyvatukas/tariff rules.
 - Adding rich WYSIWYG editors or third-party payment processors.
+
+
+- do not use command like a: php artisan test --compact 2>&1 | head -100
+- always use php artisan test --filter to make tests by files, do not start all tests, only with filtering
+
+- always use MCP servers, use mcp services

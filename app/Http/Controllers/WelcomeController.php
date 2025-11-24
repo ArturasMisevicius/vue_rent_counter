@@ -13,6 +13,7 @@ final class WelcomeController extends Controller
     {
         $brand = config('landing.brand', []);
         $features = config('landing.features', []);
+        $currentLocale = app()->getLocale();
         
         $publishedFaqs = Faq::query()
             ->published()
@@ -20,13 +21,13 @@ final class WelcomeController extends Controller
             ->orderBy('id')
             ->get();
         
-        $faqItems = $publishedFaqs->isNotEmpty()
-            ? $publishedFaqs->map(fn ($faq) => [
-                'question' => $faq->question,
-                'answer' => $faq->answer,
-                'category' => $faq->category,
-            ])
+        $faqSource = $publishedFaqs->isNotEmpty()
+            ? $publishedFaqs
             : collect(config('landing.faq', []));
+
+        $faqItems = $faqSource->map(
+            fn ($faq) => $this->formatFaqItem($faq, $currentLocale)
+        );
         
         $canLogin = Route::has('login');
         $canRegister = Route::has('register');
@@ -36,7 +37,6 @@ final class WelcomeController extends Controller
             ->orderBy('display_order')
             ->get();
         
-        $currentLocale = app()->getLocale();
         $canSwitchLocale = Route::has('locale.set');
         
         return view('welcome', compact(
@@ -49,5 +49,59 @@ final class WelcomeController extends Controller
             'currentLocale',
             'canSwitchLocale'
         ));
+    }
+
+    private function formatFaqItem(array|Faq $faq, string $locale): array
+    {
+        $question = $faq instanceof Faq ? $faq->question : ($faq['question'] ?? null);
+        $answer = $faq instanceof Faq ? $faq->answer : ($faq['answer'] ?? null);
+        $category = $faq instanceof Faq ? $faq->category : ($faq['category'] ?? null);
+
+        return [
+            'question' => $this->localizedValue($question, $locale),
+            'answer' => $this->localizedValue($answer, $locale),
+            'category' => $this->localizedValue($category, $locale),
+        ];
+    }
+
+    private function localizedValue(mixed $value, string $locale): string
+    {
+        if (is_array($value)) {
+            $localized = $value[$locale] ?? reset($value);
+
+            if (is_string($localized)) {
+                return $this->toStringTranslation($localized);
+            }
+
+            return '';
+        }
+
+        if (is_string($value)) {
+            return $this->toStringTranslation($value);
+        }
+
+        return '';
+    }
+
+    private function toStringTranslation(string $value): string
+    {
+        $translated = __($value);
+
+        if (is_array($translated)) {
+            // Find the first string value inside the translation array
+            foreach ($translated as $item) {
+                if (is_string($item)) {
+                    $translated = $item;
+                    break;
+                }
+            }
+
+            // If no string was found, bail out with empty string to avoid notices
+            if (is_array($translated)) {
+                return '';
+            }
+        }
+
+        return (string) $translated;
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Manager;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FinalizeInvoiceRequest;
+use App\Http\Requests\ManagerMarkInvoicePaidRequest;
 use App\Http\Requests\StoreInvoiceRequest;
 use App\Models\Invoice;
 use App\Models\Tenant;
@@ -80,7 +81,7 @@ class InvoiceController extends Controller
 
         return redirect()
             ->route('manager.invoices.show', $invoice)
-            ->with('success', 'Invoice generated successfully.');
+            ->with('success', __('notifications.invoice.created'));
     }
 
     /**
@@ -103,7 +104,7 @@ class InvoiceController extends Controller
         $this->authorize('update', $invoice);
 
         if (!$invoice->isDraft()) {
-            return back()->with('error', 'Only draft invoices can be edited.');
+            return back()->with('error', __('invoices.errors.edit_draft_only'));
         }
 
         $tenants = Tenant::with('property')->orderBy('name')->get();
@@ -119,7 +120,7 @@ class InvoiceController extends Controller
         $this->authorize('update', $invoice);
 
         if (!$invoice->isDraft()) {
-            return back()->with('error', 'Only draft invoices can be updated.');
+            return back()->with('error', __('invoices.errors.update_draft_only'));
         }
 
         $validated = $request->validated();
@@ -161,7 +162,7 @@ class InvoiceController extends Controller
 
         return redirect()
             ->route('manager.invoices.show', $invoice)
-            ->with('success', 'Invoice updated successfully.');
+            ->with('success', __('notifications.invoice.updated'));
     }
 
     /**
@@ -172,14 +173,14 @@ class InvoiceController extends Controller
         $this->authorize('delete', $invoice);
 
         if (!$invoice->isDraft()) {
-            return back()->with('error', 'Only draft invoices can be deleted.');
+            return back()->with('error', __('invoices.errors.delete_draft_only'));
         }
 
         $invoice->delete();
 
         return redirect()
             ->route('manager.invoices.index')
-            ->with('success', 'Invoice deleted successfully.');
+            ->with('success', __('notifications.invoice.deleted'));
     }
 
     /**
@@ -190,12 +191,12 @@ class InvoiceController extends Controller
         $this->authorize('update', $invoice);
 
         if (!$invoice->isDraft()) {
-            return back()->with('error', 'Invoice is already finalized.');
+            return back()->with('error', __('invoices.errors.already_finalized'));
         }
 
         $invoice->finalize();
 
-        return back()->with('success', 'Invoice finalized successfully. It is now immutable.');
+        return back()->with('success', __('notifications.invoice.finalized_locked'));
     }
 
     /**
@@ -226,5 +227,31 @@ class InvoiceController extends Controller
             ->paginate(20);
 
         return view('manager.invoices.finalized', compact('invoices'));
+    }
+
+    /**
+     * Mark an invoice as paid.
+     */
+    public function markPaid(ManagerMarkInvoicePaidRequest $request, Invoice $invoice): RedirectResponse
+    {
+        $this->authorize('update', $invoice);
+
+        if ($invoice->isPaid()) {
+            return back()->with('success', __('notifications.invoice.already_paid') ?? 'Invoice already marked as paid.');
+        }
+
+        $validated = $request->validated();
+
+        $invoice->status = \App\Enums\InvoiceStatus::PAID;
+        $invoice->paid_at = now();
+        if (!empty($validated['payment_reference'])) {
+            $invoice->payment_reference = $validated['payment_reference'];
+        }
+        if (isset($validated['paid_amount'])) {
+            $invoice->paid_amount = $validated['paid_amount'];
+        }
+        $invoice->save();
+
+        return back()->with('success', __('notifications.invoice.marked_paid') ?? 'Invoice marked as paid.');
     }
 }

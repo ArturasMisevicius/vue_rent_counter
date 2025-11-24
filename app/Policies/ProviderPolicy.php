@@ -13,8 +13,13 @@ class ProviderPolicy
      */
     public function viewAny(User $user): bool
     {
-        // All authenticated users can view providers
-        return true;
+        // Providers are readable by all authenticated roles
+        return in_array($user->role, [
+            UserRole::SUPERADMIN,
+            UserRole::ADMIN,
+            UserRole::MANAGER,
+            UserRole::TENANT,
+        ], true);
     }
 
     /**
@@ -22,8 +27,13 @@ class ProviderPolicy
      */
     public function view(User $user, Provider $provider): bool
     {
-        // All authenticated users can view individual providers
-        return true;
+        // Providers are readable by all authenticated roles
+        return in_array($user->role, [
+            UserRole::SUPERADMIN,
+            UserRole::ADMIN,
+            UserRole::MANAGER,
+            UserRole::TENANT,
+        ], true);
     }
 
     /**

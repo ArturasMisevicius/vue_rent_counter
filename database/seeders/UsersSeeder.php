@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Enums\SubscriptionPlanType;
+use App\Enums\SubscriptionStatus;
 use App\Models\Property;
 use App\Models\Subscription;
 use App\Models\User;
@@ -67,7 +69,7 @@ class UsersSeeder extends Seeder
             name: 'Test Admin',
             email: 'admin@test.com',
             organizationName: 'Test Organization 1',
-            planType: 'professional',
+            planType: SubscriptionPlanType::PROFESSIONAL->value,
             password: $password
         );
 
@@ -77,7 +79,7 @@ class UsersSeeder extends Seeder
             name: 'Test Manager 2',
             email: 'manager2@test.com',
             organizationName: 'Test Organization 2',
-            planType: 'basic',
+            planType: SubscriptionPlanType::BASIC->value,
             password: $password,
             expiresInMonths: 6
         );
@@ -89,7 +91,7 @@ class UsersSeeder extends Seeder
             name: 'Vilnius Properties Ltd',
             email: 'admin1@example.com',
             organizationName: 'Vilnius Properties Ltd',
-            planType: 'professional',
+            planType: SubscriptionPlanType::PROFESSIONAL->value,
             password: $password
         );
 
@@ -100,7 +102,7 @@ class UsersSeeder extends Seeder
             name: 'Baltic Real Estate',
             email: 'admin2@example.com',
             organizationName: 'Baltic Real Estate',
-            planType: 'basic',
+            planType: SubscriptionPlanType::BASIC->value,
             password: $password,
             expiresInMonths: 6
         );
@@ -111,9 +113,9 @@ class UsersSeeder extends Seeder
             name: 'Old Town Management',
             email: 'admin3@example.com',
             organizationName: 'Old Town Management',
-            planType: 'basic',
+            planType: SubscriptionPlanType::BASIC->value,
             password: $password,
-            status: 'expired',
+            status: SubscriptionStatus::EXPIRED->value,
             startsAt: now()->subYear(),
             expiresAt: now()->subDays(10)
         );
@@ -135,7 +137,7 @@ class UsersSeeder extends Seeder
         string $organizationName,
         string $planType,
         string $password,
-        string $status = 'active',
+        string $status = SubscriptionStatus::ACTIVE->value,
         ?\DateTimeInterface $startsAt = null,
         ?\DateTimeInterface $expiresAt = null,
         int $expiresInMonths = 12
@@ -156,8 +158,8 @@ class UsersSeeder extends Seeder
                 'status' => $status,
                 'starts_at' => $startsAt ?? now(),
                 'expires_at' => $expiresAt ?? now()->addMonths($expiresInMonths),
-                'max_properties' => $planType === 'professional' ? 50 : 10,
-                'max_tenants' => $planType === 'professional' ? 200 : 50,
+                'max_properties' => $planType === SubscriptionPlanType::PROFESSIONAL->value ? 50 : 10,
+                'max_tenants' => $planType === SubscriptionPlanType::PROFESSIONAL->value ? 200 : 50,
             ]);
 
         return $admin;
@@ -289,4 +291,3 @@ class UsersSeeder extends Seeder
         }
     }
 }
-

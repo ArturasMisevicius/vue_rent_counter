@@ -31,22 +31,20 @@ class InvoicePolicy
             return true;
         }
 
-        // Admins and managers can view all invoices within their tenant
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Admins can view invoices across tenants (other permissions enforce scope)
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        // Managers can view invoices within their tenant
+        if ($user->role === UserRole::MANAGER) {
             return $invoice->tenant_id === $user->tenant_id;
         }
 
         // Tenants can only view invoices assigned to them
         if ($user->role === UserRole::TENANT) {
-            // Find the Tenant model associated with this User (by email)
-            $tenant = \App\Models\Tenant::where('email', $user->email)->first();
-            
-            if (!$tenant) {
-                return false;
-            }
-            
-            // Check if the invoice is assigned to this tenant
-            return $invoice->tenant_renter_id === $tenant->id;
+            return $invoice->tenant_id === $user->tenant_id
+                || $invoice->tenant_renter_id === optional($user->tenant)->id;
         }
 
         return false;
@@ -99,12 +97,10 @@ class InvoicePolicy
             return false;
         }
 
-        // Superadmin can finalize any invoice
         if ($user->role === UserRole::SUPERADMIN) {
             return true;
         }
 
-        // Admins and managers can finalize invoices within their tenant
         if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $invoice->tenant_id === $user->tenant_id;
         }

@@ -15,14 +15,14 @@ class TimeRangeValidator
     public function validate(array $zones): array
     {
         if (empty($zones)) {
-            return ['At least one zone is required'];
+            return [__('tariffs.validation.configuration.zones.errors.required')];
         }
 
         $timeRanges = $this->convertZonesToTimeRanges($zones);
         $errors = [];
 
         if ($this->hasOverlappingRanges($timeRanges)) {
-            $errors[] = 'Time zones cannot overlap.';
+            $errors[] = __('tariffs.validation.configuration.zones.errors.overlap');
         }
 
         $coverageError = $this->validateFullCoverage($timeRanges);
@@ -142,7 +142,9 @@ class TimeRangeValidator
                 $firstUncovered % TimeConstants::MINUTES_PER_HOUR
             );
 
-            return "Time zones must cover all 24 hours. Gap detected starting at {$uncoveredTime}.";
+            return __('tariffs.validation.configuration.zones.errors.coverage', [
+                'time' => $uncoveredTime,
+            ]);
         }
 
         return null;

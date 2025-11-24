@@ -28,3 +28,6 @@ Enable Vilnius‑style residential utilities management with a multi‑tenant La
 - Don’t add payment gateways, billing reconciliation, or marketplace features—focus remains on meter-driven invoicing and tenant workflows.
 - Keep migrations additive and reversible; destructive schema changes must ship with explicit backfill/rollback stories.
 - No demo-mode leak of sensitive data; seeders and notifications keep credentials static and sanitized.
+
+
+- always use MCP servers, use mcp services

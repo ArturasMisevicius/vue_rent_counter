@@ -82,7 +82,7 @@ class PropertyController extends Controller
 
         return redirect()
             ->route('manager.properties.show', $property)
-            ->with('success', 'Property created successfully.');
+            ->with('success', __('notifications.property.created'));
     }
 
     /**
@@ -122,7 +122,7 @@ class PropertyController extends Controller
 
         return redirect()
             ->route('manager.properties.show', $property)
-            ->with('success', 'Property updated successfully.');
+            ->with('success', __('notifications.property.updated'));
     }
 
     /**
@@ -134,13 +134,13 @@ class PropertyController extends Controller
 
         // Check if property has associated data
         if ($property->meters()->exists() || $property->tenants()->exists()) {
-            return back()->with('error', 'Cannot delete property with associated meters or tenants.');
+            return back()->with('error', __('properties.errors.has_relations'));
         }
 
         $property->delete();
 
         return redirect()
             ->route('manager.properties.index')
-            ->with('success', 'Property deleted successfully.');
+            ->with('success', __('notifications.property.deleted'));
     }
 }

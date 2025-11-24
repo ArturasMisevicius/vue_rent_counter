@@ -13,8 +13,8 @@
 
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-gray-900">Edit Building</h1>
-            <p class="mt-2 text-sm text-gray-700">Update building information</p>
+            <h1 class="text-2xl font-semibold text-slate-900">Edit Building</h1>
+            <p class="mt-2 text-sm text-slate-700">Update building information</p>
         </div>
     </div>
 
@@ -25,6 +25,15 @@
                 @method('PUT')
 
                 <div class="space-y-6">
+                    <x-form-input
+                        name="name"
+                        label="Building Name"
+                        type="text"
+                        :value="old('name', $building->name)"
+                        required
+                        placeholder="Gedimino 15"
+                    />
+
                     <x-form-input
                         name="address"
                         label="Address"

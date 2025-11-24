@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionPlanType;
 use App\Models\Building;
 use App\Models\Property;
 use App\Models\User;
@@ -236,7 +237,7 @@ test('tenant cannot be created with different tenant_id than admin', function ()
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -247,7 +248,7 @@ test('tenant cannot be created with different tenant_id than admin', function ()
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     

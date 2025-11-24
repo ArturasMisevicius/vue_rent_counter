@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\AdminUpdatePasswordRequest;
+use App\Http\Requests\AdminUpdateProfileRequest;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
@@ -74,35 +74,28 @@ class ProfileController extends Controller
     /**
      * Update the admin's profile information.
      */
-    public function update(Request $request)
+    public function update(AdminUpdateProfileRequest $request)
     {
         $user = auth()->user();
         
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'organization_name' => 'nullable|string|max:255',
-        ]);
+        $validated = $request->validated();
 
         $user->update($validated);
 
-        return back()->with('success', 'Profile updated successfully.');
+        return back()->with('success', __('notifications.profile.updated'));
     }
 
     /**
      * Update the admin's password.
      */
-    public function updatePassword(Request $request)
+    public function updatePassword(AdminUpdatePasswordRequest $request)
     {
-        $validated = $request->validate([
-            'current_password' => 'required|current_password',
-            'password' => ['required', 'confirmed', Password::defaults()],
-        ]);
+        $validated = $request->validated();
 
         auth()->user()->update([
             'password' => Hash::make($validated['password']),
         ]);
 
-        return back()->with('success', 'Password updated successfully.');
+        return back()->with('success', __('notifications.profile.password_updated'));
     }
 }

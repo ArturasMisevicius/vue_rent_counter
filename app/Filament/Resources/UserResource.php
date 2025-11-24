@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use UnitEnum;
+use BackedEnum;
 use App\Enums\UserRole;
 use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\UserResource\Pages;
@@ -11,7 +13,9 @@ use App\Models\Property;
 use App\Models\Tenant;
 use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -26,13 +30,19 @@ class UserResource extends Resource
 
     protected static string $translationPrefix = 'users.validation';
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
-
     protected static ?string $navigationLabel = 'Users';
 
-    protected static ?string $navigationGroup = 'Administration';
-
     protected static ?int $navigationSort = 1;
+
+    public static function getNavigationIcon(): string|BackedEnum|null
+    {
+        return 'heroicon-o-users';
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return 'Administration';
+    }
 
     // Integrate UserPolicy for authorization (Requirement 9.5)
     public static function canViewAny(): bool
@@ -61,9 +71,9 @@ class UserResource extends Resource
         return auth()->check() && auth()->user()->role === \App\Enums\UserRole::ADMIN;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->label('Name')
@@ -106,7 +116,7 @@ class UserResource extends Resource
                     ->required()
                     ->native(false)
                     ->live()
-                    ->afterStateUpdated(function (Forms\Set $set, $state) {
+                    ->afterStateUpdated(function (Set $set, $state) {
                         // Clear tenant_id when role is changed to admin
                         if ($state === UserRole::ADMIN->value) {
                             $set('tenant_id', null);
@@ -118,9 +128,9 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('organization_name')
                     ->label('Organization Name')
                     ->maxLength(255)
-                    ->required(fn (Forms\Get $get): bool => $get('role') === UserRole::ADMIN->value
+                    ->required(fn (Get $get): bool => $get('role') === UserRole::ADMIN->value
                     )
-                    ->visible(fn (Forms\Get $get): bool => $get('role') === UserRole::ADMIN->value
+                    ->visible(fn (Get $get): bool => $get('role') === UserRole::ADMIN->value
                     )
                     ->validationMessages(self::getValidationMessages('organization_name')),
 
@@ -136,9 +146,9 @@ class UserResource extends Resource
                     })
                     ->searchable()
                     ->preload()
-                    ->required(fn (Forms\Get $get): bool => $get('role') === UserRole::TENANT->value
+                    ->required(fn (Get $get): bool => $get('role') === UserRole::TENANT->value
                     )
-                    ->visible(fn (Forms\Get $get): bool => $get('role') === UserRole::TENANT->value
+                    ->visible(fn (Get $get): bool => $get('role') === UserRole::TENANT->value
                     )
                     ->validationMessages(self::getValidationMessages('properties')),
 
@@ -148,7 +158,7 @@ class UserResource extends Resource
                     ->relationship('parentUser', 'name')
                     ->disabled()
                     ->dehydrated(false)
-                    ->visible(fn (Forms\Get $get, ?User $record): bool => $record && $record->parent_user_id !== null
+                    ->visible(fn (Get $get, ?User $record): bool => $record && $record->parent_user_id !== null
                     ),
 
                 // Account activation status (Requirement 7.1)
@@ -224,14 +234,24 @@ class UserResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Table row actions removed - use page header actions instead
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Bulk actions removed for Filament 4 compatibility
             ])
             ->defaultSort('name', 'asc');
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user && $user->role !== UserRole::SUPERADMIN) {
+            $query->where('tenant_id', $user->tenant_id);
+        }
+
+        return $query;
     }
 
     public static function getRelations(): array

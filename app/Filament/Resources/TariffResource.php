@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources;
 
 use App\Enums\ServiceType;
@@ -9,26 +11,47 @@ use App\Filament\Resources\TariffResource\Pages;
 use App\Filament\Resources\TariffResource\RelationManagers;
 use App\Models\Provider;
 use App\Models\Tariff;
+use BackedEnum;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use UnitEnum;
 
+/**
+ * Filament resource for managing tariffs.
+ *
+ * Provides CRUD operations for tariffs with:
+ * - Tenant-scoped data access
+ * - Role-based navigation visibility (admin only)
+ * - Support for flat and time-of-use tariff types
+ * - Zone configuration for time-of-use tariffs
+ * - Relationship management (providers)
+ *
+ * @see \App\Models\Tariff
+ * @see \App\Policies\TariffPolicy
+ */
 class TariffResource extends Resource
 {
     protected static ?string $model = Tariff::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
-
     protected static ?string $navigationLabel = 'Tariffs';
 
-    protected static ?string $navigationGroup = 'Configuration';
-
     protected static ?int $navigationSort = 1;
+
+    public static function getNavigationIcon(): string|BackedEnum|null
+    {
+        return 'heroicon-o-currency-dollar';
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return 'Configuration';
+    }
 
     // Integrate TariffPolicy for authorization (Requirement 9.5)
     public static function canViewAny(): bool
@@ -57,9 +80,9 @@ class TariffResource extends Resource
         return auth()->check() && auth()->user()->role === \App\Enums\UserRole::ADMIN;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\Section::make('Basic Information')
                     ->schema([
@@ -294,12 +317,10 @@ class TariffResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Bulk actions removed for Filament v4 compatibility
             ])
             ->defaultSort('active_from', 'desc');
     }

@@ -8,11 +8,13 @@ use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\BuildingResource\Pages;
 use App\Filament\Resources\BuildingResource\RelationManagers;
 use App\Models\Building;
+use BackedEnum;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class BuildingResource extends Resource
 {
@@ -22,13 +24,19 @@ class BuildingResource extends Resource
 
     protected static string $translationPrefix = 'buildings.validation';
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
-
     protected static ?string $navigationLabel = 'Buildings';
 
-    protected static ?string $navigationGroup = 'Configuration';
+    protected static ?int $navigationSort = 4;
 
-    protected static ?int $navigationSort = 3;
+    public static function getNavigationIcon(): string|BackedEnum|null
+    {
+        return 'heroicon-o-building-office-2';
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return 'Operations';
+    }
 
     // Integrate BuildingPolicy for authorization (Requirement 9.5)
     public static function canViewAny(): bool
@@ -57,10 +65,17 @@ class BuildingResource extends Resource
         return auth()->check() && auth()->user()->role !== \App\Enums\UserRole::TENANT;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
+                Forms\Components\TextInput::make('name')
+                    ->label(__('buildings.labels.name'))
+                    ->required()
+                    ->maxLength(255)
+                    ->validationAttribute('name')
+                    ->validationMessages(self::getValidationMessages('name')),
+
                 Forms\Components\TextInput::make('address')
                     ->label('Address')
                     ->required()
@@ -84,8 +99,12 @@ class BuildingResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->searchable()
             ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->label(__('buildings.labels.name'))
+                    ->searchable()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('address')
                     ->label('Address')
                     ->searchable()
@@ -111,11 +130,11 @@ class BuildingResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Table row actions removed - use page header actions instead
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('address', 'asc');

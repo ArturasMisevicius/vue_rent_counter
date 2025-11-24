@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
@@ -35,8 +36,7 @@ class InvoiceFinalizationSecurityTest extends TestCase
         parent::setUp();
         RateLimiter::clear('invoice-finalize:*');
     }
-
-    /** @test */
+    #[Test]
     public function rate_limiting_prevents_excessive_finalization_attempts(): void
     {
         $admin = User::factory()->create([
@@ -79,8 +79,7 @@ class InvoiceFinalizationSecurityTest extends TestCase
             'Rate limiter should block after 10 attempts'
         );
     }
-
-    /** @test */
+    #[Test]
     public function audit_log_captures_finalization_attempts(): void
     {
         Log::spy();
@@ -120,8 +119,7 @@ class InvoiceFinalizationSecurityTest extends TestCase
                     && isset($context['invoice_status']);
             }));
     }
-
-    /** @test */
+    #[Test]
     public function audit_log_captures_successful_finalization(): void
     {
         Log::spy();
@@ -159,8 +157,7 @@ class InvoiceFinalizationSecurityTest extends TestCase
                     && isset($context['finalized_at']);
             }));
     }
-
-    /** @test */
+    #[Test]
     public function audit_log_captures_validation_failures(): void
     {
         Log::spy();
@@ -194,8 +191,7 @@ class InvoiceFinalizationSecurityTest extends TestCase
                     && isset($context['errors']);
             }));
     }
-
-    /** @test */
+    #[Test]
     public function error_messages_do_not_leak_sensitive_information(): void
     {
         $admin = User::factory()->create([
@@ -236,8 +232,7 @@ class InvoiceFinalizationSecurityTest extends TestCase
         $this->assertStringNotContainsString('Stack trace', $html);
         $this->assertStringNotContainsString('#0', $html);
     }
-
-    /** @test */
+    #[Test]
     public function tenant_isolation_prevents_cross_tenant_finalization(): void
     {
         $admin1 = User::factory()->create([
@@ -266,8 +261,7 @@ class InvoiceFinalizationSecurityTest extends TestCase
         ])
             ->callAction('finalize');
     }
-
-    /** @test */
+    #[Test]
     public function double_authorization_check_prevents_bypass(): void
     {
         $tenant = User::factory()->create([
@@ -299,8 +293,7 @@ class InvoiceFinalizationSecurityTest extends TestCase
 
         $component->callAction('finalize');
     }
-
-    /** @test */
+    #[Test]
     public function superadmin_can_finalize_any_tenant_invoice(): void
     {
         $superadmin = User::factory()->create([
@@ -335,8 +328,7 @@ class InvoiceFinalizationSecurityTest extends TestCase
             'status' => InvoiceStatus::FINALIZED->value,
         ]);
     }
-
-    /** @test */
+    #[Test]
     public function concurrent_finalization_is_prevented(): void
     {
         $admin = User::factory()->create([
@@ -375,8 +367,7 @@ class InvoiceFinalizationSecurityTest extends TestCase
         ])
             ->callAction('finalize');
     }
-
-    /** @test */
+    #[Test]
     public function finalization_validates_invoice_has_items(): void
     {
         $admin = User::factory()->create([
@@ -399,8 +390,7 @@ class InvoiceFinalizationSecurityTest extends TestCase
             ->callAction('finalize')
             ->assertHasActionErrors();
     }
-
-    /** @test */
+    #[Test]
     public function finalization_validates_total_amount_greater_than_zero(): void
     {
         $admin = User::factory()->create([
@@ -428,8 +418,7 @@ class InvoiceFinalizationSecurityTest extends TestCase
             ->callAction('finalize')
             ->assertHasActionErrors();
     }
-
-    /** @test */
+    #[Test]
     public function finalization_validates_billing_period(): void
     {
         $admin = User::factory()->create([
@@ -459,8 +448,7 @@ class InvoiceFinalizationSecurityTest extends TestCase
             ->callAction('finalize')
             ->assertHasActionErrors();
     }
-
-    /** @test */
+    #[Test]
     public function rate_limit_key_is_user_specific(): void
     {
         $admin1 = User::factory()->create([
@@ -507,8 +495,7 @@ class InvoiceFinalizationSecurityTest extends TestCase
         $rateLimitKey2 = 'invoice-finalize:'.$admin2->id;
         $this->assertFalse(RateLimiter::tooManyAttempts($rateLimitKey2, 10));
     }
-
-    /** @test */
+    #[Test]
     public function finalized_invoice_cannot_be_modified(): void
     {
         $admin = User::factory()->create([
@@ -530,8 +517,7 @@ class InvoiceFinalizationSecurityTest extends TestCase
 
         $invoice->update(['total_amount' => 200]);
     }
-
-    /** @test */
+    #[Test]
     public function finalized_invoice_status_can_be_changed_to_paid(): void
     {
         $admin = User::factory()->create([

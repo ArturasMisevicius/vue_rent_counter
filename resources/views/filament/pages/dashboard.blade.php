@@ -1,11 +1,11 @@
 <x-filament-panels::page>
     <div class="space-y-6">
         {{-- Welcome Message --}}
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+            <h2 class="text-2xl font-bold text-slate-900 dark:text-white">
                 Welcome back, {{ auth()->user()->name }}!
             </h2>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">
+            <p class="mt-2 text-slate-600 dark:text-slate-400">
                 @if(auth()->user()->role === \App\Enums\UserRole::ADMIN)
                     Manage your properties, tenants, and billing from this dashboard.
                 @elseif(auth()->user()->role === \App\Enums\UserRole::MANAGER)
@@ -25,8 +25,8 @@
         @endif
 
         {{-- Quick Actions --}}
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">
                 Quick Actions
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -37,8 +37,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                         </svg>
                         <div>
-                            <div class="font-semibold text-gray-900 dark:text-white">Properties</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">Manage properties</div>
+                            <div class="font-semibold text-slate-900 dark:text-white">Properties</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400">Manage properties</div>
                         </div>
                     </a>
 
@@ -48,8 +48,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                         </svg>
                         <div>
-                            <div class="font-semibold text-gray-900 dark:text-white">Buildings</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">Manage buildings</div>
+                            <div class="font-semibold text-slate-900 dark:text-white">Buildings</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400">Manage buildings</div>
                         </div>
                     </a>
 
@@ -59,8 +59,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                         <div>
-                            <div class="font-semibold text-gray-900 dark:text-white">Invoices</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">Manage invoices</div>
+                            <div class="font-semibold text-slate-900 dark:text-white">Invoices</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400">Manage invoices</div>
                         </div>
                     </a>
 
@@ -70,8 +70,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
                         <div>
-                            <div class="font-semibold text-gray-900 dark:text-white">Users</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400">Manage users</div>
+                            <div class="font-semibold text-slate-900 dark:text-white">Users</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400">Manage users</div>
                         </div>
                     </a>
                 @endif
@@ -79,11 +79,11 @@
         </div>
 
         {{-- Recent Activity --}}
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">
                 Recent Activity
             </h3>
-            <p class="text-gray-600 dark:text-gray-400">
+            <p class="text-slate-600 dark:text-slate-400">
                 Activity tracking coming soon...
             </p>
         </div>

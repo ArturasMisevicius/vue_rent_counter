@@ -1,23 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\InvoiceResource\RelationManagers;
 
 use App\Models\Invoice;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Actions;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+/**
+ * Relation manager for invoice items.
+ *
+ * Manages the relationship between invoices and their line items with:
+ * - Finalization protection (no edits to finalized invoices)
+ * - Meter reading snapshot display
+ * - Quantity and pricing management
+ */
 class ItemsRelationManager extends RelationManager
 {
     protected static string $relationship = 'items';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\TextInput::make('description')
                     ->label('Description')
@@ -130,7 +139,7 @@ class ItemsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                Actions\CreateAction::make()
                     ->disabled(fn (): bool => $this->getOwnerRecord()->isFinalized())
                     ->tooltip(fn (): ?string => 
                         $this->getOwnerRecord()->isFinalized() 
@@ -139,14 +148,14 @@ class ItemsRelationManager extends RelationManager
                     ),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
+                Actions\EditAction::make()
                     ->disabled(fn (): bool => $this->getOwnerRecord()->isFinalized())
                     ->tooltip(fn (): ?string => 
                         $this->getOwnerRecord()->isFinalized() 
                             ? 'Cannot edit items in finalized invoice' 
                             : null
                     ),
-                Tables\Actions\DeleteAction::make()
+                Actions\DeleteAction::make()
                     ->disabled(fn (): bool => $this->getOwnerRecord()->isFinalized())
                     ->tooltip(fn (): ?string => 
                         $this->getOwnerRecord()->isFinalized() 
@@ -155,8 +164,8 @@ class ItemsRelationManager extends RelationManager
                     ),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make()
                         ->disabled(fn (): bool => $this->getOwnerRecord()->isFinalized()),
                 ]),
             ]);

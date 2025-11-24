@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\OrganizationResource\Pages;
 
+use BackedEnum;
+use App\Enums\SubscriptionPlanType;
 use App\Filament\Resources\OrganizationResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists;
-use Filament\Infolists\Infolist;
+use Filament\Schemas\Schema;
 
 class ViewOrganization extends ViewRecord
 {
@@ -19,9 +21,9 @@ class ViewOrganization extends ViewRecord
         ];
     }
 
-    public function infolist(Infolist $infolist): Infolist
+    public function infolist(Schema $schema): Schema
     {
-        return $infolist
+        return $schema
             ->schema([
                 Infolists\Components\Section::make('Organization Information')
                     ->schema([
@@ -36,10 +38,11 @@ class ViewOrganization extends ViewRecord
                     ->schema([
                         Infolists\Components\TextEntry::make('plan')
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                'basic' => 'gray',
-                                'professional' => 'info',
-                                'enterprise' => 'success',
+                            ->formatStateUsing(fn ($state) => enum_label($state, SubscriptionPlanType::class))
+                            ->color(fn ($state): string => match ($state instanceof BackedEnum ? $state->value : $state) {
+                                SubscriptionPlanType::BASIC->value => 'gray',
+                                SubscriptionPlanType::PROFESSIONAL->value => 'info',
+                                SubscriptionPlanType::ENTERPRISE->value => 'success',
                                 default => 'gray',
                             }),
                         Infolists\Components\TextEntry::make('max_properties')

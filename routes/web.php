@@ -3,10 +3,24 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\ProviderController as AdminProviderController;
+use App\Http\Controllers\Admin\TariffController as AdminTariffController;
+use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
+use App\Http\Controllers\Admin\AuditController as AdminAuditController;
+use App\Http\Controllers\Admin\TenantController as AdminTenantController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Superadmin\DashboardController as SuperadminDashboardController;
 use App\Http\Controllers\Superadmin\OrganizationController as SuperadminOrganizationController;
 use App\Http\Controllers\Superadmin\SubscriptionController as SuperadminSubscriptionController;
+use App\Http\Controllers\Manager\BuildingController as ManagerBuildingController;
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
+use App\Http\Controllers\Manager\InvoiceController as ManagerInvoiceController;
+use App\Http\Controllers\Manager\MeterController as ManagerMeterController;
+use App\Http\Controllers\Manager\MeterReadingController as ManagerMeterReadingController;
+use App\Http\Controllers\Manager\ProfileController as ManagerProfileController;
+use App\Http\Controllers\Manager\PropertyController as ManagerPropertyController;
 use App\Http\Controllers\Manager\ReportController as ManagerReportController;
 use App\Http\Controllers\Tenant\DashboardController as TenantDashboardController;
 use App\Http\Controllers\Tenant\ProfileController as TenantProfileController;
@@ -92,11 +106,47 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
 });
 
 // ============================================================================
-// ADMIN ROUTES - Handled by Filament Panel at /admin
+// ADMIN ROUTES
 // ============================================================================
-// All admin functionality (Properties, Buildings, Meters, MeterReadings, 
-// Invoices, Tariffs, Providers, Users, Subscriptions) is managed through 
-// Filament Resources. Access via /admin with admin or manager role.
+// Admin routes for custom admin interface (non-Filament)
+// Filament Resources are also available at /admin for Properties, Buildings, 
+// Meters, MeterReadings, Invoices, and Subscriptions management.
+
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    
+    // Profile
+    Route::get('profile', [AdminProfileController::class, 'show'])->name('profile.show');
+    Route::match(['put', 'patch'], 'profile', [AdminProfileController::class, 'update'])->name('profile.update');
+    
+    // User Management
+    Route::resource('users', AdminUserController::class);
+    
+    // Provider Management
+    Route::resource('providers', AdminProviderController::class);
+    
+    // Tariff Management
+    Route::resource('tariffs', AdminTariffController::class);
+    
+    // Tenant Management (Admin-specific tenant views)
+    Route::get('tenants', [AdminTenantController::class, 'index'])->name('tenants.index');
+    Route::get('tenants/create', [AdminTenantController::class, 'create'])->name('tenants.create');
+    Route::post('tenants', [AdminTenantController::class, 'store'])->name('tenants.store');
+    Route::get('tenants/{tenant}', [AdminTenantController::class, 'show'])->name('tenants.show');
+    Route::get('tenants/{tenant}/reassign', [AdminTenantController::class, 'reassign'])->name('tenants.reassign');
+    Route::post('tenants/{tenant}/reassign', [AdminTenantController::class, 'processReassignment'])->name('tenants.process-reassignment');
+    Route::delete('tenants/{tenant}', [AdminTenantController::class, 'destroy'])->name('tenants.destroy');
+    
+    // Settings
+    Route::get('settings', [AdminSettingsController::class, 'index'])->name('settings.index');
+    Route::post('settings', [AdminSettingsController::class, 'update'])->name('settings.update');
+    Route::post('settings/backup', [AdminSettingsController::class, 'runBackup'])->name('settings.backup');
+    Route::post('settings/cache', [AdminSettingsController::class, 'clearCache'])->name('settings.cache');
+    
+    // Audit Log
+    Route::get('audit', [AdminAuditController::class, 'index'])->name('audit.index');
+});
 
 // ============================================================================
 // MANAGER ROUTES
@@ -104,12 +154,34 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
 Route::middleware(['auth', 'role:manager'])->prefix('manager')->name('manager.')->group(function () {
     // Dashboard - Custom manager overview
     Route::get('/dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');
+
+    // Profile & preferences
+    Route::get('profile', [ManagerProfileController::class, 'show'])->name('profile.show');
+    Route::match(['put', 'patch'], 'profile', [ManagerProfileController::class, 'update'])->name('profile.update');
     
     // Reports - Manager-specific reporting (not in Filament)
     Route::get('reports', [ManagerReportController::class, 'index'])->name('reports.index');
     Route::get('reports/consumption', [ManagerReportController::class, 'consumption'])->name('reports.consumption');
+    Route::get('reports/consumption/export', [ManagerReportController::class, 'exportConsumption'])->name('reports.consumption.export');
     Route::get('reports/revenue', [ManagerReportController::class, 'revenue'])->name('reports.revenue');
+    Route::get('reports/revenue/export', [ManagerReportController::class, 'exportRevenue'])->name('reports.revenue.export');
     Route::get('reports/meter-reading-compliance', [ManagerReportController::class, 'meterReadingCompliance'])->name('reports.meter-reading-compliance');
+    Route::get('reports/meter-reading-compliance/export', [ManagerReportController::class, 'exportCompliance'])->name('reports.compliance.export');
+
+    // Resource management (manager-facing UI)
+    Route::resource('properties', ManagerPropertyController::class);
+    Route::resource('buildings', ManagerBuildingController::class);
+    Route::resource('meters', ManagerMeterController::class);
+
+    // Meter readings (manager-facing UI)
+    Route::resource('meter-readings', ManagerMeterReadingController::class);
+
+    // Invoices (manager-facing UI)
+    Route::get('invoices/drafts', [ManagerInvoiceController::class, 'drafts'])->name('invoices.drafts');
+    Route::get('invoices/finalized', [ManagerInvoiceController::class, 'finalized'])->name('invoices.finalized');
+    Route::post('invoices/{invoice}/finalize', [ManagerInvoiceController::class, 'finalize'])->name('invoices.finalize');
+    Route::post('invoices/{invoice}/mark-paid', [ManagerInvoiceController::class, 'markPaid'])->name('invoices.mark-paid');
+    Route::resource('invoices', ManagerInvoiceController::class);
     
     // Note: Properties, Buildings, Meters, MeterReadings, Invoices, Tariffs, 
     // and Providers are managed through Filament at /admin
@@ -138,11 +210,13 @@ Route::middleware(['auth', 'role:tenant'])->prefix('tenant')->name('tenant.')->g
     // Meter Readings (Own)
     Route::get('meter-readings', [TenantMeterReadingController::class, 'index'])->name('meter-readings.index');
     Route::get('meter-readings/{meterReading}', [TenantMeterReadingController::class, 'show'])->name('meter-readings.show');
+    Route::post('meter-readings', [TenantMeterReadingController::class, 'store'])->name('meter-readings.store');
     
     // Invoices (Own)
     Route::get('invoices', [TenantInvoiceController::class, 'index'])->name('invoices.index');
     Route::get('invoices/{invoice}', [TenantInvoiceController::class, 'show'])->name('invoices.show');
     Route::get('invoices/{invoice}/pdf', [TenantInvoiceController::class, 'pdf'])->name('invoices.pdf');
+    Route::get('invoices/{invoice}/receipt', [TenantInvoiceController::class, 'pdf'])->name('invoices.receipt');
 });
 
 // ============================================================================

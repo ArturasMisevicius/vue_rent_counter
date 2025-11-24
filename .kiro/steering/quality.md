@@ -20,3 +20,12 @@
 - Run `php artisan test:setup --fresh` to rebuild deterministic test data, then `php artisan test` (or targeted Pest suites) and property tests before merging.
 - Validate Filament dashboards with `tests/Feature/Filament*` and `tests/Feature/FilamentPanelAccessibilityTest.php`.
 - Ensure backup & observability checks (`spatie/laravel-backup` status, `php artisan pail` for logs when investigating) stay green; surface any `tenant_id` leaks via multi-tenancy tests before shipping.
+
+
+- do not use command like a: php artisan test --compact 2>&1 | head -100
+- always use php artisan test --filter to make tests by files, do not start all tests, only with filtering
+- don't run comamnd what is starting with: php -r "require 'vendor/autoload.php'; \$app = require_once 'bootstrap/app.php'; instead use tinker
+
+- always use MCP servers, use mcp services
+
+- run command php artisan make:filament-* without asking in command prompt any questions, find solution to create files wihtout this command, just create files by hand

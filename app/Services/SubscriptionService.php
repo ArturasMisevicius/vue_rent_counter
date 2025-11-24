@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Exceptions\SubscriptionExpiredException;
 use App\Exceptions\SubscriptionLimitExceededException;
+use App\Enums\SubscriptionPlanType;
+use App\Enums\SubscriptionStatus;
 use App\Models\Subscription;
 use App\Models\User;
 use Carbon\Carbon;
@@ -14,18 +16,19 @@ class SubscriptionService
      * Create a new subscription for an admin user.
      *
      * @param User $admin The admin user to create subscription for
-     * @param string $planType The subscription plan type (basic, professional, enterprise)
+     * @param string|SubscriptionPlanType $planType The subscription plan type (basic, professional, enterprise)
      * @param Carbon $expiresAt The expiration date for the subscription
      * @return Subscription The created subscription
      */
-    public function createSubscription(User $admin, string $planType, Carbon $expiresAt): Subscription
+    public function createSubscription(User $admin, string|SubscriptionPlanType $planType, Carbon $expiresAt): Subscription
     {
-        $limits = $this->getPlanLimits($planType);
+        $planTypeValue = $planType instanceof SubscriptionPlanType ? $planType->value : $planType;
+        $limits = $this->getPlanLimits($planTypeValue);
 
         return Subscription::create([
             'user_id' => $admin->id,
-            'plan_type' => $planType,
-            'status' => 'active',
+            'plan_type' => $planTypeValue,
+            'status' => SubscriptionStatus::ACTIVE->value,
             'starts_at' => now(),
             'expires_at' => $expiresAt,
             'max_properties' => $limits['max_properties'],
@@ -43,7 +46,7 @@ class SubscriptionService
     public function renewSubscription(Subscription $subscription, Carbon $newExpiryDate): Subscription
     {
         $subscription->update([
-            'status' => 'active',
+            'status' => SubscriptionStatus::ACTIVE->value,
             'expires_at' => $newExpiryDate,
         ]);
 
@@ -60,7 +63,7 @@ class SubscriptionService
     public function suspendSubscription(Subscription $subscription, string $reason): void
     {
         $subscription->update([
-            'status' => 'suspended',
+            'status' => SubscriptionStatus::SUSPENDED->value,
         ]);
 
         // Log the suspension reason (could be stored in audit table)
@@ -79,7 +82,7 @@ class SubscriptionService
     public function cancelSubscription(Subscription $subscription): void
     {
         $subscription->update([
-            'status' => 'cancelled',
+            'status' => SubscriptionStatus::CANCELLED->value,
         ]);
     }
 
@@ -130,12 +133,12 @@ class SubscriptionService
      * Throws exceptions if subscription is expired or limits are exceeded.
      *
      * @param User $admin The admin user to check limits for
-     * @param string $resourceType The type of resource being created ('property' or 'tenant')
+     * @param string|null $resourceType The type of resource being created ('property' or 'tenant')
      * @return void
      * @throws SubscriptionExpiredException If subscription is expired
      * @throws SubscriptionLimitExceededException If resource limit is exceeded
      */
-    public function enforceSubscriptionLimits(User $admin, string $resourceType = null): void
+    public function enforceSubscriptionLimits(User $admin, ?string $resourceType = null): void
     {
         $subscription = $admin->subscription;
 

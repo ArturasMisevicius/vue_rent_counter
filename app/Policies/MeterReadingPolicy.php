@@ -13,8 +13,13 @@ class MeterReadingPolicy
      */
     public function viewAny(User $user): bool
     {
-        // All authenticated users can view meter readings (filtered by tenant scope)
-        return true;
+        // All authenticated roles can view meter readings
+        return in_array($user->role, [
+            UserRole::SUPERADMIN,
+            UserRole::ADMIN,
+            UserRole::MANAGER,
+            UserRole::TENANT,
+        ], true);
     }
 
     /**
@@ -22,9 +27,14 @@ class MeterReadingPolicy
      */
     public function view(User $user, MeterReading $meterReading): bool
     {
-        // Admins and managers can view all meter readings (within their tenant)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Superadmin can view any meter reading
+        if ($user->role === UserRole::SUPERADMIN) {
             return true;
+        }
+
+        // Admins and managers can view meter readings within their tenant
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+            return $meterReading->tenant_id === $user->tenant_id;
         }
 
         // Tenants can view meter readings for their properties
@@ -48,8 +58,12 @@ class MeterReadingPolicy
      */
     public function create(User $user): bool
     {
-        // Admins and managers can create meter readings
-        return $user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER;
+        // Admins, managers, and superadmins can create meter readings
+        return in_array($user->role, [
+            UserRole::SUPERADMIN,
+            UserRole::ADMIN,
+            UserRole::MANAGER,
+        ], true);
     }
 
     /**
@@ -57,8 +71,17 @@ class MeterReadingPolicy
      */
     public function update(User $user, MeterReading $meterReading): bool
     {
-        // Admins and managers can update meter readings
-        return $user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER;
+        // Superadmin can update any meter reading
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
+        // Admins and managers can update meter readings within their tenant
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+            return $meterReading->tenant_id === $user->tenant_id;
+        }
+
+        return false;
     }
 
     /**
@@ -66,8 +89,17 @@ class MeterReadingPolicy
      */
     public function delete(User $user, MeterReading $meterReading): bool
     {
-        // Only admins can delete meter readings
-        return $user->role === UserRole::ADMIN;
+        // Superadmin can delete any meter reading
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
+        // Only admins can delete meter readings within their tenant
+        if ($user->role === UserRole::ADMIN) {
+            return $meterReading->tenant_id === $user->tenant_id;
+        }
+
+        return false;
     }
 
     /**
@@ -75,8 +107,17 @@ class MeterReadingPolicy
      */
     public function restore(User $user, MeterReading $meterReading): bool
     {
-        // Only admins can restore meter readings
-        return $user->role === UserRole::ADMIN;
+        // Superadmin can restore any meter reading
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
+        // Only admins can restore meter readings within their tenant
+        if ($user->role === UserRole::ADMIN) {
+            return $meterReading->tenant_id === $user->tenant_id;
+        }
+
+        return false;
     }
 
     /**
@@ -84,7 +125,7 @@ class MeterReadingPolicy
      */
     public function forceDelete(User $user, MeterReading $meterReading): bool
     {
-        // Only admins can force delete meter readings
-        return $user->role === UserRole::ADMIN;
+        // Only superadmin can force delete meter readings
+        return $user->role === UserRole::SUPERADMIN;
     }
 }

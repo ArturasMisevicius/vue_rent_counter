@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Manager;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CalculateGyvatukasRequest;
 use App\Http\Requests\StoreBuildingRequest;
 use App\Http\Requests\UpdateBuildingRequest;
 use App\Models\Building;
@@ -60,7 +61,7 @@ class BuildingController extends Controller
 
         return redirect()
             ->route('manager.buildings.show', $building)
-            ->with('success', 'Building created successfully.');
+            ->with('success', __('notifications.building.created'));
     }
 
     /**
@@ -96,7 +97,7 @@ class BuildingController extends Controller
 
         return redirect()
             ->route('manager.buildings.show', $building)
-            ->with('success', 'Building updated successfully.');
+            ->with('success', __('notifications.building.updated'));
     }
 
     /**
@@ -108,33 +109,31 @@ class BuildingController extends Controller
 
         // Check if building has associated properties
         if ($building->properties()->exists()) {
-            return back()->with('error', 'Cannot delete building with associated properties.');
+            return back()->with('error', __('buildings.errors.has_properties'));
         }
 
         $building->delete();
 
         return redirect()
             ->route('manager.buildings.index')
-            ->with('success', 'Building deleted successfully.');
+            ->with('success', __('notifications.building.deleted'));
     }
 
     /**
      * Calculate gyvatukas summer average for the building.
      */
-    public function calculateGyvatukas(Request $request, Building $building): RedirectResponse
+    public function calculateGyvatukas(CalculateGyvatukasRequest $request, Building $building): RedirectResponse
     {
         $this->authorize('update', $building);
 
-        $validated = $request->validate([
-            'start_date' => ['required', 'date'],
-            'end_date' => ['required', 'date', 'after:start_date'],
-        ]);
-
+        $validated = $request->validated();
         $startDate = Carbon::parse($validated['start_date']);
         $endDate = Carbon::parse($validated['end_date']);
 
         $average = $building->calculateSummerAverage($startDate, $endDate);
 
-        return back()->with('success', "Gyvatukas summer average calculated: " . number_format($average, 2) . " kWh");
+        return back()->with('success', __('notifications.building.gyvatukas_summer', [
+            'average' => number_format($average, 2),
+        ]));
     }
 }

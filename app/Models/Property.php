@@ -7,6 +7,7 @@ use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Property extends Model
@@ -48,11 +49,22 @@ class Property extends Model
     }
 
     /**
-     * Get the tenants for this property.
+     * Get tenants assigned directly to this property.
      */
-    public function tenants(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function tenants(): HasMany
     {
         return $this->hasMany(Tenant::class);
+    }
+
+    /**
+     * Tenant assignments including historical records.
+     */
+    public function tenantAssignments(): BelongsToMany
+    {
+        return $this->belongsToMany(Tenant::class, 'property_tenant')
+            ->withPivot(['assigned_at', 'vacated_at'])
+            ->withTimestamps()
+            ->orderByPivot('assigned_at', 'desc');
     }
 
     /**

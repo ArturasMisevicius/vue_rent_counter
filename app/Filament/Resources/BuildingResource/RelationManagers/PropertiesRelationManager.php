@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Filament\Resources\BuildingResource\RelationManagers;
 
 use App\Enums\PropertyType;
+use App\Filament\Resources\BuildingResource\Pages\EditBuilding;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
 use App\Models\Property;
 use App\Models\Tenant;
+use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -74,9 +77,11 @@ final class PropertiesRelationManager extends RelationManager
 
     protected static ?string $recordTitleAttribute = 'address';
 
+    public ?string $pageClass = EditBuilding::class;
+
     protected static ?string $title = 'Properties';
 
-    protected static ?string $icon = 'heroicon-o-home';
+    protected static string|\BackedEnum|null $icon = 'heroicon-o-home';
 
     /**
      * Cached property configuration to avoid repeated config() calls.
@@ -96,19 +101,19 @@ final class PropertiesRelationManager extends RelationManager
      * to maintain consistency with API validation. When property type changes,
      * the area field is automatically populated with config-based defaults.
      *
-     * @param  Form  $form  The Filament form instance
-     * @return Form The configured form with validation and live updates
+     * @param  Schema  $schema  The Filament form instance
+     * @return Schema The configured form with validation and live updates
      *
      * @see getAddressField()
      * @see getTypeField()
      * @see getAreaField()
      * @see setDefaultArea()
      */
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
-                Forms\Components\Section::make(__('properties.sections.property_details'))
+                Section::make(__('properties.sections.property_details'))
                     ->description(__('properties.sections.property_details_description'))
                     ->icon('heroicon-o-home')
                     ->schema([
@@ -118,13 +123,13 @@ final class PropertiesRelationManager extends RelationManager
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make(__('properties.sections.additional_info'))
+                Section::make(__('properties.sections.additional_info'))
                     ->description(__('properties.sections.additional_info_description'))
                     ->icon('heroicon-o-information-circle')
                     ->schema([
                         Forms\Components\Placeholder::make('building_info')
                             ->label(__('properties.labels.building'))
-                            ->content(fn ($livewire): string => $livewire->getOwnerRecord()->name ?? 'N/A'),
+                            ->content(fn ($livewire): string => $livewire->getOwnerRecord()?->display_name ?? 'N/A'),
 
                         Forms\Components\Placeholder::make('tenant_info')
                             ->label(__('properties.labels.current_tenant'))
@@ -149,7 +154,7 @@ final class PropertiesRelationManager extends RelationManager
      * consistency between Filament forms and API validation. The field is
      * required, limited to 255 characters, and spans the full form width.
      *
-     * @return Forms\Components\TextInput Configured address input field
+     * @return Schemas\Components\TextInput Configured address input field
      *
      * @see \App\Http\Requests\StorePropertyRequest::rules()
      * @see \App\Http\Requests\StorePropertyRequest::messages()
@@ -200,7 +205,7 @@ final class PropertiesRelationManager extends RelationManager
      *
      * Uses live() to enable real-time updates without form submission.
      *
-     * @return Forms\Components\Select Configured type select field with live updates
+     * @return Schemas\Components\Select Configured type select field with live updates
      *
      * @see \App\Enums\PropertyType
      * @see setDefaultArea()
@@ -233,7 +238,7 @@ final class PropertiesRelationManager extends RelationManager
      * values are pulled from config/billing.php to allow environment-specific
      * constraints. Supports decimal values with 0.01 step precision.
      *
-     * @return Forms\Components\TextInput Configured area input field with numeric validation
+     * @return Schemas\Components\TextInput Configured area input field with numeric validation
      *
      * @see config/billing.php (billing.property.min_area, billing.property.max_area)
      */
@@ -308,7 +313,7 @@ final class PropertiesRelationManager extends RelationManager
      * @see getTypeField()
      * @see getPropertyConfig()
      */
-    protected function setDefaultArea(string $state, Forms\Set $set): void
+    protected function setDefaultArea(string $state, callable $set): void
     {
         $config = $this->getPropertyConfig();
 
@@ -351,15 +356,16 @@ final class PropertiesRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('address')
-            ->modifyQueryUsing(fn (Builder $query): Builder => 
-                $query
-                    ->with([
-                        'tenants' => fn ($q) => $q
-                            ->select('tenants.id', 'tenants.name')
-                            ->wherePivotNull('vacated_at')
-                            ->limit(1),
-                    ])
-                    ->withCount('meters')
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query
+                ->with([
+                    'tenants' => fn ($q) => $q
+                        ->select('tenants.id', 'tenants.name', 'tenants.property_id')
+                        ->wherePivotNull('vacated_at')
+                        ->orderByPivot('assigned_at', 'desc')
+                        ->limit(1),
+                    'meters',
+                ])
+                ->withCount('meters')
             )
             ->columns([
                 Tables\Columns\TextColumn::make('address')
@@ -446,7 +452,7 @@ final class PropertiesRelationManager extends RelationManager
                     ->toggle(),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                Actions\CreateAction::make()
                     ->icon('heroicon-o-plus')
                     ->mutateFormDataUsing(fn (array $data): array => $this->preparePropertyData($data))
                     ->successNotification(
@@ -457,11 +463,11 @@ final class PropertiesRelationManager extends RelationManager
                     ),
             ])
             ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ViewAction::make()
+                Actions\ActionGroup::make([
+                    Actions\ViewAction::make()
                         ->icon('heroicon-o-eye'),
 
-                    Tables\Actions\EditAction::make()
+                    Actions\EditAction::make()
                         ->icon('heroicon-o-pencil')
                         ->mutateFormDataUsing(fn (array $data): array => $this->preparePropertyData($data))
                         ->successNotification(
@@ -471,7 +477,7 @@ final class PropertiesRelationManager extends RelationManager
                                 ->body(__('properties.notifications.updated.body'))
                         ),
 
-                    Tables\Actions\Action::make('manage_tenant')
+                    Actions\Action::make('manage_tenant')
                         ->label(__('properties.actions.manage_tenant'))
                         ->icon('heroicon-o-user-plus')
                         ->color('warning')
@@ -481,7 +487,7 @@ final class PropertiesRelationManager extends RelationManager
                         })
                         ->modalWidth('md'),
 
-                    Tables\Actions\DeleteAction::make()
+                    Actions\DeleteAction::make()
                         ->icon('heroicon-o-trash')
                         ->requiresConfirmation()
                         ->modalDescription(__('properties.modals.delete_confirmation'))
@@ -494,8 +500,8 @@ final class PropertiesRelationManager extends RelationManager
                 ]),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make()
                         ->requiresConfirmation()
                         ->modalDescription(__('properties.modals.delete_confirmation'))
                         ->successNotification(
@@ -505,7 +511,7 @@ final class PropertiesRelationManager extends RelationManager
                                 ->body(__('properties.notifications.bulk_deleted.body', ['count' => $count]))
                         ),
 
-                    Tables\Actions\BulkAction::make('export')
+                    Actions\BulkAction::make('export')
                         ->label(__('properties.actions.export_selected'))
                         ->icon('heroicon-o-arrow-down-tray')
                         ->color('gray')
@@ -520,7 +526,7 @@ final class PropertiesRelationManager extends RelationManager
             ->emptyStateDescription(__('properties.empty_state.description'))
             ->emptyStateIcon('heroicon-o-home')
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make()
+                Actions\CreateAction::make()
                     ->label(__('properties.actions.add_first_property'))
                     ->icon('heroicon-o-plus'),
             ]);
@@ -616,12 +622,9 @@ final class PropertiesRelationManager extends RelationManager
      *
      * Processes tenant management actions with explicit authorization checks:
      * 1. Verifies user has 'update' permission via PropertyPolicy
-     * 2. If tenant_id is empty: detaches all tenants (vacancy)
-     * 3. If tenant_id provided: syncs to new tenant (replaces existing)
-     *
-     * Uses sync() instead of attach() to ensure only one tenant is assigned
-     * at a time (current business rule). Sends success/error notifications
-     * to provide user feedback.
+     * 2. If tenant_id is empty: marks current assignment as vacated
+     * 3. If tenant_id provided: closes previous assignment and creates/refreshes
+     *    a pivot row with assigned_at/vacated_at (single active tenant rule)
      *
      * @param  Property  $record  The property being managed
      * @param  array<string, mixed>  $data  Form data with tenant_id
@@ -638,27 +641,54 @@ final class PropertiesRelationManager extends RelationManager
             
             Notification::make()
                 ->danger()
-                ->title(__('Access Denied'))
-                ->body(__('You do not have permission to perform this action.'))
+                ->title(__('app.errors.access_denied'))
+                ->body(__('app.errors.forbidden_action'))
                 ->send();
 
             return;
         }
 
         // Capture state before change for audit trail
-        $previousTenant = $record->tenants->first();
+        $previousTenant = $record->tenantAssignments()->wherePivotNull('vacated_at')->first();
         
         DB::beginTransaction();
         
         try {
-            if (empty($data['tenant_id'])) {
-                $record->tenants()->detach();
+            $tenantAssignments = $record->tenantAssignments();
+            $tenantId = $data['tenant_id'] ?? null;
+
+            if (empty($tenantId)) {
+                if ($previousTenant) {
+                    $tenantAssignments->updateExistingPivot($previousTenant->id, [
+                        'vacated_at' => now(),
+                    ]);
+                }
+
                 $action = 'tenant_removed';
                 $newTenantId = null;
             } else {
-                $record->tenants()->sync([$data['tenant_id']]);
+                $tenantId = (int) $tenantId;
+
+                // Mark existing tenant as vacated before reassigning
+                if ($previousTenant && $previousTenant->id !== $tenantId) {
+                    $tenantAssignments->updateExistingPivot($previousTenant->id, [
+                        'vacated_at' => now(),
+                    ]);
+                }
+
+                $tenantAssignments->syncWithoutDetaching([
+                    $tenantId => [
+                        'assigned_at' => now(),
+                        'vacated_at' => null,
+                    ],
+                ]);
+
+                Tenant::whereKey($tenantId)->update([
+                    'property_id' => $record->id,
+                ]);
+
                 $action = 'tenant_assigned';
-                $newTenantId = $data['tenant_id'];
+                $newTenantId = $tenantId;
             }
             
             // Log the change for audit trail
@@ -685,8 +715,8 @@ final class PropertiesRelationManager extends RelationManager
             
             Notification::make()
                 ->danger()
-                ->title(__('Error'))
-                ->body(__('An error occurred while processing your request. Please try again.'))
+                ->title(__('app.errors.error_title'))
+                ->body(__('app.errors.generic'))
                 ->send();
         }
     }

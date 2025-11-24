@@ -20,6 +20,12 @@ return [
         'reports' => 'Reports',
         'profile' => 'Profile',
         'logout' => 'Logout',
+        'tenants' => 'Tenants',
+        'meters_quick' => 'View Meters',
+        'buildings_quick' => 'View Buildings',
+        'reports_quick' => 'View Reports',
+        'organizations' => 'Organizations',
+        'subscriptions' => 'Subscriptions',
     ],
     'cta' => [
         'login' => 'Log in',
@@ -32,8 +38,16 @@ return [
         'authentication_required' => 'Authentication required.',
         'no_permission_admin_panel' => 'You do not have permission to access the admin panel.',
         'too_many_attempts' => 'Too many failed attempts. Please try again later.',
+        'current_password_required' => 'Current password is required to change password.',
+        'current_password_incorrect' => 'Current password is incorrect.',
     ],
     'demo' => [
         'mutations_disabled' => 'Modifications are disabled in demo mode.',
+    ],
+    'errors' => [
+        'access_denied' => 'Access Denied',
+        'forbidden_action' => 'You do not have permission to perform this action.',
+        'generic' => 'An error occurred while processing your request. Please try again.',
+        'error_title' => 'Error',
     ],
 ];

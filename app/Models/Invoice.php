@@ -19,6 +19,12 @@ class Invoice extends Model
      */
     protected static function booted(): void
     {
+        static::creating(function (Invoice $invoice): void {
+            if (empty($invoice->tenant_renter_id) && !empty($invoice->tenant_id)) {
+                $invoice->tenant_renter_id = $invoice->tenant_id;
+            }
+        });
+
         // Prevent modification of finalized or paid invoices
         static::updating(function ($invoice) {
             $originalStatus = $invoice->getOriginal('status');
@@ -65,9 +71,14 @@ class Invoice extends Model
         'tenant_renter_id',
         'billing_period_start',
         'billing_period_end',
+        'due_date',
         'total_amount',
         'status',
         'finalized_at',
+        'paid_at',
+        'payment_reference',
+        'paid_amount',
+        'overdue_notified_at',
     ];
 
     /**
@@ -80,9 +91,13 @@ class Invoice extends Model
         return [
             'billing_period_start' => 'date',
             'billing_period_end' => 'date',
+            'due_date' => 'date',
             'total_amount' => 'decimal:2',
             'status' => InvoiceStatus::class,
             'finalized_at' => 'datetime',
+            'paid_at' => 'datetime',
+            'paid_amount' => 'decimal:2',
+            'overdue_notified_at' => 'datetime',
         ];
     }
 
@@ -149,6 +164,16 @@ class Invoice extends Model
     public function isPaid(): bool
     {
         return $this->status === InvoiceStatus::PAID;
+    }
+
+    /**
+    * Check if the invoice is overdue (due_date in past and not paid).
+    */
+    public function isOverdue(): bool
+    {
+        return $this->due_date !== null
+            && !$this->isPaid()
+            && $this->due_date->isPast();
     }
 
     /**

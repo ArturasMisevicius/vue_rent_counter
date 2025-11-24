@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionPlanType;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;
@@ -39,7 +40,7 @@ test('admin can only see data within their tenant_id scope', function () {
             'password' => 'password123',
             'name' => fake()->name(),
             'organization_name' => fake()->company(),
-            'plan_type' => fake()->randomElement(['basic', 'professional', 'enterprise']),
+            'plan_type' => fake()->randomElement(SubscriptionPlanType::values()),
             'expires_at' => now()->addDays(fake()->numberBetween(30, 365))->toDateString(),
         ];
         
@@ -221,7 +222,7 @@ test('admin queries with where clauses only return data from their tenant_id', f
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -232,7 +233,7 @@ test('admin queries with where clauses only return data from their tenant_id', f
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -294,7 +295,7 @@ test('admin cannot access specific resources by id from other tenants', function
             'password' => 'password123',
             'name' => fake()->name(),
             'organization_name' => fake()->company(),
-            'plan_type' => 'basic',
+            'plan_type' => SubscriptionPlanType::BASIC->value,
             'expires_at' => now()->addDays(365)->toDateString(),
         ];
         
@@ -358,7 +359,7 @@ test('admin tenant isolation works with complex queries and relationships', func
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -369,7 +370,7 @@ test('admin tenant isolation works with complex queries and relationships', func
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -492,7 +493,7 @@ test('admin count queries only count resources within their tenant_id', function
             'password' => 'password123',
             'name' => fake()->name(),
             'organization_name' => fake()->company(),
-            'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
             'expires_at' => now()->addDays(365)->toDateString(),
         ];
         

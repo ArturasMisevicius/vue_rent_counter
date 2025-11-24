@@ -1,6 +1,8 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionPlanType;
+use App\Enums\SubscriptionStatus;
 use App\Models\Building;
 use App\Models\Property;
 use App\Models\Subscription;
@@ -40,7 +42,7 @@ describe('Complete User Workflows - Manual Testing Scenarios', function () {
             'password' => 'SecurePassword123',
             'name' => 'Test Admin',
             'organization_name' => 'Test Organization',
-            'plan_type' => 'professional',
+            'plan_type' => SubscriptionPlanType::PROFESSIONAL->value,
             'expires_at' => now()->addYear()->toDateString(),
         ];
         
@@ -56,8 +58,8 @@ describe('Complete User Workflows - Manual Testing Scenarios', function () {
         // Verify subscription was created
         $subscription = $admin->subscription;
         expect($subscription)->not->toBeNull()
-            ->and($subscription->plan_type)->toBe('professional')
-            ->and($subscription->status)->toBe('active')
+            ->and($subscription->plan_type)->toBe(SubscriptionPlanType::PROFESSIONAL->value)
+            ->and($subscription->status)->toBe(SubscriptionStatus::ACTIVE->value)
             ->and($subscription->isActive())->toBeTrue();
         
         // Verify audit log was created
@@ -90,8 +92,8 @@ describe('Complete User Workflows - Manual Testing Scenarios', function () {
         
         Subscription::factory()->create([
             'user_id' => $admin->id,
-            'plan_type' => 'professional',
-            'status' => 'active',
+            'plan_type' => SubscriptionPlanType::PROFESSIONAL->value,
+            'status' => SubscriptionStatus::ACTIVE->value,
             'expires_at' => now()->addYear(),
             'max_properties' => 50,
             'max_tenants' => 200,
@@ -241,8 +243,8 @@ describe('Complete User Workflows - Manual Testing Scenarios', function () {
         
         $subscription = Subscription::factory()->create([
             'user_id' => $admin->id,
-            'plan_type' => 'basic',
-            'status' => 'active',
+            'plan_type' => SubscriptionPlanType::BASIC->value,
+            'status' => SubscriptionStatus::ACTIVE->value,
             'expires_at' => now()->addDays(5), // Expires soon
             'max_properties' => 10,
             'max_tenants' => 50,
@@ -465,8 +467,8 @@ describe('Complete User Workflows - Manual Testing Scenarios', function () {
         
         $subscription = Subscription::factory()->create([
             'user_id' => $admin->id,
-            'plan_type' => 'basic',
-            'status' => 'active',
+            'plan_type' => SubscriptionPlanType::BASIC->value,
+            'status' => SubscriptionStatus::ACTIVE->value,
             'expires_at' => now()->addYear(),
             'max_properties' => 2,
             'max_tenants' => 3,

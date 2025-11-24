@@ -412,29 +412,25 @@ test('Filament panel denies tenant users from deleting meter readings', function
 // Feature: filament-admin-panel, Property 23: Authorization denial for restricted resources
 // Validates: Requirements 9.4
 test('Filament panel denies users from viewing invoices outside their tenant scope', function () {
-    // Generate random tenant IDs
-    $tenantId1 = fake()->numberBetween(1, 1000);
-    $tenantId2 = fake()->numberBetween(1001, 2000);
-    
+    $tenant1 = Tenant::factory()->forTenantId(fake()->numberBetween(1, 1000))->create();
+    $tenant2 = Tenant::factory()->forTenantId(fake()->numberBetween(1001, 2000))->create();
+
     // Create an invoice for tenant 2
-    $invoice = Invoice::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId2,
-        'invoice_number' => fake()->unique()->numerify('INV-####'),
-        'billing_period_start' => now()->subMonth(),
-        'billing_period_end' => now(),
-        'total_amount' => fake()->randomFloat(2, 50, 500),
-        'status' => 'draft',
-    ]);
+    $invoice = Invoice::factory()
+        ->forTenantRenter($tenant2)
+        ->create([
+            'tenant_id' => $tenant2->tenant_id,
+        ]);
     
     // Create a manager for tenant 1
     $manager = User::factory()->create([
         'role' => UserRole::MANAGER,
-        'tenant_id' => $tenantId1,
+        'tenant_id' => $tenant1->tenant_id,
     ]);
     
     // Act as manager from tenant 1
     $this->actingAs($manager);
-    session(['tenant_id' => $tenantId1]);
+    session(['tenant_id' => $tenant1->tenant_id]);
     
     // Property: Manager should be denied from viewing invoices outside their tenant scope
     $canView = $manager->can('view', $invoice);

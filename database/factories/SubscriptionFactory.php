@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Enums\SubscriptionPlanType;
+use App\Enums\SubscriptionStatus;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -25,13 +27,13 @@ class SubscriptionFactory extends Factory
      */
     public function definition(): array
     {
-        $planType = fake()->randomElement(['basic', 'professional', 'enterprise']);
+        $planType = fake()->randomElement(SubscriptionPlanType::values());
         $limits = $this->getPlanLimits($planType);
 
         return [
             'user_id' => User::factory(),
             'plan_type' => $planType,
-            'status' => 'active',
+            'status' => SubscriptionStatus::ACTIVE->value,
             'starts_at' => now(),
             'expires_at' => now()->addYear(),
             'max_properties' => $limits['max_properties'],
@@ -45,7 +47,7 @@ class SubscriptionFactory extends Factory
     public function expired(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'expired',
+            'status' => SubscriptionStatus::EXPIRED->value,
             'expires_at' => now()->subDays(10),
         ]);
     }
@@ -56,7 +58,7 @@ class SubscriptionFactory extends Factory
     public function suspended(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'suspended',
+            'status' => SubscriptionStatus::SUSPENDED->value,
         ]);
     }
 
@@ -66,7 +68,7 @@ class SubscriptionFactory extends Factory
     public function cancelled(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'cancelled',
+            'status' => SubscriptionStatus::CANCELLED->value,
         ]);
     }
 
@@ -75,10 +77,10 @@ class SubscriptionFactory extends Factory
      */
     public function basic(): static
     {
-        $limits = $this->getPlanLimits('basic');
+        $limits = $this->getPlanLimits(SubscriptionPlanType::BASIC->value);
         
         return $this->state(fn (array $attributes) => [
-            'plan_type' => 'basic',
+            'plan_type' => SubscriptionPlanType::BASIC->value,
             'max_properties' => $limits['max_properties'],
             'max_tenants' => $limits['max_tenants'],
         ]);
@@ -89,10 +91,10 @@ class SubscriptionFactory extends Factory
      */
     public function professional(): static
     {
-        $limits = $this->getPlanLimits('professional');
+        $limits = $this->getPlanLimits(SubscriptionPlanType::PROFESSIONAL->value);
         
         return $this->state(fn (array $attributes) => [
-            'plan_type' => 'professional',
+            'plan_type' => SubscriptionPlanType::PROFESSIONAL->value,
             'max_properties' => $limits['max_properties'],
             'max_tenants' => $limits['max_tenants'],
         ]);
@@ -103,10 +105,10 @@ class SubscriptionFactory extends Factory
      */
     public function enterprise(): static
     {
-        $limits = $this->getPlanLimits('enterprise');
+        $limits = $this->getPlanLimits(SubscriptionPlanType::ENTERPRISE->value);
         
         return $this->state(fn (array $attributes) => [
-            'plan_type' => 'enterprise',
+            'plan_type' => SubscriptionPlanType::ENTERPRISE->value,
             'max_properties' => $limits['max_properties'],
             'max_tenants' => $limits['max_tenants'],
         ]);

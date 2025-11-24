@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Property Meters</title>
+    <title>{{ __('tenant.property.meters_title') }}</title>
 </head>
 <body>
-    <h1>Property Meters</h1>
+    <h1>{{ __('tenant.property.meters_title') }}</h1>
     @if($meters->count() > 0)
         @foreach($meters as $meter)
             <p>{{ enum_label($meter->type) }} - {{ $meter->serial_number }}</p>
         @endforeach
     @else
-        <p>No meters found</p>
+        <p>{{ __('tenant.property.no_meters') }}</p>
     @endif
 </body>
 </html>

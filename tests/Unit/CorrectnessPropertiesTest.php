@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Services\BillingService;
 use App\Services\GyvatukasCalculator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use function Pest\Laravel\actingAs;
 
 uses(RefreshDatabase::class);
 
@@ -174,6 +175,8 @@ test('meter reading modifications create audit records', function () {
     $oldValue = (float)$reading->value;
     $newValue = 1100.00;
     
+    actingAs($user);
+
     // Update the reading
     $reading->update([
         'value' => $newValue,
@@ -437,9 +440,22 @@ test('tenant role users can only view their own data', function () {
         'tenant_id' => $tenantId,
         'role' => 'tenant',
     ]);
+
+    $property = Property::factory()->create([
+        'tenant_id' => $tenantId,
+    ]);
+
+    $tenantModel = Tenant::factory()->create([
+        'tenant_id' => $tenantId,
+        'email' => $tenantUser->email,
+        'property_id' => $property->id,
+    ]);
     
     // Create invoice for this tenant
-    $ownInvoice = Invoice::factory()->create(['tenant_id' => $tenantId]);
+    $ownInvoice = Invoice::factory()->create([
+        'tenant_id' => $tenantId,
+        'tenant_renter_id' => $tenantModel->id,
+    ]);
     
     // Tenant should be able to view their own invoice
     expect($tenantUser->can('view', $ownInvoice))->toBeTrue();
@@ -534,8 +550,8 @@ test('circulation costs distribute among apartments', function () {
     $totalCost = fake()->randomFloat(2, 100, 1000);
     $costPerApartment = $totalCost / $building->total_apartments;
     
-    // Verify equal distribution
-    expect($costPerApartment * $building->total_apartments)->toEqual($totalCost);
+    // Verify equal distribution with rounding tolerance
+    expect(round($costPerApartment * $building->total_apartments, 2))->toEqual(round($totalCost, 2));
 })->repeat(100);
 
 // Feature: vilnius-utilities-billing, Property 18: Draft invoice recalculation on reading correction

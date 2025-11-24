@@ -24,7 +24,7 @@ class StorePropertyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tenant_id' => ['sometimes', 'exists:tenants,id'],
+            'tenant_id' => ['required', 'integer'],
             'address' => ['required', 'string', 'max:255'],
             'type' => ['required', Rule::enum(PropertyType::class)],
             'area_sqm' => ['required', 'numeric', 'min:0', 'max:10000'],
@@ -40,8 +40,11 @@ class StorePropertyRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'tenant_id.required' => __('properties.validation.tenant_id.required'),
+            'tenant_id.integer' => __('properties.validation.tenant_id.integer'),
             'address.required' => __('properties.validation.address.required'),
             'address.max' => __('properties.validation.address.max'),
+            'address.string' => __('properties.validation.address.string'),
             'type.required' => __('properties.validation.type.required'),
             'type.enum' => __('properties.validation.type.enum'),
             'area_sqm.required' => __('properties.validation.area_sqm.required'),

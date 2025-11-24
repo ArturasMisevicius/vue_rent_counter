@@ -13,8 +13,8 @@
 
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-gray-900">Reassign Tenant to Different Property</h1>
-            <p class="mt-2 text-sm text-gray-700">Move {{ $tenant->name }} to a different property in your portfolio</p>
+            <h1 class="text-2xl font-semibold text-slate-900">Reassign Tenant to Different Property</h1>
+            <p class="mt-2 text-sm text-slate-700">Move {{ $tenant->name }} to a different property in your portfolio</p>
         </div>
     </div>
 
@@ -71,10 +71,10 @@
 
                     <!-- New Property Selection -->
                     <div>
-                        <label for="property_id" class="block text-sm font-medium leading-6 text-gray-900">New Property</label>
+                        <label for="property_id" class="block text-sm font-medium leading-6 text-slate-900">New Property</label>
                         <div class="mt-2">
                             <select name="property_id" id="property_id" required
-                                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                                 <option value="">Select a property</option>
                                 @foreach($properties as $property)
                                 <option value="{{ $property->id }}">
@@ -86,7 +86,7 @@
                         @if($properties->isEmpty())
                             <p class="mt-1 text-sm text-red-600">No other properties available for reassignment.</p>
                         @else
-                            <p class="mt-1 text-sm text-gray-500">Select the property to reassign this tenant to</p>
+                            <p class="mt-1 text-sm text-slate-500">Select the property to reassign this tenant to</p>
                         @endif
                     </div>
 
@@ -114,7 +114,7 @@
             </x-card>
 
             <div class="flex items-center justify-end gap-x-6">
-                <a href="{{ route('admin.tenants.show', $tenant) }}" class="text-sm font-semibold leading-6 text-gray-900">Cancel</a>
+                <a href="{{ route('admin.tenants.show', $tenant) }}" class="text-sm font-semibold leading-6 text-slate-900">Cancel</a>
                 <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" {{ $properties->isEmpty() ? 'disabled' : '' }}>
                     Reassign Tenant
                 </button>
@@ -126,7 +126,7 @@
     @if($tenant->property)
     <div class="mt-8">
         <x-card title="Reassignment History">
-            <p class="text-sm text-gray-500">Previous property assignments will be displayed here after reassignment</p>
+            <p class="text-sm text-slate-500">Previous property assignments will be displayed here after reassignment</p>
         </x-card>
     </div>
     @endif

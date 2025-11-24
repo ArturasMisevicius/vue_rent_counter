@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionPlanType;
 use App\Models\Building;
 use App\Models\Property;
 use App\Models\User;
@@ -34,7 +35,7 @@ test('admin account creation creates audit log entry with complete information',
             'password' => 'password123',
             'name' => fake()->name(),
             'organization_name' => fake()->company(),
-            'plan_type' => fake()->randomElement(['basic', 'professional', 'enterprise']),
+            'plan_type' => fake()->randomElement(SubscriptionPlanType::values()),
             'expires_at' => now()->addDays(fake()->numberBetween(30, 365))->toDateString(),
         ];
         
@@ -74,7 +75,7 @@ test('tenant account creation creates audit log entry with property assignment',
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -138,7 +139,7 @@ test('tenant reassignment creates audit log with old and new property', function
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'professional',
+        'plan_type' => SubscriptionPlanType::PROFESSIONAL->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -211,7 +212,7 @@ test('account deactivation creates audit log with reason', function () {
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -293,7 +294,7 @@ test('account reactivation creates audit log entry', function () {
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -359,7 +360,7 @@ test('all account management actions create audit logs with timestamps', functio
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'professional',
+        'plan_type' => SubscriptionPlanType::PROFESSIONAL->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -433,7 +434,7 @@ test('audit logs maintain chronological order of actions', function () {
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     

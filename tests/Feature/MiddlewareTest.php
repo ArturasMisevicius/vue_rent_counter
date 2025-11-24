@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionStatus;
 use App\Models\Building;
 use App\Models\Property;
 use App\Models\Subscription;
@@ -28,7 +29,7 @@ test('CheckSubscriptionStatus middleware allows admin with active subscription',
 
     Subscription::factory()->create([
         'user_id' => $admin->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addDays(30),
     ]);
 
@@ -45,7 +46,7 @@ test('CheckSubscriptionStatus middleware allows GET requests for expired subscri
 
     Subscription::factory()->create([
         'user_id' => $admin->id,
-        'status' => 'expired',
+        'status' => SubscriptionStatus::EXPIRED->value,
         'expires_at' => now()->subDays(1),
     ]);
 
@@ -95,7 +96,7 @@ test('EnsureHierarchicalAccess middleware allows admin to access own tenant reso
 
     Subscription::factory()->create([
         'user_id' => $admin->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addDays(30),
     ]);
 

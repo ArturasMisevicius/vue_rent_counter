@@ -13,15 +13,18 @@ use Illuminate\Database\Seeder;
 
 class TestMeterReadingsSeeder extends Seeder
 {
+    private const MONTHS_OF_HISTORY = 12;
+
     /**
      * Seed test meter readings for all meters.
      * 
-     * Creates historical readings for the last 3 months:
+     * Creates historical readings for the last 12 months:
      * - For electricity meters: separate day and night zone readings
      * - For other meters: single reading per month
      * - Values increment realistically based on meter type
      * - All readings entered by a manager user
      * - Monotonically increasing values ensured
+     * - Uniform month count across meter types for aligned metrics
      */
     public function run(): void
     {
@@ -42,7 +45,7 @@ class TestMeterReadingsSeeder extends Seeder
     }
 
     /**
-     * Create readings for a specific meter over the last 3 months.
+     * Create readings for a specific meter over the last 12 months.
      *
      * @param Meter $meter
      * @param int $managerId
@@ -54,8 +57,8 @@ class TestMeterReadingsSeeder extends Seeder
         $currentValue = $this->getInitialValue($meter->type);
         $lastReading = null;
 
-        // Create readings for last 3 months (plus current month = 4 readings total)
-        for ($month = 3; $month >= 0; $month--) {
+        // Create readings for last 12 months (inclusive of current month)
+        for ($month = self::MONTHS_OF_HISTORY - 1; $month >= 0; $month--) {
             $readingDate = Carbon::now()->subMonths($month)->startOfMonth();
 
             if ($meter->supports_zones) {
@@ -96,14 +99,14 @@ class TestMeterReadingsSeeder extends Seeder
      */
     private function createSingleReading(Meter $meter, Carbon $readingDate, float $value, int $managerId): MeterReading
     {
-        return MeterReading::factory()->create([
-            'tenant_id' => $meter->tenant_id,
-            'meter_id' => $meter->id,
-            'reading_date' => $readingDate,
-            'value' => $value,
-            'zone' => null,
-            'entered_by' => $managerId,
-        ]);
+        return MeterReading::factory()
+            ->forMeter($meter)
+            ->create([
+                'reading_date' => $readingDate,
+                'value' => $value,
+                'zone' => null,
+                'entered_by' => $managerId,
+            ]);
     }
 
     /**
@@ -118,14 +121,14 @@ class TestMeterReadingsSeeder extends Seeder
      */
     private function createZonedReading(Meter $meter, Carbon $readingDate, float $value, string $zone, int $managerId): MeterReading
     {
-        return MeterReading::factory()->create([
-            'tenant_id' => $meter->tenant_id,
-            'meter_id' => $meter->id,
-            'reading_date' => $readingDate,
-            'value' => $value,
-            'zone' => $zone,
-            'entered_by' => $managerId,
-        ]);
+        return MeterReading::factory()
+            ->forMeter($meter)
+            ->create([
+                'reading_date' => $readingDate,
+                'value' => $value,
+                'zone' => $zone,
+                'entered_by' => $managerId,
+            ]);
     }
 
     /**

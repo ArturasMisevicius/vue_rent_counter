@@ -2,7 +2,7 @@
     <div class="space-y-6">
         <div class="prose max-w-none dark:prose-invert">
             <h1>Terms of Service</h1>
-            <p class="text-sm text-gray-600 dark:text-gray-400">Last updated: {{ now()->format('F j, Y') }}</p>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Last updated: {{ now()->format('F j, Y') }}</p>
 
             <section>
                 <h2>1. Acceptance of Terms</h2>

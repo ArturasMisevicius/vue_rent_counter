@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionStatus;
 use App\Models\User;
 use App\Models\Subscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,7 +39,7 @@ test('reactivated users can login successfully after being deactivated', functio
         if ($role === UserRole::ADMIN) {
             Subscription::factory()->create([
                 'user_id' => $user->id,
-                'status' => 'active',
+                'status' => SubscriptionStatus::ACTIVE->value,
                 'starts_at' => now(),
                 'expires_at' => now()->addYear(),
             ]);
@@ -109,7 +110,7 @@ test('account reactivation cycle works correctly', function () {
         if ($role === UserRole::ADMIN) {
             Subscription::factory()->create([
                 'user_id' => $user->id,
-                'status' => 'active',
+                'status' => SubscriptionStatus::ACTIVE->value,
                 'starts_at' => now(),
                 'expires_at' => now()->addYear(),
             ]);
@@ -189,7 +190,7 @@ test('reactivation preserves user session and authentication state', function ()
         if ($role === UserRole::ADMIN) {
             Subscription::factory()->create([
                 'user_id' => $user->id,
-                'status' => 'active',
+                'status' => SubscriptionStatus::ACTIVE->value,
                 'starts_at' => now(),
                 'expires_at' => now()->addYear(),
             ]);

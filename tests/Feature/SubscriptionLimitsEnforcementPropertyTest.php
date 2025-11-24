@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionStatus;
 use App\Exceptions\SubscriptionLimitExceededException;
 use App\Models\Property;
 use App\Models\Subscription;
@@ -30,7 +31,7 @@ test('admin cannot create property beyond subscription max_properties limit', fu
     // Create active subscription with specific property limit
     Subscription::factory()->create([
         'user_id' => $admin->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addDays(fake()->numberBetween(30, 365)),
         'max_properties' => $maxProperties,
         'max_tenants' => 100,
@@ -76,7 +77,7 @@ test('admin cannot create tenant beyond subscription max_tenants limit', functio
     // Create active subscription with specific tenant limit
     Subscription::factory()->create([
         'user_id' => $admin->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addDays(fake()->numberBetween(30, 365)),
         'max_properties' => 100,
         'max_tenants' => $maxTenants,
@@ -131,7 +132,7 @@ test('admin can create property when under subscription limit', function () {
     // Create active subscription
     Subscription::factory()->create([
         'user_id' => $admin->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addDays(fake()->numberBetween(30, 365)),
         'max_properties' => $maxProperties,
         'max_tenants' => 100,
@@ -180,7 +181,7 @@ test('admin can create tenant when under subscription limit', function () {
     // Create active subscription
     Subscription::factory()->create([
         'user_id' => $admin->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addDays(fake()->numberBetween(30, 365)),
         'max_properties' => 100,
         'max_tenants' => $maxTenants,
@@ -238,7 +239,7 @@ test('AccountManagementService enforces property limit when creating tenant', fu
     // Create active subscription with specific tenant limit
     Subscription::factory()->create([
         'user_id' => $admin->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addDays(fake()->numberBetween(30, 365)),
         'max_properties' => 100,
         'max_tenants' => $maxTenants,
@@ -294,7 +295,7 @@ test('subscription limit check correctly counts existing resources', function ()
     // Create active subscription
     $subscription = Subscription::factory()->create([
         'user_id' => $admin->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addDays(fake()->numberBetween(30, 365)),
         'max_properties' => $maxProperties,
         'max_tenants' => $maxTenants,
@@ -358,7 +359,7 @@ test('subscription limit check returns false when at limit', function () {
     // Create active subscription
     $subscription = Subscription::factory()->create([
         'user_id' => $admin->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addDays(fake()->numberBetween(30, 365)),
         'max_properties' => $maxProperties,
         'max_tenants' => $maxTenants,
@@ -409,7 +410,7 @@ test('expired subscription prevents resource creation even when under limits', f
     // Create expired subscription with high limits
     $subscription = Subscription::factory()->expired()->create([
         'user_id' => $admin->id,
-        'status' => 'expired',
+        'status' => SubscriptionStatus::EXPIRED->value,
         'expires_at' => now()->subDays(fake()->numberBetween(1, 30)),
         'max_properties' => 100,
         'max_tenants' => 100,

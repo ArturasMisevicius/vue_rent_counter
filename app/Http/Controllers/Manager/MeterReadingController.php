@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Manager;
 
+use App\Enums\MeterType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMeterReadingRequest;
 use App\Http\Requests\UpdateMeterReadingRequest;
@@ -40,19 +41,22 @@ class MeterReadingController extends Controller
             });
         }
 
+        // Get meter type labels for filter dropdown
+        $meterTypeLabels = MeterType::labels();
+        
         // Get readings for grouping or pagination
         if ($groupBy === 'property') {
             $readings = $query->get()->groupBy('meter.property_id');
             $properties = Property::with('meters')->orderBy('address')->get();
-            return view('manager.meter-readings.index', compact('readings', 'groupBy', 'properties'));
+            return view('manager.meter-readings.index', compact('readings', 'groupBy', 'properties', 'meterTypeLabels'));
         } elseif ($groupBy === 'meter_type') {
             $readings = $query->get()->groupBy('meter.type');
             $properties = Property::orderBy('address')->get();
-            return view('manager.meter-readings.index', compact('readings', 'groupBy', 'properties'));
+            return view('manager.meter-readings.index', compact('readings', 'groupBy', 'properties', 'meterTypeLabels'));
         } else {
             $readings = $query->paginate(50);
             $properties = Property::orderBy('address')->get();
-            return view('manager.meter-readings.index', compact('readings', 'groupBy', 'properties'));
+            return view('manager.meter-readings.index', compact('readings', 'groupBy', 'properties', 'meterTypeLabels'));
         }
     }
 
@@ -83,7 +87,7 @@ class MeterReadingController extends Controller
 
         return redirect()
             ->route('manager.meter-readings.index')
-            ->with('success', 'Meter reading created successfully.');
+            ->with('success', __('notifications.meter_reading.created'));
     }
 
     /**
@@ -127,7 +131,7 @@ class MeterReadingController extends Controller
 
         return redirect()
             ->route('manager.meter-readings.show', $meterReading)
-            ->with('success', 'Meter reading corrected successfully. Audit trail created.');
+            ->with('success', __('notifications.meter_reading.corrected'));
     }
 
     /**
@@ -141,6 +145,6 @@ class MeterReadingController extends Controller
 
         return redirect()
             ->route('manager.meter-readings.index')
-            ->with('success', 'Meter reading deleted successfully.');
+            ->with('success', __('notifications.meter_reading.deleted'));
     }
 }

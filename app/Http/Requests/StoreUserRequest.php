@@ -40,10 +40,20 @@ class StoreUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.unique' => 'This email address is already registered.',
-            'password.min' => 'Password must be at least 8 characters.',
-            'password.confirmed' => 'Password confirmation does not match.',
-            'tenant_id.exists' => 'The selected tenant does not exist.',
+            'tenant_id.required' => __('users.validation.tenant_id.required'),
+            'tenant_id.integer' => __('users.validation.tenant_id.integer'),
+            'email.unique' => __('users.validation.email.unique'),
+            'email.required' => __('users.validation.email.required'),
+            'email.email' => __('users.validation.email.email'),
+            'email.max' => __('users.validation.email.max'),
+            'name.required' => __('users.validation.name.required'),
+            'name.max' => __('users.validation.name.max'),
+            'password.required' => __('users.validation.password.required'),
+            'password.min' => __('users.validation.password.min'),
+            'password.confirmed' => __('users.validation.password.confirmed'),
+            'tenant_id.exists' => __('users.validation.tenant_id.exists'),
+            'role.required' => __('users.validation.role.required'),
+            'role.enum' => __('users.validation.role.enum'),
         ];
     }
 }

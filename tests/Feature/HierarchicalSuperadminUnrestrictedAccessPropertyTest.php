@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionPlanType;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;
@@ -44,7 +45,7 @@ test('superadmin can access all resources across all tenant_ids', function () {
             'password' => 'password123',
             'name' => fake()->name(),
             'organization_name' => fake()->company(),
-            'plan_type' => fake()->randomElement(['basic', 'professional', 'enterprise']),
+            'plan_type' => fake()->randomElement(SubscriptionPlanType::values()),
             'expires_at' => now()->addDays(fake()->numberBetween(30, 365))->toDateString(),
         ];
         
@@ -148,7 +149,7 @@ test('superadmin bypasses tenant_id filtering on all models', function () {
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => AppnumsSubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -159,7 +160,7 @@ test('superadmin bypasses tenant_id filtering on all models', function () {
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => AppnumsSubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -221,7 +222,7 @@ test('superadmin can query specific resources by id across tenant boundaries', f
             'password' => 'password123',
             'name' => fake()->name(),
             'organization_name' => fake()->company(),
-            'plan_type' => 'basic',
+            'plan_type' => AppnumsSubscriptionPlanType::BASIC->value,
             'expires_at' => now()->addDays(365)->toDateString(),
         ];
         
@@ -277,7 +278,7 @@ test('superadmin sees all resources while admin sees only their tenant_id', func
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => AppnumsSubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -288,7 +289,7 @@ test('superadmin sees all resources while admin sees only their tenant_id', func
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => AppnumsSubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -345,7 +346,7 @@ test('superadmin can access resources with where clauses across all tenants', fu
             'password' => 'password123',
             'name' => fake()->name(),
             'organization_name' => fake()->company(),
-            'plan_type' => 'basic',
+            'plan_type' => AppnumsSubscriptionPlanType::BASIC->value,
             'expires_at' => now()->addDays(365)->toDateString(),
         ];
         
@@ -399,7 +400,7 @@ test('superadmin unrestricted access works with complex queries', function () {
             'password' => 'password123',
             'name' => fake()->name(),
             'organization_name' => fake()->company(),
-            'plan_type' => 'basic',
+            'plan_type' => AppnumsSubscriptionPlanType::BASIC->value,
             'expires_at' => now()->addDays(365)->toDateString(),
         ];
         
@@ -437,4 +438,3 @@ test('superadmin unrestricted access works with complex queries', function () {
         expect($meter->property)->not->toBeNull();
     }
 })->repeat(100);
-

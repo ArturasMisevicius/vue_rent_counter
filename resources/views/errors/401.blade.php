@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>401 - Unauthorized</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css'])
 </head>
-<body class="bg-gray-100">
+<body class="bg-slate-100">
     <div class="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div class="max-w-md w-full space-y-8 text-center">
             <div>
                 <h1 class="text-9xl font-bold text-indigo-600">401</h1>
-                <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+                <h2 class="mt-6 text-3xl font-extrabold text-slate-900">
                     Unauthorized
                 </h2>
-                <p class="mt-2 text-sm text-gray-600">
+                <p class="mt-2 text-sm text-slate-600">
                     You need to be logged in to access this page.
                 </p>
             </div>

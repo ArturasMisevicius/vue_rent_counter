@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Auth\Events\Authenticated;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -57,6 +58,56 @@ class AppServiceProvider extends ServiceProvider
     {
         // Register Eloquent observers
         \App\Models\MeterReading::observe(\App\Observers\MeterReadingObserver::class);
+
+        if (! Collection::hasMacro('takeLast')) {
+            Collection::macro('takeLast', function (int $count) {
+                return $count <= 0
+                    ? $this->take(0)
+                    : $this->take(-$count);
+            });
+        }
+
+        // Filament v4 compatibility: provide legacy Section alias if missing
+        if (! class_exists(\Filament\Forms\Components\Section::class) &&
+            class_exists(\Filament\Schemas\Components\Section::class)) {
+            class_alias(\Filament\Schemas\Components\Section::class, \Filament\Forms\Components\Section::class);
+        }
+
+        // Filament v4 compatibility: bulk action group moved namespaces
+        if (! class_exists(\Filament\Tables\Actions\BulkActionGroup::class) &&
+            class_exists(\Filament\Actions\BulkActionGroup::class)) {
+            class_alias(\Filament\Actions\BulkActionGroup::class, \Filament\Tables\Actions\BulkActionGroup::class);
+        }
+
+        if (! class_exists(\Filament\Tables\Actions\EditAction::class) &&
+            class_exists(\Filament\Actions\EditAction::class)) {
+            class_alias(\Filament\Actions\EditAction::class, \Filament\Tables\Actions\EditAction::class);
+        }
+
+        if (! class_exists(\Filament\Tables\Actions\DeleteAction::class) &&
+            class_exists(\Filament\Actions\DeleteAction::class)) {
+            class_alias(\Filament\Actions\DeleteAction::class, \Filament\Tables\Actions\DeleteAction::class);
+        }
+
+        if (! class_exists(\Filament\Tables\Actions\DeleteBulkAction::class) &&
+            class_exists(\Filament\Actions\DeleteBulkAction::class)) {
+            class_alias(\Filament\Actions\DeleteBulkAction::class, \Filament\Tables\Actions\DeleteBulkAction::class);
+        }
+
+        if (! class_exists(\Filament\Tables\Actions\ViewAction::class) &&
+            class_exists(\Filament\Actions\ViewAction::class)) {
+            class_alias(\Filament\Actions\ViewAction::class, \Filament\Tables\Actions\ViewAction::class);
+        }
+
+        if (! class_exists(\Filament\Tables\Actions\BulkAction::class) &&
+            class_exists(\Filament\Actions\BulkAction::class)) {
+            class_alias(\Filament\Actions\BulkAction::class, \Filament\Tables\Actions\BulkAction::class);
+        }
+
+        if (! class_exists(\Filament\Tables\Actions\CreateAction::class) &&
+            class_exists(\Filament\Actions\CreateAction::class)) {
+            class_alias(\Filament\Actions\CreateAction::class, \Filament\Tables\Actions\CreateAction::class);
+        }
 
         // Register policies
         foreach ($this->policies as $model => $policy) {

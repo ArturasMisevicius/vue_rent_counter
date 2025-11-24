@@ -37,9 +37,9 @@ class UserPolicy
             return true;
         }
 
-        // Admins can view any user
+        // Admins can view users from their own tenant only
         if ($user->role === UserRole::ADMIN) {
-            return true;
+            return $user->tenant_id !== null && $user->tenant_id === $model->tenant_id;
         }
 
         // Other users can view only themselves
@@ -76,9 +76,9 @@ class UserPolicy
             return true;
         }
 
-        // Admins can update any user
+        // Admins can update users from their own tenant
         if ($user->role === UserRole::ADMIN) {
-            return true;
+            return $user->tenant_id !== null && $user->tenant_id === $model->tenant_id;
         }
 
         // Tenants and managers can update their own profile only (Requirement 13.4)
@@ -103,8 +103,10 @@ class UserPolicy
             return true;
         }
 
-        // Only admins can delete users they did not create (Requirement 13.3)
-        return $user->role === UserRole::ADMIN;
+        // Admins can delete users within their tenant (Requirement 13.3)
+        return $user->role === UserRole::ADMIN
+            && $user->tenant_id !== null
+            && $user->tenant_id === $model->tenant_id;
     }
 
     /**
@@ -121,7 +123,9 @@ class UserPolicy
 
         // Admins and Managers can restore their child users
         if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
-            return $model->parent_user_id === $user->id;
+            return $model->parent_user_id === $user->id
+                && $user->tenant_id !== null
+                && $user->tenant_id === $model->tenant_id;
         }
 
         return false;

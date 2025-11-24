@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionPlanType;
+use App\Enums\SubscriptionStatus;
 use App\Models\Subscription;
 use App\Models\User;
 use Carbon\Carbon;
@@ -119,8 +121,8 @@ class MigrateToHierarchicalUsersCommand extends Command
                 if ($user->role === UserRole::ADMIN && !$user->subscription) {
                     $subscription = new Subscription([
                         'user_id' => $user->id,
-                        'plan_type' => 'professional',
-                        'status' => 'active',
+                        'plan_type' => SubscriptionPlanType::PROFESSIONAL->value,
+                        'status' => SubscriptionStatus::ACTIVE->value,
                         'starts_at' => now(),
                         'expires_at' => now()->addYear(),
                         'max_properties' => 50,
@@ -177,8 +179,8 @@ class MigrateToHierarchicalUsersCommand extends Command
                 foreach ($adminsWithoutSubscription as $admin) {
                     $subscription = new Subscription([
                         'user_id' => $admin->id,
-                        'plan_type' => 'professional',
-                        'status' => 'active',
+                        'plan_type' => SubscriptionPlanType::PROFESSIONAL->value,
+                        'status' => SubscriptionStatus::ACTIVE->value,
                         'starts_at' => now(),
                         'expires_at' => now()->addYear(),
                         'max_properties' => 50,

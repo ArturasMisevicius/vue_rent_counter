@@ -18,7 +18,7 @@
                     Finalize Invoice
                 </button>
             </form>
-            <a href="{{ route('invoices.edit', $invoice) }}" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+            <a href="{{ route('invoices.edit', $invoice) }}" class="px-4 py-2 bg-slate-600 text-white rounded hover:bg-slate-700">
                 Edit Invoice
             </a>
             <form action="{{ route('invoices.destroy', $invoice) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this invoice?')">
@@ -35,8 +35,8 @@
                     Mark as Paid
                 </button>
             </form>
-            <a href="{{ route('invoices.pdf', $invoice) }}" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
-                Download PDF
+            <a href="{{ route('invoices.pdf', $invoice) }}" class="px-4 py-2 bg-slate-600 text-white rounded hover:bg-slate-700">
+                {{ $invoice->isPaid() ? 'Download Receipt (PDF)' : 'Download PDF' }}
             </a>
             <form action="{{ route('invoices.send', $invoice) }}" method="POST" class="inline">
                 @csrf

@@ -83,7 +83,7 @@ class MeterController extends Controller
 
         return redirect()
             ->route('manager.meters.show', $meter)
-            ->with('success', 'Meter created successfully.');
+            ->with('success', __('notifications.meter.created'));
     }
 
     /**
@@ -131,7 +131,7 @@ class MeterController extends Controller
 
         return redirect()
             ->route('manager.meters.show', $meter)
-            ->with('success', 'Meter updated successfully.');
+            ->with('success', __('notifications.meter.updated'));
     }
 
     /**
@@ -143,13 +143,13 @@ class MeterController extends Controller
 
         // Check if meter has associated readings
         if ($meter->readings()->exists()) {
-            return back()->with('error', 'Cannot delete meter with associated readings.');
+            return back()->with('error', __('meters.errors.has_readings'));
         }
 
         $meter->delete();
 
         return redirect()
             ->route('manager.meters.index')
-            ->with('success', 'Meter deleted successfully.');
+            ->with('success', __('notifications.meter.deleted'));
     }
 }

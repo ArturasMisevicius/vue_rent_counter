@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources;
 
 use App\Enums\MeterType;
@@ -9,28 +11,51 @@ use App\Filament\Resources\MeterReadingResource\RelationManagers;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Property;
+use BackedEnum;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Actions;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
+use UnitEnum;
 
+/**
+ * Filament resource for managing meter readings.
+ *
+ * Provides CRUD operations for meter readings with:
+ * - Tenant-scoped data access
+ * - Role-based navigation visibility
+ * - Monotonicity validation (Property 3)
+ * - Zone support validation (Property 4)
+ * - Relationship management (meters, properties)
+ *
+ * @see \App\Models\MeterReading
+ * @see \App\Policies\MeterReadingPolicy
+ */
 class MeterReadingResource extends Resource
 {
     protected static ?string $model = MeterReading::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
+    public static function getNavigationIcon(): string|BackedEnum|null
+    {
+        return 'heroicon-o-chart-bar';
+    }
 
     protected static ?string $navigationLabel = 'Meter Readings';
 
-    protected static ?string $navigationGroup = 'Operations';
-
     protected static ?int $navigationSort = 1;
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return 'Operations';
+    }
 
     // Integrate MeterReadingPolicy for authorization (Requirement 9.5)
     public static function canViewAny(): bool
@@ -60,9 +85,9 @@ class MeterReadingResource extends Resource
         return auth()->check();
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\Select::make('property_id')
                     ->label('Property')
@@ -275,7 +300,7 @@ class MeterReadingResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\Filter::make('reading_date')
+                Filter::make('reading_date')
                     ->form([
                         Forms\Components\DatePicker::make('from')
                             ->label('From Date')
@@ -306,18 +331,25 @@ class MeterReadingResource extends Resource
                         return $indicators;
                     }),
                 
-                Tables\Filters\SelectFilter::make('meter.type')
+                SelectFilter::make('meter_type')
                     ->label('Meter Type')
-                    ->relationship('meter', 'type')
                     ->options(MeterType::labels())
+                    ->query(function (Builder $query, $value): Builder {
+                        if (! $value) {
+                            return $query;
+                        }
+
+                        return $query->whereHas('meter', fn (Builder $meterQuery) => $meterQuery->where('type', $value));
+                    })
                     ->native(false),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Actions\EditAction::make(),
+                Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make()
                         ->requiresConfirmation()
                         ->modalHeading('Delete Meter Readings')
                         ->modalDescription('Are you sure you want to delete these meter readings? This action cannot be undone.')

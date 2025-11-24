@@ -13,8 +13,8 @@
 
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-gray-900">Create Property</h1>
-            <p class="mt-2 text-sm text-gray-700">Add a new property to your portfolio</p>
+            <h1 class="text-2xl font-semibold text-slate-900">Create Property</h1>
+            <p class="mt-2 text-sm text-slate-700">Add a new property to your portfolio</p>
         </div>
     </div>
 

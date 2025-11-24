@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SendTenantInvoiceRequest;
+use App\Http\Requests\StoreTenantRequest;
+use App\Http\Requests\UpdateTenantRequest;
 use App\Models\Property;
 use App\Models\Tenant;
-use Illuminate\Http\Request;
 
 class TenantController extends Controller
 {
@@ -20,22 +22,14 @@ class TenantController extends Controller
         return view('tenants.create', compact('properties'));
     }
 
-    public function store(Request $request)
+    public function store(StoreTenantRequest $request)
     {
-        $validated = $request->validate([
-            'tenant_id' => ['required', 'integer'],
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email'],
-            'phone' => ['nullable', 'string', 'max:50'],
-            'property_id' => ['required', 'exists:properties,id'],
-            'lease_start' => ['required', 'date'],
-            'lease_end' => ['nullable', 'date', 'after:lease_start'],
-        ]);
+        $validated = $request->validated();
 
         Tenant::create($validated);
 
         return redirect()->route('tenants.index')
-            ->with('success', 'Tenant created successfully.');
+            ->with('success', __('notifications.tenant.created'));
     }
 
     public function show(Tenant $tenant)
@@ -50,22 +44,14 @@ class TenantController extends Controller
         return view('tenants.edit', compact('tenant', 'properties'));
     }
 
-    public function update(Request $request, Tenant $tenant)
+    public function update(UpdateTenantRequest $request, Tenant $tenant)
     {
-        $validated = $request->validate([
-            'tenant_id' => ['required', 'integer'],
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email'],
-            'phone' => ['nullable', 'string', 'max:50'],
-            'property_id' => ['required', 'exists:properties,id'],
-            'lease_start' => ['required', 'date'],
-            'lease_end' => ['nullable', 'date', 'after:lease_start'],
-        ]);
+        $validated = $request->validated();
 
         $tenant->update($validated);
 
         return redirect()->route('tenants.index')
-            ->with('success', 'Tenant updated successfully.');
+            ->with('success', __('notifications.tenant.updated'));
     }
 
     public function destroy(Tenant $tenant)
@@ -73,7 +59,7 @@ class TenantController extends Controller
         $tenant->delete();
 
         return redirect()->route('tenants.index')
-            ->with('success', 'Tenant deleted successfully.');
+            ->with('success', __('notifications.tenant.deleted'));
     }
 
     public function invoices(Tenant $tenant)
@@ -92,13 +78,9 @@ class TenantController extends Controller
         return view('tenants.consumption', compact('tenant', 'readings'));
     }
 
-    public function sendInvoice(Request $request, Tenant $tenant)
+    public function sendInvoice(SendTenantInvoiceRequest $request, Tenant $tenant)
     {
-        $validated = $request->validate([
-            'invoice_id' => ['required', 'exists:invoices,id'],
-        ]);
-
         // Future: Send invoice via email
-        return back()->with('success', 'Invoice sent successfully.');
+        return back()->with('success', __('notifications.tenant.invoice_sent'));
     }
 }

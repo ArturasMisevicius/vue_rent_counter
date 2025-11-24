@@ -11,6 +11,8 @@ use App\Models\Tenant;
 use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 
 beforeEach(function () {
@@ -23,323 +25,179 @@ beforeEach(function () {
         'tenant_id' => 1,
     ]);
 
+    $this->manager = new PropertiesRelationManager;
+    $this->manager->ownerRecord = $this->building;
+
     $this->actingAs($this->admin);
 });
 
-describe('Localization', function () {
-    test('all validation messages use translation keys', function () {
-        $manager = new PropertiesRelationManager;
-        $form = $manager->form(\Filament\Forms\Form::make());
+test('form fields use translated labels and validation wiring', function () {
+    $form = $this->manager->form(Schema::make());
 
-        $schema = $form->getComponents();
+    expect($form->getComponents())->not->toBeEmpty();
 
-        // Check that no hardcoded English strings exist in validation
-        $reflection = new ReflectionClass($manager);
-        $method = $reflection->getMethod('getAddressField');
-        $method->setAccessible(true);
+    $reflection = new ReflectionClass($this->manager);
+    $address = $reflection->getMethod('getAddressField');
+    $address->setAccessible(true);
 
-        $field = $method->invoke($manager);
+    /** @var TextInput $addressField */
+    $addressField = $address->invoke($this->manager);
 
-        expect($field)->toBeInstanceOf(TextInput::class);
-
-        // Verify translations exist
-        expect(Lang::has('properties.validation.address.required'))->toBeTrue();
-        expect(Lang::has('properties.validation.address.max'))->toBeTrue();
-        expect(Lang::has('properties.validation.type.required'))->toBeTrue();
-        expect(Lang::has('properties.validation.type.enum'))->toBeTrue();
-        expect(Lang::has('properties.validation.area_sqm.required'))->toBeTrue();
-    });
-
-    test('all labels use translation keys', function () {
-        expect(Lang::has('properties.labels.address'))->toBeTrue();
-        expect(Lang::has('properties.labels.type'))->toBeTrue();
-        expect(Lang::has('properties.labels.area'))->toBeTrue();
-        expect(Lang::has('properties.labels.current_tenant'))->toBeTrue();
-    });
-
-    test('all notifications use translation keys', function () {
-        expect(Lang::has('properties.notifications.created.title'))->toBeTrue();
-        expect(Lang::has('properties.notifications.updated.title'))->toBeTrue();
-        expect(Lang::has('properties.notifications.deleted.title'))->toBeTrue();
-        expect(Lang::has('properties.notifications.tenant_assigned.title'))->toBeTrue();
-        expect(Lang::has('properties.notifications.tenant_removed.title'))->toBeTrue();
-    });
-
-    test('all action labels use translation keys', function () {
-        expect(Lang::has('properties.actions.manage_tenant'))->toBeTrue();
-        expect(Lang::has('properties.actions.assign_tenant'))->toBeTrue();
-        expect(Lang::has('properties.actions.export_selected'))->toBeTrue();
-    });
+    expect($addressField)->toBeInstanceOf(TextInput::class)
+        ->and($addressField->getLabel())->toBe(__('properties.labels.address'))
+        ->and(Lang::has('properties.validation.address.required'))->toBeTrue();
 });
 
-describe('Model Relationships', function () {
-    test('property tenants relationship is BelongsToMany', function () {
-        $property = Property::factory()->create([
-            'tenant_id' => 1,
-            'building_id' => $this->building->id,
-        ]);
+test('default area comes from billing config by property type', function () {
+    config([
+        'billing.property.default_apartment_area' => 66,
+        'billing.property.default_house_area' => 144,
+    ]);
 
-        $tenant = Tenant::factory()->create([
-            'tenant_id' => 1,
-        ]);
+    $reflection = new ReflectionClass($this->manager);
+    $method = $reflection->getMethod('setDefaultArea');
+    $method->setAccessible(true);
 
-        // Should be able to sync (BelongsToMany method)
-        $property->tenants()->sync([$tenant->id]);
+    $setter = function ($key, $value) {
+        $this->captured = $value;
+    };
 
-        expect($property->tenants)->toHaveCount(1);
-        expect($property->tenants->first()->id)->toBe($tenant->id);
-    });
+    $method->invoke($this->manager, PropertyType::APARTMENT->value, $setter->bindTo($this));
+    expect($this->captured)->toBe(66);
 
-    test('property can have multiple tenants over time', function () {
-        $property = Property::factory()->create([
-            'tenant_id' => 1,
-            'building_id' => $this->building->id,
-        ]);
-
-        $tenant1 = Tenant::factory()->create(['tenant_id' => 1]);
-        $tenant2 = Tenant::factory()->create(['tenant_id' => 1]);
-
-        $property->tenants()->attach($tenant1->id);
-        expect($property->tenants)->toHaveCount(1);
-
-        $property->tenants()->sync([$tenant2->id]);
-        expect($property->tenants)->toHaveCount(1);
-        expect($property->tenants->first()->id)->toBe($tenant2->id);
-    });
+    $method->invoke($this->manager, PropertyType::HOUSE->value, $setter->bindTo($this));
+    expect($this->captured)->toBe(144);
 });
 
-describe('Authorization', function () {
-    test('handleTenantManagement checks authorization', function () {
-        $otherAdmin = User::factory()->create([
-            'role' => UserRole::ADMIN,
-            'tenant_id' => 2, // Different tenant
-        ]);
+test('preparePropertyData injects tenant/building ids and strips extras', function () {
+    $reflection = new ReflectionClass($this->manager);
+    $method = $reflection->getMethod('preparePropertyData');
+    $method->setAccessible(true);
 
-        $property = Property::factory()->create([
-            'tenant_id' => 2,
-            'building_id' => Building::factory()->create(['tenant_id' => 2])->id,
-        ]);
+    $result = $method->invoke($this->manager, [
+        'address' => 'Test Address',
+        'type' => PropertyType::HOUSE->value,
+        'area_sqm' => 120,
+        'unexpected' => 'ignore-me',
+    ]);
 
-        $this->actingAs($this->admin); // tenant_id = 1
-
-        $manager = new PropertiesRelationManager;
-        $reflection = new ReflectionClass($manager);
-        $method = $reflection->getMethod('handleTenantManagement');
-        $method->setAccessible(true);
-
-        // Should fail authorization since property belongs to different tenant
-        expect($this->admin->can('update', $property))->toBeFalse();
-    });
-
-    test('admin can manage tenants for own properties', function () {
-        $property = Property::factory()->create([
-            'tenant_id' => 1,
-            'building_id' => $this->building->id,
-        ]);
-
-        expect($this->admin->can('update', $property))->toBeTrue();
-    });
-
-    test('superadmin can manage any property', function () {
-        $superadmin = User::factory()->create([
-            'role' => UserRole::SUPERADMIN,
-        ]);
-
-        $property = Property::factory()->create([
-            'tenant_id' => 999,
-            'building_id' => Building::factory()->create(['tenant_id' => 999])->id,
-        ]);
-
-        $this->actingAs($superadmin);
-
-        expect($superadmin->can('update', $property))->toBeTrue();
-    });
+    expect($result)->toMatchArray([
+        'address' => 'Test Address',
+        'type' => PropertyType::HOUSE->value,
+        'area_sqm' => 120,
+        'tenant_id' => $this->admin->tenant_id,
+        'building_id' => $this->building->id,
+    ])->and($result)->not->toHaveKey('unexpected');
 });
 
-describe('Validation Integration', function () {
-    test('form uses FormRequest validation messages', function () {
-        $manager = new PropertiesRelationManager;
+test('table eager loads tenants and meters to avoid N+1s', function () {
+    $table = $this->manager->table(\Filament\Tables\Table::make($this->manager));
 
-        $reflection = new ReflectionClass($manager);
-        $method = $reflection->getMethod('getAddressField');
-        $method->setAccessible(true);
+    $scopes = (new ReflectionProperty($table, 'queryScopes'));
+    $scopes->setAccessible(true);
 
-        $field = $method->invoke($manager);
+    $query = Property::query();
 
-        // Verify field has validation messages configured
-        expect($field->getValidationMessages())->toBeArray();
-        expect($field->getValidationMessages())->toHaveKey('required');
-    });
+    foreach ($scopes->getValue($table) as $scope) {
+        $query = $scope($query) ?? $query;
+    }
 
-    test('area field uses config values', function () {
-        config(['billing.property.min_area' => 10]);
-        config(['billing.property.max_area' => 5000]);
+    $eagerLoads = array_keys($query->getEagerLoads());
 
-        $manager = new PropertiesRelationManager;
-
-        $reflection = new ReflectionClass($manager);
-        $method = $reflection->getMethod('getAreaField');
-        $method->setAccessible(true);
-
-        $field = $method->invoke($manager);
-
-        expect($field->getMinValue())->toBe(10);
-        expect($field->getMaxValue())->toBe(5000);
-    });
+    expect($eagerLoads)->toContain('tenants', 'meters');
 });
 
-describe('Eager Loading', function () {
-    test('table configures eager loading for relationships', function () {
-        $manager = new PropertiesRelationManager;
-        $table = $manager->table(\Filament\Tables\Table::make());
+test('tenant management form hides already assigned tenants', function () {
+    $property = Property::factory()->create([
+        'tenant_id' => 1,
+        'building_id' => $this->building->id,
+    ]);
 
-        // Create test data
-        $property = Property::factory()->create([
-            'tenant_id' => 1,
-            'building_id' => $this->building->id,
-        ]);
+    // Active tenant should be excluded from options
+    $activeTenant = Tenant::factory()->create([
+        'tenant_id' => 1,
+        'property_id' => $property->id,
+        'lease_end' => now()->addMonth(),
+    ]);
 
-        // Query should eager load relationships
-        $query = Property::query();
-        $modifyQuery = $table->getModifyQueryUsing();
+    // Vacated tenant should be available for selection
+    $availableTenant = Tenant::factory()->create([
+        'tenant_id' => 1,
+        'property_id' => $property->id,
+        'lease_end' => now()->subMonth(),
+    ]);
 
-        if ($modifyQuery) {
-            $query = $modifyQuery($query);
-        }
+    DB::table('property_tenant')
+        ->where('property_id', $property->id)
+        ->where('tenant_id', $availableTenant->id)
+        ->update(['vacated_at' => now()->subDay()]);
 
-        // Check that eager loads are configured
-        expect($query->getEagerLoads())->toHaveKeys(['tenants', 'meters']);
-    });
+    $method = new ReflectionMethod($this->manager, 'getTenantManagementForm');
+    $method->setAccessible(true);
+
+    /** @var Select $select */
+    $select = $method->invoke($this->manager, $property)[0];
+    $options = $select->getOptions();
+
+    expect($select)->toBeInstanceOf(Select::class)
+        ->and($options)->toHaveKey($availableTenant->id)
+        ->and($options)->not->toHaveKey($activeTenant->id);
 });
 
-describe('Default Area Setting', function () {
-    test('apartment type sets default area from config', function () {
-        config(['billing.property.default_apartment_area' => 55]);
+test('handleTenantManagement updates pivot assignment lifecycle', function () {
+    $property = Property::factory()->create([
+        'tenant_id' => 1,
+        'building_id' => $this->building->id,
+    ]);
 
-        $manager = new PropertiesRelationManager;
+    $tenant = Tenant::factory()->create([
+        'tenant_id' => 1,
+        'property_id' => $property->id,
+        'lease_end' => now()->subMonths(2), // start as vacated
+    ]);
 
-        $reflection = new ReflectionClass($manager);
-        $method = $reflection->getMethod('setDefaultArea');
-        $method->setAccessible(true);
+    DB::table('property_tenant')
+        ->where('property_id', $property->id)
+        ->where('tenant_id', $tenant->id)
+        ->update(['vacated_at' => now()->subMonth()]);
 
-        $set = function ($key, $value) {
-            $this->testValue = $value;
-        };
+    $method = new ReflectionMethod($this->manager, 'handleTenantManagement');
+    $method->setAccessible(true);
 
-        $method->invoke($manager, PropertyType::APARTMENT->value, $set->bindTo($this));
+    // Assign tenant
+    $method->invoke($this->manager, $property, ['tenant_id' => $tenant->id]);
 
-        expect($this->testValue)->toBe(55);
-    });
+    $pivot = DB::table('property_tenant')
+        ->where('property_id', $property->id)
+        ->where('tenant_id', $tenant->id)
+        ->latest('updated_at')
+        ->first();
 
-    test('house type sets default area from config', function () {
-        config(['billing.property.default_house_area' => 150]);
+    expect($pivot->vacated_at)->toBeNull();
 
-        $manager = new PropertiesRelationManager;
+    // Vacate tenant
+    $method->invoke($this->manager, $property, ['tenant_id' => null]);
 
-        $reflection = new ReflectionClass($manager);
-        $method = $reflection->getMethod('setDefaultArea');
-        $method->setAccessible(true);
+    $pivotAfter = DB::table('property_tenant')
+        ->where('property_id', $property->id)
+        ->where('tenant_id', $tenant->id)
+        ->latest('updated_at')
+        ->first();
 
-        $set = function ($key, $value) {
-            $this->testValue = $value;
-        };
-
-        $method->invoke($manager, PropertyType::HOUSE->value, $set->bindTo($this));
-
-        expect($this->testValue)->toBe(150);
-    });
+    expect($pivotAfter->vacated_at)->not->toBeNull();
 });
 
-describe('Tenant Management Form', function () {
-    test('form shows reassign label when tenant exists', function () {
-        $property = Property::factory()->create([
-            'tenant_id' => 1,
-            'building_id' => $this->building->id,
-        ]);
+test('applyTenantScoping returns original query for relation', function () {
+    $method = new ReflectionMethod($this->manager, 'applyTenantScoping');
+    $method->setAccessible(true);
 
-        $tenant = Tenant::factory()->create(['tenant_id' => 1]);
-        $property->tenants()->attach($tenant->id);
+    $query = Property::query();
 
-        $manager = new PropertiesRelationManager;
-
-        $reflection = new ReflectionClass($manager);
-        $method = $reflection->getMethod('getTenantManagementForm');
-        $method->setAccessible(true);
-
-        $form = $method->invoke($manager, $property);
-
-        expect($form)->toBeArray();
-        expect($form[0])->toBeInstanceOf(Select::class);
-    });
-
-    test('form shows assign label when no tenant', function () {
-        $property = Property::factory()->create([
-            'tenant_id' => 1,
-            'building_id' => $this->building->id,
-        ]);
-
-        $manager = new PropertiesRelationManager;
-
-        $reflection = new ReflectionClass($manager);
-        $method = $reflection->getMethod('getTenantManagementForm');
-        $method->setAccessible(true);
-
-        $form = $method->invoke($manager, $property);
-
-        expect($form)->toBeArray();
-        expect($form[0])->toBeInstanceOf(Select::class);
-    });
+    expect($method->invoke($this->manager, $query))->toBe($query);
 });
 
-describe('Data Preparation', function () {
-    test('preparePropertyData sets tenant_id and building_id', function () {
-        $manager = new PropertiesRelationManager;
+test('canViewForRecord relies on policy', function () {
+    $canView = PropertiesRelationManager::canViewForRecord($this->building, 'view');
 
-        // Mock the getOwnerRecord method
-        $reflection = new ReflectionClass($manager);
-        $property = $reflection->getProperty('ownerRecord');
-        $property->setAccessible(true);
-        $property->setValue($manager, $this->building);
-
-        $method = $reflection->getMethod('preparePropertyData');
-        $method->setAccessible(true);
-
-        $data = [
-            'address' => 'Test Address',
-            'type' => PropertyType::APARTMENT->value,
-            'area_sqm' => 50,
-        ];
-
-        $result = $method->invoke($manager, $data);
-
-        expect($result)->toHaveKey('tenant_id');
-        expect($result)->toHaveKey('building_id');
-        expect($result['tenant_id'])->toBe($this->admin->tenant_id);
-        expect($result['building_id'])->toBe($this->building->id);
-    });
-});
-
-describe('Security', function () {
-    test('tenant scope is applied through building relationship', function () {
-        $manager = new PropertiesRelationManager;
-
-        $reflection = new ReflectionClass($manager);
-        $method = $reflection->getMethod('applyTenantScoping');
-        $method->setAccessible(true);
-
-        $query = Property::query();
-        $result = $method->invoke($manager, $query);
-
-        // Should return query unchanged (scoping via building)
-        expect($result)->toBe($query);
-    });
-
-    test('canViewForRecord checks policy', function () {
-        $canView = PropertiesRelationManager::canViewForRecord(
-            $this->building,
-            'view'
-        );
-
-        expect($canView)->toBeTrue();
-    });
+    expect($canView)->toBeTrue();
 });

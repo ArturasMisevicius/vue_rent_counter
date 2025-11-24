@@ -36,13 +36,13 @@ class StoreInvoiceRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'tenant_renter_id.required' => 'Tenant is required',
-            'tenant_renter_id.exists' => 'Selected tenant does not exist',
-            'billing_period_start.required' => 'Billing period start date is required',
-            'billing_period_start.date' => 'Billing period start must be a valid date',
-            'billing_period_end.required' => 'Billing period end date is required',
-            'billing_period_end.date' => 'Billing period end must be a valid date',
-            'billing_period_end.after' => 'Billing period end must be after start date',
+            'tenant_renter_id.required' => __('invoices.validation.tenant_renter_id.required'),
+            'tenant_renter_id.exists' => __('invoices.validation.tenant_renter_id.exists'),
+            'billing_period_start.required' => __('invoices.validation.billing_period_start.required'),
+            'billing_period_start.date' => __('invoices.validation.billing_period_start.date'),
+            'billing_period_end.required' => __('invoices.validation.billing_period_end.required'),
+            'billing_period_end.date' => __('invoices.validation.billing_period_end.date'),
+            'billing_period_end.after' => __('invoices.validation.billing_period_end.after'),
         ];
     }
 }

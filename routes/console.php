@@ -27,3 +27,8 @@ Schedule::command('backup:clean')
     ->daily()
     ->at('03:00')
     ->timezone('Europe/Vilnius');
+
+// Schedule overdue invoice notifications daily at 09:00
+Schedule::command('invoices:notify-overdue')
+    ->dailyAt('09:00')
+    ->timezone('Europe/Vilnius');

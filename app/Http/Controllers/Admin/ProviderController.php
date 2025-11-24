@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProviderRequest;
 use App\Models\Provider;
 use Illuminate\Http\Request;
 
@@ -37,15 +38,11 @@ class ProviderController extends Controller
         return view('admin.providers.create');
     }
 
-    public function store(Request $request)
+    public function store(ProviderRequest $request)
     {
         $this->authorize('create', Provider::class);
         
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'service_type' => ['required', 'in:electricity,water,heating'],
-            'contact_info' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
 
         // Convert contact_info to array if it's a string
         if (isset($validated['contact_info']) && !empty($validated['contact_info'])) {
@@ -55,7 +52,7 @@ class ProviderController extends Controller
         Provider::create($validated);
 
         return redirect()->route('admin.providers.index')
-            ->with('success', 'Provider created successfully.');
+            ->with('success', __('providers.notifications.created'));
     }
 
     public function show(Provider $provider)
@@ -75,15 +72,11 @@ class ProviderController extends Controller
         return view('admin.providers.edit', compact('provider'));
     }
 
-    public function update(Request $request, Provider $provider)
+    public function update(ProviderRequest $request, Provider $provider)
     {
         $this->authorize('update', $provider);
         
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'service_type' => ['required', 'in:electricity,water,heating'],
-            'contact_info' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
 
         // Convert contact_info to array if it's a string
         if (isset($validated['contact_info']) && !empty($validated['contact_info'])) {
@@ -95,7 +88,7 @@ class ProviderController extends Controller
         $provider->update($validated);
 
         return redirect()->route('admin.providers.index')
-            ->with('success', 'Provider updated successfully.');
+            ->with('success', __('providers.notifications.updated'));
     }
 
     public function destroy(Provider $provider)
@@ -105,12 +98,12 @@ class ProviderController extends Controller
         // Check if provider has associated tariffs
         if ($provider->tariffs()->exists()) {
             return redirect()->route('admin.providers.index')
-                ->with('error', 'Cannot delete provider with associated tariffs.');
+                ->with('error', __('providers.notifications.cannot_delete'));
         }
 
         $provider->delete();
 
         return redirect()->route('admin.providers.index')
-            ->with('success', 'Provider deleted successfully.');
+            ->with('success', __('providers.notifications.deleted'));
     }
 }

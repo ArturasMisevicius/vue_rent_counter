@@ -1,19 +1,19 @@
 @extends('layouts.app')
 
-@section('title', 'Tenant Details')
+@section('title', __('tenants.headings.show'))
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
     <x-breadcrumbs>
-        <x-breadcrumb-item href="{{ route('admin.dashboard') }}">Dashboard</x-breadcrumb-item>
-        <x-breadcrumb-item href="{{ route('admin.tenants.index') }}">Tenants</x-breadcrumb-item>
+        <x-breadcrumb-item href="{{ route('admin.dashboard') }}">{{ __('app.nav.dashboard') }}</x-breadcrumb-item>
+        <x-breadcrumb-item href="{{ route('admin.tenants.index') }}">{{ __('app.nav.tenants') }}</x-breadcrumb-item>
         <x-breadcrumb-item :active="true">{{ $tenant->name }}</x-breadcrumb-item>
     </x-breadcrumbs>
 
     <div class="sm:flex sm:items-center sm:justify-between">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-gray-900">{{ $tenant->name }}</h1>
-            <p class="mt-2 text-sm text-gray-700">Tenant account details and history</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ $tenant->name }}</h1>
+            <p class="mt-2 text-sm text-slate-700">{{ __('tenants.headings.show') }}</p>
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 flex gap-3">
             <form action="{{ route('admin.tenants.toggle-active', $tenant) }}" method="POST">
@@ -21,16 +21,16 @@
                 @method('PATCH')
                 @if($tenant->is_active)
                     <button type="submit" class="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500">
-                        Deactivate
+                        {{ __('tenants.actions.deactivate') }}
                     </button>
                 @else
                     <button type="submit" class="rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
-                        Reactivate
+                        {{ __('tenants.actions.reactivate') }}
                     </button>
                 @endif
             </form>
             <a href="{{ route('admin.tenants.reassign-form', $tenant) }}" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
-                Reassign Property
+                {{ __('tenants.actions.reassign') }}
             </a>
         </div>
     </div>
@@ -52,68 +52,68 @@
 
     <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <!-- Account Information -->
-        <x-card title="Account Information">
-            <dl class="divide-y divide-gray-200">
+        <x-card title="{{ __('tenants.headings.account') }}">
+            <dl class="divide-y divide-slate-200">
                 <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
-                    <dt class="text-sm font-medium text-gray-500">Status</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                    <dt class="text-sm font-medium text-slate-500">{{ __('tenants.labels.status') }}</dt>
+                    <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">
                         @if($tenant->is_active)
-                            <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">Active</span>
+                            <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">{{ __('tenants.statuses.active') }}</span>
                         @else
-                            <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">Inactive</span>
+                            <span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">{{ __('tenants.statuses.inactive') }}</span>
                         @endif
                     </dd>
                 </div>
                 <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
-                    <dt class="text-sm font-medium text-gray-500">Email</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{ $tenant->email }}</dd>
+                    <dt class="text-sm font-medium text-slate-500">{{ __('tenants.labels.email') }}</dt>
+                    <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">{{ $tenant->email }}</dd>
                 </div>
                 <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
-                    <dt class="text-sm font-medium text-gray-500">Created</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{ $tenant->created_at->format('M d, Y') }}</dd>
+                    <dt class="text-sm font-medium text-slate-500">{{ __('tenants.labels.created') }}</dt>
+                    <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">{{ $tenant->created_at->format('M d, Y') }}</dd>
                 </div>
                 <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
-                    <dt class="text-sm font-medium text-gray-500">Created By</dt>
-                    <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                        {{ $tenant->parentUser->name ?? 'N/A' }}
+                    <dt class="text-sm font-medium text-slate-500">{{ __('tenants.labels.created_by') }}</dt>
+                    <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">
+                        {{ $tenant->parentUser->name ?? __('providers.statuses.not_available') }}
                     </dd>
                 </div>
             </dl>
         </x-card>
 
         <!-- Current Property Assignment -->
-        <x-card title="Current Property">
+        <x-card title="{{ __('tenants.headings.current_property') }}">
             @if($tenant->property)
-                <dl class="divide-y divide-gray-200">
+                <dl class="divide-y divide-slate-200">
                     <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
-                        <dt class="text-sm font-medium text-gray-500">Address</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{ $tenant->property->address }}</dd>
+                        <dt class="text-sm font-medium text-slate-500">{{ __('tenants.labels.address') }}</dt>
+                        <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">{{ $tenant->property->address }}</dd>
                     </div>
                     <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
-                        <dt class="text-sm font-medium text-gray-500">Type</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{ enum_label($tenant->property->type) }}</dd>
+                        <dt class="text-sm font-medium text-slate-500">{{ __('tenants.labels.type') }}</dt>
+                        <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">{{ enum_label($tenant->property->type) }}</dd>
                     </div>
                     <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
-                        <dt class="text-sm font-medium text-gray-500">Area</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{ $tenant->property->area }} m²</dd>
+                        <dt class="text-sm font-medium text-slate-500">{{ __('tenants.labels.area') }}</dt>
+                        <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">{{ $tenant->property->area }} m²</dd>
                     </div>
                 </dl>
             @else
-                <p class="text-sm text-gray-500">No property assigned</p>
+                <p class="text-sm text-slate-500">{{ __('tenants.empty.property') }}</p>
             @endif
         </x-card>
     </div>
 
     <!-- Assignment History -->
     <div class="mt-8">
-        <x-card title="Assignment History">
+        <x-card title="{{ __('tenants.headings.assignment_history') }}">
             <div class="flow-root">
                 <ul role="list" class="-mb-8">
                     @forelse($assignmentHistory as $index => $history)
                     <li>
                         <div class="relative pb-8">
                             @if(!$loop->last)
-                            <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                            <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-slate-200" aria-hidden="true"></span>
                             @endif
                             <div class="relative flex space-x-3">
                                 <div>
@@ -125,21 +125,21 @@
                                 </div>
                                 <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
                                     <div>
-                                        <p class="text-sm text-gray-500">
-                                            <span class="font-medium text-gray-900">{{ ucfirst($history->action) }}</span>
-                                            @if($history->action === 'reassigned')
-                                                - Moved to new property
-                                            @elseif($history->action === 'assigned')
-                                                - Assigned to property
-                                            @elseif($history->action === 'created')
-                                                - Account created
+                                        <p class="text-sm text-slate-500">
+                                            <span class="font-medium text-slate-900">{{ enum_label($history->action, \App\Enums\UserAssignmentAction::class) }}</span>
+                                            @if($history->action === \App\Enums\UserAssignmentAction::REASSIGNED->value)
+                                                - {{ __('tenants.actions.reassign') }}
+                                            @elseif($history->action === \App\Enums\UserAssignmentAction::ASSIGNED->value)
+                                                - {{ __('tenants.actions.reassign') }}
+                                            @elseif($history->action === \App\Enums\UserAssignmentAction::CREATED->value)
+                                                - {{ __('tenants.headings.show') }}
                                             @endif
                                         </p>
                                         @if($history->reason)
-                                            <p class="mt-1 text-sm text-gray-500">Reason: {{ $history->reason }}</p>
+                                            <p class="mt-1 text-sm text-slate-500">{{ __('tenants.labels.reason') ?? 'Reason' }}: {{ $history->reason }}</p>
                                         @endif
                                     </div>
-                                    <div class="whitespace-nowrap text-right text-sm text-gray-500">
+                                    <div class="whitespace-nowrap text-right text-sm text-slate-500">
                                         {{ \Carbon\Carbon::parse($history->created_at)->format('M d, Y') }}
                                     </div>
                                 </div>
@@ -147,7 +147,7 @@
                         </div>
                     </li>
                     @empty
-                    <li class="text-sm text-gray-500">No assignment history available</li>
+                    <li class="text-sm text-slate-500">{{ __('tenants.empty.assignment_history') }}</li>
                     @endforelse
                 </ul>
             </div>
@@ -157,26 +157,29 @@
     <!-- Recent Meter Readings -->
     @if($tenant->meterReadings->isNotEmpty())
     <div class="mt-8">
-        <x-card title="Recent Meter Readings">
+        <x-card title="{{ __('tenants.headings.recent_readings') }}">
             <div class="flow-root">
-                <ul role="list" class="-my-5 divide-y divide-gray-200">
+                <ul role="list" class="-my-5 divide-y divide-slate-200">
                     @foreach($tenant->meterReadings as $reading)
                     <li class="py-4">
                         <div class="flex items-center space-x-4">
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-900 truncate">
+                                <p class="text-sm font-medium text-slate-900 truncate">
                                     {{ enum_label($reading->meter->type) }}
                                 </p>
-                                <p class="text-sm text-gray-500 truncate">
-                                    Reading: {{ number_format($reading->value, 2) }}
+                                <p class="text-sm text-slate-500 truncate">
+                                    {{ __('tenants.labels.reading') }}: {{ number_format($reading->value, 2) }}
                                 </p>
                             </div>
-                            <div class="text-sm text-gray-500">
+                            <div class="text-sm text-slate-500">
                                 {{ $reading->reading_date->format('M d, Y') }}
                             </div>
                         </div>
                     </li>
                     @endforeach
+                    @if($tenant->meterReadings->isEmpty())
+                    <li class="py-4 text-sm text-slate-500">{{ __('tenants.empty.recent_readings') }}</li>
+                    @endif
                 </ul>
             </div>
         </x-card>
@@ -186,17 +189,17 @@
     <!-- Recent Invoices -->
     @if($recentInvoices->isNotEmpty())
     <div class="mt-8">
-        <x-card title="Recent Invoices">
+        <x-card title="{{ __('tenants.headings.recent_invoices') }}">
             <div class="flow-root">
-                <ul role="list" class="-my-5 divide-y divide-gray-200">
+                <ul role="list" class="-my-5 divide-y divide-slate-200">
                     @foreach($recentInvoices as $invoice)
                     <li class="py-4">
                         <div class="flex items-center space-x-4">
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-900 truncate">
-                                    Invoice #{{ $invoice->id }}
+                                <p class="text-sm font-medium text-slate-900 truncate">
+                                    {{ __('tenants.labels.invoice', ['id' => $invoice->id]) }}
                                 </p>
-                                <p class="text-sm text-gray-500 truncate">
+                                <p class="text-sm text-slate-500 truncate">
                                     €{{ number_format($invoice->total_amount, 2) }}
                                 </p>
                             </div>
@@ -208,6 +211,9 @@
                         </div>
                     </li>
                     @endforeach
+                    @if($recentInvoices->isEmpty())
+                    <li class="py-4 text-sm text-slate-500">{{ __('tenants.empty.recent_invoices') }}</li>
+                    @endif
                 </ul>
             </div>
         </x-card>

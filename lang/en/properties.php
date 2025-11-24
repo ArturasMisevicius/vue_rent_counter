@@ -74,6 +74,9 @@ return [
         'reassign_tenant' => 'Reassign Tenant',
         'export_selected' => 'Export Selected',
         'add_first_property' => 'Add First Property',
+        'add' => 'Add Property',
+        'view' => 'View',
+        'edit' => 'Edit',
     ],
 
     'notifications' => [
@@ -116,9 +119,54 @@ return [
         'description' => 'Get started by creating your first property.',
     ],
 
+    'manager' => [
+        'index' => [
+            'title' => 'Properties',
+            'description' => 'A list of all properties in your portfolio.',
+            'caption' => 'Properties list',
+            'filters' => [
+                'search' => 'Search',
+                'search_placeholder' => 'Search by address...',
+                'type' => 'Type',
+                'building' => 'Building',
+                'all_types' => 'All Types',
+                'all_buildings' => 'All Buildings',
+                'filter' => 'Filter',
+                'clear' => 'Clear',
+            ],
+            'headers' => [
+                'address' => 'Address',
+                'type' => 'Type',
+                'area' => 'Area',
+                'building' => 'Building',
+                'meters' => 'Meters',
+                'tenants' => 'Tenants',
+                'actions' => 'Actions',
+            ],
+            'empty' => [
+                'text' => 'No properties found.',
+                'cta' => 'Create one now',
+            ],
+        ],
+        'show' => [
+            'title' => 'Property Details',
+            'description' => 'Property details and associated information',
+            'information' => 'Property Information',
+            'building_missing' => 'Not in a building',
+            'current_tenant' => 'Current Tenant',
+            'phone' => 'Phone',
+            'no_tenant' => 'No current tenant',
+            'meters' => 'Meters',
+            'add_meter' => 'Add Meter',
+            'latest_reading' => 'Latest Reading',
+            'no_meters' => 'No meters installed for this property.',
+        ],
+    ],
+
     'validation' => [
         'address' => [
             'required' => 'The property address is required.',
+            'string' => 'The property address must be text.',
             'max' => 'The property address may not be greater than 255 characters.',
             'invalid_characters' => 'The address contains invalid characters.',
             'prohibited_content' => 'The address contains prohibited content.',
@@ -140,6 +188,18 @@ return [
         'building_id' => [
             'exists' => 'The selected building does not exist.',
         ],
+        'tenant_id' => [
+            'required' => 'Tenant is required.',
+            'integer' => 'Tenant identifier must be a valid number.',
+        ],
+        'property_id' => [
+            'required' => 'A property selection is required.',
+            'exists' => 'The selected property does not exist.',
+        ],
+    ],
+
+    'errors' => [
+        'has_relations' => 'Cannot delete property with associated meters or tenants.',
     ],
 
 ];

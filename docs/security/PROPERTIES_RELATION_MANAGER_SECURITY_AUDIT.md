@@ -861,8 +861,8 @@ public function boot(): void
 - [x] Storage limitation (audit log retention policy needed)
 - [x] Integrity and confidentiality (encryption, access controls)
 - [x] Accountability (audit logging)
-- [ ] **TODO**: Implement data retention policy (30-day log retention)
-- [ ] **TODO**: Add data export functionality for GDPR requests
+- [ ] Implement data retention policy (30-day log retention)
+- [ ] Add data export functionality for GDPR requests
 
 ### SOC 2 Type II
 
@@ -870,16 +870,16 @@ public function boot(): void
 - [x] Audit logging (comprehensive trail)
 - [x] Change management (version control, testing)
 - [x] Incident response (error handling, logging)
-- [ ] **TODO**: Implement automated security scanning
-- [ ] **TODO**: Add penetration testing schedule
+- [ ] Implement automated security scanning
+- [ ] Add penetration testing schedule
 
 ### PCI-DSS (if handling payments)
 
 - [x] Encryption in transit (HTTPS enforced)
-- [ ] **TODO**: Encryption at rest (database encryption)
+- [ ] Encryption at rest (database encryption)
 - [x] Access controls (least privilege)
 - [x] Audit trails (comprehensive logging)
-- [ ] **TODO**: Implement tokenization for sensitive data
+- [ ] Implement tokenization for sensitive data
 
 ---
 
@@ -891,8 +891,8 @@ public function boot(): void
 - [x] Static analysis: `./vendor/bin/phpstan analyse`
 - [x] Code review: Security team approval
 - [x] Update documentation
-- [ ] **TODO**: Penetration testing
-- [ ] **TODO**: Load testing with rate limits
+- [ ] Penetration testing
+- [ ] Load testing with rate limits
 
 ### Configuration
 

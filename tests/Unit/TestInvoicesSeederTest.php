@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Database\Seeders\ProvidersSeeder;
 use Database\Seeders\TestBuildingsSeeder;
 use Database\Seeders\TestInvoicesSeeder;
+use Database\Seeders\TenantHistorySeeder;
 use Database\Seeders\TestMeterReadingsSeeder;
 use Database\Seeders\TestMetersSeeder;
 use Database\Seeders\TestPropertiesSeeder;
@@ -28,10 +29,14 @@ beforeEach(function () {
     $this->seed(TestMetersSeeder::class);
     $this->seed(TestMeterReadingsSeeder::class);
     $this->seed(TestTariffsSeeder::class);
+    $this->seed(TenantHistorySeeder::class);
 });
 
 test('seeder creates invoices for all tenants', function () {
-    $tenantCount = Tenant::count();
+    $tenantCount = Tenant::where(function ($query) {
+        $query->whereNull('lease_end')
+            ->orWhere('lease_end', '>=', Carbon::now()->startOfMonth());
+    })->count();
     
     $this->seed(TestInvoicesSeeder::class);
     
@@ -79,6 +84,19 @@ test('seeder creates paid invoice for 2 months ago', function () {
             ->toBe(Carbon::now()->subMonths(2)->format('Y-m'));
         expect($invoice->finalized_at)->not->toBeNull();
     }
+});
+
+test('paid invoices include payment details', function () {
+    $this->seed(TestInvoicesSeeder::class);
+
+    $paidInvoice = Invoice::where('status', InvoiceStatus::PAID)->first();
+
+    expect($paidInvoice)->not->toBeNull()
+        ->and($paidInvoice->paid_at)->not->toBeNull()
+        ->and($paidInvoice->payment_reference)->not->toBeNull()
+        ->and(trim($paidInvoice->payment_reference))->not->toBe('')
+        ->and((float) $paidInvoice->paid_amount)->toBeGreaterThan(0)
+        ->and(abs((float) $paidInvoice->paid_amount - (float) $paidInvoice->total_amount))->toBeLessThan(0.01);
 });
 
 test('seeder creates invoice items with realistic consumption', function () {

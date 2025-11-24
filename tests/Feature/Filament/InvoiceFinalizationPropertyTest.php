@@ -10,6 +10,7 @@ use App\Models\Invoice;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
@@ -29,11 +30,7 @@ class InvoiceFinalizationPropertyTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * Property: Once an invoice is finalized, it cannot be modified except for status changes.
-     *
-     * @test
-     */
+    #[Test]
     public function property_finalized_invoices_are_immutable(): void
     {
         // Arrange - create and finalize an invoice
@@ -84,11 +81,7 @@ class InvoiceFinalizationPropertyTest extends TestCase
         $this->assertEquals($originalPeriodEnd, $invoice->billing_period_end);
     }
 
-    /**
-     * Property: Status changes from FINALIZED to PAID are allowed.
-     *
-     * @test
-     */
+    #[Test]
     public function property_finalized_invoices_can_transition_to_paid(): void
     {
         // Arrange
@@ -112,11 +105,7 @@ class InvoiceFinalizationPropertyTest extends TestCase
         $this->assertEquals(InvoiceStatus::PAID, $invoice->fresh()->status);
     }
 
-    /**
-     * Property: Every finalized invoice must have at least one item.
-     *
-     * @test
-     */
+    #[Test]
     public function property_finalized_invoices_always_have_items(): void
     {
         // Arrange
@@ -160,11 +149,7 @@ class InvoiceFinalizationPropertyTest extends TestCase
         }
     }
 
-    /**
-     * Property: Every finalized invoice must have a positive total amount.
-     *
-     * @test
-     */
+    #[Test]
     public function property_finalized_invoices_have_positive_amounts(): void
     {
         // Arrange
@@ -206,11 +191,7 @@ class InvoiceFinalizationPropertyTest extends TestCase
         }
     }
 
-    /**
-     * Property: Users can only finalize invoices within their tenant scope.
-     *
-     * @test
-     */
+    #[Test]
     public function property_tenant_isolation_is_enforced_for_finalization(): void
     {
         // Arrange - create users and invoices in different tenants
@@ -265,11 +246,7 @@ class InvoiceFinalizationPropertyTest extends TestCase
         }
     }
 
-    /**
-     * Property: Superadmin can finalize invoices across all tenants.
-     *
-     * @test
-     */
+    #[Test]
     public function property_superadmin_has_unrestricted_finalization_access(): void
     {
         // Arrange
@@ -309,11 +286,7 @@ class InvoiceFinalizationPropertyTest extends TestCase
         }
     }
 
-    /**
-     * Property: Finalization action is only visible for draft invoices.
-     *
-     * @test
-     */
+    #[Test]
     public function property_finalize_action_visibility_matches_invoice_status(): void
     {
         // Arrange
@@ -355,11 +328,7 @@ class InvoiceFinalizationPropertyTest extends TestCase
         }
     }
 
-    /**
-     * Property: Billing period end must always be after start for finalized invoices.
-     *
-     * @test
-     */
+    #[Test]
     public function property_finalized_invoices_have_valid_billing_periods(): void
     {
         // Arrange
@@ -409,11 +378,7 @@ class InvoiceFinalizationPropertyTest extends TestCase
         }
     }
 
-    /**
-     * Property: Every finalized invoice has a finalized_at timestamp.
-     *
-     * @test
-     */
+    #[Test]
     public function property_finalized_invoices_have_timestamp(): void
     {
         // Arrange
@@ -458,11 +423,7 @@ class InvoiceFinalizationPropertyTest extends TestCase
         );
     }
 
-    /**
-     * Property: Tenant role users never see the finalize action.
-     *
-     * @test
-     */
+    #[Test]
     public function property_tenant_role_never_has_finalize_access(): void
     {
         // Arrange - test across multiple tenants and invoice states
@@ -502,11 +463,7 @@ class InvoiceFinalizationPropertyTest extends TestCase
         }
     }
 
-    /**
-     * Property: All invoice items in finalized invoices have valid data.
-     *
-     * @test
-     */
+    #[Test]
     public function property_finalized_invoice_items_are_valid(): void
     {
         // Arrange

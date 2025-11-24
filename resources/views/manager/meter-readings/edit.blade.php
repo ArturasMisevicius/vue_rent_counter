@@ -13,8 +13,8 @@
 
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-gray-900">Correct Meter Reading</h1>
-            <p class="mt-2 text-sm text-gray-700">Update reading with audit trail</p>
+            <h1 class="text-2xl font-semibold text-slate-900">Correct Meter Reading</h1>
+            <p class="mt-2 text-sm text-slate-700">Update reading with audit trail</p>
         </div>
     </div>
 
@@ -23,20 +23,20 @@
         <x-card class="mb-6">
             <x-slot name="title">Current Reading</x-slot>
             
-            <dl class="divide-y divide-gray-100">
+            <dl class="divide-y divide-slate-100">
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-gray-900">Meter</dt>
-                    <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{{ $meterReading->meter->serial_number }}</dd>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">Meter</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $meterReading->meter->serial_number }}</dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-gray-900">Current Value</dt>
-                    <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                    <dt class="text-sm font-medium leading-6 text-slate-900">Current Value</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
                         <span class="text-xl font-semibold">{{ number_format($meterReading->value, 2) }}</span>
                     </dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-gray-900">Reading Date</dt>
-                    <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{{ $meterReading->reading_date->format('M d, Y') }}</dd>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">Reading Date</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $meterReading->reading_date->format('M d, Y') }}</dd>
                 </div>
             </dl>
         </x-card>
@@ -82,7 +82,7 @@
                     @endif
 
                     <div>
-                        <label for="change_reason" class="block text-sm font-medium leading-6 text-gray-900">
+                        <label for="change_reason" class="block text-sm font-medium leading-6 text-slate-900">
                             Correction Reason 
                             <span class="text-red-500">*</span>
                         </label>
@@ -94,7 +94,7 @@
                             @class([
                                 'mt-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6',
                                 'text-red-900 ring-red-300 placeholder:text-red-300 focus:ring-red-500' => $errors->has('change_reason'),
-                                'text-gray-900 ring-gray-300 placeholder:text-gray-400 focus:ring-indigo-600' => !$errors->has('change_reason'),
+                                'text-slate-900 ring-slate-300 placeholder:text-slate-400 focus:ring-indigo-600' => !$errors->has('change_reason'),
                             ])
                             placeholder="Explain why this reading is being corrected..."
                         >{{ old('change_reason') }}</textarea>

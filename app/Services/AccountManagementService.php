@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Exceptions\CannotDeleteWithDependenciesException;
 use App\Exceptions\InvalidPropertyAssignmentException;
+use App\Enums\SubscriptionPlanType;
+use App\Enums\UserAssignmentAction;
 use App\Models\Property;
 use App\Models\User;
 use App\Notifications\TenantReassignedEmail;
@@ -11,6 +13,7 @@ use App\Notifications\WelcomeEmail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class AccountManagementService
@@ -35,7 +38,7 @@ class AccountManagementService
             'password' => 'required|string|min:8',
             'name' => 'required|string|max:255',
             'organization_name' => 'required|string|max:255',
-            'plan_type' => 'required|in:basic,professional,enterprise',
+            'plan_type' => ['required', Rule::in(SubscriptionPlanType::values())],
             'expires_at' => 'required|date|after:today',
         ]);
 
@@ -66,7 +69,7 @@ class AccountManagementService
             );
 
             // Log the action
-            $this->logAuditAction($admin, null, null, 'created', $superadmin);
+            $this->logAuditAction($admin, null, null, UserAssignmentAction::CREATED, $superadmin);
 
             return $admin;
         });
@@ -121,7 +124,7 @@ class AccountManagementService
             ]);
 
             // Log the action
-            $this->logAuditAction($tenant, $property->id, null, 'created', $admin);
+            $this->logAuditAction($tenant, $property->id, null, UserAssignmentAction::CREATED, $admin);
 
             // Queue welcome email notification
             $tenant->notify(new WelcomeEmail($property, $data['password']));
@@ -157,7 +160,7 @@ class AccountManagementService
             ]);
 
             // Create audit log entry
-            $this->logAuditAction($tenant, $property->id, $previousPropertyId, 'assigned', $admin);
+            $this->logAuditAction($tenant, $property->id, $previousPropertyId, UserAssignmentAction::ASSIGNED, $admin);
 
             // Queue notification email
             $tenant->notify(new TenantReassignedEmail($property, null));
@@ -192,7 +195,7 @@ class AccountManagementService
             ]);
 
             // Create audit log entry
-            $this->logAuditAction($tenant, $newProperty->id, $previousPropertyId, 'reassigned', $admin);
+            $this->logAuditAction($tenant, $newProperty->id, $previousPropertyId, UserAssignmentAction::REASSIGNED, $admin);
 
             // Queue notification email
             $tenant->notify(new TenantReassignedEmail($newProperty, $previousProperty));
@@ -206,7 +209,7 @@ class AccountManagementService
      * @param string $reason The reason for deactivation
      * @return void
      */
-    public function deactivateAccount(User $user, string $reason = null): void
+    public function deactivateAccount(User $user, ?string $reason = null): void
     {
         DB::transaction(function () use ($user, $reason) {
             // Update is_active status
@@ -215,7 +218,7 @@ class AccountManagementService
             ]);
 
             // Create audit log entry
-            $this->logAuditAction($user, $user->property_id, null, 'deactivated', auth()->user(), $reason);
+            $this->logAuditAction($user, $user->property_id, null, UserAssignmentAction::DEACTIVATED, auth()->user(), $reason);
         });
     }
 
@@ -234,7 +237,7 @@ class AccountManagementService
             ]);
 
             // Create audit log entry
-            $this->logAuditAction($user, $user->property_id, null, 'reactivated', auth()->user());
+            $this->logAuditAction($user, $user->property_id, null, UserAssignmentAction::REACTIVATED, auth()->user());
         });
     }
 
@@ -284,7 +287,7 @@ class AccountManagementService
      * @param User $user The user being acted upon
      * @param int|null $propertyId The property ID (if applicable)
      * @param int|null $previousPropertyId The previous property ID (for reassignments)
-     * @param string $action The action performed
+     * @param UserAssignmentAction $action The action performed
      * @param User|null $performedBy The user performing the action
      * @param string|null $reason Optional reason for the action
      * @return void
@@ -293,7 +296,7 @@ class AccountManagementService
         User $user,
         ?int $propertyId,
         ?int $previousPropertyId,
-        string $action,
+        UserAssignmentAction $action,
         ?User $performedBy,
         ?string $reason = null
     ): void {
@@ -302,7 +305,7 @@ class AccountManagementService
             'property_id' => $propertyId,
             'previous_property_id' => $previousPropertyId,
             'performed_by' => $performedBy?->id,
-            'action' => $action,
+            'action' => $action->value,
             'reason' => $reason,
             'created_at' => now(),
             'updated_at' => now(),

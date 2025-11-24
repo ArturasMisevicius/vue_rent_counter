@@ -3,6 +3,12 @@
 namespace App\Http\Controllers\Manager;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ManagerUpdateProfileRequest;
+use App\Models\Invoice;
+use App\Models\Language;
+use App\Models\Meter;
+use App\Models\Property;
+use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -10,16 +16,26 @@ class ProfileController extends Controller
 {
     public function show(Request $request)
     {
-        return view('manager.profile.show', ['user' => $request->user()]);
+        $portfolioStats = [
+            'properties' => Property::count(),
+            'meters' => Meter::count(),
+            'tenants' => Tenant::count(),
+            'drafts' => Invoice::draft()->count(),
+        ];
+
+        return view('manager.profile.show', [
+            'user' => $request->user(),
+            'portfolioStats' => $portfolioStats,
+            'languages' => Language::query()
+                ->where('is_active', true)
+                ->orderBy('display_order')
+                ->get(),
+        ]);
     }
 
-    public function update(Request $request)
+    public function update(ManagerUpdateProfileRequest $request)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:users,email,' . $request->user()->id],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-        ]);
+        $validated = $request->validated();
 
         $user = $request->user();
         $user->name = $validated['name'];
@@ -31,6 +47,6 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return back()->with('success', 'Profile updated successfully.');
+        return back()->with('success', __('notifications.profile.updated'));
     }
 }

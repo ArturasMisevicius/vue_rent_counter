@@ -1,30 +1,53 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources;
 
 use App\Enums\ServiceType;
 use App\Filament\Resources\ProviderResource\Pages;
 use App\Filament\Resources\ProviderResource\RelationManagers;
 use App\Models\Provider;
+use BackedEnum;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Schemas\Schema;
+use UnitEnum;
 
+/**
+ * Filament resource for managing utility providers.
+ *
+ * Provides CRUD operations for providers with:
+ * - Tenant-scoped data access
+ * - Role-based navigation visibility (admin only)
+ * - Service type categorization
+ * - Contact information management
+ * - Relationship management (tariffs)
+ *
+ * @see \App\Models\Provider
+ * @see \App\Policies\ProviderPolicy
+ */
 class ProviderResource extends Resource
 {
     protected static ?string $model = Provider::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-library';
-
     protected static ?string $navigationLabel = 'Providers';
 
-    protected static ?string $navigationGroup = 'Configuration';
-
     protected static ?int $navigationSort = 2;
+
+    public static function getNavigationIcon(): string|BackedEnum|null
+    {
+        return 'heroicon-o-building-library';
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return 'Configuration';
+    }
 
     // Integrate ProviderPolicy for authorization (Requirement 9.5)
     public static function canViewAny(): bool
@@ -53,9 +76,9 @@ class ProviderResource extends Resource
         return auth()->check() && auth()->user()->role === \App\Enums\UserRole::ADMIN;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\Section::make('Provider Information')
                     ->schema([
@@ -114,14 +137,21 @@ class ProviderResource extends Resource
                 
                 Tables\Columns\TextColumn::make('contact_info')
                     ->label('Contact Information')
-                    ->formatStateUsing(function (?array $state): string {
+                    ->formatStateUsing(function (array|string|null $state): string {
+                        if (is_string($state)) {
+                            $decoded = json_decode($state, true);
+                            $state = is_array($decoded) ? $decoded : ['contact' => $state];
+                        }
+
                         if (empty($state)) {
                             return 'No contact info';
                         }
+
                         $items = [];
                         foreach ($state as $key => $value) {
-                            $items[] = ucfirst($key) . ': ' . $value;
+                            $items[] = ucfirst((string) $key) . ': ' . $value;
                         }
+
                         return implode(' | ', array_slice($items, 0, 2)) . (count($items) > 2 ? '...' : '');
                     })
                     ->wrap(),
@@ -141,11 +171,12 @@ class ProviderResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Actions\EditAction::make(),
+                Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('name', 'asc');

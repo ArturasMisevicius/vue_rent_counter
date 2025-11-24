@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\SubscriptionPlanType;
+use App\Enums\SubscriptionStatus;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Services\SubscriptionService;
@@ -9,8 +11,8 @@ test('subscription model can be created with all fields', function () {
     
     $subscription = Subscription::create([
         'user_id' => $user->id,
-        'plan_type' => 'basic',
-        'status' => 'active',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
+        'status' => SubscriptionStatus::ACTIVE->value,
         'starts_at' => now(),
         'expires_at' => now()->addYear(),
         'max_properties' => 10,
@@ -19,15 +21,15 @@ test('subscription model can be created with all fields', function () {
 
     expect($subscription)->toBeInstanceOf(Subscription::class)
         ->and($subscription->user_id)->toBe($user->id)
-        ->and($subscription->plan_type)->toBe('basic')
-        ->and($subscription->status)->toBe('active')
+        ->and($subscription->plan_type)->toBe(SubscriptionPlanType::BASIC->value)
+        ->and($subscription->status)->toBe(SubscriptionStatus::ACTIVE->value)
         ->and($subscription->max_properties)->toBe(10)
         ->and($subscription->max_tenants)->toBe(50);
 });
 
 test('subscription isActive returns true for active subscription with future expiry', function () {
     $subscription = Subscription::factory()->create([
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addMonth(),
     ]);
 
@@ -36,7 +38,7 @@ test('subscription isActive returns true for active subscription with future exp
 
 test('subscription isActive returns false for expired subscription', function () {
     $subscription = Subscription::factory()->create([
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->subDay(),
     ]);
 
@@ -45,7 +47,7 @@ test('subscription isActive returns false for expired subscription', function ()
 
 test('subscription isActive returns false for suspended subscription', function () {
     $subscription = Subscription::factory()->create([
-        'status' => 'suspended',
+        'status' => SubscriptionStatus::SUSPENDED->value,
         'expires_at' => now()->addMonth(),
     ]);
 
@@ -89,7 +91,7 @@ test('subscription canAddProperty returns true when under limit', function () {
     $user = User::factory()->create(['role' => 'admin', 'tenant_id' => 1]);
     $subscription = Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addMonth(),
         'max_properties' => 10,
     ]);
@@ -101,7 +103,7 @@ test('subscription canAddProperty returns false when subscription is not active'
     $user = User::factory()->create(['role' => 'admin', 'tenant_id' => 1]);
     $subscription = Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => 'expired',
+        'status' => SubscriptionStatus::EXPIRED->value,
         'expires_at' => now()->subDay(),
         'max_properties' => 10,
     ]);
@@ -113,7 +115,7 @@ test('subscription canAddTenant returns true when under limit', function () {
     $user = User::factory()->create(['role' => 'admin', 'tenant_id' => 1]);
     $subscription = Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addMonth(),
         'max_tenants' => 50,
     ]);
@@ -125,7 +127,7 @@ test('subscription canAddTenant returns false when subscription is not active', 
     $user = User::factory()->create(['role' => 'admin', 'tenant_id' => 1]);
     $subscription = Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => 'suspended',
+        'status' => SubscriptionStatus::SUSPENDED->value,
         'expires_at' => now()->addMonth(),
         'max_tenants' => 50,
     ]);

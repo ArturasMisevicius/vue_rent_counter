@@ -48,7 +48,7 @@ class TariffController extends Controller
         Tariff::create($validated);
 
         return redirect()->route('admin.tariffs.index')
-            ->with('success', 'Tariff created successfully.');
+            ->with('success', __('notifications.tariff.created'));
     }
 
     public function show(Tariff $tariff)
@@ -97,14 +97,14 @@ class TariffController extends Controller
             ]);
             
             return redirect()->route('admin.tariffs.show', $newTariff)
-                ->with('success', 'New tariff version created successfully.');
+                ->with('success', __('notifications.tariff.version_created'));
         }
 
         // Otherwise, update the existing tariff
         $tariff->update($validated);
 
         return redirect()->route('admin.tariffs.show', $tariff)
-            ->with('success', 'Tariff updated successfully.');
+            ->with('success', __('notifications.tariff.updated'));
     }
 
     public function destroy(Tariff $tariff)
@@ -114,6 +114,6 @@ class TariffController extends Controller
         $tariff->delete();
 
         return redirect()->route('admin.tariffs.index')
-            ->with('success', 'Tariff deleted successfully.');
+            ->with('success', __('notifications.tariff.deleted'));
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionStatus;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -202,7 +203,7 @@ test('authenticated admin can access admin dashboard', function () {
     // Create active subscription for admin
     \App\Models\Subscription::factory()->create([
         'user_id' => $admin->id,
-        'status' => 'active',
+        'status' => SubscriptionStatus::ACTIVE->value,
         'starts_at' => now(),
         'expires_at' => now()->addYear(),
     ]);
@@ -316,4 +317,3 @@ test('session is regenerated on successful login', function () {
     // Assert session ID has changed
     expect(session()->getId())->not->toBe($oldSessionId);
 });
-

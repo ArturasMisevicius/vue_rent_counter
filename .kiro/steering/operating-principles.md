@@ -35,3 +35,6 @@
 - Respect tenant quotas enforced by `SubscriptionService`; send `SubscriptionExpiryWarningEmail` when expiry is near and gracefully enter read-only mode when a subscription lapses.
 - Keep the seeding pipeline deterministic (`TestDatabaseSeeder`, specialized seeders for buildings/properties/meters/invoices) so `php artisan test:setup --fresh` is reliable for CI/CD.
 - Monitor background tasks like meter-reading imports or invoice exports with queue/worker health checks; document any manual reminders in `.kiro/scripts` or docs/reviews.
+
+
+- always use MCP servers, use mcp services

@@ -11,14 +11,14 @@
 
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-gray-900">
+            <h1 class="text-2xl font-semibold text-slate-900">
                 @if($user->role->value === 'admin')
                     Organization Profile
                 @else
                     Profile
                 @endif
             </h1>
-            <p class="mt-2 text-sm text-gray-700">
+            <p class="mt-2 text-sm text-slate-700">
                 @if($user->role->value === 'admin')
                     Manage your organization profile and subscription
                 @else
@@ -104,35 +104,39 @@
         <!-- Subscription Details -->
         <div class="mt-8">
             <x-card title="Subscription Details">
-                <dl class="divide-y divide-gray-200">
+                <dl class="divide-y divide-slate-200">
                     <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
-                        <dt class="text-sm font-medium text-gray-500">Plan Type</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                            {{ ucfirst($subscription->plan_type) }}
+                        <dt class="text-sm font-medium text-slate-500">Plan Type</dt>
+                        <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">
+                            {{ enum_label($subscription->plan_type, \App\Enums\SubscriptionPlanType::class) }}
                         </dd>
                     </div>
                     <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
-                        <dt class="text-sm font-medium text-gray-500">Status</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                        <dt class="text-sm font-medium text-slate-500">Status</dt>
+                        <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">
                             @if($subscription->isActive())
-                                <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">Active</span>
+                                <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
+                                    {{ enum_label(\App\Enums\SubscriptionStatus::ACTIVE->value, \App\Enums\SubscriptionStatus::class) }}
+                                </span>
                             @else
-                                <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-700">Expired</span>
+                                <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-700">
+                                    {{ enum_label(\App\Enums\SubscriptionStatus::EXPIRED->value, \App\Enums\SubscriptionStatus::class) }}
+                                </span>
                             @endif
                         </dd>
                     </div>
                     <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
-                        <dt class="text-sm font-medium text-gray-500">Start Date</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                        <dt class="text-sm font-medium text-slate-500">Start Date</dt>
+                        <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">
                             {{ $subscription->starts_at->format('M d, Y') }}
                         </dd>
                     </div>
                     <div class="py-3 sm:grid sm:grid-cols-3 sm:gap-4">
-                        <dt class="text-sm font-medium text-gray-500">Expiry Date</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                        <dt class="text-sm font-medium text-slate-500">Expiry Date</dt>
+                        <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">
                             {{ $subscription->expires_at->format('M d, Y') }}
                             @if($daysUntilExpiry > 0)
-                                <span class="text-gray-500">({{ $daysUntilExpiry }} days remaining)</span>
+                                <span class="text-slate-500">({{ $daysUntilExpiry }} days remaining)</span>
                             @endif
                         </dd>
                     </div>
@@ -140,15 +144,15 @@
 
                 @if(isset($usageStats))
                     <div class="mt-6 space-y-4">
-                        <h3 class="text-sm font-medium text-gray-900">Usage Limits</h3>
+                        <h3 class="text-sm font-medium text-slate-900">Usage Limits</h3>
                         
                         <!-- Properties Usage -->
                         <div>
                             <div class="flex items-center justify-between mb-1">
-                                <span class="text-sm font-medium text-gray-700">Properties</span>
-                                <span class="text-sm text-gray-500">{{ $usageStats['properties_used'] }} / {{ $usageStats['properties_max'] }}</span>
+                                <span class="text-sm font-medium text-slate-700">Properties</span>
+                                <span class="text-sm text-slate-500">{{ $usageStats['properties_used'] }} / {{ $usageStats['properties_max'] }}</span>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="w-full bg-slate-200 rounded-full h-2">
                                 <div class="bg-indigo-600 h-2 rounded-full" style="width: {{ min($usageStats['properties_percentage'], 100) }}%"></div>
                             </div>
                             @if($usageStats['properties_percentage'] >= 90)
@@ -159,10 +163,10 @@
                         <!-- Tenants Usage -->
                         <div>
                             <div class="flex items-center justify-between mb-1">
-                                <span class="text-sm font-medium text-gray-700">Tenants</span>
-                                <span class="text-sm text-gray-500">{{ $usageStats['tenants_used'] }} / {{ $usageStats['tenants_max'] }}</span>
+                                <span class="text-sm font-medium text-slate-700">Tenants</span>
+                                <span class="text-sm text-slate-500">{{ $usageStats['tenants_used'] }} / {{ $usageStats['tenants_max'] }}</span>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="w-full bg-slate-200 rounded-full h-2">
                                 <div class="bg-indigo-600 h-2 rounded-full" style="width: {{ min($usageStats['tenants_percentage'], 100) }}%"></div>
                             </div>
                             @if($usageStats['tenants_percentage'] >= 90)
@@ -184,27 +188,27 @@
             <x-card title="Profile Information">
                 <div class="space-y-6">
                     <div>
-                        <label for="name" class="block text-sm font-medium leading-6 text-gray-900">Full Name</label>
+                        <label for="name" class="block text-sm font-medium leading-6 text-slate-900">Full Name</label>
                         <div class="mt-2">
                             <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required
-                                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                         </div>
                     </div>
 
                     <div>
-                        <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email Address</label>
+                        <label for="email" class="block text-sm font-medium leading-6 text-slate-900">Email Address</label>
                         <div class="mt-2">
                             <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required
-                                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                         </div>
                     </div>
 
                     @if($user->role->value === 'admin')
                     <div>
-                        <label for="organization_name" class="block text-sm font-medium leading-6 text-gray-900">Organization Name</label>
+                        <label for="organization_name" class="block text-sm font-medium leading-6 text-slate-900">Organization Name</label>
                         <div class="mt-2">
                             <input type="text" name="organization_name" id="organization_name" value="{{ old('organization_name', $user->organization_name) }}"
-                                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                         </div>
                     </div>
                     @endif
@@ -228,26 +232,26 @@
             <x-card title="Change Password">
                 <div class="space-y-6">
                     <div>
-                        <label for="current_password" class="block text-sm font-medium leading-6 text-gray-900">Current Password</label>
+                        <label for="current_password" class="block text-sm font-medium leading-6 text-slate-900">Current Password</label>
                         <div class="mt-2">
                             <input type="password" name="current_password" id="current_password" required
-                                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                         </div>
                     </div>
 
                     <div>
-                        <label for="password" class="block text-sm font-medium leading-6 text-gray-900">New Password</label>
+                        <label for="password" class="block text-sm font-medium leading-6 text-slate-900">New Password</label>
                         <div class="mt-2">
                             <input type="password" name="password" id="password" required
-                                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                         </div>
                     </div>
 
                     <div>
-                        <label for="password_confirmation" class="block text-sm font-medium leading-6 text-gray-900">Confirm New Password</label>
+                        <label for="password_confirmation" class="block text-sm font-medium leading-6 text-slate-900">Confirm New Password</label>
                         <div class="mt-2">
                             <input type="password" name="password_confirmation" id="password_confirmation" required
-                                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                         </div>
                     </div>
 

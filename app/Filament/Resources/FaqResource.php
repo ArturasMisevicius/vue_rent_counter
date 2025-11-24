@@ -1,68 +1,123 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources;
 
 use App\Enums\UserRole;
 use App\Filament\Resources\FaqResource\Pages;
 use App\Models\Faq;
+use App\Models\User;
+use BackedEnum;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\CreateAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use UnitEnum;
 
+/**
+ * Filament resource for managing FAQ entries.
+ *
+ * Provides CRUD operations for FAQ entries with:
+ * - Superadmin-only access
+ * - Rich text editor for answers
+ * - Display order management
+ * - Publication status control
+ *
+ * @see \App\Models\Faq
+ */
 class FaqResource extends Resource
 {
     protected static ?string $model = Faq::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-question-mark-circle';
-
     protected static ?string $navigationLabel = 'FAQ';
-
-    protected static ?string $navigationGroup = 'System';
 
     protected static ?int $navigationSort = 10;
 
+    public static function getNavigationIcon(): string|BackedEnum|null
+    {
+        return 'heroicon-o-question-mark-circle';
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return 'System';
+    }
+
+    /**
+     * Only superadmins can access FAQ management.
+     */
     public static function shouldRegisterNavigation(): bool
     {
-        return auth()->check() && auth()->user()->role === UserRole::SUPERADMIN;
+        $user = auth()->user();
+
+        return $user instanceof User && $user->role === UserRole::SUPERADMIN;
     }
 
     public static function canViewAny(): bool
     {
-        return auth()->check() && auth()->user()->role === UserRole::SUPERADMIN;
+        $user = auth()->user();
+
+        return $user instanceof User && $user->role === UserRole::SUPERADMIN;
     }
 
     public static function canCreate(): bool
     {
-        return auth()->check() && auth()->user()->role === UserRole::SUPERADMIN;
+        $user = auth()->user();
+
+        return $user instanceof User && $user->role === UserRole::SUPERADMIN;
     }
 
-    public static function canEdit($record): bool
+    public static function canEdit(Model $record): bool
     {
-        return auth()->check() && auth()->user()->role === UserRole::SUPERADMIN;
+        $user = auth()->user();
+
+        return $user instanceof User && $user->role === UserRole::SUPERADMIN;
     }
 
-    public static function canDelete($record): bool
+    public static function canDelete(Model $record): bool
     {
-        return auth()->check() && auth()->user()->role === UserRole::SUPERADMIN;
+        $user = auth()->user();
+
+        return $user instanceof User && $user->role === UserRole::SUPERADMIN;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
-                Forms\Components\Section::make('FAQ Entry')
+                Section::make('FAQ Entry')
+                    ->description('Create or edit FAQ entries displayed on the public landing page')
                     ->schema([
-                        Forms\Components\TextInput::make('question')
+                        TextInput::make('question')
                             ->label('Question')
+                            ->placeholder('What is the billing cycle?')
                             ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('category')
+                            ->maxLength(255)
+                            ->columnSpanFull(),
+
+                        TextInput::make('category')
                             ->label('Category')
                             ->maxLength(120)
-                            ->placeholder('Billing, Access, Meters...'),
-                        Forms\Components\RichEditor::make('answer')
+                            ->placeholder('Billing, Access, Meters...')
+                            ->helperText('Optional category for grouping related questions'),
+
+                        RichEditor::make('answer')
                             ->label('Answer')
                             ->required()
                             ->toolbarButtons([
@@ -73,19 +128,26 @@ class FaqResource extends Resource
                                 'orderedList',
                                 'link',
                             ])
-                            ->helperText('Use concise, complete answers. This content is shown publicly on the landing page.'),
-                        Forms\Components\Grid::make(2)->schema([
-                            Forms\Components\TextInput::make('display_order')
-                                ->numeric()
-                                ->default(0)
-                                ->label('Display order')
-                                ->helperText('Lower numbers appear first.'),
-                            Forms\Components\Toggle::make('is_published')
-                                ->label('Published')
-                                ->default(true)
-                                ->inline(false),
-                        ]),
-                    ]),
+                            ->helperText('Use concise, complete answers. This content is shown publicly on the landing page.')
+                            ->columnSpanFull(),
+
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('display_order')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->minValue(0)
+                                    ->label('Display order')
+                                    ->helperText('Lower numbers appear first.'),
+
+                                Toggle::make('is_published')
+                                    ->label('Published')
+                                    ->default(true)
+                                    ->inline(false)
+                                    ->helperText('Only published FAQs appear on the landing page'),
+                            ]),
+                    ])
+                    ->columns(2),
             ]);
     }
 
@@ -93,44 +155,85 @@ class FaqResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('question')
+                TextColumn::make('question')
                     ->label('Question')
                     ->wrap()
                     ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('category')
                     ->sortable()
-                    ->toggleable(),
-                Tables\Columns\IconColumn::make('is_published')
+                    ->weight('medium'),
+
+                TextColumn::make('category')
+                    ->label('Category')
+                    ->badge()
+                    ->color('gray')
+                    ->sortable()
+                    ->toggleable()
+                    ->placeholder('—'),
+
+                IconColumn::make('is_published')
                     ->label('Published')
                     ->boolean()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('display_order')
                     ->sortable()
-                    ->alignCenter(),
-                Tables\Columns\TextColumn::make('updated_at')
+                    ->tooltip(fn (bool $state): string => $state ? 'Visible on landing page' : 'Hidden from public'),
+
+                TextColumn::make('display_order')
+                    ->label('Order')
+                    ->sortable()
+                    ->alignCenter()
+                    ->badge()
+                    ->color('primary'),
+
+                TextColumn::make('updated_at')
+                    ->label('Last Updated')
                     ->dateTime()
                     ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('is_published')
-                    ->label('Published')
+                SelectFilter::make('is_published')
+                    ->label('Status')
                     ->options([
                         1 => 'Published',
                         0 => 'Draft',
-                    ]),
+                    ])
+                    ->native(false),
+
+                SelectFilter::make('category')
+                    ->label('Category')
+                    ->options(fn (): array => Faq::query()
+                        ->whereNotNull('category')
+                        ->distinct()
+                        ->pluck('category', 'category')
+                        ->toArray()
+                    )
+                    ->searchable()
+                    ->native(false),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make()
+                    ->iconButton(),
+                DeleteAction::make()
+                    ->iconButton(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                        ->requiresConfirmation()
+                        ->modalHeading('Delete FAQ Entries')
+                        ->modalDescription('Are you sure you want to delete these FAQ entries? This action cannot be undone.'),
                 ]),
             ])
-            ->defaultSort('display_order', 'asc');
+            ->emptyStateHeading('No FAQ entries yet')
+            ->emptyStateDescription('Create your first FAQ entry to help users understand the platform.')
+            ->emptyStateActions([
+                CreateAction::make()
+                    ->label('Add First FAQ'),
+            ])
+            ->defaultSort('display_order', 'asc')
+            ->persistSortInSession()
+            ->persistSearchInSession()
+            ->persistFiltersInSession();
     }
 
     public static function getPages(): array

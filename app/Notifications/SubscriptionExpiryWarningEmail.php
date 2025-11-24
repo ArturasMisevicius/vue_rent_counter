@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Enums\SubscriptionPlanType;
 use App\Models\Subscription;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -42,7 +43,7 @@ class SubscriptionExpiryWarningEmail extends Notification implements ShouldQueue
             ->greeting("Hello {$notifiable->name}!")
             ->line("Your subscription to the Vilnius Utilities Billing System will expire in **{$daysRemaining} days** on **{$expiryDate}**.")
             ->line('')
-            ->line('**Current Plan:** ' . ucfirst($this->subscription->plan_type))
+            ->line('**Current Plan:** ' . enum_label($this->subscription->plan_type, SubscriptionPlanType::class))
             ->line("**Properties:** {$notifiable->properties()->count()} / {$this->subscription->max_properties}")
             ->line("**Tenants:** {$notifiable->childUsers()->where('role', 'tenant')->count()} / {$this->subscription->max_tenants}")
             ->line('')

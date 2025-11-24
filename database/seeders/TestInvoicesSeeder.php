@@ -13,6 +13,7 @@ use App\Models\Tariff;
 use App\Models\Tenant;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class TestInvoicesSeeder extends Seeder
 {
@@ -28,7 +29,12 @@ class TestInvoicesSeeder extends Seeder
      */
     public function run(): void
     {
-        $tenants = Tenant::all();
+        $tenants = Tenant::query()
+            ->where(function ($query) {
+                $query->whereNull('lease_end')
+                    ->orWhere('lease_end', '>=', Carbon::now()->startOfMonth());
+            })
+            ->get();
 
         foreach ($tenants as $tenant) {
             // Create draft invoice for current month
@@ -53,15 +59,15 @@ class TestInvoicesSeeder extends Seeder
         $billingPeriodStart = Carbon::now()->startOfMonth();
         $billingPeriodEnd = Carbon::now()->endOfMonth();
 
-        $invoice = Invoice::factory()->create([
-            'tenant_id' => $tenant->tenant_id,
-            'tenant_renter_id' => $tenant->id,
-            'billing_period_start' => $billingPeriodStart,
-            'billing_period_end' => $billingPeriodEnd,
-            'total_amount' => 0, // Will be calculated from items
-            'status' => InvoiceStatus::DRAFT,
-            'finalized_at' => null,
-        ]);
+        $invoice = Invoice::factory()
+            ->forTenantRenter($tenant)
+            ->create([
+                'billing_period_start' => $billingPeriodStart,
+                'billing_period_end' => $billingPeriodEnd,
+                'total_amount' => 0, // Will be calculated from items
+                'status' => InvoiceStatus::DRAFT,
+                'finalized_at' => null,
+            ]);
 
         $this->createInvoiceItems($invoice, $tenant, $billingPeriodStart);
     }
@@ -77,15 +83,15 @@ class TestInvoicesSeeder extends Seeder
         $billingPeriodStart = Carbon::now()->subMonth()->startOfMonth();
         $billingPeriodEnd = Carbon::now()->subMonth()->endOfMonth();
 
-        $invoice = Invoice::factory()->create([
-            'tenant_id' => $tenant->tenant_id,
-            'tenant_renter_id' => $tenant->id,
-            'billing_period_start' => $billingPeriodStart,
-            'billing_period_end' => $billingPeriodEnd,
-            'total_amount' => 0, // Will be calculated from items
-            'status' => InvoiceStatus::FINALIZED,
-            'finalized_at' => $billingPeriodEnd->copy()->addDay(),
-        ]);
+        $invoice = Invoice::factory()
+            ->forTenantRenter($tenant)
+            ->create([
+                'billing_period_start' => $billingPeriodStart,
+                'billing_period_end' => $billingPeriodEnd,
+                'total_amount' => 0, // Will be calculated from items
+                'status' => InvoiceStatus::FINALIZED,
+                'finalized_at' => $billingPeriodEnd->copy()->addDay(),
+            ]);
 
         $this->createInvoiceItems($invoice, $tenant, $billingPeriodStart);
     }
@@ -101,15 +107,18 @@ class TestInvoicesSeeder extends Seeder
         $billingPeriodStart = Carbon::now()->subMonths(2)->startOfMonth();
         $billingPeriodEnd = Carbon::now()->subMonths(2)->endOfMonth();
 
-        $invoice = Invoice::factory()->create([
-            'tenant_id' => $tenant->tenant_id,
-            'tenant_renter_id' => $tenant->id,
-            'billing_period_start' => $billingPeriodStart,
-            'billing_period_end' => $billingPeriodEnd,
-            'total_amount' => 0, // Will be calculated from items
-            'status' => InvoiceStatus::PAID,
-            'finalized_at' => $billingPeriodEnd->copy()->addDay(),
-        ]);
+        $invoice = Invoice::factory()
+            ->forTenantRenter($tenant)
+            ->create([
+                'billing_period_start' => $billingPeriodStart,
+                'billing_period_end' => $billingPeriodEnd,
+                'total_amount' => 0, // Will be calculated from items
+                'status' => InvoiceStatus::PAID,
+                'finalized_at' => $billingPeriodEnd->copy()->addDay(),
+                'paid_at' => $billingPeriodEnd->copy()->addDays(fake()->numberBetween(1, 10)),
+                'payment_reference' => 'PMT-' . strtoupper(fake()->bothify('####??')),
+                'paid_amount' => 0,
+            ]);
 
         $this->createInvoiceItems($invoice, $tenant, $billingPeriodStart);
     }
@@ -165,9 +174,16 @@ class TestInvoicesSeeder extends Seeder
         // Update invoice total - use DB query to bypass model events for finalized invoices
         if ($invoice->status === InvoiceStatus::DRAFT) {
             $invoice->update(['total_amount' => $totalAmount]);
+        } elseif ($invoice->status === InvoiceStatus::PAID) {
+            DB::table('invoices')
+                ->where('id', $invoice->id)
+                ->update([
+                    'total_amount' => $totalAmount,
+                    'paid_amount' => $totalAmount,
+                ]);
         } else {
-            // For finalized/paid invoices, update directly via DB to bypass model protection
-            \DB::table('invoices')
+            // For finalized invoices, update directly via DB to bypass model protection
+            DB::table('invoices')
                 ->where('id', $invoice->id)
                 ->update(['total_amount' => $totalAmount]);
         }

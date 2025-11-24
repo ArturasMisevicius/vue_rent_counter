@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\SubscriptionPlanType;
+use App\Enums\SubscriptionStatus;
 use App\Exceptions\CannotDeleteWithDependenciesException;
 use App\Exceptions\InvalidPropertyAssignmentException;
 use App\Models\Property;
@@ -27,7 +29,7 @@ test('createAdminAccount creates admin with unique tenant_id and subscription', 
         'password' => 'password123',
         'name' => 'Test Admin',
         'organization_name' => 'Test Organization',
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addYear()->toDateString(),
     ];
 
@@ -40,7 +42,7 @@ test('createAdminAccount creates admin with unique tenant_id and subscription', 
         ->and($admin->tenant_id)->not->toBeNull()
         ->and($admin->is_active)->toBeTrue()
         ->and($admin->subscription)->not->toBeNull()
-        ->and($admin->subscription->plan_type)->toBe('basic');
+        ->and($admin->subscription->plan_type)->toBe(SubscriptionPlanType::BASIC->value);
 });
 
 test('createTenantAccount creates tenant inheriting admin tenant_id', function () {
@@ -48,8 +50,8 @@ test('createTenantAccount creates tenant inheriting admin tenant_id', function (
 
     $admin = User::factory()->create(['role' => 'admin', 'tenant_id' => 1000]);
     $subscription = $admin->subscription()->create([
-        'plan_type' => 'basic',
-        'status' => 'active',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
+        'status' => SubscriptionStatus::ACTIVE->value,
         'starts_at' => now(),
         'expires_at' => now()->addYear(),
         'max_properties' => 10,
@@ -79,9 +81,9 @@ test('createTenantAccount creates tenant inheriting admin tenant_id', function (
 
 test('createTenantAccount throws exception for property from different tenant', function () {
     $admin = User::factory()->create(['role' => 'admin', 'tenant_id' => 1000]);
-    $subscription = $admin->subscription()->create([
-        'plan_type' => 'basic',
-        'status' => 'active',
+    $admin->subscription()->create([
+        'plan_type' => SubscriptionPlanType::BASIC->value,
+        'status' => SubscriptionStatus::ACTIVE->value,
         'starts_at' => now(),
         'expires_at' => now()->addYear(),
         'max_properties' => 10,

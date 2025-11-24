@@ -42,4 +42,54 @@ class MeterFactory extends Factory
             'supports_zones' => $type === MeterType::ELECTRICITY ? fake()->boolean(30) : false,
         ];
     }
+
+    /**
+     * Attach the meter to a specific property and sync tenant_id.
+     */
+    public function forProperty(Property $property): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'property_id' => $property->id,
+            'tenant_id' => $property->tenant_id,
+        ]);
+    }
+
+    /**
+     * Override tenant_id while keeping relationship factories aligned.
+     */
+    public function forTenantId(int $tenantId): static
+    {
+        return $this->state(function ($attributes) use ($tenantId) {
+            $property = $attributes['property_id'] ?? Property::factory();
+
+            if ($property instanceof Factory) {
+                $property = $property->forTenantId($tenantId);
+            }
+
+            return [
+                'tenant_id' => $tenantId,
+                'property_id' => $property,
+            ];
+        });
+    }
+
+    /**
+     * Ensure tenant_id follows the linked property.
+     */
+    public function configure(): static
+    {
+        return $this->afterMaking(function (Meter $meter) {
+            $property = $meter->property ?? Property::find($meter->property_id);
+
+            if ($property && $meter->tenant_id !== $property->tenant_id) {
+                $meter->tenant_id = $property->tenant_id;
+            }
+        })->afterCreating(function (Meter $meter) {
+            $property = $meter->property ?? Property::find($meter->property_id);
+
+            if ($property && $meter->tenant_id !== $property->tenant_id) {
+                $meter->update(['tenant_id' => $property->tenant_id]);
+            }
+        });
+    }
 }

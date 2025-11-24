@@ -7,7 +7,7 @@ use App\Models\MeterReading;
 use App\Services\MeterReadingService;
 use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Resources\Pages\EditRecord;
 
 class EditMeterReading extends EditRecord
@@ -27,12 +27,12 @@ class EditMeterReading extends EditRecord
      * Customize the form for editing to include change_reason.
      * Integrates validation rules from UpdateMeterReadingRequest.
      */
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
         $minLength = config('billing.validation.change_reason_min_length', 10);
         $maxLength = config('billing.validation.change_reason_max_length', 500);
         
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\TextInput::make('value')
                     ->label('Reading Value')

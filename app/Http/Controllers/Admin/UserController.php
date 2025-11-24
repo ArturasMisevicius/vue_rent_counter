@@ -64,7 +64,7 @@ class UserController extends Controller
         User::create($validated);
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'User created successfully.');
+            ->with('success', __('notifications.user.created'));
     }
 
     public function show(User $user)
@@ -88,7 +88,7 @@ class UserController extends Controller
         $user->update($request->validated());
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'User updated successfully.');
+            ->with('success', __('notifications.user.updated'));
     }
 
     public function destroy(User $user)
@@ -98,12 +98,12 @@ class UserController extends Controller
         // Check if user has associated data (meter readings)
         if ($user->meterReadings()->exists()) {
             return redirect()->route('admin.users.index')
-                ->with('error', 'Cannot delete user with associated meter readings.');
+                ->with('error', __('users.errors.has_readings'));
         }
 
         $user->delete();
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'User deleted successfully.');
+            ->with('success', __('notifications.user.deleted'));
     }
 }

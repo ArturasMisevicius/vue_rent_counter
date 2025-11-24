@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreOrganizationRequest;
+use App\Http\Requests\UpdateOrganizationRequest;
 use App\Models\User;
 use App\Services\AccountManagementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 
 class OrganizationController extends Controller
 {
@@ -37,7 +39,7 @@ class OrganizationController extends Controller
         }
         
         // Filter by subscription status if provided
-        if ($request->filled('subscription_status')) {
+        if ($request->filled('subscription_status') && in_array($request->subscription_status, SubscriptionStatus::values(), true)) {
             $query->whereHas('subscription', function ($q) use ($request) {
                 $q->where('status', $request->subscription_status);
             });
@@ -78,16 +80,9 @@ class OrganizationController extends Controller
      * 
      * Requirements: 2.1, 2.2, 2.3
      */
-    public function store(Request $request)
+    public function store(StoreOrganizationRequest $request)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8'],
-            'organization_name' => ['required', 'string', 'max:255'],
-            'plan_type' => ['required', Rule::in(['basic', 'professional', 'enterprise'])],
-            'expires_at' => ['required', 'date', 'after:today'],
-        ]);
+        $validated = $request->validated();
         
         $superadmin = Auth::user();
         
@@ -95,7 +90,7 @@ class OrganizationController extends Controller
         
         return redirect()
             ->route('superadmin.organizations.show', $admin)
-            ->with('success', 'Organization created successfully.');
+            ->with('success', __('notifications.organization.created'));
     }
 
     /**
@@ -154,25 +149,20 @@ class OrganizationController extends Controller
     /**
      * Update the specified organization.
      */
-    public function update(Request $request, User $organization)
+    public function update(UpdateOrganizationRequest $request, User $organization)
     {
         // Ensure we're updating an admin user
         if ($organization->role !== UserRole::ADMIN) {
             abort(404);
         }
         
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($organization->id)],
-            'organization_name' => ['required', 'string', 'max:255'],
-            'is_active' => ['boolean'],
-        ]);
+        $validated = $request->validated();
         
         $organization->update($validated);
         
         return redirect()
             ->route('superadmin.organizations.show', $organization)
-            ->with('success', 'Organization updated successfully.');
+            ->with('success', __('notifications.organization.updated'));
     }
 
     /**
@@ -189,7 +179,7 @@ class OrganizationController extends Controller
         
         return redirect()
             ->route('superadmin.organizations.show', $organization)
-            ->with('success', 'Organization deactivated successfully.');
+            ->with('success', __('notifications.organization.deactivated'));
     }
 
     /**
@@ -206,6 +196,6 @@ class OrganizationController extends Controller
         
         return redirect()
             ->route('superadmin.organizations.show', $organization)
-            ->with('success', 'Organization reactivated successfully.');
+            ->with('success', __('notifications.organization.reactivated'));
     }
 }

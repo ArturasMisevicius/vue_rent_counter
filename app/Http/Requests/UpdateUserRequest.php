@@ -41,8 +41,17 @@ class UpdateUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.unique' => 'This email address is already registered.',
-            'tenant_id.exists' => 'The selected tenant does not exist.',
+            'tenant_id.required' => __('users.validation.tenant_id.required'),
+            'tenant_id.integer' => __('users.validation.tenant_id.integer'),
+            'email.unique' => __('users.validation.email.unique'),
+            'email.required' => __('users.validation.email.required'),
+            'email.email' => __('users.validation.email.email'),
+            'email.max' => __('users.validation.email.max'),
+            'name.required' => __('users.validation.name.required'),
+            'name.max' => __('users.validation.name.max'),
+            'role.required' => __('users.validation.role.required'),
+            'role.enum' => __('users.validation.role.enum'),
+            'tenant_id.exists' => __('users.validation.tenant_id.exists'),
         ];
     }
 }

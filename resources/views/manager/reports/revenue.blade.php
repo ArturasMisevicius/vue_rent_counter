@@ -10,16 +10,16 @@
         <x-breadcrumb-item :active="true">Revenue</x-breadcrumb-item>
     </x-breadcrumbs>
 
-    <div class="sm:flex sm:items-center">
+    <div class="sm:flex sm:items-center sm:justify-between">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-gray-900">Revenue Report</h1>
-            <p class="mt-2 text-sm text-gray-700">Billing revenue by period</p>
+            <h1 class="text-3xl font-bold text-slate-900 font-display">Revenue Report</h1>
+            <p class="mt-2 text-sm text-slate-600">Billing revenue by period and invoice status</p>
         </div>
     </div>
 
     <!-- Filters -->
-    <div class="mt-6">
-        <x-card>
+    <div class="mt-8">
+        <x-card title="Report Filters">
             <form method="GET" action="{{ route('manager.reports.revenue') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <x-form-input
                     name="start_date"
@@ -90,39 +90,38 @@
     <!-- Invoice List -->
     @if($invoices->isNotEmpty())
     <div class="mt-8">
-        <x-card>
-            <x-slot name="title">Invoices</x-slot>
-            
-            <div class="mt-4">
-                <x-data-table>
+        <x-card title="Invoices">
+            <div class="hidden sm:block">
+                <x-data-table caption="Invoices in revenue report">
                     <x-slot name="header">
                         <tr>
-                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Invoice #</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Property</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Period</th>
-                            <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Amount</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">Invoice #</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Property</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Period</th>
+                            <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-slate-900">Amount</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Status</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Due</th>
                         </tr>
                     </x-slot>
 
                     @foreach($invoices as $invoice)
-                    <tr>
-                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
-                            <a href="{{ route('manager.invoices.show', $invoice) }}" class="text-indigo-600 hover:text-indigo-900">
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 sm:pl-0">
+                            <a href="{{ route('manager.invoices.show', $invoice) }}" class="text-indigo-600 hover:text-indigo-900 transition-colors">
                                 #{{ $invoice->id }}
                             </a>
                         </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-600">
                             @if($invoice->tenant && $invoice->tenant->property)
                                 {{ $invoice->tenant->property->address }}
                             @else
-                                <span class="text-gray-400">N/A</span>
+                                <span class="text-slate-400">N/A</span>
                             @endif
                         </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-600">
                             {{ $invoice->billing_period_start->format('M d') }} - {{ $invoice->billing_period_end->format('M d, Y') }}
                         </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900 text-right">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm font-semibold text-slate-900 text-right tabular-nums">
                             €{{ number_format($invoice->total_amount, 2) }}
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm">
@@ -130,18 +129,55 @@
                                 {{ enum_label($invoice->status) }}
                             </x-status-badge>
                         </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-600">
+                            @if($invoice->due_date)
+                                @php($isOverdue = !$invoice->isPaid() && $invoice->due_date->isPast())
+                                <span class="{{ $isOverdue ? 'text-rose-600 font-semibold' : '' }}">
+                                    {{ $invoice->due_date->format('Y-m-d') }}
+                                </span>
+                            @else
+                                <span class="text-slate-400">—</span>
+                            @endif
+                        </td>
                     </tr>
                     @endforeach
                 </x-data-table>
+            </div>
+            <div class="sm:hidden space-y-3">
+                @foreach($invoices as $invoice)
+                <div class="rounded-xl border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <a href="{{ route('manager.invoices.show', $invoice) }}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-900">
+                                #{{ $invoice->id }}
+                            </a>
+                            <p class="text-xs text-slate-600 mt-1">
+                                {{ $invoice->billing_period_start->format('M d') }} - {{ $invoice->billing_period_end->format('M d, Y') }}
+                            </p>
+                            <p class="text-xs text-slate-600 mt-1">
+                                {{ $invoice->tenant?->property?->address ?? 'N/A' }}
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <x-status-badge :status="$invoice->status->value" />
+                            <p class="mt-1 text-sm font-semibold text-slate-900 tabular-nums">€{{ number_format($invoice->total_amount, 2) }}</p>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
             </div>
         </x-card>
     </div>
     @else
     <div class="mt-8">
         <x-card>
-            <p class="text-center text-sm text-gray-500 py-8">
-                No invoices found for the selected period.
-            </p>
+            <div class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+                <p class="mt-4 text-sm font-medium text-slate-900">No invoices found</p>
+                <p class="mt-1 text-sm text-slate-500">Try adjusting your date range</p>
+            </div>
         </x-card>
     </div>
     @endif

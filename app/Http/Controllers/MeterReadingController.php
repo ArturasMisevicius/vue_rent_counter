@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMeterReadingRequest;
 use App\Http\Requests\UpdateMeterReadingRequest;
+use App\Http\Requests\BulkMeterReadingRequest;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Services\MeterReadingService;
@@ -48,7 +49,7 @@ class MeterReadingController extends Controller
         MeterReading::create($validated);
 
         return redirect()->route('meter-readings.index')
-            ->with('success', 'Meter reading created successfully.');
+            ->with('success', __('notifications.meter_reading.created'));
     }
 
     /**
@@ -83,7 +84,7 @@ class MeterReadingController extends Controller
         $meterReading->update($validated);
 
         return redirect()->route('meter-readings.index')
-            ->with('success', 'Meter reading updated successfully.');
+            ->with('success', __('notifications.meter_reading.updated'));
     }
 
     /**
@@ -94,7 +95,7 @@ class MeterReadingController extends Controller
         $meterReading->delete();
 
         return redirect()->route('meter-readings.index')
-            ->with('success', 'Meter reading deleted successfully.');
+            ->with('success', __('notifications.meter_reading.deleted'));
     }
 
     /**
@@ -109,15 +110,9 @@ class MeterReadingController extends Controller
     /**
      * Store multiple meter readings at once.
      */
-    public function bulk(Request $request): \Illuminate\Http\RedirectResponse
+    public function bulk(BulkMeterReadingRequest $request): \Illuminate\Http\RedirectResponse
     {
-        $validated = $request->validate([
-            'readings' => ['required', 'array'],
-            'readings.*.meter_id' => ['required', 'exists:meters,id'],
-            'readings.*.reading_date' => ['required', 'date'],
-            'readings.*.value' => ['required', 'numeric', 'min:0'],
-            'readings.*.zone' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
 
         foreach ($validated['readings'] as $reading) {
             $reading['tenant_id'] = auth()->user()->tenant_id;
@@ -125,7 +120,7 @@ class MeterReadingController extends Controller
             MeterReading::create($reading);
         }
 
-        return back()->with('success', 'Bulk readings created successfully.');
+        return back()->with('success', __('notifications.meter_reading.bulk_created'));
     }
 
     /**
@@ -134,6 +129,6 @@ class MeterReadingController extends Controller
     public function export(Request $request): \Illuminate\Http\JsonResponse
     {
         // Future: Export to CSV/Excel
-        return response()->json(['message' => 'Export not yet implemented']);
+        return response()->json(['message' => __('meter_readings.errors.export_pending')]);
     }
 }

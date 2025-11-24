@@ -12,8 +12,8 @@
 
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-gray-900">{{ $property->address }}</h1>
-            <p class="mt-2 text-sm text-gray-700">Property details and associated information</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ $property->address }}</h1>
+            <p class="mt-2 text-sm text-slate-700">Property details and associated information</p>
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none space-x-2">
             @can('update', $property)
@@ -38,30 +38,30 @@
         <x-card>
             <x-slot name="title">Property Information</x-slot>
             
-            <dl class="divide-y divide-gray-100">
+            <dl class="divide-y divide-slate-100">
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-gray-900">Address</dt>
-                    <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{{ $property->address }}</dd>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">Address</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $property->address }}</dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-gray-900">Type</dt>
-                    <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                    <dt class="text-sm font-medium leading-6 text-slate-900">Type</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
                         <span class="capitalize">{{ enum_label($property->type) }}</span>
                     </dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-gray-900">Area</dt>
-                    <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{{ number_format($property->area_sqm, 2) }} m²</dd>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">Area</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ number_format($property->area_sqm, 2) }} m²</dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-gray-900">Building</dt>
-                    <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                    <dt class="text-sm font-medium leading-6 text-slate-900">Building</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
                         @if($property->building)
                             <a href="{{ route('manager.buildings.show', $property->building) }}" class="text-indigo-600 hover:text-indigo-900">
                                 {{ $property->building->address }}
                             </a>
                         @else
-                            <span class="text-gray-400">Not in a building</span>
+                            <span class="text-slate-400">Not in a building</span>
                         @endif
                     </dd>
                 </div>
@@ -74,22 +74,22 @@
             
             @if($property->tenants->isNotEmpty())
                 @php $currentTenant = $property->tenants->first(); @endphp
-                <dl class="divide-y divide-gray-100">
+                <dl class="divide-y divide-slate-100">
                     <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                        <dt class="text-sm font-medium leading-6 text-gray-900">Name</dt>
-                        <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{{ $currentTenant->name }}</dd>
+                        <dt class="text-sm font-medium leading-6 text-slate-900">Name</dt>
+                        <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $currentTenant->name }}</dd>
                     </div>
                     <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                        <dt class="text-sm font-medium leading-6 text-gray-900">Email</dt>
-                        <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{{ $currentTenant->email }}</dd>
+                        <dt class="text-sm font-medium leading-6 text-slate-900">Email</dt>
+                        <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $currentTenant->email }}</dd>
                     </div>
                     <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                        <dt class="text-sm font-medium leading-6 text-gray-900">Phone</dt>
-                        <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{{ $currentTenant->phone ?? 'N/A' }}</dd>
+                        <dt class="text-sm font-medium leading-6 text-slate-900">Phone</dt>
+                        <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $currentTenant->phone ?? 'N/A' }}</dd>
                     </div>
                 </dl>
             @else
-                <p class="text-sm text-gray-500">No current tenant</p>
+                <p class="text-sm text-slate-500">No current tenant</p>
             @endif
         </x-card>
     </div>
@@ -111,10 +111,10 @@
                 <x-data-table>
                     <x-slot name="header">
                         <tr>
-                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Serial Number</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Type</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Installation Date</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Latest Reading</th>
+                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">Serial Number</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Type</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Installation Date</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Latest Reading</th>
                             <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
                                 <span class="sr-only">Actions</span>
                             </th>
@@ -123,23 +123,23 @@
 
                     @foreach($property->meters as $meter)
                     <tr>
-                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 sm:pl-0">
                             <a href="{{ route('manager.meters.show', $meter) }}" class="text-indigo-600 hover:text-indigo-900">
                                 {{ $meter->serial_number }}
                             </a>
                         </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                             <span class="capitalize">{{ enum_label($meter->type) }}</span>
                         </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                             {{ $meter->installation_date->format('M d, Y') }}
                         </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                             @if($meter->readings->isNotEmpty())
                                 {{ number_format($meter->readings->first()->value, 2) }}
-                                <span class="text-gray-400 text-xs">({{ $meter->readings->first()->reading_date->format('M d') }})</span>
+                                <span class="text-slate-400 text-xs">({{ $meter->readings->first()->reading_date->format('M d') }})</span>
                             @else
-                                <span class="text-gray-400">No readings</span>
+                                <span class="text-slate-400">No readings</span>
                             @endif
                         </td>
                         <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
@@ -152,7 +152,7 @@
                 </x-data-table>
             </div>
             @else
-                <p class="mt-4 text-sm text-gray-500">No meters installed for this property.</p>
+                <p class="mt-4 text-sm text-slate-500">No meters installed for this property.</p>
             @endif
         </x-card>
     </div>

@@ -24,6 +24,7 @@ class UpdatePropertyRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'tenant_id' => ['required', 'integer'],
             'address' => ['required', 'string', 'max:255'],
             'type' => ['required', Rule::enum(PropertyType::class)],
             'area_sqm' => ['required', 'numeric', 'min:0', 'max:10000'],
@@ -39,8 +40,11 @@ class UpdatePropertyRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'tenant_id.required' => __('properties.validation.tenant_id.required'),
+            'tenant_id.integer' => __('properties.validation.tenant_id.integer'),
             'address.required' => __('properties.validation.address.required'),
             'address.max' => __('properties.validation.address.max'),
+            'address.string' => __('properties.validation.address.string'),
             'type.required' => __('properties.validation.type.required'),
             'type.enum' => __('properties.validation.type.enum'),
             'area_sqm.required' => __('properties.validation.area_sqm.required'),
@@ -49,5 +53,15 @@ class UpdatePropertyRequest extends FormRequest
             'area_sqm.max' => __('properties.validation.area_sqm.max'),
             'building_id.exists' => __('properties.validation.building_id.exists'),
         ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'tenant_id' => $this->user()?->tenant_id ?? $this->input('tenant_id'),
+        ]);
     }
 }

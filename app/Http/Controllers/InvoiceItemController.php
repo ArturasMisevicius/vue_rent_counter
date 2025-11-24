@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\InvoiceItemRequest;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
-use Illuminate\Http\Request;
 
 class InvoiceItemController extends Controller
 {
@@ -14,18 +14,13 @@ class InvoiceItemController extends Controller
         return view('invoices.items.index', compact('invoice', 'items'));
     }
 
-    public function store(Request $request, Invoice $invoice)
+    public function store(InvoiceItemRequest $request, Invoice $invoice)
     {
         if (!$invoice->isDraft()) {
-            return back()->with('error', 'Cannot add items to finalized invoice.');
+            return back()->with('error', __('invoices.errors.add_to_finalized'));
         }
 
-        $validated = $request->validate([
-            'description' => ['required', 'string', 'max:255'],
-            'quantity' => ['required', 'numeric', 'min:0'],
-            'unit_price' => ['required', 'numeric', 'min:0'],
-            'total_price' => ['required', 'numeric', 'min:0'],
-        ]);
+        $validated = $request->validated();
 
         $validated['tenant_id'] = $invoice->tenant_id;
         $validated['invoice_id'] = $invoice->id;
@@ -36,7 +31,7 @@ class InvoiceItemController extends Controller
         $invoice->total_amount = $invoice->items()->sum('total_price');
         $invoice->save();
 
-        return back()->with('success', 'Invoice item added successfully.');
+        return back()->with('success', __('notifications.invoice_item.created'));
     }
 
     public function show(Invoice $invoice, InvoiceItem $item)
@@ -48,22 +43,17 @@ class InvoiceItemController extends Controller
         return view('invoices.items.show', compact('invoice', 'item'));
     }
 
-    public function update(Request $request, Invoice $invoice, InvoiceItem $item)
+    public function update(InvoiceItemRequest $request, Invoice $invoice, InvoiceItem $item)
     {
         if (!$invoice->isDraft()) {
-            return back()->with('error', 'Cannot update items in finalized invoice.');
+            return back()->with('error', __('invoices.errors.update_finalized'));
         }
 
         if ($item->invoice_id !== $invoice->id) {
             abort(404);
         }
 
-        $validated = $request->validate([
-            'description' => ['required', 'string', 'max:255'],
-            'quantity' => ['required', 'numeric', 'min:0'],
-            'unit_price' => ['required', 'numeric', 'min:0'],
-            'total_price' => ['required', 'numeric', 'min:0'],
-        ]);
+        $validated = $request->validated();
 
         $item->update($validated);
 
@@ -71,13 +61,13 @@ class InvoiceItemController extends Controller
         $invoice->total_amount = $invoice->items()->sum('total_price');
         $invoice->save();
 
-        return back()->with('success', 'Invoice item updated successfully.');
+        return back()->with('success', __('notifications.invoice_item.updated'));
     }
 
     public function destroy(Invoice $invoice, InvoiceItem $item)
     {
         if (!$invoice->isDraft()) {
-            return back()->with('error', 'Cannot delete items from finalized invoice.');
+            return back()->with('error', __('invoices.errors.delete_finalized'));
         }
 
         if ($item->invoice_id !== $invoice->id) {
@@ -90,6 +80,6 @@ class InvoiceItemController extends Controller
         $invoice->total_amount = $invoice->items()->sum('total_price');
         $invoice->save();
 
-        return back()->with('success', 'Invoice item deleted successfully.');
+        return back()->with('success', __('notifications.invoice_item.deleted'));
     }
 }

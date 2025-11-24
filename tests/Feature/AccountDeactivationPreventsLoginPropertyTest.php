@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionStatus;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
@@ -81,7 +82,7 @@ test('active users can login successfully', function () {
         if ($role === UserRole::ADMIN) {
             \App\Models\Subscription::factory()->create([
                 'user_id' => $user->id,
-                'status' => 'active',
+                'status' => SubscriptionStatus::ACTIVE->value,
                 'starts_at' => now(),
                 'expires_at' => now()->addYear(),
             ]);
@@ -136,7 +137,7 @@ test('deactivated account login attempt logs user out if somehow authenticated',
         if ($role === UserRole::ADMIN) {
             \App\Models\Subscription::factory()->create([
                 'user_id' => $user->id,
-                'status' => 'active',
+                'status' => SubscriptionStatus::ACTIVE->value,
                 'starts_at' => now(),
                 'expires_at' => now()->addYear(),
             ]);

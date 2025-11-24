@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\SubscriptionStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,16 +28,19 @@ class Subscription extends Model
     ];
 
     /**
-     * The attributes that should be cast.
+     * Get the attributes that should be cast.
      *
-     * @var array<string, string>
+     * @return array<string, string>
      */
-    protected $casts = [
-        'starts_at' => 'datetime',
-        'expires_at' => 'datetime',
-        'max_properties' => 'integer',
-        'max_tenants' => 'integer',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'starts_at' => 'datetime',
+            'expires_at' => 'datetime',
+            'max_properties' => 'integer',
+            'max_tenants' => 'integer',
+        ];
+    }
 
     /**
      * Get the user that owns the subscription.
@@ -51,7 +55,7 @@ class Subscription extends Model
      */
     public function isActive(): bool
     {
-        return $this->status === 'active' 
+        return $this->status === SubscriptionStatus::ACTIVE->value 
             && $this->expires_at->isFuture();
     }
 

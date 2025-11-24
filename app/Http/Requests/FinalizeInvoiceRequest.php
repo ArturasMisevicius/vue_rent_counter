@@ -50,7 +50,7 @@ class FinalizeInvoiceRequest extends FormRequest
         $invoice = $this->route('invoice'); // Assumes route model binding
         
         if (!$invoice instanceof Invoice) {
-            $validator->errors()->add('invoice', 'Invoice not found');
+            $validator->errors()->add('invoice', __('invoices.validation.finalize.not_found'));
             return;
         }
 
@@ -58,7 +58,7 @@ class FinalizeInvoiceRequest extends FormRequest
         if ($invoice->status === InvoiceStatus::FINALIZED || $invoice->finalized_at !== null) {
             $validator->errors()->add(
                 'invoice',
-                'Invoice is already finalized and cannot be modified'
+                __('invoices.validation.finalize.already_finalized')
             );
             return;
         }
@@ -67,7 +67,7 @@ class FinalizeInvoiceRequest extends FormRequest
         if ($invoice->items()->count() === 0) {
             $validator->errors()->add(
                 'invoice',
-                'Cannot finalize invoice: invoice has no items'
+                __('invoices.validation.finalize.no_items')
             );
             return;
         }
@@ -76,7 +76,7 @@ class FinalizeInvoiceRequest extends FormRequest
         if ($invoice->total_amount <= 0) {
             $validator->errors()->add(
                 'invoice',
-                'Cannot finalize invoice: total amount must be greater than zero'
+                __('invoices.validation.finalize.invalid_total')
             );
             return;
         }
@@ -86,7 +86,7 @@ class FinalizeInvoiceRequest extends FormRequest
             if (empty($item->description) || $item->unit_price < 0 || $item->quantity < 0) {
                 $validator->errors()->add(
                     'invoice',
-                    'Cannot finalize invoice: all items must have valid description, unit price, and quantity'
+                    __('invoices.validation.finalize.invalid_items')
                 );
                 return;
             }
@@ -96,7 +96,7 @@ class FinalizeInvoiceRequest extends FormRequest
         if ($invoice->billing_period_start >= $invoice->billing_period_end) {
             $validator->errors()->add(
                 'invoice',
-                'Cannot finalize invoice: billing period start must be before billing period end'
+                __('invoices.validation.finalize.invalid_period')
             );
             return;
         }
@@ -110,7 +110,7 @@ class FinalizeInvoiceRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'invoice' => 'Invalid invoice',
+            'invoice' => __('invoices.validation.invoice'),
         ];
     }
 }

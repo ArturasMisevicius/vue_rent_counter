@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionPlanType;
 use App\Models\Building;
 use App\Models\Property;
 use App\Models\User;
@@ -31,7 +32,7 @@ test('admin profile contains all required fields', function () {
         // Create an admin account with random data
         $organizationName = fake()->company();
         $email = fake()->unique()->safeEmail();
-        $planType = fake()->randomElement(['basic', 'professional', 'enterprise']);
+        $planType = fake()->randomElement(SubscriptionPlanType::values());
         
         $adminData = [
             'email' => $email,
@@ -263,7 +264,7 @@ test('profile data persists correctly after database reload', function () {
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => $organizationName,
-        'plan_type' => 'professional',
+        'plan_type' => SubscriptionPlanType::PROFESSIONAL->value,
         'expires_at' => now()->addDays(180)->toDateString(),
     ];
     
@@ -381,4 +382,3 @@ test('all required profile fields are non-null for each role', function () {
         ->and($tenant->parentUser)->not->toBeNull()
         ->and($tenant->parentUser->email)->not->toBeNull();
 })->repeat(100);
-

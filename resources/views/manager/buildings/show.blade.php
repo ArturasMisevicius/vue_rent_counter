@@ -12,8 +12,8 @@
 
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-gray-900">{{ $building->address }}</h1>
-            <p class="mt-2 text-sm text-gray-700">Building details and gyvatukas calculations</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ $building->address }}</h1>
+            <p class="mt-2 text-sm text-slate-700">Building details and gyvatukas calculations</p>
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none space-x-2">
             @can('update', $building)
@@ -38,18 +38,22 @@
         <x-card>
             <x-slot name="title">Building Information</x-slot>
             
-            <dl class="divide-y divide-gray-100">
+            <dl class="divide-y divide-slate-100">
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-gray-900">Address</dt>
-                    <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{{ $building->address }}</dd>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">Building Name</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $building->display_name }}</dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-gray-900">Total Apartments</dt>
-                    <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{{ $building->total_apartments }}</dd>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">Address</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $building->address }}</dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-gray-900">Properties Registered</dt>
-                    <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{{ $building->properties->count() }}</dd>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">Total Apartments</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $building->total_apartments }}</dd>
+                </div>
+                <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <dt class="text-sm font-medium leading-6 text-slate-900">Properties Registered</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $building->properties->count() }}</dd>
                 </div>
             </dl>
         </x-card>
@@ -58,30 +62,30 @@
         <x-card>
             <x-slot name="title">Gyvatukas (Circulation Fee)</x-slot>
             
-            <dl class="divide-y divide-gray-100">
+            <dl class="divide-y divide-slate-100">
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-gray-900">Summer Average</dt>
-                    <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                    <dt class="text-sm font-medium leading-6 text-slate-900">Summer Average</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
                         @if($building->gyvatukas_summer_average)
                             <span class="font-semibold">{{ number_format($building->gyvatukas_summer_average, 2) }} kWh</span>
                         @else
-                            <span class="text-gray-400">Not calculated</span>
+                            <span class="text-slate-400">Not calculated</span>
                         @endif
                     </dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-gray-900">Last Calculated</dt>
-                    <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                    <dt class="text-sm font-medium leading-6 text-slate-900">Last Calculated</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
                         @if($building->gyvatukas_last_calculated)
                             {{ $building->gyvatukas_last_calculated->format('M d, Y') }}
                         @else
-                            <span class="text-gray-400">Never</span>
+                            <span class="text-slate-400">Never</span>
                         @endif
                     </dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-gray-900">Status</dt>
-                    <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                    <dt class="text-sm font-medium leading-6 text-slate-900">Status</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
                         @if($building->gyvatukas_summer_average)
                             <x-status-badge status="active">Calculated</x-status-badge>
                         @else
@@ -92,7 +96,7 @@
             </dl>
 
             @can('update', $building)
-            <div class="mt-6 border-t border-gray-200 pt-6">
+            <div class="mt-6 border-t border-slate-200 pt-6">
                 <form action="{{ route('manager.buildings.calculate-gyvatukas', $building) }}" method="POST" class="space-y-4">
                     @csrf
                     
@@ -140,11 +144,11 @@
                 <x-data-table>
                     <x-slot name="header">
                         <tr>
-                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Address</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Type</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Area</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Meters</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Tenant</th>
+                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">Address</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Type</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Area</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Meters</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">Tenant</th>
                             <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
                                 <span class="sr-only">Actions</span>
                             </th>
@@ -153,25 +157,25 @@
 
                     @foreach($building->properties as $property)
                     <tr>
-                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 sm:pl-0">
                             <a href="{{ route('manager.properties.show', $property) }}" class="text-indigo-600 hover:text-indigo-900">
                                 {{ $property->address }}
                             </a>
                         </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                             <span class="capitalize">{{ enum_label($property->type) }}</span>
                         </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                             {{ number_format($property->area_sqm, 2) }} m²
                         </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                             {{ $property->meters->count() }}
                         </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                             @if($property->tenants->isNotEmpty())
                                 {{ $property->tenants->first()->name }}
                             @else
-                                <span class="text-gray-400">Vacant</span>
+                                <span class="text-slate-400">Vacant</span>
                             @endif
                         </td>
                         <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
@@ -184,7 +188,7 @@
                 </x-data-table>
             </div>
             @else
-                <p class="mt-4 text-sm text-gray-500">No properties registered in this building.</p>
+                <p class="mt-4 text-sm text-slate-500">No properties registered in this building.</p>
             @endif
         </x-card>
     </div>

@@ -7,7 +7,7 @@ namespace App\Filament\Resources\PropertyResource\RelationManagers;
 use App\Enums\MeterType;
 use App\Models\Meter;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -18,9 +18,9 @@ class MetersRelationManager extends RelationManager
 
     protected static ?string $recordTitleAttribute = 'serial_number';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\Select::make('meter_type')
                     ->label('Meter Type')
@@ -88,7 +88,7 @@ class MetersRelationManager extends RelationManager
                     ->native(false),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                Actions\CreateAction::make()
                     ->mutateFormDataUsing(function (array $data): array {
                         // Ensure tenant_id is set from property
                         $data['tenant_id'] = $this->getOwnerRecord()->tenant_id;
@@ -97,18 +97,18 @@ class MetersRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Actions\EditAction::make(),
+                Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateHeading('No meters installed')
             ->emptyStateDescription('Add meters to track utility consumption for this property.')
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make()
+                Actions\CreateAction::make()
                     ->label('Add First Meter'),
             ]);
     }

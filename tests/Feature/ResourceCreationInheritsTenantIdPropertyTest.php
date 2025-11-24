@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionPlanType;
 use App\Models\Building;
 use App\Models\Meter;
 use App\Models\Property;
@@ -31,7 +32,7 @@ test('admin created buildings automatically inherit admin tenant_id', function (
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -79,7 +80,7 @@ test('admin created properties automatically inherit admin tenant_id', function 
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -133,7 +134,7 @@ test('admin created meters automatically inherit admin tenant_id', function () {
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => AppnumsSubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -196,7 +197,7 @@ test('multiple admins create resources with their respective tenant_ids', functi
             'password' => 'password123',
             'name' => fake()->name(),
             'organization_name' => fake()->company(),
-            'plan_type' => 'basic',
+            'plan_type' => SubscriptionPlanType::BASIC->value,
             'expires_at' => now()->addDays(365)->toDateString(),
         ];
         
@@ -270,7 +271,7 @@ test('resource creation inherits tenant_id even without explicit assignment', fu
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => AppnumsSubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -328,7 +329,7 @@ test('nested resource creation maintains tenant_id consistency', function () {
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => AppnumsSubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -384,4 +385,3 @@ test('nested resource creation maintains tenant_id consistency', function () {
         }
     }
 })->repeat(100);
-

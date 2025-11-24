@@ -12,8 +12,8 @@
 
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-gray-900">Create Tariff</h1>
-            <p class="mt-2 text-sm text-gray-700">Add a new tariff configuration</p>
+            <h1 class="text-2xl font-semibold text-slate-900">Create Tariff</h1>
+            <p class="mt-2 text-sm text-slate-700">Add a new tariff configuration</p>
         </div>
     </div>
 
@@ -39,13 +39,13 @@
                     />
 
                     <div>
-                        <label for="configuration" class="block text-sm font-medium text-gray-700">Configuration</label>
-                        <div class="mt-2 rounded-md bg-gray-50 p-4 text-xs text-gray-700 space-y-2">
+                        <label for="configuration" class="block text-sm font-medium text-slate-700">Configuration</label>
+                        <div class="mt-2 rounded-md bg-slate-50 p-4 text-xs text-slate-700 space-y-2">
                             <p class="font-semibold">Flat Rate Example:</p>
-                            <pre class="bg-white p-2 rounded border border-gray-200">{{ json_encode(['type' => 'flat', 'currency' => 'EUR', 'rate' => 0.15], JSON_PRETTY_PRINT) }}</pre>
+                            <pre class="bg-white p-2 rounded border border-slate-200">{{ json_encode(['type' => 'flat', 'currency' => 'EUR', 'rate' => 0.15], JSON_PRETTY_PRINT) }}</pre>
                             
                             <p class="font-semibold mt-3">Time of Use Example:</p>
-                            <pre class="bg-white p-2 rounded border border-gray-200">{{ json_encode([
+                            <pre class="bg-white p-2 rounded border border-slate-200">{{ json_encode([
     'type' => 'time_of_use',
     'currency' => 'EUR',
     'zones' => [
@@ -63,7 +63,7 @@
                             @class([
                                 'mt-2 block w-full rounded-md shadow-sm focus:ring-indigo-500 sm:text-sm font-mono',
                                 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500' => $errors->has('configuration'),
-                                'border-gray-300 focus:border-indigo-500' => !$errors->has('configuration'),
+                                'border-slate-300 focus:border-indigo-500' => !$errors->has('configuration'),
                             ])
                             required
                             placeholder="Enter tariff configuration as JSON object"
@@ -96,7 +96,7 @@
                 </div>
 
                 <div class="mt-6 flex items-center justify-end gap-x-3">
-                    <a href="{{ route('admin.tariffs.index') }}" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                    <a href="{{ route('admin.tariffs.index') }}" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">
                         Cancel
                     </a>
                     <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">

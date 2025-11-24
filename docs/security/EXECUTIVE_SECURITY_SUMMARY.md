@@ -181,8 +181,8 @@ Comprehensive security audit and hardening of the PropertiesRelationManager comp
 - [x] Static analysis clean
 - [x] Documentation updated
 - [x] Configuration prepared
-- [ ] **TODO**: Penetration testing
-- [ ] **TODO**: Load testing
+- [ ] Penetration testing
+- [ ] Load testing
 
 ### Deployment Steps
 

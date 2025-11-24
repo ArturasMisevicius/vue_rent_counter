@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\UserAssignmentAction;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AdminReassignTenantRequest;
+use App\Http\Requests\AdminStoreTenantRequest;
+use App\Http\Requests\AdminUpdateTenantRequest;
 use App\Models\Property;
 use App\Models\User;
 use App\Services\AccountManagementService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TenantController extends Controller
@@ -54,16 +57,11 @@ class TenantController extends Controller
     /**
      * Store a newly created tenant account.
      */
-    public function store(Request $request)
+    public function store(AdminStoreTenantRequest $request)
     {
         $this->authorize('create', User::class);
         
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'property_id' => 'required|exists:properties,id',
-        ]);
+        $validated = $request->validated();
 
         try {
             $tenant = $this->accountManagementService->createTenantAccount(
@@ -72,7 +70,7 @@ class TenantController extends Controller
             );
 
             return redirect()->route('admin.tenants.index')
-                ->with('success', 'Tenant account created successfully. Welcome email has been sent.');
+                ->with('success', __('notifications.admin_tenant.created'));
         } catch (\Exception $e) {
             return back()
                 ->withInput()
@@ -99,7 +97,11 @@ class TenantController extends Controller
         // Get assignment history from audit log
         $assignmentHistory = DB::table('user_assignments_audit')
             ->where('user_id', $tenant->id)
-            ->whereIn('action', ['created', 'assigned', 'reassigned'])
+            ->whereIn('action', [
+                UserAssignmentAction::CREATED->value,
+                UserAssignmentAction::ASSIGNED->value,
+                UserAssignmentAction::REASSIGNED->value,
+            ])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -133,19 +135,16 @@ class TenantController extends Controller
     /**
      * Update the specified tenant account.
      */
-    public function update(Request $request, User $tenant)
+    public function update(AdminUpdateTenantRequest $request, User $tenant)
     {
         $this->authorize('update', $tenant);
         
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $tenant->id,
-        ]);
+        $validated = $request->validated();
 
         $tenant->update($validated);
 
         return redirect()->route('admin.tenants.show', $tenant)
-            ->with('success', 'Tenant account updated successfully.');
+            ->with('success', __('notifications.admin_tenant.updated'));
     }
 
     /**
@@ -157,10 +156,10 @@ class TenantController extends Controller
         
         if ($tenant->is_active) {
             $this->accountManagementService->deactivateAccount($tenant, 'Deactivated by admin');
-            $message = 'Tenant account deactivated successfully.';
+            $message = __('notifications.admin_tenant.deactivated');
         } else {
             $this->accountManagementService->reactivateAccount($tenant);
-            $message = 'Tenant account reactivated successfully.';
+            $message = __('notifications.admin_tenant.reactivated');
         }
 
         return back()->with('success', $message);
@@ -187,13 +186,11 @@ class TenantController extends Controller
     /**
      * Reassign tenant to a different property.
      */
-    public function reassign(Request $request, User $tenant)
+    public function reassign(AdminReassignTenantRequest $request, User $tenant)
     {
         $this->authorize('update', $tenant);
         
-        $validated = $request->validate([
-            'property_id' => 'required|exists:properties,id',
-        ]);
+        $validated = $request->validated();
 
         try {
             $newProperty = Property::findOrFail($validated['property_id']);
@@ -205,7 +202,7 @@ class TenantController extends Controller
             );
 
             return redirect()->route('admin.tenants.show', $tenant)
-                ->with('success', 'Tenant reassigned successfully. Notification email has been sent.');
+                ->with('success', __('notifications.admin_tenant.reassigned'));
         } catch (\Exception $e) {
             return back()
                 ->withErrors(['error' => $e->getMessage()]);

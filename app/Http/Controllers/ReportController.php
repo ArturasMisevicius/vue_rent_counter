@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReportExportRequest;
 use App\Models\Invoice;
 use App\Models\MeterReading;
 use App\Models\Property;
@@ -93,16 +94,11 @@ class ReportController extends Controller
         return view('reports.tariff-comparison');
     }
 
-    public function export(Request $request)
+    public function export(ReportExportRequest $request)
     {
-        $validated = $request->validate([
-            'report_type' => ['required', 'in:consumption,revenue,outstanding,meter-readings'],
-            'format' => ['required', 'in:csv,excel,pdf'],
-            'start_date' => ['nullable', 'date'],
-            'end_date' => ['nullable', 'date'],
-        ]);
+        $validated = $request->validated();
 
         // Future: Export implementation
-        return response()->json(['message' => 'Export not yet implemented']);
+        return response()->json(['message' => __('reports.errors.export_pending')]);
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionPlanType;
 use App\Models\Building;
 use App\Models\Property;
 use App\Models\Subscription;
@@ -38,7 +39,7 @@ test('UsersSeeder creates admin accounts with subscriptions', function () {
         ->and($admin1->organization_name)->toBe('Vilnius Properties Ltd')
         ->and($admin1->is_active)->toBeTrue()
         ->and($admin1->subscription)->not->toBeNull()
-        ->and($admin1->subscription->plan_type)->toBe('professional')
+        ->and($admin1->subscription->plan_type)->toBe(\App\Enums\SubscriptionPlanType::PROFESSIONAL->value)
         ->and($admin1->subscription->status)->toBe('active');
 });
 

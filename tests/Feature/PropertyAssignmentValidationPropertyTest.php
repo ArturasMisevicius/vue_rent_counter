@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionPlanType;
 use App\Exceptions\InvalidPropertyAssignmentException;
 use App\Models\Building;
 use App\Models\Property;
@@ -31,7 +32,7 @@ test('tenant assignment to property succeeds when property tenant_id matches adm
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => fake()->randomElement(['basic', 'professional', 'enterprise']),
+        'plan_type' => fake()->randomElement(SubscriptionPlanType::values()),
         'expires_at' => now()->addDays(fake()->numberBetween(30, 365))->toDateString(),
     ];
     
@@ -85,7 +86,7 @@ test('tenant assignment to property fails when property tenant_id does not match
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -96,7 +97,7 @@ test('tenant assignment to property fails when property tenant_id does not match
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -148,7 +149,7 @@ test('tenant reassignment to property succeeds when property tenant_id matches a
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => fake()->randomElement(['basic', 'professional', 'enterprise']),
+        'plan_type' => fake()->randomElement(SubscriptionPlanType::values()),
         'expires_at' => now()->addDays(fake()->numberBetween(30, 365))->toDateString(),
     ];
     
@@ -211,7 +212,7 @@ test('tenant reassignment to property fails when property tenant_id does not mat
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -222,7 +223,7 @@ test('tenant reassignment to property fails when property tenant_id does not mat
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -286,7 +287,7 @@ test('assignTenantToProperty validates property tenant_id matches admin tenant_i
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -297,7 +298,7 @@ test('assignTenantToProperty validates property tenant_id matches admin tenant_i
         'password' => 'password123',
         'name' => fake()->name(),
         'organization_name' => fake()->company(),
-        'plan_type' => 'basic',
+        'plan_type' => SubscriptionPlanType::BASIC->value,
         'expires_at' => now()->addDays(365)->toDateString(),
     ];
     
@@ -369,7 +370,7 @@ test('property assignment validation works across multiple admins and properties
             'password' => 'password123',
             'name' => fake()->name(),
             'organization_name' => fake()->company(),
-            'plan_type' => 'basic',
+            'plan_type' => SubscriptionPlanType::BASIC->value,
             'expires_at' => now()->addDays(365)->toDateString(),
         ];
         

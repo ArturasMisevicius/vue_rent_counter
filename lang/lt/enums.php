@@ -48,4 +48,25 @@ return [
         'apply_day_rate' => 'Taikyti dieninį tarifą savaitgaliais',
         'apply_weekend_rate' => 'Taikyti savaitgalio tarifą',
     ],
+
+    'subscription_plan_type' => [
+        'basic' => 'Pagrindinis',
+        'professional' => 'Profesionalus',
+        'enterprise' => 'Įmonės',
+    ],
+
+    'subscription_status' => [
+        'active' => 'Aktyvi',
+        'expired' => 'Pasibaigusi',
+        'suspended' => 'Sustabdyta',
+        'cancelled' => 'Atšaukta',
+    ],
+
+    'user_assignment_action' => [
+        'created' => 'Sukurta',
+        'assigned' => 'Priskirta',
+        'reassigned' => 'Priskirta iš naujo',
+        'deactivated' => 'Deaktyvuota',
+        'reactivated' => 'Aktyvuota iš naujo',
+    ],
 ];
