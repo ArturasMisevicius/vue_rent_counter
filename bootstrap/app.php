@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'subscription.check' => \App\Http\Middleware\CheckSubscriptionStatus::class,
             'hierarchical.access' => \App\Http\Middleware\EnsureHierarchicalAccess::class,
             'locale' => \App\Http\Middleware\SetLocale::class,
+            'impersonation' => \App\Http\Middleware\HandleImpersonation::class,
         ]);
 
         if (app()->runningUnitTests()) {
