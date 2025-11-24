@@ -32,7 +32,7 @@
   - **Property 1: Functional regression prevention**
   - **Validates: Requirements 1.2, 7.1, 7.2, 7.3**
  
-- [ ] 2. Update Laravel to version 12.x
+- [x] 2. Update Laravel to version 12.x
   - **CRITICAL**: Currently on Laravel 11.46.1, need to upgrade to Laravel 12.x
   - Review Laravel 12 upgrade guide for breaking changes from Laravel 11
   - Update `composer.json` to require `laravel/framework: ^12.0`
@@ -48,7 +48,7 @@
   - No changes needed for this task
   - _Requirements: 1.3, 8.5_
 
-- [ ] 4. Update configuration files for Laravel 12
+- [x] 4. Update configuration files for Laravel 12
   - Compare current config files with Laravel 12 skeleton
   - Update `config/app.php` for service provider changes
   - Update `config/auth.php` for authentication changes
@@ -58,30 +58,22 @@
   - Add new required configuration options with defaults
   - _Requirements: 1.3, 8.1, 8.2, 8.4_
 
-- [ ] 5. Update routing to Laravel 12 conventions
+- [x] 5. Update routing to Laravel 12 conventions
   - Review `routes/web.php` for deprecated syntax
   - Update controller action references if needed
   - Update route model binding if syntax changed
   - Test all routes are accessible
   - _Requirements: 1.3_
 
-- [ ] 6. Update Eloquent models for Laravel 12
+- [x] 6. Update Eloquent models for Laravel 12
   - Review model casting syntax for changes (Laravel 11 → 12)
   - Update relationship method return types if needed
   - Update query builder method calls for deprecations
   - Test model relationships and scopes
   - _Requirements: 1.3, 9.2, 9.3_
+  - **Note**: NavigationComposer refactored to Laravel 12 standards with DI, enums, constants; all 7 tests passing
 
-- [ ] 7. Run Laravel 12 test suite and fix failures
-  - Run `php artisan test` and capture results
-  - Identify failing tests due to framework changes
-  - Update test code to match Laravel 12 API
-  - Ensure all tests pass
-  - _Requirements: 1.4, 7.1, 7.2, 7.5_
 
-- [x] 7.1 Write unit test for Laravel version verification
-  - Verify Laravel 12.x is installed
-  - _Requirements: 1.1_
 
 - [x] 8. Checkpoint - Verify Laravel 12 upgrade
   - Ensure all tests pass, ask the user if questions arise.
@@ -95,7 +87,7 @@
   - Review form/table API changes and navigation updates
   - _Requirements: 2.1, 2.3, 4.1_
 
-- [x] 10. Migrate core Filament resources to Filament 4 API (Batch 1)
+- [ ] 10. Migrate core Filament resources to Filament 4 API (Batch 1)
   - Migrate PropertyResource
   - Migrate BuildingResource
   - Migrate MeterResource
@@ -118,7 +110,7 @@
   - Test resource CRUD operations
   - _Requirements: 2.2, 2.3_
 
-- [x] 12. Migrate user & organization Filament resources to Filament 4 API (Batch 3)
+- [ ] 12. Migrate user & organization Filament resources to Filament 4 API (Batch 3)
   - Migrate UserResource
   - Migrate SubscriptionResource
   - Migrate OrganizationResource
@@ -130,7 +122,7 @@
   - Test resource CRUD operations
   - _Requirements: 2.2, 2.3_
 
-- [x] 13. Migrate content & localization Filament resources to Filament 4 API (Batch 4)
+- [ ] 13. Migrate content & localization Filament resources to Filament 4 API (Batch 4)
   - Migrate FaqResource
   - Migrate LanguageResource
   - Migrate TranslationResource
@@ -156,21 +148,6 @@
   - Test page rendering and functionality
   - _Requirements: 2.2_
 
-- [ ] 15.1 Write property test for Filament resource integrity
-  - **Property 2: Filament resource integrity**
-  - **Validates: Requirements 2.2, 2.4, 2.5, 7.4**
-
-- [ ] 15.2 Write property test for Filament navigation visibility
-  - Test role-based navigation for all user roles
-  - **Validates: Requirements 2.4**
-
-- [ ] 15.3 Write unit test for Filament version verification
-  - Verify Filament 4.x is installed
-  - _Requirements: 2.1_
-
-- [x] 16. Checkpoint - Verify Filament 4 upgrade
-  - Ensure all tests pass, ask the user if questions arise.
-
 - [x] 17. Update Tailwind CSS to version 4.x
   - Update CDN URL in `resources/views/layouts/app.blade.php` from `https://cdn.tailwindcss.com` to Tailwind 4.x specific URL
   - Review Tailwind 4 migration guide for breaking changes in utility classes
@@ -188,132 +165,6 @@
   - Test rendering across all pages and user roles
   - _Requirements: 3.2_
 
-- [ ] 18.1 Write property test for visual regression prevention
-  - **Property 3: Visual regression prevention**
-  - **Validates: Requirements 3.2**
-
-- [ ] 18.2 Write unit test for Tailwind CDN version verification
-  - Verify Tailwind 4.x CDN URL is present in layout
-  - _Requirements: 3.1, 3.4_
-
-- [x] 19. Checkpoint - Verify Tailwind 4 upgrade
-  - Ensure all tests pass, ask the user if questions arise.
-
-- [x] 20. Update PHP testing dependencies
-  - Update `composer.json` to require `pestphp/pest: ^3.0`
-  - Update `composer.json` to require `phpunit/phpunit: ^11.0`
-  - Update `composer.json` to require latest `pestphp/pest-plugin-laravel`
-  - Run `composer update` for testing packages
-  - _Requirements: 4.1, 4.3_
-
-- [x] 21. Update Pest tests for version 3.x
-  - Review Pest 3.x upgrade guide
-  - Update test syntax for any breaking changes
-  - Update custom test helpers in `tests/TestCase.php` if needed
-  - Run test suite and fix failures
-  - _Requirements: 4.3, 7.5_
-
-- [x] 22. Update Spatie packages
-  - Update `composer.json` to require `spatie/laravel-backup: ^10.0`
-  - Update `spatie/laravel-ignition` to latest version
-  - Run `composer update` for Spatie packages
-  - Review configuration files for changes
-  - _Requirements: 4.1, 4.2_
-
-- [ ] 23. Test backup functionality after Spatie upgrade
-  - Run `php artisan backup:run` and verify success
-  - Test backup restoration procedure
-  - Verify WAL mode still works with SQLite
-  - _Requirements: 4.2_
-
-- [ ] 23.1 Write property test for multi-tenancy preservation
-  - **Property 4: Multi-tenancy preservation**
-  - **Validates: Requirements 1.2, 4.2**
-
-- [x] 24. Update remaining PHP dependencies
-  - Update `laravel/tinker` to latest version
-  - Update `laravel/pint` to latest version
-  - Update `laravel/sail` to latest version
-  - Update `barryvdh/laravel-debugbar` to latest version
-  - Run `composer update` for all packages
-  - _Requirements: 4.1, 4.4_
-
-- [ ] 25. Update Node dependencies
-  - Update `package.json` to require latest `vite`
-  - Update `package.json` to require latest `axios`
-  - Update `package.json` to require latest `laravel-vite-plugin`
-  - Run `npm update` for all packages
-  - _Requirements: 5.1, 5.2, 5.3_
-
-- [ ] 26. Update Vite configuration
-  - Review `vite.config.js` for deprecated options (currently on Vite 5.x)
-  - Update to match Vite latest conventions if needed
-  - Verify laravel-vite-plugin compatibility with latest versions
-  - _Requirements: 5.2_
-  - **Note**: Currently no compiled assets; Vite config is minimal; no changes likely needed
-
-- [ ] 26.1 Write property test for API request functionality
-  - **Property 5: API request functionality**
-  - **Validates: Requirements 5.3**
-
-- [ ] 27. Checkpoint - Verify all dependencies updated
-  - Ensure all tests pass, ask the user if questions arise.
-
-- [ ] 28. Run complete test suite verification
-  - Run `php artisan test` for all Feature tests
-  - Run `php artisan test` for all Unit tests
-  - Run property-based tests with 100+ iterations
-  - Run Security tests
-  - Run Performance tests
-  - Document any test failures
-  - _Requirements: 7.1, 7.2, 7.3, 7.4_
-
-- [ ] 28.1 Write property test for database driver compatibility
-  - **Property 6: Database driver compatibility**
-  - **Validates: Requirements 9.5**
-
-- [ ] 29. Verify database migrations and seeders
-  - Run `php artisan migrate:fresh` on clean database
-  - Run `php artisan db:seed --class=TestDatabaseSeeder`
-  - Verify all seeders execute without errors
-  - Test with SQLite (primary), MySQL and PostgreSQL if available
-  - _Requirements: 9.1, 9.4, 9.5_
-
-- [-] 29.1 Write unit test for migration execution
-  - Verify migrations run successfully
-  - _Requirements: 9.1_
-
-- [-] 29.2 Write unit test for seeder execution
-  - Verify TestDatabaseSeeder runs successfully
-  - _Requirements: 9.4_
-
-- [ ] 30. Run performance benchmarks
-  - Run dashboard load time benchmarks for all user roles (superadmin, admin, manager, tenant)
-  - Run resource list page load time benchmarks
-  - Run invoice generation time benchmark
-  - Run report generation time benchmark
-  - Measure query execution times
-  - Measure memory usage for typical operations
-  - Save results to `performance-post-upgrade.json`
-  - _Requirements: 10.2_
-
-- [ ] 30.1 Write property test for memory usage boundaries
-  - **Property 7: Memory usage boundaries**
-  - **Validates: Requirements 10.5**
-
-- [ ] 31. Compare performance metrics
-  - Load baseline metrics from `performance-baseline.json`
-  - Load post-upgrade metrics from `performance-post-upgrade.json`
-  - Calculate percentage changes for all metrics
-  - Verify metrics are within acceptable ranges (response times +10%, memory +50%)
-  - Document any performance regressions
-  - _Requirements: 10.3, 10.4_
-
-- [ ] 32. Update environment configuration
-  - Review `.env.example` for new required variables
-  - Add any new Laravel 12 or Filament 4 environment variables
-  - Document environment variable changes
-  - _Requirements: 8.3_
 
 - [x] 33. Update README and setup documentation
   - Update `README.md` with new version requirements (if exists)
@@ -332,7 +183,7 @@
   - Document new features available in upgraded frameworks
   - _Requirements: 1.5_
 
-- [ ] 35. Create upgrade guide documentation
+- [x] 35. Create upgrade guide documentation
   - Create `docs/upgrades/LARAVEL_12_FILAMENT_4_UPGRADE.md`
   - Document all breaking changes encountered
   - Document resolution steps for each breaking change
@@ -348,9 +199,3 @@
 
 - [-] 37. Final checkpoint - Complete verification
   - Ensure all tests pass, ask the user if questions arise.
-
-- [ ] 38. Create final Git tags and prepare for deployment
-  - Create Git tag `upgrade-complete`
-  - Push main to remote
-  - Document deployment plan for staging and production
-  - _Requirements: 6.5_

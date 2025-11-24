@@ -185,7 +185,7 @@ return [
         'events'          => env('DEBUGBAR_COLLECTORS_EVENTS', true),           // All events fired
         'default_request' => env('DEBUGBAR_COLLECTORS_DEFAULT_REQUEST', true),  // Regular or special Symfony request logger
         'logs'            => env('DEBUGBAR_COLLECTORS_LOGS', true),             // Add the latest log messages
-        'files'           => env('DEBUGBAR_COLLECTORS_FILES', true),            // Show the included files
+        'files'           => env('DEBUGBAR_COLLECTORS_FILES', false),            // Show the included files (disabled for Laravel 12 compatibility)
         'config'          => env('DEBUGBAR_COLLECTORS_CONFIG', true),           // Display config settings
         'cache'           => env('DEBUGBAR_COLLECTORS_CACHE', true),            // Display cache events
         'models'          => env('DEBUGBAR_COLLECTORS_MODELS', true),           // Display models

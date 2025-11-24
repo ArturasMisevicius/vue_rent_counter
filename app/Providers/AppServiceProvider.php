@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Auth\Events\Authenticated;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -49,6 +50,11 @@ class AppServiceProvider extends ServiceProvider
 
         // Register BillingCalculatorFactory
         $this->app->singleton(\App\Services\BillingCalculation\BillingCalculatorFactory::class);
+
+        // Laravel 12 no longer binds the legacy 'files' service alias; add it for packages (Debugbar)
+        if (! $this->app->bound('files')) {
+            $this->app->singleton('files', fn () => new Filesystem());
+        }
     }
 
     /**
@@ -56,6 +62,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register view composers
+        \Illuminate\Support\Facades\View::composer(
+            'layouts.app',
+            \App\View\Composers\NavigationComposer::class
+        );
+
         // Register Eloquent observers
         \App\Models\MeterReading::observe(\App\Observers\MeterReadingObserver::class);
 

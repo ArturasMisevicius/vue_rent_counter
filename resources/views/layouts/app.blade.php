@@ -36,13 +36,6 @@
                     <!-- Desktop Navigation -->
                     <div class="hidden md:flex md:items-center md:space-x-1">
                         @auth
-                            @php
-                                $userRole = auth()->user()->role->value;
-                                $currentRoute = Route::currentRouteName();
-                                $activeClass = 'bg-gradient-to-r from-indigo-500 to-sky-500 text-white shadow-md shadow-indigo-500/30';
-                                $inactiveClass = 'text-slate-700';
-                            @endphp
-
                             {{-- Superadmin Navigation --}}
                             @if($userRole === 'superadmin')
                                 <a href="{{ route('superadmin.dashboard') }}" class="{{ str_starts_with($currentRoute, 'superadmin.dashboard') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
@@ -134,15 +127,6 @@
                     </div>
 
                     @auth
-                        @php
-                            $userRole = $userRole ?? auth()->user()->role->value;
-                            $canSwitchLocale = Route::has('locale.set');
-                            $showTopLocaleSwitcher = $canSwitchLocale && !in_array($userRole, ['manager', 'tenant', 'superadmin'], true);
-                            $languages = $showTopLocaleSwitcher
-                                ? \App\Models\Language::query()->where('is_active', true)->orderBy('display_order')->get()
-                                : collect();
-                            $currentLocale = app()->getLocale();
-                        @endphp
                         <div class="hidden md:flex md:items-center md:gap-3">
                             @if($showTopLocaleSwitcher)
                                 <form method="POST" action="{{ route('locale.set') }}">
@@ -184,13 +168,6 @@
             @auth
             <div x-show="mobileMenuOpen" x-transition class="md:hidden bg-white/95 backdrop-blur border-t border-slate-200 shadow-lg">
                 <div class="space-y-1 px-4 pb-4 pt-3">
-                    @php
-                        $userRole = $userRole ?? auth()->user()->role->value;
-                        $currentRoute = Route::currentRouteName();
-                        $mobileActiveClass = 'bg-gradient-to-r from-indigo-500 to-sky-500 text-white shadow-indigo-500/30';
-                        $mobileInactiveClass = 'text-slate-700';
-                    @endphp
-
                     {{-- Superadmin Mobile Navigation --}}
                     @if($userRole === 'superadmin')
                         <a href="{{ route('superadmin.dashboard') }}" class="{{ str_starts_with($currentRoute, 'superadmin.dashboard') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
