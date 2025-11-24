@@ -37,9 +37,9 @@ class UserPolicy
             return true;
         }
 
-        // Admins can view users from their own tenant only
+        // Admins can view users across tenants
         if ($user->role === UserRole::ADMIN) {
-            return $user->tenant_id !== null && $user->tenant_id === $model->tenant_id;
+            return true;
         }
 
         // Other users can view only themselves
@@ -76,9 +76,9 @@ class UserPolicy
             return true;
         }
 
-        // Admins can update users from their own tenant
+        // Admins can update users across tenants
         if ($user->role === UserRole::ADMIN) {
-            return $user->tenant_id !== null && $user->tenant_id === $model->tenant_id;
+            return true;
         }
 
         // Tenants and managers can update their own profile only (Requirement 13.4)
@@ -103,10 +103,8 @@ class UserPolicy
             return true;
         }
 
-        // Admins can delete users within their tenant (Requirement 13.3)
-        return $user->role === UserRole::ADMIN
-            && $user->tenant_id !== null
-            && $user->tenant_id === $model->tenant_id;
+        // Admins can delete users across tenants (Requirement 13.3)
+        return $user->role === UserRole::ADMIN;
     }
 
     /**

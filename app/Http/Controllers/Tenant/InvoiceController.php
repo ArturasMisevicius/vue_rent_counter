@@ -99,12 +99,12 @@ class InvoiceController extends Controller
         
         // Verify property_id filtering - tenant can only view invoices for their assigned property
         if (!$tenant || $invoice->tenant_renter_id !== $tenant->id) {
-            abort(403, 'You do not have permission to view this invoice.');
+            abort(404);
         }
         
         // Additional check: ensure invoice is for the assigned property
         if ($invoice->tenant && $invoice->tenant->property_id !== $property?->id) {
-            abort(403, 'You do not have permission to view this invoice.');
+            abort(404);
         }
 
         $invoice->load(['items', 'tenant.property']);
@@ -150,12 +150,12 @@ class InvoiceController extends Controller
         
         // Verify property_id filtering - tenant can only download PDFs for their assigned property
         if (!$tenant || $invoice->tenant_renter_id !== $tenant->id) {
-            abort(403, __('invoices.errors.unauthorized_download'));
+            abort(404);
         }
         
         // Additional check: ensure invoice is for the assigned property
         if ($invoice->tenant && $invoice->tenant->property_id !== $property?->id) {
-            abort(403, __('invoices.errors.unauthorized_download'));
+            abort(404);
         }
 
         // Render receipt view; for now, return HTML until PDF generation is wired

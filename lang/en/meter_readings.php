@@ -19,6 +19,31 @@ return [
         'correct' => 'Correct Reading',
     ],
 
+    'form_component' => [
+        'title' => 'Enter Meter Reading',
+        'select_meter' => 'Select Meter',
+        'meter_placeholder' => '-- Select a meter --',
+        'select_provider' => 'Select Provider',
+        'provider_placeholder' => '-- Select a provider --',
+        'select_tariff' => 'Select Tariff',
+        'tariff_placeholder' => '-- Select a tariff --',
+        'previous' => 'Previous Reading',
+        'date_label' => 'Date:',
+        'value_label' => 'Value:',
+        'reading_date' => 'Reading Date',
+        'reading_value' => 'Reading Value',
+        'day_zone' => 'Day Zone Reading',
+        'night_zone' => 'Night Zone Reading',
+        'consumption' => 'Consumption',
+        'units' => 'units',
+        'estimated_charge' => 'Estimated Charge',
+        'rate' => 'Rate:',
+        'per_unit' => 'per unit',
+        'reset' => 'Reset',
+        'submit' => 'Submit Reading',
+        'submitting' => 'Submitting...',
+    ],
+
     'tables' => [
         'date' => 'Date',
         'meter' => 'Meter',
@@ -26,6 +51,10 @@ return [
         'zone' => 'Zone',
         'entered_by' => 'Entered By',
         'actions' => 'Actions',
+        'property' => 'Property',
+        'meter_type' => 'Meter Type',
+        'consumption' => 'Consumption',
+        'created_at' => 'Created At',
     ],
 
     'labels' => [
@@ -40,6 +69,14 @@ return [
         'new_value' => 'New Value',
         'reason' => 'Reason',
         'changed_by' => 'Changed By',
+        'property' => 'Property',
+        'meter' => 'Meter',
+        'consumption' => 'Consumption',
+        'from_date' => 'From Date',
+        'until_date' => 'Until Date',
+        'meter_type' => 'Meter Type',
+        'reading_value' => 'Reading Value',
+        'reading_id' => 'Reading #:id',
     ],
 
     'empty' => [
@@ -48,6 +85,29 @@ return [
     'recent_empty' => 'No recent readings',
 
     'na' => 'N/A',
+    'units' => 'units',
+
+    'helper_text' => [
+        'select_property_first' => 'Select a property first',
+        'zone_optional' => 'Optional: For multi-zone meters (e.g., day/night)',
+        'change_reason' => 'Explain why this reading is being modified (minimum :min characters)',
+    ],
+
+    'filters' => [
+        'from' => 'From Date',
+        'until' => 'Until Date',
+        'meter_type' => 'Meter Type',
+        'indicator_from' => 'From: :date',
+        'indicator_until' => 'Until: :date',
+    ],
+
+    'modals' => [
+        'bulk_delete' => [
+            'title' => 'Delete Meter Readings',
+            'description' => 'Are you sure you want to delete these meter readings? This action cannot be undone.',
+            'confirm' => 'Yes, delete them',
+        ],
+    ],
 
     'manager' => [
         'index' => [
@@ -83,6 +143,47 @@ return [
                 'day' => 'Day Rate',
                 'night' => 'Night Rate',
             ],
+        ],
+        'edit' => [
+            'title' => 'Correct Meter Reading',
+            'subtitle' => 'Update reading with audit trail',
+            'breadcrumb' => 'Correct',
+            'current' => [
+                'title' => 'Current Reading',
+                'meter' => 'Meter',
+                'value' => 'Current Value',
+                'date' => 'Reading Date',
+            ],
+            'form' => [
+                'title' => 'New Values',
+                'reading_date' => 'Reading Date',
+                'value' => 'Reading Value',
+                'placeholder' => '1234.56',
+                'zone_label' => 'Time-of-Use Zone',
+                'zone_options' => [
+                    'day' => 'Day Rate',
+                    'night' => 'Night Rate',
+                ],
+                'zone_placeholder' => 'Select zone...',
+                'reason_label' => 'Correction Reason',
+                'reason_placeholder' => 'Explain why this reading is being corrected...',
+            ],
+            'audit_notice' => [
+                'title' => 'Audit Trail',
+                'body' => 'This correction will be recorded in the audit trail. The original value and your reason for the change will be preserved.',
+            ],
+            'actions' => [
+                'cancel' => 'Cancel',
+                'save' => 'Save Correction',
+            ],
+        ],
+        'mobile' => [
+            'meter' => 'Meter:',
+            'value' => 'Value:',
+            'zone' => 'Zone:',
+        ],
+        'captions' => [
+            'list' => 'Meter readings list',
         ],
     ],
 
@@ -135,8 +236,8 @@ return [
         ],
         'change_reason' => [
             'required' => 'Change reason is required for audit trail',
-            'min' => 'Change reason must be at least 10 characters',
-            'max' => 'Change reason must not exceed 500 characters',
+            'min' => 'Change reason must be at least :min characters',
+            'max' => 'Change reason must not exceed :max characters',
         ],
         'zone' => [
             'string' => 'Zone must be text.',

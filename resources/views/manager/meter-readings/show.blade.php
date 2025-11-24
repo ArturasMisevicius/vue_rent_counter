@@ -4,13 +4,7 @@
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
-    <x-breadcrumbs>
-        <x-breadcrumb-item href="{{ route('manager.dashboard') }}">{{ __('app.nav.dashboard') }}</x-breadcrumb-item>
-        <x-breadcrumb-item href="{{ route('manager.meter-readings.index') }}">{{ __('meter_readings.headings.index') }}</x-breadcrumb-item>
-        <x-breadcrumb-item :active="true">{{ __('meter_readings.headings.show') }} #{{ $meterReading->id }}</x-breadcrumb-item>
-    </x-breadcrumbs>
-
-    <div class="sm:flex sm:items-center">
+<div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
             <h1 class="text-2xl font-semibold text-slate-900">{{ __('meter_readings.headings.show') }} #{{ $meterReading->id }}</h1>
             <p class="mt-2 text-sm text-slate-700">{{ __('meter_readings.manager.show.description') }}</p>
@@ -130,7 +124,7 @@
                             {{ $audit->change_reason }}
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                            {{ $audit->changedByUser->name ?? 'N/A' }}
+                            {{ $audit->changedByUser->name ?? __('app.common.na') }}
                         </td>
                     </tr>
                     @endforeach

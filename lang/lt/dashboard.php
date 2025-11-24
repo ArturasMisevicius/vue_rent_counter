@@ -23,6 +23,8 @@ return [
             'view_meters_desc' => 'Valdyti komunalinius skaitiklius',
             'view_reports' => 'Peržiūrėti ataskaitas',
             'view_reports_desc' => 'Analitika ir įžvalgos',
+            'enter_reading_desc' => 'Fiksuokite šio mėnesio suvartojimą.',
+            'generate_invoice_desc' => 'Kurti ir patvirtinti sąskaitas.',
         ],
         'sections' => [
             'operations' => 'Operatyvinės užduotys',
@@ -44,6 +46,28 @@ return [
     ],
 
     'admin' => [
+        'title' => 'Administratoriaus skydelis',
+        'portfolio_subtitle' => 'Portfelio apžvalga ir statistika',
+        'system_subtitle' => 'Sistemos apžvalga ir statistika',
+        'banner' => [
+            'no_subscription_title' => 'Nėra aktyvios prenumeratos',
+            'no_subscription_body' => 'Neturite aktyvios prenumeratos. Susisiekite su palaikymu, kad suaktyvintumėte paskyrą.',
+            'expired_title' => 'Prenumerata baigėsi',
+            'expired_body' => 'Jūsų prenumerata baigėsi :date. Atnaujinkite, kad galėtumėte toliau valdyti objektus.',
+            'expiring_title' => 'Prenumerata netrukus baigsis',
+            'expiring_body' => 'Prenumerata baigsis po :days, :date. Atnaujinkite, kad išvengtumėte paslaugų sutrikimų.',
+            'renew_now' => 'Atnaujinti dabar',
+            'renew' => 'Atnaujinti prenumeratą',
+            'days' => '{1} :count dieną|{2} :count dienas|[3,9]:count dienų|[10,*]:count dienų',
+        ],
+        'subscription_card' => [
+            'title' => 'Prenumeratos būsena',
+            'plan_type' => 'Plano tipas',
+            'expires' => 'Baigiasi',
+            'properties' => 'Objektai',
+            'approaching_limit' => 'Artėjate prie limito',
+            'tenants' => 'Nuomininkai',
+        ],
         'stats' => [
             'total_meter_readings' => 'Iš viso rodmenų',
             'total_users' => 'Iš viso vartotojų',
@@ -88,6 +112,7 @@ return [
             'manage_users_title' => 'Valdyti vartotojus',
             'manage_users_desc' => 'Vartotojų paskyros ir rolės',
         ],
+        'org_dashboard' => ':name skydelis',
     ],
 
     'tenant' => [
@@ -145,6 +170,67 @@ return [
             'meters_desc' => 'Peržiūrėkite suvartojimo istoriją',
             'property_title' => 'Mano objektas',
             'property_desc' => 'Objekto detalės',
+        ],
+    ],
+
+    'widgets' => [
+        'admin' => [
+            'total_properties' => [
+                'label' => 'Viso objektų',
+                'description' => 'Objektai jūsų portfelyje',
+            ],
+            'total_buildings' => [
+                'label' => 'Viso pastatų',
+                'description' => 'Tvarkomi pastatai',
+            ],
+            'active_tenants' => [
+                'label' => 'Aktyvūs nuomininkai',
+                'description' => 'Aktyvios nuomininkų paskyros',
+            ],
+            'draft_invoices' => [
+                'label' => 'Juodraštinės sąskaitos',
+                'description' => 'Sąskaitos laukia užbaigimo',
+            ],
+            'pending_readings' => [
+                'label' => 'Laukiantys rodmenys',
+                'description' => 'Patvirtintini skaitiklių rodmenys',
+            ],
+            'total_revenue' => [
+                'label' => 'Bendra pajamų suma (šį mėn.)',
+                'description' => 'Pajamos iš patvirtintų sąskaitų',
+            ],
+        ],
+        'manager' => [
+            'total_properties' => [
+                'label' => 'Viso objektų',
+                'description' => 'Tvarkomi objektai',
+            ],
+            'total_buildings' => [
+                'label' => 'Viso pastatų',
+                'description' => 'Tvarkomi pastatai',
+            ],
+            'pending_readings' => [
+                'label' => 'Laukiantys rodmenys',
+                'description' => 'Patvirtintini skaitiklių rodmenys',
+            ],
+            'draft_invoices' => [
+                'label' => 'Juodraštinės sąskaitos',
+                'description' => 'Sąskaitos laukia užbaigimo',
+            ],
+        ],
+        'tenant' => [
+            'property' => [
+                'label' => 'Jūsų objektas',
+                'description' => 'Priskirtas objektas',
+            ],
+            'invoices' => [
+                'label' => 'Jūsų sąskaitos',
+                'description' => 'Visos sąskaitos',
+            ],
+            'unpaid' => [
+                'label' => 'Neapmokėtos sąskaitos',
+                'description' => 'Sąskaitos, laukiančios apmokėjimo',
+            ],
         ],
     ],
 ];

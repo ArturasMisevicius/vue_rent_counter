@@ -5,12 +5,7 @@
 @section('content')
 @php($propertyTypeLabels = \App\Enums\PropertyType::labels())
 <div class="px-4 sm:px-6 lg:px-8">
-    <x-breadcrumbs>
-        <x-breadcrumb-item href="{{ route('manager.dashboard') }}">{{ __('app.nav.dashboard') }}</x-breadcrumb-item>
-        <x-breadcrumb-item :active="true">{{ __('app.nav.properties') }}</x-breadcrumb-item>
-    </x-breadcrumbs>
-
-    <div class="sm:flex sm:items-center">
+<div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
             <h1 class="text-2xl font-semibold text-slate-900">{{ __('properties.manager.index.title') }}</h1>
             <p class="mt-2 text-sm text-slate-700">{{ __('properties.manager.index.description') }}</p>
@@ -127,14 +122,14 @@
                             </svg>
                             <span>{{ $property->building->address }}</span>
                         </a>
-                    @else
-                        <span class="flex items-center gap-1.5 text-slate-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
+                       @else
+                       <span class="flex items-center gap-1.5 text-slate-400">
+                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                           </svg>
                             <span>{{ __('meter_readings.na') }}</span>
-                        </span>
-                    @endif
+                       </span>
+                   @endif
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                     <div class="flex items-center gap-1.5">
@@ -221,7 +216,7 @@
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                                     </svg>
-                                    <span>{{ $property->building?->address ?? 'N/A' }}</span>
+                                    <span>{{ $property->building?->address ?? __('app.common.na') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -247,7 +242,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                             </svg>
-                            <span>View</span>
+                            <span>{{ __('properties.actions.view') }}</span>
                         </a>
                         @endcan
                         @can('update', $property)
@@ -255,16 +250,16 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                             </svg>
-                            <span>Edit</span>
+                            <span>{{ __('properties.actions.edit') }}</span>
                         </a>
                         @endcan
                     </div>
                 </div>
             @empty
                 <div class="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-600 shadow-sm">
-                    No properties found.
+                    {{ __('properties.manager.index.empty.text') }}
                     @can('create', App\Models\Property::class)
-                        <a href="{{ route('manager.properties.create') }}" class="text-indigo-700 font-semibold">Create one now</a>
+                        <a href="{{ route('manager.properties.create') }}" class="text-indigo-700 font-semibold">{{ __('properties.manager.index.empty.cta') }}</a>
                     @endcan
                 </div>
             @endforelse

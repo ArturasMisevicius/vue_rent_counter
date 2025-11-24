@@ -36,9 +36,12 @@ class BuildingPolicy
             return true;
         }
 
-        // Admins and managers can view buildings within their tenant
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
-            // Verify building belongs to their tenant_id
+        // Admins can view buildings across tenants; managers remain tenant-scoped
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        if ($user->role === UserRole::MANAGER) {
             return $building->tenant_id === $user->tenant_id;
         }
 
@@ -77,8 +80,12 @@ class BuildingPolicy
             return true;
         }
 
-        // Admins and managers can update buildings within their tenant
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Admins can update buildings across tenants; managers remain tenant-scoped
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        if ($user->role === UserRole::MANAGER) {
             return $building->tenant_id === $user->tenant_id;
         }
 
@@ -97,9 +104,9 @@ class BuildingPolicy
             return true;
         }
 
-        // Admins can delete buildings within their tenant (Requirement 4.5, 13.3)
+        // Admins can delete buildings across tenants (Requirement 4.5, 13.3)
         if ($user->role === UserRole::ADMIN) {
-            return $building->tenant_id === $user->tenant_id;
+            return true;
         }
 
         return false;
@@ -117,8 +124,12 @@ class BuildingPolicy
             return true;
         }
 
-        // Admins and managers can restore buildings within their tenant (Requirement 4.5, 13.3)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Admins can restore buildings across tenants; managers remain tenant-scoped (Requirement 4.5, 13.3)
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        if ($user->role === UserRole::MANAGER) {
             return $building->tenant_id === $user->tenant_id;
         }
 

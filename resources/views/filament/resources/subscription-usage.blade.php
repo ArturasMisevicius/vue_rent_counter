@@ -11,12 +11,12 @@
     @endphp
 
     <div>
-        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Resource Usage</h3>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">{{ __('filament.resources.subscription_usage.usage_title') }}</h3>
         
         <!-- Properties Usage -->
         <div class="mb-6">
             <div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Properties</span>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('filament.resources.subscription_usage.properties') }}</span>
                 <span class="text-sm text-gray-600 dark:text-gray-400">
                     {{ $propertiesCount }} / {{ $record->max_properties }}
                     <span class="text-xs">({{ $propertiesPercentage }}%)</span>
@@ -33,7 +33,7 @@
             </div>
             @if($propertiesPercentage >= 90)
                 <p class="mt-1 text-xs text-red-600 dark:text-red-400">
-                    ⚠️ Approaching limit - consider upgrading plan
+                    {{ __('filament.resources.subscription_usage.approaching_limit') }}
                 </p>
             @endif
         </div>
@@ -41,7 +41,7 @@
         <!-- Tenants Usage -->
         <div class="mb-6">
             <div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Tenants</span>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('filament.resources.subscription_usage.tenants') }}</span>
                 <span class="text-sm text-gray-600 dark:text-gray-400">
                     {{ $tenantsCount }} / {{ $record->max_tenants }}
                     <span class="text-xs">({{ $tenantsPercentage }}%)</span>
@@ -58,23 +58,23 @@
             </div>
             @if($tenantsPercentage >= 90)
                 <p class="mt-1 text-xs text-red-600 dark:text-red-400">
-                    ⚠️ Approaching limit - consider upgrading plan
+                    {{ __('filament.resources.subscription_usage.approaching_limit') }}
                 </p>
             @endif
         </div>
     </div>
 
     <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Subscription Details</h3>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">{{ __('filament.resources.subscription_usage.subscription_details') }}</h3>
         <dl class="grid grid-cols-2 gap-4">
             <div>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Plan Type</dt>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('filament.resources.subscription_usage.plan_type') }}</dt>
                 <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
                     {{ enum_label($record->plan_type, \App\Enums\SubscriptionPlanType::class) }}
                 </dd>
             </div>
             <div>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</dt>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('filament.resources.subscription_usage.status') }}</dt>
                 <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
                     <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset
                         @if($record->status === \App\Enums\SubscriptionStatus::ACTIVE->value) bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20
@@ -87,21 +87,21 @@
                 </dd>
             </div>
             <div>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Start Date</dt>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('filament.resources.subscription_usage.start_date') }}</dt>
                 <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
                     {{ $record->starts_at->format('M d, Y') }}
                 </dd>
             </div>
             <div>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Expiry Date</dt>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('filament.resources.subscription_usage.expiry_date') }}</dt>
                 <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
                     {{ $record->expires_at->format('M d, Y') }}
                     @if($record->daysUntilExpiry() > 0)
-                        <span class="text-xs text-gray-500">({{ $record->daysUntilExpiry() }} days left)</span>
+                        <span class="text-xs text-gray-500">{{ __('filament.resources.subscription_usage.days_left', ['days' => $record->daysUntilExpiry()]) }}</span>
                     @elseif($record->daysUntilExpiry() === 0)
-                        <span class="text-xs text-yellow-600">( expires today)</span>
+                        <span class="text-xs text-yellow-600">{{ __('filament.resources.subscription_usage.expires_today') }}</span>
                     @else
-                        <span class="text-xs text-red-600">(expired {{ abs($record->daysUntilExpiry()) }} days ago)</span>
+                        <span class="text-xs text-red-600">{{ __('filament.resources.subscription_usage.expired_days_ago', ['days' => abs($record->daysUntilExpiry())]) }}</span>
                     @endif
                 </dd>
             </div>
@@ -118,10 +118,10 @@
                 </div>
                 <div class="ml-3">
                     <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                        Resource Limit Warning
+                        {{ __('filament.resources.subscription_usage.limit_warning_title') }}
                     </h3>
                     <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
-                        <p>This organization is approaching their subscription limits. Consider upgrading their plan to avoid service interruption.</p>
+                        <p>{{ __('filament.resources.subscription_usage.limit_warning_body') }}</p>
                     </div>
                 </div>
             </div>

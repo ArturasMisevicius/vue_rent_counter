@@ -29,7 +29,7 @@ class ItemsRelationManager extends RelationManager
         return $schema
             ->schema([
                 Forms\Components\TextInput::make('description')
-                    ->label('Description')
+                    ->label(__('invoices.admin.items.description'))
                     ->required()
                     ->maxLength(255)
                     ->disabled(fn (): bool => $this->getOwnerRecord()->isFinalized())
@@ -39,7 +39,7 @@ class ItemsRelationManager extends RelationManager
                     ]),
                 
                 Forms\Components\TextInput::make('quantity')
-                    ->label('Quantity')
+                    ->label(__('invoices.admin.items.quantity'))
                     ->required()
                     ->numeric()
                     ->minValue(0)
@@ -52,7 +52,7 @@ class ItemsRelationManager extends RelationManager
                     ]),
                 
                 Forms\Components\TextInput::make('unit')
-                    ->label('Unit')
+                    ->label(__('invoices.admin.items.unit'))
                     ->required()
                     ->maxLength(50)
                     ->disabled(fn (): bool => $this->getOwnerRecord()->isFinalized())
@@ -62,11 +62,11 @@ class ItemsRelationManager extends RelationManager
                     ]),
                 
                 Forms\Components\TextInput::make('unit_price')
-                    ->label('Unit Price')
+                    ->label(__('invoices.admin.items.unit_price'))
                     ->required()
                     ->numeric()
                     ->minValue(0)
-                    ->prefix('€')
+                    ->prefix(__('app.units.euro'))
                     ->step(0.0001)
                     ->disabled(fn (): bool => $this->getOwnerRecord()->isFinalized())
                     ->validationMessages([
@@ -76,11 +76,11 @@ class ItemsRelationManager extends RelationManager
                     ]),
                 
                 Forms\Components\TextInput::make('total')
-                    ->label('Total')
+                    ->label(__('invoices.admin.items.total'))
                     ->required()
                     ->numeric()
                     ->minValue(0)
-                    ->prefix('€')
+                    ->prefix(__('app.units.euro'))
                     ->step(0.01)
                     ->disabled(fn (): bool => $this->getOwnerRecord()->isFinalized())
                     ->validationMessages([
@@ -90,10 +90,10 @@ class ItemsRelationManager extends RelationManager
                     ]),
                 
                 Forms\Components\Textarea::make('meter_reading_snapshot')
-                    ->label('Meter Reading Snapshot (JSON)')
+                    ->label(__('invoices.admin.items.snapshot'))
                     ->rows(3)
                     ->disabled(fn (): bool => $this->getOwnerRecord()->isFinalized())
-                    ->helperText('Snapshotted meter reading data in JSON format'),
+                    ->helperText(__('invoices.admin.items.snapshot_helper')),
             ]);
     }
 
@@ -103,33 +103,33 @@ class ItemsRelationManager extends RelationManager
             ->recordTitleAttribute('description')
             ->columns([
                 Tables\Columns\TextColumn::make('description')
-                    ->label('Description')
+                    ->label(__('invoices.admin.items.description'))
                     ->searchable()
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('quantity')
-                    ->label('Quantity')
+                    ->label(__('invoices.admin.items.quantity'))
                     ->numeric(decimalPlaces: 2)
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('unit')
-                    ->label('Unit')
+                    ->label(__('invoices.admin.items.unit'))
                     ->searchable(),
                 
                 Tables\Columns\TextColumn::make('unit_price')
-                    ->label('Unit Price')
+                    ->label(__('invoices.admin.items.unit_price'))
                     ->money('EUR', divideBy: 1)
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('total')
-                    ->label('Total')
+                    ->label(__('invoices.admin.items.total'))
                     ->money('EUR')
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('meter_reading_snapshot')
-                    ->label('Snapshot')
+                    ->label(__('invoices.admin.items.snapshot'))
                     ->formatStateUsing(fn ($state): string => 
-                        $state ? 'Yes' : 'No'
+                        $state ? __('invoices.admin.items.snapshot_yes') : __('invoices.admin.items.snapshot_no')
                     )
                     ->badge()
                     ->color(fn ($state): string => $state ? 'success' : 'gray')
@@ -143,7 +143,7 @@ class ItemsRelationManager extends RelationManager
                     ->disabled(fn (): bool => $this->getOwnerRecord()->isFinalized())
                     ->tooltip(fn (): ?string => 
                         $this->getOwnerRecord()->isFinalized() 
-                            ? 'Cannot add items to finalized invoice' 
+                            ? __('invoices.admin.items.cannot_add_finalized') 
                             : null
                     ),
             ])

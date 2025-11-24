@@ -4,12 +4,7 @@
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
-    <x-breadcrumbs>
-        <x-breadcrumb-item :href="route('admin.dashboard')">{{ __('app.nav.dashboard') }}</x-breadcrumb-item>
-        <x-breadcrumb-item :active="true">{{ __('providers.labels.providers') }}</x-breadcrumb-item>
-    </x-breadcrumbs>
-
-    <div class="sm:flex sm:items-center">
+<div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
             <h1 class="text-2xl font-semibold text-slate-900">{{ __('providers.headings.index') }}</h1>
             <p class="mt-2 text-sm text-slate-700">{{ __('providers.descriptions.index') }}</p>

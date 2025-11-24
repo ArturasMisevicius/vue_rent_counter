@@ -23,6 +23,8 @@ return [
             'view_meters_desc' => 'Управление коммунальными счетчиками',
             'view_reports' => 'Посмотреть отчеты',
             'view_reports_desc' => 'Аналитика и инсайты',
+            'enter_reading_desc' => 'Зафиксируйте потребление за этот месяц.',
+            'generate_invoice_desc' => 'Создавайте и утверждайте счета.',
         ],
         'sections' => [
             'operations' => 'Операционные задачи',
@@ -44,6 +46,28 @@ return [
     ],
 
     'admin' => [
+        'title' => 'Панель администратора',
+        'portfolio_subtitle' => 'Обзор портфеля и статистика',
+        'system_subtitle' => 'Общий обзор системы и статистика',
+        'banner' => [
+            'no_subscription_title' => 'Нет активной подписки',
+            'no_subscription_body' => 'У вас нет активной подписки. Свяжитесь с поддержкой, чтобы активировать аккаунт.',
+            'expired_title' => 'Подписка истекла',
+            'expired_body' => 'Ваша подписка истекла :date. Продлите ее, чтобы продолжить управление объектами.',
+            'expiring_title' => 'Подписка скоро истекает',
+            'expiring_body' => 'Подписка истекает через :days, :date. Продлите сейчас, чтобы избежать перерыва в сервисе.',
+            'renew_now' => 'Продлить сейчас',
+            'renew' => 'Продлить подписку',
+            'days' => '{1} :count день|{2} :count дня|[3,4]:count дня|[5,*]:count дней',
+        ],
+        'subscription_card' => [
+            'title' => 'Статус подписки',
+            'plan_type' => 'Тип плана',
+            'expires' => 'Истекает',
+            'properties' => 'Объекты',
+            'approaching_limit' => 'Приближается к лимиту',
+            'tenants' => 'Арендаторы',
+        ],
         'stats' => [
             'total_meter_readings' => 'Всего показаний',
             'total_users' => 'Всего пользователей',
@@ -88,6 +112,7 @@ return [
             'manage_users_title' => 'Управлять пользователями',
             'manage_users_desc' => 'Учетные записи и роли пользователей',
         ],
+        'org_dashboard' => 'Панель :name',
     ],
 
     'tenant' => [
@@ -145,6 +170,67 @@ return [
             'meters_desc' => 'Посмотреть историю потребления',
             'property_title' => 'Мой объект',
             'property_desc' => 'Детали объекта',
+        ],
+    ],
+
+    'widgets' => [
+        'admin' => [
+            'total_properties' => [
+                'label' => 'Всего объектов',
+                'description' => 'Объекты в вашем портфеле',
+            ],
+            'total_buildings' => [
+                'label' => 'Всего зданий',
+                'description' => 'Управляемые здания',
+            ],
+            'active_tenants' => [
+                'label' => 'Активные арендаторы',
+                'description' => 'Активные учетные записи арендаторов',
+            ],
+            'draft_invoices' => [
+                'label' => 'Черновые счета',
+                'description' => 'Счета, ожидающие финализации',
+            ],
+            'pending_readings' => [
+                'label' => 'Ожидающие показания',
+                'description' => 'Показания для проверки',
+            ],
+            'total_revenue' => [
+                'label' => 'Общий доход (этот месяц)',
+                'description' => 'Доход от финализированных счетов',
+            ],
+        ],
+        'manager' => [
+            'total_properties' => [
+                'label' => 'Всего объектов',
+                'description' => 'Объекты, которыми вы управляете',
+            ],
+            'total_buildings' => [
+                'label' => 'Всего зданий',
+                'description' => 'Здания под управлением',
+            ],
+            'pending_readings' => [
+                'label' => 'Ожидающие показания',
+                'description' => 'Показания для проверки',
+            ],
+            'draft_invoices' => [
+                'label' => 'Черновые счета',
+                'description' => 'Счета, ожидающие финализации',
+            ],
+        ],
+        'tenant' => [
+            'property' => [
+                'label' => 'Ваш объект',
+                'description' => 'Назначенный вам объект',
+            ],
+            'invoices' => [
+                'label' => 'Ваши счета',
+                'description' => 'Всего счетов',
+            ],
+            'unpaid' => [
+                'label' => 'Неоплаченные счета',
+                'description' => 'Счета, ожидающие оплаты',
+            ],
         ],
     ],
 ];

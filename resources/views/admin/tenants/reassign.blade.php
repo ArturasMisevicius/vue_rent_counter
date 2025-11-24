@@ -1,20 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Reassign Tenant')
+@section('title', __('tenants.pages.reassign.title'))
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
-    <x-breadcrumbs>
-        <x-breadcrumb-item href="{{ route('admin.dashboard') }}">Dashboard</x-breadcrumb-item>
-        <x-breadcrumb-item href="{{ route('admin.tenants.index') }}">Tenants</x-breadcrumb-item>
-        <x-breadcrumb-item href="{{ route('admin.tenants.show', $tenant) }}">{{ $tenant->name }}</x-breadcrumb-item>
-        <x-breadcrumb-item :active="true">Reassign</x-breadcrumb-item>
-    </x-breadcrumbs>
-
-    <div class="sm:flex sm:items-center">
+<div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-slate-900">Reassign Tenant to Different Property</h1>
-            <p class="mt-2 text-sm text-slate-700">Move {{ $tenant->name }} to a different property in your portfolio</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('tenants.pages.reassign.title') }}</h1>
+            <p class="mt-2 text-sm text-slate-700">{{ __('tenants.pages.reassign.subtitle', ['name' => $tenant->name]) }}</p>
         </div>
     </div>
 
@@ -27,7 +20,7 @@
                     </svg>
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-800">There were errors with your submission</h3>
+                    <h3 class="text-sm font-medium text-red-800">{{ __('tenants.pages.reassign.errors_title') }}</h3>
                     <div class="mt-2 text-sm text-red-700">
                         <ul role="list" class="list-disc space-y-1 pl-5">
                             @foreach($errors->all() as $error)
@@ -56,13 +49,13 @@
                                 </svg>
                             </div>
                             <div class="ml-3 flex-1">
-                                <h3 class="text-sm font-medium text-blue-800">Current Property</h3>
+                                <h3 class="text-sm font-medium text-blue-800">{{ __('tenants.pages.reassign.current_property.title') }}</h3>
                                 <div class="mt-2 text-sm text-blue-700">
                                     @if($tenant->property)
                                         <p class="font-medium">{{ $tenant->property->address }}</p>
                                         <p class="mt-1">{{ enum_label($tenant->property->type) }} - {{ $tenant->property->area }} m²</p>
                                     @else
-                                        <p>No property currently assigned</p>
+                                        <p>{{ __('tenants.pages.reassign.current_property.empty') }}</p>
                                     @endif
                                 </div>
                             </div>
@@ -71,11 +64,11 @@
 
                     <!-- New Property Selection -->
                     <div>
-                        <label for="property_id" class="block text-sm font-medium leading-6 text-slate-900">New Property</label>
+                        <label for="property_id" class="block text-sm font-medium leading-6 text-slate-900">{{ __('tenants.pages.reassign.new_property.label') }}</label>
                         <div class="mt-2">
                             <select name="property_id" id="property_id" required
                                 class="block w-full rounded-md border-0 py-1.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-                                <option value="">Select a property</option>
+                                <option value="">{{ __('tenants.pages.reassign.new_property.placeholder') }}</option>
                                 @foreach($properties as $property)
                                 <option value="{{ $property->id }}">
                                         {{ $property->address }} ({{ enum_label($property->type) }} - {{ $property->area }} m²)
@@ -84,9 +77,9 @@
                             </select>
                         </div>
                         @if($properties->isEmpty())
-                            <p class="mt-1 text-sm text-red-600">No other properties available for reassignment.</p>
+                            <p class="mt-1 text-sm text-red-600">{{ __('tenants.pages.reassign.new_property.empty') }}</p>
                         @else
-                            <p class="mt-1 text-sm text-slate-500">Select the property to reassign this tenant to</p>
+                            <p class="mt-1 text-sm text-slate-500">{{ __('tenants.pages.reassign.new_property.note') }}</p>
                         @endif
                     </div>
 
@@ -99,12 +92,12 @@
                                 </svg>
                             </div>
                             <div class="ml-3">
-                                <h3 class="text-sm font-medium text-yellow-800">Important Information</h3>
+                                <h3 class="text-sm font-medium text-yellow-800">{{ __('tenants.pages.reassign.warning.title') }}</h3>
                                 <div class="mt-2 text-sm text-yellow-700">
                                     <ul class="list-disc space-y-1 pl-5">
-                                        <li>All historical meter readings and invoices will be preserved</li>
-                                        <li>The tenant will be notified via email about the reassignment</li>
-                                        <li>This action will be logged in the audit trail</li>
+                                        <li>{{ __('tenants.pages.reassign.warning.items.preserved') }}</li>
+                                        <li>{{ __('tenants.pages.reassign.warning.items.notify') }}</li>
+                                        <li>{{ __('tenants.pages.reassign.warning.items.audit') }}</li>
                                     </ul>
                                 </div>
                             </div>
@@ -114,9 +107,9 @@
             </x-card>
 
             <div class="flex items-center justify-end gap-x-6">
-                <a href="{{ route('admin.tenants.show', $tenant) }}" class="text-sm font-semibold leading-6 text-slate-900">Cancel</a>
+                <a href="{{ route('admin.tenants.show', $tenant) }}" class="text-sm font-semibold leading-6 text-slate-900">{{ __('tenants.pages.reassign.actions.cancel') }}</a>
                 <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" {{ $properties->isEmpty() ? 'disabled' : '' }}>
-                    Reassign Tenant
+                    {{ __('tenants.pages.reassign.actions.submit') }}
                 </button>
             </div>
         </form>
@@ -125,8 +118,8 @@
     <!-- Reassignment History -->
     @if($tenant->property)
     <div class="mt-8">
-        <x-card title="Reassignment History">
-            <p class="text-sm text-slate-500">Previous property assignments will be displayed here after reassignment</p>
+        <x-card title="{{ __('tenants.pages.reassign.history.title') }}">
+            <p class="text-sm text-slate-500">{{ __('tenants.pages.reassign.history.empty') }}</p>
         </x-card>
     </div>
     @endif

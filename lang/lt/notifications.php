@@ -3,107 +3,76 @@
 declare(strict_types=1);
 
 return [
-    'invoice' => [
-        'created' => 'Sąskaita sėkmingai sukurta.',
-        'updated' => 'Sąskaita sėkmingai atnaujinta.',
-        'deleted' => 'Sąskaita sėkmingai ištrinta.',
-        'finalized' => 'Sąskaita sėkmingai patvirtinta.',
-        'finalized_locked' => 'Sąskaita sėkmingai patvirtinta. Dabar ji nebekeičiama.',
-        'marked_paid' => 'Sąskaita pažymėta kaip apmokėta.',
-        'sent' => 'Sąskaita sėkmingai išsiųsta.',
-        'generated_bulk' => 'Sėkmingai sugeneruota :count sąskaitų.',
+    'subscription_expiry' => [
+        'subject' => 'Prenumeratos galiojimo įspėjimas',
+        'greeting' => 'Sveiki, :name!',
+        'intro' => 'Jūsų prenumerata Vilnius Utilities Billing System baigsis po **:days d.** :date.',
+        'plan' => '**Dabartinis planas:** :plan',
+        'properties' => '**Objektai:** :used / :max',
+        'tenants' => '**Nuomininkai:** :used / :max',
+        'cta_intro' => 'Kad išvengtumėte paslaugos sustabdymo, pratęskite prenumeratą prieš jai pasibaigiant.',
+        'cta_notice' => 'Pasibaigus galiojimui, jūsų paskyra bus tik skaitymo režime, kol nepratęsite.',
+        'action' => 'Pratęsti prenumeratą',
+        'support' => 'Jei turite klausimų dėl pratęsimo, susisiekite su palaikymu.',
     ],
 
-    'invoice_item' => [
-        'created' => 'Sąskaitos eilutė sėkmingai pridėta.',
-        'updated' => 'Sąskaitos eilutė sėkmingai atnaujinta.',
-        'deleted' => 'Sąskaitos eilutė sėkmingai pašalinta.',
+    'welcome' => [
+        'subject' => 'Sveiki atvykę į Vilnius Utilities Billing System',
+        'greeting' => 'Sveiki, :name!',
+        'account_created' => 'Jūsų nuomininko paskyra sukurta šiam objektui:',
+        'address' => '**Adresas:** :address',
+        'property_type' => '**Objekto tipas:** :type',
+        'credentials_heading' => '**Prisijungimo duomenys:**',
+        'email' => 'El. paštas: :email',
+        'temporary_password' => 'Laikinas slaptažodis: :password',
+        'password_reminder' => 'Prisijunkite ir nedelsdami pakeiskite slaptažodį.',
+        'action' => 'Prisijungti',
+        'support' => 'Jei turite klausimų, susisiekite su savo objekto administratoriumi.',
     ],
 
-    'meter' => [
-        'created' => 'Skaitiklis sėkmingai sukurtas.',
-        'updated' => 'Skaitiklis sėkmingai atnaujintas.',
-        'deleted' => 'Skaitiklis sėkmingai ištrintas.',
+    'tenant_reassigned' => [
+        'subject' => 'Objekto priskyrimas atnaujintas',
+        'greeting' => 'Sveiki, :name!',
+        'updated' => 'Jūsų objekto priskyrimas buvo atnaujintas.',
+        'previous' => '**Ankstesnis objektas:** :address',
+        'new' => '**Naujas objektas:** :address',
+        'assigned' => 'Jums priskirtas objektas:',
+        'property' => '**Objektas:** :address',
+        'property_type' => '**Objekto tipas:** :type',
+        'view_dashboard' => 'Peržiūrėti skydelį',
+        'info' => 'Dabar galite matyti šio objekto komunalinę informaciją.',
+        'support' => 'Jei turite klausimų, susisiekite su objekto administratoriumi.',
     ],
 
-    'meter_reading' => [
-        'created' => 'Skaitiklio rodmuo sėkmingai sukurtas.',
-        'updated' => 'Skaitiklio rodmuo sėkmingai atnaujintas.',
-        'deleted' => 'Skaitiklio rodmuo sėkmingai ištrintas.',
-        'bulk_created' => 'Masiniai rodmenys sėkmingai sukurti.',
-        'corrected' => 'Skaitiklio rodmuo pataisytas. Sukurtas audito įrašas.',
+    'meter_reading_submitted' => [
+        'subject' => 'Pateiktas naujas skaitiklio rodmuo',
+        'greeting' => 'Sveiki, :name!',
+        'submitted_by' => 'Naują rodmenį pateikė **:tenant**.',
+        'details' => '**Rodmens detalės:**',
+        'property' => 'Objektas: :address',
+        'meter_type' => 'Skaitiklio tipas: :type',
+        'serial' => 'Serijos numeris: :serial',
+        'reading_date' => 'Rodmens data: :date',
+        'reading_value' => 'Rodmens reikšmė: :value',
+        'zone' => 'Zona: :zone',
+        'consumption' => 'Suvartojimas: :consumption',
+        'view' => 'Peržiūrėti rodmenis',
+        'manage_hint' => 'Visus rodmenis galite peržiūrėti ir valdyti savo skydelyje.',
     ],
 
-    'building' => [
-        'created' => 'Pastatas sėkmingai sukurtas.',
-        'updated' => 'Pastatas sėkmingai atnaujintas.',
-        'deleted' => 'Pastatas sėkmingai ištrintas.',
-        'gyvatukas' => 'Gyvatukas apskaičiuotas: :average kWh',
-        'gyvatukas_summer' => 'Gyvatukas vasaros vidurkis apskaičiuotas: :average kWh',
-    ],
-
-    'subscription' => [
-        'updated' => 'Prenumerata sėkmingai atnaujinta.',
-        'renewed' => 'Prenumerata sėkmingai pratęsta.',
-        'suspended' => 'Prenumerata sėkmingai sustabdyta.',
-        'cancelled' => 'Prenumerata sėkmingai atšaukta.',
-    ],
-
-    'organization' => [
-        'created' => 'Organizacija sėkmingai sukurta.',
-        'updated' => 'Organizacija sėkmingai atnaujinta.',
-        'deactivated' => 'Organizacija sėkmingai deaktyvuota.',
-        'reactivated' => 'Organizacija sėkmingai atkurta.',
-    ],
-
-    'tenant' => [
-        'created' => 'Nuomininkas sėkmingai sukurtas.',
-        'updated' => 'Nuomininkas sėkmingai atnaujintas.',
-        'deleted' => 'Nuomininkas sėkmingai ištrintas.',
-        'invoice_sent' => 'Sąskaita sėkmingai išsiųsta.',
-    ],
-
-    'admin_tenant' => [
-        'created' => 'Nuomininko paskyra sėkmingai sukurta. Siunčiamas pasveikinimo laiškas.',
-        'updated' => 'Nuomininko paskyra sėkmingai atnaujinta.',
-        'deactivated' => 'Nuomininko paskyra sėkmingai deaktyvuota.',
-        'reactivated' => 'Nuomininko paskyra sėkmingai aktyvuota.',
-        'reassigned' => 'Nuomininkas sėkmingai priskirtas iš naujo. Išsiųstas pranešimo el. laiškas.',
-    ],
-
-    'property' => [
-        'created' => 'Objektas sėkmingai sukurtas.',
-        'updated' => 'Objektas sėkmingai atnaujintas.',
-        'deleted' => 'Objektas sėkmingai ištrintas.',
-    ],
-
-    'user' => [
-        'created' => 'Vartotojas sėkmingai sukurtas.',
-        'updated' => 'Vartotojas sėkmingai atnaujintas.',
-        'deleted' => 'Vartotojas sėkmingai ištrintas.',
+    'overdue_invoice' => [
+        'subject' => 'Sąskaita #:id yra pavėluota',
+        'greeting' => 'Sveiki, :name,',
+        'overdue' => 'Sąskaita #:id yra pavėluota.',
+        'amount' => 'Bendra suma: :amount',
+        'due_date' => 'Apmokėjimo data: :date',
+        'pay_notice' => 'Prašome apmokėti sąskaitą kuo greičiau, kad išvengtumėte paslaugų sutrikimų.',
+        'action' => 'Peržiūrėti sąskaitą',
+        'ignore' => 'Jei jau apmokėjote, ignoruokite šį laišką.',
     ],
 
     'profile' => [
         'updated' => 'Profilis sėkmingai atnaujintas.',
         'password_updated' => 'Slaptažodis sėkmingai atnaujintas.',
-    ],
-
-    'settings' => [
-        'updated' => 'Nustatymai sėkmingai atnaujinti. Kai kuriems pakeitimams gali reikėti atnaujinti .env ir perleisti programą.',
-        'backup_completed' => 'Atsarginė kopija sėkmingai sukurta.',
-        'cache_cleared' => 'Podėliai sėkmingai išvalyti.',
-        'backup_failed' => 'Atsarginė kopija nepavyko: :message',
-        'cache_failed' => 'Nepavyko išvalyti podėlio: :message',
-    ],
-
-    'tariff' => [
-        'created' => 'Tarifas sėkmingai sukurtas.',
-        'version_created' => 'Nauja tarifo versija sėkmingai sukurta.',
-        'updated' => 'Tarifas sėkmingai atnaujintas.',
-        'deleted' => 'Tarifas sėkmingai ištrintas.',
-    ],
-
-    'account' => [
-        'updated' => 'Prenumerata sėkmingai atnaujinta.',
     ],
 ];

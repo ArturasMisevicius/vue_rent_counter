@@ -36,25 +36,7 @@ body {
     min-height: 100vh;
 }
 
-/* Disable hover-driven visual shifts globally */
-@media (hover:hover) {
-    a:hover,
-    button:hover,
-    [class*="hover:"]:hover,
-    .group:hover [class*="group-hover:"],
-    *:hover {
-        color: inherit !important;
-        background-color: inherit !important;
-        border-color: inherit !important;
-        box-shadow: inherit !important;
-        transform: none !important;
-        opacity: inherit !important;
-        text-decoration: inherit !important;
-        filter: none !important;
-    }
-}
-
-/* Cursor pointer for interactive elements - overrides hover disable */
+/* Cursor pointer for interactive elements */
 a,
 button,
 [role="button"],

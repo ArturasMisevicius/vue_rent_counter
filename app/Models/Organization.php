@@ -250,6 +250,17 @@ class Organization extends Model
         $this->update(['last_activity_at' => now()]);
     }
 
+    public function daysUntilExpiry(): int
+    {
+        if (!$this->subscription_ends_at) {
+            return 0;
+        }
+
+        return now()
+            ->startOfDay()
+            ->diffInDays($this->subscription_ends_at->startOfDay(), false);
+    }
+
     public function upgradePlan(string $newPlan): void
     {
         $limits = [

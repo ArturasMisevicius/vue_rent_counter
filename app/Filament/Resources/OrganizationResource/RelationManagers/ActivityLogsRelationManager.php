@@ -11,7 +11,7 @@ class ActivityLogsRelationManager extends RelationManager
 {
     protected static string $relationship = 'activityLogs';
 
-    protected static ?string $title = 'Activity Logs';
+    protected static ?string $title = null;
 
     protected static BackedEnum|string|null $icon = 'heroicon-o-clock';
 
@@ -20,14 +20,14 @@ class ActivityLogsRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Time')
+                    ->label(__('organizations.relations.activity_logs.time'))
                     ->dateTime('M d, H:i')
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('user.name')
-                    ->label('User')
+                    ->label(__('organizations.relations.activity_logs.user'))
                     ->searchable()
-                    ->default('System'),
+                    ->default(__('superadmin.dashboard.recent_activity_widget.default_system')),
                 
                 Tables\Columns\TextColumn::make('action')
                     ->badge()
@@ -43,15 +43,15 @@ class ActivityLogsRelationManager extends RelationManager
                     }),
                 
                 Tables\Columns\TextColumn::make('resource_type')
-                    ->label('Resource')
+                    ->label(__('organizations.relations.activity_logs.resource'))
                     ->formatStateUsing(fn ($state) => class_basename($state)),
                 
                 Tables\Columns\TextColumn::make('resource_id')
-                    ->label('ID')
+                    ->label(__('organizations.relations.activity_logs.id'))
                     ->toggleable(isToggledHiddenByDefault: true),
                 
                 Tables\Columns\TextColumn::make('ip_address')
-                    ->label('IP')
+                    ->label(__('organizations.relations.activity_logs.ip'))
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
@@ -68,19 +68,19 @@ class ActivityLogsRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\Action::make('view_details')
-                    ->label('Details')
+                    ->label(__('organizations.relations.activity_logs.details'))
                     ->icon('heroicon-o-eye')
-                    ->modalHeading('Activity Details')
+                    ->modalHeading(__('organizations.relations.activity_logs.modal_heading'))
                     ->modalContent(fn ($record): \Illuminate\Contracts\View\View => view(
                         'filament.widgets.activity-details',
                         ['record' => $record]
                     ))
                     ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Close'),
+                    ->modalCancelActionLabel(__('subscriptions.actions.close')),
             ])
             ->defaultSort('created_at', 'desc')
-            ->emptyStateHeading('No activity logs')
-            ->emptyStateDescription('Activity logs will appear here')
+            ->emptyStateHeading(__('organizations.relations.activity_logs.empty_heading'))
+            ->emptyStateDescription(__('organizations.relations.activity_logs.empty_description'))
             ->emptyStateIcon('heroicon-o-clock');
     }
 }

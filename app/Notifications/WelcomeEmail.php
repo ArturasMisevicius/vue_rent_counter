@@ -35,20 +35,24 @@ class WelcomeEmail extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $propertyType = method_exists($this->property->type, 'label')
+            ? $this->property->type->label()
+            : $this->property->type->value;
+
         return (new MailMessage)
-            ->subject('Welcome to Vilnius Utilities Billing System')
-            ->greeting("Hello {$notifiable->name}!")
-            ->line('Your tenant account has been created for the following property:')
-            ->line("**Address:** {$this->property->address}")
-            ->line("**Property Type:** {$this->property->type->value}")
+            ->subject(__('notifications.welcome.subject'))
+            ->greeting(__('notifications.welcome.greeting', ['name' => $notifiable->name]))
+            ->line(__('notifications.welcome.account_created'))
+            ->line(__('notifications.welcome.address', ['address' => $this->property->address]))
+            ->line(__('notifications.welcome.property_type', ['type' => $propertyType]))
             ->line('')
-            ->line('**Login Credentials:**')
-            ->line("Email: {$notifiable->email}")
-            ->line("Temporary Password: {$this->temporaryPassword}")
+            ->line(__('notifications.welcome.credentials_heading'))
+            ->line(__('notifications.welcome.email', ['email' => $notifiable->email]))
+            ->line(__('notifications.welcome.temporary_password', ['password' => $this->temporaryPassword]))
             ->line('')
-            ->line('Please log in and change your password immediately.')
-            ->action('Log In', url('/login'))
-            ->line('If you have any questions, please contact your property administrator.');
+            ->line(__('notifications.welcome.password_reminder'))
+            ->action(__('notifications.welcome.action'), url('/login'))
+            ->line(__('notifications.welcome.support'));
     }
 
     /**

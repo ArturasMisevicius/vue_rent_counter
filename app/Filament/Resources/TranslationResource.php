@@ -33,7 +33,7 @@ class TranslationResource extends Resource
 {
     protected static ?string $model = Translation::class;
 
-    protected static ?string $navigationLabel = 'Translations';
+    protected static ?string $navigationLabel = null;
 
     protected static ?int $navigationSort = 2;
 
@@ -44,7 +44,12 @@ class TranslationResource extends Resource
 
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return 'Localization';
+        return __('app.nav_groups.localization');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('translations.navigation');
     }
 
     /**
@@ -94,36 +99,39 @@ class TranslationResource extends Resource
 
         return $schema
             ->schema([
-                Forms\Components\Section::make('Translation Key')
-                    ->description('Define the group and key for this translation')
+                Forms\Components\Section::make(__('translations.sections.key'))
+                    ->description(__('translations.helper_text.key'))
                     ->schema([
                         Forms\Components\TextInput::make('group')
                             ->required()
                             ->maxLength(120)
-                            ->label('Group')
-                            ->placeholder('app')
-                            ->helperText('PHP file name in lang/{locale}/ directory (e.g., "app" for app.php)')
+                            ->label(__('translations.labels.group'))
+                            ->placeholder(__('translations.placeholders.group'))
+                            ->helperText(__('translations.helper_text.group'))
                             ->alphaDash(),
 
                         Forms\Components\TextInput::make('key')
                             ->required()
                             ->maxLength(255)
-                            ->label('Key')
-                            ->placeholder('nav.dashboard')
-                            ->helperText('Translation key with dot notation support (e.g., "nav.dashboard")')
+                            ->label(__('translations.labels.key'))
+                            ->placeholder(__('translations.placeholders.key'))
+                            ->helperText(__('translations.helper_text.key_full'))
                             ->columnSpanFull(),
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make('Translation Values')
-                    ->description('Provide translations for each active language. Values are written to PHP lang files.')
+                Forms\Components\Section::make(__('translations.sections.values'))
+                    ->description(__('translations.helper_text.values'))
                     ->schema(
                         $languages->map(function (Language $language) {
                             return Forms\Components\Textarea::make("values.{$language->code}")
-                                ->label("{$language->name} ({$language->code})")
+                                ->label(__('translations.table.language_label', [
+                                    'language' => $language->name,
+                                    'code' => $language->code,
+                                ]))
                                 ->rows(3)
-                                ->placeholder("Enter {$language->name} translation...")
-                                ->helperText($language->is_default ? 'Default language' : '')
+                                ->placeholder(__('translations.placeholders.value'))
+                                ->helperText($language->is_default ? __('translations.helper_text.default_language') : '')
                                 ->columnSpanFull();
                         })->all()
                     )
@@ -141,7 +149,7 @@ class TranslationResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('group')
-                    ->label('Group')
+                    ->label(__('translations.labels.group'))
                     ->badge()
                     ->color('primary')
                     ->sortable()
@@ -149,29 +157,29 @@ class TranslationResource extends Resource
                     ->weight('medium'),
 
                 Tables\Columns\TextColumn::make('key')
-                    ->label('Key')
+                    ->label(__('translations.labels.key'))
                     ->sortable()
                     ->searchable()
                     ->copyable()
-                    ->copyMessage('Translation key copied')
+                    ->copyMessage(__('translations.labels.key'))
                     ->weight('medium'),
 
                 Tables\Columns\TextColumn::make("values->{$defaultLocale}")
-                    ->label(strtoupper($defaultLocale).' Value')
+                    ->label(__('translations.table.value_label', ['locale' => strtoupper($defaultLocale)]))
                     ->limit(50)
                     ->wrap()
-                    ->placeholder('—')
+                    ->placeholder(__('app.common.dash'))
                     ->tooltip(fn (?string $state): ?string => $state && strlen($state) > 50 ? $state : null),
 
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Last Updated')
+                    ->label(__('translations.labels.last_updated'))
                     ->since()
                     ->sortable()
                     ->toggleable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('group')
-                    ->label('Group')
+                    ->label(__('translations.labels.group'))
                     ->options(fn (): array => Translation::query()
                         ->distinct()
                         ->pluck('group', 'group')
@@ -190,15 +198,15 @@ class TranslationResource extends Resource
                 Actions\BulkActionGroup::make([
                     Actions\DeleteBulkAction::make()
                         ->requiresConfirmation()
-                        ->modalHeading('Delete Translations')
-                        ->modalDescription('Are you sure you want to delete these translations? This will affect the application UI.'),
+                        ->modalHeading(__('translations.modals.delete.heading'))
+                        ->modalDescription(__('translations.modals.delete.description')),
                 ]),
             ])
-            ->emptyStateHeading('No translations yet')
-            ->emptyStateDescription('Create translation entries to manage multi-language content.')
+            ->emptyStateHeading(__('translations.empty.heading'))
+            ->emptyStateDescription(__('translations.empty.description'))
             ->emptyStateActions([
                 Actions\CreateAction::make()
-                    ->label('Add First Translation'),
+                    ->label(__('translations.empty.action')),
             ])
             ->defaultSort('group', 'asc')
             ->persistSortInSession()

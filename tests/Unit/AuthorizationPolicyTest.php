@@ -375,13 +375,13 @@ describe('PropertyPolicy', function () {
             ->and($manager->can('update', $property))->toBeTrue();
     });
 
-    test('only admins can delete properties', function () {
+    test('admins and managers can delete properties', function () {
         $property = Property::factory()->create();
         $admin = User::factory()->create(['role' => UserRole::ADMIN, 'tenant_id' => $property->tenant_id]);
         $manager = User::factory()->create(['role' => UserRole::MANAGER, 'tenant_id' => $property->tenant_id]);
 
         expect($admin->can('delete', $property))->toBeTrue()
-            ->and($manager->can('delete', $property))->toBeFalse();
+            ->and($manager->can('delete', $property))->toBeTrue();
     });
 });
 

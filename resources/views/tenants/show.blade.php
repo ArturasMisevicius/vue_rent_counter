@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Tenant Details</title>
+    <title>{{ __('tenants.headings.show') }}</title>
 </head>
 <body>
-    <h1>Tenant Details</h1>
-    <p>Name: {{ $tenant->name }}</p>
-    <p>Email: {{ $tenant->email }}</p>
+    <h1>{{ __('tenants.headings.show') }}</h1>
+    <p>{{ __('tenants.labels.name') }}: {{ $tenant->name }}</p>
+    <p>{{ __('tenants.labels.email') }}: {{ $tenant->email }}</p>
 </body>
 </html>

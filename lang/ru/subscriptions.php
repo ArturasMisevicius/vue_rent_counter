@@ -3,6 +3,93 @@
 declare(strict_types=1);
 
 return [
+    'labels' => [
+        'organization' => 'Организация',
+        'email' => 'Электронная почта',
+        'contact_name' => 'Контактное лицо',
+        'plan_type' => 'Тип плана',
+        'status' => 'Статус',
+        'starts_at' => 'Дата начала',
+        'expires_at' => 'Дата окончания',
+        'days_left' => 'Осталось дней',
+        'days_until_expiry' => 'Дней до окончания',
+        'max_properties' => 'Макс. объектов',
+        'max_tenants' => 'Макс. арендаторов',
+        'properties_limit' => 'Лимит объектов',
+        'tenants_limit' => 'Лимит арендаторов',
+        'properties_used' => 'Использовано объектов',
+        'properties_remaining' => 'Осталось объектов',
+        'tenants_used' => 'Использовано арендаторов',
+        'tenants_remaining' => 'Осталось арендаторов',
+        'usage' => 'Использование',
+        'new_expiration_date' => 'Новая дата окончания',
+        'renewal_duration' => 'Срок продления',
+        'created_at' => 'Создано',
+        'updated_at' => 'Обновлено',
+    ],
+
+    'sections' => [
+        'details' => 'Детали подписки',
+        'period' => 'Период подписки',
+        'limits' => 'Лимиты',
+        'usage' => 'Статистика использования',
+        'timestamps' => 'Отметки времени',
+    ],
+
+    'helper_text' => [
+        'select_organization' => 'Выберите организацию для этой подписки',
+        'max_properties' => 'Максимально допустимое количество объектов',
+        'max_tenants' => 'Максимально допустимое количество арендаторов',
+    ],
+
+    'filters' => [
+        'plan_type' => 'Тип плана',
+        'status' => 'Статус',
+        'expiring_soon' => 'Скоро истекает (14 дней)',
+        'expired' => 'Просрочено',
+    ],
+
+    'actions' => [
+        'renew' => 'Продлить',
+        'suspend' => 'Приостановить',
+        'activate' => 'Активировать',
+        'renew_selected' => 'Продлить выбранные',
+        'suspend_selected' => 'Приостановить выбранные',
+        'activate_selected' => 'Активировать выбранные',
+        'export_selected' => 'Экспортировать выбранные',
+        'send_reminder' => 'Отправить напоминание',
+        'view_usage' => 'Использование',
+        'close' => 'Закрыть',
+        'subscription_usage' => 'Использование подписки',
+        'view' => 'Просмотр',
+    ],
+
+    'options' => [
+        'duration' => [
+            '1_month' => '1 месяц',
+            '3_months' => '3 месяца',
+            '6_months' => '6 месяцев',
+            '1_year' => '1 год',
+        ],
+    ],
+
+    'notifications' => [
+        'renewed' => 'Подписка успешно продлена',
+        'reminder_sent' => 'Напоминание о продлении отправлено',
+        'suspended' => 'Подписка успешно приостановлена',
+        'activated' => 'Подписка успешно активирована',
+        'bulk_renewed' => 'Продлено :count подписок',
+        'bulk_suspended' => 'Приостановлено :count подписок',
+        'bulk_activated' => 'Активировано :count подписок',
+        'bulk_failed_suffix' => ', :count не удалось',
+    ],
+
+    'widgets' => [
+        'expiring_heading' => 'Подписки, истекающие скоро (14 дней)',
+        'expiring_description' => 'Активные подписки, которые истекают в ближайшие 14 дней',
+        'expiring_empty_heading' => 'Нет истекающих подписок',
+        'expiring_empty_description' => 'Все подписки действительны более 14 дней',
+    ],
     'validation' => [
         'plan_type' => [
             'required' => 'Тип плана обязателен.',

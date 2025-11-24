@@ -155,6 +155,6 @@ test('Property has correct relationships', function () {
     $property = Property::factory()->create();
 
     expect($property->building)->not->toBeNull();
-    expect($property->tenants())->toBeInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class);
+    expect($property->tenants())->toBeInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class);
     expect($property->meters())->toBeInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class);
 });

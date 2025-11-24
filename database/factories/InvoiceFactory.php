@@ -21,8 +21,8 @@ class InvoiceFactory extends Factory
         $end = (clone $start)->modify('+1 month');
 
         return [
-            'tenant_id' => 1,
-            'tenant_renter_id' => Tenant::factory(),
+            'tenant_id' => null,
+            'tenant_renter_id' => null,
             'billing_period_start' => $start,
             'billing_period_end' => $end,
             'total_amount' => fake()->randomFloat(2, 50, 500),
@@ -71,13 +71,29 @@ class InvoiceFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (Invoice $invoice) {
-            $tenant = $invoice->tenant ?? Tenant::find($invoice->tenant_renter_id);
+            $tenant = $invoice->tenant ?? ($invoice->tenant_renter_id ? Tenant::find($invoice->tenant_renter_id) : null);
 
-            if ($tenant && $invoice->tenant_id !== $tenant->tenant_id) {
+            if (! $tenant) {
+                $tenant = Tenant::factory()
+                    ->forTenantId($invoice->tenant_id ?? 1)
+                    ->create();
+
+                $invoice->tenant_renter_id = $tenant->id;
+            }
+
+            if ($invoice->tenant_id !== $tenant->tenant_id) {
                 $invoice->tenant_id = $tenant->tenant_id;
             }
         })->afterCreating(function (Invoice $invoice) {
-            $tenant = $invoice->tenant ?? Tenant::find($invoice->tenant_renter_id);
+            $tenant = $invoice->tenant ?? ($invoice->tenant_renter_id ? Tenant::find($invoice->tenant_renter_id) : null);
+
+            if (! $tenant) {
+                $tenant = Tenant::factory()
+                    ->forTenantId($invoice->tenant_id ?? 1)
+                    ->create();
+
+                $invoice->update(['tenant_renter_id' => $tenant->id]);
+            }
 
             if ($tenant && $invoice->tenant_id !== $tenant->tenant_id) {
                 $invoice->update(['tenant_id' => $tenant->tenant_id]);

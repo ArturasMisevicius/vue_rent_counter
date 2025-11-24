@@ -45,7 +45,7 @@ class FaqResource extends Resource
 {
     protected static ?string $model = Faq::class;
 
-    protected static ?string $navigationLabel = 'FAQ';
+    protected static ?string $navigationLabel = null;
 
     protected static ?int $navigationSort = 10;
 
@@ -56,7 +56,12 @@ class FaqResource extends Resource
 
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return 'System';
+        return __('app.nav_groups.system_management');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('faq.labels.resource');
     }
 
     /**
@@ -66,59 +71,59 @@ class FaqResource extends Resource
     {
         $user = auth()->user();
 
-        return $user instanceof User && $user->role === UserRole::SUPERADMIN;
+        return $user instanceof User && in_array($user->role, [UserRole::ADMIN, UserRole::SUPERADMIN], true);
     }
 
     public static function canViewAny(): bool
     {
         $user = auth()->user();
 
-        return $user instanceof User && $user->role === UserRole::SUPERADMIN;
+        return $user instanceof User && in_array($user->role, [UserRole::ADMIN, UserRole::SUPERADMIN], true);
     }
 
     public static function canCreate(): bool
     {
         $user = auth()->user();
 
-        return $user instanceof User && $user->role === UserRole::SUPERADMIN;
+        return $user instanceof User && in_array($user->role, [UserRole::ADMIN, UserRole::SUPERADMIN], true);
     }
 
     public static function canEdit(Model $record): bool
     {
         $user = auth()->user();
 
-        return $user instanceof User && $user->role === UserRole::SUPERADMIN;
+        return $user instanceof User && in_array($user->role, [UserRole::ADMIN, UserRole::SUPERADMIN], true);
     }
 
     public static function canDelete(Model $record): bool
     {
         $user = auth()->user();
 
-        return $user instanceof User && $user->role === UserRole::SUPERADMIN;
+        return $user instanceof User && in_array($user->role, [UserRole::ADMIN, UserRole::SUPERADMIN], true);
     }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->schema([
-                Section::make('FAQ Entry')
-                    ->description('Create or edit FAQ entries displayed on the public landing page')
+                Section::make(__('faq.sections.faq_entry'))
+                    ->description(__('faq.helper_text.entry'))
                     ->schema([
                         TextInput::make('question')
-                            ->label('Question')
-                            ->placeholder('What is the billing cycle?')
+                            ->label(__('faq.labels.question'))
+                            ->placeholder(__('faq.placeholders.question'))
                             ->required()
                             ->maxLength(255)
                             ->columnSpanFull(),
 
                         TextInput::make('category')
-                            ->label('Category')
+                            ->label(__('faq.labels.category'))
                             ->maxLength(120)
-                            ->placeholder('Billing, Access, Meters...')
-                            ->helperText('Optional category for grouping related questions'),
+                            ->placeholder(__('faq.placeholders.category'))
+                            ->helperText(__('faq.helper_text.category')),
 
                         RichEditor::make('answer')
-                            ->label('Answer')
+                            ->label(__('faq.labels.answer'))
                             ->required()
                             ->toolbarButtons([
                                 'bold',
@@ -128,7 +133,7 @@ class FaqResource extends Resource
                                 'orderedList',
                                 'link',
                             ])
-                            ->helperText('Use concise, complete answers. This content is shown publicly on the landing page.')
+                            ->helperText(__('faq.helper_text.answer'))
                             ->columnSpanFull(),
 
                         Grid::make(2)
@@ -137,14 +142,14 @@ class FaqResource extends Resource
                                     ->numeric()
                                     ->default(0)
                                     ->minValue(0)
-                                    ->label('Display order')
-                                    ->helperText('Lower numbers appear first.'),
+                                    ->label(__('faq.labels.display_order'))
+                                    ->helperText(__('faq.helper_text.order')),
 
                                 Toggle::make('is_published')
-                                    ->label('Published')
+                                    ->label(__('faq.labels.published'))
                                     ->default(true)
                                     ->inline(false)
-                                    ->helperText('Only published FAQs appear on the landing page'),
+                                    ->helperText(__('faq.helper_text.published')),
                             ]),
                     ])
                     ->columns(2),
@@ -156,35 +161,35 @@ class FaqResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('question')
-                    ->label('Question')
+                    ->label(__('faq.labels.question'))
                     ->wrap()
                     ->searchable()
                     ->sortable()
                     ->weight('medium'),
 
                 TextColumn::make('category')
-                    ->label('Category')
+                    ->label(__('faq.labels.category'))
                     ->badge()
                     ->color('gray')
                     ->sortable()
                     ->toggleable()
-                    ->placeholder('—'),
+                    ->placeholder(__('app.common.dash')),
 
                 IconColumn::make('is_published')
-                    ->label('Published')
+                    ->label(__('faq.labels.published'))
                     ->boolean()
                     ->sortable()
-                    ->tooltip(fn (bool $state): string => $state ? 'Visible on landing page' : 'Hidden from public'),
+                    ->tooltip(fn (bool $state): string => $state ? __('faq.helper_text.visible') : __('faq.helper_text.hidden')),
 
                 TextColumn::make('display_order')
-                    ->label('Order')
+                    ->label(__('faq.labels.order'))
                     ->sortable()
                     ->alignCenter()
                     ->badge()
                     ->color('primary'),
 
                 TextColumn::make('updated_at')
-                    ->label('Last Updated')
+                    ->label(__('faq.labels.last_updated'))
                     ->dateTime()
                     ->since()
                     ->sortable()
@@ -192,15 +197,15 @@ class FaqResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('is_published')
-                    ->label('Status')
+                    ->label(__('faq.filters.status'))
                     ->options([
-                        1 => 'Published',
-                        0 => 'Draft',
+                        1 => __('faq.filters.options.published'),
+                        0 => __('faq.filters.options.draft'),
                     ])
                     ->native(false),
 
                 SelectFilter::make('category')
-                    ->label('Category')
+                    ->label(__('faq.filters.category'))
                     ->options(fn (): array => Faq::query()
                         ->whereNotNull('category')
                         ->distinct()
@@ -220,15 +225,15 @@ class FaqResource extends Resource
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->requiresConfirmation()
-                        ->modalHeading('Delete FAQ Entries')
-                        ->modalDescription('Are you sure you want to delete these FAQ entries? This action cannot be undone.'),
+                        ->modalHeading(__('faq.modals.delete.heading'))
+                        ->modalDescription(__('faq.modals.delete.description')),
                 ]),
             ])
-            ->emptyStateHeading('No FAQ entries yet')
-            ->emptyStateDescription('Create your first FAQ entry to help users understand the platform.')
+            ->emptyStateHeading(__('faq.empty.heading'))
+            ->emptyStateDescription(__('faq.empty.description'))
             ->emptyStateActions([
                 CreateAction::make()
-                    ->label('Add First FAQ'),
+                    ->label(__('faq.actions.add_first')),
             ])
             ->defaultSort('display_order', 'asc')
             ->persistSortInSession()

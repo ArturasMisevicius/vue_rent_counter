@@ -198,4 +198,66 @@ return [
         ],
     ],
 
+    'pages' => [
+        'manager_form' => [
+            'create_title' => 'Sukurti objektą',
+            'create_subtitle' => 'Pridėkite naują objektą į savo portfelį',
+            'breadcrumb_create' => 'Sukurti',
+            'edit_title' => 'Redaguoti objektą',
+            'edit_subtitle' => 'Atnaujinkite objekto informaciją',
+            'breadcrumb_edit' => 'Redaguoti',
+            'labels' => [
+                'address' => 'Adresas',
+                'type' => 'Objekto tipas',
+                'area' => 'Plotas (m²)',
+                'building' => 'Pastatas (nebūtina)',
+            ],
+            'placeholders' => [
+                'address' => 'Gatvė, miestas',
+                'area' => '50.00',
+                'building' => 'Pasirinkite pastatą...',
+            ],
+            'actions' => [
+                'cancel' => 'Atšaukti',
+                'save_create' => 'Sukurti objektą',
+                'save_edit' => 'Atnaujinti objektą',
+            ],
+        ],
+        'manager_show' => [
+            'title' => 'Objekto detalės',
+            'description' => 'Objekto informacija ir susiję duomenys',
+            'info_title' => 'Objekto informacija',
+            'labels' => [
+                'address' => 'Adresas',
+                'type' => 'Tipas',
+                'area' => 'Plotas',
+                'building' => 'Pastatas',
+            ],
+            'building_missing' => 'Nepriskirta pastatui',
+            'current_tenant_title' => 'Dabartinis nuomininkas',
+            'tenant_labels' => [
+                'name' => 'Vardas',
+                'email' => 'El. paštas',
+                'phone' => 'Telefonas',
+            ],
+            'tenant_na' => 'N/D',
+            'no_tenant' => 'Dabartinio nuomininko nėra',
+            'meters_title' => 'Skaitikliai',
+            'add_meter' => 'Pridėti skaitiklį',
+            'meters_headers' => [
+                'serial' => 'Serijos numeris',
+                'type' => 'Tipas',
+                'installation' => 'Įrengimo data',
+                'latest' => 'Naujausias rodmuo',
+                'actions' => 'Veiksmai',
+            ],
+            'latest_none' => 'Rodmenų nėra',
+            'view' => 'Peržiūrėti',
+            'edit_property' => 'Redaguoti objektą',
+            'delete_property' => 'Ištrinti',
+            'delete_confirm' => 'Ar tikrai norite ištrinti šį objektą?',
+            'no_meters_installed' => 'Šiam objektui skaitiklių nėra.',
+        ],
+    ],
+
 ];

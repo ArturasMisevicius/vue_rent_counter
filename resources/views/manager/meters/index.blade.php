@@ -4,12 +4,7 @@
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
-    <x-breadcrumbs>
-        <x-breadcrumb-item href="{{ route('manager.dashboard') }}">{{ __('app.nav.dashboard') }}</x-breadcrumb-item>
-        <x-breadcrumb-item :active="true">{{ __('app.nav.meters') }}</x-breadcrumb-item>
-    </x-breadcrumbs>
-
-    <div class="sm:flex sm:items-center">
+<div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
             <h1 class="text-2xl font-semibold text-slate-900">{{ __('meters.manager.index.title') }}</h1>
             <p class="mt-2 text-sm text-slate-700">{{ __('meters.manager.index.description') }}</p>
@@ -63,7 +58,7 @@
                         {{ number_format($meter->readings->first()->value, 2) }}
                         <span class="text-slate-400 text-xs">({{ $meter->readings->first()->reading_date->format('M d') }})</span>
                     @else
-                        <span class="text-slate-400">No readings</span>
+                        <span class="text-slate-400">{{ __('meter_readings.empty.readings') }}</span>
                     @endif
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">

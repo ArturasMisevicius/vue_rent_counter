@@ -19,6 +19,31 @@ return [
         'correct' => 'Taisyti rodmenį',
     ],
 
+    'form_component' => [
+        'title' => 'Įvesti skaitiklio rodmenį',
+        'select_meter' => 'Pasirinkite skaitiklį',
+        'meter_placeholder' => '-- Pasirinkite skaitiklį --',
+        'select_provider' => 'Pasirinkite tiekėją',
+        'provider_placeholder' => '-- Pasirinkite tiekėją --',
+        'select_tariff' => 'Pasirinkite tarifą',
+        'tariff_placeholder' => '-- Pasirinkite tarifą --',
+        'previous' => 'Ankstesnis rodmuo',
+        'date_label' => 'Data:',
+        'value_label' => 'Reikšmė:',
+        'reading_date' => 'Rodmens data',
+        'reading_value' => 'Rodmens reikšmė',
+        'day_zone' => 'Dienos zonos rodmuo',
+        'night_zone' => 'Nakties zonos rodmuo',
+        'consumption' => 'Suvartojimas',
+        'units' => 'vnt.',
+        'estimated_charge' => 'Numatoma suma',
+        'rate' => 'Tarifas:',
+        'per_unit' => 'už vienetą',
+        'reset' => 'Atstatyti',
+        'submit' => 'Pateikti rodmenį',
+        'submitting' => 'Siunčiama...',
+    ],
+
     'tables' => [
         'date' => 'Data',
         'meter' => 'Skaitiklis',
@@ -26,6 +51,10 @@ return [
         'zone' => 'Zona',
         'entered_by' => 'Įvedė',
         'actions' => 'Veiksmai',
+        'property' => 'Objektas',
+        'meter_type' => 'Skaitiklio tipas',
+        'consumption' => 'Suvartojimas',
+        'created_at' => 'Sukurta',
     ],
 
     'labels' => [
@@ -40,6 +69,14 @@ return [
         'new_value' => 'Nauja reikšmė',
         'reason' => 'Priežastis',
         'changed_by' => 'Pakeitė',
+        'property' => 'Objektas',
+        'meter' => 'Skaitiklis',
+        'consumption' => 'Suvartojimas',
+        'from_date' => 'Data nuo',
+        'until_date' => 'Data iki',
+        'meter_type' => 'Skaitiklio tipas',
+        'reading_value' => 'Rodmens reikšmė',
+        'reading_id' => 'Rodmuo Nr. :id',
     ],
 
     'empty' => [
@@ -49,6 +86,28 @@ return [
     'recent_empty' => 'Naujų rodmenų nėra',
 
     'na' => 'N/D',
+    'units' => 'vnt.',
+
+    'helper_text' => [
+        'select_property_first' => 'Pirmiausia pasirinkite objektą',
+        'zone_optional' => 'Pasirinktinai: kelių zonų skaitikliams (pvz., diena/naktis)',
+    ],
+
+    'filters' => [
+        'from' => 'Data nuo',
+        'until' => 'Data iki',
+        'meter_type' => 'Skaitiklio tipas',
+        'indicator_from' => 'Nuo: :date',
+        'indicator_until' => 'Iki: :date',
+    ],
+
+    'modals' => [
+        'bulk_delete' => [
+            'title' => 'Ištrinti rodmenis',
+            'description' => 'Ar tikrai norite ištrinti pasirinktus rodmenis? Šio veiksmo anuliuoti negalėsite.',
+            'confirm' => 'Taip, ištrinti',
+        ],
+    ],
 
     'manager' => [
         'index' => [
@@ -84,6 +143,47 @@ return [
                 'day' => 'Dieninis tarifas',
                 'night' => 'Naktinis tarifas',
             ],
+        ],
+        'edit' => [
+            'title' => 'Taisyti skaitiklio rodmenį',
+            'subtitle' => 'Atnaujinkite rodmenį su audito įrašu',
+            'breadcrumb' => 'Taisyti',
+            'current' => [
+                'title' => 'Dabartinis rodmuo',
+                'meter' => 'Skaitiklis',
+                'value' => 'Dabartinė reikšmė',
+                'date' => 'Nuskaitymo data',
+            ],
+            'form' => [
+                'title' => 'Naujos reikšmės',
+                'reading_date' => 'Nuskaitymo data',
+                'value' => 'Rodmens reikšmė',
+                'placeholder' => '1234.56',
+                'zone_label' => 'Dienos/nakties zona',
+                'zone_options' => [
+                    'day' => 'Dienos tarifas',
+                    'night' => 'Nakties tarifas',
+                ],
+                'zone_placeholder' => 'Pasirinkite zoną...',
+                'reason_label' => 'Koregavimo priežastis',
+                'reason_placeholder' => 'Paaiškinkite, kodėl šis rodmuo taisomas...',
+            ],
+            'audit_notice' => [
+                'title' => 'Audito žurnalas',
+                'body' => 'Ši korekcija bus įrašyta audito žurnale. Pirminė reikšmė ir korekcijos priežastis bus išsaugotos.',
+            ],
+            'actions' => [
+                'cancel' => 'Atšaukti',
+                'save' => 'Išsaugoti korekciją',
+            ],
+        ],
+        'mobile' => [
+            'meter' => 'Skaitiklis:',
+            'value' => 'Reikšmė:',
+            'zone' => 'Zona:',
+        ],
+        'captions' => [
+            'list' => 'Skaitiklių rodmenų sąrašas',
         ],
     ],
 
@@ -136,8 +236,8 @@ return [
         ],
         'change_reason' => [
             'required' => 'Reikalinga pakeitimo priežastis audito žurnalui',
-            'min' => 'Pakeitimo priežastis turi būti bent 10 simbolių',
-            'max' => 'Pakeitimo priežastis negali viršyti 500 simbolių',
+            'min' => 'Pakeitimo priežastis turi būti bent :min simbolių',
+            'max' => 'Pakeitimo priežastis negali viršyti :max simbolių',
         ],
         'zone' => [
             'string' => 'Zona turi būti tekstas.',

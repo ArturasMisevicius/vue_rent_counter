@@ -28,8 +28,8 @@
                 <label class="block text-sm font-medium text-slate-700 mb-1">Status</label>
                 <select name="status" class="w-full px-3 py-2 border border-slate-300 rounded">
                     <option value="">All</option>
-                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>{{ __('superadmin.dashboard.organizations_list.status_active') }}</option>
+                    <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>{{ __('superadmin.dashboard.organizations_list.status_inactive') }}</option>
                 </select>
             </div>
             <div>
@@ -83,20 +83,20 @@
                                 <x-status-badge :status="$org->subscription->status" />
                             </div>
                             <div class="text-xs text-slate-500">
-                                Expires: {{ $org->subscription->expires_at->format('M d, Y') }}
+                                {{ __('superadmin.dashboard.organizations_list.expires') }} {{ $org->subscription->expires_at->format('M d, Y') }}
                             </div>
                             @else
-                            <span class="text-sm text-slate-500">No subscription</span>
+                            <span class="text-sm text-slate-500">{{ __('superadmin.dashboard.organizations_list.no_subscription') }}</span>
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($org->is_active)
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                Active
+                                {{ __('superadmin.dashboard.organizations_list.status_active') }}
                             </span>
                             @else
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                Inactive
+                                {{ __('superadmin.dashboard.organizations_list.status_inactive') }}
                             </span>
                             @endif
                         </td>
@@ -104,14 +104,14 @@
                             {{ $org->created_at->format('M d, Y') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="{{ route('superadmin.organizations.show', $org) }}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
-                            <a href="{{ route('superadmin.organizations.edit', $org) }}" class="text-slate-600 hover:text-slate-900">Edit</a>
+                            <a href="{{ route('superadmin.organizations.show', $org) }}" class="text-blue-600 hover:text-blue-900 mr-3">{{ __('superadmin.dashboard.organizations_list.actions.view') }}</a>
+                            <a href="{{ route('superadmin.organizations.edit', $org) }}" class="text-slate-600 hover:text-slate-900">{{ __('superadmin.dashboard.organizations_list.actions.edit') }}</a>
                         </td>
                     </tr>
                     @empty
                     <tr>
                         <td colspan="6" class="px-6 py-4 text-center text-slate-500">
-                            No organizations found
+                            {{ __('superadmin.dashboard.organizations_list.empty') }}
                         </td>
                     </tr>
                     @endforelse

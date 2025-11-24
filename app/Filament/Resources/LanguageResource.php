@@ -44,7 +44,7 @@ class LanguageResource extends Resource
 {
     protected static ?string $model = Language::class;
 
-    protected static ?string $navigationLabel = 'Languages';
+    protected static ?string $navigationLabel = null;
 
     protected static ?int $navigationSort = 1;
 
@@ -55,7 +55,12 @@ class LanguageResource extends Resource
 
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return 'Localization';
+        return __('app.nav_groups.localization');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('locales.navigation');
     }
 
     /**
@@ -100,54 +105,54 @@ class LanguageResource extends Resource
     {
         return $schema
             ->schema([
-                Section::make('Language Details')
-                    ->description('Configure language settings for the application')
+                Section::make(__('locales.sections.details'))
+                    ->description(__('locales.helper_text.details'))
                     ->schema([
                         TextInput::make('code')
-                            ->label('Locale Code')
+                            ->label(__('locales.labels.code'))
                             ->maxLength(5)
                             ->required()
                             ->unique(ignoreRecord: true)
-                            ->placeholder('en')
-                            ->helperText('ISO 639-1 language code (e.g., en, lt, ru)')
+                            ->placeholder(__('locales.placeholders.code'))
+                            ->helperText(__('locales.helper_text.code'))
                             ->alphaDash()
                             ->lowercase(),
 
                         TextInput::make('name')
-                            ->label('Language Name')
+                            ->label(__('locales.labels.name'))
                             ->required()
                             ->maxLength(255)
-                            ->placeholder('English')
-                            ->helperText('Display name in English'),
+                            ->placeholder(__('locales.placeholders.name'))
+                            ->helperText(__('locales.helper_text.name')),
 
                         TextInput::make('native_name')
-                            ->label('Native Name')
+                            ->label(__('locales.labels.native_name'))
                             ->maxLength(255)
-                            ->placeholder('English')
-                            ->helperText('Display name in the native language'),
+                            ->placeholder(__('locales.placeholders.native_name'))
+                            ->helperText(__('locales.helper_text.native_name')),
                     ])
                     ->columns(3),
 
-                Section::make('Settings')
-                    ->description('Control language availability and display')
+                Section::make(__('locales.sections.settings'))
+                    ->description(__('locales.helper_text.details'))
                     ->schema([
                         Toggle::make('is_active')
-                            ->label('Active')
+                            ->label(__('locales.labels.active'))
                             ->default(true)
                             ->inline(false)
-                            ->helperText('Only active languages are available for selection'),
+                            ->helperText(__('locales.helper_text.active')),
 
                         Toggle::make('is_default')
-                            ->label('Default Language')
+                            ->label(__('locales.labels.default'))
                             ->inline(false)
-                            ->helperText('Only one language should be set as default'),
+                            ->helperText(__('locales.helper_text.default')),
 
                         TextInput::make('display_order')
                             ->numeric()
                             ->default(0)
                             ->minValue(0)
-                            ->label('Display Order')
-                            ->helperText('Lower numbers appear first in language selectors'),
+                            ->label(__('locales.labels.order'))
+                            ->helperText(__('locales.helper_text.order')),
                     ])
                     ->columns(3),
             ]);
@@ -158,7 +163,7 @@ class LanguageResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('code')
-                    ->label('Locale')
+                    ->label(__('locales.labels.locale'))
                     ->badge()
                     ->color('primary')
                     ->sortable()
@@ -166,55 +171,55 @@ class LanguageResource extends Resource
                     ->weight('medium'),
 
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Language')
+                    ->label(__('locales.labels.name'))
                     ->sortable()
                     ->searchable()
                     ->weight('medium'),
 
                 Tables\Columns\TextColumn::make('native_name')
-                    ->label('Native Name')
+                    ->label(__('locales.labels.native_name'))
                     ->sortable()
                     ->toggleable()
-                    ->placeholder('—'),
+                    ->placeholder(__('app.common.dash')),
 
                 Tables\Columns\IconColumn::make('is_default')
-                    ->label('Default')
+                    ->label(__('locales.labels.default'))
                     ->boolean()
                     ->sortable()
-                    ->tooltip(fn (bool $state): string => $state ? 'Default language' : 'Not default'),
+                    ->tooltip(fn (bool $state): string => $state ? __('locales.helper_text.default') : __('locales.helper_text.active')),
 
                 Tables\Columns\IconColumn::make('is_active')
-                    ->label('Active')
+                    ->label(__('locales.labels.active'))
                     ->boolean()
                     ->sortable()
-                    ->tooltip(fn (bool $state): string => $state ? 'Available for selection' : 'Disabled'),
+                    ->tooltip(fn (bool $state): string => $state ? __('locales.helper_text.active') : __('locales.helper_text.details')),
 
                 Tables\Columns\TextColumn::make('display_order')
-                    ->label('Order')
+                    ->label(__('locales.labels.order'))
                     ->sortable()
                     ->alignCenter()
                     ->badge()
                     ->color('gray'),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label(__('locales.labels.created'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\TernaryFilter::make('is_active')
-                    ->label('Active')
-                    ->placeholder('All languages')
-                    ->trueLabel('Active only')
-                    ->falseLabel('Inactive only')
+                    ->label(__('locales.labels.active'))
+                    ->placeholder(__('locales.filters.active_placeholder'))
+                    ->trueLabel(__('locales.filters.active_only'))
+                    ->falseLabel(__('locales.filters.inactive_only'))
                     ->native(false),
 
                 Tables\Filters\TernaryFilter::make('is_default')
-                    ->label('Default')
-                    ->placeholder('All languages')
-                    ->trueLabel('Default only')
-                    ->falseLabel('Non-default only')
+                    ->label(__('locales.labels.default'))
+                    ->placeholder(__('locales.filters.default_placeholder'))
+                    ->trueLabel(__('locales.filters.default_only'))
+                    ->falseLabel(__('locales.filters.non_default_only'))
                     ->native(false),
             ])
             ->actions([
@@ -227,15 +232,15 @@ class LanguageResource extends Resource
                 Actions\BulkActionGroup::make([
                     Actions\DeleteBulkAction::make()
                         ->requiresConfirmation()
-                        ->modalHeading('Delete Languages')
-                        ->modalDescription('Are you sure you want to delete these languages? This may affect translations.'),
+                        ->modalHeading(__('locales.modals.delete.heading'))
+                        ->modalDescription(__('locales.modals.delete.description')),
                 ]),
             ])
-            ->emptyStateHeading('No languages configured')
-            ->emptyStateDescription('Add languages to enable multi-language support.')
+            ->emptyStateHeading(__('locales.empty.heading'))
+            ->emptyStateDescription(__('locales.empty.description'))
             ->emptyStateActions([
                 Actions\CreateAction::make()
-                    ->label('Add First Language'),
+                    ->label(__('locales.empty.action')),
             ])
             ->defaultSort('display_order', 'asc')
             ->persistSortInSession()

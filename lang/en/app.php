@@ -5,6 +5,14 @@ return [
         'name' => 'Vilnius Utilities',
         'product' => 'Rent Counter',
     ],
+    'meta' => [
+        'default_title' => 'Vilnius Utilities Billing',
+    ],
+    'accessibility' => [
+        'skip_to_content' => 'Skip to main content',
+        'open_menu' => 'Open main menu',
+        'dismiss' => 'Dismiss',
+    ],
     'nav' => [
         'dashboard' => 'Dashboard',
         'users' => 'Users',
@@ -40,9 +48,35 @@ return [
         'too_many_attempts' => 'Too many failed attempts. Please try again later.',
         'current_password_required' => 'Current password is required to change password.',
         'current_password_incorrect' => 'Current password is incorrect.',
+        'login_page' => [
+            'status_active' => 'Active',
+            'status_inactive' => 'Inactive',
+            'no_users' => 'No users found',
+            'total_users' => 'Total users:',
+            'click_hint' => 'Click any row to auto-fill email and password',
+        ],
     ],
     'demo' => [
         'mutations_disabled' => 'Modifications are disabled in demo mode.',
+    ],
+    'nav_groups' => [
+        'operations' => 'Operations',
+        'configuration' => 'Configuration',
+        'administration' => 'Administration',
+        'system_management' => 'System Management',
+        'localization' => 'Localization',
+        'system' => 'System',
+        'property_management' => 'Property Management',
+        'billing' => 'Billing',
+    ],
+    'common' => [
+        'na' => 'N/A',
+        'dash' => '—',
+    ],
+    'units' => [
+        'euro' => '€',
+        'square_meter' => 'm²',
+        'square_meter_spaced' => ' m²',
     ],
     'errors' => [
         'access_denied' => 'Access Denied',

@@ -70,13 +70,13 @@ class AdminPanelProvider extends PanelProvider
             )
             // Configure navigation based on user role (Requirement 1.1, 13.1)
             ->navigationGroups([
-                NavigationGroup::make('Administration')
+                NavigationGroup::make(__('app.nav_groups.administration'))
                     ->collapsed(false),
-                NavigationGroup::make('Property Management')
+                NavigationGroup::make(__('app.nav_groups.property_management'))
                     ->collapsed(false),
-                NavigationGroup::make('Billing')
+                NavigationGroup::make(__('app.nav_groups.billing'))
                     ->collapsed(false),
-                NavigationGroup::make('System')
+                NavigationGroup::make(__('app.nav_groups.system'))
                     ->collapsed(true),
             ]);
     }
@@ -88,11 +88,19 @@ class AdminPanelProvider extends PanelProvider
     {
         // Define gate for admin panel access
         \Illuminate\Support\Facades\Gate::define('access-admin-panel', function ($user) {
-            return $user->role === \App\Enums\UserRole::ADMIN || $user->role === \App\Enums\UserRole::MANAGER;
+            return in_array($user->role, [
+                \App\Enums\UserRole::ADMIN,
+                \App\Enums\UserRole::MANAGER,
+                \App\Enums\UserRole::SUPERADMIN,
+            ], true);
         });
         
         // Log authorization failures for security monitoring (Requirement 9.4)
         \Illuminate\Support\Facades\Gate::after(function ($user, $ability, $result, $arguments) {
+            if (app()->runningUnitTests()) {
+                return;
+            }
+
             if ($result === false) {
                 \Illuminate\Support\Facades\Log::warning('Authorization denied', [
                     'user_id' => $user?->id,

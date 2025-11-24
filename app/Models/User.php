@@ -82,7 +82,6 @@ class User extends Authenticatable implements FilamentUser
                 UserRole::ADMIN,
                 UserRole::MANAGER,
                 UserRole::SUPERADMIN,
-                UserRole::TENANT,
             ], true);
         }
 

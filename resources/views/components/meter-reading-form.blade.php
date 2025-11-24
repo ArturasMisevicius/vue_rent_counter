@@ -1,13 +1,13 @@
 @props(['meters' => [], 'providers' => []])
 
 <div x-data="meterReadingForm()" class="bg-white shadow-md rounded-lg p-6">
-    <h2 class="text-2xl font-bold mb-6">Enter Meter Reading</h2>
+    <h2 class="text-2xl font-bold mb-6">{{ __('meter_readings.form_component.title') }}</h2>
     
     <form @submit.prevent="submitReading" class="space-y-6">
         <!-- Meter Selection -->
         <div>
             <label for="meter_id" class="block text-sm font-medium text-slate-700 mb-2">
-                Select Meter
+                {{ __('meter_readings.form_component.select_meter') }}
             </label>
             <select 
                 id="meter_id"
@@ -16,14 +16,14 @@
                 class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
             >
-                <option value="">-- Select a meter --</option>
+                <option value="">{{ __('meter_readings.form_component.meter_placeholder') }}</option>
                 @foreach($meters as $meter)
                     <option value="{{ $meter->id }}" 
                             data-type="{{ $meter->type->value }}"
                             data-supports-zones="{{ $meter->supports_zones ? 'true' : 'false' }}"
                             data-serial="{{ $meter->serial_number }}"
                             data-property="{{ $meter->property->address ?? '' }}">
-                        {{ $meter->serial_number }} - {{ enum_label($meter->type) }} ({{ $meter->property->address ?? 'N/A' }})
+                        {{ $meter->serial_number }} - {{ enum_label($meter->type) }} ({{ $meter->property->address ?? __('app.common.na') }})
                     </option>
                 @endforeach
             </select>
@@ -32,7 +32,7 @@
         <!-- Provider Selection (Dynamic) -->
         <div x-show="formData.meter_id">
             <label for="provider_id" class="block text-sm font-medium text-slate-700 mb-2">
-                Select Provider
+                {{ __('meter_readings.form_component.select_provider') }}
             </label>
             <select 
                 id="provider_id"
@@ -41,7 +41,7 @@
                 class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
             >
-                <option value="">-- Select a provider --</option>
+                <option value="">{{ __('meter_readings.form_component.provider_placeholder') }}</option>
                 <template x-for="provider in availableProviders" :key="provider.id">
                     <option :value="provider.id" x-text="provider.name"></option>
                 </template>
@@ -51,7 +51,7 @@
         <!-- Tariff Selection (Dynamic) -->
         <div x-show="formData.provider_id">
             <label for="tariff_id" class="block text-sm font-medium text-slate-700 mb-2">
-                Select Tariff
+                {{ __('meter_readings.form_component.select_tariff') }}
             </label>
             <select 
                 id="tariff_id"
@@ -60,7 +60,7 @@
                 class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
             >
-                <option value="">-- Select a tariff --</option>
+                <option value="">{{ __('meter_readings.form_component.tariff_placeholder') }}</option>
                 <template x-for="tariff in availableTariffs" :key="tariff.id">
                     <option :value="tariff.id" x-text="tariff.name"></option>
                 </template>
@@ -69,15 +69,15 @@
 
         <!-- Previous Reading Display -->
         <div x-show="previousReading !== null" class="bg-blue-50 border border-blue-200 rounded-md p-4">
-            <h3 class="text-sm font-semibold text-blue-900 mb-2">Previous Reading</h3>
+            <h3 class="text-sm font-semibold text-blue-900 mb-2">{{ __('meter_readings.form_component.previous') }}</h3>
             <div class="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                    <span class="text-slate-600">Date:</span>
-                    <span class="font-medium ml-2" x-text="previousReading?.date || 'N/A'"></span>
+                    <span class="text-slate-600">{{ __('meter_readings.form_component.date_label') }}</span>
+                    <span class="font-medium ml-2" x-text="previousReading?.date || naText"></span>
                 </div>
                 <div>
-                    <span class="text-slate-600">Value:</span>
-                    <span class="font-medium ml-2" x-text="previousReading?.value || 'N/A'"></span>
+                    <span class="text-slate-600">{{ __('meter_readings.form_component.value_label') }}</span>
+                    <span class="font-medium ml-2" x-text="previousReading?.value || naText"></span>
                 </div>
             </div>
         </div>
@@ -85,7 +85,7 @@
         <!-- Reading Date -->
         <div>
             <label for="reading_date" class="block text-sm font-medium text-slate-700 mb-2">
-                Reading Date
+                {{ __('meter_readings.form_component.reading_date') }}
             </label>
             <input 
                 type="date" 
@@ -101,7 +101,7 @@
         <!-- Reading Value (Single or Multi-zone) -->
         <div x-show="!supportsZones">
             <label for="value" class="block text-sm font-medium text-slate-700 mb-2">
-                Reading Value
+                {{ __('meter_readings.form_component.reading_value') }}
             </label>
             <input 
                 type="number" 
@@ -121,7 +121,7 @@
         <div x-show="supportsZones" class="space-y-4">
             <div>
                 <label for="day_value" class="block text-sm font-medium text-slate-700 mb-2">
-                    Day Zone Reading
+                    {{ __('meter_readings.form_component.day_zone') }}
                 </label>
                 <input 
                     type="number" 
@@ -138,7 +138,7 @@
             
             <div>
                 <label for="night_value" class="block text-sm font-medium text-slate-700 mb-2">
-                    Night Zone Reading
+                    {{ __('meter_readings.form_component.night_zone') }}
                 </label>
                 <input 
                     type="number" 
@@ -156,21 +156,21 @@
 
         <!-- Consumption Display -->
         <div x-show="consumption !== null && consumption >= 0" class="bg-green-50 border border-green-200 rounded-md p-4">
-            <h3 class="text-sm font-semibold text-green-900 mb-2">Consumption</h3>
+            <h3 class="text-sm font-semibold text-green-900 mb-2">{{ __('meter_readings.form_component.consumption') }}</h3>
             <div class="text-2xl font-bold text-green-700" x-text="consumption.toFixed(2)"></div>
             <p class="text-sm text-slate-600 mt-1">
-                <span x-text="meterType"></span> units
+                <span x-text="meterType"></span> {{ __('meter_readings.form_component.units') }}
             </p>
         </div>
 
         <!-- Charge Preview -->
         <div x-show="chargePreview !== null" class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-            <h3 class="text-sm font-semibold text-yellow-900 mb-2">Estimated Charge</h3>
+            <h3 class="text-sm font-semibold text-yellow-900 mb-2">{{ __('meter_readings.form_component.estimated_charge') }}</h3>
             <div class="text-2xl font-bold text-yellow-700">
                 €<span x-text="chargePreview.toFixed(2)"></span>
             </div>
             <p class="text-sm text-slate-600 mt-1" x-show="selectedTariff">
-                Rate: €<span x-text="currentRate?.toFixed(4) || '0.0000'"></span> per unit
+                {{ __('meter_readings.form_component.rate') }} €<span x-text="currentRate?.toFixed(4) || '0.0000'"></span> {{ __('meter_readings.form_component.per_unit') }}
             </p>
         </div>
 
@@ -181,15 +181,15 @@
                 @click="resetForm()"
                 class="px-4 py-2 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-                Reset
+                {{ __('meter_readings.form_component.reset') }}
             </button>
             <button 
                 type="submit"
                 :disabled="!isValid || isSubmitting"
                 class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                <span x-show="!isSubmitting">Submit Reading</span>
-                <span x-show="isSubmitting">Submitting...</span>
+                <span x-show="!isSubmitting">{{ __('meter_readings.form_component.submit') }}</span>
+                <span x-show="isSubmitting">{{ __('meter_readings.form_component.submitting') }}</span>
             </button>
         </div>
     </form>
@@ -215,6 +215,7 @@ function meterReadingForm() {
         selectedTariff: null,
         supportsZones: false,
         meterType: '',
+        naText: @js(__('app.common.na')),
         errors: {},
         isSubmitting: false,
         maxDate: new Date().toISOString().split('T')[0],

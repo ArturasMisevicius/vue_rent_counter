@@ -5,6 +5,14 @@ return [
         'name' => 'Коммунальные Вильнюса',
         'product' => 'Счетчик аренды',
     ],
+    'meta' => [
+        'default_title' => 'Vilnius Utilities — биллинг',
+    ],
+    'accessibility' => [
+        'skip_to_content' => 'Перейти к основному содержимому',
+        'open_menu' => 'Открыть главное меню',
+        'dismiss' => 'Закрыть',
+    ],
     'nav' => [
         'dashboard' => 'Панель',
         'users' => 'Пользователи',
@@ -35,9 +43,35 @@ return [
         'too_many_attempts' => 'Слишком много неудачных попыток. Пожалуйста, попробуйте позже.',
         'current_password_required' => 'Чтобы изменить пароль, требуется текущий пароль.',
         'current_password_incorrect' => 'Текущий пароль указан неверно.',
+        'login_page' => [
+            'status_active' => 'Активен',
+            'status_inactive' => 'Неактивен',
+            'no_users' => 'Пользователи не найдены',
+            'total_users' => 'Всего пользователей:',
+            'click_hint' => 'Нажмите строку, чтобы автозаполнить email и пароль',
+        ],
     ],
     'demo' => [
         'mutations_disabled' => 'Изменения отключены в демо-режиме.',
+    ],
+    'nav_groups' => [
+        'operations' => 'Операции',
+        'configuration' => 'Конфигурация',
+        'administration' => 'Администрирование',
+        'system_management' => 'Управление системой',
+        'localization' => 'Локализация',
+        'system' => 'Система',
+        'property_management' => 'Управление объектами',
+        'billing' => 'Биллинг',
+    ],
+    'common' => [
+        'na' => 'Н/Д',
+        'dash' => '—',
+    ],
+    'units' => [
+        'euro' => '€',
+        'square_meter' => 'м²',
+        'square_meter_spaced' => ' м²',
     ],
     'errors' => [
         'access_denied' => 'Доступ запрещен',

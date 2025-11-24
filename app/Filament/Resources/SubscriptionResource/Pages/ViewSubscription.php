@@ -26,17 +26,17 @@ class ViewSubscription extends ViewRecord
     {
         return $schema
             ->schema([
-                Infolists\Components\Section::make('Organization')
+                Infolists\Components\Section::make(__('subscriptions.labels.organization'))
                     ->schema([
                         Infolists\Components\TextEntry::make('user.organization_name')
-                            ->label('Organization Name'),
+                            ->label(__('subscriptions.labels.organization')),
                         Infolists\Components\TextEntry::make('user.email')
-                            ->label('Email'),
+                            ->label(__('subscriptions.labels.email')),
                         Infolists\Components\TextEntry::make('user.name')
-                            ->label('Contact Name'),
+                            ->label(__('subscriptions.labels.contact_name')),
                     ])->columns(3),
 
-                Infolists\Components\Section::make('Subscription Details')
+                Infolists\Components\Section::make(__('subscriptions.sections.details'))
                     ->schema([
                         Infolists\Components\TextEntry::make('plan_type')
                             ->badge()
@@ -58,45 +58,49 @@ class ViewSubscription extends ViewRecord
                                 default => 'gray',
                             }),
                         Infolists\Components\TextEntry::make('starts_at')
+                            ->label(__('subscriptions.labels.starts_at'))
                             ->dateTime(),
                         Infolists\Components\TextEntry::make('expires_at')
+                            ->label(__('subscriptions.labels.expires_at'))
                             ->dateTime()
                             ->color(fn ($record) => $record->expires_at->isPast() ? 'danger' : 'success'),
                         Infolists\Components\TextEntry::make('days_until_expiry')
-                            ->label('Days Until Expiry')
+                            ->label(__('subscriptions.labels.days_until_expiry'))
                             ->state(fn ($record) => $record->daysUntilExpiry())
                             ->color(fn ($state) => $state < 0 ? 'danger' : ($state <= 14 ? 'warning' : 'success')),
                     ])->columns(3),
 
-                Infolists\Components\Section::make('Limits')
+                Infolists\Components\Section::make(__('subscriptions.sections.limits'))
                     ->schema([
                         Infolists\Components\TextEntry::make('max_properties')
-                            ->label('Max Properties'),
+                            ->label(__('subscriptions.labels.max_properties')),
                         Infolists\Components\TextEntry::make('max_tenants')
-                            ->label('Max Tenants'),
+                            ->label(__('subscriptions.labels.max_tenants')),
                     ])->columns(2),
 
-                Infolists\Components\Section::make('Usage Statistics')
+                Infolists\Components\Section::make(__('subscriptions.sections.usage'))
                     ->schema([
                         Infolists\Components\TextEntry::make('properties_used')
-                            ->label('Properties Used')
+                            ->label(__('subscriptions.labels.properties_used'))
                             ->state(fn ($record) => $record->user->properties()->withoutGlobalScopes()->count()),
                         Infolists\Components\TextEntry::make('properties_remaining')
-                            ->label('Properties Remaining')
+                            ->label(__('subscriptions.labels.properties_remaining'))
                             ->state(fn ($record) => max(0, $record->max_properties - $record->user->properties()->withoutGlobalScopes()->count())),
                         Infolists\Components\TextEntry::make('tenants_used')
-                            ->label('Tenants Used')
+                            ->label(__('subscriptions.labels.tenants_used'))
                             ->state(fn ($record) => $record->user->childUsers()->count()),
                         Infolists\Components\TextEntry::make('tenants_remaining')
-                            ->label('Tenants Remaining')
+                            ->label(__('subscriptions.labels.tenants_remaining'))
                             ->state(fn ($record) => max(0, $record->max_tenants - $record->user->childUsers()->count())),
                     ])->columns(4),
 
-                Infolists\Components\Section::make('Timestamps')
+                Infolists\Components\Section::make(__('subscriptions.sections.timestamps'))
                     ->schema([
                         Infolists\Components\TextEntry::make('created_at')
+                            ->label(__('subscriptions.labels.created_at'))
                             ->dateTime(),
                         Infolists\Components\TextEntry::make('updated_at')
+                            ->label(__('subscriptions.labels.updated_at') ?? 'Updated At')
                             ->dateTime(),
                     ])->columns(2),
             ]);

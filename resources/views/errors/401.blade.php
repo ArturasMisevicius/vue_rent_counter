@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>401 - Unauthorized</title>
+    <title>{{ __('error_pages.401.title') }}</title>
     @vite(['resources/css/app.css'])
 </head>
 <body class="bg-slate-100">
@@ -12,21 +12,21 @@
             <div>
                 <h1 class="text-9xl font-bold text-indigo-600">401</h1>
                 <h2 class="mt-6 text-3xl font-extrabold text-slate-900">
-                    Unauthorized
+                    {{ __('error_pages.401.headline') }}
                 </h2>
                 <p class="mt-2 text-sm text-slate-600">
-                    You need to be logged in to access this page.
+                    {{ __('error_pages.401.description') }}
                 </p>
             </div>
             
             <div class="mt-8 space-y-4">
                 <a href="{{ route('login') }}" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                    Go to Login
+                    {{ __('error_pages.common.login') }}
                 </a>
                 
                 <div>
                     <a href="{{ url('/') }}" class="text-indigo-600 hover:text-indigo-500">
-                        Return to Home
+                        {{ __('error_pages.common.return_home') }}
                     </a>
                 </div>
             </div>

@@ -37,7 +37,7 @@ class InvoiceResource extends Resource
 {
     protected static ?string $model = Invoice::class;
 
-    protected static ?string $navigationLabel = 'Invoices';
+    protected static ?string $navigationLabel = null;
 
     protected static ?int $navigationSort = 3;
 
@@ -46,9 +46,14 @@ class InvoiceResource extends Resource
         return 'heroicon-o-document-text';
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return __('invoices.admin.navigation');
+    }
+
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return 'Operations';
+        return __('app.nav_groups.operations');
     }
 
     /**
@@ -95,7 +100,7 @@ class InvoiceResource extends Resource
         return $schema
             ->schema([
                 Forms\Components\Select::make('tenant_renter_id')
-                    ->label('Tenant')
+                    ->label(__('invoices.admin.labels.tenant'))
                     ->relationship('tenant', 'name', function (Builder $query) {
                         // Filter tenants by authenticated user's tenant_id (Requirement 11.1, 12.4)
                         $user = auth()->user();
@@ -113,7 +118,7 @@ class InvoiceResource extends Resource
                     ]),
                 
                 Forms\Components\DatePicker::make('billing_period_start')
-                    ->label('Billing Period Start')
+                    ->label(__('invoices.admin.labels.billing_period_start'))
                     ->required()
                     ->native(false)
                     ->disabled(fn (?Invoice $record): bool => $record?->isFinalized() ?? false)
@@ -123,7 +128,7 @@ class InvoiceResource extends Resource
                     ]),
                 
                 Forms\Components\DatePicker::make('billing_period_end')
-                    ->label('Billing Period End')
+                    ->label(__('invoices.admin.labels.billing_period_end'))
                     ->required()
                     ->native(false)
                     ->after('billing_period_start')
@@ -135,11 +140,11 @@ class InvoiceResource extends Resource
                     ]),
                 
                 Forms\Components\TextInput::make('total_amount')
-                    ->label('Total Amount')
+                    ->label(__('invoices.admin.labels.total_amount'))
                     ->required()
                     ->numeric()
                     ->minValue(0)
-                    ->prefix('€')
+                    ->prefix(__('app.units.euro'))
                     ->step(0.01)
                     ->disabled(fn (?Invoice $record): bool => $record?->isFinalized() ?? false)
                     ->validationMessages([
@@ -149,7 +154,7 @@ class InvoiceResource extends Resource
                     ]),
                 
                 Forms\Components\Select::make('status')
-                    ->label('Status')
+                    ->label(__('invoices.admin.labels.status'))
                     ->options(InvoiceStatus::class)
                     ->required()
                     ->native(false)
@@ -170,32 +175,33 @@ class InvoiceResource extends Resource
             ->searchable()
             ->columns([
                 Tables\Columns\TextColumn::make('id')
-                    ->label('Invoice #')
+                    ->label(__('invoices.admin.labels.invoice_number'))
                     ->searchable()
                     ->sortable()
                     ->formatStateUsing(fn (int $state): string => "INV-{$state}"),
                 
                 Tables\Columns\TextColumn::make('tenant.property.address')
-                    ->label('Property')
+                    ->label(__('invoices.admin.labels.property'))
                     ->searchable()
                     ->sortable()
                     ->description(fn (Invoice $record): ?string => $record->tenant?->name),
                 
                 Tables\Columns\TextColumn::make('billing_period_start')
-                    ->label('Billing Period')
+                    ->label(__('invoices.admin.labels.billing_period'))
                     ->date('Y-m-d')
                     ->sortable()
-                    ->description(fn (Invoice $record): string => 
-                        $record->billing_period_start->format('Y-m-d') . ' to ' . $record->billing_period_end->format('Y-m-d')
-                    ),
+                    ->description(fn (Invoice $record): string => __('invoices.admin.format.billing_range', [
+                        'from' => $record->billing_period_start->format('Y-m-d'),
+                        'to' => $record->billing_period_end->format('Y-m-d'),
+                    ])),
                 
                 Tables\Columns\TextColumn::make('total_amount')
-                    ->label('Total Amount')
+                    ->label(__('invoices.admin.labels.total_amount'))
                     ->money('EUR')
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('invoices.admin.labels.status'))
                     ->badge()
                     ->color(fn (InvoiceStatus $state): string => match ($state) {
                         InvoiceStatus::DRAFT => 'gray',
@@ -206,14 +212,14 @@ class InvoiceResource extends Resource
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created At')
+                    ->label(__('invoices.admin.labels.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->label('Status')
+                    ->label(__('invoices.admin.labels.status'))
                     ->options(InvoiceStatus::labels())
                     ->native(false),
             ])
@@ -224,11 +230,11 @@ class InvoiceResource extends Resource
             ->bulkActions([
                 Actions\BulkActionGroup::make([
                     Actions\BulkAction::make('updateStatus')
-                        ->label('Update Status')
+                        ->label(__('invoices.admin.labels.update_status'))
                         ->icon('heroicon-o-pencil-square')
                         ->form([
                             Forms\Components\Select::make('status')
-                                ->label('New Status')
+                                ->label(__('invoices.admin.labels.new_status'))
                                 ->options(InvoiceStatus::labels())
                                 ->required()
                                 ->native(false),
@@ -242,7 +248,7 @@ class InvoiceResource extends Resource
                             }
                         })
                         ->deselectRecordsAfterCompletion()
-                        ->successNotificationTitle('Invoice statuses updated'),
+                        ->successNotificationTitle(__('invoices.admin.bulk.status_updated')),
                     
                     Actions\DeleteBulkAction::make()
                         ->action(function ($records) {

@@ -243,13 +243,20 @@ class InvoiceController extends Controller
         $validated = $request->validated();
 
         $invoice->status = \App\Enums\InvoiceStatus::PAID;
-        $invoice->paid_at = now();
-        if (!empty($validated['payment_reference'])) {
+        $invoice->paid_at = !empty($validated['paid_at'])
+            ? \Carbon\Carbon::parse($validated['paid_at'])
+            : now();
+
+        if (! empty($validated['payment_reference'])) {
             $invoice->payment_reference = $validated['payment_reference'];
         }
-        if (isset($validated['paid_amount'])) {
-            $invoice->paid_amount = $validated['paid_amount'];
+
+        if (array_key_exists('paid_amount', $validated)) {
+            $invoice->paid_amount = $validated['paid_amount'] ?? $invoice->total_amount;
+        } elseif ($invoice->paid_amount === null) {
+            $invoice->paid_amount = $invoice->total_amount;
         }
+
         $invoice->save();
 
         return back()->with('success', __('notifications.invoice.marked_paid') ?? 'Invoice marked as paid.');

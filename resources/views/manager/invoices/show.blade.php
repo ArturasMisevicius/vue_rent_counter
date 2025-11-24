@@ -4,13 +4,7 @@
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
-    <x-breadcrumbs>
-        <x-breadcrumb-item href="{{ route('manager.dashboard') }}">{{ __('app.nav.dashboard') }}</x-breadcrumb-item>
-        <x-breadcrumb-item href="{{ route('manager.invoices.index') }}">{{ __('app.nav.invoices') }}</x-breadcrumb-item>
-        <x-breadcrumb-item :active="true">{{ __('invoices.manager.show.title', ['id' => $invoice->id]) }}</x-breadcrumb-item>
-    </x-breadcrumbs>
-
-    <div class="sm:flex sm:items-center">
+<div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
             <h1 class="text-2xl font-semibold text-slate-900">{{ __('invoices.manager.show.title', ['id' => $invoice->id]) }}</h1>
             <p class="mt-2 text-sm text-slate-700">
@@ -55,9 +49,10 @@
                 @can('update', $invoice)
                 <form action="{{ route('manager.invoices.mark-paid', $invoice) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('invoices.manager.show.mark_paid_confirm') }}');">
                     @csrf
-                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-                        <input type="text" name="payment_reference" placeholder="{{ __('invoices.manager.show.payment_reference_placeholder') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:w-64">
-                        <input type="number" step="0.01" name="paid_amount" placeholder="{{ __('invoices.manager.show.paid_amount_placeholder') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:w-40">
+                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-4 sm:items-center">
+                        <input type="text" name="payment_reference" placeholder="{{ __('invoices.manager.show.payment_reference_placeholder') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <input type="number" step="0.01" name="paid_amount" placeholder="{{ __('invoices.manager.show.paid_amount_placeholder') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <input type="datetime-local" name="paid_at" value="{{ now()->format('Y-m-d\\TH:i') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="{{ __('invoices.manager.show.paid_at_placeholder') }}">
                         <x-button type="submit" variant="secondary">
                             {{ __('invoices.manager.show.mark_paid') }}
                         </x-button>
@@ -110,6 +105,26 @@
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $invoice->finalized_at->format('M d, Y H:i') }}</dd>
                 </div>
                 @endif
+                @if($invoice->isPaid() || $invoice->paid_at || $invoice->payment_reference || $invoice->paid_amount)
+                <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.manager.show.info.paid_at') }}</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
+                        {{ $invoice->paid_at ? $invoice->paid_at->format('M d, Y H:i') : '—' }}
+                    </dd>
+                </div>
+                <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.manager.show.info.payment_reference') }}</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
+                        {{ $invoice->payment_reference ?? '—' }}
+                    </dd>
+                </div>
+                <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.manager.show.info.paid_amount') }}</dt>
+                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
+                        {{ $invoice->paid_amount ? '€' . number_format($invoice->paid_amount, 2) : '—' }}
+                    </dd>
+                </div>
+                @endif
             </dl>
         </x-card>
 
@@ -135,7 +150,7 @@
                                 {{ $invoice->tenant->property->address }}
                             </a>
                         @else
-                            <span class="text-slate-400">N/A</span>
+                            <span class="text-slate-400">{{ __('app.common.na') }}</span>
                         @endif
                     </dd>
                 </div>

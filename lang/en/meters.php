@@ -12,6 +12,13 @@ return [
         'installation_date' => 'Installation Date',
         'last_reading' => 'Last Reading',
         'status' => 'Status',
+        'supports_zones' => 'Supports Zones',
+        'supports_time_of_use' => 'Supports Time-of-Use Zones',
+        'zones' => 'Zones',
+        'created_at' => 'Created At',
+        'initial_reading' => 'Initial Reading',
+        'installed' => 'Installed',
+        'readings' => 'Readings',
     ],
 
     'headings' => [
@@ -55,6 +62,34 @@ return [
                 'cta' => 'Create one now',
             ],
         ],
+    ],
+
+    'helper_text' => [
+        'supports_time_of_use' => 'Enable for electricity meters with day/night rate capability',
+    ],
+
+    'filters' => [
+        'supports_zones' => 'Supports Zones',
+        'all_meters' => 'All meters',
+        'with_zones' => 'With zones',
+        'without_zones' => 'Without zones',
+    ],
+
+    'relation' => [
+        'meter_type' => 'Meter Type',
+        'serial_number' => 'Serial Number',
+        'installation_date' => 'Installation Date',
+        'initial_reading' => 'Initial Reading',
+        'readings' => 'Readings',
+        'installed' => 'Installed',
+        'type' => 'Type',
+        'empty_heading' => 'No meters installed',
+        'empty_description' => 'Add meters to track utility consumption for this property.',
+        'add_first' => 'Add First Meter',
+    ],
+
+    'units' => [
+        'kwh' => 'kWh',
     ],
 
     'validation' => [

@@ -1,19 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Create Building')
+@section('title', __('buildings.pages.manager_form.create_title'))
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
-    <x-breadcrumbs>
-        <x-breadcrumb-item href="{{ route('manager.dashboard') }}">Dashboard</x-breadcrumb-item>
-        <x-breadcrumb-item href="{{ route('manager.buildings.index') }}">Buildings</x-breadcrumb-item>
-        <x-breadcrumb-item :active="true">Create</x-breadcrumb-item>
-    </x-breadcrumbs>
-
-    <div class="sm:flex sm:items-center">
+<div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-slate-900">Create Building</h1>
-            <p class="mt-2 text-sm text-slate-700">Add a new multi-unit building</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('buildings.pages.manager_form.create_title') }}</h1>
+            <p class="mt-2 text-sm text-slate-700">{{ __('buildings.pages.manager_form.create_subtitle') }}</p>
         </div>
     </div>
 
@@ -25,38 +19,38 @@
                 <div class="space-y-6">
                     <x-form-input
                         name="name"
-                        label="Building Name"
+                        label="{{ __('buildings.pages.manager_form.labels.name') }}"
                         type="text"
                         :value="old('name')"
                         required
-                        placeholder="Gedimino 15"
+                        placeholder="{{ __('buildings.pages.manager_form.placeholders.name') }}"
                     />
 
                     <x-form-input
                         name="address"
-                        label="Address"
+                        label="{{ __('buildings.pages.manager_form.labels.address') }}"
                         type="text"
                         :value="old('address')"
                         required
-                        placeholder="123 Main Street, Vilnius"
+                        placeholder="{{ __('buildings.pages.manager_form.placeholders.address') }}"
                     />
 
                     <x-form-input
                         name="total_apartments"
-                        label="Total Apartments"
+                        label="{{ __('buildings.pages.manager_form.labels.total_apartments') }}"
                         type="number"
                         :value="old('total_apartments')"
                         required
-                        placeholder="10"
+                        placeholder="{{ __('buildings.pages.manager_form.placeholders.total_apartments') }}"
                         min="1"
                     />
 
                     <div class="flex items-center justify-end gap-x-4">
                         <x-button href="{{ route('manager.buildings.index') }}" variant="secondary">
-                            Cancel
+                            {{ __('buildings.pages.manager_form.actions.cancel') }}
                         </x-button>
                         <x-button type="submit">
-                            Create Building
+                            {{ __('buildings.pages.manager_form.actions.save_create') }}
                         </x-button>
                     </div>
                 </div>

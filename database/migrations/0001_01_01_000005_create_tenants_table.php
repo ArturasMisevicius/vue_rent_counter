@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('email');
             $table->string('phone')->nullable();
-            $table->foreignId('property_id')->constrained('properties')->onDelete('restrict');
-            $table->date('lease_start');
+            $table->foreignId('property_id')->nullable()->constrained('properties')->nullOnDelete();
+            $table->date('lease_start')->nullable();
             $table->date('lease_end')->nullable();
             $table->timestamps();
         });

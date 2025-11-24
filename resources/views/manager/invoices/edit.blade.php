@@ -4,14 +4,7 @@
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
-    <x-breadcrumbs>
-        <x-breadcrumb-item href="{{ route('manager.dashboard') }}">{{ __('app.nav.dashboard') }}</x-breadcrumb-item>
-        <x-breadcrumb-item href="{{ route('manager.invoices.index') }}">{{ __('app.nav.invoices') }}</x-breadcrumb-item>
-        <x-breadcrumb-item href="{{ route('manager.invoices.show', $invoice) }}">{{ __('invoices.manager.show.title', ['id' => $invoice->id]) }}</x-breadcrumb-item>
-        <x-breadcrumb-item :active="true">{{ __('invoices.manager.edit.breadcrumb') }}</x-breadcrumb-item>
-    </x-breadcrumbs>
-
-    <div class="sm:flex sm:items-center">
+<div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
             <h1 class="text-2xl font-semibold text-slate-900">{{ __('invoices.manager.edit.title', ['id' => $invoice->id]) }}</h1>
             <p class="mt-2 text-sm text-slate-700">{{ __('invoices.manager.edit.description') }}</p>

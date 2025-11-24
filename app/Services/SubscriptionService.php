@@ -94,7 +94,7 @@ class SubscriptionService
      */
     public function checkSubscriptionStatus(User $admin): array
     {
-        $subscription = $admin->subscription;
+        $subscription = $admin->subscription()->first();
 
         if (!$subscription) {
             return [
@@ -140,7 +140,7 @@ class SubscriptionService
      */
     public function enforceSubscriptionLimits(User $admin, ?string $resourceType = null): void
     {
-        $subscription = $admin->subscription;
+        $subscription = $admin->subscription()->first();
 
         if (!$subscription) {
             throw new SubscriptionExpiredException('No active subscription found.');

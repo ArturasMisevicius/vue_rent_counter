@@ -54,21 +54,21 @@
                     <dd class="mt-1 text-sm text-slate-900 font-mono">{{ $organization->tenant_id }}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-slate-500">Status</dt>
+                    <dt class="text-sm font-medium text-slate-500">{{ __('superadmin.dashboard.organization_show.status') }}</dt>
                     <dd class="mt-1">
                         @if($organization->is_active)
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            Active
+                            {{ __('superadmin.dashboard.organizations_list.status_active') }}
                         </span>
                         @else
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                            Inactive
+                            {{ __('superadmin.dashboard.organizations_list.status_inactive') }}
                         </span>
                         @endif
                     </dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-slate-500">Created</dt>
+                    <dt class="text-sm font-medium text-slate-500">{{ __('superadmin.dashboard.organization_show.created') }}</dt>
                     <dd class="mt-1 text-sm text-slate-900">{{ $organization->created_at->format('M d, Y H:i') }}</dd>
                 </div>
             </dl>
@@ -89,30 +89,30 @@
                     </dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-slate-500">Start Date</dt>
+                    <dt class="text-sm font-medium text-slate-500">{{ __('superadmin.dashboard.organization_show.start_date') }}</dt>
                     <dd class="mt-1 text-sm text-slate-900">{{ $organization->subscription->starts_at->format('M d, Y') }}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-slate-500">Expiry Date</dt>
+                    <dt class="text-sm font-medium text-slate-500">{{ __('superadmin.dashboard.organization_show.expiry_date') }}</dt>
                     <dd class="mt-1 text-sm text-slate-900">
                         {{ $organization->subscription->expires_at->format('M d, Y') }}
                         <span class="text-slate-500">({{ $organization->subscription->expires_at->diffForHumans() }})</span>
                     </dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-slate-500">Limits</dt>
+                    <dt class="text-sm font-medium text-slate-500">{{ __('superadmin.dashboard.organization_show.limits') }}</dt>
                     <dd class="mt-1 text-sm text-slate-900">
-                        {{ $organization->subscription->max_properties }} properties, {{ $organization->subscription->max_tenants }} tenants
+                        {{ __('superadmin.dashboard.organization_show.limit_values', ['properties' => $organization->subscription->max_properties, 'tenants' => $organization->subscription->max_tenants]) }}
                     </dd>
                 </div>
             </dl>
             <div class="mt-4">
                 <a href="{{ route('superadmin.subscriptions.show', $organization->subscription) }}" class="text-blue-600 hover:text-blue-800">
-                    Manage Subscription →
+                    {{ __('superadmin.dashboard.organization_show.manage_subscription') }}
                 </a>
             </div>
             @else
-            <p class="text-slate-500">No subscription found</p>
+            <p class="text-slate-500">{{ __('superadmin.dashboard.organization_show.no_subscription') }}</p>
             @endif
         </x-card>
     </div>
@@ -120,28 +120,28 @@
     {{-- Statistics --}}
     <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
         <x-stat-card 
-            title="Properties" 
+            :title="__('superadmin.dashboard.organization_show.stats.properties')" 
             :value="$stats['total_properties']" 
             icon="🏢"
         />
         <x-stat-card 
-            title="Buildings" 
+            :title="__('superadmin.dashboard.organization_show.stats.buildings')" 
             :value="$stats['total_buildings']" 
             icon="🏗️"
         />
         <x-stat-card 
-            title="Tenants" 
+            :title="__('superadmin.dashboard.organization_show.stats.tenants')" 
             :value="$stats['total_tenants']" 
             icon="👥"
         />
         <x-stat-card 
-            title="Active Tenants" 
+            :title="__('superadmin.dashboard.organization_show.stats.active_tenants')" 
             :value="$stats['active_tenants']" 
             icon="✅"
             color="green"
         />
         <x-stat-card 
-            title="Invoices" 
+            :title="__('superadmin.dashboard.organization_show.stats.invoices')" 
             :value="$stats['total_invoices']" 
             icon="📄"
         />
@@ -170,17 +170,17 @@
                             @if($tenant->property)
                             {{ $tenant->property->address }}
                             @else
-                            <span class="text-slate-400">Not assigned</span>
+                            <span class="text-slate-400">{{ __('superadmin.dashboard.overview.resources.tenants.not_assigned') }}</span>
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($tenant->is_active)
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                Active
+                                {{ __('superadmin.dashboard.overview.resources.tenants.status_active') }}
                             </span>
                             @else
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                Inactive
+                                {{ __('tenants.statuses.inactive') }}
                             </span>
                             @endif
                         </td>
@@ -191,7 +191,7 @@
                     @empty
                     <tr>
                         <td colspan="5" class="px-6 py-4 text-center text-slate-500">
-                            No tenants yet
+                            {{ __('superadmin.dashboard.overview.resources.tenants.empty') }}
                         </td>
                     </tr>
                     @endforelse

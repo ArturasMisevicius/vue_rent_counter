@@ -11,6 +11,7 @@ return [
         'contact_info' => 'Контактная информация',
         'tariffs' => 'Тарифы',
         'created' => 'Создано',
+        'no_contact_info' => 'Контактов нет',
     ],
 
     'headings' => [
@@ -42,15 +43,31 @@ return [
         'add_tariff' => 'Добавить тариф',
     ],
 
+    'sections' => [
+        'provider_information' => 'Информация о поставщике',
+        'contact_information' => 'Контактная информация',
+    ],
+
+    'forms' => [
+        'contact' => [
+            'field' => 'Поле',
+            'value' => 'Значение',
+            'add' => 'Добавить контактное поле',
+            'helper' => 'Добавьте контактную информацию, например телефон, email, адрес, сайт и т.п.',
+        ],
+    ],
+
     'tables' => [
         'name' => 'Название',
         'service_type' => 'Тип услуги',
         'tariffs' => 'Тарифы',
         'contact_info' => 'Контакты',
         'actions' => 'Действия',
-        'active_from' => 'Активен с',
-        'active_until' => 'Активен до',
+        'active_from' => 'Действует с',
+        'active_until' => 'Действует до',
         'status' => 'Статус',
+        'tariff_count' => 'Количество тарифов',
+        'created_at' => 'Создано',
     ],
 
     'statuses' => [

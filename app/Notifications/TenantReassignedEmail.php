@@ -35,25 +35,29 @@ class TenantReassignedEmail extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $typeLabel = method_exists($this->newProperty->type, 'label')
+            ? $this->newProperty->type->label()
+            : $this->newProperty->type->value;
+
         $message = (new MailMessage)
-            ->subject('Property Assignment Updated')
-            ->greeting("Hello {$notifiable->name}!");
+            ->subject(__('notifications.tenant_reassigned.subject'))
+            ->greeting(__('notifications.tenant_reassigned.greeting', ['name' => $notifiable->name]));
 
         if ($this->previousProperty) {
-            $message->line('Your property assignment has been updated.')
-                ->line("**Previous Property:** {$this->previousProperty->address}")
-                ->line("**New Property:** {$this->newProperty->address}");
+            $message->line(__('notifications.tenant_reassigned.updated'))
+                ->line(__('notifications.tenant_reassigned.previous', ['address' => $this->previousProperty->address]))
+                ->line(__('notifications.tenant_reassigned.new', ['address' => $this->newProperty->address]));
         } else {
-            $message->line('You have been assigned to a property:')
-                ->line("**Property:** {$this->newProperty->address}");
+            $message->line(__('notifications.tenant_reassigned.assigned'))
+                ->line(__('notifications.tenant_reassigned.property', ['address' => $this->newProperty->address]));
         }
 
         return $message
-            ->line("**Property Type:** {$this->newProperty->type->value}")
+            ->line(__('notifications.tenant_reassigned.property_type', ['type' => $typeLabel]))
             ->line('')
-            ->line('You can now view your utility information for this property.')
-            ->action('View Dashboard', url('/tenant/dashboard'))
-            ->line('If you have any questions, please contact your property administrator.');
+            ->line(__('notifications.tenant_reassigned.info'))
+            ->action(__('notifications.tenant_reassigned.view_dashboard'), url('/tenant/dashboard'))
+            ->line(__('notifications.tenant_reassigned.support'));
     }
 
     /**

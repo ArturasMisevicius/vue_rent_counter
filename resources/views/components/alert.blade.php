@@ -23,7 +23,7 @@
             </div>
             @if($dismissible)
                 <button @click="show = false" class="text-emerald-500 focus:outline-none">
-                    <span class="sr-only">Dismiss</span>
+                    <span class="sr-only">{{ __('app.accessibility.dismiss') }}</span>
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M6 18L18 6" />
                     </svg>
@@ -54,7 +54,7 @@
             </div>
             @if($dismissible)
                 <button @click="show = false" class="text-rose-500 focus:outline-none">
-                    <span class="sr-only">Dismiss</span>
+                    <span class="sr-only">{{ __('app.accessibility.dismiss') }}</span>
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M6 18L18 6" />
                     </svg>
@@ -85,7 +85,7 @@
             </div>
             @if($dismissible)
                 <button @click="show = false" class="text-amber-500 focus:outline-none">
-                    <span class="sr-only">Dismiss</span>
+                    <span class="sr-only">{{ __('app.accessibility.dismiss') }}</span>
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M6 18L18 6" />
                     </svg>
@@ -116,7 +116,7 @@
             </div>
             @if($dismissible)
                 <button @click="show = false" class="text-blue-500 focus:outline-none">
-                    <span class="sr-only">Dismiss</span>
+                    <span class="sr-only">{{ __('app.accessibility.dismiss') }}</span>
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M6 18L18 6" />
                     </svg>

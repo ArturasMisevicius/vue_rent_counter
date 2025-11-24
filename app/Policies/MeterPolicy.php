@@ -36,8 +36,12 @@ class MeterPolicy
             return true;
         }
 
-        // Admins and managers can view all meters within their tenant
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Admins can view meters across tenants; managers are tenant-scoped
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        if ($user->role === UserRole::MANAGER) {
             return $meter->property->tenant_id === $user->tenant_id;
         }
 
@@ -79,8 +83,12 @@ class MeterPolicy
             return true;
         }
 
-        // Admins and managers can update meters within their tenant
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Admins can update meters across tenants; managers are tenant-scoped
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        if ($user->role === UserRole::MANAGER) {
             return $meter->property->tenant_id === $user->tenant_id;
         }
 
@@ -99,9 +107,9 @@ class MeterPolicy
             return true;
         }
 
-        // Admins can delete meters within their tenant (Requirement 9.1, 13.3)
+        // Admins can delete meters across tenants (Requirement 9.1, 13.3)
         if ($user->role === UserRole::ADMIN) {
-            return $meter->property->tenant_id === $user->tenant_id;
+            return true;
         }
 
         return false;
@@ -119,8 +127,12 @@ class MeterPolicy
             return true;
         }
 
-        // Admins and managers can restore meters within their tenant (Requirement 9.1, 13.3)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Admins can restore any meter; managers are tenant-scoped (Requirement 9.1, 13.3)
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        if ($user->role === UserRole::MANAGER) {
             return $meter->property->tenant_id === $user->tenant_id;
         }
 

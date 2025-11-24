@@ -51,47 +51,47 @@ class DashboardStatsWidget extends StatsOverviewWidget
         $tenantId = $user->tenant_id;
 
         return [
-            Stat::make('Total Properties', Property::where('tenant_id', $tenantId)->count())
-                ->description('Properties in your portfolio')
+            Stat::make(__('dashboard.widgets.admin.total_properties.label'), Property::where('tenant_id', $tenantId)->count())
+                ->description(__('dashboard.widgets.admin.total_properties.description'))
                 ->descriptionIcon('heroicon-o-building-office')
                 ->color('success'),
 
-            Stat::make('Total Buildings', Building::where('tenant_id', $tenantId)->count())
-                ->description('Buildings managed')
+            Stat::make(__('dashboard.widgets.admin.total_buildings.label'), Building::where('tenant_id', $tenantId)->count())
+                ->description(__('dashboard.widgets.admin.total_buildings.description'))
                 ->descriptionIcon('heroicon-o-building-office-2')
                 ->color('info'),
 
-            Stat::make('Active Tenants', User::where('tenant_id', $tenantId)
+            Stat::make(__('dashboard.widgets.admin.active_tenants.label'), User::where('tenant_id', $tenantId)
                 ->where('role', UserRole::TENANT)
                 ->where('is_active', true)
                 ->count())
-                ->description('Active tenant accounts')
+                ->description(__('dashboard.widgets.admin.active_tenants.description'))
                 ->descriptionIcon('heroicon-o-users')
                 ->color('warning'),
 
-            Stat::make('Draft Invoices', Invoice::where('tenant_id', $tenantId)
+            Stat::make(__('dashboard.widgets.admin.draft_invoices.label'), Invoice::where('tenant_id', $tenantId)
                 ->whereNull('finalized_at')
                 ->count())
-                ->description('Invoices pending finalization')
+                ->description(__('dashboard.widgets.admin.draft_invoices.description'))
                 ->descriptionIcon('heroicon-o-document-text')
                 ->color('danger'),
 
-            Stat::make('Pending Readings', MeterReading::whereHas('meter', function ($query) use ($tenantId) {
+            Stat::make(__('dashboard.widgets.admin.pending_readings.label'), MeterReading::whereHas('meter', function ($query) use ($tenantId) {
                 $query->where('tenant_id', $tenantId);
             })
                 ->whereDoesntHave('auditTrail')
                 ->count())
-                ->description('Meter readings to verify')
+                ->description(__('dashboard.widgets.admin.pending_readings.description'))
                 ->descriptionIcon('heroicon-o-chart-bar')
                 ->color('warning'),
 
-            Stat::make('Total Revenue (This Month)', $this->formatRevenue(
+            Stat::make(__('dashboard.widgets.admin.total_revenue.label'), $this->formatRevenue(
                 Invoice::where('tenant_id', $tenantId)
                     ->whereNotNull('finalized_at')
                     ->whereMonth('created_at', now()->month)
                     ->sum('total_amount')
             ))
-                ->description('Revenue from finalized invoices')
+                ->description(__('dashboard.widgets.admin.total_revenue.description'))
                 ->descriptionIcon('heroicon-o-currency-euro')
                 ->color('success'),
         ];
@@ -105,29 +105,29 @@ class DashboardStatsWidget extends StatsOverviewWidget
         $tenantId = $user->tenant_id;
 
         return [
-            Stat::make('Total Properties', Property::where('tenant_id', $tenantId)->count())
-                ->description('Properties you manage')
+            Stat::make(__('dashboard.widgets.manager.total_properties.label'), Property::where('tenant_id', $tenantId)->count())
+                ->description(__('dashboard.widgets.manager.total_properties.description'))
                 ->descriptionIcon('heroicon-o-building-office')
                 ->color('success'),
 
-            Stat::make('Total Buildings', Building::where('tenant_id', $tenantId)->count())
-                ->description('Buildings under management')
+            Stat::make(__('dashboard.widgets.manager.total_buildings.label'), Building::where('tenant_id', $tenantId)->count())
+                ->description(__('dashboard.widgets.manager.total_buildings.description'))
                 ->descriptionIcon('heroicon-o-building-office-2')
                 ->color('info'),
 
-            Stat::make('Pending Readings', MeterReading::whereHas('meter', function ($query) use ($tenantId) {
+            Stat::make(__('dashboard.widgets.manager.pending_readings.label'), MeterReading::whereHas('meter', function ($query) use ($tenantId) {
                 $query->where('tenant_id', $tenantId);
             })
                 ->whereDoesntHave('auditTrail')
                 ->count())
-                ->description('Meter readings to verify')
+                ->description(__('dashboard.widgets.manager.pending_readings.description'))
                 ->descriptionIcon('heroicon-o-chart-bar')
                 ->color('warning'),
 
-            Stat::make('Draft Invoices', Invoice::where('tenant_id', $tenantId)
+            Stat::make(__('dashboard.widgets.manager.draft_invoices.label'), Invoice::where('tenant_id', $tenantId)
                 ->whereNull('finalized_at')
                 ->count())
-                ->description('Invoices pending finalization')
+                ->description(__('dashboard.widgets.manager.draft_invoices.description'))
                 ->descriptionIcon('heroicon-o-document-text')
                 ->color('danger'),
         ];
@@ -145,24 +145,24 @@ class DashboardStatsWidget extends StatsOverviewWidget
         $property = Property::find($user->property_id);
 
         return [
-            Stat::make('Your Property', $property?->address ?? 'N/A')
-                ->description('Your assigned property')
+            Stat::make(__('dashboard.widgets.tenant.property.label'), $property?->address ?? __('app.common.na'))
+                ->description(__('dashboard.widgets.tenant.property.description'))
                 ->descriptionIcon('heroicon-o-building-office')
                 ->color('info'),
 
-            Stat::make('Your Invoices', Invoice::whereHas('property', function ($query) use ($user) {
+            Stat::make(__('dashboard.widgets.tenant.invoices.label'), Invoice::whereHas('property', function ($query) use ($user) {
                 $query->where('properties.id', $user->property_id);
             })->count())
-                ->description('Total invoices')
+                ->description(__('dashboard.widgets.tenant.invoices.description'))
                 ->descriptionIcon('heroicon-o-document-text')
                 ->color('success'),
 
-            Stat::make('Unpaid Invoices', Invoice::whereHas('property', function ($query) use ($user) {
+            Stat::make(__('dashboard.widgets.tenant.unpaid.label'), Invoice::whereHas('property', function ($query) use ($user) {
                 $query->where('properties.id', $user->property_id);
             })
                 ->where('status', InvoiceStatus::FINALIZED)
                 ->count())
-                ->description('Invoices awaiting payment')
+                ->description(__('dashboard.widgets.tenant.unpaid.description'))
                 ->descriptionIcon('heroicon-o-exclamation-circle')
                 ->color('danger'),
         ];

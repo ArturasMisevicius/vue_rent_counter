@@ -55,13 +55,11 @@ final class PropertiesRelationManagerIntegrationTest extends TestCase
         );
 
         $component
-            ->mountTableAction('create')
-            ->setTableActionData([
+            ->callTableAction('create', data: [
                 'address' => 'Apartment 42, Floor 5',
                 'type' => PropertyType::APARTMENT->value,
                 'area_sqm' => 65.5,
             ])
-            ->callTableAction('create')
             ->assertHasNoTableActionErrors();
 
         $property = Property::latest()->first();
@@ -90,13 +88,11 @@ final class PropertiesRelationManagerIntegrationTest extends TestCase
         );
 
         $component
-            ->mountTableAction('edit', $property)
-            ->setTableActionData([
+            ->callTableAction('edit', $property, data: [
                 'address' => 'New Address',
                 'type' => PropertyType::HOUSE->value,
                 'area_sqm' => 120,
             ])
-            ->callTableAction('edit')
             ->assertHasNoTableActionErrors();
 
         $property->refresh();
@@ -124,9 +120,7 @@ final class PropertiesRelationManagerIntegrationTest extends TestCase
         );
 
         $component
-            ->mountTableAction('manage_tenant', $property)
-            ->setTableActionData(['tenant_id' => $tenant->id])
-            ->callTableAction('manage_tenant')
+            ->callTableAction('manage_tenant', $property, data: ['tenant_id' => $tenant->id])
             ->assertHasNoTableActionErrors();
 
         expect($property->fresh()->tenants->first()->id)->toBe($tenant->id);
@@ -151,9 +145,7 @@ final class PropertiesRelationManagerIntegrationTest extends TestCase
         );
 
         $component
-            ->mountTableAction('manage_tenant', $property)
-            ->setTableActionData(['tenant_id' => null])
-            ->callTableAction('manage_tenant');
+            ->callTableAction('manage_tenant', $property, data: ['tenant_id' => null]);
 
         expect($property->fresh()->tenants)->toBeEmpty();
     }
@@ -206,6 +198,7 @@ final class PropertiesRelationManagerIntegrationTest extends TestCase
 
         // Filter by large properties
         $component
+            ->resetTableFilters()
             ->filterTable('large_properties', true)
             ->assertCanSeeTableRecords(Property::where('area_sqm', '>', 100)->get())
             ->assertCanNotSeeTableRecords(Property::where('area_sqm', '<=', 100)->get());

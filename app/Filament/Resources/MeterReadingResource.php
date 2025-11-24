@@ -48,13 +48,18 @@ class MeterReadingResource extends Resource
         return 'heroicon-o-chart-bar';
     }
 
-    protected static ?string $navigationLabel = 'Meter Readings';
+    protected static ?string $navigationLabel = null;
 
     protected static ?int $navigationSort = 1;
 
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return 'Operations';
+        return __('app.nav_groups.operations');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('app.nav.readings');
     }
 
     // Integrate MeterReadingPolicy for authorization (Requirement 9.5)
@@ -90,7 +95,7 @@ class MeterReadingResource extends Resource
         return $schema
             ->schema([
                 Forms\Components\Select::make('property_id')
-                    ->label('Property')
+                    ->label(__('meter_readings.labels.property'))
                     ->relationship('meter.property', 'address', function (Builder $query) {
                         // Filter properties by authenticated user's tenant_id (Requirement 9.1, 10.1, 12.4)
                         $user = auth()->user();
@@ -110,7 +115,7 @@ class MeterReadingResource extends Resource
                     ->afterStateUpdated(fn (Forms\Set $set) => $set('meter_id', null)),
                 
                 Forms\Components\Select::make('meter_id')
-                    ->label('Meter')
+                    ->label(__('meter_readings.labels.meter'))
                     ->options(function (Get $get): Collection {
                         $query = Meter::query();
                         
@@ -135,30 +140,30 @@ class MeterReadingResource extends Resource
                     ->searchable()
                     ->required()
                     ->disabled(fn (Get $get): bool => !$get('property_id'))
-                    ->helperText('Select a property first')
+                    ->helperText(__('meter_readings.helper_text.select_property_first'))
                     ->validationMessages([
-                        'required' => 'Meter is required',
-                        'exists' => 'Selected meter does not exist',
+                        'required' => __('meter_readings.validation.meter_id.required'),
+                        'exists' => __('meter_readings.validation.meter_id.exists'),
                     ]),
                 
                 Forms\Components\DatePicker::make('reading_date')
-                    ->label('Reading Date')
+                    ->label(__('meter_readings.labels.reading_date'))
                     ->required()
                     ->maxDate(now())
                     ->native(false)
                     ->validationMessages([
-                        'required' => 'Reading date is required',
-                        'date' => 'Reading date must be a valid date',
-                        'before_or_equal' => 'Reading date cannot be in the future',
+                        'required' => __('meter_readings.validation.reading_date.required'),
+                        'date' => __('meter_readings.validation.reading_date.date'),
+                        'before_or_equal' => __('meter_readings.validation.reading_date.before_or_equal'),
                     ]),
                 
                 Forms\Components\TextInput::make('value')
-                    ->label('Reading Value')
+                    ->label(__('meter_readings.labels.reading_value'))
                     ->required()
                     ->numeric()
                     ->minValue(0)
                     ->step(0.01)
-                    ->suffix('units')
+                    ->suffix(__('meter_readings.units'))
                     ->live(onBlur: true)
                     ->rules([
                         'required',
@@ -190,7 +195,9 @@ class MeterReadingResource extends Resource
                                 $previousReading = $service->getPreviousReading($meter, $zone);
                                 
                                 if ($previousReading && $value < $previousReading->value) {
-                                    $fail("Reading cannot be lower than previous reading ({$previousReading->value})");
+                                    $fail(__('meter_readings.validation.custom.monotonicity_lower', [
+                                        'previous' => $previousReading->value,
+                                    ]));
                                 }
                             } 
                             // For update operation (UpdateMeterReadingRequest validation)
@@ -198,28 +205,32 @@ class MeterReadingResource extends Resource
                                 // Check against previous reading
                                 $previousReading = $service->getAdjacentReading($record, $zone, 'previous');
                                 if ($previousReading && $value < $previousReading->value) {
-                                    $fail("Reading cannot be lower than previous reading ({$previousReading->value})");
+                                    $fail(__('meter_readings.validation.custom.monotonicity_lower', [
+                                        'previous' => $previousReading->value,
+                                    ]));
                                 }
 
                                 // Check against next reading
                                 $nextReading = $service->getAdjacentReading($record, $zone, 'next');
                                 if ($nextReading && $value > $nextReading->value) {
-                                    $fail("Reading cannot be higher than next reading ({$nextReading->value})");
+                                    $fail(__('meter_readings.validation.custom.monotonicity_higher', [
+                                        'next' => $nextReading->value,
+                                    ]));
                                 }
                             }
                         },
                     ])
                     ->validationMessages([
-                        'required' => 'Meter reading is required',
-                        'numeric' => 'Reading must be a number',
-                        'min' => 'Reading must be a positive number',
+                        'required' => __('meter_readings.validation.value.required'),
+                        'numeric' => __('meter_readings.validation.value.numeric'),
+                        'min' => __('meter_readings.validation.value.min'),
                     ]),
                 
                 Forms\Components\TextInput::make('zone')
-                    ->label('Zone')
+                    ->label(__('meter_readings.labels.zone'))
                     ->maxLength(50)
                     ->live(onBlur: true)
-                    ->helperText('Optional: For multi-zone meters (e.g., day/night)')
+                    ->helperText(__('meter_readings.helper_text.zone_optional'))
                     ->rules([
                         'nullable',
                         'string',
@@ -239,12 +250,12 @@ class MeterReadingResource extends Resource
 
                             // Zone provided but meter doesn't support zones
                             if ($value && !$meter->supports_zones) {
-                                $fail('This meter does not support zone-based readings');
+                                $fail(__('meter_readings.validation.custom.zone.unsupported'));
                             }
 
                             // Zone not provided but meter requires zones
                             if (!$value && $meter->supports_zones) {
-                                $fail('Zone is required for meters that support multiple zones');
+                                $fail(__('meter_readings.validation.custom.zone.required_for_multi_zone'));
                             }
                         },
                     ]),
@@ -257,44 +268,44 @@ class MeterReadingResource extends Resource
             ->searchable()
             ->columns([
                 Tables\Columns\TextColumn::make('meter.property.address')
-                    ->label('Property')
+                    ->label(__('meter_readings.labels.property'))
                     ->searchable()
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('meter.type')
-                    ->label('Meter Type')
+                    ->label(__('meter_readings.labels.meter_type'))
                     ->badge()
                     ->formatStateUsing(fn (?MeterType $state): ?string => $state?->label())
                     ->searchable()
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('reading_date')
-                    ->label('Reading Date')
+                    ->label(__('meter_readings.labels.reading_date'))
                     ->date('Y-m-d')
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('value')
-                    ->label('Reading Value')
+                    ->label(__('meter_readings.labels.reading_value'))
                     ->numeric(decimalPlaces: 2)
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('consumption')
-                    ->label('Consumption')
+                    ->label(__('meter_readings.labels.consumption'))
                     ->getStateUsing(fn (MeterReading $record): ?string => 
                         $record->getConsumption() !== null 
                             ? number_format($record->getConsumption(), 2) 
-                            : 'N/A'
+                            : __('meter_readings.na')
                     )
                     ->sortable(false),
                 
                 Tables\Columns\TextColumn::make('zone')
-                    ->label('Zone')
+                    ->label(__('meter_readings.labels.zone'))
                     ->searchable()
                     ->formatStateUsing(fn (?string $state): string => $state ? (TariffZone::tryFrom($state)?->label() ?? $state) : '-')
                     ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created At')
+                    ->label(__('meter_readings.labels.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -303,10 +314,10 @@ class MeterReadingResource extends Resource
                 Filter::make('reading_date')
                     ->form([
                         Forms\Components\DatePicker::make('from')
-                            ->label('From Date')
+                            ->label(__('meter_readings.labels.from_date'))
                             ->native(false),
                         Forms\Components\DatePicker::make('until')
-                            ->label('Until Date')
+                            ->label(__('meter_readings.labels.until_date'))
                             ->native(false),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
@@ -323,16 +334,20 @@ class MeterReadingResource extends Resource
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
                         if ($data['from'] ?? null) {
-                            $indicators[] = 'From: ' . \Carbon\Carbon::parse($data['from'])->toFormattedDateString();
+                            $indicators[] = __('meter_readings.filters.indicator_from', [
+                                'date' => \Carbon\Carbon::parse($data['from'])->toFormattedDateString(),
+                            ]);
                         }
                         if ($data['until'] ?? null) {
-                            $indicators[] = 'Until: ' . \Carbon\Carbon::parse($data['until'])->toFormattedDateString();
+                            $indicators[] = __('meter_readings.filters.indicator_until', [
+                                'date' => \Carbon\Carbon::parse($data['until'])->toFormattedDateString(),
+                            ]);
                         }
                         return $indicators;
                     }),
                 
                 SelectFilter::make('meter_type')
-                    ->label('Meter Type')
+                    ->label(__('meter_readings.labels.meter_type'))
                     ->options(MeterType::labels())
                     ->query(function (Builder $query, $value): Builder {
                         if (! $value) {
@@ -351,9 +366,9 @@ class MeterReadingResource extends Resource
                 Actions\BulkActionGroup::make([
                     Actions\DeleteBulkAction::make()
                         ->requiresConfirmation()
-                        ->modalHeading('Delete Meter Readings')
-                        ->modalDescription('Are you sure you want to delete these meter readings? This action cannot be undone.')
-                        ->modalSubmitActionLabel('Yes, delete them'),
+                        ->modalHeading(__('meter_readings.modals.bulk_delete.title'))
+                        ->modalDescription(__('meter_readings.modals.bulk_delete.description'))
+                        ->modalSubmitActionLabel(__('meter_readings.modals.bulk_delete.confirm')),
                 ]),
             ])
             ->defaultSort('reading_date', 'desc');

@@ -4,13 +4,7 @@
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
-    <x-breadcrumbs>
-        <x-breadcrumb-item :href="route('admin.dashboard')">{{ __('app.nav.dashboard') }}</x-breadcrumb-item>
-        <x-breadcrumb-item :href="route('admin.tariffs.index')">{{ __('app.nav.tariffs') }}</x-breadcrumb-item>
-        <x-breadcrumb-item :active="true">{{ $tariff->name }}</x-breadcrumb-item>
-    </x-breadcrumbs>
-
-    <div class="sm:flex sm:items-center">
+<div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
             <h1 class="text-2xl font-semibold text-slate-900">{{ __('tariffs.headings.show') }}</h1>
             <p class="mt-2 text-sm text-slate-700">{{ __('tariffs.descriptions.show') }}</p>

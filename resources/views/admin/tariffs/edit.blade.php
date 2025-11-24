@@ -1,20 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Tariff')
+@section('title', __('tariffs.pages.admin_form.edit_title'))
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
-    <x-breadcrumbs>
-        <x-breadcrumb-item :href="route('admin.dashboard')">Dashboard</x-breadcrumb-item>
-        <x-breadcrumb-item :href="route('admin.tariffs.index')">Tariffs</x-breadcrumb-item>
-        <x-breadcrumb-item :href="route('admin.tariffs.show', $tariff)">{{ $tariff->name }}</x-breadcrumb-item>
-        <x-breadcrumb-item :active="true">Edit</x-breadcrumb-item>
-    </x-breadcrumbs>
-
-    <div class="sm:flex sm:items-center">
+<div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-slate-900">Edit Tariff</h1>
-            <p class="mt-2 text-sm text-slate-700">Update tariff configuration or create a new version</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('tariffs.pages.admin_form.edit_title') }}</h1>
+            <p class="mt-2 text-sm text-slate-700">{{ __('tariffs.pages.admin_form.edit_subtitle') }}</p>
         </div>
     </div>
 
@@ -27,28 +20,28 @@
                 <div class="space-y-6">
                     <x-form-input 
                         name="name" 
-                        label="Tariff Name" 
+                        label="{{ __('tariffs.pages.admin_form.labels.name') }}" 
                         :value="old('name', $tariff->name)" 
                         required 
                     />
 
                     <x-form-select 
                         name="provider_id" 
-                        label="Provider" 
+                        label="{{ __('tariffs.pages.admin_form.labels.provider') }}" 
                         :options="$providers->pluck('name', 'id')" 
                         :selected="old('provider_id', $tariff->provider_id)" 
                         required 
                     />
 
                     <div>
-                        <label for="configuration" class="block text-sm font-medium text-slate-700">Configuration</label>
+                        <label for="configuration" class="block text-sm font-medium text-slate-700">{{ __('tariffs.pages.admin_form.labels.configuration') }}</label>
                         <div class="mt-2 rounded-md bg-slate-50 p-4 text-xs text-slate-700 space-y-2">
-                            <p class="font-semibold">Required Fields:</p>
+                            <p class="font-semibold">{{ __('tariffs.pages.admin_form.examples.required_fields') }}</p>
                             <ul class="list-disc list-inside space-y-1">
                                 <li><code>type</code>: "flat" or "time_of_use"</li>
                                 <li><code>currency</code>: "EUR"</li>
-                                <li>For flat: <code>rate</code> (numeric)</li>
-                                <li>For time_of_use: <code>zones</code> array with id, start, end, rate</li>
+                                <li>{{ __('tariffs.pages.admin_form.examples.flat_fields') }}</li>
+                                <li>{{ __('tariffs.pages.admin_form.examples.tou_fields') }}</li>
                             </ul>
                         </div>
                         
@@ -75,7 +68,7 @@
                     <div class="grid grid-cols-2 gap-4">
                         <x-form-input 
                             name="active_from" 
-                            label="Active From" 
+                            label="{{ __('tariffs.pages.admin_form.labels.active_from') }}" 
                             type="date" 
                             :value="old('active_from', $tariff->active_from->format('Y-m-d'))" 
                             required 
@@ -83,7 +76,7 @@
 
                         <x-form-input 
                             name="active_until" 
-                            label="Active Until (Optional)" 
+                            label="{{ __('tariffs.pages.admin_form.labels.active_until') }}" 
                             type="date" 
                             :value="old('active_until', $tariff->active_until?->format('Y-m-d'))" 
                         />
@@ -97,9 +90,9 @@
                                 </svg>
                             </div>
                             <div class="ml-3 flex-1">
-                                <h3 class="text-sm font-medium text-blue-800">Versioning</h3>
+                                <h3 class="text-sm font-medium text-blue-800">{{ __('tariffs.pages.admin_form.versioning.title') }}</h3>
                                 <div class="mt-2 text-sm text-blue-700">
-                                    <p>Check the box below to create a new version instead of updating the existing tariff. This preserves historical pricing data.</p>
+                                    <p>{{ __('tariffs.pages.admin_form.versioning.body') }}</p>
                                 </div>
                                 <div class="mt-4">
                                     <div class="flex items-center">
@@ -112,7 +105,7 @@
                                             class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600"
                                         >
                                         <label for="create_new_version" class="ml-2 text-sm font-medium text-blue-700">
-                                            Create new version (preserves historical data)
+                                            {{ __('tariffs.pages.admin_form.versioning.checkbox') }}
                                         </label>
                                     </div>
                                 </div>
@@ -123,10 +116,10 @@
 
                 <div class="mt-6 flex items-center justify-end gap-x-3">
                     <a href="{{ route('admin.tariffs.show', $tariff) }}" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">
-                        Cancel
+                        {{ __('tariffs.pages.admin_form.actions.cancel') }}
                     </a>
                     <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
-                        Update Tariff
+                        {{ __('tariffs.pages.admin_form.actions.save_edit') }}
                     </button>
                 </div>
             </form>

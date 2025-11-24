@@ -39,31 +39,36 @@ class MeterReadingSubmittedEmail extends Notification implements ShouldQueue
         $meter = $this->meterReading->meter;
         $property = $meter->property;
         $consumption = $this->meterReading->getConsumption();
+        $meterTypeLabel = method_exists($meter->type, 'label')
+            ? $meter->type->label()
+            : $meter->type->value;
 
         $message = (new MailMessage)
-            ->subject('New Meter Reading Submitted')
-            ->greeting("Hello {$notifiable->name}!")
-            ->line("A new meter reading has been submitted by **{$this->tenant->name}**.")
+            ->subject(__('notifications.meter_reading_submitted.subject'))
+            ->greeting(__('notifications.meter_reading_submitted.greeting', ['name' => $notifiable->name]))
+            ->line(__('notifications.meter_reading_submitted.submitted_by', ['tenant' => $this->tenant->name]))
             ->line('')
-            ->line('**Reading Details:**')
-            ->line("Property: {$property->address}")
-            ->line("Meter Type: {$meter->type->value}")
-            ->line("Serial Number: {$meter->serial_number}")
-            ->line("Reading Date: {$this->meterReading->reading_date->format('F j, Y')}")
-            ->line("Reading Value: {$this->meterReading->value}");
+            ->line(__('notifications.meter_reading_submitted.details'))
+            ->line(__('notifications.meter_reading_submitted.property', ['address' => $property->address]))
+            ->line(__('notifications.meter_reading_submitted.meter_type', ['type' => $meterTypeLabel]))
+            ->line(__('notifications.meter_reading_submitted.serial', ['serial' => $meter->serial_number]))
+            ->line(__('notifications.meter_reading_submitted.reading_date', [
+                'date' => $this->meterReading->reading_date->format('F j, Y'),
+            ]))
+            ->line(__('notifications.meter_reading_submitted.reading_value', ['value' => $this->meterReading->value]));
 
         if ($this->meterReading->zone) {
-            $message->line("Zone: {$this->meterReading->zone}");
+            $message->line(__('notifications.meter_reading_submitted.zone', ['zone' => $this->meterReading->zone]));
         }
 
         if ($consumption !== null) {
-            $message->line("Consumption: {$consumption}");
+            $message->line(__('notifications.meter_reading_submitted.consumption', ['consumption' => $consumption]));
         }
 
         return $message
             ->line('')
-            ->action('View Meter Readings', url('/manager/meter-readings'))
-            ->line('You can review and manage all meter readings from your dashboard.');
+            ->action(__('notifications.meter_reading_submitted.view'), url('/manager/meter-readings'))
+            ->line(__('notifications.meter_reading_submitted.manage_hint'));
     }
 
     /**

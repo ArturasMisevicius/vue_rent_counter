@@ -48,7 +48,7 @@ class PropertyResource extends Resource
      */
     protected static string $translationPrefix = 'properties.validation';
 
-    protected static ?string $navigationLabel = 'Properties';
+    protected static ?string $navigationLabel = null;
 
     protected static ?int $navigationSort = 2;
 
@@ -57,9 +57,14 @@ class PropertyResource extends Resource
         return 'heroicon-o-home';
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return __('properties.labels.properties');
+    }
+
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return 'Operations';
+        return __('app.nav_groups.operations');
     }
 
     protected static ?string $recordTitleAttribute = 'address';
@@ -123,7 +128,7 @@ class PropertyResource extends Resource
                             ->numeric()
                             ->minValue(0)
                             ->maxValue(10000)
-                            ->suffix('m²')
+                            ->suffix(__('app.units.square_meter'))
                             ->step(0.01)
                             ->validationMessages(self::getValidationMessages('area_sqm')),
                     ])
@@ -204,7 +209,7 @@ class PropertyResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->toggleable()
-                    ->placeholder('—'),
+                    ->placeholder(__('app.common.dash')),
 
                 Tables\Columns\TextColumn::make('tenants.name')
                     ->label(__('properties.labels.current_tenant'))
@@ -222,7 +227,7 @@ class PropertyResource extends Resource
                 Tables\Columns\TextColumn::make('area_sqm')
                     ->label(__('properties.labels.area'))
                     ->numeric(decimalPlaces: 2)
-                    ->suffix(' m²')
+                    ->suffix(__('app.units.square_meter_spaced'))
                     ->sortable()
                     ->alignEnd(),
 

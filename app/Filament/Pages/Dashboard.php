@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use BackedEnum;
+use App\Enums\UserRole;
 use App\Filament\Widgets\DashboardStatsWidget;
 use App\Filament\Widgets\ExpiringSubscriptionsWidget;
 use App\Filament\Widgets\OrganizationStatsWidget;
@@ -20,8 +21,15 @@ class Dashboard extends BaseDashboard
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-home';
 
     protected static ?string $title = 'Dashboard';
-    
+
     protected string $view = 'filament.pages.dashboard';
+
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        return $user?->role === UserRole::ADMIN || $user?->role === UserRole::MANAGER;
+    }
 
     public function getWidgets(): array
     {

@@ -23,12 +23,13 @@ class PropertiesRelationManager extends RelationManager
             ->recordTitleAttribute('address')
             ->columns([
                 Tables\Columns\TextColumn::make('address')
+                    ->label(__('properties.labels.address'))
                     ->searchable()
                     ->sortable()
                     ->limit(50),
                 
                 Tables\Columns\TextColumn::make('building.name')
-                    ->label('Building')
+                    ->label(__('organizations.relations.properties.building'))
                     ->searchable()
                     ->sortable(),
                 
@@ -36,17 +37,17 @@ class PropertiesRelationManager extends RelationManager
                     ->badge(),
                 
                 Tables\Columns\TextColumn::make('area')
-                    ->label('Area (m²)')
+                    ->label(__('organizations.relations.properties.area'))
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('tenants_count')
                     ->counts('tenants')
-                    ->label('Tenants')
+                    ->label(__('organizations.relations.properties.tenants'))
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('meters_count')
                     ->counts('meters')
-                    ->label('Meters')
+                    ->label(__('organizations.relations.properties.meters'))
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('created_at')
@@ -56,19 +57,16 @@ class PropertiesRelationManager extends RelationManager
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('property_type')
-                    ->options([
-                        'apartment' => 'Apartment',
-                        'house' => 'House',
-                        'commercial' => 'Commercial',
-                    ]),
+                    ->options(\App\Enums\PropertyType::labels())
+                    ->native(false),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
                     ->url(fn ($record): string => route('filament.admin.resources.properties.view', ['record' => $record]))
                     ->openUrlInNewTab(false),
             ])
-            ->emptyStateHeading('No properties yet')
-            ->emptyStateDescription('Properties will appear here when created')
+            ->emptyStateHeading(__('organizations.relations.properties.empty_heading'))
+            ->emptyStateDescription(__('organizations.relations.properties.empty_description'))
             ->emptyStateIcon('heroicon-o-home');
     }
 }

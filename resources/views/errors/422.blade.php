@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>422 - Validation Error</title>
+    <title>{{ __('error_pages.422.title') }}</title>
     @vite(['resources/css/app.css'])
 </head>
 <body class="bg-slate-100">
@@ -12,16 +12,16 @@
             <div class="text-center">
                 <h1 class="text-9xl font-bold text-indigo-600">422</h1>
                 <h2 class="mt-6 text-3xl font-extrabold text-slate-900">
-                    Validation Error
+                    {{ __('error_pages.422.headline') }}
                 </h2>
                 <p class="mt-2 text-sm text-slate-600">
-                    The data you submitted contains errors. Please review and try again.
+                    {{ __('error_pages.422.description') }}
                 </p>
             </div>
             
             @if(isset($errors) && $errors->any())
                 <div class="bg-white shadow rounded-lg p-6">
-                    <h3 class="text-lg font-medium text-slate-900 mb-4">Validation Errors:</h3>
+                    <h3 class="text-lg font-medium text-slate-900 mb-4">{{ __('error_pages.422.errors_title') }}</h3>
                     <ul class="space-y-2">
                         @foreach($errors->all() as $error)
                             <li class="flex items-start">
@@ -37,26 +37,26 @@
             
             <div class="text-center space-y-4">
                 <button onclick="history.back()" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                    Go Back and Fix Errors
+                    {{ __('error_pages.common.back_fix') }}
                 </button>
                 
                 @auth
                     <div>
                         @if(auth()->user()->role->value === 'admin')
                             <a href="{{ route('filament.admin.pages.dashboard') }}" class="text-indigo-600 hover:text-indigo-500">
-                                Go to Dashboard
+                                {{ __('error_pages.common.dashboard') }}
                             </a>
                         @elseif(auth()->user()->role->value === 'manager')
                             <a href="{{ route('manager.dashboard') }}" class="text-indigo-600 hover:text-indigo-500">
-                                Go to Dashboard
+                                {{ __('error_pages.common.dashboard') }}
                             </a>
                         @elseif(auth()->user()->role->value === 'tenant')
                             <a href="{{ route('tenant.dashboard') }}" class="text-indigo-600 hover:text-indigo-500">
-                                Go to Dashboard
+                                {{ __('error_pages.common.dashboard') }}
                             </a>
                         @else
                             <a href="{{ url('/') }}" class="text-indigo-600 hover:text-indigo-500">
-                                Go to Home
+                                {{ __('error_pages.common.home') }}
                             </a>
                         @endif
                     </div>

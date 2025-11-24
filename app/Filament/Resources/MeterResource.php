@@ -25,7 +25,7 @@ class MeterResource extends Resource
 
     protected static string $translationPrefix = 'meters.validation';
 
-    protected static ?string $navigationLabel = 'Meters';
+    protected static ?string $navigationLabel = null;
 
     protected static ?int $navigationSort = 3;
 
@@ -34,9 +34,14 @@ class MeterResource extends Resource
         return 'heroicon-o-cpu-chip';
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return __('app.nav.meters');
+    }
+
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return 'Operations';
+        return __('app.nav_groups.operations');
     }
 
     // Integrate MeterPolicy for authorization (Requirement 9.5)
@@ -72,7 +77,7 @@ class MeterResource extends Resource
         return $schema
             ->schema([
                 Forms\Components\Select::make('property_id')
-                    ->label('Property')
+                    ->label(__('meters.labels.property'))
                     ->relationship('property', 'address', function (Builder $query) {
                         // Filter properties by authenticated user's tenant_id (Requirement 9.1, 12.4)
                         $user = auth()->user();
@@ -91,29 +96,29 @@ class MeterResource extends Resource
                     ->validationMessages(self::getValidationMessages('property_id')),
 
                 Forms\Components\Select::make('type')
-                    ->label('Meter Type')
+                    ->label(__('meters.labels.type'))
                     ->options(MeterType::labels())
                     ->required()
                     ->native(false)
                     ->validationMessages(self::getValidationMessages('type')),
 
                 Forms\Components\TextInput::make('serial_number')
-                    ->label('Serial Number')
+                    ->label(__('meters.labels.serial_number'))
                     ->required()
                     ->maxLength(255)
                     ->unique(ignoreRecord: true)
                     ->validationMessages(self::getValidationMessages('serial_number')),
 
                 Forms\Components\DatePicker::make('installation_date')
-                    ->label('Installation Date')
+                    ->label(__('meters.labels.installation_date'))
                     ->required()
                     ->maxDate(now())
                     ->native(false)
                     ->validationMessages(self::getValidationMessages('installation_date')),
 
                 Forms\Components\Toggle::make('supports_zones')
-                    ->label('Supports Time-of-Use Zones')
-                    ->helperText('Enable for electricity meters with day/night rate capability')
+                    ->label(__('meters.labels.supports_time_of_use'))
+                    ->helperText(__('meters.helper_text.supports_time_of_use'))
                     ->default(false),
             ]);
     }
@@ -124,12 +129,12 @@ class MeterResource extends Resource
             ->searchable()
             ->columns([
                 Tables\Columns\TextColumn::make('property.address')
-                    ->label('Property')
+                    ->label(__('meters.labels.property'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('type')
-                    ->label('Meter Type')
+                    ->label(__('meters.labels.type'))
                     ->badge()
                     ->color(fn (MeterType $state): string => match ($state) {
                         MeterType::ELECTRICITY => 'warning',
@@ -141,38 +146,38 @@ class MeterResource extends Resource
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('serial_number')
-                    ->label('Serial Number')
+                    ->label(__('meters.labels.serial_number'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('installation_date')
-                    ->label('Installation Date')
+                    ->label(__('meters.labels.installation_date'))
                     ->date()
                     ->sortable(),
 
                 Tables\Columns\IconColumn::make('supports_zones')
-                    ->label('Zones')
+                    ->label(__('meters.labels.zones'))
                     ->boolean()
                     ->sortable()
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created At')
+                    ->label(__('meters.labels.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
-                    ->label('Meter Type')
+                    ->label(__('meters.labels.type'))
                     ->options(MeterType::labels())
                     ->native(false),
 
                 Tables\Filters\TernaryFilter::make('supports_zones')
-                    ->label('Supports Zones')
-                    ->placeholder('All meters')
-                    ->trueLabel('With zones')
-                    ->falseLabel('Without zones')
+                    ->label(__('meters.filters.supports_zones'))
+                    ->placeholder(__('meters.filters.all_meters'))
+                    ->trueLabel(__('meters.filters.with_zones'))
+                    ->falseLabel(__('meters.filters.without_zones'))
                     ->native(false),
             ])
             ->actions([

@@ -29,6 +29,37 @@ return [
         'status' => 'Būsena',
         'actions' => 'Veiksmai',
         'service_type' => 'Paslaugos tipas',
+        'created_at' => 'Sukurta',
+    ],
+
+    'sections' => [
+        'basic_information' => 'Pagrindinė informacija',
+        'effective_period' => 'Galiojimo laikotarpis',
+        'configuration' => 'Tarifo konfigūracija',
+    ],
+
+    'forms' => [
+        'provider' => 'Tiekėjas',
+        'name' => 'Tarifo pavadinimas',
+        'active_from' => 'Galioja nuo',
+        'active_until' => 'Galioja iki',
+        'type' => 'Tarifo tipas',
+        'currency' => 'Valiuta',
+        'flat_rate' => 'Kaina (€/kWh arba €/m³)',
+        'zones' => 'Laiko zonos',
+        'zone_id' => 'Zonos ID',
+        'zone_placeholder' => 'pvz., diena, naktis, pikas',
+        'start_time' => 'Pradžios laikas',
+        'start_placeholder' => 'HH:MM (pvz., 07:00)',
+        'end_time' => 'Pabaigos laikas',
+        'end_placeholder' => 'HH:MM (pvz., 23:00)',
+        'zone_rate' => 'Kaina (€/kWh)',
+        'add_zone' => 'Pridėti zoną',
+        'weekend_logic' => 'Savaitgalio logika',
+        'weekend_helper' => 'Kaip taikyti tarifus savaitgaliais laiko zonoms',
+        'fixed_fee' => 'Fiksuotas mėnesinis mokestis',
+        'fixed_fee_helper' => 'Pasirinktinai: fiksuotas mėnesinis mokestis (pvz., skaitiklio nuoma)',
+        'no_end_date' => 'Neribota data',
     ],
 
     'actions' => [
@@ -128,6 +159,44 @@ return [
         ],
         'create_new_version' => [
             'boolean' => 'Nauja versija turi būti tiesa arba netiesa.',
+        ],
+    ],
+
+    'pages' => [
+        'admin_form' => [
+            'create_title' => 'Sukurti tarifą',
+            'create_subtitle' => 'Pridėkite naują tarifo konfigūraciją',
+            'edit_title' => 'Redaguoti tarifą',
+            'edit_subtitle' => 'Atnaujinkite tarifo konfigūraciją arba kurkite naują versiją',
+            'breadcrumb_create' => 'Sukurti',
+            'breadcrumb_edit' => 'Redaguoti',
+            'labels' => [
+                'name' => 'Tarifo pavadinimas',
+                'provider' => 'Tiekėjas',
+                'configuration' => 'Konfigūracija',
+                'active_from' => 'Galioja nuo',
+                'active_until' => 'Galioja iki (nebūtina)',
+            ],
+            'placeholders' => [
+                'configuration' => 'Įveskite tarifo konfigūraciją kaip JSON objektą',
+            ],
+            'examples' => [
+                'flat_heading' => 'Fiksuoto tarifo pavyzdys:',
+                'tou_heading' => 'Laiko zonų pavyzdys:',
+                'required_fields' => 'Būtini laukai:',
+                'flat_fields' => 'Fiksuotam: rate (skaitinis)',
+                'tou_fields' => 'Laiko zonoms: zones masyvas su id, start, end, rate',
+            ],
+            'versioning' => [
+                'title' => 'Versijavimas',
+                'body' => 'Pažymėkite langelį, kad sukurtumėte naują versiją vietoje esamos atnaujinimo. Tai išsaugo istorinius tarifų duomenis.',
+                'checkbox' => 'Sukurti naują versiją (išsaugo istoriją)',
+            ],
+            'actions' => [
+                'cancel' => 'Atšaukti',
+                'save_create' => 'Sukurti tarifą',
+                'save_edit' => 'Atnaujinti tarifą',
+            ],
         ],
     ],
 ];

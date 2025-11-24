@@ -73,7 +73,9 @@ class Subscription extends Model
      */
     public function daysUntilExpiry(): int
     {
-        return (int) now()->diffInDays($this->expires_at, false);
+        return now()
+            ->startOfDay()
+            ->diffInDays($this->expires_at->startOfDay(), false);
     }
 
     /**
@@ -102,5 +104,44 @@ class Subscription extends Model
         $currentTenantCount = $this->user->childUsers()->where('role', 'tenant')->count();
         
         return $currentTenantCount < $this->max_tenants;
+    }
+
+    /**
+     * Check if the subscription is suspended.
+     */
+    public function isSuspended(): bool
+    {
+        return $this->status === SubscriptionStatus::SUSPENDED->value;
+    }
+
+    /**
+     * Renew the subscription with a new expiry date.
+     */
+    public function renew(Carbon $newExpiryDate): void
+    {
+        $this->update([
+            'expires_at' => $newExpiryDate,
+            'status' => SubscriptionStatus::ACTIVE->value,
+        ]);
+    }
+
+    /**
+     * Suspend the subscription.
+     */
+    public function suspend(): void
+    {
+        $this->update([
+            'status' => SubscriptionStatus::SUSPENDED->value,
+        ]);
+    }
+
+    /**
+     * Activate the subscription.
+     */
+    public function activate(): void
+    {
+        $this->update([
+            'status' => SubscriptionStatus::ACTIVE->value,
+        ]);
     }
 }

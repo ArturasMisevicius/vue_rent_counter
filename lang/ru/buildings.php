@@ -6,9 +6,12 @@ return [
     'labels' => [
         'building' => 'Здание',
         'buildings' => 'Здания',
+        'name' => 'Название здания',
         'address' => 'Адрес',
         'total_apartments' => 'Количество квартир',
         'total_area' => 'Общая площадь',
+        'property_count' => 'Количество объектов',
+        'created_at' => 'Создано',
     ],
 
     'validation' => [
@@ -48,5 +51,102 @@ return [
 
     'errors' => [
         'has_properties' => 'Нельзя удалить здание с привязанными объектами.',
+    ],
+
+    'pages' => [
+        'show' => [
+            'title' => 'Информация о здании',
+            'heading' => 'Информация о здании',
+        ],
+        'manager_index' => [
+            'title' => 'Здания',
+            'description' => 'Многоквартирные здания с расчетами «гиватука»',
+            'add' => 'Добавить здание',
+            'table_caption' => 'Список зданий',
+            'headers' => [
+                'building' => 'Здание',
+                'total_apartments' => 'Квартиры',
+                'properties' => 'Объекты',
+                'gyvatukas' => 'Средний гиватук',
+                'last_calculated' => 'Последний расчет',
+                'actions' => 'Действия',
+            ],
+            'not_calculated' => 'Не рассчитано',
+            'never' => 'Никогда',
+            'empty' => 'Здания не найдены.',
+            'create_now' => 'Создать сейчас',
+            'mobile' => [
+                'apartments' => 'Квартиры:',
+                'properties' => 'Объекты:',
+                'gyvatukas' => 'Гиватук:',
+                'last' => 'Последний:',
+                'view' => 'Просмотр',
+                'edit' => 'Редактировать',
+            ],
+        ],
+        'manager_show' => [
+            'title' => 'Детали здания',
+            'description' => 'Информация о здании и расчеты гиватука',
+            'info_title' => 'Информация о здании',
+            'labels' => [
+                'name' => 'Название здания',
+                'address' => 'Адрес',
+                'total_apartments' => 'Квартиры',
+                'properties_registered' => 'Зарегистрированные объекты',
+            ],
+            'gyvatukas_title' => 'Гиватук (циркуляционный сбор)',
+            'summer_average' => 'Летний средний',
+            'last_calculated' => 'Последний расчет',
+            'status' => 'Статус',
+            'calculated' => 'Рассчитано',
+            'pending' => 'Ожидает',
+            'not_calculated' => 'Не рассчитано',
+            'never' => 'Никогда',
+            'form' => [
+                'start_date' => 'Дата начала',
+                'end_date' => 'Дата окончания',
+                'submit' => 'Рассчитать летний средний',
+            ],
+            'properties_title' => 'Объекты в здании',
+            'add_property' => 'Добавить объект',
+            'properties_headers' => [
+                'address' => 'Адрес',
+                'type' => 'Тип',
+                'area' => 'Площадь',
+                'meters' => 'Счетчики',
+                'tenant' => 'Арендатор',
+                'actions' => 'Действия',
+            ],
+            'vacant' => 'Свободно',
+            'view' => 'Просмотр',
+            'edit_building' => 'Редактировать здание',
+            'delete_building' => 'Удалить',
+            'delete_confirm' => 'Вы уверены, что хотите удалить это здание?',
+            'empty_properties' => 'В этом здании нет зарегистрированных объектов.',
+        ],
+
+        'manager_form' => [
+            'create_title' => 'Создать здание',
+            'create_subtitle' => 'Добавьте новое многоквартирное здание',
+            'edit_title' => 'Редактировать здание',
+            'edit_subtitle' => 'Обновите информацию о здании',
+            'breadcrumb_create' => 'Создать',
+            'breadcrumb_edit' => 'Редактировать',
+            'labels' => [
+                'name' => 'Название здания',
+                'address' => 'Адрес',
+                'total_apartments' => 'Квартиры',
+            ],
+            'placeholders' => [
+                'name' => 'Гедимино 15',
+                'address' => 'Улица, город',
+                'total_apartments' => '10',
+            ],
+            'actions' => [
+                'cancel' => 'Отмена',
+                'save_create' => 'Создать здание',
+                'save_edit' => 'Обновить здание',
+            ],
+        ],
     ],
 ];

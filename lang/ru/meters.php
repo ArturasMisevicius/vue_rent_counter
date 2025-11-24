@@ -12,6 +12,13 @@ return [
         'installation_date' => 'Дата установки',
         'last_reading' => 'Последний показатель',
         'status' => 'Статус',
+        'supports_zones' => 'Поддерживает зоны',
+        'supports_time_of_use' => 'Поддерживает тарифы по зонам времени',
+        'zones' => 'Зоны',
+        'created_at' => 'Создано',
+        'initial_reading' => 'Начальные показания',
+        'installed' => 'Установлен',
+        'readings' => 'Показания',
     ],
 
     'headings' => [
@@ -55,6 +62,34 @@ return [
                 'cta' => 'Создать счетчик',
             ],
         ],
+    ],
+
+    'helper_text' => [
+        'supports_time_of_use' => 'Включите для электросчетчиков с дневным/ночным тарифом',
+    ],
+
+    'filters' => [
+        'supports_zones' => 'Поддерживает зоны',
+        'all_meters' => 'Все счетчики',
+        'with_zones' => 'С зонами',
+        'without_zones' => 'Без зон',
+    ],
+
+    'relation' => [
+        'meter_type' => 'Тип счетчика',
+        'serial_number' => 'Серийный номер',
+        'installation_date' => 'Дата установки',
+        'initial_reading' => 'Начальные показания',
+        'readings' => 'Показания',
+        'installed' => 'Установлен',
+        'type' => 'Тип',
+        'empty_heading' => 'Счетчиков нет',
+        'empty_description' => 'Добавьте счетчики, чтобы отслеживать потребление для этого объекта.',
+        'add_first' => 'Добавить первый счетчик',
+    ],
+
+    'units' => [
+        'kwh' => 'кВт·ч',
     ],
 
     'validation' => [

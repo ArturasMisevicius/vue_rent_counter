@@ -39,7 +39,7 @@ class TariffResource extends Resource
 {
     protected static ?string $model = Tariff::class;
 
-    protected static ?string $navigationLabel = 'Tariffs';
+    protected static ?string $navigationLabel = null;
 
     protected static ?int $navigationSort = 1;
 
@@ -48,9 +48,14 @@ class TariffResource extends Resource
         return 'heroicon-o-currency-dollar';
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return __('app.nav.tariffs');
+    }
+
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return 'Configuration';
+        return __('app.nav_groups.configuration');
     }
 
     // Integrate TariffPolicy for authorization (Requirement 9.5)
@@ -84,64 +89,64 @@ class TariffResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\Section::make('Basic Information')
+                Forms\Components\Section::make(__('tariffs.sections.basic_information'))
                     ->schema([
                         Forms\Components\Select::make('provider_id')
-                            ->label('Provider')
+                            ->label(__('tariffs.forms.provider'))
                             ->options(Provider::all()->pluck('name', 'id'))
                             ->searchable()
                             ->required()
                             ->validationMessages([
-                                'required' => 'Provider is required',
-                                'exists' => 'Selected provider does not exist',
+                                'required' => __('tariffs.validation.provider_id.required'),
+                                'exists' => __('tariffs.validation.provider_id.exists'),
                             ]),
                         
                         Forms\Components\TextInput::make('name')
-                            ->label('Tariff Name')
+                            ->label(__('tariffs.forms.name'))
                             ->required()
                             ->maxLength(255)
                             ->validationMessages([
-                                'required' => 'Tariff name is required',
+                                'required' => __('tariffs.validation.name.required'),
                             ]),
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make('Effective Period')
+                Forms\Components\Section::make(__('tariffs.sections.effective_period'))
                     ->schema([
                         Forms\Components\DatePicker::make('active_from')
-                            ->label('Active From')
+                            ->label(__('tariffs.forms.active_from'))
                             ->required()
                             ->native(false)
                             ->validationMessages([
-                                'required' => 'Active from date is required',
+                                'required' => __('tariffs.validation.active_from.required'),
                             ]),
                         
                         Forms\Components\DatePicker::make('active_until')
-                            ->label('Active Until')
+                            ->label(__('tariffs.forms.active_until'))
                             ->nullable()
                             ->native(false)
                             ->after('active_from')
                             ->validationMessages([
-                                'after' => 'Active until date must be after active from date',
+                                'after' => __('tariffs.validation.active_until.after'),
                             ]),
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make('Tariff Configuration')
+                Forms\Components\Section::make(__('tariffs.sections.configuration'))
                     ->schema([
                         Forms\Components\Select::make('configuration.type')
-                            ->label('Tariff Type')
+                            ->label(__('tariffs.forms.type'))
                             ->options(TariffType::labels())
                             ->required()
                             ->native(false)
                             ->live()
                             ->validationMessages([
-                                'required' => 'Tariff type is required',
-                                'in' => 'Tariff type must be either flat or time_of_use',
+                                'required' => __('tariffs.validation.configuration.type.required'),
+                                'in' => __('tariffs.validation.configuration.type.in'),
                             ]),
                         
                         Forms\Components\Select::make('configuration.currency')
-                            ->label('Currency')
+                            ->label(__('tariffs.forms.currency'))
                             ->options([
                                 'EUR' => 'EUR (€)',
                             ])
@@ -149,69 +154,69 @@ class TariffResource extends Resource
                             ->required()
                             ->native(false)
                             ->validationMessages([
-                                'required' => 'Currency is required',
-                                'in' => 'Currency must be EUR',
+                                'required' => __('tariffs.validation.configuration.currency.required'),
+                                'in' => __('tariffs.validation.configuration.currency.in'),
                             ]),
                         
                         // Flat rate field - only shown when type is 'flat'
                         Forms\Components\TextInput::make('configuration.rate')
-                            ->label('Rate (€/kWh or €/m³)')
+                            ->label(__('tariffs.forms.flat_rate'))
                             ->numeric()
                             ->minValue(0)
                             ->step(0.0001)
-                            ->suffix('€')
+                            ->suffix(__('app.units.euro'))
                             ->visible(fn (Get $get): bool => $get('configuration.type') === 'flat')
                             ->required(fn (Get $get): bool => $get('configuration.type') === 'flat')
                             ->validationMessages([
-                                'required' => 'Rate is required for flat tariffs',
-                                'numeric' => 'Rate must be a number',
-                                'min' => 'Rate must be a positive number',
+                                'required' => __('tariffs.validation.configuration.rate.required_if'),
+                                'numeric' => __('tariffs.validation.configuration.rate.numeric'),
+                                'min' => __('tariffs.validation.configuration.rate.min'),
                             ]),
                         
                         // Time-of-use zones - only shown when type is 'time_of_use'
                         Forms\Components\Repeater::make('configuration.zones')
-                            ->label('Time-of-Use Zones')
+                            ->label(__('tariffs.forms.zones'))
                             ->schema([
                                 Forms\Components\TextInput::make('id')
-                                    ->label('Zone ID')
+                                    ->label(__('tariffs.forms.zone_id'))
                                     ->required()
                                     ->maxLength(50)
-                                    ->placeholder('e.g., day, night, peak')
+                                    ->placeholder(__('tariffs.forms.zone_placeholder'))
                                     ->validationMessages([
-                                        'required' => 'Zone ID is required',
+                                        'required' => __('tariffs.validation.configuration.zones.id.required_with'),
                                     ]),
                                 
                                 Forms\Components\TextInput::make('start')
-                                    ->label('Start Time')
+                                    ->label(__('tariffs.forms.start_time'))
                                     ->required()
-                                    ->placeholder('HH:MM (e.g., 07:00)')
+                                    ->placeholder(__('tariffs.forms.start_placeholder'))
                                     ->regex('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/')
                                     ->validationMessages([
-                                        'required' => 'Start time is required',
-                                        'regex' => 'Zone start time must be in HH:MM format (24-hour)',
+                                        'required' => __('tariffs.validation.configuration.zones.start.required_with'),
+                                        'regex' => __('tariffs.validation.configuration.zones.start.regex'),
                                     ]),
                                 
                                 Forms\Components\TextInput::make('end')
-                                    ->label('End Time')
+                                    ->label(__('tariffs.forms.end_time'))
                                     ->required()
-                                    ->placeholder('HH:MM (e.g., 23:00)')
+                                    ->placeholder(__('tariffs.forms.end_placeholder'))
                                     ->regex('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/')
                                     ->validationMessages([
-                                        'required' => 'End time is required',
-                                        'regex' => 'Zone end time must be in HH:MM format (24-hour)',
+                                        'required' => __('tariffs.validation.configuration.zones.end.required_with'),
+                                        'regex' => __('tariffs.validation.configuration.zones.end.regex'),
                                     ]),
                                 
                                 Forms\Components\TextInput::make('rate')
-                                    ->label('Rate (€/kWh)')
+                                    ->label(__('tariffs.forms.zone_rate'))
                                     ->numeric()
                                     ->minValue(0)
                                     ->step(0.0001)
-                                    ->suffix('€')
+                                    ->suffix(__('app.units.euro'))
                                     ->required()
                                     ->validationMessages([
-                                        'required' => 'Rate is required for each zone',
-                                        'numeric' => 'Rate must be a number',
-                                        'min' => 'Zone rate must be a positive number',
+                                        'required' => __('tariffs.validation.configuration.zones.rate.required_with'),
+                                        'numeric' => __('tariffs.validation.configuration.zones.rate.numeric'),
+                                        'min' => __('tariffs.validation.configuration.zones.rate.min'),
                                     ]),
                             ])
                             ->columns(4)
@@ -219,29 +224,29 @@ class TariffResource extends Resource
                             ->required(fn (Get $get): bool => $get('configuration.type') === 'time_of_use')
                             ->minItems(1)
                             ->defaultItems(0)
-                            ->addActionLabel('Add Zone')
+                            ->addActionLabel(__('tariffs.forms.add_zone'))
                             ->validationMessages([
-                                'required' => 'Zones are required for time-of-use tariffs',
-                                'min' => 'At least one zone is required for time-of-use tariffs',
+                                'required' => __('tariffs.validation.configuration.zones.required_if'),
+                                'min' => __('tariffs.validation.configuration.zones.min'),
                             ]),
                         
                         // Optional fields
                         Forms\Components\Select::make('configuration.weekend_logic')
-                            ->label('Weekend Logic')
+                            ->label(__('tariffs.forms.weekend_logic'))
                             ->options(WeekendLogic::labels())
                             ->nullable()
                             ->native(false)
                             ->visible(fn (Get $get): bool => $get('configuration.type') === 'time_of_use')
-                            ->helperText('How to handle weekends for time-of-use tariffs'),
+                            ->helperText(__('tariffs.forms.weekend_helper')),
                         
                         Forms\Components\TextInput::make('configuration.fixed_fee')
-                            ->label('Fixed Monthly Fee')
+                            ->label(__('tariffs.forms.fixed_fee'))
                             ->numeric()
                             ->minValue(0)
                             ->step(0.01)
-                            ->suffix('€')
+                            ->suffix(__('app.units.euro'))
                             ->nullable()
-                            ->helperText('Optional fixed monthly fee (e.g., meter rental)'),
+                            ->helperText(__('tariffs.forms.fixed_fee_helper')),
                     ])
                     ->columns(2),
             ]);
@@ -253,12 +258,12 @@ class TariffResource extends Resource
             ->searchable()
             ->columns([
                 Tables\Columns\TextColumn::make('provider.name')
-                    ->label('Provider')
+                    ->label(__('tariffs.labels.provider'))
                     ->searchable()
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('provider.service_type')
-                    ->label('Service Type')
+                    ->label(__('tariffs.labels.service_type'))
                     ->badge()
                     ->color(fn ($state): string => match ($state instanceof ServiceType ? $state : ServiceType::tryFrom((string) $state)) {
                         ServiceType::ELECTRICITY => 'warning',
@@ -270,12 +275,12 @@ class TariffResource extends Resource
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Tariff Name')
+                    ->label(__('tariffs.forms.name'))
                     ->searchable()
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('configuration.type')
-                    ->label('Tariff Type')
+                    ->label(__('tariffs.forms.type'))
                     ->badge()
                     ->color(fn (string $state): string => match (TariffType::tryFrom($state)) {
                         TariffType::FLAT => 'success',
@@ -286,18 +291,18 @@ class TariffResource extends Resource
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('active_from')
-                    ->label('Active From')
+                    ->label(__('tariffs.forms.active_from'))
                     ->date()
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('active_until')
-                    ->label('Active Until')
+                    ->label(__('tariffs.forms.active_until'))
                     ->date()
                     ->sortable()
-                    ->placeholder('No end date'),
+                    ->placeholder(__('tariffs.forms.no_end_date')),
                 
                 Tables\Columns\IconColumn::make('is_active')
-                    ->label('Status')
+                    ->label(__('tariffs.labels.status'))
                     ->boolean()
                     ->getStateUsing(function (Tariff $record): bool {
                         return $record->isActiveOn(now());
@@ -308,7 +313,7 @@ class TariffResource extends Resource
                     ->falseColor('danger'),
                 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created At')
+                    ->label(__('tariffs.labels.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

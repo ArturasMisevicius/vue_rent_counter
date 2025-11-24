@@ -3,108 +3,76 @@
 declare(strict_types=1);
 
 return [
-    'invoice' => [
-        'created' => 'Invoice created successfully.',
-        'updated' => 'Invoice updated successfully.',
-        'deleted' => 'Invoice deleted successfully.',
-        'finalized' => 'Invoice finalized successfully.',
-        'finalized_locked' => 'Invoice finalized successfully. It is now immutable.',
-        'marked_paid' => 'Invoice marked as paid.',
-        'sent' => 'Invoice sent successfully.',
-        'generated_bulk' => 'Generated :count invoices successfully.',
-        'none' => 'No recent invoices',
+    'subscription_expiry' => [
+        'subject' => 'Subscription Expiry Warning',
+        'greeting' => 'Hello :name!',
+        'intro' => 'Your subscription to the Vilnius Utilities Billing System will expire in **:days days** on **:date**.',
+        'plan' => '**Current Plan:** :plan',
+        'properties' => '**Properties:** :used / :max',
+        'tenants' => '**Tenants:** :used / :max',
+        'cta_intro' => 'To avoid interruption of service, please renew your subscription before it expires.',
+        'cta_notice' => 'After expiry, your account will be restricted to read-only access until renewal.',
+        'action' => 'Renew Subscription',
+        'support' => 'If you have any questions about renewal, please contact support.',
     ],
 
-    'invoice_item' => [
-        'created' => 'Invoice item added successfully.',
-        'updated' => 'Invoice item updated successfully.',
-        'deleted' => 'Invoice item deleted successfully.',
+    'welcome' => [
+        'subject' => 'Welcome to Vilnius Utilities Billing System',
+        'greeting' => 'Hello :name!',
+        'account_created' => 'Your tenant account has been created for the following property:',
+        'address' => '**Address:** :address',
+        'property_type' => '**Property Type:** :type',
+        'credentials_heading' => '**Login Credentials:**',
+        'email' => 'Email: :email',
+        'temporary_password' => 'Temporary Password: :password',
+        'password_reminder' => 'Please log in and change your password immediately.',
+        'action' => 'Log In',
+        'support' => 'If you have any questions, please contact your property administrator.',
     ],
 
-    'meter' => [
-        'created' => 'Meter created successfully.',
-        'updated' => 'Meter updated successfully.',
-        'deleted' => 'Meter deleted successfully.',
+    'tenant_reassigned' => [
+        'subject' => 'Property Assignment Updated',
+        'greeting' => 'Hello :name!',
+        'updated' => 'Your property assignment has been updated.',
+        'previous' => '**Previous Property:** :address',
+        'new' => '**New Property:** :address',
+        'assigned' => 'You have been assigned to a property:',
+        'property' => '**Property:** :address',
+        'property_type' => '**Property Type:** :type',
+        'view_dashboard' => 'View Dashboard',
+        'info' => 'You can now view your utility information for this property.',
+        'support' => 'If you have any questions, please contact your property administrator.',
     ],
 
-    'meter_reading' => [
-        'created' => 'Meter reading created successfully.',
-        'updated' => 'Meter reading updated successfully.',
-        'deleted' => 'Meter reading deleted successfully.',
-        'bulk_created' => 'Bulk readings created successfully.',
-        'corrected' => 'Meter reading corrected successfully. Audit trail created.',
+    'meter_reading_submitted' => [
+        'subject' => 'New Meter Reading Submitted',
+        'greeting' => 'Hello :name!',
+        'submitted_by' => 'A new meter reading has been submitted by **:tenant**.',
+        'details' => '**Reading Details:**',
+        'property' => 'Property: :address',
+        'meter_type' => 'Meter Type: :type',
+        'serial' => 'Serial Number: :serial',
+        'reading_date' => 'Reading Date: :date',
+        'reading_value' => 'Reading Value: :value',
+        'zone' => 'Zone: :zone',
+        'consumption' => 'Consumption: :consumption',
+        'view' => 'View Meter Readings',
+        'manage_hint' => 'You can review and manage all meter readings from your dashboard.',
     ],
 
-    'building' => [
-        'created' => 'Building created successfully.',
-        'updated' => 'Building updated successfully.',
-        'deleted' => 'Building deleted successfully.',
-        'gyvatukas' => 'Gyvatukas calculated: :average kWh',
-        'gyvatukas_summer' => 'Gyvatukas summer average calculated: :average kWh',
-    ],
-
-    'subscription' => [
-        'updated' => 'Subscription updated successfully.',
-        'renewed' => 'Subscription renewed successfully.',
-        'suspended' => 'Subscription suspended successfully.',
-        'cancelled' => 'Subscription cancelled successfully.',
-    ],
-
-    'organization' => [
-        'created' => 'Organization created successfully.',
-        'updated' => 'Organization updated successfully.',
-        'deactivated' => 'Organization deactivated successfully.',
-        'reactivated' => 'Organization reactivated successfully.',
-    ],
-
-    'tenant' => [
-        'created' => 'Tenant created successfully.',
-        'updated' => 'Tenant updated successfully.',
-        'deleted' => 'Tenant deleted successfully.',
-        'invoice_sent' => 'Invoice sent successfully.',
-    ],
-
-    'admin_tenant' => [
-        'created' => 'Tenant account created successfully. Welcome email has been sent.',
-        'updated' => 'Tenant account updated successfully.',
-        'deactivated' => 'Tenant account deactivated successfully.',
-        'reactivated' => 'Tenant account reactivated successfully.',
-        'reassigned' => 'Tenant reassigned successfully. Notification email has been sent.',
-    ],
-
-    'property' => [
-        'created' => 'Property created successfully.',
-        'updated' => 'Property updated successfully.',
-        'deleted' => 'Property deleted successfully.',
-    ],
-
-    'user' => [
-        'created' => 'User created successfully.',
-        'updated' => 'User updated successfully.',
-        'deleted' => 'User deleted successfully.',
+    'overdue_invoice' => [
+        'subject' => 'Invoice #:id is overdue',
+        'greeting' => 'Hello :name,',
+        'overdue' => 'Invoice #:id is overdue.',
+        'amount' => 'Total amount: :amount',
+        'due_date' => 'Due date: :date',
+        'pay_notice' => 'Please pay this invoice as soon as possible to avoid service issues.',
+        'action' => 'View Invoice',
+        'ignore' => 'If you have already paid, you can ignore this message.',
     ],
 
     'profile' => [
         'updated' => 'Profile updated successfully.',
         'password_updated' => 'Password updated successfully.',
-    ],
-
-    'settings' => [
-        'updated' => 'Settings updated successfully. Note: Some changes may require updating the .env file and restarting the application.',
-        'backup_completed' => 'Backup completed successfully.',
-        'cache_cleared' => 'All caches cleared successfully.',
-        'backup_failed' => 'Backup failed: :message',
-        'cache_failed' => 'Failed to clear cache: :message',
-    ],
-
-    'tariff' => [
-        'created' => 'Tariff created successfully.',
-        'version_created' => 'New tariff version created successfully.',
-        'updated' => 'Tariff updated successfully.',
-        'deleted' => 'Tariff deleted successfully.',
-    ],
-
-    'account' => [
-        'updated' => 'Subscription updated successfully.',
     ],
 ];

@@ -59,7 +59,7 @@
                 x-model="selectedProperty"
                 @change="window.location.href = '?property_id=' + selectedProperty"
                 class="block w-full md:w-64 px-3 py-2 border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 bg-white/90">
-                <option value="">All Properties</option>
+                <option value="">{{ __('invoices.summary.labels.all_properties') }}</option>
                 @foreach($properties as $property)
                     <option value="{{ $property->id }}" {{ request('property_id') == $property->id ? 'selected' : '' }}>
                         {{ $property->address }}
@@ -71,26 +71,26 @@
 
     {{-- Itemized Breakdown --}}
     <div class="invoice-items mb-6">
-        <h4 class="text-lg font-semibold text-slate-900 mb-4 font-display">Itemized Breakdown</h4>
+        <h4 class="text-lg font-semibold text-slate-900 mb-4 font-display">{{ __('invoices.summary.labels.itemized') }}</h4>
         
         @if($invoice->items->isEmpty())
-            <p class="text-slate-500 italic">No items in this invoice.</p>
+            <p class="text-slate-500 italic">{{ __('invoices.summary.labels.empty_items') }}</p>
         @else
             <div class="hidden sm:block overflow-hidden rounded-2xl border border-slate-200/80 shadow-sm">
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-gradient-to-r from-slate-50 via-white to-slate-50">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                Service
+                                {{ __('invoices.summary.labels.headers.service') }}
                             </th>
                             <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                Consumption
+                                {{ __('invoices.summary.labels.headers.consumption') }}
                             </th>
                             <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                Rate
+                                {{ __('invoices.summary.labels.headers.rate') }}
                             </th>
                             <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                Total
+                                {{ __('invoices.summary.labels.headers.total') }}
                             </th>
                         </tr>
                     </thead>
@@ -104,8 +104,8 @@
                                     @if($item->meter_reading_snapshot)
                                         <div class="text-xs text-slate-500 mt-1">
                                             @if(isset($item->meter_reading_snapshot['previous_reading']))
-                                                Previous: {{ number_format($item->meter_reading_snapshot['previous_reading'], 2) }}
-                                                → Current: {{ number_format($item->meter_reading_snapshot['current_reading'], 2) }}
+                                                {{ __('invoices.summary.labels.previous') }}: {{ number_format($item->meter_reading_snapshot['previous_reading'], 2) }}
+                                                → {{ __('invoices.summary.labels.current') }}: {{ number_format($item->meter_reading_snapshot['current_reading'], 2) }}
                                             @endif
                                         </div>
                                     @endif
@@ -119,11 +119,11 @@
                                     <div class="text-sm text-slate-900">
                                         €{{ number_format($item->unit_price, 4) }}
                                     </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    <div class="text-sm font-semibold text-slate-900">
-                                        €{{ number_format($item->total, 2) }}
-                                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right">
+                    <div class="text-sm font-semibold text-slate-900">
+                        €{{ number_format($item->total, 2) }}
+                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -151,25 +151,25 @@
                             @if($item->meter_reading_snapshot)
                                 <p class="text-xs text-slate-500 mt-1">
                                     @if(isset($item->meter_reading_snapshot['previous_reading']))
-                                        Prev: {{ number_format($item->meter_reading_snapshot['previous_reading'], 2) }}
-                                        → Curr: {{ number_format($item->meter_reading_snapshot['current_reading'], 2) }}
+                                        {{ __('invoices.summary.labels.prev_short') }}: {{ number_format($item->meter_reading_snapshot['previous_reading'], 2) }}
+                                        → {{ __('invoices.summary.labels.curr_short') }}: {{ number_format($item->meter_reading_snapshot['current_reading'], 2) }}
                                     @endif
                                 </p>
                             @endif
                         </div>
                         <div class="text-right">
-                            <p class="text-sm font-semibold text-slate-900">€{{ number_format($item->total, 2) }}</p>
+                        <p class="text-sm font-semibold text-slate-900">€{{ number_format($item->total, 2) }}</p>
                         </div>
                     </div>
                     <div class="mt-2 grid grid-cols-2 gap-2 text-xs text-slate-600">
-                        <p>Consumption: <span class="font-semibold text-slate-900">{{ number_format($item->quantity, 2) }} {{ $item->unit ?? '' }}</span></p>
-                        <p class="text-right">Rate: <span class="font-semibold text-slate-900">€{{ number_format($item->unit_price, 4) }}</span></p>
+                        <p>{{ __('invoices.summary.labels.consumption') }}: <span class="font-semibold text-slate-900">{{ number_format($item->quantity, 2) }} {{ $item->unit ?? '' }}</span></p>
+                        <p class="text-right">{{ __('invoices.summary.labels.rate') }}: <span class="font-semibold text-slate-900">€{{ number_format($item->unit_price, 4) }}</span></p>
                     </div>
                 </div>
                 @endforeach
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-inner">
                     <div class="flex items-center justify-between">
-                        <p class="text-sm font-bold text-slate-900">Total Amount</p>
+                        <p class="text-sm font-bold text-slate-900">{{ __('invoices.summary.labels.total_amount') }}</p>
                         <p class="text-lg font-bold text-slate-900 font-display">€{{ number_format($invoice->total_amount, 2) }}</p>
                     </div>
                 </div>
@@ -180,22 +180,22 @@
     {{-- Consumption History (if provided) --}}
     @if(isset($consumptionHistory) && $consumptionHistory->isNotEmpty())
         <div class="consumption-history mt-8">
-            <h4 class="text-lg font-semibold text-slate-900 mb-4 font-display">Consumption History</h4>
+            <h4 class="text-lg font-semibold text-slate-900 mb-4 font-display">{{ __('invoices.summary.labels.history_title') }}</h4>
             <div class="hidden sm:block overflow-hidden rounded-2xl border border-slate-200/80 shadow-sm">
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-gradient-to-r from-slate-50 via-white to-slate-50">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                Date
+                                {{ __('invoices.summary.labels.history_headers.date') }}
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                Meter
+                                {{ __('invoices.summary.labels.history_headers.meter') }}
                             </th>
                             <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                Reading
+                                {{ __('invoices.summary.labels.history_headers.reading') }}
                             </th>
                             <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                Consumption
+                                {{ __('invoices.summary.labels.history_headers.consumption') }}
                             </th>
                         </tr>
                     </thead>
@@ -207,7 +207,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-semibold text-slate-900">
-                                        {{ $reading->meter->serial_number ?? 'N/A' }}
+                                        {{ $reading->meter->serial_number ?? __('app.common.na') }}
                                     </div>
                                     <div class="text-xs text-slate-500">
                                         {{ enum_label($reading->meter->type ?? null, \App\Enums\MeterType::class) }}
@@ -236,18 +236,18 @@
                 <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                     <div class="flex items-center justify-between">
                         <p class="text-sm font-semibold text-slate-900">{{ $reading->reading_date->format('Y-m-d') }}</p>
-                        <p class="text-xs font-semibold text-slate-500">
-                            {{ \App\Enums\TariffZone::tryFrom($reading->zone)?->label() ?? ($reading->zone ?? '—') }}
+                            <p class="text-xs font-semibold text-slate-500">
+                                {{ \App\Enums\TariffZone::tryFrom($reading->zone)?->label() ?? ($reading->zone ?? '—') }}
+                            </p>
+                        </div>
+                        <p class="mt-1 text-sm text-slate-700">
+                            {{ __('invoices.summary.labels.meter') }}: <span class="font-semibold">{{ $reading->meter->serial_number ?? __('app.common.na') }}</span>
                         </p>
+                        <div class="mt-1 grid grid-cols-2 gap-2 text-xs text-slate-600">
+                            <p>{{ __('invoices.summary.labels.reading') }}: <span class="font-semibold text-slate-900">{{ number_format($reading->value, 2) }}</span></p>
+                            <p class="text-right">{{ __('invoices.summary.labels.consumption') }}: <span class="font-semibold text-slate-900">{{ isset($reading->consumption) ? number_format($reading->consumption, 2) : '—' }}</span></p>
+                        </div>
                     </div>
-                    <p class="mt-1 text-sm text-slate-700">
-                        Meter: <span class="font-semibold">{{ $reading->meter->serial_number ?? 'N/A' }}</span>
-                    </p>
-                    <div class="mt-1 grid grid-cols-2 gap-2 text-xs text-slate-600">
-                        <p>Reading: <span class="font-semibold text-slate-900">{{ number_format($reading->value, 2) }}</span></p>
-                        <p class="text-right">Consumption: <span class="font-semibold text-slate-900">{{ isset($reading->consumption) ? number_format($reading->consumption, 2) : '—' }}</span></p>
-                    </div>
-                </div>
                 @endforeach
             </div>
         </div>
@@ -256,7 +256,7 @@
     {{-- Additional Notes --}}
     @if(isset($notes) && $notes)
         <div class="invoice-notes mt-6 p-4 bg-slate-50/80 border border-slate-200 rounded-xl">
-            <h5 class="text-sm font-semibold text-slate-700 mb-2">Notes</h5>
+            <h5 class="text-sm font-semibold text-slate-700 mb-2">{{ __('invoices.summary.labels.notes') }}</h5>
             <p class="text-sm text-slate-600">{{ $notes }}</p>
         </div>
     @endif

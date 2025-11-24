@@ -30,7 +30,7 @@ class UserResource extends Resource
 
     protected static string $translationPrefix = 'users.validation';
 
-    protected static ?string $navigationLabel = 'Users';
+    protected static ?string $navigationLabel = null;
 
     protected static ?int $navigationSort = 1;
 
@@ -39,9 +39,14 @@ class UserResource extends Resource
         return 'heroicon-o-users';
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return __('users.labels.users');
+    }
+
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return 'Administration';
+        return __('app.nav_groups.administration');
     }
 
     // Integrate UserPolicy for authorization (Requirement 9.5)
@@ -76,13 +81,13 @@ class UserResource extends Resource
         return $schema
             ->schema([
                 Forms\Components\TextInput::make('name')
-                    ->label('Name')
+                    ->label(__('users.labels.name'))
                     ->required()
                     ->maxLength(255)
                     ->validationMessages(self::getValidationMessages('name')),
 
                 Forms\Components\TextInput::make('email')
-                    ->label('Email')
+                    ->label(__('users.labels.email'))
                     ->email()
                     ->required()
                     ->maxLength(255)
@@ -90,7 +95,7 @@ class UserResource extends Resource
                     ->validationMessages(self::getValidationMessages('email')),
 
                 Forms\Components\TextInput::make('password')
-                    ->label('Password')
+                    ->label(__('users.labels.password'))
                     ->password()
                     ->required(fn (string $context): bool => $context === 'create')
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state))
@@ -100,14 +105,14 @@ class UserResource extends Resource
                     ->validationMessages(self::getValidationMessages('password')),
 
                 Forms\Components\TextInput::make('password_confirmation')
-                    ->label('Confirm Password')
+                    ->label(__('users.labels.password_confirmation'))
                     ->password()
                     ->required(fn (string $context): bool => $context === 'create')
                     ->dehydrated(false)
                     ->validationMessages(self::getValidationMessages('password_confirmation')),
 
                 Forms\Components\Select::make('role')
-                    ->label('Role')
+                    ->label(__('users.labels.role'))
                     ->options([
                         UserRole::ADMIN->value => UserRole::ADMIN->label(),
                         UserRole::MANAGER->value => UserRole::MANAGER->label(),
@@ -126,7 +131,7 @@ class UserResource extends Resource
 
                 // Organization name for admin role (Requirement 2.1)
                 Forms\Components\TextInput::make('organization_name')
-                    ->label('Organization Name')
+                    ->label(__('users.labels.organization_name'))
                     ->maxLength(255)
                     ->required(fn (Get $get): bool => $get('role') === UserRole::ADMIN->value
                     )
@@ -136,7 +141,7 @@ class UserResource extends Resource
 
                 // Property assignment for tenant role (Requirement 5.1, 5.2)
                 Forms\Components\Select::make('property_id')
-                    ->label('Assigned Property')
+                    ->label(__('users.labels.assigned_property'))
                     ->relationship('property', 'address', function (Builder $query) {
                         // Filter properties by authenticated user's tenant_id
                         $user = auth()->user();
@@ -154,7 +159,7 @@ class UserResource extends Resource
 
                 // Parent user (admin who created this tenant) - auto-set, display only
                 Forms\Components\Select::make('parent_user_id')
-                    ->label('Created By (Admin)')
+                    ->label(__('users.labels.created_by_admin'))
                     ->relationship('parentUser', 'name')
                     ->disabled()
                     ->dehydrated(false)
@@ -163,9 +168,9 @@ class UserResource extends Resource
 
                 // Account activation status (Requirement 7.1)
                 Forms\Components\Toggle::make('is_active')
-                    ->label('Account Active')
+                    ->label(__('users.labels.account_active'))
                     ->default(true)
-                    ->helperText('Deactivated accounts cannot log in')
+                    ->helperText(__('users.helper_text.deactivated'))
                     ->validationMessages(self::getValidationMessages('is_active')),
             ]);
     }
@@ -176,17 +181,17 @@ class UserResource extends Resource
             ->searchable()
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Name')
+                    ->label(__('users.labels.name'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('email')
-                    ->label('Email')
+                    ->label(__('users.labels.email'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('role')
-                    ->label('Role')
+                    ->label(__('users.labels.role'))
                     ->badge()
                     ->color(fn (UserRole $state): string => match ($state) {
                         UserRole::ADMIN => 'danger',
@@ -197,35 +202,35 @@ class UserResource extends Resource
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('organization_name')
-                    ->label('Organization')
+                    ->label(__('users.labels.organization'))
                     ->searchable()
                     ->sortable()
                     ->toggleable()
-                    ->placeholder('N/A'),
+                    ->placeholder(__('app.common.na')),
 
                 Tables\Columns\TextColumn::make('property.address')
-                    ->label('Assigned Property')
+                    ->label(__('users.labels.assigned_property'))
                     ->searchable()
                     ->sortable()
                     ->toggleable()
                     ->limit(30)
-                    ->placeholder('N/A'),
+                    ->placeholder(__('app.common.na')),
 
                 Tables\Columns\IconColumn::make('is_active')
-                    ->label('Active')
+                    ->label(__('users.labels.is_active'))
                     ->boolean()
                     ->sortable()
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('parentUser.name')
-                    ->label('Created By')
+                    ->label(__('users.labels.created_by'))
                     ->searchable()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->placeholder('N/A'),
+                    ->placeholder(__('app.common.na')),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created At')
+                    ->label(__('users.labels.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

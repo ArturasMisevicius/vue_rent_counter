@@ -3,6 +3,56 @@
 declare(strict_types=1);
 
 return [
+    'admin' => [
+        'navigation' => 'Счета',
+        'labels' => [
+            'tenant' => 'Арендатор',
+            'billing_period_start' => 'Начало расчетного периода',
+            'billing_period_end' => 'Конец расчетного периода',
+            'total_amount' => 'Итоговая сумма',
+            'status' => 'Статус',
+            'invoice_number' => 'Счет #',
+            'property' => 'Объект',
+            'billing_period' => 'Расчетный период',
+            'created_at' => 'Создано',
+            'new_status' => 'Новый статус',
+            'update_status' => 'Обновить статус',
+        ],
+        'modals' => [
+            'finalize_heading' => 'Подтвердить счет',
+            'finalize_description' => 'Вы уверены, что хотите подтвердить этот счет? После подтверждения его нельзя редактировать.',
+            'finalize_submit' => 'Подтвердить',
+        ],
+        'bulk' => [
+            'status_updated' => 'Статусы счетов обновлены',
+        ],
+        'items' => [
+            'description' => 'Описание',
+            'quantity' => 'Количество',
+            'unit' => 'Единица',
+            'unit_price' => 'Цена за единицу',
+            'total' => 'Итого',
+            'snapshot' => 'Снимок показаний счетчика (JSON)',
+            'snapshot_helper' => 'Сохраненные показания счетчика в формате JSON',
+            'snapshot_yes' => 'Да',
+            'snapshot_no' => 'Нет',
+            'cannot_add_finalized' => 'Нельзя добавлять позиции в подтвержденный счет',
+        ],
+        'format' => [
+            'billing_range' => ':from — :to',
+            'prev_short' => 'Пред.',
+            'curr_short' => 'Тек.',
+            'total_amount' => 'Итоговая сумма',
+            'history_title' => 'История потребления',
+            'history_headers' => [
+                'date' => 'Дата',
+                'meter' => 'Счетчик',
+                'reading' => 'Показание',
+                'consumption' => 'Потребление',
+            ],
+        ],
+    ],
+
     'actions' => [
         'view' => 'Просмотр',
         'edit' => 'Редактировать',
@@ -193,6 +243,7 @@ return [
             'mark_paid_confirm' => 'Отметить этот счет оплаченным?',
             'payment_reference_placeholder' => 'Назначение платежа (необязательно)',
             'paid_amount_placeholder' => 'Оплаченная сумма (необязательно)',
+            'paid_at_placeholder' => 'Дата оплаты (необязательно)',
             'download_receipt' => 'Скачать квитанцию (PDF)',
             'download_pdf' => 'Скачать PDF',
             'info' => [
@@ -202,6 +253,9 @@ return [
                 'status' => 'Статус',
                 'total_amount' => 'Общая сумма',
                 'finalized_at' => 'Завершено',
+                'paid_at' => 'Дата оплаты',
+                'payment_reference' => 'Назначение платежа',
+                'paid_amount' => 'Оплаченная сумма',
             ],
             'tenant' => [
                 'title' => 'Информация об арендаторе',
@@ -249,6 +303,46 @@ return [
         ],
     ],
 
+    'public_index' => [
+        'title' => 'Счета',
+        'create' => 'Создать счет',
+        'tabs' => [
+            'all' => 'Все',
+            'drafts' => 'Черновики',
+            'finalized' => 'Завершенные',
+            'paid' => 'Оплаченные',
+        ],
+        'empty' => 'Счета не найдены.',
+        'invoice_number' => 'Счет №:id',
+        'period' => 'Период: :from - :to',
+        'tenant' => 'Арендатор: :name',
+        'property' => 'Объект: :address',
+        'view' => 'Смотреть детали',
+    ],
+
+    'summary' => [
+        'labels' => [
+            'meter' => 'Счетчик',
+            'reading' => 'Показание',
+            'consumption' => 'Потребление',
+            'notes' => 'Заметки',
+            'service' => 'Услуга',
+            'rate' => 'Тариф',
+            'total' => 'Итого',
+            'previous' => 'Предыдущий',
+            'current' => 'Текущий',
+            'all_properties' => 'Все объекты',
+            'itemized' => 'Детализация',
+            'empty_items' => 'В этой счет-фактуре нет позиций.',
+            'headers' => [
+                'service' => 'Услуга',
+                'consumption' => 'Потребление',
+                'rate' => 'Тариф',
+                'total' => 'Итого',
+            ],
+        ],
+    ],
+
     'validation' => [
         'tenant_renter_id' => [
             'required' => 'Необходимо указать арендатора',
@@ -275,6 +369,9 @@ return [
         'paid_amount' => [
             'numeric' => 'Оплаченная сумма должна быть числом.',
             'min' => 'Оплаченная сумма должна быть не меньше 0.',
+        ],
+        'paid_at' => [
+            'date' => 'Дата оплаты должна быть корректной датой.',
         ],
         'items' => [
             'description' => [

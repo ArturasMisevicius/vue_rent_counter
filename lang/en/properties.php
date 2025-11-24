@@ -202,4 +202,66 @@ return [
         'has_relations' => 'Cannot delete property with associated meters or tenants.',
     ],
 
+    'pages' => [
+        'manager_form' => [
+            'create_title' => 'Create Property',
+            'create_subtitle' => 'Add a new property to your portfolio',
+            'breadcrumb_create' => 'Create',
+            'edit_title' => 'Edit Property',
+            'edit_subtitle' => 'Update property information',
+            'breadcrumb_edit' => 'Edit',
+            'labels' => [
+                'address' => 'Address',
+                'type' => 'Property Type',
+                'area' => 'Area (m²)',
+                'building' => 'Building (Optional)',
+            ],
+            'placeholders' => [
+                'address' => '123 Main Street, Vilnius',
+                'area' => '50.00',
+                'building' => 'Select a building...',
+            ],
+            'actions' => [
+                'cancel' => 'Cancel',
+                'save_create' => 'Create Property',
+                'save_edit' => 'Update Property',
+            ],
+        ],
+        'manager_show' => [
+            'title' => 'Property Details',
+            'description' => 'Property details and associated information',
+            'info_title' => 'Property Information',
+            'labels' => [
+                'address' => 'Address',
+                'type' => 'Type',
+                'area' => 'Area',
+                'building' => 'Building',
+            ],
+            'building_missing' => 'Not in a building',
+            'current_tenant_title' => 'Current Tenant',
+            'tenant_labels' => [
+                'name' => 'Name',
+                'email' => 'Email',
+                'phone' => 'Phone',
+            ],
+            'tenant_na' => 'N/A',
+            'no_tenant' => 'No current tenant',
+            'meters_title' => 'Meters',
+            'add_meter' => 'Add Meter',
+            'meters_headers' => [
+                'serial' => 'Serial Number',
+                'type' => 'Type',
+                'installation' => 'Installation Date',
+                'latest' => 'Latest Reading',
+                'actions' => 'Actions',
+            ],
+            'latest_none' => 'No readings',
+            'view' => 'View',
+            'edit_property' => 'Edit Property',
+            'delete_property' => 'Delete',
+            'delete_confirm' => 'Are you sure you want to delete this property?',
+            'no_meters_installed' => 'No meters installed for this property.',
+        ],
+    ],
+
 ];

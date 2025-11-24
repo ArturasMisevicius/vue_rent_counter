@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Vilnius Utilities Billing')</title>
+    <title>@yield('title', __('app.meta.default_title'))</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
@@ -15,7 +15,7 @@
 </head>
 <body class="text-slate-900 antialiased">
     <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:top-4 focus:left-4 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        Skip to main content
+        {{ __('app.accessibility.skip_to_content') }}
     </a>
     <div id="app">
         <!-- Navigation -->
@@ -27,8 +27,8 @@
                         <a href="{{ url('/') }}" class="flex items-center gap-3 group">
                             <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-400 text-white font-display text-lg shadow-glow transition-transform duration-300">V</span>
                             <div class="leading-tight">
-                                <p class="text-[11px] uppercase tracking-[0.22em] text-slate-500">Vilnius Utilities</p>
-                                <p class="font-display text-lg text-slate-900">Rent Counter</p>
+                                <p class="text-[11px] uppercase tracking-[0.22em] text-slate-500">{{ __('app.brand.name') }}</p>
+                                <p class="font-display text-lg text-slate-900">{{ __('app.brand.product') }}</p>
                             </div>
                         </a>
                     </div>
@@ -53,6 +53,9 @@
                                 </a>
                                 <a href="{{ route('superadmin.subscriptions.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.subscriptions') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
                                     {{ __('app.nav.subscriptions') }}
+                                </a>
+                                <a href="{{ route('superadmin.profile.show') }}" class="{{ str_starts_with($currentRoute, 'superadmin.profile') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.profile') }}
                                 </a>
                             @endif
 
@@ -167,7 +170,7 @@
                         <!-- Mobile menu button -->
                         <div class="flex items-center md:hidden">
                             <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <span class="sr-only">Open main menu</span>
+                                <span class="sr-only">{{ __('app.accessibility.open_menu') }}</span>
                                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                                 </svg>
@@ -198,6 +201,9 @@
                         </a>
                         <a href="{{ route('superadmin.subscriptions.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.subscriptions') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
                             {{ __('app.nav.subscriptions') }}
+                        </a>
+                        <a href="{{ route('superadmin.profile.show') }}" class="{{ str_starts_with($currentRoute, 'superadmin.profile') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.profile') }}
                         </a>
                     @endif
 
@@ -313,7 +319,7 @@
                         {{ session('success') }}
                     </div>
                     <button @click="show = false" class="text-emerald-500 focus:outline-none">
-                        <span class="sr-only">Dismiss</span>
+                        <span class="sr-only">{{ __('app.accessibility.dismiss') }}</span>
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M6 18L18 6" />
                         </svg>
@@ -337,7 +343,7 @@
                         {{ session('error') }}
                     </div>
                     <button @click="show = false" class="text-rose-500 focus:outline-none">
-                        <span class="sr-only">Dismiss</span>
+                        <span class="sr-only">{{ __('app.accessibility.dismiss') }}</span>
                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M6 18L18 6" />
                         </svg>
@@ -350,27 +356,6 @@
         <!-- Main Content -->
         <main id="main-content" class="py-10 relative" role="main" aria-label="Main content">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Breadcrumbs (excluded for tenant and manager users) -->
-                @auth
-                    @if(!in_array(auth()->user()->role->value, ['tenant', 'manager'], true))
-                        @php
-                            $breadcrumbs = \App\Helpers\BreadcrumbHelper::generate();
-                        @endphp
-                        
-                        @if(count($breadcrumbs) > 0)
-                            <x-breadcrumbs>
-                                @foreach($breadcrumbs as $breadcrumb)
-                                    <x-breadcrumb-item 
-                                        :href="$breadcrumb['url']" 
-                                        :active="$breadcrumb['active']"
-                                    >
-                                        {{ $breadcrumb['label'] }}
-                                    </x-breadcrumb-item>
-                                @endforeach
-                            </x-breadcrumbs>
-                        @endif
-                    @endif
-                @endauth
             </div>
             
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

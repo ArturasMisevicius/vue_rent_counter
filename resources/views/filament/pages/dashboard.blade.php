@@ -3,15 +3,15 @@
         {{-- Welcome Message --}}
         <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <h2 class="text-2xl font-bold text-slate-900 dark:text-white">
-                Welcome back, {{ auth()->user()->name }}!
+                {{ __('filament.pages.dashboard.welcome', ['name' => auth()->user()->name]) }}
             </h2>
             <p class="mt-2 text-slate-600 dark:text-slate-400">
                 @if(auth()->user()->role === \App\Enums\UserRole::ADMIN)
-                    Manage your properties, tenants, and billing from this dashboard.
+                    {{ __('filament.pages.dashboard.admin_description') }}
                 @elseif(auth()->user()->role === \App\Enums\UserRole::MANAGER)
-                    Monitor meter readings, invoices, and property operations.
+                    {{ __('filament.pages.dashboard.manager_description') }}
                 @else
-                    View your property details, meter readings, and invoices.
+                    {{ __('filament.pages.dashboard.tenant_description') }}
                 @endif
             </p>
         </div>
@@ -27,7 +27,7 @@
         {{-- Quick Actions --}}
         <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">
-                Quick Actions
+                {{ __('filament.pages.dashboard.quick_actions') }}
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 @if(auth()->user()->role === \App\Enums\UserRole::ADMIN)
@@ -37,8 +37,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                         </svg>
                         <div>
-                            <div class="font-semibold text-slate-900 dark:text-white">Properties</div>
-                            <div class="text-sm text-slate-600 dark:text-slate-400">Manage properties</div>
+                            <div class="font-semibold text-slate-900 dark:text-white">{{ __('filament.pages.dashboard.cards.properties.title') }}</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400">{{ __('filament.pages.dashboard.cards.properties.description') }}</div>
                         </div>
                     </a>
 
@@ -48,8 +48,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                         </svg>
                         <div>
-                            <div class="font-semibold text-slate-900 dark:text-white">Buildings</div>
-                            <div class="text-sm text-slate-600 dark:text-slate-400">Manage buildings</div>
+                            <div class="font-semibold text-slate-900 dark:text-white">{{ __('filament.pages.dashboard.cards.buildings.title') }}</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400">{{ __('filament.pages.dashboard.cards.buildings.description') }}</div>
                         </div>
                     </a>
 
@@ -59,8 +59,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                         <div>
-                            <div class="font-semibold text-slate-900 dark:text-white">Invoices</div>
-                            <div class="text-sm text-slate-600 dark:text-slate-400">Manage invoices</div>
+                            <div class="font-semibold text-slate-900 dark:text-white">{{ __('filament.pages.dashboard.cards.invoices.title') }}</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400">{{ __('filament.pages.dashboard.cards.invoices.description') }}</div>
                         </div>
                     </a>
 
@@ -70,8 +70,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
                         <div>
-                            <div class="font-semibold text-slate-900 dark:text-white">Users</div>
-                            <div class="text-sm text-slate-600 dark:text-slate-400">Manage users</div>
+                            <div class="font-semibold text-slate-900 dark:text-white">{{ __('filament.pages.dashboard.cards.users.title') }}</div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400">{{ __('filament.pages.dashboard.cards.users.description') }}</div>
                         </div>
                     </a>
                 @endif
@@ -81,10 +81,10 @@
         {{-- Recent Activity --}}
         <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">
-                Recent Activity
+                {{ __('filament.pages.dashboard.recent_activity_title') }}
             </h3>
             <p class="text-slate-600 dark:text-slate-400">
-                Activity tracking coming soon...
+                {{ __('filament.pages.dashboard.recent_activity_body') }}
             </p>
         </div>
     </div>

@@ -35,12 +35,12 @@ class EditMeterReading extends EditRecord
         return $schema
             ->schema([
                 Forms\Components\TextInput::make('value')
-                    ->label('Reading Value')
+                    ->label(__('meter_readings.labels.reading_value'))
                     ->required()
                     ->numeric()
                     ->minValue(0)
                     ->step(0.01)
-                    ->suffix('units')
+                    ->suffix(__('meter_readings.units'))
                     ->live(onBlur: true)
                     ->rules([
                         // Validation from UpdateMeterReadingRequest
@@ -57,48 +57,52 @@ class EditMeterReading extends EditRecord
                             // Validate against previous reading
                             $previousReading = $service->getAdjacentReading($reading, $zone, 'previous');
                             if ($previousReading && $value < $previousReading->value) {
-                                $fail("Reading cannot be lower than previous reading ({$previousReading->value})");
+                                $fail(__('meter_readings.validation.custom.monotonicity_lower', [
+                                    'previous' => $previousReading->value,
+                                ]));
                             }
 
                             // Validate against next reading
                             $nextReading = $service->getAdjacentReading($reading, $zone, 'next');
                             if ($nextReading && $value > $nextReading->value) {
-                                $fail("Reading cannot be higher than next reading ({$nextReading->value})");
+                                $fail(__('meter_readings.validation.custom.monotonicity_higher', [
+                                    'next' => $nextReading->value,
+                                ]));
                             }
                         },
                     ])
                     ->validationMessages([
-                        'required' => 'Meter reading is required',
-                        'numeric' => 'Reading must be a number',
-                        'min' => 'Reading must be a positive number',
+                        'required' => __('meter_readings.validation.value.required'),
+                        'numeric' => __('meter_readings.validation.value.numeric'),
+                        'min' => __('meter_readings.validation.value.min'),
                     ]),
                 
                 Forms\Components\Textarea::make('change_reason')
-                    ->label('Change Reason')
+                    ->label(__('meter_readings.labels.reason'))
                     ->required()
                     ->minLength($minLength)
                     ->maxLength($maxLength)
-                    ->helperText("Explain why this reading is being modified (minimum {$minLength} characters)")
+                    ->helperText(__('meter_readings.helper_text.change_reason', ['min' => $minLength]))
                     ->validationMessages([
-                        'required' => 'Change reason is required for audit trail',
-                        'min' => "Change reason must be at least {$minLength} characters",
-                        'max' => "Change reason must not exceed {$maxLength} characters",
+                        'required' => __('meter_readings.validation.change_reason.required'),
+                        'min' => __('meter_readings.validation.change_reason.min', ['min' => $minLength]),
+                        'max' => __('meter_readings.validation.change_reason.max', ['max' => $maxLength]),
                     ]),
                 
                 Forms\Components\DatePicker::make('reading_date')
-                    ->label('Reading Date')
+                    ->label(__('meter_readings.labels.reading_date'))
                     ->maxDate(now())
                     ->native(false)
                     ->validationMessages([
-                        'date' => 'Reading date must be a valid date',
-                        'before_or_equal' => 'Reading date cannot be in the future',
+                        'date' => __('meter_readings.validation.reading_date.date'),
+                        'before_or_equal' => __('meter_readings.validation.reading_date.before_or_equal'),
                     ]),
                 
                 Forms\Components\TextInput::make('zone')
-                    ->label('Zone')
+                    ->label(__('meter_readings.labels.zone'))
                     ->maxLength(50)
                     ->live(onBlur: true)
-                    ->helperText('Optional: For multi-zone meters (e.g., day/night)'),
+                    ->helperText(__('meter_readings.helper_text.zone_optional')),
             ]);
     }
 

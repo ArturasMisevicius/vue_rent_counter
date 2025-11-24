@@ -3,6 +3,56 @@
 declare(strict_types=1);
 
 return [
+    'admin' => [
+        'navigation' => 'Sąskaitos',
+        'labels' => [
+            'tenant' => 'Nuomininkas',
+            'billing_period_start' => 'Apmokestinimo laikotarpio pradžia',
+            'billing_period_end' => 'Apmokestinimo laikotarpio pabaiga',
+            'total_amount' => 'Bendra suma',
+            'status' => 'Būsena',
+            'invoice_number' => 'Sąskaita #',
+            'property' => 'Objektas',
+            'billing_period' => 'Apmokestinimo laikotarpis',
+            'created_at' => 'Sukurta',
+            'new_status' => 'Nauja būsena',
+            'update_status' => 'Atnaujinti būseną',
+        ],
+        'modals' => [
+            'finalize_heading' => 'Patvirtinti sąskaitą',
+            'finalize_description' => 'Ar tikrai norite patvirtinti šią sąskaitą? Patvirtintos sąskaitos nebegalima redaguoti.',
+            'finalize_submit' => 'Patvirtinti',
+        ],
+        'bulk' => [
+            'status_updated' => 'Sąskaitų būsenos atnaujintos',
+        ],
+        'items' => [
+            'description' => 'Aprašymas',
+            'quantity' => 'Kiekis',
+            'unit' => 'Vienetas',
+            'unit_price' => 'Vieneto kaina',
+            'total' => 'Suma',
+            'snapshot' => 'Skaitiklio rodmenų momentinė kopija (JSON)',
+            'snapshot_helper' => 'Momentiniai skaitiklio duomenys JSON formatu',
+            'snapshot_yes' => 'Taip',
+            'snapshot_no' => 'Ne',
+            'cannot_add_finalized' => 'Negalima pridėti eilučių prie patvirtintos sąskaitos',
+        ],
+        'format' => [
+            'billing_range' => ':from iki :to',
+            'prev_short' => 'Ankstesnis',
+            'curr_short' => 'Dabartinis',
+            'total_amount' => 'Bendra suma',
+            'history_title' => 'Suvartojimo istorija',
+            'history_headers' => [
+                'date' => 'Data',
+                'meter' => 'Skaitiklis',
+                'reading' => 'Rodmuo',
+                'consumption' => 'Suvartojimas',
+            ],
+        ],
+    ],
+
     'actions' => [
         'view' => 'Peržiūrėti',
         'edit' => 'Redaguoti',
@@ -193,6 +243,7 @@ return [
             'mark_paid_confirm' => 'Pažymėti šią sąskaitą apmokėta?',
             'payment_reference_placeholder' => 'Mokėjimo paskirtis (nebūtina)',
             'paid_amount_placeholder' => 'Apmokėta suma (nebūtina)',
+            'paid_at_placeholder' => 'Mokėjimo data (nebūtina)',
             'download_receipt' => 'Atsisiųsti kvitą (PDF)',
             'download_pdf' => 'Atsisiųsti PDF',
             'info' => [
@@ -202,6 +253,9 @@ return [
                 'status' => 'Būsena',
                 'total_amount' => 'Bendra suma',
                 'finalized_at' => 'Patvirtinta',
+                'paid_at' => 'Apmokėta',
+                'payment_reference' => 'Mokėjimo paskirtis',
+                'paid_amount' => 'Apmokėta suma',
             ],
             'tenant' => [
                 'title' => 'Nuomininko informacija',
@@ -249,6 +303,46 @@ return [
         ],
     ],
 
+    'public_index' => [
+        'title' => 'Sąskaitos',
+        'create' => 'Sukurti sąskaitą',
+        'tabs' => [
+            'all' => 'Visos',
+            'drafts' => 'Juodraščiai',
+            'finalized' => 'Užbaigtos',
+            'paid' => 'Apmokėtos',
+        ],
+        'empty' => 'Sąskaitų nerasta.',
+        'invoice_number' => 'Sąskaita Nr. :id',
+        'period' => 'Laikotarpis: :from - :to',
+        'tenant' => 'Nuomininkas: :name',
+        'property' => 'Objektas: :address',
+        'view' => 'Peržiūrėti detales',
+    ],
+
+    'summary' => [
+        'labels' => [
+            'meter' => 'Skaitiklis',
+            'reading' => 'Rodmuo',
+            'consumption' => 'Suvartojimas',
+            'notes' => 'Pastabos',
+            'service' => 'Paslauga',
+            'rate' => 'Tarifas',
+            'total' => 'Suma',
+            'previous' => 'Ankstesnis',
+            'current' => 'Dabartinis',
+            'all_properties' => 'Visi objektai',
+            'itemized' => 'Eilučių suvestinė',
+            'empty_items' => 'Šioje sąskaitoje nėra eilučių.',
+            'headers' => [
+                'service' => 'Paslauga',
+                'consumption' => 'Suvartojimas',
+                'rate' => 'Tarifas',
+                'total' => 'Suma',
+            ],
+        ],
+    ],
+
     'validation' => [
         'tenant_renter_id' => [
             'required' => 'Būtina nurodyti nuomininką',
@@ -275,6 +369,9 @@ return [
         'paid_amount' => [
             'numeric' => 'Apmokėta suma turi būti skaičius.',
             'min' => 'Apmokėta suma turi būti ne mažesnė nei 0.',
+        ],
+        'paid_at' => [
+            'date' => 'Mokėjimo data turi būti teisinga data.',
         ],
         'items' => [
             'description' => [

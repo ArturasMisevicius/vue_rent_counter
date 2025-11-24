@@ -35,7 +35,10 @@ class ProviderApiController extends Controller
      */
     public function properties(): JsonResponse
     {
+        $user = request()->user();
+
         $properties = Property::with(['building', 'meters'])
+            ->where('tenant_id', $user->tenant_id)
             ->get()
             ->map(function ($property) {
                 return [
@@ -57,6 +60,12 @@ class ProviderApiController extends Controller
      */
     public function propertyDetails(Property $property): JsonResponse
     {
+        $user = request()->user();
+
+        if ($user && $property->tenant_id !== $user->tenant_id) {
+            abort(404);
+        }
+
         $property->load(['building', 'meters.readings' => function ($query) {
             $query->latest('reading_date')->limit(1);
         }]);

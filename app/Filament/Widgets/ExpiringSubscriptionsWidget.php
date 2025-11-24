@@ -29,12 +29,12 @@ class ExpiringSubscriptionsWidget extends BaseWidget
             )
             ->columns([
                 Tables\Columns\TextColumn::make('user.organization_name')
-                    ->label('Organization')
+                    ->label(__('subscriptions.labels.organization'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('plan_type')
-                    ->label('Plan')
+                    ->label(__('subscriptions.labels.plan_type'))
                     ->badge()
                     ->formatStateUsing(fn ($state) => enum_label($state, SubscriptionPlanType::class))
                     ->color(fn ($state): string => match ($state) {
@@ -45,25 +45,25 @@ class ExpiringSubscriptionsWidget extends BaseWidget
                     }),
 
                 Tables\Columns\TextColumn::make('expires_at')
-                    ->label('Expires')
+                    ->label(__('subscriptions.labels.expires_at'))
                     ->dateTime()
                     ->sortable()
                     ->color(fn ($record) => $record->daysUntilExpiry() <= 7 ? 'danger' : 'warning'),
 
                 Tables\Columns\TextColumn::make('days_until_expiry')
-                    ->label('Days Left')
+                    ->label(__('subscriptions.labels.days_left'))
                     ->state(fn (Subscription $record) => $record->daysUntilExpiry())
                     ->badge()
                     ->color(fn ($state) => $state <= 7 ? 'danger' : 'warning'),
             ])
             ->actions([
                 Tables\Actions\Action::make('renew')
-                    ->label('Renew')
+                    ->label(__('subscriptions.actions.renew'))
                     ->icon('heroicon-o-arrow-path')
                     ->color('success')
                     ->form([
                         \Filament\Forms\Components\DateTimePicker::make('new_expires_at')
-                            ->label('New Expiration Date')
+                            ->label(__('subscriptions.labels.new_expiration_date'))
                             ->required()
                             ->after('today')
                             ->default(now()->addYear()),
@@ -75,18 +75,18 @@ class ExpiringSubscriptionsWidget extends BaseWidget
                         ]);
                     })
                     ->requiresConfirmation()
-                    ->successNotificationTitle('Subscription renewed successfully'),
+                    ->successNotificationTitle(__('subscriptions.notifications.renewed')),
 
                 Tables\Actions\Action::make('view')
-                    ->label('View')
+                    ->label(__('subscriptions.actions.view'))
                     ->icon('heroicon-o-eye')
                     ->url(fn (Subscription $record): string => route('filament.admin.resources.subscriptions.view', ['record' => $record]))
                     ->openUrlInNewTab(false),
             ])
-            ->heading('Subscriptions Expiring Soon (14 Days)')
-            ->description('Active subscriptions that will expire within the next 14 days')
-            ->emptyStateHeading('No expiring subscriptions')
-            ->emptyStateDescription('All subscriptions are valid for more than 14 days')
+            ->heading(__('subscriptions.widgets.expiring_heading'))
+            ->description(__('subscriptions.widgets.expiring_description'))
+            ->emptyStateHeading(__('subscriptions.widgets.expiring_empty_heading'))
+            ->emptyStateDescription(__('subscriptions.widgets.expiring_empty_description'))
             ->emptyStateIcon('heroicon-o-check-circle')
             ->paginated([5, 10, 25]);
     }

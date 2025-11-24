@@ -13,7 +13,7 @@ class SubscriptionsRelationManager extends RelationManager
 {
     protected static string $relationship = 'subscriptions';
 
-    protected static ?string $title = 'Subscription History';
+    protected static ?string $title = null;
 
     protected static BackedEnum|string|null $icon = 'heroicon-o-credit-card';
 
@@ -22,7 +22,7 @@ class SubscriptionsRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('plan_type')
-                    ->label('Plan')
+                    ->label(__('organizations.relations.subscriptions.plan'))
                     ->badge()
                     ->formatStateUsing(fn ($state) => enum_label($state, SubscriptionPlanType::class))
                     ->color(fn ($state): string => match ($state) {
@@ -44,22 +44,22 @@ class SubscriptionsRelationManager extends RelationManager
                     }),
                 
                 Tables\Columns\TextColumn::make('starts_at')
-                    ->label('Start Date')
+                    ->label(__('organizations.relations.subscriptions.start'))
                     ->dateTime()
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('expires_at')
-                    ->label('Expiry Date')
+                    ->label(__('organizations.relations.subscriptions.expiry'))
                     ->dateTime()
                     ->sortable()
                     ->color(fn ($record) => $record->expires_at->isPast() ? 'danger' : 'success'),
                 
                 Tables\Columns\TextColumn::make('max_properties')
-                    ->label('Properties Limit')
+                    ->label(__('organizations.relations.subscriptions.properties_limit'))
                     ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('max_tenants')
-                    ->label('Tenants Limit')
+                    ->label(__('organizations.relations.subscriptions.tenants_limit'))
                     ->toggleable(),
                 
                 Tables\Columns\TextColumn::make('created_at')
@@ -77,8 +77,8 @@ class SubscriptionsRelationManager extends RelationManager
                     ->openUrlInNewTab(false),
             ])
             ->defaultSort('created_at', 'desc')
-            ->emptyStateHeading('No subscription history')
-            ->emptyStateDescription('Subscription records will appear here')
+            ->emptyStateHeading(__('organizations.relations.subscriptions.empty_heading'))
+            ->emptyStateDescription(__('organizations.relations.subscriptions.empty_description'))
             ->emptyStateIcon('heroicon-o-credit-card');
     }
 }

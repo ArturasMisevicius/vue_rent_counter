@@ -34,25 +34,25 @@ class OrganizationStatsWidget extends BaseWidget
         });
 
         return [
-            Stat::make('Total Organizations', $stats['total'])
-                ->description('All organizations in the system')
+            Stat::make(__('superadmin.dashboard.organizations_widget.total'), $stats['total'])
+                ->description(__('superadmin.dashboard.stats_descriptions.total_organizations'))
                 ->descriptionIcon('heroicon-o-building-office-2')
                 ->color('gray'),
 
-            Stat::make('Active Organizations', $stats['active'])
-                ->description('Currently active')
+            Stat::make(__('superadmin.dashboard.organizations_widget.active'), $stats['active'])
+                ->description(__('superadmin.dashboard.stats_descriptions.active_organizations'))
                 ->descriptionIcon('heroicon-o-check-circle')
                 ->color('success'),
 
-            Stat::make('Inactive Organizations', $stats['inactive'])
-                ->description('Suspended or inactive')
+            Stat::make(__('superadmin.dashboard.organizations_widget.inactive'), $stats['inactive'])
+                ->description(__('superadmin.dashboard.stats_descriptions.inactive_organizations'))
                 ->descriptionIcon('heroicon-o-x-circle')
                 ->color('danger'),
 
-            Stat::make('New This Month', $stats['lastMonth'])
+            Stat::make(__('superadmin.dashboard.organizations_widget.new_this_month'), $stats['lastMonth'])
                 ->description($stats['growthRate'] >= 0 
-                    ? "↑ {$stats['growthRate']}% from last month" 
-                    : "↓ " . abs($stats['growthRate']) . "% from last month")
+                    ? __('superadmin.dashboard.organizations_widget.growth_up', ['value' => $stats['growthRate']]) 
+                    : __('superadmin.dashboard.organizations_widget.growth_down', ['value' => abs($stats['growthRate'])]))
                 ->descriptionIcon($stats['growthRate'] >= 0 
                     ? 'heroicon-o-arrow-trending-up' 
                     : 'heroicon-o-arrow-trending-down')

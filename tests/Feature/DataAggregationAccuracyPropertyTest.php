@@ -193,16 +193,15 @@ test('superadmin dashboard displays accurate system-wide resource counts', funct
                     $expectedTenants++;
                 }
                 
-                // Create invoices for some properties
-                if (fake()->boolean(50)) {
-                    Invoice::factory()->create([
-                        'tenant_id' => $admin->tenant_id,
-                        'property_id' => $property->id,
-                    ]);
-                    $expectedInvoices++;
-                }
+            // Create invoices for some properties
+            if (fake()->boolean(50)) {
+                Invoice::factory()->create([
+                    'tenant_id' => $admin->tenant_id,
+                ]);
+                $expectedInvoices++;
             }
         }
+    }
     }
     
     // Act as superadmin
@@ -293,7 +292,6 @@ test('admin dashboard displays accurate portfolio statistics', function () {
             if (fake()->boolean(70)) {
                 Invoice::factory()->create([
                     'tenant_id' => $admin->tenant_id,
-                    'property_id' => $property->id,
                 ]);
                 $expectedInvoices++;
             }
@@ -651,7 +649,9 @@ test('admin dashboard only counts resources within their tenant_id scope', funct
     }
     
     // Create resources for admin2
-    $admin2PropertyCount = fake()->numberBetween(2, 5);
+    do {
+        $admin2PropertyCount = fake()->numberBetween(2, 5);
+    } while ($admin2PropertyCount === $admin1PropertyCount);
     $building2 = Building::factory()->create(['tenant_id' => $admin2->tenant_id]);
     
     for ($i = 0; $i < $admin2PropertyCount; $i++) {

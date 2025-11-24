@@ -11,6 +11,7 @@ return [
         'contact_info' => 'Kontaktinė informacija',
         'tariffs' => 'Tarifai',
         'created' => 'Sukurta',
+        'no_contact_info' => 'Kontaktų nėra',
     ],
 
     'headings' => [
@@ -42,6 +43,20 @@ return [
         'add_tariff' => 'Pridėti tarifą',
     ],
 
+    'sections' => [
+        'provider_information' => 'Tiekėjo informacija',
+        'contact_information' => 'Kontaktinė informacija',
+    ],
+
+    'forms' => [
+        'contact' => [
+            'field' => 'Laukas',
+            'value' => 'Reikšmė',
+            'add' => 'Pridėti kontakto lauką',
+            'helper' => 'Pridėkite kontaktinę informaciją, pvz., telefoną, el. paštą, adresą, svetainę ir pan.',
+        ],
+    ],
+
     'tables' => [
         'name' => 'Pavadinimas',
         'service_type' => 'Paslaugos tipas',
@@ -51,6 +66,8 @@ return [
         'active_from' => 'Galioja nuo',
         'active_until' => 'Galioja iki',
         'status' => 'Būsena',
+        'tariff_count' => 'Tarifų kiekis',
+        'created_at' => 'Sukurta',
     ],
 
     'statuses' => [

@@ -5,13 +5,7 @@
 @section('content')
 @php($meterTypeOptions = \App\Enums\MeterType::labels())
 <div class="px-4 sm:px-6 lg:px-8">
-        <x-breadcrumbs>
-        <x-breadcrumb-item href="{{ route('manager.dashboard') }}">{{ __('app.nav.dashboard') }}</x-breadcrumb-item>
-        <x-breadcrumb-item href="{{ route('manager.meters.index') }}">{{ __('app.nav.meters') }}</x-breadcrumb-item>
-        <x-breadcrumb-item :active="true">{{ __('meters.actions.add') }}</x-breadcrumb-item>
-    </x-breadcrumbs>
-
-    <div class="sm:flex sm:items-center">
+<div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
             <h1 class="text-2xl font-semibold text-slate-900">{{ __('meters.actions.add') }}</h1>
             <p class="mt-2 text-sm text-slate-700">{{ __('meters.headings.show_description') }}</p>

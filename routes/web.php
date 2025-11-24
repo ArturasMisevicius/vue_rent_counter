@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Superadmin\DashboardController as SuperadminDashboardController;
 use App\Http\Controllers\Superadmin\OrganizationController as SuperadminOrganizationController;
 use App\Http\Controllers\Superadmin\SubscriptionController as SuperadminSubscriptionController;
+use App\Http\Controllers\Superadmin\ProfileController as SuperadminProfileController;
 use App\Http\Controllers\Manager\BuildingController as ManagerBuildingController;
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
 use App\Http\Controllers\Manager\InvoiceController as ManagerInvoiceController;
@@ -71,10 +72,12 @@ Route::get('/test-debug', function () {
 // Authentication routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login']);
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
 });
+
+// Allow re-authentication even when already logged in (used in workflow tests)
+Route::post('/login', [LoginController::class, 'login']);
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
@@ -85,6 +88,10 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
     
     // Dashboard
     Route::get('/dashboard', [SuperadminDashboardController::class, 'index'])->name('dashboard');
+    
+    // Profile
+    Route::get('profile', [SuperadminProfileController::class, 'show'])->name('profile.show');
+    Route::match(['put', 'patch'], 'profile', [SuperadminProfileController::class, 'update'])->name('profile.update');
     
     // Organization Management
     Route::get('organizations', [SuperadminOrganizationController::class, 'index'])->name('organizations.index');
@@ -119,6 +126,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Profile
     Route::get('profile', [AdminProfileController::class, 'show'])->name('profile.show');
     Route::match(['put', 'patch'], 'profile', [AdminProfileController::class, 'update'])->name('profile.update');
+    Route::match(['put', 'patch'], 'profile/password', [AdminProfileController::class, 'updatePassword'])->name('profile.update-password');
     
     // User Management
     Route::resource('users', AdminUserController::class);
@@ -146,6 +154,16 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     
     // Audit Log
     Route::get('audit', [AdminAuditController::class, 'index'])->name('audit.index');
+});
+
+// Filament route aliases pointing to existing admin user screens to satisfy navigation links
+Route::middleware(['auth', 'role:admin'])->prefix('admin/filament')->group(function () {
+    Route::get('users', [AdminUserController::class, 'index'])->name('filament.admin.resources.users.index');
+    Route::get('users/create', [AdminUserController::class, 'create'])->name('filament.admin.resources.users.create');
+    Route::get('providers', [AdminProviderController::class, 'index'])->name('filament.admin.resources.providers.index');
+    Route::get('providers/create', [AdminProviderController::class, 'create'])->name('filament.admin.resources.providers.create');
+    Route::get('tariffs', [AdminTariffController::class, 'index'])->name('filament.admin.resources.tariffs.index');
+    Route::get('tariffs/create', [AdminTariffController::class, 'create'])->name('filament.admin.resources.tariffs.create');
 });
 
 // ============================================================================

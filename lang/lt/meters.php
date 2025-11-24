@@ -12,6 +12,13 @@ return [
         'installation_date' => 'Įrengimo data',
         'last_reading' => 'Paskutinis rodmuo',
         'status' => 'Būsena',
+        'supports_zones' => 'Palaiko zonas',
+        'supports_time_of_use' => 'Palaiko laiko zonas',
+        'zones' => 'Zonos',
+        'created_at' => 'Sukurta',
+        'initial_reading' => 'Pradinis rodmuo',
+        'installed' => 'Įrengta',
+        'readings' => 'Rodmenys',
     ],
 
     'headings' => [
@@ -55,6 +62,34 @@ return [
                 'cta' => 'Sukurti naują',
             ],
         ],
+    ],
+
+    'helper_text' => [
+        'supports_time_of_use' => 'Įjunkite elektros skaitikliams su dienos/nakties tarifu',
+    ],
+
+    'filters' => [
+        'supports_zones' => 'Palaiko zonas',
+        'all_meters' => 'Visi skaitikliai',
+        'with_zones' => 'Su zonomis',
+        'without_zones' => 'Be zonų',
+    ],
+
+    'relation' => [
+        'meter_type' => 'Skaitiklio tipas',
+        'serial_number' => 'Serijos numeris',
+        'installation_date' => 'Įrengimo data',
+        'initial_reading' => 'Pradinis rodmuo',
+        'readings' => 'Rodmenys',
+        'installed' => 'Įrengta',
+        'type' => 'Tipas',
+        'empty_heading' => 'Skaitiklių nėra',
+        'empty_description' => 'Pridėkite skaitiklius, kad galėtumėte sekti suvartojimą šiame objekte.',
+        'add_first' => 'Pridėti pirmą skaitiklį',
+    ],
+
+    'units' => [
+        'kwh' => 'kWh',
     ],
 
     'validation' => [

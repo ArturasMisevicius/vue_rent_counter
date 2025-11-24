@@ -24,6 +24,7 @@ class ManagerMarkInvoicePaidRequest extends FormRequest
         return [
             'payment_reference' => ['nullable', 'string', 'max:255'],
             'paid_amount' => ['nullable', 'numeric', 'min:0'],
+            'paid_at' => ['nullable', 'date'],
         ];
     }
 
@@ -39,6 +40,7 @@ class ManagerMarkInvoicePaidRequest extends FormRequest
             'payment_reference.max' => __('invoices.validation.payment_reference.max'),
             'paid_amount.numeric' => __('invoices.validation.paid_amount.numeric'),
             'paid_amount.min' => __('invoices.validation.paid_amount.min'),
+            'paid_at.date' => __('invoices.validation.paid_at.date'),
         ];
     }
 }

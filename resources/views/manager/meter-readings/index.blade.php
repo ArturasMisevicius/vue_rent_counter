@@ -4,12 +4,7 @@
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
-    <x-breadcrumbs>
-        <x-breadcrumb-item href="{{ route('manager.dashboard') }}">{{ __('app.nav.dashboard') }}</x-breadcrumb-item>
-        <x-breadcrumb-item :active="true">{{ __('app.nav.readings') }}</x-breadcrumb-item>
-    </x-breadcrumbs>
-
-    <div class="sm:flex sm:items-center">
+<div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
             <h1 class="text-2xl font-semibold text-slate-900">{{ __('meter_readings.manager.index.title') }}</h1>
             <p class="mt-2 text-sm text-slate-700">{{ __('meter_readings.manager.index.description') }}</p>
@@ -150,12 +145,12 @@
                             <div class="mt-3 flex flex-wrap gap-2">
                                 @can('view', $reading)
                                 <a href="{{ route('manager.meter-readings.show', $reading) }}" class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-indigo-700 shadow-sm transition hover:border-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                    View
+                                    {{ __('meter_readings.actions.view') }}
                                 </a>
                                 @endcan
                                 @can('update', $reading)
                                 <a href="{{ route('manager.meter-readings.edit', $reading) }}" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                    Edit
+                                    {{ __('meter_readings.actions.edit') }}
                                 </a>
                                 @endcan
                             </div>
@@ -249,9 +244,9 @@
                                 <p class="text-sm font-semibold text-slate-900">{{ $reading->reading_date->format('M d, Y') }}</p>
                                 <p class="text-xs font-semibold text-slate-500">{{ $reading->meter->property->address }}</p>
                             </div>
-                            <p class="text-xs text-slate-600">Meter: {{ $reading->meter->serial_number }}</p>
-                            <p class="text-xs text-slate-600">Value: <span class="font-semibold text-slate-900">{{ number_format($reading->value, 2) }}</span></p>
-                            <p class="text-xs text-slate-600">Zone: {{ $reading->zone ?? '—' }}</p>
+                            <p class="text-xs text-slate-600">{{ __('meter_readings.manager.mobile.meter') }} {{ $reading->meter->serial_number }}</p>
+                            <p class="text-xs text-slate-600">{{ __('meter_readings.manager.mobile.value') }} <span class="font-semibold text-slate-900">{{ number_format($reading->value, 2) }}</span></p>
+                            <p class="text-xs text-slate-600">{{ __('meter_readings.manager.mobile.zone') }} {{ $reading->zone ?? '—' }}</p>
                             <p class="text-xs text-slate-600 mt-1">{{ __('meter_readings.tables.entered_by') }}: {{ $reading->enteredBy->name ?? __('meter_readings.na') }}</p>
                             <div class="mt-3 flex flex-wrap gap-2">
                                 @can('view', $reading)
@@ -281,7 +276,7 @@
         @else
             <!-- No Grouping - Standard List -->
             <div class="hidden sm:block">
-            <x-data-table caption="Meter readings list">
+            <x-data-table :caption="__('meter_readings.manager.captions.list')">
                 <x-slot name="header">
                     <tr>
                         <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">{{ __('meter_readings.tables.date') }}</th>
@@ -359,9 +354,9 @@
                         <p class="text-xs font-semibold text-slate-500 capitalize">{{ $reading->meter->type->label() }}</p>
                     </div>
                     <p class="text-xs text-slate-600">{{ $reading->meter->property->address }}</p>
-                    <p class="text-xs text-slate-600">Meter: {{ $reading->meter->serial_number }}</p>
-                    <p class="text-xs text-slate-600">Value: <span class="font-semibold text-slate-900">{{ number_format($reading->value, 2) }}</span></p>
-                    <p class="text-xs text-slate-600">Zone: {{ $reading->zone ?? '—' }}</p>
+                    <p class="text-xs text-slate-600">{{ __('meter_readings.manager.mobile.meter') }} {{ $reading->meter->serial_number }}</p>
+                    <p class="text-xs text-slate-600">{{ __('meter_readings.manager.mobile.value') }} <span class="font-semibold text-slate-900">{{ number_format($reading->value, 2) }}</span></p>
+                    <p class="text-xs text-slate-600">{{ __('meter_readings.manager.mobile.zone') }} {{ $reading->zone ?? '—' }}</p>
                     <p class="text-xs text-slate-600 mt-1">{{ __('meter_readings.tables.entered_by') }}: {{ $reading->enteredBy->name ?? __('meter_readings.na') }}</p>
                     <div class="mt-3 flex flex-wrap gap-2">
                         @can('view', $reading)

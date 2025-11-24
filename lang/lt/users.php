@@ -47,12 +47,20 @@ return [
         'organization_name' => 'Organizacijos pavadinimas',
         'properties' => 'Objektai',
         'is_active' => 'Aktyvus',
+        'account_active' => 'Paskyra aktyvi',
         'created_at' => 'Sukurta',
+        'organization' => 'Organizacija',
+        'assigned_property' => 'Priskirtas objektas',
+        'created_by' => 'Sukūrė',
+        'created_by_admin' => 'Sukūrė (administratorius)',
         'updated_at' => 'Atnaujinta',
         'activity_history' => 'Veiklos istorija',
         'meter_readings_entered' => 'Įvesti rodmenys',
         'no_activity' => 'Nėra užfiksuotos veiklos.',
         'activity_hint' => 'Šis vartotojas įvedė :count rodmenis.',
+    ],
+    'helper_text' => [
+        'deactivated' => 'Deaktyvuotos paskyros negali prisijungti',
     ],
 
     'validation' => [

@@ -78,7 +78,7 @@ SVG"/>
                                 </p>
                             </div>
                             <div class="flex flex-wrap gap-2">
-                                <span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-amber-800 ring-1 ring-amber-100">Meters: {{ $property->meters->count() }}</span>
+                                <span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-amber-800 ring-1 ring-amber-100">{{ __('app.nav.meters') }}: {{ $property->meters->count() }}</span>
                                 <a href="{{ route('manager.meter-readings.create', ['property_id' => $property->id]) }}" class="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-amber-500">
                                     {{ __('meter_readings.actions.enter_new') }}
                                     <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -102,7 +102,7 @@ SVG"/>
                             <div class="py-3">
                                 <div class="flex items-start justify-between gap-3">
                                     <div>
-                                        <p class="text-sm font-semibold text-slate-900">{{ $invoice->tenant->property->address ?? 'N/A' }}</p>
+                                        <p class="text-sm font-semibold text-slate-900">{{ $invoice->tenant->property->address ?? __('app.common.na') }}</p>
                                         <p class="text-xs text-slate-500">
                                             {{ $invoice->billing_period_start->format('M d') }} - {{ $invoice->billing_period_end->format('M d, Y') }}
                                         </p>
@@ -114,10 +114,10 @@ SVG"/>
                                         <x-status-badge status="draft">{{ enum_label($invoice->status) }}</x-status-badge>
                                         <div class="mt-2 flex flex-wrap justify-end gap-2">
                                             <a href="{{ route('manager.invoices.show', $invoice) }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
-                                                View
+                                                {{ __('invoices.actions.view') }}
                                             </a>
                                             <a href="{{ route('manager.invoices.edit', $invoice) }}" class="text-xs font-semibold text-slate-700 hover:text-slate-900">
-                                                Edit
+                                                {{ __('invoices.actions.edit') }}
                                             </a>
                                         </div>
                                     </div>
@@ -142,7 +142,7 @@ SVG"/>
                             <div class="rounded-xl border border-slate-100 px-4 py-3 shadow-sm">
                                 <div class="flex items-start justify-between gap-3">
                                     <div>
-                                        <p class="text-sm font-semibold text-slate-900">#{{ $invoice->id }} · {{ $invoice->tenant->property->address ?? 'N/A' }}</p>
+                                        <p class="text-sm font-semibold text-slate-900">#{{ $invoice->id }} · {{ $invoice->tenant->property->address ?? __('app.common.na') }}</p>
                                         <p class="text-xs text-slate-500">
                                             {{ $invoice->billing_period_start->format('M d') }} - {{ $invoice->billing_period_end->format('M d, Y') }}
                                         </p>
@@ -151,7 +151,7 @@ SVG"/>
                                     <div class="text-right">
                                         <x-status-badge :status="$invoice->status->value">{{ enum_label($invoice->status) }}</x-status-badge>
                                         <a href="{{ route('manager.invoices.show', $invoice) }}" class="mt-2 block text-xs font-semibold text-indigo-600 hover:text-indigo-800">
-                                            View
+                                            {{ __('invoices.actions.view') }}
                                         </a>
                                     </div>
                                 </div>
@@ -176,7 +176,7 @@ SVG"/>
                             </div>
                             <div>
                                 <p class="text-sm font-semibold text-slate-900">{{ __('meter_readings.actions.enter_new') }}</p>
-                                <p class="text-xs text-slate-600">Capture this month's usage.</p>
+                                <p class="text-xs text-slate-600">{{ __('dashboard.manager.quick_actions.enter_reading_desc') }}</p>
                             </div>
                         </div>
                     </a>
@@ -192,7 +192,7 @@ SVG"/>
                             </div>
                             <div>
                                 <p class="text-sm font-semibold text-slate-900">{{ __('invoices.manager.index.generate') }}</p>
-                                <p class="text-xs text-slate-600">Draft and finalize billing.</p>
+                                <p class="text-xs text-slate-600">{{ __('dashboard.manager.quick_actions.generate_invoice_desc') }}</p>
                             </div>
                         </div>
                     </a>

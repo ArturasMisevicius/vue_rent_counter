@@ -296,14 +296,14 @@ class InvoiceFinalizationPropertyTest extends TestCase
         ]);
 
         $statuses = [
-            InvoiceStatus::DRAFT => true,      // Should be visible
-            InvoiceStatus::FINALIZED => false, // Should not be visible
-            InvoiceStatus::PAID => false,      // Should not be visible
+            [InvoiceStatus::DRAFT, true],      // Should be visible
+            [InvoiceStatus::FINALIZED, false], // Should not be visible
+            [InvoiceStatus::PAID, false],      // Should not be visible
         ];
 
         $this->actingAs($admin);
 
-        foreach ($statuses as $status => $expectedVisibility) {
+        foreach ($statuses as [$status, $expectedVisibility]) {
             $invoice = Invoice::factory()->create([
                 'tenant_id' => 1,
                 'status' => $status,

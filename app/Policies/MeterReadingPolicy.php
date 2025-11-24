@@ -32,8 +32,12 @@ class MeterReadingPolicy
             return true;
         }
 
-        // Admins and managers can view meter readings within their tenant
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Admins can view meter readings across all tenants; managers are tenant-scoped
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        if ($user->role === UserRole::MANAGER) {
             return $meterReading->tenant_id === $user->tenant_id;
         }
 
@@ -76,8 +80,12 @@ class MeterReadingPolicy
             return true;
         }
 
-        // Admins and managers can update meter readings within their tenant
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Admins can update any meter reading; managers are tenant-scoped
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        if ($user->role === UserRole::MANAGER) {
             return $meterReading->tenant_id === $user->tenant_id;
         }
 
@@ -94,9 +102,9 @@ class MeterReadingPolicy
             return true;
         }
 
-        // Only admins can delete meter readings within their tenant
+        // Admins can delete any meter reading
         if ($user->role === UserRole::ADMIN) {
-            return $meterReading->tenant_id === $user->tenant_id;
+            return true;
         }
 
         return false;
@@ -112,9 +120,9 @@ class MeterReadingPolicy
             return true;
         }
 
-        // Only admins can restore meter readings within their tenant
+        // Admins can restore any meter reading
         if ($user->role === UserRole::ADMIN) {
-            return $meterReading->tenant_id === $user->tenant_id;
+            return true;
         }
 
         return false;

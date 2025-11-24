@@ -3,6 +3,56 @@
 declare(strict_types=1);
 
 return [
+    'admin' => [
+        'navigation' => 'Invoices',
+        'labels' => [
+            'tenant' => 'Tenant',
+            'billing_period_start' => 'Billing Period Start',
+            'billing_period_end' => 'Billing Period End',
+            'total_amount' => 'Total Amount',
+            'status' => 'Status',
+            'invoice_number' => 'Invoice #',
+            'property' => 'Property',
+            'billing_period' => 'Billing Period',
+            'created_at' => 'Created At',
+            'new_status' => 'New Status',
+            'update_status' => 'Update Status',
+        ],
+        'modals' => [
+            'finalize_heading' => 'Finalize Invoice',
+            'finalize_description' => 'Are you sure you want to finalize this invoice? Once finalized, the invoice cannot be edited.',
+            'finalize_submit' => 'Finalize',
+        ],
+        'bulk' => [
+            'status_updated' => 'Invoice statuses updated',
+        ],
+        'items' => [
+            'description' => 'Description',
+            'quantity' => 'Quantity',
+            'unit' => 'Unit',
+            'unit_price' => 'Unit Price',
+            'total' => 'Total',
+            'snapshot' => 'Meter Reading Snapshot (JSON)',
+            'snapshot_helper' => 'Snapshotted meter reading data in JSON format',
+            'snapshot_yes' => 'Yes',
+            'snapshot_no' => 'No',
+            'cannot_add_finalized' => 'Cannot add items to finalized invoice',
+        ],
+        'format' => [
+            'billing_range' => ':from to :to',
+            'prev_short' => 'Prev',
+            'curr_short' => 'Curr',
+            'total_amount' => 'Total Amount',
+            'history_title' => 'Consumption History',
+            'history_headers' => [
+                'date' => 'Date',
+                'meter' => 'Meter',
+                'reading' => 'Reading',
+                'consumption' => 'Consumption',
+            ],
+        ],
+    ],
+
     'actions' => [
         'view' => 'View',
         'edit' => 'Edit',
@@ -210,6 +260,7 @@ return [
             'mark_paid_confirm' => 'Mark this invoice as paid?',
             'payment_reference_placeholder' => 'Payment reference (optional)',
             'paid_amount_placeholder' => 'Paid amount (optional)',
+            'paid_at_placeholder' => 'Paid at (optional)',
             'download_receipt' => 'Download Receipt (PDF)',
             'download_pdf' => 'Download PDF',
             'info' => [
@@ -219,6 +270,9 @@ return [
                 'status' => 'Status',
                 'total_amount' => 'Total Amount',
                 'finalized_at' => 'Finalized At',
+                'paid_at' => 'Paid At',
+                'payment_reference' => 'Payment Reference',
+                'paid_amount' => 'Paid Amount',
             ],
             'tenant' => [
                 'title' => 'Tenant Information',
@@ -266,6 +320,46 @@ return [
         ],
     ],
 
+    'public_index' => [
+        'title' => 'Invoices',
+        'create' => 'Create Invoice',
+        'tabs' => [
+            'all' => 'All',
+            'drafts' => 'Drafts',
+            'finalized' => 'Finalized',
+            'paid' => 'Paid',
+        ],
+        'empty' => 'No invoices found.',
+        'invoice_number' => 'Invoice #:id',
+        'period' => 'Period: :from - :to',
+        'tenant' => 'Tenant: :name',
+        'property' => 'Property: :address',
+        'view' => 'View Details',
+    ],
+
+    'summary' => [
+        'labels' => [
+            'meter' => 'Meter',
+            'reading' => 'Reading',
+            'consumption' => 'Consumption',
+            'notes' => 'Notes',
+            'service' => 'Service',
+            'rate' => 'Rate',
+            'total' => 'Total',
+            'previous' => 'Previous',
+            'current' => 'Current',
+            'all_properties' => 'All Properties',
+            'itemized' => 'Itemized Breakdown',
+            'empty_items' => 'No items in this invoice.',
+            'headers' => [
+                'service' => 'Service',
+                'consumption' => 'Consumption',
+                'rate' => 'Rate',
+                'total' => 'Total',
+            ],
+        ],
+    ],
+
     'validation' => [
         'tenant_renter_id' => [
             'required' => 'Tenant is required',
@@ -292,6 +386,9 @@ return [
         'paid_amount' => [
             'numeric' => 'Paid amount must be a number.',
             'min' => 'Paid amount must be zero or greater.',
+        ],
+        'paid_at' => [
+            'date' => 'Paid at must be a valid date.',
         ],
         'items' => [
             'description' => [

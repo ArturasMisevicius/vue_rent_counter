@@ -328,9 +328,14 @@ test('Filament panel allows admin users to view invoices across all tenants', fu
     $tenantId1 = fake()->numberBetween(1, 1000);
     $tenantId2 = fake()->numberBetween(1001, 2000);
     
+    // Create renter records for both tenants
+    $tenant1 = Tenant::factory()->forTenantId($tenantId1)->create();
+    $tenant2 = Tenant::factory()->forTenantId($tenantId2)->create();
+    
     // Create invoices for both tenants
     $invoice1 = Invoice::withoutGlobalScopes()->create([
         'tenant_id' => $tenantId1,
+        'tenant_renter_id' => $tenant1->id,
         'invoice_number' => fake()->unique()->numerify('INV-####'),
         'billing_period_start' => now()->subMonth(),
         'billing_period_end' => now(),
@@ -340,6 +345,7 @@ test('Filament panel allows admin users to view invoices across all tenants', fu
     
     $invoice2 = Invoice::withoutGlobalScopes()->create([
         'tenant_id' => $tenantId2,
+        'tenant_renter_id' => $tenant2->id,
         'invoice_number' => fake()->unique()->numerify('INV-####'),
         'billing_period_start' => now()->subMonth(),
         'billing_period_end' => now(),

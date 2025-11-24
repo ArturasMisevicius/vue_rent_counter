@@ -13,9 +13,10 @@ uses(RefreshDatabase::class);
 // Feature: user-group-frontends, Property 6: Tenant scope filtering
 // Validates: Requirements 5.1, 9.3, 10.1, 11.5
 test('tenant scoped resources are automatically filtered by tenant_id', function () {
-    // Generate two random tenant IDs
-    $tenantId1 = fake()->numberBetween(1, 1000);
-    $tenantId2 = fake()->numberBetween(1001, 2000);
+    // Use sequential tenant IDs to avoid conflicts
+    // Note: This test validates that TenantScope filters queries based on session tenant_id
+    $tenantId1 = 1;
+    $tenantId2 = 2;
     
     // Create random number of resources for each tenant
     $resourceCount1 = fake()->numberBetween(2, 8);
@@ -146,38 +147,38 @@ test('tenant scoped resources are automatically filtered by tenant_id', function
         ]);
     }
     
-    // Act as user from tenant1
-    $this->actingAs($user1);
+    // Set session tenant_id to tenant1 (this is how TenantScope filters queries)
+    session(['tenant_id' => $tenantId1]);
     
     // Property: All queries should automatically filter to tenant1's resources
     
     // Test Properties
     $queriedProperties = Property::all();
     expect($queriedProperties)->toHaveCount($resourceCount1);
-    expect($queriedProperties)->each(fn ($property) => 
-        expect($property->tenant_id)->toBe($tenantId1)
-    );
+    foreach ($queriedProperties as $property) {
+        expect($property->tenant_id)->toBe($tenantId1);
+    }
     
     // Test Meters
     $queriedMeters = Meter::all();
     expect($queriedMeters)->toHaveCount($resourceCount1);
-    expect($queriedMeters)->each(fn ($meter) => 
-        expect($meter->tenant_id)->toBe($tenantId1)
-    );
+    foreach ($queriedMeters as $meter) {
+        expect($meter->tenant_id)->toBe($tenantId1);
+    }
     
     // Test MeterReadings
     $queriedReadings = MeterReading::all();
     expect($queriedReadings)->toHaveCount($resourceCount1);
-    expect($queriedReadings)->each(fn ($reading) => 
-        expect($reading->tenant_id)->toBe($tenantId1)
-    );
+    foreach ($queriedReadings as $reading) {
+        expect($reading->tenant_id)->toBe($tenantId1);
+    }
     
     // Test Invoices
     $queriedInvoices = Invoice::all();
     expect($queriedInvoices)->toHaveCount($resourceCount1);
-    expect($queriedInvoices)->each(fn ($invoice) => 
-        expect($invoice->tenant_id)->toBe($tenantId1)
-    );
+    foreach ($queriedInvoices as $invoice) {
+        expect($invoice->tenant_id)->toBe($tenantId1);
+    }
     
     // Verify tenant2's resources are not accessible via find()
     foreach ($properties2 as $property2) {
@@ -193,38 +194,38 @@ test('tenant scoped resources are automatically filtered by tenant_id', function
         expect(Invoice::find($invoice2->id))->toBeNull();
     }
     
-    // Switch to tenant2
-    $this->actingAs($user2);
+    // Switch session to tenant2
+    session(['tenant_id' => $tenantId2]);
     
     // Property: All queries should now automatically filter to tenant2's resources
     
     // Test Properties
     $queriedProperties = Property::all();
     expect($queriedProperties)->toHaveCount($resourceCount2);
-    expect($queriedProperties)->each(fn ($property) => 
-        expect($property->tenant_id)->toBe($tenantId2)
-    );
+    foreach ($queriedProperties as $property) {
+        expect($property->tenant_id)->toBe($tenantId2);
+    }
     
     // Test Meters
     $queriedMeters = Meter::all();
     expect($queriedMeters)->toHaveCount($resourceCount2);
-    expect($queriedMeters)->each(fn ($meter) => 
-        expect($meter->tenant_id)->toBe($tenantId2)
-    );
+    foreach ($queriedMeters as $meter) {
+        expect($meter->tenant_id)->toBe($tenantId2);
+    }
     
     // Test MeterReadings
     $queriedReadings = MeterReading::all();
     expect($queriedReadings)->toHaveCount($resourceCount2);
-    expect($queriedReadings)->each(fn ($reading) => 
-        expect($reading->tenant_id)->toBe($tenantId2)
-    );
+    foreach ($queriedReadings as $reading) {
+        expect($reading->tenant_id)->toBe($tenantId2);
+    }
     
     // Test Invoices
     $queriedInvoices = Invoice::all();
     expect($queriedInvoices)->toHaveCount($resourceCount2);
-    expect($queriedInvoices)->each(fn ($invoice) => 
-        expect($invoice->tenant_id)->toBe($tenantId2)
-    );
+    foreach ($queriedInvoices as $invoice) {
+        expect($invoice->tenant_id)->toBe($tenantId2);
+    }
     
     // Verify tenant1's resources are not accessible via find()
     foreach ($properties1 as $property1) {

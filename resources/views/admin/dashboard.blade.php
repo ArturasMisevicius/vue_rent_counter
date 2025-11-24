@@ -1,27 +1,23 @@
 @extends('layouts.app')
 
-@section('title', 'Admin Dashboard')
+@section('title', __('dashboard.admin.title'))
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
-    <x-breadcrumbs>
-        <x-breadcrumb-item :active="true">Dashboard</x-breadcrumb-item>
-    </x-breadcrumbs>
-
-    <div class="sm:flex sm:items-center">
+<div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
             <h1 class="text-2xl font-semibold text-slate-900">
                 @if(auth()->user()->role->value === 'admin')
-                    {{ auth()->user()->organization_name ?? 'Admin' }} Dashboard
+                    {{ __('dashboard.admin.org_dashboard', ['name' => auth()->user()->organization_name ?? '—']) }}
                 @else
-                    Admin Dashboard
+                    {{ __('dashboard.admin.title') }}
                 @endif
             </h1>
             <p class="mt-2 text-sm text-slate-700">
                 @if(auth()->user()->role->value === 'admin')
-                    Portfolio overview and statistics
+                    {{ __('dashboard.admin.portfolio_subtitle') }}
                 @else
-                    System overview and statistics
+                    {{ __('dashboard.admin.system_subtitle') }}
                 @endif
             </p>
         </div>
@@ -38,9 +34,9 @@
                         </svg>
                     </div>
                     <div class="ml-3 flex-1">
-                        <h3 class="text-sm font-medium text-red-800">No Active Subscription</h3>
+                        <h3 class="text-sm font-medium text-red-800">{{ __('dashboard.admin.banner.no_subscription_title') }}</h3>
                         <div class="mt-2 text-sm text-red-700">
-                            <p>You do not have an active subscription. Please contact support to activate your account.</p>
+                            <p>{{ __('dashboard.admin.banner.no_subscription_body') }}</p>
                         </div>
                     </div>
                 </div>
@@ -54,13 +50,13 @@
                         </svg>
                     </div>
                     <div class="ml-3 flex-1">
-                        <h3 class="text-sm font-medium text-red-800">Subscription Expired</h3>
+                        <h3 class="text-sm font-medium text-red-800">{{ __('dashboard.admin.banner.expired_title') }}</h3>
                         <div class="mt-2 text-sm text-red-700">
-                            <p>Your subscription expired on {{ $subscription->expires_at->format('M d, Y') }}. Please renew to continue managing your properties.</p>
+                            <p>{{ __('dashboard.admin.banner.expired_body', ['date' => $subscription->expires_at->format('M d, Y')]) }}</p>
                         </div>
                         <div class="mt-4">
                             <a href="{{ route('admin.profile.show') }}" class="inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500">
-                                Renew Subscription
+                                {{ __('dashboard.admin.banner.renew') }}
                             </a>
                         </div>
                     </div>
@@ -75,13 +71,16 @@
                         </svg>
                     </div>
                     <div class="ml-3 flex-1">
-                        <h3 class="text-sm font-medium text-yellow-800">Subscription Expiring Soon</h3>
+                        <h3 class="text-sm font-medium text-yellow-800">{{ __('dashboard.admin.banner.expiring_title') }}</h3>
                         <div class="mt-2 text-sm text-yellow-700">
-                            <p>Your subscription will expire in {{ $daysUntilExpiry }} {{ $daysUntilExpiry === 1 ? 'day' : 'days' }} on {{ $subscription->expires_at->format('M d, Y') }}. Renew now to avoid service interruption.</p>
+                            <p>{{ __('dashboard.admin.banner.expiring_body', [
+                                'days' => trans_choice('dashboard.admin.banner.days', $daysUntilExpiry, ['count' => $daysUntilExpiry]),
+                                'date' => $subscription->expires_at->format('M d, Y'),
+                            ]) }}</p>
                         </div>
                         <div class="mt-4">
                             <a href="{{ route('admin.profile.show') }}" class="inline-flex items-center rounded-md bg-yellow-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-yellow-500">
-                                Renew Now
+                                {{ __('dashboard.admin.banner.renew_now') }}
                             </a>
                         </div>
                     </div>
@@ -92,15 +91,15 @@
         @if(isset($subscription))
             <!-- Subscription Limits Card -->
             <div class="mt-6">
-                <x-card title="Subscription Status">
+                <x-card title="{{ __('dashboard.admin.subscription_card.title') }}">
                     <div class="space-y-4">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-slate-900">Plan Type</p>
+                                <p class="text-sm font-medium text-slate-900">{{ __('dashboard.admin.subscription_card.plan_type') }}</p>
                                 <p class="text-sm text-slate-500">{{ enum_label($subscription->plan_type, \App\Enums\SubscriptionPlanType::class) }}</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-sm font-medium text-slate-900">Expires</p>
+                                <p class="text-sm font-medium text-slate-900">{{ __('dashboard.admin.subscription_card.expires') }}</p>
                                 <p class="text-sm text-slate-500">{{ $subscription->expires_at->format('M d, Y') }}</p>
                             </div>
                         </div>
@@ -109,28 +108,28 @@
                         <!-- Properties Usage -->
                         <div>
                             <div class="flex items-center justify-between mb-1">
-                                <span class="text-sm font-medium text-slate-700">Properties</span>
+                                <span class="text-sm font-medium text-slate-700">{{ __('dashboard.admin.subscription_card.properties') }}</span>
                                 <span class="text-sm text-slate-500">{{ $usageStats['properties_used'] }} / {{ $usageStats['properties_max'] }}</span>
                             </div>
                             <div class="w-full bg-slate-200 rounded-full h-2">
                                 <div class="bg-indigo-600 h-2 rounded-full" style="width: {{ min($usageStats['properties_percentage'], 100) }}%"></div>
                             </div>
                             @if($usageStats['properties_percentage'] >= 90)
-                                <p class="mt-1 text-xs text-yellow-600">Approaching limit</p>
+                                <p class="mt-1 text-xs text-yellow-600">{{ __('dashboard.admin.subscription_card.approaching_limit') }}</p>
                             @endif
                         </div>
 
                         <!-- Tenants Usage -->
                         <div>
                             <div class="flex items-center justify-between mb-1">
-                                <span class="text-sm font-medium text-slate-700">Tenants</span>
+                                <span class="text-sm font-medium text-slate-700">{{ __('dashboard.admin.subscription_card.tenants') }}</span>
                                 <span class="text-sm text-slate-500">{{ $usageStats['tenants_used'] }} / {{ $usageStats['tenants_max'] }}</span>
                             </div>
                             <div class="w-full bg-slate-200 rounded-full h-2">
                                 <div class="bg-indigo-600 h-2 rounded-full" style="width: {{ min($usageStats['tenants_percentage'], 100) }}%"></div>
                             </div>
                             @if($usageStats['tenants_percentage'] >= 90)
-                                <p class="mt-1 text-xs text-yellow-600">Approaching limit</p>
+                                <p class="mt-1 text-xs text-yellow-600">{{ __('dashboard.admin.subscription_card.approaching_limit') }}</p>
                             @endif
                         </div>
                     @endif
@@ -144,7 +143,7 @@
     @if(auth()->user()->role->value === 'admin')
         <!-- Admin Portfolio Stats -->
         <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <x-stat-card label="Total Properties" :value="$stats['total_properties']">
+            <x-stat-card label="{{ __('dashboard.admin.stats.total_properties') }}" :value="$stats['total_properties']">
                 <x-slot:icon>
                     <svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
@@ -581,7 +580,7 @@
                                         {{ enum_label($reading->meter->type) }}
                                     </p>
                                     <p class="text-sm text-slate-500 truncate">
-                                        {{ $reading->meter->property->address ?? 'N/A' }}
+                                        {{ $reading->meter->property->address ?? __('app.common.na') }}
                                     </p>
                                     <p class="text-xs text-slate-400">
                                         {{ $reading->reading_date->format('M d, Y') }} - {{ number_format($reading->value, 2) }}

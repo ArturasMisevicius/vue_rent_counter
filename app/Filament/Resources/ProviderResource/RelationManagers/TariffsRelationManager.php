@@ -40,12 +40,12 @@ class TariffsRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Tariff Name')
+                    ->label(__('tariffs.forms.name'))
                     ->searchable()
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('configuration.type')
-                    ->label('Tariff Type')
+                    ->label(__('tariffs.forms.type'))
                     ->badge()
                     ->color(fn (string $state): string => match (TariffType::tryFrom($state)) {
                         TariffType::FLAT => 'success',
@@ -56,18 +56,18 @@ class TariffsRelationManager extends RelationManager
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('active_from')
-                    ->label('Active From')
+                    ->label(__('tariffs.forms.active_from'))
                     ->date()
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('active_until')
-                    ->label('Active Until')
+                    ->label(__('tariffs.forms.active_until'))
                     ->date()
                     ->sortable()
-                    ->placeholder('No end date'),
+                    ->placeholder(__('tariffs.forms.no_end_date')),
                 
                 Tables\Columns\IconColumn::make('is_active')
-                    ->label('Status')
+                    ->label(__('tariffs.labels.status'))
                     ->boolean()
                     ->getStateUsing(function ($record): bool {
                         return $record->isActiveOn(now());

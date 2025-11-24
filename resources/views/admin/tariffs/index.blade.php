@@ -3,21 +3,18 @@
 @section('title', __('tariffs.headings.index'))
 
 @section('content')
-@php($tariffTypeLabels = \App\Enums\TariffType::labels())
+@php
+    $tariffTypeLabels = \App\Enums\TariffType::labels();
+@endphp
 <div class="px-4 sm:px-6 lg:px-8">
-    <x-breadcrumbs>
-        <x-breadcrumb-item :href="route('admin.dashboard')">{{ __('app.nav.dashboard') }}</x-breadcrumb-item>
-        <x-breadcrumb-item :active="true">{{ __('app.nav.tariffs') }}</x-breadcrumb-item>
-    </x-breadcrumbs>
-
-    <div class="sm:flex sm:items-center">
+<div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
             <h1 class="text-2xl font-semibold text-slate-900">{{ __('tariffs.headings.index') }}</h1>
             <p class="mt-2 text-sm text-slate-700">{{ __('tariffs.descriptions.index') }}</p>
         </div>
         @can('create', App\Models\Tariff::class)
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-            <a href="{{ route('admin.tariffs.create') }}" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+            <a href="{{ route('filament.admin.resources.tariffs.create') }}" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                 {{ __('tariffs.actions.add') }}
             </a>
         </div>
@@ -49,7 +46,7 @@
                         {{ $tariff->name }}
                         @if($isActive)
                             <span class="ml-2 inline-flex items-center rounded-md bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
-                                Active
+                                {{ __('tariffs.statuses.active') }}
                             </span>
                         @endif
                     </td>

@@ -69,4 +69,31 @@ class OrganizationInvitation extends Model
         return $query->whereNull('accepted_at')
             ->where('expires_at', '>', now());
     }
+
+    /**
+     * Check if the invitation is pending.
+     */
+    public function isPending(): bool
+    {
+        return !$this->isAccepted() && !$this->isExpired();
+    }
+
+    /**
+     * Cancel the invitation.
+     */
+    public function cancel(): void
+    {
+        $this->delete();
+    }
+
+    /**
+     * Resend the invitation with a new token and expiry date.
+     */
+    public function resend(): void
+    {
+        $this->update([
+            'token' => Str::random(64),
+            'expires_at' => now()->addDays(7),
+        ]);
+    }
 }

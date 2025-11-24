@@ -24,22 +24,22 @@ class RecentActivityWidget extends BaseWidget
             )
             ->columns([
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Time')
+                    ->label(__('superadmin.dashboard.recent_activity_widget.columns.time'))
                     ->dateTime('M d, H:i')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('user.name')
-                    ->label('User')
+                    ->label(__('superadmin.dashboard.recent_activity_widget.columns.user'))
                     ->searchable()
-                    ->default('System'),
+                    ->default(__('superadmin.dashboard.recent_activity_widget.default_system', [], false) ?? 'System'),
 
                 Tables\Columns\TextColumn::make('organization.name')
-                    ->label('Organization')
+                    ->label(__('superadmin.dashboard.recent_activity_widget.columns.organization'))
                     ->searchable()
-                    ->default('N/A'),
+                    ->default(__('app.common.na')),
 
                 Tables\Columns\TextColumn::make('action')
-                    ->label('Action')
+                    ->label(__('superadmin.dashboard.recent_activity_widget.columns.action'))
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'created' => 'success',
@@ -51,29 +51,29 @@ class RecentActivityWidget extends BaseWidget
                     }),
 
                 Tables\Columns\TextColumn::make('resource_type')
-                    ->label('Resource')
+                    ->label(__('superadmin.dashboard.recent_activity_widget.columns.resource'))
                     ->formatStateUsing(fn ($state) => class_basename($state)),
 
                 Tables\Columns\TextColumn::make('resource_id')
-                    ->label('ID')
+                    ->label(__('superadmin.dashboard.recent_activity_widget.columns.id'))
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->actions([
                 Tables\Actions\Action::make('view')
-                    ->label('Details')
+                    ->label(__('superadmin.dashboard.recent_activity_widget.columns.details'))
                     ->icon('heroicon-o-eye')
-                    ->modalHeading('Activity Details')
+                    ->modalHeading(__('superadmin.dashboard.recent_activity_widget.modal_heading'))
                     ->modalContent(fn (OrganizationActivityLog $record): \Illuminate\Contracts\View\View => view(
                         'filament.widgets.activity-details',
                         ['record' => $record]
                     ))
                     ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Close'),
+                    ->modalCancelActionLabel(__('subscriptions.actions.close')),
             ])
-            ->heading('Recent Activity')
-            ->description('Last 10 actions across all organizations')
-            ->emptyStateHeading('No recent activity')
-            ->emptyStateDescription('Activity logs will appear here')
+            ->heading(__('superadmin.dashboard.recent_activity_widget.heading'))
+            ->description(__('superadmin.dashboard.recent_activity_widget.description'))
+            ->emptyStateHeading(__('superadmin.dashboard.recent_activity_widget.empty_heading'))
+            ->emptyStateDescription(__('superadmin.dashboard.recent_activity_widget.empty_description'))
             ->emptyStateIcon('heroicon-o-clock')
             ->paginated(false);
     }

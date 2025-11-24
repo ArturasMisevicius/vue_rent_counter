@@ -60,7 +60,7 @@
                                 {{ $invoice->tenant->property->address }}
                             </a>
                         @else
-                            <span class="text-slate-400">N/A</span>
+                            <span class="text-slate-400">{{ __('app.common.na') }}</span>
                         @endif
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
@@ -118,7 +118,7 @@
                                 @if($invoice->tenant && $invoice->tenant->property)
                                     {{ $invoice->tenant->property->address }}
                                 @else
-                                    N/A
+                                    {{ __('app.common.na') }}
                                 @endif
                             </p>
                         </div>

@@ -29,6 +29,37 @@ return [
         'status' => 'Status',
         'actions' => 'Actions',
         'service_type' => 'Service Type',
+        'created_at' => 'Created At',
+    ],
+
+    'sections' => [
+        'basic_information' => 'Basic Information',
+        'effective_period' => 'Effective Period',
+        'configuration' => 'Tariff Configuration',
+    ],
+
+    'forms' => [
+        'provider' => 'Provider',
+        'name' => 'Tariff Name',
+        'active_from' => 'Active From',
+        'active_until' => 'Active Until',
+        'type' => 'Tariff Type',
+        'currency' => 'Currency',
+        'flat_rate' => 'Rate (€/kWh or €/m³)',
+        'zones' => 'Time-of-Use Zones',
+        'zone_id' => 'Zone ID',
+        'zone_placeholder' => 'e.g., day, night, peak',
+        'start_time' => 'Start Time',
+        'start_placeholder' => 'HH:MM (e.g., 07:00)',
+        'end_time' => 'End Time',
+        'end_placeholder' => 'HH:MM (e.g., 23:00)',
+        'zone_rate' => 'Rate (€/kWh)',
+        'add_zone' => 'Add Zone',
+        'weekend_logic' => 'Weekend Logic',
+        'weekend_helper' => 'How to handle weekends for time-of-use tariffs',
+        'fixed_fee' => 'Fixed Monthly Fee',
+        'fixed_fee_helper' => 'Optional fixed monthly fee (e.g., meter rental)',
+        'no_end_date' => 'No end date',
     ],
 
     'actions' => [
@@ -128,6 +159,44 @@ return [
         ],
         'create_new_version' => [
             'boolean' => 'Create new version must be true or false.',
+        ],
+    ],
+
+    'pages' => [
+        'admin_form' => [
+            'create_title' => 'Create Tariff',
+            'create_subtitle' => 'Add a new tariff configuration',
+            'edit_title' => 'Edit Tariff',
+            'edit_subtitle' => 'Update tariff configuration or create a new version',
+            'breadcrumb_create' => 'Create',
+            'breadcrumb_edit' => 'Edit',
+            'labels' => [
+                'name' => 'Tariff Name',
+                'provider' => 'Provider',
+                'configuration' => 'Configuration',
+                'active_from' => 'Active From',
+                'active_until' => 'Active Until (Optional)',
+            ],
+            'placeholders' => [
+                'configuration' => 'Enter tariff configuration as JSON object',
+            ],
+            'examples' => [
+                'flat_heading' => 'Flat Rate Example:',
+                'tou_heading' => 'Time of Use Example:',
+                'required_fields' => 'Required Fields:',
+                'flat_fields' => 'For flat: rate (numeric)',
+                'tou_fields' => 'For time_of_use: zones array with id, start, end, rate',
+            ],
+            'versioning' => [
+                'title' => 'Versioning',
+                'body' => 'Check the box below to create a new version instead of updating the existing tariff. This preserves historical pricing data.',
+                'checkbox' => 'Create new version (preserves historical data)',
+            ],
+            'actions' => [
+                'cancel' => 'Cancel',
+                'save_create' => 'Create Tariff',
+                'save_edit' => 'Update Tariff',
+            ],
         ],
     ],
 ];

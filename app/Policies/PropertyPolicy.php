@@ -38,9 +38,13 @@ class PropertyPolicy
             return true;
         }
 
-        // Admins and managers can view properties within their tenant
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
-            // Verify property belongs to admin's tenant_id (Requirement 4.3)
+        // Admins can view properties across tenants; managers remain tenant-scoped
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        if ($user->role === UserRole::MANAGER) {
+            // Verify property belongs to manager's tenant_id (Requirement 4.3)
             return $property->tenant_id === $user->tenant_id;
         }
 
@@ -85,8 +89,12 @@ class PropertyPolicy
             return true;
         }
 
-        // Admins and managers can update properties within their tenant (Requirement 4.3, 13.3)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Admins can update properties across tenants; managers remain tenant-scoped (Requirement 4.3, 13.3)
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        if ($user->role === UserRole::MANAGER) {
             return $property->tenant_id === $user->tenant_id;
         }
 
@@ -105,8 +113,12 @@ class PropertyPolicy
             return true;
         }
 
-        // Admins can delete properties within their tenant (Requirement 4.3, 13.3)
+        // Admins can delete properties across tenants; managers remain tenant-scoped (Requirement 4.3, 13.3)
         if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        if ($user->role === UserRole::MANAGER) {
             return $property->tenant_id === $user->tenant_id;
         }
 
@@ -125,8 +137,12 @@ class PropertyPolicy
             return true;
         }
 
-        // Admins and managers can restore properties within their tenant (Requirement 4.3, 13.3)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Admins can restore properties across tenants; managers remain tenant-scoped (Requirement 4.3, 13.3)
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        if ($user->role === UserRole::MANAGER) {
             return $property->tenant_id === $user->tenant_id;
         }
 

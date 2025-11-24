@@ -41,11 +41,10 @@ class TenantScope implements Scope
         if ($user instanceof User
             && $user->role === UserRole::TENANT
             && $user->property_id !== null
-            && $this->hasPropertyColumn($model)
             && $model->getTable() !== 'users') {
             if ($model->getTable() === 'properties') {
                 $builder->where($model->qualifyColumn('id'), '=', $user->property_id);
-            } else {
+            } elseif ($this->hasPropertyColumn($model)) {
                 $builder->where($model->qualifyColumn('property_id'), '=', $user->property_id);
             }
         }

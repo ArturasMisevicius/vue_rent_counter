@@ -27,13 +27,13 @@ class OverdueInvoiceNotification extends Notification implements ShouldQueue
         $amount = number_format($this->invoice->total_amount, 2);
 
         return (new MailMessage)
-            ->subject("Invoice #{$this->invoice->id} is overdue")
-            ->greeting("Hello {$notifiable->name},")
-            ->line("Invoice #{$this->invoice->id} is overdue.")
-            ->line("Total amount: €{$amount}")
-            ->line("Due date: {$dueDate}")
-            ->line('Please pay this invoice as soon as possible to avoid service issues.')
-            ->action('View Invoice', route('tenant.invoices.show', $this->invoice))
-            ->line('If you have already paid, you can ignore this message.');
+            ->subject(__('notifications.overdue_invoice.subject', ['id' => $this->invoice->id]))
+            ->greeting(__('notifications.overdue_invoice.greeting', ['name' => $notifiable->name]))
+            ->line(__('notifications.overdue_invoice.overdue', ['id' => $this->invoice->id]))
+            ->line(__('notifications.overdue_invoice.amount', ['amount' => "€{$amount}"]))
+            ->line(__('notifications.overdue_invoice.due_date', ['date' => $dueDate]))
+            ->line(__('notifications.overdue_invoice.pay_notice'))
+            ->action(__('notifications.overdue_invoice.action'), route('tenant.invoices.show', $this->invoice))
+            ->line(__('notifications.overdue_invoice.ignore'));
     }
 }

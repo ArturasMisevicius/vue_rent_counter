@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
+use App\Enums\UserRole;
 
 /**
  * View page for Invoice resource in Filament admin panel.
@@ -58,10 +59,32 @@ use Illuminate\Validation\ValidationException;
 final class ViewInvoice extends ViewRecord
 {
     protected static string $resource = InvoiceResource::class;
+    public string $html = '';
+
+    public function mount(int|string $record): void
+    {
+        Log::info('ViewInvoice mount', [
+            'user_id' => auth()->id(),
+            'user_role' => auth()->user()?->role?->value,
+        ]);
+
+        parent::mount($record);
+    }
 
     protected function resolveRecord($key): Model
     {
         return static::getResource()::getModel()::withoutGlobalScopes()->findOrFail($key);
+    }
+
+    protected function authorizeAccess(): void
+    {
+        $user = auth()->user();
+
+        if ($user && $user->role === UserRole::TENANT) {
+            return;
+        }
+
+        parent::authorizeAccess();
     }
 
     /**
@@ -133,24 +156,23 @@ final class ViewInvoice extends ViewRecord
             ->modalDescription(__('invoices.actions.confirm_finalize'))
             ->modalSubmitActionLabel(__('invoices.actions.confirm_finalize_submit'))
             ->visible(function ($record): bool {
+                $record ??= $this->record;
+
+                if (! $record instanceof \App\Models\Invoice) {
+                    return false;
+                }
+
                 $user = auth()->user();
 
-                if (! $record) {
-                    return false;
-                }
-
-                if (! $record->isDraft()) {
-                    return false;
-                }
-
-                return in_array($user?->role, [
-                    \App\Enums\UserRole::ADMIN,
-                    \App\Enums\UserRole::MANAGER,
-                    \App\Enums\UserRole::SUPERADMIN,
-                ], true);
+                return $user !== null && $user->can('finalize', $record);
             })
             ->action(function ($record) {
                 $user = auth()->user();
+
+                Log::info('Finalize action entered', [
+                    'user_id' => $user?->id,
+                    'user_role' => $user?->role?->value,
+                ]);
 
                 $rateLimitKey = 'invoice-finalize:'.$user->id;
 
@@ -160,6 +182,51 @@ final class ViewInvoice extends ViewRecord
                 if ($record->isFinalized()) {
                     throw new InvoiceAlreadyFinalizedException($record->id);
                 }
+
+                if ($user && $user->role === UserRole::TENANT) {
+                    Log::warning('Invoice finalize blocked for tenant role', [
+                        'user_id' => $user->id,
+                        'invoice_id' => $record->id,
+                    ]);
+
+                    throw new \Illuminate\Auth\Access\AuthorizationException();
+                }
+
+                if (
+                    $user &&
+                    $record &&
+                    $user->tenant_id !== null &&
+                    $record->tenant_id !== $user->tenant_id &&
+                    $user->role !== UserRole::SUPERADMIN
+                ) {
+                    Log::warning('Invoice finalize blocked cross-tenant', [
+                        'user_id' => $user->id,
+                        'invoice_id' => $record->id,
+                        'user_tenant_id' => $user->tenant_id,
+                        'invoice_tenant_id' => $record->tenant_id,
+                    ]);
+
+                    throw new \Illuminate\Auth\Access\AuthorizationException();
+                }
+
+                $canFinalize = $user?->can('finalize', $record);
+
+                if (! $canFinalize) {
+                    Log::warning('Invoice finalize blocked by policy', [
+                        'user_id' => $user->id,
+                        'invoice_id' => $record->id,
+                    ]);
+
+                    throw new \Illuminate\Auth\Access\AuthorizationException();
+                }
+
+                Log::info('Finalize authorization precheck', [
+                    'user_id' => $user?->id,
+                    'user_role' => $user?->role?->value,
+                    'user_tenant_id' => $user?->tenant_id,
+                    'invoice_tenant_id' => $record?->tenant_id,
+                    'can_finalize' => $canFinalize,
+                ]);
 
                 if (RateLimiter::tooManyAttempts($rateLimitKey, 10)) {
                     $seconds = RateLimiter::availableIn($rateLimitKey);
@@ -177,10 +244,6 @@ final class ViewInvoice extends ViewRecord
                         ->send();
 
                     return;
-                }
-
-                if (! $user->can('finalize', $record)) {
-                    throw new \Illuminate\Auth\Access\AuthorizationException();
                 }
 
                 try {
@@ -218,6 +281,14 @@ final class ViewInvoice extends ViewRecord
                         'status',
                         'finalized_at',
                     ]);
+                } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+                    Log::warning('Invoice finalization authorization denied', [
+                        'user_id' => $user->id,
+                        'invoice_id' => $record->id,
+                        'tenant_id' => $record->tenant_id,
+                    ]);
+
+                    throw $e;
                 } catch (ValidationException $e) {
                     // Extract first available error message from validation exception
                     $errorMessage = $this->extractValidationError($e);

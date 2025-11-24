@@ -18,13 +18,13 @@ class EditInvoice extends EditRecord
     {
         return [
             Actions\Action::make('finalize')
-                ->label('Finalize Invoice')
+                ->label(__('invoices.actions.finalize'))
                 ->icon('heroicon-o-lock-closed')
                 ->color('warning')
                 ->requiresConfirmation()
-                ->modalHeading('Finalize Invoice')
-                ->modalDescription('Are you sure you want to finalize this invoice? Once finalized, the invoice cannot be edited.')
-                ->modalSubmitActionLabel('Finalize')
+                ->modalHeading(__('invoices.admin.modals.finalize_heading'))
+                ->modalDescription(__('invoices.admin.modals.finalize_description'))
+                ->modalSubmitActionLabel(__('invoices.admin.modals.finalize_submit'))
                 ->visible(fn (Invoice $record): bool => $record->isDraft())
                 ->action(function (Invoice $record) {
                     // Create a FinalizeInvoiceRequest instance for validation
@@ -47,7 +47,7 @@ class EditInvoice extends EditRecord
                     // Check if validation fails
                     if ($validator->fails()) {
                         Notification::make()
-                            ->title('Cannot finalize invoice')
+                            ->title(__('invoices.notifications.cannot_finalize'))
                             ->body($validator->errors()->first())
                             ->danger()
                             ->send();
@@ -59,8 +59,8 @@ class EditInvoice extends EditRecord
                     $record->finalize();
                     
                     Notification::make()
-                        ->title('Invoice finalized')
-                        ->body('The invoice has been successfully finalized.')
+                        ->title(__('invoices.notifications.finalized_title'))
+                        ->body(__('invoices.notifications.finalized_body'))
                         ->success()
                         ->send();
                     

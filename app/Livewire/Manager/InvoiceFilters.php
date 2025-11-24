@@ -77,14 +77,14 @@ final class InvoiceFilters extends Component implements HasForms
                 TextInput::make('min_amount')
                     ->label(__('invoices.filters.min_amount'))
                     ->numeric()
-                    ->prefix('€')
+                    ->prefix(__('app.units.euro'))
                     ->minValue(0)
                     ->live(onBlur: true),
 
                 TextInput::make('max_amount')
                     ->label(__('invoices.filters.max_amount'))
                     ->numeric()
-                    ->prefix('€')
+                    ->prefix(__('app.units.euro'))
                     ->minValue(0)
                     ->live(onBlur: true),
 

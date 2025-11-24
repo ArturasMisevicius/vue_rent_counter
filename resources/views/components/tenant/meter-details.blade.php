@@ -89,41 +89,41 @@
         @endif
     </x-tenant.section-card>
 
-    <x-tenant.section-card title="Meter Overview" description="Key details about where this meter is installed and how it is configured.">
+    <x-tenant.section-card title="{{ __('tenant.meter_details.overview_title') }}" description="{{ __('tenant.meter_details.overview_description') }}">
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <x-tenant.stack gap="4">
                 <div class="rounded-xl border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Serial Number</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('tenant.meter_details.serial_number') }}</p>
                     <p class="mt-1 text-lg font-semibold text-slate-900">{{ $meter->serial_number }}</p>
                 </div>
 
                 <div class="rounded-xl border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Property</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('tenant.meter_details.property') }}</p>
                     <p class="mt-1 text-sm text-slate-900">
                         @if($meter->property)
                             <a href="{{ route('tenant.property.show') }}" class="text-indigo-600 hover:text-indigo-800">
                                 {{ $meter->property->address }}
                             </a>
                         @else
-                            <span class="text-slate-500">Not assigned</span>
+                            <span class="text-slate-500">{{ __('tenant.meter_details.not_assigned') }}</span>
                         @endif
                     </p>
                 </div>
 
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div class="rounded-xl border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Installed</p>
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('tenant.meter_details.installed') }}</p>
                         <p class="mt-1 text-sm text-slate-900">
-                            {{ $meter->installation_date ? $meter->installation_date->format('Y-m-d') : 'Not specified' }}
+                            {{ $meter->installation_date ? $meter->installation_date->format('Y-m-d') : __('tenant.meter_details.not_specified') }}
                         </p>
                     </div>
                     <div class="rounded-xl border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Zones</p>
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('tenant.meter_details.zones') }}</p>
                         <div class="mt-2">
                             @if($meter->supports_zones)
-                                <x-status-badge status="active">Supports zones</x-status-badge>
+                                <x-status-badge status="active">{{ __('tenant.meter_details.supports_zones') }}</x-status-badge>
                             @else
-                                <x-status-badge status="inactive">Single zone</x-status-badge>
+                                <x-status-badge status="inactive">{{ __('tenant.meter_details.single_zone') }}</x-status-badge>
                             @endif
                         </div>
                     </div>
@@ -139,40 +139,40 @@
                             <span class="text-4xl font-bold text-slate-900">{{ number_format($latestReading->value, 2) }}</span>
                             <span class="text-sm font-semibold text-slate-500">{{ $unit }}</span>
                         </div>
-                        <p class="mt-2 text-sm text-slate-600">Recorded on {{ $latestReading->reading_date->format('Y-m-d') }}</p>
+                        <p class="mt-2 text-sm text-slate-600">{{ __('tenant.meter_details.recorded_on', ['date' => $latestReading->reading_date->format('Y-m-d')]) }}</p>
                         <div class="mt-3 flex flex-wrap gap-2">
                             @if($latestReading->zone)
                                 <span class="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
-                                    Zone: {{ $latestReading->zone }}
+                                    {{ __('tenant.meter_details.zone') }}: {{ $latestReading->zone }}
                                 </span>
                             @endif
                             @if(!is_null($delta))
                                 <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
-                                    Δ since previous: +{{ number_format($delta, 2) }} {{ $unit }}
+                                    {{ __('tenant.meter_details.delta', ['value' => number_format($delta, 2), 'unit' => $unit]) }}
                                 </span>
                             @endif
                         </div>
                     @else
-                        <p class="mt-2 text-sm text-slate-700">No readings have been recorded for this meter yet.</p>
-                        <p class="mt-1 text-sm text-slate-600">Submit your first reading to start tracking consumption.</p>
+                        <p class="mt-2 text-sm text-slate-700">{{ __('tenant.meter_details.empty_primary') }}</p>
+                        <p class="mt-1 text-sm text-slate-600">{{ __('tenant.meter_details.empty_secondary') }}</p>
                     @endif
                 </div>
             </div>
         </div>
     </x-tenant.section-card>
 
-    <x-tenant.section-card title="Recent readings" description="The latest 12 entries submitted for this meter.">
+    <x-tenant.section-card title="{{ __('tenant.meter_details.recent_title') }}" description="{{ __('tenant.meter_details.recent_description') }}">
         @if($meter->readings->isEmpty())
-            <p class="text-sm text-slate-600">No readings recorded yet.</p>
+            <p class="text-sm text-slate-600">{{ __('tenant.meter_details.empty_primary') }}</p>
         @else
             <div class="hidden sm:block overflow-hidden rounded-xl border border-slate-200">
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50">
                         <tr>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Date</th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Value</th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Change</th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Zone</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('tenant.meter_details.table.date') }}</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('tenant.meter_details.table.value') }}</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('tenant.meter_details.table.change') }}</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('tenant.meter_details.table.zone') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200 bg-white">
@@ -205,9 +205,9 @@
                             <p class="text-sm font-semibold text-slate-900">{{ $reading->reading_date->format('Y-m-d') }}</p>
                             <p class="text-xs font-semibold text-slate-500">{{ $reading->zone ?? '—' }}</p>
                         </div>
-                        <p class="mt-1 text-sm text-slate-700">Value: <span class="font-semibold">{{ number_format($reading->value, 2) }} {{ $unit }}</span></p>
+                        <p class="mt-1 text-sm text-slate-700">{{ __('tenant.meter_details.mobile.value') }} <span class="font-semibold">{{ number_format($reading->value, 2) }} {{ $unit }}</span></p>
                         <p class="mt-1 text-sm text-slate-700">
-                            Change:
+                            {{ __('tenant.meter_details.mobile.change') }}
                             <span class="font-semibold">{{ $previousValue !== null ? '+' . number_format(max($previousValue - $reading->value, 0), 2) . ' ' . $unit : '—' }}</span>
                         </p>
                     </div>
@@ -236,7 +236,7 @@
                             data: {
                                 labels: @json($trendLabels),
                                 datasets: [{
-                                    label: 'Meter reading ({{ $unit }})',
+                                    label: '{{ __('tenant.meter_details.chart_label', ['unit' => $unit]) }}',
                                     data: @json($trendValues),
                                     borderColor: 'rgb(79, 70, 229)',
                                     backgroundColor: gradient,

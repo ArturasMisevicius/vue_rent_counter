@@ -35,7 +35,7 @@ class ProviderResource extends Resource
 {
     protected static ?string $model = Provider::class;
 
-    protected static ?string $navigationLabel = 'Providers';
+    protected static ?string $navigationLabel = null;
 
     protected static ?int $navigationSort = 2;
 
@@ -44,9 +44,14 @@ class ProviderResource extends Resource
         return 'heroicon-o-building-library';
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return __('app.nav.providers');
+    }
+
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return 'Configuration';
+        return __('app.nav_groups.configuration');
     }
 
     // Integrate ProviderPolicy for authorization (Requirement 9.5)
@@ -80,36 +85,36 @@ class ProviderResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\Section::make('Provider Information')
+                Forms\Components\Section::make(__('providers.sections.provider_information'))
                     ->schema([
                         Forms\Components\TextInput::make('name')
-                            ->label('Provider Name')
+                            ->label(__('providers.labels.name'))
                             ->required()
                             ->maxLength(255)
                             ->validationMessages([
-                                'required' => 'Provider name is required',
+                                'required' => __('providers.validation.name.required'),
                             ]),
                         
                         Forms\Components\Select::make('service_type')
-                            ->label('Service Type')
+                            ->label(__('providers.labels.service_type'))
                             ->options(ServiceType::class)
                             ->required()
                             ->native(false)
                             ->validationMessages([
-                                'required' => 'Service type is required',
+                                'required' => __('providers.validation.service_type.required'),
                             ]),
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make('Contact Information')
+                Forms\Components\Section::make(__('providers.sections.contact_information'))
                     ->schema([
                         Forms\Components\KeyValue::make('contact_info')
-                            ->label('Contact Details')
-                            ->keyLabel('Field')
-                            ->valueLabel('Value')
-                            ->addActionLabel('Add Contact Field')
+                            ->label(__('providers.labels.contact_info'))
+                            ->keyLabel(__('providers.forms.contact.field'))
+                            ->valueLabel(__('providers.forms.contact.value'))
+                            ->addActionLabel(__('providers.forms.contact.add'))
                             ->reorderable(false)
-                            ->helperText('Add contact information such as phone, email, address, website, etc.'),
+                            ->helperText(__('providers.forms.contact.helper')),
                     ]),
             ]);
     }
@@ -120,12 +125,12 @@ class ProviderResource extends Resource
             ->searchable()
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Provider Name')
+                    ->label(__('providers.labels.name'))
                     ->searchable()
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('service_type')
-                    ->label('Service Type')
+                    ->label(__('providers.labels.service_type'))
                     ->badge()
                     ->color(fn (ServiceType $state): string => match ($state) {
                         ServiceType::ELECTRICITY => 'warning',
@@ -136,7 +141,7 @@ class ProviderResource extends Resource
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('contact_info')
-                    ->label('Contact Information')
+                    ->label(__('providers.labels.contact_info'))
                     ->formatStateUsing(function (array|string|null $state): string {
                         if (is_string($state)) {
                             $decoded = json_decode($state, true);
@@ -144,7 +149,7 @@ class ProviderResource extends Resource
                         }
 
                         if (empty($state)) {
-                            return 'No contact info';
+                            return __('providers.labels.no_contact_info');
                         }
 
                         $items = [];
@@ -157,12 +162,12 @@ class ProviderResource extends Resource
                     ->wrap(),
                 
                 Tables\Columns\TextColumn::make('tariffs_count')
-                    ->label('Tariff Count')
+                    ->label(__('providers.tables.tariff_count'))
                     ->counts('tariffs')
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created At')
+                    ->label(__('providers.tables.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

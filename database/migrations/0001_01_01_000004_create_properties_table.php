@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('address');
             $table->enum('type', ['apartment', 'house']);
             $table->decimal('area_sqm', 8, 2);
+            $table->string('unit_number')->nullable();
             $table->foreignId('building_id')->nullable()->constrained('buildings')->onDelete('set null');
             $table->timestamps();
         });

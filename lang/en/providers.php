@@ -11,6 +11,7 @@ return [
         'contact_info' => 'Contact Information',
         'tariffs' => 'Tariffs',
         'created' => 'Created',
+        'no_contact_info' => 'No contact info',
     ],
 
     'headings' => [
@@ -42,6 +43,20 @@ return [
         'add_tariff' => 'Add Tariff',
     ],
 
+    'sections' => [
+        'provider_information' => 'Provider Information',
+        'contact_information' => 'Contact Information',
+    ],
+
+    'forms' => [
+        'contact' => [
+            'field' => 'Field',
+            'value' => 'Value',
+            'add' => 'Add Contact Field',
+            'helper' => 'Add contact information such as phone, email, address, website, etc.',
+        ],
+    ],
+
     'tables' => [
         'name' => 'Name',
         'service_type' => 'Service Type',
@@ -51,6 +66,8 @@ return [
         'active_from' => 'Active From',
         'active_until' => 'Active Until',
         'status' => 'Status',
+        'tariff_count' => 'Tariff Count',
+        'created_at' => 'Created At',
     ],
 
     'statuses' => [
@@ -59,6 +76,7 @@ return [
         'present' => 'Present',
         'not_available' => 'N/A',
     ],
+
 
     'counts' => [
         'tariffs' => '{0} No tariffs|{1} :count tariff|[2,*] :count tariffs',

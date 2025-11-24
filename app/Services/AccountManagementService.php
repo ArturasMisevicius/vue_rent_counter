@@ -300,11 +300,13 @@ class AccountManagementService
         ?User $performedBy,
         ?string $reason = null
     ): void {
+        $actorId = $performedBy?->id ?? auth()->id() ?? $user->id;
+
         DB::table('user_assignments_audit')->insert([
             'user_id' => $user->id,
             'property_id' => $propertyId,
             'previous_property_id' => $previousPropertyId,
-            'performed_by' => $performedBy?->id,
+            'performed_by' => $actorId,
             'action' => $action->value,
             'reason' => $reason,
             'created_at' => now(),

@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
+            'auth' => \App\Http\Middleware\Authenticate::class,
             'tenant.context' => \App\Http\Middleware\EnsureTenantContext::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'subscription.check' => \App\Http\Middleware\CheckSubscriptionStatus::class,

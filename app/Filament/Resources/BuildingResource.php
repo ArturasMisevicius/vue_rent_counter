@@ -24,7 +24,7 @@ class BuildingResource extends Resource
 
     protected static string $translationPrefix = 'buildings.validation';
 
-    protected static ?string $navigationLabel = 'Buildings';
+    protected static ?string $navigationLabel = null;
 
     protected static ?int $navigationSort = 4;
 
@@ -33,9 +33,14 @@ class BuildingResource extends Resource
         return 'heroicon-o-building-office-2';
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return __('app.nav.buildings');
+    }
+
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return 'Operations';
+        return __('app.nav_groups.operations');
     }
 
     // Integrate BuildingPolicy for authorization (Requirement 9.5)
@@ -77,7 +82,7 @@ class BuildingResource extends Resource
                     ->validationMessages(self::getValidationMessages('name')),
 
                 Forms\Components\TextInput::make('address')
-                    ->label('Address')
+                    ->label(__('buildings.labels.address'))
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull()
@@ -85,7 +90,7 @@ class BuildingResource extends Resource
                     ->validationMessages(self::getValidationMessages('address')),
 
                 Forms\Components\TextInput::make('total_apartments')
-                    ->label('Total Apartments')
+                    ->label(__('buildings.labels.total_apartments'))
                     ->required()
                     ->numeric()
                     ->minValue(1)
@@ -106,22 +111,22 @@ class BuildingResource extends Resource
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('address')
-                    ->label('Address')
+                    ->label(__('buildings.labels.address'))
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('total_apartments')
-                    ->label('Total Apartments')
+                    ->label(__('buildings.labels.total_apartments'))
                     ->numeric()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('properties_count')
-                    ->label('Property Count')
+                    ->label(__('buildings.labels.property_count'))
                     ->counts('properties')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created At')
+                    ->label(__('buildings.labels.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

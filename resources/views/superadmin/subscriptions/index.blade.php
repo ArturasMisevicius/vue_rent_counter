@@ -98,7 +98,7 @@
                     @empty
                     <tr>
                         <td colspan="6" class="px-6 py-4 text-center text-slate-500">
-                            No subscriptions found
+                            {{ __('superadmin.dashboard.overview.subscriptions.empty') }}
                         </td>
                     </tr>
                     @endforelse

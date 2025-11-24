@@ -30,6 +30,7 @@ class PropertyFactory extends Factory
             'address' => fake()->address(),
             'type' => fake()->randomElement([PropertyType::APARTMENT, PropertyType::HOUSE]),
             'area_sqm' => fake()->randomFloat(2, 20, 200),
+            'unit_number' => fake()->bothify('Apt ###'),
             'building_id' => \App\Models\Building::factory(),
         ];
     }

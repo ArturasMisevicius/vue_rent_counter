@@ -14,6 +14,8 @@ class Invoice extends Model
 {
     use HasFactory, BelongsToTenant;
 
+    protected $dateFormat = 'Y-m-d H:i:s.u';
+
     /**
      * The "booted" method of the model.
      */

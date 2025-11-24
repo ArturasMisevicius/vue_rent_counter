@@ -24,6 +24,8 @@ class OrganizationResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    protected static ?string $navigationLabel = null;
+
     public static function getNavigationIcon(): string|BackedEnum|null
     {
         return 'heroicon-o-building-office-2';
@@ -31,7 +33,12 @@ class OrganizationResource extends Resource
 
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return 'System Management';
+        return __('app.nav_groups.system_management');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('organizations.navigation');
     }
 
     public static function shouldRegisterNavigation(): bool
@@ -68,37 +75,43 @@ class OrganizationResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\Section::make('Organization Details')
+                Forms\Components\Section::make(__('organizations.sections.details'))
                     ->schema([
                         Forms\Components\TextInput::make('name')
+                            ->label(__('organizations.labels.name'))
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
                             ->afterStateUpdated(fn ($state, Forms\Set $set) => $set('slug', \Illuminate\Support\Str::slug($state))),
                         
                         Forms\Components\TextInput::make('slug')
+                            ->label(__('organizations.labels.slug'))
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true)
-                            ->helperText('Auto-generated from name, but can be customized'),
+                            ->helperText(__('organizations.helper_text.slug')),
                         
                         Forms\Components\TextInput::make('email')
+                            ->label(__('organizations.labels.email'))
                             ->email()
                             ->required()
                             ->maxLength(255),
                         
                         Forms\Components\TextInput::make('phone')
+                            ->label(__('organizations.labels.phone'))
                             ->tel()
                             ->maxLength(255),
                         
                         Forms\Components\TextInput::make('domain')
+                            ->label(__('organizations.labels.domain'))
                             ->maxLength(255)
-                            ->helperText('Custom domain for this organization (optional)'),
+                            ->helperText(__('organizations.helper_text.domain')),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Subscription & Limits')
+                Forms\Components\Section::make(__('organizations.sections.subscription'))
                     ->schema([
                         Forms\Components\Select::make('plan')
+                            ->label(__('organizations.labels.plan'))
                             ->options(SubscriptionPlanType::labels())
                             ->required()
                             ->default(SubscriptionPlanType::BASIC->value)
@@ -115,29 +128,32 @@ class OrganizationResource extends Resource
                             }),
                         
                         Forms\Components\TextInput::make('max_properties')
+                            ->label(__('organizations.labels.max_properties'))
                             ->numeric()
                             ->required()
                             ->default(100)
                             ->minValue(1),
                         
                         Forms\Components\TextInput::make('max_users')
+                            ->label(__('organizations.labels.max_users'))
                             ->numeric()
                             ->required()
                             ->default(10)
                             ->minValue(1),
                         
                         Forms\Components\DateTimePicker::make('trial_ends_at')
-                            ->label('Trial End Date')
-                            ->helperText('Leave empty if not on trial'),
+                            ->label(__('organizations.labels.trial_end'))
+                            ->helperText(__('organizations.helper_text.trial')),
                         
                         Forms\Components\DateTimePicker::make('subscription_ends_at')
-                            ->label('Subscription End Date')
+                            ->label(__('organizations.labels.subscription_end'))
                             ->required(),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Regional Settings')
+                Forms\Components\Section::make(__('organizations.sections.regional'))
                     ->schema([
                         Forms\Components\Select::make('timezone')
+                            ->label(__('organizations.labels.timezone'))
                             ->options([
                                 'Europe/Vilnius' => 'Europe/Vilnius',
                                 'Europe/London' => 'Europe/London',
@@ -148,6 +164,7 @@ class OrganizationResource extends Resource
                             ->default('Europe/Vilnius'),
                         
                         Forms\Components\Select::make('locale')
+                            ->label(__('organizations.labels.locale'))
                             ->options([
                                 'lt' => 'Lithuanian',
                                 'en' => 'English',
@@ -157,6 +174,7 @@ class OrganizationResource extends Resource
                             ->default('lt'),
                         
                         Forms\Components\Select::make('currency')
+                            ->label(__('organizations.labels.currency'))
                             ->options([
                                 'EUR' => 'EUR (€)',
                                 'USD' => 'USD ($)',
@@ -165,23 +183,24 @@ class OrganizationResource extends Resource
                             ->default('EUR'),
                     ])->columns(3),
 
-                Forms\Components\Section::make('Status')
+                Forms\Components\Section::make(__('organizations.sections.status'))
                     ->schema([
                         Forms\Components\Toggle::make('is_active')
-                            ->label('Active')
+                            ->label(__('organizations.labels.is_active'))
                             ->default(true)
-                            ->helperText('Inactive organizations cannot access the system'),
+                            ->helperText(__('organizations.helper_text.inactive')),
                         
                         Forms\Components\DateTimePicker::make('suspended_at')
-                            ->label('Suspended At')
+                            ->label(__('organizations.labels.suspended_at'))
                             ->disabled()
-                            ->helperText('Set automatically when suspended'),
+                            ->helperText(__('organizations.helper_text.suspended_at')),
                         
                         Forms\Components\Textarea::make('suspension_reason')
+                            ->label(__('organizations.labels.suspension_reason'))
                             ->maxLength(500)
                             ->rows(3)
                             ->disabled()
-                            ->helperText('Reason for suspension'),
+                            ->helperText(__('organizations.helper_text.suspension_reason')),
                     ])->columns(1),
             ]);
     }
@@ -191,14 +210,17 @@ class OrganizationResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label(__('organizations.labels.name'))
                     ->searchable()
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('email')
+                    ->label(__('organizations.labels.email'))
                     ->searchable()
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('plan')
+                    ->label(__('organizations.labels.plan'))
                     ->badge()
                     ->formatStateUsing(fn ($state) => enum_label($state, SubscriptionPlanType::class))
                     ->color(fn ($state): string => match ($state instanceof BackedEnum ? $state->value : $state) {
@@ -210,24 +232,26 @@ class OrganizationResource extends Resource
                 
                 Tables\Columns\IconColumn::make('is_active')
                     ->boolean()
-                    ->label('Active'),
+                    ->label(__('organizations.labels.is_active')),
                 
                 Tables\Columns\TextColumn::make('users_count')
                     ->counts('users')
-                    ->label('Users')
+                    ->label(__('organizations.labels.users'))
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('properties_count')
                     ->counts('properties')
-                    ->label('Properties')
+                    ->label(__('organizations.labels.properties'))
                     ->sortable(),
                 
                 Tables\Columns\TextColumn::make('subscription_ends_at')
+                    ->label(__('organizations.labels.subscription_end'))
                     ->dateTime()
                     ->sortable()
                     ->color(fn ($record) => $record->subscription_ends_at?->isPast() ? 'danger' : 'success'),
                 
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label(__('organizations.labels.created_at') ?? __('properties.labels.created'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -237,20 +261,20 @@ class OrganizationResource extends Resource
                     ->options(SubscriptionPlanType::labels()),
                 
                 Tables\Filters\TernaryFilter::make('is_active')
-                    ->label('Active')
-                    ->placeholder('All organizations')
-                    ->trueLabel('Active only')
-                    ->falseLabel('Inactive only'),
+                    ->label(__('organizations.labels.is_active'))
+                    ->placeholder(__('organizations.filters.active_placeholder'))
+                    ->trueLabel(__('organizations.filters.active_only'))
+                    ->falseLabel(__('organizations.filters.inactive_only')),
                 
                 Tables\Filters\Filter::make('subscription_expired')
                     ->query(fn (Builder $query): Builder => $query->where('subscription_ends_at', '<', now()))
-                    ->label('Expired Subscriptions'),
+                    ->label(__('organizations.labels.expired_subscriptions')),
                 
                 Tables\Filters\Filter::make('expiring_soon')
                     ->query(fn (Builder $query): Builder => $query
                         ->where('subscription_ends_at', '>=', now())
                         ->where('subscription_ends_at', '<=', now()->addDays(14)))
-                    ->label('Expiring Soon (14 days)'),
+                    ->label(__('organizations.labels.expiring_soon')),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -263,14 +287,14 @@ class OrganizationResource extends Resource
                     ->form([
                         Forms\Components\Textarea::make('reason')
                             ->required()
-                            ->label('Suspension Reason')
+                            ->label(__('organizations.labels.suspension_reason'))
                             ->maxLength(500),
                     ])
                     ->action(function (Organization $record, array $data) {
                         $record->suspend($data['reason']);
                     })
                     ->visible(fn (Organization $record) => !$record->isSuspended())
-                    ->successNotificationTitle('Organization suspended successfully'),
+                    ->successNotificationTitle(__('organizations.actions.suspend')),
                 
                 Tables\Actions\Action::make('reactivate')
                     ->icon('heroicon-o-play-circle')
@@ -278,19 +302,19 @@ class OrganizationResource extends Resource
                     ->requiresConfirmation()
                     ->action(fn (Organization $record) => $record->reactivate())
                     ->visible(fn (Organization $record) => $record->isSuspended())
-                    ->successNotificationTitle('Organization reactivated successfully'),
+                    ->successNotificationTitle(__('organizations.actions.reactivate')),
                 
                 Tables\Actions\Action::make('impersonate')
                     ->icon('heroicon-o-user-circle')
                     ->color('info')
                     ->requiresConfirmation()
-                    ->modalHeading('Impersonate Organization Admin')
-                    ->modalDescription('You will be logged in as this organization\'s admin. All actions will be logged.')
+                    ->modalHeading(__('organizations.modals.impersonate_heading'))
+                    ->modalDescription(__('organizations.modals.impersonate_description'))
                     ->form([
                         Forms\Components\Textarea::make('reason')
                             ->required()
-                            ->label('Reason for Impersonation')
-                            ->helperText('This will be logged in the audit trail')
+                            ->label(__('organizations.modals.impersonation_reason'))
+                            ->helperText(__('organizations.helper_text.impersonation_reason'))
                             ->maxLength(500),
                     ])
                     ->action(function (Organization $record, array $data) {
@@ -299,7 +323,7 @@ class OrganizationResource extends Resource
                         
                         if (!$adminUser) {
                             \Filament\Notifications\Notification::make()
-                                ->title('No admin user found')
+                                ->title(__('organizations.modals.no_admin'))
                                 ->danger()
                                 ->send();
                             return;
@@ -332,8 +356,8 @@ class OrganizationResource extends Resource
                         // Switch to the admin user
                         auth()->login($adminUser);
                         
-                        \Filament\Notifications\Notification::make()
-                            ->title('Impersonation started')
+                            \Filament\Notifications\Notification::make()
+                            ->title(__('organizations.modals.impersonation_started'))
                             ->success()
                             ->send();
                         
@@ -343,25 +367,25 @@ class OrganizationResource extends Resource
                     ->visible(fn (Organization $record) => $record->is_active),
                 
                 Tables\Actions\Action::make('view_analytics')
-                    ->label('Analytics')
+                    ->label(__('organizations.labels.analytics'))
                     ->icon('heroicon-o-chart-bar')
                     ->color('gray')
                     ->url(fn (Organization $record): string => '#')
                     ->openUrlInNewTab(false)
-                    ->tooltip('View detailed analytics for this organization'),
+                    ->tooltip(__('organizations.labels.analytics')),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\BulkAction::make('bulk_suspend')
-                        ->label('Suspend Selected')
+                        ->label(__('organizations.actions.suspend_selected'))
                         ->icon('heroicon-o-pause-circle')
                         ->color('warning')
                         ->requiresConfirmation()
                         ->form([
                             Forms\Components\Textarea::make('reason')
                                 ->required()
-                                ->label('Suspension Reason')
-                                ->helperText('This reason will be applied to all selected organizations')
+                                ->label(__('organizations.labels.suspension_reason'))
+                                ->helperText(__('organizations.helper_text.suspension_reason'))
                                 ->maxLength(500),
                         ])
                         ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data) {
@@ -380,14 +404,17 @@ class OrganizationResource extends Resource
                             }
                             
                             \Filament\Notifications\Notification::make()
-                                ->title("Suspended {$suspended} organizations" . ($failed > 0 ? ", {$failed} failed" : ''))
+                                ->title(
+                                    __('organizations.notifications.bulk_suspended', ['count' => $suspended])
+                                    . ($failed > 0 ? __('organizations.notifications.bulk_failed_suffix', ['count' => $failed]) : '')
+                                )
                                 ->success()
                                 ->send();
                         })
                         ->deselectRecordsAfterCompletion(),
                     
                     Tables\Actions\BulkAction::make('bulk_reactivate')
-                        ->label('Reactivate Selected')
+                        ->label(__('organizations.actions.reactivate_selected'))
                         ->icon('heroicon-o-play-circle')
                         ->color('success')
                         ->requiresConfirmation()
@@ -407,24 +434,27 @@ class OrganizationResource extends Resource
                             }
                             
                             \Filament\Notifications\Notification::make()
-                                ->title("Reactivated {$reactivated} organizations" . ($failed > 0 ? ", {$failed} failed" : ''))
+                                ->title(
+                                    __('organizations.notifications.bulk_reactivated', ['count' => $reactivated])
+                                    . ($failed > 0 ? __('organizations.notifications.bulk_failed_suffix', ['count' => $failed]) : '')
+                                )
                                 ->success()
                                 ->send();
                         })
                         ->deselectRecordsAfterCompletion(),
                     
                     Tables\Actions\BulkAction::make('bulk_change_plan')
-                        ->label('Change Plan')
+                        ->label(__('organizations.actions.change_plan'))
                         ->icon('heroicon-o-arrow-path')
                         ->color('info')
                         ->requiresConfirmation()
                         ->form([
                             Forms\Components\Select::make('new_plan')
-                                ->label('New Plan')
+                                ->label(__('organizations.labels.new_plan'))
                                 ->options(SubscriptionPlanType::labels())
                                 ->required()
                                 ->live()
-                                ->helperText('Resource limits will be updated automatically'),
+                                ->helperText(__('organizations.helper_text.change_plan')),
                         ])
                         ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data) {
                             $updated = 0;
@@ -450,14 +480,17 @@ class OrganizationResource extends Resource
                             }
                             
                             \Filament\Notifications\Notification::make()
-                                ->title("Updated {$updated} organizations" . ($failed > 0 ? ", {$failed} failed" : ''))
+                                ->title(
+                                    __('organizations.notifications.bulk_updated', ['count' => $updated])
+                                    . ($failed > 0 ? __('organizations.notifications.bulk_failed_suffix', ['count' => $failed]) : '')
+                                )
                                 ->success()
                                 ->send();
                         })
                         ->deselectRecordsAfterCompletion(),
                     
                     Tables\Actions\ExportBulkAction::make()
-                        ->label('Export Selected')
+                        ->label(__('organizations.actions.export_selected'))
                         ->icon('heroicon-o-arrow-down-tray'),
                 ]),
             ])

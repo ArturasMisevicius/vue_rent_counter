@@ -47,12 +47,20 @@ return [
         'organization_name' => 'Organization Name',
         'properties' => 'Properties',
         'is_active' => 'Active',
+        'account_active' => 'Account Active',
         'created_at' => 'Created',
+        'organization' => 'Organization',
+        'assigned_property' => 'Assigned Property',
+        'created_by' => 'Created By',
+        'created_by_admin' => 'Created By (Admin)',
         'updated_at' => 'Last Updated',
         'activity_history' => 'Activity History',
         'meter_readings_entered' => 'Meter readings entered',
         'no_activity' => 'No activity recorded.',
         'activity_hint' => 'This user has entered :count meter readings.',
+    ],
+    'helper_text' => [
+        'deactivated' => 'Deactivated accounts cannot log in',
     ],
 
     'validation' => [

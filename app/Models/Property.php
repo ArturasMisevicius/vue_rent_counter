@@ -24,6 +24,7 @@ class Property extends Model
         'address',
         'type',
         'area_sqm',
+        'unit_number',
         'building_id',
     ];
 
@@ -51,9 +52,13 @@ class Property extends Model
     /**
      * Get tenants assigned directly to this property.
      */
-    public function tenants(): HasMany
+    public function tenants(): BelongsToMany
     {
-        return $this->hasMany(Tenant::class);
+        return $this->belongsToMany(Tenant::class, 'property_tenant')
+            ->withPivot(['assigned_at', 'vacated_at'])
+            ->withTimestamps()
+            ->wherePivotNull('vacated_at')
+            ->orderByPivot('assigned_at', 'desc');
     }
 
     /**

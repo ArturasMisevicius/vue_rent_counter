@@ -198,4 +198,66 @@ return [
         ],
     ],
 
+    'pages' => [
+        'manager_form' => [
+            'create_title' => 'Создать объект',
+            'create_subtitle' => 'Добавьте новый объект в свой портфель',
+            'breadcrumb_create' => 'Создать',
+            'edit_title' => 'Редактировать объект',
+            'edit_subtitle' => 'Обновите информацию об объекте',
+            'breadcrumb_edit' => 'Редактировать',
+            'labels' => [
+                'address' => 'Адрес',
+                'type' => 'Тип объекта',
+                'area' => 'Площадь (м²)',
+                'building' => 'Здание (необязательно)',
+            ],
+            'placeholders' => [
+                'address' => 'Улица, город',
+                'area' => '50.00',
+                'building' => 'Выберите здание...',
+            ],
+            'actions' => [
+                'cancel' => 'Отмена',
+                'save_create' => 'Создать объект',
+                'save_edit' => 'Обновить объект',
+            ],
+        ],
+        'manager_show' => [
+            'title' => 'Детали объекта',
+            'description' => 'Информация об объекте и связанные данные',
+            'info_title' => 'Информация об объекте',
+            'labels' => [
+                'address' => 'Адрес',
+                'type' => 'Тип',
+                'area' => 'Площадь',
+                'building' => 'Здание',
+            ],
+            'building_missing' => 'Не привязан к зданию',
+            'current_tenant_title' => 'Текущий арендатор',
+            'tenant_labels' => [
+                'name' => 'Имя',
+                'email' => 'Email',
+                'phone' => 'Телефон',
+            ],
+            'tenant_na' => 'Н/Д',
+            'no_tenant' => 'Текущего арендатора нет',
+            'meters_title' => 'Счетчики',
+            'add_meter' => 'Добавить счетчик',
+            'meters_headers' => [
+                'serial' => 'Серийный номер',
+                'type' => 'Тип',
+                'installation' => 'Дата установки',
+                'latest' => 'Последнее показание',
+                'actions' => 'Действия',
+            ],
+            'latest_none' => 'Показаний нет',
+            'view' => 'Просмотр',
+            'edit_property' => 'Редактировать объект',
+            'delete_property' => 'Удалить',
+            'delete_confirm' => 'Вы уверены, что хотите удалить этот объект?',
+            'no_meters_installed' => 'Для этого объекта счетчиков нет.',
+        ],
+    ],
+
 ];

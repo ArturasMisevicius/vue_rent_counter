@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Meter Details</title>
+    <title>{{ __('meters.headings.show', ['serial' => $meter->serial_number]) }}</title>
 </head>
 <body>
-    <h1>Meter Details</h1>
-    <p>Serial: {{ $meter->serial_number }}</p>
-    <p>Type: {{ enum_label($meter->type) }}</p>
+    <h1>{{ __('meters.headings.show', ['serial' => $meter->serial_number]) }}</h1>
+    <p>{{ __('meters.labels.serial_number') }}: {{ $meter->serial_number }}</p>
+    <p>{{ __('meters.labels.type') }}: {{ enum_label($meter->type) }}</p>
 </body>
 </html>

@@ -23,6 +23,8 @@ return [
             'view_meters_desc' => 'Manage utility meters',
             'view_reports' => 'View Reports',
             'view_reports_desc' => 'Analytics and insights',
+            'enter_reading_desc' => 'Capture this month\'s usage.',
+            'generate_invoice_desc' => 'Draft and finalize billing.',
         ],
         'sections' => [
             'operations' => 'Operational Tasks',
@@ -44,6 +46,28 @@ return [
     ],
 
     'admin' => [
+        'title' => 'Admin Dashboard',
+        'portfolio_subtitle' => 'Portfolio overview and statistics',
+        'system_subtitle' => 'System overview and statistics',
+        'banner' => [
+            'no_subscription_title' => 'No Active Subscription',
+            'no_subscription_body' => 'You do not have an active subscription. Please contact support to activate your account.',
+            'expired_title' => 'Subscription Expired',
+            'expired_body' => 'Your subscription expired on :date. Please renew to continue managing your properties.',
+            'expiring_title' => 'Subscription Expiring Soon',
+            'expiring_body' => 'Your subscription will expire in :days on :date. Renew now to avoid service interruption.',
+            'renew_now' => 'Renew Now',
+            'renew' => 'Renew Subscription',
+            'days' => '{1} :count day|[2,*] :count days',
+        ],
+        'subscription_card' => [
+            'title' => 'Subscription Status',
+            'plan_type' => 'Plan Type',
+            'expires' => 'Expires',
+            'properties' => 'Properties',
+            'approaching_limit' => 'Approaching limit',
+            'tenants' => 'Tenants',
+        ],
         'stats' => [
             'total_meter_readings' => 'Total Meter Readings',
             'total_users' => 'Total Users',
@@ -88,6 +112,7 @@ return [
             'manage_users_title' => 'Manage Users',
             'manage_users_desc' => 'User accounts and roles',
         ],
+        'org_dashboard' => ':name Dashboard',
     ],
 
     'tenant' => [
@@ -145,6 +170,67 @@ return [
             'meters_desc' => 'View consumption history',
             'property_title' => 'My Property',
             'property_desc' => 'Property details',
+        ],
+    ],
+
+    'widgets' => [
+        'admin' => [
+            'total_properties' => [
+                'label' => 'Total Properties',
+                'description' => 'Properties in your portfolio',
+            ],
+            'total_buildings' => [
+                'label' => 'Total Buildings',
+                'description' => 'Buildings managed',
+            ],
+            'active_tenants' => [
+                'label' => 'Active Tenants',
+                'description' => 'Active tenant accounts',
+            ],
+            'draft_invoices' => [
+                'label' => 'Draft Invoices',
+                'description' => 'Invoices pending finalization',
+            ],
+            'pending_readings' => [
+                'label' => 'Pending Readings',
+                'description' => 'Meter readings to verify',
+            ],
+            'total_revenue' => [
+                'label' => 'Total Revenue (This Month)',
+                'description' => 'Revenue from finalized invoices',
+            ],
+        ],
+        'manager' => [
+            'total_properties' => [
+                'label' => 'Total Properties',
+                'description' => 'Properties you manage',
+            ],
+            'total_buildings' => [
+                'label' => 'Total Buildings',
+                'description' => 'Buildings under management',
+            ],
+            'pending_readings' => [
+                'label' => 'Pending Readings',
+                'description' => 'Meter readings to verify',
+            ],
+            'draft_invoices' => [
+                'label' => 'Draft Invoices',
+                'description' => 'Invoices pending finalization',
+            ],
+        ],
+        'tenant' => [
+            'property' => [
+                'label' => 'Your Property',
+                'description' => 'Your assigned property',
+            ],
+            'invoices' => [
+                'label' => 'Your Invoices',
+                'description' => 'Total invoices',
+            ],
+            'unpaid' => [
+                'label' => 'Unpaid Invoices',
+                'description' => 'Invoices awaiting payment',
+            ],
         ],
     ],
 ];

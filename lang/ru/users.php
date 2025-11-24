@@ -47,12 +47,20 @@ return [
         'organization_name' => 'Название организации',
         'properties' => 'Объекты',
         'is_active' => 'Активен',
+        'account_active' => 'Учетная запись активна',
         'created_at' => 'Создан',
+        'organization' => 'Организация',
+        'assigned_property' => 'Назначенный объект',
+        'created_by' => 'Создал',
+        'created_by_admin' => 'Создал (админ)',
         'updated_at' => 'Обновлен',
         'activity_history' => 'История активности',
         'meter_readings_entered' => 'Введенные показания',
         'no_activity' => 'Активность не зафиксирована.',
         'activity_hint' => 'Пользователь ввел :count показаний.',
+    ],
+    'helper_text' => [
+        'deactivated' => 'Деактивированные аккаунты не могут войти',
     ],
 
     'validation' => [

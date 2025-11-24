@@ -39,18 +39,29 @@ class SubscriptionExpiryWarningEmail extends Notification implements ShouldQueue
         $expiryDate = $this->subscription->expires_at->format('F j, Y');
 
         return (new MailMessage)
-            ->subject('Subscription Expiry Warning')
-            ->greeting("Hello {$notifiable->name}!")
-            ->line("Your subscription to the Vilnius Utilities Billing System will expire in **{$daysRemaining} days** on **{$expiryDate}**.")
+            ->subject(__('notifications.subscription_expiry.subject'))
+            ->greeting(__('notifications.subscription_expiry.greeting', ['name' => $notifiable->name]))
+            ->line(__('notifications.subscription_expiry.intro', [
+                'days' => $daysRemaining,
+                'date' => $expiryDate,
+            ]))
             ->line('')
-            ->line('**Current Plan:** ' . enum_label($this->subscription->plan_type, SubscriptionPlanType::class))
-            ->line("**Properties:** {$notifiable->properties()->count()} / {$this->subscription->max_properties}")
-            ->line("**Tenants:** {$notifiable->childUsers()->where('role', 'tenant')->count()} / {$this->subscription->max_tenants}")
+            ->line(__('notifications.subscription_expiry.plan', [
+                'plan' => enum_label($this->subscription->plan_type, SubscriptionPlanType::class),
+            ]))
+            ->line(__('notifications.subscription_expiry.properties', [
+                'used' => $notifiable->properties()->count(),
+                'max' => $this->subscription->max_properties,
+            ]))
+            ->line(__('notifications.subscription_expiry.tenants', [
+                'used' => $notifiable->childUsers()->where('role', 'tenant')->count(),
+                'max' => $this->subscription->max_tenants,
+            ]))
             ->line('')
-            ->line('To avoid interruption of service, please renew your subscription before it expires.')
-            ->line('After expiry, your account will be restricted to read-only access until renewal.')
-            ->action('Renew Subscription', url('/admin/profile'))
-            ->line('If you have any questions about renewal, please contact support.');
+            ->line(__('notifications.subscription_expiry.cta_intro'))
+            ->line(__('notifications.subscription_expiry.cta_notice'))
+            ->action(__('notifications.subscription_expiry.action'), url('/admin/profile'))
+            ->line(__('notifications.subscription_expiry.support'));
     }
 
     /**
