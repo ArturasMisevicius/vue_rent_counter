@@ -1,0 +1,32 @@
+
+   FAIL  Tests\Unit\Services\GyvatukasSummerAverageServiceTest
+  ✓ calculates for building successfully                                                             5.98s  
+  ⨯ skips already calculated building                                                                0.83s  
+  ✓ forces recalculation when requested                                                              0.73s  
+  ✓ calculates for multiple buildings                                                                1.04s  
+  ✓ calculates for all buildings with chunking                                                       1.02s  
+  ✓ calculates for building by id                                                                    0.71s  
+  ✓ returns null for nonexistent building id                                                         0.61s  
+  ✓ logs successful calculation                                                                      0.85s  
+  ✓ handles calculation errors gracefully                                                            0.85s  
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\Services\GyvatukasSummerAverageServiceTest > skips already calculated building        
+  Failed asserting that false is true.
+
+  at tests\Unit\Services\GyvatukasSummerAverageServiceTest.php:54
+     50▕ 
+     51▕         // Second calculation without force should skip
+     52▕         $result = $this->service->calculateForBuilding($freshBuilding, $this->period, false);
+     53▕ 
+  ➜  54▕         $this->assertTrue($result->isSkipped());
+     55▕         $this->assertStringContainsString('Already calculated', $result->errorMessage);
+     56▕     }
+     57▕ 
+     58▕     public function test_forces_recalculation_when_requested(): void
+
+  1   tests\Unit\Services\GyvatukasSummerAverageServiceTest.php:54
+
+
+  Tests:    1 failed, 8 passed (19 assertions)
+  Duration: 13.94s
+

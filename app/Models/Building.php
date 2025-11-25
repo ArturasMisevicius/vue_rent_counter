@@ -52,7 +52,7 @@ class Building extends Model
      */
     public function getDisplayNameAttribute(): string
     {
-        return $this->name ?: $this->address;
+        return $this->name ?: $this->address ?: 'Building #' . $this->id;
     }
 
     /**
@@ -63,9 +63,9 @@ class Building extends Model
      *
      * @param Carbon $startDate Start of summer period (typically May 1)
      * @param Carbon $endDate End of summer period (typically September 30)
-     * @return string Average circulation energy in kWh (2 decimal places)
+     * @return float Average circulation energy in kWh (2 decimal places)
      */
-    public function calculateSummerAverage(Carbon $startDate, Carbon $endDate): string
+    public function calculateSummerAverage(Carbon $startDate, Carbon $endDate): float
     {
         $calculator = app(\App\Services\GyvatukasCalculator::class);
         
@@ -87,15 +87,12 @@ class Building extends Model
         
         // Calculate average
         $average = $monthCount > 0 ? round($totalCirculation / $monthCount, 2) : 0.0;
-
-        // Keep a consistent 2-decimal string for storage/return
-        $formattedAverage = number_format($average, 2, '.', '');
         
         // Store the calculated average
-        $this->gyvatukas_summer_average = $formattedAverage;
+        $this->gyvatukas_summer_average = $average;
         $this->gyvatukas_last_calculated = now();
         $this->save();
         
-        return $formattedAverage;
+        return $average;
     }
 }

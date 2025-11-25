@@ -1,27 +1,27 @@
 # Implementation Plan
 
-- [ ] 1. Update database schema and models
-  - [ ] 1.1 Create migration to add new columns to users table
+- [x] 1. Update database schema and models
+  - [x] 1.1 Create migration to add new columns to users table
     - Add property_id, parent_user_id, is_active, organization_name columns
     - Add indexes for performance
     - _Requirements: 2.2, 3.2, 5.2_
   
-  - [ ] 1.2 Create subscriptions table migration
+  - [x] 1.2 Create subscriptions table migration
     - Create table with plan_type, status, dates, and limits
     - Add foreign key to users table
     - Add indexes on user_id and status
     - _Requirements: 2.3, 2.4, 2.5_
   
-  - [ ] 1.3 Create user_assignments_audit table migration
+  - [x] 1.3 Create user_assignments_audit table migration
     - Create audit table for tracking account actions
     - Add foreign keys and indexes
     - _Requirements: 14.1, 14.2, 14.3, 14.4_
   
-  - [ ] 1.4 Update UserRole enum to include superadmin
+  - [x] 1.4 Update UserRole enum to include superadmin
     - Add 'superadmin' to existing enum values
     - _Requirements: 1.1, 1.2_
   
-  - [ ] 1.5 Update User model with new relationships and fields
+  - [x] 1.5 Update User model with new relationships and fields
     - Add property, parentUser, childUsers, subscription relationships
     - Add fillable fields and casts
     - Add meterReadings relationship for dependency checking
