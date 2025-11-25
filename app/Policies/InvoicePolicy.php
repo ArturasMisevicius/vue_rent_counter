@@ -1,15 +1,48 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Enums\UserRole;
 use App\Models\Invoice;
 use App\Models\User;
 
+/**
+ * InvoicePolicy
+ * 
+ * Authorization policy for invoice operations.
+ * 
+ * Requirements:
+ * - 11.1: Verify user's role using Laravel Policies
+ * - 11.3: Manager can create and view invoices
+ * - 11.4: Tenant can only view their own invoices
+ * - 7.3: Cross-tenant access prevention
+ * 
+ * @package App\Policies
+ */
 class InvoicePolicy
 {
     /**
+     * Check if user has admin-level permissions.
+     * 
+     * @param User $user The authenticated user
+     * @return bool True if user is admin or superadmin
+     */
+    private function isAdmin(User $user): bool
+    {
+        return in_array($user->role, [UserRole::ADMIN, UserRole::SUPERADMIN], true);
+    }
+
+    /**
      * Determine whether the user can view any invoices.
+     * 
+     * All authenticated users can view invoices (filtered by tenant scope).
+     * 
+     * Requirements: 11.1, 11.4
+     * 
+     * @param User $user The authenticated user
+     * @return bool True if authorized
      */
     public function viewAny(User $user): bool
     {
@@ -19,10 +52,15 @@ class InvoicePolicy
 
     /**
      * Determine whether the user can view the invoice.
+     * 
      * Adds tenant_id ownership checks.
      * Ensures tenant can only access their property's invoices.
      * 
-     * Requirements: 11.1, 13.3
+     * Requirements: 11.1, 11.4, 7.3
+     * 
+     * @param User $user The authenticated user
+     * @param Invoice $invoice The invoice to view
+     * @return bool True if authorized
      */
     public function view(User $user, Invoice $invoice): bool
     {
@@ -31,17 +69,17 @@ class InvoicePolicy
             return true;
         }
 
-        // Admins can view invoices across tenants (other permissions enforce scope)
-        if ($user->role === UserRole::ADMIN) {
+        // Admins and superadmins can view invoices across tenants
+        if ($this->isAdmin($user)) {
             return true;
         }
 
-        // Managers can view invoices within their tenant
+        // Managers can view invoices within their tenant (Requirement 11.3, 7.3)
         if ($user->role === UserRole::MANAGER) {
             return $invoice->tenant_id === $user->tenant_id;
         }
 
-        // Tenants can only view invoices assigned to them
+        // Tenants can only view invoices assigned to them (Requirement 11.4)
         if ($user->role === UserRole::TENANT) {
             $tenantRecord = $user->tenant;
 
@@ -58,6 +96,14 @@ class InvoicePolicy
 
     /**
      * Determine whether the user can create invoices.
+     * 
+     * Admins and Managers can create invoices.
+     * Tenants have read-only access.
+     * 
+     * Requirements: 11.1, 11.3
+     * 
+     * @param User $user The authenticated user
+     * @return bool True if authorized
      */
     public function create(User $user): bool
     {
@@ -66,8 +112,8 @@ class InvoicePolicy
             return true;
         }
 
-        // Admins and managers can create invoices
-        return $user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER;
+        // Admins, superadmins, and managers can create invoices (Requirement 11.3)
+        return $this->isAdmin($user) || $user->role === UserRole::MANAGER;
     }
 
     /**
@@ -86,7 +132,7 @@ class InvoicePolicy
         }
 
         // Admins and managers can update draft invoices within their tenant
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        if ($this->isAdmin($user) || $user->role === UserRole::MANAGER) {
             return $invoice->tenant_id === $user->tenant_id;
         }
 
@@ -95,6 +141,15 @@ class InvoicePolicy
 
     /**
      * Determine whether the user can finalize the invoice.
+     * 
+     * Admins and Managers can finalize invoices within their tenant.
+     * Only draft invoices can be finalized.
+     * 
+     * Requirements: 11.1, 11.3, 7.3
+     * 
+     * @param User $user The authenticated user
+     * @param Invoice $invoice The invoice to finalize
+     * @return bool True if authorized
      */
     public function finalize(User $user, Invoice $invoice): bool
     {
@@ -107,7 +162,8 @@ class InvoicePolicy
             return true;
         }
 
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
+        // Admins and managers can finalize invoices (Requirement 11.3)
+        if ($this->isAdmin($user) || $user->role === UserRole::MANAGER) {
             return $invoice->tenant_id === $user->tenant_id;
         }
 
@@ -131,8 +187,8 @@ class InvoicePolicy
             return true;
         }
 
-        // Only admins can delete invoices within their tenant (Requirement 11.1, 13.3)
-        if ($user->role === UserRole::ADMIN) {
+        // Only admins and superadmins can delete invoices within their tenant (Requirement 11.1, 13.3)
+        if ($this->isAdmin($user)) {
             return $invoice->tenant_id === $user->tenant_id;
         }
 
@@ -151,8 +207,8 @@ class InvoicePolicy
             return true;
         }
 
-        // Only admins can restore invoices within their tenant (Requirement 11.1, 13.3)
-        if ($user->role === UserRole::ADMIN) {
+        // Only admins and superadmins can restore invoices within their tenant (Requirement 11.1, 13.3)
+        if ($this->isAdmin($user)) {
             return $invoice->tenant_id === $user->tenant_id;
         }
 

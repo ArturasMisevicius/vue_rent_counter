@@ -96,6 +96,13 @@ final class PropertiesRelationManager extends RelationManager
     private ?array $propertyConfig = null;
 
     /**
+     * Cached FormRequest messages to avoid repeated instantiation.
+     *
+     * @var array<string, string>|null
+     */
+    private static ?array $cachedRequestMessages = null;
+
+    /**
      * Provide a schema instance for form rendering in tests.
      *
      * @return Schema
@@ -130,14 +137,6 @@ final class PropertiesRelationManager extends RelationManager
             $result = parent::mountAction($name, $arguments, $context);
         }
 
-        if (app()->runningUnitTests()) {
-            file_put_contents('/tmp/ma.log', json_encode([
-                'after' => count($this->mountedActions),
-                'name' => $name,
-                'result_null' => $result === null,
-            ]) . PHP_EOL, FILE_APPEND);
-        }
-
         return $result;
     }
 
@@ -159,19 +158,7 @@ final class PropertiesRelationManager extends RelationManager
 
     public function callMountedAction(array $arguments = []): mixed
     {
-        if (app()->runningUnitTests()) {
-            file_put_contents('/tmp/call.log', 'callMountedAction' . PHP_EOL, FILE_APPEND);
-        }
-
-        try {
-            $result = parent::callMountedAction($arguments);
-        } finally {
-            if (app()->runningUnitTests()) {
-                file_put_contents('/tmp/errors.log', json_encode($this->getErrorBag()->toArray()) . PHP_EOL, FILE_APPEND);
-            }
-        }
-
-        return $result;
+        return parent::callMountedAction($arguments);
     }
 
     /**
@@ -248,6 +235,19 @@ final class PropertiesRelationManager extends RelationManager
     }
 
     /**
+     * Get cached FormRequest validation messages.
+     *
+     * Caches messages on first access to avoid repeated StorePropertyRequest
+     * instantiation during form rendering.
+     *
+     * @return array<string, string> Cached validation messages
+     */
+    private static function getCachedRequestMessages(): array
+    {
+        return self::$cachedRequestMessages ??= (new StorePropertyRequest)->messages();
+    }
+
+    /**
      * Get the address field configuration.
      *
      * Pulls validation rules and messages from StorePropertyRequest to ensure
@@ -261,8 +261,7 @@ final class PropertiesRelationManager extends RelationManager
      */
     protected function getAddressField(): Forms\Components\TextInput
     {
-        $request = new StorePropertyRequest;
-        $messages = $request->messages();
+        $messages = self::getCachedRequestMessages();
 
         return Forms\Components\TextInput::make('address')
             ->label(__('properties.labels.address'))
@@ -315,8 +314,7 @@ final class PropertiesRelationManager extends RelationManager
      */
     protected function getTypeField(): Forms\Components\Select
     {
-        $request = new StorePropertyRequest;
-        $messages = $request->messages();
+        $messages = self::getCachedRequestMessages();
 
         return Forms\Components\Select::make('type')
             ->label(__('properties.labels.type'))
@@ -352,8 +350,7 @@ final class PropertiesRelationManager extends RelationManager
      */
     protected function getAreaField(): Forms\Components\TextInput
     {
-        $request = new StorePropertyRequest;
-        $messages = $request->messages();
+        $messages = self::getCachedRequestMessages();
         $config = $this->getPropertyConfig();
 
         return Forms\Components\TextInput::make('area_sqm')
@@ -465,13 +462,7 @@ final class PropertiesRelationManager extends RelationManager
     {
         $createAction = Actions\CreateAction::make()
             ->icon('heroicon-o-plus')
-            ->mutateFormDataUsing(function (array $data): array {
-                if (app()->runningUnitTests()) {
-                    file_put_contents('/tmp/val.log', 'mutate' . PHP_EOL, FILE_APPEND);
-                }
-
-                return $this->preparePropertyData($data);
-            })
+            ->mutateFormDataUsing(fn (array $data): array => $this->preparePropertyData($data))
             ->successNotification(
                 Notification::make()
                     ->success()
@@ -482,7 +473,10 @@ final class PropertiesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('address')
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
-                ->with(['tenants', 'meters'])
+                ->with([
+                    'tenants:id,name',
+                    'tenants' => fn ($q) => $q->wherePivotNull('vacated_at')->limit(1)
+                ])
                 ->withCount('meters')
             )
             ->columns([
@@ -572,7 +566,7 @@ final class PropertiesRelationManager extends RelationManager
             ->headerActions([
                 $createAction,
             ])
-            ->actions([
+            ->recordActions([
                 Actions\ViewAction::make()
                     ->icon('heroicon-o-eye'),
 
@@ -607,7 +601,7 @@ final class PropertiesRelationManager extends RelationManager
                             ->body(__('properties.notifications.deleted.body'))
                     ),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 Actions\BulkActionGroup::make([
                     Actions\DeleteBulkAction::make()
                         ->requiresConfirmation()
@@ -657,11 +651,7 @@ final class PropertiesRelationManager extends RelationManager
      */
     protected function preparePropertyData(array $data): array
     {
-        if (app()->runningUnitTests()) {
-            file_put_contents('/tmp/val.log', 'called' . PHP_EOL, FILE_APPEND);
-        }
-
-        $requestMessages = (new StorePropertyRequest)->messages();
+        $requestMessages = self::getCachedRequestMessages();
 
         try {
             Validator::make(
@@ -719,10 +709,6 @@ final class PropertiesRelationManager extends RelationManager
                 ]
             )->validate();
         } catch (ValidationException $exception) {
-            if (app()->runningUnitTests()) {
-                file_put_contents('/tmp/val.log', 'validation_failed' . PHP_EOL, FILE_APPEND);
-            }
-
             $this->unmountAction(canCancelParentActions: false);
 
             throw $exception;

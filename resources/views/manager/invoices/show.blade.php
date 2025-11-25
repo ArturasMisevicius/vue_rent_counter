@@ -161,58 +161,12 @@
         </x-card>
     </div>
 
-    <!-- Line Items -->
+    <!-- Invoice Summary with Line Items and Consumption History -->
     <div class="mt-8">
-        <x-card>
-            <x-slot name="title">{{ __('invoices.manager.show.line_items.title') }}</x-slot>
-            
-            @if($invoice->items->isNotEmpty())
-            <div class="mt-4">
-                <x-data-table>
-                    <x-slot name="header">
-                        <tr>
-                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">{{ __('invoices.manager.show.line_items.description') }}</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('invoices.manager.show.line_items.unit') }}</th>
-                            <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-slate-900">{{ __('invoices.manager.show.line_items.quantity') }}</th>
-                            <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-slate-900">{{ __('invoices.manager.show.line_items.unit_price') }}</th>
-                            <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-slate-900">{{ __('invoices.manager.show.line_items.total') }}</th>
-                        </tr>
-                    </x-slot>
-
-                    @foreach($invoice->items as $item)
-                    <tr>
-                        <td class="py-4 pl-4 pr-3 text-sm text-slate-900 sm:pl-0">
-                            {{ $item->description }}
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                            {{ $item->unit ?? __('invoices.manager.show.line_items.unit_na') }}
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500 text-right">
-                            {{ number_format($item->quantity, 2) }}
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500 text-right">
-                            €{{ number_format($item->unit_price, 4) }}
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900 text-right font-medium">
-                            €{{ number_format($item->total_price, 2) }}
-                        </td>
-                    </tr>
-                    @endforeach
-
-                    <tr class="border-t-2 border-slate-300">
-                        <td colspan="4" class="py-4 pl-4 pr-3 text-sm font-semibold text-slate-900 text-right sm:pl-0">
-                            {{ __('invoices.manager.show.line_items.total_amount') }}
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm font-semibold text-slate-900 text-right">
-                            €{{ number_format($invoice->total_amount, 2) }}
-                        </td>
-                    </tr>
-                </x-data-table>
-            </div>
-            @else
-                <p class="mt-4 text-sm text-slate-500">{{ __('invoices.manager.show.line_items.empty') }}</p>
-            @endif
-        </x-card>
+        <x-invoice-summary 
+            :invoice="$invoice" 
+            :consumption-history="$consumptionHistory ?? collect()" 
+        />
     </div>
 
     @if($invoice->isDraft())

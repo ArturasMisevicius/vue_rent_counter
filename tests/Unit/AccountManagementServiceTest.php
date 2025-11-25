@@ -11,6 +11,7 @@ use App\Notifications\WelcomeEmail;
 use App\Services\AccountManagementService;
 use App\Services\SubscriptionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 

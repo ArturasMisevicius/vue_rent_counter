@@ -10,6 +10,8 @@ use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\MeterResource\Pages;
 use App\Models\Meter;
 use BackedEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Forms;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
@@ -180,12 +182,12 @@ class MeterResource extends Resource
                     ->falseLabel(__('meters.filters.without_zones'))
                     ->native(false),
             ])
-            ->actions([
+            ->recordActions([
                 // Table row actions removed - use page header actions instead
             ])
-            ->bulkActions([
-                Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('property.address', 'asc');

@@ -1,42 +1,38 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'labels' => [
-        'resource' => 'FAQ',
+        'resource' => 'FAQs',
         'question' => 'Question',
-        'category' => 'Category',
         'answer' => 'Answer',
-        'display_order' => 'Display order',
+        'category' => 'Category',
+        'display_order' => 'Display Order',
         'published' => 'Published',
-        'status' => 'Status',
         'order' => 'Order',
         'last_updated' => 'Last Updated',
-        'details' => 'FAQ Entry',
-    ],
-
-    'sections' => [
-        'faq_entry' => 'FAQ Entry',
     ],
 
     'placeholders' => [
-        'question' => 'What is the billing cycle?',
-        'category' => 'Billing, Access, Meters...',
+        'question' => 'Enter your question here...',
+        'category' => 'e.g., Billing, Technical, General',
     ],
 
     'helper_text' => [
-        'entry' => 'Create or edit FAQ entries displayed on the public landing page',
-        'category' => 'Optional category for grouping related questions',
-        'answer' => 'Use concise, complete answers. This content is shown publicly on the landing page.',
-        'order' => 'Lower numbers appear first.',
-        'published' => 'Only published FAQs appear on the landing page',
-        'visible' => 'Visible on landing page',
-        'hidden' => 'Hidden from public',
+        'entry' => 'Create and manage frequently asked questions for your users.',
+        'category' => 'Optional category to organize FAQs.',
+        'answer' => 'Provide a detailed answer. HTML formatting is supported.',
+        'order' => 'Lower numbers appear first. Default is 0.',
+        'published' => 'Only published FAQs are visible to users.',
+        'visible' => 'This FAQ is visible to users',
+        'hidden' => 'This FAQ is hidden from users',
+    ],
+
+    'hints' => [
+        'html_sanitized' => 'HTML content is automatically sanitized for security.',
     ],
 
     'filters' => [
-        'status' => 'Status',
+        'status' => 'Publication Status',
         'category' => 'Category',
         'options' => [
             'published' => 'Published',
@@ -44,19 +40,35 @@ return [
         ],
     ],
 
+    'modals' => [
+        'delete' => [
+            'heading' => 'Delete FAQ',
+            'description' => 'Are you sure you want to delete this FAQ? This action cannot be undone.',
+        ],
+    ],
+
     'empty' => [
-        'heading' => 'No FAQ entries yet',
-        'description' => 'Create your first FAQ entry to help users understand the platform.',
+        'heading' => 'No FAQs yet',
+        'description' => 'Get started by creating your first FAQ entry.',
     ],
 
     'actions' => [
-        'add_first' => 'Add First FAQ',
+        'add_first' => 'Create First FAQ',
     ],
 
-    'modals' => [
-        'delete' => [
-            'heading' => 'Delete FAQ Entries',
-            'description' => 'Are you sure you want to delete these FAQ entries? This action cannot be undone.',
-        ],
+    'sections' => [
+        'faq_entry' => 'FAQ Entry',
+    ],
+
+    'validation' => [
+        'question_format' => 'Question can only contain letters, numbers, and basic punctuation.',
+        'category_format' => 'Category can only contain letters, numbers, spaces, hyphens, and underscores.',
+        'answer_too_short' => 'Answer must be at least :min characters.',
+        'answer_too_long' => 'Answer cannot exceed :max characters.',
+    ],
+
+    'errors' => [
+        'bulk_limit_exceeded' => 'Cannot delete more than :max items at once.',
+        'unauthorized' => 'You do not have permission to manage FAQs.',
     ],
 ];

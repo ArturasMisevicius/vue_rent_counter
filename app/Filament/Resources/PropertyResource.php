@@ -268,10 +268,10 @@ class PropertyResource extends Resource
                     ->query(fn (Builder $query): Builder => $query->where('area_sqm', '>', 100))
                     ->toggle(),
             ])
-            ->actions([
+            ->recordActions([
                 // Table row actions removed - use page header actions instead
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 // Bulk actions removed for Filament v4 compatibility
             ])
             ->emptyStateHeading(__('properties.empty_state.heading'))

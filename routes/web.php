@@ -29,6 +29,8 @@ use App\Http\Controllers\Tenant\InvoiceController as TenantInvoiceController;
 use App\Http\Controllers\Tenant\PropertyController as TenantPropertyController;
 use App\Http\Controllers\Tenant\MeterController as TenantMeterController;
 use App\Http\Controllers\Tenant\MeterReadingController as TenantMeterReadingController;
+use App\Http\Controllers\MeterReadingUpdateController;
+use App\Http\Controllers\FinalizeInvoiceController;
 use App\Http\Controllers\LocaleController;
 
 // Public routes
@@ -193,11 +195,20 @@ Route::middleware(['auth', 'role:manager'])->prefix('manager')->name('manager.')
 
     // Meter readings (manager-facing UI)
     Route::resource('meter-readings', ManagerMeterReadingController::class);
+    
+    // Meter reading corrections (single-action controller for updates)
+    // Requirements: 1.1, 1.2, 1.3, 1.4, 8.1, 8.2, 8.3
+    Route::put('meter-readings/{meterReading}/correct', MeterReadingUpdateController::class)
+        ->name('meter-readings.correct');
 
     // Invoices (manager-facing UI)
     Route::get('invoices/drafts', [ManagerInvoiceController::class, 'drafts'])->name('invoices.drafts');
     Route::get('invoices/finalized', [ManagerInvoiceController::class, 'finalized'])->name('invoices.finalized');
-    Route::post('invoices/{invoice}/finalize', [ManagerInvoiceController::class, 'finalize'])->name('invoices.finalize');
+    
+    // Invoice finalization (single-action controller)
+    // Requirements: 5.5, 11.1, 11.3
+    Route::post('invoices/{invoice}/finalize', FinalizeInvoiceController::class)->name('invoices.finalize');
+    
     Route::post('invoices/{invoice}/mark-paid', [ManagerInvoiceController::class, 'markPaid'])->name('invoices.mark-paid');
     Route::resource('invoices', ManagerInvoiceController::class);
     

@@ -6,6 +6,7 @@ namespace App\Filament\Resources\PropertyResource\RelationManagers;
 
 use App\Enums\MeterType;
 use App\Models\Meter;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas\Schema;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -96,11 +97,11 @@ class MetersRelationManager extends RelationManager
                         return $data;
                     }),
             ])
-            ->actions([
+            ->recordActions([
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 Actions\BulkActionGroup::make([
                     Actions\DeleteBulkAction::make(),
                 ]),

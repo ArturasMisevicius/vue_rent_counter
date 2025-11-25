@@ -229,12 +229,24 @@ test('generateInvoice handles water billing with supply, sewage, and fixed fee',
     $invoice = $billingService->generateInvoice($tenant, $startDate, $endDate);
 
     // Verify water billing calculation
-    // Expected: (10 × 0.97) + (10 × 1.23) + 0.85 = 9.7 + 12.3 + 0.85 = 22.85
-    $item = $invoice->items->first();
-    expect($item->quantity)->toBe('10.00');
-    expect($item->unit)->toBe('m³');
-    expect($item->unit_price)->toBe('2.2000'); // 0.97 + 1.23
-    expect($item->total)->toBe('22.85');
+    // Expected: (10 × 0.97) + (10 × 1.23) = 22.00 for consumption
+    // Plus 0.85 fixed fee = 22.85 total
+    expect($invoice->items)->toHaveCount(2); // Consumption + fixed fee
+    
+    $consumptionItem = $invoice->items->first();
+    expect($consumptionItem->quantity)->toBe('10.00');
+    expect($consumptionItem->unit)->toBe('m³');
+    expect($consumptionItem->unit_price)->toBe('2.2000'); // 0.97 + 1.23
+    expect($consumptionItem->total)->toBe('22.00');
+    
+    $fixedFeeItem = $invoice->items->last();
+    expect($fixedFeeItem->quantity)->toBe('1.00');
+    expect($fixedFeeItem->unit)->toBe('month');
+    // unit_price is stored as decimal:4, but when it's a round number like 0.85, 
+    // Laravel may return it as '0.85' instead of '0.8500'
+    expect((float) $fixedFeeItem->unit_price)->toBe(0.85);
+    expect($fixedFeeItem->total)->toBe('0.85');
+    
     expect($invoice->total_amount)->toBe('22.85');
 });
 

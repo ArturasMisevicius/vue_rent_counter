@@ -20,7 +20,11 @@ class InvoiceController extends Controller
     ) {}
 
     /**
-     * Display a listing of invoices with status filtering.
+     * Display a listing of invoices with status and property filtering.
+     * 
+     * Requirements:
+     * - 6.1: Filter invoices by tenant_id (automatic via Global Scope)
+     * - 6.5: Support property filtering for multi-property tenants
      */
     public function index(Request $request): View
     {
@@ -31,6 +35,27 @@ class InvoiceController extends Controller
         // Filter by status if provided
         if ($request->has('status') && $request->status !== '') {
             $query->where('status', $request->status);
+        }
+
+        // Filter by property for multi-property tenants (Requirement 6.5)
+        if ($request->has('property_id') && $request->property_id !== '') {
+            $query->whereHas('tenant', function ($q) use ($request) {
+                $q->where('property_id', $request->property_id);
+            });
+        }
+
+        // Filter by tenant if provided
+        if ($request->has('tenant_renter_id') && $request->tenant_renter_id !== '') {
+            $query->where('tenant_renter_id', $request->tenant_renter_id);
+        }
+
+        // Filter by date range
+        if ($request->has('from_date') && $request->from_date !== '') {
+            $query->whereDate('billing_period_start', '>=', $request->from_date);
+        }
+
+        if ($request->has('to_date') && $request->to_date !== '') {
+            $query->whereDate('billing_period_end', '<=', $request->to_date);
         }
 
         // Handle sorting
@@ -47,7 +72,10 @@ class InvoiceController extends Controller
 
         $invoices = $query->paginate(20)->withQueryString();
 
-        return view('manager.invoices.index', compact('invoices'));
+        // Get properties for filter dropdown (Requirement 6.5)
+        $properties = \App\Models\Property::orderBy('address')->get();
+
+        return view('manager.invoices.index', compact('invoices', 'properties'));
     }
 
     /**
@@ -73,10 +101,14 @@ class InvoiceController extends Controller
 
         $tenant = Tenant::findOrFail($validated['tenant_renter_id']);
         
+        // Convert date strings to Carbon instances
+        $periodStart = \Carbon\Carbon::parse($validated['billing_period_start']);
+        $periodEnd = \Carbon\Carbon::parse($validated['billing_period_end']);
+        
         $invoice = $this->billingService->generateInvoice(
             $tenant,
-            $validated['billing_period_start'],
-            $validated['billing_period_end']
+            $periodStart,
+            $periodEnd
         );
 
         return redirect()
@@ -86,14 +118,48 @@ class InvoiceController extends Controller
 
     /**
      * Display the specified invoice with edit capability for drafts.
+     * 
+     * Requirements:
+     * - 6.2: Display itemized breakdown by utility type
+     * - 6.3: Display chronologically ordered consumption history
+     * - 6.4: Show consumption amount and rate applied for each item
      */
     public function show(Invoice $invoice): View
     {
         $this->authorize('view', $invoice);
 
         $invoice->load(['tenant.property', 'items']);
+        
+        // Get consumption history for the billing period (Requirement 6.3)
+        $consumptionHistory = collect();
+        if ($invoice->tenant && $invoice->tenant->property) {
+            $consumptionHistory = \App\Models\MeterReading::whereHas('meter', function ($query) use ($invoice) {
+                $query->where('property_id', $invoice->tenant->property_id);
+            })
+            ->with(['meter'])
+            ->whereBetween('reading_date', [
+                $invoice->billing_period_start,
+                $invoice->billing_period_end
+            ])
+            ->orderBy('reading_date', 'asc')
+            ->get();
+            
+            // Calculate consumption for each reading
+            $consumptionHistory = $consumptionHistory->map(function ($reading) {
+                $previousReading = \App\Models\MeterReading::where('meter_id', $reading->meter_id)
+                    ->where('reading_date', '<', $reading->reading_date)
+                    ->orderBy('reading_date', 'desc')
+                    ->first();
+                
+                $reading->consumption = $previousReading 
+                    ? $reading->value - $previousReading->value 
+                    : null;
+                
+                return $reading;
+            });
+        }
 
-        return view('manager.invoices.show', compact('invoice'));
+        return view('manager.invoices.show', compact('invoice', 'consumptionHistory'));
     }
 
     /**
@@ -139,10 +205,15 @@ class InvoiceController extends Controller
             
             // Regenerate items
             $tenant = Tenant::findOrFail($validated['tenant_renter_id']);
+            
+            // Convert date strings to Carbon instances
+            $periodStart = \Carbon\Carbon::parse($validated['billing_period_start']);
+            $periodEnd = \Carbon\Carbon::parse($validated['billing_period_end']);
+            
             $newInvoice = $this->billingService->generateInvoice(
                 $tenant,
-                $validated['billing_period_start'],
-                $validated['billing_period_end']
+                $periodStart,
+                $periodEnd
             );
             
             // Copy items from new invoice to existing invoice
@@ -185,18 +256,24 @@ class InvoiceController extends Controller
 
     /**
      * Finalize an invoice with snapshotting.
+     * 
+     * Note: This method is kept for backward compatibility.
+     * New code should use FinalizeInvoiceController instead.
+     * 
+     * @deprecated Use FinalizeInvoiceController instead
      */
     public function finalize(FinalizeInvoiceRequest $request, Invoice $invoice): RedirectResponse
     {
-        $this->authorize('update', $invoice);
+        $this->authorize('finalize', $invoice);
 
-        if (!$invoice->isDraft()) {
+        try {
+            $this->billingService->finalizeInvoice($invoice);
+            return back()->with('success', __('notifications.invoice.finalized_locked'));
+        } catch (\App\Exceptions\InvoiceAlreadyFinalizedException $e) {
             return back()->with('error', __('invoices.errors.already_finalized'));
+        } catch (\Exception $e) {
+            return back()->with('error', __('invoices.errors.finalization_failed'));
         }
-
-        $invoice->finalize();
-
-        return back()->with('success', __('notifications.invoice.finalized_locked'));
     }
 
     /**

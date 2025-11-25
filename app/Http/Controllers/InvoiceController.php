@@ -56,11 +56,46 @@ class InvoiceController extends Controller
 
     /**
      * Display the specified invoice.
+     * 
+     * Requirements:
+     * - 6.2: Display itemized breakdown by utility type
+     * - 6.3: Display chronologically ordered consumption history
+     * - 6.4: Show consumption amount and rate applied for each item
      */
     public function show(Invoice $invoice): \Illuminate\View\View
     {
-        $invoice->load(['tenant', 'items']);
-        return view('invoices.show', compact('invoice'));
+        $invoice->load(['tenant.property', 'items']);
+        
+        // Get consumption history for the billing period (Requirement 6.3)
+        $consumptionHistory = collect();
+        if ($invoice->tenant && $invoice->tenant->property) {
+            $consumptionHistory = \App\Models\MeterReading::whereHas('meter', function ($query) use ($invoice) {
+                $query->where('property_id', $invoice->tenant->property_id);
+            })
+            ->with(['meter'])
+            ->whereBetween('reading_date', [
+                $invoice->billing_period_start,
+                $invoice->billing_period_end
+            ])
+            ->orderBy('reading_date', 'asc')
+            ->get();
+            
+            // Calculate consumption for each reading
+            $consumptionHistory = $consumptionHistory->map(function ($reading) {
+                $previousReading = \App\Models\MeterReading::where('meter_id', $reading->meter_id)
+                    ->where('reading_date', '<', $reading->reading_date)
+                    ->orderBy('reading_date', 'desc')
+                    ->first();
+                
+                $reading->consumption = $previousReading 
+                    ? $reading->value - $previousReading->value 
+                    : null;
+                
+                return $reading;
+            });
+        }
+        
+        return view('invoices.show', compact('invoice', 'consumptionHistory'));
     }
 
     /**

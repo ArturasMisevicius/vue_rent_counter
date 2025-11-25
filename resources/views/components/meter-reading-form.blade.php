@@ -384,7 +384,7 @@ function meterReadingForm() {
             this.isSubmitting = true;
             
             try {
-                const response = await fetch('/meter-readings', {
+                const response = await fetch('/api/meter-readings', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -395,7 +395,7 @@ function meterReadingForm() {
                 });
                 
                 if (response.ok) {
-                    window.location.href = '/meter-readings?success=Reading submitted successfully';
+                    window.location.href = '/manager/meter-readings?success=Reading submitted successfully';
                 } else {
                     const data = await response.json();
                     if (data.errors) {

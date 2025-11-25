@@ -8,7 +8,10 @@
         </a>
     </div>
 
-    <x-invoice-summary :invoice="$invoice" />
+    <x-invoice-summary 
+        :invoice="$invoice" 
+        :consumption-history="$consumptionHistory ?? collect()" 
+    />
 
     <div class="mt-6 flex gap-4">
         @if($invoice->isDraft())

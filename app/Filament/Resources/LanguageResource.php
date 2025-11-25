@@ -17,14 +17,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
@@ -223,14 +215,14 @@ class LanguageResource extends Resource
                     ->native(false),
             ])
             ->actions([
-                Actions\EditAction::make()
+                Tables\Actions\EditAction::make()
                     ->iconButton(),
-                Actions\DeleteAction::make()
+                Tables\Actions\DeleteAction::make()
                     ->iconButton(),
             ])
             ->bulkActions([
-                Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make()
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make()
                         ->requiresConfirmation()
                         ->modalHeading(__('locales.modals.delete.heading'))
                         ->modalDescription(__('locales.modals.delete.description')),
@@ -239,7 +231,7 @@ class LanguageResource extends Resource
             ->emptyStateHeading(__('locales.empty.heading'))
             ->emptyStateDescription(__('locales.empty.description'))
             ->emptyStateActions([
-                Actions\CreateAction::make()
+                Tables\Actions\CreateAction::make()
                     ->label(__('locales.empty.action')),
             ])
             ->defaultSort('display_order', 'asc')

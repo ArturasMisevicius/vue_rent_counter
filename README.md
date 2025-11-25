@@ -122,6 +122,29 @@ php artisan test --coverage
 php artisan test --filter Property
 ```
 
+## Verification Scripts
+
+Automated verification scripts validate system configuration and upgrade readiness:
+
+```bash
+# Verify Filament resources (Batch 3: User, Subscription, Organization, OrganizationActivityLog)
+php verify-batch3-resources.php
+
+# Verify Filament resources (Batch 4: Faq, Language, Translation)
+php verify-batch4-resources.php
+
+# Verify Eloquent models (11 core models: casts, relationships, Laravel 12 compatibility)
+php verify-models.php
+
+# Run all verifications
+php verify-batch3-resources.php && \
+php verify-batch4-resources.php && \
+php verify-models.php && \
+echo "✓ All verifications passed"
+```
+
+See [Verification Documentation](docs/testing/README.md#verification-scripts) for detailed guides.
+
 ## Code Quality
 
 ```bash
@@ -137,11 +160,27 @@ php artisan test --filter Property
 
 ## Documentation
 
+### Guides
 - **[Setup Guide](docs/guides/SETUP.md)** - Detailed installation and configuration
 - **[User Guide](docs/guides/HIERARCHICAL_USER_GUIDE.md)** - Guide for each user role
 - **[Testing Guide](docs/guides/TESTING_GUIDE.md)** - Testing approach and conventions
-- **[Project Overview](docs/overview/readme.md)** - Complete feature documentation
 - **[Upgrade Guide](docs/upgrades/LARAVEL_12_FILAMENT_4_UPGRADE.md)** - Framework upgrade notes
+
+### Architecture
+- **[Invoice Finalization Flow](docs/architecture/INVOICE_FINALIZATION_FLOW.md)** - Complete finalization architecture
+- **[Multi-Tenancy Architecture](docs/architecture/MULTI_TENANCY_ARCHITECTURE.md)** - Tenant isolation patterns
+
+### API Reference
+- **[FinalizeInvoiceController API](docs/api/FINALIZE_INVOICE_CONTROLLER_API.md)** - Invoice finalization endpoint
+- **[BillingService API](docs/api/BILLING_SERVICE_API.md)** - Billing service methods
+
+### Quick Reference
+- **[Invoice Finalization](docs/reference/INVOICE_FINALIZATION_QUICK_REFERENCE.md)** - Quick reference guide
+
+### Implementation Details
+- **[Project Overview](docs/overview/readme.md)** - Complete feature documentation
+- **[Invoice Controller Implementation](docs/controllers/INVOICE_CONTROLLER_IMPLEMENTATION_COMPLETE.md)** - Invoice management
+- **[FinalizeInvoiceController Usage](docs/controllers/FINALIZE_INVOICE_CONTROLLER_USAGE.md)** - Usage examples
 
 ## Project Structure
 

@@ -53,6 +53,8 @@ class UpdateMeterReadingRequest extends FormRequest
      * Validate that the updated reading maintains monotonicity.
      * Implements Property 1: Meter reading monotonicity
      * Validates: Requirements 1.2
+     * 
+     * Performance: Eager loads meter relationship to prevent N+1 queries
      */
     protected function validateMonotonicity(Validator $validator): void
     {
@@ -60,6 +62,12 @@ class UpdateMeterReadingRequest extends FormRequest
         
         if (!$reading instanceof MeterReading) {
             return;
+        }
+
+        // Eager load meter relationship if not already loaded
+        // Prevents N+1 when service queries adjacent readings
+        if (!$reading->relationLoaded('meter')) {
+            $reading->load('meter');
         }
 
         $newValue = $this->input('value');

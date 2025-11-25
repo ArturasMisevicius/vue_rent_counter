@@ -321,21 +321,53 @@ class Dashboard extends Page
 php artisan test --filter=Filament
 ```
 
+### Step 7: Verify Resource Configuration
+
+Use the verification script to ensure resources are properly configured:
+
+```bash
+# Verify Batch 3 resources
+php verify-batch3-resources.php
+```
+
+**Expected Output**:
+```
+Verifying Batch 3 Filament Resources...
+
+Testing UserResource...
+  ✓ Class structure: OK
+  ✓ Model: App\Models\User
+  ✓ Icon: heroicon-o-users
+  ✓ Pages: 3 registered
+  ✓ Using Filament 4 Schema API
+  ✓ UserResource is properly configured
+
+...
+
+========================================
+Results: 4 passed, 0 failed
+========================================
+
+✓ All Batch 3 resources are properly configured for Filament 4!
+```
+
+**Documentation**: See [Batch 3 Verification Guide](../testing/BATCH_3_VERIFICATION_GUIDE.md) for detailed usage
+
 **Resources Migrated**:
-- ✅ PropertyResource
-- ✅ BuildingResource
-- ✅ MeterResource
-- ✅ MeterReadingResource (pending)
-- ✅ InvoiceResource (pending)
-- ✅ TariffResource (pending)
-- ✅ ProviderResource (pending)
-- ✅ UserResource
-- ✅ SubscriptionResource
-- ✅ OrganizationResource
-- ✅ OrganizationActivityLogResource
-- ✅ FaqResource
-- ✅ LanguageResource
-- ✅ TranslationResource
+- ✅ PropertyResource (Batch 1)
+- ✅ BuildingResource (Batch 1)
+- ✅ MeterResource (Batch 1)
+- ✅ MeterReadingResource (Batch 2)
+- ✅ InvoiceResource (Batch 2)
+- ✅ TariffResource (Batch 2)
+- ✅ ProviderResource (Batch 2)
+- ✅ UserResource (Batch 3) - Verified with `verify-batch3-resources.php`
+- ✅ SubscriptionResource (Batch 3) - Verified with `verify-batch3-resources.php`
+- ✅ OrganizationResource (Batch 3) - Verified with `verify-batch3-resources.php`
+- ✅ OrganizationActivityLogResource (Batch 3) - Verified with `verify-batch3-resources.php`
+- ✅ FaqResource (Batch 4)
+- ✅ LanguageResource (Batch 4)
+- ✅ TranslationResource (Batch 4)
 
 ---
 

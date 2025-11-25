@@ -6,6 +6,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Support\Facades\Route;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,6 +14,13 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        then: function () {
+            // Performance optimization: Eager load relationships for route model binding
+            // Reduces N+1 queries in controllers and form requests
+            Route::bind('meterReading', function (string $value) {
+                return \App\Models\MeterReading::with('meter')->findOrFail($value);
+            });
+        },
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
@@ -32,6 +40,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\HandleImpersonation::class);
+        $middleware->appendToGroup('web', \App\Http\Middleware\SecurityHeaders::class);
+        
+        // Rate limiting for API routes (60 requests per minute)
+        $middleware->throttleApi('60,1');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Handle authorization exceptions with user-friendly messages (Requirement 9.4)

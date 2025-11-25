@@ -41,6 +41,27 @@
   - Pagination and filtering correctness
 - Use factories with `forTenantId` helpers to keep data consistent.
 
+## Related API Documentation
+
+### Controller APIs
+- **[Tariff Controller API](TARIFF_CONTROLLER_API.md)** - Tariff CRUD operations with versioning support
+- **[Meter Reading Update Controller API](METER_READING_UPDATE_CONTROLLER_API.md)** - Meter reading corrections with audit trail
+- **[Meter Reading API Controller API](METER_READING_CONTROLLER_API.md)** - JSON API for meter readings
+
+### Service APIs
+- **[Billing Service API](BILLING_SERVICE_API.md)** - Invoice generation and billing calculations
+- **[Gyvatukas Calculator API](GYVATUKAS_CALCULATOR_API.md)** - Heating circulation fee calculations
+- **[Invoice Finalization API](INVOICE_FINALIZATION_API.md)** - Invoice finalization workflow
+
+### Observer APIs
+- **[Meter Reading Observer API](METER_READING_OBSERVER_API.md)** - Draft invoice recalculation on reading correction
+
+### Middleware APIs
+- **[Middleware API](MIDDLEWARE_API.md)** - Authentication and authorization middleware
+
+### Validation APIs
+- **[Property Validation API](PROPERTY_VALIDATION_API.md)** - Property assignment validation
+
 ## When to Update This Doc
 - Adding a new API surface or changing versioning/auth approach.
 - Introducing new error codes or response envelopes.

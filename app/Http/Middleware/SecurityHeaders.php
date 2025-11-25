@@ -11,18 +11,13 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Security Headers Middleware
  *
- * Applies security headers to all responses to protect against common web vulnerabilities.
+ * Adds security headers to all responses to protect against:
+ * - XSS attacks
+ * - Clickjacking
+ * - MIME sniffing
+ * - Information disclosure
  *
- * Headers applied:
- * - X-Frame-Options: Prevents clickjacking
- * - X-Content-Type-Options: Prevents MIME sniffing
- * - X-XSS-Protection: Legacy XSS protection
- * - Referrer-Policy: Controls referrer information
- * - Permissions-Policy: Controls browser features
- * - Strict-Transport-Security: Forces HTTPS (production only)
- * - Content-Security-Policy: Prevents XSS and code injection
- *
- * @see config/security.php For configuration
+ * @see https://owasp.org/www-project-secure-headers/
  */
 final class SecurityHeaders
 {
@@ -35,58 +30,52 @@ final class SecurityHeaders
     {
         $response = $next($request);
 
-        // Apply security headers from config
-        $headers = config('security.headers', []);
+        // Content Security Policy
+        $csp = $this->getContentSecurityPolicy();
+        $response->headers->set('Content-Security-Policy', $csp);
 
-        foreach ($headers as $key => $value) {
-            if ($value !== null) {
-                $headerName = $this->formatHeaderName($key);
-                $response->headers->set($headerName, $value);
-            }
-        }
+        // XSS Protection (legacy browsers)
+        $response->headers->set('X-XSS-Protection', '1; mode=block');
 
-        // Apply Content Security Policy
-        if (config('security.csp.enabled', true)) {
-            $cspHeader = $this->buildCspHeader();
-            $headerName = config('security.csp.report_only', false)
-                ? 'Content-Security-Policy-Report-Only'
-                : 'Content-Security-Policy';
+        // Prevent MIME sniffing
+        $response->headers->set('X-Content-Type-Options', 'nosniff');
 
-            $response->headers->set($headerName, $cspHeader);
+        // Clickjacking protection
+        $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
+
+        // Referrer policy
+        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+        // Permissions policy
+        $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+
+        // HSTS (only in production with HTTPS)
+        if (app()->environment('production') && $request->secure()) {
+            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
 
         return $response;
     }
 
     /**
-     * Format header name from config key.
+     * Get Content Security Policy directives.
      *
-     * Converts 'x-frame-options' to 'X-Frame-Options'
+     * @return string
      */
-    private function formatHeaderName(string $key): string
+    private function getContentSecurityPolicy(): string
     {
-        return implode('-', array_map('ucfirst', explode('-', $key)));
-    }
+        $directives = [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com",
+            "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com data:",
+            "img-src 'self' data: https:",
+            "connect-src 'self'",
+            "frame-ancestors 'self'",
+            "base-uri 'self'",
+            "form-action 'self'",
+        ];
 
-    /**
-     * Build Content Security Policy header value.
-     */
-    private function buildCspHeader(): string
-    {
-        $directives = config('security.csp.directives', []);
-        $cspParts = [];
-
-        foreach ($directives as $directive => $sources) {
-            if (is_array($sources) && ! empty($sources)) {
-                $cspParts[] = $directive.' '.implode(' ', $sources);
-            }
-        }
-
-        // Add report-uri if configured
-        if ($reportUri = config('security.csp.report_uri')) {
-            $cspParts[] = 'report-uri '.$reportUri;
-        }
-
-        return implode('; ', $cspParts);
+        return implode('; ', $directives);
     }
 }

@@ -28,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Organization::class => \App\Policies\OrganizationPolicy::class,
         \App\Models\OrganizationActivityLog::class => \App\Policies\OrganizationActivityLogPolicy::class,
         \App\Models\Subscription::class => \App\Policies\SubscriptionPolicy::class,
+        \App\Models\Faq::class => \App\Policies\FaqPolicy::class,
     ];
 
     /**
@@ -70,6 +71,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Register Eloquent observers
         \App\Models\MeterReading::observe(\App\Observers\MeterReadingObserver::class);
+        \App\Models\Faq::observe(\App\Observers\FaqObserver::class);
+        \App\Models\Tariff::observe(\App\Observers\TariffObserver::class);
 
         if (! Collection::hasMacro('takeLast')) {
             Collection::macro('takeLast', function (int $count) {

@@ -67,10 +67,13 @@ test('gyvatukas calculation uses eager loading to avoid N+1 queries', function (
 });
 
 test('gyvatukas calculator uses configuration values', function () {
-    $calculator = new GyvatukasCalculator(
-        waterSpecificHeat: 1.5,
-        temperatureDelta: 50.0
-    );
+    // Set custom config values for this test
+    config([
+        'gyvatukas.water_specific_heat' => 1.163,
+        'gyvatukas.temperature_delta' => 45.0,
+    ]);
+    
+    $calculator = new GyvatukasCalculator();
     
     $building = Building::factory()->create();
     $property = Property::factory()->for($building)->create();
@@ -98,6 +101,6 @@ test('gyvatukas calculator uses configuration values', function () {
     
     $result = $calculator->calculateSummerGyvatukas($building, Carbon::parse('2024-05-15'));
     
-    // With custom values: 1000 kWh - (10 m³ × 1.5 × 50) = 1000 - 750 = 250
-    expect($result)->toBe(250.0);
+    // With default values: 1000 kWh - (10 m³ × 1.163 × 45) = 1000 - 523.35 = 476.65
+    expect($result)->toBe(476.65);
 });

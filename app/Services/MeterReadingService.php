@@ -47,6 +47,9 @@ class MeterReadingService
 
     /**
      * Get adjacent reading (previous or next) for a meter reading.
+     * 
+     * Performance: Uses indexed columns (meter_id, reading_date, zone)
+     * Query optimization: Single query with proper ordering and limit
      *
      * @param MeterReading $reading
      * @param string|null $zone
@@ -55,8 +58,10 @@ class MeterReadingService
      */
     public function getAdjacentReading(MeterReading $reading, ?string $zone, string $direction): ?MeterReading
     {
+        // Use select() to minimize data transfer
         $query = $reading->meter
             ->readings()
+            ->select(['id', 'meter_id', 'value', 'reading_date', 'zone'])
             ->where('id', '!=', $reading->id)
             ->when($zone, fn($q) => $q->where('zone', $zone), fn($q) => $q->whereNull('zone'));
 
@@ -64,12 +69,14 @@ class MeterReadingService
             return $query
                 ->where('reading_date', '<=', $reading->reading_date)
                 ->orderBy('reading_date', 'desc')
+                ->orderBy('id', 'desc') // Secondary sort for same-day readings
                 ->first();
         }
 
         return $query
             ->where('reading_date', '>=', $reading->reading_date)
             ->orderBy('reading_date', 'asc')
+            ->orderBy('id', 'asc') // Secondary sort for same-day readings
             ->first();
     }
 }
