@@ -92,6 +92,7 @@ return [
             'required' => 'Tariff name is required',
             'string' => 'Tariff name must be text',
             'max' => 'Tariff name may not be greater than 255 characters',
+            'regex' => 'Tariff name contains invalid characters. Only letters, numbers, spaces, and basic punctuation are allowed',
         ],
         'configuration' => [
             'required' => 'Tariff configuration is required',
@@ -110,6 +111,7 @@ return [
                 'required_if' => 'Rate is required for flat tariffs',
                 'numeric' => 'Rate must be a number',
                 'min' => 'Rate must be zero or greater',
+                'max' => 'Rate cannot exceed 999,999.9999',
             ],
             'zones' => [
                 'required_if' => 'Zones are required for time-of-use tariffs',
@@ -118,6 +120,8 @@ return [
                 'id' => [
                     'required_with' => 'Zone id is required when configuring zones',
                     'string' => 'Zone id must be text',
+                    'max' => 'Zone id may not be greater than 50 characters',
+                    'regex' => 'Zone id can only contain letters, numbers, underscores, and hyphens',
                 ],
                 'start' => [
                     'required_with' => 'Zone start time is required',
@@ -133,6 +137,7 @@ return [
                     'required_with' => 'Rate is required for each zone',
                     'numeric' => 'Zone rate must be a number',
                     'min' => 'Zone rate must be a positive number',
+                    'max' => 'Zone rate cannot exceed 999,999.9999',
                 ],
                 'errors' => [
                     'required' => 'At least one zone is required',
@@ -147,6 +152,7 @@ return [
             'fixed_fee' => [
                 'numeric' => 'Fixed fee must be a number.',
                 'min' => 'Fixed fee must be zero or greater.',
+                'max' => 'Fixed fee cannot exceed 999,999.99',
             ],
         ],
         'active_from' => [

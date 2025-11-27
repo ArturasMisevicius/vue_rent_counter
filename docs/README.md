@@ -8,6 +8,7 @@ Complete documentation for the Vilnius Utilities Billing Platform.
 
 - **[Setup Guide](guides/SETUP.md)** - Installation and configuration
 - **[User Guide](guides/HIERARCHICAL_USER_GUIDE.md)** - Guide for each user role
+- **[HierarchicalScope Quick Start](guides/HIERARCHICAL_SCOPE_QUICK_START.md)** - 5-minute guide to multi-tenant filtering
 - **[Testing Guide](guides/TESTING_GUIDE.md)** - Testing approach and conventions
 
 ## Feature Documentation
@@ -41,6 +42,7 @@ Complete documentation for the Vilnius Utilities Billing Platform.
 
 ### System Architecture
 - **[Multi-Tenancy Architecture](architecture/MULTI_TENANCY_ARCHITECTURE.md)** - Tenant isolation patterns
+- **[HierarchicalScope](architecture/HIERARCHICAL_SCOPE.md)** - Role-based query filtering
 - **[Authorization Architecture](architecture/AUTHORIZATION_ARCHITECTURE.md)** - Policy-based access control
 - **[Database Schema](architecture/DATABASE_SCHEMA.md)** - Database design
 
@@ -49,7 +51,16 @@ Complete documentation for the Vilnius Utilities Billing Platform.
 - **[Billing Flow](architecture/BILLING_FLOW.md)** - Invoice generation flow
 - **[Meter Reading Flow](architecture/METER_READING_FLOW.md)** - Reading submission flow
 
+## Exception Documentation
+
+### Custom Exceptions
+- **[Exception Index](exceptions/README.md)** - Complete guide to custom exceptions
+- **[InvalidPropertyAssignmentException](exceptions/INVALID_PROPERTY_ASSIGNMENT_EXCEPTION.md)** - Multi-tenancy enforcement exception
+
 ## API Reference
+
+### REST API Endpoints
+- **[Account Management API](api/account-management.md)** - User account management endpoints
 
 ### Controllers
 - **[FinalizeInvoiceController](api/FINALIZE_INVOICE_CONTROLLER_API.md)** - Invoice finalization
@@ -59,10 +70,14 @@ Complete documentation for the Vilnius Utilities Billing Platform.
 - **[TariffController](api/TARIFF_CONTROLLER_API.md)** - Tariff management
 
 ### Services
+- **[AccountManagementService](services/AccountManagementService.md)** - Hierarchical user account management
 - **[BillingService](api/BILLING_SERVICE_API.md)** - Core billing operations
 - **[GyvatukasCalculator](api/GYVATUKAS_CALCULATOR_API.md)** - Circulation fee calculation
 - **[TariffResolver](api/TARIFF_RESOLVER_API.md)** - Tariff selection
 - **[SubscriptionService](api/SUBSCRIPTION_SERVICE_API.md)** - Subscription management
+
+### Scopes
+- **[HierarchicalScope API](api/HIERARCHICAL_SCOPE_API.md)** - Multi-tenant query filtering API
 
 ### Policies
 - **[InvoicePolicy](api/INVOICE_POLICY_API.md)** - Invoice authorization
@@ -88,6 +103,9 @@ Complete documentation for the Vilnius Utilities Billing Platform.
 ### Observers
 - **[Meter Reading Observer](implementation/METER_READING_OBSERVER_IMPLEMENTATION.md)** - Audit trail
 - **[Draft Invoice Recalculation](implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md)** - Auto-recalculation
+
+### Scopes
+- **[HierarchicalScope Implementation](implementation/HIERARCHICAL_SCOPE_IMPLEMENTATION_SUMMARY.md)** - Multi-tenant data isolation
 
 ## Performance
 

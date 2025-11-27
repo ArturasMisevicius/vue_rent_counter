@@ -261,7 +261,7 @@ describe('UserPolicy', function () {
         $tenant = User::factory()->create(['role' => UserRole::TENANT]);
 
         expect($admin->can('viewAny', User::class))->toBeTrue()
-            ->and($manager->can('viewAny', User::class))->toBeFalse()
+            ->and($manager->can('viewAny', User::class))->toBeTrue()
             ->and($tenant->can('viewAny', User::class))->toBeFalse();
     });
 
@@ -285,13 +285,13 @@ describe('UserPolicy', function () {
         expect($user1->can('view', $user2))->toBeFalse();
     });
 
-    test('only admins can create users', function () {
+    test('admins and managers can create users', function () {
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
         $manager = User::factory()->create(['role' => UserRole::MANAGER]);
         $tenant = User::factory()->create(['role' => UserRole::TENANT]);
 
         expect($admin->can('create', User::class))->toBeTrue()
-            ->and($manager->can('create', User::class))->toBeFalse()
+            ->and($manager->can('create', User::class))->toBeTrue()
             ->and($tenant->can('create', User::class))->toBeFalse();
     });
 
@@ -308,13 +308,14 @@ describe('UserPolicy', function () {
         expect($user->can('update', $user))->toBeTrue();
     });
 
-    test('only admins can delete users', function () {
-        $admin = User::factory()->create(['role' => UserRole::ADMIN]);
-        $manager = User::factory()->create(['role' => UserRole::MANAGER]);
-        $otherUser = User::factory()->create(['role' => UserRole::TENANT]);
+    test('admins and managers can delete users within their tenant', function () {
+        $tenantId = 1;
+        $admin = User::factory()->create(['role' => UserRole::ADMIN, 'tenant_id' => $tenantId]);
+        $manager = User::factory()->create(['role' => UserRole::MANAGER, 'tenant_id' => $tenantId]);
+        $otherUser = User::factory()->create(['role' => UserRole::TENANT, 'tenant_id' => $tenantId]);
 
         expect($admin->can('delete', $otherUser))->toBeTrue()
-            ->and($manager->can('delete', $otherUser))->toBeFalse();
+            ->and($manager->can('delete', $otherUser))->toBeTrue();
     });
 
     test('admins cannot delete themselves', function () {
@@ -424,13 +425,13 @@ describe('BuildingPolicy', function () {
             ->and($manager->can('update', $building))->toBeTrue();
     });
 
-    test('only admins can delete buildings', function () {
+    test('admins and managers can delete buildings within their tenant', function () {
         $building = Building::factory()->create();
         $admin = User::factory()->create(['role' => UserRole::ADMIN, 'tenant_id' => $building->tenant_id]);
         $manager = User::factory()->create(['role' => UserRole::MANAGER, 'tenant_id' => $building->tenant_id]);
 
         expect($admin->can('delete', $building))->toBeTrue()
-            ->and($manager->can('delete', $building))->toBeFalse();
+            ->and($manager->can('delete', $building))->toBeTrue();
     });
 });
 
@@ -487,13 +488,13 @@ describe('MeterPolicy', function () {
             ->and($manager->can('update', $meter))->toBeTrue();
     });
 
-    test('only admins can delete meters', function () {
+    test('admins and managers can delete meters within their tenant', function () {
         $meter = Meter::factory()->create();
         $admin = User::factory()->create(['role' => UserRole::ADMIN, 'tenant_id' => $meter->property->tenant_id]);
         $manager = User::factory()->create(['role' => UserRole::MANAGER, 'tenant_id' => $meter->property->tenant_id]);
 
         expect($admin->can('delete', $meter))->toBeTrue()
-            ->and($manager->can('delete', $meter))->toBeFalse();
+            ->and($manager->can('delete', $meter))->toBeTrue();
     });
 });
 

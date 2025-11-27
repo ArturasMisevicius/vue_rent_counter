@@ -73,6 +73,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\MeterReading::observe(\App\Observers\MeterReadingObserver::class);
         \App\Models\Faq::observe(\App\Observers\FaqObserver::class);
         \App\Models\Tariff::observe(\App\Observers\TariffObserver::class);
+        \App\Models\User::observe(\App\Observers\UserObserver::class);
 
         if (! Collection::hasMacro('takeLast')) {
             Collection::macro('takeLast', function (int $count) {

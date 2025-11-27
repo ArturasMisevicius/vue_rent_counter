@@ -118,11 +118,17 @@ DB_FOREIGN_KEYS=true
 #### Subscription Configuration
 ```env
 # Grace period after subscription expires (days)
+# During this period, admins have read-only access
 SUBSCRIPTION_GRACE_PERIOD_DAYS=7
 
 # Warning period before subscription expires (days)
+# Admins will see renewal reminders during this period
 SUBSCRIPTION_EXPIRY_WARNING_DAYS=14
 ```
+
+**Configuration Details**:
+- **SUBSCRIPTION_GRACE_PERIOD_DAYS**: Number of days after subscription expiry during which the Admin has read-only access. Default: 7 days.
+- **SUBSCRIPTION_EXPIRY_WARNING_DAYS**: Number of days before expiry when the Admin starts seeing renewal reminders. Default: 14 days.
 
 #### Subscription Limits by Plan
 ```env
@@ -138,6 +144,41 @@ MAX_TENANTS_PROFESSIONAL=200
 MAX_PROPERTIES_ENTERPRISE=9999
 MAX_TENANTS_ENTERPRISE=9999
 ```
+
+**Subscription Plan Configuration**:
+
+These environment variables control the limits for each subscription plan. The system enforces these limits when Admins attempt to create new properties or tenant accounts.
+
+**Basic Plan** (Suitable for small property portfolios):
+- `MAX_PROPERTIES_BASIC=10`: Maximum 10 properties
+- `MAX_TENANTS_BASIC=50`: Maximum 50 tenant accounts
+- Recommended for: Individual landlords, small property managers
+
+**Professional Plan** (Suitable for medium-sized property management):
+- `MAX_PROPERTIES_PROFESSIONAL=50`: Maximum 50 properties
+- `MAX_TENANTS_PROFESSIONAL=200`: Maximum 200 tenant accounts
+- Recommended for: Property management companies, medium portfolios
+
+**Enterprise Plan** (Suitable for large property management companies):
+- `MAX_PROPERTIES_ENTERPRISE=9999`: Effectively unlimited properties
+- `MAX_TENANTS_ENTERPRISE=9999`: Effectively unlimited tenant accounts
+- Recommended for: Large property management companies, enterprise clients
+
+**Customizing Limits**:
+You can adjust these values based on your business needs. For example:
+```env
+# Custom limits for a specific deployment
+MAX_PROPERTIES_BASIC=5
+MAX_TENANTS_BASIC=25
+MAX_PROPERTIES_PROFESSIONAL=100
+MAX_TENANTS_PROFESSIONAL=500
+```
+
+**Important Notes**:
+- Changes to these values require restarting the application
+- Existing subscriptions are not automatically updated when limits change
+- Use `php artisan config:cache` after changing these values in production
+- The system checks these limits before allowing resource creation
 
 #### Email Configuration (Optional)
 ```env
@@ -199,7 +240,7 @@ The hierarchical user management system requires migrating existing users to the
 
 ### Migration Command
 
-The system includes a migration command to update existing data:
+The system includes a migration command to update existing data to the hierarchical user structure. This command is essential when upgrading from a non-hierarchical system or when setting up the system for the first time with existing user data.
 
 ```bash
 php artisan migrate:hierarchical-users
@@ -207,39 +248,157 @@ php artisan migrate:hierarchical-users
 
 #### What the Migration Does
 
+The migration command performs the following operations:
+
 1. **Updates User Roles**:
    - Converts existing 'manager' role to 'admin' role
    - Preserves 'tenant' role users
    - Identifies or creates a superadmin account
+   - Ensures all users have a valid role in the new hierarchy
 
 2. **Assigns Tenant IDs**:
    - Assigns unique `tenant_id` to each admin/manager user
    - Ensures tenant users inherit their admin's `tenant_id`
+   - Maintains data isolation between different admins
+   - Generates sequential tenant IDs starting from 1
 
 3. **Creates Subscriptions**:
    - Creates active subscriptions for all admin users
    - Sets default expiry date (1 year from migration)
-   - Assigns default plan (Professional)
+   - Assigns default plan (Professional with 50 properties, 200 tenants)
+   - Ensures all admins have immediate access to the system
 
 4. **Activates Accounts**:
    - Sets `is_active = true` for all existing users
    - Ensures no disruption to current users
+   - Allows all users to log in immediately after migration
+
+5. **Preserves Data Integrity**:
+   - Maintains all existing relationships (properties, meters, readings, invoices)
+   - Does not delete or modify existing data
+   - Creates audit log entries for all changes
 
 #### Migration Options
 
-Run with dry-run to preview changes:
+**Preview Changes (Dry Run)**:
 ```bash
 php artisan migrate:hierarchical-users --dry-run
 ```
 
-Run with rollback capability:
+This option shows what changes would be made without actually modifying the database. Use this to:
+- Verify the migration will work correctly
+- See which users will be affected
+- Check tenant ID assignments
+- Review subscription creation
+
+**Run with Rollback Capability**:
 ```bash
 php artisan migrate:hierarchical-users --rollback
 ```
 
-### Seeding Users
+This option allows you to undo the migration if needed. The rollback will:
+- Remove assigned tenant IDs
+- Delete created subscriptions
+- Restore original user roles
+- Revert is_active flags
 
-For development or testing, seed user data:
+**Force Migration (Skip Confirmations)**:
+```bash
+php artisan migrate:hierarchical-users --force
+```
+
+This option skips all confirmation prompts. Use with caution in production.
+
+#### Migration Process
+
+The migration follows this process:
+
+1. **Pre-Migration Checks**:
+   - Verifies database connection
+   - Checks for required tables (users, subscriptions)
+   - Validates existing user data
+   - Displays summary of changes to be made
+
+2. **User Role Migration**:
+   - Identifies all users with 'manager' role
+   - Converts 'manager' to 'admin'
+   - Ensures superadmin account exists
+   - Logs all role changes
+
+3. **Tenant ID Assignment**:
+   - Assigns unique tenant_id to each admin
+   - Updates related tenant users with matching tenant_id
+   - Maintains parent-child relationships
+   - Logs all tenant ID assignments
+
+4. **Subscription Creation**:
+   - Creates subscription for each admin
+   - Sets plan type based on configuration
+   - Sets expiry date (default: 1 year)
+   - Sets limits based on plan type
+   - Logs all subscription creations
+
+5. **Account Activation**:
+   - Sets is_active = true for all users
+   - Ensures immediate access
+   - Logs activation status
+
+6. **Post-Migration Verification**:
+   - Verifies all users have tenant_id (except superadmin)
+   - Verifies all admins have subscriptions
+   - Verifies all relationships are intact
+   - Displays migration summary
+
+#### Migration Output
+
+The migration command provides detailed output:
+
+```
+Hierarchical Users Migration
+============================
+
+Pre-Migration Summary:
+- Total users: 15
+- Manager users: 3
+- Tenant users: 11
+- Superadmin users: 1
+
+Migration Steps:
+✓ Converting manager roles to admin
+✓ Assigning tenant IDs
+✓ Creating subscriptions
+✓ Activating accounts
+
+Post-Migration Summary:
+- Admin users: 3 (tenant IDs: 1, 2, 3)
+- Tenant users: 11 (assigned to admins)
+- Subscriptions created: 3
+- All accounts activated: 15
+
+Migration completed successfully!
+```
+
+#### Environment Variables Used
+
+The migration command uses these environment variables:
+
+```env
+# Default subscription plan for migrated admins
+DEFAULT_SUBSCRIPTION_PLAN=professional
+
+# Default subscription duration (days)
+DEFAULT_SUBSCRIPTION_DURATION=365
+
+# Subscription limits (from plan configuration)
+MAX_PROPERTIES_PROFESSIONAL=50
+MAX_TENANTS_PROFESSIONAL=200
+```
+
+You can customize these values before running the migration to set different defaults.
+
+### Seeding Hierarchical Users
+
+For development or testing, seed user data with the hierarchical structure:
 
 ```bash
 # Seed all data (users, properties, meters, etc.)
@@ -251,37 +410,163 @@ php artisan db:seed --class=UsersSeeder
 
 #### What the UsersSeeder Creates
 
-The `UsersSeeder` creates a comprehensive set of test users for development and testing:
+The `UsersSeeder` creates a comprehensive set of test users for development and testing with the complete hierarchical structure:
 
 1. **Superadmin Account** (1 user):
-   - Email: `superadmin@example.com`
-   - Password: `password`
-   - Role: superadmin
-   - Full system access across all tenants
+   - **Email**: `superadmin@example.com`
+   - **Password**: `password`
+   - **Role**: superadmin
+   - **Tenant ID**: null (bypasses tenant scope)
+   - **Access**: Full system access across all tenants
+   - **Purpose**: System administration, managing all organizations
 
 2. **Admin Accounts** (5 users across 3 tenant IDs):
-   - **Tenant 1**: `admin@test.com` (Test Organization 1), `admin1@example.com` (Vilnius Properties Ltd)
-   - **Tenant 2**: `manager2@test.com` (Test Organization 2), `admin2@example.com` (Baltic Real Estate)
-   - **Tenant 3**: `admin3@example.com` (Old Town Management - **expired subscription**)
-   - All passwords: `password`
-   - Each with active subscription (except admin3 which is expired)
-   - Subscription plans: Professional (50 properties, 200 tenants) or Basic (10 properties, 50 tenants)
+   
+   **Tenant ID 1** (2 admins):
+   - `admin@test.com` - Test Organization 1
+     - Subscription: Professional (active)
+     - Organization: Test Organization 1
+   - `admin1@example.com` - Vilnius Properties Ltd
+     - Subscription: Professional (active)
+     - Organization: Vilnius Properties Ltd
+   
+   **Tenant ID 2** (2 admins):
+   - `manager2@test.com` - Test Organization 2
+     - Subscription: Basic (active)
+     - Organization: Test Organization 2
+   - `admin2@example.com` - Baltic Real Estate
+     - Subscription: Professional (active)
+     - Organization: Baltic Real Estate
+   
+   **Tenant ID 3** (1 admin):
+   - `admin3@example.com` - Old Town Management
+     - Subscription: Professional (**expired** - for testing expired subscriptions)
+     - Organization: Old Town Management
+   
+   **All Admin Accounts**:
+   - Password: `password`
+   - Role: admin
+   - Each with unique tenant_id for data isolation
+   - Each with subscription (active or expired)
+   - Can create and manage properties and tenants within their scope
 
 3. **Manager Account** (1 user, legacy role):
-   - Email: `manager@test.com`
-   - Password: `password`
-   - Role: manager
-   - Tenant ID: 1
-   - Used for meter reading entry and property management
+   - **Email**: `manager@test.com`
+   - **Password**: `password`
+   - **Role**: manager (legacy role, similar to admin)
+   - **Tenant ID**: 1
+   - **Purpose**: Used for meter reading entry and property management
+   - **Note**: This role is maintained for backward compatibility
 
 4. **Tenant Accounts** (9 users):
-   - **Tenant ID 1**: 6 tenant users assigned to various properties
-   - **Tenant ID 2**: 3 tenant users assigned to properties
-   - All passwords: `password`
+   
+   **Tenant ID 1** (6 tenants):
+   - `tenant@test.com` - Assigned to property in Building 1
+   - `tenant1@example.com` - Assigned to property in Building 1
+   - `tenant2@example.com` - Assigned to property in Building 1
+   - `tenant3@example.com` - Assigned to property in Building 2
+   - `tenant6@example.com` - Assigned to property in Building 2
+   - `deactivated@example.com` - Inactive tenant (for testing deactivation)
+   
+   **Tenant ID 2** (3 tenants):
+   - `tenant4@example.com` - Assigned to property in Building 3
+   - `tenant5@example.com` - Assigned to property in Building 3
+   - `tenant7@example.com` - Assigned to property in Building 4
+   
+   **All Tenant Accounts**:
+   - Password: `password`
+   - Role: tenant
    - Each assigned to a specific property
-   - One inactive tenant (`deactivated@example.com`) for testing inactive user handling
+   - Each inherits their admin's tenant_id
+   - Can only view and manage their assigned property
 
-See the [README.md](../overview/readme.md#seeded-user-accounts) for complete user account details.
+#### Seeding Order and Dependencies
+
+The seeding process follows this order to maintain referential integrity:
+
+1. **Providers and Tariffs**: Base data for billing
+2. **Buildings**: Physical structures
+3. **Properties**: Individual units within buildings
+4. **Users**: Hierarchical user accounts
+   - Superadmin (no dependencies)
+   - Admins with subscriptions (no dependencies)
+   - Tenants (requires properties to exist)
+5. **Meters**: Utility meters for properties
+6. **Meter Readings**: Historical consumption data
+7. **Invoices**: Billing records
+
+**Important**: The `UsersSeeder` is called automatically by `TestDatabaseSeeder` after properties are created, ensuring all dependencies are satisfied.
+
+#### Subscription Configuration in Seeding
+
+The seeder creates subscriptions with these configurations:
+
+**Professional Plan Subscriptions**:
+```php
+'plan_type' => 'professional',
+'status' => 'active',
+'starts_at' => now(),
+'expires_at' => now()->addYear(),
+'max_properties' => 50,
+'max_tenants' => 200,
+```
+
+**Basic Plan Subscriptions**:
+```php
+'plan_type' => 'basic',
+'status' => 'active',
+'starts_at' => now(),
+'expires_at' => now()->addYear(),
+'max_properties' => 10,
+'max_tenants' => 50,
+```
+
+**Expired Subscription** (for testing):
+```php
+'plan_type' => 'professional',
+'status' => 'expired',
+'starts_at' => now()->subYear(),
+'expires_at' => now()->subMonth(),
+'max_properties' => 50,
+'max_tenants' => 200,
+```
+
+#### Testing Different Scenarios
+
+The seeded data allows testing various scenarios:
+
+1. **Active Subscriptions**: Test normal operations with `admin@test.com` or `admin1@example.com`
+2. **Expired Subscriptions**: Test read-only mode with `admin3@example.com`
+3. **Multiple Tenants**: Test tenant isolation with different tenant IDs
+4. **Tenant Assignment**: Test property assignment with various tenant accounts
+5. **Inactive Accounts**: Test deactivation with `deactivated@example.com`
+6. **Subscription Limits**: Test limit enforcement by creating properties/tenants
+
+#### Customizing Seeded Data
+
+You can customize the seeded data by modifying the seeder files:
+
+**Location**: `database/seeders/UsersSeeder.php`
+
+**Example Customization**:
+```php
+// Change subscription plan
+'plan_type' => 'enterprise',
+
+// Change expiry date
+'expires_at' => now()->addMonths(6),
+
+// Change limits
+'max_properties' => 100,
+'max_tenants' => 500,
+```
+
+After modifying, re-run the seeder:
+```bash
+php artisan db:seed --class=UsersSeeder
+```
+
+See the [README.md](../../README.md#default-user-accounts) and [HIERARCHICAL_USER_GUIDE.md](HIERARCHICAL_USER_GUIDE.md) for complete user account details and usage instructions.
 
 ### Fresh Installation with Hierarchical Users
 

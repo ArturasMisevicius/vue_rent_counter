@@ -42,4 +42,44 @@ class Provider extends Model
     {
         return $this->hasMany(Tariff::class);
     }
+
+    /**
+     * Get cached provider options for form selects.
+     * Cache for 1 hour to reduce database queries.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public static function getCachedOptions(): \Illuminate\Support\Collection
+    {
+        return cache()->remember(
+            'providers.form_options',
+            now()->addHour(),
+            fn () => static::query()
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->pluck('name', 'id')
+        );
+    }
+
+    /**
+     * Clear the cached provider options.
+     * Call this after creating, updating, or deleting providers.
+     *
+     * @return void
+     */
+    public static function clearCachedOptions(): void
+    {
+        cache()->forget('providers.form_options');
+    }
+
+    /**
+     * Boot the model.
+     */
+    protected static function booted(): void
+    {
+        // Clear cache when providers are modified
+        static::created(fn () => static::clearCachedOptions());
+        static::updated(fn () => static::clearCachedOptions());
+        static::deleted(fn () => static::clearCachedOptions());
+    }
 }

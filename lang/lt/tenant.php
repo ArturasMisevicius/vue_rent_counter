@@ -8,6 +8,22 @@ return [
         'description' => 'Peržiūrėkite savo paskyros informaciją ir nustatymus',
         'account_information' => 'Paskyros informacija',
         'language_preference' => 'Kalbos pasirinkimas',
+
+        'language' => [
+            'select' => 'Pasirinkite kalbą',
+            'note' => 'Jūsų pasirinkta kalba bus išsaugota automatiškai',
+        ],
+        'assigned_property' => 'Priskirtas objektas',
+        'manager_contact' => [
+            'title' => 'Objekto vadybininko kontaktai',
+            'description' => 'Jei turite klausimų ar reikia pagalbos, susisiekite su objekto vadybininku.',
+        ],
+        'update_profile' => 'Atnaujinti profilį',
+        'update_description' => 'Atnaujinkite savo paskyros informaciją ir slaptažodį',
+        'change_password' => 'Keisti slaptažodį',
+        'password_note' => 'Palikite slaptažodžio laukus tuščius, jei norite išlaikyti dabartinį slaptažodį',
+        'save_changes' => 'Išsaugoti pakeitimus',
+        'updated_successfully' => 'Profilis sėkmingai atnaujintas',
         'labels' => [
             'name' => 'Vardas',
             'email' => 'El. paštas',
@@ -19,15 +35,9 @@ return [
             'building' => 'Pastatas',
             'organization' => 'Organizacija',
             'contact_name' => 'Kontaktinis asmuo',
-        ],
-        'language' => [
-            'select' => 'Pasirinkite kalbą',
-            'note' => 'Jūsų pasirinkta kalba bus išsaugota automatiškai',
-        ],
-        'assigned_property' => 'Priskirtas objektas',
-        'manager_contact' => [
-            'title' => 'Objekto vadybininko kontaktai',
-            'description' => 'Jei turite klausimų ar reikia pagalbos, susisiekite su objekto vadybininku.',
+            'current_password' => 'Dabartinis slaptažodis',
+            'new_password' => 'Naujas slaptažodis',
+            'confirm_password' => 'Patvirtinti slaptažodį',
         ],
     ],
 

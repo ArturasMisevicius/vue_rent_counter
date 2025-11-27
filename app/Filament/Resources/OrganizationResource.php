@@ -41,9 +41,15 @@ class OrganizationResource extends Resource
         return __('organizations.navigation');
     }
 
+    /**
+     * Hide from non-superadmin users (Requirements 9.1, 9.2, 9.3).
+     * Organizations are superadmin-only system management resources.
+     */
     public static function shouldRegisterNavigation(): bool
     {
-        return auth()->user()?->isSuperadmin() ?? false;
+        $user = auth()->user();
+
+        return $user instanceof \App\Models\User && $user->role === \App\Enums\UserRole::SUPERADMIN;
     }
 
     public static function canViewAny(): bool

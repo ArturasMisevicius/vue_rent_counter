@@ -1,354 +1,211 @@
-# Testing Documentation
+# Testing Documentation Index
 
 ## Overview
 
-This directory contains testing guides, verification scripts documentation, and testing best practices for the Vilnius Utilities Billing Platform.
-
-## Quick Links
-
-### Verification Scripts
-
-- **[Batch 3 Verification Guide](BATCH_3_VERIFICATION_GUIDE.md)** - Complete guide for verifying Batch 3 Filament resources
-- **[Model Verification Guide](MODEL_VERIFICATION_GUIDE.md)** - Complete guide for verifying Eloquent model configuration
-- **[Verification Quick Reference](VERIFICATION_QUICK_REFERENCE.md)** - Quick command reference for verification scripts
-
-### Testing Guides
-
-- **[Testing Guide](../guides/TESTING_GUIDE.md)** - Comprehensive testing approach and conventions
-- **[Factory and Seeding Guide](FACTORY_AND_SEEDING_GUIDE.md)** - Database seeding and factory usage
-
-### Test Coverage Reports
-
-#### Filament Resources
-- **[Building Resource Tests](BUILDING_RESOURCE_TEST_SUMMARY.md)** - BuildingResource test coverage
-- **[Properties Relation Manager Tests](PROPERTIES_RELATION_MANAGER_TESTING_SUMMARY.md)** - PropertiesRelationManager test coverage
-- **[FAQ Resource Namespace Tests](FAQ_RESOURCE_NAMESPACE_TESTING.md)** - FaqResource namespace consolidation test coverage
-- **[FAQ Namespace Test Implementation](FAQ_NAMESPACE_TEST_IMPLEMENTATION.md)** - FaqResource namespace test implementation details
-
-#### Billing & Invoicing
-- **[Invoice Finalization Tests](INVOICE_FINALIZATION_TEST_SUMMARY.md)** - Invoice finalization test coverage
-- **[Billing Service Tests](BILLING_SERVICE_V3_TEST_COVERAGE.md)** - BillingService v3 test coverage
-- **[Gyvatukas Calculator Tests](GYVATUKAS_CALCULATOR_TEST_COVERAGE.md)** - GyvatukasCalculator test coverage
-- **[Meter Reading Observer Tests](METER_READING_OBSERVER_TEST_COVERAGE.md)** - MeterReadingObserver draft invoice recalculation tests
-
-#### Controllers
-- **[Meter Reading Update Controller Tests](../api/METER_READING_UPDATE_CONTROLLER_API.md#testing)** - Meter reading correction controller tests
-
-#### View Layer
-- **[Navigation Composer Tests](NAVIGATION_COMPOSER_TESTING_COMPLETE.md)** - NavigationComposer test coverage
-
-### Testing Recommendations
-
-- **[Testing Recommendations](TESTING_RECOMMENDATIONS.md)** - Best practices and patterns
+This directory contains comprehensive testing documentation for the Vilnius Utilities Billing System, including test guides, test case documentation, and testing strategies.
 
 ---
 
-## Verification Scripts
+## Authentication Testing
 
-### Available Scripts
+### Quick Start
+- [Authentication Test Summary](AUTHENTICATION_TEST_SUMMARY.md) - Quick reference guide for authentication tests
 
-| Script | Purpose | Documentation |
-|--------|---------|---------------|
-| `verify-batch3-resources.php` | Verify Batch 3 Filament resources (User, Subscription, Organization, OrganizationActivityLog) | [Guide](BATCH_3_VERIFICATION_GUIDE.md) |
-| `verify-batch4-resources.php` | Verify Batch 4 Filament resources (Faq, Language, Translation) | [Guide](BATCH_4_VERIFICATION_GUIDE.md) |
-| `verify-models.php` | Verify Eloquent model casts and relationships (11 core models) | [Guide](MODEL_VERIFICATION_GUIDE.md) |
+### Comprehensive Documentation
+- [Superadmin Authentication Test](SUPERADMIN_AUTHENTICATION_TEST.md) - Detailed test case documentation
+- [Authentication API](../api/AUTHENTICATION_API.md) - API endpoint reference
+- [Authentication Architecture](../architecture/AUTHENTICATION_ARCHITECTURE.md) - System architecture
 
-### Quick Commands
-
-```bash
-# Verify Batch 3 resources
-php verify-batch3-resources.php
-
-# Verify Batch 4 resources
-php verify-batch4-resources.php
-
-# Verify Eloquent models
-php verify-models.php
-
-# Run all verifications
-php verify-batch3-resources.php && \
-php verify-batch4-resources.php && \
-php verify-models.php && \
-echo "✓ All verifications passed"
-
-# With composer
-composer verify:batch3
-
-# In CI/CD
-php verify-batch3-resources.php && \
-php verify-batch4-resources.php && \
-php verify-models.php || exit 1
-```
+### Changelog
+- [Authentication Tests Changelog](../CHANGELOG_AUTHENTICATION_TESTS.md) - Implementation details and changes
 
 ---
 
 ## Test Suites
 
 ### Feature Tests
-
-```bash
-# Run all feature tests
-php artisan test --testsuite=Feature
-
-# Run specific feature tests
-php artisan test --filter=Filament
-php artisan test --filter=Building
-php artisan test --filter=Invoice
-```
-
-### Unit Tests
-
-```bash
-# Run all unit tests
-php artisan test --testsuite=Unit
-
-# Run specific unit tests
-php artisan test --filter=NavigationComposer
-php artisan test --filter=BillingService
-```
+- **SuperadminAuthenticationTest** - Authentication flows for all user roles
+  - Location: `tests/Feature/SuperadminAuthenticationTest.php`
+  - Tests: 8
+  - Coverage: Requirements 1.1, 7.1, 8.1, 8.4, 12.1
 
 ### Property Tests
+- **AuthenticationTestingPropertiesTest** - Property-based authentication tests
+  - Location: `tests/Feature/AuthenticationTestingPropertiesTest.php`
 
-```bash
-# Run all property tests
-php artisan test --filter=Property
+- **FilamentBuildingResourceTenantScopeTest** - Building resource tenant isolation
+  - Location: `tests/Feature/FilamentBuildingResourceTenantScopeTest.php`
+  - Tests: 3 (300 iterations total)
+  - Coverage: Requirements 7.1, 7.3
+  - Documentation: [Building Resource Tests](filament-building-resource-tenant-scope-tests.md)
 
-# Run specific property tests
-php artisan test --filter=MultiTenancyProperty
-php artisan test --filter=InvoiceProperty
-```
-
-### Performance Tests
-
-```bash
-# Run performance tests
-php artisan test --testsuite=Performance
-
-# Run specific performance tests
-php artisan test --filter=BuildingResourcePerformance
-```
-
-### Security Tests
-
-```bash
-# Run security tests
-php artisan test --testsuite=Security
-
-# Run specific security tests
-php artisan test --filter=Authorization
-```
+### Integration Tests
+- **HierarchicalScopeTest** - Data isolation and tenant scoping
+  - Location: `tests/Feature/HierarchicalScopeTest.php`
 
 ---
 
-## Test Coverage
+## Running Tests
 
-### Current Coverage
-
-| Component | Tests | Assertions | Coverage |
-|-----------|-------|------------|----------|
-| BuildingResource | 37 | 150+ | 100% |
-| NavigationComposer | 15 | 71 | 100% |
-| Invoice Finalization | 25+ | 100+ | 95% |
-| Properties Relation Manager | 20+ | 80+ | 90% |
-| Middleware | 11 | 16 | 100% |
-| BillingService v3 | 15 | 45 | 95% |
-| GyvatukasCalculator | 43 | 109 | 100% |
-| MeterReadingObserver | 6 | 15 | 100% |
-
-### Coverage Goals
-
-- **Unit Tests**: 90%+ coverage
-- **Feature Tests**: 85%+ coverage
-- **Integration Tests**: 80%+ coverage
-- **Property Tests**: Key invariants covered
-
----
-
-## Testing Best Practices
-
-### 1. Test Organization
-
-```php
-// Group related tests
-describe('UserResource', function () {
-    describe('authorization', function () {
-        test('admin can view users', function () {
-            // ...
-        });
-    });
-    
-    describe('form validation', function () {
-        test('email is required', function () {
-            // ...
-        });
-    });
-});
-```
-
-### 2. Test Helpers
-
-```php
-// Use TestCase helpers
-$this->actingAsAdmin();
-$this->actingAsManager();
-$this->actingAsTenant();
-
-// Create test data
-$property = $this->createTestProperty();
-$reading = $this->createTestMeterReading();
-```
-
-### 3. Assertions
-
-```php
-// Use descriptive assertions
-expect($user->role)->toBe(UserRole::Admin);
-expect($invoice->status)->toBe(InvoiceStatus::Finalized);
-
-// Use custom matchers
-expect($response)->toBeSuccessful();
-expect($query)->toHaveCount(5);
-```
-
-### 4. Test Data
-
-```php
-// Use factories
-$user = User::factory()->create();
-$building = Building::factory()->create();
-
-// Use seeders for complex scenarios
-$this->seed(TestDatabaseSeeder::class);
-```
-
----
-
-## CI/CD Integration
-
-### GitHub Actions
-
-```yaml
-name: Tests
-
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-      - name: Install Dependencies
-        run: composer install
-      - name: Run Tests
-        run: php artisan test
-      - name: Verify Resources
-        run: php verify-batch3-resources.php
-```
-
-### GitLab CI
-
-```yaml
-test:
-  script:
-    - composer install
-    - php artisan test
-    - php verify-batch3-resources.php
-```
-
----
-
-## Troubleshooting
-
-### Common Issues
-
-#### Tests Failing After Migration
-
+### All Tests
 ```bash
-# Refresh database
-php artisan migrate:fresh --seed
-
-# Clear caches
-php artisan optimize:clear
-
-# Run tests
 php artisan test
 ```
 
-#### Verification Script Errors
-
+### Authentication Tests Only
 ```bash
-# Refresh autoload
-composer dump-autoload
-
-# Clear caches
-php artisan optimize:clear
-
-# Run verification
-php verify-batch3-resources.php
+php artisan test --filter=Authentication
 ```
 
-#### Database Connection Errors
-
+### Specific Test Suite
 ```bash
-# Check database configuration
-php artisan db:show
-
-# Verify .env settings
-cat .env | grep DB_
-
-# Test connection
-php artisan tinker
->>> DB::connection()->getPdo();
+php artisan test tests/Feature/SuperadminAuthenticationTest.php
 ```
+
+### With Coverage
+```bash
+php artisan test --coverage
+```
+
+### Parallel Execution
+```bash
+php artisan test --parallel
+```
+
+---
+
+## Test Categories
+
+### By Feature
+- Authentication
+- Authorization
+- Multi-tenancy
+- Billing
+- Meter Reading
+- Invoice Generation
+
+### By Type
+- Unit Tests
+- Feature Tests
+- Integration Tests
+- Property-Based Tests
+- Performance Tests
+
+### By Role
+- Superadmin Tests
+- Admin Tests
+- Manager Tests
+- Tenant Tests
+
+---
+
+## Testing Guides
+
+### Core Guides
+- [Property-Based Testing Guide](property-based-testing-guide.md) - Comprehensive guide to property-based testing
+- [Test Helpers API Reference](test-helpers-api.md) - API documentation for test helper functions
+- [Testing Guide](TESTING_GUIDE.md) - General testing practices
+
+### Specific Test Documentation
+- [Filament Building Resource Tests](filament-building-resource-tenant-scope-tests.md) - Building resource tenant scope tests
+- [Provider-Tariff Relationship Tests](provider-tariff-relationship-tests.md) - Provider-tariff relationship visibility tests
+- [Provider-Tariff Quick Reference](PROVIDER_TARIFF_RELATIONSHIP_QUICK_REFERENCE.md) - Quick reference for provider-tariff tests
+- [Authentication Test Summary](AUTHENTICATION_TEST_SUMMARY.md) - Authentication test quick reference
+- [Superadmin Authentication Test](SUPERADMIN_AUTHENTICATION_TEST.md) - Detailed authentication test cases
+
+---
+
+## Documentation Structure
+
+```
+docs/
+├── testing/
+│   ├── README.md (this file)
+│   ├── property-based-testing-guide.md
+│   ├── test-helpers-api.md
+│   ├── filament-building-resource-tenant-scope-tests.md
+│   ├── AUTHENTICATION_TEST_SUMMARY.md
+│   ├── SUPERADMIN_AUTHENTICATION_TEST.md
+│   ├── TESTING_GUIDE.md
+│   └── [other test documentation]
+├── api/
+│   ├── AUTHENTICATION_API.md
+│   └── [other API documentation]
+└── architecture/
+    ├── AUTHENTICATION_ARCHITECTURE.md
+    └── [other architecture documentation]
+```
+
+---
+
+## Test Standards
+
+### Code Quality
+- ✅ Comprehensive DocBlocks
+- ✅ Type hints on all parameters
+- ✅ PHPDoc annotations
+- ✅ Clear naming conventions
+- ✅ Proper test isolation
+
+### Test Quality
+- ✅ Descriptive test names
+- ✅ Clear test flows
+- ✅ Comprehensive assertions
+- ✅ Proper setup/teardown
+- ✅ Test isolation strategy
+
+### Documentation Quality
+- ✅ Clear and concise
+- ✅ Laravel-conventional
+- ✅ Examples provided
+- ✅ Maintenance guidelines
+- ✅ Related docs linked
 
 ---
 
 ## Related Documentation
 
-### Testing
+### Specifications
+- [Hierarchical User Management](../../.kiro/specs/3-hierarchical-user-management/)
+- [Authentication Testing](../../.kiro/specs/authentication-testing/)
+- [Filament Admin Panel](../../.kiro/specs/4-filament-admin-panel/)
 
-- [Testing Guide](../guides/TESTING_GUIDE.md) - Comprehensive testing guide
-- [Verification Guide](BATCH_3_VERIFICATION_GUIDE.md) - Verification script guide
-- [Quick Reference](VERIFICATION_QUICK_REFERENCE.md) - Quick command reference
+### Guides
+- [Testing Guide](TESTING_GUIDE.md)
+- [Security Best Practices](../security/BEST_PRACTICES.md)
+- [Development Setup](../guides/DEVELOPMENT_SETUP.md)
 
-### API
-
-- [Verification Scripts API](../api/VERIFICATION_SCRIPTS_API.md) - API reference
-
-### Architecture
-
-- [Verification Scripts Architecture](../architecture/VERIFICATION_SCRIPTS_ARCHITECTURE.md) - Architecture
-
-### Upgrades
-
-- [Batch 3 Verification Summary](../upgrades/BATCH_3_VERIFICATION_SUMMARY.md) - Implementation summary
-- [Verification Implementation Complete](../upgrades/VERIFICATION_IMPLEMENTATION_COMPLETE.md) - Completion report
+### API Reference
+- [Authentication API](../api/AUTHENTICATION_API.md)
+- [User API](../api/USER_API.md)
+- [Tenant API](../api/TENANT_API.md)
 
 ---
 
-## Contributing
+## Support
 
-### Adding New Tests
-
-1. Create test file in appropriate directory
-2. Follow naming conventions (`*Test.php`)
-3. Use descriptive test names
-4. Add documentation comments
-5. Update coverage reports
-
-### Adding New Verification Scripts
-
-1. Create script in project root
-2. Follow existing patterns
-3. Add comprehensive documentation
-4. Update this README
-5. Add CI/CD examples
+For testing-related questions:
+1. Review the [Testing Guide](TESTING_GUIDE.md)
+2. Check specific test documentation
+3. Consult the [Hierarchical User Management Spec](../../.kiro/specs/3-hierarchical-user-management/)
+4. Review [Laravel Testing Documentation](https://laravel.com/docs/testing)
 
 ---
 
-**Last Updated**: November 24, 2025  
-**Maintained By**: Development Team
+## Changelog
+
+### 2025-11-27
+- ✅ Added property-based testing guide
+- ✅ Created test helpers API reference
+- ✅ Added Filament Building Resource test documentation
+- ✅ Enhanced testing index with new guides
+- ✅ Added Provider-Tariff Relationship test documentation
+- ✅ Created Provider-Tariff Quick Reference guide
+- ✅ Documented pagination optimization for relationship tests
+
+### 2024-11-26
+- ✅ Added authentication test documentation
+- ✅ Created test summary guide
+- ✅ Added API documentation
+- ✅ Added architecture documentation
+- ✅ Created testing index (this file)

@@ -1,12 +1,53 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\Meter;
 use App\Models\MeterReading;
 
+/**
+ * Meter Reading Service
+ * 
+ * Handles business logic for meter reading operations:
+ * - Creating new meter readings
+ * - Retrieving previous/next readings
+ * - Validating reading sequences
+ * 
+ * Performance: Optimized queries with proper indexing and eager loading
+ */
 class MeterReadingService
 {
+    /**
+     * Create a new meter reading.
+     * 
+     * @param Meter $meter
+     * @param int $tenantId
+     * @param string $readingDate
+     * @param float $value
+     * @param string|null $zone
+     * @param int $enteredByUserId
+     * @return MeterReading
+     */
+    public function createReading(
+        Meter $meter,
+        int $tenantId,
+        string $readingDate,
+        float $value,
+        ?string $zone,
+        int $enteredByUserId
+    ): MeterReading {
+        return $meter->readings()->create([
+            'tenant_id' => $tenantId,
+            'meter_id' => $meter->id,
+            'reading_date' => $readingDate,
+            'value' => $value,
+            'zone' => $zone,
+            'entered_by_user_id' => $enteredByUserId,
+        ]);
+    }
+
     /**
      * Get the previous reading for a meter and zone.
      *

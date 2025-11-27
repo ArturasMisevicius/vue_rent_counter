@@ -75,10 +75,18 @@ class ProviderResource extends Resource
         return auth()->check() && auth()->user()->can('delete', $record);
     }
 
-    // Hide from non-admin users (Requirements 9.1, 9.2, 9.3)
+    /**
+     * Hide from non-admin users (Requirements 9.1, 9.2, 9.3).
+     * Providers are system configuration resources accessible only to admins and superadmins.
+     */
     public static function shouldRegisterNavigation(): bool
     {
-        return auth()->check() && auth()->user()->role === \App\Enums\UserRole::ADMIN;
+        $user = auth()->user();
+
+        return $user instanceof \App\Models\User && in_array($user->role, [
+            \App\Enums\UserRole::SUPERADMIN,
+            \App\Enums\UserRole::ADMIN,
+        ], true);
     }
 
     public static function form(Schema $schema): Schema

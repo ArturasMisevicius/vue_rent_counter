@@ -4,39 +4,69 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
-use App\Enums\ServiceType;
-use App\Enums\TariffType;
-use App\Enums\WeekendLogic;
+use App\Filament\Resources\TariffResource\Concerns\BuildsTariffFormFields;
+use App\Filament\Resources\TariffResource\Concerns\BuildsTariffTableColumns;
 use App\Filament\Resources\TariffResource\Pages;
-use App\Filament\Resources\TariffResource\RelationManagers;
-use App\Models\Provider;
 use App\Models\Tariff;
 use BackedEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Actions;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Utilities\Get;
 use UnitEnum;
 
 /**
- * Filament resource for managing tariffs.
+ * Filament resource for managing utility tariffs.
  *
- * Provides CRUD operations for tariffs with:
- * - Tenant-scoped data access
- * - Role-based navigation visibility (admin only)
+ * Provides CRUD operations for tariffs with comprehensive validation,
+ * tenant-scoped data access, and role-based navigation visibility.
+ *
+ * Features:
+ * - Tenant-scoped data access via TenantScope
+ * - Role-based navigation visibility (SUPERADMIN and ADMIN only)
  * - Support for flat and time-of-use tariff types
- * - Zone configuration for time-of-use tariffs
+ * - Zone configuration for time-of-use tariffs (day/night rates)
+ * - Weekend logic configuration (separate rates for weekends)
+ * - Fixed fee support for base charges
  * - Relationship management (providers)
+ * - Comprehensive validation mirroring FormRequest rules
+ * - Security hardening (XSS prevention, numeric overflow protection)
+ * - Audit logging via TariffObserver
+ *
+ * Navigation Visibility:
+ * Tariffs are system configuration resources accessible only to SUPERADMIN
+ * and ADMIN roles. MANAGER and TENANT roles cannot access this resource.
+ *
+ * Authorization:
+ * All CRUD operations are protected by TariffPolicy, which enforces:
+ * - viewAny: SUPERADMIN and ADMIN only
+ * - create: SUPERADMIN and ADMIN only
+ * - update: SUPERADMIN and ADMIN only
+ * - delete: SUPERADMIN and ADMIN only
+ *
+ * Security:
+ * - XSS prevention via regex validation and HTML sanitization
+ * - Numeric overflow protection with max value validation
+ * - Zone ID injection prevention
+ * - Tenant scope bypass protection in provider loading
+ * - Comprehensive audit logging via TariffObserver
  *
  * @see \App\Models\Tariff
  * @see \App\Policies\TariffPolicy
+ * @see \App\Observers\TariffObserver
+ * @see \App\Http\Requests\StoreTariffRequest
+ * @see \App\Http\Requests\UpdateTariffRequest
+ * @see \Tests\Feature\Filament\FilamentTariffValidationConsistencyPropertyTest
+ * @see \Tests\Feature\Security\TariffResourceSecurityTest
  */
 class TariffResource extends Resource
 {
+    use BuildsTariffFormFields;
+    use BuildsTariffTableColumns;
+    use Concerns\CachesAuthUser;
+
     protected static ?string $model = Tariff::class;
 
     protected static ?string $navigationLabel = null;
@@ -58,196 +88,165 @@ class TariffResource extends Resource
         return __('app.nav_groups.configuration');
     }
 
-    // Integrate TariffPolicy for authorization (Requirement 9.5)
+    /**
+     * Determine if the current user can view any tariffs.
+     *
+     * Integrates with TariffPolicy to enforce authorization rules.
+     * Only SUPERADMIN and ADMIN roles have viewAny permission.
+     * 
+     * Performance: Uses cached user to avoid redundant auth queries.
+     *
+     * @return bool True if the user can view tariffs, false otherwise
+     *
+     * @see \App\Policies\TariffPolicy::viewAny()
+     */
     public static function canViewAny(): bool
     {
-        return auth()->check() && auth()->user()->can('viewAny', Tariff::class);
+        $user = self::getAuthenticatedUser();
+        return $user && $user->can('viewAny', Tariff::class);
     }
 
+    /**
+     * Determine if the current user can create tariffs.
+     *
+     * Integrates with TariffPolicy to enforce authorization rules.
+     * Only SUPERADMIN and ADMIN roles have create permission.
+     * 
+     * Performance: Uses cached user to avoid redundant auth queries.
+     *
+     * @return bool True if the user can create tariffs, false otherwise
+     *
+     * @see \App\Policies\TariffPolicy::create()
+     */
     public static function canCreate(): bool
     {
-        return auth()->check() && auth()->user()->can('create', Tariff::class);
+        $user = self::getAuthenticatedUser();
+        return $user && $user->can('create', Tariff::class);
     }
 
+    /**
+     * Determine if the current user can edit a specific tariff.
+     *
+     * Integrates with TariffPolicy to enforce authorization rules.
+     * Only SUPERADMIN and ADMIN roles have update permission.
+     * 
+     * Performance: Uses cached user to avoid redundant auth queries.
+     *
+     * @param \App\Models\Tariff $record The tariff record to check
+     * @return bool True if the user can edit the tariff, false otherwise
+     *
+     * @see \App\Policies\TariffPolicy::update()
+     */
     public static function canEdit($record): bool
     {
-        return auth()->check() && auth()->user()->can('update', $record);
+        $user = self::getAuthenticatedUser();
+        return $user && $user->can('update', $record);
     }
 
+    /**
+     * Determine if the current user can delete a specific tariff.
+     *
+     * Integrates with TariffPolicy to enforce authorization rules.
+     * Only SUPERADMIN and ADMIN roles have delete permission.
+     * 
+     * Performance: Uses cached user to avoid redundant auth queries.
+     *
+     * @param \App\Models\Tariff $record The tariff record to check
+     * @return bool True if the user can delete the tariff, false otherwise
+     *
+     * @see \App\Policies\TariffPolicy::delete()
+     */
     public static function canDelete($record): bool
     {
-        return auth()->check() && auth()->user()->can('delete', $record);
+        $user = self::getAuthenticatedUser();
+        return $user && $user->can('delete', $record);
     }
 
-    // Hide from non-admin users (Requirements 9.1, 9.2, 9.3)
+    /**
+     * Cached navigation visibility result.
+     *
+     * @var bool|null
+     */
+    protected static ?bool $navigationVisible = null;
+
+    /**
+     * Determine if the resource should be registered in the navigation menu.
+     *
+     * Tariffs are system configuration resources accessible only to SUPERADMIN
+     * and ADMIN roles. This method implements role-based navigation visibility
+     * to hide the resource from MANAGER and TENANT users.
+     *
+     * Requirements Addressed:
+     * - Requirement 9.1: Tenant users restricted to tenant-specific resources
+     * - Requirement 9.2: Manager users access operational resources only
+     * - Requirement 9.3: Admin users access all resources including system configuration
+     *
+     * Implementation Notes:
+     * - Uses explicit instanceof check to prevent null pointer exceptions
+     * - Uses strict type checking in in_array() for security
+     * - Matches the pattern used in ProviderResource for consistency
+     * - Ensures SUPERADMIN has proper access to all configuration resources
+     * - Memoizes result within request to avoid redundant role checks
+     *
+     * Performance: Memoized to avoid redundant role checks per request.
+     *
+     * @return bool True if the resource should appear in navigation, false otherwise
+     *
+     * @see \App\Filament\Resources\ProviderResource::shouldRegisterNavigation()
+     * @see \Tests\Feature\Filament\FilamentNavigationVisibilityTest
+     * @see \App\Enums\UserRole
+     */
     public static function shouldRegisterNavigation(): bool
     {
-        return auth()->check() && auth()->user()->role === \App\Enums\UserRole::ADMIN;
+        // Return memoized result if available
+        if (static::$navigationVisible !== null) {
+            return static::$navigationVisible;
+        }
+
+        $user = self::getAuthenticatedUser();
+
+        static::$navigationVisible = $user instanceof \App\Models\User && in_array($user->role, [
+            \App\Enums\UserRole::SUPERADMIN,
+            \App\Enums\UserRole::ADMIN,
+        ], true);
+
+        return static::$navigationVisible;
     }
 
+    /**
+     * Define the form schema for tariff creation and editing.
+     *
+     * Implements comprehensive validation rules that mirror FormRequest validation
+     * to ensure consistency between Filament UI and API validation. All fields
+     * include explicit ->rules() declarations and localized validation messages.
+     *
+     * Validation Strategy:
+     * - Basic fields (provider_id, name, dates): Standard Laravel validation rules
+     * - Conditional fields (rate, zones): Use closures to apply rules based on tariff type
+     * - Nested fields (zone properties): Individual validation for each zone attribute
+     * - Complex patterns (time format): Regex validation for HH:MM format
+     *
+     * @param Schema $schema The Filament form schema builder
+     * @return Schema Configured form schema with validation rules
+     *
+     * @see \App\Http\Requests\StoreTariffRequest For equivalent API validation
+     * @see \App\Http\Requests\UpdateTariffRequest For update-specific validation
+     * @see \Tests\Feature\Filament\FilamentTariffValidationConsistencyPropertyTest For validation tests
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->schema([
                 Forms\Components\Section::make(__('tariffs.sections.basic_information'))
-                    ->schema([
-                        Forms\Components\Select::make('provider_id')
-                            ->label(__('tariffs.forms.provider'))
-                            ->options(Provider::all()->pluck('name', 'id'))
-                            ->searchable()
-                            ->required()
-                            ->validationMessages([
-                                'required' => __('tariffs.validation.provider_id.required'),
-                                'exists' => __('tariffs.validation.provider_id.exists'),
-                            ]),
-                        
-                        Forms\Components\TextInput::make('name')
-                            ->label(__('tariffs.forms.name'))
-                            ->required()
-                            ->maxLength(255)
-                            ->validationMessages([
-                                'required' => __('tariffs.validation.name.required'),
-                            ]),
-                    ])
+                    ->schema(static::buildBasicInformationFields())
                     ->columns(2),
 
                 Forms\Components\Section::make(__('tariffs.sections.effective_period'))
-                    ->schema([
-                        Forms\Components\DatePicker::make('active_from')
-                            ->label(__('tariffs.forms.active_from'))
-                            ->required()
-                            ->native(false)
-                            ->validationMessages([
-                                'required' => __('tariffs.validation.active_from.required'),
-                            ]),
-                        
-                        Forms\Components\DatePicker::make('active_until')
-                            ->label(__('tariffs.forms.active_until'))
-                            ->nullable()
-                            ->native(false)
-                            ->after('active_from')
-                            ->validationMessages([
-                                'after' => __('tariffs.validation.active_until.after'),
-                            ]),
-                    ])
+                    ->schema(static::buildEffectivePeriodFields())
                     ->columns(2),
 
                 Forms\Components\Section::make(__('tariffs.sections.configuration'))
-                    ->schema([
-                        Forms\Components\Select::make('configuration.type')
-                            ->label(__('tariffs.forms.type'))
-                            ->options(TariffType::labels())
-                            ->required()
-                            ->native(false)
-                            ->live()
-                            ->validationMessages([
-                                'required' => __('tariffs.validation.configuration.type.required'),
-                                'in' => __('tariffs.validation.configuration.type.in'),
-                            ]),
-                        
-                        Forms\Components\Select::make('configuration.currency')
-                            ->label(__('tariffs.forms.currency'))
-                            ->options([
-                                'EUR' => 'EUR (€)',
-                            ])
-                            ->default('EUR')
-                            ->required()
-                            ->native(false)
-                            ->validationMessages([
-                                'required' => __('tariffs.validation.configuration.currency.required'),
-                                'in' => __('tariffs.validation.configuration.currency.in'),
-                            ]),
-                        
-                        // Flat rate field - only shown when type is 'flat'
-                        Forms\Components\TextInput::make('configuration.rate')
-                            ->label(__('tariffs.forms.flat_rate'))
-                            ->numeric()
-                            ->minValue(0)
-                            ->step(0.0001)
-                            ->suffix(__('app.units.euro'))
-                            ->visible(fn (Get $get): bool => $get('configuration.type') === 'flat')
-                            ->required(fn (Get $get): bool => $get('configuration.type') === 'flat')
-                            ->validationMessages([
-                                'required' => __('tariffs.validation.configuration.rate.required_if'),
-                                'numeric' => __('tariffs.validation.configuration.rate.numeric'),
-                                'min' => __('tariffs.validation.configuration.rate.min'),
-                            ]),
-                        
-                        // Time-of-use zones - only shown when type is 'time_of_use'
-                        Forms\Components\Repeater::make('configuration.zones')
-                            ->label(__('tariffs.forms.zones'))
-                            ->schema([
-                                Forms\Components\TextInput::make('id')
-                                    ->label(__('tariffs.forms.zone_id'))
-                                    ->required()
-                                    ->maxLength(50)
-                                    ->placeholder(__('tariffs.forms.zone_placeholder'))
-                                    ->validationMessages([
-                                        'required' => __('tariffs.validation.configuration.zones.id.required_with'),
-                                    ]),
-                                
-                                Forms\Components\TextInput::make('start')
-                                    ->label(__('tariffs.forms.start_time'))
-                                    ->required()
-                                    ->placeholder(__('tariffs.forms.start_placeholder'))
-                                    ->regex('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/')
-                                    ->validationMessages([
-                                        'required' => __('tariffs.validation.configuration.zones.start.required_with'),
-                                        'regex' => __('tariffs.validation.configuration.zones.start.regex'),
-                                    ]),
-                                
-                                Forms\Components\TextInput::make('end')
-                                    ->label(__('tariffs.forms.end_time'))
-                                    ->required()
-                                    ->placeholder(__('tariffs.forms.end_placeholder'))
-                                    ->regex('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/')
-                                    ->validationMessages([
-                                        'required' => __('tariffs.validation.configuration.zones.end.required_with'),
-                                        'regex' => __('tariffs.validation.configuration.zones.end.regex'),
-                                    ]),
-                                
-                                Forms\Components\TextInput::make('rate')
-                                    ->label(__('tariffs.forms.zone_rate'))
-                                    ->numeric()
-                                    ->minValue(0)
-                                    ->step(0.0001)
-                                    ->suffix(__('app.units.euro'))
-                                    ->required()
-                                    ->validationMessages([
-                                        'required' => __('tariffs.validation.configuration.zones.rate.required_with'),
-                                        'numeric' => __('tariffs.validation.configuration.zones.rate.numeric'),
-                                        'min' => __('tariffs.validation.configuration.zones.rate.min'),
-                                    ]),
-                            ])
-                            ->columns(4)
-                            ->visible(fn (Get $get): bool => $get('configuration.type') === 'time_of_use')
-                            ->required(fn (Get $get): bool => $get('configuration.type') === 'time_of_use')
-                            ->minItems(1)
-                            ->defaultItems(0)
-                            ->addActionLabel(__('tariffs.forms.add_zone'))
-                            ->validationMessages([
-                                'required' => __('tariffs.validation.configuration.zones.required_if'),
-                                'min' => __('tariffs.validation.configuration.zones.min'),
-                            ]),
-                        
-                        // Optional fields
-                        Forms\Components\Select::make('configuration.weekend_logic')
-                            ->label(__('tariffs.forms.weekend_logic'))
-                            ->options(WeekendLogic::labels())
-                            ->nullable()
-                            ->native(false)
-                            ->visible(fn (Get $get): bool => $get('configuration.type') === 'time_of_use')
-                            ->helperText(__('tariffs.forms.weekend_helper')),
-                        
-                        Forms\Components\TextInput::make('configuration.fixed_fee')
-                            ->label(__('tariffs.forms.fixed_fee'))
-                            ->numeric()
-                            ->minValue(0)
-                            ->step(0.01)
-                            ->suffix(__('app.units.euro'))
-                            ->nullable()
-                            ->helperText(__('tariffs.forms.fixed_fee_helper')),
-                    ])
+                    ->schema(static::buildConfigurationFields())
                     ->columns(2),
             ]);
     }
@@ -255,69 +254,9 @@ class TariffResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->with('provider:id,name,service_type'))
             ->searchable()
-            ->columns([
-                Tables\Columns\TextColumn::make('provider.name')
-                    ->label(__('tariffs.labels.provider'))
-                    ->searchable()
-                    ->sortable(),
-                
-                Tables\Columns\TextColumn::make('provider.service_type')
-                    ->label(__('tariffs.labels.service_type'))
-                    ->badge()
-                    ->color(fn ($state): string => match ($state instanceof ServiceType ? $state : ServiceType::tryFrom((string) $state)) {
-                        ServiceType::ELECTRICITY => 'warning',
-                        ServiceType::WATER => 'info',
-                        ServiceType::HEATING => 'danger',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn ($state): string => ($state instanceof ServiceType ? $state : ServiceType::tryFrom((string) $state))?->label() ?? (string) $state)
-                    ->sortable(),
-                
-                Tables\Columns\TextColumn::make('name')
-                    ->label(__('tariffs.forms.name'))
-                    ->searchable()
-                    ->sortable(),
-                
-                Tables\Columns\TextColumn::make('configuration.type')
-                    ->label(__('tariffs.forms.type'))
-                    ->badge()
-                    ->color(fn (string $state): string => match (TariffType::tryFrom($state)) {
-                        TariffType::FLAT => 'success',
-                        TariffType::TIME_OF_USE => 'info',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn (string $state): string => TariffType::tryFrom($state)?->label() ?? $state)
-                    ->sortable(),
-                
-                Tables\Columns\TextColumn::make('active_from')
-                    ->label(__('tariffs.forms.active_from'))
-                    ->date()
-                    ->sortable(),
-                
-                Tables\Columns\TextColumn::make('active_until')
-                    ->label(__('tariffs.forms.active_until'))
-                    ->date()
-                    ->sortable()
-                    ->placeholder(__('tariffs.forms.no_end_date')),
-                
-                Tables\Columns\IconColumn::make('is_active')
-                    ->label(__('tariffs.labels.status'))
-                    ->boolean()
-                    ->getStateUsing(function (Tariff $record): bool {
-                        return $record->isActiveOn(now());
-                    })
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('danger'),
-                
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label(__('tariffs.labels.created_at'))
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
+            ->columns(static::buildTableColumns())
             ->filters([
                 //
             ])

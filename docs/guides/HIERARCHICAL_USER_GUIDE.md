@@ -1,744 +1,662 @@
 # Hierarchical User Management Guide
 
-This guide provides detailed instructions for using the Vilnius Utilities Billing System based on your user role.
+## Overview
 
-## Table of Contents
+The Vilnius Utilities Billing System implements a three-tier hierarchical user management system that provides role-based access control and data isolation. This guide explains how each user role works and provides instructions for common tasks.
 
-- [Superadmin Guide](#superadmin-guide)
-- [Admin Guide](#admin-guide)
-- [Tenant Guide](#tenant-guide)
+## User Hierarchy
 
----
+```
+Superadmin (System Owner)
+    │
+    ├─→ Admin 1 (Property Owner - Tenant ID: 1)
+    │       ├─→ Tenant 1.1 (Apartment Resident - Property: A)
+    │       ├─→ Tenant 1.2 (Apartment Resident - Property: B)
+    │       └─→ Tenant 1.3 (Apartment Resident - Property: C)
+    │
+    └─→ Admin 2 (Property Owner - Tenant ID: 2)
+            ├─→ Tenant 2.1 (Apartment Resident - Property: D)
+            └─→ Tenant 2.2 (Apartment Resident - Property: E)
+```
 
 ## Superadmin Guide
 
-As a Superadmin, you have complete control over the entire system, including all organizations, subscriptions, and users.
+### Role Overview
 
-### Accessing the System
+**Purpose**: Manage the entire system across all organizations
 
-1. Navigate to the login page
-2. Enter your superadmin credentials
-3. You'll be redirected to the Superadmin Dashboard at `/superadmin/dashboard`
+**Key Responsibilities**:
+- Create and manage Admin (property owner) accounts
+- Manage subscriptions for all organizations
+- Monitor system-wide activity and statistics
+- Configure system settings and limits
+- Provide support to Admins and resolve issues
 
-### Dashboard Overview
+**Access Level**: Full system access without restrictions (bypasses tenant scope)
 
-The Superadmin Dashboard displays:
-- **Total Organizations**: Number of active Admin accounts
-- **Active Subscriptions**: Count of currently active subscriptions
-- **Subscription Status Breakdown**: Active, expired, suspended, cancelled
-- **System-Wide Metrics**: Total properties, tenants, and invoices across all organizations
-- **Recent Activity**: Latest admin account actions
+### Getting Started
 
-### Managing Organizations
+1. **Login**:
+   - Navigate to the application URL
+   - Use your Superadmin credentials
+   - You'll be redirected to the Superadmin dashboard
+
+2. **Dashboard Overview**:
+   - Total organizations (Admin accounts)
+   - Active subscriptions count
+   - System-wide statistics (properties, tenants, invoices)
+   - Recent admin activity
+   - Expiring subscriptions alert
+
+### Managing Admin Accounts
 
 #### Creating a New Admin Account
 
 1. Navigate to **Organizations** → **Create New**
 2. Fill in the required information:
-   - **Email**: Admin's login email (must be unique)
-   - **Password**: Initial password (admin can change later)
-   - **Organization Name**: Company or property management name
-3. Select a subscription plan:
-   - **Basic**: 10 properties, 50 tenants
-   - **Professional**: 50 properties, 200 tenants
-   - **Enterprise**: Unlimited
-4. Set subscription expiry date
-5. Click **Create Admin Account**
+   - **Email**: Admin's email address (must be unique)
+   - **Password**: Initial password (Admin can change later)
+   - **Organization Name**: Name of the property management company
+   - **Subscription Plan**: Basic, Professional, or Enterprise
+3. Click **Create Admin Account**
+4. The system will:
+   - Assign a unique `tenant_id` for data isolation
+   - Create an active subscription
+   - Send a welcome email to the Admin
 
-The system will:
-- Assign a unique `tenant_id` for data isolation
-- Create an active subscription
-- Send welcome email to the admin
+#### Viewing Admin Details
 
-#### Viewing Organization Details
-
-1. Navigate to **Organizations** → **All Organizations**
-2. Click on an organization name
-3. View:
-   - Organization profile and contact information
+1. Navigate to **Organizations** → **View All**
+2. Click on an organization to view:
+   - Organization information
    - Subscription status and limits
-   - Properties and buildings managed
-   - Tenant accounts created
+   - Properties and tenants count
+   - Recent activity
    - Usage statistics
-   - Activity history
 
-#### Editing Organization Information
+#### Managing Subscriptions
 
-1. Navigate to the organization detail page
-2. Click **Edit Organization**
-3. Update:
-   - Organization name
-   - Admin email
-   - Contact information
-4. Click **Save Changes**
-
-### Managing Subscriptions
-
-#### Viewing All Subscriptions
-
-1. Navigate to **Subscriptions** → **All Subscriptions**
-2. View list with:
-   - Organization name
-   - Plan type
-   - Status (active, expired, suspended, cancelled)
+**Viewing Subscription Status**:
+1. Navigate to **Subscriptions** → **View All**
+2. See all subscriptions with:
+   - Plan type (Basic, Professional, Enterprise)
+   - Status (Active, Expired, Suspended, Cancelled)
    - Expiry date
-   - Usage (properties/tenants vs. limits)
+   - Usage (properties/tenants used vs. limit)
 
-#### Viewing Subscription Details
-
-1. Click on a subscription from the list
-2. View:
-   - Complete subscription information
-   - Usage statistics
-   - Payment history
-   - Renewal history
-
-#### Renewing a Subscription
-
-1. Navigate to subscription detail page
+**Renewing a Subscription**:
+1. Navigate to the subscription detail page
 2. Click **Renew Subscription**
-3. Select new expiry date
-4. Confirm renewal
+3. Set new expiry date
+4. Click **Confirm Renewal**
 
-The system will:
-- Update subscription status to active
-- Restore full access for the admin
-- Update expiry date
-
-#### Suspending a Subscription
-
-1. Navigate to subscription detail page
+**Suspending a Subscription**:
+1. Navigate to the subscription detail page
 2. Click **Suspend Subscription**
-3. Enter reason for suspension
-4. Confirm suspension
+3. Provide a reason
+4. Click **Confirm Suspension**
+5. The Admin will be restricted to read-only access
 
-The admin will:
-- Lose access to the system
-- Be unable to login
-- Receive notification of suspension
-
-#### Cancelling a Subscription
-
-1. Navigate to subscription detail page
+**Cancelling a Subscription**:
+1. Navigate to the subscription detail page
 2. Click **Cancel Subscription**
-3. Confirm cancellation
+3. Confirm the cancellation
+4. The Admin account will be deactivated
 
-Note: Cancellation is permanent. Historical data is preserved but the admin account is deactivated.
+### Monitoring System Activity
 
-### System Monitoring
+**View System-Wide Statistics**:
+- Dashboard shows totals across all organizations
+- Filter by date range to see trends
+- Export reports for analysis
 
-#### Viewing System-Wide Reports
+**View Admin Activity**:
+- Navigate to **Organizations** → Select Admin → **Activity Log**
+- See all actions performed by the Admin
+- Filter by action type (create, update, delete)
 
-1. Navigate to **Reports** → **System Overview**
-2. View metrics:
-   - Total active organizations
-   - Revenue from subscriptions
-   - Growth trends
-   - Feature usage statistics
-
-#### Exporting Data
-
-1. Navigate to the relevant section (Organizations, Subscriptions, etc.)
-2. Click **Export to CSV**
-3. Download the generated file
-
-### Audit Logs
-
-1. Navigate to **Audit Logs**
-2. Filter by:
-   - Date range
-   - Organization
-   - Action type (created, updated, deleted, etc.)
-3. View complete history of all account management actions
+**View Audit Logs**:
+- Navigate to **Audit Logs**
+- See all account management actions
+- Filter by user, action type, or date range
 
 ### Best Practices
 
-- **Regular Monitoring**: Check subscription expiry dates weekly
-- **Proactive Renewals**: Contact admins before subscriptions expire
-- **Usage Tracking**: Monitor which organizations are approaching limits
-- **Security**: Regularly review audit logs for suspicious activity
-- **Backup**: Ensure regular database backups are configured
+1. **Regular Monitoring**: Check the dashboard daily for expiring subscriptions
+2. **Proactive Communication**: Contact Admins before their subscription expires
+3. **Data Backup**: Ensure automated backups are running correctly
+4. **Security**: Regularly review audit logs for suspicious activity
+5. **Support**: Respond promptly to Admin support requests
 
 ---
 
 ## Admin Guide
 
-As an Admin (Property Owner), you manage your rental property portfolio and tenant accounts within your subscription limits.
+### Role Overview
 
-### Accessing the System
+**Purpose**: Manage your property portfolio and tenant accounts
 
-1. Navigate to the login page
-2. Enter your admin credentials
-3. You'll be redirected to the Admin Dashboard at `/admin/dashboard`
+**Key Responsibilities**:
+- Create and manage buildings and properties
+- Create and manage tenant accounts
+- Assign tenants to properties
+- Manage meters and meter readings
+- Generate and manage invoices
+- Monitor subscription status and usage
 
-### Dashboard Overview
+**Access Level**: Limited to your own `tenant_id` scope (data isolation)
 
-The Admin Dashboard displays:
-- **Portfolio Statistics**: Total properties, active tenants, buildings
-- **Subscription Status**: Plan type, expiry date, usage vs. limits
-- **Pending Tasks**: Meter readings needed, invoices to generate
-- **Usage Statistics**: Consumption trends, invoice generation activity
-- **Renewal Reminders**: Warnings when subscription nears expiry
+**Subscription**: Requires active subscription with limits based on plan
 
-### Managing Your Organization Profile
+### Getting Started
 
-#### Viewing Your Profile
+1. **Login**:
+   - Navigate to the application URL
+   - Use your Admin credentials
+   - You'll be redirected to the Admin dashboard
 
-1. Navigate to **Profile** → **Organization Profile**
-2. View:
-   - Organization name
-   - Contact email
-   - Subscription details
-   - Usage statistics
+2. **Dashboard Overview**:
+   - Portfolio statistics (properties, tenants, pending tasks)
+   - Subscription status and limits
+   - Usage statistics (properties used/max, tenants used/max)
+   - Renewal reminders (if subscription is near expiry)
+   - Recent activity
 
-#### Updating Profile Information
+### Managing Your Subscription
 
-1. Click **Edit Profile**
-2. Update:
-   - Organization name
-   - Contact email
-   - Phone number
-3. Click **Save Changes**
+#### Viewing Subscription Status
 
-Note: Email must be unique across all admins.
+1. Navigate to **Profile** → **Subscription**
+2. View your subscription details:
+   - Plan type (Basic, Professional, Enterprise)
+   - Status (Active, Expired, Suspended)
+   - Expiry date
+   - Properties used / maximum allowed
+   - Tenants used / maximum allowed
 
-#### Changing Password
+#### Understanding Subscription Limits
 
-1. Navigate to **Profile** → **Security**
-2. Enter current password
-3. Enter new password
-4. Confirm new password
-5. Click **Update Password**
+**Basic Plan**:
+- 10 properties maximum
+- 50 tenants maximum
+- Core billing features
+
+**Professional Plan**:
+- 50 properties maximum
+- 200 tenants maximum
+- Advanced reporting and bulk operations
+
+**Enterprise Plan**:
+- Unlimited properties
+- Unlimited tenants
+- Custom features and priority support
+
+#### Renewing Your Subscription
+
+1. Navigate to **Profile** → **Subscription**
+2. Click **Renew Subscription**
+3. Follow the renewal process
+4. Your subscription will be extended
+
+**Note**: If your subscription expires, you'll have read-only access for 7 days (grace period). After that, you'll need to contact the Superadmin to renew.
 
 ### Managing Buildings and Properties
 
 #### Creating a Building
 
 1. Navigate to **Buildings** → **Create New**
-2. Fill in:
-   - Building name
-   - Address
-   - Number of apartments
+2. Fill in the required information:
+   - **Name**: Building name or address
+   - **Address**: Full street address
+   - **City**: City name
+   - **Postal Code**: Postal code
 3. Click **Create Building**
-
-All buildings are automatically associated with your `tenant_id`.
 
 #### Creating a Property
 
 1. Navigate to **Properties** → **Create New**
-2. Fill in:
-   - Property type (apartment, house)
-   - Building (if apartment)
-   - Address
-   - Area (square meters)
+2. Fill in the required information:
+   - **Building**: Select the building
+   - **Unit Number**: Apartment or unit number
+   - **Property Type**: Apartment, House, Commercial, etc.
+   - **Area**: Property area in square meters
 3. Click **Create Property**
 
-Note: Check your subscription limits before creating properties.
-
-#### Managing Meters
-
-1. Navigate to a property detail page
-2. Click **Add Meter**
-3. Fill in:
-   - Meter type (electricity, water_cold, water_hot, heating)
-   - Serial number
-   - Initial reading
-4. Click **Create Meter**
+**Note**: You cannot create more properties than your subscription allows. If you reach the limit, you'll need to upgrade your subscription.
 
 ### Managing Tenant Accounts
 
 #### Creating a Tenant Account
 
 1. Navigate to **Tenants** → **Create New**
-2. Fill in:
-   - **Email**: Tenant's login email (must be unique)
-   - **Password**: Initial password
+2. Fill in the required information:
+   - **Email**: Tenant's email address (must be unique)
+   - **Password**: Initial password (tenant can change later)
    - **Name**: Tenant's full name
-   - **Phone**: Contact number
-   - **Property**: Select from your properties
-3. Click **Create Tenant**
+   - **Phone**: Contact phone number
+   - **Property**: Select the property to assign
+3. Click **Create Tenant Account**
+4. The system will:
+   - Inherit your `tenant_id` for data isolation
+   - Assign the tenant to the selected property
+   - Send a welcome email with login credentials
 
-The system will:
-- Inherit your `tenant_id` for data isolation
-- Assign the selected `property_id`
-- Set you as the `parent_user_id`
-- Send welcome email with login credentials
-- Create audit log entry
-
-Note: Check your subscription limits before creating tenants.
-
-#### Viewing Tenant List
-
-1. Navigate to **Tenants** → **All Tenants**
-2. View list with:
-   - Tenant name and email
-   - Assigned property
-   - Active/inactive status
-   - Last login date
+**Note**: You cannot create more tenants than your subscription allows. If you reach the limit, you'll need to upgrade your subscription.
 
 #### Viewing Tenant Details
 
-1. Click on a tenant from the list
-2. View:
-   - Contact information
+1. Navigate to **Tenants** → **View All**
+2. Click on a tenant to view:
+   - Personal information
    - Assigned property
-   - Meter reading history
+   - Meter readings history
    - Invoice history
-   - Property assignment history
-   - Account status
+   - Account status (active/inactive)
 
 #### Reassigning a Tenant
 
-1. Navigate to tenant detail page
-2. Click **Reassign to Different Property**
-3. Select new property from your portfolio
-4. Enter reason for reassignment (optional)
-5. Click **Confirm Reassignment**
+When a tenant moves to a different property within your portfolio:
 
-The system will:
-- Update property assignment
-- Preserve all historical data
-- Create audit log entry
-- Send notification email to tenant
+1. Navigate to **Tenants** → Select Tenant → **Reassign**
+2. Select the new property
+3. Click **Reassign Tenant**
+4. The system will:
+   - Update the property assignment
+   - Maintain historical records
+   - Preserve all meter readings and invoices
+   - Send a notification email to the tenant
 
 #### Deactivating a Tenant Account
 
-1. Navigate to tenant detail page
-2. Click **Deactivate Account**
-3. Enter reason for deactivation
-4. Click **Confirm Deactivation**
+When a tenant moves out:
 
-The tenant will:
-- Be unable to login
-- Retain all historical data
-- Appear as "Inactive" in tenant list
+1. Navigate to **Tenants** → Select Tenant → **Deactivate**
+2. Provide a reason (optional)
+3. Click **Confirm Deactivation**
+4. The tenant will:
+   - Be unable to log in
+   - Retain all historical data
+   - Can be reactivated later if needed
 
 #### Reactivating a Tenant Account
 
-1. Navigate to deactivated tenant detail page
-2. Click **Reactivate Account**
+If a tenant returns:
+
+1. Navigate to **Tenants** → Select Tenant → **Reactivate**
+2. Optionally update the property assignment
 3. Click **Confirm Reactivation**
+4. The tenant will regain login access
 
-The tenant will:
-- Regain login access
-- Appear as "Active" in tenant list
+### Managing Meters and Readings
 
-### Meter Readings and Billing
+#### Creating Meters
 
-#### Entering Meter Readings
+1. Navigate to **Meters** → **Create New**
+2. Fill in the required information:
+   - **Property**: Select the property
+   - **Meter Type**: Electricity, Water, Heating, etc.
+   - **Serial Number**: Meter serial number
+   - **Installation Date**: Date installed
+3. Click **Create Meter**
 
-1. Navigate to **Meter Readings** → **Enter New**
-2. Select property and meter
-3. Enter:
-   - Reading value
+#### Viewing Meter Readings
+
+1. Navigate to **Meters** → Select Meter → **Readings**
+2. View all readings with:
    - Reading date
-4. Click **Submit Reading**
+   - Reading value
+   - Consumption (difference from previous reading)
+   - Submitted by (tenant or admin)
 
-The system validates:
-- Reading is not lower than previous reading
-- Date is not in the future
-- Reading is reasonable (not excessively high)
+#### Submitting Meter Readings
+
+1. Navigate to **Meters** → Select Meter → **Submit Reading**
+2. Enter the reading value
+3. Enter the reading date
+4. Click **Submit Reading**
+5. The system will validate:
+   - Reading is not lower than previous reading
+   - Reading date is not in the future
+
+### Managing Invoices
 
 #### Generating Invoices
 
-1. Navigate to **Invoices** → **Generate Bulk**
-2. Select:
-   - Billing period (month/year)
-   - Properties to include
-3. Click **Generate Invoices**
-
-The system will:
-- Calculate consumption for each meter
-- Apply current tariffs
-- Create draft invoices
-- Snapshot prices for historical accuracy
+1. Navigate to **Invoices** → **Generate**
+2. Select the billing period
+3. Select properties (or all)
+4. Click **Generate Invoices**
+5. The system will:
+   - Calculate consumption for each meter
+   - Apply appropriate tariffs
+   - Create draft invoices
 
 #### Finalizing Invoices
 
-1. Navigate to **Invoices** → **Draft Invoices**
-2. Review invoice details
+1. Navigate to **Invoices** → Select Invoice → **Finalize**
+2. Review the invoice details
 3. Click **Finalize Invoice**
+4. The invoice becomes immutable and can be sent to the tenant
 
-Note: Finalized invoices cannot be edited.
+#### Viewing Invoice History
 
-### Subscription Management
-
-#### Viewing Subscription Status
-
-Your subscription status is always visible in the dashboard header:
-- **Active**: Green indicator, full access
-- **Expiring Soon**: Yellow indicator with days remaining
-- **Expired**: Red indicator, read-only access
-
-#### Understanding Subscription Limits
-
-Navigate to **Profile** → **Subscription** to view:
-- Current plan type
-- Properties: X used / Y maximum
-- Tenants: X used / Y maximum
-- Expiry date
-
-#### Renewing Your Subscription
-
-When your subscription nears expiry:
-1. You'll see renewal reminders in the dashboard
-2. Contact the Superadmin for renewal
-3. Superadmin will update your subscription
-4. Full access will be restored
-
-#### Handling Expired Subscriptions
-
-If your subscription expires:
-- You can still login
-- You can view all data (read-only)
-- You cannot create or modify data
-- Contact Superadmin to renew
-
-### Reports and Analytics
-
-#### Viewing Portfolio Statistics
-
-1. Navigate to **Reports** → **Portfolio Overview**
-2. View:
-   - Total properties and occupancy rate
-   - Active vs. inactive tenants
-   - Meter reading submission rates
-   - Invoice generation activity
-
-#### Viewing Consumption Trends
-
-1. Navigate to **Reports** → **Consumption Trends**
-2. Select date range
-3. View aggregated usage across all properties
-
-#### Exporting Reports
-
-1. Navigate to the relevant report
-2. Click **Export to PDF**
-3. Download the generated report
+1. Navigate to **Invoices** → **View All**
+2. Filter by:
+   - Property
+   - Tenant
+   - Date range
+   - Status (draft, finalized, paid)
 
 ### Best Practices
 
-- **Regular Meter Readings**: Enter readings monthly for accurate billing
-- **Prompt Tenant Management**: Deactivate accounts when tenants move out
-- **Monitor Subscription**: Keep track of usage vs. limits
-- **Maintain Contact Info**: Keep tenant contact information up to date
-- **Review Invoices**: Always review draft invoices before finalizing
-- **Plan Renewals**: Renew subscription before expiry to avoid disruption
-
-### Troubleshooting
-
-#### Cannot Create Property or Tenant
-
-**Cause**: Subscription limit reached
-**Solution**: 
-- Check subscription limits in your profile
-- Contact Superadmin to upgrade plan
-
-#### Tenant Cannot Login
-
-**Possible Causes**:
-- Account is deactivated
-- Incorrect password
-- Email typo
-
-**Solution**:
-- Check tenant status in tenant list
-- Reset password if needed
-- Verify email address is correct
-
-#### Cannot Finalize Invoice
-
-**Possible Causes**:
-- Missing meter readings
-- Subscription expired
-
-**Solution**:
-- Ensure all meter readings are entered
-- Renew subscription if expired
+1. **Regular Monitoring**: Check your dashboard daily for pending tasks
+2. **Subscription Management**: Monitor your usage and renew before expiry
+3. **Tenant Communication**: Keep tenant contact information up to date
+4. **Meter Readings**: Submit readings regularly for accurate billing
+5. **Data Accuracy**: Review invoices before finalizing
 
 ---
 
 ## Tenant Guide
 
-As a Tenant (Apartment Resident), you can view your utility information, submit meter readings, and track your consumption.
+### Role Overview
 
-### Accessing the System
+**Purpose**: View billing information and submit meter readings for your apartment
 
-1. Navigate to the login page
-2. Enter the credentials provided by your property manager
-3. You'll be redirected to the Tenant Dashboard at `/tenant/dashboard`
+**Key Responsibilities**:
+- View your assigned property details
+- View meters and consumption history
+- Submit meter readings (if enabled)
+- View and download invoices
+- Update your profile information
 
-### First-Time Login
+**Access Level**: Limited to your assigned property only (`property_id` scope)
 
-On your first login:
-1. You'll be prompted to change your password
-2. Enter the temporary password provided
-3. Create a new secure password
-4. Click **Update Password**
+**Account Creation**: Your account is created by your property Admin
 
-### Dashboard Overview
+### Getting Started
 
-The Tenant Dashboard displays:
-- **Assigned Property**: Your apartment or house details
-- **Current Meter Readings**: Latest readings for all meters
-- **Consumption Summary**: Usage for current month
-- **Unpaid Balance**: Total amount due
-- **Recent Activity**: Latest meter readings and invoices
+1. **Login**:
+   - Navigate to the application URL
+   - Use the credentials provided by your Admin
+   - You'll be redirected to the Tenant dashboard
+
+2. **Dashboard Overview**:
+   - Assigned property information
+   - Current meter readings and consumption
+   - Unpaid invoice balance
+   - Recent activity
+
+3. **First-Time Login**:
+   - You'll be prompted to change your password
+   - Update your profile information
+   - Review your assigned property details
 
 ### Viewing Your Property
 
-#### Property Details
-
 1. Navigate to **My Property**
-2. View:
-   - Property address
-   - Property type (apartment/house)
-   - Building information (if apartment)
+2. View property details:
+   - Building name and address
+   - Unit number
+   - Property type
    - Area (square meters)
-   - Property manager contact
+   - Admin contact information
 
-#### Meter Information
+### Viewing Meters and Consumption
 
-1. Navigate to **My Property** → **Meters**
-2. View all meters for your property:
-   - Meter type (electricity, water, heating)
+#### Viewing Your Meters
+
+1. Navigate to **Meters**
+2. See all meters for your property:
+   - Meter type (Electricity, Water, Heating)
    - Serial number
    - Current reading
    - Last reading date
 
+#### Viewing Consumption History
+
+1. Navigate to **Meters** → Select Meter → **History**
+2. View consumption data:
+   - Monthly consumption
+   - Consumption trends (graph)
+   - Comparison with previous periods
+
 ### Submitting Meter Readings
 
-#### How to Submit a Reading
+If your Admin has enabled tenant meter reading submission:
 
-1. Navigate to **Meter Readings** → **Submit New**
-2. Select the meter
-3. Enter:
-   - Current reading value
-   - Reading date (defaults to today)
+1. Navigate to **Meters** → Select Meter → **Submit Reading**
+2. Enter the current reading value
+3. Enter the reading date (usually today)
 4. Click **Submit Reading**
+5. The system will:
+   - Validate the reading (must be higher than previous)
+   - Validate the date (cannot be in the future)
+   - Notify your Admin of the submission
 
-The system will:
-- Validate the reading
-- Store the reading
-- Notify your property manager
-- Update your consumption history
-
-#### Reading Validation
-
-Your reading must:
-- Be higher than the previous reading
-- Not be dated in the future
-- Be reasonable (not excessively high)
-
-If validation fails, you'll see an error message explaining the issue.
-
-#### Viewing Reading History
-
-1. Navigate to **Meter Readings** → **History**
-2. View:
-   - All submitted readings
-   - Reading dates
-   - Consumption between readings
-   - Submission timestamps
-
-### Viewing Consumption History
-
-#### Monthly Consumption
-
-1. Navigate to **Consumption** → **Monthly View**
-2. View consumption for each utility type:
-   - Electricity (kWh)
-   - Cold water (m³)
-   - Hot water (m³)
-   - Heating (kWh or m³)
-
-#### Consumption Trends
-
-1. Navigate to **Consumption** → **Trends**
-2. View:
-   - Graph showing last 12 months
-   - Comparison to previous periods
-   - Seasonal patterns
+**Tips for Accurate Readings**:
+- Read the meter at the same time each month
+- Double-check the value before submitting
+- Take a photo of the meter for your records
+- Submit readings promptly when requested
 
 ### Viewing Invoices
 
-#### Invoice List
+#### Viewing Invoice List
 
-1. Navigate to **Invoices** → **All Invoices**
-2. View list with:
+1. Navigate to **Invoices**
+2. See all invoices for your property:
    - Invoice number
    - Billing period
    - Total amount
-   - Payment status (paid/unpaid)
+   - Status (draft, finalized, paid)
    - Due date
 
-#### Invoice Details
+#### Viewing Invoice Details
 
-1. Click on an invoice from the list
-2. View:
-   - Detailed line items
-   - Consumption for each utility
-   - Tariff rates applied
-   - Calculations breakdown
-   - Payment information
+1. Navigate to **Invoices** → Select Invoice
+2. View detailed breakdown:
+   - Meter readings (start and end)
+   - Consumption by meter
+   - Tariffs applied
+   - Line items with costs
+   - Total amount due
 
 #### Downloading Invoices
 
-1. Navigate to invoice detail page
+1. Navigate to **Invoices** → Select Invoice
 2. Click **Download PDF**
-3. Save or print the invoice
+3. Save the PDF for your records
 
 ### Managing Your Profile
 
-#### Viewing Profile
+#### Updating Profile Information
 
-1. Navigate to **Profile** → **My Profile**
-2. View:
-   - Your name and email
+1. Navigate to **Profile**
+2. Update your information:
+   - Name
+   - Email (must be unique)
    - Phone number
-   - Assigned property
-   - Property manager contact
-
-#### Updating Contact Information
-
-1. Click **Edit Profile**
-2. Update:
-   - Phone number
-   - Email address (requires verification)
 3. Click **Save Changes**
 
-#### Changing Password
+#### Changing Your Password
 
-1. Navigate to **Profile** → **Security**
-2. Enter current password
-3. Enter new password
-4. Confirm new password
-5. Click **Update Password**
+1. Navigate to **Profile** → **Change Password**
+2. Enter your current password
+3. Enter your new password
+4. Confirm your new password
+5. Click **Change Password**
 
-### Understanding Your Bills
+#### Viewing Admin Contact
 
-#### Electricity Charges
+1. Navigate to **Profile** → **Admin Contact**
+2. View your Admin's contact information:
+   - Organization name
+   - Email
+   - Phone number
+3. Use this information if you need support
 
-- **Day Rate**: Consumption during day hours (7:00-23:00)
-- **Night Rate**: Consumption during night hours (23:00-7:00)
-- **Fixed Fee**: Monthly meter maintenance fee
+### Frequently Asked Questions
 
-#### Water Charges
+**Q: I can't log in. What should I do?**
+A: Contact your property Admin using the contact information provided when your account was created. They can reset your password or reactivate your account if it was deactivated.
 
-- **Cold Water**: Consumption × tariff rate
-- **Hot Water**: Consumption × tariff rate
-- **Sewage**: Based on total water consumption
-- **Fixed Fee**: Monthly meter maintenance fee
+**Q: I submitted an incorrect meter reading. Can I change it?**
+A: Contact your Admin immediately. They can correct the reading before the invoice is finalized.
 
-#### Heating Charges
+**Q: When will I receive my invoice?**
+A: Invoices are typically generated monthly. Check with your Admin for the specific billing schedule.
 
-- **Heating**: Consumption × tariff rate
-- **Gyvatukas (Circulation Fee)**: 
-  - Summer (May-Sep): Based on actual consumption
-  - Winter (Oct-Apr): Based on summer average
+**Q: How do I pay my invoice?**
+A: Payment instructions are provided by your Admin. The system tracks invoice status but does not process payments directly.
+
+**Q: I'm moving to a different apartment in the same building. What happens to my account?**
+A: Your Admin will reassign your account to the new property. All your historical data will be preserved.
+
+**Q: I'm moving out. What happens to my account?**
+A: Inform your Admin. They will deactivate your account, but all historical data will be preserved for record-keeping.
 
 ### Best Practices
 
-- **Regular Readings**: Submit meter readings monthly on the same date
-- **Accurate Readings**: Double-check readings before submitting
-- **Monitor Consumption**: Review trends to identify unusual usage
-- **Timely Payments**: Pay invoices by due date to avoid late fees
-- **Keep Records**: Download and save invoice PDFs
-- **Update Contact Info**: Keep email and phone current
+1. **Regular Monitoring**: Check your dashboard regularly for new invoices
+2. **Accurate Readings**: Submit meter readings accurately and on time
+3. **Profile Updates**: Keep your contact information up to date
+4. **Invoice Review**: Review invoices promptly and contact your Admin with questions
+5. **Password Security**: Use a strong password and change it regularly
 
-### Troubleshooting
+---
 
-#### Cannot Submit Meter Reading
+## Data Isolation and Security
 
-**Possible Causes**:
-- Reading is lower than previous reading
-- Date is in the future
-- Account is deactivated
+### How Data Isolation Works
+
+The system uses a multi-level data isolation approach:
+
+1. **Tenant ID Scope**: Each Admin has a unique `tenant_id`. All their data (buildings, properties, meters, readings, invoices) is tagged with this `tenant_id`.
+
+2. **Property ID Scope**: Each Tenant is assigned to a specific property. They can only access data for that property.
+
+3. **Automatic Filtering**: The system automatically filters all queries based on the authenticated user's role and scope.
+
+### Security Features
+
+- **Role-Based Access Control**: Each role has specific permissions
+- **Data Isolation**: Admins cannot see other Admins' data
+- **Audit Logging**: All account management actions are logged
+- **Session Management**: Sessions are regenerated on login for security
+- **Password Security**: Passwords are hashed using bcrypt
+- **CSRF Protection**: All forms are protected against CSRF attacks
+
+### Privacy
+
+- **Tenant Privacy**: Tenants can only see their own property data
+- **Admin Privacy**: Admins cannot see other Admins' data
+- **Superadmin Access**: Superadmin can access all data for system management
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+#### "Subscription Expired" Message
+
+**Problem**: You see a message that your subscription has expired.
 
 **Solution**:
-- Verify you're reading the meter correctly
-- Check the date
-- Contact your property manager if account issues
+- You have 7 days of read-only access (grace period)
+- Contact the Superadmin to renew your subscription
+- Or navigate to **Profile** → **Subscription** → **Renew**
 
-#### Cannot Login
+#### "Subscription Limit Reached" Error
 
-**Possible Causes**:
-- Incorrect password
-- Account deactivated
-- Email typo
+**Problem**: You cannot create a new property or tenant.
 
 **Solution**:
-- Try password reset
-- Contact your property manager
+- Check your subscription limits in **Profile** → **Subscription**
+- Upgrade your subscription plan
+- Or contact the Superadmin for assistance
 
-#### Don't See My Property
+#### Cannot See Expected Data
 
-**Cause**: Property not assigned or account issue
+**Problem**: You cannot see properties, tenants, or invoices you expect to see.
 
-**Solution**: Contact your property manager immediately
+**Solution**:
+- **Admin**: Verify the data has your `tenant_id` (check with Superadmin)
+- **Tenant**: Verify you're assigned to the correct property (check with Admin)
+- Clear your browser cache and log in again
 
-#### Invoice Seems Incorrect
+#### Account Deactivated
 
-**Steps**:
-1. Review the invoice details carefully
-2. Check meter readings used for calculation
-3. Verify consumption matches your submitted readings
-4. Contact your property manager with specific questions
+**Problem**: You cannot log in and see "Account deactivated" message.
+
+**Solution**:
+- **Admin**: Contact the Superadmin to reactivate your account
+- **Tenant**: Contact your Admin to reactivate your account
 
 ### Getting Help
 
-If you need assistance:
-
-1. **Property Manager Contact**: Available in your profile
-2. **Email**: Contact your property manager via email
-3. **Phone**: Call your property manager during business hours
-
-Your property manager can help with:
-- Account issues
-- Billing questions
-- Meter reading problems
-- Property information updates
+- **Tenants**: Contact your property Admin using the contact information in your profile
+- **Admins**: Contact the Superadmin or system administrator
+- **Superadmin**: Refer to system documentation or contact technical support
 
 ---
 
-## Common Questions
+## Appendix
 
-### For All Users
+### Subscription Plan Comparison
 
-**Q: How do I reset my password?**
-A: Click "Forgot Password" on the login page and follow the email instructions.
+| Feature | Basic | Professional | Enterprise |
+|---------|-------|--------------|------------|
+| Max Properties | 10 | 50 | Unlimited |
+| Max Tenants | 50 | 200 | Unlimited |
+| Billing Features | ✓ | ✓ | ✓ |
+| Meter Management | ✓ | ✓ | ✓ |
+| Invoice Generation | ✓ | ✓ | ✓ |
+| Advanced Reporting | ✗ | ✓ | ✓ |
+| Bulk Operations | ✗ | ✓ | ✓ |
+| Custom Features | ✗ | ✗ | ✓ |
+| Priority Support | ✗ | ✗ | ✓ |
 
-**Q: Can I access the system from mobile devices?**
-A: Yes, the system is mobile-responsive and works on smartphones and tablets.
+### User Role Permissions Matrix
 
-**Q: How is my data protected?**
-A: The system uses multi-tenancy with strict data isolation. You can only access data within your scope.
+| Permission | Superadmin | Admin | Tenant |
+|------------|-----------|-------|--------|
+| View all organizations | ✓ | ✗ | ✗ |
+| Manage subscriptions | ✓ | View own | ✗ |
+| Create Admin accounts | ✓ | ✗ | ✗ |
+| Create buildings | ✗ | ✓ | ✗ |
+| Create properties | ✗ | ✓ | ✗ |
+| Create tenant accounts | ✗ | ✓ | ✗ |
+| Assign tenants | ✗ | ✓ | ✗ |
+| Create meters | ✗ | ✓ | ✗ |
+| Submit meter readings | ✗ | ✓ | ✓* |
+| Generate invoices | ✗ | ✓ | ✗ |
+| View own property | ✗ | ✓ | ✓ |
+| View own invoices | ✗ | ✓ | ✓ |
+| Update own profile | ✓ | ✓ | ✓ |
 
-### For Admins
+*If enabled by Admin
 
-**Q: What happens when my subscription expires?**
-A: You'll have read-only access. You can view data but cannot create or modify anything. Contact the Superadmin to renew.
+### Glossary
 
-**Q: Can I transfer a tenant between my properties?**
-A: Yes, use the "Reassign" feature. All historical data is preserved.
-
-**Q: How do I upgrade my subscription plan?**
-A: Contact the Superadmin to discuss plan upgrades.
-
-### For Tenants
-
-**Q: Why can't I see other apartments in my building?**
-A: For privacy, you can only see your own property's data.
-
-**Q: How often should I submit meter readings?**
-A: Monthly, ideally on the same date each month for consistency.
-
-**Q: Can I edit a submitted meter reading?**
-A: No, only your property manager can correct readings. Contact them if you made an error.
+- **Tenant ID**: Unique identifier for data isolation between Admins
+- **Property ID**: Unique identifier for a specific apartment or unit
+- **Subscription**: Paid service plan with limits on properties and tenants
+- **Grace Period**: Period after subscription expiry with read-only access
+- **Data Isolation**: Enforcement of access boundaries between users
+- **Audit Log**: Record of all account management actions
+- **Meter Reading**: Recorded value from a utility meter
+- **Invoice**: Bill for utility consumption during a billing period
+- **Tariff**: Pricing structure for utility consumption
 
 ---
 
-## Support
+## Additional Resources
 
-For technical issues or questions not covered in this guide, contact your system administrator or property manager.
+- [README.md](../../README.md) - Project overview and quick start
+- [SETUP.md](SETUP.md) - Installation and configuration guide
+- [TESTING_GUIDE.md](TESTING_GUIDE.md) - Testing approach and conventions
+- [Project Overview](../overview/readme.md) - Detailed feature documentation
+- [Laravel Documentation](https://laravel.com/docs) - Framework documentation
+- [Filament Documentation](https://filamentphp.com/docs) - Admin panel documentation

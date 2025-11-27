@@ -8,6 +8,47 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Subscription Model - Subscription-Based Access Control
+ * 
+ * Manages subscription plans for Admin users with configurable limits on properties and tenants.
+ * 
+ * **Subscription Plans**:
+ * - Basic: 10 properties, 50 tenants - Core billing features
+ * - Professional: 50 properties, 200 tenants - Advanced reporting, bulk operations
+ * - Enterprise: Unlimited properties/tenants - Custom features, priority support
+ * 
+ * **Subscription Features**:
+ * - Grace Period: 7 days after expiry with read-only access (configurable)
+ * - Expiry Warning: 14 days before expiry shows renewal reminders (configurable)
+ * - Read-Only Mode: Expired subscriptions allow viewing but not editing
+ * - Automatic Limits: System enforces property and tenant limits based on plan
+ * - Renewal: Admins can renew subscriptions through their profile
+ * 
+ * **Subscription Status**:
+ * - Active: Full access to all features within plan limits
+ * - Expired: Read-only access, cannot create new resources
+ * - Suspended: Temporary suspension by Superadmin
+ * - Cancelled: Subscription terminated, account deactivated
+ * 
+ * @property int $id
+ * @property int $user_id Admin user who owns this subscription
+ * @property string $plan_type Subscription plan (basic, professional, enterprise)
+ * @property string $status Subscription status (active, expired, suspended, cancelled)
+ * @property \Illuminate\Support\Carbon $starts_at Subscription start date
+ * @property \Illuminate\Support\Carbon $expires_at Subscription expiry date
+ * @property int $max_properties Maximum properties allowed for this plan
+ * @property int $max_tenants Maximum tenants allowed for this plan
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * 
+ * @property-read User $user Admin user who owns this subscription
+ * 
+ * @see \App\Enums\SubscriptionStatus
+ * @see \App\Enums\SubscriptionPlanType
+ * @see \App\Services\SubscriptionService
+ * @see \App\Models\User
+ */
 class Subscription extends Model
 {
     use HasFactory;
@@ -143,5 +184,29 @@ class Subscription extends Model
         $this->update([
             'status' => SubscriptionStatus::ACTIVE->value,
         ]);
+    }
+
+    /**
+     * Boot the model and register event listeners.
+     * 
+     * Invalidates subscription cache when subscription is updated.
+     */
+    protected static function booted(): void
+    {
+        static::saved(function (Subscription $subscription) {
+            // Invalidate cache when subscription is updated
+            if ($subscription->user) {
+                app(\App\Services\SubscriptionChecker::class)
+                    ->invalidateCache($subscription->user);
+            }
+        });
+
+        static::deleted(function (Subscription $subscription) {
+            // Invalidate cache when subscription is deleted
+            if ($subscription->user) {
+                app(\App\Services\SubscriptionChecker::class)
+                    ->invalidateCache($subscription->user);
+            }
+        });
     }
 }

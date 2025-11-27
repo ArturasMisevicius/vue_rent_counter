@@ -3,6 +3,17 @@
 declare(strict_types=1);
 
 return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Meters Language Lines
+    |--------------------------------------------------------------------------
+    |
+    | The following language lines are used in the Meters Resource
+    | and related components. All user-facing strings should be localized.
+    |
+    */
+
     'labels' => [
         'meter' => 'Meter',
         'meters' => 'Meters',
@@ -10,107 +21,87 @@ return [
         'type' => 'Meter Type',
         'serial_number' => 'Serial Number',
         'installation_date' => 'Installation Date',
-        'last_reading' => 'Last Reading',
-        'status' => 'Status',
         'supports_zones' => 'Supports Zones',
-        'supports_time_of_use' => 'Supports Time-of-Use Zones',
-        'zones' => 'Zones',
-        'created_at' => 'Created At',
-        'initial_reading' => 'Initial Reading',
-        'installed' => 'Installed',
-        'readings' => 'Readings',
+        'readings_count' => 'Readings',
+        'readings' => 'Meter Readings',
+        'created' => 'Created At',
+        'updated' => 'Updated At',
+        'never_updated' => 'Never updated',
     ],
 
-    'headings' => [
-        'show' => 'Meter :serial',
-        'show_description' => 'Meter details and reading history',
-        'information' => 'Meter Information',
-    ],
-
-    'actions' => [
-        'add' => 'Add Meter',
-        'view' => 'View',
-        'edit' => 'Edit',
-        'edit_meter' => 'Edit Meter',
-        'delete' => 'Delete',
-    ],
-
-    'confirmations' => [
-        'delete' => 'Are you sure you want to delete this meter?',
-    ],
-
-    'manager' => [
-        'index' => [
-            'title' => 'Meters',
-            'description' => 'Utility meters across all properties',
-            'caption' => 'Meters list',
-            'headers' => [
-                'serial_number' => 'Serial Number',
-                'type' => 'Type',
-                'property' => 'Property',
-                'installation_date' => 'Installation Date',
-                'latest_reading' => 'Latest Reading',
-                'zones' => 'Zones',
-                'actions' => 'Actions',
-            ],
-            'zones' => [
-                'yes' => 'Yes',
-                'no' => 'No',
-            ],
-            'empty' => [
-                'text' => 'No meters found.',
-                'cta' => 'Create one now',
-            ],
-        ],
+    'placeholders' => [
+        'serial_number' => 'Enter meter serial number',
     ],
 
     'helper_text' => [
-        'supports_time_of_use' => 'Enable for electricity meters with day/night rate capability',
+        'property' => 'Select the property where this meter is installed',
+        'type' => 'Select the type of utility this meter measures',
+        'serial_number' => 'Unique identifier for this meter (must be unique)',
+        'installation_date' => 'Date when the meter was installed (cannot be in the future)',
+        'supports_zones' => 'Enable if this meter supports time-of-use zones (day/night rates)',
+    ],
+
+    'sections' => [
+        'meter_details' => 'Meter Details',
+        'meter_details_description' => 'Basic information about the meter',
+        'metadata' => 'Metadata',
+    ],
+
+    'tooltips' => [
+        'property_address' => 'Installed at: :address',
+        'copy_serial' => 'Click to copy serial number',
+        'supports_zones_yes' => 'This meter supports time-of-use zones',
+        'supports_zones_no' => 'This meter does not support time-of-use zones',
+        'readings_count' => 'Number of recorded readings',
     ],
 
     'filters' => [
+        'type' => 'Meter Type',
+        'property' => 'Property',
         'supports_zones' => 'Supports Zones',
-        'all_meters' => 'All meters',
-        'with_zones' => 'With zones',
-        'without_zones' => 'Without zones',
+        'no_readings' => 'No Readings',
     ],
 
-    'relation' => [
-        'meter_type' => 'Meter Type',
-        'serial_number' => 'Serial Number',
-        'installation_date' => 'Installation Date',
-        'initial_reading' => 'Initial Reading',
-        'readings' => 'Readings',
-        'installed' => 'Installed',
-        'type' => 'Type',
-        'empty_heading' => 'No meters installed',
-        'empty_description' => 'Add meters to track utility consumption for this property.',
-        'add_first' => 'Add First Meter',
+    'actions' => [
+        'create' => 'Create Meter',
+        'delete' => 'Delete',
     ],
 
-    'units' => [
-        'kwh' => 'kWh',
+    'notifications' => [
+        'created' => 'Meter created successfully.',
+        'updated' => 'Meter updated successfully.',
+        'deleted' => 'Meter deleted successfully.',
+    ],
+
+    'modals' => [
+        'delete_heading' => 'Delete Meter',
+        'delete_description' => 'Are you sure you want to delete this meter? This action cannot be undone.',
+        'delete_confirm' => 'Yes, Delete',
+    ],
+
+    'empty_state' => [
+        'heading' => 'No Meters',
+        'description' => 'Get started by creating your first meter.',
     ],
 
     'validation' => [
         'tenant_id' => [
             'required' => 'Tenant is required.',
-            'integer' => 'Tenant identifier must be numeric.',
+            'integer' => 'Tenant identifier must be a valid number.',
         ],
-        'property_id' => [
-            'required' => 'The property is required.',
-            'exists' => 'The selected property does not exist.',
+        'serial_number' => [
+            'required' => 'The serial number is required.',
+            'unique' => 'This serial number is already in use.',
+            'string' => 'The serial number must be text.',
+            'max' => 'The serial number may not be greater than 255 characters.',
         ],
         'type' => [
             'required' => 'The meter type is required.',
-            'enum' => 'The meter type must be a valid type.',
-            'enum_detail' => 'The meter type must be one of electricity, cold water, hot water, or heating.',
+            'enum_detail' => 'The meter type must be one of: electricity, water_cold, water_hot, or heating.',
         ],
-        'serial_number' => [
-            'required' => 'The meter serial number is required.',
-            'string' => 'The meter serial number must be text.',
-            'unique' => 'This serial number is already registered.',
-            'max' => 'The serial number may not exceed 255 characters.',
+        'property_id' => [
+            'required' => 'A property selection is required.',
+            'exists' => 'The selected property does not exist.',
         ],
         'installation_date' => [
             'required' => 'The installation date is required.',
@@ -118,11 +109,8 @@ return [
             'before_or_equal' => 'The installation date cannot be in the future.',
         ],
         'supports_zones' => [
-            'boolean' => 'Supports zones must be true or false.',
+            'boolean' => 'The supports zones field must be true or false.',
         ],
     ],
 
-    'errors' => [
-        'has_readings' => 'Cannot delete meter with associated readings.',
-    ],
 ];

@@ -39,6 +39,13 @@ class Tariff extends Model
     }
 
     /**
+     * Append computed attributes for performance optimization.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = ['is_currently_active'];
+
+    /**
      * Get the provider this tariff belongs to.
      */
     public function provider(): BelongsTo
@@ -53,6 +60,17 @@ class Tariff extends Model
     {
         return $this->active_from <= $date
             && (is_null($this->active_until) || $this->active_until >= $date);
+    }
+
+    /**
+     * Get the is_currently_active attribute.
+     * Computed once per model instance for performance.
+     *
+     * @return bool
+     */
+    public function getIsCurrentlyActiveAttribute(): bool
+    {
+        return $this->isActiveOn(now());
     }
 
     /**

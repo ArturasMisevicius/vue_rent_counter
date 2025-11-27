@@ -105,5 +105,69 @@
         </dl>
     </x-tenant.section-card>
     @endif
+
+    <x-tenant.section-card :title="__('tenant.profile.update_profile')" :description="__('tenant.profile.update_description')">
+        <form method="POST" action="{{ route('tenant.profile.update') }}">
+            @csrf
+            @method('PUT')
+            
+            <x-tenant.stack gap="4">
+                <div>
+                    <label for="name" class="block text-sm font-semibold text-slate-800">{{ __('tenant.profile.labels.name') }}</label>
+                    <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required
+                           class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('name') border-rose-500 @enderror">
+                    @error('name')
+                        <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-semibold text-slate-800">{{ __('tenant.profile.labels.email') }}</label>
+                    <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required
+                           class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('email') border-rose-500 @enderror">
+                    @error('email')
+                        <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="border-t border-slate-200 pt-4">
+                    <h4 class="text-sm font-semibold text-slate-900 mb-3">{{ __('tenant.profile.change_password') }}</h4>
+                    <p class="text-sm text-slate-600 mb-4">{{ __('tenant.profile.password_note') }}</p>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="current_password" class="block text-sm font-semibold text-slate-800">{{ __('tenant.profile.labels.current_password') }}</label>
+                            <input type="password" name="current_password" id="current_password" autocomplete="current-password"
+                                   class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('current_password') border-rose-500 @enderror">
+                            @error('current_password')
+                                <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="password" class="block text-sm font-semibold text-slate-800">{{ __('tenant.profile.labels.new_password') }}</label>
+                            <input type="password" name="password" id="password" autocomplete="new-password"
+                                   class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('password') border-rose-500 @enderror">
+                            @error('password')
+                                <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="password_confirmation" class="block text-sm font-semibold text-slate-800">{{ __('tenant.profile.labels.confirm_password') }}</label>
+                            <input type="password" name="password_confirmation" id="password_confirmation" autocomplete="new-password"
+                                   class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        {{ __('tenant.profile.save_changes') }}
+                    </button>
+                </div>
+            </x-tenant.stack>
+        </form>
+    </x-tenant.section-card>
 </x-tenant.page>
 @endsection

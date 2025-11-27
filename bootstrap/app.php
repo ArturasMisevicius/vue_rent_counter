@@ -44,6 +44,18 @@ return Application::configure(basePath: dirname(__DIR__))
         
         // Rate limiting for API routes (60 requests per minute)
         $middleware->throttleApi('60,1');
+        
+        // Rate limiting for admin routes (120 requests per minute per user)
+        // Prevents brute force attacks and DoS attempts
+        \Illuminate\Support\Facades\RateLimiter::for('admin', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(120)
+                ->by($request->user()?->id ?: $request->ip())
+                ->response(function () {
+                    return response()->json([
+                        'message' => 'Too many requests. Please try again later.'
+                    ], 429);
+                });
+        });
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Handle authorization exceptions with user-friendly messages (Requirement 9.4)

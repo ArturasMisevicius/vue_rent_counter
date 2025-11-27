@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
-use UnitEnum;
 use App\Enums\MeterType;
+use App\Enums\UserRole;
 use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\MeterResource\Pages;
+use App\Filament\Resources\MeterResource\RelationManagers;
 use App\Models\Meter;
+use App\Models\User;
 use BackedEnum;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
+use UnitEnum;
 use Filament\Forms;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
@@ -19,26 +20,46 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * Filament resource for managing meters.
+ *
+ * Provides CRUD operations for meters with:
+ * - Tenant-scoped data access
+ * - Role-based navigation visibility
+ * - Localized validation messages
+ * - Integration with StoreMeterRequest and UpdateMeterRequest validation
+ *
+ * @see \App\Models\Meter
+ * @see \App\Policies\MeterPolicy
+ * @see \App\Http\Requests\StoreMeterRequest
+ * @see \App\Http\Requests\UpdateMeterRequest
+ */
 class MeterResource extends Resource
 {
     use HasTranslatedValidation;
 
     protected static ?string $model = Meter::class;
 
+    /**
+     * Translation prefix for validation messages.
+     *
+     * Used by HasTranslatedValidation trait to load messages from
+     * lang/{locale}/meters.php under the 'validation' key.
+     */
     protected static string $translationPrefix = 'meters.validation';
 
     protected static ?string $navigationLabel = null;
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 4;
 
     public static function getNavigationIcon(): string|BackedEnum|null
     {
-        return 'heroicon-o-cpu-chip';
+        return 'heroicon-o-bolt';
     }
 
     public static function getNavigationLabel(): string
     {
-        return __('app.nav.meters');
+        return __('meters.labels.meters');
     }
 
     public static function getNavigationGroup(): string|UnitEnum|null
@@ -46,94 +67,119 @@ class MeterResource extends Resource
         return __('app.nav_groups.operations');
     }
 
-    // Integrate MeterPolicy for authorization (Requirement 9.5)
-    public static function canViewAny(): bool
-    {
-        return auth()->check() && auth()->user()->can('viewAny', Meter::class);
-    }
+    protected static ?string $recordTitleAttribute = 'serial_number';
 
-    public static function canCreate(): bool
-    {
-        return auth()->check() && auth()->user()->can('create', Meter::class);
-    }
-
-    public static function canEdit($record): bool
-    {
-        return auth()->check() && auth()->user()->can('update', $record);
-    }
-
-    public static function canDelete($record): bool
-    {
-        return auth()->check() && auth()->user()->can('delete', $record);
-    }
-
-    // Visible to all authenticated users (Requirements 9.1, 9.2, 9.3)
-    // Tenants can view meters for their properties
+    /**
+     * Hide from tenant users.
+     * Policies handle granular authorization.
+     */
     public static function shouldRegisterNavigation(): bool
     {
-        return auth()->check();
+        $user = auth()->user();
+
+        return $user instanceof User && $user->role !== UserRole::TENANT;
+    }
+
+    /**
+     * Get the displayable label for the resource.
+     */
+    public static function getLabel(): string
+    {
+        return __('meters.labels.meter');
+    }
+
+    /**
+     * Get the displayable plural label for the resource.
+     */
+    public static function getPluralLabel(): string
+    {
+        return __('meters.labels.meters');
     }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->schema([
-                Forms\Components\Select::make('property_id')
-                    ->label(__('meters.labels.property'))
-                    ->relationship('property', 'address', function (Builder $query) {
-                        // Filter properties by authenticated user's tenant_id (Requirement 9.1, 12.4)
-                        $user = auth()->user();
-                        if ($user && $user->tenant_id) {
-                            $query->where('tenant_id', $user->tenant_id);
+                Forms\Components\Section::make(__('meters.sections.meter_details'))
+                    ->description(__('meters.sections.meter_details_description'))
+                    ->schema([
+                        Forms\Components\Select::make('property_id')
+                            ->label(__('meters.labels.property'))
+                            ->relationship(
+                                name: 'property',
+                                titleAttribute: 'address',
+                                modifyQueryUsing: fn (Builder $query) => self::scopeToUserTenant($query)
+                            )
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->helperText(__('meters.helper_text.property'))
+                            ->validationMessages(self::getValidationMessages('property_id')),
 
-                            // For tenant users, filter by property_id as well
-                            if ($user->role === \App\Enums\UserRole::TENANT && $user->property_id) {
-                                $query->where('id', $user->property_id);
-                            }
-                        }
-                    })
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->validationMessages(self::getValidationMessages('property_id')),
+                        Forms\Components\Select::make('type')
+                            ->label(__('meters.labels.type'))
+                            ->options(MeterType::class)
+                            ->required()
+                            ->native(false)
+                            ->helperText(__('meters.helper_text.type'))
+                            ->validationMessages(self::getValidationMessages('type')),
 
-                Forms\Components\Select::make('type')
-                    ->label(__('meters.labels.type'))
-                    ->options(MeterType::labels())
-                    ->required()
-                    ->native(false)
-                    ->validationMessages(self::getValidationMessages('type')),
+                        Forms\Components\TextInput::make('serial_number')
+                            ->label(__('meters.labels.serial_number'))
+                            ->placeholder(__('meters.placeholders.serial_number'))
+                            ->helperText(__('meters.helper_text.serial_number'))
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true)
+                            ->validationMessages(self::getValidationMessages('serial_number')),
 
-                Forms\Components\TextInput::make('serial_number')
-                    ->label(__('meters.labels.serial_number'))
-                    ->required()
-                    ->maxLength(255)
-                    ->unique(ignoreRecord: true)
-                    ->validationMessages(self::getValidationMessages('serial_number')),
+                        Forms\Components\DatePicker::make('installation_date')
+                            ->label(__('meters.labels.installation_date'))
+                            ->helperText(__('meters.helper_text.installation_date'))
+                            ->required()
+                            ->maxDate(now())
+                            ->native(false)
+                            ->displayFormat('Y-m-d')
+                            ->validationMessages(self::getValidationMessages('installation_date')),
 
-                Forms\Components\DatePicker::make('installation_date')
-                    ->label(__('meters.labels.installation_date'))
-                    ->required()
-                    ->maxDate(now())
-                    ->native(false)
-                    ->validationMessages(self::getValidationMessages('installation_date')),
-
-                Forms\Components\Toggle::make('supports_zones')
-                    ->label(__('meters.labels.supports_time_of_use'))
-                    ->helperText(__('meters.helper_text.supports_time_of_use'))
-                    ->default(false),
+                        Forms\Components\Toggle::make('supports_zones')
+                            ->label(__('meters.labels.supports_zones'))
+                            ->helperText(__('meters.helper_text.supports_zones'))
+                            ->default(false)
+                            ->inline(false)
+                            ->validationMessages(self::getValidationMessages('supports_zones')),
+                    ])
+                    ->columns(2),
             ]);
+    }
+
+    /**
+     * Scope query to authenticated user's tenant.
+     */
+    protected static function scopeToUserTenant(Builder $query): Builder
+    {
+        $user = auth()->user();
+
+        if ($user instanceof User && $user->tenant_id) {
+            $table = $query->getModel()->getTable();
+            $query->where("{$table}.tenant_id", $user->tenant_id);
+        }
+
+        return $query;
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->searchable()
             ->columns([
                 Tables\Columns\TextColumn::make('property.address')
                     ->label(__('meters.labels.property'))
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->weight('medium')
+                    ->tooltip(fn ($record): string => __('meters.tooltips.property_address', [
+                        'address' => $record->property->address,
+                    ])),
 
                 Tables\Columns\TextColumn::make('type')
                     ->label(__('meters.labels.type'))
@@ -150,54 +196,120 @@ class MeterResource extends Resource
                 Tables\Columns\TextColumn::make('serial_number')
                     ->label(__('meters.labels.serial_number'))
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->copyable()
+                    ->copyMessage(__('meters.tooltips.copy_serial'))
+                    ->weight('medium'),
 
                 Tables\Columns\TextColumn::make('installation_date')
                     ->label(__('meters.labels.installation_date'))
                     ->date()
-                    ->sortable(),
-
-                Tables\Columns\IconColumn::make('supports_zones')
-                    ->label(__('meters.labels.zones'))
-                    ->boolean()
                     ->sortable()
                     ->toggleable(),
 
+                Tables\Columns\IconColumn::make('supports_zones')
+                    ->label(__('meters.labels.supports_zones'))
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('gray')
+                    ->tooltip(fn ($record): string => $record->supports_zones
+                        ? __('meters.tooltips.supports_zones_yes')
+                        : __('meters.tooltips.supports_zones_no')
+                    )
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('readings_count')
+                    ->label(__('meters.labels.readings_count'))
+                    ->counts('readings')
+                    ->badge()
+                    ->color('gray')
+                    ->tooltip(__('meters.tooltips.readings_count'))
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label(__('meters.labels.created_at'))
+                    ->label(__('meters.labels.created'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
-                    ->label(__('meters.labels.type'))
+                    ->label(__('meters.filters.type'))
                     ->options(MeterType::labels())
                     ->native(false),
 
-                Tables\Filters\TernaryFilter::make('supports_zones')
-                    ->label(__('meters.filters.supports_zones'))
-                    ->placeholder(__('meters.filters.all_meters'))
-                    ->trueLabel(__('meters.filters.with_zones'))
-                    ->falseLabel(__('meters.filters.without_zones'))
+                Tables\Filters\SelectFilter::make('property_id')
+                    ->label(__('meters.filters.property'))
+                    ->relationship('property', 'address')
+                    ->searchable()
+                    ->preload()
                     ->native(false),
+
+                Tables\Filters\Filter::make('supports_zones')
+                    ->label(__('meters.filters.supports_zones'))
+                    ->query(fn (Builder $query): Builder => $query->where('supports_zones', true))
+                    ->toggle(),
+
+                Tables\Filters\Filter::make('no_readings')
+                    ->label(__('meters.filters.no_readings'))
+                    ->query(fn (Builder $query): Builder => $query->doesntHave('readings'))
+                    ->toggle(),
             ])
             ->recordActions([
                 // Table row actions removed - use page header actions instead
             ])
             ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                // Bulk actions removed for Filament v4 compatibility
             ])
-            ->defaultSort('property.address', 'asc');
+            ->emptyStateHeading(__('meters.empty_state.heading'))
+            ->emptyStateDescription(__('meters.empty_state.description'))
+            ->emptyStateActions([
+                // Empty state actions removed - use page header actions instead
+            ])
+            ->defaultSort('serial_number', 'asc')
+            ->persistSortInSession()
+            ->persistSearchInSession()
+            ->persistFiltersInSession();
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\ReadingsRelationManager::class,
         ];
+    }
+
+    /**
+     * Get the navigation badge for the resource.
+     */
+    public static function getNavigationBadge(): ?string
+    {
+        $user = auth()->user();
+
+        if (! $user instanceof User) {
+            return null;
+        }
+
+        $query = static::getModel()::query();
+
+        // Apply tenant scope for non-superadmin users
+        if ($user->role !== UserRole::SUPERADMIN && $user->tenant_id) {
+            $query->where('tenant_id', $user->tenant_id);
+        }
+
+        $count = $query->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    /**
+     * Get the navigation badge color for the resource.
+     */
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'primary';
     }
 
     public static function getPages(): array
@@ -205,6 +317,7 @@ class MeterResource extends Resource
         return [
             'index' => Pages\ListMeters::route('/'),
             'create' => Pages\CreateMeter::route('/create'),
+            'view' => Pages\ViewMeter::route('/{record}'),
             'edit' => Pages\EditMeter::route('/{record}/edit'),
         ];
     }

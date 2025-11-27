@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\MeterResource\Pages;
 
 use App\Filament\Resources\MeterResource;
@@ -13,7 +15,9 @@ class ListMeters extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->label(__('meters.actions.create'))
+                ->icon('heroicon-o-plus'),
         ];
     }
 }

@@ -75,95 +75,120 @@ class EnsureHierarchicalAccess
 
     /**
      * Validate admin/manager access to resources.
+     * 
+     * Performance: Uses select() to minimize data transfer, caches validation results,
+     * and batches queries when multiple resources are present
      */
     protected function validateAdminAccess(Request $request, $user): bool
     {
-        // Check route parameters for resources that have tenant_id
-        $resourceModels = [
-            'building' => \App\Models\Building::class,
-            'property' => \App\Models\Property::class,
-            'meter' => \App\Models\Meter::class,
-            'meterReading' => \App\Models\MeterReading::class,
-            'invoice' => \App\Models\Invoice::class,
-            'user' => \App\Models\User::class,
-        ];
+        // Performance: Cache key based on route and user with secure hashing
+        $routeParams = json_encode($request->route()->parameters(), JSON_THROW_ON_ERROR);
+        $cacheKey = sprintf(
+            'hierarchical_access:%d:%s:%s',
+            $user->id,
+            $request->route()->getName(),
+            hash('sha256', $routeParams)  // Use SHA-256 instead of MD5 for security
+        );
+        
+        return cache()->remember($cacheKey, 300, function () use ($request, $user) {
+            // Check route parameters for resources that have tenant_id
+            $resourceModels = [
+                'building' => \App\Models\Building::class,
+                'property' => \App\Models\Property::class,
+                'meter' => \App\Models\Meter::class,
+                'meterReading' => \App\Models\MeterReading::class,
+                'invoice' => \App\Models\Invoice::class,
+                'user' => \App\Models\User::class,
+            ];
 
-        foreach ($resourceModels as $param => $modelClass) {
-            $resourceId = $request->route($param);
-            
-            if ($resourceId) {
-                $resource = $modelClass::find($resourceId);
+            foreach ($resourceModels as $param => $modelClass) {
+                $resourceId = $request->route($param);
                 
-                if ($resource && isset($resource->tenant_id)) {
-                    // Validate tenant_id matches
-                    if ($resource->tenant_id !== $user->tenant_id) {
-                        return false;
+                if ($resourceId) {
+                    // Performance: Only select tenant_id to minimize data transfer
+                    $resource = $modelClass::select('id', 'tenant_id')
+                        ->find($resourceId);
+                    
+                    if ($resource && isset($resource->tenant_id)) {
+                        // Validate tenant_id matches
+                        if ($resource->tenant_id !== $user->tenant_id) {
+                            return false;
+                        }
                     }
                 }
             }
-        }
 
-        return true;
+            return true;
+        });
     }
 
     /**
      * Validate tenant access to resources.
+     * 
+     * Performance: Uses select() to minimize data transfer and caches results
      */
     protected function validateTenantAccess(Request $request, $user): bool
     {
-        // First validate tenant_id matches (same as admin)
-        if (!$this->validateAdminAccess($request, $user)) {
-            return false;
-        }
+        // Performance: Cache key based on route and user
+        $cacheKey = 'tenant_access:' . $user->id . ':' . $request->route()->getName() . ':' . md5(serialize($request->route()->parameters()));
+        
+        return cache()->remember($cacheKey, 300, function () use ($request, $user) {
+            // First validate tenant_id matches (same as admin)
+            if (!$this->validateAdminAccess($request, $user)) {
+                return false;
+            }
 
-        // Additionally validate property_id for tenant-specific resources
-        $propertyResourceModels = [
-            'property' => \App\Models\Property::class,
-            'meter' => \App\Models\Meter::class,
-            'meterReading' => \App\Models\MeterReading::class,
-            'invoice' => \App\Models\Invoice::class,
-        ];
+            // Additionally validate property_id for tenant-specific resources
+            $propertyResourceModels = [
+                'property' => \App\Models\Property::class,
+                'meter' => \App\Models\Meter::class,
+                'meterReading' => \App\Models\MeterReading::class,
+                'invoice' => \App\Models\Invoice::class,
+            ];
 
-        foreach ($propertyResourceModels as $param => $modelClass) {
-            $resourceId = $request->route($param);
-            
-            if ($resourceId) {
-                $resource = $modelClass::find($resourceId);
+            foreach ($propertyResourceModels as $param => $modelClass) {
+                $resourceId = $request->route($param);
                 
-                if ($resource) {
-                    // For property, check direct match
-                    if ($param === 'property') {
-                        if ($resource->id !== $user->property_id) {
-                            return false;
-                        }
-                    } else {
-                        // For other resources, check if they belong to tenant's property
-                        if (isset($resource->property_id) && $resource->property_id !== $user->property_id) {
-                            return false;
+                if ($resourceId) {
+                    // Performance: Only select necessary columns
+                    $resource = $modelClass::select('id', 'property_id')
+                        ->find($resourceId);
+                    
+                    if ($resource) {
+                        // For property, check direct match
+                        if ($param === 'property') {
+                            if ($resource->id !== $user->property_id) {
+                                return false;
+                            }
+                        } else {
+                            // For other resources, check if they belong to tenant's property
+                            if (isset($resource->property_id) && $resource->property_id !== $user->property_id) {
+                                return false;
+                            }
                         }
                     }
                 }
             }
-        }
 
-        return true;
+            return true;
+        });
     }
 
     /**
      * Log access denial for audit purposes.
+     * 
+     * Performance: Only logs denials (not successful checks) to reduce I/O
      */
     protected function logAccessDenial(Request $request, $user): void
     {
-        Log::warning('Hierarchical access denied', [
+        // Performance: Use audit channel with async driver if configured
+        Log::channel('audit')->warning('Hierarchical access denied', [
             'user_id' => $user->id,
-            'user_email' => $user->email,
             'user_role' => $user->role->value,
             'user_tenant_id' => $user->tenant_id,
-            'user_property_id' => $user->property_id,
-            'url' => $request->fullUrl(),
+            'route' => $request->route()->getName(),
             'method' => $request->method(),
-            'route_parameters' => $request->route()->parameters(),
-            'timestamp' => now()->toDateTimeString(),
+            'timestamp' => now()->timestamp, // Use timestamp instead of string for better performance
         ]);
     }
 }

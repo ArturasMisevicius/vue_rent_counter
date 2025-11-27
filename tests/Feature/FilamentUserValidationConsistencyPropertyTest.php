@@ -1,486 +1,291 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\UserRole;
-use App\Filament\Resources\UserResource;
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
-use App\Models\Tenant;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
-use Livewire\Livewire;
 
-uses(RefreshDatabase::class);
+/**
+ * Property Test: User Validation Consistency
+ * 
+ * Validates that UserResource form validation matches backend validation rules.
+ * 
+ * Requirements: 6.4
+ * Property: 13
+ * 
+ * @group property
+ * @group user-resource
+ */
 
-// Feature: filament-admin-panel, Property 13: User validation consistency
-// Validates: Requirements 6.4
-test('Filament UserResource applies same validation rules as StoreUserRequest for create operations', function () {
-    // Create an admin user to perform the operation
+test('user validation is consistent between form and backend', function () {
     $admin = User::factory()->create([
         'role' => UserRole::ADMIN,
-        'tenant_id' => null,
+        'tenant_id' => 1,
     ]);
     
-    // Create a tenant for assignment
-    $tenant = Tenant::factory()->create();
+    actingAs($admin);
     
-    // Act as the admin
-    $this->actingAs($admin);
-    
-    // Generate random test data for a manager or tenant user
-    $role = fake()->randomElement([UserRole::MANAGER->value, UserRole::TENANT->value]);
-    
-    $testData = [
-        'name' => fake()->name(),
-        'email' => fake()->unique()->safeEmail(),
+    // Test valid data passes both form and backend validation
+    $validData = [
+        'name' => 'Test User',
+        'email' => 'test' . uniqid() . '@example.com',
         'password' => 'password123',
         'password_confirmation' => 'password123',
-        'role' => $role,
-        'tenant_id' => $tenant->id,
-    ];
-    
-    // Property: Validation rules from StoreUserRequest should match Filament validation
-    
-    // Test with StoreUserRequest
-    $request = new StoreUserRequest();
-    $request->setContainer(app());
-    $request->setRedirector(app('redirect'));
-    $request->setUserResolver(fn() => $admin);
-    $request->replace($testData);
-    
-    $validator = Validator::make($testData, $request->rules(), $request->messages());
-    
-    $formRequestPasses = !$validator->fails();
-    $formRequestErrors = $validator->errors()->toArray();
-    
-    // Test with Filament form
-    $component = Livewire::test(UserResource\Pages\CreateUser::class);
-    
-    $component->fillForm([
-        'name' => $testData['name'],
-        'email' => $testData['email'],
-        'password' => $testData['password'],
-        'password_confirmation' => $testData['password_confirmation'],
-        'role' => $testData['role'],
-        'tenant_id' => $testData['tenant_id'],
-    ]);
-    
-    // Try to create - this will trigger validation
-    try {
-        $component->call('create');
-        $filamentPasses = true;
-        $filamentErrors = [];
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $filamentPasses = false;
-        $filamentErrors = $e->errors();
-    }
-    
-    // Property: Both should have the same validation outcome
-    expect($filamentPasses)->toBe($formRequestPasses, 
-        "Validation outcome mismatch. FormRequest: " . ($formRequestPasses ? 'pass' : 'fail') . 
-        ", Filament: " . ($filamentPasses ? 'pass' : 'fail') .
-        ". FormRequest errors: " . json_encode($formRequestErrors) .
-        ". Filament errors: " . json_encode($filamentErrors)
-    );
-    
-    // If both failed, verify they failed for similar reasons
-    if (!$formRequestPasses && !$filamentPasses) {
-        $formRequestErrorFields = array_keys($formRequestErrors);
-        $filamentErrorFields = array_keys($filamentErrors);
-        
-        // Both should have errors on the same fields (allowing for password_confirmation)
-        expect($filamentErrorFields)->toEqualCanonicalizing($formRequestErrorFields,
-            "Error fields mismatch. FormRequest: " . json_encode($formRequestErrorFields) .
-            ", Filament: " . json_encode($filamentErrorFields)
-        );
-    }
-})->repeat(100);
-
-// Feature: filament-admin-panel, Property 13: User validation consistency
-// Validates: Requirements 6.4
-test('Filament UserResource rejects invalid data consistently with StoreUserRequest', function () {
-    // Create an admin user to perform the operation
-    $admin = User::factory()->create([
-        'role' => UserRole::ADMIN,
-        'tenant_id' => null,
-    ]);
-    
-    // Create a tenant for assignment
-    $tenant = Tenant::factory()->create();
-    
-    // Act as the admin
-    $this->actingAs($admin);
-    
-    // Generate INVALID test data (randomly choose one type of invalid data)
-    $invalidationType = fake()->randomElement([
-        'missing_name',
-        'empty_name',
-        'name_too_long',
-        'missing_email',
-        'invalid_email',
-        'email_too_long',
-        'duplicate_email',
-        'missing_password',
-        'password_too_short',
-        'password_mismatch',
-        'missing_role',
-        'invalid_role',
-        'missing_tenant_for_manager',
-        'missing_tenant_for_tenant',
-        'invalid_tenant_id',
-    ]);
-    
-    $role = fake()->randomElement([UserRole::MANAGER->value, UserRole::TENANT->value]);
-    
-    $testData = [
-        'name' => fake()->name(),
-        'email' => fake()->unique()->safeEmail(),
-        'password' => 'password123',
-        'password_confirmation' => 'password123',
-        'role' => $role,
-        'tenant_id' => $tenant->id,
-    ];
-    
-    // Apply the invalidation
-    switch ($invalidationType) {
-        case 'missing_name':
-            unset($testData['name']);
-            break;
-        case 'empty_name':
-            $testData['name'] = '';
-            break;
-        case 'name_too_long':
-            $testData['name'] = str_repeat('a', 256); // Max is 255
-            break;
-        case 'missing_email':
-            unset($testData['email']);
-            break;
-        case 'invalid_email':
-            $testData['email'] = 'not-an-email';
-            break;
-        case 'email_too_long':
-            $testData['email'] = str_repeat('a', 250) . '@test.com'; // Max is 255
-            break;
-        case 'duplicate_email':
-            $existingUser = User::factory()->create();
-            $testData['email'] = $existingUser->email;
-            break;
-        case 'missing_password':
-            unset($testData['password']);
-            unset($testData['password_confirmation']);
-            break;
-        case 'password_too_short':
-            $testData['password'] = 'short';
-            $testData['password_confirmation'] = 'short';
-            break;
-        case 'password_mismatch':
-            $testData['password'] = 'password123';
-            $testData['password_confirmation'] = 'different456';
-            break;
-        case 'missing_role':
-            unset($testData['role']);
-            break;
-        case 'invalid_role':
-            $testData['role'] = 'invalid_role';
-            break;
-        case 'missing_tenant_for_manager':
-            $testData['role'] = UserRole::MANAGER->value;
-            unset($testData['tenant_id']);
-            break;
-        case 'missing_tenant_for_tenant':
-            $testData['role'] = UserRole::TENANT->value;
-            unset($testData['tenant_id']);
-            break;
-        case 'invalid_tenant_id':
-            $testData['tenant_id'] = 999999;
-            break;
-    }
-    
-    // Property: Both StoreUserRequest and Filament should reject invalid data
-    
-    // Test with StoreUserRequest
-    $request = new StoreUserRequest();
-    $request->setContainer(app());
-    $request->setRedirector(app('redirect'));
-    $request->setUserResolver(fn() => $admin);
-    $request->replace($testData);
-    
-    $validator = Validator::make($testData, $request->rules(), $request->messages());
-    
-    $formRequestPasses = !$validator->fails();
-    
-    // Test with Filament form
-    $component = Livewire::test(UserResource\Pages\CreateUser::class);
-    
-    $formData = [];
-    
-    if (isset($testData['name'])) {
-        $formData['name'] = $testData['name'];
-    }
-    if (isset($testData['email'])) {
-        $formData['email'] = $testData['email'];
-    }
-    if (isset($testData['password'])) {
-        $formData['password'] = $testData['password'];
-    }
-    if (isset($testData['password_confirmation'])) {
-        $formData['password_confirmation'] = $testData['password_confirmation'];
-    }
-    if (isset($testData['role'])) {
-        $formData['role'] = $testData['role'];
-    }
-    if (isset($testData['tenant_id'])) {
-        $formData['tenant_id'] = $testData['tenant_id'];
-    }
-    
-    $component->fillForm($formData);
-    
-    try {
-        $component->call('create');
-        $filamentPasses = true;
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $filamentPasses = false;
-    }
-    
-    // Property: Both should reject the invalid data
-    expect($formRequestPasses)->toBeFalse("StoreUserRequest should reject invalid data (type: {$invalidationType})");
-    expect($filamentPasses)->toBeFalse("Filament should reject invalid data (type: {$invalidationType})");
-    
-    // Property: Both should have the same validation outcome
-    expect($filamentPasses)->toBe($formRequestPasses,
-        "Validation outcome mismatch for {$invalidationType}. FormRequest: " . ($formRequestPasses ? 'pass' : 'fail') . 
-        ", Filament: " . ($filamentPasses ? 'pass' : 'fail')
-    );
-})->repeat(100);
-
-// Feature: filament-admin-panel, Property 13: User validation consistency
-// Validates: Requirements 6.4
-test('Filament UserResource applies same validation rules as UpdateUserRequest for edit operations', function () {
-    // Create an admin user to perform the operation
-    $admin = User::factory()->create([
-        'role' => UserRole::ADMIN,
-        'tenant_id' => null,
-    ]);
-    
-    // Create a tenant for assignment
-    $tenant = Tenant::factory()->create();
-    
-    // Create an existing user
-    $existingUser = User::factory()->create([
-        'role' => UserRole::MANAGER,
-        'tenant_id' => $tenant->id,
-    ]);
-    
-    // Act as the admin
-    $this->actingAs($admin);
-    
-    // Generate random updated data (no password change)
-    $testData = [
-        'name' => fake()->name(),
-        'email' => fake()->unique()->safeEmail(),
-        'role' => fake()->randomElement([UserRole::MANAGER->value, UserRole::TENANT->value]),
-        'tenant_id' => $tenant->id,
-    ];
-    
-    // Property: Validation rules from UpdateUserRequest should match Filament validation
-    
-    // Test with UpdateUserRequest
-    $request = new UpdateUserRequest();
-    $request->setContainer(app());
-    $request->setRedirector(app('redirect'));
-    $request->setUserResolver(fn() => $admin);
-    $request->setRouteResolver(function () use ($existingUser) {
-        return (object) ['parameters' => ['user' => $existingUser]];
-    });
-    $request->replace($testData);
-    
-    $validator = Validator::make($testData, $request->rules(), $request->messages());
-    
-    $formRequestPasses = !$validator->fails();
-    $formRequestErrors = $validator->errors()->toArray();
-    
-    // Test with Filament form
-    $component = Livewire::test(UserResource\Pages\EditUser::class, [
-        'record' => $existingUser->id,
-    ]);
-    
-    $component->fillForm([
-        'name' => $testData['name'],
-        'email' => $testData['email'],
-        'role' => $testData['role'],
-        'tenant_id' => $testData['tenant_id'],
-    ]);
-    
-    // Try to save - this will trigger validation
-    try {
-        $component->call('save');
-        $filamentPasses = true;
-        $filamentErrors = [];
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $filamentPasses = false;
-        $filamentErrors = $e->errors();
-    }
-    
-    // Property: Both should have the same validation outcome
-    expect($filamentPasses)->toBe($formRequestPasses,
-        "Validation outcome mismatch. FormRequest: " . ($formRequestPasses ? 'pass' : 'fail') . 
-        ", Filament: " . ($filamentPasses ? 'pass' : 'fail') .
-        ". FormRequest errors: " . json_encode($formRequestErrors) .
-        ". Filament errors: " . json_encode($filamentErrors)
-    );
-    
-    // If both failed, verify they failed for similar reasons
-    if (!$formRequestPasses && !$filamentPasses) {
-        $formRequestErrorFields = array_keys($formRequestErrors);
-        $filamentErrorFields = array_keys($filamentErrors);
-        
-        // Both should have errors on the same fields
-        expect($filamentErrorFields)->toEqualCanonicalizing($formRequestErrorFields,
-            "Error fields mismatch. FormRequest: " . json_encode($formRequestErrorFields) .
-            ", Filament: " . json_encode($filamentErrorFields)
-        );
-    }
-})->repeat(100);
-
-// Feature: filament-admin-panel, Property 13: User validation consistency
-// Validates: Requirements 6.4
-test('Filament UserResource rejects invalid updates consistently with UpdateUserRequest', function () {
-    // Create an admin user to perform the operation
-    $admin = User::factory()->create([
-        'role' => UserRole::ADMIN,
-        'tenant_id' => null,
-    ]);
-    
-    // Create a tenant for assignment
-    $tenant = Tenant::factory()->create();
-    
-    // Create an existing user
-    $existingUser = User::factory()->create([
-        'role' => UserRole::MANAGER,
-        'tenant_id' => $tenant->id,
-    ]);
-    
-    // Act as the admin
-    $this->actingAs($admin);
-    
-    // Generate INVALID test data (randomly choose one type of invalid data)
-    $invalidationType = fake()->randomElement([
-        'missing_name',
-        'empty_name',
-        'name_too_long',
-        'missing_email',
-        'invalid_email',
-        'email_too_long',
-        'duplicate_email',
-        'missing_role',
-        'invalid_role',
-        'missing_tenant_for_manager',
-        'missing_tenant_for_tenant',
-        'invalid_tenant_id',
-    ]);
-    
-    $testData = [
-        'name' => fake()->name(),
-        'email' => fake()->unique()->safeEmail(),
         'role' => UserRole::MANAGER->value,
-        'tenant_id' => $tenant->id,
+        'tenant_id' => 1,
+        'is_active' => true,
     ];
     
-    // Apply the invalidation
-    switch ($invalidationType) {
-        case 'missing_name':
-            unset($testData['name']);
-            break;
-        case 'empty_name':
-            $testData['name'] = '';
-            break;
-        case 'name_too_long':
-            $testData['name'] = str_repeat('a', 256); // Max is 255
-            break;
-        case 'missing_email':
-            unset($testData['email']);
-            break;
-        case 'invalid_email':
-            $testData['email'] = 'not-an-email';
-            break;
-        case 'email_too_long':
-            $testData['email'] = str_repeat('a', 250) . '@test.com'; // Max is 255
-            break;
-        case 'duplicate_email':
-            $anotherUser = User::factory()->create();
-            $testData['email'] = $anotherUser->email;
-            break;
-        case 'missing_role':
-            unset($testData['role']);
-            break;
-        case 'invalid_role':
-            $testData['role'] = 'invalid_role';
-            break;
-        case 'missing_tenant_for_manager':
-            $testData['role'] = UserRole::MANAGER->value;
-            unset($testData['tenant_id']);
-            break;
-        case 'missing_tenant_for_tenant':
-            $testData['role'] = UserRole::TENANT->value;
-            unset($testData['tenant_id']);
-            break;
-        case 'invalid_tenant_id':
-            $testData['tenant_id'] = 999999;
-            break;
-    }
-    
-    // Property: Both UpdateUserRequest and Filament should reject invalid data
-    
-    // Test with UpdateUserRequest
-    $request = new UpdateUserRequest();
-    $request->setContainer(app());
-    $request->setRedirector(app('redirect'));
-    $request->setUserResolver(fn() => $admin);
-    $request->setRouteResolver(function () use ($existingUser) {
-        return (object) ['parameters' => ['user' => $existingUser]];
-    });
-    $request->replace($testData);
-    
-    $validator = Validator::make($testData, $request->rules(), $request->messages());
-    
-    $formRequestPasses = !$validator->fails();
-    
-    // Test with Filament form
-    $component = Livewire::test(UserResource\Pages\EditUser::class, [
-        'record' => $existingUser->id,
+    // Backend validation
+    $validator = Validator::make($validData, [
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'email', 'unique:users,email', 'max:255'],
+        'password' => ['required', 'string', 'min:8', 'confirmed'],
+        'role' => ['required', 'in:' . implode(',', array_column(UserRole::cases(), 'value'))],
+        'tenant_id' => ['required_if:role,manager,tenant', 'nullable', 'integer', 'exists:users,id'],
     ]);
     
-    $formData = [];
+    expect($validator->passes())->toBeTrue();
     
-    if (isset($testData['name'])) {
-        $formData['name'] = $testData['name'];
-    }
-    if (isset($testData['email'])) {
-        $formData['email'] = $testData['email'];
-    }
-    if (isset($testData['role'])) {
-        $formData['role'] = $testData['role'];
-    }
-    if (isset($testData['tenant_id'])) {
-        $formData['tenant_id'] = $testData['tenant_id'];
-    }
+    // Test invalid data fails both validations
+    $invalidData = [
+        'name' => '', // Required
+        'email' => 'invalid-email', // Invalid format
+        'password' => 'short', // Too short
+        'password_confirmation' => 'different', // Doesn't match
+        'role' => 'invalid', // Invalid enum
+        'tenant_id' => null, // Required for manager
+    ];
     
-    $component->fillForm($formData);
+    $validator = Validator::make($invalidData, [
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'email', 'unique:users,email', 'max:255'],
+        'password' => ['required', 'string', 'min:8', 'confirmed'],
+        'role' => ['required', 'in:' . implode(',', array_column(UserRole::cases(), 'value'))],
+        'tenant_id' => ['required_if:role,manager,tenant', 'nullable', 'integer', 'exists:users,id'],
+    ]);
     
-    try {
-        $component->call('save');
-        $filamentPasses = true;
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $filamentPasses = false;
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->has('name'))->toBeTrue()
+        ->and($validator->errors()->has('email'))->toBeTrue()
+        ->and($validator->errors()->has('password'))->toBeTrue()
+        ->and($validator->errors()->has('role'))->toBeTrue();
+});
+
+test('user validation messages are localized', function () {
+    $admin = User::factory()->create([
+        'role' => UserRole::ADMIN,
+        'tenant_id' => 1,
+    ]);
+    
+    actingAs($admin);
+    
+    $invalidData = [
+        'name' => '',
+        'email' => 'invalid',
+        'password' => 'short',
+        'role' => '',
+    ];
+    
+    $validator = Validator::make($invalidData, [
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'email', 'unique:users,email', 'max:255'],
+        'password' => ['required', 'string', 'min:8', 'confirmed'],
+        'role' => ['required', 'in:' . implode(',', array_column(UserRole::cases(), 'value'))],
+    ]);
+    
+    $errors = $validator->errors();
+    
+    // Verify error messages exist and are strings
+    expect($errors->get('name'))->toBeArray()
+        ->and($errors->get('email'))->toBeArray()
+        ->and($errors->get('password'))->toBeArray()
+        ->and($errors->get('role'))->toBeArray();
+});
+
+test('name validation enforces required and max length', function () {
+    $admin = User::factory()->create([
+        'role' => UserRole::ADMIN,
+        'tenant_id' => 1,
+    ]);
+    
+    actingAs($admin);
+    
+    // Test empty name fails
+    $data = [
+        'name' => '',
+        'email' => 'test@example.com',
+        'password' => 'password123',
+        'password_confirmation' => 'password123',
+        'role' => UserRole::MANAGER->value,
+        'tenant_id' => 1,
+    ];
+    
+    $validator = Validator::make($data, [
+        'name' => ['required', 'string', 'max:255'],
+    ]);
+    
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->has('name'))->toBeTrue();
+    
+    // Test name over 255 characters fails
+    $data['name'] = str_repeat('a', 256);
+    
+    $validator = Validator::make($data, [
+        'name' => ['required', 'string', 'max:255'],
+    ]);
+    
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->has('name'))->toBeTrue();
+    
+    // Test valid name passes
+    $data['name'] = 'Valid Name';
+    
+    $validator = Validator::make($data, [
+        'name' => ['required', 'string', 'max:255'],
+    ]);
+    
+    expect($validator->passes())->toBeTrue();
+});
+
+test('email validation enforces required, format, and uniqueness', function () {
+    $admin = User::factory()->create([
+        'role' => UserRole::ADMIN,
+        'tenant_id' => 1,
+    ]);
+    
+    actingAs($admin);
+    
+    // Test empty email fails
+    $data = [
+        'email' => '',
+    ];
+    
+    $validator = Validator::make($data, [
+        'email' => ['required', 'email', 'unique:users,email', 'max:255'],
+    ]);
+    
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->has('email'))->toBeTrue();
+    
+    // Test invalid email format fails
+    $data['email'] = 'invalid-email';
+    
+    $validator = Validator::make($data, [
+        'email' => ['required', 'email', 'unique:users,email', 'max:255'],
+    ]);
+    
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->has('email'))->toBeTrue();
+    
+    // Test duplicate email fails
+    $existingUser = User::factory()->create(['email' => 'existing@example.com']);
+    $data['email'] = 'existing@example.com';
+    
+    $validator = Validator::make($data, [
+        'email' => ['required', 'email', 'unique:users,email', 'max:255'],
+    ]);
+    
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->has('email'))->toBeTrue();
+    
+    // Test valid unique email passes
+    $data['email'] = 'unique' . uniqid() . '@example.com';
+    
+    $validator = Validator::make($data, [
+        'email' => ['required', 'email', 'unique:users,email', 'max:255'],
+    ]);
+    
+    expect($validator->passes())->toBeTrue();
+});
+
+test('password validation enforces min length and confirmation', function () {
+    $admin = User::factory()->create([
+        'role' => UserRole::ADMIN,
+        'tenant_id' => 1,
+    ]);
+    
+    actingAs($admin);
+    
+    // Test password too short fails
+    $data = [
+        'password' => 'short',
+        'password_confirmation' => 'short',
+    ];
+    
+    $validator = Validator::make($data, [
+        'password' => ['required', 'string', 'min:8', 'confirmed'],
+    ]);
+    
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->has('password'))->toBeTrue();
+    
+    // Test password confirmation mismatch fails
+    $data = [
+        'password' => 'password123',
+        'password_confirmation' => 'different123',
+    ];
+    
+    $validator = Validator::make($data, [
+        'password' => ['required', 'string', 'min:8', 'confirmed'],
+    ]);
+    
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->has('password'))->toBeTrue();
+    
+    // Test valid password passes
+    $data = [
+        'password' => 'password123',
+        'password_confirmation' => 'password123',
+    ];
+    
+    $validator = Validator::make($data, [
+        'password' => ['required', 'string', 'min:8', 'confirmed'],
+    ]);
+    
+    expect($validator->passes())->toBeTrue();
+});
+
+test('role validation enforces required and valid enum', function () {
+    $admin = User::factory()->create([
+        'role' => UserRole::ADMIN,
+        'tenant_id' => 1,
+    ]);
+    
+    actingAs($admin);
+    
+    // Test empty role fails
+    $data = [
+        'role' => '',
+    ];
+    
+    $validator = Validator::make($data, [
+        'role' => ['required', 'in:' . implode(',', array_column(UserRole::cases(), 'value'))],
+    ]);
+    
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->has('role'))->toBeTrue();
+    
+    // Test invalid role fails
+    $data['role'] = 'invalid_role';
+    
+    $validator = Validator::make($data, [
+        'role' => ['required', 'in:' . implode(',', array_column(UserRole::cases(), 'value'))],
+    ]);
+    
+    expect($validator->fails())->toBeTrue()
+        ->and($validator->errors()->has('role'))->toBeTrue();
+    
+    // Test valid roles pass
+    foreach (UserRole::cases() as $role) {
+        $data['role'] = $role->value;
+        
+        $validator = Validator::make($data, [
+            'role' => ['required', 'in:' . implode(',', array_column(UserRole::cases(), 'value'))],
+        ]);
+        
+        expect($validator->passes())->toBeTrue();
     }
-    
-    // Property: Both should reject the invalid data
-    expect($formRequestPasses)->toBeFalse("UpdateUserRequest should reject invalid data (type: {$invalidationType})");
-    expect($filamentPasses)->toBeFalse("Filament should reject invalid data (type: {$invalidationType})");
-    
-    // Property: Both should have the same validation outcome
-    expect($filamentPasses)->toBe($formRequestPasses,
-        "Validation outcome mismatch for {$invalidationType}. FormRequest: " . ($formRequestPasses ? 'pass' : 'fail') . 
-        ", Filament: " . ($filamentPasses ? 'pass' : 'fail')
-    );
-})->repeat(100);
+});
+

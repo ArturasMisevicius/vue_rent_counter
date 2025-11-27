@@ -94,6 +94,7 @@ class BuildingPolicy
 
     /**
      * Determine whether the user can delete the building.
+     * Ensures MANAGER role has same permissions as ADMIN for delete.
      * 
      * Requirements: 4.5, 13.3
      */
@@ -107,6 +108,11 @@ class BuildingPolicy
         // Admins can delete buildings across tenants (Requirement 4.5, 13.3)
         if ($user->role === UserRole::ADMIN) {
             return true;
+        }
+
+        // Managers can delete buildings within their tenant (Requirement 4.5, 13.3)
+        if ($user->role === UserRole::MANAGER) {
+            return $building->tenant_id === $user->tenant_id;
         }
 
         return false;

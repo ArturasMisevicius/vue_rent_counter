@@ -39,11 +39,18 @@ class SubscriptionResource extends Resource
         return __('app.nav.subscriptions');
     }
 
+    /**
+     * Hide from non-admin users (Requirements 9.1, 9.2, 9.3).
+     * Subscriptions are system management resources accessible only to admins and superadmins.
+     */
     public static function shouldRegisterNavigation(): bool
     {
         $user = auth()->user();
 
-        return $user?->isAdmin() || $user?->isSuperadmin();
+        return $user instanceof \App\Models\User && in_array($user->role, [
+            \App\Enums\UserRole::SUPERADMIN,
+            \App\Enums\UserRole::ADMIN,
+        ], true);
     }
 
     public static function canViewAny(): bool

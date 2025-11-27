@@ -12,6 +12,62 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * User Model - Hierarchical User Management
+ * 
+ * Represents users in the three-tier hierarchical system:
+ * - Superadmin: System owner with full access across all organizations
+ * - Admin: Property owner managing their portfolio within tenant_id scope
+ * - Tenant: Apartment resident with access limited to their assigned property
+ * 
+ * **Superadmin Role**:
+ * - Purpose: Manages the entire system across all organizations
+ * - Access: Full system access without restrictions (bypasses tenant scope)
+ * - Permissions: Create/manage Admin accounts, manage subscriptions, view system-wide statistics
+ * - tenant_id: null (no tenant isolation)
+ * 
+ * **Admin Role**:
+ * - Purpose: Manages property portfolio and tenant accounts
+ * - Access: Limited to their own tenant_id scope (data isolation)
+ * - Permissions: Create/manage buildings, properties, tenants, meters, readings, invoices
+ * - Subscription: Requires active subscription with limits on properties and tenants
+ * - tenant_id: Unique identifier for organization
+ * 
+ * **Tenant Role**:
+ * - Purpose: View billing information and submit meter readings for their apartment
+ * - Access: Limited to their assigned property only (property_id scope)
+ * - Permissions: View property details, meters, consumption, invoices; submit readings
+ * - Account Creation: Created by Admin and linked to specific property
+ * - tenant_id: Inherited from Admin; property_id: Assigned property
+ * 
+ * @property int $id
+ * @property int|null $tenant_id Organization identifier for data isolation (null for Superadmin)
+ * @property int|null $property_id Assigned property for Tenant role
+ * @property int|null $parent_user_id Admin who created this user (for Tenant role)
+ * @property string $name User's full name
+ * @property string $email Unique email address
+ * @property string $password Hashed password
+ * @property UserRole $role User role (superadmin, admin, manager, tenant)
+ * @property bool $is_active Account activation status
+ * @property string|null $organization_name Organization name (for Admin role)
+ * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * 
+ * @property-read Property|null $property Assigned property (for Tenant role)
+ * @property-read User|null $parentUser Admin who created this user
+ * @property-read \Illuminate\Database\Eloquent\Collection|User[] $childUsers Tenants created by this Admin
+ * @property-read Subscription|null $subscription Subscription (for Admin role)
+ * @property-read \Illuminate\Database\Eloquent\Collection|Property[] $properties Properties managed by this Admin
+ * @property-read \Illuminate\Database\Eloquent\Collection|Building[] $buildings Buildings managed by this Admin
+ * @property-read \Illuminate\Database\Eloquent\Collection|Invoice[] $invoices Invoices for this Admin's organization
+ * @property-read \Illuminate\Database\Eloquent\Collection|MeterReading[] $meterReadings Meter readings entered by this user
+ * 
+ * @see \App\Enums\UserRole
+ * @see \App\Models\Subscription
+ * @see \App\Services\AccountManagementService
+ * @see \App\Scopes\HierarchicalScope
+ */
 class User extends Authenticatable implements FilamentUser
 {
     use HasFactory, Notifiable;

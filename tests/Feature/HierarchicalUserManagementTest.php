@@ -8,6 +8,7 @@ use App\Models\Property;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class HierarchicalUserManagementTest extends TestCase
@@ -19,7 +20,7 @@ class HierarchicalUserManagementTest extends TestCase
      */
     public function test_users_table_has_hierarchical_columns(): void
     {
-        $columns = \Schema::getColumnListing('users');
+        $columns = Schema::getColumnListing('users');
         
         $this->assertContains('property_id', $columns);
         $this->assertContains('parent_user_id', $columns);
@@ -32,7 +33,7 @@ class HierarchicalUserManagementTest extends TestCase
      */
     public function test_subscriptions_table_exists_with_required_columns(): void
     {
-        $columns = \Schema::getColumnListing('subscriptions');
+        $columns = Schema::getColumnListing('subscriptions');
         
         $this->assertContains('user_id', $columns);
         $this->assertContains('plan_type', $columns);
@@ -48,7 +49,7 @@ class HierarchicalUserManagementTest extends TestCase
      */
     public function test_user_assignments_audit_table_exists_with_required_columns(): void
     {
-        $columns = \Schema::getColumnListing('user_assignments_audit');
+        $columns = Schema::getColumnListing('user_assignments_audit');
         
         $this->assertContains('user_id', $columns);
         $this->assertContains('property_id', $columns);

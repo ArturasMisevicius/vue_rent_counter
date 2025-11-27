@@ -8,13 +8,80 @@ The Vilnius Utilities Billing System is a monolithic Laravel application that ha
 
 ## Key Features
 
-- **Hierarchical User Management**: Three-tier user hierarchy with role-based access control
-- **Subscription-Based Access**: Property owners subscribe to manage their portfolios
-- **Multi-Tenancy**: Automatic data isolation between organizations
+- **Hierarchical User Management**: Three-tier user hierarchy (Superadmin → Admin → Tenant) with role-based access control
+- **Subscription-Based Access**: Property owners subscribe to manage their portfolios with configurable limits
+- **Multi-Tenancy**: Automatic data isolation between organizations using tenant_id scoping
 - **Complex Billing**: Time-of-use electricity rates, water tariffs, seasonal heating calculations
 - **Snapshot Invoicing**: Historical pricing preservation for accurate billing
-- **Audit Logging**: Complete tracking of account management actions
+- **Audit Logging**: Complete tracking of account management actions and tenant reassignments
 - **Modern Admin Panel**: Built with Filament 4 for intuitive resource management
+
+## User Roles and Hierarchy
+
+The system implements a three-tier user hierarchy with distinct roles and permissions:
+
+### Superadmin (System Owner)
+- **Purpose**: Manages the entire system across all organizations
+- **Permissions**:
+  - Create and manage Admin accounts
+  - Manage subscriptions for all organizations
+  - View system-wide statistics and activity
+  - Access all data across all tenants (bypasses tenant scope)
+  - Configure system settings and limits
+- **Access**: Full system access without restrictions
+- **Default Account**: `superadmin@example.com` (password: `password`)
+
+### Admin (Property Owner)
+- **Purpose**: Manages their property portfolio and tenant accounts
+- **Permissions**:
+  - Create and manage buildings and properties within their portfolio
+  - Create and manage tenant accounts for their properties
+  - Assign and reassign tenants to properties
+  - View and manage meters, readings, and invoices for their properties
+  - Deactivate/reactivate tenant accounts
+  - View their subscription status and usage limits
+- **Access**: Limited to their own tenant_id scope (data isolation)
+- **Subscription**: Requires active subscription with limits on properties and tenants
+- **Example Accounts**: `admin@test.com`, `admin1@example.com`
+
+### Tenant (Apartment Resident)
+- **Purpose**: View billing information and submit meter readings for their apartment
+- **Permissions**:
+  - View their assigned property details
+  - View meters and consumption history for their property
+  - Submit meter readings (if enabled)
+  - View and download invoices for their property
+  - Update their profile information
+- **Access**: Limited to their assigned property only (property_id scope)
+- **Account Creation**: Created by Admin and linked to a specific property
+- **Example Accounts**: `tenant@test.com`, `tenant1@example.com`
+
+## Subscription Model
+
+The system uses a subscription-based model for Admin accounts:
+
+### Subscription Plans
+
+| Plan | Max Properties | Max Tenants | Features |
+|------|---------------|-------------|----------|
+| **Basic** | 10 | 50 | Core billing features |
+| **Professional** | 50 | 200 | Advanced reporting, bulk operations |
+| **Enterprise** | Unlimited | Unlimited | Custom features, priority support |
+
+### Subscription Features
+
+- **Grace Period**: 7 days after expiry (configurable)
+- **Expiry Warning**: 14 days before expiry (configurable)
+- **Read-Only Mode**: Expired subscriptions allow viewing but not editing
+- **Automatic Limits**: System enforces property and tenant limits based on plan
+- **Renewal**: Admins can renew subscriptions through their profile
+
+### Subscription Status
+
+- **Active**: Full access to all features within plan limits
+- **Expired**: Read-only access, cannot create new resources
+- **Suspended**: Temporary suspension by Superadmin
+- **Cancelled**: Subscription terminated, account deactivated
 
 ## Technology Stack
 
@@ -99,12 +166,30 @@ Access the application at `http://localhost:8000`
 
 After seeding, you can log in with these accounts (password: `password`):
 
-- **Superadmin**: `superadmin@example.com`
-- **Admin**: `admin@test.com` or `admin1@example.com`
-- **Manager**: `manager@test.com`
-- **Tenant**: `tenant@test.com`
+### Superadmin Account
+- **Email**: `superadmin@example.com`
+- **Role**: Superadmin
+- **Access**: Full system access across all organizations
 
-See [User Accounts Documentation](docs/overview/readme.md#seeded-user-accounts) for complete list.
+### Admin Accounts (Property Owners)
+- **Tenant 1**: `admin@test.com` (Test Organization 1), `admin1@example.com` (Vilnius Properties Ltd)
+- **Tenant 2**: `manager2@test.com` (Test Organization 2), `admin2@example.com` (Baltic Real Estate)
+- **Tenant 3**: `admin3@example.com` (Old Town Management - expired subscription)
+- **Role**: Admin
+- **Access**: Limited to their tenant_id scope
+
+### Manager Account (Legacy)
+- **Email**: `manager@test.com`
+- **Role**: Manager (legacy role, similar to Admin)
+- **Access**: Limited to tenant_id 1
+
+### Tenant Accounts (Apartment Residents)
+- **Tenant 1**: `tenant@test.com`, `tenant1@example.com`, `tenant2@example.com`, etc.
+- **Tenant 2**: `tenant4@example.com`, `tenant5@example.com`, etc.
+- **Role**: Tenant
+- **Access**: Limited to their assigned property only
+
+See [User Accounts Documentation](docs/overview/readme.md#seeded-user-accounts) for complete list and [Hierarchical User Guide](docs/guides/HIERARCHICAL_USER_GUIDE.md) for role-specific instructions.
 
 ## Testing
 
@@ -136,10 +221,14 @@ php verify-batch4-resources.php
 # Verify Eloquent models (11 core models: casts, relationships, Laravel 12 compatibility)
 php verify-models.php
 
+# Verify factories (SubscriptionFactory, UserFactory state methods)
+php test_factories.php
+
 # Run all verifications
 php verify-batch3-resources.php && \
 php verify-batch4-resources.php && \
 php verify-models.php && \
+php test_factories.php && \
 echo "✓ All verifications passed"
 ```
 
@@ -159,6 +248,32 @@ See [Verification Documentation](docs/testing/README.md#verification-scripts) fo
 ```
 
 ## Documentation
+
+### Filament Resources
+
+#### User Management
+- **[UserResource API](docs/filament/USER_RESOURCE_API.md)** - Complete API reference
+  - Form schema, validation rules, and table configuration
+  - Role-based access control and tenant scoping
+  - Authorization matrix and security considerations
+  - Usage examples and testing strategies
+- **[UserResource Usage Guide](docs/filament/USER_RESOURCE_USAGE_GUIDE.md)** - User-facing guide
+  - Creating and managing users
+  - Common workflows and best practices
+  - Troubleshooting and FAQs
+- **[UserResource Architecture](docs/filament/USER_RESOURCE_ARCHITECTURE.md)** - Technical architecture
+  - Component relationships and data flow
+  - Security architecture and performance optimization
+  - Testing strategy and integration points
+
+#### Building Management
+- **[BuildingResource](docs/filament/BUILDING_RESOURCE.md)** - Complete user guide
+- **[BuildingResource API](docs/filament/BUILDING_RESOURCE_API.md)** - API reference
+
+#### Content Management
+- **[FaqResource API](docs/filament/FAQ_RESOURCE_API.md)** - FAQ management API reference
+
+### General Documentation
 
 ### Guides
 - **[Setup Guide](docs/guides/SETUP.md)** - Detailed installation and configuration
@@ -220,7 +335,11 @@ DB_CONNECTION=sqlite
 DB_DATABASE=/absolute/path/to/database/database.sqlite
 DB_FOREIGN_KEYS=true
 
-# Subscription Limits
+# Subscription Configuration
+SUBSCRIPTION_GRACE_PERIOD_DAYS=7
+SUBSCRIPTION_EXPIRY_WARNING_DAYS=14
+
+# Subscription Limits by Plan
 MAX_PROPERTIES_BASIC=10
 MAX_PROPERTIES_PROFESSIONAL=50
 MAX_PROPERTIES_ENTERPRISE=9999
@@ -229,7 +348,17 @@ MAX_TENANTS_PROFESSIONAL=200
 MAX_TENANTS_ENTERPRISE=9999
 ```
 
-See [Setup Guide](docs/guides/SETUP.md) for complete configuration options.
+### Subscription Limit Configuration
+
+The subscription limits control how many properties and tenants each Admin can manage based on their subscription plan:
+
+- **Basic Plan**: 10 properties, 50 tenants - suitable for small property portfolios
+- **Professional Plan**: 50 properties, 200 tenants - suitable for medium-sized property management
+- **Enterprise Plan**: Unlimited (9999) - suitable for large property management companies
+
+These limits are enforced when Admins attempt to create new properties or tenant accounts. The system will prevent creation if the limit is reached and display an appropriate error message.
+
+See [Setup Guide](docs/guides/SETUP.md) for complete configuration options and [Hierarchical User Guide](docs/guides/HIERARCHICAL_USER_GUIDE.md) for subscription management instructions.
 
 ## Deployment
 
