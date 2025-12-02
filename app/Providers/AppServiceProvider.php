@@ -29,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\OrganizationActivityLog::class => \App\Policies\OrganizationActivityLogPolicy::class,
         \App\Models\Subscription::class => \App\Policies\SubscriptionPolicy::class,
         \App\Models\Faq::class => \App\Policies\FaqPolicy::class,
+        \App\Models\Language::class => \App\Policies\LanguagePolicy::class,
     ];
 
     /**
@@ -74,6 +75,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Faq::observe(\App\Observers\FaqObserver::class);
         \App\Models\Tariff::observe(\App\Observers\TariffObserver::class);
         \App\Models\User::observe(\App\Observers\UserObserver::class);
+        \App\Models\Language::observe(\App\Observers\LanguageObserver::class);
 
         if (! Collection::hasMacro('takeLast')) {
             Collection::macro('takeLast', function (int $count) {
@@ -141,6 +143,18 @@ class AppServiceProvider extends ServiceProvider
             if ($event->user && $event->user->tenant_id) {
                 session(['tenant_id' => $event->user->tenant_id]);
             }
+        });
+
+        // Rate limiting for admin routes (120 requests per minute per user)
+        // Prevents brute force attacks and DoS attempts
+        \Illuminate\Support\Facades\RateLimiter::for('admin', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(120)
+                ->by($request->user()?->id ?: $request->ip())
+                ->response(function () {
+                    return response()->json([
+                        'message' => 'Too many requests. Please try again later.'
+                    ], 429);
+                });
         });
     }
 }

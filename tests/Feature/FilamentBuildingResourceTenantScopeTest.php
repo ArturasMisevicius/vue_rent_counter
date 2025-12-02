@@ -238,9 +238,8 @@ test('Superadmin users can access buildings from all tenants', function (): void
     
     // Verify both buildings are accessible in the list
     $tableRecordIds = $tableRecords->pluck('id')->toArray();
-    expect($tableRecordIds)
-        ->toContain($building1->id, 'Tenant 1 building should be visible to superadmin')
-        ->toContain($building2->id, 'Tenant 2 building should be visible to superadmin');
+    expect(in_array($building1->id, $tableRecordIds))->toBeTrue('Tenant 1 building should be visible to superadmin');
+    expect(in_array($building2->id, $tableRecordIds))->toBeTrue('Tenant 2 building should be visible to superadmin');
     
     // Property: Superadmin should be able to edit buildings from any tenant
     $component1 = Livewire::test(BuildingResource\Pages\EditBuilding::class, [

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -74,5 +75,70 @@ final class Language extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * Get all active languages ordered by display order.
+     *
+     * PERFORMANCE: Cached for 15 minutes to reduce database queries.
+     * Cache is invalidated when languages are created, updated, or deleted.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public static function getActiveLanguages()
+    {
+        return cache()->remember('languages.active', 900, function () {
+            return static::active()
+                ->orderBy('display_order')
+                ->get();
+        });
+    }
+
+    /**
+     * Get the default language.
+     *
+     * PERFORMANCE: Cached for 15 minutes to reduce database queries.
+     * Cache is invalidated when languages are created, updated, or deleted.
+     *
+     * @return \App\Models\Language|null
+     */
+    public static function getDefault()
+    {
+        return cache()->remember('languages.default', 900, function () {
+            return static::where('is_default', true)->first();
+        });
+    }
+
+    /**
+     * Boot the model and register cache invalidation observers.
+     *
+     * PERFORMANCE: Automatically invalidate cache when languages change.
+     */
+    protected static function booted(): void
+    {
+        self::saved(function () {
+            cache()->forget('languages.active');
+            cache()->forget('languages.default');
+        });
+
+        self::deleted(function () {
+            cache()->forget('languages.active');
+            cache()->forget('languages.default');
+        });
+    }
+
+    /**
+     * Interact with the language code attribute.
+     *
+     * Automatically converts language codes to lowercase for consistency.
+     * This ensures all language codes are stored in a normalized format.
+     *
+     * SECURITY: Normalization prevents case-sensitivity issues in lookups.
+     */
+    protected function code(): Attribute
+    {
+        return Attribute::make(
+            set: fn (string $value): string => strtolower($value),
+        );
     }
 }

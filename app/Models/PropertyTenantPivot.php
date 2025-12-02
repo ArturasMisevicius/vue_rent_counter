@@ -1,30 +1,25 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
- * PropertyTenantPivot
+ * PropertyTenantPivot - Custom pivot model for property-tenant relationship
  * 
- * Custom pivot model for property-tenant assignments with historical tracking.
- * Enables querying assignment history, calculating tenure, and tracking vacancies.
+ * Extends the basic pivot with additional data and business logic
  * 
  * @property int $id
  * @property int $property_id
  * @property int $tenant_id
- * @property Carbon|null $assigned_at
- * @property Carbon|null $vacated_at
- * @property Carbon $created_at
- * @property Carbon $updated_at
- * @property-read Property $property
- * @property-read Tenant $tenant
- * @property-read bool $is_current
- * @property-read int|null $tenure_days
+ * @property \Carbon\Carbon $assigned_at
+ * @property \Carbon\Carbon|null $vacated_at
+ * @property float|null $monthly_rent
+ * @property float|null $deposit_amount
+ * @property string $lease_type
+ * @property string|null $notes
+ * @property int|null $assigned_by
  */
 class PropertyTenantPivot extends Pivot
 {
@@ -44,20 +39,12 @@ class PropertyTenantPivot extends Pivot
     protected $casts = [
         'assigned_at' => 'datetime',
         'vacated_at' => 'datetime',
+        'monthly_rent' => 'decimal:2',
+        'deposit_amount' => 'decimal:2',
     ];
 
     /**
-     * The attributes that are mass assignable.
-     */
-    protected $fillable = [
-        'property_id',
-        'tenant_id',
-        'assigned_at',
-        'vacated_at',
-    ];
-
-    /**
-     * Get the property for this assignment.
+     * Get the property
      */
     public function property(): BelongsTo
     {
@@ -65,7 +52,7 @@ class PropertyTenantPivot extends Pivot
     }
 
     /**
-     * Get the tenant for this assignment.
+     * Get the tenant
      */
     public function tenant(): BelongsTo
     {
@@ -73,53 +60,90 @@ class PropertyTenantPivot extends Pivot
     }
 
     /**
-     * Check if this is the current assignment (not vacated).
+     * Get the user who assigned the tenant
      */
-    public function getIsCurrentAttribute(): bool
+    public function assignedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_by');
+    }
+
+    /**
+     * Check if the assignment is currently active
+     */
+    public function isActive(): bool
     {
         return $this->vacated_at === null;
     }
 
     /**
-     * Calculate tenure in days.
+     * Check if the assignment has ended
      */
-    public function getTenureDaysAttribute(): ?int
+    public function hasEnded(): bool
     {
-        if (!$this->assigned_at) {
-            return null;
-        }
+        return $this->vacated_at !== null;
+    }
 
+    /**
+     * Get the duration of the assignment in days
+     */
+    public function getDurationInDays(): int
+    {
         $endDate = $this->vacated_at ?? now();
         return $this->assigned_at->diffInDays($endDate);
     }
 
     /**
-     * Scope to get only current assignments.
+     * Get the duration of the assignment in months
      */
-    public function scopeCurrent($query)
+    public function getDurationInMonths(): int
+    {
+        $endDate = $this->vacated_at ?? now();
+        return $this->assigned_at->diffInMonths($endDate);
+    }
+
+    /**
+     * Calculate total rent paid (estimated)
+     */
+    public function getTotalRentPaid(): float
+    {
+        if (!$this->monthly_rent) {
+            return 0.0;
+        }
+
+        $months = $this->getDurationInMonths();
+        return $this->monthly_rent * $months;
+    }
+
+    /**
+     * Mark the assignment as ended
+     */
+    public function markAsVacated(): void
+    {
+        $this->vacated_at = now();
+        $this->save();
+    }
+
+    /**
+     * Scope: Only active assignments
+     */
+    public function scopeActive($query)
     {
         return $query->whereNull('vacated_at');
     }
 
     /**
-     * Scope to get historical assignments.
+     * Scope: Only ended assignments
      */
-    public function scopeHistorical($query)
+    public function scopeEnded($query)
     {
         return $query->whereNotNull('vacated_at');
     }
 
     /**
-     * Scope to get assignments within a date range.
+     * Scope: Assignments for a specific lease type
      */
-    public function scopeActiveDuring($query, Carbon $start, Carbon $end)
+    public function scopeOfLeaseType($query, string $leaseType)
     {
-        return $query->where(function ($q) use ($start, $end) {
-            $q->where('assigned_at', '<=', $end)
-              ->where(function ($q2) use ($start) {
-                  $q2->whereNull('vacated_at')
-                     ->orWhere('vacated_at', '>=', $start);
-              });
-        });
+        return $query->where('lease_type', $leaseType);
     }
 }

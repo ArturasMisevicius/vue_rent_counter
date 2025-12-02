@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace App\Observers;
 
-use App\Enums\UserRole;
 use App\Models\User;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 /**
- * User model observer for cache invalidation and audit logging.
+ * User Observer
  * 
- * Handles:
- * - Navigation badge cache invalidation on user changes
- * - Audit logging for sensitive operations
+ * Handles model events for User to provide audit logging
+ * and maintain data integrity.
  */
 class UserObserver
 {
@@ -22,7 +20,13 @@ class UserObserver
      */
     public function created(User $user): void
     {
-        $this->clearNavigationBadgeCache($user);
+        Log::info('User created', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'role' => $user->role->value,
+            'tenant_id' => $user->tenant_id,
+            'created_by' => auth()->id(),
+        ]);
     }
 
     /**
@@ -30,17 +34,16 @@ class UserObserver
      */
     public function updated(User $user): void
     {
-        $this->clearNavigationBadgeCache($user);
+        $changes = $user->getChanges();
         
-        // If tenant_id changed, clear old tenant cache too
-        if ($user->isDirty('tenant_id')) {
-            $oldTenantId = $user->getOriginal('tenant_id');
-            $this->clearNavigationBadgeCacheForTenant($oldTenantId);
-        }
-        
-        // If role changed, clear both old and new role caches
-        if ($user->isDirty('role')) {
-            $this->clearNavigationBadgeCache($user);
+        // Log critical changes
+        if (isset($changes['role']) || isset($changes['is_active']) || isset($changes['tenant_id'])) {
+            Log::warning('Critical user attribute changed', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'changes' => $changes,
+                'changed_by' => auth()->id(),
+            ]);
         }
     }
 
@@ -49,7 +52,12 @@ class UserObserver
      */
     public function deleted(User $user): void
     {
-        $this->clearNavigationBadgeCache($user);
+        Log::warning('User deleted', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'role' => $user->role->value,
+            'deleted_by' => auth()->id(),
+        ]);
     }
 
     /**
@@ -57,42 +65,10 @@ class UserObserver
      */
     public function restored(User $user): void
     {
-        $this->clearNavigationBadgeCache($user);
-    }
-
-    /**
-     * Clear navigation badge cache for all roles in the user's tenant.
-     * 
-     * @param User $user
-     */
-    private function clearNavigationBadgeCache(User $user): void
-    {
-        // Clear for all roles in this tenant
-        foreach (UserRole::cases() as $role) {
-            $cacheKey = sprintf(
-                'user_resource_badge_%s_%s',
-                $role->value,
-                $user->tenant_id ?? 'all'
-            );
-            Cache::forget($cacheKey);
-        }
-    }
-
-    /**
-     * Clear navigation badge cache for a specific tenant.
-     * 
-     * @param int|null $tenantId
-     */
-    private function clearNavigationBadgeCacheForTenant(?int $tenantId): void
-    {
-        foreach (UserRole::cases() as $role) {
-            $cacheKey = sprintf(
-                'user_resource_badge_%s_%s',
-                $role->value,
-                $tenantId ?? 'all'
-            );
-            Cache::forget($cacheKey);
-        }
+        Log::info('User restored', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'restored_by' => auth()->id(),
+        ]);
     }
 }
-

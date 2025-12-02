@@ -1,0 +1,226 @@
+<?php
+
+use App\Filament\Resources\{{ resourceName }};
+use App\Models\{{ modelName }};
+use Filament\Actions\DeleteAction;
+use Filament\Tables\Actions\BulkActionGroup;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->actingAsAdmin();
+});
+
+describe('{{ resourceName }} Resource', function () {
+    it('can render list page', function () {
+        $this->get({{ resourceName }}::getUrl('index'))
+            ->assertSuccessful();
+    });
+
+    it('can list {{ resourceNamePlural }}', function () {
+        $records = {{ modelName }}::factory()->count(10)->create();
+
+        Livewire::test({{ resourceName }}\Pages\List{{ resourceNamePlural }}::class)
+            ->assertCanSeeTableRecords($records);
+    });
+
+    it('enforces tenant isolation in table', function () {
+        $ownRecord = {{ modelName }}::factory()->create();
+        
+        $otherTenant = \App\Models\Tenant::factory()->create();
+        $otherRecord = {{ modelName }}::factory()->for($otherTenant)->create();
+
+        Livewire::test({{ resourceName }}\Pages\List{{ resourceNamePlural }}::class)
+            ->assertCanSeeTableRecords([$ownRecord])
+            ->assertCanNotSeeTableRecords([$otherRecord]);
+    });
+
+    it('can search {{ resourceNamePlural }}', function () {
+        $records = {{ modelName }}::factory()->count(10)->create();
+        $searchRecord = $records->first();
+
+        Livewire::test({{ resourceName }}\Pages\List{{ resourceNamePlural }}::class)
+            ->searchTable($searchRecord->name)
+            ->assertCanSeeTableRecords([$searchRecord])
+            ->assertCanNotSeeTableRecords($records->skip(1));
+    });
+
+    it('can sort {{ resourceNamePlural }}', function () {
+        $records = {{ modelName }}::factory()->count(10)->create();
+
+        Livewire::test({{ resourceName }}\Pages\List{{ resourceNamePlural }}::class)
+            ->sortTable('name')
+            ->assertCanSeeTableRecords($records->sortBy('name'), inOrder: true)
+            ->sortTable('name', 'desc')
+            ->assertCanSeeTableRecords($records->sortByDesc('name'), inOrder: true);
+    });
+
+    it('can filter {{ resourceNamePlural }}', function () {
+        $records = {{ modelName }}::factory()->count(10)->create();
+        $activeRecords = $records->where('is_active', true);
+
+        Livewire::test({{ resourceName }}\Pages\List{{ resourceNamePlural }}::class)
+            ->filterTable('is_active', true)
+            ->assertCanSeeTableRecords($activeRecords)
+            ->assertCanNotSeeTableRecords($records->where('is_active', false));
+    });
+
+    it('can render create page', function () {
+        $this->get({{ resourceName }}::getUrl('create'))
+            ->assertSuccessful();
+    });
+
+    it('can create {{ resourceName }}', function () {
+        $newData = {{ modelName }}::factory()->make();
+
+        Livewire::test({{ resourceName }}\Pages\Create{{ modelName }}::class)
+            ->fillForm([
+                'name' => $newData->name,
+                {{ formFields }}
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('{{ tableName }}', [
+            'name' => $newData->name,
+            'tenant_id' => auth()->user()->tenant_id,
+        ]);
+    });
+
+    it('validates required fields on create', function () {
+        Livewire::test({{ resourceName }}\Pages\Create{{ modelName }}::class)
+            ->fillForm([
+                'name' => null,
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['name' => 'required']);
+    });
+
+    it('automatically sets tenant_id on create', function () {
+        $newData = {{ modelName }}::factory()->make();
+
+        Livewire::test({{ resourceName }}\Pages\Create{{ modelName }}::class)
+            ->fillForm([
+                'name' => $newData->name,
+            ])
+            ->call('create');
+
+        $this->assertDatabaseHas('{{ tableName }}', [
+            'name' => $newData->name,
+            'tenant_id' => auth()->user()->tenant_id,
+        ]);
+    });
+
+    it('can render edit page', function () {
+        $record = {{ modelName }}::factory()->create();
+
+        $this->get({{ resourceName }}::getUrl('edit', ['record' => $record]))
+            ->assertSuccessful();
+    });
+
+    it('cannot edit record from another tenant', function () {
+        $otherTenant = \App\Models\Tenant::factory()->create();
+        $record = {{ modelName }}::factory()->for($otherTenant)->create();
+
+        $this->get({{ resourceName }}::getUrl('edit', ['record' => $record]))
+            ->assertForbidden();
+    });
+
+    it('can retrieve data for edit', function () {
+        $record = {{ modelName }}::factory()->create();
+
+        Livewire::test({{ resourceName }}\Pages\Edit{{ modelName }}::class, [
+            'record' => $record->getRouteKey(),
+        ])
+            ->assertFormSet([
+                'name' => $record->name,
+                {{ formFields }}
+            ]);
+    });
+
+    it('can update {{ resourceName }}', function () {
+        $record = {{ modelName }}::factory()->create();
+        $newData = {{ modelName }}::factory()->make();
+
+        Livewire::test({{ resourceName }}\Pages\Edit{{ modelName }}::class, [
+            'record' => $record->getRouteKey(),
+        ])
+            ->fillForm([
+                'name' => $newData->name,
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        expect($record->refresh())
+            ->name->toBe($newData->name);
+    });
+
+    it('cannot change tenant_id on update', function () {
+        $record = {{ modelName }}::factory()->create();
+        $originalTenantId = $record->tenant_id;
+
+        Livewire::test({{ resourceName }}\Pages\Edit{{ modelName }}::class, [
+            'record' => $record->getRouteKey(),
+        ])
+            ->fillForm([
+                'name' => 'Updated Name',
+            ])
+            ->call('save');
+
+        expect($record->refresh()->tenant_id)->toBe($originalTenantId);
+    });
+
+    it('can delete {{ resourceName }}', function () {
+        $record = {{ modelName }}::factory()->create();
+
+        Livewire::test({{ resourceName }}\Pages\Edit{{ modelName }}::class, [
+            'record' => $record->getRouteKey(),
+        ])
+            ->callAction(DeleteAction::class);
+
+        $this->assertSoftDeleted($record);
+    });
+
+    it('cannot delete record from another tenant', function () {
+        $otherTenant = \App\Models\Tenant::factory()->create();
+        $record = {{ modelName }}::factory()->for($otherTenant)->create();
+
+        Livewire::test({{ resourceName }}\Pages\Edit{{ modelName }}::class, [
+            'record' => $record->getRouteKey(),
+        ])
+            ->assertActionHidden(DeleteAction::class);
+    });
+
+    it('can bulk delete {{ resourceNamePlural }}', function () {
+        $records = {{ modelName }}::factory()->count(10)->create();
+
+        Livewire::test({{ resourceName }}\Pages\List{{ resourceNamePlural }}::class)
+            ->callTableBulkAction('delete', $records);
+
+        foreach ($records as $record) {
+            $this->assertSoftDeleted($record);
+        }
+    });
+
+    it('respects policy authorization', function () {
+        $this->actingAsTenant();
+
+        $this->get({{ resourceName }}::getUrl('index'))
+            ->assertForbidden();
+
+        $this->get({{ resourceName }}::getUrl('create'))
+            ->assertForbidden();
+    });
+
+    it('shows navigation item for authorized users', function () {
+        expect({{ resourceName }}::shouldRegisterNavigation())->toBeTrue();
+    });
+
+    it('hides navigation item for unauthorized users', function () {
+        $this->actingAsTenant();
+
+        expect({{ resourceName }}::shouldRegisterNavigation())->toBeFalse();
+    });
+});

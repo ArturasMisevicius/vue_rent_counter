@@ -92,10 +92,8 @@ class TranslationResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        $languages = Language::query()
-            ->where('is_active', true)
-            ->orderBy('display_order')
-            ->get();
+        // PERFORMANCE: Use cached active languages to avoid N+1 query on every form render
+        $languages = Language::getActiveLanguages();
 
         return $schema
             ->schema([
@@ -142,9 +140,8 @@ class TranslationResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $defaultLocale = Language::query()
-            ->where('is_default', true)
-            ->value('code') ?? 'en';
+        // PERFORMANCE: Use cached default language to avoid query on every table render
+        $defaultLocale = Language::getDefault()?->code ?? 'en';
 
         return $table
             ->columns([
@@ -180,11 +177,8 @@ class TranslationResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('group')
                     ->label(__('translations.labels.group'))
-                    ->options(fn (): array => Translation::query()
-                        ->distinct()
-                        ->pluck('group', 'group')
-                        ->toArray()
-                    )
+                    // PERFORMANCE: Use cached distinct groups to avoid full table scan on every render
+                    ->options(fn (): array => Translation::getDistinctGroups())
                     ->searchable()
                     ->native(false),
             ])

@@ -1,55 +1,47 @@
 <?php
 
-declare(strict_types=1);
-
 return [
 
     /*
     |--------------------------------------------------------------------------
-    | Rate Limiting Configuration
+    | Authentication Rate Limiting
     |--------------------------------------------------------------------------
     |
-    | Configure rate limiting for Filament actions and API endpoints.
-    | These settings help prevent abuse and protect system resources.
+    | Rate limits for authentication-related endpoints to prevent brute force
+    | attacks and credential stuffing.
+    |
+    | Format: 'max_attempts' => number of attempts allowed
+    |         'decay_minutes' => time window in minutes
     |
     */
 
-    /**
-     * Maximum number of requests allowed per decay period.
-     *
-     * Default: 60 requests per minute
-     * Production recommendation: 60-120 depending on load
-     */
-    'requests' => (int) env('THROTTLE_REQUESTS', 60),
-
-    /**
-     * Decay period in minutes.
-     *
-     * Default: 1 minute
-     * The time window for counting requests
-     */
-    'decay_minutes' => (int) env('THROTTLE_DECAY_MINUTES', 1),
-
-    /**
-     * Tenant management specific limits.
-     *
-     * Lower limits for sensitive operations like tenant reassignment
-     * to prevent abuse and notification spam.
-     */
-    'tenant_management' => [
-        'requests' => (int) env('THROTTLE_TENANT_MANAGEMENT_REQUESTS', 30),
-        'decay_minutes' => (int) env('THROTTLE_TENANT_MANAGEMENT_DECAY', 1),
+    'login' => [
+        'max_attempts' => env('THROTTLE_LOGIN_MAX_ATTEMPTS', 5),
+        'decay_minutes' => env('THROTTLE_LOGIN_DECAY_MINUTES', 1),
     ],
 
-    /**
-     * Bulk operations limits.
-     *
-     * Stricter limits for bulk delete/export operations
-     * to prevent resource exhaustion.
-     */
-    'bulk_operations' => [
-        'requests' => (int) env('THROTTLE_BULK_REQUESTS', 10),
-        'decay_minutes' => (int) env('THROTTLE_BULK_DECAY', 1),
+    'register' => [
+        'max_attempts' => env('THROTTLE_REGISTER_MAX_ATTEMPTS', 3),
+        'decay_minutes' => env('THROTTLE_REGISTER_DECAY_MINUTES', 60),
+    ],
+
+    'password_reset' => [
+        'max_attempts' => env('THROTTLE_PASSWORD_RESET_MAX_ATTEMPTS', 3),
+        'decay_minutes' => env('THROTTLE_PASSWORD_RESET_DECAY_MINUTES', 60),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | API Rate Limiting
+    |--------------------------------------------------------------------------
+    |
+    | Rate limits for API endpoints.
+    |
+    */
+
+    'api' => [
+        'max_attempts' => env('THROTTLE_API_MAX_ATTEMPTS', 60),
+        'decay_minutes' => env('THROTTLE_API_DECAY_MINUTES', 1),
     ],
 
 ];

@@ -10,16 +10,18 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Security Headers Middleware
- *
- * Adds security headers to all responses to protect against:
- * - XSS attacks
- * - Clickjacking
- * - MIME sniffing
- * - Information disclosure
- *
+ * 
+ * Implements comprehensive security headers following OWASP recommendations:
+ * - Content Security Policy (CSP)
+ * - X-Frame-Options (Clickjacking protection)
+ * - X-Content-Type-Options (MIME sniffing protection)
+ * - Referrer-Policy (Privacy protection)
+ * - Permissions-Policy (Feature policy)
+ * - Strict-Transport-Security (HTTPS enforcement)
+ * 
  * @see https://owasp.org/www-project-secure-headers/
  */
-final class SecurityHeaders
+class SecurityHeaders
 {
     /**
      * Handle an incoming request.
@@ -31,27 +33,29 @@ final class SecurityHeaders
         $response = $next($request);
 
         // Content Security Policy
-        $csp = $this->getContentSecurityPolicy();
-        $response->headers->set('Content-Security-Policy', $csp);
+        $response->headers->set('Content-Security-Policy', $this->getCSP());
 
-        // XSS Protection (legacy browsers)
-        $response->headers->set('X-XSS-Protection', '1; mode=block');
+        // Prevent clickjacking
+        $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
 
         // Prevent MIME sniffing
         $response->headers->set('X-Content-Type-Options', 'nosniff');
 
-        // Clickjacking protection
-        $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
+        // XSS Protection (legacy browsers)
+        $response->headers->set('X-XSS-Protection', '1; mode=block');
 
         // Referrer policy
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
         // Permissions policy
-        $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+        $response->headers->set('Permissions-Policy', $this->getPermissionsPolicy());
 
         // HSTS (only in production with HTTPS)
         if (app()->environment('production') && $request->secure()) {
-            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+            $response->headers->set(
+                'Strict-Transport-Security',
+                'max-age=31536000; includeSubDomains; preload'
+            );
         }
 
         return $response;
@@ -59,17 +63,15 @@ final class SecurityHeaders
 
     /**
      * Get Content Security Policy directives.
-     *
-     * @return string
      */
-    private function getContentSecurityPolicy(): string
+    protected function getCSP(): string
     {
         $directives = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com",
-            "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com",
-            "font-src 'self' https://fonts.gstatic.com data:",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net unpkg.com", // Tailwind/Alpine CDN
+            "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net", // Tailwind CDN
             "img-src 'self' data: https:",
+            "font-src 'self' data:",
             "connect-src 'self'",
             "frame-ancestors 'self'",
             "base-uri 'self'",
@@ -77,5 +79,22 @@ final class SecurityHeaders
         ];
 
         return implode('; ', $directives);
+    }
+
+    /**
+     * Get Permissions Policy directives.
+     */
+    protected function getPermissionsPolicy(): string
+    {
+        return implode(', ', [
+            'geolocation=()',
+            'microphone=()',
+            'camera=()',
+            'payment=()',
+            'usb=()',
+            'magnetometer=()',
+            'gyroscope=()',
+            'accelerometer=()',
+        ]);
     }
 }

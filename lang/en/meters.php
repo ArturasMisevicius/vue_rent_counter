@@ -77,6 +77,11 @@ return [
         'delete_heading' => 'Delete Meter',
         'delete_description' => 'Are you sure you want to delete this meter? This action cannot be undone.',
         'delete_confirm' => 'Yes, Delete',
+        'bulk_delete' => [
+            'title' => 'Delete Selected Meters',
+            'description' => 'Are you sure you want to delete the selected meters? This action cannot be undone.',
+            'confirm' => 'Delete Meters',
+        ],
     ],
 
     'empty_state' => [

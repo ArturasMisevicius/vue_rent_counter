@@ -10,22 +10,15 @@ use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * RateLimitTariffOperations
+ * Rate Limiting Middleware for Tariff Operations
  * 
- * Rate limits tariff CRUD operations to prevent abuse.
+ * Prevents abuse of tariff CRUD operations by limiting requests per user.
  * 
- * Security:
- * - Limits tariff creates to 10 per hour per user
- * - Limits tariff updates to 20 per hour per user
- * - Limits tariff deletes to 5 per hour per user
- * - Prevents rapid-fire changes that could cause billing chaos
- * - Prevents accidental bulk deletions
- * - Mitigates compromised admin account abuse
+ * Limits:
+ * - 60 requests per minute for authenticated users
+ * - 10 requests per minute for IP-based (fallback)
  * 
- * Usage:
- * Apply to tariff routes via middleware alias 'rate.limit.tariff'
- * 
- * @package App\Http\Middleware
+ * Security: Prevents DoS attacks through excessive tariff operations
  */
 class RateLimitTariffOperations
 {
@@ -36,33 +29,46 @@ class RateLimitTariffOperations
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
+        $key = $this->resolveRequestSignature($request);
+        $maxAttempts = auth()->check() ? 60 : 10;
+        $decayMinutes = 1;
 
-        if (!$user) {
-            return $next($request);
-        }
-
-        $key = 'tariff-operations:' . $user->id;
-        $limit = match ($request->method()) {
-            'POST' => 10,    // 10 creates per hour
-            'PUT', 'PATCH' => 20,    // 20 updates per hour
-            'DELETE' => 5,    // 5 deletes per hour
-            default => 100,  // 100 reads per hour
-        };
-
-        if (RateLimiter::tooManyAttempts($key, $limit)) {
-            $retryAfter = RateLimiter::availableIn($key);
+        if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
+            $seconds = RateLimiter::availableIn($key);
             
+            // Log rate limit violation for security monitoring
+            logger()->warning('Tariff operation rate limit exceeded', [
+                'user_id' => auth()->id(),
+                'ip' => $request->ip(),
+                'path' => $request->path(),
+                'retry_after' => $seconds,
+            ]);
+
             return response()->json([
-                'message' => 'Too many tariff operations. Please try again later.',
-                'retry_after' => $retryAfter,
-                'retry_after_human' => gmdate('H:i:s', $retryAfter),
+                'message' => __('Too many requests. Please try again in :seconds seconds.', ['seconds' => $seconds]),
+                'retry_after' => $seconds,
             ], 429);
         }
 
-        RateLimiter::hit($key, 3600); // 1 hour decay
+        RateLimiter::hit($key, $decayMinutes * 60);
 
-        return $next($request);
+        $response = $next($request);
+
+        return $response->withHeaders([
+            'X-RateLimit-Limit' => $maxAttempts,
+            'X-RateLimit-Remaining' => RateLimiter::remaining($key, $maxAttempts),
+        ]);
+    }
+
+    /**
+     * Resolve the request signature for rate limiting.
+     */
+    protected function resolveRequestSignature(Request $request): string
+    {
+        if ($user = auth()->user()) {
+            return 'tariff-operations:user:' . $user->id;
+        }
+
+        return 'tariff-operations:ip:' . $request->ip();
     }
 }
-

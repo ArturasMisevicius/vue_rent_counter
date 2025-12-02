@@ -37,30 +37,27 @@ class TariffPolicy
     /**
      * Determine whether the user can view any tariffs.
      * 
-     * All authenticated users can view tariffs (read-only for managers and tenants).
+     * Only SUPERADMIN and ADMIN roles can access tariff configuration.
+     * Tariffs are system configuration resources, not operational resources.
      * 
-     * Requirements: 11.1, 11.4
+     * Requirements: 11.1, 11.2, 9.2
      * 
      * @param User $user The authenticated user
      * @return bool True if authorized
      */
     public function viewAny(User $user): bool
     {
-        // Tariffs are readable by all authenticated roles
-        return in_array($user->role, [
-            UserRole::SUPERADMIN,
-            UserRole::ADMIN,
-            UserRole::MANAGER,
-            UserRole::TENANT,
-        ], true);
+        // Only admins and superadmins can view tariffs (system configuration)
+        return $this->isAdmin($user);
     }
 
     /**
      * Determine whether the user can view the tariff.
      * 
-     * All authenticated users can view individual tariffs.
+     * Only SUPERADMIN and ADMIN roles can view individual tariffs.
+     * Tariffs are system configuration resources, not operational resources.
      * 
-     * Requirements: 11.1, 11.4
+     * Requirements: 11.1, 11.2, 9.2
      * 
      * @param User $user The authenticated user
      * @param Tariff $tariff The tariff to view
@@ -68,13 +65,8 @@ class TariffPolicy
      */
     public function view(User $user, Tariff $tariff): bool
     {
-        // Tariffs are readable by all authenticated roles
-        return in_array($user->role, [
-            UserRole::SUPERADMIN,
-            UserRole::ADMIN,
-            UserRole::MANAGER,
-            UserRole::TENANT,
-        ], true);
+        // Only admins and superadmins can view tariffs (system configuration)
+        return $this->isAdmin($user);
     }
 
     /**

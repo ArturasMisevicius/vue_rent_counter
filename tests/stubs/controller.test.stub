@@ -1,0 +1,122 @@
+<?php
+
+use App\Http\Controllers\{{ controllerName }};
+use App\Models\{{ modelName }};
+use App\Services\TenantContext;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->actingAsAdmin();
+});
+
+describe('{{ controllerName }}', function () {
+    it('can list {{ resourceNamePlural }}', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+
+        $response = $this->get(route('{{ routePrefix }}.index'));
+
+        $response->assertOk();
+        $response->assertSee(${{ resourceName }}->name);
+    });
+
+    it('enforces tenant isolation on index', function () {
+        $otherTenant = \App\Models\Tenant::factory()->create();
+        ${{ resourceName }} = {{ modelName }}::factory()->for($otherTenant)->create();
+
+        $response = $this->get(route('{{ routePrefix }}.index'));
+
+        $response->assertOk();
+        $response->assertDontSee(${{ resourceName }}->name);
+    });
+
+    it('can show a {{ resourceName }}', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+
+        $response = $this->get(route('{{ routePrefix }}.show', ${{ resourceName }}));
+
+        $response->assertOk();
+        $response->assertSee(${{ resourceName }}->name);
+    });
+
+    it('cannot show {{ resourceName }} from another tenant', function () {
+        $otherTenant = \App\Models\Tenant::factory()->create();
+        ${{ resourceName }} = {{ modelName }}::factory()->for($otherTenant)->create();
+
+        $response = $this->get(route('{{ routePrefix }}.show', ${{ resourceName }}));
+
+        $response->assertForbidden();
+    });
+
+    it('can create a {{ resourceName }}', function () {
+        $data = {{ modelName }}::factory()->make()->toArray();
+
+        $response = $this->post(route('{{ routePrefix }}.store'), $data);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('{{ tableName }}', [
+            'name' => $data['name'],
+            'tenant_id' => auth()->user()->tenant_id,
+        ]);
+    });
+
+    it('validates required fields on create', function () {
+        $response = $this->post(route('{{ routePrefix }}.store'), []);
+
+        $response->assertSessionHasErrors(['name']);
+    });
+
+    it('can update a {{ resourceName }}', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+        $data = ['name' => 'Updated Name'];
+
+        $response = $this->put(route('{{ routePrefix }}.update', ${{ resourceName }}), $data);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('{{ tableName }}', [
+            'id' => ${{ resourceName }}->id,
+            'name' => 'Updated Name',
+        ]);
+    });
+
+    it('cannot update {{ resourceName }} from another tenant', function () {
+        $otherTenant = \App\Models\Tenant::factory()->create();
+        ${{ resourceName }} = {{ modelName }}::factory()->for($otherTenant)->create();
+
+        $response = $this->put(route('{{ routePrefix }}.update', ${{ resourceName }}), [
+            'name' => 'Updated Name',
+        ]);
+
+        $response->assertForbidden();
+    });
+
+    it('can delete a {{ resourceName }}', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+
+        $response = $this->delete(route('{{ routePrefix }}.destroy', ${{ resourceName }}));
+
+        $response->assertRedirect();
+        $this->assertSoftDeleted('{{ tableName }}', ['id' => ${{ resourceName }}->id]);
+    });
+
+    it('cannot delete {{ resourceName }} from another tenant', function () {
+        $otherTenant = \App\Models\Tenant::factory()->create();
+        ${{ resourceName }} = {{ modelName }}::factory()->for($otherTenant)->create();
+
+        $response = $this->delete(route('{{ routePrefix }}.destroy', ${{ resourceName }}));
+
+        $response->assertForbidden();
+    });
+
+    it('requires authorization for all actions', function () {
+        $this->actingAsTenant();
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+
+        $this->get(route('{{ routePrefix }}.index'))->assertForbidden();
+        $this->get(route('{{ routePrefix }}.show', ${{ resourceName }}))->assertForbidden();
+        $this->post(route('{{ routePrefix }}.store'), [])->assertForbidden();
+        $this->put(route('{{ routePrefix }}.update', ${{ resourceName }}), [])->assertForbidden();
+        $this->delete(route('{{ routePrefix }}.destroy', ${{ resourceName }}))->assertForbidden();
+    });
+});

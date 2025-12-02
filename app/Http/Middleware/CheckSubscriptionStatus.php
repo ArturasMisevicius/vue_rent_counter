@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
+use App\Models\Subscription;
+use App\Services\SubscriptionChecker;
+use App\Services\SubscriptionStatusHandlers\SubscriptionStatusHandlerFactory;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -13,210 +15,239 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * CheckSubscriptionStatus middleware enforces subscription requirements for admin users.
- * 
+ *
  * This middleware validates that admin users have an active subscription before
  * allowing access to protected routes. It implements read-only mode for expired
  * subscriptions and blocks access for suspended/cancelled subscriptions.
- * 
+ *
+ * Architecture: Uses Strategy pattern via SubscriptionStatusHandlerFactory to delegate
+ * status-specific logic to dedicated handler classes, improving maintainability and testability.
+ *
  * Behavior by subscription status:
  * - ACTIVE: Full access to all routes
  * - EXPIRED: Read-only access (GET requests only) with warning message
  * - SUSPENDED/CANCELLED: Read-only access with warning message
  * - NO SUBSCRIPTION: Dashboard access only with error message
- * 
+ *
  * Security: All subscription checks are logged for audit trail
- * 
+ *
  * Requirements: 3.4, 3.5
- * 
- * @package App\Http\Middleware
  */
 final class CheckSubscriptionStatus
 {
     /**
+     * Routes that should bypass subscription checks.
+     *
+     * These routes must be accessible without subscription validation to prevent
+     * authentication flow disruption (419 CSRF errors, infinite redirects).
+     *
+     * CRITICAL: All HTTP methods (GET, POST, PUT, DELETE, etc.) for these routes
+     * bypass subscription checks. This is essential for:
+     * - Login form submission (POST) to prevent 419 errors
+     * - Logout requests (POST) to allow session termination
+     * - Registration flow (GET/POST) for new user onboarding
+     *
+     * @var array<string>
+     */
+    private const BYPASS_ROUTES = [
+        'login',
+        'register',
+        'logout',
+    ];
+
+    /**
+     * User roles that bypass subscription checks entirely.
+     *
+     * These roles have unrestricted access regardless of subscription status:
+     * - SUPERADMIN: Platform administrators managing all organizations
+     * - MANAGER: Property managers with delegated access
+     * - TENANT: End users viewing their own data
+     *
+     * Only ADMIN role users are subject to subscription validation.
+     *
+     * @var array<UserRole>
+     */
+    private const BYPASS_ROLES = [
+        UserRole::SUPERADMIN,
+        UserRole::MANAGER,
+        UserRole::TENANT,
+    ];
+
+    /**
+     * Memoized audit log channel instance.
+     *
+     * Performance: Resolves log channel once per request instead of on every log call.
+     */
+    private ?\Psr\Log\LoggerInterface $auditLogger = null;
+
+    public function __construct(
+        private readonly SubscriptionChecker $subscriptionChecker,
+        private readonly SubscriptionStatusHandlerFactory $handlerFactory,
+    ) {}
+
+    /**
      * Handle an incoming request.
      *
-     * Validates that admin users have an active subscription.
-     * Allows read-only access for expired subscriptions.
-     * Redirects to dashboard if subscription is missing or invalid.
+     * Validates that admin users have an active subscription before allowing access
+     * to protected routes. Implements read-only mode for expired subscriptions and
+     * blocks access for suspended/cancelled subscriptions.
+     *
+     * CRITICAL: Authentication routes (login, register, logout) are explicitly bypassed
+     * to prevent 419 CSRF errors and authentication flow disruption. These routes must
+     * remain accessible without subscription validation to allow users to authenticate
+     * and manage their sessions regardless of subscription status.
+     *
+     * Flow:
+     * 1. Check if route is an auth route (bypass if yes)
+     * 2. Check if user is authenticated and is admin role
+     * 3. Retrieve subscription via SubscriptionChecker (cached, 5min TTL)
+     * 4. Delegate to appropriate status handler via Factory pattern
+     * 5. Apply result (allow, allow with warning, or block with redirect)
      *
      * Performance: Uses SubscriptionChecker service with caching (5min TTL)
      * to reduce database queries by ~95%
      *
-     * @param Request $request The incoming HTTP request
-     * @param Closure $next The next middleware in the pipeline
+     * Security: All subscription checks are logged to audit channel for compliance
+     * and security monitoring. Failed checks gracefully degrade with user-friendly
+     * error messages while maintaining system availability.
+     *
+     * @param  Request  $request  The incoming HTTP request
+     * @param  Closure  $next  The next middleware in the pipeline
      * @return Response The HTTP response
-     * 
+     *
+     * @throws \Throwable Catches and logs all exceptions, allowing request to proceed
+     *                    with warning message to prevent service disruption
+     *
      * Requirements: 3.4, 3.5
+     * Security: SEC-001 (Input Validation), SEC-002 (Audit Logging)
+     *
+     * @see \App\Services\SubscriptionChecker For subscription retrieval and caching
+     * @see \App\Services\SubscriptionStatusHandlers\SubscriptionStatusHandlerFactory For status handling
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // CRITICAL: Skip auth routes to prevent 419 errors and authentication flow disruption
+        if ($this->shouldBypassCheck($request)) {
+            return $next($request);
+        }
+
         $user = $request->user();
 
         // Early return: Only check subscription for admin role users
-        if (!$user || $user->role !== UserRole::ADMIN) {
+        // Superadmins, managers, and tenants bypass subscription checks
+        if (! $user || $this->shouldBypassRoleCheck($user->role)) {
             return $next($request);
         }
 
-        // Performance: Use SubscriptionChecker service with caching
-        $checker = app(\App\Services\SubscriptionChecker::class);
-        $subscription = $checker->getSubscription($user);
-        
-        if (!$subscription) {
-            return $this->handleMissingSubscription($request);
-        }
+        try {
+            // Performance: Use SubscriptionChecker service with caching (5min TTL)
+            $subscription = $this->subscriptionChecker->getSubscription($user);
 
-        // Handle different subscription statuses
-        // Convert string status to enum if needed
-        $status = $subscription->status instanceof SubscriptionStatus 
-            ? $subscription->status 
-            : SubscriptionStatus::from($subscription->status);
-        
-        return match ($status) {
-            SubscriptionStatus::ACTIVE => $this->handleActiveSubscription($request, $next, $subscription),
-            SubscriptionStatus::EXPIRED => $this->handleExpiredSubscription($request, $next),
-            SubscriptionStatus::SUSPENDED, 
-            SubscriptionStatus::CANCELLED => $this->handleInactiveSubscription($request, $next, $status),
-            default => $this->handleUnknownStatus($request, $status),
-        };
-    }
+            // Delegate to appropriate handler via Factory pattern
+            $handler = $this->handlerFactory->getHandler($subscription);
+            $result = $handler->handle($request, $subscription);
 
-    /**
-     * Handle requests when subscription is missing.
-     * 
-     * @param Request $request The incoming HTTP request
-     * @return Response The HTTP response
-     */
-    protected function handleMissingSubscription(Request $request): Response
-    {
-        $this->logSubscriptionCheck('missing', $request);
-        
-        // Allow access to dashboard to see subscription warning
-        if ($request->routeIs('admin.dashboard')) {
-            session()->flash('error', 'No active subscription found. Please contact support.');
-            return app()->make('next')($request);
-        }
-        
-        return $this->redirectToSubscriptionPage(
-            'No active subscription found. Please contact support.'
-        );
-    }
+            // Log the check for audit trail
+            $this->logSubscriptionCheck($request, $subscription, $result);
 
-    /**
-     * Handle requests with active subscription.
-     * 
-     * @param Request $request The incoming HTTP request
-     * @param Closure $next The next middleware in the pipeline
-     * @param \App\Models\Subscription $subscription The user's subscription
-     * @return Response The HTTP response
-     */
-    protected function handleActiveSubscription(Request $request, Closure $next, $subscription): Response
-    {
-        // Check if subscription has actually expired despite status
-        if ($subscription->isExpired()) {
-            $this->logSubscriptionCheck('expired_but_active_status', $request, $subscription);
-            return $this->handleExpiredSubscription($request, $next);
-        }
-        
-        return $next($request);
-    }
+            // Apply the result
+            if (! $result->shouldProceed) {
+                return redirect()
+                    ->route($result->redirectRoute)
+                    ->with($result->messageType, $result->message);
+            }
 
-    /**
-     * Handle requests with expired subscription.
-     * 
-     * @param Request $request The incoming HTTP request
-     * @param Closure $next The next middleware in the pipeline
-     * @return Response The HTTP response
-     */
-    protected function handleExpiredSubscription(Request $request, Closure $next): Response
-    {
-        // Allow read-only access for expired subscriptions (GET requests)
-        if ($request->isMethod('GET')) {
-            $this->logSubscriptionCheck('expired_readonly', $request);
-            session()->flash('warning', 'Your subscription has expired. You have read-only access. Please renew to continue managing your properties.');
+            if ($result->message) {
+                session()->flash($result->messageType, $result->message);
+            }
+
+            return $next($request);
+        } catch (\Throwable $e) {
+            // Log error without exposing sensitive details
+            Log::error('Subscription check failed', [
+                'user_id' => $user->id,
+                'route' => $request->route()?->getName(),
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            // Fail open with warning to prevent blocking legitimate access
+            session()->flash('warning', 'Unable to verify subscription status. Please contact support if this persists.');
+
             return $next($request);
         }
-
-        // Block write operations (POST, PUT, PATCH, DELETE)
-        $this->logSubscriptionCheck('expired_write_blocked', $request);
-        return $this->redirectToSubscriptionPage(
-            'Your subscription has expired. Please renew to continue managing your properties.'
-        );
     }
 
     /**
-     * Handle requests with suspended or cancelled subscription.
-     * 
-     * @param Request $request The incoming HTTP request
-     * @param Closure $next The next middleware in the pipeline
-     * @param SubscriptionStatus $status The subscription status
-     * @return Response The HTTP response
+     * Check if the request should bypass subscription validation.
+     *
+     * Determines if the current request is for an authentication route that should
+     * not be subject to subscription checks. This prevents middleware from interfering
+     * with the authentication flow and causing 419 CSRF errors.
+     *
+     * CRITICAL: This method must return true for BOTH GET and POST requests to
+     * authentication routes (login, register, logout) to prevent 419 Page Expired
+     * errors when submitting login forms. The HTTP method is irrelevant for bypass
+     * logic - if the route is an auth route, it should always bypass subscription checks.
+     *
+     * Performance: Uses in_array with strict comparison for O(1) average lookup
+     * instead of iterating through routes. Route name is cached by Laravel.
+     *
+     * @param  Request  $request  The incoming HTTP request
+     * @return bool True if the request should bypass checks, false otherwise
+     *
+     * @see self::BYPASS_ROUTES For the list of routes that bypass subscription checks
      */
-    protected function handleInactiveSubscription(Request $request, Closure $next, SubscriptionStatus $status): Response
+    protected function shouldBypassCheck(Request $request): bool
     {
-        $this->logSubscriptionCheck($status->value, $request);
-        
-        // Allow read-only access with warning
-        if ($request->isMethod('GET')) {
-            $message = $status === SubscriptionStatus::SUSPENDED
-                ? 'Your subscription has been suspended. Please contact support.'
-                : 'Your subscription has been cancelled. Please contact support to reactivate.';
-            
-            session()->flash('warning', $message);
-            return $next($request);
-        }
+        $routeName = $request->route()?->getName();
 
-        // Block write operations
-        return $this->redirectToSubscriptionPage(
-            'Your subscription is not active. Please contact support.'
-        );
+        // Bypass all HTTP methods (GET, POST, etc.) for authentication routes
+        // This is critical to prevent 419 errors on login form submission
+        return $routeName && in_array($routeName, self::BYPASS_ROUTES, true);
     }
 
     /**
-     * Handle requests with unknown subscription status.
-     * 
-     * @param Request $request The incoming HTTP request
-     * @param SubscriptionStatus $status The unknown subscription status
-     * @return Response The HTTP response
+     * Check if the user role should bypass subscription validation.
+     *
+     * Determines if the user's role grants automatic bypass of subscription checks.
+     * Only ADMIN role users are subject to subscription validation.
+     *
+     * Performance: Uses in_array with strict comparison for O(1) lookup.
+     *
+     * @param  UserRole  $role  The user's role
+     * @return bool True if the role should bypass checks, false otherwise
+     *
+     * @see self::BYPASS_ROLES For the list of roles that bypass subscription checks
      */
-    protected function handleUnknownStatus(Request $request, SubscriptionStatus $status): Response
+    protected function shouldBypassRoleCheck(UserRole $role): bool
     {
-        $this->logSubscriptionCheck('unknown_status', $request, null, [
-            'status' => $status->value,
-        ]);
-        
-        return $this->redirectToSubscriptionPage(
-            'Your subscription status is unclear. Please contact support.'
-        );
-    }
-
-    /**
-     * Redirect to subscription page with error message.
-     * 
-     * @param string $message The error message to display
-     * @return Response The redirect response
-     */
-    protected function redirectToSubscriptionPage(string $message): Response
-    {
-        return redirect()->route('admin.dashboard')->with('error', $message);
+        return in_array($role, self::BYPASS_ROLES, true);
     }
 
     /**
      * Log subscription check for audit trail.
-     * 
-     * @param string $checkType The type of subscription check
-     * @param Request $request The incoming HTTP request
-     * @param \App\Models\Subscription|null $subscription The subscription if available
-     * @param array $additionalContext Additional context to log
-     * @return void
+     *
+     * Performance: Memoizes audit logger instance to avoid repeated channel resolution.
+     *
+     * @param  Request  $request  The incoming HTTP request
+     * @param  Subscription|null  $subscription  The subscription if available
+     * @param  \App\ValueObjects\SubscriptionCheckResult  $result  The check result
      */
     protected function logSubscriptionCheck(
-        string $checkType, 
-        Request $request, 
-        $subscription = null,
-        array $additionalContext = []
+        Request $request,
+        ?Subscription $subscription,
+        \App\ValueObjects\SubscriptionCheckResult $result
     ): void {
-        Log::channel('audit')->info('Subscription check performed', array_merge([
-            'check_type' => $checkType,
+        // Memoize audit logger to avoid repeated channel resolution
+        if ($this->auditLogger === null) {
+            $this->auditLogger = Log::channel('audit');
+        }
+
+        $this->auditLogger->info('Subscription check performed', [
+            'check_result' => $result->shouldProceed ? 'allowed' : 'blocked',
+            'message_type' => $result->messageType,
             'user_id' => $request->user()?->id,
             'user_email' => $request->user()?->email,
             'subscription_id' => $subscription?->id,
@@ -226,6 +257,6 @@ final class CheckSubscriptionStatus
             'method' => $request->method(),
             'ip' => $request->ip(),
             'timestamp' => now()->toIso8601String(),
-        ], $additionalContext));
+        ]);
     }
 }

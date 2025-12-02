@@ -48,7 +48,7 @@ trait BuildsTariffFormFields
                     'max' => __('tariffs.validation.name.max'),
                     'regex' => __('tariffs.validation.name.regex'),
                 ])
-                ->dehydrateStateUsing(fn (string $state): string => strip_tags($state)),
+                ->dehydrateStateUsing(fn (string $state): string => app(\App\Services\InputSanitizer::class)->sanitizeText($state)),
         ];
     }
 
@@ -221,7 +221,7 @@ trait BuildsTariffFormFields
                     'max' => __('tariffs.validation.configuration.zones.id.max'),
                     'regex' => __('tariffs.validation.configuration.zones.id.regex'),
                 ])
-                ->dehydrateStateUsing(fn (string $state): string => strip_tags($state)),
+                ->dehydrateStateUsing(fn (string $state): string => app(\App\Services\InputSanitizer::class)->sanitizeIdentifier($state)),
             
             Forms\Components\TextInput::make('start')
                 ->label(__('tariffs.forms.start_time'))

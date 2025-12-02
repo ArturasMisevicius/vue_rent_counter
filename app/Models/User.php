@@ -129,10 +129,28 @@ class User extends Authenticatable implements FilamentUser
     /**
      * Determine if the user can access the Filament admin panel.
      * 
+     * This method implements the primary authorization gate for Filament panel access.
+     * It works in conjunction with EnsureUserIsAdminOrManager middleware to provide
+     * defense-in-depth security.
+     * 
+     * Authorization Rules:
+     * - Admin Panel: ADMIN, MANAGER, SUPERADMIN roles only
+     * - Other Panels: SUPERADMIN only
+     * - TENANT role: Explicitly denied access to all panels
+     * 
      * Requirements: 9.1, 9.2, 9.3
+     * 
+     * @param Panel $panel The Filament panel being accessed
+     * @return bool True if user can access the panel, false otherwise
      */
     public function canAccessPanel(Panel $panel): bool
     {
+        // Ensure user is active (prevents deactivated accounts from accessing panels)
+        if (!$this->is_active) {
+            return false;
+        }
+
+        // Admin panel: Allow ADMIN, MANAGER, and SUPERADMIN roles
         if ($panel->getId() === 'admin') {
             return in_array($this->role, [
                 UserRole::ADMIN,
@@ -141,6 +159,7 @@ class User extends Authenticatable implements FilamentUser
             ], true);
         }
 
+        // Other panels: Only SUPERADMIN
         return $this->role === UserRole::SUPERADMIN;
     }
 
@@ -245,5 +264,75 @@ class User extends Authenticatable implements FilamentUser
     public function tenant()
     {
         return $this->hasOne(Tenant::class, 'email', 'email');
+    }
+
+    /**
+     * Scope: Order users by role priority.
+     * 
+     * Orders users with superadmin first, then admin, manager, and tenant.
+     */
+    public function scopeOrderedByRole($query)
+    {
+        return $query->orderByRaw("
+            CASE role
+                WHEN 'superadmin' THEN 1
+                WHEN 'admin' THEN 2
+                WHEN 'manager' THEN 3
+                WHEN 'tenant' THEN 4
+                ELSE 5
+            END
+        ");
+    }
+
+    /**
+     * Scope: Filter only active users.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope: Filter users by role.
+     */
+    public function scopeOfRole($query, UserRole $role)
+    {
+        return $query->where('role', $role);
+    }
+
+    /**
+     * Scope: Filter users by tenant.
+     */
+    public function scopeOfTenant($query, int $tenantId)
+    {
+        return $query->where('tenant_id', $tenantId);
+    }
+
+    /**
+     * Scope: Filter admin users (admin, manager, superadmin).
+     */
+    public function scopeAdmins($query)
+    {
+        return $query->whereIn('role', [
+            UserRole::ADMIN,
+            UserRole::MANAGER,
+            UserRole::SUPERADMIN,
+        ]);
+    }
+
+    /**
+     * Scope: Filter tenant users only.
+     */
+    public function scopeTenants($query)
+    {
+        return $query->where('role', UserRole::TENANT);
+    }
+
+    /**
+     * Scope: Filter users with expired email verification.
+     */
+    public function scopeUnverified($query)
+    {
+        return $query->whereNull('email_verified_at');
     }
 }

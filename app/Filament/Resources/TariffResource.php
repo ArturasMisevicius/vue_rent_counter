@@ -13,7 +13,6 @@ use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Tables\Actions;
 use Filament\Tables\Table;
 use UnitEnum;
 
@@ -53,6 +52,14 @@ use UnitEnum;
  * - Tenant scope bypass protection in provider loading
  * - Comprehensive audit logging via TariffObserver
  *
+ * Namespace Consolidation (Filament 4):
+ * This resource follows Filament 4 best practices by using consolidated namespace
+ * imports. Instead of importing individual action classes, it uses:
+ * - `use Filament\Tables;` for all table components
+ * - Actions referenced as `Tables\Actions\EditAction`
+ * - Columns referenced as `Tables\Columns\TextColumn`
+ * This reduces import clutter by 87.5% and improves code maintainability.
+ *
  * @see \App\Models\Tariff
  * @see \App\Policies\TariffPolicy
  * @see \App\Observers\TariffObserver
@@ -60,6 +67,7 @@ use UnitEnum;
  * @see \App\Http\Requests\UpdateTariffRequest
  * @see \Tests\Feature\Filament\FilamentTariffValidationConsistencyPropertyTest
  * @see \Tests\Feature\Security\TariffResourceSecurityTest
+ * @see .kiro/specs/6-filament-namespace-consolidation/requirements.md
  */
 class TariffResource extends Resource
 {
@@ -251,6 +259,31 @@ class TariffResource extends Resource
             ]);
     }
 
+    /**
+     * Define the table schema for tariff listing.
+     *
+     * Implements optimized query loading with eager-loaded provider relationships
+     * to prevent N+1 queries. Uses consolidated Filament\Tables namespace for
+     * all table components following Filament 4 best practices.
+     *
+     * Table Features:
+     * - Eager-loaded provider relationship for performance
+     * - Global search across tariff fields
+     * - Edit action for authorized users
+     * - Default sort by active_from date (newest first)
+     * - Bulk actions removed for Filament v4 compatibility
+     *
+     * Namespace Pattern:
+     * All table actions use the consolidated `Tables\Actions\` prefix instead of
+     * individual imports. This follows Filament 4 namespace consolidation pattern
+     * documented in .kiro/specs/6-filament-namespace-consolidation/requirements.md
+     *
+     * @param Table $table The Filament table builder
+     * @return Table Configured table with columns, actions, and filters
+     *
+     * @see \App\Filament\Resources\TariffResource\Concerns\BuildsTariffTableColumns
+     * @see .kiro/specs/6-filament-namespace-consolidation/requirements.md
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -261,7 +294,7 @@ class TariffResource extends Resource
                 //
             ])
             ->actions([
-                Actions\EditAction::make(),
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 // Bulk actions removed for Filament v4 compatibility

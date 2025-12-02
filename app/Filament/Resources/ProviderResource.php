@@ -12,7 +12,6 @@ use BackedEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Schemas\Schema;
@@ -184,12 +183,12 @@ class ProviderResource extends Resource
                 //
             ])
             ->actions([
-                Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make(),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('name', 'asc');

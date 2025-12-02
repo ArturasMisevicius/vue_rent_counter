@@ -21,21 +21,25 @@ use Illuminate\Support\Facades\Cache;
 final class SubscriptionChecker
 {
     /**
-     * Cache TTL in seconds (5 minutes)
+     * Cache TTL in seconds (5 minutes) - default value
      */
     private const CACHE_TTL = 300;
 
     /**
      * Get user's subscription with caching.
      * 
+     * Security: Validates user ID before cache key generation
+     * Performance: Uses configurable cache TTL
+     * 
      * @param User $user The user to get subscription for
      * @return Subscription|null The user's subscription or null
+     * @throws \InvalidArgumentException If user ID is invalid
      */
     public function getSubscription(User $user): ?Subscription
     {
         $cacheKey = $this->getCacheKey($user);
         
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($user) {
+        return Cache::remember($cacheKey, $this->getCacheTTL(), function () use ($user) {
             return Subscription::select([
                 'id',
                 'user_id',
@@ -67,11 +71,32 @@ final class SubscriptionChecker
     /**
      * Get cache key for user's subscription.
      * 
+     * Security: Validates user ID to prevent cache poisoning attacks
+     * 
      * @param User $user The user
      * @return string The cache key
+     * @throws \InvalidArgumentException If user ID is invalid
      */
     private function getCacheKey(User $user): string
     {
+        // Type-safe: User model ensures ID is valid integer
+        // Additional validation to prevent cache poisoning
+        if ($user->id <= 0) {
+            throw new \InvalidArgumentException(
+                sprintf('Invalid user ID for cache key: %d', $user->id)
+            );
+        }
+        
         return sprintf('subscription:user:%d', $user->id);
+    }
+    
+    /**
+     * Get cache TTL from configuration.
+     * 
+     * @return int Cache TTL in seconds
+     */
+    private function getCacheTTL(): int
+    {
+        return config('subscription.cache_ttl', self::CACHE_TTL);
     }
 }

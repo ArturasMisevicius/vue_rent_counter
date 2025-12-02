@@ -8,7 +8,13 @@ This directory contains comprehensive test suites for the Filament v4 admin pane
 Tests for Filament resource CRUD operations, table configurations, and form validations:
 
 - `BuildingResourceTest.php` - Building resource functionality
+- `FaqResourceFilterTest.php` - FAQ filter testing (26 tests, 100% coverage)
+- `FaqResourceNamespaceTest.php` - Namespace consolidation verification
 - `InvoiceFinalizationActionTest.php` - Invoice finalization action
+- `LanguageResourceFilterTest.php` - Language filter testing (26 tests, 100% coverage)
+- `LanguageResourceNavigationTest.php` - Language navigation and authorization (8 tests)
+- `LanguageResourceFormTransformationTest.php` - Language form transformations (15 tests)
+- `LanguageResourceToggleActiveTest.php` - Language toggle active/inactive (16 tests, 100% coverage)
 - `PropertiesRelationManagerTest.php` - Properties relation manager
 - `SubscriptionResourceTest.php` - Subscription resource
 
@@ -135,6 +141,93 @@ foreach ($invoices as $invoice) {
 }
 ```
 
+## Language Resource Test Suite
+
+The Language Resource has comprehensive test coverage across multiple test files:
+
+### LanguageResourceSetDefaultTest (14 tests)
+**Purpose**: Validates "Set as Default" functionality
+
+**Coverage**:
+- Namespace consolidation (1 test)
+- Functional tests (5 tests)
+- UI element tests (4 tests)
+- Authorization tests (1 test)
+- Edge case tests (2 tests)
+- Performance tests (1 test)
+
+**Run**:
+```bash
+php artisan test --filter=LanguageResourceSetDefaultTest
+```
+
+**Documentation**: `docs/testing/LANGUAGE_RESOURCE_SET_DEFAULT_TEST_DOCUMENTATION.md`
+
+### LanguageResourceToggleActiveTest (16 tests)
+**Purpose**: Validates toggle active/inactive functionality
+
+**Coverage**:
+- Namespace consolidation (3 tests)
+- Functional tests (6 tests)
+- UI element tests (6 tests)
+- Authorization tests (1 test)
+
+**Run**:
+```bash
+php artisan test --filter=LanguageResourceToggleActiveTest
+```
+
+**Documentation**: `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_TEST_DOCUMENTATION.md`
+
+### LanguageResourceFilterTest (26 tests)
+**Purpose**: Validates filter functionality
+
+**Coverage**:
+- Active status filter (8 tests)
+- Default status filter (9 tests)
+- Combined filters (3 tests)
+- Performance tests (3 tests)
+- Authorization tests (3 tests)
+
+**Run**:
+```bash
+php artisan test --filter=LanguageResourceFilterTest
+```
+
+**Documentation**: `docs/testing/LANGUAGE_RESOURCE_FILTER_TEST_DOCUMENTATION.md`
+
+### LanguageResourceNavigationTest (8 tests)
+**Purpose**: Validates navigation and access control
+
+**Run**:
+```bash
+php artisan test --filter=LanguageResourceNavigationTest
+```
+
+**Documentation**: `docs/testing/LANGUAGE_RESOURCE_NAVIGATION_TEST_COMPLETE.md`
+
+### LanguageResourceFormTransformationTest (15 tests)
+**Purpose**: Validates form field transformations
+
+**Run**:
+```bash
+php artisan test --filter=LanguageResourceFormTransformationTest
+```
+
+**Documentation**: `docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md`
+
+### Run All Language Resource Tests
+```bash
+php artisan test --filter=LanguageResource
+```
+
+**Total Coverage**: 79 tests across 5 test files
+- LanguageResourceSetDefaultTest: 14 tests
+- LanguageResourceToggleActiveTest: 16 tests
+- LanguageResourceFilterTest: 26 tests
+- LanguageResourceNavigationTest: 8 tests
+- LanguageResourceFormTransformationTest: 15 tests
+
 ## Documentation
 
 Each test suite has corresponding documentation:
@@ -142,6 +235,8 @@ Each test suite has corresponding documentation:
 - `docs/testing/invoice-status-filtering-tests.md` - Invoice filtering tests
 - `docs/testing/INVOICE_FINALIZATION_TEST_SUMMARY.md` - Finalization tests
 - `docs/testing/BUILDING_RESOURCE_TEST_SUMMARY.md` - Building resource tests
+- `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_TEST_DOCUMENTATION.md` - Language toggle tests
+- `docs/testing/LANGUAGE_RESOURCE_FILTER_TEST_DOCUMENTATION.md` - Language filter tests
 
 ## Quality Standards
 

@@ -8,49 +8,75 @@ use Monolog\LogRecord;
 use Monolog\Processor\ProcessorInterface;
 
 /**
- * Redact Sensitive Data Processor
- *
- * Automatically redacts PII and sensitive information from log messages
- * to comply with GDPR and data protection regulations.
- *
- * ## Redacted Patterns
+ * Log Processor for PII Redaction
+ * 
+ * Automatically redacts sensitive personal information from logs:
  * - Email addresses
- * - Phone numbers (international format)
+ * - IP addresses
+ * - Phone numbers
  * - Credit card numbers
- * - IP addresses (optional, configurable)
- * - API keys and tokens
- *
+ * - API tokens
+ * 
+ * Compliance: GDPR, CCPA, privacy regulations
+ * 
  * @package App\Logging
  */
 final class RedactSensitiveData implements ProcessorInterface
 {
     /**
-     * Redaction patterns and replacements.
-     *
-     * @var array<string, string>
+     * Regex pattern for email addresses
      */
-    private array $patterns = [
-        // Email addresses
-        '/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/' => '[EMAIL_REDACTED]',
-        
-        // Phone numbers (various formats)
-        '/\b\+?[\d\s\-\(\)]{10,}\b/' => '[PHONE_REDACTED]',
-        
-        // Credit card numbers (basic pattern)
-        '/\b\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\b/' => '[CARD_REDACTED]',
-        
-        // API keys and tokens (common patterns)
-        '/\b[A-Za-z0-9_\-]{32,}\b/' => '[TOKEN_REDACTED]',
-        
-        // Passwords in URLs or logs
-        '/password["\']?\s*[:=]\s*["\']?[^\s"\']+/' => 'password=[REDACTED]',
-        
-        // Bearer tokens
-        '/Bearer\s+[A-Za-z0-9\-._~+\/]+=*/' => 'Bearer [REDACTED]',
-    ];
-
+    private const EMAIL_PATTERN = '/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/';
+    
     /**
-     * Process the log record and redact sensitive information.
+     * Regex pattern for IPv4 addresses
+     */
+    private const IP_PATTERN = '/\b(?:\d{1,3}\.){3}\d{1,3}\b/';
+    
+    /**
+     * Regex pattern for phone numbers (various formats)
+     */
+    private const PHONE_PATTERN = '/\b(?:\+?1[-.]?)?\(?([0-9]{3})\)?[-.]?([0-9]{3})[-.]?([0-9]{4})\b/';
+    
+    /**
+     * Regex pattern for credit card numbers
+     */
+    private const CC_PATTERN = '/\b(?:\d{4}[-\s]?){3}\d{4}\b/';
+    
+    /**
+     * Regex pattern for API tokens (common formats)
+     */
+    private const TOKEN_PATTERN = '/\b[A-Za-z0-9_-]{32,}\b/';
+    
+    /**
+     * Sensitive keys that should always be redacted
+     */
+    private const SENSITIVE_KEYS = [
+        'email',
+        'user_email',
+        'ip',
+        'ip_address',
+        'password',
+        'password_confirmation',
+        'token',
+        'api_token',
+        'access_token',
+        'refresh_token',
+        'secret',
+        'api_key',
+        'private_key',
+        'credit_card',
+        'card_number',
+        'cvv',
+        'ssn',
+        'social_security',
+        'phone',
+        'phone_number',
+        'mobile',
+    ];
+    
+    /**
+     * Process log record to redact sensitive data.
      *
      * @param  LogRecord  $record
      * @return LogRecord
@@ -58,74 +84,96 @@ final class RedactSensitiveData implements ProcessorInterface
     public function __invoke(LogRecord $record): LogRecord
     {
         // Redact message
-        $record->message = $this->redact($record->message);
-
-        // Redact context data
-        if (!empty($record->context)) {
-            $record->context = $this->redactArray($record->context);
-        }
-
+        $record['message'] = $this->redactString($record['message']);
+        
+        // Redact context
+        $record['context'] = $this->redactArray($record['context']);
+        
         // Redact extra data
-        if (!empty($record->extra)) {
-            $record->extra = $this->redactArray($record->extra);
+        if (isset($record['extra'])) {
+            $record['extra'] = $this->redactArray($record['extra']);
         }
-
+        
         return $record;
     }
-
+    
     /**
-     * Redact sensitive patterns from a string.
+     * Redact sensitive patterns from string.
      *
      * @param  string  $text
      * @return string
      */
-    private function redact(string $text): string
+    private function redactString(string $text): string
     {
-        foreach ($this->patterns as $pattern => $replacement) {
-            $text = preg_replace($pattern, $replacement, $text);
-        }
-
+        // Redact emails
+        $text = preg_replace(self::EMAIL_PATTERN, '[EMAIL_REDACTED]', $text);
+        
+        // Redact IPs
+        $text = preg_replace(self::IP_PATTERN, '[IP_REDACTED]', $text);
+        
+        // Redact phone numbers
+        $text = preg_replace(self::PHONE_PATTERN, '[PHONE_REDACTED]', $text);
+        
+        // Redact credit cards
+        $text = preg_replace(self::CC_PATTERN, '[CC_REDACTED]', $text);
+        
+        // Redact tokens (be careful not to redact legitimate data)
+        // Only redact if it looks like a token in a key=value context
+        $text = preg_replace('/\b(token|key|secret)=[A-Za-z0-9_-]{32,}\b/i', '$1=[TOKEN_REDACTED]', $text);
+        
         return $text;
     }
-
+    
     /**
-     * Recursively redact sensitive data from arrays.
+     * Redact sensitive data from array.
      *
-     * @param  array<mixed>  $data
-     * @return array<mixed>
+     * @param  array  $data
+     * @return array
      */
     private function redactArray(array $data): array
     {
-        $sensitiveKeys = [
-            'password',
-            'password_confirmation',
-            'token',
-            'api_key',
-            'secret',
-            'credit_card',
-            'ssn',
-            'social_security',
-        ];
-
         foreach ($data as $key => $value) {
-            // Redact sensitive keys
-            if (is_string($key) && in_array(strtolower($key), $sensitiveKeys, true)) {
+            // Check if key is sensitive
+            if ($this->isSensitiveKey($key)) {
                 $data[$key] = '[REDACTED]';
                 continue;
             }
-
+            
             // Recursively process arrays
             if (is_array($value)) {
                 $data[$key] = $this->redactArray($value);
                 continue;
             }
-
-            // Redact string values
+            
+            // Process strings
             if (is_string($value)) {
-                $data[$key] = $this->redact($value);
+                $data[$key] = $this->redactString($value);
             }
         }
-
+        
         return $data;
+    }
+    
+    /**
+     * Check if key name indicates sensitive data.
+     *
+     * @param  string|int  $key
+     * @return bool
+     */
+    private function isSensitiveKey(string|int $key): bool
+    {
+        if (!is_string($key)) {
+            return false;
+        }
+        
+        $lowerKey = strtolower($key);
+        
+        foreach (self::SENSITIVE_KEYS as $sensitiveKey) {
+            if (str_contains($lowerKey, $sensitiveKey)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }

@@ -57,6 +57,32 @@ return [
             'heading' => 'Ištrinti kalbas',
             'description' => 'Ar tikrai norite ištrinti šias kalbas? Tai gali paveikti vertimus.',
         ],
+        'set_default' => [
+            'heading' => 'Nustatyti numatytąją kalbą',
+            'description' => 'Ar tikrai norite nustatyti šią kalbą kaip numatytąją? Dabartinė numatytoji kalba bus pakeista.',
+        ],
+    ],
+
+    'actions' => [
+        'activate' => 'Aktyvuoti',
+        'deactivate' => 'Deaktyvuoti',
+        'bulk_activate' => 'Aktyvuoti pasirinktus',
+        'bulk_deactivate' => 'Deaktyvuoti pasirinktus',
+        'set_default' => 'Nustatyti kaip numatytąją',
+    ],
+
+    'messages' => [
+        'code_copied' => 'Kalbos kodas nukopijuotas',
+    ],
+
+    'notifications' => [
+        'default_set' => 'Numatytoji kalba sėkmingai atnaujinta',
+    ],
+
+    'errors' => [
+        'cannot_delete_default' => 'Negalima ištrinti numatytosios kalbos',
+        'cannot_delete_last_active' => 'Negalima ištrinti paskutinės aktyvios kalbos',
+        'cannot_deactivate_default' => 'Negalima deaktyvuoti numatytosios kalbos',
     ],
     'validation' => [
         'locale' => [

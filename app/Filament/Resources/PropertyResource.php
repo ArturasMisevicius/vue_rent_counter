@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Enums\PropertyType;
-use App\Enums\UserRole;
+use App\Filament\Concerns\HasRoleBasedNavigation;
+use App\Filament\Concerns\HasTenantScoping;
 use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\PropertyResource\Pages;
 use App\Filament\Resources\PropertyResource\RelationManagers;
 use App\Models\Property;
-use App\Models\User;
 use BackedEnum;
 use UnitEnum;
 use Filament\Forms;
@@ -36,6 +36,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class PropertyResource extends Resource
 {
+    use HasRoleBasedNavigation;
+    use HasTenantScoping;
     use HasTranslatedValidation;
 
     protected static ?string $model = Property::class;
@@ -68,17 +70,6 @@ class PropertyResource extends Resource
     }
 
     protected static ?string $recordTitleAttribute = 'address';
-
-    /**
-     * Hide from tenant users (Requirements 9.1, 9.2, 9.3).
-     * Policies handle granular authorization (Requirement 9.5).
-     */
-    public static function shouldRegisterNavigation(): bool
-    {
-        $user = auth()->user();
-
-        return $user instanceof User && $user->role !== UserRole::TENANT;
-    }
 
     /**
      * Get the displayable label for the resource.
@@ -167,84 +158,10 @@ class PropertyResource extends Resource
             ]);
     }
 
-    /**
-     * Scope query to authenticated user's tenant (Requirements 4.3, 12.3).
-     */
-    protected static function scopeToUserTenant(Builder $query): Builder
-    {
-        $user = auth()->user();
-
-        if ($user instanceof User && $user->tenant_id) {
-            $table = $query->getModel()->getTable();
-            $query->where("{$table}.tenant_id", $user->tenant_id);
-        }
-
-        return $query;
-    }
-
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('address')
-                    ->label(__('properties.labels.address'))
-                    ->searchable()
-                    ->sortable()
-                    ->copyable()
-                    ->copyMessage(__('properties.tooltips.copy_address'))
-                    ->weight('medium'),
-
-                Tables\Columns\TextColumn::make('type')
-                    ->label(__('properties.labels.type'))
-                    ->badge()
-                    ->color(fn (PropertyType $state): string => match ($state) {
-                        PropertyType::APARTMENT => 'info',
-                        PropertyType::HOUSE => 'success',
-                    })
-                    ->formatStateUsing(fn (?PropertyType $state): ?string => $state?->label())
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('building.address')
-                    ->label(__('properties.labels.building'))
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable()
-                    ->placeholder(__('app.common.dash')),
-
-                Tables\Columns\TextColumn::make('tenants.name')
-                    ->label(__('properties.labels.current_tenant'))
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable()
-                    ->badge()
-                    ->color('success')
-                    ->placeholder(__('properties.badges.vacant'))
-                    ->tooltip(fn (?Model $record): ?string => $record?->tenants?->first()?->name
-                            ? __('properties.tooltips.occupied_by', ['name' => $record->tenants->first()->name])
-                            : __('properties.tooltips.no_tenant')
-                    ),
-
-                Tables\Columns\TextColumn::make('area_sqm')
-                    ->label(__('properties.labels.area'))
-                    ->numeric(decimalPlaces: 2)
-                    ->suffix(__('app.units.square_meter_spaced'))
-                    ->sortable()
-                    ->alignEnd(),
-
-                Tables\Columns\TextColumn::make('meters_count')
-                    ->label(__('properties.labels.installed_meters'))
-                    ->counts('meters')
-                    ->badge()
-                    ->color('gray')
-                    ->tooltip(__('properties.tooltips.meters_count'))
-                    ->toggleable(),
-
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label(__('properties.labels.created'))
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
+            ->columns(PropertyResource\Columns\PropertyTableColumns::get())
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
                     ->label(__('properties.filters.type'))
@@ -271,8 +188,14 @@ class PropertyResource extends Resource
             ->recordActions([
                 // Table row actions removed - use page header actions instead
             ])
-            ->toolbarActions([
-                // Bulk actions removed for Filament v4 compatibility
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->requiresConfirmation()
+                        ->modalHeading(__('properties.modals.bulk_delete.title'))
+                        ->modalDescription(__('properties.modals.bulk_delete.description'))
+                        ->modalSubmitActionLabel(__('properties.modals.bulk_delete.confirm')),
+                ]),
             ])
             ->emptyStateHeading(__('properties.empty_state.heading'))
             ->emptyStateDescription(__('properties.empty_state.description'))
@@ -290,37 +213,6 @@ class PropertyResource extends Resource
         return [
             RelationManagers\MetersRelationManager::class,
         ];
-    }
-
-    /**
-     * Get the navigation badge for the resource.
-     */
-    public static function getNavigationBadge(): ?string
-    {
-        $user = auth()->user();
-
-        if (! $user instanceof User) {
-            return null;
-        }
-
-        $query = static::getModel()::query();
-
-        // Apply tenant scope for non-superadmin users
-        if ($user->role !== UserRole::SUPERADMIN && $user->tenant_id) {
-            $query->where('tenant_id', $user->tenant_id);
-        }
-
-        $count = $query->count();
-
-        return $count > 0 ? (string) $count : null;
-    }
-
-    /**
-     * Get the navigation badge color for the resource.
-     */
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'primary';
     }
 
     public static function getPages(): array

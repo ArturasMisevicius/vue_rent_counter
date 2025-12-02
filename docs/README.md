@@ -45,6 +45,10 @@ Complete documentation for the Vilnius Utilities Billing Platform.
 - **[HierarchicalScope](architecture/HIERARCHICAL_SCOPE.md)** - Role-based query filtering
 - **[Authorization Architecture](architecture/AUTHORIZATION_ARCHITECTURE.md)** - Policy-based access control
 - **[Database Schema](architecture/DATABASE_SCHEMA.md)** - Database design
+- **[Bootstrap Application Architecture](architecture/BOOTSTRAP_APP_ARCHITECTURE.md)** - Application bootstrap and configuration
+
+### Middleware
+- **[Middleware Configuration](middleware/MIDDLEWARE_CONFIGURATION.md)** - Complete middleware reference and configuration
 
 ### Data Flow
 - **[Invoice Finalization Flow](architecture/INVOICE_FINALIZATION_FLOW.md)** - Complete finalization architecture
@@ -130,6 +134,7 @@ Complete documentation for the Vilnius Utilities Billing Platform.
 ### Security Implementation
 - **[BillingService Security Implementation](security/BILLING_SERVICE_SECURITY_IMPLEMENTATION.md)** - Step-by-step guide
 - **[Security Implementation Complete](security/SECURITY_IMPLEMENTATION_COMPLETE.md)** - Implementation summary
+- **[Rate Limiting Strategy](security/RATE_LIMITING_STRATEGY.md)** - Rate limiting configuration and monitoring
 
 ## Testing
 
@@ -169,6 +174,12 @@ Complete documentation for the Vilnius Utilities Billing Platform.
 - **[Upgrade Complete Summary](upgrades/UPGRADE_COMPLETE_SUMMARY.md)** - Upgrade status
 
 ## Frontend
+
+### Design System
+- **[Design System Overview](../design/README.md)** - daisyUI component library and design tokens
+- **[Integration Guide](../design/INTEGRATION_GUIDE.md)** - Step-by-step daisyUI integration
+- **[Component Audit](../design/COMPONENT_AUDIT.md)** - Current component inventory
+- **[Migration Plan](../design/MIGRATION_PLAN.md)** - Phased migration strategy
 
 ### Blade & Components
 - **[Frontend Guide](frontend/FRONTEND.md)** - Blade, Tailwind, Alpine

@@ -18,9 +18,6 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Tables\Actions;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -311,7 +308,7 @@ class MeterReadingResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Filter::make('reading_date')
+                Tables\Filters\Filter::make('reading_date')
                     ->form([
                         Forms\Components\DatePicker::make('from')
                             ->label(__('meter_readings.labels.from_date'))
@@ -346,7 +343,7 @@ class MeterReadingResource extends Resource
                         return $indicators;
                     }),
                 
-                SelectFilter::make('meter_type')
+                Tables\Filters\SelectFilter::make('meter_type')
                     ->label(__('meter_readings.labels.meter_type'))
                     ->options(MeterType::labels())
                     ->query(function (Builder $query, $value): Builder {
@@ -359,12 +356,12 @@ class MeterReadingResource extends Resource
                     ->native(false),
             ])
             ->actions([
-                Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make()
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make()
                         ->requiresConfirmation()
                         ->modalHeading(__('meter_readings.modals.bulk_delete.title'))
                         ->modalDescription(__('meter_readings.modals.bulk_delete.description'))

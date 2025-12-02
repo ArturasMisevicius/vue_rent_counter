@@ -1,204 +1,173 @@
-# HierarchicalScope Security Monitoring Guide
+# Security Monitoring Guide - CheckSubscriptionStatus
+
+**Date**: December 2, 2025  
+**Purpose**: Operational security monitoring for subscription middleware  
+**Audience**: DevOps, Security Team, SRE
 
 ## Overview
 
-This guide provides comprehensive monitoring and alerting strategies for the HierarchicalScope security component.
+This guide provides comprehensive monitoring strategies for detecting and responding to security incidents related to the CheckSubscriptionStatus middleware.
 
----
+## Key Metrics to Monitor
 
-## 📊 Key Metrics to Monitor
+### 1. Rate Limit Violations
 
-### 1. Scope Bypass Attempts
-**Metric**: `hierarchical_scope.bypass_attempts`  
-**Log Pattern**: `HierarchicalScope bypassed`  
-**Threshold**: >10 attempts in 5 minutes = CRITICAL  
-
-**Query**:
-```bash
-# Last hour
-grep "HierarchicalScope bypassed" storage/logs/laravel-$(date +%Y-%m-%d).log | wc -l
-
-# Real-time monitoring
-tail -f storage/logs/laravel.log | grep "HierarchicalScope bypassed"
-```
-
-**Alert Rule**:
-```yaml
-alert: HighScopeBypassRate
-expr: rate(hierarchical_scope_bypass_total[5m]) > 10
-severity: critical
-annotations:
-  summary: "High rate of scope bypass attempts detected"
-  description: "{{ $value }} bypass attempts in the last 5 minutes"
-```
-
----
-
-### 2. Input Validation Failures
-**Metric**: `hierarchical_scope.validation_failures`  
-**Log Pattern**: `Invalid tenant_id|Invalid property_id`  
-**Threshold**: >50 failures in 1 hour = HIGH  
+**Metric**: `subscription_rate_limit_violations`  
+**Threshold**: > 100 violations per hour  
+**Severity**: WARNING → HIGH
 
 **Query**:
 ```bash
-# Count validation failures
-grep -E "Invalid tenant_id|Invalid property_id" storage/logs/laravel-$(date +%Y-%m-%d).log | wc -l
-
-# Group by error type
-grep -E "Invalid tenant_id|Invalid property_id" storage/logs/laravel-$(date +%Y-%m-%d).log | \
-  awk '{print $NF}' | sort | uniq -c
+# Count rate limit violations in last hour
+grep "Rate limit exceeded for subscription checks" storage/logs/security.log | \
+  grep "$(date -u +%Y-%m-%d)" | \
+  tail -n 1000 | wc -l
 ```
 
-**Alert Rule**:
-```yaml
-alert: HighValidationFailureRate
-expr: rate(hierarchical_scope_validation_failures_total[1h]) > 50
-severity: high
-annotations:
-  summary: "High rate of validation failures"
-  description: "{{ $value }} validation failures in the last hour"
-```
+**Alert Conditions**:
+- 100-500 violations/hour: WARNING - Possible legitimate traffic spike
+- 500-1000 violations/hour: HIGH - Likely attack in progress
+- >1000 violations/hour: CRITICAL - Active DoS attack
 
----
+**Response Actions**:
+1. Identify source IPs/users from logs
+2. Temporarily block repeat offenders
+3. Scale infrastructure if legitimate traffic
+4. Investigate for coordinated attack patterns
 
-### 3. Missing Tenant Context
-**Metric**: `hierarchical_scope.missing_context`  
-**Log Pattern**: `Query executed without tenant context`  
-**Threshold**: >5 occurrences in 10 minutes = MEDIUM  
+### 2. Invalid Redirect Attempts
+
+**Metric**: `invalid_redirect_attempts`  
+**Threshold**: > 10 attempts per hour  
+**Severity**: HIGH
 
 **Query**:
 ```bash
-# Count missing context events
-grep "Query executed without tenant context" storage/logs/laravel-$(date +%Y-%m-%d).log | wc -l
-
-# Show affected users
-grep "Query executed without tenant context" storage/logs/laravel-$(date +%Y-%m-%d).log | \
-  grep -oP 'user_id":\K[0-9]+' | sort | uniq -c
+# Find invalid redirect attempts
+grep "Invalid redirect route" storage/logs/laravel.log | \
+  grep "$(date -u +%Y-%m-%d)"
 ```
 
----
+**Alert Conditions**:
+- Any occurrence: HIGH - Potential open redirect attack
+- Multiple from same IP: CRITICAL - Active exploitation attempt
 
-### 4. Schema Query Cache Performance
-**Metric**: `hierarchical_scope.cache_hit_rate`  
-**Target**: >90% hit rate  
-**Threshold**: <80% = MEDIUM  
+**Response Actions**:
+1. Block source IP immediately
+2. Review application logs for attack patterns
+3. Check for compromised accounts
+4. Verify redirect route whitelist is current
+
+### 3. Cache Poisoning Attempts
+
+**Metric**: `invalid_cache_key_attempts`  
+**Threshold**: > 5 attempts per hour  
+**Severity**: HIGH
 
 **Query**:
 ```bash
-# Check cache statistics (Redis)
-redis-cli INFO stats | grep keyspace_hits
-redis-cli INFO stats | grep keyspace_misses
-
-# Calculate hit rate
-redis-cli INFO stats | awk '/keyspace_hits/{hits=$2} /keyspace_misses/{misses=$2} END{print hits/(hits+misses)*100"%"}'
+# Find cache key validation failures
+grep "Invalid user ID for cache key" storage/logs/laravel.log | \
+  grep "$(date -u +%Y-%m-%d)"
 ```
 
----
+**Alert Conditions**:
+- Any occurrence: HIGH - Potential cache poisoning attack
+- Multiple attempts: CRITICAL - Active attack
 
-### 5. Superadmin Access Frequency
-**Metric**: `hierarchical_scope.superadmin_access`  
-**Log Pattern**: `Superadmin unrestricted access`  
-**Threshold**: Access outside business hours = INFO  
+**Response Actions**:
+1. Identify affected user accounts
+2. Clear subscription cache
+3. Review authentication logs
+4. Check for account compromise
+
+### 4. Subscription Enumeration
+
+**Metric**: `subscription_check_failures`  
+**Threshold**: > 50 failures per user per hour  
+**Severity**: MEDIUM → HIGH
 
 **Query**:
 ```bash
-# Count superadmin access today
-grep "Superadmin unrestricted access" storage/logs/laravel-$(date +%Y-%m-%d).log | wc -l
-
-# Show access times
-grep "Superadmin unrestricted access" storage/logs/laravel-$(date +%Y-%m-%d).log | \
-  grep -oP '\[\d{4}-\d{2}-\d{2} \K\d{2}:\d{2}:\d{2}'
+# Find users with excessive failed checks
+grep "Subscription check performed" storage/logs/audit.log | \
+  jq -r 'select(.check_result=="blocked") | .user_id' | \
+  sort | uniq -c | sort -rn | head -20
 ```
 
----
+**Alert Conditions**:
+- 50-100 failures/hour: MEDIUM - Possible enumeration
+- >100 failures/hour: HIGH - Active enumeration attack
 
-## 🚨 Alert Configuration
+**Response Actions**:
+1. Rate limit affected users more aggressively
+2. Require additional authentication
+3. Monitor for data exfiltration
+4. Review access patterns
 
-### Laravel Logging Configuration
+### 5. PII Exposure
 
-Update `config/logging.php`:
+**Metric**: `pii_in_logs`  
+**Threshold**: Any occurrence  
+**Severity**: CRITICAL
 
-```php
-'channels' => [
-    'security' => [
-        'driver' => 'daily',
-        'path' => storage_path('logs/security.log'),
-        'level' => 'info',
-        'days' => 90, // Retain for compliance
-    ],
-    
-    'audit' => [
-        'driver' => 'daily',
-        'path' => storage_path('logs/audit.log'),
-        'level' => 'info',
-        'days' => 365, // Retain for 1 year
-    ],
-],
+**Query**:
+```bash
+# Check for unredacted emails (should find none)
+grep -E "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" storage/logs/audit.log | \
+  grep -v "EMAIL_REDACTED"
 ```
 
-### Dedicated Security Logging
+**Alert Conditions**:
+- Any unredacted PII: CRITICAL - Privacy violation
 
-Create `app/Logging/SecurityLogger.php`:
+**Response Actions**:
+1. Immediately rotate affected logs
+2. Verify RedactSensitiveData processor is active
+3. Audit recent log entries
+4. Report to privacy officer if required
 
-```php
-<?php
-
-namespace App\Logging;
-
-use Illuminate\Support\Facades\Log;
-
-class SecurityLogger
-{
-    public static function logScopeBypass(array $context): void
-    {
-        Log::channel('security')->warning('Scope bypass attempt', $context);
-        Log::channel('audit')->info('Scope bypass', $context);
-    }
-    
-    public static function logValidationFailure(string $type, array $context): void
-    {
-        Log::channel('security')->error("Validation failure: {$type}", $context);
-    }
-    
-    public static function logSuperadminAccess(array $context): void
-    {
-        Log::channel('audit')->info('Superadmin access', $context);
-    }
-}
-```
-
----
-
-## 📈 Monitoring Dashboards
+## Monitoring Dashboards
 
 ### Grafana Dashboard Configuration
 
-```json
+```yaml
+# grafana-dashboard.json
 {
   "dashboard": {
-    "title": "HierarchicalScope Security",
+    "title": "Subscription Security Monitoring",
     "panels": [
       {
-        "title": "Scope Bypass Attempts",
+        "title": "Rate Limit Violations",
         "targets": [
           {
-            "expr": "rate(hierarchical_scope_bypass_total[5m])"
+            "expr": "rate(subscription_rate_limit_violations[5m])"
+          }
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [100],
+                "type": "gt"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "title": "Invalid Redirect Attempts",
+        "targets": [
+          {
+            "expr": "sum(invalid_redirect_attempts)"
           }
         ]
       },
       {
-        "title": "Validation Failures",
+        "title": "Subscription Check Success Rate",
         "targets": [
           {
-            "expr": "rate(hierarchical_scope_validation_failures_total[1h])"
-          }
-        ]
-      },
-      {
-        "title": "Cache Hit Rate",
-        "targets": [
-          {
-            "expr": "hierarchical_scope_cache_hits / (hierarchical_scope_cache_hits + hierarchical_scope_cache_misses)"
+            "expr": "rate(subscription_checks_success[5m]) / rate(subscription_checks_total[5m])"
           }
         ]
       }
@@ -207,187 +176,212 @@ class SecurityLogger
 }
 ```
 
----
+### Prometheus Metrics
 
-## 🔍 Log Analysis Scripts
+```yaml
+# prometheus-rules.yml
+groups:
+  - name: subscription_security
+    interval: 30s
+    rules:
+      - alert: HighRateLimitViolations
+        expr: rate(subscription_rate_limit_violations[5m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High rate limit violations detected"
+          description: "{{ $value }} violations per second"
+      
+      - alert: InvalidRedirectAttempt
+        expr: increase(invalid_redirect_attempts[1h]) > 10
+        for: 1m
+        labels:
+          severity: high
+        annotations:
+          summary: "Invalid redirect attempts detected"
+          description: "Potential open redirect attack"
+      
+      - alert: CachePoisoningAttempt
+        expr: increase(invalid_cache_key_attempts[1h]) > 5
+        for: 1m
+        labels:
+          severity: high
+        annotations:
+          summary: "Cache poisoning attempt detected"
+          description: "Invalid cache key validation failures"
+```
+
+## Log Analysis Scripts
 
 ### Daily Security Report
 
-Create `scripts/security-report.sh`:
-
 ```bash
 #!/bin/bash
+# daily-security-report.sh
 
-DATE=$(date +%Y-%m-%d)
-LOG_FILE="storage/logs/laravel-${DATE}.log"
-REPORT_FILE="storage/logs/security-report-${DATE}.txt"
+DATE=$(date -u +%Y-%m-%d)
+REPORT_FILE="security-report-${DATE}.txt"
 
-echo "HierarchicalScope Security Report - ${DATE}" > ${REPORT_FILE}
-echo "================================================" >> ${REPORT_FILE}
+echo "Security Report for ${DATE}" > ${REPORT_FILE}
+echo "================================" >> ${REPORT_FILE}
 echo "" >> ${REPORT_FILE}
 
-echo "Scope Bypass Attempts:" >> ${REPORT_FILE}
-grep -c "HierarchicalScope bypassed" ${LOG_FILE} >> ${REPORT_FILE}
+# Rate limit violations
+echo "Rate Limit Violations:" >> ${REPORT_FILE}
+grep "Rate limit exceeded" storage/logs/security.log | \
+  grep "${DATE}" | wc -l >> ${REPORT_FILE}
 echo "" >> ${REPORT_FILE}
 
-echo "Validation Failures:" >> ${REPORT_FILE}
-grep -cE "Invalid tenant_id|Invalid property_id" ${LOG_FILE} >> ${REPORT_FILE}
+# Invalid redirect attempts
+echo "Invalid Redirect Attempts:" >> ${REPORT_FILE}
+grep "Invalid redirect route" storage/logs/laravel.log | \
+  grep "${DATE}" | wc -l >> ${REPORT_FILE}
 echo "" >> ${REPORT_FILE}
 
-echo "Missing Tenant Context:" >> ${REPORT_FILE}
-grep -c "Query executed without tenant context" ${LOG_FILE} >> ${REPORT_FILE}
+# Top violating IPs
+echo "Top 10 Rate Limited IPs:" >> ${REPORT_FILE}
+grep "Rate limit exceeded" storage/logs/security.log | \
+  grep "${DATE}" | \
+  jq -r '.ip' | \
+  sort | uniq -c | sort -rn | head -10 >> ${REPORT_FILE}
 echo "" >> ${REPORT_FILE}
 
-echo "Superadmin Access:" >> ${REPORT_FILE}
-grep -c "Superadmin unrestricted access" ${LOG_FILE} >> ${REPORT_FILE}
-echo "" >> ${REPORT_FILE}
-
-echo "Top Users by Bypass Attempts:" >> ${REPORT_FILE}
-grep "HierarchicalScope bypassed" ${LOG_FILE} | \
-  grep -oP 'user_id":\K[0-9]+' | sort | uniq -c | sort -rn | head -10 >> ${REPORT_FILE}
+# Subscription check patterns
+echo "Subscription Check Summary:" >> ${REPORT_FILE}
+grep "Subscription check performed" storage/logs/audit.log | \
+  grep "${DATE}" | \
+  jq -r '.check_result' | \
+  sort | uniq -c >> ${REPORT_FILE}
 
 # Email report
-mail -s "HierarchicalScope Security Report - ${DATE}" security@example.com < ${REPORT_FILE}
+mail -s "Security Report ${DATE}" security@example.com < ${REPORT_FILE}
 ```
 
-### Real-Time Anomaly Detection
-
-Create `scripts/anomaly-detection.sh`:
+### Real-Time Monitoring
 
 ```bash
 #!/bin/bash
+# realtime-security-monitor.sh
 
-# Monitor for suspicious patterns
-tail -f storage/logs/laravel.log | while read line; do
-    # Detect rapid bypass attempts from same user
-    if echo "$line" | grep -q "HierarchicalScope bypassed"; then
-        USER_ID=$(echo "$line" | grep -oP 'user_id":\K[0-9]+')
-        COUNT=$(grep "HierarchicalScope bypassed" storage/logs/laravel-$(date +%Y-%m-%d).log | \
-                grep "user_id\":${USER_ID}" | wc -l)
-        
-        if [ $COUNT -gt 10 ]; then
-            echo "ALERT: User ${USER_ID} has ${COUNT} bypass attempts today"
-            # Send alert
-            curl -X POST https://alerts.example.com/webhook \
-                -d "user_id=${USER_ID}&count=${COUNT}&type=bypass"
-        fi
-    fi
-    
-    # Detect validation attacks
-    if echo "$line" | grep -qE "Invalid tenant_id|Invalid property_id"; then
-        IP=$(echo "$line" | grep -oP 'ip":\K[^"]+')
-        COUNT=$(grep -E "Invalid tenant_id|Invalid property_id" storage/logs/laravel-$(date +%Y-%m-%d).log | \
-                grep "ip\":\"${IP}\"" | wc -l)
-        
-        if [ $COUNT -gt 50 ]; then
-            echo "ALERT: IP ${IP} has ${COUNT} validation failures today"
-            # Consider IP blocking
-            curl -X POST https://firewall.example.com/block \
-                -d "ip=${IP}&reason=validation_attack"
-        fi
-    fi
+# Monitor security logs in real-time
+tail -f storage/logs/security.log | while read line; do
+  # Check for rate limit violations
+  if echo "$line" | grep -q "Rate limit exceeded"; then
+    echo "[ALERT] Rate limit violation detected: $line"
+    # Send to monitoring system
+    curl -X POST https://monitoring.example.com/alert \
+      -H "Content-Type: application/json" \
+      -d "{\"type\":\"rate_limit\",\"message\":\"$line\"}"
+  fi
+  
+  # Check for invalid redirects
+  if echo "$line" | grep -q "Invalid redirect route"; then
+    echo "[CRITICAL] Invalid redirect attempt: $line"
+    # Send critical alert
+    curl -X POST https://monitoring.example.com/alert \
+      -H "Content-Type: application/json" \
+      -d "{\"type\":\"invalid_redirect\",\"severity\":\"critical\",\"message\":\"$line\"}"
+  fi
 done
 ```
 
----
+## Incident Response Procedures
 
-## 🛡️ Incident Response Procedures
+### Rate Limit Violation Response
 
-### Scope Bypass Attack
+1. **Identify**: Extract source IP/user from logs
+2. **Assess**: Determine if legitimate or malicious
+3. **Contain**: Temporarily block if malicious
+4. **Investigate**: Review access patterns
+5. **Remediate**: Adjust rate limits if needed
+6. **Document**: Record incident details
 
-**Detection**: >10 bypass attempts in 5 minutes
+### Open Redirect Attempt Response
 
-**Response**:
-1. Identify affected user: `grep "HierarchicalScope bypassed" logs | grep -oP 'user_id":\K[0-9]+'`
-2. Review user's recent activity
-3. Check if user has legitimate superadmin access
-4. If suspicious, disable user account: `php artisan user:disable {user_id}`
-5. Review all queries from that user in the last 24 hours
-6. Document incident in security log
+1. **Block**: Immediately block source IP
+2. **Investigate**: Review all requests from source
+3. **Audit**: Check for compromised accounts
+4. **Verify**: Ensure whitelist is current
+5. **Report**: Document for security team
+6. **Monitor**: Watch for related attempts
 
-### Validation Attack
+### Cache Poisoning Response
 
-**Detection**: >50 validation failures in 1 hour from same IP
+1. **Clear**: Flush subscription cache immediately
+2. **Identify**: Find affected user accounts
+3. **Audit**: Review authentication logs
+4. **Secure**: Reset affected user sessions
+5. **Investigate**: Check for account compromise
+6. **Document**: Record incident and response
 
-**Response**:
-1. Identify attacking IP: `grep "Invalid tenant_id" logs | grep -oP 'ip":\K[^"]+'`
-2. Block IP at firewall level
-3. Review all requests from that IP
-4. Check for data exfiltration attempts
-5. Update WAF rules if needed
-
-### Missing Tenant Context
-
-**Detection**: Repeated occurrences for same user
-
-**Response**:
-1. Identify affected user
-2. Check user's tenant_id assignment
-3. Review user's authentication flow
-4. Verify TenantContext service is working
-5. Fix user's tenant assignment if needed
-
----
-
-## 📋 Compliance & Audit
+## Compliance Reporting
 
 ### GDPR Compliance
 
-- **Data Retention**: Audit logs retained for 365 days
-- **PII Redaction**: User emails redacted via RedactSensitiveData processor
-- **Right to Access**: Users can request their audit logs
-- **Right to Erasure**: Logs anonymized after user deletion
+**Log Retention**: 90 days for audit logs  
+**PII Redaction**: Automatic via RedactSensitiveData processor  
+**Access Controls**: Log files restricted to 0640 permissions  
+**Data Subject Requests**: Process via privacy officer
 
 ### SOC 2 Compliance
 
-- **Access Logging**: All superadmin access logged
-- **Change Tracking**: All scope bypass attempts logged
-- **Incident Response**: Documented procedures above
-- **Regular Reviews**: Monthly security log reviews
+**Monitoring**: 24/7 automated monitoring  
+**Alerting**: Real-time alerts for security events  
+**Incident Response**: Documented procedures  
+**Audit Trail**: Comprehensive logging with retention
 
-### Audit Trail Requirements
+### PCI DSS (if applicable)
 
-All logs include:
-- Timestamp (ISO 8601 format)
-- User ID (if authenticated)
-- IP address
-- User agent
-- Action performed
-- Result (success/failure)
+**Log Review**: Daily automated review  
+**Access Restrictions**: Role-based log access  
+**Integrity**: Log file permissions and checksums  
+**Retention**: 90-day minimum retention
 
----
-
-## 🔄 Regular Maintenance
-
-### Daily
-- Review security report
-- Check for anomalies
-- Verify monitoring is active
-
-### Weekly
-- Analyze trends in bypass attempts
-- Review cache hit rates
-- Update alert thresholds if needed
-
-### Monthly
-- Full security log review
-- Update monitoring dashboards
-- Test incident response procedures
-
-### Quarterly
-- Security audit
-- Penetration testing
-- Update threat model
-
----
-
-## 📞 Contact Information
+## Contact Information
 
 **Security Team**: security@example.com  
-**On-Call**: +1-XXX-XXX-XXXX  
-**Incident Reporting**: https://security.example.com/report  
+**On-Call**: +1-555-SECURITY  
+**Incident Response**: incidents@example.com  
+**Privacy Officer**: privacy@example.com
+
+## Appendix: Log Format Reference
+
+### Audit Log Format
+
+```json
+{
+  "message": "Subscription check performed",
+  "check_result": "allowed|blocked",
+  "message_type": "warning|error|null",
+  "user_id": 123,
+  "user_email": "[EMAIL_REDACTED]",
+  "subscription_id": 456,
+  "subscription_status": "active",
+  "expires_at": "2025-12-31T23:59:59+00:00",
+  "route": "admin.dashboard",
+  "method": "GET",
+  "ip": "[IP_REDACTED]",
+  "timestamp": "2025-12-02T10:30:00+00:00"
+}
+```
+
+### Security Log Format
+
+```json
+{
+  "message": "Rate limit exceeded for subscription checks",
+  "key": "subscription-check:user:123",
+  "user_id": 123,
+  "ip": "[IP_REDACTED]",
+  "route": "admin.dashboard",
+  "user_agent": "Mozilla/5.0...",
+  "timestamp": "2025-12-02T10:30:00+00:00"
+}
+```
 
 ---
 
-**Last Updated**: 2024-11-26  
-**Next Review**: 2025-02-26
+**Last Updated**: December 2, 2025  
+**Next Review**: March 2, 2026  
+**Version**: 1.0

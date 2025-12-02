@@ -9,7 +9,7 @@
   - Assign appropriate UserRole enum values
   - _Requirements: 1.1, 1.2, 1.3, 1.4_
 
-- [ ] 1.1 Write property test for test user tenant assignment
+- [x] 1.1 Write property test for test user tenant assignment
   - **Property 1: Test user tenant assignment**
   - **Validates: Requirements 1.4**
 

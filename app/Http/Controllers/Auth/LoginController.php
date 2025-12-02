@@ -1,71 +1,109 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Services\AuthenticationService;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class LoginController extends Controller
+/**
+ * Login Controller
+ * 
+ * Handles user authentication including login form display,
+ * credential verification, and logout functionality.
+ * 
+ * Requirements: 1.1, 7.1, 8.1, 8.4
+ */
+final class LoginController extends Controller
 {
-    public function showLoginForm()
+    public function __construct(
+        private readonly AuthenticationService $authService
+    ) {}
+
+    /**
+     * Display the login form with available users.
+     * 
+     * Note: User list is displayed for demo/testing purposes.
+     * In production, this should be removed or restricted.
+     */
+    public function showLoginForm(): View
     {
-        $users = \App\Models\User::with(['property', 'subscription'])
-            ->orderByRaw("
-                CASE role
-                    WHEN 'superadmin' THEN 1
-                    WHEN 'admin' THEN 2
-                    WHEN 'manager' THEN 3
-                    WHEN 'tenant' THEN 4
-                    ELSE 5
-                END
-            ")
-            ->orderBy('is_active', 'desc')
-            ->get();
+        $users = $this->authService->getActiveUsersForLoginDisplay();
 
         return view('auth.login', compact('users'));
     }
 
-    public function login(LoginRequest $request)
+    /**
+     * Handle user login attempt.
+     * 
+     * Validates credentials, checks account status, regenerates session,
+     * and redirects to role-appropriate dashboard.
+     * 
+     * Requirements: 1.1, 7.1, 8.1, 8.4
+     */
+    public function login(LoginRequest $request): RedirectResponse
     {
         $credentials = $request->validated();
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $user = Auth::user();
-            
-            // Check if account is deactivated (Requirements: 7.1, 8.4)
-            if (!$user->is_active) {
-                Auth::logout();
-                return back()->withErrors([
-                    'email' => 'Your account has been deactivated. Please contact your administrator for assistance.',
-                ])->onlyInput('email');
-            }
-
-            $request->session()->regenerate();
-            
-            // Redirect based on role (Requirements: 1.1, 8.1)
-            // Note: Using direct redirect() instead of intended() to ensure correct dashboard
-            return match($user->role->value) {
-                'superadmin' => redirect('/superadmin/dashboard'),
-                'admin' => redirect('/admin/dashboard'),
-                'manager' => redirect('/manager/dashboard'),
-                'tenant' => redirect('/tenant/dashboard'),
-                default => redirect('/'),
-            };
+        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+            return $this->handleFailedLogin();
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+        $user = Auth::user();
+
+        if (!$this->authService->isAccountActive($user)) {
+            Auth::logout();
+            return $this->handleDeactivatedAccount();
+        }
+
+        $request->session()->regenerate();
+
+        return $this->authService->redirectToDashboard($user);
     }
 
-    public function logout(Request $request)
+    /**
+     * Handle user logout.
+     * 
+     * Logs out user, invalidates session, and regenerates CSRF token.
+     */
+    public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    /**
+     * Handle failed login attempt.
+     */
+    private function handleFailedLogin(): RedirectResponse
+    {
+        return redirect()
+            ->route('login')
+            ->withErrors([
+                'email' => __('auth.failed'),
+            ])
+            ->onlyInput('email');
+    }
+
+    /**
+     * Handle deactivated account login attempt.
+     */
+    private function handleDeactivatedAccount(): RedirectResponse
+    {
+        return redirect()
+            ->route('login')
+            ->withErrors([
+                'email' => __('auth.account_deactivated'),
+            ])
+            ->onlyInput('email');
     }
 }

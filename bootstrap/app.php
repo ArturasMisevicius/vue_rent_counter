@@ -23,6 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Register middleware aliases for route-level application
+        // These can be applied via ->middleware() in route definitions
         $middleware->alias([
             'auth' => \App\Http\Middleware\Authenticate::class,
             'tenant.context' => \App\Http\Middleware\EnsureTenantContext::class,
@@ -33,32 +35,29 @@ return Application::configure(basePath: dirname(__DIR__))
             'impersonation' => \App\Http\Middleware\HandleImpersonation::class,
         ]);
 
+        // Disable CSRF protection during unit tests for easier testing
         if (app()->runningUnitTests()) {
             $middleware->remove(ValidateCsrfToken::class);
             $middleware->removeFromGroup('web', ValidateCsrfToken::class);
         }
 
+        // Apply middleware to all web routes
+        // - SetLocale: Handles i18n based on session/user preference
+        // - HandleImpersonation: Manages superadmin impersonation sessions
+        // - SecurityHeaders: Applies CSP, X-Frame-Options, HSTS headers
         $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\HandleImpersonation::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\SecurityHeaders::class);
         
-        // Rate limiting for API routes (60 requests per minute)
+        // API rate limiting: 60 requests per minute per IP
+        // Note: Admin/Filament routes rely on Filament's built-in protections
+        // and SecurityHeaders middleware for DoS prevention
         $middleware->throttleApi('60,1');
-        
-        // Rate limiting for admin routes (120 requests per minute per user)
-        // Prevents brute force attacks and DoS attempts
-        \Illuminate\Support\Facades\RateLimiter::for('admin', function (\Illuminate\Http\Request $request) {
-            return \Illuminate\Cache\RateLimiting\Limit::perMinute(120)
-                ->by($request->user()?->id ?: $request->ip())
-                ->response(function () {
-                    return response()->json([
-                        'message' => 'Too many requests. Please try again later.'
-                    ], 429);
-                });
-        });
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // Handle authorization exceptions with user-friendly messages (Requirement 9.4)
+        // Custom exception handling for authorization failures
+        // Logs failed authorization attempts and returns user-friendly responses
+        // Requirement 9.4: Security audit logging for access control violations
         $exceptions->render(function (\Illuminate\Auth\Access\AuthorizationException $e, \Illuminate\Http\Request $request) {
             if (app()->runningUnitTests()) {
                 throw $e;

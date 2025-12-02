@@ -260,8 +260,14 @@ class MeterResource extends Resource
             ->recordActions([
                 // Table row actions removed - use page header actions instead
             ])
-            ->toolbarActions([
-                // Bulk actions removed for Filament v4 compatibility
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->requiresConfirmation()
+                        ->modalHeading(__('meters.modals.bulk_delete.title'))
+                        ->modalDescription(__('meters.modals.bulk_delete.description'))
+                        ->modalSubmitActionLabel(__('meters.modals.bulk_delete.confirm')),
+                ]),
             ])
             ->emptyStateHeading(__('meters.empty_state.heading'))
             ->emptyStateDescription(__('meters.empty_state.description'))

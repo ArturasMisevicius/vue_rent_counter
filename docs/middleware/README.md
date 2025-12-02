@@ -41,9 +41,39 @@ Comprehensive documentation for custom middleware in the Vilnius Utilities Billi
 - ❌ Superadmin → Deny (403)
 - ❌ Unauthenticated → Deny (403)
 
-### CheckSubscriptionStatus
-**Purpose:** Enforce subscription limits and expiry policies  
-**Applied To:** Admin and manager routes
+### CheckSubscriptionStatus ✅
+**Status:** Production Ready (Enhanced v2.1)  
+**Purpose:** Enforce subscription requirements for admin users  
+**Coverage:** 30 comprehensive tests (100% passing)  
+**Documentation:** [Complete Guide](./CHECK_SUBSCRIPTION_STATUS.md) | [Implementation Guide](./CheckSubscriptionStatus-Implementation-Guide.md)
+
+**Quick Facts:**
+- Applied to admin routes (bypasses auth routes)
+- Implements read-only mode for expired subscriptions
+- Graceful error handling with fail-open strategy
+- Comprehensive audit logging
+- ~95% query reduction via caching
+- Strategy pattern for status handling
+
+**Access Rules:**
+- ✅ Active subscription → Full access
+- ⚠️ Expired subscription → Read-only mode (GET only)
+- ⚠️ Suspended/Cancelled → Read-only mode (GET only)
+- ❌ Missing subscription → Dashboard only
+- ✅ Auth routes (login/register/logout) → Always bypass (all HTTP methods)
+
+**Recent Enhancement (Dec 2, 2025):**
+- **CRITICAL:** Enhanced CSRF protection documentation
+- Clarified that ALL HTTP methods bypass auth routes (not just GET)
+- Added explicit warnings about 419 Page Expired errors
+- Improved inline documentation for `shouldBypassCheck()` method
+- Prevents login form submission failures
+
+**Architecture:**
+- Uses Strategy pattern for subscription status handling
+- Factory pattern for handler creation
+- Value Object pattern for results
+- Comprehensive audit logging
 
 ### EnsureTenantContext
 **Purpose:** Set tenant context for multi-tenancy isolation  

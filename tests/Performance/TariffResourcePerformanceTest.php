@@ -37,11 +37,17 @@ class TariffResourcePerformanceTest extends TestCase
     /**
      * Test that tariff list page has acceptable query count.
      * 
-     * Expected: <= 6 queries with all optimizations
+     * Expected: <= 6 queries with all optimizations (Nov 2025 update)
      * - 1 for auth user
-     * - 1 for tariffs with eager loading
+     * - 1 for tariffs with eager loading (provider relationship)
      * - 1-2 for pagination
      * - 1-2 for Filament internal queries
+     * 
+     * Optimizations Applied:
+     * - Enum label caching (eliminates 50+ translation lookups)
+     * - is_active computed in closure (eliminates 50+ now() calls)
+     * - Provider relationship eager loading with select()
+     * - Virtual column index on configuration->type
      */
     public function test_tariff_list_query_count_is_optimized(): void
     {
@@ -60,12 +66,12 @@ class TariffResourcePerformanceTest extends TestCase
 
         $queryCount = count($queries);
 
-        // Assert
+        // Assert - Stricter limit after optimizations
         $this->assertLessThanOrEqual(
-            8, // Allowing some buffer for Filament internal queries
+            6, // Reduced from 8 after optimizations
             $queryCount,
             sprintf(
-                "Expected <= 8 queries, got %d. Queries:\n%s",
+                "Expected <= 6 queries, got %d. Queries:\n%s",
                 $queryCount,
                 json_encode(array_map(fn($q) => $q['query'], $queries), JSON_PRETTY_PRINT)
             )
@@ -218,8 +224,15 @@ class TariffResourcePerformanceTest extends TestCase
     /**
      * Benchmark test: Measure response time improvement.
      * 
-     * This test measures the actual performance improvement.
-     * Run with --group=benchmark to execute.
+     * This test measures the actual performance improvement after Nov 2025 optimizations:
+     * - Enum label caching
+     * - is_active closure optimization
+     * - Virtual column indexing
+     * - Provider composite index
+     * 
+     * Expected improvement: 40% faster response time
+     * 
+     * Run with: php artisan test --filter=test_benchmark --group=benchmark
      * 
      * @group benchmark
      */
@@ -246,12 +259,18 @@ class TariffResourcePerformanceTest extends TestCase
         // Log performance metrics
         $this->addToAssertionCount(1);
         echo sprintf(
-            "\n\nPerformance Metrics:\n" .
-            "- Response time (cached): %.2fms\n" .
-            "- Target: < 150ms\n" .
-            "- Status: %s\n",
+            "\n\n📊 Performance Metrics (Nov 2025 Optimizations):\n" .
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" .
+            "Response time: %.2fms\n" .
+            "Target:        < 100ms (improved from 150ms)\n" .
+            "Status:        %s\n" .
+            "\nOptimizations Applied:\n" .
+            "✓ Enum label caching\n" .
+            "✓ is_active closure optimization\n" .
+            "✓ Virtual column index on type\n" .
+            "✓ Provider composite index\n",
             $cachedTime,
-            $cachedTime < 150 ? '✅ PASS' : '❌ FAIL'
+            $cachedTime < 100 ? '✅ PASS' : ($cachedTime < 150 ? '⚠️  ACCEPTABLE' : '❌ FAIL')
         );
     }
 }

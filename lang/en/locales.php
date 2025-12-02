@@ -57,6 +57,10 @@ return [
             'heading' => 'Delete Languages',
             'description' => 'Are you sure you want to delete these languages? This may affect translations.',
         ],
+        'set_default' => [
+            'heading' => 'Set Default Language',
+            'description' => 'Are you sure you want to set this language as the default? The current default language will be unset.',
+        ],
     ],
 
     'validation' => [
@@ -65,5 +69,28 @@ return [
             'string' => 'Locale must be text.',
             'max' => 'Locale may not exceed 5 characters.',
         ],
+        'code_format' => 'The language code must be in ISO 639-1 format (e.g., en, en-US)',
+    ],
+
+    'actions' => [
+        'activate' => 'Activate',
+        'deactivate' => 'Deactivate',
+        'bulk_activate' => 'Activate Selected',
+        'bulk_deactivate' => 'Deactivate Selected',
+        'set_default' => 'Set as Default',
+    ],
+
+    'messages' => [
+        'code_copied' => 'Language code copied to clipboard',
+    ],
+
+    'notifications' => [
+        'default_set' => 'Default language updated successfully',
+    ],
+
+    'errors' => [
+        'cannot_delete_default' => 'Cannot delete the default language',
+        'cannot_delete_last_active' => 'Cannot delete the last active language',
+        'cannot_deactivate_default' => 'Cannot deactivate the default language',
     ],
 ];

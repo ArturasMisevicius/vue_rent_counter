@@ -13,8 +13,6 @@ use BackedEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Schemas\Schema;
@@ -218,18 +216,18 @@ class InvoiceResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('status')
+                Tables\Filters\SelectFilter::make('status')
                     ->label(__('invoices.admin.labels.status'))
                     ->options(InvoiceStatus::labels())
                     ->native(false),
             ])
             ->actions([
-                Actions\ViewAction::make(),
-                Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Actions\BulkActionGroup::make([
-                    Actions\BulkAction::make('updateStatus')
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('updateStatus')
                         ->label(__('invoices.admin.labels.update_status'))
                         ->icon('heroicon-o-pencil-square')
                         ->form([
@@ -250,7 +248,7 @@ class InvoiceResource extends Resource
                         ->deselectRecordsAfterCompletion()
                         ->successNotificationTitle(__('invoices.admin.bulk.status_updated')),
                     
-                    Actions\DeleteBulkAction::make()
+                    Tables\Actions\DeleteBulkAction::make()
                         ->action(function ($records) {
                             foreach ($records as $record) {
                                 // Only allow deletion of draft invoices

@@ -59,6 +59,11 @@ use InvalidArgumentException;
 class HierarchicalScope implements Scope
 {
     /**
+     * Recursion guard to prevent infinite loops during authentication.
+     */
+    private static bool $isApplying = false;
+    
+    /**
      * Cache key prefix for column existence checks.
      */
     private const CACHE_PREFIX = 'hierarchical_scope:columns:';
@@ -110,41 +115,68 @@ class HierarchicalScope implements Scope
     public function apply(Builder $builder, Model $model): void
     {
         try {
-            // Check if model has tenant_id column
-            if (! $this->hasTenantColumn($model)) {
+            // CRITICAL: Skip User model to prevent infinite recursion
+            // Auth::user() triggers User query → HierarchicalScope → Auth::user() → ...
+            // This check MUST happen BEFORE any Auth::user() call
+            if ($model instanceof User) {
                 return;
             }
 
-            $user = Auth::user();
-
-            // Superadmins see everything - no filtering
-            // Requirement 12.2: WHEN a Superadmin queries data THEN the System SHALL bypass tenant_id filtering
-            if ($user instanceof User && $user->isSuperadmin()) {
-                // Log superadmin access for audit trail
-                $this->logSuperadminAccess($model, $user);
+            // CRITICAL: Prevent infinite recursion during authentication
+            // When Auth::user() is called, it may trigger queries that apply this scope,
+            // which then call Auth::user() again, creating an infinite loop
+            if (self::$isApplying) {
                 return;
             }
+            
+            self::$isApplying = true;
+            
+            try {
+                // CRITICAL: Skip filtering for guests (unauthenticated users)
+                // This prevents errors on public pages like login form
+                // IMPORTANT: Call Auth::user() ONCE to avoid infinite recursion
+                $user = Auth::user();
+                
+                if ($user === null) {
+                    return;
+                }
 
-            // Get tenant_id from TenantContext or authenticated user
-            $tenantId = TenantContext::id() ?? ($user?->tenant_id);
+                // Check if model has tenant_id column
+                if (! $this->hasTenantColumn($model)) {
+                    return;
+                }
 
-            if ($tenantId === null) {
-                // Log missing tenant context
-                $this->logMissingTenantContext($model, $user);
-                return;
-            }
+                // Superadmins see everything - no filtering
+                // Requirement 12.2: WHEN a Superadmin queries data THEN the System SHALL bypass tenant_id filtering
+                if ($user->isSuperadmin()) {
+                    // Log superadmin access for audit trail
+                    $this->logSuperadminAccess($model, $user);
+                    return;
+                }
 
-            // Validate tenant_id (SEC-001: Input Validation)
-            $validatedTenantId = $this->validateTenantId($tenantId);
+                // Get tenant_id from TenantContext or authenticated user
+                $tenantId = TenantContext::id() ?? $user->tenant_id;
 
-            // Apply tenant_id filtering for all authenticated users (admin, manager, tenant)
-            // Requirement 12.3: WHEN an Admin queries data THEN the System SHALL filter to their tenant_id
-            $builder->where($model->qualifyColumn('tenant_id'), '=', $validatedTenantId);
+                if ($tenantId === null) {
+                    // Log missing tenant context
+                    $this->logMissingTenantContext($model, $user);
+                    return;
+                }
 
-            // Additional property_id filtering for tenant users
-            // Requirement 12.4: WHEN a User queries data THEN the System SHALL filter to their tenant_id and assigned property
-            if ($user instanceof User && $user->isTenantUser() && $user->property_id !== null) {
-                $this->applyPropertyFiltering($builder, $model, $user);
+                // Validate tenant_id (SEC-001: Input Validation)
+                $validatedTenantId = $this->validateTenantId($tenantId);
+
+                // Apply tenant_id filtering for all authenticated users (admin, manager, tenant)
+                // Requirement 12.3: WHEN an Admin queries data THEN the System SHALL filter to their tenant_id
+                $builder->where($model->qualifyColumn('tenant_id'), '=', $validatedTenantId);
+
+                // Additional property_id filtering for tenant users
+                // Requirement 12.4: WHEN a User queries data THEN the System SHALL filter to their tenant_id and assigned property
+                if ($user->isTenantUser() && $user->property_id !== null) {
+                    $this->applyPropertyFiltering($builder, $model, $user);
+                }
+            } finally {
+                self::$isApplying = false;
             }
         } catch (\Throwable $e) {
             // Log error without exposing sensitive details

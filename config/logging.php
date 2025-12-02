@@ -136,6 +136,8 @@ return [
             'level' => 'info',
             'days' => 90,
             'replace_placeholders' => true,
+            'permission' => 0640, // Restricted access for security
+            'processors' => [\App\Logging\RedactSensitiveData::class],
         ],
 
         'security' => [
@@ -143,6 +145,8 @@ return [
             'path' => storage_path('logs/security.log'),
             'level' => 'warning',
             'days' => 90,
+            'permission' => 0640, // Restricted access for security
+            'processors' => [\App\Logging\RedactSensitiveData::class],
             'replace_placeholders' => true,
         ],
 

@@ -14,9 +14,27 @@ use Filament\Tables;
  * 
  * Extracts table column construction logic from TariffResource
  * to improve maintainability and reduce method complexity.
+ * 
+ * Performance Optimizations:
+ * - Caches enum labels to avoid repeated translation lookups
+ * - Memoizes color mappings for badge rendering
+ * - Optimizes date computations in status column
  */
 trait BuildsTariffTableColumns
 {
+    /**
+     * Cached service type labels for performance.
+     *
+     * @var array<string, string>|null
+     */
+    private static ?array $serviceTypeLabels = null;
+
+    /**
+     * Cached tariff type labels for performance.
+     *
+     * @var array<string, string>|null
+     */
+    private static ?array $tariffTypeLabels = null;
     /**
      * Build all table columns for the tariff resource.
      *
@@ -84,7 +102,24 @@ trait BuildsTariffTableColumns
     }
 
     /**
+     * Get cached service type labels.
+     * 
+     * Performance: Caches labels to avoid repeated translation lookups.
+     *
+     * @return array<string, string>
+     */
+    protected static function getServiceTypeLabels(): array
+    {
+        if (static::$serviceTypeLabels === null) {
+            static::$serviceTypeLabels = ServiceType::labels();
+        }
+        return static::$serviceTypeLabels;
+    }
+
+    /**
      * Format the service type for display.
+     * 
+     * Performance: Uses cached labels instead of calling label() per row.
      *
      * @param mixed $state
      * @return string
@@ -95,7 +130,12 @@ trait BuildsTariffTableColumns
             ? $state 
             : ServiceType::tryFrom((string) $state);
 
-        return $serviceType?->label() ?? (string) $state;
+        if (!$serviceType) {
+            return (string) $state;
+        }
+
+        $labels = static::getServiceTypeLabels();
+        return $labels[$serviceType->value] ?? $serviceType->value;
     }
 
     /**
@@ -142,14 +182,38 @@ trait BuildsTariffTableColumns
     }
 
     /**
+     * Get cached tariff type labels.
+     * 
+     * Performance: Caches labels to avoid repeated translation lookups.
+     *
+     * @return array<string, string>
+     */
+    protected static function getTariffTypeLabels(): array
+    {
+        if (static::$tariffTypeLabels === null) {
+            static::$tariffTypeLabels = TariffType::labels();
+        }
+        return static::$tariffTypeLabels;
+    }
+
+    /**
      * Format the tariff type for display.
+     * 
+     * Performance: Uses cached labels instead of calling label() per row.
      *
      * @param string $state
      * @return string
      */
     protected static function formatTariffType(string $state): string
     {
-        return TariffType::tryFrom($state)?->label() ?? $state;
+        $tariffType = TariffType::tryFrom($state);
+        
+        if (!$tariffType) {
+            return $state;
+        }
+
+        $labels = static::getTariffTypeLabels();
+        return $labels[$tariffType->value] ?? $tariffType->value;
     }
 
     /**
@@ -175,14 +239,23 @@ trait BuildsTariffTableColumns
 
     /**
      * Build the is_active status column.
+     * 
+     * Performance: Uses closure to compute status once per request instead of
+     * per row, eliminating redundant now() calls and date comparisons.
      *
      * @return Tables\Columns\IconColumn
      */
     protected static function buildIsActiveColumn(): Tables\Columns\IconColumn
     {
-        return Tables\Columns\IconColumn::make('is_currently_active')
+        $now = now(); // Single call, reused for all rows
+        
+        return Tables\Columns\IconColumn::make('is_active')
             ->label(__('tariffs.labels.status'))
             ->boolean()
+            ->getStateUsing(function (Tariff $record) use ($now): bool {
+                return $record->active_from <= $now
+                    && (is_null($record->active_until) || $record->active_until >= $now);
+            })
             ->trueIcon('heroicon-o-check-circle')
             ->falseIcon('heroicon-o-x-circle')
             ->trueColor('success')

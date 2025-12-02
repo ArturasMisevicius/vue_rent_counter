@@ -1,0 +1,85 @@
+<?php
+
+use App\ValueObjects\{{ valueObjectName }};
+
+describe('{{ valueObjectName }} Value Object', function () {
+    it('can be instantiated with valid data', function () {
+        $vo = new {{ valueObjectName }}({{ constructorParams }});
+
+        expect($vo)->toBeInstanceOf({{ valueObjectName }}::class);
+    });
+
+    it('throws exception with invalid data', function () {
+        expect(fn() => new {{ valueObjectName }}({{ invalidParams }}))
+            ->toThrow(\InvalidArgumentException::class);
+    });
+
+    it('is immutable', function () {
+        $vo = new {{ valueObjectName }}({{ constructorParams }});
+        
+        // Attempt to modify should fail or create new instance
+        expect($vo->{{ property }})->toBe({{ expectedValue }});
+    });
+
+    it('implements value equality', function () {
+        $vo1 = new {{ valueObjectName }}({{ constructorParams }});
+        $vo2 = new {{ valueObjectName }}({{ constructorParams }});
+
+        expect($vo1->equals($vo2))->toBeTrue();
+    });
+
+    it('can be converted to array', function () {
+        $vo = new {{ valueObjectName }}({{ constructorParams }});
+
+        $array = $vo->toArray();
+
+        expect($array)->toBeArray();
+        expect($array)->toHaveKeys([{{ arrayKeys }}]);
+    });
+
+    it('can be converted to JSON', function () {
+        $vo = new {{ valueObjectName }}({{ constructorParams }});
+
+        $json = $vo->toJson();
+
+        expect($json)->toBeString();
+        expect(json_decode($json))->not->toBeNull();
+    });
+
+    it('can be created from array', function () {
+        $data = [{{ arrayData }}];
+
+        $vo = {{ valueObjectName }}::fromArray($data);
+
+        expect($vo)->toBeInstanceOf({{ valueObjectName }}::class);
+    });
+
+    it('validates data on construction', function () {
+        expect(fn() => new {{ valueObjectName }}(null))
+            ->toThrow(\InvalidArgumentException::class);
+    });
+
+    it('provides getter methods', function () {
+        $vo = new {{ valueObjectName }}({{ constructorParams }});
+
+        expect($vo->{{ getterMethod }}())->toBe({{ expectedValue }});
+    });
+
+    it('implements __toString method', function () {
+        $vo = new {{ valueObjectName }}({{ constructorParams }});
+
+        expect((string) $vo)->toBeString();
+    });
+
+    it('handles edge cases', function () {
+        $vo = new {{ valueObjectName }}({{ edgeCaseParams }});
+
+        expect($vo->{{ property }})->toBe({{ edgeCaseExpected }});
+    });
+
+    it('maintains type safety', function () {
+        $vo = new {{ valueObjectName }}({{ constructorParams }});
+
+        expect($vo->{{ property }})->toBeInstanceOf({{ expectedType }}::class);
+    });
+});

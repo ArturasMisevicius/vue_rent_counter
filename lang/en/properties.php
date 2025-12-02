@@ -112,6 +112,11 @@ return [
 
     'modals' => [
         'delete_confirmation' => 'Are you sure you want to delete this property? This action cannot be undone.',
+        'bulk_delete' => [
+            'title' => 'Delete Selected Properties',
+            'description' => 'Are you sure you want to delete the selected properties? This action cannot be undone.',
+            'confirm' => 'Delete Properties',
+        ],
     ],
 
     'empty_state' => [
