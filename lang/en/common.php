@@ -1,7 +1,11 @@
 <?php
 
-return array (
-  'yes' => 'Yes',
-  'no' => 'No',
-  'greeting' => 'Hello',
-);
+return [
+    'yes' => 'Yes',
+    'no' => 'No',
+    'greeting' => 'Hello',
+    
+    'status' => [
+        'unknown' => 'Unknown',
+    ],
+];

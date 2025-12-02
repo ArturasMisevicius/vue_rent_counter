@@ -184,6 +184,7 @@ Complete documentation for the Vilnius Utilities Billing Platform.
 ### Blade & Components
 - **[Frontend Guide](frontend/FRONTEND.md)** - Blade, Tailwind, Alpine
 - **[Blade Components](frontend/BLADE_COMPONENTS.md)** - Reusable components
+- **[Status Badge Component](components/STATUS_BADGE_COMPONENT.md)** - Status badge usage and architecture
 - **[View Composers](frontend/VIEW_COMPOSERS.md)** - Navigation logic
 
 ### Filament
@@ -218,6 +219,7 @@ Complete documentation for the Vilnius Utilities Billing Platform.
 
 - **[Changelog](CHANGELOG.md)** - All notable changes
 - **[Migration Changelog](CHANGELOG_MIGRATION_REFACTORING.md)** - Migration changes
+- **[Status Badge Fix](CHANGELOG_STATUS_BADGE_FIX.md)** - Status badge enum handling fix
 
 ## Status Documents
 

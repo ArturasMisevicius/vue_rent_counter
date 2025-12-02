@@ -14,6 +14,7 @@ use App\Enums\UserAssignmentAction;
 use App\Enums\UserRole;
 use BackedEnum;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\View\Component;
 
@@ -21,14 +22,44 @@ use Illuminate\View\Component;
  * Status Badge Component
  *
  * Displays a styled badge for various status enums with consistent
- * color coding and visual indicators.
+ * color coding and visual indicators. Supports both enum instances
+ * and string values for maximum flexibility.
  *
- * Supports: InvoiceStatus, SubscriptionStatus, UserRole, MeterType,
- * PropertyType, ServiceType, SubscriptionPlanType, UserAssignmentAction
+ * Supported Enums:
+ * - InvoiceStatus (draft, finalized, paid)
+ * - SubscriptionStatus (active, inactive, expired, suspended, cancelled)
+ * - UserRole (superadmin, admin, manager, tenant)
+ * - MeterType (electricity, water, gas, heating)
+ * - PropertyType (apartment, house, commercial)
+ * - ServiceType (electricity, water, heating, gas)
+ * - SubscriptionPlanType (free, basic, premium, enterprise)
+ * - UserAssignmentAction (assigned, unassigned, reassigned)
  *
- * @example
+ * Features:
+ * - Automatic label resolution from enum label() methods
+ * - Fallback to translation keys for string values
+ * - Cached translation lookups for performance
+ * - Consistent color coding across all status types
+ * - Accessible markup with ARIA attributes
+ * - Customizable labels via slot content
+ *
+ * @example Basic usage with enum
  * <x-status-badge :status="$invoice->status" />
- * <x-status-badge :status="'active'" />
+ * 
+ * @example Usage with string value
+ * <x-status-badge status="active" />
+ * 
+ * @example Custom label via slot
+ * <x-status-badge :status="$subscription->status">
+ *     Custom Active Label
+ * </x-status-badge>
+ * 
+ * @example Handling null status gracefully
+ * <x-status-badge :status="$optionalStatus" />
+ * 
+ * @see \App\Enums\InvoiceStatus
+ * @see \App\Enums\SubscriptionStatus
+ * @see \App\Enums\UserRole
  */
 final class StatusBadge extends Component
 {
@@ -36,6 +67,7 @@ final class StatusBadge extends Component
      * Status color mappings for consistent visual representation.
      */
     private const STATUS_COLORS = [
+        // Invoice statuses
         'draft' => [
             'badge' => 'bg-amber-50 text-amber-700 border-amber-200',
             'dot' => 'bg-amber-400',
@@ -48,6 +80,8 @@ final class StatusBadge extends Component
             'badge' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
             'dot' => 'bg-emerald-500',
         ],
+        
+        // Subscription/general statuses
         'active' => [
             'badge' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
             'dot' => 'bg-emerald-500',
@@ -65,6 +99,20 @@ final class StatusBadge extends Component
             'dot' => 'bg-amber-400',
         ],
         'cancelled' => [
+            'badge' => 'bg-slate-100 text-slate-700 border-slate-200',
+            'dot' => 'bg-slate-400',
+        ],
+        
+        // Additional common statuses
+        'pending' => [
+            'badge' => 'bg-blue-50 text-blue-700 border-blue-200',
+            'dot' => 'bg-blue-400',
+        ],
+        'processing' => [
+            'badge' => 'bg-purple-50 text-purple-700 border-purple-200',
+            'dot' => 'bg-purple-400',
+        ],
+        'unknown' => [
             'badge' => 'bg-slate-100 text-slate-700 border-slate-200',
             'dot' => 'bg-slate-400',
         ],
@@ -86,23 +134,42 @@ final class StatusBadge extends Component
     /**
      * Create a new component instance.
      *
-     * @param BackedEnum|string $status The status to display (enum or string)
-     * @param string $slot Optional slot content for custom label
+     * Accepts status as enum instance, string value, or null. When null,
+     * displays "unknown" status with default styling. Automatically resolves
+     * labels from enum methods or translation keys.
+     *
+     * @param BackedEnum|string|null $status The status to display (enum instance, string value, or null)
+     * @param string $slot Optional slot content for custom label override
+     * 
+     * @throws None - Gracefully handles all input types including null
      */
     public function __construct(
-        BackedEnum|string $status,
+        BackedEnum|string|null $status,
         public readonly string $slot = ''
     ) {
-        $this->statusValue = $this->normalizeStatus($status);
-        $this->label = $this->resolveLabel($status);
+        // Handle null status gracefully
+        if ($status === null) {
+            $this->statusValue = 'unknown';
+            $this->label = __('common.status.unknown');
+            $colors = self::DEFAULT_COLORS;
+        } else {
+            $this->statusValue = $this->normalizeStatus($status);
+            $this->label = $this->resolveLabel($status);
+            $colors = $this->resolveColors($this->statusValue);
+        }
         
-        $colors = $this->resolveColors($this->statusValue);
         $this->badgeClasses = $colors['badge'];
         $this->dotClasses = $colors['dot'];
     }
 
     /**
      * Normalize status to string value.
+     *
+     * Extracts the underlying value from enum instances or casts
+     * string values to ensure consistent string representation.
+     *
+     * @param BackedEnum|string $status The status to normalize
+     * @return string The normalized string value
      */
     private function normalizeStatus(BackedEnum|string $status): string
     {
@@ -111,6 +178,14 @@ final class StatusBadge extends Component
 
     /**
      * Resolve the display label for the status.
+     *
+     * Resolution order:
+     * 1. Enum label() method if available
+     * 2. Merged translation cache lookup
+     * 3. Formatted string fallback (snake_case to Title Case)
+     *
+     * @param BackedEnum|string $status The status to resolve label for
+     * @return string The resolved display label
      */
     private function resolveLabel(BackedEnum|string $status): string
     {
@@ -136,33 +211,43 @@ final class StatusBadge extends Component
 
     /**
      * Get merged translations from all supported enums.
+     * 
+     * Merges label arrays from all supported enum types into a single
+     * lookup table. Results are cached for 24 hours with tags for
+     * selective invalidation when translations change.
      *
-     * @return array<string, string>
+     * Cache invalidation:
+     * - Cache::tags(['status-badge', 'translations'])->flush()
+     * - Automatic on cache clear
+     *
+     * @return array<string, string> Map of status values to display labels
      */
     private function getMergedTranslations(): array
     {
-        static $cachedTranslations = null;
-
-        if ($cachedTranslations === null) {
-            $cachedTranslations = array_merge(
-                InvoiceStatus::labels(),
-                ServiceType::labels(),
-                UserRole::labels(),
-                MeterType::labels(),
-                PropertyType::labels(),
-                SubscriptionStatus::labels(),
-                SubscriptionPlanType::labels(),
-                UserAssignmentAction::labels(),
-            );
-        }
-
-        return $cachedTranslations;
+        return Cache::tags(['status-badge', 'translations'])
+            ->remember('status-badge.translations', now()->addDay(), function (): array {
+                return array_merge(
+                    InvoiceStatus::labels(),
+                    ServiceType::labels(),
+                    UserRole::labels(),
+                    MeterType::labels(),
+                    PropertyType::labels(),
+                    SubscriptionStatus::labels(),
+                    SubscriptionPlanType::labels(),
+                    UserAssignmentAction::labels(),
+                );
+            });
     }
 
     /**
      * Resolve color classes for the status.
      *
-     * @return array{badge: string, dot: string}
+     * Returns Tailwind CSS classes for badge background/text and
+     * status indicator dot. Falls back to default gray styling
+     * for unknown status values.
+     *
+     * @param string $statusValue The normalized status value
+     * @return array{badge: string, dot: string} Badge and dot CSS classes
      */
     private function resolveColors(string $statusValue): array
     {
@@ -171,6 +256,8 @@ final class StatusBadge extends Component
 
     /**
      * Get the view / contents that represent the component.
+     *
+     * @return View The component view instance
      */
     public function render(): View
     {

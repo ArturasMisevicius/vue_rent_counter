@@ -1,5 +1,11 @@
 <?php
 
-return array (
-  'greeting' => 'Labas',
-);
+return [
+    'greeting' => 'Labas',
+    'yes' => 'Taip',
+    'no' => 'Ne',
+    
+    'status' => [
+        'unknown' => 'Nežinoma',
+    ],
+];

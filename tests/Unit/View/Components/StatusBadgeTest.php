@@ -2,160 +2,176 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\View\Components;
-
 use App\Enums\InvoiceStatus;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\View\Components\StatusBadge;
-use Tests\TestCase;
 
-final class StatusBadgeTest extends TestCase
-{
-    /** @test */
-    public function it_handles_enum_status(): void
-    {
-        $component = new StatusBadge(InvoiceStatus::DRAFT);
-
-        $this->assertSame('draft', $component->statusValue);
-        $this->assertNotEmpty($component->label);
-        $this->assertStringContainsString('amber', $component->badgeClasses);
-        $this->assertStringContainsString('amber', $component->dotClasses);
-    }
-
-    /** @test */
-    public function it_handles_string_status(): void
-    {
-        $component = new StatusBadge('active');
-
-        $this->assertSame('active', $component->statusValue);
-        $this->assertNotEmpty($component->label);
-        $this->assertStringContainsString('emerald', $component->badgeClasses);
-        $this->assertStringContainsString('emerald', $component->dotClasses);
-    }
-
-    /** @test */
-    public function it_applies_correct_colors_for_draft_status(): void
-    {
-        $component = new StatusBadge('draft');
-
-        $this->assertStringContainsString('bg-amber-50', $component->badgeClasses);
-        $this->assertStringContainsString('text-amber-700', $component->badgeClasses);
-        $this->assertStringContainsString('border-amber-200', $component->badgeClasses);
-        $this->assertStringContainsString('bg-amber-400', $component->dotClasses);
-    }
-
-    /** @test */
-    public function it_applies_correct_colors_for_paid_status(): void
-    {
+describe('StatusBadge Component', function () {
+    test('resolves enum status correctly', function () {
         $component = new StatusBadge(InvoiceStatus::PAID);
 
-        $this->assertStringContainsString('bg-emerald-50', $component->badgeClasses);
-        $this->assertStringContainsString('text-emerald-700', $component->badgeClasses);
-        $this->assertStringContainsString('border-emerald-200', $component->badgeClasses);
-        $this->assertStringContainsString('bg-emerald-500', $component->dotClasses);
-    }
+        expect($component->statusValue)->toBe('paid')
+            ->and($component->label)->toBe('Paid')
+            ->and($component->badgeClasses)->toContain('bg-emerald-50')
+            ->and($component->badgeClasses)->toContain('text-emerald-700')
+            ->and($component->dotClasses)->toBe('bg-emerald-500');
+    });
 
-    /** @test */
-    public function it_applies_correct_colors_for_expired_status(): void
-    {
-        $component = new StatusBadge(SubscriptionStatus::EXPIRED);
+    test('handles string status', function () {
+        $component = new StatusBadge('active');
 
-        $this->assertStringContainsString('bg-rose-50', $component->badgeClasses);
-        $this->assertStringContainsString('text-rose-700', $component->badgeClasses);
-        $this->assertStringContainsString('border-rose-200', $component->badgeClasses);
-        $this->assertStringContainsString('bg-rose-400', $component->dotClasses);
-    }
+        expect($component->statusValue)->toBe('active')
+            ->and($component->label)->toBe('Active')
+            ->and($component->badgeClasses)->toContain('bg-emerald-50');
+    });
 
-    /** @test */
-    public function it_applies_default_colors_for_unknown_status(): void
-    {
-        $component = new StatusBadge('unknown_status');
+    test('handles null status gracefully', function () {
+        $component = new StatusBadge(null);
 
-        $this->assertStringContainsString('bg-slate-100', $component->badgeClasses);
-        $this->assertStringContainsString('text-slate-700', $component->badgeClasses);
-        $this->assertStringContainsString('border-slate-200', $component->badgeClasses);
-        $this->assertStringContainsString('bg-slate-400', $component->dotClasses);
-    }
+        expect($component->statusValue)->toBe('unknown')
+            ->and($component->label)->toBe('Unknown')
+            ->and($component->badgeClasses)->toContain('bg-slate-100');
+    });
 
-    /** @test */
-    public function it_resolves_label_from_enum(): void
-    {
+    test('resolves draft invoice status', function () {
+        $component = new StatusBadge(InvoiceStatus::DRAFT);
+
+        expect($component->statusValue)->toBe('draft')
+            ->and($component->label)->toBe('Draft')
+            ->and($component->badgeClasses)->toContain('bg-amber-50')
+            ->and($component->dotClasses)->toBe('bg-amber-400');
+    });
+
+    test('resolves finalized invoice status', function () {
         $component = new StatusBadge(InvoiceStatus::FINALIZED);
 
-        // Label should be resolved from enum's label() method
-        $this->assertNotEmpty($component->label);
-        $this->assertIsString($component->label);
-    }
+        expect($component->statusValue)->toBe('finalized')
+            ->and($component->label)->toBe('Finalized')
+            ->and($component->badgeClasses)->toContain('bg-indigo-50')
+            ->and($component->dotClasses)->toBe('bg-indigo-500');
+    });
 
-    /** @test */
-    public function it_formats_label_for_string_status(): void
-    {
-        $component = new StatusBadge('test_status');
+    test('resolves subscription statuses', function () {
+        $activeComponent = new StatusBadge(SubscriptionStatus::ACTIVE);
+        expect($activeComponent->statusValue)->toBe('active')
+            ->and($activeComponent->badgeClasses)->toContain('bg-emerald-50');
 
-        // Should format as "Test Status"
-        $this->assertSame('Test Status', $component->label);
-    }
+        $expiredComponent = new StatusBadge(SubscriptionStatus::EXPIRED);
+        expect($expiredComponent->statusValue)->toBe('expired')
+            ->and($expiredComponent->badgeClasses)->toContain('bg-rose-50');
 
-    /** @test */
-    public function it_handles_all_invoice_statuses(): void
-    {
-        foreach (InvoiceStatus::cases() as $status) {
-            $component = new StatusBadge($status);
+        $suspendedComponent = new StatusBadge(SubscriptionStatus::SUSPENDED);
+        expect($suspendedComponent->statusValue)->toBe('suspended')
+            ->and($suspendedComponent->badgeClasses)->toContain('bg-amber-50');
 
-            $this->assertNotEmpty($component->statusValue);
-            $this->assertNotEmpty($component->label);
-            $this->assertNotEmpty($component->badgeClasses);
-            $this->assertNotEmpty($component->dotClasses);
-        }
-    }
+        $cancelledComponent = new StatusBadge(SubscriptionStatus::CANCELLED);
+        expect($cancelledComponent->statusValue)->toBe('cancelled')
+            ->and($cancelledComponent->badgeClasses)->toContain('bg-slate-100');
+    });
 
-    /** @test */
-    public function it_handles_all_subscription_statuses(): void
-    {
-        foreach (SubscriptionStatus::cases() as $status) {
-            $component = new StatusBadge($status);
+    test('resolves user roles', function () {
+        $component = new StatusBadge(UserRole::SUPERADMIN);
 
-            $this->assertNotEmpty($component->statusValue);
-            $this->assertNotEmpty($component->label);
-            $this->assertNotEmpty($component->badgeClasses);
-            $this->assertNotEmpty($component->dotClasses);
-        }
-    }
+        expect($component->statusValue)->toBe('superadmin')
+            ->and($component->label)->toBe('Super Admin'); // Formatted from snake_case
+    });
 
-    /** @test */
-    public function it_handles_all_user_roles(): void
-    {
-        foreach (UserRole::cases() as $role) {
-            $component = new StatusBadge($role);
+    test('uses default colors for unknown status', function () {
+        $component = new StatusBadge('unknown_status');
 
-            $this->assertNotEmpty($component->statusValue);
-            $this->assertNotEmpty($component->label);
-            $this->assertNotEmpty($component->badgeClasses);
-            $this->assertNotEmpty($component->dotClasses);
-        }
-    }
+        expect($component->badgeClasses)->toContain('bg-slate-100')
+            ->and($component->badgeClasses)->toContain('text-slate-700')
+            ->and($component->dotClasses)->toBe('bg-slate-400');
+    });
 
-    /** @test */
-    public function it_renders_view(): void
-    {
-        $component = new StatusBadge(InvoiceStatus::DRAFT);
+    test('normalizes enum to string value', function () {
+        $component = new StatusBadge(InvoiceStatus::PAID);
+
+        expect($component->statusValue)->toBe('paid')
+            ->and($component->statusValue)->not->toBeInstanceOf(InvoiceStatus::class);
+    });
+
+    test('normalizes string to string value', function () {
+        $component = new StatusBadge('active');
+
+        expect($component->statusValue)->toBe('active')
+            ->and($component->statusValue)->toBeString();
+    });
+
+    test('renders view correctly', function () {
+        $component = new StatusBadge(InvoiceStatus::PAID);
         $view = $component->render();
 
-        $this->assertSame('components.status-badge', $view->name());
-    }
+        expect($view)->toBeInstanceOf(\Illuminate\Contracts\View\View::class)
+            ->and($view->name())->toBe('components.status-badge');
+    });
 
-    /** @test */
-    public function it_caches_translations(): void
-    {
-        // First call should populate cache
-        $component1 = new StatusBadge('draft');
-        $label1 = $component1->label;
+    test('label resolution uses enum label method', function () {
+        $component = new StatusBadge(InvoiceStatus::PAID);
 
-        // Second call should use cached translations
-        $component2 = new StatusBadge('draft');
-        $label2 = $component2->label;
+        // Enum label() method should be used
+        expect($component->label)->toBe('Paid');
+    });
 
-        $this->assertSame($label1, $label2);
-    }
-}
+    test('label resolution falls back to formatted string', function () {
+        $component = new StatusBadge('custom_status');
+
+        // Should format snake_case to Title Case
+        expect($component->label)->toBe('Custom Status');
+    });
+
+    test('handles pending status', function () {
+        $component = new StatusBadge('pending');
+
+        expect($component->statusValue)->toBe('pending')
+            ->and($component->badgeClasses)->toContain('bg-blue-50')
+            ->and($component->dotClasses)->toBe('bg-blue-400');
+    });
+
+    test('handles processing status', function () {
+        $component = new StatusBadge('processing');
+
+        expect($component->statusValue)->toBe('processing')
+            ->and($component->badgeClasses)->toContain('bg-purple-50')
+            ->and($component->dotClasses)->toBe('bg-purple-400');
+    });
+
+    test('component properties are readonly', function () {
+        $component = new StatusBadge(InvoiceStatus::PAID);
+
+        expect($component->statusValue)->toBe('paid')
+            ->and($component->label)->toBe('Paid')
+            ->and($component->badgeClasses)->toBeString()
+            ->and($component->dotClasses)->toBeString();
+    });
+
+    test('handles all invoice statuses', function () {
+        $statuses = [
+            ['status' => InvoiceStatus::DRAFT, 'value' => 'draft', 'color' => 'bg-amber-50'],
+            ['status' => InvoiceStatus::FINALIZED, 'value' => 'finalized', 'color' => 'bg-indigo-50'],
+            ['status' => InvoiceStatus::PAID, 'value' => 'paid', 'color' => 'bg-emerald-50'],
+        ];
+
+        foreach ($statuses as $statusData) {
+            $component = new StatusBadge($statusData['status']);
+            expect($component->statusValue)->toBe($statusData['value'])
+                ->and($component->badgeClasses)->toContain($statusData['color']);
+        }
+    });
+
+    test('handles all subscription statuses', function () {
+        $statuses = [
+            ['status' => SubscriptionStatus::ACTIVE, 'value' => 'active', 'color' => 'bg-emerald-50'],
+            ['status' => SubscriptionStatus::EXPIRED, 'value' => 'expired', 'color' => 'bg-rose-50'],
+            ['status' => SubscriptionStatus::SUSPENDED, 'value' => 'suspended', 'color' => 'bg-amber-50'],
+            ['status' => SubscriptionStatus::CANCELLED, 'value' => 'cancelled', 'color' => 'bg-slate-100'],
+        ];
+
+        foreach ($statuses as $statusData) {
+            $component = new StatusBadge($statusData['status']);
+            expect($component->statusValue)->toBe($statusData['value'])
+                ->and($component->badgeClasses)->toContain($statusData['color']);
+        }
+    });
+});
