@@ -384,11 +384,11 @@ When performance requirements change:
 
 ## Related Documentation
 
-- **Spec**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
-- **Test Summary**: `docs/testing/FAQ_FILTER_TEST_SUMMARY.md`
-- **Completion Report**: `docs/testing/FAQ_FILTER_TEST_COMPLETION.md`
-- **Namespace Summary**: `docs/testing/FAQ_NAMESPACE_CONSOLIDATION_SUMMARY.md`
-- **Manual Test Guide**: `docs/testing/FAQ_ADMIN_MANUAL_TEST.md`
+- **Spec**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
+- **Test Summary**: [docs/testing/FAQ_FILTER_TEST_SUMMARY.md](FAQ_FILTER_TEST_SUMMARY.md)
+- **Completion Report**: [docs/testing/FAQ_FILTER_TEST_COMPLETION.md](FAQ_FILTER_TEST_COMPLETION.md)
+- **Namespace Summary**: [docs/testing/FAQ_NAMESPACE_CONSOLIDATION_SUMMARY.md](FAQ_NAMESPACE_CONSOLIDATION_SUMMARY.md)
+- **Manual Test Guide**: [docs/testing/FAQ_ADMIN_MANUAL_TEST.md](FAQ_ADMIN_MANUAL_TEST.md)
 
 ## Changelog
 

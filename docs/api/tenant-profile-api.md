@@ -381,7 +381,7 @@ php artisan test --filter=ProfileUpdateTest --coverage
 ## Related Documentation
 
 - [Hierarchical User Management Spec](.kiro/specs/3-hierarchical-user-management/)
-- [Tenant Profile Update Feature](docs/features/TENANT_PROFILE_UPDATE.md)
+- [Tenant Profile Update Feature](../features/TENANT_PROFILE_UPDATE.md)
 - [Authentication Testing](docs/testing/AUTHENTICATION_TESTING.md)
 - [Localization Guide](docs/frontend/LOCALIZATION.md)
 - [Security Best Practices](docs/security/BEST_PRACTICES.md)

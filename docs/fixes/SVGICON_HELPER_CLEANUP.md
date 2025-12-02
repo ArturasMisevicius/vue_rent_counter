@@ -55,8 +55,8 @@
    - Verifies SVG markup structure and attributes
 
 4. **Created documentation**:
-   - `docs/frontend/SVG_ICON_HELPER.md` - Complete usage guide
-   - `docs/fixes/SVGICON_HELPER_CLEANUP.md` - This fix summary
+   - [docs/frontend/SVG_ICON_HELPER.md](../frontend/SVG_ICON_HELPER.md) - Complete usage guide
+   - [docs/fixes/SVGICON_HELPER_CLEANUP.md](SVGICON_HELPER_CLEANUP.md) - This fix summary
 
 ### Files Modified
 
@@ -161,8 +161,8 @@ grep -r "@php" resources/views/ && exit 1 || exit 0
 
 ### Documentation
 
-- Updated: `docs/frontend/SVG_ICON_HELPER.md` with usage guide
-- Created: `docs/fixes/SVGICON_HELPER_CLEANUP.md` (this document)
+- Updated: [docs/frontend/SVG_ICON_HELPER.md](../frontend/SVG_ICON_HELPER.md) with usage guide
+- Created: [docs/fixes/SVGICON_HELPER_CLEANUP.md](SVGICON_HELPER_CLEANUP.md) (this document)
 - Reference: `.kiro/steering/blade-guardrails.md` for standards
 
 ## Deployment Notes
@@ -244,7 +244,7 @@ All properly defined in helpers file, no duplicates in Blade templates.
 - **Blade Guardrails**: `.kiro/steering/blade-guardrails.md`
 - **Operating Principles**: `.kiro/steering/operating-principles.md`
 - **Quality Playbook**: `.kiro/steering/quality.md`
-- **Helper Documentation**: `docs/frontend/SVG_ICON_HELPER.md`
+- **Helper Documentation**: [docs/frontend/SVG_ICON_HELPER.md](../frontend/SVG_ICON_HELPER.md)
 - **Project Structure**: `.kiro/steering/structure.md`
 
 ## Lessons Learned

@@ -33,9 +33,9 @@ Comprehensive security audit and hardening of FaqResource.php completed. All cri
 - ✅ `tests/Feature/Security/FaqSecurityTest.php` - Security test suite (25+ tests)
 
 ### 5. Documentation
-- ✅ `docs/security/FAQ_SECURITY_AUDIT.md` - Complete audit report
-- ✅ `docs/security/SECURITY_CHECKLIST.md` - Deployment checklist
-- ✅ `docs/security/FAQ_SECURITY_IMPLEMENTATION_SUMMARY.md` - This file
+- ✅ [docs/security/FAQ_SECURITY_AUDIT.md](FAQ_SECURITY_AUDIT.md) - Complete audit report
+- ✅ [docs/security/SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md) - Deployment checklist
+- ✅ [docs/security/FAQ_SECURITY_IMPLEMENTATION_SUMMARY.md](FAQ_SECURITY_IMPLEMENTATION_SUMMARY.md) - This file
 
 ---
 
@@ -377,9 +377,9 @@ php artisan test --filter=Faq
 ## Documentation
 
 ### Created
-1. `docs/security/FAQ_SECURITY_AUDIT.md` - Complete audit (3000+ lines)
-2. `docs/security/SECURITY_CHECKLIST.md` - Deployment checklist
-3. `docs/security/FAQ_SECURITY_IMPLEMENTATION_SUMMARY.md` - This file
+1. [docs/security/FAQ_SECURITY_AUDIT.md](FAQ_SECURITY_AUDIT.md) - Complete audit (3000+ lines)
+2. [docs/security/SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md) - Deployment checklist
+3. [docs/security/FAQ_SECURITY_IMPLEMENTATION_SUMMARY.md](FAQ_SECURITY_IMPLEMENTATION_SUMMARY.md) - This file
 
 ### Updated
 - None (new security documentation)

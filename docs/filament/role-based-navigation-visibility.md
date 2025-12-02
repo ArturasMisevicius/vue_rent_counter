@@ -224,4 +224,4 @@ When adding new resources:
 - [Filament Admin Panel Requirements](.kiro/specs/4-filament-admin-panel/requirements.md)
 - [Filament Admin Panel Design](.kiro/specs/4-filament-admin-panel/design.md)
 - [User Role Enum](app/Enums/UserRole.php)
-- [Tenant Scope Documentation](docs/architecture/MULTI_TENANT_ARCHITECTURE.md)
+- [Tenant Scope Documentation](../architecture/MULTI_TENANT_ARCHITECTURE.md)

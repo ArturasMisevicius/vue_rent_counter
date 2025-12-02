@@ -6,7 +6,7 @@ This test suite validates tenant isolation and access control for the `BuildingR
 
 **Test File**: `tests/Feature/FilamentBuildingResourceTenantScopeTest.php`
 
-**Related Spec**: `.kiro/specs/4-filament-admin-panel/tasks.md` (Task 7.3)
+**Related Spec**: [.kiro/specs/4-filament-admin-panel/tasks.md](../tasks/tasks.md) (Task 7.3)
 
 **Property Validated**: Property 16 - Tenant scope isolation for buildings
 

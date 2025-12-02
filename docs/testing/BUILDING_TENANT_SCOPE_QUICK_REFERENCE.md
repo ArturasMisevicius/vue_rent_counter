@@ -128,8 +128,8 @@ Building::all()
 
 ## Documentation Links
 
-- **Simple Tests Guide**: [building-tenant-scope-simple-tests.md](./building-tenant-scope-simple-tests.md)
-- **Property Tests Guide**: [filament-building-resource-tenant-scope-tests.md](./filament-building-resource-tenant-scope-tests.md)
+- **Simple Tests Guide**: [building-tenant-scope-simple-tests.md](building-tenant-scope-simple-tests.md)
+- **Property Tests Guide**: [filament-building-resource-tenant-scope-tests.md](filament-building-resource-tenant-scope-tests.md)
 - **Multi-Tenancy Architecture**: [../architecture/multi-tenancy.md](../architecture/multi-tenancy.md)
 - **Tenant Scope Implementation**: [../architecture/tenant-scope.md](../architecture/tenant-scope.md)
 

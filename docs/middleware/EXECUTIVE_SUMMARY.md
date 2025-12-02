@@ -47,10 +47,10 @@ Refactored `EnsureUserIsAdminOrManager` middleware from basic implementation to 
 - `tests/Feature/Middleware/EnsureUserIsAdminOrManagerTest.php`
 
 ### Documentation (5)
-- `docs/middleware/MIDDLEWARE_REFACTORING_COMPLETE.md`
-- `docs/middleware/QUICK_REFERENCE.md`
-- `docs/middleware/DEPLOYMENT_CHECKLIST.md`
-- `docs/CHANGELOG.md`
+- [docs/middleware/MIDDLEWARE_REFACTORING_COMPLETE.md](MIDDLEWARE_REFACTORING_COMPLETE.md)
+- [docs/middleware/QUICK_REFERENCE.md](QUICK_REFERENCE.md)
+- [docs/middleware/DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)
+- [docs/CHANGELOG.md](../CHANGELOG.md)
 - `MIDDLEWARE_REFACTORING_SUMMARY.md` (this file)
 
 ## Quality Gates
@@ -120,10 +120,10 @@ Duration: 3.24s
 
 ## Documentation
 
-- **Quick Reference:** `docs/middleware/QUICK_REFERENCE.md`
-- **Complete Report:** `docs/middleware/MIDDLEWARE_REFACTORING_COMPLETE.md`
-- **Deployment Guide:** `docs/middleware/DEPLOYMENT_CHECKLIST.md`
-- **API Reference:** `docs/api/MIDDLEWARE_API.md`
+- **Quick Reference:** [docs/middleware/QUICK_REFERENCE.md](QUICK_REFERENCE.md)
+- **Complete Report:** [docs/middleware/MIDDLEWARE_REFACTORING_COMPLETE.md](MIDDLEWARE_REFACTORING_COMPLETE.md)
+- **Deployment Guide:** [docs/middleware/DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)
+- **API Reference:** [docs/api/MIDDLEWARE_API.md](../api/MIDDLEWARE_API.md)
 
 ## Monitoring
 

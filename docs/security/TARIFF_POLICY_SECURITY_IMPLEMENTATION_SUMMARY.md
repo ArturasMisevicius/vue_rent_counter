@@ -94,7 +94,7 @@ Comprehensive security audit and hardening of TariffPolicy completed with all re
 
 ### 5. ✅ Comprehensive Security Audit Documentation
 
-**File**: `docs/security/TARIFF_POLICY_SECURITY_AUDIT.md`
+**File**: [docs/security/TARIFF_POLICY_SECURITY_AUDIT.md](TARIFF_POLICY_SECURITY_AUDIT.md)
 
 **Contents**:
 - 10 security findings analyzed
@@ -145,15 +145,15 @@ Comprehensive security audit and hardening of TariffPolicy completed with all re
 2. `app/Http/Requests/UpdateTariffRequest.php` - Update validation
 3. `app/Http/Middleware/RateLimitTariffOperations.php` - Rate limiting
 4. `tests/Security/TariffPolicySecurityTest.php` - Security tests
-5. `docs/security/TARIFF_POLICY_SECURITY_AUDIT.md` - Comprehensive audit report
-6. `docs/security/TARIFF_POLICY_SECURITY_IMPLEMENTATION_SUMMARY.md` - This document
+5. [docs/security/TARIFF_POLICY_SECURITY_AUDIT.md](TARIFF_POLICY_SECURITY_AUDIT.md) - Comprehensive audit report
+6. [docs/security/TARIFF_POLICY_SECURITY_IMPLEMENTATION_SUMMARY.md](TARIFF_POLICY_SECURITY_IMPLEMENTATION_SUMMARY.md) - This document
 
 ---
 
 ## Files Modified
 
 1. `app/Providers/AppServiceProvider.php` - Registered TariffObserver
-2. `.kiro/specs/2-vilnius-utilities-billing/tasks.md` - Updated task 12 status
+2. [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) - Updated task 12 status
 3. `app/Policies/TariffPolicy.php` - Already had `isAdmin()` helper (verified)
 
 ---
@@ -401,20 +401,20 @@ No migration required. All enhancements are optional and can be implemented incr
 ## Documentation Index
 
 ### Security Documentation
-- `docs/security/TARIFF_POLICY_SECURITY_AUDIT.md` - Comprehensive audit report (50+ pages)
-- `docs/security/TARIFF_POLICY_SECURITY_IMPLEMENTATION_SUMMARY.md` - This document
+- [docs/security/TARIFF_POLICY_SECURITY_AUDIT.md](TARIFF_POLICY_SECURITY_AUDIT.md) - Comprehensive audit report (50+ pages)
+- [docs/security/TARIFF_POLICY_SECURITY_IMPLEMENTATION_SUMMARY.md](TARIFF_POLICY_SECURITY_IMPLEMENTATION_SUMMARY.md) - This document
 
 ### Implementation Documentation
-- `docs/implementation/POLICY_REFACTORING_COMPLETE.md` - Policy refactoring details
-- `docs/api/TARIFF_POLICY_API.md` - Complete API reference
+- [docs/implementation/POLICY_REFACTORING_COMPLETE.md](../implementation/POLICY_REFACTORING_COMPLETE.md) - Policy refactoring details
+- [docs/api/TARIFF_POLICY_API.md](../api/TARIFF_POLICY_API.md) - Complete API reference
 
 ### Performance Documentation
-- `docs/performance/POLICY_PERFORMANCE_ANALYSIS.md` - Performance analysis
-- `docs/performance/POLICY_OPTIMIZATION_SUMMARY.md` - Optimization summary
+- [docs/performance/POLICY_PERFORMANCE_ANALYSIS.md](../performance/POLICY_PERFORMANCE_ANALYSIS.md) - Performance analysis
+- [docs/performance/POLICY_OPTIMIZATION_SUMMARY.md](../performance/POLICY_OPTIMIZATION_SUMMARY.md) - Optimization summary
 
 ### Specification
 - `.kiro/specs/2-vilnius-utilities-billing/policy-optimization-spec.md` - Complete spec
-- `.kiro/specs/2-vilnius-utilities-billing/tasks.md` - Task tracking
+- [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) - Task tracking
 
 ---
 

@@ -385,10 +385,10 @@ All operations logged with structured context:
 
 ## Related Documentation
 
-- [BillingService Implementation](./BILLING_SERVICE_IMPLEMENTATION.md)
+- [BillingService Implementation](BILLING_SERVICE_IMPLEMENTATION.md)
 - [Service Layer Architecture](../architecture/SERVICE_LAYER_ARCHITECTURE.md)
 - [Value Objects Guide](../architecture/VALUE_OBJECTS.md)
-- [Testing Guide](../testing/TESTING_GUIDE.md)
+- [Testing Guide](../guides/TESTING_GUIDE.md)
 
 ## Changelog
 

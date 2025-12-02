@@ -171,15 +171,15 @@ Complete documentation for the Vilnius Utilities Billing Platform.
 
 ### Migration Guides
 - **[Batch Migration Guide](upgrades/BATCH_MIGRATION_GUIDE.md)** - Batch migrations
-- **[Upgrade Complete Summary](upgrades/UPGRADE_COMPLETE_SUMMARY.md)** - Upgrade status
+- **[Upgrade Complete Summary](misc/UPGRADE_COMPLETE_SUMMARY.md)** - Upgrade status
 
 ## Frontend
 
 ### Design System
-- **[Design System Overview](../design/README.md)** - daisyUI component library and design tokens
-- **[Integration Guide](../design/INTEGRATION_GUIDE.md)** - Step-by-step daisyUI integration
-- **[Component Audit](../design/COMPONENT_AUDIT.md)** - Current component inventory
-- **[Migration Plan](../design/MIGRATION_PLAN.md)** - Phased migration strategy
+- **[Design System Overview](overview/readme.md)** - daisyUI component library and design tokens
+- **[Integration Guide](guides/INTEGRATION_GUIDE.md)** - Step-by-step daisyUI integration
+- **[Component Audit](misc/COMPONENT_AUDIT.md)** - Current component inventory
+- **[Migration Plan](misc/MIGRATION_PLAN.md)** - Phased migration strategy
 
 ### Blade & Components
 - **[Frontend Guide](frontend/FRONTEND.md)** - Blade, Tailwind, Alpine
@@ -189,7 +189,7 @@ Complete documentation for the Vilnius Utilities Billing Platform.
 ### Filament
 - **[Filament Admin Panel](filament/FILAMENT_ADMIN_PANEL.md)** - Admin interface
 - **[Filament Resources](filament/FILAMENT_RESOURCES.md)** - Resource configuration
-- **[Filament Namespace Consolidation](filament/FILAMENT_NAMESPACE_CONSOLIDATION.md)** - Namespace cleanup
+- **[Filament Namespace Consolidation](upgrades/FILAMENT_NAMESPACE_CONSOLIDATION.md)** - Namespace cleanup
 
 ## Routes
 
@@ -222,11 +222,11 @@ Complete documentation for the Vilnius Utilities Billing Platform.
 ## Status Documents
 
 ### Completion Reports
-- **[Billing Service Performance Complete](../BILLING_SERVICE_PERFORMANCE_COMPLETE.md)** - Performance optimization
-- **[Billing Service Security Complete](../BILLING_SERVICE_SECURITY_COMPLETE.md)** - Security hardening
-- **[Meter Reading Update Controller Complete](../METER_READING_UPDATE_CONTROLLER_SPEC_COMPLETE.md)** - Controller implementation
-- **[Tariff Controller Implementation Complete](../TARIFF_CONTROLLER_IMPLEMENTATION_COMPLETE.md)** - Tariff management
-- **[Final Verification Status](../FINAL_VERIFICATION_STATUS.md)** - Overall status
+- **[Billing Service Performance Complete](misc/BILLING_SERVICE_PERFORMANCE_COMPLETE.md)** - Performance optimization
+- **[Billing Service Security Complete](misc/BILLING_SERVICE_SECURITY_COMPLETE.md)** - Security hardening
+- **[Meter Reading Update Controller Complete](misc/METER_READING_UPDATE_CONTROLLER_SPEC_COMPLETE.md)** - Controller implementation
+- **[Tariff Controller Implementation Complete](implementation/TARIFF_CONTROLLER_IMPLEMENTATION_COMPLETE.md)** - Tariff management
+- **[Final Verification Status](misc/FINAL_VERIFICATION_STATUS.md)** - Overall status
 
 ## Contributing
 

@@ -456,7 +456,7 @@ php artisan test --coverage --min=80
 - Laravel Testing Docs: https://laravel.com/docs/testing
 - Pest Documentation: https://pestphp.com
 - Project Quality Guide: `docs/quality.md`
-- Project Testing Guide: `docs/testing/README.md`
+- Project Testing Guide: [docs/testing/README.md](README.md)
 
 ## Next Steps
 

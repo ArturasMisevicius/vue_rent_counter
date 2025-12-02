@@ -256,7 +256,7 @@ Request Flow:
 - ✅ `tests/Feature/Middleware/EnsureUserIsAdminOrManagerTest.php` - Updated for localization
 
 ### Documentation (1)
-- ✅ `docs/middleware/MIDDLEWARE_REFACTORING_COMPLETE.md` - This file
+- ✅ [docs/middleware/MIDDLEWARE_REFACTORING_COMPLETE.md](MIDDLEWARE_REFACTORING_COMPLETE.md) - This file
 
 ## Monitoring & Observability
 
@@ -366,9 +366,9 @@ Log::listen(function ($message) {
 ## Related Documentation
 
 - [Middleware API Reference](../api/MIDDLEWARE_API.md)
-- [EnsureUserIsAdminOrManager Details](./ENSURE_USER_IS_ADMIN_OR_MANAGER.md)
-- [Refactoring Summary](./REFACTORING_SUMMARY.md)
-- [Filament Authorization Fix](../FILAMENT_ADMIN_AUTHORIZATION_FIX.md)
+- [EnsureUserIsAdminOrManager Details](ENSURE_USER_IS_ADMIN_OR_MANAGER.md)
+- [Refactoring Summary](REFACTORING_SUMMARY.md)
+- [Filament Authorization Fix](../security/FILAMENT_ADMIN_AUTHORIZATION_FIX.md)
 - [Admin Panel Guide](../admin/ADMIN_PANEL_GUIDE.md)
 - [Security Implementation](../security/SECURITY_IMPLEMENTATION_CHECKLIST.md)
 

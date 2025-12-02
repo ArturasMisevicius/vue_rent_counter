@@ -18,8 +18,8 @@
 - **Performance Optimization**: Caching reduces overhead to ~2-10ms per request
 
 #### Documentation
-- `docs/routes/ADMIN_ROUTE_MIDDLEWARE_ENHANCEMENT.md` - Comprehensive enhancement guide
-- `docs/routes/ROUTE_MIDDLEWARE_REFERENCE.md` - Complete middleware reference
+- [docs/routes/ADMIN_ROUTE_MIDDLEWARE_ENHANCEMENT.md](ADMIN_ROUTE_MIDDLEWARE_ENHANCEMENT.md) - Comprehensive enhancement guide
+- [docs/routes/ROUTE_MIDDLEWARE_REFERENCE.md](ROUTE_MIDDLEWARE_REFERENCE.md) - Complete middleware reference
 - Updated inline documentation in `routes/web.php`
 
 ### Changed
@@ -137,7 +137,7 @@ $this->withoutMiddleware([
 
 ### Related Issues
 
-- Implements requirements from `.kiro/specs/3-hierarchical-user-management/tasks.md`
+- Implements requirements from [.kiro/specs/3-hierarchical-user-management/tasks.md](../tasks/tasks.md)
 - Addresses security concerns from middleware architecture review
 - Completes middleware implementation phase
 
@@ -149,10 +149,10 @@ $this->withoutMiddleware([
 
 ### References
 
-- **Enhancement Guide**: `docs/routes/ADMIN_ROUTE_MIDDLEWARE_ENHANCEMENT.md`
-- **Middleware Reference**: `docs/routes/ROUTE_MIDDLEWARE_REFERENCE.md`
-- **Architecture**: `docs/middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md`
-- **Implementation**: `docs/middleware/IMPLEMENTATION_SUMMARY.md`
+- **Enhancement Guide**: [docs/routes/ADMIN_ROUTE_MIDDLEWARE_ENHANCEMENT.md](ADMIN_ROUTE_MIDDLEWARE_ENHANCEMENT.md)
+- **Middleware Reference**: [docs/routes/ROUTE_MIDDLEWARE_REFERENCE.md](ROUTE_MIDDLEWARE_REFERENCE.md)
+- **Architecture**: [docs/middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md](../middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md)
+- **Implementation**: [docs/middleware/IMPLEMENTATION_SUMMARY.md](../middleware/IMPLEMENTATION_SUMMARY.md)
 - **Spec**: `.kiro/specs/3-hierarchical-user-management/`
 
 ---

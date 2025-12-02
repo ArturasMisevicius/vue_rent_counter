@@ -53,10 +53,10 @@ All tests passing:
 ### Documentation
 
 Created/Updated:
-1. `docs/database/MIGRATION_FINAL_STATUS.md` - Final status document
-2. `docs/database/README.md` - Updated with new documentation
-3. `.kiro/specs/2-vilnius-utilities-billing/tasks.md` - Marked task complete
-4. `docs/CHANGELOG_MIGRATION_REFACTORING.md` - This changelog
+1. [docs/database/MIGRATION_FINAL_STATUS.md](database/MIGRATION_FINAL_STATUS.md) - Final status document
+2. [docs/database/README.md](database/README.md) - Updated with new documentation
+3. [.kiro/specs/2-vilnius-utilities-billing/tasks.md](tasks/tasks.md) - Marked task complete
+4. [docs/CHANGELOG_MIGRATION_REFACTORING.md](CHANGELOG_MIGRATION_REFACTORING.md) - This changelog
 
 ### Deployment
 
@@ -129,9 +129,9 @@ For existing migrations with duplicate `indexExists()` methods:
 
 ### References
 
-- [MIGRATION_FINAL_STATUS.md](./database/MIGRATION_FINAL_STATUS.md)
-- [MIGRATION_PATTERNS.md](./database/MIGRATION_PATTERNS.md)
-- [MIGRATION_REFACTORING_COMPLETE.md](./database/MIGRATION_REFACTORING_COMPLETE.md)
+- [MIGRATION_FINAL_STATUS.md](database/MIGRATION_FINAL_STATUS.md)
+- [MIGRATION_PATTERNS.md](database/MIGRATION_PATTERNS.md)
+- [MIGRATION_REFACTORING_COMPLETE.md](database/MIGRATION_REFACTORING_COMPLETE.md)
 - [Laravel 12 Migrations](https://laravel.com/docs/12.x/migrations)
 - [Doctrine DBAL 4.x](https://www.doctrine-project.org/projects/doctrine-dbal/en/latest/)
 

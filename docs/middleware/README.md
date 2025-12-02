@@ -7,18 +7,18 @@ Comprehensive documentation for custom middleware in the Vilnius Utilities Billi
 ## Quick Links
 
 ### For Developers
-- **[Quick Reference](./QUICK_REFERENCE.md)** - Fast lookup for common tasks
+- **[Quick Reference](QUICK_REFERENCE.md)** - Fast lookup for common tasks
 - **[API Reference](../api/MIDDLEWARE_API.md)** - Complete API documentation
-- **[Implementation Guide](./ENSURE_USER_IS_ADMIN_OR_MANAGER.md)** - Detailed implementation details
+- **[Implementation Guide](ENSURE_USER_IS_ADMIN_OR_MANAGER.md)** - Detailed implementation details
 
 ### For Operations
-- **[Deployment Checklist](./DEPLOYMENT_CHECKLIST.md)** - Step-by-step deployment guide
-- **[Executive Summary](./EXECUTIVE_SUMMARY.md)** - High-level overview for stakeholders
+- **[Deployment Checklist](DEPLOYMENT_CHECKLIST.md)** - Step-by-step deployment guide
+- **[Executive Summary](EXECUTIVE_SUMMARY.md)** - High-level overview for stakeholders
 
 ### For Reference
-- **[Complete Report](./MIDDLEWARE_REFACTORING_COMPLETE.md)** - Full refactoring documentation
-- **[Refactoring Summary](./REFACTORING_SUMMARY.md)** - Original refactoring notes
-- **[Original Refactoring](./ENSURE_USER_IS_ADMIN_OR_MANAGER_REFACTORING.md)** - Initial refactoring details
+- **[Complete Report](MIDDLEWARE_REFACTORING_COMPLETE.md)** - Full refactoring documentation
+- **[Refactoring Summary](REFACTORING_SUMMARY.md)** - Original refactoring notes
+- **[Original Refactoring](ENSURE_USER_IS_ADMIN_OR_MANAGER_REFACTORING.md)** - Initial refactoring details
 
 ## Middleware Catalog
 
@@ -45,7 +45,7 @@ Comprehensive documentation for custom middleware in the Vilnius Utilities Billi
 **Status:** Production Ready (Enhanced v2.1)  
 **Purpose:** Enforce subscription requirements for admin users  
 **Coverage:** 30 comprehensive tests (100% passing)  
-**Documentation:** [Complete Guide](./CHECK_SUBSCRIPTION_STATUS.md) | [Implementation Guide](./CheckSubscriptionStatus-Implementation-Guide.md)
+**Documentation:** [Complete Guide](CHECK_SUBSCRIPTION_STATUS.md) | [Implementation Guide](CheckSubscriptionStatus-Implementation-Guide.md)
 
 **Quick Facts:**
 - Applied to admin routes (bypasses auth routes)

@@ -46,7 +46,7 @@ $middleware->alias([
 ### 2. New Documentation Files
 
 #### Middleware Configuration Guide
-**File**: `docs/middleware/MIDDLEWARE_CONFIGURATION.md` (600+ lines)
+**File**: [docs/middleware/MIDDLEWARE_CONFIGURATION.md](../middleware/MIDDLEWARE_CONFIGURATION.md) (600+ lines)
 
 **Contents**:
 - Complete middleware reference
@@ -68,7 +68,7 @@ $middleware->alias([
 - Security Best Practices
 
 #### Rate Limiting Strategy
-**File**: `docs/security/RATE_LIMITING_STRATEGY.md` (500+ lines)
+**File**: [docs/security/RATE_LIMITING_STRATEGY.md](../security/RATE_LIMITING_STRATEGY.md) (500+ lines)
 
 **Contents**:
 - Current implementation details
@@ -90,7 +90,7 @@ $middleware->alias([
 - DoS Protection
 
 #### Bootstrap Application Architecture
-**File**: `docs/architecture/BOOTSTRAP_APP_ARCHITECTURE.md` (800+ lines)
+**File**: [docs/architecture/BOOTSTRAP_APP_ARCHITECTURE.md](../architecture/BOOTSTRAP_APP_ARCHITECTURE.md) (800+ lines)
 
 **Contents**:
 - Complete architecture overview
@@ -115,7 +115,7 @@ $middleware->alias([
 ### 3. Updated Documentation
 
 #### CHANGELOG.md
-**File**: `docs/CHANGELOG.md`
+**File**: [docs/CHANGELOG.md](../CHANGELOG.md)
 
 Added entry for 2024-12-01:
 - Documented removal of custom admin rate limiter
@@ -124,7 +124,7 @@ Added entry for 2024-12-01:
 - Listed new documentation files created
 
 #### README.md
-**File**: `docs/README.md`
+**File**: [docs/README.md](../README.md)
 
 Added references to new documentation:
 - Bootstrap Application Architecture under System Architecture

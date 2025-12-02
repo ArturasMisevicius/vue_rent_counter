@@ -39,7 +39,7 @@ protected $policies = [
 ```
 
 ### 3. Apply Fixes
-See: `docs/security/BILLING_SERVICE_SECURITY_IMPLEMENTATION.md`
+See: [docs/security/BILLING_SERVICE_SECURITY_IMPLEMENTATION.md](BILLING_SERVICE_SECURITY_IMPLEMENTATION.md)
 
 ### 4. Test
 ```bash
@@ -115,10 +115,10 @@ php artisan test --filter=BillingServiceSecurityTest
 
 ## 📚 Documentation
 
-1. **Audit Report**: `docs/security/BILLING_SERVICE_SECURITY_AUDIT.md`
-2. **Implementation**: `docs/security/BILLING_SERVICE_SECURITY_IMPLEMENTATION.md`
-3. **Summary**: `docs/security/BILLING_SERVICE_SECURITY_SUMMARY.md`
-4. **Complete**: `BILLING_SERVICE_SECURITY_COMPLETE.md`
+1. **Audit Report**: [docs/security/BILLING_SERVICE_SECURITY_AUDIT.md](BILLING_SERVICE_SECURITY_AUDIT.md)
+2. **Implementation**: [docs/security/BILLING_SERVICE_SECURITY_IMPLEMENTATION.md](BILLING_SERVICE_SECURITY_IMPLEMENTATION.md)
+3. **Summary**: [docs/security/BILLING_SERVICE_SECURITY_SUMMARY.md](BILLING_SERVICE_SECURITY_SUMMARY.md)
+4. **Complete**: [BILLING_SERVICE_SECURITY_COMPLETE.md](../misc/BILLING_SERVICE_SECURITY_COMPLETE.md)
 
 ## 🎯 Success Criteria
 

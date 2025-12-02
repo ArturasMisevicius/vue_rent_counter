@@ -413,10 +413,10 @@ php artisan test --filter=FilamentNavigationVisibilityTest
 - [Tariff Model Documentation](../models/TARIFF_MODEL.md)
 - [Tariff Policy Documentation](../policies/TARIFF_POLICY.md)
 - [Tariff Observer Documentation](../observers/TARIFF_OBSERVER.md)
-- [Role-Based Navigation Visibility](./role-based-navigation-visibility.md)
-- [Tariff Resource Navigation Update](./TARIFF_RESOURCE_NAVIGATION_UPDATE.md)
+- [Role-Based Navigation Visibility](role-based-navigation-visibility.md)
+- [Tariff Resource Navigation Update](TARIFF_RESOURCE_NAVIGATION_UPDATE.md)
 - [Tariff Security Implementation](../security/TARIFF_SECURITY_IMPLEMENTATION.md)
-- [Tariff Validation Localization](./tariff-resource-validation.md)
+- [Tariff Validation Localization](tariff-resource-validation.md)
 
 ## Changelog
 

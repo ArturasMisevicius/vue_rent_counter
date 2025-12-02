@@ -116,7 +116,7 @@ DeleteAction::make()
 
 ### Documentation References
 
-- Full test guide: `docs/testing/FAQ_ADMIN_MANUAL_TEST.md`
+- Full test guide: [docs/testing/FAQ_ADMIN_MANUAL_TEST.md](FAQ_ADMIN_MANUAL_TEST.md)
 - FaqResource implementation: `app/Filament/Resources/FaqResource.php`
 - FaqPolicy: `app/Policies/FaqPolicy.php`
 - FaqObserver: `app/Observers/FaqObserver.php`

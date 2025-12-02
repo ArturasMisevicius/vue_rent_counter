@@ -332,7 +332,7 @@ dump($this->actingAs($admin));
 
 ## Related Documentation
 
-- [Property-Based Testing Guide](./property-based-testing-guide.md)
+- [Property-Based Testing Guide](property-based-testing-guide.md)
 - [Filament Resource Testing](../filament/resource-testing.md)
 - [Provider Resource Documentation](../filament/provider-resource.md)
 - [Tariff Model Documentation](../models/tariff.md)

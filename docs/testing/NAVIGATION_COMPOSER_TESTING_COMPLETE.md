@@ -34,9 +34,9 @@
 ### 2. Test Documentation ✅
 
 **Files Created**:
-1. ✅ `docs/testing/NAVIGATION_COMPOSER_TEST_COVERAGE.md` - Comprehensive coverage report
-2. ✅ `docs/testing/NAVIGATION_COMPOSER_TEST_IMPLEMENTATION.md` - Implementation details
-3. ✅ `docs/testing/NAVIGATION_COMPOSER_TESTING_COMPLETE.md` - This summary
+1. ✅ [docs/testing/NAVIGATION_COMPOSER_TEST_COVERAGE.md](NAVIGATION_COMPOSER_TEST_COVERAGE.md) - Comprehensive coverage report
+2. ✅ [docs/testing/NAVIGATION_COMPOSER_TEST_IMPLEMENTATION.md](NAVIGATION_COMPOSER_TEST_IMPLEMENTATION.md) - Implementation details
+3. ✅ [docs/testing/NAVIGATION_COMPOSER_TESTING_COMPLETE.md](NAVIGATION_COMPOSER_TESTING_COMPLETE.md) - This summary
 
 **Documentation Includes**:
 - Test execution results
@@ -50,7 +50,7 @@
 
 ### 3. Updated Task Tracking ✅
 
-**File**: `.kiro/specs/1-framework-upgrade/tasks.md`
+**File**: [.kiro/specs/1-framework-upgrade/tasks.md](../tasks/tasks.md)
 
 **Task 6 Status**: ✅ COMPLETE
 - NavigationComposer refactored to Laravel 12 standards

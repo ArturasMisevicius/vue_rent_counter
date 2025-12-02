@@ -28,10 +28,10 @@ Successfully refactored `App\View\Composers\NavigationComposer` to Laravel 12 be
 
 - ✅ `app/View/Composers/NavigationComposer.php` - Refactored implementation
 - ✅ `tests/Unit/NavigationComposerTest.php` - All tests passing
-- ✅ `docs/refactoring/NAVIGATION_COMPOSER_SPEC.md` - Full specification
-- ✅ `docs/refactoring/NAVIGATION_COMPOSER_ANALYSIS.md` - Code quality analysis
-- ✅ `docs/refactoring/NAVIGATION_COMPOSER_REFACTORING.md` - Refactoring summary
-- ✅ `.kiro/specs/1-framework-upgrade/tasks.md` - Task 6 marked complete
+- ✅ [docs/refactoring/NAVIGATION_COMPOSER_SPEC.md](NAVIGATION_COMPOSER_SPEC.md) - Full specification
+- ✅ [docs/refactoring/NAVIGATION_COMPOSER_ANALYSIS.md](NAVIGATION_COMPOSER_ANALYSIS.md) - Code quality analysis
+- ✅ [docs/refactoring/NAVIGATION_COMPOSER_REFACTORING.md](NAVIGATION_COMPOSER_REFACTORING.md) - Refactoring summary
+- ✅ [.kiro/specs/1-framework-upgrade/tasks.md](../tasks/tasks.md) - Task 6 marked complete
 
 ## Compliance
 

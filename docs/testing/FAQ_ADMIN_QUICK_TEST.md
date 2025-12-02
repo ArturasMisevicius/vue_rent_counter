@@ -149,8 +149,8 @@ Open `app/Filament/Resources/FaqResource.php` and verify:
 ## 📚 Full Documentation
 
 For comprehensive testing, see:
-- **Full Manual Test Guide**: `docs/testing/FAQ_ADMIN_MANUAL_TEST.md`
-- **Test Summary**: `docs/testing/FAQ_ADMIN_TEST_SUMMARY.md`
+- **Full Manual Test Guide**: [docs/testing/FAQ_ADMIN_MANUAL_TEST.md](FAQ_ADMIN_MANUAL_TEST.md)
+- **Test Summary**: [docs/testing/FAQ_ADMIN_TEST_SUMMARY.md](FAQ_ADMIN_TEST_SUMMARY.md)
 
 ---
 

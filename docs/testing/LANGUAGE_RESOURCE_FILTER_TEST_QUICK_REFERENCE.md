@@ -175,8 +175,8 @@ expect($duration)->toBeLessThan(100);
 
 ## Documentation
 
-- [Full Test Documentation](./LANGUAGE_RESOURCE_FILTER_TEST_DOCUMENTATION.md)
-- [Navigation Tests](./LANGUAGE_RESOURCE_NAVIGATION_TEST_COMPLETE.md)
+- [Full Test Documentation](LANGUAGE_RESOURCE_FILTER_TEST_DOCUMENTATION.md)
+- [Navigation Tests](LANGUAGE_RESOURCE_NAVIGATION_TEST_COMPLETE.md)
 - [Form Transformation Tests](./LANGUAGE_RESOURCE_FORM_TRANSFORMATION_TEST.md)
 - [Performance Optimization](../performance/LANGUAGE_RESOURCE_PERFORMANCE_OPTIMIZATION.md)
 

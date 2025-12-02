@@ -444,7 +444,7 @@ composer audit
 
 ## Documentation References
 
-- [Security Audit Report](./TARIFF_RESOURCE_SECURITY_AUDIT.md)
+- [Security Audit Report](TARIFF_RESOURCE_SECURITY_AUDIT.md)
 - [TariffPolicy](../../app/Policies/TariffPolicy.php)
 - [TariffObserver](../../app/Observers/TariffObserver.php)
 - [SecurityHeaders Middleware](../../app/Http/Middleware/SecurityHeaders.php)

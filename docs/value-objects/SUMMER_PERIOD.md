@@ -422,7 +422,7 @@ Static factory methods provide convenient construction:
 
 - [CalculateSummerAverageCommand](../commands/CALCULATE_SUMMER_AVERAGE_COMMAND.md)
 - [GyvatukasSummerAverageService](../services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md)
-- [CalculationResult Value Object](./CALCULATION_RESULT.md)
+- [CalculationResult Value Object](CALCULATION_RESULT.md)
 - [Building Model](../models/BUILDING.md)
 
 ## Changelog

@@ -74,17 +74,17 @@ $calculator->distributeCirculationCost($building, 100.0, DistributionMethod::EQU
 
 ### Created
 - `app/Enums/DistributionMethod.php` - Type-safe enum
-- `docs/refactoring/GYVATUKAS_CALCULATOR_REFACTORING.md` - Detailed guide
+- [docs/refactoring/GYVATUKAS_CALCULATOR_REFACTORING.md](GYVATUKAS_CALCULATOR_REFACTORING.md) - Detailed guide
 
 ### Modified
 - `app/Services/GyvatukasCalculator.php` - Refactored service
 - `tests/Unit/Services/GyvatukasCalculatorTest.php` - Updated tests
-- `docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md` - Added v2.0 section
-- `docs/CHANGELOG.md` - Added refactoring entry
+- [docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md](../implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md) - Added v2.0 section
+- [docs/CHANGELOG.md](../CHANGELOG.md) - Added refactoring entry
 
 ## Documentation
 
-- **Detailed Guide**: [GYVATUKAS_CALCULATOR_REFACTORING.md](./GYVATUKAS_CALCULATOR_REFACTORING.md)
+- **Detailed Guide**: [GYVATUKAS_CALCULATOR_REFACTORING.md](GYVATUKAS_CALCULATOR_REFACTORING.md)
 - **Implementation Guide**: [GYVATUKAS_CALCULATOR_IMPLEMENTATION.md](../implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
 - **Requirements**: [.kiro/specs/2-vilnius-utilities-billing/requirements.md](../../.kiro/specs/2-vilnius-utilities-billing/requirements.md)
 

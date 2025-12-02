@@ -431,7 +431,7 @@ DB_DATABASE=/absolute/path/to/database/database.sqlite
 - [Laravel 12 + Filament 4 Upgrade Guide](../upgrades/LARAVEL_12_FILAMENT_4_UPGRADE.md)
 - [Verification Scripts API](../api/VERIFICATION_SCRIPTS_API.md)
 - [Model Verification Guide](MODEL_VERIFICATION_GUIDE.md)
-- [Framework Upgrade Tasks](../../.kiro/specs/1-framework-upgrade/tasks.md)
+- [Framework Upgrade Tasks](../tasks/tasks.md)
 
 ## Related Scripts
 

@@ -56,9 +56,9 @@ November 25, 2025
 ```
 
 **Documentation**:
-- Architecture: `docs/architecture/METER_READING_FORM_ARCHITECTURE.md`
-- Usage Guide: `docs/frontend/METER_READING_FORM_USAGE.md`
-- API Reference: `docs/api/METER_READING_FORM_API.md`
+- Architecture: [docs/architecture/METER_READING_FORM_ARCHITECTURE.md](../architecture/METER_READING_FORM_ARCHITECTURE.md)
+- Usage Guide: [docs/frontend/METER_READING_FORM_USAGE.md](METER_READING_FORM_USAGE.md)
+- API Reference: [docs/api/METER_READING_FORM_API.md](../api/METER_READING_FORM_API.md)
 
 ### 3. Tariff Configuration Editor (Admin Only)
 
@@ -129,7 +129,7 @@ November 25, 2025
 - Responsive design (desktop table, mobile cards)
 
 **Documentation**:
-- Component Guide: `docs/components/INVOICE_SUMMARY_COMPONENT.md`
+- Component Guide: [docs/components/INVOICE_SUMMARY_COMPONENT.md](../components/INVOICE_SUMMARY_COMPONENT.md)
 
 ### 5. Tenant Consumption History
 
@@ -296,7 +296,7 @@ Used throughout dashboards and views to conditionally display content based on u
 
 - [Meter Reading Form Architecture](../architecture/METER_READING_FORM_ARCHITECTURE.md)
 - [Invoice Summary Component](../components/INVOICE_SUMMARY_COMPONENT.md)
-- [Frontend Overview](./FRONTEND.md)
+- [Frontend Overview](FRONTEND.md)
 - [Blade Guardrails](../../.kiro/steering/blade-guardrails.md)
 
 ## Requirements Validation

@@ -143,8 +143,8 @@ public function deleted(Faq $faq): void
 4. ✅ `database/migrations/2025_11_24_000004_add_faq_category_index.php` - New migration
 
 ### Documentation
-5. ✅ `docs/performance/FAQ_RESOURCE_OPTIMIZATION.md` - Detailed guide
-6. ✅ `docs/performance/FAQ_RESOURCE_OPTIMIZATION_SUMMARY.md` - This file
+5. ✅ [docs/performance/FAQ_RESOURCE_OPTIMIZATION.md](FAQ_RESOURCE_OPTIMIZATION.md) - Detailed guide
+6. ✅ [docs/performance/FAQ_RESOURCE_OPTIMIZATION_SUMMARY.md](FAQ_RESOURCE_OPTIMIZATION_SUMMARY.md) - This file
 
 ### Tests
 7. ✅ `tests/Performance/FaqResourcePerformanceTest.php` - Performance tests
@@ -295,9 +295,9 @@ php artisan horizon:stats
 ## Related Documentation
 
 - [FAQ Resource API Reference](../filament/FAQ_RESOURCE_API.md)
-- [FAQ Resource Optimization Details](./FAQ_RESOURCE_OPTIMIZATION.md)
+- [FAQ Resource Optimization Details](FAQ_RESOURCE_OPTIMIZATION.md)
 - [Batch 4 Resources Migration](../upgrades/BATCH_4_RESOURCES_MIGRATION.md)
-- [Performance Optimization Guide](./README.md)
+- [Performance Optimization Guide](README.md)
 
 ---
 

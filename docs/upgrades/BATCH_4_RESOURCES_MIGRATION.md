@@ -6,7 +6,7 @@ This document details the migration of Batch 4 Filament resources (FaqResource, 
 
 **Status**: ✅ Complete  
 **Date**: 2025-11-24  
-**Related Spec**: `.kiro/specs/1-framework-upgrade/tasks.md` (Task 13)
+**Related Spec**: [.kiro/specs/1-framework-upgrade/tasks.md](../tasks/tasks.md) (Task 13)
 
 ## Resources Migrated
 
@@ -368,9 +368,9 @@ If extending these resources:
 
 ## Related Documentation
 
-- [Laravel 12 + Filament 4 Upgrade Guide](./LARAVEL_12_FILAMENT_4_UPGRADE.md)
-- [Batch 3 Resources Migration](./BATCH_3_RESOURCES_MIGRATION.md)
-- [Verification Implementation Complete](./VERIFICATION_IMPLEMENTATION_COMPLETE.md)
+- [Laravel 12 + Filament 4 Upgrade Guide](LARAVEL_12_FILAMENT_4_UPGRADE.md)
+- [Batch 3 Resources Migration](BATCH_3_RESOURCES_MIGRATION.md)
+- [Verification Implementation Complete](VERIFICATION_IMPLEMENTATION_COMPLETE.md)
 - [Framework Upgrade Spec](./.kiro/specs/1-framework-upgrade/)
 
 ## Next Steps

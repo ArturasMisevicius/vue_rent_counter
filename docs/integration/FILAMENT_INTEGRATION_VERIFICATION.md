@@ -196,8 +196,8 @@ The Filament integration is also extensively covered by existing property-based 
 - UI automatically refreshes to show updated status
 
 **Documentation:**
-- Usage guide: `docs/filament/INVOICE_FINALIZATION_ACTION.md`
-- API reference: `docs/api/INVOICE_FINALIZATION_API.md`
+- Usage guide: [docs/filament/INVOICE_FINALIZATION_ACTION.md](../filament/INVOICE_FINALIZATION_ACTION.md)
+- API reference: [docs/api/INVOICE_FINALIZATION_API.md](../api/INVOICE_FINALIZATION_API.md)
 
 ## Conclusion
 

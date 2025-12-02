@@ -123,10 +123,10 @@ Request Flow:
 ### Primary Changes
 1. ✅ `routes/web.php` - Added middleware to manager, tenant routes
 2. ✅ `routes/web.php` - Enhanced documentation for all route groups
-3. ✅ `.kiro/specs/3-hierarchical-user-management/tasks.md` - Updated completion status
+3. ✅ [.kiro/specs/3-hierarchical-user-management/tasks.md](../tasks/tasks.md) - Updated completion status
 
 ### Documentation Created
-4. ✅ `docs/middleware/ROUTE_MIDDLEWARE_ENHANCEMENT_COMPLETE.md` (this file)
+4. ✅ [docs/middleware/ROUTE_MIDDLEWARE_ENHANCEMENT_COMPLETE.md](ROUTE_MIDDLEWARE_ENHANCEMENT_COMPLETE.md) (this file)
 
 ## Requirements Satisfied
 

@@ -8,19 +8,19 @@
 
 ### 🚀 Getting Started
 
-- **[Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md)** - Start here for quick examples and common patterns
+- **[Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md)** - Start here for quick examples and common patterns
 - **[API Reference](../api/BILLING_SERVICE_API.md)** - Complete method signatures and parameters
 
 ### 📚 Implementation Guides
 
-- **[v2.0 Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md)** - Complete implementation documentation
-- **[v2.0 Complete Status](./BILLING_SERVICE_V2_COMPLETE.md)** - Overall project status and metrics
+- **[v2.0 Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md)** - Complete implementation documentation
+- **[v2.0 Complete Status](BILLING_SERVICE_V2_COMPLETE.md)** - Overall project status and metrics
 
 ### 🔧 Deployment
 
-- **[Migration Checklist](./BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md)** - Step-by-step deployment guide
-- **[Refactoring Report](./BILLING_SERVICE_REFACTORING.md)** - Detailed refactoring analysis
-- **[Refactoring Summary](./BILLING_SERVICE_REFACTORING_SUMMARY.md)** - Executive summary
+- **[Migration Checklist](BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md)** - Step-by-step deployment guide
+- **[Refactoring Report](BILLING_SERVICE_REFACTORING.md)** - Detailed refactoring analysis
+- **[Refactoring Summary](BILLING_SERVICE_REFACTORING_SUMMARY.md)** - Executive summary
 
 ### 🏗️ Architecture
 
@@ -30,117 +30,117 @@
 
 ### 🔗 Related Services
 
-- **[TariffResolver Implementation](./TARIFF_RESOLVER_IMPLEMENTATION.md)** - Tariff resolution service
-- **[GyvatukasCalculator Implementation](./GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)** - Gyvatukas calculation service
+- **[TariffResolver Implementation](TARIFF_RESOLVER_IMPLEMENTATION.md)** - Tariff resolution service
+- **[GyvatukasCalculator Implementation](GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)** - Gyvatukas calculation service
 
 ## Documentation by Purpose
 
 ### For Developers
 
 **New to BillingService?**
-1. Start with [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md)
+1. Start with [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md)
 2. Read [API Reference](../api/BILLING_SERVICE_API.md)
-3. Review [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md)
+3. Review [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md)
 
 **Implementing invoice generation?**
 1. Check [API Reference](../api/BILLING_SERVICE_API.md) for method signatures
-2. Review [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md) for examples
-3. See [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md) for patterns
+2. Review [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md) for examples
+3. See [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md) for patterns
 
 **Debugging issues?**
-1. Check [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md) troubleshooting section
+1. Check [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md) troubleshooting section
 2. Review [API Reference](../api/BILLING_SERVICE_API.md) exception reference
-3. See [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md) for common issues
+3. See [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md) for common issues
 
 ### For DevOps/Operations
 
 **Deploying v2.0?**
-1. Follow [Migration Checklist](./BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md)
-2. Review [Complete Status](./BILLING_SERVICE_V2_COMPLETE.md)
-3. Check [Refactoring Report](./BILLING_SERVICE_REFACTORING.md) for performance metrics
+1. Follow [Migration Checklist](BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md)
+2. Review [Complete Status](BILLING_SERVICE_V2_COMPLETE.md)
+3. Check [Refactoring Report](BILLING_SERVICE_REFACTORING.md) for performance metrics
 
 **Monitoring production?**
-1. See [Migration Checklist](./BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md) monitoring section
-2. Review [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md) logging section
-3. Check [Complete Status](./BILLING_SERVICE_V2_COMPLETE.md) success metrics
+1. See [Migration Checklist](BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md) monitoring section
+2. Review [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md) logging section
+3. Check [Complete Status](BILLING_SERVICE_V2_COMPLETE.md) success metrics
 
 ### For Product/QA
 
 **Understanding changes?**
-1. Read [Refactoring Summary](./BILLING_SERVICE_REFACTORING_SUMMARY.md)
-2. Review [Complete Status](./BILLING_SERVICE_V2_COMPLETE.md)
-3. Check [Refactoring Report](./BILLING_SERVICE_REFACTORING.md) for details
+1. Read [Refactoring Summary](BILLING_SERVICE_REFACTORING_SUMMARY.md)
+2. Review [Complete Status](BILLING_SERVICE_V2_COMPLETE.md)
+3. Check [Refactoring Report](BILLING_SERVICE_REFACTORING.md) for details
 
 **Testing the service?**
-1. See [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md) testing section
-2. Review [Migration Checklist](./BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md) verification steps
+1. See [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md) testing section
+2. Review [Migration Checklist](BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md) verification steps
 3. Check [API Reference](../api/BILLING_SERVICE_API.md) for expected behavior
 
 ## Documentation Statistics
 
 | Document | Words | Purpose | Audience |
 |----------|-------|---------|----------|
-| [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md) | 500 | Quick start | Developers |
+| [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md) | 500 | Quick start | Developers |
 | [API Reference](../api/BILLING_SERVICE_API.md) | 4,000+ | Complete API | Developers |
-| [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md) | 5,000+ | Deep dive | Developers |
-| [Migration Checklist](./BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md) | 1,500 | Deployment | DevOps |
-| [Complete Status](./BILLING_SERVICE_V2_COMPLETE.md) | 2,000 | Overview | All |
-| [Refactoring Report](./BILLING_SERVICE_REFACTORING.md) | 3,000+ | Analysis | Technical |
-| [Refactoring Summary](./BILLING_SERVICE_REFACTORING_SUMMARY.md) | 500 | Executive | Management |
+| [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md) | 5,000+ | Deep dive | Developers |
+| [Migration Checklist](BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md) | 1,500 | Deployment | DevOps |
+| [Complete Status](BILLING_SERVICE_V2_COMPLETE.md) | 2,000 | Overview | All |
+| [Refactoring Report](BILLING_SERVICE_REFACTORING.md) | 3,000+ | Analysis | Technical |
+| [Refactoring Summary](BILLING_SERVICE_REFACTORING_SUMMARY.md) | 500 | Executive | Management |
 
 **Total**: 14,500+ words across 6 comprehensive documents
 
 ## Key Features Documented
 
 ### Invoice Generation
-- [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md#basic-invoice-generation)
+- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md#basic-invoice-generation)
 - [API Reference](../api/BILLING_SERVICE_API.md#generateinvoice)
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md#1-invoice-generation)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#1-invoice-generation)
 
 ### Tariff Snapshotting
-- [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md#automatic-tariff-snapshotting)
+- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md#automatic-tariff-snapshotting)
 - [API Reference](../api/BILLING_SERVICE_API.md#createinvoiceitemforzone)
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md#requirements-mapping)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#requirements-mapping)
 
 ### Multi-Zone Meters
-- [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md#multi-zone-meter-support)
+- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md#multi-zone-meter-support)
 - [API Reference](../api/BILLING_SERVICE_API.md#generateinvoiceitemsformeter)
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md#2-meter-item-generation)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#2-meter-item-generation)
 
 ### Water Billing
-- [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md#water-billing)
+- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md#water-billing)
 - [API Reference](../api/BILLING_SERVICE_API.md#calculatewatertotal)
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md#3-water-billing)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#3-water-billing)
 
 ### Gyvatukas Integration
-- [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md#gyvatukas-integration)
+- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md#gyvatukas-integration)
 - [API Reference](../api/BILLING_SERVICE_API.md#generategyvatukasitems)
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md#4-gyvatukas-integration)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#4-gyvatukas-integration)
 
 ### Invoice Finalization
-- [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md#invoice-finalization)
+- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md#invoice-finalization)
 - [API Reference](../api/BILLING_SERVICE_API.md#finalizeinvoice)
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md#5-invoice-finalization)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#5-invoice-finalization)
 
 ## Code Examples
 
 ### Basic Usage
-- [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md#quick-start)
+- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md#quick-start)
 - [API Reference](../api/BILLING_SERVICE_API.md#example)
 
 ### Error Handling
-- [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md#error-handling)
+- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md#error-handling)
 - [API Reference](../api/BILLING_SERVICE_API.md#error-handling)
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md#error-handling)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#error-handling)
 
 ### Batch Processing
-- [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md#batch-processing)
+- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md#batch-processing)
 - [API Reference](../api/BILLING_SERVICE_API.md#integration-examples)
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md#usage-examples)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#usage-examples)
 
 ### Controller Integration
 - [API Reference](../api/BILLING_SERVICE_API.md#controller-integration)
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md#usage-examples)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#usage-examples)
 
 ### Command Integration
 - [API Reference](../api/BILLING_SERVICE_API.md#command-integration)
@@ -151,53 +151,53 @@
 ## Performance Documentation
 
 ### Benchmarks
-- [Complete Status](./BILLING_SERVICE_V2_COMPLETE.md#performance-benchmarks)
-- [Refactoring Report](./BILLING_SERVICE_REFACTORING.md#performance-improvements)
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md#performance-characteristics)
+- [Complete Status](BILLING_SERVICE_V2_COMPLETE.md#performance-benchmarks)
+- [Refactoring Report](BILLING_SERVICE_REFACTORING.md#performance-improvements)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#performance-characteristics)
 
 ### Optimization Techniques
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md#1-invoice-generation)
-- [Refactoring Report](./BILLING_SERVICE_REFACTORING.md#query-optimization)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#1-invoice-generation)
+- [Refactoring Report](BILLING_SERVICE_REFACTORING.md#query-optimization)
 
 ### Monitoring
-- [Migration Checklist](./BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md#monitoring)
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md#logging)
+- [Migration Checklist](BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md#monitoring)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#logging)
 
 ## Testing Documentation
 
 ### Test Suite
-- [Complete Status](./BILLING_SERVICE_V2_COMPLETE.md#testing)
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md#testing)
+- [Complete Status](BILLING_SERVICE_V2_COMPLETE.md#testing)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#testing)
 
 ### Running Tests
-- [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md#testing)
-- [Migration Checklist](./BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md#step-3-run-tests)
+- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md#testing)
+- [Migration Checklist](BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md#step-3-run-tests)
 
 ### Test Coverage
-- [Complete Status](./BILLING_SERVICE_V2_COMPLETE.md#test-suite)
-- [Refactoring Summary](./BILLING_SERVICE_REFACTORING_SUMMARY.md#testing)
+- [Complete Status](BILLING_SERVICE_V2_COMPLETE.md#test-suite)
+- [Refactoring Summary](BILLING_SERVICE_REFACTORING_SUMMARY.md#testing)
 
 ## Configuration Documentation
 
 ### Water Tariffs
-- [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md#water-tariffs)
+- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md#water-tariffs)
 - [API Reference](../api/BILLING_SERVICE_API.md#water-tariffs)
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md#3-water-billing)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#3-water-billing)
 
 ### Invoice Settings
-- [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md#invoice-settings)
+- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md#invoice-settings)
 - [API Reference](../api/BILLING_SERVICE_API.md#invoice-settings)
 
 ## Troubleshooting
 
 ### Common Issues
-- [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md#exceptions)
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md#troubleshooting)
-- [Migration Checklist](./BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md#common-issues)
+- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md#exceptions)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#troubleshooting)
+- [Migration Checklist](BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md#common-issues)
 
 ### Error Reference
 - [API Reference](../api/BILLING_SERVICE_API.md#exception-reference)
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md#error-handling)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#error-handling)
 
 ## Version History
 
@@ -225,7 +225,7 @@
 
 ### Project Documentation
 - [CHANGELOG.md](../CHANGELOG.md)
-- [Tasks](../../.kiro/specs/2-vilnius-utilities-billing/tasks.md)
+- [Tasks](../tasks/tasks.md)
 - [Requirements](../../.kiro/specs/2-vilnius-utilities-billing/requirements.md)
 
 ### Architecture Documentation
@@ -234,7 +234,7 @@
 - [Database Schema Guide](../architecture/DATABASE_SCHEMA_AND_MIGRATION_GUIDE.md)
 
 ### Testing Documentation
-- [Testing Guide](../testing/TESTING_GUIDE.md)
+- [Testing Guide](../guides/TESTING_GUIDE.md)
 - [Model Verification Guide](../testing/MODEL_VERIFICATION_GUIDE.md)
 
 ## Support
@@ -242,21 +242,21 @@
 ### Questions?
 
 1. Check this index for relevant documentation
-2. Review [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md) for common patterns
+2. Review [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md) for common patterns
 3. Search [API Reference](../api/BILLING_SERVICE_API.md) for specific methods
-4. Consult [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md) for deep dives
+4. Consult [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md) for deep dives
 
 ### Issues?
 
-1. Check [Troubleshooting](./BILLING_SERVICE_V2_IMPLEMENTATION.md#troubleshooting) section
-2. Review [Common Issues](./BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md#common-issues)
+1. Check [Troubleshooting](BILLING_SERVICE_V2_IMPLEMENTATION.md#troubleshooting) section
+2. Review [Common Issues](BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md#common-issues)
 3. See [Error Reference](../api/BILLING_SERVICE_API.md#exception-reference)
 
 ### Deployment?
 
-1. Follow [Migration Checklist](./BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md)
-2. Review [Complete Status](./BILLING_SERVICE_V2_COMPLETE.md)
-3. Check [Monitoring Guidelines](./BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md#monitoring)
+1. Follow [Migration Checklist](BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md)
+2. Review [Complete Status](BILLING_SERVICE_V2_COMPLETE.md)
+3. Check [Monitoring Guidelines](BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md#monitoring)
 
 ---
 

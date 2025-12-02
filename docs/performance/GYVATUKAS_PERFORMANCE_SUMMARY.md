@@ -167,10 +167,10 @@ All performance-critical operations are logged with context:
 
 ## Documentation
 
-- **Detailed Guide**: `docs/performance/GYVATUKAS_CALCULATOR_OPTIMIZATION.md`
-- **API Reference**: `docs/api/GYVATUKAS_CALCULATOR_API.md`
-- **Implementation**: `docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md`
-- **Changelog**: `docs/CHANGELOG.md`
+- **Detailed Guide**: [docs/performance/GYVATUKAS_CALCULATOR_OPTIMIZATION.md](GYVATUKAS_CALCULATOR_OPTIMIZATION.md)
+- **API Reference**: [docs/api/GYVATUKAS_CALCULATOR_API.md](../api/GYVATUKAS_CALCULATOR_API.md)
+- **Implementation**: [docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md](../implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
+- **Changelog**: [docs/CHANGELOG.md](../CHANGELOG.md)
 
 ## Next Steps
 

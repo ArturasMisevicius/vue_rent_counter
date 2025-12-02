@@ -116,10 +116,10 @@ Successfully implemented three comprehensive property test suites for UserResour
 
 3. **Documentation Created** ✅
    - `.kiro/specs/4-filament-admin-panel/USER_RESOURCE_PROPERTY_TESTS_SPEC.md`
-   - `docs/testing/USER_RESOURCE_PROPERTY_TESTS_COMPLETE.md` (this file)
+   - [docs/testing/USER_RESOURCE_PROPERTY_TESTS_COMPLETE.md](USER_RESOURCE_PROPERTY_TESTS_COMPLETE.md) (this file)
 
 4. **Task Tracking Updated** ✅
-   - `.kiro/specs/4-filament-admin-panel/tasks.md` marked tasks 6.5, 6.6, 6.7 as complete
+   - [.kiro/specs/4-filament-admin-panel/tasks.md](../tasks/tasks.md) marked tasks 6.5, 6.6, 6.7 as complete
 
 ---
 
@@ -285,11 +285,11 @@ $this->actingAs($admin);
 ## Related Documentation
 
 - **Specification**: `.kiro/specs/4-filament-admin-panel/USER_RESOURCE_PROPERTY_TESTS_SPEC.md`
-- **API Documentation**: `docs/filament/USER_RESOURCE_API.md`
-- **Architecture**: `docs/filament/USER_RESOURCE_ARCHITECTURE.md`
-- **Usage Guide**: `docs/filament/USER_RESOURCE_USAGE_GUIDE.md`
-- **Performance**: `docs/performance/USER_RESOURCE_PERFORMANCE_SUMMARY.md`
-- **Task Tracking**: `.kiro/specs/4-filament-admin-panel/tasks.md`
+- **API Documentation**: [docs/filament/USER_RESOURCE_API.md](../filament/USER_RESOURCE_API.md)
+- **Architecture**: [docs/filament/USER_RESOURCE_ARCHITECTURE.md](../filament/USER_RESOURCE_ARCHITECTURE.md)
+- **Usage Guide**: [docs/filament/USER_RESOURCE_USAGE_GUIDE.md](../filament/USER_RESOURCE_USAGE_GUIDE.md)
+- **Performance**: [docs/performance/USER_RESOURCE_PERFORMANCE_SUMMARY.md](../performance/USER_RESOURCE_PERFORMANCE_SUMMARY.md)
+- **Task Tracking**: [.kiro/specs/4-filament-admin-panel/tasks.md](../tasks/tasks.md)
 
 ---
 

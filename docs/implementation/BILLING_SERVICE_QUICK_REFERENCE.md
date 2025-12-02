@@ -179,7 +179,7 @@ All operations are logged with structured context:
 
 ## Related Documentation
 
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md)
 - [API Reference](../api/BILLING_SERVICE_API.md)
 - [Service Layer Architecture](../architecture/SERVICE_LAYER_ARCHITECTURE.md)
 

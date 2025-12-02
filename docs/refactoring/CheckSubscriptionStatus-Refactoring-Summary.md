@@ -265,4 +265,4 @@ This refactoring significantly improves the maintainability, testability, and ex
 - `tests/Feature/Middleware/CheckSubscriptionStatusTest.php` (Added missing import)
 
 ### Documentation
-- `docs/refactoring/CheckSubscriptionStatus-Refactoring-Summary.md` (This file)
+- [docs/refactoring/CheckSubscriptionStatus-Refactoring-Summary.md](CheckSubscriptionStatus-Refactoring-Summary.md) (This file)

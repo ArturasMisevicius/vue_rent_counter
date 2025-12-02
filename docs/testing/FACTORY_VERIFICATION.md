@@ -173,9 +173,9 @@ php artisan cache:clear
 
 ## Related Documentation
 
-- [Hierarchical User Management Spec](.kiro/specs/3-hierarchical-user-management/tasks.md)
+- [Hierarchical User Management Spec](../tasks/tasks.md)
 - [Factory Documentation](./FACTORY_GUIDE.md)
-- [Testing Guide](./TESTING_GUIDE.md)
+- [Testing Guide](../guides/TESTING_GUIDE.md)
 - [Seeder Documentation](../database/SEEDERS_SUMMARY.md)
 
 ## Architecture Notes
@@ -238,7 +238,7 @@ php artisan test --filter=FactoryTest
 
 ## See Also
 
-- [Task 13.1: Create SubscriptionFactory](.kiro/specs/3-hierarchical-user-management/tasks.md#131-create-subscriptionfactory)
-- [Task 13.2: Update UserFactory](.kiro/specs/3-hierarchical-user-management/tasks.md#132-update-userfactory-for-hierarchical-users)
+- [Task 13.1: Create SubscriptionFactory](../tasks/tasks.md#131-create-subscriptionfactory)
+- [Task 13.2: Update UserFactory](../tasks/tasks.md#132-update-userfactory-for-hierarchical-users)
 - [SubscriptionFactory API](../api/SUBSCRIPTION_FACTORY_API.md)
 - [UserFactory API](../api/USER_FACTORY_API.md)

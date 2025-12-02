@@ -333,8 +333,8 @@ The code is production-ready with no critical issues.
 ## Documentation Updates
 
 ### Files Updated
-- ✅ `docs/refactoring/NAVIGATION_COMPOSER_REFACTORING.md` - Detailed refactoring summary
-- ✅ `docs/refactoring/NAVIGATION_COMPOSER_ANALYSIS.md` - This quality analysis
+- ✅ [docs/refactoring/NAVIGATION_COMPOSER_REFACTORING.md](NAVIGATION_COMPOSER_REFACTORING.md) - Detailed refactoring summary
+- ✅ [docs/refactoring/NAVIGATION_COMPOSER_ANALYSIS.md](NAVIGATION_COMPOSER_ANALYSIS.md) - This quality analysis
 - ✅ `.kiro/steering/blade-guardrails.md` - Already documents composer usage
 
 ### Files Verified

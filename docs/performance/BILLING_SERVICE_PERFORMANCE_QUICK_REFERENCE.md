@@ -126,8 +126,8 @@ php artisan test tests/Performance/BillingServicePerformanceTest.php
 
 ## Documentation
 
-- **Full Guide**: `docs/performance/BILLING_SERVICE_PERFORMANCE_OPTIMIZATION.md`
-- **Summary**: `docs/performance/BILLING_SERVICE_PERFORMANCE_SUMMARY.md`
+- **Full Guide**: [docs/performance/BILLING_SERVICE_PERFORMANCE_OPTIMIZATION.md](BILLING_SERVICE_PERFORMANCE_OPTIMIZATION.md)
+- **Summary**: [docs/performance/BILLING_SERVICE_PERFORMANCE_SUMMARY.md](BILLING_SERVICE_PERFORMANCE_SUMMARY.md)
 - **Tests**: `tests/Performance/BillingServicePerformanceTest.php`
 - **Migration**: `database/migrations/2025_11_25_060200_add_billing_service_performance_indexes.php`
 

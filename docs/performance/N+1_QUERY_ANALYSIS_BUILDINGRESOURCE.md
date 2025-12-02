@@ -725,9 +725,9 @@ http://localhost/telescope/queries
 
 ## 14. Related Documentation
 
-- [Building Resource Optimization](./BUILDING_RESOURCE_OPTIMIZATION.md)
-- [Optimization Summary](./OPTIMIZATION_SUMMARY.md)
-- [Performance README](./README.md)
+- [Building Resource Optimization](BUILDING_RESOURCE_OPTIMIZATION.md)
+- [Optimization Summary](OPTIMIZATION_SUMMARY.md)
+- [Performance README](README.md)
 - [Building Resource Guide](../filament/BUILDING_RESOURCE.md)
 - [Building Resource API](../filament/BUILDING_RESOURCE_API.md)
 

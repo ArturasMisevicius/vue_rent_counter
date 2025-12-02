@@ -569,15 +569,15 @@ Always run verification script after migration
 ### Specification
 - [Requirements](../../.kiro/specs/6-filament-namespace-consolidation/requirements.md)
 - [Design](../../.kiro/specs/6-filament-namespace-consolidation/design.md)
-- [Tasks](../../.kiro/specs/6-filament-namespace-consolidation/tasks.md)
+- [Tasks](../tasks/tasks.md)
 
 ### Migration Documentation
-- [Batch 4 Resources Migration](./BATCH_4_RESOURCES_MIGRATION.md)
+- [Batch 4 Resources Migration](BATCH_4_RESOURCES_MIGRATION.md)
 - [Batch 4 Verification Guide](../testing/BATCH_4_VERIFICATION_GUIDE.md)
-- [Batch 4 Completion Summary](./BATCH_4_COMPLETION_SUMMARY.md)
+- [Batch 4 Completion Summary](BATCH_4_COMPLETION_SUMMARY.md)
 
 ### Framework Documentation
-- [Laravel 12 + Filament 4 Upgrade](./LARAVEL_12_FILAMENT_4_UPGRADE.md)
+- [Laravel 12 + Filament 4 Upgrade](LARAVEL_12_FILAMENT_4_UPGRADE.md)
 - [Filament V4 Compatibility Guide](../filament/FILAMENT_V4_COMPATIBILITY_GUIDE.md)
 
 ### Performance Documentation
@@ -634,9 +634,9 @@ Tables\Actions\Action::make('custom')
 For questions or issues:
 
 1. Check this guide
-2. Review [Batch 4 Resources Migration](./BATCH_4_RESOURCES_MIGRATION.md)
+2. Review [Batch 4 Resources Migration](BATCH_4_RESOURCES_MIGRATION.md)
 3. Run verification script: `php verify-batch4-resources.php`
-4. Check [Filament 4 Upgrade Guide](./LARAVEL_12_FILAMENT_4_UPGRADE.md)
+4. Check [Filament 4 Upgrade Guide](LARAVEL_12_FILAMENT_4_UPGRADE.md)
 5. Consult Filament 4 documentation
 
 ---

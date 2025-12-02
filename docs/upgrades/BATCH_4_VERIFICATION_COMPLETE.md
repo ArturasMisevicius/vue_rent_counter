@@ -128,16 +128,16 @@ Tables\Filters\TernaryFilter::make()
    - All patterns correct
 
 ### Documentation Files (4)
-1. `docs/upgrades/BATCH_4_RESOURCES_MIGRATION.md` - Migration guide
-2. `docs/testing/BATCH_4_VERIFICATION_GUIDE.md` - Testing procedures
-3. `docs/upgrades/BATCH_4_COMPLETION_SUMMARY.md` - Completion report
-4. `docs/upgrades/BATCH_4_VERIFICATION_COMPLETE.md` - This document
+1. [docs/upgrades/BATCH_4_RESOURCES_MIGRATION.md](BATCH_4_RESOURCES_MIGRATION.md) - Migration guide
+2. [docs/testing/BATCH_4_VERIFICATION_GUIDE.md](../testing/BATCH_4_VERIFICATION_GUIDE.md) - Testing procedures
+3. [docs/upgrades/BATCH_4_COMPLETION_SUMMARY.md](BATCH_4_COMPLETION_SUMMARY.md) - Completion report
+4. [docs/upgrades/BATCH_4_VERIFICATION_COMPLETE.md](BATCH_4_VERIFICATION_COMPLETE.md) - This document
 
 ### Verification Script (1)
 1. `verify-batch4-resources.php` - Automated verification tool
 
 ### Task Documentation (1)
-1. `.kiro/specs/1-framework-upgrade/tasks.md` - Updated task 13 status
+1. [.kiro/specs/1-framework-upgrade/tasks.md](../tasks/tasks.md) - Updated task 13 status
 
 ---
 
@@ -292,9 +292,9 @@ php artisan route:list | grep -E "(faq|language|translation)"
 ## Related Documentation
 
 ### Migration Documentation
-- [Batch 4 Resources Migration](./BATCH_4_RESOURCES_MIGRATION.md)
-- [Batch 4 Completion Summary](./BATCH_4_COMPLETION_SUMMARY.md)
-- [Laravel 12 + Filament 4 Upgrade Guide](./LARAVEL_12_FILAMENT_4_UPGRADE.md)
+- [Batch 4 Resources Migration](BATCH_4_RESOURCES_MIGRATION.md)
+- [Batch 4 Completion Summary](BATCH_4_COMPLETION_SUMMARY.md)
+- [Laravel 12 + Filament 4 Upgrade Guide](LARAVEL_12_FILAMENT_4_UPGRADE.md)
 
 ### Testing Documentation
 - [Batch 4 Verification Guide](../testing/BATCH_4_VERIFICATION_GUIDE.md)
@@ -306,7 +306,7 @@ php artisan route:list | grep -E "(faq|language|translation)"
 - [Verification Scripts API](../api/VERIFICATION_SCRIPTS_API.md)
 
 ### Specification
-- [Framework Upgrade Tasks](../../.kiro/specs/1-framework-upgrade/tasks.md)
+- [Framework Upgrade Tasks](../tasks/tasks.md)
 
 ---
 

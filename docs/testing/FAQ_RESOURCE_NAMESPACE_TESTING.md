@@ -472,7 +472,7 @@ php artisan test --filter=FaqResourceNamespaceTest
 ## Related Documentation
 
 - [Filament Namespace Consolidation Guide](../upgrades/FILAMENT_NAMESPACE_CONSOLIDATION.md)
-- [Batch 4 Verification Guide](./BATCH_4_VERIFICATION_GUIDE.md)
+- [Batch 4 Verification Guide](BATCH_4_VERIFICATION_GUIDE.md)
 - [FAQ Resource API Reference](../filament/FAQ_RESOURCE_API.md)
 - [FAQ Resource Performance](../performance/FAQ_RESOURCE_PERFORMANCE_COMPLETE.md)
 

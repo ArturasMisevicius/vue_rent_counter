@@ -310,7 +310,7 @@ The `EnsureUserIsAdminOrManager` middleware is **optimally implemented** with:
 
 - [Middleware API Reference](../api/MIDDLEWARE_API.md)
 - [Middleware Refactoring Complete](../middleware/MIDDLEWARE_REFACTORING_COMPLETE.md)
-- [Quick Performance Guide](./QUICK_PERFORMANCE_GUIDE.md)
+- [Quick Performance Guide](QUICK_PERFORMANCE_GUIDE.md)
 - [Database Indexing Update](../database/DATABASE_INDEXING_UPDATE.md)
 
 ---

@@ -142,7 +142,7 @@ php artisan pail
 
 ## Documentation
 
-- ✅ Comprehensive review: `docs/reviews/PROPERTY_RESOURCE_VALIDATION_LOCALIZATION_REVIEW.md`
+- ✅ Comprehensive review: [docs/reviews/PROPERTY_RESOURCE_VALIDATION_LOCALIZATION_REVIEW.md](PROPERTY_RESOURCE_VALIDATION_LOCALIZATION_REVIEW.md)
 - ✅ Test suite: `tests/Feature/PropertyResourceTranslationTest.php`
 - ✅ Trait documentation: Inline PHPDoc in `HasTranslatedValidation.php`
 

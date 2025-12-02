@@ -21,8 +21,8 @@ The refactored BillingService (v3.0) has **15 security vulnerabilities** requiri
 
 ### ✅ Completed
 
-1. **Security Audit Report** - `docs/security/BILLING_SERVICE_SECURITY_AUDIT.md`
-2. **Implementation Guide** - `docs/security/BILLING_SERVICE_SECURITY_IMPLEMENTATION.md`
+1. **Security Audit Report** - [docs/security/BILLING_SERVICE_SECURITY_AUDIT.md](BILLING_SERVICE_SECURITY_AUDIT.md)
+2. **Implementation Guide** - [docs/security/BILLING_SERVICE_SECURITY_IMPLEMENTATION.md](BILLING_SERVICE_SECURITY_IMPLEMENTATION.md)
 3. **BillingPolicy** - `app/Policies/BillingPolicy.php`
 4. **GenerateInvoiceRequest** - `app/Http/Requests/GenerateInvoiceRequest.php`
 5. **InvoiceGenerationAudit Model** - `app/Models/InvoiceGenerationAudit.php`
@@ -59,7 +59,7 @@ protected $policies = [
 ### 3. Apply Code Fixes
 
 Follow the implementation guide at:
-`docs/security/BILLING_SERVICE_SECURITY_IMPLEMENTATION.md`
+[docs/security/BILLING_SERVICE_SECURITY_IMPLEMENTATION.md](BILLING_SERVICE_SECURITY_IMPLEMENTATION.md)
 
 ### 4. Run Tests
 
@@ -238,9 +238,9 @@ php artisan test --filter=BillingServiceSecurityTest
 
 ## Documentation
 
-- **Audit Report**: `docs/security/BILLING_SERVICE_SECURITY_AUDIT.md`
-- **Implementation Guide**: `docs/security/BILLING_SERVICE_SECURITY_IMPLEMENTATION.md`
-- **This Summary**: `docs/security/BILLING_SERVICE_SECURITY_SUMMARY.md`
+- **Audit Report**: [docs/security/BILLING_SERVICE_SECURITY_AUDIT.md](BILLING_SERVICE_SECURITY_AUDIT.md)
+- **Implementation Guide**: [docs/security/BILLING_SERVICE_SECURITY_IMPLEMENTATION.md](BILLING_SERVICE_SECURITY_IMPLEMENTATION.md)
+- **This Summary**: [docs/security/BILLING_SERVICE_SECURITY_SUMMARY.md](BILLING_SERVICE_SECURITY_SUMMARY.md)
 
 ## Support
 

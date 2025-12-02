@@ -89,7 +89,7 @@ if (!$this->indexExists('meter_readings', 'meter_readings_meter_date_zone_index'
 
 ### 4. Created Documentation
 
-**Migration Patterns**: `docs/database/MIGRATION_PATTERNS.md`
+**Migration Patterns**: [docs/database/MIGRATION_PATTERNS.md](../database/MIGRATION_PATTERNS.md)
 - ManagesIndexes trait usage guide
 - Idempotent migration patterns
 - Index naming conventions
@@ -97,7 +97,7 @@ if (!$this->indexExists('meter_readings', 'meter_readings_meter_date_zone_index'
 - Testing guidelines
 - Performance considerations
 
-**Architecture Analysis**: `docs/architecture/MIGRATION_ARCHITECTURE_ANALYSIS.md`
+**Architecture Analysis**: [docs/architecture/MIGRATION_ARCHITECTURE_ANALYSIS.md](MIGRATION_ARCHITECTURE_ANALYSIS.md)
 - Comprehensive impact analysis
 - Recommended patterns
 - Scalability considerations
@@ -200,9 +200,9 @@ php artisan tinker
 1. `app/Database/Concerns/ManagesIndexes.php` - Reusable trait
 2. `tests/Unit/Database/ManagesIndexesTraitTest.php` - Unit tests
 3. `tests/Unit/Database/BillingServicePerformanceIndexesMigrationTest.php` - Integration tests
-4. `docs/database/MIGRATION_PATTERNS.md` - Pattern documentation
-5. `docs/architecture/MIGRATION_ARCHITECTURE_ANALYSIS.md` - Architecture analysis
-6. `docs/architecture/MIGRATION_FIX_SUMMARY.md` - This summary
+4. [docs/database/MIGRATION_PATTERNS.md](../database/MIGRATION_PATTERNS.md) - Pattern documentation
+5. [docs/architecture/MIGRATION_ARCHITECTURE_ANALYSIS.md](MIGRATION_ARCHITECTURE_ANALYSIS.md) - Architecture analysis
+6. [docs/architecture/MIGRATION_FIX_SUMMARY.md](MIGRATION_FIX_SUMMARY.md) - This summary
 
 ### Modified Files
 
@@ -211,10 +211,10 @@ php artisan tinker
    - Replaced try-catch with `indexExists()` checks
    - Updated rollback to use `dropIndexIfExists()`
 
-2. `docs/database/README.md`
+2. [docs/database/README.md](../database/README.md)
    - Added reference to MIGRATION_PATTERNS.md
 
-3. `.kiro/specs/2-vilnius-utilities-billing/tasks.md`
+3. [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md)
    - Marked task 9 as complete with migration improvements
 
 ---

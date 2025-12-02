@@ -194,9 +194,9 @@ All individual component imports have been removed:
 ## Documentation
 
 ### Created
-- ✅ Verification report: `docs/filament/NAMESPACE_CONSOLIDATION_VERIFICATION.md`
-- ✅ Completion summary: `docs/filament/NAMESPACE_CONSOLIDATION_COMPLETE.md`
-- ✅ This document: `docs/filament/IMPORT_CONSOLIDATION_COMPLETE.md`
+- ✅ Verification report: [docs/filament/NAMESPACE_CONSOLIDATION_VERIFICATION.md](NAMESPACE_CONSOLIDATION_VERIFICATION.md)
+- ✅ Completion summary: [docs/filament/NAMESPACE_CONSOLIDATION_COMPLETE.md](NAMESPACE_CONSOLIDATION_COMPLETE.md)
+- ✅ This document: [docs/filament/IMPORT_CONSOLIDATION_COMPLETE.md](IMPORT_CONSOLIDATION_COMPLETE.md)
 
 ### Updated
 - ✅ Requirements document: All acceptance criteria marked complete
@@ -255,7 +255,7 @@ The codebase now follows Filament 4 best practices with cleaner, more maintainab
 
 - [Requirements](.kiro/specs/6-filament-namespace-consolidation/requirements.md)
 - [Design](.kiro/specs/6-filament-namespace-consolidation/design.md)
-- [Tasks](.kiro/specs/6-filament-namespace-consolidation/tasks.md)
-- [Verification Report](docs/filament/NAMESPACE_CONSOLIDATION_VERIFICATION.md)
-- [Completion Summary](docs/filament/NAMESPACE_CONSOLIDATION_COMPLETE.md)
+- [Tasks](../tasks/tasks.md)
+- [Verification Report](NAMESPACE_CONSOLIDATION_VERIFICATION.md)
+- [Completion Summary](NAMESPACE_CONSOLIDATION_COMPLETE.md)
 - [Verification Script](scripts/verify-all-resources-namespace.php)

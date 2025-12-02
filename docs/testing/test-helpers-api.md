@@ -426,8 +426,8 @@ function createTenantUser(int $tenantId): User
 
 ## Related Documentation
 
-- [Property-Based Testing Guide](./property-based-testing-guide.md)
-- [Filament Building Resource Tests](./filament-building-resource-tenant-scope-tests.md)
+- [Property-Based Testing Guide](property-based-testing-guide.md)
+- [Filament Building Resource Tests](filament-building-resource-tenant-scope-tests.md)
 - [Multi-Tenancy Testing Strategy](./multi-tenancy-testing.md)
 - [Test Data Factories](../database/factories.md)
 

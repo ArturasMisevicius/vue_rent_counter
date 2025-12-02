@@ -11,7 +11,7 @@
 - **Logging:** include `tenant_id`, `user_id`, request ID in app logs for traceability.
 
 ## Refactor/Legacy Touchpoints
-- Keep controllers thin; move orchestration to services, complex queries to repositories (see `SERVICE_AND_REPOSITORY_GUIDE.md`).
+- Keep controllers thin; move orchestration to services, complex queries to repositories (see [SERVICE_AND_REPOSITORY_GUIDE.md](SERVICE_AND_REPOSITORY_GUIDE.md)).
 - Preserve `BelongsToTenant` scoping; never remove tenant filters when refactoring queries.
 - Add regression tests before refactoring legacy areas; cover policies, scoping, and validation.
 - Avoid broad catch blocks; let the exception handler map domain exceptions to responses.

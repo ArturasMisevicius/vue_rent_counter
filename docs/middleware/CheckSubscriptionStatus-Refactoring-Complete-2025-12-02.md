@@ -123,7 +123,7 @@ Corrected tests to use proper dashboard routes for each role:
 
 ### 4. Comprehensive Documentation
 
-**File**: `docs/middleware/CheckSubscriptionStatus-Implementation-Guide.md`
+**File**: [docs/middleware/CheckSubscriptionStatus-Implementation-Guide.md](CheckSubscriptionStatus-Implementation-Guide.md)
 
 Created a 400+ line implementation guide covering:
 - Architecture and design patterns
@@ -320,8 +320,8 @@ If issues arise:
 
 ### Created
 
-1. ✅ `docs/middleware/CheckSubscriptionStatus-Implementation-Guide.md` (400+ lines)
-2. ✅ `docs/middleware/CheckSubscriptionStatus-Refactoring-Complete-2025-12-02.md` (this file)
+1. ✅ [docs/middleware/CheckSubscriptionStatus-Implementation-Guide.md](CheckSubscriptionStatus-Implementation-Guide.md) (400+ lines)
+2. ✅ [docs/middleware/CheckSubscriptionStatus-Refactoring-Complete-2025-12-02.md](CheckSubscriptionStatus-Refactoring-Complete-2025-12-02.md) (this file)
 
 ### Updated
 
@@ -331,8 +331,8 @@ If issues arise:
 ### Related Documentation
 
 - [Original Refactoring Summary](../refactoring/CheckSubscriptionStatus-Refactoring-Summary.md)
-- [Refactoring Complete](../../CHECKSUBSCRIPTIONSTATUS_REFACTORING_COMPLETE.md)
-- [Implementation Guide](./CheckSubscriptionStatus-Implementation-Guide.md)
+- [Refactoring Complete](../refactoring/CHECKSUBSCRIPTIONSTATUS_REFACTORING_COMPLETE.md)
+- [Implementation Guide](CheckSubscriptionStatus-Implementation-Guide.md)
 
 ## Lessons Learned
 
@@ -381,11 +381,11 @@ If issues arise:
 - `tests/Feature/Middleware/CheckSubscriptionStatusTest.php`
 
 ### Created
-- `docs/middleware/CheckSubscriptionStatus-Implementation-Guide.md`
-- `docs/middleware/CheckSubscriptionStatus-Refactoring-Complete-2025-12-02.md`
+- [docs/middleware/CheckSubscriptionStatus-Implementation-Guide.md](CheckSubscriptionStatus-Implementation-Guide.md)
+- [docs/middleware/CheckSubscriptionStatus-Refactoring-Complete-2025-12-02.md](CheckSubscriptionStatus-Refactoring-Complete-2025-12-02.md)
 
 ### Referenced
 - `app/ValueObjects/SubscriptionCheckResult.php`
 - `app/Services/SubscriptionStatusHandlers/*.php`
-- `CHECKSUBSCRIPTIONSTATUS_REFACTORING_COMPLETE.md`
-- `docs/refactoring/CheckSubscriptionStatus-Refactoring-Summary.md`
+- [CHECKSUBSCRIPTIONSTATUS_REFACTORING_COMPLETE.md](../refactoring/CHECKSUBSCRIPTIONSTATUS_REFACTORING_COMPLETE.md)
+- [docs/refactoring/CheckSubscriptionStatus-Refactoring-Summary.md](../refactoring/CheckSubscriptionStatus-Refactoring-Summary.md)

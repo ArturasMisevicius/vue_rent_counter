@@ -508,7 +508,7 @@ Validation messages are loaded from `lang/{locale}/buildings.php` under the `val
 - [PropertiesRelationManager](./PROPERTIES_RELATION_MANAGER.md) - Managing building properties
 - [HasTranslatedValidation Trait](../../app/Filament/Concerns/HasTranslatedValidation.php) - Validation message loading
 - [Multi-Tenant Architecture](../architecture/MULTI_TENANT_ARCHITECTURE.md) - Tenant scoping patterns
-- [Filament V4 Compatibility Guide](./FILAMENT_V4_COMPATIBILITY_GUIDE.md) - Framework upgrade notes
+- [Filament V4 Compatibility Guide](FILAMENT_V4_COMPATIBILITY_GUIDE.md) - Framework upgrade notes
 
 ## Changelog
 
@@ -536,7 +536,7 @@ Validation messages are loaded from `lang/{locale}/buildings.php` under the `val
 
 For issues or questions:
 
-1. Check the [Filament V4 Compatibility Guide](./FILAMENT_V4_COMPATIBILITY_GUIDE.md)
+1. Check the [Filament V4 Compatibility Guide](FILAMENT_V4_COMPATIBILITY_GUIDE.md)
 2. Review [Multi-Tenant Architecture](../architecture/MULTI_TENANT_ARCHITECTURE.md)
 3. Run tests: `php artisan test --filter=BuildingResourceTest`
 4. Check logs: `php artisan pail` or `storage/logs/laravel.log`

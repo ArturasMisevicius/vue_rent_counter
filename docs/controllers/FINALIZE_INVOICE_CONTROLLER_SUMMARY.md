@@ -192,7 +192,7 @@ php artisan test --filter=FinalizeInvoiceControllerTest
    - Error codes
    - Performance metrics
 
-2. **[Usage Guide](./FINALIZE_INVOICE_CONTROLLER_USAGE.md)**
+2. **[Usage Guide](FINALIZE_INVOICE_CONTROLLER_USAGE.md)**
    - Blade examples
    - Livewire integration
    - Filament integration
@@ -212,7 +212,7 @@ php artisan test --filter=FinalizeInvoiceControllerTest
    - Troubleshooting
    - Code snippets
 
-5. **[Implementation Details](./FINALIZE_INVOICE_CONTROLLER_REFACTORING_COMPLETE.md)**
+5. **[Implementation Details](FINALIZE_INVOICE_CONTROLLER_REFACTORING_COMPLETE.md)**
    - Implementation approach
    - Architecture decisions
    - Integration points

@@ -69,17 +69,17 @@ php artisan test --filter=Faq
 
 ## Documentation
 
-1. **[FAQ Resource Namespace Testing Guide](./FAQ_RESOURCE_NAMESPACE_TESTING.md)** (600+ lines)
+1. **[FAQ Resource Namespace Testing Guide](FAQ_RESOURCE_NAMESPACE_TESTING.md)** (600+ lines)
    - Complete testing guide
    - Manual testing checklist
    - Troubleshooting
 
-2. **[FAQ Namespace Test Implementation](./FAQ_NAMESPACE_TEST_IMPLEMENTATION.md)** (500+ lines)
+2. **[FAQ Namespace Test Implementation](FAQ_NAMESPACE_TEST_IMPLEMENTATION.md)** (500+ lines)
    - Implementation details
    - Test patterns
    - Coverage metrics
 
-3. **[FAQ Namespace Testing Complete](./FAQ_NAMESPACE_TESTING_COMPLETE.md)** (400+ lines)
+3. **[FAQ Namespace Testing Complete](FAQ_NAMESPACE_TESTING_COMPLETE.md)** (400+ lines)
    - Executive summary
    - Completion report
 
@@ -115,9 +115,9 @@ php artisan test --filter=Faq
 
 ## Related Documentation
 
-- [Testing Guide](./FAQ_RESOURCE_NAMESPACE_TESTING.md)
-- [Implementation Details](./FAQ_NAMESPACE_TEST_IMPLEMENTATION.md)
-- [Completion Report](./FAQ_NAMESPACE_TESTING_COMPLETE.md)
+- [Testing Guide](FAQ_RESOURCE_NAMESPACE_TESTING.md)
+- [Implementation Details](FAQ_NAMESPACE_TEST_IMPLEMENTATION.md)
+- [Completion Report](FAQ_NAMESPACE_TESTING_COMPLETE.md)
 - [Namespace Consolidation Guide](../upgrades/FILAMENT_NAMESPACE_CONSOLIDATION.md)
 
 ---

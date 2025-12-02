@@ -421,9 +421,9 @@ test('recalculation maintains invoice total integrity', function () {
 
 ## Related Documentation
 
-- **Implementation**: `docs/implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md`
-- **Observer Guide**: `docs/implementation/METER_READING_OBSERVER_IMPLEMENTATION.md`
-- **Billing Service**: `docs/implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md`
+- **Implementation**: [docs/implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md](../implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md)
+- **Observer Guide**: [docs/implementation/METER_READING_OBSERVER_IMPLEMENTATION.md](../implementation/METER_READING_OBSERVER_IMPLEMENTATION.md)
+- **Billing Service**: [docs/implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md](../implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md)
 - **Specification**: `.kiro/specs/2-vilnius-utilities-billing/requirements.md` (Req 8.3)
 - **Design**: `.kiro/specs/2-vilnius-utilities-billing/design.md` (Property 18)
 

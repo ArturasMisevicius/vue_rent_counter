@@ -181,8 +181,8 @@ try {
 ### Created (3 files)
 1. `app/Http/Middleware/RateLimitMeterReadingOperations.php` - Rate limiting middleware
 2. `tests/Security/MeterReadingUpdateControllerSecurityTest.php` - Security test suite
-3. `docs/security/METER_READING_UPDATE_CONTROLLER_SECURITY_AUDIT.md` - Security audit report
-4. `docs/security/METER_READING_UPDATE_CONTROLLER_SECURITY_IMPLEMENTATION.md` - This document
+3. [docs/security/METER_READING_UPDATE_CONTROLLER_SECURITY_AUDIT.md](METER_READING_UPDATE_CONTROLLER_SECURITY_AUDIT.md) - Security audit report
+4. [docs/security/METER_READING_UPDATE_CONTROLLER_SECURITY_IMPLEMENTATION.md](METER_READING_UPDATE_CONTROLLER_SECURITY_IMPLEMENTATION.md) - This document
 
 ### Modified (1 file)
 1. `app/Http/Controllers/MeterReadingUpdateController.php` - Added all security features

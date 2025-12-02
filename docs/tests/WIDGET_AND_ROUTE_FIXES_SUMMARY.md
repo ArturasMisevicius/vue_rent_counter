@@ -87,8 +87,8 @@ php artisan test tests/Feature/AuthenticationTest.php --filter="admin"
 ## Files Created
 
 1. `tests/Feature/Filament/DashboardWidgetTest.php` - Comprehensive widget test suite
-2. `docs/tests/DASHBOARD_WIDGET_TESTS.md` - Widget test documentation
-3. `docs/tests/WIDGET_AND_ROUTE_FIXES_SUMMARY.md` - This summary
+2. [docs/tests/DASHBOARD_WIDGET_TESTS.md](DASHBOARD_WIDGET_TESTS.md) - Widget test documentation
+3. [docs/tests/WIDGET_AND_ROUTE_FIXES_SUMMARY.md](WIDGET_AND_ROUTE_FIXES_SUMMARY.md) - This summary
 
 ## Known Issues (Out of Scope)
 

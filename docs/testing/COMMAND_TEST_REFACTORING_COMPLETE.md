@@ -7,7 +7,7 @@ Successfully refactored and enhanced the test suite for `MigrateToHierarchicalUs
 **Date:** 2024-11-26  
 **Status:** ✅ COMPLETE  
 **Test File:** `tests/Feature/Commands/MigrateToHierarchicalUsersCommandTest.php`  
-**Related Spec:** `.kiro/specs/3-hierarchical-user-management/tasks.md` (Task 14.1)
+**Related Spec:** [.kiro/specs/3-hierarchical-user-management/tasks.md](../tasks/tasks.md) (Task 14.1)
 
 ## Changes Made
 
@@ -167,7 +167,7 @@ $this->assertLessThanOrEqual(366, $daysDiff); // Accounts for leap years
 ## Documentation Created
 
 ### 1. Test Summary Document
-**File:** `docs/testing/MIGRATE_TO_HIERARCHICAL_USERS_TEST_SUMMARY.md`
+**File:** [docs/testing/MIGRATE_TO_HIERARCHICAL_USERS_TEST_SUMMARY.md](MIGRATE_TO_HIERARCHICAL_USERS_TEST_SUMMARY.md)
 
 **Contents:**
 - Complete test coverage overview
@@ -178,7 +178,7 @@ $this->assertLessThanOrEqual(366, $daysDiff); // Accounts for leap years
 - Common issues and solutions
 
 ### 2. Refactoring Complete Document
-**File:** `docs/testing/COMMAND_TEST_REFACTORING_COMPLETE.md` (this file)
+**File:** [docs/testing/COMMAND_TEST_REFACTORING_COMPLETE.md](COMMAND_TEST_REFACTORING_COMPLETE.md) (this file)
 
 **Contents:**
 - Summary of changes
@@ -210,12 +210,12 @@ php artisan test tests/Feature/Commands/MigrateToHierarchicalUsersCommandTest.ph
    - Added 5 new tests
    - Introduced helper methods
 
-2. **Documentation:** `docs/testing/MIGRATE_TO_HIERARCHICAL_USERS_TEST_SUMMARY.md`
+2. **Documentation:** [docs/testing/MIGRATE_TO_HIERARCHICAL_USERS_TEST_SUMMARY.md](MIGRATE_TO_HIERARCHICAL_USERS_TEST_SUMMARY.md)
    - Comprehensive test documentation
    - Usage examples
    - Maintenance guide
 
-3. **Documentation:** `docs/testing/COMMAND_TEST_REFACTORING_COMPLETE.md`
+3. **Documentation:** [docs/testing/COMMAND_TEST_REFACTORING_COMPLETE.md](COMMAND_TEST_REFACTORING_COMPLETE.md)
    - Refactoring summary
    - Before/after comparisons
 
@@ -317,10 +317,10 @@ $this->assertSame(SubscriptionPlanType::PROFESSIONAL->value, $subscription->plan
 ## Related Documentation
 
 - [Command Documentation](../commands/MIGRATE_TO_HIERARCHICAL_USERS_COMMAND.md)
-- [Test Summary](./MIGRATE_TO_HIERARCHICAL_USERS_TEST_SUMMARY.md)
-- [Hierarchical User Management Spec](../../.kiro/specs/3-hierarchical-user-management/tasks.md)
-- [Factory Documentation](./FACTORY_DOCUMENTATION_INDEX.md)
-- [Testing Guide](./README.md)
+- [Test Summary](MIGRATE_TO_HIERARCHICAL_USERS_TEST_SUMMARY.md)
+- [Hierarchical User Management Spec](../tasks/tasks.md)
+- [Factory Documentation](FACTORY_DOCUMENTATION_INDEX.md)
+- [Testing Guide](README.md)
 
 ## Conclusion
 

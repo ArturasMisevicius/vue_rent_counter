@@ -212,10 +212,10 @@ All filter references now use:
 ### Created Documentation
 - ✅ Requirements document: `.kiro/specs/6-filament-namespace-consolidation/requirements.md`
 - ✅ Design document: `.kiro/specs/6-filament-namespace-consolidation/design.md`
-- ✅ Tasks document: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+- ✅ Tasks document: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 - ✅ Verification script: `scripts/verify-all-resources-namespace.php`
-- ✅ Verification guide: `docs/scripts/VERIFY_ALL_RESOURCES_NAMESPACE.md`
-- ✅ Completion summary: `docs/filament/NAMESPACE_CONSOLIDATION_COMPLETE.md`
+- ✅ Verification guide: [docs/scripts/VERIFY_ALL_RESOURCES_NAMESPACE.md](../scripts/VERIFY_ALL_RESOURCES_NAMESPACE.md)
+- ✅ Completion summary: [docs/filament/NAMESPACE_CONSOLIDATION_COMPLETE.md](NAMESPACE_CONSOLIDATION_COMPLETE.md)
 
 ### Updated Documentation
 - ✅ API documentation for all resources
@@ -269,6 +269,6 @@ The codebase now follows Filament 4 best practices with cleaner, more maintainab
 
 - [Requirements](.kiro/specs/6-filament-namespace-consolidation/requirements.md)
 - [Design](.kiro/specs/6-filament-namespace-consolidation/design.md)
-- [Tasks](.kiro/specs/6-filament-namespace-consolidation/tasks.md)
+- [Tasks](../tasks/tasks.md)
 - [Verification Script](scripts/verify-all-resources-namespace.php)
-- [Completion Summary](docs/filament/NAMESPACE_CONSOLIDATION_COMPLETE.md)
+- [Completion Summary](NAMESPACE_CONSOLIDATION_COMPLETE.md)

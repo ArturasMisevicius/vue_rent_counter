@@ -364,8 +364,8 @@ Model::withoutHierarchicalScope()->get();
 - [Multi-Tenancy Architecture](./MULTI_TENANCY.md)
 - [TenantContext Service](../services/TENANT_CONTEXT.md)
 - [BelongsToTenant Trait](../traits/BELONGS_TO_TENANT.md)
-- [Authorization Policies](../policies/README.md)
-- [Hierarchical User Management Spec](../../.kiro/specs/3-hierarchical-user-management/README.md)
+- [Authorization Policies](../overview/readme.md)
+- [Hierarchical User Management Spec](../overview/readme.md)
 
 ## Changelog
 

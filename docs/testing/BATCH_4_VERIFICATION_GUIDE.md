@@ -398,8 +398,8 @@ php artisan route:list | grep -E "(faq|language|translation)"
 
 - [Batch 4 Resources Migration](../upgrades/BATCH_4_RESOURCES_MIGRATION.md)
 - [Laravel 12 + Filament 4 Upgrade Guide](../upgrades/LARAVEL_12_FILAMENT_4_UPGRADE.md)
-- [Batch 3 Verification Guide](./BATCH_3_VERIFICATION_GUIDE.md)
-- [Testing Guide](./TESTING_GUIDE.md)
+- [Batch 3 Verification Guide](BATCH_3_VERIFICATION_GUIDE.md)
+- [Testing Guide](../guides/TESTING_GUIDE.md)
 
 ## Support
 

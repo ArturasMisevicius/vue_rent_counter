@@ -331,24 +331,24 @@ Coverage remains at 100%:
 ### Updated Files
 
 1. **Implementation Guide**
-   - `docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md`
+   - [docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md](../implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
    - Added performance considerations section
    - Noted N+1 query pattern
    - Added version history
 
 2. **Changelog**
-   - `docs/CHANGELOG.md`
+   - [docs/CHANGELOG.md](../CHANGELOG.md)
    - Documented revert decision
    - Listed breaking changes
    - Explained rationale
 
 3. **Task List**
-   - `.kiro/specs/2-vilnius-utilities-billing/tasks.md`
+   - [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md)
    - Updated task 7 status
    - Noted v2.0 revert
 
 4. **Revert Decision** (This Document)
-   - `docs/refactoring/GYVATUKAS_CALCULATOR_REVERT.md`
+   - [docs/refactoring/GYVATUKAS_CALCULATOR_REVERT.md](GYVATUKAS_CALCULATOR_REVERT.md)
    - Comprehensive revert documentation
 
 ### Historical Documentation
@@ -356,17 +356,17 @@ Coverage remains at 100%:
 The following documents remain for historical reference:
 
 1. **v2.0 Refactoring Guide**
-   - `docs/refactoring/GYVATUKAS_CALCULATOR_REFACTORING.md`
+   - [docs/refactoring/GYVATUKAS_CALCULATOR_REFACTORING.md](GYVATUKAS_CALCULATOR_REFACTORING.md)
    - Marked as historical
    - Useful if we re-optimize later
 
 2. **v2.0 Verification Report**
-   - `docs/refactoring/GYVATUKAS_CALCULATOR_V2_VERIFICATION.md`
+   - [docs/refactoring/GYVATUKAS_CALCULATOR_V2_VERIFICATION.md](GYVATUKAS_CALCULATOR_V2_VERIFICATION.md)
    - Marked as historical
    - Documents what was achieved
 
 3. **v2.0 Summary**
-   - `docs/refactoring/GYVATUKAS_CALCULATOR_REFACTORING_SUMMARY.md`
+   - [docs/refactoring/GYVATUKAS_CALCULATOR_REFACTORING_SUMMARY.md](GYVATUKAS_CALCULATOR_REFACTORING_SUMMARY.md)
    - Marked as historical
    - Quick reference for v2.0 approach
 

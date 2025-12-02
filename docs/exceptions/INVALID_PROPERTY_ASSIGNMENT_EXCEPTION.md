@@ -476,7 +476,7 @@ fi
 
 ## References
 
-- **Spec**: `.kiro/specs/3-hierarchical-user-management/tasks.md` (Task 7.2)
+- **Spec**: [.kiro/specs/3-hierarchical-user-management/tasks.md](../tasks/tasks.md) (Task 7.2)
 - **Requirements**: 5.3, 6.1, 7.1
 - **Tests**: `tests/Unit/Exceptions/InvalidPropertyAssignmentExceptionTest.php`
 - **Related Exceptions**: 

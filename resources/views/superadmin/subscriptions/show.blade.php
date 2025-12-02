@@ -122,8 +122,8 @@
             <div class="space-y-4">
                 {{-- Renew Subscription --}}
                 @if(
-                    $subscription->status === \App\Enums\SubscriptionStatus::ACTIVE->value ||
-                    $subscription->status === \App\Enums\SubscriptionStatus::EXPIRED->value
+                    $subscription->status === \App\Enums\SubscriptionStatus::ACTIVE ||
+                    $subscription->status === \App\Enums\SubscriptionStatus::EXPIRED
                 )
                 <div class="flex items-center justify-between p-4 bg-slate-50 rounded">
                     <div>
@@ -140,7 +140,7 @@
                 @endif
 
                 {{-- Suspend Subscription --}}
-                @if($subscription->status === \App\Enums\SubscriptionStatus::ACTIVE->value)
+                @if($subscription->status === \App\Enums\SubscriptionStatus::ACTIVE)
                 <div class="flex items-center justify-between p-4 bg-slate-50 rounded">
                     <div>
                         <h3 class="font-medium text-slate-900">Suspend Subscription</h3>

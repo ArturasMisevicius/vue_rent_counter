@@ -7,7 +7,7 @@ Added comprehensive factory verification system for hierarchical user management
 **Date:** 2024-11-26  
 **Type:** Testing Infrastructure  
 **Impact:** Development, Testing, CI/CD  
-**Related Spec:** `.kiro/specs/3-hierarchical-user-management/tasks.md` (Task 13.5)
+**Related Spec:** [.kiro/specs/3-hierarchical-user-management/tasks.md](../tasks/tasks.md) (Task 13.5)
 
 ## Changes Made
 
@@ -46,7 +46,7 @@ Testing UserFactory - Superadmin...
 ### 2. Documentation Suite
 
 #### Factory Verification Guide
-**File:** `docs/testing/FACTORY_VERIFICATION.md`
+**File:** [docs/testing/FACTORY_VERIFICATION.md](../testing/FACTORY_VERIFICATION.md)
 
 Comprehensive guide covering:
 - Purpose and usage of verification script
@@ -57,7 +57,7 @@ Comprehensive guide covering:
 - Quality gates and CI/CD integration
 
 #### Factory API Documentation
-**File:** `docs/api/FACTORY_API.md`
+**File:** [docs/api/FACTORY_API.md](../api/FACTORY_API.md)
 
 Complete API reference including:
 - SubscriptionFactory state methods with examples
@@ -68,7 +68,7 @@ Complete API reference including:
 - Verification procedures
 
 #### Quick Reference Guide
-**File:** `docs/testing/FACTORY_QUICK_REFERENCE.md`
+**File:** [docs/testing/FACTORY_QUICK_REFERENCE.md](../testing/FACTORY_QUICK_REFERENCE.md)
 
 Developer-focused quick reference with:
 - Common factory patterns
@@ -208,14 +208,14 @@ Factories respect subscription constraints:
 
 ### Created Files
 - `test_factories.php` - Verification script
-- `docs/testing/FACTORY_VERIFICATION.md` - Comprehensive guide
-- `docs/api/FACTORY_API.md` - API documentation
-- `docs/testing/FACTORY_QUICK_REFERENCE.md` - Quick reference
-- `docs/updates/FACTORY_VERIFICATION_UPDATE.md` - This file
+- [docs/testing/FACTORY_VERIFICATION.md](../testing/FACTORY_VERIFICATION.md) - Comprehensive guide
+- [docs/api/FACTORY_API.md](../api/FACTORY_API.md) - API documentation
+- [docs/testing/FACTORY_QUICK_REFERENCE.md](../testing/FACTORY_QUICK_REFERENCE.md) - Quick reference
+- [docs/updates/FACTORY_VERIFICATION_UPDATE.md](FACTORY_VERIFICATION_UPDATE.md) - This file
 
 ### Modified Files
-- `README.md` - Added verification script reference
-- `.kiro/specs/3-hierarchical-user-management/tasks.md` - Added Task 13.5
+- [README.md](../../README.md) - Added verification script reference
+- [.kiro/specs/3-hierarchical-user-management/tasks.md](../tasks/tasks.md) - Added Task 13.5
 
 ### Related Files
 - `database/factories/SubscriptionFactory.php` - Verified factory
@@ -318,7 +318,7 @@ Contact the development team or refer to:
 
 ## See Also
 
-- [Hierarchical User Management Spec](../../.kiro/specs/3-hierarchical-user-management/tasks.md)
-- [Testing Guide](../testing/TESTING_GUIDE.md)
+- [Hierarchical User Management Spec](../tasks/tasks.md)
+- [Testing Guide](../guides/TESTING_GUIDE.md)
 - [Seeder Documentation](../database/SEEDERS_SUMMARY.md)
 - [Multi-Tenancy Architecture](../architecture/MULTI_TENANCY_ARCHITECTURE.md)

@@ -17,7 +17,7 @@
   - Best practices and troubleshooting
 
 #### Exception Documentation Index
-- **Exception README**: Created `docs/exceptions/README.md` with:
+- **Exception README**: Created [docs/exceptions/README.md](exceptions/README.md) with:
   - Exception categories (Multi-Tenancy, Subscription, Billing, Meter Reading)
   - Exception hierarchy diagram
   - Common patterns (security logging, dual response format, final classes)
@@ -147,14 +147,14 @@ From spec `.kiro/specs/3-hierarchical-user-management/`:
 ### Related Documentation
 
 #### Updated Files
-- `docs/README.md` - Added exception documentation section
-- `docs/exceptions/README.md` - Created exception index
-- `docs/exceptions/INVALID_PROPERTY_ASSIGNMENT_EXCEPTION.md` - Created detailed documentation
+- [docs/README.md](README.md) - Added exception documentation section
+- [docs/exceptions/README.md](exceptions/README.md) - Created exception index
+- [docs/exceptions/INVALID_PROPERTY_ASSIGNMENT_EXCEPTION.md](exceptions/INVALID_PROPERTY_ASSIGNMENT_EXCEPTION.md) - Created detailed documentation
 
 #### Related Documentation
 - `docs/architecture/MULTI_TENANCY_ARCHITECTURE.md` - Multi-tenancy patterns
-- `docs/security/SECURITY_IMPLEMENTATION_COMPLETE.md` - Security implementation
-- `docs/middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md` - Middleware architecture
+- [docs/security/SECURITY_IMPLEMENTATION_COMPLETE.md](security/SECURITY_IMPLEMENTATION_COMPLETE.md) - Security implementation
+- [docs/middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md](middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md) - Middleware architecture
 - `.kiro/specs/3-hierarchical-user-management/` - Hierarchical user management spec
 
 ### Testing
@@ -214,7 +214,7 @@ No migration required. Documentation is additive.
 
 - **Exception Class**: `app/Exceptions/InvalidPropertyAssignmentException.php`
 - **Unit Tests**: `tests/Unit/Exceptions/InvalidPropertyAssignmentExceptionTest.php`
-- **Spec**: `.kiro/specs/3-hierarchical-user-management/tasks.md` (Task 7.2)
+- **Spec**: [.kiro/specs/3-hierarchical-user-management/tasks.md](tasks/tasks.md) (Task 7.2)
 - **Requirements**: 5.3, 6.1, 7.1
 
 ---

@@ -23,7 +23,7 @@ Comprehensive refactoring of authorization policies with SUPERADMIN support, cod
 - ✅ Introduced `isAdmin()` helper method to eliminate code duplication
 - ✅ Updated `create()`, `update()`, `delete()`, `restore()` to use `isAdmin()` helper
 - ✅ Restricted `forceDelete()` to SUPERADMIN only
-- ✅ Created comprehensive API documentation (`docs/api/TARIFF_POLICY_API.md`)
+- ✅ Created comprehensive API documentation ([docs/api/TARIFF_POLICY_API.md](../api/TARIFF_POLICY_API.md))
 
 **Before**:
 ```php
@@ -325,9 +325,9 @@ private function isAdmin(User $user): bool
 2. ✅ `app/Policies/InvoicePolicy.php` - Enhanced documentation and added `isAdmin()` helper
 3. ✅ `app/Policies/MeterReadingPolicy.php` - Improved comments and added `isAdmin()` helper
 4. ✅ `tests/Unit/Policies/MeterReadingPolicyTest.php` - Fixed cross-tenant tests
-5. ✅ `.kiro/specs/2-vilnius-utilities-billing/tasks.md` - Updated task 12 status
-6. ✅ `docs/implementation/POLICY_REFACTORING_COMPLETE.md` - This document
-7. ✅ `docs/api/TARIFF_POLICY_API.md` - Comprehensive API reference (NEW)
+5. ✅ [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) - Updated task 12 status
+6. ✅ [docs/implementation/POLICY_REFACTORING_COMPLETE.md](POLICY_REFACTORING_COMPLETE.md) - This document
+7. ✅ [docs/api/TARIFF_POLICY_API.md](../api/TARIFF_POLICY_API.md) - Comprehensive API reference (NEW)
 
 ### Documentation Quality
 - ✅ All methods have PHPDoc with parameter descriptions
@@ -417,8 +417,8 @@ TENANT (End User)
 
 - **Policies**: `app/Policies/{TariffPolicy,InvoicePolicy,MeterReadingPolicy}.php`
 - **Tests**: `tests/Unit/Policies/*PolicyTest.php`
-- **API Reference**: `docs/api/TARIFF_POLICY_API.md` - Complete authorization API documentation
-- **Specification**: `.kiro/specs/2-vilnius-utilities-billing/tasks.md` (Task 12)
+- **API Reference**: [docs/api/TARIFF_POLICY_API.md](../api/TARIFF_POLICY_API.md) - Complete authorization API documentation
+- **Specification**: [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) (Task 12)
 - **Requirements**: `.kiro/specs/2-vilnius-utilities-billing/requirements.md` (11.1-11.4, 7.3)
 
 ---

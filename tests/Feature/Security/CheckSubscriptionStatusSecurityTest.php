@@ -79,7 +79,7 @@ describe('PII Redaction Security', function () {
         
         Subscription::factory()->create([
             'user_id' => $admin->id,
-            'status' => SubscriptionStatus::ACTIVE,
+            'status' => SubscriptionStatus::ACTIVE->value,
             'expires_at' => now()->addMonths(6),
         ]);
         
@@ -210,7 +210,7 @@ describe('CSRF Protection', function () {
         
         Subscription::factory()->create([
             'user_id' => $admin->id,
-            'status' => SubscriptionStatus::ACTIVE,
+            'status' => SubscriptionStatus::ACTIVE->value,
             'expires_at' => now()->addMonths(6),
         ]);
         
@@ -256,7 +256,7 @@ describe('Subscription Enumeration Protection', function () {
         // User with subscription
         Subscription::factory()->create([
             'user_id' => $admin->id,
-            'status' => SubscriptionStatus::ACTIVE,
+            'status' => SubscriptionStatus::ACTIVE->value,
             'expires_at' => now()->addMonths(6),
         ]);
         

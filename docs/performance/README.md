@@ -6,7 +6,7 @@ This directory contains comprehensive documentation for performance optimization
 
 ## Documents
 
-### 1. [Performance Optimization Complete](./PERFORMANCE_OPTIMIZATION_COMPLETE.md)
+### 1. [Performance Optimization Complete](../misc/PERFORMANCE_OPTIMIZATION_COMPLETE.md)
 **Executive summary and quick reference**
 
 - Key results and metrics
@@ -15,7 +15,7 @@ This directory contains comprehensive documentation for performance optimization
 - Monitoring guidelines
 - Rollback procedures
 
-### 2. [Building Resource Optimization](./BUILDING_RESOURCE_OPTIMIZATION.md)
+### 2. [Building Resource Optimization](BUILDING_RESOURCE_OPTIMIZATION.md)
 **Comprehensive technical guide**
 
 - Detailed before/after analysis
@@ -26,7 +26,7 @@ This directory contains comprehensive documentation for performance optimization
 - Monitoring and instrumentation
 - Future optimization opportunities
 
-### 3. [Optimization Summary](./OPTIMIZATION_SUMMARY.md)
+### 3. [Optimization Summary](OPTIMIZATION_SUMMARY.md)
 **Quick reference for teams**
 
 - Executive summary
@@ -99,7 +99,7 @@ php artisan test --filter=BuildingResourcePerformance
 ```
 
 ### Full Deployment Guide
-See [Performance Optimization Complete](./PERFORMANCE_OPTIMIZATION_COMPLETE.md#deployment-commands)
+See [Performance Optimization Complete](../misc/PERFORMANCE_OPTIMIZATION_COMPLETE.md#deployment-commands)
 
 ## Monitoring
 

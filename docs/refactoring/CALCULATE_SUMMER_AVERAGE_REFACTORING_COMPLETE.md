@@ -154,7 +154,7 @@ php artisan gyvatukas:calculate-summer-average --year=2023 --building=5 --force
 ## Documentation
 
 - ✅ Comprehensive PHPDoc with requirements traceability (4.4)
-- ✅ Refactoring documentation in `docs/refactoring/CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md`
+- ✅ Refactoring documentation in [docs/refactoring/CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md](CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md)
 - ✅ Test coverage documentation
 - ✅ Usage examples
 

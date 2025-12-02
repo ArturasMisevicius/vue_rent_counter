@@ -546,10 +546,10 @@ test('operation completes within threshold', function () {
 
 ## Related Documentation
 
-- **Architecture:** `docs/architecture/INVOICE_FINALIZATION_ARCHITECTURE.md`
-- **API Reference:** `docs/api/INVOICE_FINALIZATION_API.md`
-- **Usage Guide:** `docs/filament/INVOICE_FINALIZATION_ACTION.md`
-- **Refactoring:** `docs/refactoring/INVOICE_FINALIZATION_COMPLETE.md`
+- **Architecture:** [docs/architecture/INVOICE_FINALIZATION_ARCHITECTURE.md](../architecture/INVOICE_FINALIZATION_ARCHITECTURE.md)
+- **API Reference:** [docs/api/INVOICE_FINALIZATION_API.md](../api/INVOICE_FINALIZATION_API.md)
+- **Usage Guide:** [docs/filament/INVOICE_FINALIZATION_ACTION.md](../filament/INVOICE_FINALIZATION_ACTION.md)
+- **Refactoring:** [docs/refactoring/INVOICE_FINALIZATION_COMPLETE.md](../refactoring/INVOICE_FINALIZATION_COMPLETE.md)
 - **Testing:** `tests/Feature/Filament/InvoiceFinalizationActionTest.php`
 
 ## Changelog

@@ -390,9 +390,9 @@ test('property listing avoids N+1 queries', function () {
 
 ## 📚 Related Documentation
 
-- [COMPREHENSIVE_SCHEMA_ANALYSIS.md](./COMPREHENSIVE_SCHEMA_ANALYSIS.md) - Full schema analysis
-- [SCHEMA_ANALYSIS_SUMMARY.md](./SCHEMA_ANALYSIS_SUMMARY.md) - Quick reference
-- [ERD_VISUAL.md](./ERD_VISUAL.md) - Visual entity relationships
+- [COMPREHENSIVE_SCHEMA_ANALYSIS.md](COMPREHENSIVE_SCHEMA_ANALYSIS.md) - Full schema analysis
+- [SCHEMA_ANALYSIS_SUMMARY.md](SCHEMA_ANALYSIS_SUMMARY.md) - Quick reference
+- [ERD_VISUAL.md](ERD_VISUAL.md) - Visual entity relationships
 - [DATABASE_QUERY_OPTIMIZATION_GUIDE.md](../performance/DATABASE_QUERY_OPTIMIZATION_GUIDE.md) - Query optimization
 - [SLOW_QUERY_EXAMPLE.md](../performance/SLOW_QUERY_EXAMPLE.md) - Real-world examples
 - [BILLING_SERVICE_PERFORMANCE_SUMMARY.md](../performance/BILLING_SERVICE_PERFORMANCE_SUMMARY.md) - BillingService optimization

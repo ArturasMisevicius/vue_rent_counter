@@ -143,7 +143,7 @@ $tariff->loadMissing('provider');
 ## Files Created
 
 ### Documentation (2 files)
-1. `docs/performance/TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md`
+1. [docs/performance/TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md](TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md)
    - Comprehensive performance analysis
    - Before/after comparisons
    - Optimization techniques explained
@@ -152,7 +152,7 @@ $tariff->loadMissing('provider');
    - Monitoring strategies
    - Best practices guide
 
-2. `docs/performance/TARIFF_CONTROLLER_PERFORMANCE_SUMMARY.md`
+2. [docs/performance/TARIFF_CONTROLLER_PERFORMANCE_SUMMARY.md](TARIFF_CONTROLLER_PERFORMANCE_SUMMARY.md)
    - Executive summary
    - Quick stats table
    - Optimization highlights
@@ -170,7 +170,7 @@ $tariff->loadMissing('provider');
    - Total query count validation
 
 ### Summary (1 file)
-4. `TARIFF_CONTROLLER_PERFORMANCE_COMPLETE.md` (this document)
+4. [TARIFF_CONTROLLER_PERFORMANCE_COMPLETE.md](TARIFF_CONTROLLER_PERFORMANCE_COMPLETE.md) (this document)
 
 ---
 
@@ -295,20 +295,20 @@ DB::listen(function ($query) {
 ## Related Documentation
 
 ### Performance Documentation
-- **Full Analysis**: `docs/performance/TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md`
-- **Quick Summary**: `docs/performance/TARIFF_CONTROLLER_PERFORMANCE_SUMMARY.md`
+- **Full Analysis**: [docs/performance/TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md](TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md)
+- **Quick Summary**: [docs/performance/TARIFF_CONTROLLER_PERFORMANCE_SUMMARY.md](TARIFF_CONTROLLER_PERFORMANCE_SUMMARY.md)
 
 ### Controller Documentation
-- **API Reference**: `docs/api/TARIFF_CONTROLLER_API.md`
-- **Implementation Guide**: `docs/controllers/TARIFF_CONTROLLER_COMPLETE.md`
-- **Documentation Summary**: `docs/controllers/TARIFF_CONTROLLER_DOCUMENTATION_COMPLETE.md`
+- **API Reference**: [docs/api/TARIFF_CONTROLLER_API.md](../api/TARIFF_CONTROLLER_API.md)
+- **Implementation Guide**: [docs/controllers/TARIFF_CONTROLLER_COMPLETE.md](../controllers/TARIFF_CONTROLLER_COMPLETE.md)
+- **Documentation Summary**: [docs/controllers/TARIFF_CONTROLLER_DOCUMENTATION_COMPLETE.md](../controllers/TARIFF_CONTROLLER_DOCUMENTATION_COMPLETE.md)
 
 ### Tests
 - **Performance Tests**: `tests/Performance/TariffControllerPerformanceTest.php`
 - **Feature Tests**: `tests/Feature/Http/Controllers/Admin/TariffControllerTest.php`
 
 ### Specification
-- **Tasks**: `.kiro/specs/2-vilnius-utilities-billing/tasks.md` (Task 14)
+- **Tasks**: [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) (Task 14)
 
 ---
 

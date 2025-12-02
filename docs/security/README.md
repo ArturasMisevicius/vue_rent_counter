@@ -6,7 +6,7 @@ This directory contains comprehensive security documentation for the Vilnius Uti
 
 ## Documents
 
-### 1. [Building Resource Security Audit](./BUILDING_RESOURCE_SECURITY_AUDIT.md)
+### 1. [Building Resource Security Audit](BUILDING_RESOURCE_SECURITY_AUDIT.md)
 **Comprehensive security audit report**
 
 - Complete vulnerability assessment
@@ -21,7 +21,7 @@ This directory contains comprehensive security documentation for the Vilnius Uti
 
 ---
 
-### 2. [Security Implementation Summary](./SECURITY_IMPLEMENTATION_SUMMARY.md)
+### 2. [Security Implementation Summary](SECURITY_IMPLEMENTATION_SUMMARY.md)
 **Implementation status and deployment guide**
 
 - All security fixes implemented
@@ -232,7 +232,7 @@ tail -f storage/logs/security.log
 - [Performance Summary](../performance/OPTIMIZATION_SUMMARY.md)
 
 ### Testing
-- [Testing Guide](../testing/TESTING_GUIDE.md)
+- [Testing Guide](../guides/TESTING_GUIDE.md)
 - [Property-Based Testing](../testing/PROPERTY_BASED_TESTING.md)
 
 ---

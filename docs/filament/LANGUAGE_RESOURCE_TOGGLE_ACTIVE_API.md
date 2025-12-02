@@ -352,14 +352,14 @@ $languages->each->update(['is_active' => false]);
 
 ### Manual Testing
 
-See `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md` for manual testing checklist.
+See [docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md](../testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md) for manual testing checklist.
 
 ## Related Documentation
 
-- **Verification**: `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md`
-- **Quick Reference**: `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_QUICK_REFERENCE.md`
-- **Summary**: `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_SUMMARY.md`
-- **Resource API**: `docs/filament/LANGUAGE_RESOURCE_API.md`
+- **Verification**: [docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md](../testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md)
+- **Quick Reference**: [docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_QUICK_REFERENCE.md](../testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_QUICK_REFERENCE.md)
+- **Summary**: [docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_SUMMARY.md](../testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_SUMMARY.md)
+- **Resource API**: [docs/filament/LANGUAGE_RESOURCE_API.md](LANGUAGE_RESOURCE_API.md)
 
 ## Version History
 

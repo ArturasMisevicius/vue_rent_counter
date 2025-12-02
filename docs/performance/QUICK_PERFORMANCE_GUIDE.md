@@ -216,7 +216,7 @@ dump($used . 'MB'); // Should be < 20MB
 
 ## 📚 Resources
 
-- [Full Analysis](./PROPERTIES_RELATION_MANAGER_PERFORMANCE_ANALYSIS.md)
+- [Full Analysis](PROPERTIES_RELATION_MANAGER_PERFORMANCE_ANALYSIS.md)
 - [Laravel Query Optimization](https://laravel.com/docs/queries#optimizing-queries)
 - [Filament Performance](https://filamentphp.com/docs/tables/performance)
 - [Database Indexing Guide](https://use-the-index-luke.com/)

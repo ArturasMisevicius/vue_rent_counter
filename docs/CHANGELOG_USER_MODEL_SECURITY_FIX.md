@@ -146,12 +146,12 @@ php scripts/verify-authorization-fix.php
 
 ### New Documentation
 
-1. ✅ `docs/security/CRITICAL_SECURITY_FIX_2025_12_02.md` - Comprehensive security fix documentation
-2. ✅ `docs/security/AUTHORIZATION_FIX_VERIFICATION.md` - Detailed verification report
-3. ✅ `docs/security/AUTHORIZATION_QUICK_REFERENCE.md` - Quick reference guide
-4. ✅ `docs/security/SECURITY_INCIDENT_2025_12_02.md` - Detailed incident report
-5. ✅ `docs/api/USER_MODEL_API.md` - Complete User model API documentation
-6. ✅ `SECURITY_FIX_SUMMARY.md` - Executive summary
+1. ✅ [docs/security/CRITICAL_SECURITY_FIX_2025_12_02.md](security/CRITICAL_SECURITY_FIX_2025_12_02.md) - Comprehensive security fix documentation
+2. ✅ [docs/security/AUTHORIZATION_FIX_VERIFICATION.md](security/AUTHORIZATION_FIX_VERIFICATION.md) - Detailed verification report
+3. ✅ [docs/security/AUTHORIZATION_QUICK_REFERENCE.md](security/AUTHORIZATION_QUICK_REFERENCE.md) - Quick reference guide
+4. ✅ [docs/security/SECURITY_INCIDENT_2025_12_02.md](security/SECURITY_INCIDENT_2025_12_02.md) - Detailed incident report
+5. ✅ [docs/api/USER_MODEL_API.md](api/USER_MODEL_API.md) - Complete User model API documentation
+6. ✅ [SECURITY_FIX_SUMMARY.md](misc/SECURITY_FIX_SUMMARY.md) - Executive summary
 
 ### Updated Documentation
 
@@ -235,10 +235,10 @@ The temporary bypass was likely implemented to resolve login issues. The actual 
 
 ## References
 
-- [Critical Security Fix Documentation](./security/CRITICAL_SECURITY_FIX_2025_12_02.md)
-- [Authorization Quick Reference](./security/AUTHORIZATION_QUICK_REFERENCE.md)
-- [User Model API Documentation](./api/USER_MODEL_API.md)
-- [Security Incident Report](./security/SECURITY_INCIDENT_2025_12_02.md)
+- [Critical Security Fix Documentation](security/CRITICAL_SECURITY_FIX_2025_12_02.md)
+- [Authorization Quick Reference](security/AUTHORIZATION_QUICK_REFERENCE.md)
+- [User Model API Documentation](api/USER_MODEL_API.md)
+- [Security Incident Report](security/SECURITY_INCIDENT_2025_12_02.md)
 
 ---
 

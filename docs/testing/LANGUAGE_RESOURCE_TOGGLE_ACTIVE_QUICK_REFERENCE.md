@@ -108,6 +108,6 @@ Tables\Actions\BulkAction::make('deactivate')
 
 ## Related Documentation
 
-- Full Verification: `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md`
+- Full Verification: [docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md](LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md)
 - Test Suite: `tests/Feature/Filament/LanguageResourceToggleActiveTest.php`
-- API Documentation: `docs/filament/LANGUAGE_RESOURCE_API.md`
+- API Documentation: [docs/filament/LANGUAGE_RESOURCE_API.md](../filament/LANGUAGE_RESOURCE_API.md)

@@ -48,12 +48,12 @@ Successfully refactored the meter reading form from inline Blade code to a reusa
 ### Created
 - `resources/views/components/meter-reading-form.blade.php` (220 lines)
 - `tests/Feature/MeterReadingFormComponentTest.php` (7 tests)
-- `docs/refactoring/METER_READING_FORM_COMPLETE.md` (comprehensive docs)
+- [docs/refactoring/METER_READING_FORM_COMPLETE.md](METER_READING_FORM_COMPLETE.md) (comprehensive docs)
 
 ### Modified
 - `resources/views/manager/meter-readings/create.blade.php` (124 → 24 lines)
-- `.kiro/specs/2-vilnius-utilities-billing/tasks.md` (marked task #16 complete)
-- `docs/refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md` (updated status)
+- [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) (marked task #16 complete)
+- [docs/refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md](METER_READING_FORM_REFACTORING_SUMMARY.md) (updated status)
 
 ---
 
@@ -92,9 +92,9 @@ php artisan test --filter=MeterReadingFormComponentTest
 
 ## Documentation
 
-- **Implementation Guide**: `docs/refactoring/METER_READING_FORM_COMPLETE.md`
-- **Refactoring Summary**: `docs/refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md`
-- **Task Tracking**: `.kiro/specs/2-vilnius-utilities-billing/tasks.md` (Task #16)
+- **Implementation Guide**: [docs/refactoring/METER_READING_FORM_COMPLETE.md](METER_READING_FORM_COMPLETE.md)
+- **Refactoring Summary**: [docs/refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md](METER_READING_FORM_REFACTORING_SUMMARY.md)
+- **Task Tracking**: [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) (Task #16)
 
 ---
 

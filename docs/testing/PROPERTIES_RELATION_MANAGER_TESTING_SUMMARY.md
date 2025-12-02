@@ -15,7 +15,7 @@ Comprehensive testing strategy created for PropertiesRelationManager validation 
 ## 🎯 What Was Delivered
 
 ### 1. Test Plan Document
-**File**: `docs/testing/PROPERTIES_RELATION_MANAGER_TEST_PLAN.md`
+**File**: [docs/testing/PROPERTIES_RELATION_MANAGER_TEST_PLAN.md](PROPERTIES_RELATION_MANAGER_TEST_PLAN.md)
 
 **Contents**:
 - Detailed test case specifications (41 test scenarios)
@@ -35,7 +35,7 @@ Comprehensive testing strategy created for PropertiesRelationManager validation 
 **Note**: These files contain test skeletons that demonstrate the testing approach. They require adjustments for Filament's Livewire context to run successfully.
 
 ### 3. Test Documentation
-**File**: `tests/Feature/Filament/README_PROPERTIES_RELATION_MANAGER_TESTS.md`
+**File**: [tests/Feature/Filament/README_PROPERTIES_RELATION_MANAGER_TESTS.md](../misc/README_PROPERTIES_RELATION_MANAGER_TESTS.md)
 
 **Contents**:
 - Test suite overview
@@ -383,9 +383,9 @@ Before merging, ensure:
 ## 📞 Support
 
 ### Questions?
-- Review test plan: `docs/testing/PROPERTIES_RELATION_MANAGER_TEST_PLAN.md`
+- Review test plan: [docs/testing/PROPERTIES_RELATION_MANAGER_TEST_PLAN.md](PROPERTIES_RELATION_MANAGER_TEST_PLAN.md)
 - Check examples: `tests/Feature/Filament/PropertiesRelationManager*.php`
-- Read README: `tests/Feature/Filament/README_PROPERTIES_RELATION_MANAGER_TESTS.md`
+- Read README: [tests/Feature/Filament/README_PROPERTIES_RELATION_MANAGER_TESTS.md](../misc/README_PROPERTIES_RELATION_MANAGER_TESTS.md)
 
 ### Issues?
 - Check Filament docs: https://filamentphp.com/docs/3.x/panels/testing

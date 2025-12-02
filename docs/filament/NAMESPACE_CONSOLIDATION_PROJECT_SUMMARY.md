@@ -188,19 +188,19 @@ The Filament Namespace Consolidation project successfully verified that all 16 F
 ### Core Documents
 - [Requirements](../../.kiro/specs/6-filament-namespace-consolidation/requirements.md)
 - [Design](../../.kiro/specs/6-filament-namespace-consolidation/design.md)
-- [Tasks](../../.kiro/specs/6-filament-namespace-consolidation/tasks.md)
+- [Tasks](../tasks/tasks.md)
 
 ### Analysis & Planning
-- [Resource Prioritization Analysis](./RESOURCE_PRIORITIZATION_ANALYSIS.md)
-- [Namespace Consolidation Completion Summary](./NAMESPACE_CONSOLIDATION_COMPLETION_SUMMARY.md)
+- [Resource Prioritization Analysis](RESOURCE_PRIORITIZATION_ANALYSIS.md)
+- [Namespace Consolidation Completion Summary](NAMESPACE_CONSOLIDATION_COMPLETION_SUMMARY.md)
 
 ### Retrospective
-- [Lessons Learned](./NAMESPACE_CONSOLIDATION_LESSONS_LEARNED.md) ⭐ **Comprehensive**
+- [Lessons Learned](NAMESPACE_CONSOLIDATION_LESSONS_LEARNED.md) ⭐ **Comprehensive**
 
 ### Technical Documentation
-- [FAQ Resource API](./FAQ_RESOURCE_API.md)
-- [Language Resource API](./LANGUAGE_RESOURCE_API.md)
-- [Translation Resource API](./TRANSLATION_RESOURCE_API.md)
+- [FAQ Resource API](FAQ_RESOURCE_API.md)
+- [Language Resource API](LANGUAGE_RESOURCE_API.md)
+- [Translation Resource API](TRANSLATION_RESOURCE_API.md)
 
 ### Testing Documentation
 - [FAQ Filter Test Documentation](../testing/FAQ_FILTER_TEST_DOCUMENTATION.md)

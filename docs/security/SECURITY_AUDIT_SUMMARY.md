@@ -126,9 +126,9 @@ tail -f storage/logs/laravel.log | grep -E "Invalid table|Unauthorized|Rate limi
 
 ## Documentation
 
-📄 **Full Audit Report**: `docs/security/MIGRATION_SECURITY_AUDIT.md`  
-📄 **Implementation Details**: `docs/security/SECURITY_IMPLEMENTATION_COMPLETE.md`  
-📄 **This Summary**: `docs/security/SECURITY_AUDIT_SUMMARY.md`
+📄 **Full Audit Report**: [docs/security/MIGRATION_SECURITY_AUDIT.md](MIGRATION_SECURITY_AUDIT.md)  
+📄 **Implementation Details**: [docs/security/SECURITY_IMPLEMENTATION_COMPLETE.md](SECURITY_IMPLEMENTATION_COMPLETE.md)  
+📄 **This Summary**: [docs/security/SECURITY_AUDIT_SUMMARY.md](SECURITY_AUDIT_SUMMARY.md)
 
 ---
 

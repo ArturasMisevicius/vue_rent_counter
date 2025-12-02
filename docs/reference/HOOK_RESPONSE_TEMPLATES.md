@@ -51,4 +51,4 @@ Use this when a .kiro hook triggers and no feature-specific doc exists. Fill in 
   - **News writer:** tone, length, sources, embargo rules.
   - **Moderation:** policy (PII, abuse, NSFW), escalation path.
 
-Keep this file updated: when a pending hook becomes active, create a dedicated guide under `docs/` and link it from `HOOKS_DOCUMENTATION_MAP.md`; remove or trim the template once a full guide exists.
+Keep this file updated: when a pending hook becomes active, create a dedicated guide under `docs/` and link it from [HOOKS_DOCUMENTATION_MAP.md](HOOKS_DOCUMENTATION_MAP.md); remove or trim the template once a full guide exists.

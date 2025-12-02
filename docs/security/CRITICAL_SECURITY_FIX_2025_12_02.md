@@ -182,10 +182,10 @@ $inactive->canAccessPanel($panel); // Should return false
 
 ### Related Documentation
 
-- ✅ `docs/security/AUTHORIZATION_FIX_VERIFICATION.md` - Detailed verification report
-- ✅ `docs/security/AUTHORIZATION_QUICK_REFERENCE.md` - Quick reference guide
-- ✅ `docs/security/SECURITY_INCIDENT_2025_12_02.md` - Detailed incident report
-- ✅ `SECURITY_FIX_SUMMARY.md` - Executive summary
+- ✅ [docs/security/AUTHORIZATION_FIX_VERIFICATION.md](AUTHORIZATION_FIX_VERIFICATION.md) - Detailed verification report
+- ✅ [docs/security/AUTHORIZATION_QUICK_REFERENCE.md](AUTHORIZATION_QUICK_REFERENCE.md) - Quick reference guide
+- ✅ [docs/security/SECURITY_INCIDENT_2025_12_02.md](SECURITY_INCIDENT_2025_12_02.md) - Detailed incident report
+- ✅ [SECURITY_FIX_SUMMARY.md](../misc/SECURITY_FIX_SUMMARY.md) - Executive summary
 - ✅ `tests/Feature/Security/PanelAccessAuthorizationTest.php` - Security test suite
 - ✅ `scripts/verify-authorization-fix.php` - Verification script
 
@@ -254,9 +254,9 @@ php scripts/verify-authorization-fix.php
 
 ## Related Documentation
 
-- [Authorization Quick Reference](./AUTHORIZATION_QUICK_REFERENCE.md)
-- [Security Incident Report](./SECURITY_INCIDENT_2025_12_02.md)
-- [Authorization Fix Verification](./AUTHORIZATION_FIX_VERIFICATION.md)
+- [Authorization Quick Reference](AUTHORIZATION_QUICK_REFERENCE.md)
+- [Security Incident Report](SECURITY_INCIDENT_2025_12_02.md)
+- [Authorization Fix Verification](AUTHORIZATION_FIX_VERIFICATION.md)
 - [Multi-Tenancy Architecture](../architecture/MULTI_TENANCY.md)
 - [User Roles & Permissions](../api/USER_POLICY_API.md)
 

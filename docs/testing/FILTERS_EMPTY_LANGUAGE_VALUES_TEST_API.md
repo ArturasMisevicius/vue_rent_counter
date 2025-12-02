@@ -548,9 +548,9 @@ php artisan test --filter=FiltersEmptyLanguageValuesTest --coverage
 ## Related Documentation
 
 - **Trait Implementation**: `app/Filament/Resources/TranslationResource/Concerns/FiltersEmptyLanguageValues.php`
-- **Test Documentation**: `docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_TEST_DOCUMENTATION.md`
-- **Test Summary**: `docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_SUMMARY.md`
-- **Completion Report**: `docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_COMPLETION.md`
+- **Test Documentation**: [docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_TEST_DOCUMENTATION.md](FILTERS_EMPTY_LANGUAGE_VALUES_TEST_DOCUMENTATION.md)
+- **Test Summary**: [docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_SUMMARY.md](FILTERS_EMPTY_LANGUAGE_VALUES_SUMMARY.md)
+- **Completion Report**: [docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_COMPLETION.md](FILTERS_EMPTY_LANGUAGE_VALUES_COMPLETION.md)
 - **CreateTranslation Page**: `app/Filament/Resources/TranslationResource/Pages/CreateTranslation.php`
 - **EditTranslation Page**: `app/Filament/Resources/TranslationResource/Pages/EditTranslation.php`
 

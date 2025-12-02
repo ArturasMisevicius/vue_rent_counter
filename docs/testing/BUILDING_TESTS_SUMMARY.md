@@ -25,25 +25,25 @@ Building Tenant Scope Testing
 
 ### Core Documentation
 
-1. **[Building Simple Tests Guide](./building-tenant-scope-simple-tests.md)**
+1. **[Building Simple Tests Guide](building-tenant-scope-simple-tests.md)**
    - Complete guide to simple verification tests
    - Test flow diagrams and assertions
    - Troubleshooting and debugging
    - ~3,500 words
 
-2. **[Building Property Tests Guide](./filament-building-resource-tenant-scope-tests.md)**
+2. **[Building Property Tests Guide](filament-building-resource-tenant-scope-tests.md)**
    - Comprehensive property-based testing guide
    - Helper functions and test architecture
    - Performance considerations
    - ~4,000 words
 
-3. **[Quick Reference Guide](./BUILDING_TENANT_SCOPE_QUICK_REFERENCE.md)**
+3. **[Quick Reference Guide](BUILDING_TENANT_SCOPE_QUICK_REFERENCE.md)**
    - Fast command reference
    - Common assertions
    - Debugging checklist
    - ~1,500 words
 
-4. **[API Reference](./BUILDING_TENANT_SCOPE_API.md)**
+4. **[API Reference](BUILDING_TENANT_SCOPE_API.md)**
    - Complete API documentation
    - Test helpers and patterns
    - Integration examples
@@ -51,8 +51,8 @@ Building Tenant Scope Testing
 
 ### Supporting Documentation
 
-- **[Testing README](./README.md)** - Updated with Building test references
-- **[Tasks Specification](./.kiro/specs/4-filament-admin-panel/tasks.md)** - Task 7.3 completion status
+- **[Testing README](README.md)** - Updated with Building test references
+- **[Tasks Specification](../tasks/tasks.md)** - Task 7.3 completion status
 - **[CHANGELOG](../CHANGELOG.md)** - Complete changelog entry for 2025-11-27
 
 ## Test Coverage
@@ -308,10 +308,10 @@ When reviewing Building test changes:
 ## Documentation Index
 
 ### Primary Documentation
-1. [Building Simple Tests Guide](./building-tenant-scope-simple-tests.md)
-2. [Building Property Tests Guide](./filament-building-resource-tenant-scope-tests.md)
-3. [Quick Reference Guide](./BUILDING_TENANT_SCOPE_QUICK_REFERENCE.md)
-4. [API Reference](./BUILDING_TENANT_SCOPE_API.md)
+1. [Building Simple Tests Guide](building-tenant-scope-simple-tests.md)
+2. [Building Property Tests Guide](filament-building-resource-tenant-scope-tests.md)
+3. [Quick Reference Guide](BUILDING_TENANT_SCOPE_QUICK_REFERENCE.md)
+4. [API Reference](BUILDING_TENANT_SCOPE_API.md)
 
 ### Architecture Documentation
 - [Multi-Tenancy Architecture](../architecture/multi-tenancy.md)

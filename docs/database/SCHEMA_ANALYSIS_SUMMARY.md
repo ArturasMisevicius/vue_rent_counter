@@ -2,7 +2,7 @@
 
 ## Quick Reference
 
-**Full Analysis**: See [COMPREHENSIVE_SCHEMA_ANALYSIS.md](./COMPREHENSIVE_SCHEMA_ANALYSIS.md)
+**Full Analysis**: See [COMPREHENSIVE_SCHEMA_ANALYSIS.md](COMPREHENSIVE_SCHEMA_ANALYSIS.md)
 
 ---
 
@@ -311,7 +311,7 @@ php artisan pail
 
 ## Related Documentation
 
-- [COMPREHENSIVE_SCHEMA_ANALYSIS.md](./COMPREHENSIVE_SCHEMA_ANALYSIS.md) - Full analysis
+- [COMPREHENSIVE_SCHEMA_ANALYSIS.md](COMPREHENSIVE_SCHEMA_ANALYSIS.md) - Full analysis
 - [DATABASE_QUERY_OPTIMIZATION_GUIDE.md](../performance/DATABASE_QUERY_OPTIMIZATION_GUIDE.md) - Query optimization
 - [SLOW_QUERY_EXAMPLE.md](../performance/SLOW_QUERY_EXAMPLE.md) - Real-world examples
 - [BILLING_SERVICE_PERFORMANCE_SUMMARY.md](../performance/BILLING_SERVICE_PERFORMANCE_SUMMARY.md) - BillingService optimization

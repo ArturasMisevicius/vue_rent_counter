@@ -559,8 +559,8 @@ None identified. Code is production-ready.
 
 ## Related Documentation
 
-- [UserResource API Documentation](./USER_RESOURCE_API.md)
-- [UserResource Usage Guide](./USER_RESOURCE_USAGE_GUIDE.md)
+- [UserResource API Documentation](USER_RESOURCE_API.md)
+- [UserResource Usage Guide](USER_RESOURCE_USAGE_GUIDE.md)
 - [User Model Documentation](../../app/Models/User.php)
 - [UserPolicy Documentation](../../app/Policies/UserPolicy.php)
 - [Filament v4 Documentation](https://filamentphp.com/docs/4.x)

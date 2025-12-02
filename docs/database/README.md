@@ -10,7 +10,7 @@ Complete database schema analysis and optimization documentation for the Vilnius
 
 ### Core Documentation
 
-1. **[COMPREHENSIVE_SCHEMA_ANALYSIS.md](./COMPREHENSIVE_SCHEMA_ANALYSIS.md)** ⭐
+1. **[COMPREHENSIVE_SCHEMA_ANALYSIS.md](COMPREHENSIVE_SCHEMA_ANALYSIS.md)** ⭐
    - Complete entity-relationship analysis
    - All migrations with execution order
    - Foreign key constraints and cascade rules
@@ -20,21 +20,21 @@ Complete database schema analysis and optimization documentation for the Vilnius
    - Performance benchmarks
    - Production recommendations
 
-2. **[SCHEMA_ANALYSIS_SUMMARY.md](./SCHEMA_ANALYSIS_SUMMARY.md)** 🚀
+2. **[SCHEMA_ANALYSIS_SUMMARY.md](SCHEMA_ANALYSIS_SUMMARY.md)** 🚀
    - Quick reference guide
    - Key metrics and highlights
    - Common query patterns
    - Performance benchmarks
    - Essential commands
 
-3. **[ERD_VISUAL.md](./ERD_VISUAL.md)** 📊
+3. **[ERD_VISUAL.md](ERD_VISUAL.md)** 📊
    - ASCII entity-relationship diagrams
    - Visual data flow diagrams
    - Index strategy visualization
    - Cascade rules visualization
    - Multi-tenancy scope flow
 
-4. **[OPTIMIZATION_CHECKLIST.md](./OPTIMIZATION_CHECKLIST.md)** ✅
+4. **[OPTIMIZATION_CHECKLIST.md](OPTIMIZATION_CHECKLIST.md)** ✅
    - Completed optimizations
    - Ongoing monitoring tasks
    - Recommended improvements
@@ -42,7 +42,7 @@ Complete database schema analysis and optimization documentation for the Vilnius
    - Testing strategy
    - Deployment checklist
 
-5. **[MIGRATION_PATTERNS.md](./MIGRATION_PATTERNS.md)** 🔧
+5. **[MIGRATION_PATTERNS.md](MIGRATION_PATTERNS.md)** 🔧
    - ManagesIndexes trait usage
    - Idempotent migration patterns
    - Index naming conventions
@@ -50,7 +50,7 @@ Complete database schema analysis and optimization documentation for the Vilnius
    - Migration testing guide
    - Performance considerations
 
-6. **[MIGRATION_FINAL_STATUS.md](./MIGRATION_FINAL_STATUS.md)** ✅ **NEW**
+6. **[MIGRATION_FINAL_STATUS.md](MIGRATION_FINAL_STATUS.md)** ✅ **NEW**
    - Final migration refactoring status
    - Complete implementation details
    - Quality metrics (10/10)
@@ -58,14 +58,14 @@ Complete database schema analysis and optimization documentation for the Vilnius
    - Deployment checklist
    - Production readiness confirmation
 
-7. **[MIGRATION_REFACTORING_COMPLETE.md](./MIGRATION_REFACTORING_COMPLETE.md)** ✨
+7. **[MIGRATION_REFACTORING_COMPLETE.md](MIGRATION_REFACTORING_COMPLETE.md)** ✨
    - Migration refactoring case study
    - DRY principle application
    - Code quality improvements
    - Performance impact analysis
    - Best practices demonstration
 
-8. **[MIGRATION_REFACTORING_ASSESSMENT.md](./MIGRATION_REFACTORING_ASSESSMENT.md)** 📋
+8. **[MIGRATION_REFACTORING_ASSESSMENT.md](MIGRATION_REFACTORING_ASSESSMENT.md)** 📋
    - Comprehensive migration assessment
    - Schema & model review
    - Indexing strategy analysis
@@ -88,24 +88,24 @@ Complete database schema analysis and optimization documentation for the Vilnius
 ### For Developers
 
 **Understanding the Schema**:
-1. Start with [SCHEMA_ANALYSIS_SUMMARY.md](./SCHEMA_ANALYSIS_SUMMARY.md) for quick overview
-2. Review [ERD_VISUAL.md](./ERD_VISUAL.md) for visual relationships
-3. Dive into [COMPREHENSIVE_SCHEMA_ANALYSIS.md](./COMPREHENSIVE_SCHEMA_ANALYSIS.md) for details
+1. Start with [SCHEMA_ANALYSIS_SUMMARY.md](SCHEMA_ANALYSIS_SUMMARY.md) for quick overview
+2. Review [ERD_VISUAL.md](ERD_VISUAL.md) for visual relationships
+3. Dive into [COMPREHENSIVE_SCHEMA_ANALYSIS.md](COMPREHENSIVE_SCHEMA_ANALYSIS.md) for details
 
 **Optimizing Queries**:
-1. Check [OPTIMIZATION_CHECKLIST.md](./OPTIMIZATION_CHECKLIST.md) for current status
+1. Check [OPTIMIZATION_CHECKLIST.md](OPTIMIZATION_CHECKLIST.md) for current status
 2. Review [DATABASE_QUERY_OPTIMIZATION_GUIDE.md](../performance/DATABASE_QUERY_OPTIMIZATION_GUIDE.md) for techniques
 3. Study [SLOW_QUERY_EXAMPLE.md](../performance/SLOW_QUERY_EXAMPLE.md) for real examples
 
 ### For DevOps
 
 **Deployment**:
-1. Review [OPTIMIZATION_CHECKLIST.md](./OPTIMIZATION_CHECKLIST.md) deployment section
-2. Check [COMPREHENSIVE_SCHEMA_ANALYSIS.md](./COMPREHENSIVE_SCHEMA_ANALYSIS.md) production recommendations
-3. Verify backup configuration in [SCHEMA_ANALYSIS_SUMMARY.md](./SCHEMA_ANALYSIS_SUMMARY.md)
+1. Review [OPTIMIZATION_CHECKLIST.md](OPTIMIZATION_CHECKLIST.md) deployment section
+2. Check [COMPREHENSIVE_SCHEMA_ANALYSIS.md](COMPREHENSIVE_SCHEMA_ANALYSIS.md) production recommendations
+3. Verify backup configuration in [SCHEMA_ANALYSIS_SUMMARY.md](SCHEMA_ANALYSIS_SUMMARY.md)
 
 **Monitoring**:
-1. Set up slow query logging (see [OPTIMIZATION_CHECKLIST.md](./OPTIMIZATION_CHECKLIST.md))
+1. Set up slow query logging (see [OPTIMIZATION_CHECKLIST.md](OPTIMIZATION_CHECKLIST.md))
 2. Configure index usage monitoring
 3. Review performance benchmarks regularly
 
@@ -280,8 +280,8 @@ php artisan backup:list
 
 ### Issues & Questions
 - Review documentation in this folder first
-- Check [COMPREHENSIVE_SCHEMA_ANALYSIS.md](./COMPREHENSIVE_SCHEMA_ANALYSIS.md) for detailed information
-- Consult [OPTIMIZATION_CHECKLIST.md](./OPTIMIZATION_CHECKLIST.md) for performance issues
+- Check [COMPREHENSIVE_SCHEMA_ANALYSIS.md](COMPREHENSIVE_SCHEMA_ANALYSIS.md) for detailed information
+- Consult [OPTIMIZATION_CHECKLIST.md](OPTIMIZATION_CHECKLIST.md) for performance issues
 
 ### Contributing
 - Update documentation when schema changes
@@ -297,7 +297,7 @@ php artisan backup:list
 - ✅ **COMPLETED**: Migration refactoring with DRY principle
 - ✅ Removed duplicate `indexExists()` method from migration
 - ✅ Migration now exclusively uses `ManagesIndexes` trait
-- ✅ Created `MIGRATION_FINAL_STATUS.md` with complete implementation details
+- ✅ Created [MIGRATION_FINAL_STATUS.md](MIGRATION_FINAL_STATUS.md) with complete implementation details
 - ✅ Quality Score: 10/10 - Production Ready
 - ✅ All tests passing (trait + migration + performance)
 

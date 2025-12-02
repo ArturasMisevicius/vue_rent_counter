@@ -224,10 +224,10 @@ Create custom error views in `resources/views/errors/`:
 
 ## Related Documentation
 
-- **Architecture**: `docs/architecture/SERVICE_LAYER_ARCHITECTURE.md`
-- **Security**: `docs/security/SECURITY_IMPLEMENTATION_COMPLETE.md`
-- **Testing**: `docs/testing/README.md`
-- **Middleware**: `docs/middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md`
+- **Architecture**: [docs/architecture/SERVICE_LAYER_ARCHITECTURE.md](../architecture/SERVICE_LAYER_ARCHITECTURE.md)
+- **Security**: [docs/security/SECURITY_IMPLEMENTATION_COMPLETE.md](../security/SECURITY_IMPLEMENTATION_COMPLETE.md)
+- **Testing**: [docs/testing/README.md](../testing/README.md)
+- **Middleware**: [docs/middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md](../middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md)
 
 ## Contributing
 

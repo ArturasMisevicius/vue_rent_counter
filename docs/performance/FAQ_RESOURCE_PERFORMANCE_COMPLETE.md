@@ -393,8 +393,8 @@ php artisan test --filter=FaqResource
 ## Related Documentation
 
 ### Primary Documentation
-- [FAQ Resource Optimization Details](./FAQ_RESOURCE_OPTIMIZATION.md)
-- [FAQ Resource Optimization Summary](./FAQ_RESOURCE_OPTIMIZATION_SUMMARY.md)
+- [FAQ Resource Optimization Details](FAQ_RESOURCE_OPTIMIZATION.md)
+- [FAQ Resource Optimization Summary](FAQ_RESOURCE_OPTIMIZATION_SUMMARY.md)
 
 ### API Documentation
 - [FAQ Resource API Reference](../filament/FAQ_RESOURCE_API.md)
@@ -409,7 +409,7 @@ php artisan test --filter=FaqResource
 - [Batch 4 Verification Guide](../testing/BATCH_4_VERIFICATION_GUIDE.md)
 
 ### Specification
-- [Framework Upgrade Tasks](../../.kiro/specs/1-framework-upgrade/tasks.md)
+- [Framework Upgrade Tasks](../tasks/tasks.md)
 - [Namespace Consolidation Spec](../../.kiro/specs/6-filament-namespace-consolidation/)
 
 ---

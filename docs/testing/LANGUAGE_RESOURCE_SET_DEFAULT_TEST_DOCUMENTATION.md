@@ -449,15 +449,15 @@ php artisan test --filter=LanguageResourceSetDefaultTest::superadmin_can_set_lan
 - **Policy**: `app/Policies/LanguagePolicy.php`
 
 ### API Documentation
-- **API Reference**: `docs/filament/LANGUAGE_RESOURCE_SET_DEFAULT_API.md`
-- **Resource API**: `docs/filament/LANGUAGE_RESOURCE_API.md`
+- **API Reference**: [docs/filament/LANGUAGE_RESOURCE_SET_DEFAULT_API.md](../filament/LANGUAGE_RESOURCE_SET_DEFAULT_API.md)
+- **Resource API**: [docs/filament/LANGUAGE_RESOURCE_API.md](../filament/LANGUAGE_RESOURCE_API.md)
 
 ### Testing Documentation
 - **Quick Reference**: `docs/testing/LANGUAGE_RESOURCE_SET_DEFAULT_QUICK_REFERENCE.md`
-- **Summary**: `docs/testing/LANGUAGE_RESOURCE_SET_DEFAULT_SUMMARY.md`
+- **Summary**: [docs/testing/LANGUAGE_RESOURCE_SET_DEFAULT_SUMMARY.md](LANGUAGE_RESOURCE_SET_DEFAULT_SUMMARY.md)
 
 ### Specification Documentation
-- **Tasks**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+- **Tasks**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 - **Requirements**: `.kiro/specs/6-filament-namespace-consolidation/requirements.md`
 - **Design**: `.kiro/specs/6-filament-namespace-consolidation/design.md`
 

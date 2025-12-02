@@ -33,8 +33,8 @@ This guide documents the security hardening implementation for the GyvatukasCalc
    - `lang/ru/gyvatukas.php` - Russian validation messages
 
 6. **Documentation**
-   - `docs/security/GYVATUKAS_CALCULATOR_SECURITY_AUDIT.md` - Security audit report
-   - `docs/security/GYVATUKAS_SECURITY_IMPLEMENTATION.md` - This document
+   - [docs/security/GYVATUKAS_CALCULATOR_SECURITY_AUDIT.md](GYVATUKAS_CALCULATOR_SECURITY_AUDIT.md) - Security audit report
+   - [docs/security/GYVATUKAS_SECURITY_IMPLEMENTATION.md](GYVATUKAS_SECURITY_IMPLEMENTATION.md) - This document
 
 ---
 

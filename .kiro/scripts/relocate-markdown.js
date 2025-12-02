@@ -106,11 +106,42 @@ const resolveCategory = (relPath) => {
 };
 
 const computeTargetRel = (relPath) => {
+  const parts = relPath.split('/');
+  
+  // Keep root README.md at the root (project readme)
+  if (relPath.toLowerCase() === 'readme.md') {
+    return relPath;
+  }
+  
+  // If file is already in docs/ (either docs/<file> or docs/<category>/<file>), keep it there
+  if (parts[0] === 'docs' && parts.length >= 2) {
+    return relPath;
+  }
+  
   const category = resolveCategory(relPath);
-  return path.posix.join('docs', category, path.posix.basename(relPath));
+  const baseName = path.posix.basename(relPath);
+  
+  // For README.md files, preserve parent directory context to avoid collisions
+  if (baseName.toLowerCase() === 'readme.md') {
+    // If it's in a subdirectory (not root), include parent dir name
+    if (parts.length > 1) {
+      const parentDir = parts[parts.length - 2];
+      return path.posix.join('docs', category, `${parentDir}-readme.md`);
+    }
+  }
+  
+  return path.posix.join('docs', category, baseName);
 };
 
 const ensureDir = (dirPath) => {
+  // Skip if path points to an existing file (not a directory)
+  if (fs.existsSync(dirPath)) {
+    const stats = fs.statSync(dirPath);
+    if (stats.isFile()) {
+      console.warn(`Warning: Skipping mkdir for existing file: ${dirPath}`);
+      return;
+    }
+  }
   fs.mkdirSync(dirPath, { recursive: true });
 };
 
@@ -153,8 +184,36 @@ const baseNameToNew = movePlan.reduce((acc, { newRel }) => {
   return acc;
 }, new Map());
 
-const needsMove = movePlan.filter(({ oldRel, newRel }) => oldRel !== newRel);
+const needsMove = movePlan.filter(({ oldRel, newRel }) => {
+  // Normalize paths for case-insensitive comparison on Windows
+  return oldRel.toLowerCase() !== newRel.toLowerCase();
+});
+
+// Debug: log problematic files
+const problematic = needsMove.filter(item => 
+  item.oldRel.toLowerCase().includes('advanced_eloquent')
+);
+if (problematic.length > 0) {
+  console.log('DEBUG: Problematic files:');
+  problematic.forEach(item => {
+    console.log(`  OLD: ${item.oldRel}`);
+    console.log(`  NEW: ${item.newRel}`);
+    console.log(`  OLD ABS: ${item.oldAbs}`);
+    console.log(`  NEW ABS: ${item.newAbs}`);
+    console.log('');
+  });
+}
+
 for (const item of needsMove) {
+  // Skip if source doesn't exist (already moved) or destination already exists
+  if (!fs.existsSync(item.oldAbs)) {
+    continue;
+  }
+  if (fs.existsSync(item.newAbs)) {
+    console.log(`Skipped (already exists): ${item.newRel}`);
+    continue;
+  }
+  
   ensureDir(path.dirname(item.newAbs));
   fs.renameSync(item.oldAbs, item.newAbs);
   console.log(`Moved: ${item.oldRel} -> ${item.newRel}`);

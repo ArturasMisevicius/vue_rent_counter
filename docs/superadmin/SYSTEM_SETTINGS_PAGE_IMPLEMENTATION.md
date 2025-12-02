@@ -288,8 +288,8 @@ Helper method to update individual env values:
 ## Related Documentation
 
 - [Superadmin Dashboard Enhancement Spec](../../.kiro/specs/superadmin-dashboard-enhancement/)
-- [System Health Page Implementation](./SYSTEM_HEALTH_PAGE_IMPLEMENTATION.md)
-- [Platform Analytics Implementation](./PLATFORM_ANALYTICS_IMPLEMENTATION.md)
+- [System Health Page Implementation](SYSTEM_HEALTH_PAGE_IMPLEMENTATION.md)
+- [Platform Analytics Implementation](PLATFORM_ANALYTICS_IMPLEMENTATION.md)
 
 ## Requirements Validation
 

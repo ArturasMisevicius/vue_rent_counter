@@ -168,7 +168,7 @@ This follows the Filament 4 best practices and reduces import clutter.
 - [LanguageResource API Documentation](../filament/LANGUAGE_RESOURCE_API.md)
 - [Language Security Audit](../security/LANGUAGE_RESOURCE_SECURITY_AUDIT.md)
 - [Language Performance Optimization](../performance/LANGUAGE_RESOURCE_PERFORMANCE_OPTIMIZATION.md)
-- [Filament Namespace Consolidation Tasks](../../.kiro/specs/6-filament-namespace-consolidation/tasks.md)
+- [Filament Namespace Consolidation Tasks](../tasks/tasks.md)
 
 ---
 

@@ -637,8 +637,8 @@ php artisan test --filter=FaqResource
 
 - [FAQ Resource API Reference](../filament/FAQ_RESOURCE_API.md)
 - [Batch 4 Resources Migration](../upgrades/BATCH_4_RESOURCES_MIGRATION.md)
-- [Performance Optimization Guide](./README.md)
-- [Building Resource Optimization](./BUILDING_RESOURCE_OPTIMIZATION.md)
+- [Performance Optimization Guide](README.md)
+- [Building Resource Optimization](BUILDING_RESOURCE_OPTIMIZATION.md)
 
 ---
 

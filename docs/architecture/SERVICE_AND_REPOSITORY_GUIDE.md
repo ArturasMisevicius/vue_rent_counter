@@ -71,4 +71,4 @@ class InvoiceFinalizationService
 ```
 
 ## When to Document
-- Add a short note in this guide and link in `docs/reference/HOOKS_DOCUMENTATION_MAP.md` when a new repository/service is created for a feature.
+- Add a short note in this guide and link in [docs/reference/HOOKS_DOCUMENTATION_MAP.md](../reference/HOOKS_DOCUMENTATION_MAP.md) when a new repository/service is created for a feature.

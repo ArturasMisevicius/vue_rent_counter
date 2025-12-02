@@ -115,9 +115,9 @@ Consider removing form-level transformations in favor of model mutator only:
 
 ## Related Documentation
 
-- **Fix Documentation**: `docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md`
-- **Optimization Guide**: `docs/filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md`
-- **Refactoring Summary**: `docs/refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md`
+- **Fix Documentation**: [docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md](LANGUAGE_RESOURCE_FORM_FIX.md)
+- **Optimization Guide**: [docs/filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md](../filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md)
+- **Refactoring Summary**: [docs/refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md](../refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md)
 - **Model File**: `app/Models/Language.php`
 - **Resource File**: `app/Filament/Resources/LanguageResource.php`
 - **Test File**: `tests/Feature/Filament/LanguageResourceNavigationTest.php`
@@ -134,7 +134,7 @@ Consider removing form-level transformations in favor of model mutator only:
   - Added comprehensive inline documentation
   - **Note**: Form transformations are redundant with Language model mutator (future optimization)
   - **Files**: `app/Filament/Resources/LanguageResource.php`
-  - **Documentation**: `docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md`
+  - **Documentation**: [docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md](LANGUAGE_RESOURCE_FORM_FIX.md)
   - **Tests**: 7/8 passing (1 test issue unrelated to functionality)
 ```
 

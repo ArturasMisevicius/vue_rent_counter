@@ -638,8 +638,8 @@ git push origin main
 
 - **Controller Implementation**: `app/Http/Controllers/Admin/TariffController.php`
 - **Performance Tests**: `tests/Performance/TariffControllerPerformanceTest.php`
-- **API Reference**: `docs/api/TARIFF_CONTROLLER_API.md`
-- **Database Schema**: `docs/architecture/DATABASE_SCHEMA_AND_MIGRATION_GUIDE.md`
+- **API Reference**: [docs/api/TARIFF_CONTROLLER_API.md](../api/TARIFF_CONTROLLER_API.md)
+- **Database Schema**: [docs/architecture/DATABASE_SCHEMA_AND_MIGRATION_GUIDE.md](../architecture/DATABASE_SCHEMA_AND_MIGRATION_GUIDE.md)
 
 ---
 

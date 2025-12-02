@@ -180,8 +180,8 @@ php artisan test --filter=LanguageResourceNavigationTest
 
 ## Related Documentation
 
-- **Issue Tracking**: `LANGUAGE_RESOURCE_TEST_ISSUES.md`
-- **Tasks**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+- **Issue Tracking**: [LANGUAGE_RESOURCE_TEST_ISSUES.md](../misc/LANGUAGE_RESOURCE_TEST_ISSUES.md)
+- **Tasks**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 - **Resource File**: `app/Filament/Resources/LanguageResource.php`
 - **Test File**: `tests/Feature/Filament/LanguageResourceNavigationTest.php`
 
@@ -275,8 +275,8 @@ TextInput::make('code')
 
 - **Model Mutator**: `app/Models/Language.php` - `code()` Attribute
 - **Resource File**: `app/Filament/Resources/LanguageResource.php`
-- **Optimization Guide**: `docs/filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md`
-- **Refactoring Summary**: `docs/refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md`
+- **Optimization Guide**: [docs/filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md](../filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md)
+- **Refactoring Summary**: [docs/refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md](../refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md)
 - **Test File**: `tests/Feature/Filament/LanguageResourceNavigationTest.php`
 
 ## API Documentation

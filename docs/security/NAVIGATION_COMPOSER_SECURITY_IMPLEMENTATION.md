@@ -57,7 +57,7 @@
 ## Documentation Created
 
 ### 1. Security Audit Report
-**File**: `docs/security/NAVIGATION_COMPOSER_SECURITY_AUDIT.md`
+**File**: [docs/security/NAVIGATION_COMPOSER_SECURITY_AUDIT.md](NAVIGATION_COMPOSER_SECURITY_AUDIT.md)
 
 **Content**:
 - Executive summary
@@ -76,7 +76,7 @@
 ---
 
 ### 2. Security Testing Guide
-**File**: `docs/security/NAVIGATION_COMPOSER_SECURITY_TESTING.md`
+**File**: [docs/security/NAVIGATION_COMPOSER_SECURITY_TESTING.md](NAVIGATION_COMPOSER_SECURITY_TESTING.md)
 
 **Content**:
 - Automated security tests (7 test cases)
@@ -100,7 +100,7 @@
 ---
 
 ### 3. Executive Summary
-**File**: `docs/security/NAVIGATION_COMPOSER_SECURITY_SUMMARY.md`
+**File**: [docs/security/NAVIGATION_COMPOSER_SECURITY_SUMMARY.md](NAVIGATION_COMPOSER_SECURITY_SUMMARY.md)
 
 **Content**:
 - Overview and status
@@ -117,7 +117,7 @@
 ---
 
 ### 4. Implementation Summary
-**File**: `docs/security/NAVIGATION_COMPOSER_SECURITY_IMPLEMENTATION.md`
+**File**: [docs/security/NAVIGATION_COMPOSER_SECURITY_IMPLEMENTATION.md](NAVIGATION_COMPOSER_SECURITY_IMPLEMENTATION.md)
 
 **Content**: This document
 

@@ -6,7 +6,7 @@
 
 **Date**: 2025-11-28  
 **Task**: Toggle active status for LanguageResource  
-**Spec**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+**Spec**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 
 ## What Was Done
 
@@ -37,14 +37,14 @@ Created comprehensive test suite at `tests/Feature/Filament/LanguageResourceTogg
 
 Created three documentation files:
 
-1. **Full Verification Document** (`LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md`)
+1. **Full Verification Document** ([LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md](LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md))
    - Detailed implementation analysis
    - Code examples
    - Security features
    - User experience details
    - Manual testing checklist
 
-2. **Quick Reference Guide** (`LANGUAGE_RESOURCE_TOGGLE_ACTIVE_QUICK_REFERENCE.md`)
+2. **Quick Reference Guide** ([LANGUAGE_RESOURCE_TOGGLE_ACTIVE_QUICK_REFERENCE.md](LANGUAGE_RESOURCE_TOGGLE_ACTIVE_QUICK_REFERENCE.md))
    - At-a-glance feature summary
    - Quick action reference
    - Visual indicators table
@@ -134,13 +134,13 @@ This follows the Filament 4 best practice of using consolidated namespaces inste
 ## Files Created
 
 1. `tests/Feature/Filament/LanguageResourceToggleActiveTest.php` - Test suite (16 tests)
-2. `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md` - Full verification
-3. `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_QUICK_REFERENCE.md` - Quick reference
-4. `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_SUMMARY.md` - This summary
+2. [docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md](LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md) - Full verification
+3. [docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_QUICK_REFERENCE.md](LANGUAGE_RESOURCE_TOGGLE_ACTIVE_QUICK_REFERENCE.md) - Quick reference
+4. [docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_SUMMARY.md](LANGUAGE_RESOURCE_TOGGLE_ACTIVE_SUMMARY.md) - This summary
 
 ## Files Modified
 
-1. `.kiro/specs/6-filament-namespace-consolidation/tasks.md` - Updated task status to complete
+1. [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md) - Updated task status to complete
 
 ## Test Results
 
@@ -152,7 +152,7 @@ This follows the Filament 4 best practice of using consolidated namespaces inste
 
 ## Manual Testing
 
-The functionality is ready for manual testing. Follow the checklist in `LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md`:
+The functionality is ready for manual testing. Follow the checklist in [LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md](LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md):
 
 1. Navigate to `/admin/languages` as superadmin
 2. Test individual toggle on non-default languages

@@ -248,7 +248,7 @@ For each script, create:
 
 ### Project Documentation
 
-- [Namespace Consolidation Tasks](../.kiro/specs/6-filament-namespace-consolidation/tasks.md)
+- [Namespace Consolidation Tasks](../tasks/tasks.md)
 - [Namespace Consolidation Assessment](../filament/NAMESPACE_CONSOLIDATION_ASSESSMENT.md)
 - [Filament 4 Migration Guide](../upgrades/FILAMENT_V4_MIGRATION.md)
 

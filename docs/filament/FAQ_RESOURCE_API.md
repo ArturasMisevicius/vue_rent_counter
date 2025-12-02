@@ -639,7 +639,7 @@ test('display order sorting works')
 - [Batch 4 Resources Migration](../upgrades/BATCH_4_RESOURCES_MIGRATION.md)
 - [Batch 4 Verification Guide](../testing/BATCH_4_VERIFICATION_GUIDE.md)
 - [Laravel 12 + Filament 4 Upgrade](../upgrades/LARAVEL_12_FILAMENT_4_UPGRADE.md)
-- [Filament V4 Compatibility Guide](./FILAMENT_V4_COMPATIBILITY_GUIDE.md)
+- [Filament V4 Compatibility Guide](FILAMENT_V4_COMPATIBILITY_GUIDE.md)
 
 ---
 

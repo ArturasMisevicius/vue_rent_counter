@@ -6,7 +6,7 @@ This document verifies that the LanguageResource navigation functionality works 
 
 **Date**: 2025-11-28  
 **Status**: ✅ COMPLETE  
-**Spec**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+**Spec**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 
 ---
 
@@ -209,7 +209,7 @@ php -l app/Filament/Resources/LanguageResource.php
 - **Spec**: `.kiro/specs/6-filament-namespace-consolidation/`
 - **Requirements**: `.kiro/specs/6-filament-namespace-consolidation/requirements.md`
 - **Design**: `.kiro/specs/6-filament-namespace-consolidation/design.md`
-- **Tasks**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+- **Tasks**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 - **Verification Script**: `verify-batch4-resources.php`
 
 ---

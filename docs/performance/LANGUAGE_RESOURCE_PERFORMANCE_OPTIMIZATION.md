@@ -419,7 +419,7 @@ php artisan tinker --execute="Language::getActiveLanguages(); Language::getDefau
 - **Resource**: `app/Filament/Resources/LanguageResource.php`
 - **Migration**: `database/migrations/2025_11_28_182012_add_performance_indexes_to_languages_table.php`
 - **Tests**: `tests/Performance/LanguageResourcePerformanceTest.php`
-- **API Documentation**: `docs/filament/LANGUAGE_RESOURCE_API.md`
+- **API Documentation**: [docs/filament/LANGUAGE_RESOURCE_API.md](../filament/LANGUAGE_RESOURCE_API.md)
 
 ---
 

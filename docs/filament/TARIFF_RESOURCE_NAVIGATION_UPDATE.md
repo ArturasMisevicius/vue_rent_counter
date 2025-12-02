@@ -77,9 +77,9 @@ Created comprehensive test suite covering:
 
 ### 4. Documentation Updates
 
-- Updated `.kiro/specs/4-filament-admin-panel/tasks.md` to reflect completion
+- Updated [.kiro/specs/4-filament-admin-panel/tasks.md](../tasks/tasks.md) to reflect completion
 - Enhanced this documentation file with code-level documentation details
-- Existing `docs/filament/role-based-navigation-visibility.md` already documents the pattern
+- Existing [docs/filament/role-based-navigation-visibility.md](role-based-navigation-visibility.md) already documents the pattern
 - Added cross-references to related classes and tests
 
 ## Requirements Addressed
@@ -117,8 +117,8 @@ Expected results:
 - `app/Filament/Resources/TariffResource.php` - Updated navigation visibility
 - `app/Filament/Resources/ProviderResource.php` - Reference implementation
 - `tests/Feature/Filament/FilamentNavigationVisibilityTest.php` - New test suite
-- `docs/filament/role-based-navigation-visibility.md` - Existing documentation
-- `.kiro/specs/4-filament-admin-panel/tasks.md` - Task tracking
+- [docs/filament/role-based-navigation-visibility.md](role-based-navigation-visibility.md) - Existing documentation
+- [.kiro/specs/4-filament-admin-panel/tasks.md](../tasks/tasks.md) - Task tracking
 
 ## Security Considerations
 

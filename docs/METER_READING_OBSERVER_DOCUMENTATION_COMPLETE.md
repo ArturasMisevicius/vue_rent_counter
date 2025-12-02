@@ -32,7 +32,7 @@ Comprehensive documentation suite created for the `MeterReadingObserver` draft i
 
 ### 2. Test Coverage Documentation ✅
 
-**File**: `docs/testing/METER_READING_OBSERVER_TEST_COVERAGE.md`
+**File**: [docs/testing/METER_READING_OBSERVER_TEST_COVERAGE.md](testing/METER_READING_OBSERVER_TEST_COVERAGE.md)
 
 **Contents**:
 - Overview and test suite summary table
@@ -59,7 +59,7 @@ Comprehensive documentation suite created for the `MeterReadingObserver` draft i
 
 ### 3. Quick Reference Guide ✅
 
-**File**: `docs/testing/METER_READING_OBSERVER_TEST_QUICK_REFERENCE.md`
+**File**: [docs/testing/METER_READING_OBSERVER_TEST_QUICK_REFERENCE.md](testing/METER_READING_OBSERVER_TEST_QUICK_REFERENCE.md)
 
 **Contents**:
 - Quick test summary table
@@ -77,7 +77,7 @@ Comprehensive documentation suite created for the `MeterReadingObserver` draft i
 
 ### 4. Test Summary ✅
 
-**File**: `docs/testing/METER_READING_OBSERVER_TEST_SUMMARY.md`
+**File**: [docs/testing/METER_READING_OBSERVER_TEST_SUMMARY.md](testing/METER_READING_OBSERVER_TEST_SUMMARY.md)
 
 **Contents**:
 - Executive summary with quick stats
@@ -98,7 +98,7 @@ Comprehensive documentation suite created for the `MeterReadingObserver` draft i
 
 ### 5. API Reference ✅
 
-**File**: `docs/api/METER_READING_OBSERVER_API.md`
+**File**: [docs/api/METER_READING_OBSERVER_API.md](api/METER_READING_OBSERVER_API.md)
 
 **Contents**:
 - Observer events documentation (`updating`, `updated`)
@@ -120,7 +120,7 @@ Comprehensive documentation suite created for the `MeterReadingObserver` draft i
 ### 6. Updated Existing Documentation ✅
 
 #### Testing README
-**File**: `docs/testing/README.md`
+**File**: [docs/testing/README.md](testing/README.md)
 
 **Changes**:
 - ✅ Added MeterReadingObserver to test coverage reports section
@@ -128,7 +128,7 @@ Comprehensive documentation suite created for the `MeterReadingObserver` draft i
 - ✅ Organized test coverage by category (Filament, Billing, View Layer)
 
 #### Implementation Documentation
-**File**: `docs/implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md`
+**File**: [docs/implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md](implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md)
 
 **Changes**:
 - ✅ Added test coverage section with links to test docs
@@ -137,7 +137,7 @@ Comprehensive documentation suite created for the `MeterReadingObserver` draft i
 - ✅ Added cross-references to test documentation
 
 #### Tasks Specification
-**File**: `.kiro/specs/2-vilnius-utilities-billing/tasks.md`
+**File**: [.kiro/specs/2-vilnius-utilities-billing/tasks.md](tasks/tasks.md)
 
 **Changes**:
 - ✅ Expanded task 11 documentation section
@@ -146,7 +146,7 @@ Comprehensive documentation suite created for the `MeterReadingObserver` draft i
 - ✅ Updated completion status
 
 #### API Architecture Guide
-**File**: `docs/api/API_ARCHITECTURE_GUIDE.md`
+**File**: [docs/api/API_ARCHITECTURE_GUIDE.md](api/API_ARCHITECTURE_GUIDE.md)
 
 **Changes**:
 - ✅ Added "Related API Documentation" section
@@ -397,18 +397,18 @@ XDEBUG_MODE=coverage php artisan test --filter=MeterReadingObserverDraftInvoiceT
 ## Files Created/Modified
 
 ### Created (5 files)
-1. `docs/testing/METER_READING_OBSERVER_TEST_COVERAGE.md`
-2. `docs/testing/METER_READING_OBSERVER_TEST_QUICK_REFERENCE.md`
-3. `docs/testing/METER_READING_OBSERVER_TEST_SUMMARY.md`
-4. `docs/api/METER_READING_OBSERVER_API.md`
-5. `docs/METER_READING_OBSERVER_DOCUMENTATION_COMPLETE.md`
+1. [docs/testing/METER_READING_OBSERVER_TEST_COVERAGE.md](testing/METER_READING_OBSERVER_TEST_COVERAGE.md)
+2. [docs/testing/METER_READING_OBSERVER_TEST_QUICK_REFERENCE.md](testing/METER_READING_OBSERVER_TEST_QUICK_REFERENCE.md)
+3. [docs/testing/METER_READING_OBSERVER_TEST_SUMMARY.md](testing/METER_READING_OBSERVER_TEST_SUMMARY.md)
+4. [docs/api/METER_READING_OBSERVER_API.md](api/METER_READING_OBSERVER_API.md)
+5. [docs/METER_READING_OBSERVER_DOCUMENTATION_COMPLETE.md](METER_READING_OBSERVER_DOCUMENTATION_COMPLETE.md)
 
 ### Modified (4 files)
 1. `tests/Unit/MeterReadingObserverDraftInvoiceTest.php` (added DocBlocks)
-2. `docs/testing/README.md` (added coverage section)
-3. `docs/implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md` (added test section)
-4. `.kiro/specs/2-vilnius-utilities-billing/tasks.md` (expanded task 11)
-5. `docs/api/API_ARCHITECTURE_GUIDE.md` (added related APIs section)
+2. [docs/testing/README.md](testing/README.md) (added coverage section)
+3. [docs/implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md](implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md) (added test section)
+4. [.kiro/specs/2-vilnius-utilities-billing/tasks.md](tasks/tasks.md) (expanded task 11)
+5. [docs/api/API_ARCHITECTURE_GUIDE.md](api/API_ARCHITECTURE_GUIDE.md) (added related APIs section)
 
 ---
 

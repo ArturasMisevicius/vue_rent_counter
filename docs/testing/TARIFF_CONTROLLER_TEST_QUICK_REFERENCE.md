@@ -233,11 +233,11 @@ Tariff::select(['id', 'name', 'provider_id'])->get();
 
 ## Related Documentation
 
-- **Implementation**: `docs/controllers/TARIFF_CONTROLLER_COMPLETE.md`
-- **API Reference**: `docs/api/TARIFF_CONTROLLER_API.md`
-- **Performance**: `docs/performance/TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md`
-- **Refactoring**: `docs/testing/TARIFF_CONTROLLER_TEST_REFACTORING.md`
-- **Specification**: `.kiro/specs/2-vilnius-utilities-billing/tasks.md` (Task 14)
+- **Implementation**: [docs/controllers/TARIFF_CONTROLLER_COMPLETE.md](../controllers/TARIFF_CONTROLLER_COMPLETE.md)
+- **API Reference**: [docs/api/TARIFF_CONTROLLER_API.md](../api/TARIFF_CONTROLLER_API.md)
+- **Performance**: [docs/performance/TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md](../performance/TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md)
+- **Refactoring**: [docs/testing/TARIFF_CONTROLLER_TEST_REFACTORING.md](TARIFF_CONTROLLER_TEST_REFACTORING.md)
+- **Specification**: [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) (Task 14)
 
 ## Change Log
 

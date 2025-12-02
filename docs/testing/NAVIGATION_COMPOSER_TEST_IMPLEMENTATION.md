@@ -258,11 +258,11 @@ Duration: 3.42s
 - ✅ `tests/Unit/NavigationComposerTest.php` - Comprehensive test suite (15 tests)
 
 ### Documentation Files
-- ✅ `docs/testing/NAVIGATION_COMPOSER_TEST_COVERAGE.md` - Coverage report
-- ✅ `docs/testing/NAVIGATION_COMPOSER_TEST_IMPLEMENTATION.md` - This document
+- ✅ [docs/testing/NAVIGATION_COMPOSER_TEST_COVERAGE.md](NAVIGATION_COMPOSER_TEST_COVERAGE.md) - Coverage report
+- ✅ [docs/testing/NAVIGATION_COMPOSER_TEST_IMPLEMENTATION.md](NAVIGATION_COMPOSER_TEST_IMPLEMENTATION.md) - This document
 
 ### Updated Files
-- ✅ `.kiro/specs/1-framework-upgrade/tasks.md` - Updated task 6 status
+- ✅ [.kiro/specs/1-framework-upgrade/tasks.md](../tasks/tasks.md) - Updated task 6 status
 
 ---
 

@@ -147,8 +147,8 @@ Tables\Actions\BulkActionGroup::make()
 
 ### Manual Testing
 - 📋 **Status**: DOCUMENTED - Ready for execution
-- 📋 **Test Guide**: `docs/testing/FAQ_ADMIN_MANUAL_TEST.md` (TC-7)
-- 📋 **Quick Reference**: `docs/testing/FAQ_DELETE_TEST_SUMMARY.md`
+- 📋 **Test Guide**: [docs/testing/FAQ_ADMIN_MANUAL_TEST.md](FAQ_ADMIN_MANUAL_TEST.md) (TC-7)
+- 📋 **Quick Reference**: [docs/testing/FAQ_DELETE_TEST_SUMMARY.md](FAQ_DELETE_TEST_SUMMARY.md)
 - 📋 **Tester**: Awaiting manual test execution
 
 ### Test Coverage

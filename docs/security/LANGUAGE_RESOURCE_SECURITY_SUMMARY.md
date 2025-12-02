@@ -89,7 +89,7 @@ All security controls are properly implemented and functioning.
 ## Deliverables Completed
 
 ### ✅ 1. Security Audit Report
-- **File**: `docs/security/LANGUAGE_RESOURCE_SECURITY_AUDIT.md`
+- **File**: [docs/security/LANGUAGE_RESOURCE_SECURITY_AUDIT.md](LANGUAGE_RESOURCE_SECURITY_AUDIT.md)
 - **Content**: Comprehensive 19-section audit with findings, fixes, and recommendations
 - **Status**: Complete
 
@@ -110,7 +110,7 @@ All security controls are properly implemented and functioning.
 - **Status**: Complete
 
 ### ✅ 5. Security Summary
-- **File**: `docs/security/LANGUAGE_RESOURCE_SECURITY_SUMMARY.md` (this file)
+- **File**: [docs/security/LANGUAGE_RESOURCE_SECURITY_SUMMARY.md](LANGUAGE_RESOURCE_SECURITY_SUMMARY.md) (this file)
 - **Status**: Complete
 
 ---

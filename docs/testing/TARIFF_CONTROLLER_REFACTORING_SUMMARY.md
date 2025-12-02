@@ -109,14 +109,14 @@ Fixed multiple test failures:
 
 ### Created
 - ✅ `tests/Performance/TariffControllerPerformanceTest.php` (7 tests)
-- ✅ `docs/testing/TARIFF_CONTROLLER_TEST_REFACTORING.md` (detailed report)
-- ✅ `docs/testing/TARIFF_CONTROLLER_TEST_QUICK_REFERENCE.md` (quick guide)
-- ✅ `docs/testing/TARIFF_CONTROLLER_REFACTORING_SUMMARY.md` (this file)
+- ✅ [docs/testing/TARIFF_CONTROLLER_TEST_REFACTORING.md](TARIFF_CONTROLLER_TEST_REFACTORING.md) (detailed report)
+- ✅ [docs/testing/TARIFF_CONTROLLER_TEST_QUICK_REFERENCE.md](TARIFF_CONTROLLER_TEST_QUICK_REFERENCE.md) (quick guide)
+- ✅ [docs/testing/TARIFF_CONTROLLER_REFACTORING_SUMMARY.md](TARIFF_CONTROLLER_REFACTORING_SUMMARY.md) (this file)
 
 ### Modified
 - ✅ `tests/Feature/Http/Controllers/Admin/TariffControllerTest.php` (enhanced)
 - ✅ `app/Http/Controllers/Admin/TariffController.php` (documentation)
-- ✅ `.kiro/specs/2-vilnius-utilities-billing/tasks.md` (updated Task 14)
+- ✅ [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) (updated Task 14)
 
 ## Requirements Coverage
 
@@ -176,7 +176,7 @@ Tests run in CI/CD only and don't affect production systems.
 
 ### Immediate
 1. ✅ Run full test suite to verify no regressions
-2. ✅ Update task tracking in `.kiro/specs/2-vilnius-utilities-billing/tasks.md`
+2. ✅ Update task tracking in [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md)
 3. ✅ Document changes in this summary
 
 ### Future Enhancements
@@ -213,12 +213,12 @@ This refactoring transformed a good test suite into an excellent one by:
 
 ## Related Documentation
 
-- **Detailed Report**: `docs/testing/TARIFF_CONTROLLER_TEST_REFACTORING.md`
-- **Quick Reference**: `docs/testing/TARIFF_CONTROLLER_TEST_QUICK_REFERENCE.md`
-- **Implementation**: `docs/controllers/TARIFF_CONTROLLER_COMPLETE.md`
-- **API Reference**: `docs/api/TARIFF_CONTROLLER_API.md`
-- **Performance**: `docs/performance/TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md`
-- **Specification**: `.kiro/specs/2-vilnius-utilities-billing/tasks.md` (Task 14)
+- **Detailed Report**: [docs/testing/TARIFF_CONTROLLER_TEST_REFACTORING.md](TARIFF_CONTROLLER_TEST_REFACTORING.md)
+- **Quick Reference**: [docs/testing/TARIFF_CONTROLLER_TEST_QUICK_REFERENCE.md](TARIFF_CONTROLLER_TEST_QUICK_REFERENCE.md)
+- **Implementation**: [docs/controllers/TARIFF_CONTROLLER_COMPLETE.md](../controllers/TARIFF_CONTROLLER_COMPLETE.md)
+- **API Reference**: [docs/api/TARIFF_CONTROLLER_API.md](../api/TARIFF_CONTROLLER_API.md)
+- **Performance**: [docs/performance/TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md](../performance/TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md)
+- **Specification**: [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) (Task 14)
 
 ## Sign-off
 

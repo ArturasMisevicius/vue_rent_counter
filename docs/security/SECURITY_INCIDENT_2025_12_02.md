@@ -284,7 +284,7 @@ php artisan test --filter=PanelAccessAuthorizationTest
 ### New Files
 
 - `tests/Feature/Security/PanelAccessAuthorizationTest.php` - Security test suite
-- `docs/security/SECURITY_INCIDENT_2025_12_02.md` - This document
+- [docs/security/SECURITY_INCIDENT_2025_12_02.md](SECURITY_INCIDENT_2025_12_02.md) - This document
 
 ### Related Files
 

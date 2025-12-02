@@ -236,11 +236,11 @@ Comprehensive refactoring of `app/Console/Commands/CalculateSummerAverageCommand
 - `tests/Unit/ValueObjects/SummerPeriodTest.php`
 - `tests/Unit/ValueObjects/CalculationResultTest.php`
 - `tests/Unit/Services/GyvatukasSummerAverageServiceTest.php`
-- `docs/refactoring/CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md`
-- `docs/commands/CALCULATE_SUMMER_AVERAGE_COMMAND.md`
-- `docs/services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md`
-- `docs/value-objects/SUMMER_PERIOD.md`
-- `docs/value-objects/CALCULATION_RESULT.md`
+- [docs/refactoring/CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md](CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md)
+- [docs/commands/CALCULATE_SUMMER_AVERAGE_COMMAND.md](../commands/CALCULATE_SUMMER_AVERAGE_COMMAND.md)
+- [docs/services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md](../services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md)
+- [docs/value-objects/SUMMER_PERIOD.md](../value-objects/SUMMER_PERIOD.md)
+- [docs/value-objects/CALCULATION_RESULT.md](../value-objects/CALCULATION_RESULT.md)
 
 ### Modified
 - `app/Console/Commands/CalculateSummerAverageCommand.php`

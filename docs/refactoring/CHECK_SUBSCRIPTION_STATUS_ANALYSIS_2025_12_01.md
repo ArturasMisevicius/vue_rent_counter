@@ -239,7 +239,7 @@ test('subscription check does not block critical operations', function () {
 
 ## Documentation Updates Needed
 
-1. Update `docs/middleware/README.md` with subscription bypass logic
+1. Update [docs/middleware/README.md](../middleware/README.md) with subscription bypass logic
 2. Document error handling strategy
 3. Add troubleshooting guide for subscription issues
 4. Update API documentation if subscription affects API routes
@@ -249,8 +249,8 @@ test('subscription check does not block critical operations', function () {
 - `app/Http/Middleware/CheckSubscriptionStatus.php` - Main middleware
 - `app/Services/SubscriptionChecker.php` - Subscription service (verify exists)
 - `tests/Feature/Middleware/CheckSubscriptionStatusTest.php` - Test suite
-- `docs/refactoring/CHECK_SUBSCRIPTION_STATUS_REFACTORING.md` - Previous refactoring
-- `docs/fixes/CRITICAL_AUTH_FIX_2025_12_01.md` - Related auth fixes
+- [docs/refactoring/CHECK_SUBSCRIPTION_STATUS_REFACTORING.md](CHECK_SUBSCRIPTION_STATUS_REFACTORING.md) - Previous refactoring
+- [docs/fixes/CRITICAL_AUTH_FIX_2025_12_01.md](../fixes/CRITICAL_AUTH_FIX_2025_12_01.md) - Related auth fixes
 
 ## Next Steps
 

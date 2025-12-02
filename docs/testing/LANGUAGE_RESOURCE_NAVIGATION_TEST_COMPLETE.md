@@ -363,20 +363,20 @@ Tables\Filters\TernaryFilter::make('is_active')
 
 ### Testing Documentation
 
-- [Language Resource Navigation Verification](./LANGUAGE_RESOURCE_NAVIGATION_VERIFICATION.md)
-- [Language Resource Test Issues](../../LANGUAGE_RESOURCE_TEST_ISSUES.md)
-- [Language Resource Navigation Complete](../../LANGUAGE_RESOURCE_NAVIGATION_COMPLETE.md)
-- [Testing Guide](./README.md)
+- [Language Resource Navigation Verification](LANGUAGE_RESOURCE_NAVIGATION_VERIFICATION.md)
+- [Language Resource Test Issues](../misc/LANGUAGE_RESOURCE_TEST_ISSUES.md)
+- [Language Resource Navigation Complete](../misc/LANGUAGE_RESOURCE_NAVIGATION_COMPLETE.md)
+- [Testing Guide](README.md)
 
 ### Migration Documentation
 
 - [Filament Namespace Consolidation Guide](../upgrades/FILAMENT_NAMESPACE_CONSOLIDATION.md)
-- [Batch 4 Verification Guide](./BATCH_4_VERIFICATION_GUIDE.md)
+- [Batch 4 Verification Guide](BATCH_4_VERIFICATION_GUIDE.md)
 
 ### Spec Documentation
 
 - [Filament Namespace Consolidation Spec](.kiro/specs/6-filament-namespace-consolidation/)
-- [Tasks](../../.kiro/specs/6-filament-namespace-consolidation/tasks.md)
+- [Tasks](../tasks/tasks.md)
 
 ---
 

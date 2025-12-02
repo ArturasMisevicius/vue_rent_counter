@@ -432,14 +432,14 @@ Before creating a migration:
 - [ ] Test rollback locally
 - [ ] Verify index improves query performance
 - [ ] Document in migration comments
-- [ ] Update `docs/database/COMPREHENSIVE_SCHEMA_ANALYSIS.md`
+- [ ] Update [docs/database/COMPREHENSIVE_SCHEMA_ANALYSIS.md](COMPREHENSIVE_SCHEMA_ANALYSIS.md)
 
 ---
 
 ## Related Documentation
 
-- [COMPREHENSIVE_SCHEMA_ANALYSIS.md](./COMPREHENSIVE_SCHEMA_ANALYSIS.md) - Full schema analysis
-- [OPTIMIZATION_CHECKLIST.md](./OPTIMIZATION_CHECKLIST.md) - Performance optimization
+- [COMPREHENSIVE_SCHEMA_ANALYSIS.md](COMPREHENSIVE_SCHEMA_ANALYSIS.md) - Full schema analysis
+- [OPTIMIZATION_CHECKLIST.md](OPTIMIZATION_CHECKLIST.md) - Performance optimization
 - [DATABASE_QUERY_OPTIMIZATION_GUIDE.md](../performance/DATABASE_QUERY_OPTIMIZATION_GUIDE.md) - Query optimization
 - [SLOW_QUERY_EXAMPLE.md](../performance/SLOW_QUERY_EXAMPLE.md) - Real-world examples
 

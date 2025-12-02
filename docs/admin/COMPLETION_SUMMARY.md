@@ -146,10 +146,10 @@ Response (200 OK)
 3. `resources/views/filament/pages/dashboard.blade.php`
 4. `tests/Feature/Filament/AdminDashboardTest.php`
 5. `tests/Feature/Filament/AdminResourceAccessTest.php`
-6. `docs/admin/ADMIN_PANEL_GUIDE.md`
-7. `docs/admin/ADMIN_PANEL_TESTING.md`
-8. `docs/admin/QUICK_START.md`
-9. `docs/admin/README.md`
+6. [docs/admin/ADMIN_PANEL_GUIDE.md](ADMIN_PANEL_GUIDE.md)
+7. [docs/admin/ADMIN_PANEL_TESTING.md](ADMIN_PANEL_TESTING.md)
+8. [docs/admin/QUICK_START.md](QUICK_START.md)
+9. [docs/admin/README.md](../overview/readme.md)
 
 ### Files Modified (3)
 

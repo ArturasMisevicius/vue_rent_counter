@@ -139,15 +139,15 @@ XDEBUG_MODE=coverage php artisan test --filter=MeterReadingObserverDraftInvoiceT
 ## Documentation
 
 ### Available Docs
-- **Test Coverage**: `docs/testing/METER_READING_OBSERVER_TEST_COVERAGE.md`
-- **Quick Reference**: `docs/testing/METER_READING_OBSERVER_TEST_QUICK_REFERENCE.md`
-- **Implementation**: `docs/implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md`
-- **Observer Guide**: `docs/implementation/METER_READING_OBSERVER_IMPLEMENTATION.md`
+- **Test Coverage**: [docs/testing/METER_READING_OBSERVER_TEST_COVERAGE.md](METER_READING_OBSERVER_TEST_COVERAGE.md)
+- **Quick Reference**: [docs/testing/METER_READING_OBSERVER_TEST_QUICK_REFERENCE.md](METER_READING_OBSERVER_TEST_QUICK_REFERENCE.md)
+- **Implementation**: [docs/implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md](../implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md)
+- **Observer Guide**: [docs/implementation/METER_READING_OBSERVER_IMPLEMENTATION.md](../implementation/METER_READING_OBSERVER_IMPLEMENTATION.md)
 
 ### Specification
 - **Requirements**: `.kiro/specs/2-vilnius-utilities-billing/requirements.md` (Req 8.3)
 - **Design**: `.kiro/specs/2-vilnius-utilities-billing/design.md` (Property 18)
-- **Tasks**: `.kiro/specs/2-vilnius-utilities-billing/tasks.md` (Task 11)
+- **Tasks**: [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) (Task 11)
 
 ## Quality Metrics
 

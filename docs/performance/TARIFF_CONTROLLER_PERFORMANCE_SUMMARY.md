@@ -191,10 +191,10 @@ DB::listen(function ($query) {
 
 ## Related Documentation
 
-- **Full Analysis**: `docs/performance/TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md`
+- **Full Analysis**: [docs/performance/TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md](TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md)
 - **Controller**: `app/Http/Controllers/Admin/TariffController.php`
 - **Tests**: `tests/Performance/TariffControllerPerformanceTest.php`
-- **API Reference**: `docs/api/TARIFF_CONTROLLER_API.md`
+- **API Reference**: [docs/api/TARIFF_CONTROLLER_API.md](../api/TARIFF_CONTROLLER_API.md)
 
 ---
 

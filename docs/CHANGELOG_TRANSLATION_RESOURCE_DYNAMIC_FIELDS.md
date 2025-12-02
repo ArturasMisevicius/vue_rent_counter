@@ -52,7 +52,7 @@ Implementation of comprehensive test suite for TranslationResource dynamic langu
 ### Documentation Created
 
 #### API Documentation
-- **File**: `docs/filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md`
+- **File**: [docs/filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md](filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md)
 - **Content**:
   - Architecture overview with component hierarchy
   - Data flow diagrams
@@ -66,7 +66,7 @@ Implementation of comprehensive test suite for TranslationResource dynamic langu
   - Related documentation links
 
 #### Test Summary
-- **File**: `docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md`
+- **File**: [docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md](testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md)
 - **Updates**:
   - Added implementation context
   - Documented technical implementation details
@@ -76,7 +76,7 @@ Implementation of comprehensive test suite for TranslationResource dynamic langu
   - Updated completion date
 
 #### Quick Reference Guide
-- **File**: `docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_QUICK_REFERENCE.md`
+- **File**: [docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_QUICK_REFERENCE.md](testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_QUICK_REFERENCE.md)
 - **Content**:
   - Test suite overview
   - Running tests commands
@@ -89,7 +89,7 @@ Implementation of comprehensive test suite for TranslationResource dynamic langu
   - Quick commands
 
 #### Testing README Update
-- **File**: `docs/testing/README.md`
+- **File**: [docs/testing/README.md](testing/README.md)
 - **Changes**:
   - Added Filament Resource Testing section
   - Included TranslationResource tests entry
@@ -370,8 +370,8 @@ php artisan test --filter=TranslationResourceDynamicFieldsTest --coverage
 ### Troubleshooting
 
 See comprehensive troubleshooting guide in:
-- `docs/filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md`
-- `docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_QUICK_REFERENCE.md`
+- [docs/filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md](filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md)
+- [docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_QUICK_REFERENCE.md](testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_QUICK_REFERENCE.md)
 
 ## Contributors
 
@@ -382,10 +382,10 @@ See comprehensive troubleshooting guide in:
 ## References
 
 ### Documentation Files
-- `docs/filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md`
-- `docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md`
-- `docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_QUICK_REFERENCE.md`
-- `docs/testing/README.md`
+- [docs/filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md](filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md)
+- [docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md](testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md)
+- [docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_QUICK_REFERENCE.md](testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_QUICK_REFERENCE.md)
+- [docs/testing/README.md](testing/README.md)
 
 ### Implementation Files
 - `tests/Feature/Filament/TranslationResourceDynamicFieldsTest.php`
@@ -394,8 +394,8 @@ See comprehensive troubleshooting guide in:
 - `app/Models/Translation.php`
 
 ### Specification Files
-- `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
-- `.kiro/specs/6-filament-namespace-consolidation/README.md`
+- [.kiro/specs/6-filament-namespace-consolidation/tasks.md](tasks/tasks.md)
+- [.kiro/specs/6-filament-namespace-consolidation/README.md](overview/readme.md)
 
 ## Conclusion
 

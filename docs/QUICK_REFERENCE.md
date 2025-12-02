@@ -421,9 +421,9 @@ $thread = $model->topLevelComments()
 
 ## 📖 Full Documentation
 
-- Usage Examples: `docs/examples/ADVANCED_RELATIONSHIPS_USAGE.md`
-- Testing Guide: `docs/examples/ADVANCED_RELATIONSHIPS_TESTING.md`
+- Usage Examples: [docs/examples/ADVANCED_RELATIONSHIPS_USAGE.md](examples/ADVANCED_RELATIONSHIPS_USAGE.md)
+- Testing Guide: [docs/examples/ADVANCED_RELATIONSHIPS_TESTING.md](examples/ADVANCED_RELATIONSHIPS_TESTING.md)
 - Complete Example: `docs/examples/COMPLETE_INTEGRATION_EXAMPLE.php`
-- Implementation Checklist: `docs/IMPLEMENTATION_CHECKLIST.md`
-- Summary: `docs/ADVANCED_RELATIONSHIPS_SUMMARY.md`
+- Implementation Checklist: [docs/IMPLEMENTATION_CHECKLIST.md](IMPLEMENTATION_CHECKLIST.md)
+- Summary: [docs/ADVANCED_RELATIONSHIPS_SUMMARY.md](ADVANCED_RELATIONSHIPS_SUMMARY.md)
 

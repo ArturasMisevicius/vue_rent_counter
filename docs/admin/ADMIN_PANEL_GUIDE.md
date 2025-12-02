@@ -411,9 +411,9 @@ All data is automatically scoped to your tenant (organization):
 ## Support
 
 ### Documentation
-- Frontend Guide: `docs/frontend/FRONTEND.md`
-- Routes Documentation: `docs/routes/ROUTES_IMPLEMENTATION_COMPLETE.md`
-- Testing Guide: `docs/tests/TESTING_GUIDE.md`
+- Frontend Guide: [docs/frontend/FRONTEND.md](../frontend/FRONTEND.md)
+- Routes Documentation: [docs/routes/ROUTES_IMPLEMENTATION_COMPLETE.md](../routes/ROUTES_IMPLEMENTATION_COMPLETE.md)
+- Testing Guide: [docs/tests/TESTING_GUIDE.md](../guides/TESTING_GUIDE.md)
 
 ### Common Commands
 ```bash

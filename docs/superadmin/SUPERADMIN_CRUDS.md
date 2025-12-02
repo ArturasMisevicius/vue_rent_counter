@@ -104,7 +104,7 @@ This document provides a summary of the comprehensive superadmin dashboard enhan
 
 ### To Start Implementation
 
-1. **Open the tasks file**: `.kiro/specs/superadmin-dashboard-enhancement/tasks.md`
+1. **Open the tasks file**: [.kiro/specs/superadmin-dashboard-enhancement/tasks.md](../tasks/tasks.md)
 2. **Click "Start task"** next to the first task you want to implement
 3. **Follow the task details** which include requirements references and implementation guidance
 
@@ -148,7 +148,7 @@ This document provides a summary of the comprehensive superadmin dashboard enhan
 
 - **Requirements**: `.kiro/specs/superadmin-dashboard-enhancement/requirements.md`
 - **Design**: `.kiro/specs/superadmin-dashboard-enhancement/design.md`
-- **Tasks**: `.kiro/specs/superadmin-dashboard-enhancement/tasks.md`
+- **Tasks**: [.kiro/specs/superadmin-dashboard-enhancement/tasks.md](../tasks/tasks.md)
 
 ## Support
 

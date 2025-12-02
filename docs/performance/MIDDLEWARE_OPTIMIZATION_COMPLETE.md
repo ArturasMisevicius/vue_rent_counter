@@ -53,10 +53,10 @@ Status:   ✅ ALL PASSING
 ## Documentation
 
 Complete documentation available at:
-- [Performance Analysis](./docs/performance/MIDDLEWARE_PERFORMANCE_ANALYSIS.md)
-- [Middleware API Reference](./docs/api/MIDDLEWARE_API.md)
-- [Refactoring Complete](./docs/middleware/MIDDLEWARE_REFACTORING_COMPLETE.md)
-- [Implementation Guide](./docs/middleware/ENSURE_USER_IS_ADMIN_OR_MANAGER.md)
+- [Performance Analysis](MIDDLEWARE_PERFORMANCE_ANALYSIS.md)
+- [Middleware API Reference](../api/MIDDLEWARE_API.md)
+- [Refactoring Complete](../middleware/MIDDLEWARE_REFACTORING_COMPLETE.md)
+- [Implementation Guide](../middleware/ENSURE_USER_IS_ADMIN_OR_MANAGER.md)
 
 ## Conclusion
 

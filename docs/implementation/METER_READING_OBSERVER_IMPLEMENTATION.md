@@ -133,7 +133,7 @@ recalculateAffectedDraftInvoices()
 
 - **Specification**: `.kiro/specs/2-vilnius-utilities-billing/requirements.md` (Requirements 8.1, 8.2)
 - **Design**: `.kiro/specs/2-vilnius-utilities-billing/design.md` (Observer Pattern section)
-- **Tasks**: `.kiro/specs/2-vilnius-utilities-billing/tasks.md` (Task 10)
+- **Tasks**: [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) (Task 10)
 
 ## Completion Date
 

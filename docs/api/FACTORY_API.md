@@ -449,6 +449,6 @@ Expected output confirms all factories work correctly.
 ## See Also
 
 - [Factory Verification Guide](../testing/FACTORY_VERIFICATION.md)
-- [Testing Guide](../testing/TESTING_GUIDE.md)
+- [Testing Guide](../guides/TESTING_GUIDE.md)
 - [Seeder Documentation](../database/SEEDERS_SUMMARY.md)
-- [Hierarchical User Management Spec](../../.kiro/specs/3-hierarchical-user-management/tasks.md)
+- [Hierarchical User Management Spec](../tasks/tasks.md)

@@ -184,9 +184,9 @@ public function handle(Request $request, Closure $next): Response
 
 ## Documentation Created
 
-1. **Security Audit** - `docs/security/SECURITY_AUDIT_CHECKSUBSCRIPTIONSTATUS_2025_12_01.md`
-2. **Implementation Checklist** - `docs/security/SECURITY_IMPLEMENTATION_CHECKLIST.md`
-3. **This Summary** - `docs/security/SECURITY_AUDIT_SUMMARY_2025_12_01.md`
+1. **Security Audit** - [docs/security/SECURITY_AUDIT_CHECKSUBSCRIPTIONSTATUS_2025_12_01.md](SECURITY_AUDIT_CHECKSUBSCRIPTIONSTATUS_2025_12_01.md)
+2. **Implementation Checklist** - [docs/security/SECURITY_IMPLEMENTATION_CHECKLIST.md](SECURITY_IMPLEMENTATION_CHECKLIST.md)
+3. **This Summary** - [docs/security/SECURITY_AUDIT_SUMMARY_2025_12_01.md](SECURITY_AUDIT_SUMMARY_2025_12_01.md)
 4. **PII Redaction Processor** - `app/Logging/RedactSensitiveData.php`
 5. **Security Tests** - `tests/Feature/Security/*.php`
 6. **Throttle Config** - `config/throttle.php`

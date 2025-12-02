@@ -158,11 +158,11 @@ public function __invoke(FinalizeInvoiceRequest $request, Invoice $invoice): Red
   - Tests N+1 prevention and scalability
 
 ### Documentation
-- `docs/performance/FINALIZE_INVOICE_CONTROLLER_PERFORMANCE_ANALYSIS.md` (NEW)
+- [docs/performance/FINALIZE_INVOICE_CONTROLLER_PERFORMANCE_ANALYSIS.md](FINALIZE_INVOICE_CONTROLLER_PERFORMANCE_ANALYSIS.md) (NEW)
   - Complete performance analysis
   - Optimization recommendations
   - Monitoring and alerting guidelines
-- `docs/performance/FINALIZE_INVOICE_CONTROLLER_OPTIMIZATION_SUMMARY.md` (NEW)
+- [docs/performance/FINALIZE_INVOICE_CONTROLLER_OPTIMIZATION_SUMMARY.md](FINALIZE_INVOICE_CONTROLLER_OPTIMIZATION_SUMMARY.md) (NEW)
   - Executive summary of optimizations
   - Before/after metrics
   - Implementation details

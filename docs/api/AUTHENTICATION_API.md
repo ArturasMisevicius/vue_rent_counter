@@ -501,6 +501,6 @@ php artisan test tests/Feature/SuperadminAuthenticationTest.php --coverage
 ## Support
 
 For authentication-related issues:
-1. Check the [Testing Guide](../testing/TESTING_GUIDE.md)
+1. Check the [Testing Guide](../guides/TESTING_GUIDE.md)
 2. Review [Security Best Practices](../security/BEST_PRACTICES.md)
 3. Consult the [Hierarchical User Management Spec](../../.kiro/specs/3-hierarchical-user-management/)

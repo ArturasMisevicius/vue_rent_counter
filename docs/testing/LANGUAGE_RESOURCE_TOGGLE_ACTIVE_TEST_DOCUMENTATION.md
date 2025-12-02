@@ -451,16 +451,16 @@ php artisan test --filter=LanguageResourceToggleActiveTest --coverage-html cover
 - **Policy**: `app/Policies/LanguagePolicy.php`
 
 ### API Documentation
-- **API Reference**: `docs/filament/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_API.md`
-- **Resource API**: `docs/filament/LANGUAGE_RESOURCE_API.md`
+- **API Reference**: [docs/filament/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_API.md](../filament/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_API.md)
+- **Resource API**: [docs/filament/LANGUAGE_RESOURCE_API.md](../filament/LANGUAGE_RESOURCE_API.md)
 
 ### Testing Documentation
-- **Verification Guide**: `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md`
-- **Quick Reference**: `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_QUICK_REFERENCE.md`
-- **Summary**: `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_SUMMARY.md`
+- **Verification Guide**: [docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md](LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md)
+- **Quick Reference**: [docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_QUICK_REFERENCE.md](LANGUAGE_RESOURCE_TOGGLE_ACTIVE_QUICK_REFERENCE.md)
+- **Summary**: [docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_SUMMARY.md](LANGUAGE_RESOURCE_TOGGLE_ACTIVE_SUMMARY.md)
 
 ### Specification Documentation
-- **Tasks**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+- **Tasks**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 - **Requirements**: `.kiro/specs/6-filament-namespace-consolidation/requirements.md`
 - **Design**: `.kiro/specs/6-filament-namespace-consolidation/design.md`
 

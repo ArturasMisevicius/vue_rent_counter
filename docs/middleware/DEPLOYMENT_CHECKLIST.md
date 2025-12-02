@@ -258,10 +258,10 @@ tail -100 storage/logs/laravel-error.log
 ## Documentation References
 
 - [Middleware API Reference](../api/MIDDLEWARE_API.md)
-- [Implementation Guide](./ENSURE_USER_IS_ADMIN_OR_MANAGER.md)
-- [Quick Reference](./QUICK_REFERENCE.md)
-- [Complete Report](./MIDDLEWARE_REFACTORING_COMPLETE.md)
-- [Refactoring Summary](./REFACTORING_SUMMARY.md)
+- [Implementation Guide](ENSURE_USER_IS_ADMIN_OR_MANAGER.md)
+- [Quick Reference](QUICK_REFERENCE.md)
+- [Complete Report](MIDDLEWARE_REFACTORING_COMPLETE.md)
+- [Refactoring Summary](REFACTORING_SUMMARY.md)
 
 ## Sign-Off
 

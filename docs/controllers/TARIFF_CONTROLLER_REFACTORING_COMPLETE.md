@@ -414,15 +414,15 @@ PUT /admin/tariffs/123
 - **Unit**: `tests/Unit/Policies/TariffPolicyTest.php`
 
 ### Documentation
-- **API Reference**: `docs/api/TARIFF_CONTROLLER_API.md`
-- **Policy API**: `docs/api/TARIFF_POLICY_API.md`
-- **Security Audit**: `docs/security/TARIFF_POLICY_SECURITY_AUDIT.md`
-- **Implementation**: `docs/implementation/POLICY_REFACTORING_COMPLETE.md`
+- **API Reference**: [docs/api/TARIFF_CONTROLLER_API.md](../api/TARIFF_CONTROLLER_API.md)
+- **Policy API**: [docs/api/TARIFF_POLICY_API.md](../api/TARIFF_POLICY_API.md)
+- **Security Audit**: [docs/security/TARIFF_POLICY_SECURITY_AUDIT.md](../security/TARIFF_POLICY_SECURITY_AUDIT.md)
+- **Implementation**: [docs/implementation/POLICY_REFACTORING_COMPLETE.md](../implementation/POLICY_REFACTORING_COMPLETE.md)
 
 ### Specification
 - **Requirements**: `.kiro/specs/2-vilnius-utilities-billing/requirements.md`
 - **Design**: `.kiro/specs/2-vilnius-utilities-billing/design.md`
-- **Tasks**: `.kiro/specs/2-vilnius-utilities-billing/tasks.md`
+- **Tasks**: [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md)
 
 ---
 

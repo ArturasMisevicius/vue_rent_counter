@@ -391,11 +391,11 @@ php artisan test --filter=TranslationResourceEditTest
 
 ## Related Documentation
 
-- **Resource**: `docs/filament/TRANSLATION_RESOURCE_API.md`
+- **Resource**: [docs/filament/TRANSLATION_RESOURCE_API.md](TRANSLATION_RESOURCE_API.md)
 - **Model**: `app/Models/Translation.php`
 - **Service**: `app/Services/TranslationPublisher.php`
-- **Tests**: `docs/testing/TRANSLATION_RESOURCE_CREATE_TEST_GUIDE.md`
-- **Tests**: `docs/testing/TRANSLATION_RESOURCE_EDIT_COMPLETION.md`
+- **Tests**: [docs/testing/TRANSLATION_RESOURCE_CREATE_TEST_GUIDE.md](../testing/TRANSLATION_RESOURCE_CREATE_TEST_GUIDE.md)
+- **Tests**: [docs/testing/TRANSLATION_RESOURCE_EDIT_COMPLETION.md](../testing/TRANSLATION_RESOURCE_EDIT_COMPLETION.md)
 
 ---
 

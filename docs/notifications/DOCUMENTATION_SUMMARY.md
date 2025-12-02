@@ -6,7 +6,7 @@ This document summarizes the comprehensive documentation created for the notific
 
 **Date**: 2024-11-26  
 **Status**: Complete  
-**Task Reference**: `.kiro/specs/3-hierarchical-user-management/tasks.md` (Task 11)
+**Task Reference**: [.kiro/specs/3-hierarchical-user-management/tasks.md](../tasks/tasks.md) (Task 11)
 
 ---
 
@@ -33,7 +33,7 @@ This document summarizes the comprehensive documentation created for the notific
 
 ### 2. System Documentation
 
-**File**: `docs/notifications/NOTIFICATION_SYSTEM.md`
+**File**: [docs/notifications/NOTIFICATION_SYSTEM.md](NOTIFICATION_SYSTEM.md)
 
 **Content**:
 - **Overview**: System architecture and notification flow
@@ -66,7 +66,7 @@ This document summarizes the comprehensive documentation created for the notific
 
 ### 3. API Documentation
 
-**File**: `docs/api/NOTIFICATIONS_API.md`
+**File**: [docs/api/NOTIFICATIONS_API.md](../api/NOTIFICATIONS_API.md)
 
 **Content**:
 - **API Reference**: Complete API documentation for all notification classes
@@ -99,7 +99,7 @@ This document summarizes the comprehensive documentation created for the notific
 
 ### 4. Quick Start Guide
 
-**File**: `docs/notifications/README.md`
+**File**: [docs/notifications/README.md](README.md)
 
 **Content**:
 - **Quick Start**: Immediate usage instructions
@@ -120,7 +120,7 @@ This document summarizes the comprehensive documentation created for the notific
 
 ### 5. Changelog
 
-**File**: `docs/notifications/CHANGELOG.md`
+**File**: [docs/notifications/CHANGELOG.md](CHANGELOG.md)
 
 **Content**:
 - **Version 1.0.0**: Initial release documentation

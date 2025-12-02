@@ -350,8 +350,8 @@ Total Progress: 0/92 (0%)
 
 ## 🆘 Need Help?
 
-- Review: `docs/examples/ADVANCED_RELATIONSHIPS_USAGE.md`
-- Testing: `docs/examples/ADVANCED_RELATIONSHIPS_TESTING.md`
-- Summary: `docs/ADVANCED_RELATIONSHIPS_SUMMARY.md`
+- Review: [docs/examples/ADVANCED_RELATIONSHIPS_USAGE.md](examples/ADVANCED_RELATIONSHIPS_USAGE.md)
+- Testing: [docs/examples/ADVANCED_RELATIONSHIPS_TESTING.md](examples/ADVANCED_RELATIONSHIPS_TESTING.md)
+- Summary: [docs/ADVANCED_RELATIONSHIPS_SUMMARY.md](ADVANCED_RELATIONSHIPS_SUMMARY.md)
 - Laravel Docs: https://laravel.com/docs/eloquent-relationships
 

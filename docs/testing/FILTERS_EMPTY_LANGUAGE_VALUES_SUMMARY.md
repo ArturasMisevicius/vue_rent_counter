@@ -71,4 +71,4 @@ php artisan test --filter=FiltersEmptyLanguageValuesTest
 - **Trait**: `app/Filament/Resources/TranslationResource/Concerns/FiltersEmptyLanguageValues.php`
 - **Create Page**: `app/Filament/Resources/TranslationResource/Pages/CreateTranslation.php`
 - **Edit Page**: `app/Filament/Resources/TranslationResource/Pages/EditTranslation.php`
-- **Full Documentation**: `docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_TEST_DOCUMENTATION.md`
+- **Full Documentation**: [docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_TEST_DOCUMENTATION.md](FILTERS_EMPTY_LANGUAGE_VALUES_TEST_DOCUMENTATION.md)

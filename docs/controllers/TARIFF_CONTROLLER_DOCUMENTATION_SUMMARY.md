@@ -22,14 +22,14 @@ Comprehensive documentation suite for TariffController including:
 ## Documentation Files
 
 ### Created
-- `docs/api/TARIFF_CONTROLLER_API.md` - API reference (routes, methods, validation, examples)
-- `docs/controllers/TARIFF_CONTROLLER_COMPLETE.md` - Implementation guide
-- `docs/controllers/TARIFF_CONTROLLER_DOCUMENTATION_COMPLETE.md` - Documentation summary
+- [docs/api/TARIFF_CONTROLLER_API.md](../api/TARIFF_CONTROLLER_API.md) - API reference (routes, methods, validation, examples)
+- [docs/controllers/TARIFF_CONTROLLER_COMPLETE.md](TARIFF_CONTROLLER_COMPLETE.md) - Implementation guide
+- [docs/controllers/TARIFF_CONTROLLER_DOCUMENTATION_COMPLETE.md](TARIFF_CONTROLLER_DOCUMENTATION_COMPLETE.md) - Documentation summary
 
 ### Updated
 - `app/Http/Controllers/Admin/TariffController.php` - Enhanced DocBlocks
-- `docs/api/API_ARCHITECTURE_GUIDE.md` - Added TariffController reference
-- `.kiro/specs/2-vilnius-utilities-billing/tasks.md` - Updated task 14
+- [docs/api/API_ARCHITECTURE_GUIDE.md](../api/API_ARCHITECTURE_GUIDE.md) - Added TariffController reference
+- [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) - Updated task 14
 
 ---
 
@@ -81,8 +81,8 @@ Comprehensive documentation suite for TariffController including:
 
 ## Quick Links
 
-- **API Reference**: `docs/api/TARIFF_CONTROLLER_API.md`
-- **Implementation**: `docs/controllers/TARIFF_CONTROLLER_COMPLETE.md`
+- **API Reference**: [docs/api/TARIFF_CONTROLLER_API.md](../api/TARIFF_CONTROLLER_API.md)
+- **Implementation**: [docs/controllers/TARIFF_CONTROLLER_COMPLETE.md](TARIFF_CONTROLLER_COMPLETE.md)
 - **Controller**: `app/Http/Controllers/Admin/TariffController.php`
 - **Tests**: `tests/Feature/Http/Controllers/Admin/TariffControllerTest.php`
 - **Policy**: `app/Policies/TariffPolicy.php`

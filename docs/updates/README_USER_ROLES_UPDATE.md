@@ -95,7 +95,7 @@ Updated README.md with comprehensive documentation of user roles, hierarchy, and
 
 ### 2. New API Documentation Created
 
-**File**: `docs/api/SUBSCRIPTION_API.md`
+**File**: [docs/api/SUBSCRIPTION_API.md](../api/SUBSCRIPTION_API.md)
 
 **Contents**:
 - Complete subscription system API reference
@@ -107,7 +107,7 @@ Updated README.md with comprehensive documentation of user roles, hierarchy, and
 
 ### 3. New Architecture Documentation Created
 
-**File**: `docs/architecture/HIERARCHICAL_USER_ARCHITECTURE.md`
+**File**: [docs/architecture/HIERARCHICAL_USER_ARCHITECTURE.md](../architecture/HIERARCHICAL_USER_ARCHITECTURE.md)
 
 **Contents**:
 - Three-tier hierarchy architecture

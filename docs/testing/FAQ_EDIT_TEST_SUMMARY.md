@@ -174,10 +174,10 @@ Test with different user roles:
 
 ## Related Documentation
 
-- Full Manual Test Guide: `docs/testing/FAQ_ADMIN_MANUAL_TEST.md`
+- Full Manual Test Guide: [docs/testing/FAQ_ADMIN_MANUAL_TEST.md](FAQ_ADMIN_MANUAL_TEST.md)
 - FaqResource Implementation: `app/Filament/Resources/FaqResource.php`
 - Namespace Consolidation Design: `.kiro/specs/6-filament-namespace-consolidation/design.md`
-- Task Tracking: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+- Task Tracking: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 
 ## Namespace Consolidation Context
 

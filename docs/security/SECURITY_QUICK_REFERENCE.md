@@ -93,6 +93,6 @@ php artisan queue:restart
 
 ## 📚 Full Documentation
 
-1. **Complete Audit**: `docs/security/SECURITY_AUDIT_CHECKSUBSCRIPTIONSTATUS_2025_12_01.md`
-2. **Implementation Guide**: `docs/security/SECURITY_IMPLEMENTATION_CHECKLIST.md`
-3. **Summary**: `docs/security/SECURITY_AUDIT_SUMMARY_2025_12_01.md`
+1. **Complete Audit**: [docs/security/SECURITY_AUDIT_CHECKSUBSCRIPTIONSTATUS_2025_12_01.md](SECURITY_AUDIT_CHECKSUBSCRIPTIONSTATUS_2025_12_01.md)
+2. **Implementation Guide**: [docs/security/SECURITY_IMPLEMENTATION_CHECKLIST.md](SECURITY_IMPLEMENTATION_CHECKLIST.md)
+3. **Summary**: [docs/security/SECURITY_AUDIT_SUMMARY_2025_12_01.md](SECURITY_AUDIT_SUMMARY_2025_12_01.md)

@@ -487,9 +487,9 @@ dd([
 
 ## Related Documentation
 
-- [Building Simple Tests Guide](./building-tenant-scope-simple-tests.md)
-- [Building Property Tests Guide](./filament-building-resource-tenant-scope-tests.md)
-- [Building Tests Quick Reference](./BUILDING_TENANT_SCOPE_QUICK_REFERENCE.md)
+- [Building Simple Tests Guide](building-tenant-scope-simple-tests.md)
+- [Building Property Tests Guide](filament-building-resource-tenant-scope-tests.md)
+- [Building Tests Quick Reference](BUILDING_TENANT_SCOPE_QUICK_REFERENCE.md)
 - [Multi-Tenancy Architecture](../architecture/multi-tenancy.md)
 - [Tenant Scope Implementation](../architecture/tenant-scope.md)
 

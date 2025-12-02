@@ -151,7 +151,7 @@ When documenting a new command:
 4. **Add Examples**: Provide multiple usage examples
 5. **Cross-Reference**: Link to related documentation
 6. **Update Index**: Add entry to this README
-7. **Update Changelog**: Add entry to `docs/CHANGELOG.md`
+7. **Update Changelog**: Add entry to [docs/CHANGELOG.md](../CHANGELOG.md)
 
 ### Template Structure
 
@@ -211,7 +211,7 @@ php artisan command:name [options]
 
 ### Specifications
 - [Vilnius Utilities Billing Spec](../../.kiro/specs/2-vilnius-utilities-billing/)
-- [Tasks](../../.kiro/specs/2-vilnius-utilities-billing/tasks.md)
+- [Tasks](../tasks/tasks.md)
 
 ### Testing
 - [Test Suite](../../tests/)

@@ -26,19 +26,19 @@ The PropertiesRelationManager has been updated with integrated validation rules 
 ## 📁 Files Created
 
 ### Documentation
-1. **`docs/testing/PROPERTIES_RELATION_MANAGER_TEST_PLAN.md`**
+1. **[docs/testing/PROPERTIES_RELATION_MANAGER_TEST_PLAN.md](PROPERTIES_RELATION_MANAGER_TEST_PLAN.md)**
    - Comprehensive test plan with 41 scenarios
    - Testing approach and best practices
    - Setup requirements and configuration
    - Manual testing checklist
 
-2. **`docs/testing/PROPERTIES_RELATION_MANAGER_TESTING_SUMMARY.md`**
+2. **[docs/testing/PROPERTIES_RELATION_MANAGER_TESTING_SUMMARY.md](PROPERTIES_RELATION_MANAGER_TESTING_SUMMARY.md)**
    - Executive summary
    - Coverage breakdown
    - Implementation challenges and solutions
    - Next steps and success criteria
 
-3. **`tests/Feature/Filament/README_PROPERTIES_RELATION_MANAGER_TESTS.md`**
+3. **[tests/Feature/Filament/README_PROPERTIES_RELATION_MANAGER_TESTS.md](../misc/README_PROPERTIES_RELATION_MANAGER_TESTS.md)**
    - Test suite overview
    - Running instructions
    - Debugging guide
@@ -227,14 +227,14 @@ test('test address validation')
 ## 📚 Reference Documentation
 
 ### Created Documentation
-- `docs/testing/PROPERTIES_RELATION_MANAGER_TEST_PLAN.md` - Full test plan
-- `docs/testing/PROPERTIES_RELATION_MANAGER_TESTING_SUMMARY.md` - Summary
-- `tests/Feature/Filament/README_PROPERTIES_RELATION_MANAGER_TESTS.md` - Test README
+- [docs/testing/PROPERTIES_RELATION_MANAGER_TEST_PLAN.md](PROPERTIES_RELATION_MANAGER_TEST_PLAN.md) - Full test plan
+- [docs/testing/PROPERTIES_RELATION_MANAGER_TESTING_SUMMARY.md](PROPERTIES_RELATION_MANAGER_TESTING_SUMMARY.md) - Summary
+- [tests/Feature/Filament/README_PROPERTIES_RELATION_MANAGER_TESTS.md](../misc/README_PROPERTIES_RELATION_MANAGER_TESTS.md) - Test README
 
 ### Existing Documentation
-- `docs/security/PROPERTIES_RELATION_MANAGER_SECURITY_AUDIT.md` - Security audit
-- `docs/security/SECURITY_FIXES_SUMMARY.md` - Security fixes
-- `docs/guides/TESTING_GUIDE.md` - General testing guide
+- [docs/security/PROPERTIES_RELATION_MANAGER_SECURITY_AUDIT.md](../security/PROPERTIES_RELATION_MANAGER_SECURITY_AUDIT.md) - Security audit
+- [docs/security/SECURITY_FIXES_SUMMARY.md](../security/SECURITY_FIXES_SUMMARY.md) - Security fixes
+- [docs/guides/TESTING_GUIDE.md](../guides/TESTING_GUIDE.md) - General testing guide
 
 ### External Resources
 - [Filament Testing](https://filamentphp.com/docs/3.x/panels/testing)
@@ -291,13 +291,13 @@ test('test address validation')
 ## 📞 Need Help?
 
 ### Questions About Tests?
-1. Read test plan: `docs/testing/PROPERTIES_RELATION_MANAGER_TEST_PLAN.md`
+1. Read test plan: [docs/testing/PROPERTIES_RELATION_MANAGER_TEST_PLAN.md](PROPERTIES_RELATION_MANAGER_TEST_PLAN.md)
 2. Check examples: `tests/Feature/Filament/PropertiesRelationManager*.php`
-3. Review README: `tests/Feature/Filament/README_PROPERTIES_RELATION_MANAGER_TESTS.md`
+3. Review README: [tests/Feature/Filament/README_PROPERTIES_RELATION_MANAGER_TESTS.md](../misc/README_PROPERTIES_RELATION_MANAGER_TESTS.md)
 
 ### Questions About Implementation?
-1. Check security audit: `docs/security/PROPERTIES_RELATION_MANAGER_SECURITY_AUDIT.md`
-2. Review fixes: `docs/security/SECURITY_FIXES_SUMMARY.md`
+1. Check security audit: [docs/security/PROPERTIES_RELATION_MANAGER_SECURITY_AUDIT.md](../security/PROPERTIES_RELATION_MANAGER_SECURITY_AUDIT.md)
+2. Review fixes: [docs/security/SECURITY_FIXES_SUMMARY.md](../security/SECURITY_FIXES_SUMMARY.md)
 3. Read code: `app/Filament/Resources/BuildingResource/RelationManagers/PropertiesRelationManager.php`
 
 ### Technical Issues?

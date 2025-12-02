@@ -16,7 +16,7 @@ The "Capture Lessons Learned" task has been successfully completed with comprehe
 ## Deliverables Created
 
 ### 1. Comprehensive Lessons Learned Document
-**File**: `docs/filament/NAMESPACE_CONSOLIDATION_LESSONS_LEARNED.md`
+**File**: [docs/filament/NAMESPACE_CONSOLIDATION_LESSONS_LEARNED.md](NAMESPACE_CONSOLIDATION_LESSONS_LEARNED.md)
 
 **Size**: 50+ pages
 
@@ -45,7 +45,7 @@ The "Capture Lessons Learned" task has been successfully completed with comprehe
 - Maintaining momentum during verification
 
 ### 2. Project Summary Document
-**File**: `docs/filament/NAMESPACE_CONSOLIDATION_PROJECT_SUMMARY.md`
+**File**: [docs/filament/NAMESPACE_CONSOLIDATION_PROJECT_SUMMARY.md](NAMESPACE_CONSOLIDATION_PROJECT_SUMMARY.md)
 
 **Purpose**: Quick reference for project overview
 
@@ -62,7 +62,7 @@ The "Capture Lessons Learned" task has been successfully completed with comprehe
 - ✅ Conclusion
 
 ### 3. Tasks.md Updates
-**File**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+**File**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 
 **Updates Made**:
 - ✅ Task 5.3 marked as complete
@@ -190,15 +190,15 @@ The "Capture Lessons Learned" task has been successfully completed with comprehe
 ### Core Project Documents
 - [Requirements](../../.kiro/specs/6-filament-namespace-consolidation/requirements.md)
 - [Design](../../.kiro/specs/6-filament-namespace-consolidation/design.md)
-- [Tasks](../../.kiro/specs/6-filament-namespace-consolidation/tasks.md)
+- [Tasks](../tasks/tasks.md)
 
 ### Lessons Learned Documents
-- [Comprehensive Lessons Learned](./NAMESPACE_CONSOLIDATION_LESSONS_LEARNED.md) ⭐
-- [Project Summary](./NAMESPACE_CONSOLIDATION_PROJECT_SUMMARY.md)
+- [Comprehensive Lessons Learned](NAMESPACE_CONSOLIDATION_LESSONS_LEARNED.md) ⭐
+- [Project Summary](NAMESPACE_CONSOLIDATION_PROJECT_SUMMARY.md)
 
 ### Analysis Documents
-- [Resource Prioritization Analysis](./RESOURCE_PRIORITIZATION_ANALYSIS.md)
-- [Namespace Consolidation Completion Summary](./NAMESPACE_CONSOLIDATION_COMPLETION_SUMMARY.md)
+- [Resource Prioritization Analysis](RESOURCE_PRIORITIZATION_ANALYSIS.md)
+- [Namespace Consolidation Completion Summary](NAMESPACE_CONSOLIDATION_COMPLETION_SUMMARY.md)
 
 ---
 

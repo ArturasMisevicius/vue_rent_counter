@@ -86,7 +86,7 @@ php artisan test --filter=TranslationResourceDeleteTest::test_superadmin_can_del
 
 ## Documentation
 
-- **Full Documentation**: [TRANSLATION_RESOURCE_DELETE_TEST_DOCUMENTATION.md](./TRANSLATION_RESOURCE_DELETE_TEST_DOCUMENTATION.md)
+- **Full Documentation**: [TRANSLATION_RESOURCE_DELETE_TEST_DOCUMENTATION.md](TRANSLATION_RESOURCE_DELETE_TEST_DOCUMENTATION.md)
 - **API Reference**: [TRANSLATION_RESOURCE_API.md](../filament/TRANSLATION_RESOURCE_API.md)
 - **Requirements**: [requirements.md](../../.kiro/specs/6-filament-namespace-consolidation/requirements.md)
 

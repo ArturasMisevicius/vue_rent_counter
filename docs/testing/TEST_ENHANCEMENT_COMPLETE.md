@@ -38,20 +38,20 @@ Status:   ✅ ALL PASSING
 
 ### 2. Test Documentation
 **Files Created**:
-1. `docs/testing/GYVATUKAS_CALCULATOR_TEST_COVERAGE.md` (~500 lines)
+1. [docs/testing/GYVATUKAS_CALCULATOR_TEST_COVERAGE.md](GYVATUKAS_CALCULATOR_TEST_COVERAGE.md) (~500 lines)
    - Executive summary
    - Detailed test categories
    - Logging coverage
    - Edge case documentation
    - Maintenance guide
 
-2. `docs/testing/GYVATUKAS_CALCULATOR_TEST_QUICK_REFERENCE.md` (~300 lines)
+2. [docs/testing/GYVATUKAS_CALCULATOR_TEST_QUICK_REFERENCE.md](GYVATUKAS_CALCULATOR_TEST_QUICK_REFERENCE.md) (~300 lines)
    - Quick commands
    - Common patterns
    - Troubleshooting
    - Factory examples
 
-3. `docs/testing/GYVATUKAS_CALCULATOR_TEST_SUMMARY.md` (~400 lines)
+3. [docs/testing/GYVATUKAS_CALCULATOR_TEST_SUMMARY.md](GYVATUKAS_CALCULATOR_TEST_SUMMARY.md) (~400 lines)
    - Enhancement overview
    - Statistics comparison
    - Quality metrics
@@ -59,11 +59,11 @@ Status:   ✅ ALL PASSING
 
 ### 3. Updated Documentation
 **Files Updated**:
-1. `docs/CHANGELOG.md`
+1. [docs/CHANGELOG.md](../CHANGELOG.md)
    - Added v1.2.1 entry
    - Documented enhancements
 
-2. `.kiro/specs/2-vilnius-utilities-billing/tasks.md`
+2. [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md)
    - Updated Task 7 status
    - Added test coverage numbers
 
@@ -185,12 +185,12 @@ tests/Unit/Services/
 
 ## Related Documentation
 
-- [Test Coverage Report](docs/testing/GYVATUKAS_CALCULATOR_TEST_COVERAGE.md)
-- [Quick Reference](docs/testing/GYVATUKAS_CALCULATOR_TEST_QUICK_REFERENCE.md)
-- [Enhancement Summary](docs/testing/GYVATUKAS_CALCULATOR_TEST_SUMMARY.md)
-- [Implementation Guide](docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
-- [API Reference](docs/api/GYVATUKAS_CALCULATOR_API.md)
-- [Performance Optimization](docs/performance/GYVATUKAS_CALCULATOR_OPTIMIZATION.md)
+- [Test Coverage Report](GYVATUKAS_CALCULATOR_TEST_COVERAGE.md)
+- [Quick Reference](GYVATUKAS_CALCULATOR_TEST_QUICK_REFERENCE.md)
+- [Enhancement Summary](GYVATUKAS_CALCULATOR_TEST_SUMMARY.md)
+- [Implementation Guide](../implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
+- [API Reference](../api/GYVATUKAS_CALCULATOR_API.md)
+- [Performance Optimization](../performance/GYVATUKAS_CALCULATOR_OPTIMIZATION.md)
 
 ## Conclusion
 

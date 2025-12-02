@@ -243,7 +243,7 @@ All logs include:
 
 ## Related Documentation
 
-- [Tariff Resolver Implementation](./TARIFF_RESOLVER_IMPLEMENTATION.md)
-- [Gyvatukas Calculator Implementation](./GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
+- [Tariff Resolver Implementation](TARIFF_RESOLVER_IMPLEMENTATION.md)
+- [Gyvatukas Calculator Implementation](GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
 - [Service Layer Architecture](../architecture/SERVICE_LAYER_ARCHITECTURE.md)
 - [Billing Configuration](../../config/billing.php)

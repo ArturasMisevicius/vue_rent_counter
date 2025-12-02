@@ -435,7 +435,7 @@ TernaryFilter::make('is_active')
 - [LanguageResource Filter Test Documentation](../testing/LANGUAGE_RESOURCE_FILTER_TEST_DOCUMENTATION.md)
 - [LanguageResource Navigation Tests](../testing/LANGUAGE_RESOURCE_NAVIGATION_TEST_COMPLETE.md)
 - [LanguageResource Performance Optimization](../performance/LANGUAGE_RESOURCE_PERFORMANCE_OPTIMIZATION.md)
-- [Filament Namespace Consolidation Spec](../../.kiro/specs/6-filament-namespace-consolidation/tasks.md)
+- [Filament Namespace Consolidation Spec](../tasks/tasks.md)
 
 ---
 

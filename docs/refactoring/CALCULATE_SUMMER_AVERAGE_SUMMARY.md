@@ -88,12 +88,12 @@ Successfully refactored `CalculateSummerAverageCommand` from a procedural comman
 ### Modified
 1. `app/Console/Commands/CalculateSummerAverageCommand.php` - Refactored to use service
 2. `app/Models/Building.php` - Fixed return types and null handling
-3. `.kiro/specs/2-vilnius-utilities-billing/tasks.md` - Updated task status
+3. [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) - Updated task status
 
 ### Documentation
-1. `docs/refactoring/CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md` - Detailed refactoring guide
-2. `CALCULATE_SUMMER_AVERAGE_REFACTORING_COMPLETE.md` - Completion summary
-3. `REFACTORING_SUMMARY.md` - This document
+1. [docs/refactoring/CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md](CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md) - Detailed refactoring guide
+2. [CALCULATE_SUMMER_AVERAGE_REFACTORING_COMPLETE.md](CALCULATE_SUMMER_AVERAGE_REFACTORING_COMPLETE.md) - Completion summary
+3. [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md) - This document
 
 ## Backward Compatibility
 

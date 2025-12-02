@@ -52,8 +52,8 @@
 - ✅ `lang/en/users.php`
 
 ### Documentation (New)
-- ✅ `docs/filament/VALIDATION_LOCALIZATION_COMPLETE.md`
-- ✅ `docs/filament/VALIDATION_LOCALIZATION_SUMMARY.md`
+- ✅ [docs/filament/VALIDATION_LOCALIZATION_COMPLETE.md](VALIDATION_LOCALIZATION_COMPLETE.md)
+- ✅ [docs/filament/VALIDATION_LOCALIZATION_SUMMARY.md](VALIDATION_LOCALIZATION_SUMMARY.md)
 
 ---
 

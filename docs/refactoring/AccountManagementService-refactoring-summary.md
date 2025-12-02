@@ -144,7 +144,7 @@ Tests: 14 passed (71 assertions)
 - **Solution**: Changed to random 6-digit IDs with collision check
 - **Impact**: Prevents tenant enumeration and information disclosure
 - **Status**: ✅ Deployed and tested
-- **Documentation**: See `docs/refactoring/AccountManagementService-security-improvements.md`
+- **Documentation**: See [docs/refactoring/AccountManagementService-security-improvements.md](AccountManagementService-security-improvements.md)
 
 ## Recommendations for Future Improvements
 
@@ -230,4 +230,4 @@ The service demonstrates:
 
 **Status**: Ready for production use
 
-**Documentation**: See `docs/services/AccountManagementService.md` for complete API reference and usage examples.
+**Documentation**: See [docs/services/AccountManagementService.md](../services/AccountManagementService.md) for complete API reference and usage examples.

@@ -5,12 +5,12 @@ Complete documentation suite for the hierarchical user management factory system
 ## Quick Links
 
 ### For Developers
-- **[Quick Reference](./FACTORY_QUICK_REFERENCE.md)** - Fast lookup for common patterns
-- **[Verification Guide](./FACTORY_VERIFICATION.md)** - How to verify factories work
+- **[Quick Reference](FACTORY_QUICK_REFERENCE.md)** - Fast lookup for common patterns
+- **[Verification Guide](FACTORY_VERIFICATION.md)** - How to verify factories work
 - **[API Documentation](../api/FACTORY_API.md)** - Complete API reference
 
 ### For Testing
-- **[Testing Guide](./TESTING_GUIDE.md)** - General testing approach
+- **[Testing Guide](../guides/TESTING_GUIDE.md)** - General testing approach
 - **[Factory Tests](../../tests/Feature/)** - Actual test implementations
 
 ### For Architecture
@@ -35,14 +35,14 @@ docs/
 
 ### 1. Quick Start
 If you just need to use factories in tests:
-→ [Quick Reference](./FACTORY_QUICK_REFERENCE.md)
+→ [Quick Reference](FACTORY_QUICK_REFERENCE.md)
 
 ### 2. Verification
 To verify factories are working correctly:
 ```bash
 php test_factories.php
 ```
-→ [Verification Guide](./FACTORY_VERIFICATION.md)
+→ [Verification Guide](FACTORY_VERIFICATION.md)
 
 ### 3. Deep Dive
 For complete understanding of factory APIs:
@@ -96,16 +96,16 @@ $property2 = Property::factory()->create(['tenant_id' => 2]);
 ## Documentation by Role
 
 ### For New Developers
-1. Start with [Quick Reference](./FACTORY_QUICK_REFERENCE.md)
+1. Start with [Quick Reference](FACTORY_QUICK_REFERENCE.md)
 2. Review common patterns
 3. Run verification script
 4. Refer to [API Documentation](../api/FACTORY_API.md) as needed
 
 ### For Test Writers
-1. Review [Quick Reference](./FACTORY_QUICK_REFERENCE.md)
-2. Check [Testing Guide](./TESTING_GUIDE.md)
+1. Review [Quick Reference](FACTORY_QUICK_REFERENCE.md)
+2. Check [Testing Guide](../guides/TESTING_GUIDE.md)
 3. Use [API Documentation](../api/FACTORY_API.md) for complex scenarios
-4. Run [Verification](./FACTORY_VERIFICATION.md) before committing
+4. Run [Verification](FACTORY_VERIFICATION.md) before committing
 
 ### For Architects
 1. Review [API Documentation](../api/FACTORY_API.md)
@@ -173,13 +173,13 @@ php artisan test --filter=FactoryTest
 2. **Missing enum values** → Check `app/Enums/UserRole.php`
 3. **Database errors** → Verify `.env` configuration
 
-See [Verification Guide - Troubleshooting](./FACTORY_VERIFICATION.md#troubleshooting) for details.
+See [Verification Guide - Troubleshooting](FACTORY_VERIFICATION.md#troubleshooting) for details.
 
 ## Related Documentation
 
 ### Testing
-- [Testing Guide](./TESTING_GUIDE.md)
-- [Verification Scripts](./README.md#verification-scripts)
+- [Testing Guide](../guides/TESTING_GUIDE.md)
+- [Verification Scripts](README.md#verification-scripts)
 - [Pest Documentation](https://pestphp.com/)
 
 ### Architecture
@@ -205,9 +205,9 @@ See [Update Documentation](../updates/FACTORY_VERIFICATION_UPDATE.md) for detail
 ## Support
 
 ### Questions?
-1. Check [Quick Reference](./FACTORY_QUICK_REFERENCE.md)
+1. Check [Quick Reference](FACTORY_QUICK_REFERENCE.md)
 2. Review [API Documentation](../api/FACTORY_API.md)
-3. Run [Verification](./FACTORY_VERIFICATION.md)
+3. Run [Verification](FACTORY_VERIFICATION.md)
 4. Contact development team
 
 ### Found an Issue?

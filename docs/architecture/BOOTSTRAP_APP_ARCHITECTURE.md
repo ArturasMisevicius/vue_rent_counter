@@ -374,9 +374,9 @@ Before deploying changes to `bootstrap/app.php`:
 
 - [Middleware Configuration](../middleware/MIDDLEWARE_CONFIGURATION.md)
 - [Rate Limiting Strategy](../security/RATE_LIMITING_STRATEGY.md)
-- [Multi-Tenancy Architecture](./MULTI_TENANT_ARCHITECTURE.md)
+- [Multi-Tenancy Architecture](MULTI_TENANT_ARCHITECTURE.md)
 - [Security Architecture](../security/SECURITY_ARCHITECTURE.md)
-- [Performance Optimization](../performance/PERFORMANCE_OPTIMIZATION_COMPLETE.md)
+- [Performance Optimization](../misc/PERFORMANCE_OPTIMIZATION_COMPLETE.md)
 
 ## Changelog
 

@@ -42,4 +42,4 @@ Use this outline when documenting a new feature or major refactor.
 ## 9) Open Questions / Risks
 - List unknowns, trade-offs, and mitigation ideas.
 
-Include diagrams or sequence charts when helpful. Link this doc from `HOOKS_DOCUMENTATION_MAP.md` when used.*** End Patch
+Include diagrams or sequence charts when helpful. Link this doc from [HOOKS_DOCUMENTATION_MAP.md](../reference/HOOKS_DOCUMENTATION_MAP.md) when used.*** End Patch

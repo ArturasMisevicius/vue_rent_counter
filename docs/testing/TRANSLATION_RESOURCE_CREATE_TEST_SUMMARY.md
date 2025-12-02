@@ -193,7 +193,7 @@ Tests are organized using Pest's `describe()` blocks:
 ### Spec Files
 - [Requirements](../../.kiro/specs/6-filament-namespace-consolidation/requirements.md)
 - [Design](../../.kiro/specs/6-filament-namespace-consolidation/design.md)
-- [Tasks](../../.kiro/specs/6-filament-namespace-consolidation/tasks.md)
+- [Tasks](../tasks/tasks.md)
 
 ### Resource Files
 - Resource: `app/Filament/Resources/TranslationResource.php`
@@ -201,7 +201,7 @@ Tests are organized using Pest's `describe()` blocks:
 - Test: `tests/Feature/Filament/TranslationResourceCreateTest.php`
 
 ### Related Tests
-- Navigation: `docs/testing/TRANSLATION_RESOURCE_NAVIGATION_VERIFICATION.md`
+- Navigation: [docs/testing/TRANSLATION_RESOURCE_NAVIGATION_VERIFICATION.md](TRANSLATION_RESOURCE_NAVIGATION_VERIFICATION.md)
 - General: `tests/Feature/FilamentContentLocalizationResourcesTest.php`
 
 ## Conclusion

@@ -26,4 +26,4 @@ Use this template when building news or fact-check workflows.
 - Validate markdown/HTML rendering, link safety, unsubscribe flows.
 - If ranking/selection is automated, add tests around filters and ordering.
 
-Update or split this template into feature-specific docs when these hooks become active, and link from `HOOKS_DOCUMENTATION_MAP.md`.
+Update or split this template into feature-specific docs when these hooks become active, and link from [HOOKS_DOCUMENTATION_MAP.md](HOOKS_DOCUMENTATION_MAP.md).

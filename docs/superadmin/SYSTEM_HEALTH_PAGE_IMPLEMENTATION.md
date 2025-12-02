@@ -389,7 +389,7 @@ Potential improvements for future iterations:
 ## Related Documentation
 
 - [Superadmin Dashboard Enhancement Spec](.kiro/specs/superadmin-dashboard-enhancement/)
-- [Foundation Models Implementation](./FOUNDATION_MODELS_IMPLEMENTATION.md)
+- [Foundation Models Implementation](FOUNDATION_MODELS_IMPLEMENTATION.md)
 - [System Health Widget](../app/Filament/Widgets/SystemHealthWidget.php)
 
 ## Conclusion

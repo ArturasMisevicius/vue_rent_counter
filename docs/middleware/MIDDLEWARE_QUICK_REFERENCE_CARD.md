@@ -98,9 +98,9 @@ $this->withoutMiddleware([
 
 ## 🔗 Related Documentation
 
-- **Architecture**: `docs/middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md`
-- **Implementation**: `docs/middleware/IMPLEMENTATION_SUMMARY.md`
-- **Analysis**: `docs/architecture/MIDDLEWARE_ROUTE_PROTECTION_ANALYSIS.md`
+- **Architecture**: [docs/middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md](HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md)
+- **Implementation**: [docs/middleware/IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)
+- **Analysis**: [docs/architecture/MIDDLEWARE_ROUTE_PROTECTION_ANALYSIS.md](../architecture/MIDDLEWARE_ROUTE_PROTECTION_ANALYSIS.md)
 - **Tests**: `tests/Feature/Middleware/`
 
 ## 📞 Support

@@ -553,7 +553,7 @@ $errors = $results
 
 - [CalculateSummerAverageCommand](../commands/CALCULATE_SUMMER_AVERAGE_COMMAND.md)
 - [GyvatukasSummerAverageService](../services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md)
-- [SummerPeriod Value Object](./SUMMER_PERIOD.md)
+- [SummerPeriod Value Object](SUMMER_PERIOD.md)
 - [Building Model](../models/BUILDING.md)
 
 ## Changelog

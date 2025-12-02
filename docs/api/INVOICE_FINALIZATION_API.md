@@ -427,5 +427,5 @@ COMMIT;
 - **Model:** `app/Models/Invoice.php`
 - **Policy:** `app/Policies/InvoicePolicy.php`
 - **Page:** `app/Filament/Resources/InvoiceResource/Pages/ViewInvoice.php`
-- **Usage Guide:** `docs/filament/INVOICE_FINALIZATION_ACTION.md`
-- **Integration:** `docs/integration/FILAMENT_INTEGRATION_VERIFICATION.md`
+- **Usage Guide:** [docs/filament/INVOICE_FINALIZATION_ACTION.md](../filament/INVOICE_FINALIZATION_ACTION.md)
+- **Integration:** [docs/integration/FILAMENT_INTEGRATION_VERIFICATION.md](../integration/FILAMENT_INTEGRATION_VERIFICATION.md)

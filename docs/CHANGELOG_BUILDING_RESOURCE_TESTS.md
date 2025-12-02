@@ -7,7 +7,7 @@ This changelog documents the creation of comprehensive documentation for the Fil
 **Date**: 2025-11-27  
 **Type**: Documentation Enhancement  
 **Scope**: Testing Documentation  
-**Related Spec**: `.kiro/specs/4-filament-admin-panel/tasks.md` (Task 7.3)
+**Related Spec**: [.kiro/specs/4-filament-admin-panel/tasks.md](tasks/tasks.md) (Task 7.3)
 
 ---
 
@@ -15,7 +15,7 @@ This changelog documents the creation of comprehensive documentation for the Fil
 
 ### 1. Filament Building Resource Test Documentation
 
-**File**: `docs/testing/filament-building-resource-tenant-scope-tests.md`
+**File**: [docs/testing/filament-building-resource-tenant-scope-tests.md](testing/filament-building-resource-tenant-scope-tests.md)
 
 **Purpose**: Comprehensive documentation for the BuildingResource tenant scope test suite.
 
@@ -47,7 +47,7 @@ This changelog documents the creation of comprehensive documentation for the Fil
 
 ### 2. Property-Based Testing Guide
 
-**File**: `docs/testing/property-based-testing-guide.md`
+**File**: [docs/testing/property-based-testing-guide.md](testing/property-based-testing-guide.md)
 
 **Purpose**: Comprehensive guide to property-based testing approach used in the platform.
 
@@ -79,7 +79,7 @@ This changelog documents the creation of comprehensive documentation for the Fil
 
 ### 3. Test Helpers API Reference
 
-**File**: `docs/testing/test-helpers-api.md`
+**File**: [docs/testing/test-helpers-api.md](testing/test-helpers-api.md)
 
 **Purpose**: API documentation for test helper functions used across the test suite.
 
@@ -114,7 +114,7 @@ This changelog documents the creation of comprehensive documentation for the Fil
 
 ### 4. Testing README Updates
 
-**File**: `docs/testing/README.md`
+**File**: [docs/testing/README.md](testing/README.md)
 
 **Changes**:
 - Added FilamentBuildingResourceTenantScopeTest to test suites
@@ -131,7 +131,7 @@ This changelog documents the creation of comprehensive documentation for the Fil
 
 ### 5. Tasks.md Updates
 
-**File**: `.kiro/specs/4-filament-admin-panel/tasks.md`
+**File**: [.kiro/specs/4-filament-admin-panel/tasks.md](tasks/tasks.md)
 
 **Changes**:
 - Updated task 7.3 with completion details
@@ -195,14 +195,14 @@ This changelog documents the creation of comprehensive documentation for the Fil
 ## Related Documentation
 
 ### Existing Documentation
-- [Authentication Test Summary](AUTHENTICATION_TEST_SUMMARY.md)
-- [Superadmin Authentication Test](SUPERADMIN_AUTHENTICATION_TEST.md)
-- [Testing Guide](TESTING_GUIDE.md)
+- [Authentication Test Summary](testing/AUTHENTICATION_TEST_SUMMARY.md)
+- [Superadmin Authentication Test](testing/SUPERADMIN_AUTHENTICATION_TEST.md)
+- [Testing Guide](guides/TESTING_GUIDE.md)
 
 ### New Documentation
-- [Property-Based Testing Guide](property-based-testing-guide.md)
-- [Test Helpers API Reference](test-helpers-api.md)
-- [Filament Building Resource Tests](filament-building-resource-tenant-scope-tests.md)
+- [Property-Based Testing Guide](testing/property-based-testing-guide.md)
+- [Test Helpers API Reference](testing/test-helpers-api.md)
+- [Filament Building Resource Tests](testing/filament-building-resource-tenant-scope-tests.md)
 
 ### Specifications
 - [Filament Admin Panel Spec](../.kiro/specs/4-filament-admin-panel/)

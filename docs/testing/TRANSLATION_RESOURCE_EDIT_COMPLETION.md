@@ -227,8 +227,8 @@ Strict access control:
 - `tests/Feature/Filament/TranslationResourceEditTest.php`
 
 ### Documentation Files
-- `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
-- `docs/testing/TRANSLATION_RESOURCE_EDIT_COMPLETION.md` (this file)
+- [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
+- [docs/testing/TRANSLATION_RESOURCE_EDIT_COMPLETION.md](TRANSLATION_RESOURCE_EDIT_COMPLETION.md) (this file)
 
 ---
 

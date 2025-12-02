@@ -273,10 +273,10 @@ php artisan pail
 
 ## Related Documentation
 
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md)
 - [API Reference](../api/BILLING_SERVICE_API.md)
-- [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md)
-- [Refactoring Report](./BILLING_SERVICE_REFACTORING.md)
+- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md)
+- [Refactoring Report](BILLING_SERVICE_REFACTORING.md)
 
 ---
 

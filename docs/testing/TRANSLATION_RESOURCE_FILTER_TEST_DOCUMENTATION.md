@@ -675,19 +675,19 @@ expect(TranslationResource::shouldRegisterNavigation())->toBeTrue();
 - [Filament Namespace Consolidation Spec](../../.kiro/specs/6-filament-namespace-consolidation/)
 
 ### Testing Documentation
-- [Testing README](./README.md)
+- [Testing README](README.md)
 - [Filament Testing Guide](./FILAMENT_TESTING_GUIDE.md)
 - [Performance Testing Guide](./PERFORMANCE_TESTING_GUIDE.md)
 
 ### Related Tests
-- [TranslationResource Create Test](./TRANSLATION_RESOURCE_CREATE_TEST_GUIDE.md)
+- [TranslationResource Create Test](TRANSLATION_RESOURCE_CREATE_TEST_GUIDE.md)
 - [TranslationResource Edit Test](./TRANSLATION_RESOURCE_EDIT_TEST_GUIDE.md)
 - [TranslationResource Delete Test](./TRANSLATION_RESOURCE_DELETE_TEST_GUIDE.md)
 
 ### Namespace Consolidation
-- [Namespace Consolidation Tasks](../../.kiro/specs/6-filament-namespace-consolidation/tasks.md)
+- [Namespace Consolidation Tasks](../tasks/tasks.md)
 - [FaqResource Filter Tests](./FAQ_RESOURCE_FILTER_TEST_DOCUMENTATION.md)
-- [LanguageResource Filter Tests](./LANGUAGE_RESOURCE_FILTER_TEST_DOCUMENTATION.md)
+- [LanguageResource Filter Tests](LANGUAGE_RESOURCE_FILTER_TEST_DOCUMENTATION.md)
 
 ---
 
@@ -707,5 +707,5 @@ expect(TranslationResource::shouldRegisterNavigation())->toBeTrue();
 For questions about TranslationResource filter testing:
 1. Review this documentation
 2. Check [Filament Namespace Consolidation Spec](../../.kiro/specs/6-filament-namespace-consolidation/)
-3. Consult [Testing README](./README.md)
+3. Consult [Testing README](README.md)
 4. Review [Filament v4 Documentation](https://filamentphp.com/docs)

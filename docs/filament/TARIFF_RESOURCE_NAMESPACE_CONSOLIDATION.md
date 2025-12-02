@@ -135,9 +135,9 @@ php verify-batch4-resources.php
 ### Documentation
 
 - **Requirements**: `.kiro/specs/6-filament-namespace-consolidation/requirements.md`
-- **API Reference**: `docs/filament/TARIFF_RESOURCE_API.md`
-- **Security Audit**: `docs/security/TARIFF_RESOURCE_SECURITY_AUDIT.md`
-- **Implementation Guide**: `docs/security/TARIFF_SECURITY_IMPLEMENTATION.md`
+- **API Reference**: [docs/filament/TARIFF_RESOURCE_API.md](TARIFF_RESOURCE_API.md)
+- **Security Audit**: [docs/security/TARIFF_RESOURCE_SECURITY_AUDIT.md](../security/TARIFF_RESOURCE_SECURITY_AUDIT.md)
+- **Implementation Guide**: [docs/security/TARIFF_SECURITY_IMPLEMENTATION.md](../security/TARIFF_SECURITY_IMPLEMENTATION.md)
 
 ### Tests
 

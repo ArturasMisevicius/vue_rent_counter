@@ -100,33 +100,33 @@ private function isAdmin(User $user): bool
    - Testing plan
    - Migration and deployment guide
 
-2. `docs/api/TARIFF_POLICY_API.md`
+2. [docs/api/TARIFF_POLICY_API.md](../api/TARIFF_POLICY_API.md)
    - Complete API reference
    - Method documentation
    - Usage examples
    - Integration points
 
-3. `docs/performance/POLICY_PERFORMANCE_ANALYSIS.md`
+3. [docs/performance/POLICY_PERFORMANCE_ANALYSIS.md](../performance/POLICY_PERFORMANCE_ANALYSIS.md)
    - Performance benchmarks
    - Optimization analysis
    - Monitoring strategy
 
-4. `docs/performance/POLICY_OPTIMIZATION_SUMMARY.md`
+4. [docs/performance/POLICY_OPTIMIZATION_SUMMARY.md](../performance/POLICY_OPTIMIZATION_SUMMARY.md)
    - Executive summary
    - Metrics and benefits
    - Before/after comparison
 
-5. `docs/implementation/POLICY_REFACTORING_COMPLETE.md`
+5. [docs/implementation/POLICY_REFACTORING_COMPLETE.md](../implementation/POLICY_REFACTORING_COMPLETE.md)
    - Implementation details
    - Code quality metrics
    - Requirements validation
 
 ### Updated Files (2 files)
-1. `.kiro/specs/2-vilnius-utilities-billing/tasks.md`
+1. [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md)
    - Updated task 12 with specification reference
    - Added documentation links
 
-2. `.kiro/specs/README.md`
+2. [.kiro/specs/README.md](../overview/readme.md)
    - Added policy optimization to sub-specifications
    - Updated changelog
 
@@ -298,14 +298,14 @@ git push origin main
 - `.kiro/specs/2-vilnius-utilities-billing/policy-optimization-spec.md` - Complete specification
 
 ### API Documentation
-- `docs/api/TARIFF_POLICY_API.md` - Complete API reference with examples
+- [docs/api/TARIFF_POLICY_API.md](../api/TARIFF_POLICY_API.md) - Complete API reference with examples
 
 ### Performance Documentation
-- `docs/performance/POLICY_PERFORMANCE_ANALYSIS.md` - Detailed performance analysis
-- `docs/performance/POLICY_OPTIMIZATION_SUMMARY.md` - Executive summary
+- [docs/performance/POLICY_PERFORMANCE_ANALYSIS.md](../performance/POLICY_PERFORMANCE_ANALYSIS.md) - Detailed performance analysis
+- [docs/performance/POLICY_OPTIMIZATION_SUMMARY.md](../performance/POLICY_OPTIMIZATION_SUMMARY.md) - Executive summary
 
 ### Implementation Documentation
-- `docs/implementation/POLICY_REFACTORING_COMPLETE.md` - Implementation guide
+- [docs/implementation/POLICY_REFACTORING_COMPLETE.md](../implementation/POLICY_REFACTORING_COMPLETE.md) - Implementation guide
 
 ### Test Documentation
 - `tests/Unit/Policies/TariffPolicyTest.php` - 5 tests, 24 assertions

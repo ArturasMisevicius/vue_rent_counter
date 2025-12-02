@@ -594,8 +594,8 @@ php artisan test --filter=UserPolicyTest
 
 ## Related Documentation
 
-- **Architecture**: `docs/architecture/HIERARCHICAL_SCOPE.md`
-- **Security**: `docs/security/HIERARCHICAL_SCOPE_SECURITY_AUDIT.md`
+- **Architecture**: [docs/architecture/HIERARCHICAL_SCOPE.md](../architecture/HIERARCHICAL_SCOPE.md)
+- **Security**: [docs/security/HIERARCHICAL_SCOPE_SECURITY_AUDIT.md](../security/HIERARCHICAL_SCOPE_SECURITY_AUDIT.md)
 - **Requirements**: `.kiro/specs/3-hierarchical-user-management/requirements.md`
 - **User Model**: `app/Models/User.php`
 - **UserRole Enum**: `app/Enums/UserRole.php`

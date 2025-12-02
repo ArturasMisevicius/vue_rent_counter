@@ -511,7 +511,7 @@ private static function getTableColumns(): array<Tables\Columns\Column>
 
 ## Related Documentation
 
-- [BuildingResource Guide](./BUILDING_RESOURCE.md)
+- [BuildingResource Guide](BUILDING_RESOURCE.md)
 - [Building Model](../../app/Models/Building.php)
 - [BuildingPolicy](../../app/Policies/BuildingPolicy.php)
 - [PropertiesRelationManager](./PROPERTIES_RELATION_MANAGER.md)

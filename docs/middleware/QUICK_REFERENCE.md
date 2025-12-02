@@ -140,9 +140,9 @@ $checker->warmCache($user);
 
 ## Documentation
 
-- **Architecture**: `docs/middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md`
-- **Analysis**: `docs/architecture/MIDDLEWARE_ROUTE_PROTECTION_ANALYSIS.md`
-- **Summary**: `docs/middleware/IMPLEMENTATION_SUMMARY.md`
+- **Architecture**: [docs/middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md](HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md)
+- **Analysis**: [docs/architecture/MIDDLEWARE_ROUTE_PROTECTION_ANALYSIS.md](../architecture/MIDDLEWARE_ROUTE_PROTECTION_ANALYSIS.md)
+- **Summary**: [docs/middleware/IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)
 - **Spec**: `.kiro/specs/3-hierarchical-user-management/`
 
 ## Support

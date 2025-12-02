@@ -201,8 +201,8 @@ $component->assertForbidden();  // For unauthorized users
 | `app/Filament/Resources/TranslationResource.php` | Resource implementation |
 | `app/Models/Language.php` | Language model with caching |
 | `app/Models/Translation.php` | Translation model |
-| `docs/filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md` | Full API documentation |
-| `docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md` | Test summary |
+| [docs/filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md](../filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md) | Full API documentation |
+| [docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md](TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md) | Test summary |
 
 ## Best Practices
 
@@ -251,7 +251,7 @@ php artisan tinker
 ## Support
 
 For issues or questions:
-1. Check full API documentation: `docs/filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md`
-2. Review test summary: `docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md`
+1. Check full API documentation: [docs/filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md](../filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md)
+2. Review test summary: [docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md](TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md)
 3. Examine implementation: `app/Filament/Resources/TranslationResource.php`
 4. Check Language model: `app/Models/Language.php`

@@ -38,7 +38,7 @@ Enhanced `app/Filament/Resources/TariffResource.php` with comprehensive PHPDoc b
 
 ### 2. API Documentation
 
-Created `docs/filament/TARIFF_RESOURCE_API.md` with:
+Created [docs/filament/TARIFF_RESOURCE_API.md](TARIFF_RESOURCE_API.md) with:
 
 - **Resource Information**: Namespace, model, policy, observer, navigation details
 - **Authorization Matrix**: Complete role-based access table
@@ -57,7 +57,7 @@ Created `docs/filament/TARIFF_RESOURCE_API.md` with:
 
 ### 3. Usage Guide
 
-Created `docs/filament/TARIFF_RESOURCE_USAGE_GUIDE.md` with:
+Created [docs/filament/TARIFF_RESOURCE_USAGE_GUIDE.md](TARIFF_RESOURCE_USAGE_GUIDE.md) with:
 
 - **Quick Start**: Access requirements and navigation
 - **Creating Tariffs**: Step-by-step for flat rate and time-of-use tariffs
@@ -207,12 +207,12 @@ All documentation references existing test files:
 
 ## Related Documentation
 
-- [TariffResource API Documentation](./TARIFF_RESOURCE_API.md)
-- [TariffResource Usage Guide](./TARIFF_RESOURCE_USAGE_GUIDE.md)
-- [TariffResource Navigation Update](./TARIFF_RESOURCE_NAVIGATION_UPDATE.md)
-- [Role-Based Navigation Visibility](./role-based-navigation-visibility.md)
-- [Tariff Validation Localization](./tariff-resource-validation.md)
-- [Filament Documentation Index](./README.md)
+- [TariffResource API Documentation](TARIFF_RESOURCE_API.md)
+- [TariffResource Usage Guide](TARIFF_RESOURCE_USAGE_GUIDE.md)
+- [TariffResource Navigation Update](TARIFF_RESOURCE_NAVIGATION_UPDATE.md)
+- [Role-Based Navigation Visibility](role-based-navigation-visibility.md)
+- [Tariff Validation Localization](tariff-resource-validation.md)
+- [Filament Documentation Index](README.md)
 
 ## Next Steps
 

@@ -45,9 +45,9 @@
 4. `tests/Unit/Policies/MeterReadingPolicyTest.php` - Fixed cross-tenant tests
 
 ### Documentation (3 files)
-5. `.kiro/specs/2-vilnius-utilities-billing/tasks.md` - Updated task 12
-6. `docs/implementation/POLICY_REFACTORING_COMPLETE.md` - Comprehensive guide
-7. `POLICY_REFACTORING_SUMMARY.md` - This file
+5. [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) - Updated task 12
+6. [docs/implementation/POLICY_REFACTORING_COMPLETE.md](POLICY_REFACTORING_COMPLETE.md) - Comprehensive guide
+7. [POLICY_REFACTORING_SUMMARY.md](POLICY_REFACTORING_SUMMARY.md) - This file
 
 ---
 

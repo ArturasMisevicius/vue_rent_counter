@@ -487,8 +487,8 @@ test('tenant field is required for manager role', function () {
 - [UserPolicy](../../app/Policies/UserPolicy.php)
 - [User Translations](../../lang/en/users.php)
 - [ViewUser Page](../../app/Filament/Resources/UserResource/Pages/ViewUser.php)
-- [User Resource Review](./USER_RESOURCE_REVIEW.md)
-- [User Resource Implementation](./USER_RESOURCE_IMPLEMENTATION_COMPLETE.md)
+- [User Resource Review](USER_RESOURCE_REVIEW.md)
+- [User Resource Implementation](USER_RESOURCE_IMPLEMENTATION_COMPLETE.md)
 
 ## Changelog
 

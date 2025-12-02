@@ -70,11 +70,11 @@ The GyvatukasCalculator service has been successfully refactored to v2.0 with **
 
 | Document | Status | Purpose |
 |----------|--------|---------|
-| `docs/refactoring/GYVATUKAS_CALCULATOR_REFACTORING.md` | ✅ Complete | Detailed refactoring guide |
-| `docs/refactoring/GYVATUKAS_CALCULATOR_REFACTORING_SUMMARY.md` | ✅ Complete | Executive summary |
-| `docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md` | ✅ Complete | Implementation guide with v2.0 section |
-| `docs/CHANGELOG.md` | ✅ Updated | Version history |
-| `.kiro/specs/2-vilnius-utilities-billing/tasks.md` | ✅ Updated | Task completion status |
+| [docs/refactoring/GYVATUKAS_CALCULATOR_REFACTORING.md](GYVATUKAS_CALCULATOR_REFACTORING.md) | ✅ Complete | Detailed refactoring guide |
+| [docs/refactoring/GYVATUKAS_CALCULATOR_REFACTORING_SUMMARY.md](GYVATUKAS_CALCULATOR_REFACTORING_SUMMARY.md) | ✅ Complete | Executive summary |
+| [docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md](../implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md) | ✅ Complete | Implementation guide with v2.0 section |
+| [docs/CHANGELOG.md](../CHANGELOG.md) | ✅ Updated | Version history |
+| [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) | ✅ Updated | Task completion status |
 
 ## Test Results
 

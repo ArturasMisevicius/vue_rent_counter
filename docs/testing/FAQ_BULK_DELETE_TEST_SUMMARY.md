@@ -251,8 +251,8 @@ Duration: 2.45s
 - **Observer**: `app/Observers/FaqObserver.php`
 - **Policy**: `app/Policies/FaqPolicy.php`
 - **Configuration**: `config/faq.php`
-- **Manual Test Guide**: `docs/testing/FAQ_ADMIN_MANUAL_TEST.md`
-- **Filter Tests**: `docs/testing/FAQ_FILTER_TEST_DOCUMENTATION.md`
+- **Manual Test Guide**: [docs/testing/FAQ_ADMIN_MANUAL_TEST.md](FAQ_ADMIN_MANUAL_TEST.md)
+- **Filter Tests**: [docs/testing/FAQ_FILTER_TEST_DOCUMENTATION.md](FAQ_FILTER_TEST_DOCUMENTATION.md)
 
 ### Test Documentation
 - **DocBlocks**: ✅ Comprehensive

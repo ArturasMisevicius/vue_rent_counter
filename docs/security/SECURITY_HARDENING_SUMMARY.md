@@ -146,9 +146,9 @@ public function apply(Builder $builder, Model $model): void
 1. ✅ `app/Scopes/HierarchicalScope.php` - Hardened implementation
 
 ### New Files Created
-2. ✅ `docs/security/HIERARCHICAL_SCOPE_SECURITY_AUDIT.md` - Comprehensive audit report
-3. ✅ `docs/security/SECURITY_MONITORING_GUIDE.md` - Monitoring procedures
-4. ✅ `docs/security/SECURITY_HARDENING_SUMMARY.md` - This document
+2. ✅ [docs/security/HIERARCHICAL_SCOPE_SECURITY_AUDIT.md](HIERARCHICAL_SCOPE_SECURITY_AUDIT.md) - Comprehensive audit report
+3. ✅ [docs/security/SECURITY_MONITORING_GUIDE.md](SECURITY_MONITORING_GUIDE.md) - Monitoring procedures
+4. ✅ [docs/security/SECURITY_HARDENING_SUMMARY.md](SECURITY_HARDENING_SUMMARY.md) - This document
 5. ✅ `tests/Security/HierarchicalScopeSecurityTest.php` - 45+ security tests
 6. ✅ `config/security.php` - Security configuration
 
@@ -326,14 +326,14 @@ bash scripts/anomaly-detection.sh
 ## 📚 DOCUMENTATION
 
 ### Security Documentation
-1. ✅ `HIERARCHICAL_SCOPE_SECURITY_AUDIT.md` - Comprehensive audit report
-2. ✅ `SECURITY_MONITORING_GUIDE.md` - Monitoring and alerting
-3. ✅ `SECURITY_HARDENING_SUMMARY.md` - This document
+1. ✅ [HIERARCHICAL_SCOPE_SECURITY_AUDIT.md](HIERARCHICAL_SCOPE_SECURITY_AUDIT.md) - Comprehensive audit report
+2. ✅ [SECURITY_MONITORING_GUIDE.md](SECURITY_MONITORING_GUIDE.md) - Monitoring and alerting
+3. ✅ [SECURITY_HARDENING_SUMMARY.md](SECURITY_HARDENING_SUMMARY.md) - This document
 
 ### Technical Documentation
-4. ✅ `docs/architecture/HIERARCHICAL_SCOPE.md` - Architecture guide
-5. ✅ `docs/api/HIERARCHICAL_SCOPE_API.md` - API reference
-6. ✅ `docs/guides/HIERARCHICAL_SCOPE_QUICK_START.md` - Quick start guide
+4. ✅ [docs/architecture/HIERARCHICAL_SCOPE.md](../architecture/HIERARCHICAL_SCOPE.md) - Architecture guide
+5. ✅ [docs/api/HIERARCHICAL_SCOPE_API.md](../api/HIERARCHICAL_SCOPE_API.md) - API reference
+6. ✅ [docs/guides/HIERARCHICAL_SCOPE_QUICK_START.md](../guides/HIERARCHICAL_SCOPE_QUICK_START.md) - Quick start guide
 
 ### Test Documentation
 7. ✅ `tests/Security/HierarchicalScopeSecurityTest.php` - Security test suite

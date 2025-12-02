@@ -156,7 +156,7 @@ Quality: Production-ready with comprehensive coverage
 
 ### Documentation
 - `app/Http/Controllers/Admin/TariffController.php` - Added authorization architecture docs
-- `docs/testing/TARIFF_CONTROLLER_TEST_REFACTORING.md` - This file
+- [docs/testing/TARIFF_CONTROLLER_TEST_REFACTORING.md](TARIFF_CONTROLLER_TEST_REFACTORING.md) - This file
 
 ## Requirements Coverage
 
@@ -312,7 +312,7 @@ The TariffController test suite has been significantly enhanced with:
 ---
 
 **Related Documentation**:
-- `docs/performance/TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md`
-- `docs/api/TARIFF_CONTROLLER_API.md`
-- `docs/controllers/TARIFF_CONTROLLER_COMPLETE.md`
-- `.kiro/specs/2-vilnius-utilities-billing/tasks.md` (Task 14)
+- [docs/performance/TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md](../performance/TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md)
+- [docs/api/TARIFF_CONTROLLER_API.md](../api/TARIFF_CONTROLLER_API.md)
+- [docs/controllers/TARIFF_CONTROLLER_COMPLETE.md](../controllers/TARIFF_CONTROLLER_COMPLETE.md)
+- [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) (Task 14)

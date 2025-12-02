@@ -213,7 +213,7 @@ If a model cannot be instantiated:
 - [Eloquent Relationships Guide](../architecture/ELOQUENT_RELATIONSHIPS_GUIDE.md)
 - [Database Schema and Migration Guide](../architecture/DATABASE_SCHEMA_AND_MIGRATION_GUIDE.md)
 - [Laravel 12 Filament 4 Upgrade Guide](../upgrades/LARAVEL_12_FILAMENT_4_UPGRADE.md)
-- [Testing Guide](TESTING_GUIDE.md)
+- [Testing Guide](../guides/TESTING_GUIDE.md)
 
 ## Related Scripts
 

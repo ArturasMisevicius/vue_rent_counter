@@ -211,7 +211,7 @@ These can be customized per invitation during creation.
 
 ## Spec Reference
 
-This implementation completes task 8 from `.kiro/specs/superadmin-dashboard-enhancement/tasks.md`:
+This implementation completes task 8 from [.kiro/specs/superadmin-dashboard-enhancement/tasks.md](../tasks/tasks.md):
 - [x] 8.1 Create resource with form schema
 - [x] 8.2 Create table with columns and filters
 - [x] 8.3 Add custom actions

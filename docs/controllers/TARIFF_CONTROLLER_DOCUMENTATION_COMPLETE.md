@@ -33,7 +33,7 @@ Comprehensive documentation suite created for the `TariffController`, including 
 
 ### 2. API Reference Documentation ✅
 
-**File**: `docs/api/TARIFF_CONTROLLER_API.md`
+**File**: [docs/api/TARIFF_CONTROLLER_API.md](../api/TARIFF_CONTROLLER_API.md)
 
 **Contents**:
 - Overview and route table
@@ -65,7 +65,7 @@ Comprehensive documentation suite created for the `TariffController`, including 
 
 ### 3. Complete Implementation Guide ✅
 
-**File**: `docs/controllers/TARIFF_CONTROLLER_COMPLETE.md`
+**File**: [docs/controllers/TARIFF_CONTROLLER_COMPLETE.md](TARIFF_CONTROLLER_COMPLETE.md)
 
 **Contents**:
 - Executive summary with quick stats
@@ -92,7 +92,7 @@ Comprehensive documentation suite created for the `TariffController`, including 
 ### 4. Updated Existing Documentation ✅
 
 #### Tasks Specification
-**File**: `.kiro/specs/2-vilnius-utilities-billing/tasks.md`
+**File**: [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md)
 
 **Changes**:
 - ✅ Updated task 14 with documentation links
@@ -101,7 +101,7 @@ Comprehensive documentation suite created for the `TariffController`, including 
 - ✅ Updated completion status
 
 #### API Architecture Guide
-**File**: `docs/api/API_ARCHITECTURE_GUIDE.md`
+**File**: [docs/api/API_ARCHITECTURE_GUIDE.md](../api/API_ARCHITECTURE_GUIDE.md)
 
 **Changes** (to be made):
 - Add TariffController to controller documentation section
@@ -397,16 +397,16 @@ XDEBUG_MODE=coverage php artisan test --filter=TariffControllerTest --coverage
 ## Files Created/Modified
 
 ### Created (3 files)
-1. `docs/api/TARIFF_CONTROLLER_API.md` - Complete API reference
-2. `docs/controllers/TARIFF_CONTROLLER_COMPLETE.md` - Implementation guide
-3. `docs/controllers/TARIFF_CONTROLLER_DOCUMENTATION_COMPLETE.md` - This summary
+1. [docs/api/TARIFF_CONTROLLER_API.md](../api/TARIFF_CONTROLLER_API.md) - Complete API reference
+2. [docs/controllers/TARIFF_CONTROLLER_COMPLETE.md](TARIFF_CONTROLLER_COMPLETE.md) - Implementation guide
+3. [docs/controllers/TARIFF_CONTROLLER_DOCUMENTATION_COMPLETE.md](TARIFF_CONTROLLER_DOCUMENTATION_COMPLETE.md) - This summary
 
 ### Modified (2 files)
 1. `app/Http/Controllers/Admin/TariffController.php` - Enhanced DocBlocks
-2. `.kiro/specs/2-vilnius-utilities-billing/tasks.md` - Updated task 14
+2. [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) - Updated task 14
 
 ### To Update (1 file)
-1. `docs/api/API_ARCHITECTURE_GUIDE.md` - Add TariffController reference
+1. [docs/api/API_ARCHITECTURE_GUIDE.md](../api/API_ARCHITECTURE_GUIDE.md) - Add TariffController reference
 
 ---
 

@@ -6,7 +6,7 @@ This document describes the simple, straightforward tenant scope isolation tests
 
 **Test File**: `tests/Feature/BuildingTenantScopeSimpleTest.php`
 
-**Related Spec**: `.kiro/specs/4-filament-admin-panel/tasks.md` (Task 7.3)
+**Related Spec**: [.kiro/specs/4-filament-admin-panel/tasks.md](../tasks/tasks.md) (Task 7.3)
 
 **Property Validated**: Property 16 - Tenant scope isolation for buildings
 
@@ -454,8 +454,8 @@ if (auth()->check() && auth()->user()->tenant_id !== null) {
 - [Building Model Documentation](../models/building.md)
 
 ### Testing Documentation
-- [Filament Building Resource Tests](./filament-building-resource-tenant-scope-tests.md)
-- [Property-Based Testing Guide](./property-based-testing-guide.md)
+- [Filament Building Resource Tests](filament-building-resource-tenant-scope-tests.md)
+- [Property-Based Testing Guide](property-based-testing-guide.md)
 - [Multi-Tenancy Test Strategy](./multi-tenancy-testing.md)
 
 ### Implementation Documentation

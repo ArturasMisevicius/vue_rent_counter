@@ -550,8 +550,8 @@ test('monotonicity property holds for random corrections', function () {
 - **FormRequest**: `app/Http/Requests/UpdateMeterReadingRequest.php`
 - **Observer**: `app/Observers/MeterReadingObserver.php`
 - **Policy**: `app/Policies/MeterReadingPolicy.php`
-- **API Reference**: `docs/api/METER_READING_UPDATE_CONTROLLER_API.md`
-- **Implementation**: `docs/controllers/METER_READING_UPDATE_CONTROLLER_COMPLETE.md`
+- **API Reference**: [docs/api/METER_READING_UPDATE_CONTROLLER_API.md](../api/METER_READING_UPDATE_CONTROLLER_API.md)
+- **Implementation**: [docs/controllers/METER_READING_UPDATE_CONTROLLER_COMPLETE.md](../controllers/METER_READING_UPDATE_CONTROLLER_COMPLETE.md)
 - **Specification**: `.kiro/specs/2-vilnius-utilities-billing/meter-reading-update-controller-spec.md`
 
 ---

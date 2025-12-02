@@ -79,9 +79,9 @@ Comprehensive security audit completed with **100% of critical vulnerabilities r
 
 ### Documentation Created (3)
 
-1. **`docs/security/MIGRATION_SECURITY_AUDIT.md`** - Full audit report (35+ pages)
-2. **`docs/security/SECURITY_IMPLEMENTATION_COMPLETE.md`** - Implementation guide
-3. **`docs/security/SECURITY_AUDIT_SUMMARY.md`** - Executive brief
+1. **[docs/security/MIGRATION_SECURITY_AUDIT.md](MIGRATION_SECURITY_AUDIT.md)** - Full audit report (35+ pages)
+2. **[docs/security/SECURITY_IMPLEMENTATION_COMPLETE.md](SECURITY_IMPLEMENTATION_COMPLETE.md)** - Implementation guide
+3. **[docs/security/SECURITY_AUDIT_SUMMARY.md](SECURITY_AUDIT_SUMMARY.md)** - Executive brief
 
 ---
 
@@ -291,31 +291,31 @@ grep "Cache integrity violation" storage/logs/laravel.log
 
 ### Security Documentation
 
-1. **Full Audit Report**: `docs/security/MIGRATION_SECURITY_AUDIT.md`
+1. **Full Audit Report**: [docs/security/MIGRATION_SECURITY_AUDIT.md](MIGRATION_SECURITY_AUDIT.md)
    - 35+ pages of detailed findings
    - Remediation steps for each vulnerability
    - Code examples and best practices
 
-2. **Implementation Guide**: `docs/security/SECURITY_IMPLEMENTATION_COMPLETE.md`
+2. **Implementation Guide**: [docs/security/SECURITY_IMPLEMENTATION_COMPLETE.md](SECURITY_IMPLEMENTATION_COMPLETE.md)
    - Step-by-step implementation details
    - Configuration instructions
    - Testing procedures
 
-3. **Executive Summary**: `docs/security/SECURITY_AUDIT_SUMMARY.md`
+3. **Executive Summary**: [docs/security/SECURITY_AUDIT_SUMMARY.md](SECURITY_AUDIT_SUMMARY.md)
    - Quick reference for stakeholders
    - Key metrics and status
    - Deployment checklist
 
-4. **This Document**: `SECURITY_AUDIT_COMPLETE.md`
+4. **This Document**: [SECURITY_AUDIT_COMPLETE.md](SECURITY_AUDIT_COMPLETE.md)
    - Comprehensive overview
    - All information in one place
 
 ### Related Documentation
 
-- `docs/database/MIGRATION_FINAL_STATUS.md` - Migration status
-- `docs/database/MIGRATION_PATTERNS.md` - Migration best practices
-- `docs/performance/BILLING_SERVICE_OPTIMIZATION_COMPLETE.md` - Performance optimization
-- `.kiro/specs/2-vilnius-utilities-billing/tasks.md` - Updated with security completion
+- [docs/database/MIGRATION_FINAL_STATUS.md](../database/MIGRATION_FINAL_STATUS.md) - Migration status
+- [docs/database/MIGRATION_PATTERNS.md](../database/MIGRATION_PATTERNS.md) - Migration best practices
+- [docs/performance/BILLING_SERVICE_OPTIMIZATION_COMPLETE.md](../performance/BILLING_SERVICE_OPTIMIZATION_COMPLETE.md) - Performance optimization
+- [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) - Updated with security completion
 
 ---
 
@@ -423,12 +423,12 @@ The Vilnius Utilities Billing Platform has undergone a comprehensive security au
 
 ## 📎 Quick Links
 
-- [Full Audit Report](docs/security/MIGRATION_SECURITY_AUDIT.md)
-- [Implementation Guide](docs/security/SECURITY_IMPLEMENTATION_COMPLETE.md)
-- [Executive Summary](docs/security/SECURITY_AUDIT_SUMMARY.md)
+- [Full Audit Report](MIGRATION_SECURITY_AUDIT.md)
+- [Implementation Guide](SECURITY_IMPLEMENTATION_COMPLETE.md)
+- [Executive Summary](SECURITY_AUDIT_SUMMARY.md)
 - [Test Suite](tests/Security/)
 - [Configuration](config/billing.php)
-- [Tasks Updated](.kiro/specs/2-vilnius-utilities-billing/tasks.md)
+- [Tasks Updated](../tasks/tasks.md)
 
 ---
 

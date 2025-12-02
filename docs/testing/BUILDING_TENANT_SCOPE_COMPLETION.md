@@ -50,28 +50,28 @@ Duration: 4.09s
 
 **Created Documentation Files**:
 
-1. **[building-tenant-scope-simple-tests.md](./building-tenant-scope-simple-tests.md)** (~3,500 words)
+1. **[building-tenant-scope-simple-tests.md](building-tenant-scope-simple-tests.md)** (~3,500 words)
    - Complete guide to simple verification tests
    - Test flow diagrams using Mermaid
    - Comprehensive troubleshooting section
    - Comparison with property-based tests
    - Running instructions and expected output
 
-2. **[BUILDING_TENANT_SCOPE_QUICK_REFERENCE.md](./BUILDING_TENANT_SCOPE_QUICK_REFERENCE.md)** (~1,500 words)
+2. **[BUILDING_TENANT_SCOPE_QUICK_REFERENCE.md](BUILDING_TENANT_SCOPE_QUICK_REFERENCE.md)** (~1,500 words)
    - Quick command reference
    - Common assertions and patterns
    - Debugging checklist
    - Performance comparison
    - When to use each test suite
 
-3. **[BUILDING_TENANT_SCOPE_API.md](./BUILDING_TENANT_SCOPE_API.md)** (~3,000 words)
+3. **[BUILDING_TENANT_SCOPE_API.md](BUILDING_TENANT_SCOPE_API.md)** (~3,000 words)
    - Complete API reference
    - Test helpers documentation
    - Assertion patterns
    - Integration patterns
    - Best practices
 
-4. **[BUILDING_TESTS_SUMMARY.md](./BUILDING_TESTS_SUMMARY.md)** (~2,500 words)
+4. **[BUILDING_TESTS_SUMMARY.md](BUILDING_TESTS_SUMMARY.md)** (~2,500 words)
    - Complete summary of test infrastructure
    - Test coverage matrix
    - Security guarantees
@@ -125,9 +125,9 @@ class TenantScope implements Scope
 ### 5. Related Documentation Updates ✅
 
 **Updated Files**:
-- ✅ `docs/testing/README.md` - Added Building test references
-- ✅ `.kiro/specs/4-filament-admin-panel/tasks.md` - Updated task 7.3 status
-- ✅ `docs/CHANGELOG.md` - Added comprehensive changelog entry
+- ✅ [docs/testing/README.md](README.md) - Added Building test references
+- ✅ [.kiro/specs/4-filament-admin-panel/tasks.md](../tasks/tasks.md) - Updated task 7.3 status
+- ✅ [docs/CHANGELOG.md](../CHANGELOG.md) - Added comprehensive changelog entry
 
 **Changelog Entry Includes**:
 - Simple verification tests creation

@@ -103,9 +103,9 @@ static::updating(function ($invoice) {
 - ✅ `config/security.php` - New security configuration file
 
 ### Documentation
-- ✅ `docs/security/INVOICE_FINALIZATION_SECURITY_AUDIT.md` - Comprehensive audit report
-- ✅ `docs/security/SECURITY_TESTING_GUIDE.md` - Testing procedures
-- ✅ `docs/security/INVOICE_FINALIZATION_SECURITY_SUMMARY.md` - This file
+- ✅ [docs/security/INVOICE_FINALIZATION_SECURITY_AUDIT.md](INVOICE_FINALIZATION_SECURITY_AUDIT.md) - Comprehensive audit report
+- ✅ [docs/security/SECURITY_TESTING_GUIDE.md](SECURITY_TESTING_GUIDE.md) - Testing procedures
+- ✅ [docs/security/INVOICE_FINALIZATION_SECURITY_SUMMARY.md](INVOICE_FINALIZATION_SECURITY_SUMMARY.md) - This file
 
 ### Testing
 - ✅ `tests/Feature/Filament/InvoiceFinalizationSecurityTest.php` - 18 security tests
@@ -413,8 +413,8 @@ php artisan pail --filter="rate limit exceeded"
 ## Support & Resources
 
 ### Documentation
-- [Security Audit Report](./INVOICE_FINALIZATION_SECURITY_AUDIT.md)
-- [Security Testing Guide](./SECURITY_TESTING_GUIDE.md)
+- [Security Audit Report](INVOICE_FINALIZATION_SECURITY_AUDIT.md)
+- [Security Testing Guide](SECURITY_TESTING_GUIDE.md)
 - [Laravel Security Docs](https://laravel.com/docs/security)
 - [Filament Security Docs](https://filamentphp.com/docs/panels/users)
 

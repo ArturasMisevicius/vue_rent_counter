@@ -386,11 +386,11 @@ All users can:
 
 ## Related Documentation
 
-- [UserResource API Documentation](./USER_RESOURCE_API.md)
+- [UserResource API Documentation](USER_RESOURCE_API.md)
 - [User Model Documentation](../../app/Models/User.php)
 - [UserPolicy Documentation](../../app/Policies/UserPolicy.php)
 - [User Translations](../../lang/en/users.php)
-- [Authentication Documentation](../authentication/README.md)
+- [Authentication Documentation](../overview/readme.md)
 
 ## Support
 

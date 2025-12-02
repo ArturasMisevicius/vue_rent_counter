@@ -127,5 +127,5 @@ php artisan test --filter=FactoryTest
 ## See Also
 
 - [Full Factory API Documentation](../api/FACTORY_API.md)
-- [Factory Verification Guide](./FACTORY_VERIFICATION.md)
-- [Testing Guide](./TESTING_GUIDE.md)
+- [Factory Verification Guide](FACTORY_VERIFICATION.md)
+- [Testing Guide](../guides/TESTING_GUIDE.md)

@@ -743,7 +743,7 @@ public function generateInvoice(...): Invoice
 - [Service Layer Summary](SERVICE_LAYER_SUMMARY.md)
 - [BillingService Implementation](../implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md)
 - [GyvatukasCalculatorService](../implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
-- [Testing Guide](../testing/TESTING_GUIDE.md)
+- [Testing Guide](../guides/TESTING_GUIDE.md)
 
 ---
 

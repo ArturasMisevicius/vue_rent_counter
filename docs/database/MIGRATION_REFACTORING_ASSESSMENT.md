@@ -395,8 +395,8 @@ php artisan migrate --path=database/migrations/2025_11_25_060200_add_billing_ser
    - Track query performance metrics
 
 3. **Documentation Updates**
-   - Update `COMPREHENSIVE_SCHEMA_ANALYSIS.md` with new indexes
-   - Add migration examples to `MIGRATION_PATTERNS.md`
+   - Update [COMPREHENSIVE_SCHEMA_ANALYSIS.md](COMPREHENSIVE_SCHEMA_ANALYSIS.md) with new indexes
+   - Add migration examples to [MIGRATION_PATTERNS.md](MIGRATION_PATTERNS.md)
    - Document rollback procedures
 
 ### Medium-Term
@@ -467,12 +467,12 @@ php artisan migrate --path=database/migrations/2025_11_25_060200_add_billing_ser
 
 ### Internal Documentation
 
-- [MIGRATION_REFACTORING_COMPLETE.md](./MIGRATION_REFACTORING_COMPLETE.md) - Refactoring case study
+- [MIGRATION_REFACTORING_COMPLETE.md](MIGRATION_REFACTORING_COMPLETE.md) - Refactoring case study
 - [MIGRATION_FIX_SUMMARY.md](../architecture/MIGRATION_FIX_SUMMARY.md) - Original fix summary
 - [MIGRATION_ARCHITECTURE_ANALYSIS.md](../architecture/MIGRATION_ARCHITECTURE_ANALYSIS.md) - Architecture analysis
-- [MIGRATION_PATTERNS.md](./MIGRATION_PATTERNS.md) - Migration best practices
-- [COMPREHENSIVE_SCHEMA_ANALYSIS.md](./COMPREHENSIVE_SCHEMA_ANALYSIS.md) - Full schema analysis
-- [OPTIMIZATION_CHECKLIST.md](./OPTIMIZATION_CHECKLIST.md) - Performance optimization
+- [MIGRATION_PATTERNS.md](MIGRATION_PATTERNS.md) - Migration best practices
+- [COMPREHENSIVE_SCHEMA_ANALYSIS.md](COMPREHENSIVE_SCHEMA_ANALYSIS.md) - Full schema analysis
+- [OPTIMIZATION_CHECKLIST.md](OPTIMIZATION_CHECKLIST.md) - Performance optimization
 - [DATABASE_QUERY_OPTIMIZATION_GUIDE.md](../performance/DATABASE_QUERY_OPTIMIZATION_GUIDE.md) - Query optimization
 - [BILLING_SERVICE_PERFORMANCE_SUMMARY.md](../performance/BILLING_SERVICE_PERFORMANCE_SUMMARY.md) - BillingService optimization
 

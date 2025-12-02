@@ -3,7 +3,7 @@
 **Date**: 2025-11-25  
 **Status**: ✅ TESTS CREATED  
 **Test File**: `tests/Unit/Services/BillingServiceRefactoredV3Test.php`  
-**Documentation**: `docs/testing/BILLING_SERVICE_V3_TEST_COVERAGE.md`
+**Documentation**: [docs/testing/BILLING_SERVICE_V3_TEST_COVERAGE.md](BILLING_SERVICE_V3_TEST_COVERAGE.md)
 
 ## Summary
 
@@ -157,7 +157,7 @@ expect(fn() => $this->billingService->generateInvoice($tenant, $periodStart, $pe
 
 - **Test File**: `tests/Unit/Services/BillingServiceRefactoredV3Test.php`
 - **Service**: `app/Services/BillingService.php`
-- **Documentation**: `docs/testing/BILLING_SERVICE_V3_TEST_COVERAGE.md`
+- **Documentation**: [docs/testing/BILLING_SERVICE_V3_TEST_COVERAGE.md](BILLING_SERVICE_V3_TEST_COVERAGE.md)
 - **Specification**: `.kiro/specs/2-vilnius-utilities-billing/billing-service-v3-spec.md`
 
 ---

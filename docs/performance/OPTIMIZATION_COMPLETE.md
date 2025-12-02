@@ -141,10 +141,10 @@ Tables\Columns\TextColumn::make('current_tenant_name')
 - ✅ `tests/Performance/PropertiesRelationManagerPerformanceTest.php`
 
 ### Documentation
-- ✅ `docs/performance/PROPERTIES_RELATION_MANAGER_PERFORMANCE_ANALYSIS.md`
-- ✅ `docs/performance/PERFORMANCE_OPTIMIZATION_SUMMARY.md`
-- ✅ `docs/performance/QUICK_PERFORMANCE_GUIDE.md`
-- ✅ `docs/performance/OPTIMIZATION_COMPLETE.md`
+- ✅ [docs/performance/PROPERTIES_RELATION_MANAGER_PERFORMANCE_ANALYSIS.md](PROPERTIES_RELATION_MANAGER_PERFORMANCE_ANALYSIS.md)
+- ✅ [docs/performance/PERFORMANCE_OPTIMIZATION_SUMMARY.md](PERFORMANCE_OPTIMIZATION_SUMMARY.md)
+- ✅ [docs/performance/QUICK_PERFORMANCE_GUIDE.md](QUICK_PERFORMANCE_GUIDE.md)
+- ✅ [docs/performance/OPTIMIZATION_COMPLETE.md](OPTIMIZATION_COMPLETE.md)
 
 ---
 
@@ -286,9 +286,9 @@ Set up alerts for:
 ## 📚 Documentation
 
 ### Performance Docs
-- [Full Analysis](./PROPERTIES_RELATION_MANAGER_PERFORMANCE_ANALYSIS.md) - Detailed technical analysis
-- [Optimization Summary](./PERFORMANCE_OPTIMIZATION_SUMMARY.md) - Quick overview
-- [Quick Guide](./QUICK_PERFORMANCE_GUIDE.md) - Practical tips
+- [Full Analysis](PROPERTIES_RELATION_MANAGER_PERFORMANCE_ANALYSIS.md) - Detailed technical analysis
+- [Optimization Summary](PERFORMANCE_OPTIMIZATION_SUMMARY.md) - Quick overview
+- [Quick Guide](QUICK_PERFORMANCE_GUIDE.md) - Practical tips
 
 ### Related Docs
 - [Implementation Complete](../implementation/PROPERTIES_RELATION_MANAGER_COMPLETE.md)

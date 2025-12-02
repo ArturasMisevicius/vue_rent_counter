@@ -324,17 +324,17 @@ Regular Tariff:
 
 ## Related Resources
 
-- [TariffResource API Documentation](./TARIFF_RESOURCE_API.md)
+- [TariffResource API Documentation](TARIFF_RESOURCE_API.md)
 - [Tariff Model Documentation](../models/TARIFF_MODEL.md)
 - [Tariff Policy Documentation](../policies/TARIFF_POLICY.md)
-- [Role-Based Navigation Visibility](./role-based-navigation-visibility.md)
+- [Role-Based Navigation Visibility](role-based-navigation-visibility.md)
 - [Billing Service Documentation](../services/BILLING_SERVICE.md)
 
 ## Support
 
 For additional help:
 
-1. Review the [API Documentation](./TARIFF_RESOURCE_API.md)
+1. Review the [API Documentation](TARIFF_RESOURCE_API.md)
 2. Check the [Test Files](../../tests/Feature/Filament/) for examples
 3. Consult the [Project README](../../README.md)
 4. Review related documentation in `docs/filament/`

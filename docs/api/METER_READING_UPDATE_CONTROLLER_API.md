@@ -507,11 +507,11 @@ $items = InvoiceItem::whereJsonContains('meter_reading_snapshot->start_reading_i
 
 ## Related Documentation
 
-- **Implementation**: `docs/implementation/METER_READING_CONTROLLERS_IMPLEMENTATION.md`
-- **Observer API**: `docs/api/METER_READING_OBSERVER_API.md`
-- **Test Coverage**: `docs/testing/METER_READING_OBSERVER_TEST_COVERAGE.md`
-- **Draft Invoice Recalculation**: `docs/implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md`
-- **Billing Service**: `docs/implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md`
+- **Implementation**: [docs/implementation/METER_READING_CONTROLLERS_IMPLEMENTATION.md](../implementation/METER_READING_CONTROLLERS_IMPLEMENTATION.md)
+- **Observer API**: [docs/api/METER_READING_OBSERVER_API.md](METER_READING_OBSERVER_API.md)
+- **Test Coverage**: [docs/testing/METER_READING_OBSERVER_TEST_COVERAGE.md](../testing/METER_READING_OBSERVER_TEST_COVERAGE.md)
+- **Draft Invoice Recalculation**: [docs/implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md](../implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md)
+- **Billing Service**: [docs/implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md](../implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md)
 
 ---
 

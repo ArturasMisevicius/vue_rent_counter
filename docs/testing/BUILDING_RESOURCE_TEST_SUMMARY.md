@@ -397,11 +397,11 @@ php artisan test --filter=BuildingResourcePerformance
 
 ## Documentation References
 
-- [BuildingResource Guide](../../docs/filament/BUILDING_RESOURCE.md)
-- [BuildingResource API](../../docs/filament/BUILDING_RESOURCE_API.md)
-- [Performance Optimization](../../docs/performance/BUILDING_RESOURCE_OPTIMIZATION.md)
-- [Security Audit](../../docs/security/BUILDING_RESOURCE_SECURITY_AUDIT.md)
-- [Test README](../../tests/Feature/Filament/README_BUILDING_RESOURCE_TESTS.md)
+- [BuildingResource Guide](../filament/BUILDING_RESOURCE.md)
+- [BuildingResource API](../filament/BUILDING_RESOURCE_API.md)
+- [Performance Optimization](../performance/BUILDING_RESOURCE_OPTIMIZATION.md)
+- [Security Audit](../security/BUILDING_RESOURCE_SECURITY_AUDIT.md)
+- [Test README](../misc/README_BUILDING_RESOURCE_TESTS.md)
 
 ## Maintenance Schedule
 

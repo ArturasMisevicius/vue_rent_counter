@@ -269,10 +269,10 @@ Potential improvements for future iterations:
 
 - **Specification**: `.kiro/specs/2-vilnius-utilities-billing/requirements.md` (Requirement 8.3)
 - **Design**: `.kiro/specs/2-vilnius-utilities-billing/design.md` (Property 18)
-- **Observer Implementation**: `docs/implementation/METER_READING_OBSERVER_IMPLEMENTATION.md`
-- **Billing Service**: `docs/implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md`
-- **Test Coverage**: `docs/testing/METER_READING_OBSERVER_TEST_COVERAGE.md`
-- **Test Quick Reference**: `docs/testing/METER_READING_OBSERVER_TEST_QUICK_REFERENCE.md`
+- **Observer Implementation**: [docs/implementation/METER_READING_OBSERVER_IMPLEMENTATION.md](METER_READING_OBSERVER_IMPLEMENTATION.md)
+- **Billing Service**: [docs/implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md](BILLING_SERVICE_V2_IMPLEMENTATION.md)
+- **Test Coverage**: [docs/testing/METER_READING_OBSERVER_TEST_COVERAGE.md](../testing/METER_READING_OBSERVER_TEST_COVERAGE.md)
+- **Test Quick Reference**: [docs/testing/METER_READING_OBSERVER_TEST_QUICK_REFERENCE.md](../testing/METER_READING_OBSERVER_TEST_QUICK_REFERENCE.md)
 
 ## Test Coverage
 

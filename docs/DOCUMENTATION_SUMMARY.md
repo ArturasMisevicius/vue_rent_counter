@@ -34,7 +34,7 @@ docs/
 
 ### 1. Command Documentation
 
-**File**: `docs/commands/CALCULATE_SUMMER_AVERAGE_COMMAND.md`
+**File**: [docs/commands/CALCULATE_SUMMER_AVERAGE_COMMAND.md](commands/CALCULATE_SUMMER_AVERAGE_COMMAND.md)
 
 **Contents**:
 - Overview and purpose
@@ -57,7 +57,7 @@ docs/
 
 ### 2. Service Documentation
 
-**File**: `docs/services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md`
+**File**: [docs/services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md](services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md)
 
 **Contents**:
 - Service overview and purpose
@@ -78,7 +78,7 @@ docs/
 
 ### 3. SummerPeriod Value Object
 
-**File**: `docs/value-objects/SUMMER_PERIOD.md`
+**File**: [docs/value-objects/SUMMER_PERIOD.md](value-objects/SUMMER_PERIOD.md)
 
 **Contents**:
 - Value object overview
@@ -99,7 +99,7 @@ docs/
 
 ### 4. CalculationResult Value Object
 
-**File**: `docs/value-objects/CALCULATION_RESULT.md`
+**File**: [docs/value-objects/CALCULATION_RESULT.md](value-objects/CALCULATION_RESULT.md)
 
 **Contents**:
 - Value object overview
@@ -119,7 +119,7 @@ docs/
 
 ### 5. API Reference
 
-**File**: `docs/api/GYVATUKAS_SUMMER_AVERAGE_API.md`
+**File**: [docs/api/GYVATUKAS_SUMMER_AVERAGE_API.md](api/GYVATUKAS_SUMMER_AVERAGE_API.md)
 
 **Contents**:
 - Complete API reference
@@ -139,7 +139,7 @@ docs/
 
 ### 6. Quick Reference
 
-**File**: `docs/reference/GYVATUKAS_SUMMER_AVERAGE_QUICK_REFERENCE.md`
+**File**: [docs/reference/GYVATUKAS_SUMMER_AVERAGE_QUICK_REFERENCE.md](reference/GYVATUKAS_SUMMER_AVERAGE_QUICK_REFERENCE.md)
 
 **Contents**:
 - TL;DR summary
@@ -159,7 +159,7 @@ docs/
 
 ### 7. Changelog
 
-**File**: `docs/CHANGELOG.md`
+**File**: [docs/CHANGELOG.md](CHANGELOG.md)
 
 **Contents**:
 - Comprehensive changelog entry for gyvatukas system
@@ -179,7 +179,7 @@ docs/
 
 ### 8. Refactoring Documentation (Updated)
 
-**File**: `docs/refactoring/CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md`
+**File**: [docs/refactoring/CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md](refactoring/CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md)
 
 **Updates**:
 - Added links to all new documentation files
@@ -283,22 +283,22 @@ All new documentation includes links to:
 ### Documentation Index
 
 The following files now reference the new documentation:
-- `README.md` (existing, no changes needed)
-- `.kiro/specs/2-vilnius-utilities-billing/tasks.md` (updated)
-- `docs/refactoring/CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md` (updated)
+- [README.md](README.md) (existing, no changes needed)
+- [.kiro/specs/2-vilnius-utilities-billing/tasks.md](tasks/tasks.md) (updated)
+- [docs/refactoring/CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md](refactoring/CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md) (updated)
 
 ## Usage Patterns
 
 ### For New Developers
 
-1. Start with: `GYVATUKAS_SUMMER_AVERAGE_QUICK_REFERENCE.md`
-2. Read: `CALCULATE_SUMMER_AVERAGE_COMMAND.md`
+1. Start with: [GYVATUKAS_SUMMER_AVERAGE_QUICK_REFERENCE.md](reference/GYVATUKAS_SUMMER_AVERAGE_QUICK_REFERENCE.md)
+2. Read: [CALCULATE_SUMMER_AVERAGE_COMMAND.md](commands/CALCULATE_SUMMER_AVERAGE_COMMAND.md)
 3. Explore: Service and value object documentation as needed
 
 ### For API Integration
 
-1. Start with: `GYVATUKAS_SUMMER_AVERAGE_API.md`
-2. Reference: `GYVATUKAS_SUMMER_AVERAGE_SERVICE.md`
+1. Start with: [GYVATUKAS_SUMMER_AVERAGE_API.md](api/GYVATUKAS_SUMMER_AVERAGE_API.md)
+2. Reference: [GYVATUKAS_SUMMER_AVERAGE_SERVICE.md](services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md)
 3. Check: Value object documentation for data structures
 
 ### For Troubleshooting

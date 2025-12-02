@@ -432,10 +432,10 @@ See `design/examples/` for complete usage examples:
 
 ## Related Documentation
 
-- [Design System Overview](../design/README.md)
-- [Integration Guide](../design/INTEGRATION_GUIDE.md)
-- [Component Audit](../design/COMPONENT_AUDIT.md)
-- [Migration Plan](../design/MIGRATION_PLAN.md)
+- [Design System Overview](../overview/readme.md)
+- [Integration Guide](../guides/INTEGRATION_GUIDE.md)
+- [Component Audit](../misc/COMPONENT_AUDIT.md)
+- [Migration Plan](../misc/MIGRATION_PLAN.md)
 - [Frontend Guide](FRONTEND.md)
 - [Blade Components](BLADE_COMPONENTS.md)
 - [View Composers](VIEW_COMPOSERS.md)
@@ -466,9 +466,9 @@ See `design/examples/` for complete usage examples:
 ## Support
 
 For questions or issues:
-- Review [Integration Guide](../design/INTEGRATION_GUIDE.md)
-- Check [Component Audit](../design/COMPONENT_AUDIT.md)
-- Consult [Migration Plan](../design/MIGRATION_PLAN.md)
+- Review [Integration Guide](../guides/INTEGRATION_GUIDE.md)
+- Check [Component Audit](../misc/COMPONENT_AUDIT.md)
+- Consult [Migration Plan](../misc/MIGRATION_PLAN.md)
 - Contact design system team
 
 ---

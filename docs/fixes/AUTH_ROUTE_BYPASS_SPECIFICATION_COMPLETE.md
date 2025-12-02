@@ -57,7 +57,7 @@ public function handle(Request $request, Closure $next): Response
    - Monitoring and alerting configuration
    - Future enhancement roadmap
 
-2. **`.kiro/specs/auth-route-bypass-fix/tasks.md`**
+2. **[.kiro/specs/auth-route-bypass-fix/tasks.md](../tasks/tasks.md)**
    - Complete task checklist
    - Implementation timeline
    - Test results
@@ -67,17 +67,17 @@ public function handle(Request $request, Closure $next): Response
    - Lessons learned
 
 ### Updated Documentation
-3. **`docs/middleware/CHECK_SUBSCRIPTION_STATUS.md`**
+3. **[docs/middleware/CHECK_SUBSCRIPTION_STATUS.md](../middleware/CHECK_SUBSCRIPTION_STATUS.md)**
    - Added authentication route bypass section
    - Documented bypassed routes and rationale
    - Updated with security considerations
 
-4. **`docs/fixes/LOGIN_FIX_2025_12_01.md`**
+4. **[docs/fixes/LOGIN_FIX_2025_12_01.md](LOGIN_FIX_2025_12_01.md)**
    - Documented bypass implementation
    - Added verification steps
    - Included testing checklist
 
-5. **`docs/fixes/SUBSCRIPTION_MIDDLEWARE_ENHANCEMENT_2025_12_01.md`**
+5. **[docs/fixes/SUBSCRIPTION_MIDDLEWARE_ENHANCEMENT_2025_12_01.md](SUBSCRIPTION_MIDDLEWARE_ENHANCEMENT_2025_12_01.md)**
    - Enhanced with comprehensive error handling
    - Documented fail-open strategy
    - Added monitoring recommendations
@@ -270,7 +270,7 @@ event(new SubscriptionCheckBypassed($request->route()->getName()));
 
 ### Implementation Docs
 - [Comprehensive Spec](.kiro/specs/auth-route-bypass-fix/spec.md)
-- [Task Checklist](.kiro/specs/auth-route-bypass-fix/tasks.md)
+- [Task Checklist](../tasks/tasks.md)
 
 ### Fix Documentation
 - [Login Fix](LOGIN_FIX_2025_12_01.md)

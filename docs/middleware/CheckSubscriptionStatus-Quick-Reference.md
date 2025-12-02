@@ -228,10 +228,10 @@ If subscription check throws an exception:
 
 ## Related Documentation
 
-- [Implementation Guide](./CheckSubscriptionStatus-Implementation-Guide.md) - Comprehensive guide
-- [Refactoring Complete](./CheckSubscriptionStatus-Refactoring-Complete-2025-12-02.md) - Detailed refactoring summary
-- [CSRF Documentation Enhancement](./CHANGELOG_CHECKSUBSCRIPTIONSTATUS_CSRF_DOCS.md) - Recent enhancement details
-- [Middleware README](./README.md) - All middleware documentation
+- [Implementation Guide](CheckSubscriptionStatus-Implementation-Guide.md) - Comprehensive guide
+- [Refactoring Complete](CheckSubscriptionStatus-Refactoring-Complete-2025-12-02.md) - Detailed refactoring summary
+- [CSRF Documentation Enhancement](CHANGELOG_CHECKSUBSCRIPTIONSTATUS_CSRF_DOCS.md) - Recent enhancement details
+- [Middleware README](README.md) - All middleware documentation
 
 ## Quick Commands
 
@@ -258,10 +258,10 @@ php artisan route:list --path=admin
 ## Support
 
 For questions or issues:
-1. Check [Implementation Guide](./CheckSubscriptionStatus-Implementation-Guide.md)
+1. Check [Implementation Guide](CheckSubscriptionStatus-Implementation-Guide.md)
 2. Review test suite for examples
 3. Check audit logs for subscription check details
-4. Consult [Middleware README](./README.md)
+4. Consult [Middleware README](README.md)
 
 ---
 

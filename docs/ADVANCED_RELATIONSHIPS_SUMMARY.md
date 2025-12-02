@@ -252,7 +252,7 @@ $table->index(['commentable_type', 'commentable_id', 'created_at']);
 ## 🧪 Testing
 
 Comprehensive test examples are provided in:
-- `docs/examples/ADVANCED_RELATIONSHIPS_TESTING.md`
+- [docs/examples/ADVANCED_RELATIONSHIPS_TESTING.md](examples/ADVANCED_RELATIONSHIPS_TESTING.md)
 
 Key testing areas:
 - Unit tests for each model
@@ -297,8 +297,8 @@ $request->validate([
 
 - [Laravel Eloquent Relationships Documentation](https://laravel.com/docs/eloquent-relationships)
 - [Polymorphic Relationships Guide](https://laravel.com/docs/eloquent-relationships#polymorphic-relationships)
-- Usage Examples: `docs/examples/ADVANCED_RELATIONSHIPS_USAGE.md`
-- Testing Guide: `docs/examples/ADVANCED_RELATIONSHIPS_TESTING.md`
+- Usage Examples: [docs/examples/ADVANCED_RELATIONSHIPS_USAGE.md](examples/ADVANCED_RELATIONSHIPS_USAGE.md)
+- Testing Guide: [docs/examples/ADVANCED_RELATIONSHIPS_TESTING.md](examples/ADVANCED_RELATIONSHIPS_TESTING.md)
 
 ## 🎓 Next Steps
 

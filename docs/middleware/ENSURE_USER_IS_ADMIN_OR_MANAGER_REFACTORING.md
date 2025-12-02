@@ -239,7 +239,7 @@ Request Flow:
 
 1. ✅ `app/Http/Middleware/EnsureUserIsAdminOrManager.php` - Refactored
 2. ✅ `tests/Feature/Middleware/EnsureUserIsAdminOrManagerTest.php` - Created
-3. ✅ `docs/middleware/ENSURE_USER_IS_ADMIN_OR_MANAGER_REFACTORING.md` - This file
+3. ✅ [docs/middleware/ENSURE_USER_IS_ADMIN_OR_MANAGER_REFACTORING.md](ENSURE_USER_IS_ADMIN_OR_MANAGER_REFACTORING.md) - This file
 
 ## Deployment Checklist
 
@@ -298,8 +298,8 @@ grep "Admin panel access denied" storage/logs/laravel.log | jq '.ip' | sort | un
 
 ## Related Documentation
 
-- [Filament Admin Authorization Fix](../FILAMENT_ADMIN_AUTHORIZATION_FIX.md)
-- [Authorization Fix Summary](../AUTHORIZATION_FIX_SUMMARY.md)
+- [Filament Admin Authorization Fix](../security/FILAMENT_ADMIN_AUTHORIZATION_FIX.md)
+- [Authorization Fix Summary](../security/AUTHORIZATION_FIX_SUMMARY.md)
 - [Admin Panel Guide](../admin/ADMIN_PANEL_GUIDE.md)
 - [Security Implementation](../security/SECURITY_IMPLEMENTATION_CHECKLIST.md)
 

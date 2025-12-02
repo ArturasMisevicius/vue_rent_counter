@@ -163,10 +163,10 @@ Accessibility testing is handled at the UI level:
 
 ## Documentation References
 
-- **Exception Documentation**: `docs/exceptions/INVALID_PROPERTY_ASSIGNMENT_EXCEPTION.md`
-- **Security Audit**: `docs/security/INVALID_PROPERTY_ASSIGNMENT_EXCEPTION_SECURITY_AUDIT.md`
+- **Exception Documentation**: [docs/exceptions/INVALID_PROPERTY_ASSIGNMENT_EXCEPTION.md](../exceptions/INVALID_PROPERTY_ASSIGNMENT_EXCEPTION.md)
+- **Security Audit**: [docs/security/INVALID_PROPERTY_ASSIGNMENT_EXCEPTION_SECURITY_AUDIT.md](../security/INVALID_PROPERTY_ASSIGNMENT_EXCEPTION_SECURITY_AUDIT.md)
 - **Requirements**: `.kiro/specs/exception-enhancement/requirements.md`
-- **Changelog**: `docs/CHANGELOG_EXCEPTION_DOCUMENTATION.md`
+- **Changelog**: [docs/CHANGELOG_EXCEPTION_DOCUMENTATION.md](../CHANGELOG_EXCEPTION_DOCUMENTATION.md)
 
 ---
 

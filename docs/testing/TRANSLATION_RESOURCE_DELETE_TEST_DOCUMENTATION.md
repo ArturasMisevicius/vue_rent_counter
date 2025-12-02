@@ -540,7 +540,7 @@ php artisan test --filter=TranslationResourceDeleteTest --coverage
 ## Related Documentation
 
 - [TranslationResource API Documentation](../filament/TRANSLATION_RESOURCE_API.md)
-- [Translation Resource Create Test Documentation](./TRANSLATION_RESOURCE_CREATE_TEST_GUIDE.md)
+- [Translation Resource Create Test Documentation](TRANSLATION_RESOURCE_CREATE_TEST_GUIDE.md)
 - [Translation Resource Edit Test Documentation](./TRANSLATION_RESOURCE_EDIT_TEST_DOCUMENTATION.md)
 - [Namespace Consolidation Requirements](../../.kiro/specs/6-filament-namespace-consolidation/requirements.md)
 - [Namespace Consolidation Design](../../.kiro/specs/6-filament-namespace-consolidation/design.md)

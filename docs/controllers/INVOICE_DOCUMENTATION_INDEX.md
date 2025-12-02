@@ -12,7 +12,7 @@ Complete documentation for invoice management functionality in the Vilnius Utili
 **Purpose**: Manage invoice CRUD operations for managers and admins
 
 **Documentation**:
-- [Implementation Guide](./INVOICE_CONTROLLER_IMPLEMENTATION_COMPLETE.md)
+- [Implementation Guide](INVOICE_CONTROLLER_IMPLEMENTATION_COMPLETE.md)
 
 **Key Features**:
 - List invoices with filtering (status, property, tenant, date range)
@@ -36,9 +36,9 @@ Complete documentation for invoice management functionality in the Vilnius Utili
 
 **Documentation**:
 - [API Reference](../api/FINALIZE_INVOICE_CONTROLLER_API.md) - Complete endpoint documentation
-- [Usage Guide](./FINALIZE_INVOICE_CONTROLLER_USAGE.md) - Practical examples
-- [Implementation Details](./FINALIZE_INVOICE_CONTROLLER_REFACTORING_COMPLETE.md) - Technical details
-- [Summary](./FINALIZE_INVOICE_CONTROLLER_SUMMARY.md) - Executive overview
+- [Usage Guide](FINALIZE_INVOICE_CONTROLLER_USAGE.md) - Practical examples
+- [Implementation Details](FINALIZE_INVOICE_CONTROLLER_REFACTORING_COMPLETE.md) - Technical details
+- [Summary](FINALIZE_INVOICE_CONTROLLER_SUMMARY.md) - Executive overview
 
 **Key Features**:
 - Single-action controller pattern

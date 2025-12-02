@@ -6,7 +6,7 @@
 
 **Date**: 2025-11-28  
 **Task**: Set default language for LanguageResource  
-**Spec**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+**Spec**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 
 ## What Was Done
 

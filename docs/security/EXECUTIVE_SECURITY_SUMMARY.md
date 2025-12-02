@@ -301,9 +301,9 @@ Comprehensive security audit and hardening of the PropertiesRelationManager comp
 
 ### Documentation
 
-- [Full Security Audit](./PROPERTIES_RELATION_MANAGER_SECURITY_AUDIT.md)
-- [Implementation Checklist](./SECURITY_IMPLEMENTATION_CHECKLIST.md)
-- [Fixes Summary](./SECURITY_FIXES_SUMMARY.md)
+- [Full Security Audit](PROPERTIES_RELATION_MANAGER_SECURITY_AUDIT.md)
+- [Implementation Checklist](SECURITY_IMPLEMENTATION_CHECKLIST.md)
+- [Fixes Summary](SECURITY_FIXES_SUMMARY.md)
 - [Performance Analysis](../performance/PROPERTIES_RELATION_MANAGER_PERFORMANCE_ANALYSIS.md)
 
 ---

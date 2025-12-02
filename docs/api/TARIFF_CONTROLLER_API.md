@@ -674,8 +674,8 @@ $activeTariffs = Cache::remember('tariffs.active', 3600, function () {
 
 ## Related Documentation
 
-- **Policy**: `docs/api/TARIFF_POLICY_API.md`
-- **Implementation**: `docs/controllers/TARIFF_CONTROLLER_COMPLETE.md`
+- **Policy**: [docs/api/TARIFF_POLICY_API.md](TARIFF_POLICY_API.md)
+- **Implementation**: [docs/controllers/TARIFF_CONTROLLER_COMPLETE.md](../controllers/TARIFF_CONTROLLER_COMPLETE.md)
 - **Testing**: `tests/Feature/Http/Controllers/Admin/TariffControllerTest.php`
 - **Specification**: `.kiro/specs/2-vilnius-utilities-billing/requirements.md`
 

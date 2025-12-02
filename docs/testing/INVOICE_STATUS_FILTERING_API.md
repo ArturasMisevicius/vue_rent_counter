@@ -384,6 +384,6 @@ php artisan test tests/Feature/Filament/FilamentInvoiceStatusFilteringPropertyTe
 
 ## Related Documentation
 
-- [Invoice Status Filtering Tests Guide](./invoice-status-filtering-tests.md)
-- [Filament Tests README](../../tests/Feature/Filament/README.md)
-- [Testing Best Practices](./README.md)
+- [Invoice Status Filtering Tests Guide](invoice-status-filtering-tests.md)
+- [Filament Tests README](../overview/Filament-readme.md)
+- [Testing Best Practices](README.md)

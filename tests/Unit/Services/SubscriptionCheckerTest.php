@@ -18,7 +18,7 @@ test('isActive returns true for active subscriptions', function () {
     
     Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => SubscriptionStatus::ACTIVE,
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addMonths(6),
     ]);
 
@@ -30,7 +30,7 @@ test('isActive returns false for expired subscriptions', function () {
     
     Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => SubscriptionStatus::EXPIRED,
+        'status' => SubscriptionStatus::EXPIRED->value,
         'expires_at' => now()->subDays(5),
     ]);
 
@@ -48,7 +48,7 @@ test('isActive caches the result', function () {
     
     Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => SubscriptionStatus::ACTIVE,
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addMonths(6),
     ]);
 
@@ -66,7 +66,7 @@ test('getSubscription returns subscription for user', function () {
     
     $subscription = Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => SubscriptionStatus::ACTIVE,
+        'status' => SubscriptionStatus::ACTIVE->value,
     ]);
 
     $result = $this->checker->getSubscription($user);
@@ -86,7 +86,7 @@ test('getSubscription caches the result', function () {
     
     Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => SubscriptionStatus::ACTIVE,
+        'status' => SubscriptionStatus::ACTIVE->value,
     ]);
 
     // First call
@@ -103,7 +103,7 @@ test('isExpired returns true for expired subscriptions', function () {
     
     Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => SubscriptionStatus::ACTIVE,
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->subDays(1),
     ]);
 
@@ -115,7 +115,7 @@ test('isExpired returns false for active subscriptions', function () {
     
     Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => SubscriptionStatus::ACTIVE,
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addMonths(6),
     ]);
 
@@ -133,7 +133,7 @@ test('daysUntilExpiry returns correct number of days', function () {
     
     Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => SubscriptionStatus::ACTIVE,
+        'status' => SubscriptionStatus::ACTIVE->value,
         'expires_at' => now()->addDays(30),
     ]);
 
@@ -147,7 +147,7 @@ test('daysUntilExpiry returns negative for expired subscriptions', function () {
     
     Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => SubscriptionStatus::EXPIRED,
+        'status' => SubscriptionStatus::EXPIRED->value,
         'expires_at' => now()->subDays(5),
     ]);
 
@@ -167,7 +167,7 @@ test('invalidate clears cached subscription data', function () {
     
     Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => SubscriptionStatus::ACTIVE,
+        'status' => SubscriptionStatus::ACTIVE->value,
     ]);
 
     // Cache the data
@@ -192,7 +192,7 @@ test('invalidateMany clears cache for multiple users', function () {
     foreach ($users as $user) {
         Subscription::factory()->create([
             'user_id' => $user->id,
-            'status' => SubscriptionStatus::ACTIVE,
+            'status' => SubscriptionStatus::ACTIVE->value,
         ]);
         
         // Cache the data
@@ -213,7 +213,7 @@ test('warmCache pre-loads subscription data', function () {
     
     Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => SubscriptionStatus::ACTIVE,
+        'status' => SubscriptionStatus::ACTIVE->value,
     ]);
 
     // Warm cache
@@ -229,7 +229,7 @@ test('cache expires after TTL', function () {
     
     Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => SubscriptionStatus::ACTIVE,
+        'status' => SubscriptionStatus::ACTIVE->value,
     ]);
 
     // Cache the data
@@ -250,7 +250,7 @@ test('multiple calls use cached data', function () {
     
     Subscription::factory()->create([
         'user_id' => $user->id,
-        'status' => SubscriptionStatus::ACTIVE,
+        'status' => SubscriptionStatus::ACTIVE->value,
     ]);
 
     // Enable query log

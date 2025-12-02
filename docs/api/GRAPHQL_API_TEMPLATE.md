@@ -39,4 +39,4 @@ type Mutation {
 - Include malformed queries and complexity/depth limit tests.
 
 ## When to Update
-- When GraphQL is actually implemented; convert this template into a concrete guide and link it in `HOOKS_DOCUMENTATION_MAP.md`.
+- When GraphQL is actually implemented; convert this template into a concrete guide and link it in [HOOKS_DOCUMENTATION_MAP.md](../reference/HOOKS_DOCUMENTATION_MAP.md).

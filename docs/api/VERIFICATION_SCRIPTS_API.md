@@ -618,7 +618,7 @@ DB_DATABASE=/absolute/path/to/database/database.sqlite
 - [Batch 3 Verification Guide](../testing/BATCH_3_VERIFICATION_GUIDE.md) - User guide
 - [Batch 3 Resources Migration](../upgrades/BATCH_3_RESOURCES_MIGRATION.md) - Migration report
 - [Laravel 12 + Filament 4 Upgrade](../upgrades/LARAVEL_12_FILAMENT_4_UPGRADE.md) - Upgrade guide
-- [Framework Upgrade Tasks](../../.kiro/specs/1-framework-upgrade/tasks.md) - Task checklist
+- [Framework Upgrade Tasks](../tasks/tasks.md) - Task checklist
 
 ---
 

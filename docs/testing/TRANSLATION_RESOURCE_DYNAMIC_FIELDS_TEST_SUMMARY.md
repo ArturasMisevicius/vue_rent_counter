@@ -158,9 +158,9 @@ php artisan test --filter=TranslationResourceDynamicFieldsTest --coverage
 3. Add field virtualization for very large language sets
 
 ## Related Documentation
-- TranslationResource API: `docs/filament/TRANSLATION_RESOURCE_API.md`
+- TranslationResource API: [docs/filament/TRANSLATION_RESOURCE_API.md](../filament/TRANSLATION_RESOURCE_API.md)
 - Language Model: `app/Models/Language.php`
-- Cache Strategy: `docs/performance/LANGUAGE_RESOURCE_PERFORMANCE_OPTIMIZATION.md`
+- Cache Strategy: [docs/performance/LANGUAGE_RESOURCE_PERFORMANCE_OPTIMIZATION.md](../performance/LANGUAGE_RESOURCE_PERFORMANCE_OPTIMIZATION.md)
 
 ## Completion Status
 ✅ **Test suite complete and passing**

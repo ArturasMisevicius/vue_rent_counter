@@ -302,9 +302,9 @@ The security audit and hardening of BuildingResource and PropertiesRelationManag
 ## Appendices
 
 ### A. Related Documentation
-- [Comprehensive Security Audit](./BUILDING_RESOURCE_SECURITY_AUDIT.md)
-- [Implementation Summary](./SECURITY_IMPLEMENTATION_SUMMARY.md)
-- [Security Documentation Index](./README.md)
+- [Comprehensive Security Audit](BUILDING_RESOURCE_SECURITY_AUDIT.md)
+- [Implementation Summary](SECURITY_IMPLEMENTATION_SUMMARY.md)
+- [Security Documentation Index](README.md)
 
 ### B. Test Results
 - Security Tests: 30/32 passing (2 skipped)

@@ -62,7 +62,7 @@ All operations logged with full context for monitoring and debugging.
 
 ### Implementation Documentation
 
-1. **[Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md)** (5,000+ words)
+1. **[Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md)** (5,000+ words)
    - Complete architecture overview
    - Detailed method documentation
    - Usage examples and patterns
@@ -77,26 +77,26 @@ All operations logged with full context for monitoring and debugging.
    - Configuration reference
    - Integration examples
 
-3. **[Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md)** (500 words)
+3. **[Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md)** (500 words)
    - Quick start examples
    - Common patterns
    - Key features summary
    - Performance metrics
 
-4. **[Migration Checklist](./BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md)** (1,500 words)
+4. **[Migration Checklist](BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md)** (1,500 words)
    - Pre-deployment checklist
    - Deployment steps
    - Post-deployment verification
    - Rollback plan
    - Monitoring guidelines
 
-5. **[Refactoring Report](./BILLING_SERVICE_REFACTORING.md)** (3,000+ words)
+5. **[Refactoring Report](BILLING_SERVICE_REFACTORING.md)** (3,000+ words)
    - Detailed refactoring analysis
    - Before/after comparisons
    - Performance benchmarks
    - Code quality metrics
 
-6. **[Refactoring Summary](./BILLING_SERVICE_REFACTORING_SUMMARY.md)** (500 words)
+6. **[Refactoring Summary](BILLING_SERVICE_REFACTORING_SUMMARY.md)** (500 words)
    - Executive summary
    - Key changes
    - Quality improvements
@@ -303,10 +303,10 @@ Total: 3 queries (constant)
 ## Related Documentation
 
 ### Implementation Docs
-- [Implementation Guide](./BILLING_SERVICE_V2_IMPLEMENTATION.md)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md)
 - [API Reference](../api/BILLING_SERVICE_API.md)
-- [Quick Reference](./BILLING_SERVICE_QUICK_REFERENCE.md)
-- [Migration Checklist](./BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md)
+- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md)
+- [Migration Checklist](BILLING_SERVICE_V2_MIGRATION_CHECKLIST.md)
 
 ### Architecture Docs
 - [Service Layer Architecture](../architecture/SERVICE_LAYER_ARCHITECTURE.md)
@@ -314,12 +314,12 @@ Total: 3 queries (constant)
 - [BaseService Documentation](../architecture/BASE_SERVICE.md)
 
 ### Related Services
-- [TariffResolver Implementation](./TARIFF_RESOLVER_IMPLEMENTATION.md)
-- [GyvatukasCalculator Implementation](./GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
+- [TariffResolver Implementation](TARIFF_RESOLVER_IMPLEMENTATION.md)
+- [GyvatukasCalculator Implementation](GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
 
 ### Project Docs
 - [CHANGELOG.md](../CHANGELOG.md)
-- [Tasks](../../.kiro/specs/2-vilnius-utilities-billing/tasks.md)
+- [Tasks](../tasks/tasks.md)
 - [Requirements](../../.kiro/specs/2-vilnius-utilities-billing/requirements.md)
 
 ## Conclusion

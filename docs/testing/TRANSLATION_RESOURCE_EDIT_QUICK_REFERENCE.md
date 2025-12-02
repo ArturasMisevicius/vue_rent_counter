@@ -102,9 +102,9 @@ protected function mutateFormDataBeforeCreate(array $data): array
 
 ## Documentation
 
-- **Completion Report**: `docs/testing/TRANSLATION_RESOURCE_EDIT_COMPLETION.md`
-- **Quick Reference**: `docs/testing/TRANSLATION_RESOURCE_EDIT_QUICK_REFERENCE.md` (this file)
-- **Tasks**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+- **Completion Report**: [docs/testing/TRANSLATION_RESOURCE_EDIT_COMPLETION.md](TRANSLATION_RESOURCE_EDIT_COMPLETION.md)
+- **Quick Reference**: [docs/testing/TRANSLATION_RESOURCE_EDIT_QUICK_REFERENCE.md](TRANSLATION_RESOURCE_EDIT_QUICK_REFERENCE.md) (this file)
+- **Tasks**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 
 ---
 

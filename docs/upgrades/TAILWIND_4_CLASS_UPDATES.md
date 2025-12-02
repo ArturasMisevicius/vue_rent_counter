@@ -108,4 +108,4 @@ The following were reviewed and found to be compatible:
 
 - [Tailwind CSS 4.0 Documentation](https://tailwindcss.com/docs)
 - [Tailwind CSS 4.0 Upgrade Guide](https://tailwindcss.com/docs/upgrade-guide)
-- Task: `.kiro/specs/framework-upgrade/tasks.md` - Task 18
+- Task: [.kiro/specs/framework-upgrade/tasks.md](../tasks/tasks.md) - Task 18

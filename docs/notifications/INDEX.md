@@ -115,7 +115,7 @@ config/mail.php         # Mail configuration
 
 ### Project Documentation
 - [Hierarchical User Management Spec](../../.kiro/specs/3-hierarchical-user-management/requirements.md)
-- [Tasks](../../.kiro/specs/3-hierarchical-user-management/tasks.md)
+- [Tasks](../tasks/tasks.md)
 - [Design](../../.kiro/specs/3-hierarchical-user-management/design.md)
 
 ### Service Documentation

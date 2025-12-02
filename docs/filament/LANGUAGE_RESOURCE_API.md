@@ -716,9 +716,9 @@ Languages are **system-wide resources** managed by superadmins only. All tenants
 
 - **Model**: `app/Models/Language.php`
 - **Policy**: `app/Policies/LanguagePolicy.php`
-- **Fix Documentation**: `docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md`
-- **Optimization Guide**: `docs/filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md`
-- **Refactoring Summary**: `docs/refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md`
+- **Fix Documentation**: [docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md](../fixes/LANGUAGE_RESOURCE_FORM_FIX.md)
+- **Optimization Guide**: [docs/filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md](LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md)
+- **Refactoring Summary**: [docs/refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md](../refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md)
 - **Test File**: `tests/Feature/Filament/LanguageResourceNavigationTest.php`
 
 ---

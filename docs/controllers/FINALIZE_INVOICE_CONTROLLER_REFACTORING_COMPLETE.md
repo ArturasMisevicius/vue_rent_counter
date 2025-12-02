@@ -284,12 +284,12 @@ All error messages are translated and user-friendly, with no internal implementa
 
 ## Related Documentation
 
-- [Invoice Controller Implementation](./INVOICE_CONTROLLER_IMPLEMENTATION_COMPLETE.md)
+- [Invoice Controller Implementation](INVOICE_CONTROLLER_IMPLEMENTATION_COMPLETE.md)
 - [BillingService API](../api/BILLING_SERVICE_API.md)
 - [InvoicePolicy API](../api/INVOICE_POLICY_API.md)
 - [Requirements Document](../../.kiro/specs/2-vilnius-utilities-billing/requirements.md)
 - [Design Document](../../.kiro/specs/2-vilnius-utilities-billing/design.md)
-- [Tasks Document](../../.kiro/specs/2-vilnius-utilities-billing/tasks.md)
+- [Tasks Document](../tasks/tasks.md)
 
 ## Status
 

@@ -621,9 +621,9 @@ validateReading() {
 
 ## Related Documentation
 
-- **API Reference**: `docs/api/METER_READING_FORM_API.md`
-- **Implementation Guide**: `docs/refactoring/METER_READING_FORM_COMPLETE.md`
-- **Refactoring Summary**: `docs/refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md`
+- **API Reference**: [docs/api/METER_READING_FORM_API.md](../api/METER_READING_FORM_API.md)
+- **Implementation Guide**: [docs/refactoring/METER_READING_FORM_COMPLETE.md](../refactoring/METER_READING_FORM_COMPLETE.md)
+- **Refactoring Summary**: [docs/refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md](../refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md)
 - **Component Source**: `resources/views/components/meter-reading-form.blade.php`
 - **Controller**: `app/Http/Controllers/Manager/MeterReadingController.php`
 - **Tests**: `tests/Feature/MeterReadingFormComponentTest.php`

@@ -271,8 +271,8 @@ class SubscriptionResource extends Resource
                         ]);
                     })
                     ->visible(fn (Subscription $record) => in_array($record->status, [
-                        SubscriptionStatus::ACTIVE->value,
-                        SubscriptionStatus::EXPIRED->value,
+                        SubscriptionStatus::ACTIVE,
+                        SubscriptionStatus::EXPIRED,
                     ], true))
                     ->requiresConfirmation()
                     ->successNotificationTitle(__('subscriptions.notifications.renewed')),
@@ -283,7 +283,7 @@ class SubscriptionResource extends Resource
                     ->color('warning')
                     ->requiresConfirmation()
                     ->action(fn (Subscription $record) => $record->update(['status' => SubscriptionStatus::SUSPENDED->value]))
-                    ->visible(fn (Subscription $record) => $record->status === SubscriptionStatus::ACTIVE->value)
+                    ->visible(fn (Subscription $record) => $record->status === SubscriptionStatus::ACTIVE)
                     ->successNotificationTitle(__('subscriptions.notifications.suspended')),
                 
                 Actions\Action::make('activate')
@@ -292,7 +292,7 @@ class SubscriptionResource extends Resource
                     ->color('success')
                     ->requiresConfirmation()
                     ->action(fn (Subscription $record) => $record->update(['status' => SubscriptionStatus::ACTIVE->value]))
-                    ->visible(fn (Subscription $record) => $record->status !== SubscriptionStatus::ACTIVE->value)
+                    ->visible(fn (Subscription $record) => $record->status !== SubscriptionStatus::ACTIVE)
                     ->successNotificationTitle(__('subscriptions.notifications.activated')),
                 
                 Actions\Action::make('view_usage')
@@ -321,7 +321,7 @@ class SubscriptionResource extends Resource
                             ->success()
                             ->send();
                     })
-                    ->visible(fn (Subscription $record) => $record->status === SubscriptionStatus::ACTIVE->value && $record->daysUntilExpiry() <= 30),
+                    ->visible(fn (Subscription $record) => $record->status === SubscriptionStatus::ACTIVE && $record->daysUntilExpiry() <= 30),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -390,7 +390,7 @@ class SubscriptionResource extends Resource
                             $suspended = 0;
                             
                             foreach ($records as $record) {
-                                if ($record->status === SubscriptionStatus::ACTIVE->value) {
+                                if ($record->status === SubscriptionStatus::ACTIVE) {
                                     $record->update(['status' => SubscriptionStatus::SUSPENDED->value]);
                                     $suspended++;
                                 }
@@ -414,7 +414,7 @@ class SubscriptionResource extends Resource
                             $activated = 0;
                             
                             foreach ($records as $record) {
-                                if ($record->status !== SubscriptionStatus::ACTIVE->value) {
+                                if ($record->status !== SubscriptionStatus::ACTIVE) {
                                     $record->update(['status' => SubscriptionStatus::ACTIVE->value]);
                                     $activated++;
                                 }

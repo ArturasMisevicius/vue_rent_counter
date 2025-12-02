@@ -393,11 +393,11 @@ if ($user->isAdmin() || $user->isManager()) {
 
 ## Related Documentation
 
-- [Filament Admin Authorization Fix](../FILAMENT_ADMIN_AUTHORIZATION_FIX.md)
-- [Authorization Fix Summary](../AUTHORIZATION_FIX_SUMMARY.md)
+- [Filament Admin Authorization Fix](../security/FILAMENT_ADMIN_AUTHORIZATION_FIX.md)
+- [Authorization Fix Summary](../security/AUTHORIZATION_FIX_SUMMARY.md)
 - [Admin Panel Guide](../admin/ADMIN_PANEL_GUIDE.md)
 - [Security Implementation](../security/SECURITY_IMPLEMENTATION_CHECKLIST.md)
-- [Middleware Refactoring Summary](./REFACTORING_SUMMARY.md)
+- [Middleware Refactoring Summary](REFACTORING_SUMMARY.md)
 
 ## Changelog
 

@@ -335,11 +335,11 @@ git push origin main
 
 ## Related Documentation
 
-- **Performance Analysis**: `docs/performance/POLICY_PERFORMANCE_ANALYSIS.md`
-- **Refactoring Summary**: `docs/implementation/POLICY_REFACTORING_COMPLETE.md`
-- **API Reference**: `docs/api/TARIFF_POLICY_API.md`
+- **Performance Analysis**: [docs/performance/POLICY_PERFORMANCE_ANALYSIS.md](POLICY_PERFORMANCE_ANALYSIS.md)
+- **Refactoring Summary**: [docs/implementation/POLICY_REFACTORING_COMPLETE.md](../implementation/POLICY_REFACTORING_COMPLETE.md)
+- **API Reference**: [docs/api/TARIFF_POLICY_API.md](../api/TARIFF_POLICY_API.md)
 - **Tests**: `tests/Unit/Policies/TariffPolicyTest.php`
-- **Specification**: `.kiro/specs/2-vilnius-utilities-billing/tasks.md`
+- **Specification**: [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md)
 
 ---
 

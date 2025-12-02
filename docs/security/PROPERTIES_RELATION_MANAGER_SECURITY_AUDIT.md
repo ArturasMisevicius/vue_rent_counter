@@ -943,7 +943,7 @@ AUDIT_LOG_RETENTION_DAYS=90
 
 - [Multi-Tenant Architecture](../architecture/MULTI_TENANT_ARCHITECTURE.md)
 - [Testing Guide](../guides/TESTING_GUIDE.md)
-- [Performance Optimization](./PROPERTIES_RELATION_MANAGER_PERFORMANCE_ANALYSIS.md)
+- [Performance Optimization](../performance/PROPERTIES_RELATION_MANAGER_PERFORMANCE_ANALYSIS.md)
 
 ---
 

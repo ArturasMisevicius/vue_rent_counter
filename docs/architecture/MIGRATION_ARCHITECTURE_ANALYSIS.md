@@ -479,8 +479,8 @@ Log::info('Creating billing service performance indexes', [
    - Track query performance metrics
 
 8. **Documentation Updates**:
-   - Update `COMPREHENSIVE_SCHEMA_ANALYSIS.md` with new indexes
-   - Add migration examples to `MIGRATION_PATTERNS.md`
+   - Update [COMPREHENSIVE_SCHEMA_ANALYSIS.md](../database/COMPREHENSIVE_SCHEMA_ANALYSIS.md) with new indexes
+   - Add migration examples to [MIGRATION_PATTERNS.md](../database/MIGRATION_PATTERNS.md)
    - Document rollback procedures
 
 ### Medium-Term (Next Month)

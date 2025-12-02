@@ -134,8 +134,8 @@ php test-login.php
 
 - `app/Scopes/HierarchicalScope.php` - Основное исправление
 - `test-login.php` - Тестовый скрипт
-- `docs/fixes/LOGIN_FIX_2025_12_01.md` - Предыдущее исправление
-- `docs/fixes/HIERARCHICAL_SCOPE_GUEST_FIX.md` - История изменений scope
+- [docs/fixes/LOGIN_FIX_2025_12_01.md](LOGIN_FIX_2025_12_01.md) - Предыдущее исправление
+- [docs/fixes/HIERARCHICAL_SCOPE_GUEST_FIX.md](HIERARCHICAL_SCOPE_GUEST_FIX.md) - История изменений scope
 
 ## Уроки
 

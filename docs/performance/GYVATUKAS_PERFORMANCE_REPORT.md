@@ -393,27 +393,27 @@ public function calculateBatch(Collection $buildings, Carbon $month): array
 ### Complete Documentation Suite
 
 1. **Performance Optimization Guide** (1,500+ lines)
-   - `docs/performance/GYVATUKAS_CALCULATOR_OPTIMIZATION.md`
+   - [docs/performance/GYVATUKAS_CALCULATOR_OPTIMIZATION.md](GYVATUKAS_CALCULATOR_OPTIMIZATION.md)
    - Detailed analysis, benchmarks, integration examples
 
 2. **Performance Summary** (500+ lines)
-   - `docs/performance/GYVATUKAS_PERFORMANCE_SUMMARY.md`
+   - [docs/performance/GYVATUKAS_PERFORMANCE_SUMMARY.md](GYVATUKAS_PERFORMANCE_SUMMARY.md)
    - Executive summary, quick reference
 
 3. **API Reference** (1,000+ lines)
-   - `docs/api/GYVATUKAS_CALCULATOR_API.md`
+   - [docs/api/GYVATUKAS_CALCULATOR_API.md](../api/GYVATUKAS_CALCULATOR_API.md)
    - Method signatures, parameters, examples
 
 4. **Implementation Guide** (800+ lines)
-   - `docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md`
+   - [docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md](../implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
    - Usage patterns, integration examples
 
 5. **Changelog**
-   - `docs/CHANGELOG.md`
+   - [docs/CHANGELOG.md](../CHANGELOG.md)
    - Version history, breaking changes
 
 6. **Task Tracking**
-   - `.kiro/specs/2-vilnius-utilities-billing/tasks.md`
+   - [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md)
    - Implementation status, requirements mapping
 
 ---

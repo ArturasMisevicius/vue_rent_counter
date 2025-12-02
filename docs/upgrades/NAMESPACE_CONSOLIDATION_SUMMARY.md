@@ -45,10 +45,10 @@ use Filament\Tables;
 **Location**: `.kiro/specs/6-filament-namespace-consolidation/`
 
 **Files**:
-1. ✅ `README.md` - Specification overview and quick links
+1. ✅ [README.md](../../README.md) - Specification overview and quick links
 2. ✅ `requirements.md` - Business requirements and acceptance criteria (1,500+ lines)
 3. ✅ `design.md` - Technical design and implementation approach (1,200+ lines)
-4. ✅ `tasks.md` - Actionable tasks with status tracking (800+ lines)
+4. ✅ [tasks.md](../tasks/tasks.md) - Actionable tasks with status tracking (800+ lines)
 
 **Total**: 3,500+ lines of comprehensive specification
 
@@ -57,7 +57,7 @@ use Filament\Tables;
 ### Documentation Created
 
 **Migration Guide**:
-- ✅ `docs/upgrades/FILAMENT_NAMESPACE_CONSOLIDATION.md` (1,000+ lines)
+- ✅ [docs/upgrades/FILAMENT_NAMESPACE_CONSOLIDATION.md](FILAMENT_NAMESPACE_CONSOLIDATION.md) (1,000+ lines)
   - Complete migration guide with before/after examples
   - Step-by-step instructions
   - Verification procedures
@@ -65,16 +65,16 @@ use Filament\Tables;
   - FAQ section
 
 **Performance Documentation**:
-- ✅ `docs/performance/FAQ_RESOURCE_PERFORMANCE_COMPLETE.md` (updated)
+- ✅ [docs/performance/FAQ_RESOURCE_PERFORMANCE_COMPLETE.md](../performance/FAQ_RESOURCE_PERFORMANCE_COMPLETE.md) (updated)
   - Added namespace consolidation section
   - Updated benefits and achievements
   - Cross-referenced new specification
 
 **Summary Documentation**:
-- ✅ `docs/upgrades/NAMESPACE_CONSOLIDATION_SUMMARY.md` (this file)
+- ✅ [docs/upgrades/NAMESPACE_CONSOLIDATION_SUMMARY.md](NAMESPACE_CONSOLIDATION_SUMMARY.md) (this file)
 
 **CHANGELOG**:
-- ✅ `docs/CHANGELOG.md` (updated)
+- ✅ [docs/CHANGELOG.md](../CHANGELOG.md) (updated)
   - Added namespace consolidation entry
   - Documented performance optimizations
   - Cross-referenced specification
@@ -122,22 +122,22 @@ use Filament\Tables;
 ## Files Created/Modified
 
 ### Specification (4 files)
-1. ✅ `.kiro/specs/6-filament-namespace-consolidation/README.md`
+1. ✅ [.kiro/specs/6-filament-namespace-consolidation/README.md](../overview/readme.md)
 2. ✅ `.kiro/specs/6-filament-namespace-consolidation/requirements.md`
 3. ✅ `.kiro/specs/6-filament-namespace-consolidation/design.md`
-4. ✅ `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+4. ✅ [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 
 ### Documentation (4 files)
-5. ✅ `docs/upgrades/FILAMENT_NAMESPACE_CONSOLIDATION.md`
-6. ✅ `docs/upgrades/NAMESPACE_CONSOLIDATION_SUMMARY.md`
-7. ✅ `docs/performance/FAQ_RESOURCE_PERFORMANCE_COMPLETE.md` (updated)
-8. ✅ `docs/CHANGELOG.md` (updated)
+5. ✅ [docs/upgrades/FILAMENT_NAMESPACE_CONSOLIDATION.md](FILAMENT_NAMESPACE_CONSOLIDATION.md)
+6. ✅ [docs/upgrades/NAMESPACE_CONSOLIDATION_SUMMARY.md](NAMESPACE_CONSOLIDATION_SUMMARY.md)
+7. ✅ [docs/performance/FAQ_RESOURCE_PERFORMANCE_COMPLETE.md](../performance/FAQ_RESOURCE_PERFORMANCE_COMPLETE.md) (updated)
+8. ✅ [docs/CHANGELOG.md](../CHANGELOG.md) (updated)
 
 ### Code (1 file)
 9. ✅ `app/Filament/Resources/FaqResource.php` (modified)
 
 ### Tasks (1 file)
-10. ✅ `.kiro/specs/1-framework-upgrade/tasks.md` (updated)
+10. ✅ [.kiro/specs/1-framework-upgrade/tasks.md](../tasks/tasks.md) (updated)
 
 **Total**: 10 files created/modified
 
@@ -244,14 +244,14 @@ use Filament\Tables;
 ## Related Documentation
 
 ### Specification
-- [Specification README](../../.kiro/specs/6-filament-namespace-consolidation/README.md)
+- [Specification README](../overview/readme.md)
 - [Requirements](../../.kiro/specs/6-filament-namespace-consolidation/requirements.md)
 - [Design](../../.kiro/specs/6-filament-namespace-consolidation/design.md)
-- [Tasks](../../.kiro/specs/6-filament-namespace-consolidation/tasks.md)
+- [Tasks](../tasks/tasks.md)
 
 ### Migration
-- [Migration Guide](./FILAMENT_NAMESPACE_CONSOLIDATION.md)
-- [Batch 4 Resources Migration](./BATCH_4_RESOURCES_MIGRATION.md)
+- [Migration Guide](FILAMENT_NAMESPACE_CONSOLIDATION.md)
+- [Batch 4 Resources Migration](BATCH_4_RESOURCES_MIGRATION.md)
 - [Batch 4 Verification Guide](../testing/BATCH_4_VERIFICATION_GUIDE.md)
 
 ### Performance
@@ -259,8 +259,8 @@ use Filament\Tables;
 - [FAQ Resource Optimization](../performance/FAQ_RESOURCE_OPTIMIZATION.md)
 
 ### Framework
-- [Laravel 12 + Filament 4 Upgrade](./LARAVEL_12_FILAMENT_4_UPGRADE.md)
-- [Framework Upgrade Tasks](../../.kiro/specs/1-framework-upgrade/tasks.md)
+- [Laravel 12 + Filament 4 Upgrade](LARAVEL_12_FILAMENT_4_UPGRADE.md)
+- [Framework Upgrade Tasks](../tasks/tasks.md)
 
 ---
 

@@ -6,7 +6,7 @@ Successfully migrated all Batch 4 Filament resources (FaqResource, LanguageResou
 
 **Status**: ✅ Complete  
 **Date**: 2025-11-24  
-**Task**: `.kiro/specs/1-framework-upgrade/tasks.md` - Task 13
+**Task**: [.kiro/specs/1-framework-upgrade/tasks.md](../tasks/tasks.md) - Task 13
 
 ## What Was Accomplished
 
@@ -43,8 +43,8 @@ Successfully migrated all Batch 4 Filament resources (FaqResource, LanguageResou
 
 **New Files** (3):
 - `verify-batch4-resources.php` - Automated verification script
-- `docs/upgrades/BATCH_4_RESOURCES_MIGRATION.md` - Detailed migration guide
-- `docs/testing/BATCH_4_VERIFICATION_GUIDE.md` - Testing procedures
+- [docs/upgrades/BATCH_4_RESOURCES_MIGRATION.md](BATCH_4_RESOURCES_MIGRATION.md) - Detailed migration guide
+- [docs/testing/BATCH_4_VERIFICATION_GUIDE.md](../testing/BATCH_4_VERIFICATION_GUIDE.md) - Testing procedures
 
 ## Verification Results
 
@@ -240,13 +240,13 @@ php artisan route:list | grep -E "(faq|language|translation)"
 ## Documentation
 
 ### Created
-- ✅ `docs/upgrades/BATCH_4_RESOURCES_MIGRATION.md` - Detailed migration guide
-- ✅ `docs/testing/BATCH_4_VERIFICATION_GUIDE.md` - Testing procedures
-- ✅ `docs/upgrades/BATCH_4_COMPLETION_SUMMARY.md` - This document
+- ✅ [docs/upgrades/BATCH_4_RESOURCES_MIGRATION.md](BATCH_4_RESOURCES_MIGRATION.md) - Detailed migration guide
+- ✅ [docs/testing/BATCH_4_VERIFICATION_GUIDE.md](../testing/BATCH_4_VERIFICATION_GUIDE.md) - Testing procedures
+- ✅ [docs/upgrades/BATCH_4_COMPLETION_SUMMARY.md](BATCH_4_COMPLETION_SUMMARY.md) - This document
 - ✅ `verify-batch4-resources.php` - Verification script
 
 ### Updated
-- ✅ `.kiro/specs/1-framework-upgrade/tasks.md` - Marked task 13 complete
+- ✅ [.kiro/specs/1-framework-upgrade/tasks.md](../tasks/tasks.md) - Marked task 13 complete
 
 ## Conclusion
 
@@ -268,5 +268,5 @@ The migration follows established patterns from previous batches and maintains t
 
 ---
 
-*For detailed technical information, see [BATCH_4_RESOURCES_MIGRATION.md](./BATCH_4_RESOURCES_MIGRATION.md)*  
+*For detailed technical information, see [BATCH_4_RESOURCES_MIGRATION.md](BATCH_4_RESOURCES_MIGRATION.md)*  
 *For testing procedures, see [BATCH_4_VERIFICATION_GUIDE.md](../testing/BATCH_4_VERIFICATION_GUIDE.md)*

@@ -396,8 +396,8 @@ The Filament Namespace Consolidation project has been successfully completed wit
 
 - [Requirements](../../.kiro/specs/6-filament-namespace-consolidation/requirements.md)
 - [Design](../../.kiro/specs/6-filament-namespace-consolidation/design.md)
-- [Tasks](../../.kiro/specs/6-filament-namespace-consolidation/tasks.md)
-- [Resource Prioritization Analysis](./RESOURCE_PRIORITIZATION_ANALYSIS.md)
+- [Tasks](../tasks/tasks.md)
+- [Resource Prioritization Analysis](RESOURCE_PRIORITIZATION_ANALYSIS.md)
 - [Import Count Analysis Script](../../scripts/count-filament-imports.php)
 - [Verification Script](../../verify-batch4-resources.php)
 

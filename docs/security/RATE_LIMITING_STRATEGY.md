@@ -243,7 +243,7 @@ Rate limiting is one layer of DoS protection. Additional measures include:
 - [Middleware Configuration](../middleware/MIDDLEWARE_CONFIGURATION.md)
 - [Security Architecture](./SECURITY_ARCHITECTURE.md)
 - [API Documentation](../api/API_ARCHITECTURE_GUIDE.md)
-- [Performance Optimization](../performance/PERFORMANCE_OPTIMIZATION_COMPLETE.md)
+- [Performance Optimization](../misc/PERFORMANCE_OPTIMIZATION_COMPLETE.md)
 
 ## Changelog
 

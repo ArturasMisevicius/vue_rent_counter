@@ -606,9 +606,9 @@ final class NavigationComposer
 **Test Results**: ✅ 7 tests passing (32 assertions)
 
 **Documentation**: 
-- `docs/refactoring/NAVIGATION_COMPOSER_SPEC.md` - Full specification
-- `docs/refactoring/NAVIGATION_COMPOSER_ANALYSIS.md` - Code quality analysis (9/10)
-- `docs/refactoring/NAVIGATION_COMPOSER_COMPLETE.md` - Completion summary
+- [docs/refactoring/NAVIGATION_COMPOSER_SPEC.md](../refactoring/NAVIGATION_COMPOSER_SPEC.md) - Full specification
+- [docs/refactoring/NAVIGATION_COMPOSER_ANALYSIS.md](../refactoring/NAVIGATION_COMPOSER_ANALYSIS.md) - Code quality analysis (9/10)
+- [docs/refactoring/NAVIGATION_COMPOSER_COMPLETE.md](../refactoring/NAVIGATION_COMPOSER_COMPLETE.md) - Completion summary
 
 ---
 
@@ -792,9 +792,9 @@ php artisan db:show
 ### Internal Documentation
 
 - `.kiro/specs/1-framework-upgrade/` - Upgrade spec with requirements and design
-- `docs/guides/SETUP.md` - Updated setup guide
+- [docs/guides/SETUP.md](../guides/SETUP.md) - Updated setup guide
 - `.kiro/steering/tech.md` - Updated technology stack documentation
-- `docs/guides/TESTING_GUIDE.md` - Testing procedures
+- [docs/guides/TESTING_GUIDE.md](../guides/TESTING_GUIDE.md) - Testing procedures
 
 ### Support Channels
 

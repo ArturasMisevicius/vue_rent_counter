@@ -213,9 +213,9 @@ npm run build
 ## Next Steps
 
 1. **Review Documentation**:
-   - Read `design/README.md`
+   - Read [design/README.md](../overview/readme.md)
    - Check `design/QUICK_START.md`
-   - Review `design/INTEGRATION_GUIDE.md`
+   - Review [design/INTEGRATION_GUIDE.md](../guides/INTEGRATION_GUIDE.md)
 
 2. **Install and Configure**:
    - Run `npm install`
@@ -223,7 +223,7 @@ npm run build
    - Build assets
 
 3. **Start Migrating**:
-   - Follow `design/MIGRATION_PLAN.md`
+   - Follow [design/MIGRATION_PLAN.md](../misc/MIGRATION_PLAN.md)
    - Start with high-priority components
    - Test with all user roles
 
@@ -249,8 +249,8 @@ npm run build
 ### Support
 - Design system docs: `/design/`
 - Component examples: `/design/examples/`
-- Migration guide: `/design/MIGRATION_PLAN.md`
-- Integration guide: `/design/INTEGRATION_GUIDE.md`
+- Migration guide: [/design/MIGRATION_PLAN.md](../misc/MIGRATION_PLAN.md)
+- Integration guide: [/design/INTEGRATION_GUIDE.md](../guides/INTEGRATION_GUIDE.md)
 
 ## Success Metrics
 
@@ -288,9 +288,9 @@ The design system is **complete and ready for implementation**. All documentatio
 ---
 
 **Questions?** Refer to:
-- `design/INTEGRATION_GUIDE.md` for setup help
-- `design/COMPONENT_AUDIT.md` for current state
-- `design/MIGRATION_PLAN.md` for migration strategy
+- [design/INTEGRATION_GUIDE.md](../guides/INTEGRATION_GUIDE.md) for setup help
+- [design/COMPONENT_AUDIT.md](../misc/COMPONENT_AUDIT.md) for current state
+- [design/MIGRATION_PLAN.md](../misc/MIGRATION_PLAN.md) for migration strategy
 - `design/components/` for component documentation
 - `.kiro/specs/design-system-integration/` for requirements
 

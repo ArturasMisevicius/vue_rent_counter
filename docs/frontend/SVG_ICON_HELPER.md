@@ -230,7 +230,7 @@ php artisan test tests/Unit/SvgIconHelperTest.php
 
 - [Blade Guardrails](.kiro/steering/blade-guardrails.md)
 - [Operating Principles](.kiro/steering/operating-principles.md)
-- [Frontend Documentation](./FRONTEND.md)
+- [Frontend Documentation](FRONTEND.md)
 
 ---
 

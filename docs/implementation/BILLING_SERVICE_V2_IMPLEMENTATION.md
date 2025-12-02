@@ -555,12 +555,12 @@ if (abs($calculatedTotal - $invoiceTotal) > 0.01) {
 
 ## Related Documentation
 
-- [BillingService Refactoring Report](./BILLING_SERVICE_REFACTORING.md)
-- [BillingService Refactoring Summary](./BILLING_SERVICE_REFACTORING_SUMMARY.md)
+- [BillingService Refactoring Report](BILLING_SERVICE_REFACTORING.md)
+- [BillingService Refactoring Summary](BILLING_SERVICE_REFACTORING_SUMMARY.md)
 - [Service Layer Architecture](../architecture/SERVICE_LAYER_ARCHITECTURE.md)
 - [Value Objects Guide](../architecture/VALUE_OBJECTS_GUIDE.md)
-- [TariffResolver Implementation](./TARIFF_RESOLVER_IMPLEMENTATION.md)
-- [GyvatukasCalculator Implementation](./GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
+- [TariffResolver Implementation](TARIFF_RESOLVER_IMPLEMENTATION.md)
+- [GyvatukasCalculator Implementation](GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
 
 ## Changelog
 

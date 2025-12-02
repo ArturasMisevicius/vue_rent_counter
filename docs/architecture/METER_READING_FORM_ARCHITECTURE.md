@@ -632,10 +632,10 @@ Load Balancer
 
 ## Related Documentation
 
-- **API Reference**: `docs/api/METER_READING_FORM_API.md`
-- **Usage Guide**: `docs/frontend/METER_READING_FORM_USAGE.md`
-- **Implementation**: `docs/refactoring/METER_READING_FORM_COMPLETE.md`
-- **Refactoring Summary**: `docs/refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md`
+- **API Reference**: [docs/api/METER_READING_FORM_API.md](../api/METER_READING_FORM_API.md)
+- **Usage Guide**: [docs/frontend/METER_READING_FORM_USAGE.md](../frontend/METER_READING_FORM_USAGE.md)
+- **Implementation**: [docs/refactoring/METER_READING_FORM_COMPLETE.md](../refactoring/METER_READING_FORM_COMPLETE.md)
+- **Refactoring Summary**: [docs/refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md](../refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md)
 - **Tests**: `tests/Feature/MeterReadingFormComponentTest.php`
 
 ---

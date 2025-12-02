@@ -588,8 +588,8 @@ $canEdit = Cache::remember(
 
 - **Policy Implementation**: `app/Policies/TariffPolicy.php`
 - **Tests**: `tests/Unit/Policies/TariffPolicyTest.php`
-- **Refactoring Summary**: `docs/implementation/POLICY_REFACTORING_COMPLETE.md`
-- **Specification**: `.kiro/specs/2-vilnius-utilities-billing/tasks.md` (Task 12)
+- **Refactoring Summary**: [docs/implementation/POLICY_REFACTORING_COMPLETE.md](../implementation/POLICY_REFACTORING_COMPLETE.md)
+- **Specification**: [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) (Task 12)
 - **Requirements**: `.kiro/specs/2-vilnius-utilities-billing/requirements.md` (11.1-11.4)
 
 ---

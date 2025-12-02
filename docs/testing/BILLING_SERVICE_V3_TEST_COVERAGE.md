@@ -341,7 +341,7 @@ Log::shouldHaveReceived('warning')->with(...);
 - [BillingService V3 Specification](../../.kiro/specs/2-vilnius-utilities-billing/billing-service-v3-spec.md)
 - [BillingService API](../api/BILLING_SERVICE_API.md)
 - [BillingService Implementation](../implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md)
-- [Testing Guide](./README.md)
+- [Testing Guide](README.md)
 
 ---
 

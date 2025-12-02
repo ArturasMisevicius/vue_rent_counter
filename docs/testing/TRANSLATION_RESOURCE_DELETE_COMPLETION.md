@@ -23,12 +23,12 @@ The TranslationResource delete functionality has been successfully implemented a
 - **Coverage**: Comprehensive
 
 ### 2. Documentation ✅
-- **Full Documentation**: `docs/testing/TRANSLATION_RESOURCE_DELETE_TEST_DOCUMENTATION.md`
-- **Quick Summary**: `docs/testing/TRANSLATION_RESOURCE_DELETE_SUMMARY.md`
-- **Completion Report**: `docs/testing/TRANSLATION_RESOURCE_DELETE_COMPLETION.md` (this file)
+- **Full Documentation**: [docs/testing/TRANSLATION_RESOURCE_DELETE_TEST_DOCUMENTATION.md](TRANSLATION_RESOURCE_DELETE_TEST_DOCUMENTATION.md)
+- **Quick Summary**: [docs/testing/TRANSLATION_RESOURCE_DELETE_SUMMARY.md](TRANSLATION_RESOURCE_DELETE_SUMMARY.md)
+- **Completion Report**: [docs/testing/TRANSLATION_RESOURCE_DELETE_COMPLETION.md](TRANSLATION_RESOURCE_DELETE_COMPLETION.md) (this file)
 
 ### 3. Task Tracking ✅
-- **Tasks File**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+- **Tasks File**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 - **Status**: Updated with completion details
 
 ## Test Coverage Breakdown

@@ -301,7 +301,7 @@ php artisan test --filter=test_admin_can_access_dashboard --stop-on-failure
 
 ## Related Documentation
 
-- [Admin Panel Guide](./ADMIN_PANEL_GUIDE.md)
-- [Testing Guide](../tests/TESTING_GUIDE.md)
+- [Admin Panel Guide](ADMIN_PANEL_GUIDE.md)
+- [Testing Guide](../guides/TESTING_GUIDE.md)
 - [Frontend Documentation](../frontend/FRONTEND.md)
 - [Routes Documentation](../routes/ROUTES_IMPLEMENTATION_COMPLETE.md)

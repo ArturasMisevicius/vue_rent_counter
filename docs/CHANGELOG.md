@@ -60,9 +60,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `app/Http/Middleware/RateLimitSubscriptionChecks.php`
   - `app/Logging/RedactSensitiveData.php`
   - `tests/Feature/Security/CheckSubscriptionStatusSecurityTest.php`
-  - `docs/security/CHECKSUBSCRIPTIONSTATUS_SECURITY_AUDIT_2025_12_02.md`
-  - `docs/security/SECURITY_MONITORING_GUIDE.md`
-  - `docs/security/SECURITY_DEPLOYMENT_CHECKLIST.md`
+  - [docs/security/CHECKSUBSCRIPTIONSTATUS_SECURITY_AUDIT_2025_12_02.md](security/CHECKSUBSCRIPTIONSTATUS_SECURITY_AUDIT_2025_12_02.md)
+  - [docs/security/SECURITY_MONITORING_GUIDE.md](security/SECURITY_MONITORING_GUIDE.md)
+  - [docs/security/SECURITY_DEPLOYMENT_CHECKLIST.md](security/SECURITY_DEPLOYMENT_CHECKLIST.md)
 
 - **Files Modified**:
   - `app/ValueObjects/SubscriptionCheckResult.php` - Added redirect route validation
@@ -107,17 +107,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Documented why HTTP method is irrelevant for bypass logic on authentication routes
 
 - **Implementation Guide Updates**
-  - Enhanced `docs/middleware/CheckSubscriptionStatus-Implementation-Guide.md` with detailed bypass logic explanation
+  - Enhanced [docs/middleware/CheckSubscriptionStatus-Implementation-Guide.md](middleware/CheckSubscriptionStatus-Implementation-Guide.md) with detailed bypass logic explanation
   - Added code examples showing the bypass implementation
   - Documented the critical nature of this behavior for preventing CSRF errors
 
 - **README Updates**
-  - Updated `docs/middleware/README.md` to reflect version v2.1
+  - Updated [docs/middleware/README.md](middleware/README.md) to reflect version v2.1
   - Emphasized that ALL HTTP methods bypass auth routes (not just GET)
   - Added link to comprehensive implementation guide
 
 - **Changelog Created**
-  - Created `docs/middleware/CHANGELOG_CHECKSUBSCRIPTIONSTATUS_CSRF_DOCS.md` with complete enhancement details
+  - Created [docs/middleware/CHANGELOG_CHECKSUBSCRIPTIONSTATUS_CSRF_DOCS.md](middleware/CHANGELOG_CHECKSUBSCRIPTIONSTATUS_CSRF_DOCS.md) with complete enhancement details
   - Documented the problem statement, solution, and technical rationale
   - Included testing verification and impact assessment
 
@@ -139,10 +139,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added comprehensive inline comments to `bootstrap/app.php` explaining each middleware's purpose
   - Documented rate limiting strategy for API vs Admin routes
   - Clarified exception handling for authorization failures
-  - Created new documentation: `docs/middleware/MIDDLEWARE_CONFIGURATION.md`
+  - Created new documentation: [docs/middleware/MIDDLEWARE_CONFIGURATION.md](middleware/MIDDLEWARE_CONFIGURATION.md)
 
 - **Documentation Created**
-  - `docs/middleware/MIDDLEWARE_CONFIGURATION.md`: Complete middleware reference
+  - [docs/middleware/MIDDLEWARE_CONFIGURATION.md](middleware/MIDDLEWARE_CONFIGURATION.md): Complete middleware reference
     - Middleware aliases and usage examples
     - Web middleware group configuration
     - Rate limiting strategy (API and Admin)
@@ -162,7 +162,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added cross-references to related classes and services
 
 - **Comprehensive API Documentation Created**
-  - Created `docs/filament/TRANSLATION_RESOURCE_PAGES_API.md` (400+ lines)
+  - Created [docs/filament/TRANSLATION_RESOURCE_PAGES_API.md](filament/TRANSLATION_RESOURCE_PAGES_API.md) (400+ lines)
   - Documented all TranslationResource pages (List, Create, Edit)
   - Added data flow diagrams using Mermaid
   - Documented empty value handling with before/after examples
@@ -182,9 +182,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Files Modified**
   - `app/Filament/Resources/TranslationResource/Pages/EditTranslation.php` - Enhanced DocBlocks
-  - `docs/filament/TRANSLATION_RESOURCE_PAGES_API.md` - New comprehensive API documentation
-  - `docs/filament/TRANSLATION_RESOURCE_DOCUMENTATION_CHANGELOG.md` - Documentation changelog
-  - `.kiro/specs/6-filament-namespace-consolidation/tasks.md` - Updated task status
+  - [docs/filament/TRANSLATION_RESOURCE_PAGES_API.md](filament/TRANSLATION_RESOURCE_PAGES_API.md) - New comprehensive API documentation
+  - [docs/filament/TRANSLATION_RESOURCE_DOCUMENTATION_CHANGELOG.md](filament/TRANSLATION_RESOURCE_DOCUMENTATION_CHANGELOG.md) - Documentation changelog
+  - [.kiro/specs/6-filament-namespace-consolidation/tasks.md](tasks/tasks.md) - Updated task status
 
 ### Testing
 
@@ -212,10 +212,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Superadmin-only access enforcement
 
 - **Documentation Created**
-  - API Documentation: `docs/filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md` (comprehensive)
-  - Test Summary: `docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md` (updated)
-  - Quick Reference: `docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_QUICK_REFERENCE.md` (new)
-  - Changelog: `docs/CHANGELOG_TRANSLATION_RESOURCE_DYNAMIC_FIELDS.md` (detailed)
+  - API Documentation: [docs/filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md](filament/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_API.md) (comprehensive)
+  - Test Summary: [docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md](testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md) (updated)
+  - Quick Reference: [docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_QUICK_REFERENCE.md](testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_QUICK_REFERENCE.md) (new)
+  - Changelog: [docs/CHANGELOG_TRANSLATION_RESOURCE_DYNAMIC_FIELDS.md](CHANGELOG_TRANSLATION_RESOURCE_DYNAMIC_FIELDS.md) (detailed)
   - Testing README updated with new test suite entry
 
 - **Performance Benchmarks**
@@ -244,11 +244,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Edge case handling (5 tests): missing keys, non-array values, boolean false, other fields
 
 - **Documentation Created**
-  - `docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_TEST_DOCUMENTATION.md` - Full test documentation (300+ lines)
-  - `docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_TEST_API.md` - Complete API reference (600+ lines)
-  - `docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_SUMMARY.md` - Quick reference summary
-  - `docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_QUICK_REFERENCE.md` - Developer quick guide
-  - `docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_COMPLETION.md` - Completion report
+  - [docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_TEST_DOCUMENTATION.md](testing/FILTERS_EMPTY_LANGUAGE_VALUES_TEST_DOCUMENTATION.md) - Full test documentation (300+ lines)
+  - [docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_TEST_API.md](testing/FILTERS_EMPTY_LANGUAGE_VALUES_TEST_API.md) - Complete API reference (600+ lines)
+  - [docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_SUMMARY.md](testing/FILTERS_EMPTY_LANGUAGE_VALUES_SUMMARY.md) - Quick reference summary
+  - [docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_QUICK_REFERENCE.md](testing/FILTERS_EMPTY_LANGUAGE_VALUES_QUICK_REFERENCE.md) - Developer quick guide
+  - [docs/testing/FILTERS_EMPTY_LANGUAGE_VALUES_COMPLETION.md](testing/FILTERS_EMPTY_LANGUAGE_VALUES_COMPLETION.md) - Completion report
 
 - **Quality Verification**
   - ✅ All tests passing (16/16)
@@ -302,11 +302,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - No individual action imports present
 
 - **Documentation Created**
-  - `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_TEST_DOCUMENTATION.md` (600+ lines) - Complete test documentation
-  - `docs/filament/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_API.md` (existing) - API reference
-  - `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md` (existing) - Verification guide
-  - `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_QUICK_REFERENCE.md` (existing) - Quick reference
-  - `docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_SUMMARY.md` (existing) - Summary
+  - [docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_TEST_DOCUMENTATION.md](testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_TEST_DOCUMENTATION.md) (600+ lines) - Complete test documentation
+  - [docs/filament/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_API.md](filament/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_API.md) (existing) - API reference
+  - [docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md](testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_VERIFICATION.md) (existing) - Verification guide
+  - [docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_QUICK_REFERENCE.md](testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_QUICK_REFERENCE.md) (existing) - Quick reference
+  - [docs/testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_SUMMARY.md](testing/LANGUAGE_RESOURCE_TOGGLE_ACTIVE_SUMMARY.md) (existing) - Summary
   - Total documentation: 1,500+ lines
 
 - **Test Execution**
@@ -316,7 +316,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Comprehensive DocBlocks with test purpose and strategy
 
 - **Related Specification**
-  - Spec: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+  - Spec: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](tasks/tasks.md)
   - Task: Toggle active status - ✅ COMPLETE
   - Implementation: `app/Filament/Resources/LanguageResource.php` (lines 195-245)
 
@@ -348,9 +348,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - No individual action imports present
 
 - **Documentation Created**
-  - `docs/testing/LANGUAGE_RESOURCE_NAVIGATION_TEST_COMPLETE.md` (600+ lines) - Executive summary
-  - `docs/testing/LANGUAGE_RESOURCE_NAVIGATION_TEST_API.md` (800+ lines) - API documentation
-  - `docs/testing/LANGUAGE_RESOURCE_NAVIGATION_VERIFICATION.md` (existing) - Verification guide
+  - [docs/testing/LANGUAGE_RESOURCE_NAVIGATION_TEST_COMPLETE.md](testing/LANGUAGE_RESOURCE_NAVIGATION_TEST_COMPLETE.md) (600+ lines) - Executive summary
+  - [docs/testing/LANGUAGE_RESOURCE_NAVIGATION_TEST_API.md](testing/LANGUAGE_RESOURCE_NAVIGATION_TEST_API.md) (800+ lines) - API documentation
+  - [docs/testing/LANGUAGE_RESOURCE_NAVIGATION_VERIFICATION.md](testing/LANGUAGE_RESOURCE_NAVIGATION_VERIFICATION.md) (existing) - Verification guide
   - Total documentation: 1,400+ lines
 
 - **Test Execution**
@@ -395,8 +395,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All 6 performance tests passing (218 assertions)
 
 - **Documentation**
-  - Created `docs/performance/TARIFF_RESOURCE_OPTIMIZATION_2025_11.md` (comprehensive guide)
-  - Created `docs/performance/QUICK_REFERENCE_TARIFF_OPTIMIZATION.md` (quick reference)
+  - Created [docs/performance/TARIFF_RESOURCE_OPTIMIZATION_2025_11.md](performance/TARIFF_RESOURCE_OPTIMIZATION_2025_11.md) (comprehensive guide)
+  - Created [docs/performance/QUICK_REFERENCE_TARIFF_OPTIMIZATION.md](performance/QUICK_REFERENCE_TARIFF_OPTIMIZATION.md) (quick reference)
   - Documented rollback procedures and monitoring guidelines
   - Added future optimization opportunities
 
@@ -440,10 +440,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 40+ security assertions
 
 - **Documentation**
-  - `docs/security/TARIFF_RESOURCE_SECURITY_AUDIT_2025_11_28.md`: Complete audit report
-  - `docs/security/TARIFF_SECURITY_IMPLEMENTATION_GUIDE.md`: Implementation guide
-  - `docs/security/SECURITY_DEPLOYMENT_CHECKLIST.md`: Deployment checklist
-  - `TARIFF_SECURITY_HARDENING_COMPLETE.md`: Summary document
+  - [docs/security/TARIFF_RESOURCE_SECURITY_AUDIT_2025_11_28.md](security/TARIFF_RESOURCE_SECURITY_AUDIT_2025_11_28.md): Complete audit report
+  - [docs/security/TARIFF_SECURITY_IMPLEMENTATION_GUIDE.md](security/TARIFF_SECURITY_IMPLEMENTATION_GUIDE.md): Implementation guide
+  - [docs/security/SECURITY_DEPLOYMENT_CHECKLIST.md](security/SECURITY_DEPLOYMENT_CHECKLIST.md): Deployment checklist
+  - [TARIFF_SECURITY_HARDENING_COMPLETE.md](misc/TARIFF_SECURITY_HARDENING_COMPLETE.md): Summary document
 
 - **OWASP Top 10 Compliance**: ✅ All 10 categories addressed
 - **Status**: ✅ Production Ready | ✅ Security Hardened | ✅ Comprehensive Testing
@@ -457,7 +457,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Follows Filament 4 namespace consolidation best practices per `.kiro/specs/6-filament-namespace-consolidation/requirements.md`
   - 87.5% reduction in import statements (8 → 1 per resource)
   - Enhanced class-level and method-level DocBlocks with namespace pattern documentation
-  - Created comprehensive documentation: `docs/filament/TARIFF_RESOURCE_NAMESPACE_CONSOLIDATION.md`
+  - Created comprehensive documentation: [docs/filament/TARIFF_RESOURCE_NAMESPACE_CONSOLIDATION.md](filament/TARIFF_RESOURCE_NAMESPACE_CONSOLIDATION.md)
   - Updated namespace consolidation requirements spec with completion status
   - **Benefits**: Cleaner code, consistent patterns, easier code reviews, reduced merge conflicts
   - **Status**: ✅ Complete (2/14 resources consolidated: FaqResource, TariffResource)
@@ -474,11 +474,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Enhanced with comprehensive DocBlocks explaining test purpose, scenarios, and security implications
 
 - **Comprehensive Documentation Suite**
-  - Created `building-tenant-scope-simple-tests.md` with complete guide to simple verification tests
-  - Created `BUILDING_TENANT_SCOPE_QUICK_REFERENCE.md` for quick command reference and debugging
-  - Created `BUILDING_TENANT_SCOPE_API.md` with complete API reference for test helpers and assertions
-  - Updated `README.md` to include references to both simple and property-based Building tests
-  - Updated `.kiro/specs/4-filament-admin-panel/tasks.md` to document test completion
+  - Created [building-tenant-scope-simple-tests.md](testing/building-tenant-scope-simple-tests.md) with complete guide to simple verification tests
+  - Created [BUILDING_TENANT_SCOPE_QUICK_REFERENCE.md](testing/BUILDING_TENANT_SCOPE_QUICK_REFERENCE.md) for quick command reference and debugging
+  - Created [BUILDING_TENANT_SCOPE_API.md](testing/BUILDING_TENANT_SCOPE_API.md) with complete API reference for test helpers and assertions
+  - Updated [README.md](README.md) to include references to both simple and property-based Building tests
+  - Updated [.kiro/specs/4-filament-admin-panel/tasks.md](tasks/tasks.md) to document test completion
 
 - **Test Documentation Features**
   - Detailed test flow diagrams using Mermaid for visual understanding
@@ -514,9 +514,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### TariffResource Documentation (2024-11-27)
 - **Comprehensive Documentation Suite**
-  - Created `TARIFF_RESOURCE_API.md` with complete API reference including authorization matrix, form schema, validation rules, table configuration, and usage examples
-  - Created `TARIFF_RESOURCE_USAGE_GUIDE.md` with user-facing guide covering flat rate and time-of-use tariff creation, common scenarios, and troubleshooting
-  - Updated `TARIFF_RESOURCE_NAVIGATION_UPDATE.md` with enhanced documentation details
+  - Created [TARIFF_RESOURCE_API.md](filament/TARIFF_RESOURCE_API.md) with complete API reference including authorization matrix, form schema, validation rules, table configuration, and usage examples
+  - Created [TARIFF_RESOURCE_USAGE_GUIDE.md](filament/TARIFF_RESOURCE_USAGE_GUIDE.md) with user-facing guide covering flat rate and time-of-use tariff creation, common scenarios, and troubleshooting
+  - Updated [TARIFF_RESOURCE_NAVIGATION_UPDATE.md](filament/TARIFF_RESOURCE_NAVIGATION_UPDATE.md) with enhanced documentation details
   - Enhanced code-level documentation with comprehensive PHPDoc blocks for all methods
 
 - **Navigation Visibility Enhancement**
@@ -551,9 +551,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### UserResource Enhancements (2025-11-26)
 - **Comprehensive Documentation Suite**
-  - Created `USER_RESOURCE_API.md` with complete API reference including all form fields, validation rules, table configuration, and authorization matrix
-  - Created `USER_RESOURCE_USAGE_GUIDE.md` with user-facing guide covering common workflows, troubleshooting, and best practices
-  - Created `USER_RESOURCE_ARCHITECTURE.md` with technical architecture documentation including component relationships, data flow, security architecture, and performance considerations
+  - Created [USER_RESOURCE_API.md](filament/USER_RESOURCE_API.md) with complete API reference including all form fields, validation rules, table configuration, and authorization matrix
+  - Created [USER_RESOURCE_USAGE_GUIDE.md](filament/USER_RESOURCE_USAGE_GUIDE.md) with user-facing guide covering common workflows, troubleshooting, and best practices
+  - Created [USER_RESOURCE_ARCHITECTURE.md](filament/USER_RESOURCE_ARCHITECTURE.md) with technical architecture documentation including component relationships, data flow, security architecture, and performance considerations
   - Enhanced code-level documentation with comprehensive PHPDoc blocks for all methods
 
 - **Form Schema Improvements**
@@ -681,7 +681,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation
 
 #### UserResource Documentation (2025-11-26)
-- **API Documentation** (`docs/filament/USER_RESOURCE_API.md`)
+- **API Documentation** ([docs/filament/USER_RESOURCE_API.md](filament/USER_RESOURCE_API.md))
   - Complete API reference with all form fields, validation rules, and table configuration
   - Authorization matrix showing permissions by role
   - Tenant scoping behavior and implementation details
@@ -691,7 +691,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Performance considerations and database indexes
   - Testing examples with Pest
 
-- **Usage Guide** (`docs/filament/USER_RESOURCE_USAGE_GUIDE.md`)
+- **Usage Guide** ([docs/filament/USER_RESOURCE_USAGE_GUIDE.md](filament/USER_RESOURCE_USAGE_GUIDE.md))
   - Quick start guide for accessing and using the interface
   - Step-by-step instructions for creating, viewing, editing, and deleting users
   - Role-based tenant field behavior table
@@ -700,7 +700,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Best practices for password management, account management, and security
   - Programmatic usage examples
 
-- **Architecture Documentation** (`docs/filament/USER_RESOURCE_ARCHITECTURE.md`)
+- **Architecture Documentation** ([docs/filament/USER_RESOURCE_ARCHITECTURE.md](filament/USER_RESOURCE_ARCHITECTURE.md))
   - Component relationships and dependencies diagram
   - Data flow diagrams for creating, viewing, and updating users
   - Security architecture with multi-tenant isolation and authorization layers
@@ -719,7 +719,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Documented helper methods with usage examples
 
 - **README Updates**
-  - Updated `docs/filament/README.md` with UserResource documentation links
+  - Updated [docs/filament/README.md](filament/README.md) with UserResource documentation links
   - Added UserResource to User Management section with all documentation references
 
 ### Testing
@@ -739,9 +739,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Previous Releases]
 
 See individual changelog files:
-- [Authentication Testing Changelog](./CHANGELOG_AUTHENTICATION_TESTS.md)
-- [Exception Documentation Changelog](./CHANGELOG_EXCEPTION_DOCUMENTATION.md)
-- [Migration Refactoring Changelog](./CHANGELOG_MIGRATION_REFACTORING.md)
+- [Authentication Testing Changelog](CHANGELOG_AUTHENTICATION_TESTS.md)
+- [Exception Documentation Changelog](CHANGELOG_EXCEPTION_DOCUMENTATION.md)
+- [Migration Refactoring Changelog](CHANGELOG_MIGRATION_REFACTORING.md)
 
 ---
 
@@ -761,4 +761,4 @@ See individual changelog files:
 ### Related Documentation
 - [Project Brief](../memory-bank/projectbrief.md)
 - [Progress Tracking](../memory-bank/progress.md)
-- [Task Tracking](../.kiro/specs/4-filament-admin-panel/tasks.md)
+- [Task Tracking](tasks/tasks.md)

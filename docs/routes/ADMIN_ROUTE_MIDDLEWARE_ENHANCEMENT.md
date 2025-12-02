@@ -319,10 +319,10 @@ grep "access denied" storage/logs/audit.log
 
 ## Related Documentation
 
-- **Architecture**: `docs/middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md`
-- **Analysis**: `docs/architecture/MIDDLEWARE_ROUTE_PROTECTION_ANALYSIS.md`
-- **Implementation**: `docs/middleware/IMPLEMENTATION_SUMMARY.md`
-- **Quick Reference**: `docs/middleware/QUICK_REFERENCE.md`
+- **Architecture**: [docs/middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md](../middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md)
+- **Analysis**: [docs/architecture/MIDDLEWARE_ROUTE_PROTECTION_ANALYSIS.md](../architecture/MIDDLEWARE_ROUTE_PROTECTION_ANALYSIS.md)
+- **Implementation**: [docs/middleware/IMPLEMENTATION_SUMMARY.md](../middleware/IMPLEMENTATION_SUMMARY.md)
+- **Quick Reference**: [docs/middleware/QUICK_REFERENCE.md](../middleware/QUICK_REFERENCE.md)
 - **Spec**: `.kiro/specs/3-hierarchical-user-management/`
 
 ## Deployment Checklist

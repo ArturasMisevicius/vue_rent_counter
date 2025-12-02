@@ -496,8 +496,8 @@ php artisan test --filter=GyvatukasCalculatorTest
 
 ## Related Documentation
 
-- **Implementation Guide**: `docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md`
-- **Revert Decision**: `docs/refactoring/GYVATUKAS_CALCULATOR_REVERT.md`
+- **Implementation Guide**: [docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md](../implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
+- **Revert Decision**: [docs/refactoring/GYVATUKAS_CALCULATOR_REVERT.md](../refactoring/GYVATUKAS_CALCULATOR_REVERT.md)
 - **Requirements**: `.kiro/specs/2-vilnius-utilities-billing/requirements.md`
 - **Configuration**: `config/gyvatukas.php`
 

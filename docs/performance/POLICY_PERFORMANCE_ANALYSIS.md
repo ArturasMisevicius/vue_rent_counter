@@ -390,10 +390,10 @@ git push origin main
 
 ## Related Documentation
 
-- **Implementation**: `docs/implementation/POLICY_REFACTORING_COMPLETE.md`
-- **API Reference**: `docs/api/TARIFF_POLICY_API.md`
+- **Implementation**: [docs/implementation/POLICY_REFACTORING_COMPLETE.md](../implementation/POLICY_REFACTORING_COMPLETE.md)
+- **API Reference**: [docs/api/TARIFF_POLICY_API.md](../api/TARIFF_POLICY_API.md)
 - **Tests**: `tests/Unit/Policies/*PolicyTest.php`
-- **Specification**: `.kiro/specs/2-vilnius-utilities-billing/tasks.md` (Task 12)
+- **Specification**: [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) (Task 12)
 
 ---
 

@@ -136,7 +136,7 @@ Tests: 8 passed (28 assertions)
 - Service: `app/Services/AccountManagementService.php`
 - Tests: `tests/Unit/AccountManagementServiceTest.php`
 - Feature Tests: `tests/Feature/HierarchicalUserManagementTest.php`
-- Documentation: `docs/refactoring/AccountManagementService-refactoring-summary.md`
+- Documentation: [docs/refactoring/AccountManagementService-refactoring-summary.md](AccountManagementService-refactoring-summary.md)
 
 ## Deployment Notes
 

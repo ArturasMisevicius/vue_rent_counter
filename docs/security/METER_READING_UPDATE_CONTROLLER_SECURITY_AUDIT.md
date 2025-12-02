@@ -779,15 +779,15 @@ Route::middleware(['auth'])->group(function () {
 ## Documentation Index
 
 ### Security Documentation
-- `docs/security/METER_READING_UPDATE_CONTROLLER_SECURITY_AUDIT.md` - This document
-- `docs/security/METER_READING_UPDATE_CONTROLLER_SECURITY_IMPLEMENTATION.md` - Implementation guide (TO CREATE)
+- [docs/security/METER_READING_UPDATE_CONTROLLER_SECURITY_AUDIT.md](METER_READING_UPDATE_CONTROLLER_SECURITY_AUDIT.md) - This document
+- [docs/security/METER_READING_UPDATE_CONTROLLER_SECURITY_IMPLEMENTATION.md](METER_READING_UPDATE_CONTROLLER_SECURITY_IMPLEMENTATION.md) - Implementation guide (TO CREATE)
 
 ### Implementation Documentation
-- `docs/controllers/METER_READING_UPDATE_CONTROLLER_COMPLETE.md` - Complete implementation
-- `docs/api/METER_READING_UPDATE_CONTROLLER_API.md` - API reference
+- [docs/controllers/METER_READING_UPDATE_CONTROLLER_COMPLETE.md](../controllers/METER_READING_UPDATE_CONTROLLER_COMPLETE.md) - Complete implementation
+- [docs/api/METER_READING_UPDATE_CONTROLLER_API.md](../api/METER_READING_UPDATE_CONTROLLER_API.md) - API reference
 
 ### Performance Documentation
-- `docs/performance/METER_READING_UPDATE_PERFORMANCE.md` - Performance analysis
+- [docs/performance/METER_READING_UPDATE_PERFORMANCE.md](../performance/METER_READING_UPDATE_PERFORMANCE.md) - Performance analysis
 
 ### Specification
 - `.kiro/specs/2-vilnius-utilities-billing/meter-reading-update-controller-spec.md` - Complete spec

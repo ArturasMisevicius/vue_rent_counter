@@ -131,7 +131,7 @@ Log::shouldHaveReceived('info')->with('Invoice finalization attempt', \Mockery::
 ## Files
 
 - **Tests:** `tests/Feature/Filament/InvoiceFinalization*.php`
-- **Docs:** `tests/Feature/Filament/README_INVOICE_FINALIZATION_TESTS.md`
+- **Docs:** [tests/Feature/Filament/README_INVOICE_FINALIZATION_TESTS.md](../misc/README_INVOICE_FINALIZATION_TESTS.md)
 - **Implementation:** `app/Filament/Resources/InvoiceResource/Pages/ViewInvoice.php`
 - **Service:** `app/Services/InvoiceService.php`
 - **Policy:** `app/Policies/InvoicePolicy.php`

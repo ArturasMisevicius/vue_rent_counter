@@ -828,8 +828,8 @@ XDEBUG_MODE=coverage php artisan test --filter=TariffControllerTest --coverage
 
 ## Related Documentation
 
-- **API Reference**: `docs/api/TARIFF_CONTROLLER_API.md`
-- **Policy**: `docs/api/TARIFF_POLICY_API.md`
+- **API Reference**: [docs/api/TARIFF_CONTROLLER_API.md](../api/TARIFF_CONTROLLER_API.md)
+- **Policy**: [docs/api/TARIFF_POLICY_API.md](../api/TARIFF_POLICY_API.md)
 - **Tests**: `tests/Feature/Http/Controllers/Admin/TariffControllerTest.php`
 - **Specification**: `.kiro/specs/2-vilnius-utilities-billing/requirements.md`
 

@@ -315,9 +315,9 @@ TENANT (End User)
 ## Related Documentation
 
 - **Policy Implementation**: `app/Policies/TariffPolicy.php`
-- **API Reference**: `docs/api/TARIFF_POLICY_API.md`
-- **Security Audit**: `docs/security/TARIFF_POLICY_SECURITY_AUDIT.md`
-- **Implementation Summary**: `docs/implementation/POLICY_REFACTORING_COMPLETE.md`
+- **API Reference**: [docs/api/TARIFF_POLICY_API.md](../api/TARIFF_POLICY_API.md)
+- **Security Audit**: [docs/security/TARIFF_POLICY_SECURITY_AUDIT.md](../security/TARIFF_POLICY_SECURITY_AUDIT.md)
+- **Implementation Summary**: [docs/implementation/POLICY_REFACTORING_COMPLETE.md](../implementation/POLICY_REFACTORING_COMPLETE.md)
 - **Specification**: `.kiro/specs/2-vilnius-utilities-billing/policy-optimization-spec.md`
 
 ## Changelog

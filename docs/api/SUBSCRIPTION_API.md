@@ -556,7 +556,7 @@ it('allows read access during grace period', function () {
 
 ## Related Documentation
 
-- [User Model API](./USER_MODEL_API.md)
+- [User Model API](USER_MODEL_API.md)
 - [Account Management Service API](./ACCOUNT_MANAGEMENT_API.md)
 - [Hierarchical User Guide](../guides/HIERARCHICAL_USER_GUIDE.md)
 - [Setup Guide](../guides/SETUP.md)

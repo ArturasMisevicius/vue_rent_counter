@@ -194,7 +194,7 @@ $middleware->throttleApi('60,1'); // 60 requests per minute
 - `tests/Feature/MeterReadingFormComponentTest.php` - NEW test suite
 
 ### Documentation
-- `docs/refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md` - This file
+- [docs/refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md](METER_READING_FORM_REFACTORING_SUMMARY.md) - This file
 
 ---
 

@@ -126,7 +126,7 @@ Comprehensive test coverage enhancement for the `GyvatukasCalculator` service fo
 ## Documentation Deliverables
 
 ### 1. Test Coverage Report
-**File**: `docs/testing/GYVATUKAS_CALCULATOR_TEST_COVERAGE.md`
+**File**: [docs/testing/GYVATUKAS_CALCULATOR_TEST_COVERAGE.md](GYVATUKAS_CALCULATOR_TEST_COVERAGE.md)
 
 **Contents**:
 - Executive summary
@@ -143,7 +143,7 @@ Comprehensive test coverage enhancement for the `GyvatukasCalculator` service fo
 **Size**: ~500 lines
 
 ### 2. Quick Reference Guide
-**File**: `docs/testing/GYVATUKAS_CALCULATOR_TEST_QUICK_REFERENCE.md`
+**File**: [docs/testing/GYVATUKAS_CALCULATOR_TEST_QUICK_REFERENCE.md](GYVATUKAS_CALCULATOR_TEST_QUICK_REFERENCE.md)
 
 **Contents**:
 - Running tests commands
@@ -158,7 +158,7 @@ Comprehensive test coverage enhancement for the `GyvatukasCalculator` service fo
 **Size**: ~300 lines
 
 ### 3. CHANGELOG Update
-**File**: `docs/CHANGELOG.md`
+**File**: [docs/CHANGELOG.md](../CHANGELOG.md)
 
 **Added**:
 - Version 1.2.1 entry
@@ -168,7 +168,7 @@ Comprehensive test coverage enhancement for the `GyvatukasCalculator` service fo
 - Test coverage statistics
 
 ### 4. Tasks Update
-**File**: `.kiro/specs/2-vilnius-utilities-billing/tasks.md`
+**File**: [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md)
 
 **Updated**:
 - Task 7 status

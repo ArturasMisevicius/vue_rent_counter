@@ -820,7 +820,7 @@ class GenerateInvoiceJob implements ShouldQueue
 - [BillingService v2.0 Implementation Guide](../implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md)
 - [Service Layer Architecture](../architecture/SERVICE_LAYER_ARCHITECTURE.md)
 - [TariffResolver API](./TARIFF_RESOLVER_API.md)
-- [GyvatukasCalculator API](./GYVATUKAS_CALCULATOR_API.md)
+- [GyvatukasCalculator API](GYVATUKAS_CALCULATOR_API.md)
 - [Value Objects Guide](../architecture/VALUE_OBJECTS_GUIDE.md)
 
 ---

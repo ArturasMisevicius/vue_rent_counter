@@ -67,13 +67,13 @@ protected function shouldBypassCheck(Request $request): bool
 
 ### 2. Enhanced Implementation Guide
 
-**File:** `docs/middleware/CheckSubscriptionStatus-Implementation-Guide.md`
+**File:** [docs/middleware/CheckSubscriptionStatus-Implementation-Guide.md](CheckSubscriptionStatus-Implementation-Guide.md)
 
 Added detailed explanation of the bypass logic with code examples and rationale.
 
 ### 3. Updated README
 
-**File:** `docs/middleware/README.md`
+**File:** [docs/middleware/README.md](README.md)
 
 Updated CheckSubscriptionStatus section to reflect:
 - Version bump to v2.1
@@ -189,9 +189,9 @@ Not applicable - documentation-only change. If needed, revert to previous docume
 
 ## Related Documentation
 
-- [CheckSubscriptionStatus Implementation Guide](./CheckSubscriptionStatus-Implementation-Guide.md)
-- [CheckSubscriptionStatus Refactoring Complete](./CheckSubscriptionStatus-Refactoring-Complete-2025-12-02.md)
-- [Middleware README](./README.md)
+- [CheckSubscriptionStatus Implementation Guide](CheckSubscriptionStatus-Implementation-Guide.md)
+- [CheckSubscriptionStatus Refactoring Complete](CheckSubscriptionStatus-Refactoring-Complete-2025-12-02.md)
+- [Middleware README](README.md)
 
 ## Lessons Learned
 

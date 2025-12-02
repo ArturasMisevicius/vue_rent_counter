@@ -192,14 +192,14 @@ Route::middleware([
 2. `tests/Feature/Middleware/EnsureHierarchicalAccessTest.php`
 3. `tests/Unit/Services/SubscriptionCheckerTest.php`
 4. `app/Services/SubscriptionChecker.php`
-5. `docs/middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md`
-6. `docs/architecture/MIDDLEWARE_ROUTE_PROTECTION_ANALYSIS.md`
-7. `docs/middleware/IMPLEMENTATION_SUMMARY.md`
+5. [docs/middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md](HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md)
+6. [docs/architecture/MIDDLEWARE_ROUTE_PROTECTION_ANALYSIS.md](../architecture/MIDDLEWARE_ROUTE_PROTECTION_ANALYSIS.md)
+7. [docs/middleware/IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)
 
 ### Modified Files
 1. `routes/web.php` - Added middleware to admin routes
 2. `app/Http/Middleware/EnsureHierarchicalAccess.php` - Performance optimization
-3. `.kiro/specs/3-hierarchical-user-management/tasks.md` - Updated completion status
+3. [.kiro/specs/3-hierarchical-user-management/tasks.md](../tasks/tasks.md) - Updated completion status
 
 ## Next Steps
 

@@ -78,8 +78,8 @@ Duration: 2.59s
 
 ### Created (3)
 1. `tests/Feature/Middleware/EnsureUserIsAdminOrManagerTest.php`
-2. `docs/middleware/ENSURE_USER_IS_ADMIN_OR_MANAGER_REFACTORING.md`
-3. `docs/middleware/REFACTORING_SUMMARY.md`
+2. [docs/middleware/ENSURE_USER_IS_ADMIN_OR_MANAGER_REFACTORING.md](ENSURE_USER_IS_ADMIN_OR_MANAGER_REFACTORING.md)
+3. [docs/middleware/REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md)
 
 ## Architecture
 
@@ -134,8 +134,8 @@ grep "Admin panel access denied" storage/logs/laravel.log | jq '.ip' | sort | un
 
 ## Related Documentation
 
-- [Detailed Refactoring Guide](./ENSURE_USER_IS_ADMIN_OR_MANAGER_REFACTORING.md)
-- [Filament Authorization Fix](../FILAMENT_ADMIN_AUTHORIZATION_FIX.md)
+- [Detailed Refactoring Guide](ENSURE_USER_IS_ADMIN_OR_MANAGER_REFACTORING.md)
+- [Filament Authorization Fix](../security/FILAMENT_ADMIN_AUTHORIZATION_FIX.md)
 - [Admin Panel Guide](../admin/ADMIN_PANEL_GUIDE.md)
 
 ## Conclusion

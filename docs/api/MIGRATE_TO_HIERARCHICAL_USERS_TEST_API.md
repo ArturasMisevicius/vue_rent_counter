@@ -535,7 +535,7 @@ php artisan test tests/Feature/Commands/MigrateToHierarchicalUsersCommandTest.ph
 - [Command Documentation](../commands/MIGRATE_TO_HIERARCHICAL_USERS_COMMAND.md)
 - [Test Summary](../testing/MIGRATE_TO_HIERARCHICAL_USERS_TEST_SUMMARY.md)
 - [Test Refactoring Complete](../testing/COMMAND_TEST_REFACTORING_COMPLETE.md)
-- [Hierarchical User Management Spec](../../.kiro/specs/3-hierarchical-user-management/tasks.md)
+- [Hierarchical User Management Spec](../tasks/tasks.md)
 
 ---
 

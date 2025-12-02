@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document verifies the implementation of all Performance & UX requirements for the user-group-frontends feature as specified in `.kiro/specs/user-group-frontends/tasks.md`.
+This document verifies the implementation of all Performance & UX requirements for the user-group-frontends feature as specified in [.kiro/specs/user-group-frontends/tasks.md](../tasks/tasks.md).
 
 ## Implementation Status: ✅ COMPLETE
 

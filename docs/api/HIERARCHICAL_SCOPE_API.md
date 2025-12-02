@@ -484,5 +484,5 @@ class MyTest extends TestCase
 
 - [TenantContext Service API](./TENANT_CONTEXT_API.md)
 - [BelongsToTenant Trait API](./BELONGS_TO_TENANT_API.md)
-- [User Model API](./USER_MODEL_API.md)
+- [User Model API](USER_MODEL_API.md)
 - [Authorization Policies API](./POLICIES_API.md)

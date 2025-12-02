@@ -45,4 +45,4 @@ Use this template when implementing content ingestion, personalization, SEO, or 
 - Feature flags for new pipelines; gradual rollout by tenant/audience.
 - Backfill strategy for historical content if needed.
 
-Update this template into a feature-specific doc when these hooks become active, and link it from `HOOKS_DOCUMENTATION_MAP.md`.
+Update this template into a feature-specific doc when these hooks become active, and link it from [HOOKS_DOCUMENTATION_MAP.md](../reference/HOOKS_DOCUMENTATION_MAP.md).

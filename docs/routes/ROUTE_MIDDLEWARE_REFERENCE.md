@@ -410,10 +410,10 @@ php artisan tinker
 
 ## Related Documentation
 
-- **Admin Route Enhancement**: `docs/routes/ADMIN_ROUTE_MIDDLEWARE_ENHANCEMENT.md`
-- **Middleware Architecture**: `docs/middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md`
-- **Implementation Summary**: `docs/middleware/IMPLEMENTATION_SUMMARY.md`
-- **Quick Reference**: `docs/middleware/QUICK_REFERENCE.md`
+- **Admin Route Enhancement**: [docs/routes/ADMIN_ROUTE_MIDDLEWARE_ENHANCEMENT.md](ADMIN_ROUTE_MIDDLEWARE_ENHANCEMENT.md)
+- **Middleware Architecture**: [docs/middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md](../middleware/HIERARCHICAL_MIDDLEWARE_ARCHITECTURE.md)
+- **Implementation Summary**: [docs/middleware/IMPLEMENTATION_SUMMARY.md](../middleware/IMPLEMENTATION_SUMMARY.md)
+- **Quick Reference**: [docs/middleware/QUICK_REFERENCE.md](../middleware/QUICK_REFERENCE.md)
 - **Spec**: `.kiro/specs/3-hierarchical-user-management/`
 
 ---

@@ -8,12 +8,12 @@ The "Edit existing FAQ" manual testing task has been fully documented and is rea
 ## What Was Completed
 
 ### 1. Documentation Created ✅
-- **Main Test Guide**: `docs/testing/FAQ_ADMIN_MANUAL_TEST.md`
+- **Main Test Guide**: [docs/testing/FAQ_ADMIN_MANUAL_TEST.md](FAQ_ADMIN_MANUAL_TEST.md)
   - Comprehensive 15-test case checklist
   - TC-6 specifically covers FAQ editing
   - Includes verification points and expected results
 
-- **Quick Reference Guide**: `docs/testing/FAQ_EDIT_TEST_SUMMARY.md`
+- **Quick Reference Guide**: [docs/testing/FAQ_EDIT_TEST_SUMMARY.md](FAQ_EDIT_TEST_SUMMARY.md)
   - Focused summary for the edit test
   - Step-by-step instructions
   - Verification checklist
@@ -21,7 +21,7 @@ The "Edit existing FAQ" manual testing task has been fully documented and is rea
   - Test result template
 
 ### 2. Task Tracking Updated ✅
-- Updated `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+- Updated [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 - Marked "Edit existing FAQ" as documented
 - Added quick reference links
 - Included verification steps
@@ -48,10 +48,10 @@ This is a **manual testing task** that requires human interaction. The automated
 1. Start the application: `php artisan serve`
 2. Log in as ADMIN or SUPERADMIN
 3. Navigate to: `http://127.0.0.1:8000/admin/faqs`
-4. Follow the steps in `docs/testing/FAQ_EDIT_TEST_SUMMARY.md`
+4. Follow the steps in [docs/testing/FAQ_EDIT_TEST_SUMMARY.md](FAQ_EDIT_TEST_SUMMARY.md)
 
 ### Detailed Instructions
-See the comprehensive test guide: `docs/testing/FAQ_ADMIN_MANUAL_TEST.md` (Test Case TC-6)
+See the comprehensive test guide: [docs/testing/FAQ_ADMIN_MANUAL_TEST.md](FAQ_ADMIN_MANUAL_TEST.md) (Test Case TC-6)
 
 ## Test Verification Points
 
@@ -81,7 +81,7 @@ See the comprehensive test guide: `docs/testing/FAQ_ADMIN_MANUAL_TEST.md` (Test 
 
 When the manual test is executed and passes, the tester should:
 1. Mark the test as PASSED in the test result template
-2. Update the task status in `tasks.md` to ✅ COMPLETE
+2. Update the task status in [tasks.md](../tasks/tasks.md) to ✅ COMPLETE
 3. Document any issues found (if any)
 4. Move to the next manual test case
 
@@ -97,11 +97,11 @@ After completing this test:
 ## Related Files
 
 ### Documentation
-- `.kiro/specs/6-filament-namespace-consolidation/tasks.md` - Task tracking
+- [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md) - Task tracking
 - `.kiro/specs/6-filament-namespace-consolidation/design.md` - Design document
 - `.kiro/specs/6-filament-namespace-consolidation/requirements.md` - Requirements
-- `docs/testing/FAQ_ADMIN_MANUAL_TEST.md` - Full test guide
-- `docs/testing/FAQ_EDIT_TEST_SUMMARY.md` - Quick reference
+- [docs/testing/FAQ_ADMIN_MANUAL_TEST.md](FAQ_ADMIN_MANUAL_TEST.md) - Full test guide
+- [docs/testing/FAQ_EDIT_TEST_SUMMARY.md](FAQ_EDIT_TEST_SUMMARY.md) - Quick reference
 
 ### Implementation
 - `app/Filament/Resources/FaqResource.php` - Resource implementation

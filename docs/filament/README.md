@@ -7,19 +7,19 @@ This directory contains comprehensive documentation for all Filament 4.x resourc
 ## Resources
 
 ### Building Management
-- **[BuildingResource](./BUILDING_RESOURCE.md)** - Complete user guide
+- **[BuildingResource](BUILDING_RESOURCE.md)** - Complete user guide
   - Role-based authorization
   - Form schema and validation
   - Table configuration
   - Tenant scoping
   - Properties relation manager
   - Testing coverage
-- **[BuildingResource API](./BUILDING_RESOURCE_API.md)** - API reference
+- **[BuildingResource API](BUILDING_RESOURCE_API.md)** - API reference
   - Method signatures
   - Authorization matrix
   - Translation keys
   - Usage examples
-- **[BuildingResource Summary](./BUILDING_RESOURCE_SUMMARY.md)** - Documentation overview
+- **[BuildingResource Summary](BUILDING_RESOURCE_SUMMARY.md)** - Documentation overview
 
 ### Property Management
 - PropertyResource - *Documentation pending*
@@ -31,7 +31,7 @@ This directory contains comprehensive documentation for all Filament 4.x resourc
 
 ### Billing Management
 - InvoiceResource - *Documentation pending*
-- **[TariffResource API](./TARIFF_RESOURCE_API.md)** - Complete API reference
+- **[TariffResource API](TARIFF_RESOURCE_API.md)** - Complete API reference
   - Role-based access control (SUPERADMIN and ADMIN only)
   - Flat and time-of-use tariff types
   - Zone configuration for multi-rate pricing
@@ -39,47 +39,47 @@ This directory contains comprehensive documentation for all Filament 4.x resourc
   - Security hardening (XSS prevention, overflow protection)
   - Audit logging via TariffObserver
   - Tenant-scoped data access
-- **[TariffResource Usage Guide](./TARIFF_RESOURCE_USAGE_GUIDE.md)** - User-facing guide
+- **[TariffResource Usage Guide](TARIFF_RESOURCE_USAGE_GUIDE.md)** - User-facing guide
   - Creating flat rate and time-of-use tariffs
   - Managing tariff effective dates
   - Common scenarios and best practices
   - Troubleshooting guide
-- **[TariffResource Navigation Update](./TARIFF_RESOURCE_NAVIGATION_UPDATE.md)** - Implementation notes
+- **[TariffResource Navigation Update](TARIFF_RESOURCE_NAVIGATION_UPDATE.md)** - Implementation notes
   - Navigation visibility enhancement
   - SUPERADMIN role access addition
   - Code documentation improvements
-- **[TariffResource Documentation Complete](./TARIFF_RESOURCE_DOCUMENTATION_COMPLETE.md)** - Documentation summary
+- **[TariffResource Documentation Complete](TARIFF_RESOURCE_DOCUMENTATION_COMPLETE.md)** - Documentation summary
   - Complete documentation effort overview
   - All deliverables and quality standards met
   - Related documentation references
 - ProviderResource - *Documentation pending*
 
 ### User Management
-- **[UserResource API](./USER_RESOURCE_API.md)** - Complete API reference
+- **[UserResource API](USER_RESOURCE_API.md)** - Complete API reference
   - Role-based access control (Superadmin, Admin, Manager, Tenant)
   - Hierarchical tenant scoping
   - Conditional field visibility based on role
   - Password security and hashing
   - Comprehensive validation with localization
   - Audit logging for sensitive operations
-- **[UserResource Usage Guide](./USER_RESOURCE_USAGE_GUIDE.md)** - User-facing guide
+- **[UserResource Usage Guide](USER_RESOURCE_USAGE_GUIDE.md)** - User-facing guide
   - Creating and managing users
   - Role assignment and tenant scoping
   - Common workflows and best practices
   - Troubleshooting guide
-- **[UserResource Architecture](./USER_RESOURCE_ARCHITECTURE.md)** - Technical architecture
+- **[UserResource Architecture](USER_RESOURCE_ARCHITECTURE.md)** - Technical architecture
   - Component relationships and data flow
   - Security architecture and authorization layers
   - Performance considerations and optimization
   - Testing strategy and integration points
-- **[UserResource Implementation](./USER_RESOURCE_IMPLEMENTATION_COMPLETE.md)** - Implementation summary
-- **[UserResource Review](./USER_RESOURCE_REVIEW.md)** - Code review and recommendations
+- **[UserResource Implementation](USER_RESOURCE_IMPLEMENTATION_COMPLETE.md)** - Implementation summary
+- **[UserResource Review](USER_RESOURCE_REVIEW.md)** - Code review and recommendations
 - SubscriptionResource - *Documentation pending*
 - OrganizationResource - *Documentation pending*
 - OrganizationActivityLogResource - *Documentation pending*
 
 ### Content Management
-- **[FaqResource API](./FAQ_RESOURCE_API.md)** - API reference
+- **[FaqResource API](FAQ_RESOURCE_API.md)** - API reference
   - Admin/Superadmin access control
   - Rich text editor for answers
   - Category organization
@@ -91,8 +91,8 @@ This directory contains comprehensive documentation for all Filament 4.x resourc
 
 ## Framework Guides
 
-- **[Filament V4 Compatibility Guide](./FILAMENT_V4_COMPATIBILITY_GUIDE.md)** - Migration from v3 to v4
-- **[Validation Localization](./VALIDATION_LOCALIZATION_COMPLETE.md)** - Translation integration
+- **[Filament V4 Compatibility Guide](FILAMENT_V4_COMPATIBILITY_GUIDE.md)** - Migration from v3 to v4
+- **[Validation Localization](VALIDATION_LOCALIZATION_COMPLETE.md)** - Translation integration
 - **[Admin Panel Guide](../admin/ADMIN_PANEL_GUIDE.md)** - General admin panel usage
 - **[Admin Panel Testing](../admin/ADMIN_PANEL_TESTING.md)** - Testing strategies
 

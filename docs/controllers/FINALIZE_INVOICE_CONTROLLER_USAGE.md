@@ -417,7 +417,7 @@ return [
 ## Related Documentation
 
 - [FinalizeInvoiceController API Reference](../api/FINALIZE_INVOICE_CONTROLLER_API.md)
-- [FinalizeInvoiceController Implementation](./FINALIZE_INVOICE_CONTROLLER_REFACTORING_COMPLETE.md)
-- [Invoice Controller Implementation](./INVOICE_CONTROLLER_IMPLEMENTATION_COMPLETE.md)
+- [FinalizeInvoiceController Implementation](FINALIZE_INVOICE_CONTROLLER_REFACTORING_COMPLETE.md)
+- [Invoice Controller Implementation](INVOICE_CONTROLLER_IMPLEMENTATION_COMPLETE.md)
 - [BillingService API](../api/BILLING_SERVICE_API.md)
 - [InvoicePolicy Documentation](../api/INVOICE_POLICY_API.md)

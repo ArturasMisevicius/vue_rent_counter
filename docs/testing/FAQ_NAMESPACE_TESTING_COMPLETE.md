@@ -339,14 +339,14 @@ php artisan test --filter=FaqResourceNamespaceTest || exit 1
 
 ### Testing Documentation
 
-- [FAQ Resource Namespace Testing Guide](./FAQ_RESOURCE_NAMESPACE_TESTING.md)
-- [FAQ Namespace Test Implementation](./FAQ_NAMESPACE_TEST_IMPLEMENTATION.md)
-- [Testing Guide](./README.md)
+- [FAQ Resource Namespace Testing Guide](FAQ_RESOURCE_NAMESPACE_TESTING.md)
+- [FAQ Namespace Test Implementation](FAQ_NAMESPACE_TEST_IMPLEMENTATION.md)
+- [Testing Guide](README.md)
 
 ### Migration Documentation
 
 - [Filament Namespace Consolidation Guide](../upgrades/FILAMENT_NAMESPACE_CONSOLIDATION.md)
-- [Batch 4 Verification Guide](./BATCH_4_VERIFICATION_GUIDE.md)
+- [Batch 4 Verification Guide](BATCH_4_VERIFICATION_GUIDE.md)
 - [Batch 4 Completion Summary](../upgrades/BATCH_4_COMPLETION_SUMMARY.md)
 
 ### API Documentation

@@ -143,14 +143,14 @@ test('filter respects resource authorization')
 - **Resource**: `app/Filament/Resources/TranslationResource.php`
 - **Model**: `app/Models/Translation.php`
 - **Factory**: `database/factories/TranslationFactory.php`
-- **Spec**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+- **Spec**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 
 ---
 
 ## Documentation
 
-- [Full Test Documentation](./TRANSLATION_RESOURCE_FILTER_TEST_DOCUMENTATION.md)
-- [Testing README](./README.md)
+- [Full Test Documentation](TRANSLATION_RESOURCE_FILTER_TEST_DOCUMENTATION.md)
+- [Testing README](README.md)
 - [Namespace Consolidation Spec](../../.kiro/specs/6-filament-namespace-consolidation/)
 
 ---

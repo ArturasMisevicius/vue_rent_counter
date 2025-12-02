@@ -77,9 +77,9 @@
                 <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('filament.resources.subscription_usage.status') }}</dt>
                 <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
                     <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset
-                        @if($record->status === \App\Enums\SubscriptionStatus::ACTIVE->value) bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20
-                        @elseif($record->status === \App\Enums\SubscriptionStatus::EXPIRED->value) bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20
-                        @elseif($record->status === \App\Enums\SubscriptionStatus::SUSPENDED->value) bg-yellow-50 text-yellow-700 ring-yellow-600/20 dark:bg-yellow-500/10 dark:text-yellow-400 dark:ring-yellow-500/20
+                        @if($record->status === \App\Enums\SubscriptionStatus::ACTIVE) bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20
+                        @elseif($record->status === \App\Enums\SubscriptionStatus::EXPIRED) bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20
+                        @elseif($record->status === \App\Enums\SubscriptionStatus::SUSPENDED) bg-yellow-50 text-yellow-700 ring-yellow-600/20 dark:bg-yellow-500/10 dark:text-yellow-400 dark:ring-yellow-500/20
                         @else bg-gray-50 text-gray-700 ring-gray-600/20 dark:bg-gray-500/10 dark:text-gray-400 dark:ring-gray-500/20
                         @endif">
                         {{ enum_label($record->status, \App\Enums\SubscriptionStatus::class) }}

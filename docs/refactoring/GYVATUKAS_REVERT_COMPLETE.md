@@ -27,12 +27,12 @@ The GyvatukasCalculator v2.0 refactoring has been successfully reverted to v1.1 
 - [x] All 30 tests passing (58 assertions)
 
 ### Documentation Updates ✅
-- [x] Updated `docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md`
-- [x] Updated `docs/CHANGELOG.md`
-- [x] Updated `.kiro/specs/2-vilnius-utilities-billing/tasks.md`
-- [x] Created `docs/refactoring/GYVATUKAS_CALCULATOR_REVERT.md` (detailed)
-- [x] Created `docs/refactoring/GYVATUKAS_CALCULATOR_REVERT_SUMMARY.md` (quick ref)
-- [x] Created `GYVATUKAS_REVERT_COMPLETE.md` (this file)
+- [x] Updated [docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md](../implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
+- [x] Updated [docs/CHANGELOG.md](../CHANGELOG.md)
+- [x] Updated [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md)
+- [x] Created [docs/refactoring/GYVATUKAS_CALCULATOR_REVERT.md](GYVATUKAS_CALCULATOR_REVERT.md) (detailed)
+- [x] Created [docs/refactoring/GYVATUKAS_CALCULATOR_REVERT_SUMMARY.md](GYVATUKAS_CALCULATOR_REVERT_SUMMARY.md) (quick ref)
+- [x] Created [GYVATUKAS_REVERT_COMPLETE.md](GYVATUKAS_REVERT_COMPLETE.md) (this file)
 
 ## Test Results
 

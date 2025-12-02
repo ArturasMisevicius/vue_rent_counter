@@ -193,8 +193,8 @@ Dashboard shows:
 
 ### Documentation
 
-- [Full Admin Guide](./ADMIN_PANEL_GUIDE.md)
-- [Testing Guide](./ADMIN_PANEL_TESTING.md)
+- [Full Admin Guide](ADMIN_PANEL_GUIDE.md)
+- [Testing Guide](ADMIN_PANEL_TESTING.md)
 - [Frontend Docs](../frontend/FRONTEND.md)
 
 ### Support Commands

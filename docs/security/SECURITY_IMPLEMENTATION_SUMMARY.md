@@ -401,8 +401,8 @@ tail -f storage/logs/audit.log
 
 ### New Documentation
 
-1. ✅ `docs/security/BUILDING_RESOURCE_SECURITY_AUDIT.md` - Comprehensive audit report
-2. ✅ `docs/security/SECURITY_IMPLEMENTATION_SUMMARY.md` - This document
+1. ✅ [docs/security/BUILDING_RESOURCE_SECURITY_AUDIT.md](BUILDING_RESOURCE_SECURITY_AUDIT.md) - Comprehensive audit report
+2. ✅ [docs/security/SECURITY_IMPLEMENTATION_SUMMARY.md](SECURITY_IMPLEMENTATION_SUMMARY.md) - This document
 3. ✅ `app/Http/Middleware/SecurityHeaders.php` - Inline documentation
 4. ✅ `app/Logging/RedactSensitiveData.php` - Inline documentation
 5. ✅ `tests/Feature/Security/BuildingResourceSecurityTest.php` - Test documentation

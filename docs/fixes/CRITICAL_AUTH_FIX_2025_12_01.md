@@ -201,9 +201,9 @@ php artisan queue:restart
 
 ## Related Documentation
 
-- `docs/fixes/HIERARCHICAL_SCOPE_GUEST_FIX.md` - Guest protection in scope
-- `docs/fixes/LOGIN_FIX_2025_12_01.md` - Previous login fixes
-- `docs/refactoring/HIERARCHICAL_SCOPE_RECURSION_FIX.md` - Recursion protection
+- [docs/fixes/HIERARCHICAL_SCOPE_GUEST_FIX.md](HIERARCHICAL_SCOPE_GUEST_FIX.md) - Guest protection in scope
+- [docs/fixes/LOGIN_FIX_2025_12_01.md](LOGIN_FIX_2025_12_01.md) - Previous login fixes
+- [docs/refactoring/HIERARCHICAL_SCOPE_RECURSION_FIX.md](../refactoring/HIERARCHICAL_SCOPE_RECURSION_FIX.md) - Recursion protection
 
 ## Status
 

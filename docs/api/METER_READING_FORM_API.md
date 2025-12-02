@@ -630,8 +630,8 @@ php artisan test --filter=MeterReadingApiTest
 - **Observer**: `app/Observers/MeterReadingObserver.php`
 - **Tests**: `tests/Feature/MeterReadingFormComponentTest.php`
 - **Translations**: `lang/en/meter_readings.php`
-- **Implementation Guide**: `docs/refactoring/METER_READING_FORM_COMPLETE.md`
-- **Refactoring Summary**: `docs/refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md`
+- **Implementation Guide**: [docs/refactoring/METER_READING_FORM_COMPLETE.md](../refactoring/METER_READING_FORM_COMPLETE.md)
+- **Refactoring Summary**: [docs/refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md](../refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md)
 
 ---
 

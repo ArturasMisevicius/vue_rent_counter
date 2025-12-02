@@ -319,7 +319,7 @@ php artisan test
 
 ## Related Documentation
 
-- [Tariff Resource Validation](./tariff-resource-validation.md)
+- [Tariff Resource Validation](../filament/tariff-resource-validation.md)
 - [Filament v4 Performance Guide](../filament/FILAMENT_V4_COMPATIBILITY_GUIDE.md)
 - [Database Indexing Strategy](../database/indexing-strategy.md)
 - [Caching Strategy](../architecture/caching-strategy.md)

@@ -187,7 +187,7 @@ php artisan test --filter=LanguageResourceNavigationTest --stop-on-failure
 
 ### Test Fails with 500 Error
 **Cause**: Form method error (documented separately)  
-**Solution**: See `LANGUAGE_RESOURCE_TEST_ISSUES.md`
+**Solution**: See [LANGUAGE_RESOURCE_TEST_ISSUES.md](../misc/LANGUAGE_RESOURCE_TEST_ISSUES.md)
 
 ### Test Fails with 302 Redirect
 **Cause**: Middleware redirect instead of 403  
@@ -202,14 +202,14 @@ php artisan test --filter=LanguageResourceNavigationTest --stop-on-failure
 ## Documentation
 
 ### Complete Documentation
-- [Test Complete](./LANGUAGE_RESOURCE_NAVIGATION_TEST_COMPLETE.md) - Executive summary
-- [Test API](./LANGUAGE_RESOURCE_NAVIGATION_TEST_API.md) - API documentation
-- [Verification](./LANGUAGE_RESOURCE_NAVIGATION_VERIFICATION.md) - Verification guide
+- [Test Complete](LANGUAGE_RESOURCE_NAVIGATION_TEST_COMPLETE.md) - Executive summary
+- [Test API](LANGUAGE_RESOURCE_NAVIGATION_TEST_API.md) - API documentation
+- [Verification](LANGUAGE_RESOURCE_NAVIGATION_VERIFICATION.md) - Verification guide
 
 ### Related Documentation
-- [FAQ Namespace Testing](./FAQ_NAMESPACE_TESTING_COMPLETE.md) - Similar pattern
-- [Batch 4 Verification](./BATCH_4_VERIFICATION_GUIDE.md) - Batch verification
-- [Testing Guide](./README.md) - General testing guide
+- [FAQ Namespace Testing](FAQ_NAMESPACE_TESTING_COMPLETE.md) - Similar pattern
+- [Batch 4 Verification](BATCH_4_VERIFICATION_GUIDE.md) - Batch verification
+- [Testing Guide](README.md) - General testing guide
 
 ---
 

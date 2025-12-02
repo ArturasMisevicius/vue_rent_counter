@@ -430,7 +430,7 @@ test('BuildingResource automatically filters buildings by authenticated user ten
 
 ## Related Documentation
 
-- [Filament Building Resource Tests](./filament-building-resource-tenant-scope-tests.md)
+- [Filament Building Resource Tests](filament-building-resource-tenant-scope-tests.md)
 - [Multi-Tenancy Testing Strategy](./multi-tenancy-testing.md)
 - [Pest Testing Framework](https://pestphp.com/)
 - [Filament Testing Documentation](https://filamentphp.com/docs/3.x/panels/testing)

@@ -346,7 +346,7 @@ test('meter reading update completes within acceptable time', function () {
 - **Service**: `app/Services/MeterReadingService.php`
 - **Observer**: `app/Observers/MeterReadingObserver.php`
 - **Tests**: `tests/Feature/Http/Controllers/MeterReadingUpdateControllerTest.php`
-- **API Docs**: `docs/api/METER_READING_UPDATE_CONTROLLER_API.md`
+- **API Docs**: [docs/api/METER_READING_UPDATE_CONTROLLER_API.md](../api/METER_READING_UPDATE_CONTROLLER_API.md)
 
 ---
 

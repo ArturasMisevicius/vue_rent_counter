@@ -113,7 +113,7 @@ Implementation: `applyPropertyFiltering()` method adds property-level filtering 
 ## Documentation Delivered
 
 ### Architecture Documentation
-- **File**: `docs/architecture/HIERARCHICAL_SCOPE.md`
+- **File**: [docs/architecture/HIERARCHICAL_SCOPE.md](../architecture/HIERARCHICAL_SCOPE.md)
 - **Content**: 
   - Complete architecture overview
   - Filtering rules and examples
@@ -123,7 +123,7 @@ Implementation: `applyPropertyFiltering()` method adds property-level filtering 
   - Migration guide from legacy scope
 
 ### API Reference
-- **File**: `docs/api/HIERARCHICAL_SCOPE_API.md`
+- **File**: [docs/api/HIERARCHICAL_SCOPE_API.md](../api/HIERARCHICAL_SCOPE_API.md)
 - **Content**:
   - All public methods with signatures
   - Query builder macros
@@ -133,7 +133,7 @@ Implementation: `applyPropertyFiltering()` method adds property-level filtering 
   - Testing API
 
 ### Quick Start Guide
-- **File**: `docs/guides/HIERARCHICAL_SCOPE_QUICK_START.md`
+- **File**: [docs/guides/HIERARCHICAL_SCOPE_QUICK_START.md](../guides/HIERARCHICAL_SCOPE_QUICK_START.md)
 - **Content**:
   - 5-minute overview
   - Common scenarios
@@ -142,7 +142,7 @@ Implementation: `applyPropertyFiltering()` method adds property-level filtering 
   - Quick reference tables
 
 ### Upgrade Guide
-- **File**: `docs/upgrades/HIERARCHICAL_SCOPE_UPGRADE.md`
+- **File**: [docs/upgrades/HIERARCHICAL_SCOPE_UPGRADE.md](../upgrades/HIERARCHICAL_SCOPE_UPGRADE.md)
 - **Content**:
   - What's new
   - Migration steps

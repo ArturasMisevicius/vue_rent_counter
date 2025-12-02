@@ -214,7 +214,7 @@ Subscription::factory()->create([
 - [Auth Route Bypass Specification](../../.kiro/specs/auth-route-bypass-fix/spec.md)
 - [Middleware Documentation](../middleware/CHECK_SUBSCRIPTION_STATUS.md)
 - [Security Implementation Checklist](../security/SECURITY_IMPLEMENTATION_CHECKLIST.md)
-- [Testing Guide](./README.md)
+- [Testing Guide](README.md)
 
 ## Verification Checklist
 

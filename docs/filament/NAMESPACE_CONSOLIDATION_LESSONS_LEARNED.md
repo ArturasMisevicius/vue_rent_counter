@@ -858,6 +858,6 @@ The project demonstrates that sometimes the greatest value comes not from making
 **Related Documents**:
 - [Requirements](../../.kiro/specs/6-filament-namespace-consolidation/requirements.md)
 - [Design](../../.kiro/specs/6-filament-namespace-consolidation/design.md)
-- [Tasks](../../.kiro/specs/6-filament-namespace-consolidation/tasks.md)
-- [Resource Prioritization Analysis](./RESOURCE_PRIORITIZATION_ANALYSIS.md)
-- [Namespace Consolidation Completion Summary](./NAMESPACE_CONSOLIDATION_COMPLETION_SUMMARY.md)
+- [Tasks](../tasks/tasks.md)
+- [Resource Prioritization Analysis](RESOURCE_PRIORITIZATION_ANALYSIS.md)
+- [Namespace Consolidation Completion Summary](NAMESPACE_CONSOLIDATION_COMPLETION_SUMMARY.md)

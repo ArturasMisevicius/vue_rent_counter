@@ -266,7 +266,7 @@ grep "Authorization denied" storage/logs/laravel.log | \
 
 ## Related Documentation
 
-- [Security Incident Report](./SECURITY_INCIDENT_2025_12_02.md)
+- [Security Incident Report](SECURITY_INCIDENT_2025_12_02.md)
 - [Multi-Tenancy Architecture](../architecture/MULTI_TENANCY.md)
 - [User Roles & Permissions](../api/USER_POLICY_API.md)
 - [Filament Admin Panel](../admin/ADMIN_PANEL_GUIDE.md)

@@ -112,6 +112,6 @@ Livewire::test(CreateTranslation::class)
 
 ## Related Documentation
 
-- [Full Test Summary](./TRANSLATION_RESOURCE_CREATE_TEST_SUMMARY.md)
-- [Navigation Verification](./TRANSLATION_RESOURCE_NAVIGATION_VERIFICATION.md)
-- [Tasks](../../.kiro/specs/6-filament-namespace-consolidation/tasks.md)
+- [Full Test Summary](TRANSLATION_RESOURCE_CREATE_TEST_SUMMARY.md)
+- [Navigation Verification](TRANSLATION_RESOURCE_NAVIGATION_VERIFICATION.md)
+- [Tasks](../tasks/tasks.md)

@@ -489,10 +489,10 @@ php artisan migrate --env=testing
 
 ## Related Documentation
 
-- **API Documentation**: `docs/filament/TRANSLATION_RESOURCE_API.md`
-- **Test Summary**: `docs/testing/TRANSLATION_RESOURCE_CREATE_TEST_SUMMARY.md`
-- **Quick Reference**: `docs/testing/TRANSLATION_RESOURCE_CREATE_QUICK_REFERENCE.md`
-- **Completion Report**: `docs/testing/TRANSLATION_RESOURCE_CREATE_COMPLETION.md`
+- **API Documentation**: [docs/filament/TRANSLATION_RESOURCE_API.md](../filament/TRANSLATION_RESOURCE_API.md)
+- **Test Summary**: [docs/testing/TRANSLATION_RESOURCE_CREATE_TEST_SUMMARY.md](TRANSLATION_RESOURCE_CREATE_TEST_SUMMARY.md)
+- **Quick Reference**: [docs/testing/TRANSLATION_RESOURCE_CREATE_QUICK_REFERENCE.md](TRANSLATION_RESOURCE_CREATE_QUICK_REFERENCE.md)
+- **Completion Report**: [docs/testing/TRANSLATION_RESOURCE_CREATE_COMPLETION.md](TRANSLATION_RESOURCE_CREATE_COMPLETION.md)
 - **Feature Spec**: `.kiro/specs/6-filament-namespace-consolidation/`
 
 ## Changelog

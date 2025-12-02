@@ -311,10 +311,10 @@ php scripts/verify-tariff-namespace-consolidation.php
 
 - **Requirements**: `.kiro/specs/6-filament-namespace-consolidation/requirements.md`
 - **Design**: `.kiro/specs/6-filament-namespace-consolidation/design.md`
-- **Tasks**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+- **Tasks**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 - **Implementation Spec**: `.kiro/specs/6-filament-namespace-consolidation/implementation-spec.md`
-- **Verification Report**: `docs/filament/NAMESPACE_CONSOLIDATION_VERIFICATION.md`
-- **Tariff Resource Documentation**: `docs/filament/TARIFF_RESOURCE_NAMESPACE_CONSOLIDATION.md`
+- **Verification Report**: [docs/filament/NAMESPACE_CONSOLIDATION_VERIFICATION.md](NAMESPACE_CONSOLIDATION_VERIFICATION.md)
+- **Tariff Resource Documentation**: [docs/filament/TARIFF_RESOURCE_NAMESPACE_CONSOLIDATION.md](TARIFF_RESOURCE_NAMESPACE_CONSOLIDATION.md)
 
 ---
 

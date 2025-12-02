@@ -170,7 +170,7 @@ expect($foundTariff->active_from->format('Y-m-d H:i:s'))
 - **Resource**: `app/Filament/Resources/ProviderResource.php`
 - **Relation Manager**: `app/Filament/Resources/ProviderResource/RelationManagers/TariffsRelationManager.php`
 - **Policy**: `app/Policies/ProviderPolicy.php`
-- **Full Documentation**: `docs/testing/provider-tariff-relationship-tests.md`
+- **Full Documentation**: [docs/testing/provider-tariff-relationship-tests.md](provider-tariff-relationship-tests.md)
 
 ## Maintenance Checklist
 

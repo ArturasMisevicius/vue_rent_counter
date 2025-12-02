@@ -331,11 +331,11 @@ php artisan optimize
 
 1. ✅ `app/View/Composers/NavigationComposer.php` - Implementation with PHPDoc
 2. ✅ `tests/Unit/NavigationComposerTest.php` - Comprehensive test coverage
-3. ✅ `docs/refactoring/NAVIGATION_COMPOSER_REFACTORING.md` - Refactoring summary
-4. ✅ `docs/refactoring/NAVIGATION_COMPOSER_ANALYSIS.md` - Code quality analysis
-5. ✅ `docs/refactoring/NAVIGATION_COMPOSER_SPEC.md` - This specification
+3. ✅ [docs/refactoring/NAVIGATION_COMPOSER_REFACTORING.md](NAVIGATION_COMPOSER_REFACTORING.md) - Refactoring summary
+4. ✅ [docs/refactoring/NAVIGATION_COMPOSER_ANALYSIS.md](NAVIGATION_COMPOSER_ANALYSIS.md) - Code quality analysis
+5. ✅ [docs/refactoring/NAVIGATION_COMPOSER_SPEC.md](NAVIGATION_COMPOSER_SPEC.md) - This specification
 6. ✅ `.kiro/steering/blade-guardrails.md` - Updated with implementation notes
-7. ✅ `.kiro/specs/1-framework-upgrade/tasks.md` - Task 6 marked complete
+7. ✅ [.kiro/specs/1-framework-upgrade/tasks.md](../tasks/tasks.md) - Task 6 marked complete
 
 ### README Updates
 

@@ -75,19 +75,19 @@ Authorization policy refactoring to eliminate code duplication and add SUPERADMI
 
 ### Specifications
 - `.kiro/specs/` - Feature specifications
-- `.kiro/specs/README.md` - Specifications index
+- [.kiro/specs/README.md](../overview/readme.md) - Specifications index
 
 ### API Documentation
 - `docs/api/` - API references
-- `docs/api/TARIFF_POLICY_API.md` - Policy API
+- [docs/api/TARIFF_POLICY_API.md](../api/TARIFF_POLICY_API.md) - Policy API
 
 ### Performance
 - `docs/performance/` - Performance analysis
-- `docs/performance/POLICY_PERFORMANCE_ANALYSIS.md` - Policy performance
+- [docs/performance/POLICY_PERFORMANCE_ANALYSIS.md](../performance/POLICY_PERFORMANCE_ANALYSIS.md) - Policy performance
 
 ### Implementation
 - `docs/implementation/` - Implementation guides
-- `docs/implementation/POLICY_REFACTORING_COMPLETE.md` - Policy refactoring
+- [docs/implementation/POLICY_REFACTORING_COMPLETE.md](../implementation/POLICY_REFACTORING_COMPLETE.md) - Policy refactoring
 
 ---
 

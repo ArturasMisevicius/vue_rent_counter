@@ -165,9 +165,9 @@ php artisan test --filter=TranslationResourceEditTest
 
 ## Related Documentation
 
-- **Full API**: `docs/filament/TRANSLATION_RESOURCE_PAGES_API.md`
-- **Test Guide**: `docs/testing/TRANSLATION_RESOURCE_CREATE_TEST_GUIDE.md`
-- **Edit Completion**: `docs/testing/TRANSLATION_RESOURCE_EDIT_COMPLETION.md`
+- **Full API**: [docs/filament/TRANSLATION_RESOURCE_PAGES_API.md](TRANSLATION_RESOURCE_PAGES_API.md)
+- **Test Guide**: [docs/testing/TRANSLATION_RESOURCE_CREATE_TEST_GUIDE.md](../testing/TRANSLATION_RESOURCE_CREATE_TEST_GUIDE.md)
+- **Edit Completion**: [docs/testing/TRANSLATION_RESOURCE_EDIT_COMPLETION.md](../testing/TRANSLATION_RESOURCE_EDIT_COMPLETION.md)
 
 ---
 

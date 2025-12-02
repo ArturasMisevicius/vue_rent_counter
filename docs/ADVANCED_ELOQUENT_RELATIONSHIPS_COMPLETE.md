@@ -317,14 +317,14 @@ docs/
 ## 🎓 Learning Path
 
 ### Beginner (Start Here)
-1. Read: `QUICK_REFERENCE.md`
+1. Read: [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
 2. Run migrations: `php artisan migrate`
 3. Add `HasComments` to Invoice model
 4. Test: Add a comment to an invoice
 5. Review: Check the `comments` table
 
 ### Intermediate
-1. Read: `ADVANCED_RELATIONSHIPS_USAGE.md`
+1. Read: [ADVANCED_RELATIONSHIPS_USAGE.md](examples/ADVANCED_RELATIONSHIPS_USAGE.md)
 2. Add all traits to Invoice, Property, Meter models
 3. Implement: Comments, attachments, and tags in Filament
 4. Test: Create comprehensive feature tests
@@ -378,9 +378,9 @@ $unusedTags = Tag::unused()->count();
 
 ## 📞 Getting Help
 
-1. **Quick Reference**: `docs/QUICK_REFERENCE.md`
-2. **Usage Examples**: `docs/examples/ADVANCED_RELATIONSHIPS_USAGE.md`
-3. **Testing Guide**: `docs/examples/ADVANCED_RELATIONSHIPS_TESTING.md`
+1. **Quick Reference**: [docs/QUICK_REFERENCE.md](QUICK_REFERENCE.md)
+2. **Usage Examples**: [docs/examples/ADVANCED_RELATIONSHIPS_USAGE.md](examples/ADVANCED_RELATIONSHIPS_USAGE.md)
+3. **Testing Guide**: [docs/examples/ADVANCED_RELATIONSHIPS_TESTING.md](examples/ADVANCED_RELATIONSHIPS_TESTING.md)
 4. **Laravel Docs**: https://laravel.com/docs/eloquent-relationships
 
 ## ✅ Success Criteria

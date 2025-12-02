@@ -12,11 +12,11 @@
 - `docs/performance/`, `docs/security/`, `docs/reference/`, `docs/frontend/`, etc. — topic-specific.
 
 ## Naming
-- Use UPPER_SNAKE_CASE for broad guides (e.g., `API_ARCHITECTURE_GUIDE.md`).
-- Use specific names for features/tests (e.g., `TENANT_HISTORY_SEEDING.md`, `FACTORY_AND_SEEDING_GUIDE.md`).
+- Use UPPER_SNAKE_CASE for broad guides (e.g., [API_ARCHITECTURE_GUIDE.md](../api/API_ARCHITECTURE_GUIDE.md)).
+- Use specific names for features/tests (e.g., [TENANT_HISTORY_SEEDING.md](../database/TENANT_HISTORY_SEEDING.md), [FACTORY_AND_SEEDING_GUIDE.md](../testing/FACTORY_AND_SEEDING_GUIDE.md)).
 
 ## Cross-linking
-- Update `docs/reference/HOOKS_DOCUMENTATION_MAP.md` when adding or moving docs.
+- Update [docs/reference/HOOKS_DOCUMENTATION_MAP.md](HOOKS_DOCUMENTATION_MAP.md) when adding or moving docs.
 - If reorganizing folders, update links in related guides and any navigation/index files.
 
 ## When Moving Docs

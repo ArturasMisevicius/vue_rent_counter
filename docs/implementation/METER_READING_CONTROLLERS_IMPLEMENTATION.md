@@ -342,8 +342,8 @@ The meter reading controllers are now complete and production-ready. Next tasks:
 - `app/Http/Requests/UpdateMeterReadingRequest.php` - Update validation
 - `app/Observers/MeterReadingObserver.php` - Audit trail and recalculation
 - `app/Services/MeterReadingService.php` - Helper methods
-- `docs/implementation/METER_READING_OBSERVER_IMPLEMENTATION.md` - Observer details
-- `docs/implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md` - Recalculation logic
+- [docs/implementation/METER_READING_OBSERVER_IMPLEMENTATION.md](METER_READING_OBSERVER_IMPLEMENTATION.md) - Observer details
+- [docs/implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md](DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md) - Recalculation logic
 
 ---
 

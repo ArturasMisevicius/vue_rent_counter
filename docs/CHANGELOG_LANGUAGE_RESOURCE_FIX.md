@@ -30,18 +30,18 @@ Fixed `BadMethodCallException` in LanguageResource by replacing deprecated Filam
 ### Added
 
 - **Comprehensive Documentation**
-  - Created `docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md` - Detailed fix documentation with architecture notes
-  - Created `docs/fixes/LANGUAGE_RESOURCE_FORM_FIX_CHANGELOG.md` - Changelog entry template
-  - Created `docs/filament/LANGUAGE_RESOURCE_API.md` - Complete API documentation (15+ sections)
+  - Created [docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md](fixes/LANGUAGE_RESOURCE_FORM_FIX.md) - Detailed fix documentation with architecture notes
+  - Created [docs/fixes/LANGUAGE_RESOURCE_FORM_FIX_CHANGELOG.md](fixes/LANGUAGE_RESOURCE_FORM_FIX_CHANGELOG.md) - Changelog entry template
+  - Created [docs/filament/LANGUAGE_RESOURCE_API.md](filament/LANGUAGE_RESOURCE_API.md) - Complete API documentation (15+ sections)
   - Added inline code comments explaining redundancy with model mutator
   - Documented data flow and transformation layers
 
 ### Updated
 
 - **Existing Documentation**
-  - Updated `docs/filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md` - Marked issues as addressed
-  - Updated `docs/refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md` - Added Filament v4 fix section
-  - Updated `.kiro/specs/6-filament-namespace-consolidation/tasks.md` - Marked tasks complete
+  - Updated [docs/filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md](filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md) - Marked issues as addressed
+  - Updated [docs/refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md](refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md) - Added Filament v4 fix section
+  - Updated [.kiro/specs/6-filament-namespace-consolidation/tasks.md](tasks/tasks.md) - Marked tasks complete
 
 ---
 
@@ -231,15 +231,15 @@ If you encounter similar `lowercase()` errors in other Filament resources:
 
 ### Primary Documentation
 
-- **Fix Guide**: `docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md`
-- **API Documentation**: `docs/filament/LANGUAGE_RESOURCE_API.md`
-- **Changelog Entry**: `docs/fixes/LANGUAGE_RESOURCE_FORM_FIX_CHANGELOG.md`
+- **Fix Guide**: [docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md](fixes/LANGUAGE_RESOURCE_FORM_FIX.md)
+- **API Documentation**: [docs/filament/LANGUAGE_RESOURCE_API.md](filament/LANGUAGE_RESOURCE_API.md)
+- **Changelog Entry**: [docs/fixes/LANGUAGE_RESOURCE_FORM_FIX_CHANGELOG.md](fixes/LANGUAGE_RESOURCE_FORM_FIX_CHANGELOG.md)
 
 ### Supporting Documentation
 
-- **Optimization Guide**: `docs/filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md`
-- **Refactoring Summary**: `docs/refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md`
-- **Analysis**: `docs/refactoring/LANGUAGE_RESOURCE_ANALYSIS.md`
+- **Optimization Guide**: [docs/filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md](filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md)
+- **Refactoring Summary**: [docs/refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md](refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md)
+- **Analysis**: [docs/refactoring/LANGUAGE_RESOURCE_ANALYSIS.md](refactoring/LANGUAGE_RESOURCE_ANALYSIS.md)
 
 ### Code Files
 
@@ -250,7 +250,7 @@ If you encounter similar `lowercase()` errors in other Filament resources:
 
 ### Task Tracking
 
-- **Tasks**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+- **Tasks**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](tasks/tasks.md)
 
 ---
 

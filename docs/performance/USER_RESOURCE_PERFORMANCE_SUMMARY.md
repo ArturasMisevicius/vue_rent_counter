@@ -46,10 +46,10 @@ Comprehensive performance optimizations implemented for UserResource, addressing
 
 ## Files Created
 
-1. ✅ `docs/performance/USER_RESOURCE_PERFORMANCE_OPTIMIZATION.md` - Detailed documentation
+1. ✅ [docs/performance/USER_RESOURCE_PERFORMANCE_OPTIMIZATION.md](USER_RESOURCE_PERFORMANCE_OPTIMIZATION.md) - Detailed documentation
 2. ✅ `tests/Feature/Performance/UserResourcePerformanceTest.php` - Performance test suite (10 tests)
 3. ✅ `app/Observers/UserObserver.php` - Cache invalidation observer
-4. ✅ `docs/performance/USER_RESOURCE_PERFORMANCE_SUMMARY.md` - This file
+4. ✅ [docs/performance/USER_RESOURCE_PERFORMANCE_SUMMARY.md](USER_RESOURCE_PERFORMANCE_SUMMARY.md) - This file
 
 ## Performance Improvements
 
@@ -156,7 +156,7 @@ If issues arise:
 
 ## Related Documentation
 
-- [Detailed Performance Optimization](./USER_RESOURCE_PERFORMANCE_OPTIMIZATION.md)
+- [Detailed Performance Optimization](USER_RESOURCE_PERFORMANCE_OPTIMIZATION.md)
 - [UserResource API Documentation](../filament/USER_RESOURCE_API.md)
 - [UserResource Architecture](../filament/USER_RESOURCE_ARCHITECTURE.md)
 

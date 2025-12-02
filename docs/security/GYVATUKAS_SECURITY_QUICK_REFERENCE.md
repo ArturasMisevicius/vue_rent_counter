@@ -396,9 +396,9 @@ Log::info('Calculation', ['building_id' => $building->id]); // Use hash
 
 ## Resources
 
-- [Security Audit Report](./GYVATUKAS_CALCULATOR_SECURITY_AUDIT.md)
-- [Implementation Guide](./GYVATUKAS_SECURITY_IMPLEMENTATION.md)
-- [Summary](./SECURITY_HARDENING_SUMMARY.md)
+- [Security Audit Report](GYVATUKAS_CALCULATOR_SECURITY_AUDIT.md)
+- [Implementation Guide](GYVATUKAS_SECURITY_IMPLEMENTATION.md)
+- [Summary](SECURITY_HARDENING_SUMMARY.md)
 - [API Documentation](../api/GYVATUKAS_CALCULATOR_API.md)
 
 ## Support

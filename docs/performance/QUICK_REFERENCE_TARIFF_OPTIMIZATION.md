@@ -109,4 +109,4 @@ EXPLAIN SELECT id, name, service_type FROM providers WHERE id IN (1,2,3);
 
 ## 📚 Full Documentation
 
-See: `docs/performance/TARIFF_RESOURCE_OPTIMIZATION_2025_11.md`
+See: [docs/performance/TARIFF_RESOURCE_OPTIMIZATION_2025_11.md](TARIFF_RESOURCE_OPTIMIZATION_2025_11.md)

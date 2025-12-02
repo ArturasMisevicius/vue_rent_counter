@@ -421,5 +421,5 @@ test:
 - [Pest Documentation](https://pestphp.com)
 - [Filament Testing Documentation](https://filamentphp.com/docs/testing)
 - [Laravel Testing Documentation](https://laravel.com/docs/testing)
-- [Project Testing Guide](./README.md)
-- [Test Generation Architecture](./TEST_GENERATION_ARCHITECTURE.md)
+- [Project Testing Guide](README.md)
+- [Test Generation Architecture](TEST_GENERATION_ARCHITECTURE.md)

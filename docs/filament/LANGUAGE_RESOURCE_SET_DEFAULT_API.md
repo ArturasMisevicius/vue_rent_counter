@@ -261,10 +261,10 @@ Actions\Action::make('set_default')
 
 ## Related Documentation
 
-- **Test Documentation**: `docs/testing/LANGUAGE_RESOURCE_SET_DEFAULT_TEST_DOCUMENTATION.md`
+- **Test Documentation**: [docs/testing/LANGUAGE_RESOURCE_SET_DEFAULT_TEST_DOCUMENTATION.md](../testing/LANGUAGE_RESOURCE_SET_DEFAULT_TEST_DOCUMENTATION.md)
 - **Quick Reference**: `docs/testing/LANGUAGE_RESOURCE_SET_DEFAULT_QUICK_REFERENCE.md`
-- **Summary**: `docs/testing/LANGUAGE_RESOURCE_SET_DEFAULT_SUMMARY.md`
-- **Resource API**: `docs/filament/LANGUAGE_RESOURCE_API.md`
+- **Summary**: [docs/testing/LANGUAGE_RESOURCE_SET_DEFAULT_SUMMARY.md](../testing/LANGUAGE_RESOURCE_SET_DEFAULT_SUMMARY.md)
+- **Resource API**: [docs/filament/LANGUAGE_RESOURCE_API.md](LANGUAGE_RESOURCE_API.md)
 
 ## Version History
 

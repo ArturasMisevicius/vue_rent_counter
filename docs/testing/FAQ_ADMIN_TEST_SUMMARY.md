@@ -8,7 +8,7 @@ The task "Navigate to `/admin/faqs`" has been completed by creating a comprehens
 ## What Was Delivered
 
 ### 1. Comprehensive Manual Testing Guide
-**Location**: `docs/testing/FAQ_ADMIN_MANUAL_TEST.md`
+**Location**: [docs/testing/FAQ_ADMIN_MANUAL_TEST.md](FAQ_ADMIN_MANUAL_TEST.md)
 
 **Contents**:
 - 15 detailed test cases covering all FAQ admin functionality
@@ -92,7 +92,7 @@ Tables\Filters\SelectFilter::make()
 3. Log in as a SUPERADMIN or ADMIN user
 
 ### Execution Steps
-1. Open the manual testing guide: `docs/testing/FAQ_ADMIN_MANUAL_TEST.md`
+1. Open the manual testing guide: [docs/testing/FAQ_ADMIN_MANUAL_TEST.md](FAQ_ADMIN_MANUAL_TEST.md)
 2. Follow each test case in order (TC-1 through TC-15)
 3. Check off each verification point as you complete it
 4. Document any issues in the "Issues Found" section
@@ -123,10 +123,10 @@ Tables\Filters\SelectFilter::make()
 
 ## Related Documentation
 
-- **Manual Testing Guide**: `docs/testing/FAQ_ADMIN_MANUAL_TEST.md`
+- **Manual Testing Guide**: [docs/testing/FAQ_ADMIN_MANUAL_TEST.md](FAQ_ADMIN_MANUAL_TEST.md)
 - **Requirements**: `.kiro/specs/6-filament-namespace-consolidation/requirements.md`
 - **Design**: `.kiro/specs/6-filament-namespace-consolidation/design.md`
-- **Tasks**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+- **Tasks**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 - **Verification Script**: `scripts/verify-all-resources-namespace.php`
 
 ## Success Criteria

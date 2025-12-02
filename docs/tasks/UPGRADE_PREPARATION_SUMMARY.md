@@ -12,7 +12,7 @@
 - **Branch:** `upgrade/laravel-12-filament-4` created and active
 
 ### 2. ✅ Dependency Baseline Documented
-- **File:** `docs/tasks/dependency-baseline.md`
+- **File:** [docs/tasks/dependency-baseline.md](dependency-baseline.md)
 - **Contents:**
   - Current versions of all PHP dependencies (Laravel 11.46.1, Filament 3.3.45)
   - Current versions of all Node dependencies (Vite 5.x, Axios 1.6.4)
@@ -57,11 +57,11 @@
 
 ## Files Created/Updated
 
-1. `docs/tasks/dependency-baseline.md` - Complete dependency inventory
+1. [docs/tasks/dependency-baseline.md](dependency-baseline.md) - Complete dependency inventory
 2. `test-results-baseline.txt` - Test suite execution baseline
 3. `performance-baseline.json` - Performance metrics baseline
 4. `database/database.sqlite.backup-20251124-002318` - Database backup
-5. `docs/tasks/UPGRADE_PREPARATION_SUMMARY.md` - This summary document
+5. [docs/tasks/UPGRADE_PREPARATION_SUMMARY.md](UPGRADE_PREPARATION_SUMMARY.md) - This summary document
 
 ## Git Status
 

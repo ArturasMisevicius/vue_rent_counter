@@ -44,10 +44,10 @@ $calculator->distributeCirculationCost($building, $cost, 'equal');
 
 - ✅ `app/Services/GyvatukasCalculator.php` - Service implementation
 - ✅ `tests/Unit/Services/GyvatukasCalculatorTest.php` - Test file
-- ✅ `docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md` - Implementation guide
-- ✅ `docs/CHANGELOG.md` - Changelog entry
-- ✅ `.kiro/specs/2-vilnius-utilities-billing/tasks.md` - Task status
-- ✅ `docs/refactoring/GYVATUKAS_CALCULATOR_REVERT.md` - Detailed revert doc
+- ✅ [docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md](../implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md) - Implementation guide
+- ✅ [docs/CHANGELOG.md](../CHANGELOG.md) - Changelog entry
+- ✅ [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) - Task status
+- ✅ [docs/refactoring/GYVATUKAS_CALCULATOR_REVERT.md](GYVATUKAS_CALCULATOR_REVERT.md) - Detailed revert doc
 
 ## Test Results
 
@@ -75,8 +75,8 @@ Consider v2.0 optimizations when:
 
 ## Documentation
 
-- **Detailed Revert**: `docs/refactoring/GYVATUKAS_CALCULATOR_REVERT.md`
-- **Implementation Guide**: `docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md`
+- **Detailed Revert**: [docs/refactoring/GYVATUKAS_CALCULATOR_REVERT.md](GYVATUKAS_CALCULATOR_REVERT.md)
+- **Implementation Guide**: [docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md](../implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
 - **Historical v2.0 Docs**: Preserved for future reference
 
 ## Next Steps

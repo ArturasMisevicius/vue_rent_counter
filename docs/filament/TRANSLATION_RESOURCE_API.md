@@ -516,7 +516,7 @@ php artisan test --coverage tests/Feature/Filament/TranslationResourceCreateTest
 - **Resource**: `app/Filament/Resources/TranslationResource.php`
 - **Pages**: `app/Filament/Resources/TranslationResource/Pages/`
 - **Test Suite**: `tests/Feature/Filament/TranslationResourceCreateTest.php`
-- **Test Documentation**: `docs/testing/TRANSLATION_RESOURCE_CREATE_TEST_SUMMARY.md`
+- **Test Documentation**: [docs/testing/TRANSLATION_RESOURCE_CREATE_TEST_SUMMARY.md](../testing/TRANSLATION_RESOURCE_CREATE_TEST_SUMMARY.md)
 - **Feature Spec**: `.kiro/specs/6-filament-namespace-consolidation/`
 
 ## Changelog

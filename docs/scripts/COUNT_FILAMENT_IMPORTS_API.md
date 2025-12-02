@@ -171,9 +171,9 @@ Example:
 
 ### Related Documentation
 
-- `.kiro/specs/6-filament-namespace-consolidation/tasks.md` - Task tracking
-- `docs/filament/NAMESPACE_CONSOLIDATION_ASSESSMENT.md` - Assessment guide
-- `docs/upgrades/FILAMENT_NAMESPACE_CONSOLIDATION.md` - Migration guide
+- [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md) - Task tracking
+- [docs/filament/NAMESPACE_CONSOLIDATION_ASSESSMENT.md](../filament/NAMESPACE_CONSOLIDATION_ASSESSMENT.md) - Assessment guide
+- [docs/upgrades/FILAMENT_NAMESPACE_CONSOLIDATION.md](../upgrades/FILAMENT_NAMESPACE_CONSOLIDATION.md) - Migration guide
 
 ### Memory Bank Integration
 
@@ -352,6 +352,6 @@ php scripts/verify-batch4-resources.php
 
 ## See Also
 
-- [Namespace Consolidation Tasks](.kiro/specs/6-filament-namespace-consolidation/tasks.md)
-- [Consolidation Assessment Guide](NAMESPACE_CONSOLIDATION_ASSESSMENT.md)
+- [Namespace Consolidation Tasks](../tasks/tasks.md)
+- [Consolidation Assessment Guide](../filament/NAMESPACE_CONSOLIDATION_ASSESSMENT.md)
 - [Filament 4 Migration Guide](../upgrades/FILAMENT_V4_MIGRATION.md)

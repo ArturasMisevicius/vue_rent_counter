@@ -223,8 +223,8 @@ php artisan test --filter=MeterReadingFormComponentTest
 - `tests/Feature/MeterReadingFormComponentTest.php` - NEW test suite (7 tests)
 
 ### Documentation
-- `docs/refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md` - Refactoring summary
-- `docs/refactoring/METER_READING_FORM_COMPLETE.md` - This file
+- [docs/refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md](METER_READING_FORM_REFACTORING_SUMMARY.md) - Refactoring summary
+- [docs/refactoring/METER_READING_FORM_COMPLETE.md](METER_READING_FORM_COMPLETE.md) - This file
 
 ---
 
@@ -411,8 +411,8 @@ The component is production-ready and can be reused across manager and admin int
 
 ## References
 
-- **Task**: `.kiro/specs/2-vilnius-utilities-billing/tasks.md` - Task #16
-- **Refactoring Summary**: `docs/refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md`
+- **Task**: [.kiro/specs/2-vilnius-utilities-billing/tasks.md](../tasks/tasks.md) - Task #16
+- **Refactoring Summary**: [docs/refactoring/METER_READING_FORM_REFACTORING_SUMMARY.md](METER_READING_FORM_REFACTORING_SUMMARY.md)
 - **Component**: `resources/views/components/meter-reading-form.blade.php`
 - **Tests**: `tests/Feature/MeterReadingFormComponentTest.php`
 - **API Routes**: `routes/api.php`

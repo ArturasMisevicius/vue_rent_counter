@@ -62,8 +62,8 @@ Updated AdminPanelProvider to use persistent auth middleware.
 1. `app/Models/User.php` - Added FilamentUser implementation
 2. `app/Http/Middleware/EnsureUserIsAdminOrManager.php` - Created new middleware
 3. `app/Providers/Filament/AdminPanelProvider.php` - Configured persistent middleware
-4. `docs/security/FILAMENT_ADMIN_AUTHORIZATION_FIX.md` - Detailed documentation
-5. `docs/security/AUTHORIZATION_FIX_SUMMARY.md` - This summary
+4. [docs/security/FILAMENT_ADMIN_AUTHORIZATION_FIX.md](FILAMENT_ADMIN_AUTHORIZATION_FIX.md) - Detailed documentation
+5. [docs/security/AUTHORIZATION_FIX_SUMMARY.md](AUTHORIZATION_FIX_SUMMARY.md) - This summary
 
 ## Deployment Steps
 

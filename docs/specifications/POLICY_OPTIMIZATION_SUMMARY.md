@@ -32,11 +32,11 @@ Successfully refactored Laravel authorization policies to eliminate code duplica
 
 ### Documentation Created
 1. `.kiro/specs/2-vilnius-utilities-billing/policy-optimization-spec.md` - Full specification
-2. `docs/api/TARIFF_POLICY_API.md` - API reference
-3. `docs/performance/POLICY_PERFORMANCE_ANALYSIS.md` - Performance analysis
-4. `docs/performance/POLICY_OPTIMIZATION_SUMMARY.md` - Executive summary
-5. `docs/implementation/POLICY_REFACTORING_COMPLETE.md` - Implementation guide
-6. `docs/specifications/POLICY_OPTIMIZATION_COMPLETE.md` - Complete summary
+2. [docs/api/TARIFF_POLICY_API.md](../api/TARIFF_POLICY_API.md) - API reference
+3. [docs/performance/POLICY_PERFORMANCE_ANALYSIS.md](../performance/POLICY_PERFORMANCE_ANALYSIS.md) - Performance analysis
+4. [docs/performance/POLICY_OPTIMIZATION_SUMMARY.md](../performance/POLICY_OPTIMIZATION_SUMMARY.md) - Executive summary
+5. [docs/implementation/POLICY_REFACTORING_COMPLETE.md](../implementation/POLICY_REFACTORING_COMPLETE.md) - Implementation guide
+6. [docs/specifications/POLICY_OPTIMIZATION_COMPLETE.md](POLICY_OPTIMIZATION_COMPLETE.md) - Complete summary
 
 ## Test Results
 
@@ -68,18 +68,18 @@ Duration: 6.11s
 
 ### Specifications
 - [Complete Specification](.kiro/specs/2-vilnius-utilities-billing/policy-optimization-spec.md)
-- [Tasks Update](.kiro/specs/2-vilnius-utilities-billing/tasks.md#task-12)
+- [Tasks Update](../tasks/tasks.md#task-12)
 
 ### API Documentation
-- [TariffPolicy API](docs/api/TARIFF_POLICY_API.md)
+- [TariffPolicy API](../api/TARIFF_POLICY_API.md)
 
 ### Performance
-- [Performance Analysis](docs/performance/POLICY_PERFORMANCE_ANALYSIS.md)
-- [Optimization Summary](docs/performance/POLICY_OPTIMIZATION_SUMMARY.md)
+- [Performance Analysis](../performance/POLICY_PERFORMANCE_ANALYSIS.md)
+- [Optimization Summary](../performance/POLICY_OPTIMIZATION_SUMMARY.md)
 
 ### Implementation
-- [Refactoring Complete](docs/implementation/POLICY_REFACTORING_COMPLETE.md)
-- [Complete Summary](docs/specifications/POLICY_OPTIMIZATION_COMPLETE.md)
+- [Refactoring Complete](../implementation/POLICY_REFACTORING_COMPLETE.md)
+- [Complete Summary](POLICY_OPTIMIZATION_COMPLETE.md)
 
 ## Requirements Validated
 
@@ -143,7 +143,7 @@ The policy optimization work successfully achieved all objectives with zero impa
 
 ---
 
-**For detailed information, see**: [Complete Summary](docs/specifications/POLICY_OPTIMIZATION_COMPLETE.md)
+**For detailed information, see**: [Complete Summary](POLICY_OPTIMIZATION_COMPLETE.md)
 
 **Status**: ✅ PRODUCTION READY  
 **Date**: November 26, 2025

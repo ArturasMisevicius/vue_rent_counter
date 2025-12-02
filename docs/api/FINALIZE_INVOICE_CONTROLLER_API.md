@@ -270,7 +270,7 @@ php artisan test --filter=FinalizeInvoiceControllerTest::test_manager_can_finali
 
 - [Invoice Controller Implementation](../controllers/INVOICE_CONTROLLER_IMPLEMENTATION_COMPLETE.md)
 - [FinalizeInvoiceController Refactoring](../controllers/FINALIZE_INVOICE_CONTROLLER_REFACTORING_COMPLETE.md)
-- [BillingService API](./BILLING_SERVICE_API.md)
+- [BillingService API](BILLING_SERVICE_API.md)
 - [InvoicePolicy API](./INVOICE_POLICY_API.md)
 - [Requirements Document](../../.kiro/specs/2-vilnius-utilities-billing/requirements.md)
 

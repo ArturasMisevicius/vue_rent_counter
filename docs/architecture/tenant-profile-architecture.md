@@ -705,8 +705,8 @@ Application Logs
 
 ## Related Documentation
 
-- [Tenant Profile Update Feature](docs/features/TENANT_PROFILE_UPDATE.md)
-- [Tenant Profile API](docs/api/tenant-profile-api.md)
+- [Tenant Profile Update Feature](../features/TENANT_PROFILE_UPDATE.md)
+- [Tenant Profile API](../api/tenant-profile-api.md)
 - [Hierarchical User Management Spec](.kiro/specs/3-hierarchical-user-management/)
 - [Security Best Practices](docs/security/BEST_PRACTICES.md)
 - [Performance Optimization](docs/performance/OPTIMIZATION.md)

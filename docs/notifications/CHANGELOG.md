@@ -9,8 +9,8 @@
 - **MeterReadingSubmittedEmail Notification**: Notifies admin/manager users when tenants submit meter readings
 - **Verification Script**: Created `verify-notifications.php` to validate notification class implementation
 - **Comprehensive Documentation**: 
-  - `docs/notifications/NOTIFICATION_SYSTEM.md` - System overview and usage guide
-  - `docs/api/NOTIFICATIONS_API.md` - Complete API reference
+  - [docs/notifications/NOTIFICATION_SYSTEM.md](NOTIFICATION_SYSTEM.md) - System overview and usage guide
+  - [docs/api/NOTIFICATIONS_API.md](../api/NOTIFICATIONS_API.md) - Complete API reference
 - **Multi-language Support**: All notifications support EN/LT/RU localization
 - **Queue Integration**: All notifications implement `ShouldQueue` for asynchronous delivery
 - **DocBlocks**: Comprehensive code-level documentation with @param, @return, and usage examples
@@ -69,12 +69,12 @@
 - `app/Notifications/SubscriptionExpiryWarningEmail.php`
 - `app/Notifications/MeterReadingSubmittedEmail.php`
 - `verify-notifications.php`
-- `docs/notifications/NOTIFICATION_SYSTEM.md`
-- `docs/api/NOTIFICATIONS_API.md`
-- `docs/notifications/CHANGELOG.md`
+- [docs/notifications/NOTIFICATION_SYSTEM.md](NOTIFICATION_SYSTEM.md)
+- [docs/api/NOTIFICATIONS_API.md](../api/NOTIFICATIONS_API.md)
+- [docs/notifications/CHANGELOG.md](CHANGELOG.md)
 
 ### Files Modified
-- `.kiro/specs/3-hierarchical-user-management/tasks.md` - Marked notification tasks as complete
+- [.kiro/specs/3-hierarchical-user-management/tasks.md](../tasks/tasks.md) - Marked notification tasks as complete
 
 ### Next Steps
 - Implement property test for email notifications (Task 11.5)

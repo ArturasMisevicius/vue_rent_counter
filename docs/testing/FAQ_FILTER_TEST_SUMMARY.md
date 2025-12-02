@@ -117,8 +117,8 @@ php artisan test --filter=FaqResourceFilterTest::Performance
 
 - **Full Test File**: `tests/Feature/Filament/FaqResourceFilterTest.php`
 - **FaqResource Implementation**: `app/Filament/Resources/FaqResource.php`
-- **Manual Test Guide**: `docs/testing/FAQ_ADMIN_MANUAL_TEST.md`
-- **Spec**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+- **Manual Test Guide**: [docs/testing/FAQ_ADMIN_MANUAL_TEST.md](FAQ_ADMIN_MANUAL_TEST.md)
+- **Spec**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 
 ### Test Quality Metrics
 

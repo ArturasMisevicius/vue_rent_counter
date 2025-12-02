@@ -275,8 +275,8 @@ Duration: ~2.5s
 
 ## Related Documentation
 
-- **Fix Documentation**: `docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md`
-- **API Documentation**: `docs/filament/LANGUAGE_RESOURCE_API.md`
+- **Fix Documentation**: [docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md](../fixes/LANGUAGE_RESOURCE_FORM_FIX.md)
+- **API Documentation**: [docs/filament/LANGUAGE_RESOURCE_API.md](../filament/LANGUAGE_RESOURCE_API.md)
 - **Security Tests**: `tests/Security/LanguageResourceSecurityTest.php`
 - **Performance Tests**: `tests/Performance/LanguageResourcePerformanceTest.php`
 - **Navigation Tests**: `tests/Feature/Filament/LanguageResourceNavigationTest.php`

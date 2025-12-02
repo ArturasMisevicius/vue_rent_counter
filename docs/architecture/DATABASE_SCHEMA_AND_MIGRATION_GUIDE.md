@@ -37,4 +37,4 @@
 ## When Adding New Tables/Columns
 - Include `tenant_id` and indexes up front.
 - Add created/updated timestamps; index `created_at` for history queries.
-- Document the change in this guide and in `docs/reference/HOOKS_DOCUMENTATION_MAP.md`.
+- Document the change in this guide and in [docs/reference/HOOKS_DOCUMENTATION_MAP.md](../reference/HOOKS_DOCUMENTATION_MAP.md).

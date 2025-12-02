@@ -465,7 +465,7 @@ public function calculateBatch(Collection $buildings, Carbon $month): array
 
 - [GyvatukasCalculator API](../api/GYVATUKAS_CALCULATOR_API.md)
 - [GyvatukasCalculator Implementation](../implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
-- [Performance Optimization Guide](./OPTIMIZATION_COMPLETE.md)
+- [Performance Optimization Guide](OPTIMIZATION_COMPLETE.md)
 - [Database Indexing](../database/DATABASE_INDEXING_UPDATE.md)
 
 ## Changelog

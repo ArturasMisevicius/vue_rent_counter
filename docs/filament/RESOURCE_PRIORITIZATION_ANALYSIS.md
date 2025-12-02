@@ -415,7 +415,7 @@ if (preg_match('/use Filament\\\\Tables\\\\(Actions|Columns|Filters)\\\\/', $lin
 
 - [Requirements](../../.kiro/specs/6-filament-namespace-consolidation/requirements.md)
 - [Design](../../.kiro/specs/6-filament-namespace-consolidation/design.md)
-- [Tasks](../../.kiro/specs/6-filament-namespace-consolidation/tasks.md)
+- [Tasks](../tasks/tasks.md)
 - [Import Count Analysis Script](../../scripts/count-filament-imports.php)
 - [Verification Script](../../verify-batch4-resources.php)
 

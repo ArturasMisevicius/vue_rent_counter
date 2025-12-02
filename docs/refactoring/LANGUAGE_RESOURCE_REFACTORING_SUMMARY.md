@@ -151,9 +151,9 @@ $this->assertTrue(
 **Note**: These transformations are redundant with the Language model's `code()` mutator but provide immediate visual feedback in the form.
 
 **Documentation Created**:
-- `docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md` - Comprehensive fix documentation
-- `docs/fixes/LANGUAGE_RESOURCE_FORM_FIX_CHANGELOG.md` - Changelog entry
-- `docs/filament/LANGUAGE_RESOURCE_API.md` - Complete API documentation
+- [docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md](../fixes/LANGUAGE_RESOURCE_FORM_FIX.md) - Comprehensive fix documentation
+- [docs/fixes/LANGUAGE_RESOURCE_FORM_FIX_CHANGELOG.md](../fixes/LANGUAGE_RESOURCE_FORM_FIX_CHANGELOG.md) - Changelog entry
+- [docs/filament/LANGUAGE_RESOURCE_API.md](../filament/LANGUAGE_RESOURCE_API.md) - Complete API documentation
 - Inline code comments explaining redundancy
 
 ## Test Results
@@ -212,16 +212,16 @@ $this->assertTrue(
 
 ### Files Created/Updated
 
-1. ✅ `docs/refactoring/LANGUAGE_RESOURCE_ANALYSIS.md` - Comprehensive analysis
-2. ✅ `docs/refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md` - This file
+1. ✅ [docs/refactoring/LANGUAGE_RESOURCE_ANALYSIS.md](LANGUAGE_RESOURCE_ANALYSIS.md) - Comprehensive analysis
+2. ✅ [docs/refactoring/LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md](LANGUAGE_RESOURCE_REFACTORING_SUMMARY.md) - This file
 3. ✅ `app/Policies/LanguagePolicy.php` - New policy with full documentation
 4. ✅ `app/Models/Language.php` - Added mutator documentation
 5. ✅ `app/Filament/Resources/LanguageResource.php` - Updated comments and Filament v4 fix
-6. ✅ `docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md` - Filament v4 compatibility fix documentation
-7. ✅ `docs/fixes/LANGUAGE_RESOURCE_FORM_FIX_CHANGELOG.md` - Changelog entry for fix
-8. ✅ `docs/filament/LANGUAGE_RESOURCE_API.md` - Complete API documentation
-9. ✅ `docs/filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md` - Updated with fix status
-10. ✅ `.kiro/specs/6-filament-namespace-consolidation/tasks.md` - Updated task status
+6. ✅ [docs/fixes/LANGUAGE_RESOURCE_FORM_FIX.md](../fixes/LANGUAGE_RESOURCE_FORM_FIX.md) - Filament v4 compatibility fix documentation
+7. ✅ [docs/fixes/LANGUAGE_RESOURCE_FORM_FIX_CHANGELOG.md](../fixes/LANGUAGE_RESOURCE_FORM_FIX_CHANGELOG.md) - Changelog entry for fix
+8. ✅ [docs/filament/LANGUAGE_RESOURCE_API.md](../filament/LANGUAGE_RESOURCE_API.md) - Complete API documentation
+9. ✅ [docs/filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md](../filament/LANGUAGE_RESOURCE_OPTIMIZATION_GUIDE.md) - Updated with fix status
+10. ✅ [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md) - Updated task status
 
 ## Backward Compatibility
 

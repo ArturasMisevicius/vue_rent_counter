@@ -129,7 +129,7 @@ Your profile page shows:
 - `GET /tenant/profile` - View tenant profile
 - `PUT /tenant/profile` - Update tenant profile
 
-**Documentation**: See [Tenant Profile API](docs/api/tenant-profile-api.md)
+**Documentation**: See [Tenant Profile API](../api/tenant-profile-api.md)
 
 **Features**:
 - Profile information viewing
@@ -342,7 +342,7 @@ Based on this feature implementation, the following files should be updated:
 
 ## Related Documentation
 
-- [Tenant Profile Update Feature](docs/features/TENANT_PROFILE_UPDATE.md)
-- [Tenant Profile API](docs/api/tenant-profile-api.md)
+- [Tenant Profile Update Feature](../features/TENANT_PROFILE_UPDATE.md)
+- [Tenant Profile API](../api/tenant-profile-api.md)
 - [Hierarchical User Management Spec](.kiro/specs/3-hierarchical-user-management/)
 - [Test Implementation](tests/Feature/Tenant/ProfileUpdateTest.php)

@@ -196,7 +196,7 @@ recalculateAffectedDraftInvoices()
 - **Observer**: `app/Observers/MeterReadingObserver.php`
 - **Models**: `app/Models/{MeterReading,Invoice,InvoiceItem}.php`
 - **Tests**: `tests/Unit/MeterReadingObserverDraftInvoiceTest.php`
-- **Docs**: `docs/implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md`
+- **Docs**: [docs/implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md](../implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md)
 
 ## Requirements
 

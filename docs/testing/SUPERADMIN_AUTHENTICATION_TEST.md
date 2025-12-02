@@ -430,7 +430,7 @@ When authentication logic changes:
 - [Authentication Testing Spec](.kiro/specs/authentication-testing/)
 - [User Model Documentation](../models/USER_MODEL.md)
 - [Security Best Practices](../security/BEST_PRACTICES.md)
-- [Testing Guide](TESTING_GUIDE.md)
+- [Testing Guide](../guides/TESTING_GUIDE.md)
 
 ---
 
@@ -447,6 +447,6 @@ When authentication logic changes:
 ## Support
 
 For questions or issues with these tests:
-1. Review the [Testing Guide](TESTING_GUIDE.md)
+1. Review the [Testing Guide](../guides/TESTING_GUIDE.md)
 2. Check the [Hierarchical User Management Spec](.kiro/specs/3-hierarchical-user-management/)
 3. Consult the [Authentication Testing Spec](.kiro/specs/authentication-testing/)

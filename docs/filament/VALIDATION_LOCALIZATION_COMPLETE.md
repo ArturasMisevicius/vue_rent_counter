@@ -387,14 +387,14 @@ class NewResource extends Resource
 ## Related Documentation
 
 ### Internal Docs
-- [PropertyResource Validation Localization](./PROPERTY_RESOURCE_VALIDATION_LOCALIZATION.md)
+- [PropertyResource Validation Localization](PROPERTY_RESOURCE_VALIDATION_LOCALIZATION.md)
 - [Property Validation API Reference](../api/PROPERTY_VALIDATION_API.md)
 - [HasTranslatedValidation Trait](../../app/Filament/Concerns/HasTranslatedValidation.php)
 - [Code Review](../reviews/PROPERTY_RESOURCE_VALIDATION_LOCALIZATION_REVIEW.md)
 
 ### Specs
 - [Filament Admin Panel Spec](../../.kiro/specs/filament-admin-panel/)
-- [Task 3.2: Property Validation](../../.kiro/specs/filament-admin-panel/tasks.md#32)
+- [Task 3.2: Property Validation](../tasks/tasks.md#32)
 
 ### Laravel Documentation
 - [Validation Localization](https://laravel.com/docs/12.x/validation#custom-messages)

@@ -99,7 +99,7 @@
 
 ## Related Documentation
 
-- [Complete Refactoring Report](./BILLING_SERVICE_REFACTORING.md)
+- [Complete Refactoring Report](BILLING_SERVICE_REFACTORING.md)
 - [Service Layer Architecture](../architecture/SERVICE_LAYER_ARCHITECTURE.md)
 - [CHANGELOG](../CHANGELOG.md)
 
@@ -116,7 +116,7 @@
 
 ### Created Documentation (2024-11-25)
 
-1. **Implementation Guide**: `docs/implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md`
+1. **Implementation Guide**: [docs/implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md](BILLING_SERVICE_V2_IMPLEMENTATION.md)
    - Complete architecture overview
    - Detailed method documentation
    - Usage examples and patterns
@@ -124,14 +124,14 @@
    - Migration guide
    - Troubleshooting section
 
-2. **API Reference**: `docs/api/BILLING_SERVICE_API.md`
+2. **API Reference**: [docs/api/BILLING_SERVICE_API.md](../api/BILLING_SERVICE_API.md)
    - Full method signatures
    - Parameter descriptions
    - Return types and exceptions
    - Configuration reference
    - Integration examples (Controller, Command, Job)
 
-3. **Quick Reference**: `docs/implementation/BILLING_SERVICE_QUICK_REFERENCE.md`
+3. **Quick Reference**: [docs/implementation/BILLING_SERVICE_QUICK_REFERENCE.md](BILLING_SERVICE_QUICK_REFERENCE.md)
    - Quick start examples
    - Common patterns
    - Key features summary

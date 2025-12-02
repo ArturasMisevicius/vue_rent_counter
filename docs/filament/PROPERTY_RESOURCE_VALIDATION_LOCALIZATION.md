@@ -338,7 +338,7 @@ class BuildingResource extends Resource
 ### Specs
 
 - [Filament Admin Panel Spec](.kiro/specs/filament-admin-panel/)
-- [Task 3.2: Property Validation](../../.kiro/specs/filament-admin-panel/tasks.md#32)
+- [Task 3.2: Property Validation](../tasks/tasks.md#32)
 
 ### Laravel Documentation
 

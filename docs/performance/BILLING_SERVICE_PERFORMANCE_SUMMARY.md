@@ -203,9 +203,9 @@ Set alerts for:
 
 ## Documentation
 
-- **Detailed Guide**: `docs/performance/BILLING_SERVICE_PERFORMANCE_OPTIMIZATION.md`
-- **API Reference**: `docs/api/BILLING_SERVICE_API.md`
-- **Implementation**: `docs/implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md`
+- **Detailed Guide**: [docs/performance/BILLING_SERVICE_PERFORMANCE_OPTIMIZATION.md](BILLING_SERVICE_PERFORMANCE_OPTIMIZATION.md)
+- **API Reference**: [docs/api/BILLING_SERVICE_API.md](../api/BILLING_SERVICE_API.md)
+- **Implementation**: [docs/implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md](../implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md)
 
 ## Success Criteria
 

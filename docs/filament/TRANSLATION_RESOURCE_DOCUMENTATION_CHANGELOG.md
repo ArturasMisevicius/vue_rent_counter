@@ -25,7 +25,7 @@
    - Added cross-references to trait documentation
 
 #### API Documentation
-Created comprehensive API documentation: `docs/filament/TRANSLATION_RESOURCE_PAGES_API.md`
+Created comprehensive API documentation: [docs/filament/TRANSLATION_RESOURCE_PAGES_API.md](TRANSLATION_RESOURCE_PAGES_API.md)
 
 **Sections**:
 1. **Overview**: Package info, authorization, related components
@@ -57,11 +57,11 @@ Created comprehensive API documentation: `docs/filament/TRANSLATION_RESOURCE_PAG
    - Enhanced `getHeaderActions()` DocBlock
    - Enhanced `mutateFormDataBeforeSave()` DocBlock with example
 
-2. `docs/filament/TRANSLATION_RESOURCE_PAGES_API.md` (NEW)
+2. [docs/filament/TRANSLATION_RESOURCE_PAGES_API.md](TRANSLATION_RESOURCE_PAGES_API.md) (NEW)
    - Comprehensive API documentation for all TranslationResource pages
    - 400+ lines of detailed documentation
 
-3. `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+3. [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
    - Updated edit task with documentation status
    - Added documentation deliverables
 

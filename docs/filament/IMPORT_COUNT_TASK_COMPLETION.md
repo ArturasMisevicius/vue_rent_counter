@@ -97,21 +97,21 @@ Verified that each resource:
 - Reusable for future assessments
 
 ### 2. Assessment Report
-**File**: `docs/filament/NAMESPACE_CONSOLIDATION_ASSESSMENT.md`
+**File**: [docs/filament/NAMESPACE_CONSOLIDATION_ASSESSMENT.md](NAMESPACE_CONSOLIDATION_ASSESSMENT.md)
 - Executive summary
 - Detailed findings
 - Resource breakdown
 - Recommendations
 
 ### 3. Task Documentation
-**File**: `docs/filament/IMPORT_COUNT_TASK_COMPLETION.md` (this file)
+**File**: [docs/filament/IMPORT_COUNT_TASK_COMPLETION.md](IMPORT_COUNT_TASK_COMPLETION.md) (this file)
 - Task completion details
 - Methodology
 - Results
 - Next steps
 
 ### 4. Updated Tasks File
-**File**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+**File**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 - Marked subtask as complete
 - Added import count results
 - Updated recommendations
@@ -172,8 +172,8 @@ None - task completed smoothly with no blockers.
 
 - [Namespace Consolidation Requirements](../../.kiro/specs/6-filament-namespace-consolidation/requirements.md)
 - [Namespace Consolidation Design](../../.kiro/specs/6-filament-namespace-consolidation/design.md)
-- [Namespace Consolidation Tasks](../../.kiro/specs/6-filament-namespace-consolidation/tasks.md)
-- [Assessment Report](./NAMESPACE_CONSOLIDATION_ASSESSMENT.md)
+- [Namespace Consolidation Tasks](../tasks/tasks.md)
+- [Assessment Report](NAMESPACE_CONSOLIDATION_ASSESSMENT.md)
 - [Analysis Script](../../scripts/count-filament-imports.php)
 
 ## Sign-Off

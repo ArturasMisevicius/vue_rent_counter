@@ -118,7 +118,7 @@ All batches have been successfully completed, resulting in 100% consolidation ac
 
 - [Requirements](../../.kiro/specs/6-filament-namespace-consolidation/requirements.md)
 - [Design](../../.kiro/specs/6-filament-namespace-consolidation/design.md)
-- [Tasks](../../.kiro/specs/6-filament-namespace-consolidation/tasks.md)
+- [Tasks](../tasks/tasks.md)
 - [Analysis Script](../../scripts/count-filament-imports.php)
 
 ## Conclusion

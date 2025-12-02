@@ -234,9 +234,9 @@ fi
 ## Related Documentation
 
 - [Command Documentation](../commands/MIGRATE_TO_HIERARCHICAL_USERS_COMMAND.md)
-- [Hierarchical User Management Spec](../../.kiro/specs/3-hierarchical-user-management/tasks.md)
-- [Factory Documentation](./FACTORY_DOCUMENTATION_INDEX.md)
-- [Testing Guide](./README.md)
+- [Hierarchical User Management Spec](../tasks/tasks.md)
+- [Factory Documentation](FACTORY_DOCUMENTATION_INDEX.md)
+- [Testing Guide](README.md)
 
 ## Quality Metrics
 

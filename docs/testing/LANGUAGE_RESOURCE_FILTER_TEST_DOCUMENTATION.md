@@ -7,7 +7,7 @@ Comprehensive test suite for LanguageResource filter functionality, validating t
 **Test File**: `tests/Feature/Filament/LanguageResourceFilterTest.php`  
 **Resource**: `app/Filament/Resources/LanguageResource.php`  
 **Policy**: `app/Policies/LanguagePolicy.php`  
-**Related Spec**: `.kiro/specs/6-filament-namespace-consolidation/tasks.md`
+**Related Spec**: [.kiro/specs/6-filament-namespace-consolidation/tasks.md](../tasks/tasks.md)
 
 ## Test Coverage Summary
 
@@ -460,9 +460,9 @@ Duration: 5.28s
 
 ## Related Documentation
 
-- [LanguageResource Navigation Test](./LANGUAGE_RESOURCE_NAVIGATION_TEST_COMPLETE.md)
+- [LanguageResource Navigation Test](LANGUAGE_RESOURCE_NAVIGATION_TEST_COMPLETE.md)
 - [LanguageResource Form Transformation Test](./LANGUAGE_RESOURCE_FORM_TRANSFORMATION_TEST.md)
-- [Filament Namespace Consolidation Spec](.kiro/specs/6-filament-namespace-consolidation/tasks.md)
+- [Filament Namespace Consolidation Spec](../tasks/tasks.md)
 - [Language Resource Performance Optimization](../performance/LANGUAGE_RESOURCE_PERFORMANCE_OPTIMIZATION.md)
 
 ## Maintenance Notes

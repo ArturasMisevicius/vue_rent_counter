@@ -1024,10 +1024,10 @@ Meter::where('property_id', $property->id)
 
 ## Related Documentation
 
-- [COMPREHENSIVE_SCHEMA_ANALYSIS.md](./COMPREHENSIVE_SCHEMA_ANALYSIS.md) - Database schema details
+- [COMPREHENSIVE_SCHEMA_ANALYSIS.md](../database/COMPREHENSIVE_SCHEMA_ANALYSIS.md) - Database schema details
 - [ERD_VISUAL.md](../database/ERD_VISUAL.md) - Visual relationship diagrams
 - [DATABASE_QUERY_OPTIMIZATION_GUIDE.md](../performance/DATABASE_QUERY_OPTIMIZATION_GUIDE.md) - Query optimization
-- [MULTI_TENANT_ARCHITECTURE.md](./MULTI_TENANT_ARCHITECTURE.md) - Multi-tenancy patterns
+- [MULTI_TENANT_ARCHITECTURE.md](MULTI_TENANT_ARCHITECTURE.md) - Multi-tenancy patterns
 
 ---
 

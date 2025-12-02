@@ -458,5 +458,5 @@ RECOMMENDATIONS
 ## See Also
 
 - [Script API Documentation](COUNT_FILAMENT_IMPORTS_API.md)
-- [Namespace Consolidation Tasks](.kiro/specs/6-filament-namespace-consolidation/tasks.md)
+- [Namespace Consolidation Tasks](../tasks/tasks.md)
 - [Consolidation Assessment Guide](../filament/NAMESPACE_CONSOLIDATION_ASSESSMENT.md)

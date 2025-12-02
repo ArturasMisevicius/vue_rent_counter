@@ -290,12 +290,12 @@ public function finalize(User $user, Invoice $invoice): bool
 ## Related Documentation
 
 - **Spec:** `.kiro/specs/filament-admin-panel/requirements.md` (Requirement 4.5)
-- **Spec:** `.kiro/specs/filament-admin-panel/tasks.md` (Task 4.3)
+- **Spec:** [.kiro/specs/filament-admin-panel/tasks.md](../tasks/tasks.md) (Task 4.3)
 - **Service:** `app/Services/InvoiceService.php`
 - **Model:** `app/Models/Invoice.php`
 - **Policy:** `app/Policies/InvoicePolicy.php`
 - **Tests:** `tests/Feature/FilamentInvoiceFinalizationImmutabilityPropertyTest.php`
-- **Integration:** `docs/integration/FILAMENT_INTEGRATION_VERIFICATION.md`
+- **Integration:** [docs/integration/FILAMENT_INTEGRATION_VERIFICATION.md](../integration/FILAMENT_INTEGRATION_VERIFICATION.md)
 
 ## Changelog
 

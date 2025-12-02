@@ -404,8 +404,8 @@ DB::getQueryLog(); // Should show 0 queries for languages
 
 ## Related Documentation
 
-- **Test Suite**: `docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md`
-- **Language Resource**: `docs/filament/LANGUAGE_RESOURCE_API.md`
+- **Test Suite**: [docs/testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md](../testing/TRANSLATION_RESOURCE_DYNAMIC_FIELDS_TEST_SUMMARY.md)
+- **Language Resource**: [docs/filament/LANGUAGE_RESOURCE_API.md](LANGUAGE_RESOURCE_API.md)
 - **Translation Model**: `app/Models/Translation.php`
 - **Language Model**: `app/Models/Language.php`
 - **Namespace Consolidation**: `.kiro/specs/6-filament-namespace-consolidation/`

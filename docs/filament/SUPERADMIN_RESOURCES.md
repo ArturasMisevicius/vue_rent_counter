@@ -153,4 +153,4 @@ $this->get(FaqResource::getUrl('index'))->assertSuccessful();
 
 - [Hierarchical User Management Spec](../../.kiro/specs/hierarchical-user-management/)
 - [Filament Admin Panel Spec](../../.kiro/specs/filament-admin-panel/)
-- [Authorization Fix Summary](../../AUTHORIZATION_FIX_SUMMARY.md)
+- [Authorization Fix Summary](../security/AUTHORIZATION_FIX_SUMMARY.md)

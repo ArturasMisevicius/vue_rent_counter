@@ -216,7 +216,7 @@ php artisan tinker
 
 ## Related Documentation
 
-- [MIGRATION_PATTERNS.md](./MIGRATION_PATTERNS.md) - Migration best practices
+- [MIGRATION_PATTERNS.md](MIGRATION_PATTERNS.md) - Migration best practices
 - [MIGRATION_FIX_SUMMARY.md](../architecture/MIGRATION_FIX_SUMMARY.md) - Original fix summary
 - [MIGRATION_ARCHITECTURE_ANALYSIS.md](../architecture/MIGRATION_ARCHITECTURE_ANALYSIS.md) - Architecture analysis
 - [BILLING_SERVICE_PERFORMANCE_SUMMARY.md](../performance/BILLING_SERVICE_PERFORMANCE_SUMMARY.md) - Performance metrics

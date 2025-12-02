@@ -301,10 +301,10 @@ cat docs/security/DEPLOYMENT_SECURITY_CHECKLIST.md
 ## Support & Resources
 
 ### Documentation
-- **Security Audit:** `docs/security/MIDDLEWARE_SECURITY_AUDIT.md`
-- **Deployment Guide:** `docs/security/DEPLOYMENT_SECURITY_CHECKLIST.md`
-- **Summary:** `docs/security/SECURITY_AUDIT_SUMMARY.md`
-- **This Document:** `docs/security/IMPLEMENTATION_COMPLETE.md`
+- **Security Audit:** [docs/security/MIDDLEWARE_SECURITY_AUDIT.md](MIDDLEWARE_SECURITY_AUDIT.md)
+- **Deployment Guide:** [docs/security/DEPLOYMENT_SECURITY_CHECKLIST.md](DEPLOYMENT_SECURITY_CHECKLIST.md)
+- **Summary:** [docs/security/SECURITY_AUDIT_SUMMARY.md](SECURITY_AUDIT_SUMMARY.md)
+- **This Document:** [docs/security/IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md)
 
 ### Configuration
 - **Security Config:** `config/security.php`

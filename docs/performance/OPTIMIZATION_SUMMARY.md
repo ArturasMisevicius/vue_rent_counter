@@ -120,12 +120,12 @@ Duration: 2.87s
   - All tests passing with 13 assertions
 
 ### Documentation
-- ✅ `docs/performance/BUILDING_RESOURCE_OPTIMIZATION.md`
+- ✅ [docs/performance/BUILDING_RESOURCE_OPTIMIZATION.md](BUILDING_RESOURCE_OPTIMIZATION.md)
   - Comprehensive optimization guide
   - Before/after analysis
   - Monitoring and rollback procedures
   
-- ✅ `docs/performance/OPTIMIZATION_SUMMARY.md` (this file)
+- ✅ [docs/performance/OPTIMIZATION_SUMMARY.md](OPTIMIZATION_SUMMARY.md) (this file)
   - Executive summary
   - Quick reference for optimization results
 
@@ -268,7 +268,7 @@ php artisan tinker --execute="echo memory_get_peak_usage(true) / 1024 / 1024 . '
 
 ## Related Documentation
 
-- [BuildingResource Optimization Guide](./BUILDING_RESOURCE_OPTIMIZATION.md)
+- [BuildingResource Optimization Guide](BUILDING_RESOURCE_OPTIMIZATION.md)
 - [BuildingResource User Guide](../filament/BUILDING_RESOURCE.md)
 - [BuildingResource API Reference](../filament/BUILDING_RESOURCE_API.md)
 - [Multi-Tenant Architecture](../architecture/MULTI_TENANT_ARCHITECTURE.md)
