@@ -16,25 +16,25 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 describe('TariffPolicy', function () {
-    test('all users can view any tariffs', function () {
+    test('only admins can view any tariffs', function () {
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
         $manager = User::factory()->create(['role' => UserRole::MANAGER]);
         $tenant = User::factory()->create(['role' => UserRole::TENANT]);
 
         expect($admin->can('viewAny', Tariff::class))->toBeTrue()
-            ->and($manager->can('viewAny', Tariff::class))->toBeTrue()
-            ->and($tenant->can('viewAny', Tariff::class))->toBeTrue();
+            ->and($manager->can('viewAny', Tariff::class))->toBeFalse()
+            ->and($tenant->can('viewAny', Tariff::class))->toBeFalse();
     });
 
-    test('all users can view individual tariffs', function () {
+    test('only admins can view individual tariffs', function () {
         $tariff = Tariff::factory()->create();
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
         $manager = User::factory()->create(['role' => UserRole::MANAGER]);
         $tenant = User::factory()->create(['role' => UserRole::TENANT]);
 
         expect($admin->can('view', $tariff))->toBeTrue()
-            ->and($manager->can('view', $tariff))->toBeTrue()
-            ->and($tenant->can('view', $tariff))->toBeTrue();
+            ->and($manager->can('view', $tariff))->toBeFalse()
+            ->and($tenant->can('view', $tariff))->toBeFalse();
     });
 
     test('only admins can create tariffs', function () {

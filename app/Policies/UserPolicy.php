@@ -61,12 +61,12 @@ final class UserPolicy
             return true;
         }
 
-        // Admins and Managers can view users within their tenant (Requirement 13.3)
-        if ($user->isAdmin() || $user->isManager()) {
+        // Only Admins can view other users within their tenant (Requirement 13.3)
+        if ($user->isAdmin()) {
             return $this->isSameTenant($user, $model);
         }
 
-        // Tenants cannot view other users
+        // Managers and Tenants cannot view other users
         return false;
     }
 

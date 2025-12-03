@@ -15,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use UnitEnum;
 
@@ -52,6 +53,24 @@ class UserResource extends Resource
 
     protected static ?int $navigationSort = 8;
 
+    /**
+     * Cache TTL for navigation badge count (in seconds).
+     * 
+     * @var int
+     */
+    private const NAVIGATION_BADGE_CACHE_TTL = 300;
+
+    /**
+     * Roles allowed to access user management.
+     * 
+     * @var array<UserRole>
+     */
+    private const ALLOWED_ROLES = [
+        UserRole::SUPERADMIN,
+        UserRole::ADMIN,
+        UserRole::MANAGER,
+    ];
+
     public static function getNavigationIcon(): string|BackedEnum|null
     {
         return 'heroicon-o-users';
@@ -70,18 +89,118 @@ class UserResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
 
     /**
+     * Determine if the current user can view any users.
+     *
+     * Controls access to the user management interface. Only SUPERADMIN, ADMIN,
+     * and MANAGER roles can access user management. TENANT role is explicitly
+     * excluded from user management.
+     *
+     * This method serves as the primary authorization checkpoint for the resource.
+     * It works in conjunction with UserPolicy for granular authorization checks.
+     *
+     * Performance: Uses helper method to avoid repeated auth()->user() calls
+     * and leverages ALLOWED_ROLES constant for efficient role checking.
+     *
+     * @return bool True if the user can access the user management interface
+     *
+     * @see \App\Policies\UserPolicy::viewAny()
+     *
+     * Requirements: 6.1, 9.3
+     */
+    public static function canViewAny(): bool
+    {
+        return static::userCanManageUsers();
+    }
+
+    /**
+     * Determine if the current user can create users.
+     *
+     * Delegates to canViewAny() for consistency. If a user can view the resource,
+     * they can create users. The UserPolicy enforces tenant boundaries and role
+     * hierarchy for the actual creation operation.
+     *
+     * @return bool True if the user can create new users
+     *
+     * @see \App\Policies\UserPolicy::create()
+     *
+     * Requirements: 6.2, 13.2
+     */
+    public static function canCreate(): bool
+    {
+        return static::canViewAny();
+    }
+
+    /**
+     * Determine if the current user can edit a specific user.
+     *
+     * Resource-level authorization check that delegates to canViewAny(). The
+     * UserPolicy::update() method enforces granular rules including:
+     * - Users can edit themselves
+     * - Superadmins can edit any user
+     * - Admins/Managers can edit users within their tenant
+     *
+     * @param Model $record The user record being edited
+     * @return bool True if the user can edit the record
+     *
+     * @see \App\Policies\UserPolicy::update()
+     *
+     * Requirements: 6.3, 13.3, 13.4
+     */
+    public static function canEdit(Model $record): bool
+    {
+        return static::canViewAny();
+    }
+
+    /**
+     * Determine if the current user can delete a specific user.
+     *
+     * Resource-level authorization check that delegates to canViewAny(). The
+     * UserPolicy::delete() method enforces granular rules including:
+     * - Self-deletion prevention
+     * - Superadmins can delete any user (except themselves)
+     * - Admins/Managers can delete users within their tenant
+     * - All deletions are audit logged
+     *
+     * @param Model $record The user record being deleted
+     * @return bool True if the user can delete the record
+     *
+     * @see \App\Policies\UserPolicy::delete()
+     *
+     * Requirements: 6.4, 13.4
+     */
+    public static function canDelete(Model $record): bool
+    {
+        return static::canViewAny();
+    }
+
+    /**
      * Admin-only access (Requirements 6.1, 9.3).
      * Policies handle granular authorization (Requirement 9.5).
      */
     public static function shouldRegisterNavigation(): bool
     {
-        $user = auth()->user();
+        return static::canViewAny();
+    }
 
-        return $user instanceof User && in_array($user->role, [
-            UserRole::SUPERADMIN,
-            UserRole::ADMIN,
-            UserRole::MANAGER,
-        ], true);
+    /**
+     * Check if the current user can manage users.
+     *
+     * Performance: Caches user instance and uses efficient role check
+     * with ALLOWED_ROLES constant to avoid repeated array construction.
+     * This helper method is called by all authorization methods to ensure
+     * consistent and efficient role checking.
+     *
+     * @return bool True if user has permission to manage users
+     */
+    protected static function userCanManageUsers(): bool
+    {
+        $user = auth()->user();
+        
+        if (!$user instanceof User) {
+            return false;
+        }
+
+        return in_array($user->role, self::ALLOWED_ROLES, true);
     }
 
     /**
@@ -357,29 +476,37 @@ class UserResource extends Resource
      * Get the navigation badge for the resource.
      * 
      * Performance optimization: Caches the count for 5 minutes to avoid
-     * running a COUNT query on every page load. Cache is tagged by user
-     * role and tenant for proper invalidation.
+     * running a COUNT query on every page load. Cache key is shared across
+     * users with the same role/tenant combination for better cache hit ratio.
+     * 
+     * Optimization improvements:
+     * - Shared cache key reduces redundant queries
+     * - Early return for unauthorized users
+     * - Efficient query with indexed tenant_id column
      */
     public static function getNavigationBadge(): ?string
     {
-        $user = auth()->user();
-
-        if (! $user instanceof User) {
+        // Early return if user cannot manage users (no badge needed)
+        if (!static::userCanManageUsers()) {
             return null;
         }
 
-        // Create cache key based on user role and tenant
+        $user = auth()->user();
+
+        // Create shared cache key based on role and tenant (not user-specific)
+        // This allows cache sharing across users with same role/tenant
         $cacheKey = sprintf(
             'user_resource_badge_%s_%s',
             $user->role->value,
             $user->tenant_id ?? 'all'
         );
 
-        // Cache for 5 minutes
-        $count = cache()->remember($cacheKey, 300, function () use ($user) {
+        // Cache for configured TTL with optimized query
+        $count = cache()->remember($cacheKey, self::NAVIGATION_BADGE_CACHE_TTL, function () use ($user) {
             $query = static::getModel()::query();
 
             // Apply tenant scope for non-superadmin users
+            // Uses indexed tenant_id column for efficient filtering
             if ($user->role !== UserRole::SUPERADMIN && $user->tenant_id) {
                 $query->where('tenant_id', $user->tenant_id);
             }

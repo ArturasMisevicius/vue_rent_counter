@@ -1,98 +1,119 @@
-# Security Quick Reference - CheckSubscriptionStatus Middleware
+# Security Quick Reference Card
 
-**Last Updated**: December 1, 2025
+## UserResource Authorization - Security Checklist
 
----
+### ✅ What's Secure
 
-## 🚀 Quick Status
+- **Authorization**: Multi-layer checks (Resource → Policy → Scope)
+- **Tenant Isolation**: Enforced at query level via `TenantScope`
+- **Audit Logging**: All sensitive operations logged to audit channel
+- **Input Validation**: FormRequests validate all inputs
+- **XSS Protection**: Blade auto-escapes all output
+- **CSRF Protection**: Laravel middleware active on all routes
+- **SQL Injection**: Eloquent uses parameter binding
+- **Mass Assignment**: $fillable whitelist approach
+- **Session Security**: Regenerates on login, secure cookies
+- **Rate Limiting**: Implemented for Filament panel access
 
-**Change**: Auth route bypass in subscription middleware  
-**Status**: ✅ **APPROVED FOR DEPLOYMENT**  
-**Risk Level**: 🟢 **LOW**
+### 🔒 Security Layers
 
----
-
-## ✅ What's Protected
-
-| Security Control | Status | Details |
-|-----------------|--------|---------|
-| CSRF Protection | ✅ Active | VerifyCsrfToken middleware |
-| Session Security | ✅ Active | Secure, HttpOnly, SameSite=strict |
-| Authentication | ✅ Active | Auth middleware enforces login |
-| Authorization | ✅ Active | Policies enforce permissions |
-| Audit Logging | ✅ Active | All checks logged |
-
----
-
-## 🔓 What's Bypassed
-
-**ONLY subscription checks** on these routes:
-- `/login` (GET, POST)
-- `/register` (GET, POST)  
-- `/logout` (POST)
-
-**Why**: Users must authenticate regardless of subscription status.
-
----
-
-## 📋 Pre-Deployment Checklist
-
-```bash
-# 1. Run tests
-php artisan test
-
-# 2. Verify rate limiting
-php artisan route:list --name=login
-
-# 3. Check configuration
-php artisan config:show session
-
-# 4. Clear caches
-php artisan cache:clear
-php artisan config:clear
-php artisan route:clear
+```
+Request
+  ↓
+Middleware (auth, csrf, rate-limit)
+  ↓
+Resource::can*() (role check)
+  ↓
+Policy::*() (granular authorization)
+  ↓
+TenantScope (data isolation)
+  ↓
+Database (parameter binding)
 ```
 
----
-
-## 🔍 Post-Deployment Monitoring
-
-### Watch for:
-- ✅ 419 errors (should be 0)
-- ✅ Login success rate (should be stable)
-- ✅ Subscription check failures (monitor for spikes)
-
-### Commands:
-```bash
-# Monitor logs
-tail -f storage/logs/laravel.log | grep "419\|Subscription check"
-
-# Check audit logs
-tail -f storage/logs/audit.log
-```
-
----
-
-## 🚨 Rollback Plan
+### 🧪 Running Security Tests
 
 ```bash
-git revert <commit-hash>
-php artisan cache:clear config:clear
-php artisan queue:restart
+# All security tests
+php artisan test --filter=Security
+
+# Specific test suites
+php artisan test tests/Security/UserResourceAuthorizationTest.php
+php artisan test tests/Security/FilamentCsrfProtectionTest.php
+php artisan test tests/Security/FilamentSecurityHeadersTest.php
+php artisan test tests/Security/PiiProtectionTest.php
+
+# Authorization policy tests
+php artisan test tests/Unit/AuthorizationPolicyTest.php
+
+# Check for vulnerabilities
+composer audit
+
+# Static analysis
+./vendor/bin/phpstan analyse
 ```
 
+### 📊 Monitoring Commands
+
+```bash
+# Authorization failures
+tail -f storage/logs/security.log | grep "access denied"
+
+# Rate limit hits
+tail -f storage/logs/security.log | grep "rate limit"
+
+# Audit trail
+tail -f storage/logs/audit.log | grep "operation"
+
+# Performance issues
+tail -f storage/logs/performance.log | grep "Slow"
+```
+
+### ⚠️ Common Security Pitfalls to Avoid
+
+❌ **DON'T:**
+- Use raw SQL queries without parameter binding
+- Disable CSRF protection
+- Use `{!! $variable !!}` (unescaped output)
+- Add sensitive fields to `$fillable`
+- Skip authorization checks
+- Log passwords or tokens
+- Use `APP_DEBUG=true` in production
+
+✅ **DO:**
+- Use Eloquent or Query Builder with bindings
+- Keep CSRF middleware active
+- Use `{{ $variable }}` (auto-escaped)
+- Use `$fillable` whitelist approach
+- Check authorization at multiple layers
+- Redact PII in logs
+- Set `APP_DEBUG=false` in production
+
+### 🚀 Pre-Deployment Checklist
+
+- [ ] `APP_DEBUG=false` in production
+- [ ] `APP_ENV=production` set
+- [ ] `APP_URL` matches production domain
+- [ ] `SESSION_SECURE_COOKIE=true`
+- [ ] Security tests passing
+- [ ] Rate limiting configured
+- [ ] Audit logging enabled
+- [ ] Security headers active
+- [ ] Database backup completed
+
+### 📞 Security Contacts
+
+- **Security Issues**: security@example.com
+- **Audit Logs**: `storage/logs/audit.log`
+- **Security Docs**: `docs/security/`
+- **Full Audit**: `docs/security/USERRESOURCE_SECURITY_AUDIT_2024-12-02.md`
+
+### 🔄 Next Security Review
+
+**Date**: March 2, 2025  
+**Focus**: Authorization boundaries, dependency updates, new features
+
 ---
 
-## 📞 Contacts
-
-- **Security Issues**: security-team@company.com
-- **On-Call**: ops-team@company.com
-- **Documentation**: See `docs/security/SECURITY_AUDIT_*.md`
-
----
-
-## 📚 Full Documentation
-
-1. **Complete Audit**: [docs/security/SECURITY_AUDIT_CHECKSUBSCRIPTIONSTATUS_2025_12_01.md](SECURITY_AUDIT_CHECKSUBSCRIPTIONSTATUS_2025_12_01.md)
-2. **Implementation Guide**: [docs/security/SECURITY_IMPLEMENTATION_CHECKLIST.md](SECURITY_IMPLEMENTATION_CHECKLIST.md)
-3. **Summary**: [docs/security/SECURITY_AUDIT_SUMMARY_2025_12_01.md](SECURITY_AUDIT_SUMMARY_2025_12_01.md)
+**Last Updated**: 2024-12-02  
+**Version**: 1.0

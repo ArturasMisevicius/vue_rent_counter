@@ -19,7 +19,7 @@ final class CalculationResultTest extends TestCase
         // Create a mock building without database interaction
         $this->building = new Building();
         $this->building->id = 1;
-        $this->building->display_name = 'Test Building';
+        $this->building->name = 'Test Building';
     }
 
     public function test_creates_success_result(): void

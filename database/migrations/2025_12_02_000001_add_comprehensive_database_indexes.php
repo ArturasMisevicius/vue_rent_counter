@@ -29,10 +29,8 @@ return new class extends Migration
     {
         // Users table indexes
         Schema::table('users', function (Blueprint $table) {
-            // Email is already unique, but ensure index exists for lookups
-            if (!$this->indexExists('users', 'users_email_unique')) {
-                $table->index('email', 'users_email_index');
-            }
+            // Email is already unique (creates an index automatically), no need for additional index
+            // The unique constraint already provides index functionality for lookups
             
             // Index for role-based queries (already exists from hierarchical migration, but ensure it)
             if (!$this->indexExists('users', 'users_tenant_role_index') && Schema::hasColumn('users', 'role')) {
@@ -272,7 +270,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $this->dropIndexIfExists($table, 'users_email_index');
+            // Email index not created (unique constraint already provides indexing)
             $this->dropIndexIfExists($table, 'users_is_active_index');
             $this->dropIndexIfExists($table, 'users_tenant_active_index');
             $this->dropIndexIfExists($table, 'users_email_verified_index');

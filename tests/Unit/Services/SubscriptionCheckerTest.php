@@ -7,6 +7,7 @@ use App\Models\Subscription;
 use App\Models\User;
 use App\Services\SubscriptionChecker;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 beforeEach(function () {
     $this->checker = new SubscriptionChecker();
@@ -254,18 +255,18 @@ test('multiple calls use cached data', function () {
     ]);
 
     // Enable query log
-    \DB::enableQueryLog();
-    
+    DB::enableQueryLog();
+
     // First call - hits database
     $this->checker->isActive($user);
-    $firstQueryCount = count(\DB::getQueryLog());
-    
+    $firstQueryCount = count(DB::getQueryLog());
+
     // Clear query log
-    \DB::flushQueryLog();
-    
+    DB::flushQueryLog();
+
     // Second call - uses cache
     $this->checker->isActive($user);
-    $secondQueryCount = count(\DB::getQueryLog());
+    $secondQueryCount = count(DB::getQueryLog());
     
     // Second call should have fewer queries (cached)
     expect($secondQueryCount)->toBeLessThan($firstQueryCount);

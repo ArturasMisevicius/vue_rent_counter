@@ -192,8 +192,9 @@ test('superadmin dashboard displays accurate system-wide resource counts', funct
                     $accountService->createTenantAccount($tenantData, $admin);
                     $expectedTenants++;
                 }
-                
-            // Create invoices for some properties
+            }
+            
+            // Create invoices for this building (outside property loop)
             if (fake()->boolean(50)) {
                 Invoice::factory()->create([
                     'tenant_id' => $admin->tenant_id,
@@ -201,7 +202,6 @@ test('superadmin dashboard displays accurate system-wide resource counts', funct
                 $expectedInvoices++;
             }
         }
-    }
     }
     
     // Act as superadmin

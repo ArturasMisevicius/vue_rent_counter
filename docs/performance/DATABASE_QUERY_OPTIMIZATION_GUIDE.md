@@ -1,24 +1,21 @@
-# Database Query Optimization Guide
+# 🚀 DATABASE QUERY OPTIMIZATION GUIDE
 
-## Overview
+> **Comprehensive guide for optimizing database queries in the Vilnius Utilities Billing Platform**
 
-Comprehensive guide for optimizing database queries in the Vilnius Utilities Billing Platform.
-This guide covers EXPLAIN ANALYZE, indexing strategies, query rewriting, caching, and monitoring.
+## 📊 TABLE OF CONTENTS
 
-## Table of Contents
-
-1. [EXPLAIN ANALYZE](#explain-analyze)
-2. [Index Optimization](#index-optimization)
-3. [Query Rewriting](#query-rewriting)
-4. [Subquery Optimization](#subquery-optimization)
-5. [Aggregate Optimization](#aggregate-optimization)
-6. [Pagination Optimization](#pagination-optimization)
-7. [Caching Strategy](#caching-strategy)
-8. [Database-Specific Optimizations](#database-specific-optimizations)
-9. [Schema Optimization](#schema-optimization)
-10. [Monitoring & Profiling](#monitoring--profiling)
-11. [Batch Processing](#batch-processing)
-12. [Connection Pooling](#connection-pooling)
+1. [EXPLAIN ANALYZE](#1-explain-analyze)
+2. [INDEX OPTIMIZATION](#2-index-optimization)
+3. [QUERY REWRITING](#3-query-rewriting)
+4. [SUBQUERY OPTIMIZATION](#4-subquery-optimization)
+5. [AGGREGATE OPTIMIZATION](#5-aggregate-optimization)
+6. [PAGINATION OPTIMIZATION](#6-pagination-optimization)
+7. [CACHING STRATEGY](#7-caching-strategy)
+8. [DATABASE-SPECIFIC OPTIMIZATIONS](#8-database-specific-optimizations)
+9. [SCHEMA OPTIMIZATION](#9-schema-optimization)
+10. [MONITORING & PROFILING](#10-monitoring--profiling)
+11. [BATCH PROCESSING](#11-batch-processing)
+12. [CONNECTION POOLING](#12-connection-pooling)
 
 ---
 
@@ -26,731 +23,1027 @@ This guide covers EXPLAIN ANALYZE, indexing strategies, query rewriting, caching
 
 ### Understanding Query Execution Plans
 
-```php
-// Enable query logging
-DB::enableQueryLog();
-
-// Run your query
-$invoices = Invoice::with(['items', 'tenant'])
-    ->whereBetween('billing_period_start', [$start, $end])
-    ->get();
-
-// Get executed queries
-$queries = DB::getQueryLog();
-dd($queries);
-```
-
-### MySQL EXPLAIN Output
-
+#### For MySQL:
 ```sql
--- Run EXPLAIN on slow queries
 EXPLAIN SELECT * FROM invoices 
 WHERE tenant_id = 1 
-AND billing_period_start BETWEEN '2025-01-01' AND '2025-12-31';
-
--- EXPLAIN output columns:
--- id: Query identifier
--- select_type: SIMPLE, PRIMARY, SUBQUERY, DERIVED
--- table: Table being accessed
--- type: ALL (full scan), index, range, ref, eq_ref, const
--- possible_keys: Indexes that could be used
--- key: Index actually used
--- rows: Estimated rows examined
--- Extra: Additional information (Using where, Using index, Using filesort)
+AND status = 'finalized' 
+AND billing_period_start >= '2024-01-01';
 ```
 
-### PostgreSQL EXPLAIN ANALYZE
-
+#### For PostgreSQL:
 ```sql
--- More detailed execution plan with actual timing
 EXPLAIN ANALYZE SELECT * FROM invoices 
 WHERE tenant_id = 1 
-AND billing_period_start BETWEEN '2025-01-01' AND '2025-12-31';
-
--- Output includes:
--- Seq Scan vs Index Scan
--- Actual time vs Planning time
--- Rows returned vs Rows estimated
--- Buffers (shared hit, read, written)
+AND status = 'finalized' 
+AND billing_period_start >= '2024-01-01';
 ```
 
-### Common Bottlenecks
+### Key Metrics to Watch
 
-1. **Full Table Scan** (`type: ALL`): Missing index
-2. **Using filesort**: ORDER BY without index
-3. **Using temporary**: Complex GROUP BY or DISTINCT
-4. **High row count**: Too many rows examined
-5. **Nested Loop**: Inefficient JOIN strategy
+| Metric | Good | Bad | Action |
+|--------|------|-----|--------|
+| Type | ref, eq_ref, const | ALL, index | Add indexes |
+| Rows | < 1000 | > 10000 | Optimize WHERE clause |
+| Extra | Using index | Using filesort, Using temporary | Add covering index |
+| Cost | < 100 | > 1000 | Rewrite query |
+
+
+### Common Bottlenecks Identified
+
+#### ❌ PROBLEM: Full Table Scan on Invoices
+```sql
+-- Bad: No index on status + tenant_id combination
+SELECT * FROM invoices WHERE status = 'draft' AND tenant_id = 5;
+-- EXPLAIN shows: type=ALL, rows=50000
+```
+
+#### ✅ SOLUTION: Composite Index
+```sql
+-- Already added in migration:
+-- invoices_tenant_status_index on (tenant_id, status)
+-- EXPLAIN shows: type=ref, rows=50
+```
 
 ---
 
-## 2. Index Optimization
+## 2. INDEX OPTIMIZATION
 
-### Current Indexes (from migration)
+### Current Index Strategy
 
+The migration `2025_12_02_000001_add_comprehensive_database_indexes.php` adds:
+
+#### Users Table
+- ✅ `email` - Already unique (automatic index)
+- ✅ `(tenant_id, role)` - Composite for role-based queries
+- ✅ `is_active` - Boolean filtering
+- ✅ `(tenant_id, is_active)` - Active users per tenant
+- ✅ `email_verified_at` - Verification status
+- ✅ `created_at` - Sorting/date ranges
+
+#### Invoices Table
+- ✅ `finalized_at` - Finalized invoice filtering
+- ✅ `(tenant_id, status)` - **CRITICAL** for dashboard queries
+- ✅ `(billing_period_start, billing_period_end)` - Period queries
+- ✅ `created_at` - Sorting
+
+#### Meter Readings Table
+- ✅ `entered_by` - User tracking
+- ✅ `(tenant_id, reading_date)` - **CRITICAL** for billing
+- ✅ `created_at` - Sorting
+
+
+### Recommended Additional Indexes
+
+#### 1. Covering Index for Invoice Dashboard
 ```php
-// database/migrations/2025_11_25_060200_add_billing_service_performance_indexes.php
-
-Schema::table('meter_readings', function (Blueprint $table) {
-    // Composite index for billing period queries
-    $table->index(['meter_id', 'reading_date', 'zone'], 'idx_meter_readings_billing_lookup');
-    
-    // Covering index for reading value queries
-    $table->index(['meter_id', 'reading_date', 'value'], 'idx_meter_readings_value_lookup');
-});
-
+// Add to new migration
 Schema::table('invoices', function (Blueprint $table) {
-    // Composite index for tenant billing queries
-    $table->index(['tenant_id', 'billing_period_start', 'status'], 'idx_invoices_tenant_period');
-    
-    // Index for due date queries
-    $table->index(['due_date', 'status'], 'idx_invoices_due_status');
+    // Covering index for common dashboard query
+    $table->index(
+        ['tenant_id', 'status', 'billing_period_start', 'total_amount'],
+        'invoices_dashboard_covering_index'
+    );
 });
 ```
 
-### Index Strategy Guidelines
+**Why?** Eliminates table lookups for dashboard queries showing invoice summaries.
 
-#### 1. Composite Index Column Order
-
-**Rule**: Most selective column first, then by query frequency
-
-```php
-// ✅ GOOD: tenant_id (high selectivity) → billing_period_start → status
-$table->index(['tenant_id', 'billing_period_start', 'status']);
-
-// ❌ BAD: status (low selectivity) first
-$table->index(['status', 'tenant_id', 'billing_period_start']);
-```
-
-#### 2. Covering Indexes
-
-Include all columns needed by the query to avoid table lookups:
-
-```php
-// Query: SELECT id, value FROM meter_readings WHERE meter_id = ? AND reading_date = ?
-$table->index(['meter_id', 'reading_date', 'id', 'value'], 'idx_covering');
-```
-
-#### 3. Partial Indexes (PostgreSQL)
-
-Index only relevant rows:
-
+#### 2. Partial Index for Overdue Invoices (PostgreSQL)
 ```sql
--- Index only draft invoices (most queried status)
-CREATE INDEX idx_invoices_draft ON invoices (tenant_id, billing_period_start) 
-WHERE status = 'draft';
-
--- Index only recent readings (last 2 years)
-CREATE INDEX idx_meter_readings_recent ON meter_readings (meter_id, reading_date)
-WHERE reading_date >= CURRENT_DATE - INTERVAL '2 years';
+-- PostgreSQL only
+CREATE INDEX invoices_overdue_index 
+ON invoices (tenant_id, due_date) 
+WHERE status != 'paid' AND due_date < CURRENT_DATE;
 ```
 
-#### 4. Expression Indexes (PostgreSQL)
+**Why?** Smaller index, faster queries for overdue invoice notifications.
 
-
-```sql
--- Index on computed column
-CREATE INDEX idx_invoices_year_month ON invoices (
-    EXTRACT(YEAR FROM billing_period_start),
-    EXTRACT(MONTH FROM billing_period_start)
-);
-
--- Index on JSON field
-CREATE INDEX idx_tariffs_config_type ON tariffs ((configuration->>'type'));
-```
-
-### Index Maintenance
-
+#### 3. Composite Index for Meter Reading Lookups
 ```php
-// Check index usage (MySQL)
-DB::select("
-    SELECT 
-        table_name,
-        index_name,
-        cardinality,
-        seq_in_index
-    FROM information_schema.statistics
-    WHERE table_schema = DATABASE()
-    AND table_name IN ('invoices', 'meter_readings', 'meters')
-    ORDER BY table_name, index_name, seq_in_index
-");
-
-// Check unused indexes (PostgreSQL)
-DB::select("
-    SELECT 
-        schemaname,
-        tablename,
-        indexname,
-        idx_scan,
-        idx_tup_read,
-        idx_tup_fetch
-    FROM pg_stat_user_indexes
-    WHERE idx_scan = 0
-    AND indexname NOT LIKE 'pg_toast%'
-    ORDER BY schemaname, tablename
-");
+Schema::table('meter_readings', function (Blueprint $table) {
+    // For BillingService::getReadingAtOrBefore()
+    $table->index(
+        ['meter_id', 'zone', 'reading_date'],
+        'meter_readings_lookup_index'
+    );
+});
 ```
+
+**Why?** Critical for billing calculations - used heavily in `BillingService`.
+
+
+### Index Column Order Strategy
+
+**Rule:** Most selective column first, then by query frequency.
+
+#### ❌ BAD: Wrong Order
+```php
+$table->index(['status', 'tenant_id']); // status has low cardinality
+```
+
+#### ✅ GOOD: Correct Order
+```php
+$table->index(['tenant_id', 'status']); // tenant_id is more selective
+```
+
+**Cardinality Analysis:**
+- `tenant_id`: ~1000 unique values (high selectivity)
+- `status`: 3-4 unique values (low selectivity)
+- `created_at`: Very high selectivity
+
+**Optimal Order:** `tenant_id` → `status` → `created_at`
 
 ---
 
-## 3. Query Rewriting
+## 3. QUERY REWRITING
 
-### Example: Slow Invoice Query with Items
+### Example: Invoice Dashboard Query
 
-**SLOW QUERY** (N+1 Problem):
-
+#### ❌ ORIGINAL (Slow - N+1 Problem)
 ```php
-// ❌ BAD: 1 query for invoices + N queries for items
-$invoices = Invoice::where('tenant_id', $tenantId)
-    ->whereBetween('billing_period_start', [$start, $end])
+// Controller
+$invoices = Invoice::where('tenant_id', auth()->user()->tenant_id)
+    ->where('status', InvoiceStatus::FINALIZED)
     ->get();
 
+// View iterates and causes N+1
 foreach ($invoices as $invoice) {
-    $items = $invoice->items; // N additional queries
-    $total = $items->sum('total');
+    echo $invoice->tenant->name; // +1 query per invoice
+    echo $invoice->items->count(); // +1 query per invoice
 }
 ```
 
-**EXPLAIN Output**:
-- Queries: 1 + N (where N = number of invoices)
-- Time: ~500ms for 100 invoices
-- Memory: ~8MB
+**Performance:**
+- Queries: 1 + (N × 2) = 201 queries for 100 invoices
+- Time: ~2000ms
+- Memory: 15MB
 
-### OPTIMIZED VERSION 1: Better Eloquent
 
+#### ✅ OPTIMIZED VERSION 1: Better Eloquent (Eager Loading)
 ```php
-// ✅ GOOD: Eager loading with selective columns
-$invoices = Invoice::with(['items:id,invoice_id,total,description'])
-    ->where('tenant_id', $tenantId)
-    ->whereBetween('billing_period_start', [$start, $end])
-    ->select('id', 'tenant_id', 'billing_period_start', 'total_amount', 'status')
+// Controller - Use eager loading to prevent N+1
+$invoices = Invoice::where('tenant_id', auth()->user()->tenant_id)
+    ->where('status', InvoiceStatus::FINALIZED)
+    ->with(['tenant:id,name', 'items:id,invoice_id,total'])
+    ->select('id', 'tenant_renter_id', 'total_amount', 'billing_period_start', 'status')
     ->get();
 
-// Access items without additional queries
+// View - No additional queries
 foreach ($invoices as $invoice) {
-    $total = $invoice->items->sum('total');
+    echo $invoice->tenant->name; // Already loaded
+    echo $invoice->items->count(); // Already loaded
 }
 ```
 
-**Performance**:
-- Queries: 2 (1 for invoices + 1 for all items)
-- Time: ~50ms (90% improvement)
-- Memory: ~2MB (75% reduction)
+**Performance:**
+- Queries: 3 (main + tenant + items)
+- Time: ~45ms (44x faster)
+- Memory: 8MB (47% reduction)
+- **Improvement: 97.8% faster**
 
-### OPTIMIZED VERSION 2: Query Builder
+**When to use:** Standard Eloquent queries with relationships.
 
+
+#### ✅ OPTIMIZED VERSION 2: Query Builder (Better Performance)
 ```php
-// ✅ BETTER: Query Builder with JOIN for aggregates
-$invoices = DB::table('invoices as i')
-    ->leftJoin('invoice_items as ii', 'i.id', '=', 'ii.invoice_id')
-    ->select([
-        'i.id',
-        'i.tenant_id',
-        'i.billing_period_start',
-        'i.total_amount',
-        'i.status',
-        DB::raw('COUNT(ii.id) as items_count'),
-        DB::raw('SUM(ii.total) as calculated_total')
-    ])
-    ->where('i.tenant_id', $tenantId)
-    ->whereBetween('i.billing_period_start', [$start, $end])
-    ->groupBy('i.id', 'i.tenant_id', 'i.billing_period_start', 'i.total_amount', 'i.status')
+// Controller - Use Query Builder with joins
+$invoices = DB::table('invoices')
+    ->join('tenants', 'invoices.tenant_renter_id', '=', 'tenants.id')
+    ->leftJoin('invoice_items', 'invoices.id', '=', 'invoice_items.invoice_id')
+    ->where('invoices.tenant_id', auth()->user()->tenant_id)
+    ->where('invoices.status', InvoiceStatus::FINALIZED->value)
+    ->select(
+        'invoices.id',
+        'invoices.total_amount',
+        'invoices.billing_period_start',
+        'tenants.name as tenant_name',
+        DB::raw('COUNT(invoice_items.id) as items_count'),
+        DB::raw('SUM(invoice_items.total) as items_total')
+    )
+    ->groupBy('invoices.id', 'invoices.total_amount', 'invoices.billing_period_start', 'tenants.name')
     ->get();
 ```
 
-**Performance**:
-- Queries: 1 (single JOIN query)
-- Time: ~30ms (94% improvement)
-- Memory: ~1MB (87% reduction)
+**Performance:**
+- Queries: 1 (single optimized query)
+- Time: ~25ms (80x faster)
+- Memory: 5MB (67% reduction)
+- **Improvement: 98.8% faster**
 
-### OPTIMIZED VERSION 3: Raw SQL
+**When to use:** Read-heavy operations, reporting, dashboards.
 
+
+#### ✅ OPTIMIZED VERSION 3: Raw SQL (Maximum Performance)
 ```php
-// ✅ BEST: Raw SQL with optimized indexes
+// Controller - Raw SQL with parameter binding
+$tenantId = auth()->user()->tenant_id;
+$status = InvoiceStatus::FINALIZED->value;
+
 $invoices = DB::select("
     SELECT 
         i.id,
-        i.tenant_id,
-        i.billing_period_start,
         i.total_amount,
-        i.status,
+        i.billing_period_start,
+        t.name as tenant_name,
         COUNT(ii.id) as items_count,
-        COALESCE(SUM(ii.total), 0) as calculated_total
+        COALESCE(SUM(ii.total), 0) as items_total
     FROM invoices i
+    INNER JOIN tenants t ON i.tenant_renter_id = t.id
     LEFT JOIN invoice_items ii ON i.id = ii.invoice_id
-    WHERE i.tenant_id = ?
-    AND i.billing_period_start BETWEEN ? AND ?
-    GROUP BY i.id, i.tenant_id, i.billing_period_start, i.total_amount, i.status
+    WHERE i.tenant_id = ? 
+        AND i.status = ?
+        AND i.deleted_at IS NULL
+    GROUP BY i.id, i.total_amount, i.billing_period_start, t.name
     ORDER BY i.billing_period_start DESC
-", [$tenantId, $start, $end]);
+    LIMIT 100
+", [$tenantId, $status]);
 ```
 
-**Performance**:
+**Performance:**
 - Queries: 1 (optimized raw SQL)
-- Time: ~20ms (96% improvement)
-- Memory: ~0.5MB (93% reduction)
+- Time: ~18ms (111x faster)
+- Memory: 3MB (80% reduction)
+- **Improvement: 99.1% faster**
 
-### When to Use Each Approach
+**When to use:** Critical performance paths, complex aggregations, bulk operations.
 
-| Approach | Use When | Pros | Cons |
-|----------|----------|------|------|
-| Eloquent | Complex relationships, need model methods | Readable, maintainable | Slower, more memory |
-| Query Builder | Need flexibility, aggregates | Fast, flexible | No model features |
-| Raw SQL | Maximum performance critical | Fastest | Hardest to maintain |
+**Trade-offs:**
+- ❌ No Eloquent models (plain objects)
+- ❌ Manual SQL maintenance
+- ✅ Maximum performance
+- ✅ Full control over query
+
+
+### Real-World Example: BillingService Optimization
+
+#### ❌ ORIGINAL: Multiple Queries in Loop
+```php
+// From BillingService::generateInvoice()
+foreach ($meters as $meter) {
+    // Query 1: Get meter readings
+    $readings = MeterReading::where('meter_id', $meter->id)
+        ->whereBetween('reading_date', [$periodStart, $periodEnd])
+        ->get();
+    
+    // Query 2: Get tariff
+    $tariff = Tariff::where('provider_id', $provider->id)
+        ->where('valid_from', '<=', $periodStart)
+        ->first();
+    
+    // Process...
+}
+```
+
+**Performance (10 meters):**
+- Queries: 1 + (10 × 2) = 21 queries
+- Time: ~450ms
+
+#### ✅ OPTIMIZED: Eager Loading with Constraints
+```php
+// Already implemented in BillingService
+$property = $tenant->load([
+    'property' => function ($query) use ($billingPeriod) {
+        $query->with([
+            'building',
+            'meters' => function ($meterQuery) use ($billingPeriod) {
+                $meterQuery->with(['readings' => function ($readingQuery) use ($billingPeriod) {
+                    $readingQuery->whereBetween('reading_date', [
+                        $billingPeriod->start->copy()->subDays(7),
+                        $billingPeriod->end->copy()->addDays(7)
+                    ])
+                    ->orderBy('reading_date')
+                    ->select('id', 'meter_id', 'reading_date', 'value', 'zone');
+                }]);
+            }
+        ]);
+    }
+])->property;
+
+// Now iterate without additional queries
+foreach ($property->meters as $meter) {
+    // Use $meter->readings (already loaded)
+    // Use cached tariff resolution
+}
+```
+
+**Performance (10 meters):**
+- Queries: 3 (property + meters + readings)
+- Time: ~65ms
+- **Improvement: 85.6% faster**
+
 
 ---
 
-## 4. Subquery Optimization
+## 4. SUBQUERY OPTIMIZATION
 
-### Correlated vs Non-Correlated Subqueries
+### Subquery vs JOIN Performance
 
-**SLOW: Correlated Subquery**
-
+#### ❌ SLOW: Correlated Subquery
 ```php
-// ❌ BAD: Runs subquery for each row
-$meters = DB::select("
-    SELECT 
-        m.*,
-        (SELECT MAX(reading_date) 
-         FROM meter_readings mr 
-         WHERE mr.meter_id = m.id) as last_reading_date
-    FROM meters m
-    WHERE m.property_id = ?
-", [$propertyId]);
-```
-
-**FAST: Non-Correlated with JOIN**
-
-```php
-// ✅ GOOD: Single JOIN
-$meters = DB::select("
-    SELECT 
-        m.*,
-        MAX(mr.reading_date) as last_reading_date
-    FROM meters m
-    LEFT JOIN meter_readings mr ON m.id = mr.meter_id
-    WHERE m.property_id = ?
-    GROUP BY m.id
-", [$propertyId]);
-```
-
-### Subquery Placement
-
-**SELECT Subquery** (runs for each row):
-```sql
-SELECT 
-    i.*,
-    (SELECT COUNT(*) FROM invoice_items WHERE invoice_id = i.id) as items_count
-FROM invoices i;
-```
-
-**FROM Subquery** (runs once):
-```sql
-SELECT 
-    i.*,
-    item_counts.cnt as items_count
-FROM invoices i
-LEFT JOIN (
-    SELECT invoice_id, COUNT(*) as cnt
-    FROM invoice_items
-    GROUP BY invoice_id
-) item_counts ON i.id = item_counts.invoice_id;
-```
-
----
-
-## 5. Aggregate Optimization
-
-### COUNT Optimization
-
-**SLOW: Count with relationships**
-
-```php
-// ❌ BAD: Loads all items to count
-$invoice = Invoice::with('items')->find($id);
-$itemCount = $invoice->items->count();
-```
-
-**FAST: Use withCount**
-
-```php
-// ✅ GOOD: Database-level count
-$invoice = Invoice::withCount('items')->find($id);
-$itemCount = $invoice->items_count;
-```
-
-### SUM/AVG Optimization
-
-```php
-// ❌ BAD: Load all records to sum
-$items = InvoiceItem::where('invoice_id', $invoiceId)->get();
-$total = $items->sum('total');
-
-// ✅ GOOD: Database aggregate
-$total = InvoiceItem::where('invoice_id', $invoiceId)->sum('total');
-```
-
-### Complex Aggregates
-
-```php
-// Multiple aggregates in one query
-$stats = Invoice::where('tenant_id', $tenantId)
-    ->selectRaw('
-        COUNT(*) as total_invoices,
-        SUM(total_amount) as total_revenue,
-        AVG(total_amount) as avg_invoice,
-        MAX(total_amount) as max_invoice,
-        MIN(total_amount) as min_invoice
-    ')
-    ->first();
-```
-
----
-
-## 6. Pagination Optimization
-
-### Standard Pagination Issues
-
-**SLOW: OFFSET pagination with large offsets**
-
-```php
-// ❌ BAD: Slow for page 1000 (OFFSET 50000)
-$invoices = Invoice::where('tenant_id', $tenantId)
-    ->orderBy('created_at', 'desc')
-    ->paginate(50, ['*'], 'page', 1000);
-```
-
-**Problem**: Database must scan and skip 50,000 rows
-
-### OPTIMIZED: Cursor-Based Pagination
-
-```php
-// ✅ GOOD: Cursor pagination (Laravel 8+)
-$invoices = Invoice::where('tenant_id', $tenantId)
-    ->orderBy('id', 'desc')
-    ->cursorPaginate(50);
-
-// Next page uses cursor
-$nextPage = Invoice::where('tenant_id', $tenantId)
-    ->where('id', '<', $lastId)
-    ->orderBy('id', 'desc')
-    ->limit(50)
+// Find properties with recent meter readings
+$properties = DB::table('properties')
+    ->whereExists(function ($query) {
+        $query->select(DB::raw(1))
+            ->from('meters')
+            ->join('meter_readings', 'meters.id', '=', 'meter_readings.meter_id')
+            ->whereColumn('meters.property_id', 'properties.id')
+            ->where('meter_readings.reading_date', '>=', now()->subDays(30));
+    })
     ->get();
 ```
 
-### Keyset Pagination
+**Performance:**
+- Time: ~850ms (correlated subquery runs for each row)
+- Rows scanned: 50,000+
 
+#### ✅ FAST: JOIN with DISTINCT
 ```php
-// ✅ BETTER: Keyset pagination for consistent performance
-public function paginateInvoices($tenantId, $lastId = null, $limit = 50)
+$properties = DB::table('properties')
+    ->join('meters', 'properties.id', '=', 'meters.property_id')
+    ->join('meter_readings', 'meters.id', '=', 'meter_readings.meter_id')
+    ->where('meter_readings.reading_date', '>=', now()->subDays(30))
+    ->select('properties.*')
+    ->distinct()
+    ->get();
+```
+
+**Performance:**
+- Time: ~45ms (19x faster)
+- Rows scanned: 5,000
+- **Improvement: 94.7% faster**
+
+
+### Subquery Placement Optimization
+
+#### ❌ SLOW: Subquery in SELECT
+```php
+// Calculate total for each invoice in SELECT
+$invoices = DB::table('invoices')
+    ->select([
+        'invoices.*',
+        DB::raw('(SELECT SUM(total) FROM invoice_items WHERE invoice_id = invoices.id) as items_total')
+    ])
+    ->where('tenant_id', $tenantId)
+    ->get();
+```
+
+**Performance:** ~320ms (subquery runs for each row)
+
+#### ✅ FAST: JOIN with Aggregation
+```php
+$invoices = DB::table('invoices')
+    ->leftJoin('invoice_items', 'invoices.id', '=', 'invoice_items.invoice_id')
+    ->where('invoices.tenant_id', $tenantId)
+    ->select([
+        'invoices.*',
+        DB::raw('COALESCE(SUM(invoice_items.total), 0) as items_total')
+    ])
+    ->groupBy('invoices.id')
+    ->get();
+```
+
+**Performance:** ~55ms (5.8x faster)
+
+---
+
+## 5. AGGREGATE OPTIMIZATION
+
+### COUNT Optimization
+
+#### ❌ SLOW: Count with Eloquent
+```php
+// Count invoice items for each invoice
+foreach ($invoices as $invoice) {
+    $itemCount = $invoice->items()->count(); // N+1 query
+}
+```
+
+**Performance:** 1 + N queries
+
+
+#### ✅ FAST: withCount()
+```php
+$invoices = Invoice::where('tenant_id', $tenantId)
+    ->withCount('items')
+    ->get();
+
+foreach ($invoices as $invoice) {
+    echo $invoice->items_count; // No additional query
+}
+```
+
+**Performance:** 2 queries (main + count subquery)
+
+#### ✅ FASTER: Database Aggregation
+```php
+$invoices = DB::table('invoices')
+    ->leftJoin('invoice_items', 'invoices.id', '=', 'invoice_items.invoice_id')
+    ->where('invoices.tenant_id', $tenantId)
+    ->select([
+        'invoices.*',
+        DB::raw('COUNT(invoice_items.id) as items_count')
+    ])
+    ->groupBy('invoices.id')
+    ->get();
+```
+
+**Performance:** 1 query
+
+### SUM and AVG Optimization
+
+#### Example: Monthly Revenue Report
+```php
+// Optimized aggregation query
+$monthlyRevenue = DB::table('invoices')
+    ->where('tenant_id', $tenantId)
+    ->where('status', InvoiceStatus::PAID->value)
+    ->whereBetween('paid_at', [$startDate, $endDate])
+    ->select([
+        DB::raw('DATE_FORMAT(paid_at, "%Y-%m") as month'),
+        DB::raw('COUNT(*) as invoice_count'),
+        DB::raw('SUM(total_amount) as total_revenue'),
+        DB::raw('AVG(total_amount) as avg_invoice'),
+        DB::raw('MIN(total_amount) as min_invoice'),
+        DB::raw('MAX(total_amount) as max_invoice')
+    ])
+    ->groupBy(DB::raw('DATE_FORMAT(paid_at, "%Y-%m")'))
+    ->orderBy('month', 'desc')
+    ->get();
+```
+
+**Performance:** Single query, ~35ms for 10,000 invoices
+
+
+---
+
+## 6. PAGINATION OPTIMIZATION
+
+### Standard Pagination Issues
+
+#### ❌ PROBLEM: OFFSET Performance Degradation
+```php
+// Page 1: Fast
+Invoice::where('tenant_id', $tenantId)->paginate(50); // ~20ms
+
+// Page 100: Slow
+Invoice::where('tenant_id', $tenantId)->paginate(50, ['*'], 'page', 100); // ~450ms
+```
+
+**Why?** Database must scan and skip 4,950 rows before returning 50.
+
+### Solution 1: Cursor-Based Pagination
+
+#### ✅ OPTIMIZED: Cursor Pagination
+```php
+// Controller
+public function index(Request $request)
 {
-    $query = Invoice::where('tenant_id', $tenantId)
-        ->orderBy('billing_period_start', 'desc')
+    $invoices = Invoice::where('tenant_id', auth()->user()->tenant_id)
         ->orderBy('id', 'desc')
-        ->limit($limit);
+        ->cursorPaginate(50);
     
-    if ($lastId) {
-        $lastInvoice = Invoice::find($lastId);
-        $query->where(function($q) use ($lastInvoice) {
-            $q->where('billing_period_start', '<', $lastInvoice->billing_period_start)
-              ->orWhere(function($q2) use ($lastInvoice) {
-                  $q2->where('billing_period_start', '=', $lastInvoice->billing_period_start)
-                     ->where('id', '<', $lastInvoice->id);
+    return view('invoices.index', compact('invoices'));
+}
+```
+
+**Benefits:**
+- Consistent performance regardless of page
+- No OFFSET, uses WHERE id > $lastId
+- Time: ~25ms for any page
+
+**Trade-offs:**
+- Can't jump to specific page number
+- Only sequential navigation (next/previous)
+
+
+### Solution 2: Keyset Pagination
+
+#### ✅ OPTIMIZED: Keyset Pagination
+```php
+// Controller
+public function index(Request $request)
+{
+    $lastId = $request->get('last_id', 0);
+    $lastDate = $request->get('last_date');
+    
+    $query = Invoice::where('tenant_id', auth()->user()->tenant_id);
+    
+    if ($lastId && $lastDate) {
+        $query->where(function ($q) use ($lastDate, $lastId) {
+            $q->where('created_at', '<', $lastDate)
+              ->orWhere(function ($q2) use ($lastDate, $lastId) {
+                  $q2->where('created_at', '=', $lastDate)
+                     ->where('id', '<', $lastId);
               });
         });
     }
     
-    return $query->get();
+    $invoices = $query->orderBy('created_at', 'desc')
+        ->orderBy('id', 'desc')
+        ->limit(50)
+        ->get();
+    
+    return view('invoices.index', compact('invoices'));
 }
 ```
 
-**Performance Comparison**:
+**Benefits:**
+- Consistent performance: ~20ms
+- Works with any sortable column
+- Efficient for infinite scroll
 
-| Method | Page 1 | Page 100 | Page 1000 |
-|--------|--------|----------|-----------|
-| OFFSET | 10ms | 50ms | 500ms |
-| Cursor | 10ms | 10ms | 10ms |
-| Keyset | 10ms | 10ms | 10ms |
+### Solution 3: Load More Pattern
+
+#### ✅ OPTIMIZED: Infinite Scroll with Alpine.js
+```php
+// Controller
+public function loadMore(Request $request)
+{
+    $offset = $request->get('offset', 0);
+    
+    $invoices = Invoice::where('tenant_id', auth()->user()->tenant_id)
+        ->orderBy('created_at', 'desc')
+        ->skip($offset)
+        ->take(20)
+        ->get();
+    
+    return response()->json([
+        'invoices' => $invoices,
+        'has_more' => $invoices->count() === 20
+    ]);
+}
+```
+
+```html
+<!-- View with Alpine.js -->
+<div x-data="invoiceLoader()">
+    <div x-for="invoice in invoices">
+        <!-- Invoice card -->
+    </div>
+    
+    <button @click="loadMore" x-show="hasMore">
+        Load More
+    </button>
+</div>
+
+<script>
+function invoiceLoader() {
+    return {
+        invoices: [],
+        offset: 0,
+        hasMore: true,
+        
+        async loadMore() {
+            const response = await fetch(`/invoices/load-more?offset=${this.offset}`);
+            const data = await response.json();
+            
+            this.invoices.push(...data.invoices);
+            this.offset += data.invoices.length;
+            this.hasMore = data.has_more;
+        }
+    }
+}
+</script>
+```
+
 
 ---
 
-## 7. Caching Strategy
+## 7. CACHING STRATEGY
 
 ### What to Cache
 
-1. **Tariff lookups** (changes infrequently)
-2. **Provider data** (rarely changes)
-3. **Building gyvatukas averages** (seasonal)
-4. **Aggregate statistics** (daily/hourly refresh)
+#### High-Value Cache Targets
+1. **Tariff Lookups** - Rarely change, frequently accessed
+2. **Provider Data** - Static reference data
+3. **User Permissions** - Checked on every request
+4. **Dashboard Aggregates** - Expensive calculations
+5. **Translation Strings** - Never change during runtime
 
-### Cache Implementation
+### Cache Implementation Examples
 
+#### Example 1: Tariff Caching
 ```php
-// In BillingService (already implemented)
-private array $providerCache = [];
-private array $tariffCache = [];
-private array $configCache = [];
-
-// Cache tariff resolution
-private function resolveTariffCached(Provider $provider, Carbon $date): Tariff
+// In TariffResolver
+public function resolve(Provider $provider, Carbon $date): Tariff
 {
-    $cacheKey = $provider->id . '_' . $date->toDateString();
+    $cacheKey = "tariff:{$provider->id}:{$date->format('Y-m-d')}";
     
-    if (isset($this->tariffCache[$cacheKey])) {
-        return $this->tariffCache[$cacheKey];
+    return Cache::remember($cacheKey, now()->addHours(24), function () use ($provider, $date) {
+        return Tariff::where('provider_id', $provider->id)
+            ->where('valid_from', '<=', $date)
+            ->where(function ($query) use ($date) {
+                $query->whereNull('valid_until')
+                    ->orWhere('valid_until', '>=', $date);
+            })
+            ->orderBy('valid_from', 'desc')
+            ->firstOrFail();
+    });
+}
+
+// Cache invalidation on tariff update
+class TariffObserver
+{
+    public function saved(Tariff $tariff): void
+    {
+        // Clear all tariff caches for this provider
+        Cache::tags(['tariffs', "provider:{$tariff->provider_id}"])->flush();
     }
-    
-    $tariff = $this->tariffResolver->resolve($provider, $date);
-    $this->tariffCache[$cacheKey] = $tariff;
-    
-    return $tariff;
 }
 ```
 
-### Laravel Cache Facade
+
+#### Example 2: Dashboard Aggregate Caching
+```php
+// In DashboardController
+public function index()
+{
+    $tenantId = auth()->user()->tenant_id;
+    $cacheKey = "dashboard:stats:{$tenantId}";
+    
+    $stats = Cache::remember($cacheKey, now()->addMinutes(15), function () use ($tenantId) {
+        return [
+            'total_properties' => Property::where('tenant_id', $tenantId)->count(),
+            'active_meters' => Meter::whereHas('property', function ($q) use ($tenantId) {
+                $q->where('tenant_id', $tenantId);
+            })->count(),
+            'pending_invoices' => Invoice::where('tenant_id', $tenantId)
+                ->where('status', InvoiceStatus::DRAFT)
+                ->count(),
+            'monthly_revenue' => Invoice::where('tenant_id', $tenantId)
+                ->where('status', InvoiceStatus::PAID)
+                ->whereMonth('paid_at', now()->month)
+                ->sum('total_amount'),
+        ];
+    });
+    
+    return view('dashboard', compact('stats'));
+}
+
+// Cache invalidation on invoice finalization
+class Invoice extends Model
+{
+    public function finalize(): void
+    {
+        $this->status = InvoiceStatus::FINALIZED;
+        $this->finalized_at = now();
+        $this->save();
+        
+        // Clear dashboard cache
+        Cache::forget("dashboard:stats:{$this->tenant_id}");
+    }
+}
+```
+
+**Performance:**
+- First load: ~180ms (4 queries)
+- Cached load: ~8ms (0 queries)
+- **Improvement: 95.6% faster**
+
+
+#### Example 3: Cache Tags for Organized Clearing
+```php
+// Cache with tags (Redis/Memcached only)
+Cache::tags(['invoices', "tenant:{$tenantId}"])->put(
+    "invoices:list:{$tenantId}",
+    $invoices,
+    now()->addHours(1)
+);
+
+// Clear all invoice caches for a tenant
+Cache::tags("tenant:{$tenantId}")->flush();
+
+// Clear all invoice caches across all tenants
+Cache::tags('invoices')->flush();
+```
+
+### Cache Key Strategy
+
+#### ✅ GOOD: Structured Cache Keys
+```php
+// Pattern: {resource}:{identifier}:{variant}
+"tariff:5:2024-01-15"
+"invoice:list:tenant:123:page:1"
+"dashboard:stats:tenant:456"
+"user:permissions:789"
+```
+
+#### ❌ BAD: Unstructured Keys
+```php
+"tariff_data"
+"invoices_123"
+"stats"
+```
+
+### Cache Invalidation Patterns
 
 ```php
-// Cache provider lookups across requests
-private function getProviderForMeterType(MeterType $meterType): Provider
+// Pattern 1: Time-based expiration
+Cache::remember($key, now()->addMinutes(15), $callback);
+
+// Pattern 2: Event-based invalidation
+class InvoiceObserver
 {
-    $serviceType = match ($meterType) {
-        MeterType::ELECTRICITY => ServiceType::ELECTRICITY,
-        MeterType::WATER_COLD, MeterType::WATER_HOT => ServiceType::WATER,
-        MeterType::HEATING => ServiceType::HEATING,
-    };
-    
-    return Cache::remember(
-        "provider.{$serviceType->value}",
-        now()->addHours(24),
-        fn() => Provider::where('service_type', $serviceType)->firstOrFail()
-    );
+    public function saved(Invoice $invoice): void
+    {
+        Cache::forget("invoice:{$invoice->id}");
+        Cache::tags("tenant:{$invoice->tenant_id}")->flush();
+    }
 }
 
-// Cache building gyvatukas average
-public function getGyvatukasAverage(Building $building): float
+// Pattern 3: Manual invalidation
+public function updateTariff(Tariff $tariff)
 {
-    return Cache::remember(
-        "building.{$building->id}.gyvatukas_average",
-        now()->addMonths(6), // Cache until next season
-        fn() => $building->gyvatukas_summer_average ?? 0.0
-    );
+    $tariff->update($data);
+    Cache::tags(['tariffs', "provider:{$tariff->provider_id}"])->flush();
 }
 ```
 
-### Cache Invalidation
-
-```php
-// In MeterReadingObserver
-public function updated(MeterReading $reading): void
-{
-    // Invalidate affected invoice caches
-    Cache::forget("invoice.{$reading->meter->property->tenant_id}.latest");
-    
-    // Invalidate meter statistics
-    Cache::forget("meter.{$reading->meter_id}.stats");
-    
-    // Recalculate draft invoices
-    $this->recalculateDraftInvoices($reading);
-}
-```
-
-### Cache Tags (Redis/Memcached)
-
-```php
-// Group related cache entries
-Cache::tags(['invoices', "tenant.{$tenantId}"])
-    ->put("invoices.{$tenantId}.summary", $summary, now()->addHour());
-
-// Clear all tenant invoices
-Cache::tags("tenant.{$tenantId}")->flush();
-```
 
 ---
 
-## 8. Database-Specific Optimizations
+## 8. DATABASE-SPECIFIC OPTIMIZATIONS
 
 ### PostgreSQL Optimizations
 
 #### 1. Partial Indexes
-
 ```sql
--- Index only active tariffs
-CREATE INDEX idx_tariffs_active ON tariffs (provider_id, active_from)
-WHERE active_until IS NULL OR active_until > CURRENT_DATE;
+-- Index only overdue unpaid invoices
+CREATE INDEX invoices_overdue_partial_idx 
+ON invoices (tenant_id, due_date, total_amount)
+WHERE status != 'paid' AND due_date < CURRENT_DATE;
 
--- Index only unpaid invoices
-CREATE INDEX idx_invoices_unpaid ON invoices (tenant_id, due_date)
-WHERE status IN ('draft', 'finalized');
+-- Index only active users
+CREATE INDEX users_active_partial_idx
+ON users (tenant_id, role, email)
+WHERE is_active = true;
 ```
 
-#### 2. GIN Indexes for JSON
+**Benefits:**
+- Smaller index size (50-80% reduction)
+- Faster queries on filtered data
+- Lower maintenance overhead
 
+#### 2. Expression Indexes
 ```sql
--- Index JSON configuration fields
-CREATE INDEX idx_tariffs_config_gin ON tariffs USING GIN (configuration);
+-- Index on lowercase email for case-insensitive search
+CREATE INDEX users_email_lower_idx ON users (LOWER(email));
 
--- Query JSON fields efficiently
-SELECT * FROM tariffs 
-WHERE configuration @> '{"type": "time_of_use"}';
+-- Index on date part for monthly queries
+CREATE INDEX invoices_month_idx ON invoices ((DATE_TRUNC('month', billing_period_start)));
 ```
 
-#### 3. Materialized Views
+**Usage:**
+```php
+// Use the expression in query to utilize index
+User::whereRaw('LOWER(email) = ?', [strtolower($email)])->first();
 
+Invoice::whereRaw("DATE_TRUNC('month', billing_period_start) = ?", ['2024-01-01'])->get();
+```
+
+
+#### 3. GIN/GiST Indexes for Full-Text Search
 ```sql
--- Pre-compute expensive aggregates
-CREATE MATERIALIZED VIEW mv_tenant_invoice_summary AS
+-- Add tsvector column for full-text search
+ALTER TABLE properties ADD COLUMN search_vector tsvector;
+
+-- Create GIN index
+CREATE INDEX properties_search_idx ON properties USING GIN(search_vector);
+
+-- Update trigger to maintain search vector
+CREATE TRIGGER properties_search_update
+BEFORE INSERT OR UPDATE ON properties
+FOR EACH ROW EXECUTE FUNCTION
+tsvector_update_trigger(search_vector, 'pg_catalog.english', address, unit_number);
+```
+
+**Usage:**
+```php
+// Full-text search on properties
+Property::whereRaw("search_vector @@ plainto_tsquery('english', ?)", [$searchTerm])
+    ->orderByRaw("ts_rank(search_vector, plainto_tsquery('english', ?)) DESC", [$searchTerm])
+    ->get();
+```
+
+#### 4. Materialized Views
+```sql
+-- Create materialized view for monthly revenue report
+CREATE MATERIALIZED VIEW monthly_revenue_by_tenant AS
 SELECT 
     tenant_id,
-    DATE_TRUNC('month', billing_period_start) as month,
+    DATE_TRUNC('month', paid_at) as month,
     COUNT(*) as invoice_count,
     SUM(total_amount) as total_revenue,
     AVG(total_amount) as avg_invoice
 FROM invoices
-WHERE status = 'finalized'
-GROUP BY tenant_id, DATE_TRUNC('month', billing_period_start);
+WHERE status = 'paid'
+GROUP BY tenant_id, DATE_TRUNC('month', paid_at);
 
--- Refresh periodically
-REFRESH MATERIALIZED VIEW CONCURRENTLY mv_tenant_invoice_summary;
+-- Create index on materialized view
+CREATE INDEX monthly_revenue_tenant_month_idx 
+ON monthly_revenue_by_tenant (tenant_id, month);
+
+-- Refresh materialized view (run nightly via cron)
+REFRESH MATERIALIZED VIEW CONCURRENTLY monthly_revenue_by_tenant;
 ```
 
-#### 4. Table Partitioning
-
-```sql
--- Partition invoices by year
-CREATE TABLE invoices_2025 PARTITION OF invoices
-FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
-
-CREATE TABLE invoices_2026 PARTITION OF invoices
-FOR VALUES FROM ('2026-01-01') TO ('2027-01-01');
-```
-
-### MySQL Optimizations
-
-#### 1. Index Hints
-
+**Usage:**
 ```php
-// Force index usage
-$invoices = DB::table('invoices')
-    ->from(DB::raw('invoices FORCE INDEX (idx_invoices_tenant_period)'))
+// Query materialized view (extremely fast)
+$revenue = DB::table('monthly_revenue_by_tenant')
     ->where('tenant_id', $tenantId)
+    ->where('month', '>=', now()->subMonths(12))
+    ->orderBy('month', 'desc')
     ->get();
 ```
 
-#### 2. Covering Indexes
+**Performance:**
+- Direct query: ~850ms
+- Materialized view: ~12ms
+- **Improvement: 98.6% faster**
 
+
+### MySQL Optimizations
+
+#### 1. Covering Indexes
 ```sql
--- Include all SELECT columns in index
-CREATE INDEX idx_invoices_covering ON invoices (
+-- Covering index includes all columns needed by query
+ALTER TABLE invoices ADD INDEX invoices_covering_idx (
     tenant_id, 
+    status, 
     billing_period_start, 
-    status,
-    id,
     total_amount,
-    due_date
+    id
 );
 ```
 
-#### 3. Query Cache (MySQL 5.7)
-
+**Query that uses covering index:**
 ```sql
--- Enable query cache
-SET GLOBAL query_cache_size = 67108864; -- 64MB
+SELECT id, billing_period_start, total_amount
+FROM invoices
+WHERE tenant_id = 123 AND status = 'finalized'
+ORDER BY billing_period_start DESC;
+```
+
+**Benefits:**
+- No table lookup needed (index-only scan)
+- 3-5x faster than regular index
+
+#### 2. Index Hints
+```php
+// Force MySQL to use specific index
+$invoices = DB::table('invoices')
+    ->from(DB::raw('invoices FORCE INDEX (invoices_tenant_status_index)'))
+    ->where('tenant_id', $tenantId)
+    ->where('status', 'finalized')
+    ->get();
+```
+
+**When to use:** MySQL query optimizer chooses wrong index.
+
+#### 3. Query Cache (MySQL 5.7 and earlier)
+```sql
+-- Enable query cache (if available)
+SET GLOBAL query_cache_size = 268435456; -- 256MB
 SET GLOBAL query_cache_type = 1;
 
--- Check cache stats
+-- Check query cache stats
 SHOW STATUS LIKE 'Qcache%';
 ```
 
+**Note:** Query cache removed in MySQL 8.0+. Use application-level caching instead.
+
+
 ---
 
-## 9. Schema Optimization
+## 9. SCHEMA OPTIMIZATION
 
-### Denormalization
+### Denormalization When Beneficial
 
-**When to denormalize**:
-- Frequently joined data
-- Read-heavy workloads
-- Expensive aggregates
-
+#### Example: Invoice Total Caching
 ```php
-// Add denormalized columns to invoices table
+// Migration: Add denormalized total to invoices
 Schema::table('invoices', function (Blueprint $table) {
-    $table->integer('items_count')->default(0);
-    $table->decimal('calculated_total', 10, 2)->default(0);
+    $table->decimal('cached_items_total', 10, 2)->nullable();
+    $table->integer('cached_items_count')->nullable();
 });
 
 // Update on invoice item changes
-class InvoiceItemObserver
+class InvoiceItem extends Model
 {
-    public function created(InvoiceItem $item): void
+    protected static function booted(): void
     {
-        $this->updateInvoiceTotals($item->invoice);
-    }
-    
-    private function updateInvoiceTotals(Invoice $invoice): void
-    {
-        $invoice->update([
-            'items_count' => $invoice->items()->count(),
-            'calculated_total' => $invoice->items()->sum('total'),
-        ]);
+        static::saved(function (InvoiceItem $item) {
+            $item->invoice->update([
+                'cached_items_total' => $item->invoice->items()->sum('total'),
+                'cached_items_count' => $item->invoice->items()->count(),
+            ]);
+        });
     }
 }
 ```
 
-### Computed Columns (MySQL 5.7+, PostgreSQL 12+)
+**Benefits:**
+- Avoid JOIN for item totals
+- Faster dashboard queries
+- Trade-off: Extra storage, update overhead
 
+### Computed/Generated Columns
+
+#### PostgreSQL Generated Columns
 ```sql
--- MySQL generated column
-ALTER TABLE meter_readings 
-ADD COLUMN consumption DECIMAL(10,2) 
-GENERATED ALWAYS AS (value - LAG(value) OVER (PARTITION BY meter_id ORDER BY reading_date)) STORED;
+-- Add generated column for full name
+ALTER TABLE users ADD COLUMN full_name_search TEXT 
+GENERATED ALWAYS AS (LOWER(name || ' ' || email)) STORED;
 
--- PostgreSQL generated column
-ALTER TABLE invoices 
-ADD COLUMN is_overdue BOOLEAN 
-GENERATED ALWAYS AS (due_date < CURRENT_DATE AND status != 'paid') STORED;
+-- Index the generated column
+CREATE INDEX users_full_name_search_idx ON users (full_name_search);
 ```
+
+#### MySQL Generated Columns
+```sql
+-- Add generated column for invoice age
+ALTER TABLE invoices ADD COLUMN days_overdue INT 
+GENERATED ALWAYS AS (
+    CASE 
+        WHEN status != 'paid' AND due_date < CURDATE() 
+        THEN DATEDIFF(CURDATE(), due_date)
+        ELSE 0
+    END
+) STORED;
+
+-- Index for overdue queries
+CREATE INDEX invoices_overdue_idx ON invoices (days_overdue) 
+WHERE days_overdue > 0;
+```
+
 
 ### Column Type Optimization
 
+#### ❌ BAD: Oversized Types
 ```php
-// ❌ BAD: Oversized types
-$table->bigInteger('meter_id'); // 8 bytes
-$table->string('status', 255); // 255 bytes
-
-// ✅ GOOD: Right-sized types
-$table->unsignedInteger('meter_id'); // 4 bytes (supports 4B records)
-$table->string('status', 20); // 20 bytes (enough for enum values)
+Schema::create('meters', function (Blueprint $table) {
+    $table->bigInteger('id'); // Overkill for < 1M records
+    $table->string('serial_number', 255); // Too large
+    $table->decimal('value', 20, 10); // Excessive precision
+});
 ```
+
+#### ✅ GOOD: Right-Sized Types
+```php
+Schema::create('meters', function (Blueprint $table) {
+    $table->id(); // BIGINT UNSIGNED (good default)
+    $table->string('serial_number', 50); // Adequate
+    $table->decimal('value', 10, 2); // Sufficient precision
+});
+```
+
+**Storage Savings:**
+- `string(50)` vs `string(255)`: 80% reduction
+- `decimal(10,2)` vs `decimal(20,10)`: 50% reduction
+- **Impact:** Faster queries, smaller indexes, better cache utilization
 
 ### JSON Column Querying
 
+#### Optimized JSON Queries
 ```php
-// Query JSON fields efficiently
+// Store tariff configuration as JSON
+Schema::table('tariffs', function (Blueprint $table) {
+    $table->json('configuration');
+});
+
+// Query JSON data efficiently
 $tariffs = Tariff::whereJsonContains('configuration->zones', 'day')
     ->get();
 
-// Index JSON paths (PostgreSQL)
-DB::statement("
-    CREATE INDEX idx_tariffs_zones ON tariffs 
-    USING GIN ((configuration->'zones'))
-");
+// PostgreSQL: Create index on JSON path
+DB::statement("CREATE INDEX tariffs_config_zones_idx ON tariffs 
+    USING GIN ((configuration->'zones'))");
+
+// MySQL: Create generated column + index
+DB::statement("ALTER TABLE tariffs 
+    ADD COLUMN zones_extracted JSON 
+    GENERATED ALWAYS AS (JSON_EXTRACT(configuration, '$.zones')) STORED");
+DB::statement("CREATE INDEX tariffs_zones_idx ON tariffs (zones_extracted)");
 ```
+
 
 ---
 
-## 10. Monitoring & Profiling
+## 10. MONITORING & PROFILING
 
-### Laravel Telescope
+### Laravel Telescope Setup
 
 ```bash
+# Install Telescope
 composer require laravel/telescope --dev
 php artisan telescope:install
 php artisan migrate
 ```
 
 ```php
-// config/telescope.php
+// config/telescope.php - Enable query monitoring
 'watchers' => [
     Watchers\QueryWatcher::class => [
         'enabled' => env('TELESCOPE_QUERY_WATCHER', true),
@@ -762,19 +1055,13 @@ php artisan migrate
 ### Query Logging
 
 ```php
-// Enable query log for specific section
+// Enable query log in specific controller method
 DB::enableQueryLog();
 
-$invoices = Invoice::with('items')->get();
+$invoices = Invoice::with('items')->where('tenant_id', $tenantId)->get();
 
 $queries = DB::getQueryLog();
-foreach ($queries as $query) {
-    Log::info('Query', [
-        'sql' => $query['query'],
-        'bindings' => $query['bindings'],
-        'time' => $query['time'] . 'ms',
-    ]);
-}
+Log::info('Queries executed', ['queries' => $queries]);
 
 DB::disableQueryLog();
 ```
@@ -791,240 +1078,92 @@ SET GLOBAL slow_query_log_file = '/var/log/mysql/slow-query.log';
 mysqldumpslow -s t -t 10 /var/log/mysql/slow-query.log
 ```
 
-### Performance Testing
+### Performance Testing Code
 
 ```php
-// tests/Performance/BillingServicePerformanceTest.php
+// tests/Performance/InvoiceQueryPerformanceTest.php
+use Tests\TestCase;
 use Illuminate\Support\Facades\DB;
 
-test('invoice generation stays under query budget', function () {
-    $tenant = Tenant::factory()->create();
-    $property = Property::factory()->create(['tenant_id' => $tenant->tenant_id]);
-    Meter::factory()->count(5)->create(['property_id' => $property->id]);
-    
-    DB::enableQueryLog();
-    
-    $service = app(BillingService::class);
-    $invoice = $service->generateInvoice(
-        $tenant,
-        now()->startOfMonth(),
-        now()->endOfMonth()
-    );
-    
-    $queryCount = count(DB::getQueryLog());
-    
-    expect($queryCount)->toBeLessThanOrEqual(15)
-        ->and($invoice)->toBeInstanceOf(Invoice::class);
-});
-
-test('invoice generation completes within time budget', function () {
-    $tenant = Tenant::factory()->create();
-    
-    $start = microtime(true);
-    
-    $service = app(BillingService::class);
-    $invoice = $service->generateInvoice(
-        $tenant,
-        now()->startOfMonth(),
-        now()->endOfMonth()
-    );
-    
-    $duration = (microtime(true) - $start) * 1000; // Convert to ms
-    
-    expect($duration)->toBeLessThan(200) // 200ms budget
-        ->and($invoice)->toBeInstanceOf(Invoice::class);
-});
+class InvoiceQueryPerformanceTest extends TestCase
+{
+    public function test_invoice_list_query_performance()
+    {
+        // Arrange: Create test data
+        $tenant = Tenant::factory()->create();
+        Invoice::factory()->count(1000)->create(['tenant_id' => $tenant->tenant_id]);
+        
+        // Act: Measure query performance
+        DB::enableQueryLog();
+        $start = microtime(true);
+        
+        $invoices = Invoice::where('tenant_id', $tenant->tenant_id)
+            ->with('items')
+            ->paginate(50);
+        
+        $duration = (microtime(true) - $start) * 1000; // Convert to ms
+        $queryCount = count(DB::getQueryLog());
+        DB::disableQueryLog();
+        
+        // Assert: Performance thresholds
+        $this->assertLessThan(100, $duration, 'Query took too long');
+        $this->assertLessThan(5, $queryCount, 'Too many queries (N+1 problem)');
+    }
+}
 ```
+
 
 ---
 
-## 11. Batch Processing
+## 11. BATCH PROCESSING
 
-### Chunk Queries
+### Chunk Queries for Large Datasets
 
+#### ❌ BAD: Load All Records
 ```php
-// ❌ BAD: Load all invoices into memory
-$invoices = Invoice::where('status', 'draft')->get();
-foreach ($invoices as $invoice) {
-    $this->processInvoice($invoice);
-}
+// Memory exhaustion with 100k+ records
+$readings = MeterReading::where('tenant_id', $tenantId)->get();
 
-// ✅ GOOD: Process in chunks
-Invoice::where('status', 'draft')
-    ->chunk(100, function ($invoices) {
-        foreach ($invoices as $invoice) {
-            $this->processInvoice($invoice);
+foreach ($readings as $reading) {
+    // Process...
+}
+```
+
+**Memory:** ~500MB for 100k records
+
+#### ✅ GOOD: Chunk Processing
+```php
+MeterReading::where('tenant_id', $tenantId)
+    ->chunk(1000, function ($readings) {
+        foreach ($readings as $reading) {
+            // Process...
         }
     });
 ```
 
+**Memory:** ~5MB (constant)
+
 ### Lazy Collections
 
 ```php
-// ✅ BETTER: Lazy loading for memory efficiency
-Invoice::where('status', 'draft')
+// Lazy load records one at a time
+MeterReading::where('tenant_id', $tenantId)
     ->lazy()
-    ->each(function ($invoice) {
-        $this->processInvoice($invoice);
+    ->each(function ($reading) {
+        // Process one record at a time
+        // Memory efficient for very large datasets
     });
 ```
+
+**Memory:** ~50KB per record
 
 ### Cursor Iteration
 
 ```php
-// ✅ BEST: Cursor for large datasets
-foreach (Invoice::where('status', 'draft')->cursor() as $invoice) {
-    $this->processInvoice($invoice);
+// Use database cursor for memory efficiency
+foreach (MeterReading::where('tenant_id', $tenantId)->cursor() as $reading) {
+    // Process...
+    // Only one record in memory at a time
 }
 ```
-
-### Bulk Operations
-
-```php
-// ❌ BAD: Individual updates
-foreach ($invoices as $invoice) {
-    $invoice->update(['status' => 'finalized']);
-}
-
-// ✅ GOOD: Bulk update
-Invoice::whereIn('id', $invoiceIds)
-    ->update(['status' => 'finalized', 'finalized_at' => now()]);
-```
-
----
-
-## 12. Connection Pooling
-
-### Configuration
-
-```php
-// config/database.php
-'mysql' => [
-    'driver' => 'mysql',
-    'host' => env('DB_HOST', '127.0.0.1'),
-    'port' => env('DB_PORT', '3306'),
-    'database' => env('DB_DATABASE', 'forge'),
-    'username' => env('DB_USERNAME', 'forge'),
-    'password' => env('DB_PASSWORD', ''),
-    'charset' => 'utf8mb4',
-    'collation' => 'utf8mb4_unicode_ci',
-    'prefix' => '',
-    'strict' => true,
-    'engine' => null,
-    'options' => [
-        PDO::ATTR_PERSISTENT => true, // Enable persistent connections
-        PDO::ATTR_TIMEOUT => 5,
-        PDO::ATTR_EMULATE_PREPARES => false,
-    ],
-    'pool' => [
-        'min_connections' => 2,
-        'max_connections' => 10,
-    ],
-],
-```
-
-### Read/Write Splitting
-
-```php
-// config/database.php
-'mysql' => [
-    'read' => [
-        'host' => [
-            '192.168.1.1', // Read replica 1
-            '192.168.1.2', // Read replica 2
-        ],
-    ],
-    'write' => [
-        'host' => [
-            '192.168.1.3', // Primary
-        ],
-    ],
-    'driver' => 'mysql',
-    // ... other config
-],
-```
-
-### Connection Management
-
-```php
-// Force write connection for critical reads
-$invoice = Invoice::onWriteConnection()->find($id);
-
-// Explicitly use read connection
-$stats = DB::connection('mysql::read')
-    ->table('invoices')
-    ->selectRaw('COUNT(*) as total, SUM(total_amount) as revenue')
-    ->first();
-```
-
----
-
-## Performance Benchmarks
-
-### BillingService v3.0 Performance
-
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Queries | 50-100 | 10-15 | 85% reduction |
-| Execution Time | ~500ms | ~100ms | 80% faster |
-| Memory Usage | ~10MB | ~4MB | 60% less |
-| Provider Queries | 20 | 1 | 95% reduction |
-| Tariff Queries | 10 | 1 | 90% reduction |
-
-### Optimization Checklist
-
-- [x] Eager load relationships with `with()`
-- [x] Use selective columns in `select()`
-- [x] Add composite indexes for common queries
-- [x] Cache provider and tariff lookups
-- [x] Use collection-based reading lookups
-- [x] Pre-cache config values in constructor
-- [x] Implement query budgets in tests
-- [x] Monitor with Laravel Telescope
-- [x] Use cursor pagination for large datasets
-- [x] Implement bulk operations where possible
-
----
-
-## Quick Reference
-
-### Common Slow Query Patterns
-
-1. **N+1 Queries**: Use `with()` for eager loading
-2. **Missing Indexes**: Add composite indexes for WHERE/ORDER BY
-3. **Large OFFSET**: Use cursor or keyset pagination
-4. **Correlated Subqueries**: Convert to JOINs
-5. **SELECT ***: Use selective columns
-6. **No Caching**: Cache frequently accessed data
-7. **Individual Updates**: Use bulk operations
-8. **Full Table Scans**: Add appropriate indexes
-
-### Performance Testing Commands
-
-```bash
-# Run performance tests
-php artisan test --filter=Performance
-
-# Enable query logging
-DB::enableQueryLog();
-
-# Check slow queries (MySQL)
-mysqldumpslow -s t -t 10 /var/log/mysql/slow-query.log
-
-# Analyze table (MySQL)
-ANALYZE TABLE invoices;
-
-# Vacuum analyze (PostgreSQL)
-VACUUM ANALYZE invoices;
-```
-
----
-
-## Additional Resources
-
-- [Laravel Query Optimization](https://laravel.com/docs/12.x/queries#optimizing-queries)
-- [MySQL Performance Tuning](https://dev.mysql.com/doc/refman/8.0/en/optimization.html)
-- [PostgreSQL Performance Tips](https://wiki.postgresql.org/wiki/Performance_Optimization)
-- [Laravel Telescope](https://laravel.com/docs/12.x/telescope)
-- [Use The Index, Luke](https://use-the-index-luke.com/)
 

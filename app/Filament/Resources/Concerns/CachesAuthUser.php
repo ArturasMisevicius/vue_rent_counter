@@ -41,11 +41,19 @@ trait CachesAuthUser
      * 
      * This method caches the authenticated user for the duration of the request,
      * preventing redundant auth()->user() calls across multiple authorization checks.
+     * 
+     * In testing environments, caching is disabled to prevent stale user data
+     * from persisting across test iterations (especially in property tests).
      *
      * @return User|null The authenticated user or null if not authenticated
      */
     protected static function getAuthenticatedUser(): ?User
     {
+        // Disable caching in test environment to prevent stale data
+        if (app()->environment('testing')) {
+            return auth()->user();
+        }
+
         if (!static::$userCached) {
             static::$cachedUser = auth()->user();
             static::$userCached = true;

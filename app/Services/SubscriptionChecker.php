@@ -56,23 +56,114 @@ final class SubscriptionChecker
     }
 
     /**
+     * Check if user has an active subscription.
+     *
+     * @param User $user The user to check
+     * @return bool True if user has active subscription
+     */
+    public function isActive(User $user): bool
+    {
+        $cacheKey = "subscription.{$user->id}.status";
+
+        return Cache::remember($cacheKey, $this->getCacheTTL(), function () use ($user) {
+            $subscription = $this->getSubscription($user);
+            return $subscription && $subscription->isActive();
+        });
+    }
+
+    /**
+     * Check if user's subscription is expired.
+     *
+     * @param User $user The user to check
+     * @return bool True if subscription is expired or doesn't exist
+     */
+    public function isExpired(User $user): bool
+    {
+        $subscription = $this->getSubscription($user);
+
+        if (!$subscription) {
+            return true;
+        }
+
+        return $subscription->isExpired();
+    }
+
+    /**
+     * Get days until subscription expiry.
+     *
+     * @param User $user The user to check
+     * @return int|null Days until expiry, negative if expired, null if no subscription
+     */
+    public function daysUntilExpiry(User $user): ?int
+    {
+        $subscription = $this->getSubscription($user);
+
+        if (!$subscription) {
+            return null;
+        }
+
+        return $subscription->daysUntilExpiry();
+    }
+
+    /**
      * Invalidate cached subscription for a user.
-     * 
+     *
      * Call this method when subscription is updated to ensure fresh data.
-     * 
+     *
      * @param User $user The user whose subscription cache should be invalidated
      * @return void
      */
     public function invalidateCache(User $user): void
     {
         Cache::forget($this->getCacheKey($user));
+        Cache::forget("subscription.{$user->id}.status");
+        Cache::forget("subscription.{$user->id}.subscription");
+    }
+
+    /**
+     * Invalidate cache for a user (alias for invalidateCache).
+     *
+     * @param User $user The user whose subscription cache should be invalidated
+     * @return void
+     */
+    public function invalidate(User $user): void
+    {
+        $this->invalidateCache($user);
+    }
+
+    /**
+     * Invalidate cache for multiple users.
+     *
+     * @param array<User> $users The users whose subscription cache should be invalidated
+     * @return void
+     */
+    public function invalidateMany(array $users): void
+    {
+        foreach ($users as $user) {
+            $this->invalidate($user);
+        }
+    }
+
+    /**
+     * Pre-warm the cache for a user.
+     *
+     * @param User $user The user to warm cache for
+     * @return void
+     */
+    public function warmCache(User $user): void
+    {
+        // Load subscription into cache
+        $this->getSubscription($user);
+
+        // Load active status into cache
+        $this->isActive($user);
     }
 
     /**
      * Get cache key for user's subscription.
-     * 
+     *
      * Security: Validates user ID to prevent cache poisoning attacks
-     * 
+     *
      * @param User $user The user
      * @return string The cache key
      * @throws \InvalidArgumentException If user ID is invalid
@@ -86,13 +177,13 @@ final class SubscriptionChecker
                 sprintf('Invalid user ID for cache key: %d', $user->id)
             );
         }
-        
-        return sprintf('subscription:user:%d', $user->id);
+
+        return sprintf('subscription.%d.subscription', $user->id);
     }
-    
+
     /**
      * Get cache TTL from configuration.
-     * 
+     *
      * @return int Cache TTL in seconds
      */
     private function getCacheTTL(): int

@@ -1,0 +1,479 @@
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for class Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest. Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest::test_preserves_valid_language_values(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest::test_filters_null_values(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest::test_filters_empty_string_values(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest::test_filters_whitespace_only_values(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest::test_filters_mixed_empty_and_valid_values(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest::test_all_empty_values_results_in_empty_array(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest::test_data_without_values_key_unchanged(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest::test_non_array_values_key_unchanged(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest::test_empty_values_array_preserved(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest::test_preserves_values_with_meaningful_spaces(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest::test_preserves_numeric_string_values(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest::test_preserves_special_characters(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest::test_preserves_multiline_values(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest::test_preserves_other_form_fields(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest::test_preserves_boolean_false(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Filament\Concerns\FiltersEmptyLanguageValuesTest::test_preserves_zero_string(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::it_has_correct_fillable_attributes(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::it_can_be_created_with_mass_assignment(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::it_casts_status_to_invoice_status_enum(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::it_casts_dates_correctly(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::it_casts_decimal_amounts_with_two_places(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::it_belongs_to_a_tenant_renter(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::it_has_many_invoice_items(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::it_has_timestamps(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::scope_draft_returns_only_draft_invoices(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::scope_finalized_returns_only_finalized_invoices(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::scope_paid_returns_only_paid_invoices(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::scope_for_period_filters_by_billing_period(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::finalize_method_sets_status_and_timestamp(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::is_draft_method_returns_correct_boolean(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::is_finalized_method_returns_correct_boolean(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::is_paid_method_returns_correct_boolean(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::is_overdue_returns_true_for_past_due_unpaid_invoices(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::is_overdue_returns_false_for_paid_invoices(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::is_overdue_returns_false_for_future_due_date(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::finalized_invoice_cannot_be_modified_except_status(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::finalized_invoice_status_can_be_changed_to_paid(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\InvoiceTest::tenant_renter_id_is_auto_set_from_tenant_id_on_creation(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::it_has_correct_fillable_attributes(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::it_can_be_created_with_mass_assignment(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::it_casts_type_to_meter_type_enum(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::it_casts_installation_date_to_date(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::it_casts_supports_zones_to_boolean(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::it_belongs_to_a_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::it_has_many_readings(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::it_respects_tenant_isolation(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::tenant_cannot_see_other_tenants_meters(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::scope_of_type_filters_by_meter_type(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::scope_supports_zones_returns_only_meters_with_zone_support(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::scope_with_latest_reading_eager_loads_latest_reading(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::it_has_timestamps(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::tenant_isolation_works_with_relationships(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::superadmin_can_see_all_meters_regardless_of_tenant(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::serial_number_is_unique_identifier(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\MeterTest::can_scope_multiple_filters_together(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\PropertyTest::it_has_correct_fillable_attributes(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\PropertyTest::it_can_be_created_with_mass_assignment(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\PropertyTest::it_casts_type_to_property_type_enum(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\PropertyTest::it_casts_area_sqm_to_decimal_with_two_places(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\PropertyTest::it_belongs_to_a_building(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\PropertyTest::it_has_many_meters(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\PropertyTest::it_has_many_to_many_relationship_with_tenants(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\PropertyTest::tenants_relationship_only_returns_active_tenants(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\PropertyTest::it_respects_tenant_isolation(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\PropertyTest::tenant_cannot_see_other_tenants_properties(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\PropertyTest::scope_of_type_filters_by_property_type(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\PropertyTest::scope_apartments_returns_only_apartments(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\PropertyTest::scope_houses_returns_only_houses(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\PropertyTest::it_has_timestamps(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\PropertyTest::tenant_isolation_works_with_relationships(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\PropertyTest::superadmin_can_see_all_properties_regardless_of_tenant(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::it_has_correct_fillable_attributes(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::it_can_be_created_with_mass_assignment(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::it_casts_configuration_to_array(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::it_casts_active_from_to_datetime(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::it_casts_active_until_to_datetime(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::it_belongs_to_a_provider(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::it_has_timestamps(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::is_active_on_returns_true_for_date_within_range(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::is_active_on_returns_false_for_date_before_range(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::is_active_on_returns_false_for_date_after_range(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::is_active_on_returns_true_when_active_until_is_null(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::is_flat_rate_returns_true_for_flat_rate_tariff(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::is_time_of_use_returns_true_for_time_of_use_tariff(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::get_flat_rate_returns_rate_for_flat_rate_tariff(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::get_flat_rate_returns_null_for_non_flat_rate_tariff(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::scope_active_returns_only_currently_active_tariffs(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::scope_active_accepts_specific_date(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::scope_for_provider_filters_by_provider_id(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::scope_flat_rate_returns_only_flat_rate_tariffs(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::scope_time_of_use_returns_only_time_of_use_tariffs(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::is_currently_active_attribute_is_computed_correctly(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Models\TariffTest::can_combine_multiple_scopes(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::superadmin_can_view_any_properties(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::admin_can_view_any_properties(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::manager_can_view_any_properties(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::tenant_can_view_any_properties(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::superadmin_can_view_any_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::admin_can_view_any_property_regardless_of_tenant(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::manager_can_view_own_tenant_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::manager_cannot_view_other_tenant_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::tenant_can_view_assigned_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::tenant_cannot_view_non_assigned_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::tenant_without_property_cannot_view_any_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::superadmin_can_create_properties(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::admin_can_create_properties(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::manager_can_create_properties(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::tenant_cannot_create_properties(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::superadmin_can_update_any_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::admin_can_update_any_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::manager_can_update_own_tenant_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::manager_cannot_update_other_tenant_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::tenant_cannot_update_any_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::cross_tenant_security_manager_cannot_update_other_tenant_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::superadmin_can_delete_any_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::admin_can_delete_any_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::manager_can_delete_own_tenant_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::manager_cannot_delete_other_tenant_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::tenant_cannot_delete_any_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::cross_tenant_security_manager_cannot_delete_other_tenant_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::superadmin_can_restore_any_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::admin_can_restore_any_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::manager_can_restore_own_tenant_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::manager_cannot_restore_other_tenant_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::tenant_cannot_restore_any_property(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::only_superadmin_can_force_delete(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::admin_cannot_force_delete(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::manager_cannot_force_delete(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Unit\Policies\PropertyPolicyTest::tenant_cannot_force_delete(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceNavigationTest::superadmin_can_navigate_to_languages_index(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceNavigationTest::admin_cannot_navigate_to_languages_index(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceNavigationTest::manager_cannot_navigate_to_languages_index(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceNavigationTest::tenant_cannot_navigate_to_languages_index(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceNavigationTest::language_resource_uses_consolidated_namespace(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceNavigationTest::navigation_only_visible_to_superadmin(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceNavigationTest::superadmin_can_navigate_to_create_language(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceNavigationTest::superadmin_can_navigate_to_edit_language(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceSetDefaultTest::set_default_action_uses_consolidated_namespace(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for class Tests\Feature\Filament\LanguageResourceSetDefaultTest. Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceSetDefaultTest::superadmin_can_set_language_as_default(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceSetDefaultTest::setting_default_unsets_previous_default(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceSetDefaultTest::action_is_hidden_for_already_default_language(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceSetDefaultTest::action_is_visible_for_non_default_language(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceSetDefaultTest::action_has_correct_label(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceSetDefaultTest::action_has_correct_icon(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceSetDefaultTest::action_has_correct_color(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceSetDefaultTest::action_requires_confirmation(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceSetDefaultTest::only_superadmin_can_access_set_default_action(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceSetDefaultTest::cannot_set_inactive_language_as_default(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceSetDefaultTest::setting_default_activates_inactive_language(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceSetDefaultTest::set_default_action_performs_efficiently(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceSetDefaultTest::only_one_default_language_exists_after_action(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceToggleActiveTest::toggle_active_action_uses_consolidated_namespace(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for class Tests\Feature\Filament\LanguageResourceToggleActiveTest. Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceToggleActiveTest::can_toggle_active_language_to_inactive(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceToggleActiveTest::can_toggle_inactive_language_to_active(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceToggleActiveTest::cannot_deactivate_default_language_via_toggle(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceToggleActiveTest::bulk_activate_action_uses_consolidated_namespace(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceToggleActiveTest::can_bulk_activate_multiple_languages(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceToggleActiveTest::bulk_deactivate_action_uses_consolidated_namespace(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceToggleActiveTest::can_bulk_deactivate_multiple_languages(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceToggleActiveTest::bulk_deactivate_prevents_deactivating_default_language(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceToggleActiveTest::toggle_action_shows_deactivate_label_for_active_language(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceToggleActiveTest::toggle_action_shows_activate_label_for_inactive_language(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceToggleActiveTest::toggle_action_uses_correct_icon_for_active_language(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceToggleActiveTest::toggle_action_uses_correct_icon_for_inactive_language(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceToggleActiveTest::toggle_action_uses_correct_color_for_active_language(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceToggleActiveTest::toggle_action_uses_correct_color_for_inactive_language(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Filament\LanguageResourceToggleActiveTest::only_superadmin_can_access_toggle_actions(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for class Tests\Feature\Filament\TranslationResourceDeleteTest. Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for class Tests\Feature\Http\Controllers\MeterReadingUpdateControllerTest. Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\PanelAccessAuthorizationTest::superadmin_can_access_admin_panel(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\PanelAccessAuthorizationTest::admin_can_access_admin_panel(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\PanelAccessAuthorizationTest::manager_can_access_admin_panel(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\PanelAccessAuthorizationTest::tenant_cannot_access_admin_panel(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\PanelAccessAuthorizationTest::inactive_user_cannot_access_admin_panel(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\PanelAccessAuthorizationTest::inactive_superadmin_cannot_access_admin_panel(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\PanelAccessAuthorizationTest::only_superadmin_can_access_other_panels(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\PanelAccessAuthorizationTest::middleware_blocks_tenant_from_admin_routes(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\PanelAccessAuthorizationTest::middleware_allows_admin_to_access_admin_routes(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\PanelAccessAuthorizationTest::middleware_allows_manager_to_access_admin_routes(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\PanelAccessAuthorizationTest::middleware_allows_superadmin_to_access_admin_routes(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\PanelAccessAuthorizationTest::unauthenticated_users_cannot_access_admin_panel(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\PanelAccessAuthorizationTest::role_helper_methods_work_correctly(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\TariffResourceSecurityEnhancedTest::rate_limiting_prevents_excessive_tariff_operations(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\TariffResourceSecurityEnhancedTest::xss_attempts_in_tariff_name_are_sanitized(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\TariffResourceSecurityEnhancedTest::security_headers_are_present_in_response(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\TariffResourceSecurityEnhancedTest::csrf_protection_prevents_unauthorized_requests(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\TariffResourceSecurityEnhancedTest::numeric_overflow_is_prevented_in_rate_field(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\TariffResourceSecurityEnhancedTest::sql_injection_attempts_are_prevented(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\TariffResourceSecurityEnhancedTest::unauthorized_users_cannot_access_tariff_operations(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\Security\TariffResourceSecurityEnhancedTest::zone_id_injection_is_prevented(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\SuperadminAuthenticationTest::test_superadmin_can_login_and_redirects_to_superadmin_dashboard(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\SuperadminAuthenticationTest::test_deactivated_superadmin_cannot_login(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\SuperadminAuthenticationTest::test_deactivated_admin_cannot_login(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\SuperadminAuthenticationTest::test_deactivated_tenant_cannot_login(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\SuperadminAuthenticationTest::test_all_active_roles_can_login(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\SuperadminAuthenticationTest::test_invalid_credentials_are_rejected(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\SuperadminAuthenticationTest::test_session_is_regenerated_on_login(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\SuperadminAuthenticationTest::test_remember_me_functionality(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\View\Components\StatusBadgeRenderTest::it_renders_badge_with_enum_status(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\View\Components\StatusBadgeRenderTest::it_renders_badge_with_string_status(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\View\Components\StatusBadgeRenderTest::it_renders_label_text(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\View\Components\StatusBadgeRenderTest::it_renders_status_dot(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\View\Components\StatusBadgeRenderTest::it_merges_additional_classes(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\View\Components\StatusBadgeRenderTest::it_renders_all_invoice_statuses_correctly(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\View\Components\StatusBadgeRenderTest::it_renders_all_subscription_statuses_correctly(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\View\Components\StatusBadgeRenderTest::it_renders_without_php_blocks(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [30;43;1m WARN [39;49;22m Metadata found in doc-comment for method Tests\Feature\View\Components\StatusBadgeRenderTest::it_has_proper_accessibility_structure(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+  [39;41;1m FAIL [39;49;22m[39m Tests\Unit\Policies\PropertyPolicyTest[39m
+  [32;1m✓[39;22m[90m [39m[90msuperadmin can view any properties[39m[90m                                                                          [39m [90m0.83s[39m  
+  [32;1m✓[39;22m[90m [39m[90madmin can view any properties[39m[90m                                                                               [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmanager can view any properties[39m[90m                                                                             [39m [90m0.07s[39m  
+  [31;1m⨯[39;22m[90m [39m[90mtenant can view any properties[39m[90m                                                                              [39m [90m0.08s[39m  
+  [32;1m✓[39;22m[90m [39m[90msuperadmin can view any property[39m[90m                                                                            [39m [90m0.08s[39m  
+  [32;1m✓[39;22m[90m [39m[90madmin can view any property regardless of tenant[39m[90m                                                            [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmanager can view own tenant property[39m[90m                                                                        [39m [90m0.08s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmanager cannot view other tenant property[39m[90m                                                                   [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtenant can view assigned property[39m[90m                                                                           [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtenant cannot view non assigned property[39m[90m                                                                    [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtenant without property cannot view any property[39m[90m                                                            [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90msuperadmin can create properties[39m[90m                                                                            [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90madmin can create properties[39m[90m                                                                                 [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmanager can create properties[39m[90m                                                                               [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtenant cannot create properties[39m[90m                                                                             [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90msuperadmin can update any property[39m[90m                                                                          [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90madmin can update any property[39m[90m                                                                               [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmanager can update own tenant property[39m[90m                                                                      [39m [90m0.08s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmanager cannot update other tenant property[39m[90m                                                                 [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtenant cannot update any property[39m[90m                                                                           [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcross tenant security manager cannot update other tenant property[39m[90m                                           [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90msuperadmin can delete any property[39m[90m                                                                          [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90madmin can delete any property[39m[90m                                                                               [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmanager can delete own tenant property[39m[90m                                                                      [39m [90m0.09s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmanager cannot delete other tenant property[39m[90m                                                                 [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtenant cannot delete any property[39m[90m                                                                           [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcross tenant security manager cannot delete other tenant property[39m[90m                                           [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90msuperadmin can restore any property[39m[90m                                                                         [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90madmin can restore any property[39m[90m                                                                              [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmanager can restore own tenant property[39m[90m                                                                     [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmanager cannot restore other tenant property[39m[90m                                                                [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtenant cannot restore any property[39m[90m                                                                          [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90monly superadmin can force delete[39m[90m                                                                            [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90madmin cannot force delete[39m[90m                                                                                   [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmanager cannot force delete[39m[90m                                                                                 [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtenant cannot force delete[39m[90m                                                                                  [39m [90m0.07s[39m  
+  [31m────────────────────────────────────────────────────────────────────────────────────────────────────────────────────[39m  
+  [41;1m FAILED [49;22m [1mTests\Unit\Policies\PropertyPolicyTest[22m [90m>[39m tenant can view any properties                                      
+[39;1m  Failed asserting that false is true.[39;22m
+
+  at [32mC:\www\rent_counter\tests\Unit\Policies\PropertyPolicyTest.php[39m:[32m90[39m
+     86▕ 
+     87▕     /** @test */
+     88▕     public function tenant_can_view_any_properties(): void
+     89▕     {
+  ➜  90▕         $this->assertTrue($this->policy->viewAny($this->tenant));
+     91▕     }
+     92▕ 
+     93▕     /** @test */
+     94▕     public function superadmin_can_view_any_property(): void
+
+  [33m1   [39m[39;1mC:\www\rent_counter\tests\Unit\Policies\PropertyPolicyTest.php[39;22m:[39;1m90[39;22m
+
+
+  [90mTests:[39m    [31;1m1 failed[39;22m[90m,[39m[39m [39m[32;1m35 passed[39;22m[90m (36 assertions)[39m
+  [90mDuration:[39m [39m5.23s[39m
+

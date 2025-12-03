@@ -248,6 +248,6 @@ test('Building calculateSummerAverage stores average and updates timestamp', fun
     $average = $building->calculateSummerAverage($startDate, $endDate);
 
     expect($average)->toBeGreaterThan(0.0);
-    expect($building->gyvatukas_summer_average)->toBe($average);
+    expect((float) $building->gyvatukas_summer_average)->toBe($average);
     expect($building->gyvatukas_last_calculated)->not->toBeNull();
 });

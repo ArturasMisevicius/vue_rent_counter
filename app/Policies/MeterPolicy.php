@@ -13,13 +13,8 @@ class MeterPolicy
      */
     public function viewAny(User $user): bool
     {
-        // Superadmin can view all meters
-        if ($user->role === UserRole::SUPERADMIN) {
-            return true;
-        }
-
-        // Admins and managers can view meters (filtered by tenant scope)
-        return $user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER;
+        // All authenticated users can view meters (filtered by appropriate scope)
+        return true;
     }
 
     /**

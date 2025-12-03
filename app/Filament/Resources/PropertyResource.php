@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Enums\PropertyType;
+use App\Enums\UserRole;
 use App\Filament\Concerns\HasRoleBasedNavigation;
 use App\Filament\Concerns\HasTenantScoping;
 use App\Filament\Concerns\HasTranslatedValidation;

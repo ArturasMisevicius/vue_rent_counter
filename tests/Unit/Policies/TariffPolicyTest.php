@@ -35,11 +35,14 @@ class TariffPolicyTest extends TestCase
     }
 
     /**
-     * Test that all roles can view tariffs.
+     * Test that only admins and superadmins can view tariffs.
      * 
-     * Requirements: 11.1, 11.4
+     * Tariffs are system configuration resources and should only be
+     * accessible to administrators, not operational users.
+     * 
+     * Requirements: 11.1, 11.2, 9.2
      */
-    public function test_all_roles_can_view_tariffs(): void
+    public function test_only_admins_can_view_tariffs(): void
     {
         $tariff = Tariff::factory()->create();
 
@@ -48,15 +51,16 @@ class TariffPolicyTest extends TestCase
         $manager = User::factory()->create(['role' => UserRole::MANAGER]);
         $tenant = User::factory()->create(['role' => UserRole::TENANT]);
 
+        // Admins and superadmins can view tariffs (system configuration)
         $this->assertTrue($this->policy->viewAny($superadmin));
         $this->assertTrue($this->policy->viewAny($admin));
-        $this->assertTrue($this->policy->viewAny($manager));
-        $this->assertTrue($this->policy->viewAny($tenant));
+        $this->assertFalse($this->policy->viewAny($manager));
+        $this->assertFalse($this->policy->viewAny($tenant));
 
         $this->assertTrue($this->policy->view($superadmin, $tariff));
         $this->assertTrue($this->policy->view($admin, $tariff));
-        $this->assertTrue($this->policy->view($manager, $tariff));
-        $this->assertTrue($this->policy->view($tenant, $tariff));
+        $this->assertFalse($this->policy->view($manager, $tariff));
+        $this->assertFalse($this->policy->view($tenant, $tariff));
     }
 
     /**
