@@ -6,6 +6,8 @@ namespace App\Filament\Resources\InvoiceResource\Pages;
 
 use App\Filament\Resources\InvoiceResource;
 use App\Services\InvoiceService;
+use App\Services\InvoicePdfService;
+use App\Notifications\InvoiceReadyNotification;
 use App\Exceptions\InvoiceAlreadyFinalizedException;
 use Filament\Actions;
 use Filament\Forms;
@@ -100,6 +102,41 @@ final class ViewInvoice extends ViewRecord
         return [
             Actions\EditAction::make()
                 ->visible(fn ($record) => auth()->user()->can('update', $record)),
+
+            Actions\Action::make('downloadPdf')
+                ->label('Download PDF')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->action(fn ($record) => app(InvoicePdfService::class)->download($record)),
+
+            Actions\Action::make('sendToTenant')
+                ->label('Send to Tenant')
+                ->icon('heroicon-o-paper-airplane')
+                ->color('gray')
+                ->requiresConfirmation()
+                ->modalHeading('Send Invoice to Tenant')
+                ->modalDescription('Are you sure you want to email this invoice to the tenant?')
+                ->modalSubmitActionLabel('Send Email')
+                ->action(function ($record) {
+                    // Check if tenant renter exists
+                    if (!$record->tenantRenter) {
+                        Notification::make()
+                            ->title('Cannot Send Invoice')
+                            ->body('No tenant user assigned to this invoice.')
+                            ->danger()
+                            ->send();
+                        return;
+                    }
+
+                    // Send notification
+                    $record->tenantRenter->notify(new InvoiceReadyNotification($record));
+
+                    // Show success notification
+                    Notification::make()
+                        ->title('Invoice Sent Successfully')
+                        ->body("Invoice email has been sent to {$record->tenantRenter->name}.")
+                        ->success()
+                        ->send();
+                }),
 
             $this->makeFinalizeAction(),
         ];

@@ -71,6 +71,7 @@ class Invoice extends Model
     protected $fillable = [
         'tenant_id',
         'tenant_renter_id',
+        'invoice_number',
         'billing_period_start',
         'billing_period_end',
         'due_date',
@@ -109,6 +110,14 @@ class Invoice extends Model
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class, 'tenant_renter_id');
+    }
+
+    /**
+     * Alias for tenant relationship (for clarity in PDFs and views).
+     */
+    public function tenantRenter(): BelongsTo
+    {
+        return $this->tenant();
     }
 
     /**

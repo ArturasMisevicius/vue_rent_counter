@@ -9,8 +9,11 @@ use App\Filament\Resources\InvoiceResource\Pages;
 use App\Filament\Resources\InvoiceResource\RelationManagers;
 use App\Models\Invoice;
 use App\Models\Tenant;
+use App\Notifications\InvoiceReadyNotification;
+use App\Services\InvoicePdfService;
 use BackedEnum;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -224,6 +227,39 @@ class InvoiceResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('downloadPdf')
+                    ->label('Download PDF')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(fn (Invoice $record) => app(InvoicePdfService::class)->download($record)),
+                Tables\Actions\Action::make('sendToTenant')
+                    ->label('Send to Tenant')
+                    ->icon('heroicon-o-paper-airplane')
+                    ->color('gray')
+                    ->requiresConfirmation()
+                    ->modalHeading('Send Invoice to Tenant')
+                    ->modalDescription('Are you sure you want to email this invoice to the tenant?')
+                    ->modalSubmitActionLabel('Send Email')
+                    ->action(function (Invoice $record) {
+                        // Check if tenant renter exists
+                        if (!$record->tenantRenter) {
+                            Notification::make()
+                                ->title('Cannot Send Invoice')
+                                ->body('No tenant user assigned to this invoice.')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+
+                        // Send notification
+                        $record->tenantRenter->notify(new InvoiceReadyNotification($record));
+
+                        // Show success notification
+                        Notification::make()
+                            ->title('Invoice Sent Successfully')
+                            ->body("Invoice email has been sent to {$record->tenantRenter->name}.")
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

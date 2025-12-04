@@ -83,7 +83,19 @@
       "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test tests/Unit/MeterReadingMonotonicityPropertyTest.php)",
       "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test tests/Unit/Models/MeterReadingTest.php --no-output)",
       "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test tests/Feature/Filament/MeterReadingResourceTest.php --no-output)",
-      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test tests/Feature/Filament/MeterReadingResourceTest.php)"
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test tests/Feature/Filament/MeterReadingResourceTest.php)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test tests/Feature/Billing/InvoiceGenerationTest.php)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test tests/Feature/Filament/InvoiceResourceTest.php)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test tests/Feature/Filament/InvoiceResourceTest.php --stop-on-failure)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test tests/Feature/Filament/InvoiceResourceTest.php --filter=\"tenant_can_see_their_own_invoices_in_list|manager_cannot_see_invoices_from_other_tenants\")",
+      "Bash(composer require:*)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan make:migration add_invoice_number_to_invoices_table)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan migrate)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter InvoicePdfServiceTest)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter InvoicePdfServiceTest --no-output)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter=\"pdf_contains_invoice_number\")",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter=\"pdf_contains_billing_period\")",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter InvoiceReadyNotificationTest --no-output)"
     ],
     "deny": [],
     "ask": []
