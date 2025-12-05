@@ -42,12 +42,25 @@ class SubscriptionFactory extends Factory
     }
 
     /**
+     * Indicate that the subscription is active.
+     */
+    public function active(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => SubscriptionStatus::ACTIVE->value,
+            'starts_at' => now()->subMonth(),
+            'expires_at' => now()->addYear(),
+        ]);
+    }
+
+    /**
      * Indicate that the subscription is expired.
      */
     public function expired(): static
     {
         return $this->state(fn (array $attributes) => [
             'status' => SubscriptionStatus::EXPIRED->value,
+            'starts_at' => now()->subYear(),
             'expires_at' => now()->subDays(10),
         ]);
     }

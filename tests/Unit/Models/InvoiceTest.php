@@ -54,6 +54,7 @@ final class InvoiceTest extends TestCase
         $expectedFillable = [
             'tenant_id',
             'tenant_renter_id',
+            'invoice_number',
             'billing_period_start',
             'billing_period_end',
             'due_date',

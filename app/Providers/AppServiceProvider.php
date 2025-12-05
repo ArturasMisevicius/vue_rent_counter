@@ -53,6 +53,12 @@ class AppServiceProvider extends ServiceProvider
         // Register BillingCalculatorFactory
         $this->app->singleton(\App\Services\BillingCalculation\BillingCalculatorFactory::class);
 
+        // Register SubscriptionChecker with interface binding
+        $this->app->singleton(
+            \App\Contracts\SubscriptionCheckerInterface::class,
+            \App\Services\SubscriptionChecker::class
+        );
+
         // Laravel 12 no longer binds the legacy 'files' service alias; add it for packages (Debugbar)
         if (! $this->app->bound('files')) {
             $this->app->singleton('files', fn () => new Filesystem());
@@ -76,6 +82,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Tariff::observe(\App\Observers\TariffObserver::class);
         \App\Models\User::observe(\App\Observers\UserObserver::class);
         \App\Models\Language::observe(\App\Observers\LanguageObserver::class);
+        \App\Models\Subscription::observe(\App\Observers\SubscriptionObserver::class);
 
         if (! Collection::hasMacro('takeLast')) {
             Collection::macro('takeLast', function (int $count) {

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 
 abstract class TestCase extends BaseTestCase
 {
+
     /**
      * Authenticate as an admin user.
      * 

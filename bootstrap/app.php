@@ -5,7 +5,6 @@ require_once __DIR__.'/../app/Support/helpers.php';
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -23,8 +22,23 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Register middleware aliases for route-level application
-        // These can be applied via ->middleware() in route definitions
+        // GEMINI FIX: Check CLI arguments directly to detect testing framework
+        // This bypasses the Laravel bootstrapping timing issue completely.
+        $isTesting = false;
+        if (php_sapi_name() === 'cli') {
+            foreach ($_SERVER['argv'] ?? [] as $arg) {
+                if (str_contains($arg, 'phpunit') || str_contains($arg, 'pest')) {
+                    $isTesting = true;
+                    break;
+                }
+            }
+        }
+
+        if ($isTesting) {
+            $middleware->validateCsrfTokens(except: ['*']);
+        }
+
+        // Register middleware aliases
         $middleware->alias([
             'auth' => \App\Http\Middleware\Authenticate::class,
             'tenant.context' => \App\Http\Middleware\EnsureTenantContext::class,
@@ -35,23 +49,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'impersonation' => \App\Http\Middleware\HandleImpersonation::class,
         ]);
 
-        // Disable CSRF protection during unit tests for easier testing
-        if (app()->runningUnitTests()) {
-            $middleware->remove(ValidateCsrfToken::class);
-            $middleware->removeFromGroup('web', ValidateCsrfToken::class);
-        }
-
-        // Apply middleware to all web routes
-        // - SetLocale: Handles i18n based on session/user preference
-        // - HandleImpersonation: Manages superadmin impersonation sessions
-        // - SecurityHeaders: Applies CSP, X-Frame-Options, HSTS headers
+        // Apply global middleware
         $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\HandleImpersonation::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\SecurityHeaders::class);
-        
-        // API rate limiting: 60 requests per minute per IP
-        // Note: Admin/Filament routes rely on Filament's built-in protections
-        // and SecurityHeaders middleware for DoS prevention
+
         $middleware->throttleApi('60,1');
     })
     ->withExceptions(function (Exceptions $exceptions) {

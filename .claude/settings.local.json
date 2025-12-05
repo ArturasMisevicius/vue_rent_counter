@@ -95,7 +95,22 @@
       "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter InvoicePdfServiceTest --no-output)",
       "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter=\"pdf_contains_invoice_number\")",
       "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter=\"pdf_contains_billing_period\")",
-      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter InvoiceReadyNotificationTest --no-output)"
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter InvoiceReadyNotificationTest --no-output)",
+      "Bash(timeout /t 30)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter InvoiceTest --stop-on-failure --no-output)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter AuthenticationTest --stop-on-failure --no-output)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter \"InvoiceTest::it_has_correct_fillable_attributes\")",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter=\"InvoicePdfServiceTest|InvoiceReadyNotificationTest|InvoiceTest\")",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test tests/Feature/Services/InvoicePdfServiceTest.php tests/Unit/Notifications/InvoiceReadyNotificationTest.php tests/Unit/Models/InvoiceTest.php --no-output)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter AuthenticationTest)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter=\"AuthenticationTest\" --no-output)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter=\"login fails with invalid email\")",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test tests/Feature/AuthenticationTest.php --no-output)",
+      "Bash(del \"c:\\www\\rent_counter\\app\\Http\\Middleware\\ValidateCsrfToken.php\")",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test tests/Feature/AuthenticationTest.php)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --compact)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --testsuite Feature,Unit)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test tests/Unit/Models/InvoiceTest.php)"
     ],
     "deny": [],
     "ask": []
