@@ -9,291 +9,228 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * TariffObserver
- *
+ * 
  * Observes tariff model events for audit logging and security monitoring.
- *
+ * 
  * Security Features:
- * - Comprehensive audit logging for all CRUD operations
- * - Change tracking with before/after values
- * - User attribution for all changes
- * - Suspicious activity detection
- * - Rate limiting integration
- *
+ * - Logs all tariff creation, update, and deletion events
+ * - Tracks manual vs provider-linked tariff creation
+ * - Monitors tariff mode changes (manual ↔ provider)
+ * - Records user context (ID, role, IP, user agent)
+ * - Enables compliance and security auditing
+ * 
+ * Audit Log Channel:
+ * Logs are written to the 'audit' channel configured in config/logging.php
+ * with 365-day retention for compliance requirements.
+ * 
  * @package App\Observers
+ * @see config/logging.php
+ * @see config/security.php
  */
-final class TariffObserver
+class TariffObserver
 {
     /**
-     * Handle the Tariff "creating" event.
-     *
-     * @param Tariff $tariff
-     * @return void
-     */
-    public function creating(Tariff $tariff): void
-    {
-        $this->logAuditEvent('creating', $tariff, [
-            'provider_id' => $tariff->provider_id,
-            'name' => $tariff->name,
-            'configuration' => $tariff->configuration,
-            'active_from' => $tariff->active_from?->toDateString(),
-            'active_until' => $tariff->active_until?->toDateString(),
-        ]);
-    }
-
-    /**
      * Handle the Tariff "created" event.
+     * 
+     * Logs tariff creation with full context including:
+     * - Tariff details (ID, name, manual mode status)
+     * - Provider and remote_id information
+     * - User context (ID, role, IP address, user agent)
+     * 
+     * Security: Enables tracking of manual tariff creation patterns
+     * for abuse detection and compliance auditing.
+     * 
+     * Note: PII (IP address, user agent) is logged for security monitoring.
+     * Ensure RedactSensitiveData processor is active in config/logging.php.
      *
-     * @param Tariff $tariff
+     * @param Tariff $tariff The created tariff
      * @return void
      */
     public function created(Tariff $tariff): void
     {
-        $this->logAuditEvent('created', $tariff, [
-            'id' => $tariff->id,
+        Log::channel('audit')->info('Tariff created', [
+            'event' => 'tariff.created',
+            'tariff_id' => $tariff->id,
+            'name' => $this->sanitizeForLog($tariff->name),
+            'is_manual' => $tariff->isManual(),
             'provider_id' => $tariff->provider_id,
-            'name' => $tariff->name,
+            'remote_id' => $this->sanitizeForLog($tariff->remote_id),
             'configuration_type' => $tariff->configuration['type'] ?? null,
+            'active_from' => $tariff->active_from?->toDateString(),
+            'active_until' => $tariff->active_until?->toDateString(),
+            'user_id' => auth()->id(),
+            'user_role' => auth()->user()?->role?->value,
+            'ip_address' => request()->ip(),
+            'user_agent' => $this->sanitizeUserAgent(request()->userAgent()),
+            'timestamp' => now()->toIso8601String(),
         ]);
-
-        // Check for suspicious activity
-        $this->detectSuspiciousActivity('created', $tariff);
-    }
-
-    /**
-     * Handle the Tariff "updating" event.
-     *
-     * @param Tariff $tariff
-     * @return void
-     */
-    public function updating(Tariff $tariff): void
-    {
-        $changes = $tariff->getDirty();
-        $original = $tariff->getOriginal();
-
-        $this->logAuditEvent('updating', $tariff, [
-            'changes' => $changes,
-            'original' => array_intersect_key($original, $changes),
-        ]);
-
-        // Check for suspicious changes
-        $this->detectSuspiciousChanges($tariff, $changes);
     }
 
     /**
      * Handle the Tariff "updated" event.
+     * 
+     * Logs tariff updates with change tracking. Special attention to:
+     * - Mode changes (manual ↔ provider-linked)
+     * - Provider assignment changes
+     * - Configuration changes
+     * 
+     * Security: Detects unauthorized modifications and tracks
+     * conversion of manual tariffs to provider-linked tariffs.
      *
-     * @param Tariff $tariff
+     * @param Tariff $tariff The updated tariff
      * @return void
      */
     public function updated(Tariff $tariff): void
     {
         $changes = $tariff->getChanges();
+        
+        // Log mode change with elevated severity
+        if (isset($changes['provider_id'])) {
+            $wasManual = is_null($tariff->getOriginal('provider_id'));
+            $isManual = is_null($tariff->provider_id);
+            
+            Log::channel('audit')->warning('Tariff mode changed', [
+                'event' => 'tariff.mode_changed',
+                'tariff_id' => $tariff->id,
+                'name' => $tariff->name,
+                'was_manual' => $wasManual,
+                'is_manual' => $isManual,
+                'old_provider_id' => $tariff->getOriginal('provider_id'),
+                'new_provider_id' => $tariff->provider_id,
+                'remote_id' => $tariff->remote_id,
+                'user_id' => auth()->id(),
+                'user_role' => auth()->user()?->role?->value,
+                'ip_address' => request()->ip(),
+                'timestamp' => now()->toIso8601String(),
+            ]);
+        }
 
-        $this->logAuditEvent('updated', $tariff, [
-            'id' => $tariff->id,
-            'changes' => array_keys($changes),
-        ]);
-    }
-
-    /**
-     * Handle the Tariff "deleting" event.
-     *
-     * @param Tariff $tariff
-     * @return void
-     */
-    public function deleting(Tariff $tariff): void
-    {
-        $this->logAuditEvent('deleting', $tariff, [
-            'id' => $tariff->id,
+        // Log general update
+        Log::channel('audit')->info('Tariff updated', [
+            'event' => 'tariff.updated',
+            'tariff_id' => $tariff->id,
             'name' => $tariff->name,
-            'provider_id' => $tariff->provider_id,
+            'is_manual' => $tariff->isManual(),
+            'changed_fields' => array_keys($changes),
+            'user_id' => auth()->id(),
+            'user_role' => auth()->user()?->role?->value,
+            'ip_address' => request()->ip(),
+            'timestamp' => now()->toIso8601String(),
         ]);
     }
 
     /**
      * Handle the Tariff "deleted" event.
+     * 
+     * Logs tariff deletion with full context for audit trail.
+     * 
+     * Security: Enables tracking of tariff deletion patterns
+     * and provides evidence for compliance audits.
      *
-     * @param Tariff $tariff
+     * @param Tariff $tariff The deleted tariff
      * @return void
      */
     public function deleted(Tariff $tariff): void
     {
-        $this->logAuditEvent('deleted', $tariff, [
-            'id' => $tariff->id,
+        Log::channel('audit')->warning('Tariff deleted', [
+            'event' => 'tariff.deleted',
+            'tariff_id' => $tariff->id,
             'name' => $tariff->name,
+            'was_manual' => $tariff->isManual(),
+            'provider_id' => $tariff->provider_id,
+            'remote_id' => $tariff->remote_id,
+            'configuration_type' => $tariff->configuration['type'] ?? null,
+            'user_id' => auth()->id(),
+            'user_role' => auth()->user()?->role?->value,
+            'ip_address' => request()->ip(),
+            'timestamp' => now()->toIso8601String(),
         ]);
-
-        // Alert on deletion
-        $this->alertOnDeletion($tariff);
     }
 
     /**
      * Handle the Tariff "restored" event.
+     * 
+     * Logs tariff restoration from soft-delete.
      *
-     * @param Tariff $tariff
+     * @param Tariff $tariff The restored tariff
      * @return void
      */
     public function restored(Tariff $tariff): void
     {
-        $this->logAuditEvent('restored', $tariff, [
-            'id' => $tariff->id,
+        Log::channel('audit')->info('Tariff restored', [
+            'event' => 'tariff.restored',
+            'tariff_id' => $tariff->id,
             'name' => $tariff->name,
+            'is_manual' => $tariff->isManual(),
+            'user_id' => auth()->id(),
+            'user_role' => auth()->user()?->role?->value,
+            'ip_address' => request()->ip(),
+            'timestamp' => now()->toIso8601String(),
         ]);
     }
 
     /**
      * Handle the Tariff "force deleted" event.
+     * 
+     * Logs permanent tariff deletion (SUPERADMIN only).
      *
-     * @param Tariff $tariff
+     * @param Tariff $tariff The force deleted tariff
      * @return void
      */
     public function forceDeleted(Tariff $tariff): void
     {
-        $this->logAuditEvent('force_deleted', $tariff, [
-            'id' => $tariff->id,
-            'name' => $tariff->name,
-        ]);
-
-        // Critical alert on force deletion
-        $this->alertCritical('Tariff force deleted', $tariff);
-    }
-
-    /**
-     * Log audit event with user attribution.
-     *
-     * @param string $event
-     * @param Tariff $tariff
-     * @param array $data
-     * @return void
-     */
-    private function logAuditEvent(string $event, Tariff $tariff, array $data): void
-    {
-        $user = auth()->user();
-
-        Log::channel('audit')->info("Tariff {$event}", [
-            'event' => $event,
-            'tariff_id' => $tariff->id ?? null,
-            'tariff_name' => $tariff->name ?? null,
-            'user_id' => $user?->id,
-            'user_email' => $user?->email,
-            'user_role' => $user?->role?->value,
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'data' => $data,
-            'timestamp' => now()->toIso8601String(),
-        ]);
-    }
-
-    /**
-     * Detect suspicious activity patterns.
-     *
-     * @param string $event
-     * @param Tariff $tariff
-     * @return void
-     */
-    private function detectSuspiciousActivity(string $event, Tariff $tariff): void
-    {
-        $user = auth()->user();
-        if (!$user) {
-            return;
-        }
-
-        // Check for rapid creation
-        $recentCount = Tariff::where('created_at', '>=', now()->subMinutes(5))
-            ->count();
-
-        if ($recentCount > 10) {
-            Log::channel('security')->warning('Suspicious tariff creation rate detected', [
-                'user_id' => $user->id,
-                'count' => $recentCount,
-                'tariff_id' => $tariff->id,
-            ]);
-        }
-
-        // Check for unusual rate values
-        if (isset($tariff->configuration['rate']) && $tariff->configuration['rate'] > 10) {
-            Log::channel('security')->warning('Unusually high tariff rate detected', [
-                'user_id' => $user->id,
-                'tariff_id' => $tariff->id,
-                'rate' => $tariff->configuration['rate'],
-            ]);
-        }
-    }
-
-    /**
-     * Detect suspicious changes.
-     *
-     * @param Tariff $tariff
-     * @param array $changes
-     * @return void
-     */
-    private function detectSuspiciousChanges(Tariff $tariff, array $changes): void
-    {
-        // Check for configuration changes
-        if (isset($changes['configuration'])) {
-            $original = $tariff->getOriginal('configuration');
-            $new = $changes['configuration'];
-
-            // Alert on type change
-            if (($original['type'] ?? null) !== ($new['type'] ?? null)) {
-                Log::channel('security')->warning('Tariff type changed', [
-                    'tariff_id' => $tariff->id,
-                    'old_type' => $original['type'] ?? null,
-                    'new_type' => $new['type'] ?? null,
-                    'user_id' => auth()->id(),
-                ]);
-            }
-
-            // Alert on significant rate change
-            if (isset($original['rate'], $new['rate'])) {
-                $percentChange = abs(($new['rate'] - $original['rate']) / $original['rate']) * 100;
-                if ($percentChange > 50) {
-                    Log::channel('security')->warning('Significant tariff rate change detected', [
-                        'tariff_id' => $tariff->id,
-                        'old_rate' => $original['rate'],
-                        'new_rate' => $new['rate'],
-                        'percent_change' => $percentChange,
-                        'user_id' => auth()->id(),
-                    ]);
-                }
-            }
-        }
-    }
-
-    /**
-     * Alert on tariff deletion.
-     *
-     * @param Tariff $tariff
-     * @return void
-     */
-    private function alertOnDeletion(Tariff $tariff): void
-    {
-        Log::channel('security')->warning('Tariff deleted', [
+        Log::channel('audit')->critical('Tariff permanently deleted', [
+            'event' => 'tariff.force_deleted',
             'tariff_id' => $tariff->id,
-            'tariff_name' => $tariff->name,
+            'name' => $this->sanitizeForLog($tariff->name),
+            'was_manual' => $tariff->isManual(),
             'user_id' => auth()->id(),
-            'user_email' => auth()->user()?->email,
-        ]);
-    }
-
-    /**
-     * Send critical security alert.
-     *
-     * @param string $message
-     * @param Tariff $tariff
-     * @return void
-     */
-    private function alertCritical(string $message, Tariff $tariff): void
-    {
-        Log::channel('security')->critical($message, [
-            'tariff_id' => $tariff->id,
-            'tariff_name' => $tariff->name,
-            'user_id' => auth()->id(),
-            'user_email' => auth()->user()?->email,
+            'user_role' => auth()->user()?->role?->value,
             'ip_address' => request()->ip(),
             'timestamp' => now()->toIso8601String(),
         ]);
+    }
 
-        // TODO: Send email/Slack notification to security team
+    /**
+     * Sanitize string for log output to prevent log injection.
+     * 
+     * Security: Removes newlines, carriage returns, and control characters
+     * that could break log parsing or enable log injection attacks.
+     * 
+     * @param string|null $input The string to sanitize
+     * @return string|null Sanitized string
+     */
+    protected function sanitizeForLog(?string $input): ?string
+    {
+        if ($input === null) {
+            return null;
+        }
+
+        // Remove newlines, carriage returns, and control characters
+        $sanitized = preg_replace('/[\x00-\x1F\x7F]/', '', $input);
+        
+        // Limit length to prevent log bloat
+        return mb_substr($sanitized, 0, 255);
+    }
+
+    /**
+     * Sanitize user agent for log output.
+     * 
+     * Security: Truncates and removes control characters from user agent strings.
+     * 
+     * @param string|null $userAgent The user agent string
+     * @return string|null Sanitized user agent
+     */
+    protected function sanitizeUserAgent(?string $userAgent): ?string
+    {
+        if ($userAgent === null) {
+            return null;
+        }
+
+        // Remove control characters
+        $sanitized = preg_replace('/[\x00-\x1F\x7F]/', '', $userAgent);
+        
+        // Limit length (user agents can be very long)
+        return mb_substr($sanitized, 0, 500);
     }
 }

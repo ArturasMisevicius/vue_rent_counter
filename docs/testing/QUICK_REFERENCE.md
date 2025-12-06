@@ -88,27 +88,48 @@ php artisan test --parallel
 ### Authentication
 
 ```php
-// In test setUp()
-$this->actingAsAdmin();      // Admin user with tenant context
-$this->actingAsManager();    // Manager user
-$this->actingAsTenant();     // Tenant user
-$this->actingAsSuperadmin(); // Superadmin user
+// Authenticate with tenant context (see TESTCASE_API_REFERENCE.md for details)
+$admin = $this->actingAsAdmin(1);           // Admin for tenant 1
+$manager = $this->actingAsManager(2);       // Manager for tenant 2
+$tenant = $this->actingAsTenant(1);         // Tenant user for tenant 1
+$superadmin = $this->actingAsSuperadmin();  // Superadmin (no tenant context)
+
+// With custom attributes
+$admin = $this->actingAsAdmin(1, ['name' => 'John Admin']);
+```
+
+### Data Creation
+
+```php
+// Create test data with automatic tenant context
+$property = $this->createTestProperty(1);
+$building = $this->createTestBuilding(1);
+$meter = $this->createTestMeter($property->id, MeterType::ELECTRICITY);
+$reading = $this->createTestMeterReading($meter->id, 100.0);
+$invoice = $this->createTestInvoice($property->id);
+
+// Flexible property creation
+$property = $this->createTestProperty(1, ['area_sqm' => 75.0]);
+$property = $this->createTestProperty(['tenant_id' => 1, 'area_sqm' => 75.0]);
 ```
 
 ### Tenant Context
 
 ```php
-use App\Services\TenantContext;
+// Execute within specific tenant context
+$result = $this->withinTenant(2, function () {
+    return Property::count();
+});
 
-// Set tenant context
-TenantContext::set($tenant);
+// Ensure organization exists
+$organization = $this->ensureTenantExists(5);
 
-// Get current tenant
-$currentTenant = TenantContext::get();
-
-// Clear tenant context
-TenantContext::clear();
+// Assertions
+$this->assertTenantContext(1);      // Assert context is tenant 1
+$this->assertNoTenantContext();     // Assert no context is set
 ```
+
+**📖 Complete API Reference**: [TESTCASE_API_REFERENCE.md](TESTCASE_API_REFERENCE.md)
 
 ### Factory Usage
 

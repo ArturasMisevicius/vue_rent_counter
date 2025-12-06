@@ -39,7 +39,11 @@ return [
     ],
 
     'forms' => [
+        'manual_mode' => 'Manual Entry Mode',
+        'manual_mode_helper' => 'Enable this to create a tariff without linking to a provider integration. You can enter rates manually.',
         'provider' => 'Provider',
+        'remote_id' => 'External ID',
+        'remote_id_helper' => 'Optional external identifier from the provider system',
         'name' => 'Tariff Name',
         'active_from' => 'Active From',
         'active_until' => 'Active Until',
@@ -87,6 +91,11 @@ return [
         'provider_id' => [
             'required' => 'Provider is required',
             'exists' => 'Selected provider does not exist',
+            'required_with' => 'Provider is required when external ID is provided',
+        ],
+        'remote_id' => [
+            'max' => 'External ID may not be greater than 255 characters',
+            'format' => 'External ID may only contain letters, numbers, hyphens, underscores, and dots',
         ],
         'name' => [
             'required' => 'Tariff name is required',

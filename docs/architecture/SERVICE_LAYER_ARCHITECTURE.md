@@ -1,8 +1,8 @@
-# Service Layer Architecture Guide
+# Service Layer Architecture
 
-## Executive Summary
+## Overview
 
-This document provides comprehensive guidance on implementing a robust service layer architecture for the Vilnius Utilities Billing Platform. The service layer acts as the orchestration layer between controllers and models, encapsulating complex business logic, ensuring transaction integrity, and maintaining separation of concerns.
+This document describes the complete service layer architecture for the Vilnius Utilities Billing Platform. The service layer provides a clean separation layer acts as the orchestration layer between controllers and models, encapsulating complex business logic, ensuring transaction integrity, and maintaining separation of concerns.
 
 **Date**: November 26, 2025  
 **Status**: ✅ PRODUCTION READY  

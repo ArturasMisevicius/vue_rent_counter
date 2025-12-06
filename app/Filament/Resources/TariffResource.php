@@ -23,6 +23,8 @@ use UnitEnum;
  * tenant-scoped data access, and role-based navigation visibility.
  *
  * Features:
+ * - Manual entry mode for provider-independent tariffs
+ * - External system integration via remote_id field
  * - Tenant-scoped data access via TenantScope
  * - Role-based navigation visibility (SUPERADMIN and ADMIN only)
  * - Support for flat and time-of-use tariff types
@@ -33,6 +35,17 @@ use UnitEnum;
  * - Comprehensive validation mirroring FormRequest rules
  * - Security hardening (XSS prevention, numeric overflow protection)
  * - Audit logging via TariffObserver
+ *
+ * Manual Entry Mode:
+ * Allows creation of tariffs without provider integration. Useful for:
+ * - Historical data entry from paper records
+ * - Custom tariff configurations not available via provider API
+ * - Testing and development scenarios
+ * - Temporary or promotional rates
+ *
+ * When manual mode is enabled, provider_id and remote_id fields are hidden
+ * and validation rules adapt accordingly. See BuildsTariffFormFields trait
+ * for implementation details.
  *
  * Navigation Visibility:
  * Tariffs are system configuration resources accessible only to SUPERADMIN

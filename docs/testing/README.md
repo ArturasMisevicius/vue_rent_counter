@@ -8,19 +8,37 @@ This directory contains comprehensive testing documentation for the Vilnius Util
 
 ### Core Documentation
 
-1. **[GENERATE_TESTS_EASY_INTEGRATION.md](GENERATE_TESTS_EASY_INTEGRATION.md)**
+1. **[TESTCASE_API_REFERENCE.md](TESTCASE_API_REFERENCE.md)** ⭐ NEW
+   - Complete API reference for TestCase helper methods
+   - Authentication, data creation, and tenant context helpers
+   - Usage patterns and best practices
+   - Architecture and optimization details
+
+2. **[TESTCASE_HELPERS_GUIDE.md](TESTCASE_HELPERS_GUIDE.md)**
+   - User-friendly guide to TestCase helpers
+   - Common usage examples
+   - Migration guide from old patterns
+   - Troubleshooting tips
+
+3. **[TESTCASE_REFACTORING_SUMMARY.md](TESTCASE_REFACTORING_SUMMARY.md)**
+   - Implementation details and improvements
+   - Before/after comparisons
+   - Performance considerations
+   - Test coverage information
+
+4. **[GENERATE_TESTS_EASY_INTEGRATION.md](GENERATE_TESTS_EASY_INTEGRATION.md)**
    - Complete integration guide for the test generation package
    - Installation and configuration instructions
    - Usage examples and best practices
    - Troubleshooting and maintenance
 
-2. **[TEST_GENERATION_GUIDE.md](TEST_GENERATION_GUIDE.md)**
+5. **[TEST_GENERATION_GUIDE.md](TEST_GENERATION_GUIDE.md)**
    - Comprehensive guide for generating tests
    - Test categories and patterns
    - Customization options
    - CI/CD integration
 
-3. **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)**
+6. **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)**
    - Quick command reference
    - Common test patterns
    - Helper functions
@@ -146,38 +164,52 @@ Test security measures:
 
 ## Test Helpers
 
+The `Tests\TestCase` class provides comprehensive helper methods for testing. See [TESTCASE_API_REFERENCE.md](TESTCASE_API_REFERENCE.md) for complete documentation.
+
 ### Authentication Helpers
 
 Located in `tests/TestCase.php`:
 
 ```php
-// Authenticate as different user types
-$this->actingAsAdmin();
-$this->actingAsManager();
-$this->actingAsTenant();
-$this->actingAsSuperadmin();
+// Authenticate as different user types with tenant context
+$admin = $this->actingAsAdmin(1);           // Admin for tenant 1
+$manager = $this->actingAsManager(2);       // Manager for tenant 2
+$tenant = $this->actingAsTenant(1);         // Tenant user for tenant 1
+$superadmin = $this->actingAsSuperadmin();  // Superadmin (no tenant context)
 ```
 
-### Factory Helpers
+### Data Creation Helpers
 
 ```php
-// Create test data
-$this->createTestProperty();
-$this->createTestMeterReading();
-$this->createTestInvoice();
+// Create test data with automatic tenant context
+$property = $this->createTestProperty(1);
+$building = $this->createTestBuilding(1);
+$meter = $this->createTestMeter($property->id, MeterType::ELECTRICITY);
+$reading = $this->createTestMeterReading($meter->id, 100.0);
+$invoice = $this->createTestInvoice($property->id);
 ```
 
 ### Tenant Context Helpers
 
 ```php
-use App\Services\TenantContext;
+// Execute callback within specific tenant context
+$result = $this->withinTenant(2, function () {
+    return Property::count();
+});
 
-// Set tenant context
-TenantContext::set($tenant);
-
-// Get current tenant
-$tenant = TenantContext::get();
+// Ensure organization exists
+$organization = $this->ensureTenantExists(5);
 ```
+
+### Assertion Helpers
+
+```php
+// Verify tenant context
+$this->assertTenantContext(1);      // Assert context is tenant 1
+$this->assertNoTenantContext();     // Assert no context is set
+```
+
+**📖 For detailed documentation, see [TESTCASE_API_REFERENCE.md](TESTCASE_API_REFERENCE.md)**
 
 ## Test Patterns
 

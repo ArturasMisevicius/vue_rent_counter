@@ -39,7 +39,11 @@ return [
     ],
 
     'forms' => [
+        'manual_mode' => 'Rankinis įvedimo režimas',
+        'manual_mode_helper' => 'Įjunkite, kad sukurtumėte tarifą be tiekėjo integracijos. Galite įvesti kainas rankiniu būdu.',
         'provider' => 'Tiekėjas',
+        'remote_id' => 'Išorinis ID',
+        'remote_id_helper' => 'Neprivalomas išorinis identifikatorius iš tiekėjo sistemos',
         'name' => 'Tarifo pavadinimas',
         'active_from' => 'Galioja nuo',
         'active_until' => 'Galioja iki',
@@ -87,6 +91,7 @@ return [
         'provider_id' => [
             'required' => 'Tiekėjas yra privalomas',
             'exists' => 'Pasirinktas tiekėjas neegzistuoja',
+            'required_with' => 'Tiekėjas yra privalomas, kai nurodomas išorinis ID',
         ],
         'name' => [
             'required' => 'Tarifo pavadinimas yra privalomas',

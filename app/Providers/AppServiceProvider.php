@@ -41,6 +41,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\MeterReadingService::class);
         $this->app->singleton(\App\Services\TimeRangeValidator::class);
         $this->app->singleton(\App\Services\GyvatukasCalculator::class);
+        
+        // Register InputSanitizer with interface binding for dependency inversion
+        $this->app->singleton(
+            \App\Contracts\InputSanitizerInterface::class,
+            \App\Services\InputSanitizer::class
+        );
 
         // Register TariffResolver with its strategies
         $this->app->singleton(\App\Services\TariffResolver::class, function ($app) {
@@ -83,6 +89,12 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\User::observe(\App\Observers\UserObserver::class);
         \App\Models\Language::observe(\App\Observers\LanguageObserver::class);
         \App\Models\Subscription::observe(\App\Observers\SubscriptionObserver::class);
+
+        // Register security event listeners
+        Event::listen(
+            \App\Events\SecurityViolationDetected::class,
+            \App\Listeners\LogSecurityViolation::class
+        );
 
         if (! Collection::hasMacro('takeLast')) {
             Collection::macro('takeLast', function (int $count) {

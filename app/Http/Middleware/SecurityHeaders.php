@@ -11,17 +11,20 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Security Headers Middleware
  * 
- * Implements comprehensive security headers following OWASP recommendations:
- * - Content Security Policy (CSP)
- * - X-Frame-Options (Clickjacking protection)
- * - X-Content-Type-Options (MIME sniffing protection)
- * - Referrer-Policy (Privacy protection)
- * - Permissions-Policy (Feature policy)
- * - Strict-Transport-Security (HTTPS enforcement)
+ * Applies OWASP-recommended security headers to all responses.
  * 
- * @see https://owasp.org/www-project-secure-headers/
+ * Headers Applied:
+ * - X-Frame-Options: Prevents clickjacking
+ * - X-Content-Type-Options: Prevents MIME sniffing
+ * - X-XSS-Protection: Legacy XSS protection
+ * - Referrer-Policy: Controls referrer information
+ * - Content-Security-Policy: Prevents XSS and injection attacks
+ * - Permissions-Policy: Controls browser features
+ * - Strict-Transport-Security: Enforces HTTPS
+ * 
+ * @package App\Http\Middleware
  */
-class SecurityHeaders
+final class SecurityHeaders
 {
     /**
      * Handle an incoming request.
@@ -31,25 +34,26 @@ class SecurityHeaders
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
-
-        // Content Security Policy
-        $response->headers->set('Content-Security-Policy', $this->getCSP());
-
+        
         // Prevent clickjacking
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
-
+        
         // Prevent MIME sniffing
         $response->headers->set('X-Content-Type-Options', 'nosniff');
-
-        // XSS Protection (legacy browsers)
+        
+        // Legacy XSS protection (still useful for older browsers)
         $response->headers->set('X-XSS-Protection', '1; mode=block');
-
-        // Referrer policy
+        
+        // Control referrer information
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
-
-        // Permissions policy
+        
+        // Content Security Policy
+        $csp = $this->getContentSecurityPolicy();
+        $response->headers->set('Content-Security-Policy', $csp);
+        
+        // Permissions Policy (formerly Feature-Policy)
         $response->headers->set('Permissions-Policy', $this->getPermissionsPolicy());
-
+        
         // HSTS (only in production with HTTPS)
         if (app()->environment('production') && $request->secure()) {
             $response->headers->set(
@@ -57,19 +61,19 @@ class SecurityHeaders
                 'max-age=31536000; includeSubDomains; preload'
             );
         }
-
+        
         return $response;
     }
-
+    
     /**
-     * Get Content Security Policy directives.
+     * Get Content Security Policy header value.
      */
-    protected function getCSP(): string
+    protected function getContentSecurityPolicy(): string
     {
         $directives = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net unpkg.com", // Tailwind/Alpine CDN
-            "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net", // Tailwind CDN
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net", // Alpine.js from CDN
+            "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net", // Tailwind from CDN
             "img-src 'self' data: https:",
             "font-src 'self' data:",
             "connect-src 'self'",
@@ -77,12 +81,12 @@ class SecurityHeaders
             "base-uri 'self'",
             "form-action 'self'",
         ];
-
+        
         return implode('; ', $directives);
     }
-
+    
     /**
-     * Get Permissions Policy directives.
+     * Get Permissions Policy header value.
      */
     protected function getPermissionsPolicy(): string
     {

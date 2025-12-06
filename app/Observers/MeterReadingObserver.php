@@ -26,7 +26,7 @@ class MeterReadingObserver
         if ($meterReading->isDirty('value')) {
             MeterReadingAudit::create([
                 'meter_reading_id' => $meterReading->id,
-                'changed_by_user_id' => Auth::id(),
+                'changed_by_user_id' => Auth::id() ?? $meterReading->entered_by ?? 1,
                 'old_value' => $meterReading->getOriginal('value'),
                 'new_value' => $meterReading->value,
                 'change_reason' => $meterReading->change_reason ?? 'No reason provided',

@@ -11,31 +11,128 @@ use Filament\Forms;
 use Filament\Schemas\Components\Utilities\Get;
 
 /**
- * Trait for building tariff form fields.
+ * Trait for building tariff form fields with manual entry mode support.
  * 
- * Extracts form field construction logic from TariffResource
- * to improve maintainability and reduce method complexity.
+ * Extracts form field construction logic from TariffResource to improve
+ * maintainability and reduce method complexity. Implements conditional
+ * field visibility and validation based on manual entry mode.
+ *
+ * Features:
+ * - Manual entry mode toggle for provider-independent tariffs
+ * - Conditional provider and remote_id fields based on mode
+ * - Dynamic validation rules that adapt to manual mode state
+ * - External system integration via remote_id field
+ * - Comprehensive validation mirroring FormRequest rules
+ *
+ * Manual Entry Mode:
+ * When enabled, allows users to create tariffs without linking to a provider
+ * integration. This is useful for:
+ * - Manually entered tariff rates from paper documents
+ * - Historical tariff data without provider integration
+ * - Custom tariff configurations not available via provider API
+ * - Testing and development scenarios
+ *
+ * Provider Integration Mode:
+ * When manual mode is disabled (default), requires provider selection and
+ * optionally accepts a remote_id for external system synchronization.
+ *
+ * @see \App\Filament\Resources\TariffResource
+ * @see \App\Models\Tariff::isManual()
+ * @see \Tests\Feature\Filament\TariffManualModeTest
+ * @see database/migrations/2025_12_05_163137_add_remote_id_to_tariffs_table.php
  */
 trait BuildsTariffFormFields
 {
     /**
      * Build the basic information section fields.
      *
-     * @return array<Forms\Components\Component>
+     * Constructs the form fields for tariff basic information including:
+     * - Manual mode toggle (UI-only, not persisted)
+     * - Provider selection (conditional on manual mode)
+     * - Remote ID for external system integration (conditional on manual mode)
+     * - Tariff name with XSS protection
+     *
+     * Field Behavior:
+     * - manual_mode: Toggle that controls visibility of provider/remote_id fields
+     *   - Not saved to database (dehydrated: false)
+     *   - Live reactive to update dependent fields immediately
+     *   - Default: false (provider mode)
+     *
+     * - provider_id: Provider selection dropdown
+     *   - Visible: Only when manual_mode is false
+     *   - Required: Only when manual_mode is false
+     *   - Uses cached provider options for performance
+     *   - Searchable for large provider lists
+     *
+     * - remote_id: External system identifier
+     *   - Visible: Only when manual_mode is false
+     *   - Optional: Can be null even with provider selected
+     *   - Max length: 255 characters
+     *   - Use case: Synchronization with external billing systems
+     *
+     * - name: Tariff display name
+     *   - Always visible and required
+     *   - XSS protection via regex and sanitization
+     *   - Max length: 255 characters
+     *
+     * Validation Strategy:
+     * Uses conditional validation rules via closures to adapt validation
+     * based on manual_mode state. This ensures:
+     * - Provider is required only in provider mode
+     * - Remote_id validation adapts to mode
+     * - Consistent validation between UI and API
+     *
+     * @return array<Forms\Components\Component> Array of form field components
+     *
+     * @see \App\Models\Provider::getCachedOptions()
+     * @see \App\Services\InputSanitizer::sanitizeText()
      */
     protected static function buildBasicInformationFields(): array
     {
         return [
+            Forms\Components\Toggle::make('manual_mode')
+                ->label(__('tariffs.forms.manual_mode'))
+                ->helperText(__('tariffs.forms.manual_mode_helper'))
+                ->default(false)
+                ->live()
+                ->columnSpanFull()
+                ->dehydrated(false), // Don't save this field to database
+            
             Forms\Components\Select::make('provider_id')
                 ->label(__('tariffs.forms.provider'))
                 ->options(fn () => Provider::getCachedOptions())
                 ->searchable()
-                ->required()
-                ->rules(['required', 'exists:providers,id'])
+                ->visible(fn (Get $get): bool => !$get('manual_mode'))
+                ->required(fn (Get $get): bool => !$get('manual_mode'))
+                ->rules([
+                    'nullable',
+                    'exists:providers,id',
+                ])
                 ->validationMessages([
                     'required' => __('tariffs.validation.provider_id.required'),
                     'exists' => __('tariffs.validation.provider_id.exists'),
                 ]),
+            
+            Forms\Components\TextInput::make('remote_id')
+                ->label(__('tariffs.forms.remote_id'))
+                ->maxLength(255)
+                ->visible(fn (Get $get): bool => !$get('manual_mode'))
+                ->helperText(__('tariffs.forms.remote_id_helper'))
+                ->rules([
+                    'nullable',
+                    'string',
+                    'max:255',
+                    'regex:/^[a-zA-Z0-9\-\_\.]+$/', // Security: Alphanumeric, hyphens, underscores, dots only
+                    fn (Get $get): string => $get('remote_id') && !$get('provider_id') ? 'required_with:provider_id' : '',
+                ])
+                ->validationMessages([
+                    'max' => __('tariffs.validation.remote_id.max'),
+                    'regex' => __('tariffs.validation.remote_id.format'),
+                    'required_with' => __('tariffs.validation.provider_id.required_with'),
+                ])
+                ->dehydrateStateUsing(fn (?string $state): ?string => 
+                    $state ? app(\App\Services\InputSanitizer::class)->sanitizeIdentifier($state) : null
+                ),
             
             Forms\Components\TextInput::make('name')
                 ->label(__('tariffs.forms.name'))

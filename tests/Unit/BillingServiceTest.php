@@ -1,5 +1,51 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * BillingService Unit Tests
+ * 
+ * Tests the core billing service functionality including:
+ * - Invoice generation with tariff snapshotting
+ * - Multi-zone electricity meter handling
+ * - Water billing with supply, sewage, and fixed fees
+ * - Gyvatukas (circulation fee) calculations
+ * - Invoice finalization and immutability
+ * - Meter reading snapshot preservation
+ * 
+ * ## Data Model Notes
+ * 
+ * Invoice model has two tenant-related fields:
+ * - `tenant_id`: Multi-tenancy scoping (via BelongsToTenant trait)
+ * - `tenant_renter_id`: Foreign key to Tenant model (the actual renter)
+ * 
+ * The Invoice model auto-fills tenant_renter_id from tenant_id in the creating event
+ * if not explicitly provided, but tests should create both for clarity.
+ * 
+ * ## Test Pattern
+ * 
+ * When creating Invoice models in tests:
+ * 1. Create a Tenant model first
+ * 2. Set both tenant_id (for scoping) and tenant_renter_id (FK to Tenant)
+ * 3. This ensures proper relationship integrity and prevents FK constraint violations
+ * 
+ * Example:
+ * ```php
+ * $tenant = Tenant::factory()->create(['tenant_id' => $this->tenantId]);
+ * $invoice = Invoice::factory()->create([
+ *     'tenant_id' => $this->tenantId,
+ *     'tenant_renter_id' => $tenant->id,
+ * ]);
+ * ```
+ * 
+ * @see \App\Models\Invoice
+ * @see \App\Services\BillingService
+ * @see \App\Traits\BelongsToTenant
+ * 
+ * @group billing
+ * @group unit
+ */
+
 use App\Enums\InvoiceStatus;
 use App\Enums\MeterType;
 use App\Enums\PropertyType;
@@ -324,18 +370,53 @@ test('generateInvoice snapshots meter readings and tariff configuration', functi
     expect($snapshot['tariff_configuration'])->toBe($tariff->configuration);
 });
 
+/**
+ * Test invoice finalization sets status and timestamp correctly.
+ * 
+ * This test verifies that:
+ * - Invoice status changes from DRAFT to FINALIZED
+ * - finalized_at timestamp is set to current time
+ * - The finalization process completes without errors
+ * 
+ * ## Test Data Setup Pattern
+ * 
+ * Note the proper order of model creation:
+ * 1. Create Tenant model first (required for FK relationship)
+ * 2. Create Invoice with both tenant_id and tenant_renter_id
+ * 3. Create InvoiceItem linked to the invoice
+ * 
+ * This pattern ensures:
+ * - Foreign key constraints are satisfied
+ * - Multi-tenancy scoping works correctly
+ * - Relationship integrity is maintained
+ * 
+ * @see \App\Services\BillingService::finalizeInvoice()
+ * @see \App\Models\Invoice::finalize()
+ */
 test('finalizeInvoice sets status and timestamp', function () {
-    $invoice = Invoice::factory()->create([
+    // Create tenant first - required for tenant_renter_id FK relationship
+    $tenant = Tenant::factory()->create([
         'tenant_id' => $this->tenantId,
-        'status' => InvoiceStatus::DRAFT,
-        'finalized_at' => null,
     ]);
 
-    InvoiceItem::factory()->for($invoice)->create([
-        'quantity' => 1,
+    // Create invoice with both tenant_id (scoping) and tenant_renter_id (FK)
+    $invoice = Invoice::factory()->create([
+        'tenant_id' => $this->tenantId,
+        'tenant_renter_id' => $tenant->id,
+        'status' => InvoiceStatus::DRAFT,
+        'finalized_at' => null,
+        'total_amount' => 10.00,
+    ]);
+
+    // Create invoice item - no tenant_id needed (inherited from invoice)
+    InvoiceItem::factory()->create([
+        'invoice_id' => $invoice->id,
+        'description' => 'Test Item',
+        'quantity' => '1.00',
         'unit' => 'unit',
-        'unit_price' => 10,
-        'total' => 10,
+        'unit_price' => '10.00',
+        'total' => '10.00',
+        'meter_reading_snapshot' => [],
     ]);
 
     $billingService = app(BillingService::class);

@@ -377,12 +377,39 @@ See [Setup Guide](docs/guides/SETUP.md) for complete configuration options and [
 
 See [Setup Guide](docs/guides/SETUP.md#production-deployment) for detailed deployment steps.
 
+## Security
+
+### Recent Security Updates
+
+#### 🔴 Critical Security Fix (2024-12-05)
+Fixed path traversal vulnerability in `InputSanitizer` service. All users should update immediately.
+
+**Details**: [Security Patch 2024-12-05](docs/security/SECURITY_PATCH_2024-12-05.md)
+
+### Security Best Practices
+
+- Always use `InputSanitizer` for external system IDs and user input
+- Review [Input Sanitizer Quick Reference](docs/security/INPUT_SANITIZER_QUICK_REFERENCE.md)
+- Monitor logs for security events: `grep "Path traversal attempt" storage/logs/laravel.log`
+- Report security issues to: security@example.com
+
+### Security Documentation
+
+- [Input Sanitizer Service](docs/services/INPUT_SANITIZER_SERVICE.md) - Complete API reference
+- [Security Fix Details](docs/security/input-sanitizer-security-fix.md) - Vulnerability analysis
+- [Quick Reference](docs/security/INPUT_SANITIZER_QUICK_REFERENCE.md) - Developer guide
+
 ## Support
 
 For technical support or questions:
 - Review the [documentation](docs/)
 - Check the [test suite](tests/) for examples
 - Contact the system administrator
+
+For security issues:
+- **Email**: security@example.com
+- **On-Call**: +1-XXX-XXX-XXXX
+- **Incident Response**: incidents@example.com
 
 ## License
 

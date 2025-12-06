@@ -40,7 +40,24 @@ class StoreTariffRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'provider_id' => ['required', 'exists:providers,id'],
+            // Conditional provider_id validation for manual mode support
+            'provider_id' => [
+                'nullable',
+                'exists:providers,id',
+                function ($attribute, $value, $fail) {
+                    // If remote_id is provided, provider_id is required
+                    if ($this->filled('remote_id') && empty($value)) {
+                        $fail(__('tariffs.validation.provider_id.required_with'));
+                    }
+                },
+            ],
+            // Add remote_id validation for external system integration
+            'remote_id' => [
+                'nullable',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-Z0-9\-\_\.]+$/', // Alphanumeric, hyphens, underscores, dots only
+            ],
             'name' => ['required', 'string', 'max:255'],
             'configuration' => ['required', 'array'],
             'configuration.type' => ['required', 'string', 'in:flat,time_of_use'],
@@ -106,6 +123,8 @@ class StoreTariffRequest extends FormRequest
         return [
             'provider_id.required' => __('tariffs.validation.provider_id.required'),
             'provider_id.exists' => __('tariffs.validation.provider_id.exists'),
+            'remote_id.max' => __('tariffs.validation.remote_id.max'),
+            'remote_id.regex' => __('tariffs.validation.remote_id.format'),
             'name.required' => __('tariffs.validation.name.required'),
             'name.string' => __('tariffs.validation.name.string'),
             'name.max' => __('tariffs.validation.name.max'),

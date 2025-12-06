@@ -107,5 +107,26 @@ class TariffFactory extends Factory
             'active_until' => $date,
         ]);
     }
+
+    /**
+     * Indicate that the tariff is manual (no provider).
+     */
+    public function manual(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'provider_id' => null,
+            'remote_id' => null,
+        ]);
+    }
+
+    /**
+     * Set the remote_id for external system integration.
+     */
+    public function withRemoteId(string $remoteId): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'remote_id' => $remoteId,
+        ]);
+    }
 }
 

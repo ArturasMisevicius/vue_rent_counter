@@ -18,6 +18,7 @@ class Tariff extends Model
      */
     protected $fillable = [
         'provider_id',
+        'remote_id',
         'name',
         'configuration',
         'active_from',
@@ -51,6 +52,14 @@ class Tariff extends Model
     public function provider(): BelongsTo
     {
         return $this->belongsTo(Provider::class);
+    }
+
+    /**
+     * Check if this is a manual tariff (not linked to a provider).
+     */
+    public function isManual(): bool
+    {
+        return is_null($this->provider_id);
     }
 
     /**

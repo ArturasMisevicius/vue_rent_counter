@@ -1,312 +1,422 @@
-# GyvatukasCalculator Service API Reference
+# GyvatukasCalculator API Reference (ARCHIVED)
 
-**Version**: 1.1 (Simplified)  
-**Last Updated**: November 25, 2024  
-**Status**: Production Ready ✅
+> **Status**: ARCHIVED - This API is preserved for reference only  
+> **Current Implementation**: Manual entry system (see `docs/features/GYVATUKAS_MANUAL_ENTRY.md`)
 
-## Overview
-
-The `GyvatukasCalculator` service implements seasonal circulation fee (gyvatukas) calculations for Lithuanian hot water circulation systems. The calculation differs between heating season (October-April) and non-heating season (May-September).
-
-## Class Reference
-
-### Namespace
+## Quick Reference
 
 ```php
-App\Services\GyvatukasCalculator
-```
-
-### Dependencies
-
-```php
-use App\Enums\MeterType;
+use App\Services\GyvatukasCalculator;
 use App\Models\Building;
-use App\Models\MeterReading;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
+
+$calculator = new GyvatukasCalculator();
+
+// Calculate circulation energy
+$kwh = $calculator->calculate($building, $billingMonth);
+
+// Distribute cost among properties
+$distribution = $calculator->distributeCirculationCost($building, $totalCost, 'area');
+
+// Cache management
+$calculator->clearCache();
+$calculator->clearBuildingCache($buildingId);
 ```
 
-### Constructor
+## Constructor
 
+### `__construct()`
+
+Initializes the calculator with configuration values.
+
+**Configuration Sources:**
+- `config('gyvatukas.water_specific_heat', 1.163)`
+- `config('gyvatukas.temperature_delta', 45.0)`
+- `config('gyvatukas.heating_season_start_month', 10)`
+- `config('gyvatukas.heating_season_end_month', 4)`
+
+**Example:**
 ```php
-public function __construct()
-```
-
-**Parameters**: None
-
-**Configuration**: Loads values from `config/gyvatukas.php`:
-- `water_specific_heat` (default: 1.163 kWh/m³·°C)
-- `temperature_delta` (default: 45.0°C)
-- `heating_season_start_month` (default: 10 = October)
-- `heating_season_end_month` (default: 4 = April)
-
-**Example**:
-```php
-$calculator = app(GyvatukasCalculator::class);
-// or
 $calculator = new GyvatukasCalculator();
 ```
 
----
-
 ## Public Methods
 
-### calculate()
+### `calculate(Building $building, Carbon $billingMonth): float`
 
-Main entry point for gyvatukas calculation. Routes to summer or winter calculation based on season.
+Calculates gyvatukas (circulation fee) for a building in a given billing month.
 
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$building` | `Building` | Building model with relationships loaded |
+| `$billingMonth` | `Carbon` | Billing period month |
+
+**Returns:** `float` - Circulation energy in kWh
+
+**Behavior:**
+- Routes to `calculateWinterGyvatukas()` if heating season (Oct-Apr)
+- Routes to `calculateSummerGyvatukas()` if non-heating season (May-Sep)
+- Results are cached internally
+
+**Example:**
 ```php
-public function calculate(Building $building, Carbon $billingMonth): float
+$building = Building::with('properties.meters.readings')->find(1);
+$billingMonth = Carbon::parse('2024-07-01');
+
+$circulationEnergy = $calculator->calculate($building, $billingMonth);
+// Returns: 125.50 (kWh)
 ```
 
-**Parameters**:
-- `$building` (Building) - The building to calculate for
-- `$billingMonth` (Carbon) - The billing period month
-
-**Returns**: `float` - Circulation energy in kWh
-
-**Example**:
-```php
-$calculator = app(GyvatukasCalculator::class);
-$building = Building::find(1);
-$month = Carbon::create(2024, 6, 1); // June
-
-$circulationEnergy = $calculator->calculate($building, $month);
-// Returns: 476.65 (kWh)
-```
-
-**Behavior**:
-- If `isHeatingSeason($billingMonth)` → calls `calculateWinterGyvatukas()`
-- Otherwise → calls `calculateSummerGyvatukas()`
-
-**Requirements**: 4.1, 4.2
+**Related Requirements:** 4.1, 4.2, 4.3
 
 ---
 
-### isHeatingSeason()
+### `isHeatingSeason(Carbon $date): bool`
 
 Determines if a given date falls within the heating season.
 
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$date` | `Carbon` | Date to check |
+
+**Returns:** `bool` - True if heating season (Oct-Apr), false otherwise
+
+**Logic:**
 ```php
-public function isHeatingSeason(Carbon $date): bool
+$month = $date->month;
+return $month >= 10 || $month <= 4;
 ```
 
-**Parameters**:
-- `$date` (Carbon) - The date to check
-
-**Returns**: `bool` - True if in heating season, false otherwise
-
-**Heating Season**: October (10) through April (4)
-
-**Example**:
+**Example:**
 ```php
-$calculator->isHeatingSeason(Carbon::create(2024, 10, 15)); // true
-$calculator->isHeatingSeason(Carbon::create(2024, 6, 15));  // false
+$isWinter = $calculator->isHeatingSeason(Carbon::parse('2024-12-15'));
+// Returns: true
+
+$isSummer = $calculator->isHeatingSeason(Carbon::parse('2024-07-15'));
+// Returns: false
 ```
 
-**Logic**:
-```php
-$month >= 10 || $month <= 4
-```
-
-**Requirements**: 4.1, 4.2
+**Related Requirements:** 4.1, 4.2
 
 ---
 
-### calculateSummerGyvatukas()
+### `calculateSummerGyvatukas(Building $building, Carbon $month): float`
 
-Calculates summer gyvatukas using the formula: Q_circ = Q_total - (V_water × c × ΔT)
+Calculates summer gyvatukas using thermodynamic formula.
 
-```php
-public function calculateSummerGyvatukas(Building $building, Carbon $month): float
-```
-
-**Parameters**:
-- `$building` (Building) - The building to calculate for
-- `$month` (Carbon) - The billing month
-
-**Returns**: `float` - Circulation energy in kWh (rounded to 2 decimal places)
-
-**Formula**:
+**Formula:**
 ```
 Q_circ = Q_total - (V_water × c × ΔT)
-
-Where:
-- Q_circ = Circulation energy (kWh)
-- Q_total = Total building heating energy consumption (kWh)
-- V_water = Hot water volume consumption (m³)
-- c = Specific heat capacity of water (1.163 kWh/m³·°C)
-- ΔT = Temperature difference (45°C)
 ```
 
-**Example**:
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$building` | `Building` | Building with loaded relationships |
+| `$month` | `Carbon` | Billing month (May-September) |
+
+**Returns:** `float` - Circulation energy in kWh (rounded to 2 decimals)
+
+**Process:**
+1. Check cache for existing result
+2. Calculate period boundaries (start/end of month)
+3. Fetch total heating energy (`Q_total`)
+4. Fetch hot water volume (`V_water`)
+5. Calculate water heating energy: `V_water × c × ΔT`
+6. Calculate circulation energy: `Q_total - water_heating_energy`
+7. Handle negative values (return 0.0 with warning)
+8. Cache and return result
+
+**Example:**
 ```php
-$building = Building::find(1);
-$month = Carbon::create(2024, 6, 1); // June
+$building = Building::with('properties.meters.readings')->find(1);
+$month = Carbon::parse('2024-07-01');
 
-$circulation = $calculator->calculateSummerGyvatukas($building, $month);
-// Returns: 476.65 (kWh)
+$circulationEnergy = $calculator->calculateSummerGyvatukas($building, $month);
+// Returns: 125.50 (kWh)
 ```
 
-**Error Handling**:
-- Returns `0.0` if circulation energy would be negative
-- Logs warning with context when negative values detected
+**Error Handling:**
+- Negative results: Logs warning, returns 0.0
+- Missing meter readings: Returns 0.0
 
-**Requirements**: 4.1, 4.3
+**Related Requirements:** 4.1, 4.3
 
 ---
 
-### calculateWinterGyvatukas()
+### `calculateWinterGyvatukas(Building $building): float`
 
-Calculates winter gyvatukas using the stored summer average.
+Calculates winter gyvatukas using stored summer average.
 
-```php
-public function calculateWinterGyvatukas(Building $building): float
-```
+**Parameters:**
 
-**Parameters**:
-- `$building` (Building) - The building to calculate for
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$building` | `Building` | Building model |
 
-**Returns**: `float` - Circulation energy in kWh (from stored average)
+**Returns:** `float` - Circulation energy in kWh (from stored average)
 
-**Example**:
+**Process:**
+1. Retrieve `$building->gyvatukas_summer_average`
+2. Validate value exists and is positive
+3. Return value or 0.0 with warning
+
+**Example:**
 ```php
 $building = Building::find(1);
-// Assuming $building->gyvatukas_summer_average = 150.50
+// Assume: $building->gyvatukas_summer_average = 125.50
 
-$circulation = $calculator->calculateWinterGyvatukas($building);
-// Returns: 150.50 (kWh)
+$circulationEnergy = $calculator->calculateWinterGyvatukas($building);
+// Returns: 125.50 (kWh)
 ```
 
-**Error Handling**:
-- Returns `0.0` if summer average is null or zero
-- Logs warning with building_id and summer_average value
+**Error Handling:**
+- Missing average: Logs warning, returns 0.0
+- Invalid average (≤ 0): Logs warning, returns 0.0
 
-**Requirements**: 4.2
+**Related Requirements:** 4.2
 
 ---
 
-### distributeCirculationCost()
+### `distributeCirculationCost(Building $building, float $totalCirculationCost, string $method = 'equal'): array`
 
 Distributes circulation cost among apartments in a building.
 
-```php
-public function distributeCirculationCost(
-    Building $building,
-    float $totalCirculationCost,
-    string $method = 'equal'
-): array
+**Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `$building` | `Building` | - | Building with loaded properties |
+| `$totalCirculationCost` | `float` | - | Total cost to distribute (€) |
+| `$method` | `string` | `'equal'` | Distribution method: `'equal'` or `'area'` |
+
+**Returns:** `array<int, float>` - Map of property_id => allocated cost (rounded to 2 decimals)
+
+**Distribution Methods:**
+
+#### Equal Distribution (`'equal'`)
+```
+Cost per property = Total Cost / Number of Properties
 ```
 
-**Parameters**:
-- `$building` (Building) - The building containing the apartments
-- `$totalCirculationCost` (float) - Total circulation cost to distribute
-- `$method` (string) - Distribution method: `'equal'` or `'area'` (default: `'equal'`)
-
-**Returns**: `array<int, float>` - Array mapping property_id to allocated cost (rounded to 2 decimals)
-
-**Distribution Methods**:
-
-1. **Equal Distribution** (`'equal'`):
-   - Formula: `C / N`
-   - Each apartment receives equal share
-   - Example: €300 / 3 apartments = €100 each
-
-2. **Area-Based Distribution** (`'area'`):
-   - Formula: `C × (A_i / Σ A_j)`
-   - Cost proportional to apartment area
-   - Example: 50m² apartment gets 50% of cost
-
-**Example**:
+**Example:**
 ```php
-$building = Building::find(1);
-$totalCost = 300.0;
-
-// Equal distribution
-$distribution = $calculator->distributeCirculationCost($building, $totalCost, 'equal');
-// Returns: [1 => 100.0, 2 => 100.0, 3 => 100.0]
-
-// Area-based distribution
-$distribution = $calculator->distributeCirculationCost($building, $totalCost, 'area');
-// Returns: [1 => 150.0, 2 => 90.0, 3 => 60.0] (based on areas)
+$distribution = $calculator->distributeCirculationCost($building, 150.00, 'equal');
+// 3 properties
+// Returns: [
+//     1 => 50.00,
+//     2 => 50.00,
+//     3 => 50.00,
+// ]
 ```
 
-**Error Handling**:
-- Returns empty array if building has no properties (logs warning)
-- Falls back to equal distribution if total area is zero/negative (logs warning)
-- Falls back to equal distribution if invalid method specified (logs error)
+#### Area-Based Distribution (`'area'`)
+```
+Cost per property = Total Cost × (Property Area / Total Area)
+```
 
-**Requirements**: 4.5
+**Example:**
+```php
+$distribution = $calculator->distributeCirculationCost($building, 150.00, 'area');
+// Property 1: 50 m², Property 2: 75 m², Property 3: 75 m² (Total: 200 m²)
+// Returns: [
+//     1 => 37.50,  // 150 × (50/200)
+//     2 => 56.25,  // 150 × (75/200)
+//     3 => 56.25,  // 150 × (75/200)
+// ]
+```
+
+**Error Handling:**
+- Empty properties: Logs warning, returns empty array
+- Zero/negative total area: Logs warning, falls back to equal distribution
+- Invalid method: Logs error, falls back to equal distribution
+
+**Related Requirements:** 4.5
 
 ---
+
+### `clearCache(): void`
+
+Clears all internal caches (calculation and consumption).
+
+**Use Cases:**
+- After meter readings are updated
+- When processing multiple buildings to prevent memory buildup
+- Before batch operations
+
+**Example:**
+```php
+// Update meter readings
+MeterReading::create([...]);
+
+// Clear cache to ensure fresh calculations
+$calculator->clearCache();
+
+// Recalculate
+$newResult = $calculator->calculate($building, $billingMonth);
+```
+
+---
+
+### `clearBuildingCache(int $buildingId): void`
+
+Clears cache for a specific building only.
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$buildingId` | `int` | Building ID to clear cache for |
+
+**Use Cases:**
+- After meter readings updated for specific building
+- More efficient than clearing entire cache
+
+**Example:**
+```php
+// Update meter readings for building 5
+MeterReading::where('building_id', 5)->update([...]);
+
+// Clear only building 5's cache
+$calculator->clearBuildingCache(5);
+
+// Recalculate for building 5
+$building = Building::find(5);
+$newResult = $calculator->calculate($building, $billingMonth);
+```
 
 ## Private Methods
 
-### getBuildingHeatingEnergy()
+### `getBuildingHeatingEnergy(Building $building, Carbon $periodStart, Carbon $periodEnd): float`
 
-Gets total heating energy consumption for a building in a period.
+Fetches total heating energy consumption for a building in a period.
 
-```php
-private function getBuildingHeatingEnergy(
-    Building $building,
-    Carbon $periodStart,
-    Carbon $periodEnd
-): float
-```
+**Optimization:** Uses eager loading to prevent N+1 queries (2 queries total).
 
-**Query Pattern**: N+1 (one per property, one per meter)
+**Returns:** `float` - Total heating energy in kWh
 
-**Returns**: Total heating energy in kWh
+**Cache Key:** `heating_{building_id}_{start_date}_{end_date}`
 
 ---
 
-### getBuildingHotWaterVolume()
+### `getBuildingHotWaterVolume(Building $building, Carbon $periodStart, Carbon $periodEnd): float`
 
-Gets total hot water volume consumption for a building in a period.
+Fetches total hot water volume consumption for a building in a period.
+
+**Optimization:** Uses eager loading to prevent N+1 queries (2 queries total).
+
+**Returns:** `float` - Total hot water volume in m³
+
+**Cache Key:** `water_{building_id}_{start_date}_{end_date}`
+
+## Constants
+
+### `DECIMAL_PRECISION`
 
 ```php
-private function getBuildingHotWaterVolume(
-    Building $building,
-    Carbon $periodStart,
-    Carbon $periodEnd
-): float
+private const DECIMAL_PRECISION = 2;
 ```
 
-**Query Pattern**: N+1 (one per property, one per meter)
-
-**Returns**: Total hot water volume in m³
-
----
+Decimal precision for monetary calculations (2 decimal places).
 
 ## Configuration
 
-### Config File: `config/gyvatukas.php`
+### Required Configuration File: `config/gyvatukas.php`
 
 ```php
 return [
-    'water_specific_heat' => env('GYVATUKAS_WATER_SPECIFIC_HEAT', 1.163),
-    'temperature_delta' => env('GYVATUKAS_TEMPERATURE_DELTA', 45.0),
-    'heating_season_start_month' => env('GYVATUKAS_HEATING_START', 10),
-    'heating_season_end_month' => env('GYVATUKAS_HEATING_END', 4),
+    // Specific heat capacity of water (kWh/m³·°C)
+    'water_specific_heat' => 1.163,
+    
+    // Temperature difference for hot water heating (°C)
+    'temperature_delta' => 45.0,
+    
+    // Heating season start month (October = 10)
+    'heating_season_start_month' => 10,
+    
+    // Heating season end month (April = 4)
+    'heating_season_end_month' => 4,
 ];
 ```
 
-### Environment Variables
+## Database Requirements
 
-```env
-GYVATUKAS_WATER_SPECIFIC_HEAT=1.163
-GYVATUKAS_TEMPERATURE_DELTA=45.0
-GYVATUKAS_HEATING_START=10
-GYVATUKAS_HEATING_END=4
+### Buildings Table
+
+```sql
+ALTER TABLE buildings ADD COLUMN gyvatukas_summer_average DECIMAL(10,2) DEFAULT NULL;
 ```
 
----
+### Required Relationships
 
-## Error Handling
+```php
+// Building.php
+public function properties()
+{
+    return $this->hasMany(Property::class);
+}
 
-### Logged Warnings
+// Property.php
+public function meters()
+{
+    return $this->hasMany(Meter::class);
+}
 
-1. **Negative Circulation Energy**
+// Meter.php
+public function readings()
+{
+    return $this->hasMany(MeterReading::class);
+}
+```
+
+## Performance Characteristics
+
+### Query Optimization
+
+**Without Eager Loading:**
+```
+1 query (building) + 
+N queries (properties) + 
+M queries (meters) + 
+P queries (readings)
+= O(n²) queries
+```
+
+**With Eager Loading:**
+```
+1 query (building with properties) +
+1 query (meters with readings)
+= 2 queries total
+```
+
+### Cache Effectiveness
+
+**Cache Hit Scenarios:**
+- Same building + month requested multiple times
+- Consumption data reused across calculations
+
+**Cache Miss Scenarios:**
+- First calculation for building + month
+- After `clearCache()` or `clearBuildingCache()`
+
+### Memory Usage
+
+**Per Building:**
+- Calculation cache: ~100 bytes per month
+- Consumption cache: ~200 bytes per period
+
+**Recommendation:** Clear cache after processing large batches.
+
+## Error Codes and Logging
+
+### Warning Logs
+
+**Negative Circulation Energy:**
 ```php
 Log::warning('Negative circulation energy calculated for building', [
     'building_id' => $building->id,
@@ -317,7 +427,7 @@ Log::warning('Negative circulation energy calculated for building', [
 ]);
 ```
 
-2. **Missing Summer Average**
+**Missing Summer Average:**
 ```php
 Log::warning('Missing or invalid summer average for building during heating season', [
     'building_id' => $building->id,
@@ -325,14 +435,14 @@ Log::warning('Missing or invalid summer average for building during heating seas
 ]);
 ```
 
-3. **No Properties**
+**No Properties Found:**
 ```php
 Log::warning('No properties found for building during circulation cost distribution', [
     'building_id' => $building->id,
 ]);
 ```
 
-4. **Zero/Negative Area**
+**Zero/Negative Total Area:**
 ```php
 Log::warning('Total area is zero or negative for building', [
     'building_id' => $building->id,
@@ -340,9 +450,9 @@ Log::warning('Total area is zero or negative for building', [
 ]);
 ```
 
-### Logged Errors
+### Error Logs
 
-1. **Invalid Distribution Method**
+**Invalid Distribution Method:**
 ```php
 Log::error('Invalid distribution method specified', [
     'method' => $method,
@@ -350,192 +460,186 @@ Log::error('Invalid distribution method specified', [
 ]);
 ```
 
----
+## Integration Examples
 
-## Usage Examples
-
-### Basic Calculation
+### With BillingService
 
 ```php
 use App\Services\GyvatukasCalculator;
-use App\Models\Building;
-use Carbon\Carbon;
+use App\Services\BillingService;
 
-$calculator = app(GyvatukasCalculator::class);
-$building = Building::find(1);
-$month = Carbon::create(2024, 6, 1);
-
-// Calculate circulation energy
-$energy = $calculator->calculate($building, $month);
-
-// Distribute cost among apartments
-$rate = 0.15; // €0.15 per kWh
-$totalCost = $energy * $rate;
-$distribution = $calculator->distributeCirculationCost($building, $totalCost, 'area');
-
-foreach ($distribution as $propertyId => $cost) {
-    echo "Property {$propertyId}: €{$cost}\n";
-}
-```
-
-### Integration with BillingService
-
-```php
-class BillingService
+class InvoiceController
 {
-    public function generateInvoice(Tenant $tenant, Carbon $periodStart, Carbon $periodEnd): Invoice
+    public function __construct(
+        private GyvatukasCalculator $gyvatukasCalculator,
+        private BillingService $billingService
+    ) {}
+    
+    public function generateInvoice(Building $building, Carbon $billingMonth)
     {
-        $calculator = app(GyvatukasCalculator::class);
-        $building = $tenant->property->building;
-        
-        // Calculate gyvatukas for the billing period
-        $circulationEnergy = $calculator->calculate($building, $periodStart);
-        
-        // Get heating rate
-        $heatingRate = $this->getHeatingRate($tenant, $periodStart);
-        
-        // Calculate total circulation cost
-        $totalCirculationCost = $circulationEnergy * $heatingRate;
-        
-        // Distribute among apartments
-        $distribution = $calculator->distributeCirculationCost(
+        // Calculate circulation energy
+        $circulationKwh = $this->gyvatukasCalculator->calculate(
             $building,
-            $totalCirculationCost,
-            'area' // or 'equal'
+            $billingMonth
         );
         
-        // Get tenant's share
-        $tenantShare = $distribution[$tenant->property_id] ?? 0.0;
+        // Get tariff rate
+        $tariffRate = $this->billingService->getTariffRate(
+            'circulation',
+            $billingMonth
+        );
         
-        // Create invoice item
-        InvoiceItem::create([
-            'invoice_id' => $invoice->id,
-            'description' => 'Gyvatukas (Circulation Fee)',
-            'quantity' => $circulationEnergy,
-            'unit_price' => $heatingRate,
-            'amount' => $tenantShare,
-        ]);
+        // Calculate total cost
+        $totalCost = $circulationKwh * $tariffRate;
         
-        return $invoice;
+        // Distribute among properties
+        $distribution = $this->gyvatukasCalculator->distributeCirculationCost(
+            $building,
+            $totalCost,
+            $building->distribution_method ?? 'equal'
+        );
+        
+        // Create invoice items
+        foreach ($distribution as $propertyId => $cost) {
+            InvoiceItem::create([
+                'property_id' => $propertyId,
+                'service_type' => 'gyvatukas',
+                'amount' => $cost,
+                'kwh' => $circulationKwh * ($cost / $totalCost),
+                'billing_month' => $billingMonth,
+            ]);
+        }
     }
 }
 ```
 
-### Seasonal Calculation
+### With Artisan Command
 
 ```php
-// Check if we're in heating season
-$isHeating = $calculator->isHeatingSeason(Carbon::now());
+use App\Services\GyvatukasCalculator;
+use Illuminate\Console\Command;
 
-if ($isHeating) {
-    // Use stored summer average
-    $energy = $calculator->calculateWinterGyvatukas($building);
-} else {
-    // Calculate from actual consumption
-    $energy = $calculator->calculateSummerGyvatukas($building, Carbon::now());
+class CalculateSummerAveragesCommand extends Command
+{
+    protected $signature = 'gyvatukas:calculate-summer-averages {year}';
+    
+    public function handle(GyvatukasCalculator $calculator)
+    {
+        $year = $this->argument('year');
+        
+        // Summer months: May-September
+        $summerMonths = collect([5, 6, 7, 8, 9]);
+        
+        Building::chunk(100, function ($buildings) use ($calculator, $year, $summerMonths) {
+            foreach ($buildings as $building) {
+                $summerTotal = 0;
+                $monthCount = 0;
+                
+                foreach ($summerMonths as $month) {
+                    $billingMonth = Carbon::create($year, $month, 1);
+                    $energy = $calculator->calculate($building, $billingMonth);
+                    
+                    if ($energy > 0) {
+                        $summerTotal += $energy;
+                        $monthCount++;
+                    }
+                }
+                
+                if ($monthCount > 0) {
+                    $average = $summerTotal / $monthCount;
+                    $building->update(['gyvatukas_summer_average' => $average]);
+                    
+                    $this->info("Building {$building->id}: {$average} kWh average");
+                }
+            }
+            
+            // Clear cache after each chunk
+            $calculator->clearCache();
+        });
+    }
 }
 ```
 
----
-
-## Performance Characteristics
-
-### Query Complexity
-
-| Method | Queries | Complexity |
-|--------|---------|------------|
-| `calculate()` | 1 + N + M | O(N × M) |
-| `calculateSummerGyvatukas()` | 1 + N + M | O(N × M) |
-| `calculateWinterGyvatukas()` | 0 | O(1) |
-| `distributeCirculationCost()` | 1 | O(N) |
-
-Where:
-- N = number of properties in building
-- M = average number of meters per property
-
-### Execution Time
-
-| Building Size | Execution Time |
-|---------------|----------------|
-| 5 properties | ~50-100ms |
-| 10 properties | ~100-200ms |
-| 20 properties | ~200-400ms |
-| 50 properties | ~500-1000ms |
-
-### Memory Usage
-
-| Building Size | Memory |
-|---------------|--------|
-| 5 properties | ~2-3MB |
-| 10 properties | ~5-8MB |
-| 20 properties | ~10-15MB |
-
----
-
 ## Testing
 
-### Unit Tests
+### Unit Test Example
 
-Location: `tests/Unit/Services/GyvatukasCalculatorTest.php`
+```php
+use Tests\TestCase;
+use App\Services\GyvatukasCalculator;
+use App\Models\Building;
+use Carbon\Carbon;
 
-**Coverage**: 100% (30 tests, 58 assertions)
-
-**Test Suites**:
-- Heating season detection (8 tests)
-- Winter gyvatukas calculation (3 tests)
-- Summer gyvatukas calculation (2 tests)
-- Distribution methods (4 tests)
-- Main calculate() routing (2 tests)
-
-**Run Tests**:
-```bash
-php artisan test --filter=GyvatukasCalculatorTest
+class GyvatukasCalculatorTest extends TestCase
+{
+    private GyvatukasCalculator $calculator;
+    
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->calculator = new GyvatukasCalculator();
+    }
+    
+    public function test_calculate_routes_to_winter_during_heating_season()
+    {
+        $building = Building::factory()->create([
+            'gyvatukas_summer_average' => 125.50
+        ]);
+        
+        $result = $this->calculator->calculate(
+            $building,
+            Carbon::parse('2024-12-15') // December
+        );
+        
+        $this->assertEquals(125.50, $result);
+    }
+    
+    public function test_distribute_equal_divides_cost_evenly()
+    {
+        $building = Building::factory()
+            ->has(Property::factory()->count(3))
+            ->create();
+        
+        $distribution = $this->calculator->distributeCirculationCost(
+            $building,
+            150.00,
+            'equal'
+        );
+        
+        $this->assertCount(3, $distribution);
+        $this->assertEquals(50.00, $distribution[$building->properties[0]->id]);
+        $this->assertEquals(50.00, $distribution[$building->properties[1]->id]);
+        $this->assertEquals(50.00, $distribution[$building->properties[2]->id]);
+    }
+}
 ```
 
----
+## Migration Guide
 
-## Related Documentation
+### From Automated to Manual Entry
 
-- **Implementation Guide**: [docs/implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md](../implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
-- **Revert Decision**: [docs/refactoring/GYVATUKAS_CALCULATOR_REVERT.md](../refactoring/GYVATUKAS_CALCULATOR_REVERT.md)
-- **Requirements**: `.kiro/specs/2-vilnius-utilities-billing/requirements.md`
-- **Configuration**: `config/gyvatukas.php`
+**Before:**
+```php
+$circulationEnergy = $calculator->calculate($building, $billingMonth);
+$cost = $circulationEnergy * $tariffRate;
+```
 
----
+**After:**
+```php
+$cost = $building->gyvatukas_monthly_fee ?? 0;
+```
 
-## Version History
+### From Manual Entry Back to Automated
 
-### v1.1 (Current) - November 25, 2024
+1. Restore service from archive
+2. Populate `gyvatukas_summer_average` for all buildings
+3. Run summer calculations to establish baselines
+4. Update billing service integration
+5. Test thoroughly before production deployment
 
-**Status**: Production Ready ✅
+## See Also
 
-**Features**:
-- String-based distribution methods
-- Direct N+1 query pattern
-- Enhanced error logging
-- Config-driven parameters
-- Comprehensive documentation
-
-**Performance**:
-- Adequate for 5-20 properties
-- ~100-200ms execution time
-- Simple and maintainable
-
-### v2.0 (Reverted) - November 25, 2024
-
-**Status**: Historical Reference
-
-**Features**:
-- Enum-based distribution methods
-- Eager loading optimization
-- Strategy pattern extraction
-- Generic meter consumption method
-
-**Reason for Revert**: Premature optimization - complexity not justified at current scale
-
----
-
-**Document Version**: 1.0.0  
-**Last Updated**: November 25, 2024  
-**Status**: Complete ✅
-
+- [GyvatukasCalculator Service Documentation](GYVATUKAS_CALCULATOR_ARCHIVED.md)
+- [Billing Service API](BILLING_SERVICE_API.md)
+- [Meter Reading API](METER_READING_CONTROLLER_API.md)
+- [Configuration Reference](../reference/CONFIGURATION_REFERENCE.md)

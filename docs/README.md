@@ -29,14 +29,19 @@ Complete documentation for the Vilnius Utilities Billing Platform.
 - **[Meter Reading Observer](api/METER_READING_OBSERVER_API.md)** - Audit trail implementation
 
 ### Tariff Management
+- **[Tariff Manual Mode](filament/TARIFF_MANUAL_MODE.md)** - Manual entry mode feature guide
+- **[Tariff Quick Reference](filament/TARIFF_QUICK_REFERENCE.md)** - Quick reference for tariff management
+- **[Tariff API](api/TARIFF_API.md)** - Complete API documentation
 - **[Tariff Controller](api/TARIFF_CONTROLLER_API.md)** - Tariff management endpoints
 - **[Tariff Policy](api/TARIFF_POLICY_API.md)** - Authorization rules
 - **[Tariff Resolver](implementation/TARIFF_RESOLVER_IMPLEMENTATION.md)** - Tariff selection logic
+- **[Tariff Architecture](architecture/TARIFF_MANUAL_MODE_ARCHITECTURE.md)** - Manual mode architecture
 
-### Gyvatukas Calculator
-- **[Gyvatukas Calculator API](api/GYVATUKAS_CALCULATOR_API.md)** - Circulation fee calculation
-- **[Gyvatukas Implementation](implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)** - Implementation details
-- **[Gyvatukas Performance](performance/GYVATUKAS_CALCULATOR_OPTIMIZATION.md)** - Performance optimization
+### Gyvatukas Calculator (ARCHIVED)
+- **[Gyvatukas Calculator API](api/GYVATUKAS_CALCULATOR_API.md)** - Circulation fee calculation (archived)
+- **[Gyvatukas Service Documentation](services/GYVATUKAS_CALCULATOR_ARCHIVED.md)** - Complete service documentation (archived)
+- **[Gyvatukas Implementation](implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)** - Implementation details (archived)
+- **[Gyvatukas Performance](performance/GYVATUKAS_CALCULATOR_OPTIMIZATION.md)** - Performance optimization (archived)
 
 ## Architecture
 
@@ -218,6 +223,7 @@ Complete documentation for the Vilnius Utilities Billing Platform.
 ## Changelog
 
 - **[Changelog](CHANGELOG.md)** - All notable changes
+- **[Tariff Manual Mode](CHANGELOG_TARIFF_MANUAL_MODE.md)** - Manual entry mode implementation
 - **[Migration Changelog](CHANGELOG_MIGRATION_REFACTORING.md)** - Migration changes
 - **[Status Badge Fix](CHANGELOG_STATUS_BADGE_FIX.md)** - Status badge enum handling fix
 
