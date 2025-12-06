@@ -213,19 +213,28 @@ php artisan tinker --execute="echo DB::select('PRAGMA journal_mode;')[0]->journa
 php artisan tinker --execute="echo DB::select('PRAGMA foreign_keys;')[0]->foreign_keys;"
 ```
 
-### 7. Build Frontend Assets (Optional)
+### 7. Build Frontend Assets (REQUIRED)
 
-If you're using compiled assets (currently optional):
+The application requires compiled assets for Alpine.js functionality:
 
 ```bash
-# Development build with hot reload
+# Development build with hot reload (recommended for development)
 npm run dev
 
-# Production build
+# Production build (required for production)
 npm run build
 ```
 
-**Note**: The application currently uses CDN-delivered Tailwind CSS and Alpine.js, so building assets is optional unless you add custom JavaScript or CSS.
+**Important Changes**:
+- **Alpine.js** (v3.14.0) is now bundled via Vite (no longer CDN)
+- **Tailwind CSS** (v4.x) still uses CDN for rapid prototyping
+- **Chart.js** is bundled for dashboard visualizations
+- Running `npm run dev` or `npm run build` is **required** for the application to function
+
+**Development Workflow**:
+1. Run `npm run dev` in a separate terminal for hot module replacement
+2. Changes to JavaScript/Alpine components will auto-reload
+3. Vite dev server runs on `http://localhost:5173` by default
 
 ## Hierarchical User Management Setup
 
@@ -818,12 +827,14 @@ git pull origin main
 # Install PHP dependencies (production mode)
 composer install --optimize-autoloader --no-dev
 
-# Install Node dependencies (if using compiled assets)
+# Install Node dependencies (REQUIRED for Alpine.js)
 npm ci --production
 
-# Build frontend assets (if using compiled assets)
+# Build frontend assets (REQUIRED - Alpine.js is bundled)
 npm run build
 ```
+
+**Important**: As of the latest version, Alpine.js is bundled via Vite and no longer loaded from CDN. Running `npm run build` is **mandatory** for production deployments. The application will not function correctly without compiled assets.
 
 3. **Run migrations**:
 ```bash

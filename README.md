@@ -93,10 +93,12 @@ The system uses a subscription-based model for Admin accounts:
 - **Testing**: Pest 3.x, PHPUnit 11.x
 
 ### Frontend
-- **Styling**: Tailwind CSS 4.x
-- **JavaScript**: Alpine.js 3.x
+- **Styling**: Tailwind CSS 4.x (CDN)
+- **JavaScript**: Alpine.js 3.14.0 (bundled via Vite)
 - **Build Tool**: Vite 5.x
-- **Charts**: Chart.js 4.x
+- **Charts**: Chart.js 4.x (bundled)
+
+**Note**: Alpine.js is bundled via Vite for optimal performance. Running `npm run build` is required for production deployments.
 
 ### Key Packages
 - **Backup**: Spatie Laravel Backup 9.3+
@@ -150,17 +152,22 @@ php artisan migrate
 php artisan db:seed
 ```
 
-### 4. Start Development Server
+### 4. Build Assets and Start Server
 
 ```bash
-# Start Laravel development server
-php artisan serve
+# Build frontend assets (REQUIRED - Alpine.js is bundled)
+npm run build
 
-# In another terminal, start Vite (if using compiled assets)
+# OR for development with hot reload (recommended)
 npm run dev
+
+# In another terminal, start Laravel development server
+php artisan serve
 ```
 
 Access the application at `http://localhost:8000`
+
+**Important**: The application requires compiled assets to function. Alpine.js is bundled via Vite and no longer loaded from CDN. Always run `npm run dev` (development) or `npm run build` (production) before starting the server.
 
 ## Default User Accounts
 

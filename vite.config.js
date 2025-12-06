@@ -5,14 +5,31 @@ import laravel from 'laravel-vite-plugin';
  * Vite configuration for Vilnius Utilities Billing System
  * 
  * Asset Strategy:
- * - Blade views use CDN-based Alpine.js and Tailwind CSS 4.x
+ * - Alpine.js (v3.14.0) bundled via Vite for optimal performance and reliability
+ * - Tailwind CSS 4.x loaded via CDN for rapid prototyping
  * - Filament handles its own asset compilation
- * - Custom assets (app.css, app.js) available for future needs if required
+ * - Chart.js bundled for dashboard visualizations
  * 
- * To activate compiled assets:
- * 1. Add @vite(['resources/css/app.css', 'resources/js/app.js']) to layouts
- * 2. Run `npm run dev` for development or `npm run build` for production
- * 3. Remove CDN script/link tags from layout files
+ * Build Commands:
+ * - Development: `npm run dev` (with hot reload)
+ * - Production: `npm run build` (optimized bundle)
+ * 
+ * Alpine.js Bundling Benefits:
+ * - Reduced external HTTP requests (no CDN dependency)
+ * - Better caching with versioned filenames
+ * - Tree-shaking removes unused code
+ * - Works offline without internet connection
+ * - Version control prevents unexpected breaking changes
+ * 
+ * Required for Interactive Components:
+ * - Mobile navigation menu toggle
+ * - Flash message auto-dismiss
+ * - Locale switcher interactions
+ * - Dynamic form fields
+ * - Dropdown menus
+ * 
+ * @see docs/updates/ALPINE_BUNDLING_MIGRATION.md for migration details
+ * @see docs/refactoring/LAYOUT_ALPINE_REFACTORING_SUMMARY.md for implementation notes
  */
 export default defineConfig({
     plugins: [
