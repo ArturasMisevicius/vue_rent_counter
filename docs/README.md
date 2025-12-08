@@ -11,6 +11,15 @@ Complete documentation for the Vilnius Utilities Billing Platform.
 - **[HierarchicalScope Quick Start](guides/HIERARCHICAL_SCOPE_QUICK_START.md)** - 5-minute guide to multi-tenant filtering
 - **[Testing Guide](guides/TESTING_GUIDE.md)** - Testing approach and conventions
 
+## Project Handover
+
+- **[Final Technical Handover Report](handover/FINAL_TECHNICAL_HANDOVER_REPORT.md)** - Comprehensive technical handover documentation
+- **[Executive Summary](handover/EXECUTIVE_SUMMARY.md)** - High-level project overview
+- **[Architecture Diagram](handover/ARCHITECTURE_DIAGRAM.md)** - System architecture visualization
+- **[Auditor Checklist](handover/AUDITOR_CHECKLIST.md)** - External audit verification checklist
+- **[Functional Logic Map (Russian)](business/FUNCTIONAL_LOGIC_MAP_RU.md)** - Complete functional requirements and user scenarios in Russian
+- **[Detailed User Journeys (Russian)](business/USER_JOURNEYS_DETAILED_RU.md)** - End-to-end user scenarios with detailed UI mockups in Russian
+
 ## Feature Documentation
 
 ### Invoice Management
