@@ -5,13 +5,22 @@ declare(strict_types=1);
 namespace App\Enums;
 
 use App\Enums\Concerns\HasTranslatableLabel;
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
+use InvalidArgumentException;
 
 /**
  * Pricing models for universal utility services.
- * Extends TariffType capabilities with additional models.
+ * 
+ * Extends TariffType capabilities with additional models for flexible
+ * utility billing scenarios. Supports consumption-based, tiered, hybrid,
+ * and custom formula pricing models.
+ * 
+ * @see TariffType For legacy compatibility
+ * @see DistributionMethod For cost distribution patterns
  */
-enum PricingModel: string implements HasLabel
+enum PricingModel: string implements HasLabel, HasColor, HasIcon
 {
     use HasTranslatableLabel;
 
@@ -42,16 +51,51 @@ enum PricingModel: string implements HasLabel
     }
 
     /**
+     * Get the color for Filament components.
+     */
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::FIXED_MONTHLY => 'gray',
+            self::CONSUMPTION_BASED => 'info',
+            self::TIERED_RATES => 'warning',
+            self::HYBRID => 'success',
+            self::CUSTOM_FORMULA => 'danger',
+            self::FLAT => 'gray',
+            self::TIME_OF_USE => 'primary',
+        };
+    }
+
+    /**
+     * Get the icon for Filament components.
+     */
+    public function getIcon(): string
+    {
+        return match ($this) {
+            self::FIXED_MONTHLY => 'heroicon-o-banknotes',
+            self::CONSUMPTION_BASED => 'heroicon-o-chart-bar',
+            self::TIERED_RATES => 'heroicon-o-bars-3-bottom-left',
+            self::HYBRID => 'heroicon-o-puzzle-piece',
+            self::CUSTOM_FORMULA => 'heroicon-o-calculator',
+            self::FLAT => 'heroicon-o-minus',
+            self::TIME_OF_USE => 'heroicon-o-clock',
+        };
+    }
+
+    /**
      * Check if this model requires consumption data.
+     * 
+     * Performance: Uses match expression instead of in_array for O(1) lookup.
      */
     public function requiresConsumptionData(): bool
     {
-        return in_array($this, [
+        return match ($this) {
             self::CONSUMPTION_BASED,
             self::TIERED_RATES,
             self::HYBRID,
-            self::TIME_OF_USE,
-        ]);
+            self::TIME_OF_USE => true,
+            default => false,
+        };
     }
 
     /**
@@ -59,11 +103,12 @@ enum PricingModel: string implements HasLabel
      */
     public function supportsTimeBasedPricing(): bool
     {
-        return in_array($this, [
+        return match ($this) {
             self::TIME_OF_USE,
             self::HYBRID,
-            self::CUSTOM_FORMULA,
-        ]);
+            self::CUSTOM_FORMULA => true,
+            default => false,
+        };
     }
 
     /**
@@ -75,26 +120,133 @@ enum PricingModel: string implements HasLabel
     }
 
     /**
+     * Check if this model supports tiered rate structures.
+     */
+    public function supportsTieredRates(): bool
+    {
+        return match ($this) {
+            self::TIERED_RATES,
+            self::HYBRID => true,
+            default => false,
+        };
+    }
+
+    /**
+     * Check if this model has fixed components.
+     */
+    public function hasFixedComponents(): bool
+    {
+        return match ($this) {
+            self::FIXED_MONTHLY,
+            self::HYBRID,
+            self::FLAT => true,
+            default => false,
+        };
+    }
+
+    /**
+     * Get the complexity level of this pricing model.
+     * 
+     * @return 'simple'|'moderate'|'complex'
+     */
+    public function getComplexityLevel(): string
+    {
+        return match ($this) {
+            self::FIXED_MONTHLY, self::FLAT => 'simple',
+            self::CONSUMPTION_BASED, self::TIME_OF_USE => 'moderate',
+            self::TIERED_RATES, self::HYBRID, self::CUSTOM_FORMULA => 'complex',
+        };
+    }
+
+    /**
      * Convert from legacy TariffType enum.
+     * 
+     * @throws InvalidArgumentException When tariffType is invalid
      */
     public static function fromTariffType(string $tariffType): self
     {
         return match ($tariffType) {
             'flat' => self::FLAT,
             'time_of_use' => self::TIME_OF_USE,
-            default => self::CONSUMPTION_BASED,
+            default => throw new InvalidArgumentException("Invalid tariff type: {$tariffType}"),
+        };
+    }
+
+    /**
+     * Convert from TariffType enum instance.
+     */
+    public static function fromTariffTypeEnum(TariffType $tariffType): self
+    {
+        return match ($tariffType) {
+            TariffType::FLAT => self::FLAT,
+            TariffType::TIME_OF_USE => self::TIME_OF_USE,
         };
     }
 
     /**
      * Convert to legacy TariffType enum for backward compatibility.
+     * 
+     * @throws InvalidArgumentException When conversion is not possible
      */
     public function toTariffType(): string
     {
         return match ($this) {
             self::FLAT => 'flat',
             self::TIME_OF_USE => 'time_of_use',
-            default => 'consumption_based',
+            default => throw new InvalidArgumentException("Cannot convert {$this->value} to TariffType"),
         };
+    }
+
+    /**
+     * Check if this pricing model can be converted to TariffType.
+     */
+    public function isLegacyCompatible(): bool
+    {
+        return match ($this) {
+            self::FLAT, self::TIME_OF_USE => true,
+            default => false,
+        };
+    }
+
+    /**
+     * Get all modern pricing models (excluding legacy ones).
+     * 
+     * @return array<self>
+     */
+    public static function modernModels(): array
+    {
+        return [
+            self::FIXED_MONTHLY,
+            self::CONSUMPTION_BASED,
+            self::TIERED_RATES,
+            self::HYBRID,
+            self::CUSTOM_FORMULA,
+        ];
+    }
+
+    /**
+     * Get all legacy pricing models.
+     * 
+     * @return array<self>
+     */
+    public static function legacyModels(): array
+    {
+        return [
+            self::FLAT,
+            self::TIME_OF_USE,
+        ];
+    }
+
+    /**
+     * Get pricing models that require meter readings.
+     * 
+     * @return array<self>
+     */
+    public static function meterReadingModels(): array
+    {
+        return array_filter(
+            self::cases(),
+            fn (self $model) => $model->requiresConsumptionData()
+        );
     }
 }

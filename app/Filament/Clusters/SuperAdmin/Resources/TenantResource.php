@@ -101,7 +101,7 @@ final class TenantResource extends Resource
                                     ->live()
                                     ->afterStateUpdated(function ($set, ?string $state) {
                                         $limits = [
-                                            'starter' => ['users' => 5, 'storage' => 1000, 'api_calls' => 1000],
+                                            'basic' => ['users' => 5, 'storage' => 1000, 'api_calls' => 1000],
                                             'professional' => ['users' => 25, 'storage' => 5000, 'api_calls' => 10000],
                                             'enterprise' => ['users' => 999, 'storage' => 50000, 'api_calls' => 100000],
                                             'custom' => ['users' => 10, 'storage' => 2000, 'api_calls' => 5000],

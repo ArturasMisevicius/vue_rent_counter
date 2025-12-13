@@ -411,10 +411,19 @@ return new class extends Migration
      */
     private function dropIndexIfExists(Blueprint $table, string $indexName): void
     {
+        $connection = Schema::getConnection();
+        $driver = $connection->getDriverName();
+        $tableName = $table->getTable();
+
         try {
-            $table->dropIndex($indexName);
-        } catch (\Exception $e) {
-            // Index doesn't exist, ignore
+            if ($driver === 'mysql') {
+                $connection->statement("DROP INDEX IF EXISTS {$indexName} ON `{$tableName}`");
+            } else {
+                // SQLite and PostgreSQL both support DROP INDEX IF EXISTS syntax
+                $connection->statement("DROP INDEX IF EXISTS \"{$indexName}\"");
+            }
+        } catch (\Throwable $e) {
+            // Swallow exceptions to keep rollback idempotent
         }
     }
 };

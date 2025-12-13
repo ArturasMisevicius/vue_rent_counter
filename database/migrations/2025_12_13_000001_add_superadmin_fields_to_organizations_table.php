@@ -12,7 +12,7 @@ return new class extends Migration
     {
         Schema::table('organizations', function (Blueprint $table) {
             // Subscription and billing fields
-            $table->string('subscription_plan')->default('starter')->after('plan');
+            $table->string('subscription_plan')->default('basic')->after('plan');
             $table->integer('max_storage_gb')->default(1)->after('max_users');
             $table->integer('max_api_calls_per_month')->default(1000)->after('max_storage_gb');
             $table->integer('current_users')->default(0)->after('max_api_calls_per_month');
@@ -50,6 +50,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('organizations', function (Blueprint $table) {
+            // Drop indexes before removing columns to avoid SQLite rebuild errors.
+            $table->dropIndex(['subscription_plan']);
+            $table->dropIndex(['auto_billing']);
+            $table->dropIndex(['maintenance_mode']);
+            $table->dropIndex(['enforce_quotas']);
+
             $table->dropColumn([
                 'subscription_plan',
                 'max_storage_gb',

@@ -26,7 +26,6 @@ Extend the existing robust infrastructure to support universal utility types bey
 ## 1. Universal Service Framework
 
 - [-] 1 Create UtilityService model and migration
-
   - Create model with configurable attributes (name, unit of measurement, default pricing model, calculation formula)
   - Support global templates (SuperAdmin) and tenant customizations (Admin)
   - Include JSON schema for validation rules and business logic configuration
@@ -34,8 +33,6 @@ Extend the existing robust infrastructure to support universal utility types bey
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
 - [x] 1.2 Create ServiceConfiguration model and migration
-
-
   - Property-specific utility service configuration linking to existing `Property` model
   - Support multiple pricing models extending current `TariffType` enum capabilities
   - Include rate schedules (JSON) and leverage existing `DistributionMethod` enum
@@ -43,8 +40,6 @@ Extend the existing robust infrastructure to support universal utility types bey
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
 - [x] 1.3 Extend existing Meter model with universal capabilities
-
-
   - Add `reading_structure` JSON field for flexible multi-value readings
   - Add `service_configuration_id` foreign key to link meters to universal services
   - Maintain existing `type` (MeterType), `supports_zones`, and all current functionality
@@ -53,7 +48,6 @@ Extend the existing robust infrastructure to support universal utility types bey
 
 
 - [x] 1.4 Extend existing MeterReading model with universal capabilities
-
   - Add `reading_values` JSON field to support complex reading structures
   - Add `input_method` enum field (manual, photo_ocr, csv_import, api_integration, estimated)
   - Add `validation_status` enum field (pending, validated, rejected, requires_review)
@@ -67,7 +61,7 @@ Extend the existing robust infrastructure to support universal utility types bey
 
 ## 2. Enhanced Pricing and Calculation Engine
 
-- [ ] 2.1 Create PricingModel enum extending TariffType capabilities
+- [ ] 2 Create PricingModel enum extending TariffType capabilities
   - Add TIERED_RATES, HYBRID, CUSTOM_FORMULA to existing FLAT and TIME_OF_USE
   - Include mathematical expression parsing for custom formulas
   - Maintain backward compatibility with existing `TariffType` usage

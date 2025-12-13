@@ -56,14 +56,35 @@ return new class extends Migration
      */
     public function down(): void
     {
+        $driver = DB::connection()->getDriverName();
+
         // Restore data to tenants.property_id if column exists
         if (Schema::hasColumn('tenants', 'property_id')) {
-            DB::statement('
-                UPDATE tenants t
-                INNER JOIN property_tenant pt ON t.id = pt.tenant_id
-                SET t.property_id = pt.property_id
-                WHERE pt.vacated_at IS NULL
-            ');
+            if ($driver === 'sqlite') {
+                DB::statement('
+                    UPDATE tenants
+                    SET property_id = (
+                        SELECT property_id
+                        FROM property_tenant pt
+                        WHERE pt.tenant_id = tenants.id
+                          AND pt.vacated_at IS NULL
+                        LIMIT 1
+                    )
+                    WHERE EXISTS (
+                        SELECT 1
+                        FROM property_tenant pt
+                        WHERE pt.tenant_id = tenants.id
+                          AND pt.vacated_at IS NULL
+                    )
+                ');
+            } else {
+                DB::statement('
+                    UPDATE tenants t
+                    INNER JOIN property_tenant pt ON t.id = pt.tenant_id
+                    SET t.property_id = pt.property_id
+                    WHERE pt.vacated_at IS NULL
+                ');
+            }
         }
 
         Schema::dropIfExists('property_tenant');

@@ -9,7 +9,7 @@ use Filament\Support\Contracts\HasLabel;
 
 enum SubscriptionPlan: string implements HasLabel, HasColor
 {
-    case STARTER = 'starter';
+    case BASIC = 'basic';
     case PROFESSIONAL = 'professional';
     case ENTERPRISE = 'enterprise';
     case CUSTOM = 'custom';
@@ -17,7 +17,7 @@ enum SubscriptionPlan: string implements HasLabel, HasColor
     public function getLabel(): string
     {
         return match($this) {
-            self::STARTER => __('superadmin.subscription.plan.starter'),
+            self::BASIC => __('superadmin.subscription.plan.basic'),
             self::PROFESSIONAL => __('superadmin.subscription.plan.professional'),
             self::ENTERPRISE => __('superadmin.subscription.plan.enterprise'),
             self::CUSTOM => __('superadmin.subscription.plan.custom'),
@@ -27,7 +27,7 @@ enum SubscriptionPlan: string implements HasLabel, HasColor
     public function getColor(): string
     {
         return match($this) {
-            self::STARTER => 'gray',
+            self::BASIC => 'gray',
             self::PROFESSIONAL => 'info',
             self::ENTERPRISE => 'success',
             self::CUSTOM => 'warning',
@@ -37,7 +37,7 @@ enum SubscriptionPlan: string implements HasLabel, HasColor
     public function getMaxProperties(): int
     {
         return match($this) {
-            self::STARTER => 100,
+            self::BASIC => 100,
             self::PROFESSIONAL => 500,
             self::ENTERPRISE => 9999,
             self::CUSTOM => 9999,
@@ -47,7 +47,7 @@ enum SubscriptionPlan: string implements HasLabel, HasColor
     public function getMaxUsers(): int
     {
         return match($this) {
-            self::STARTER => 10,
+            self::BASIC => 10,
             self::PROFESSIONAL => 50,
             self::ENTERPRISE => 999,
             self::CUSTOM => 999,
@@ -57,7 +57,7 @@ enum SubscriptionPlan: string implements HasLabel, HasColor
     public function getMonthlyPrice(): float
     {
         return match($this) {
-            self::STARTER => 29.99,
+            self::BASIC => 29.99,
             self::PROFESSIONAL => 99.99,
             self::ENTERPRISE => 299.99,
             self::CUSTOM => 0.00, // Custom pricing
@@ -67,7 +67,7 @@ enum SubscriptionPlan: string implements HasLabel, HasColor
     public function getFeatures(): array
     {
         return match($this) {
-            self::STARTER => [
+            self::BASIC => [
                 'basic_reporting',
                 'email_support',
                 'standard_integrations',

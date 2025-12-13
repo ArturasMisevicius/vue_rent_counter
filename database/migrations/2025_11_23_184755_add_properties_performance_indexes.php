@@ -57,22 +57,38 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('properties', function (Blueprint $table) {
-            $table->dropIndex('properties_type_index');
-            $table->dropIndex('properties_area_index');
-            $table->dropIndex('properties_building_type_index');
-            $table->dropIndex('properties_tenant_type_index');
-        });
-        
+        $driver = DB::connection()->getDriverName();
+
+        if ($driver === 'sqlite') {
+            foreach ([
+                'properties_type_index',
+                'properties_area_index',
+                'properties_building_type_index',
+                'properties_tenant_type_index',
+                'property_tenant_vacated_index',
+                'property_tenant_current_index',
+                'property_tenant_active_index',
+            ] as $index) {
+                DB::statement("DROP INDEX IF EXISTS \"{$index}\"");
+            }
+        } else {
+            Schema::table('properties', function (Blueprint $table) {
+                $table->dropIndex('properties_type_index');
+                $table->dropIndex('properties_area_index');
+                $table->dropIndex('properties_building_type_index');
+                $table->dropIndex('properties_tenant_type_index');
+            });
+
+            Schema::table('property_tenant', function (Blueprint $table) {
+                $table->dropIndex('property_tenant_vacated_index');
+                $table->dropIndex('property_tenant_current_index');
+                $table->dropIndex('property_tenant_active_index');
+            });
+        }
+
         // Drop FULLTEXT index (MySQL only)
-        if (DB::connection()->getDriverName() === 'mysql') {
+        if ($driver === 'mysql') {
             DB::statement('ALTER TABLE properties DROP INDEX properties_address_fulltext');
         }
-        
-        Schema::table('property_tenant', function (Blueprint $table) {
-            $table->dropIndex('property_tenant_vacated_index');
-            $table->dropIndex('property_tenant_current_index');
-            $table->dropIndex('property_tenant_active_index');
-        });
     }
 };

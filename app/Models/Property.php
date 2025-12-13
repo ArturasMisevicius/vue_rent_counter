@@ -81,6 +81,14 @@ class Property extends Model
     }
 
     /**
+     * Get the service configurations for this property.
+     */
+    public function serviceConfigurations(): HasMany
+    {
+        return $this->hasMany(ServiceConfiguration::class);
+    }
+
+    /**
      * Scope a query to properties of a specific type.
      */
     public function scopeOfType($query, PropertyType $type): void

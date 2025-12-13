@@ -57,47 +57,47 @@ test('TenantStatus enum validates state transitions', function () {
 
 // SubscriptionPlan Tests
 test('SubscriptionPlan enum has correct values', function () {
-    expect(SubscriptionPlan::STARTER->value)->toBe('starter')
+    expect(SubscriptionPlan::BASIC->value)->toBe('basic')
         ->and(SubscriptionPlan::PROFESSIONAL->value)->toBe('professional')
         ->and(SubscriptionPlan::ENTERPRISE->value)->toBe('enterprise')
         ->and(SubscriptionPlan::CUSTOM->value)->toBe('custom');
 });
 
 test('SubscriptionPlan enum provides labels', function () {
-    expect(SubscriptionPlan::STARTER->getLabel())->toBeString()
+    expect(SubscriptionPlan::BASIC->getLabel())->toBeString()
         ->and(SubscriptionPlan::PROFESSIONAL->getLabel())->toBeString()
         ->and(SubscriptionPlan::ENTERPRISE->getLabel())->toBeString()
         ->and(SubscriptionPlan::CUSTOM->getLabel())->toBeString();
 });
 
 test('SubscriptionPlan enum provides colors', function () {
-    expect(SubscriptionPlan::STARTER->getColor())->toBe('gray')
+    expect(SubscriptionPlan::BASIC->getColor())->toBe('gray')
         ->and(SubscriptionPlan::PROFESSIONAL->getColor())->toBe('info')
         ->and(SubscriptionPlan::ENTERPRISE->getColor())->toBe('success')
         ->and(SubscriptionPlan::CUSTOM->getColor())->toBe('warning');
 });
 
 test('SubscriptionPlan enum provides resource limits', function () {
-    expect(SubscriptionPlan::STARTER->getMaxProperties())->toBe(100)
+    expect(SubscriptionPlan::BASIC->getMaxProperties())->toBe(100)
         ->and(SubscriptionPlan::PROFESSIONAL->getMaxProperties())->toBe(500)
         ->and(SubscriptionPlan::ENTERPRISE->getMaxProperties())->toBe(9999)
         ->and(SubscriptionPlan::CUSTOM->getMaxProperties())->toBe(9999);
     
-    expect(SubscriptionPlan::STARTER->getMaxUsers())->toBe(10)
+    expect(SubscriptionPlan::BASIC->getMaxUsers())->toBe(10)
         ->and(SubscriptionPlan::PROFESSIONAL->getMaxUsers())->toBe(50)
         ->and(SubscriptionPlan::ENTERPRISE->getMaxUsers())->toBe(999)
         ->and(SubscriptionPlan::CUSTOM->getMaxUsers())->toBe(999);
 });
 
 test('SubscriptionPlan enum provides pricing', function () {
-    expect(SubscriptionPlan::STARTER->getMonthlyPrice())->toBe(29.99)
+    expect(SubscriptionPlan::BASIC->getMonthlyPrice())->toBe(29.99)
         ->and(SubscriptionPlan::PROFESSIONAL->getMonthlyPrice())->toBe(99.99)
         ->and(SubscriptionPlan::ENTERPRISE->getMonthlyPrice())->toBe(299.99)
         ->and(SubscriptionPlan::CUSTOM->getMonthlyPrice())->toBe(0.00);
 });
 
 test('SubscriptionPlan enum provides features', function () {
-    $starterFeatures = SubscriptionPlan::STARTER->getFeatures();
+    $starterFeatures = SubscriptionPlan::BASIC->getFeatures();
     expect($starterFeatures)->toBeArray()
         ->and($starterFeatures)->toContain('basic_reporting')
         ->and($starterFeatures)->toContain('email_support');

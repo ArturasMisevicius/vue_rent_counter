@@ -102,6 +102,12 @@ return new class extends Migration
         Schema::dropIfExists('tenant_activity_log');
         
         Schema::table('tenants', function (Blueprint $table) {
+            $table->dropUnique('tenants_slug_unique');
+            $table->dropUnique('tenants_domain_unique');
+            $table->dropIndex('tenants_is_active_index');
+            $table->dropIndex('tenants_plan_index');
+            $table->dropIndex('tenants_is_active_subscription_ends_at_index');
+
             $table->dropColumn([
                 'slug', 'domain', 'is_active', 'suspended_at', 'suspension_reason',
                 'plan', 'max_properties', 'max_users', 'trial_ends_at', 
