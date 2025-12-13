@@ -23,10 +23,9 @@ class HandleImpersonation
             $impersonationService->endImpersonation();
             
             return redirect()->route('filament.admin.pages.dashboard')
-                ->with('warning', __('Impersonation session has timed out after 30 minutes.'));
+                ->with('warning', __('app.impersonation.timeout'));
         }
 
         return $next($request);
     }
 }
-

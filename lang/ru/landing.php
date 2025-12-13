@@ -1,92 +1,50 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'hero' => [
-        'title' => 'Счетчик аренды синхронизирует показания, счета и арендаторов.',
-        'tagline' => 'Все команды работают с одной правдой по объектам, тарифам и показаниям счетчиков.',
-        'badge' => 'Коммунальные услуги · Счета · Соответствие',
-    ],
-    'metrics' => [
-        'cache' => 'Обновление кэша панели',
-        'readings' => 'Непроверенных показаний в продакшене',
-        'isolation' => 'Ролевое разделение данных арендаторов',
-    ],
-    'features_title' => 'Функции для биллинга коммунальных услуг',
-    'features_subtitle' => 'Почему команды остаются синхронными',
     'cta_bar' => [
-        'title' => 'Войдите или зарегистрируйтесь.',
-        'eyebrow' => 'Готовы навести порядок в биллинге?',
-    ],
-    'faq_intro' => 'Мы создали Счетчик аренды, чтобы управляющие, финансы и арендаторы были уверены. Вот частые вопросы.',
-    'features' => [
-        'unified_metering' => [
-            'title' => 'Единый учет',
-            'description' => 'Собирайте показания электричества, воды и отопления в одном месте с проверками и поиском аномалий.',
-        ],
-        'accurate_invoicing' => [
-            'title' => 'Точные счета',
-            'description' => 'Создавайте детальные счета с версиями тарифов, зонами и налогами, синхронно для арендаторов и менеджеров.',
-        ],
-        'role_access' => [
-            'title' => 'Доступ по ролям',
-            'description' => 'Панели для админов, менеджеров и арендаторов с политиками и аудитом.',
-        ],
-        'reporting' => [
-            'title' => 'Отчеты, которые помогают',
-            'description' => 'Отчеты по потреблению, выручке и соответствию с фильтрами, экспортом и пагинацией.',
-        ],
-        'performance' => [
-            'title' => 'Производительность вперед',
-            'description' => 'Оптимизированные запросы, eager loading и кеш, чтобы большие портфели работали быстро.',
-        ],
-        'tenant_clarity' => [
-            'title' => 'Прозрачность для арендатора',
-            'description' => 'Самообслуживание с деталями счетов, трендами и фильтрацией по объектам.',
-        ],
-    ],
-    'faq' => [
-        'validation' => [
-            'question' => 'Как проверяются показания счетчиков?',
-            'answer' => 'Показания проходят проверки монотонности, зон и аномалий перед выставлением счетов.',
-        ],
-        'tenants' => [
-            'question' => 'Видят ли арендаторы только свои объекты?',
-            'answer' => 'Да, TenantScope и политики ограничивают данные только назначенными объектами.',
-        ],
-        'invoices' => [
-            'question' => 'Поддерживаются ли версии и исправления счетов?',
-            'answer' => 'Счета хранят черновики, время финализации и аудит исправлений, сохраняя историю.',
-        ],
-        'admin' => [
-            'question' => 'Есть ли панель администратора?',
-            'answer' => 'Админы управляют пользователями, поставщиками, тарифами и аудитом через панель Filament.',
-        ],
+        'eyebrow' => 'Eyebrow',
+        'title' => 'Title',
     ],
     'dashboard' => [
-        'live_overview' => 'Живой обзор',
-        'portfolio_health' => 'Состояние портфеля',
-        'healthy' => 'Стабильно',
-        'draft_invoices' => 'Черновики счетов',
-        'draft_invoices_hint' => 'Готовы к финализации',
-        'meters_validated' => 'Проверенные счетчики',
-        'meters_validated_hint' => 'По всем зонам',
-        'recent_readings' => 'Недавние показания',
-        'water' => 'Вода',
-        'water_status' => 'Монотонность ✓',
-        'electricity' => 'Электричество',
-        'electricity_status' => 'Проверка аномалий ✓',
-        'heating' => 'Отопление',
-        'heating_status' => 'Разделение по зонам ✓',
-        'trusted' => 'Надежно',
+        'draft_invoices' => 'Draft Invoices',
+        'draft_invoices_hint' => 'Draft Invoices Hint',
+        'electricity' => 'Electricity',
+        'electricity_status' => 'Electricity Status',
+        'healthy' => 'Healthy',
+        'heating' => 'Heating',
+        'heating_status' => 'Heating Status',
+        'live_overview' => 'Live Overview',
+        'meters_validated' => 'Meters Validated',
+        'meters_validated_hint' => 'Meters Validated Hint',
+        'portfolio_health' => 'Portfolio Health',
+        'recent_readings' => 'Recent Readings',
+        'trusted' => 'Trusted',
+        'water' => 'Water',
+        'water_status' => 'Water Status',
     ],
+    'faq_intro' => 'Faq Intro',
     'faq_section' => [
-        'eyebrow' => 'Нужные ответы',
-        'title' => 'FAQ',
-        'category_prefix' => 'Категория:',
+        'category_prefix' => 'Category Prefix',
+        'eyebrow' => 'Eyebrow',
+        'title' => 'Title',
+    ],
+    'features_subtitle' => 'Features Subtitle',
+    'features_title' => 'Features Title',
+    'hero' => [
+        'badge' => 'Badge',
+        'tagline' => 'Tagline',
+        'title' => 'Title',
     ],
     'metric_values' => [
-        'five_minutes' => '5 мин',
-        'zero' => 'Ноль',
-        'full' => '100%',
+        'five_minutes' => 'Five Minutes',
+        'full' => 'Full',
+        'zero' => 'Zero',
+    ],
+    'metrics' => [
+        'cache' => 'Cache',
+        'isolation' => 'Isolation',
+        'readings' => 'Readings',
     ],
 ];

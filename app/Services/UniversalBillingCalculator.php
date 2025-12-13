@@ -426,8 +426,45 @@ final class UniversalBillingCalculator
         ServiceConfiguration $serviceConfig,
         UniversalConsumptionData $consumption
     ): UniversalCalculationResult {
-        // For legacy compatibility, treat flat rate as consumption-based
-        return $this->calculateConsumptionBasedBill($serviceConfig, $consumption);
+        $rateSchedule = $serviceConfig->rate_schedule;
+        
+        // Check if it's a fixed flat rate or consumption-based flat rate
+        if (isset($rateSchedule['monthly_rate'])) {
+            // Fixed flat rate - treat as fixed monthly
+            $monthlyRate = $rateSchedule['monthly_rate'];
+            
+            return new UniversalCalculationResult(
+                totalAmount: round($monthlyRate, self::MONETARY_PRECISION),
+                baseAmount: round($monthlyRate, self::MONETARY_PRECISION),
+                adjustments: [],
+                consumptionAmount: 0.0,
+                fixedAmount: round($monthlyRate, self::MONETARY_PRECISION),
+                tariffSnapshot: $this->createTariffSnapshot($serviceConfig),
+                calculationDetails: [
+                    'pricing_model' => PricingModel::FLAT->value,
+                    'monthly_rate' => $monthlyRate,
+                ]
+            );
+        } else {
+            // Consumption-based flat rate
+            $unitRate = $rateSchedule['unit_rate'] ?? 0.0;
+            $totalConsumption = $consumption->getTotalConsumption();
+            $consumptionAmount = $totalConsumption * $unitRate;
+            
+            return new UniversalCalculationResult(
+                totalAmount: round($consumptionAmount, self::MONETARY_PRECISION),
+                baseAmount: round($consumptionAmount, self::MONETARY_PRECISION),
+                adjustments: [],
+                consumptionAmount: round($consumptionAmount, self::MONETARY_PRECISION),
+                fixedAmount: 0.0,
+                tariffSnapshot: $this->createTariffSnapshot($serviceConfig),
+                calculationDetails: [
+                    'pricing_model' => PricingModel::FLAT->value,
+                    'unit_rate' => $unitRate,
+                    'total_consumption' => $totalConsumption,
+                ]
+            );
+        }
     }
 
     /**

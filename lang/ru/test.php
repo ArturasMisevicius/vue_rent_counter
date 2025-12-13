@@ -1,8 +1,9 @@
 <?php
 
-return array (
-  'multi' => 
-  array (
-    'language' => 'Russian Value',
-  ),
-);
+declare(strict_types=1);
+
+return [
+    'multi' => [
+        'language' => 'Russian Value',
+    ],
+];

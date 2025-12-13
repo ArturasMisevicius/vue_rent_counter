@@ -3,92 +3,82 @@
 declare(strict_types=1);
 
 return [
-    'navigation' => 'Языки',
-
-    'labels' => [
-        'locale' => 'Локаль',
-        'code' => 'Код локали',
-        'name' => 'Название языка',
-        'native_name' => 'Название на языке оригинала',
-        'active' => 'Активен',
-        'default' => 'Язык по умолчанию',
-        'order' => 'Порядок отображения',
-        'created' => 'Создано',
+    'actions' => [
+        'activate' => 'Activate',
+        'bulk_activate' => 'Bulk Activate',
+        'bulk_deactivate' => 'Bulk Deactivate',
+        'deactivate' => 'Deactivate',
+        'set_default' => 'Set Default',
     ],
-
-    'placeholders' => [
-        'code' => 'ru',
-        'name' => 'Russian',
-        'native_name' => 'Русский',
-    ],
-
-    'sections' => [
-        'details' => 'Данные языка',
-        'settings' => 'Настройки',
-    ],
-
-    'helper_text' => [
-        'details' => 'Настройте параметры языков приложения',
-        'code' => 'Код ISO 639-1 (например, en, lt, ru)',
-        'name' => 'Отображаемое название на английском',
-        'native_name' => 'Отображаемое название на родном языке',
-        'active' => 'Только активные языки доступны для выбора',
-        'default' => 'Только один язык может быть по умолчанию',
-        'order' => 'Меньшие числа отображаются первыми в списках языков',
-    ],
-
-    'filters' => [
-        'active_placeholder' => 'Все языки',
-        'active_only' => 'Только активные',
-        'inactive_only' => 'Только неактивные',
-        'default_placeholder' => 'Все языки',
-        'default_only' => 'Только по умолчанию',
-        'non_default_only' => 'Только не по умолчанию',
-    ],
-
     'empty' => [
-        'heading' => 'Языки не настроены',
-        'description' => 'Добавьте языки, чтобы включить многоязычность.',
-        'action' => 'Добавить первый язык',
+        'action' => 'Action',
+        'description' => 'Description',
+        'heading' => 'Heading',
     ],
-
+    'errors' => [
+        'cannot_deactivate_default' => 'Cannot Deactivate Default',
+        'cannot_delete_default' => 'Cannot Delete Default',
+        'cannot_delete_last_active' => 'Cannot Delete Last Active',
+    ],
+    'filters' => [
+        'active_only' => 'Active Only',
+        'active_placeholder' => 'Active Placeholder',
+        'default_only' => 'Default Only',
+        'default_placeholder' => 'Default Placeholder',
+        'inactive_only' => 'Inactive Only',
+        'non_default_only' => 'Non Default Only',
+    ],
+    'helper_text' => [
+        'active' => 'Active',
+        'code' => 'Code',
+        'default' => 'Default',
+        'details' => 'Details',
+        'name' => 'Name',
+        'native_name' => 'Native Name',
+        'order' => 'Order',
+    ],
+    'labels' => [
+        'active' => 'Active',
+        'code' => 'Code',
+        'created' => 'Created',
+        'default' => 'Default',
+        'locale' => 'Locale',
+        'name' => 'Name',
+        'native_name' => 'Native Name',
+        'order' => 'Order',
+    ],
+    'messages' => [
+        'code_copied' => 'Code Copied',
+    ],
     'modals' => [
         'delete' => [
-            'heading' => 'Удалить языки',
-            'description' => 'Вы уверены, что хотите удалить эти языки? Это может повлиять на переводы.',
+            'description' => 'Description',
+            'heading' => 'Heading',
         ],
         'set_default' => [
-            'heading' => 'Установить язык по умолчанию',
-            'description' => 'Вы уверены, что хотите установить этот язык по умолчанию? Текущий язык по умолчанию будет изменен.',
+            'description' => 'Description',
+            'heading' => 'Heading',
         ],
     ],
-
-    'actions' => [
-        'activate' => 'Активировать',
-        'deactivate' => 'Деактивировать',
-        'bulk_activate' => 'Активировать выбранные',
-        'bulk_deactivate' => 'Деактивировать выбранные',
-        'set_default' => 'Установить по умолчанию',
-    ],
-
-    'messages' => [
-        'code_copied' => 'Код языка скопирован',
-    ],
-
+    'navigation' => 'Navigation',
     'notifications' => [
-        'default_set' => 'Язык по умолчанию успешно обновлен',
+        'default_set' => 'Default Set',
     ],
-
-    'errors' => [
-        'cannot_delete_default' => 'Невозможно удалить язык по умолчанию',
-        'cannot_delete_last_active' => 'Невозможно удалить последний активный язык',
-        'cannot_deactivate_default' => 'Невозможно деактивировать язык по умолчанию',
+    'placeholders' => [
+        'code' => 'Code',
+        'name' => 'Name',
+        'native_name' => 'Native Name',
+    ],
+    'sections' => [
+        'details' => 'Details',
+        'settings' => 'Settings',
     ],
     'validation' => [
+        'code_format' => 'Code Format',
         'locale' => [
-            'required' => 'Необходимо выбрать язык.',
-            'string' => 'Код языка должен быть текстовым.',
-            'max' => 'Код языка не может превышать 5 символов.',
+            'max' => 'Max',
+            'required' => 'Required',
+            'string' => 'String',
         ],
     ],
 ];

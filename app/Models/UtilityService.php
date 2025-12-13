@@ -179,7 +179,7 @@ class UtilityService extends Model
 
         $copy->tenant_id = $tenantId;
         $copy->is_global_template = false;
-        $copy->created_by_tenant_id = $this->tenant_id;
+        $copy->created_by_tenant_id = $this->created_by_tenant_id;
 
         // Apply customizations
         foreach ($customizations as $key => $value) {

@@ -3,270 +3,225 @@
 declare(strict_types=1);
 
 return [
-
-    /*
-    |--------------------------------------------------------------------------
-    | Properties Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | The following language lines are used in the Properties Relation Manager
-    | and related components. All user-facing strings should be localized.
-    |
-    */
-
-    'labels' => [
-        'property' => 'Property',
-        'properties' => 'Properties',
-        'address' => 'Address',
-        'type' => 'Property Type',
-        'area' => 'Area (m²)',
-        'current_tenant' => 'Current Tenant',
-        'building' => 'Building',
-        'installed_meters' => 'Installed Meters',
-        'meters' => 'Meters',
-        'created' => 'Created At',
+    'actions' => [
+        'add' => 'Add',
+        'add_first_property' => 'Add First Property',
+        'assign_tenant' => 'Assign Tenant',
+        'edit' => 'Edit',
+        'export_selected' => 'Export Selected',
+        'manage_tenant' => 'Manage Tenant',
+        'reassign_tenant' => 'Reassign Tenant',
+        'view' => 'View',
     ],
-
-    'placeholders' => [
-        'address' => 'Enter property address',
-        'area' => 'Enter area in square meters',
-    ],
-
-    'helper_text' => [
-        'address' => 'Full street address including building and apartment number',
-        'type' => 'Select apartment or house',
-        'area' => 'Property area in square meters (max 2 decimal places)',
-        'tenant_available' => 'Select an available tenant to assign to this property',
-        'tenant_reassign' => 'Select a new tenant or leave empty to vacate the property',
-    ],
-
-    'sections' => [
-        'property_details' => 'Property Details',
-        'property_details_description' => 'Basic information about the property',
-        'additional_info' => 'Additional Information',
-        'additional_info_description' => 'Building, tenant, and meter information',
-    ],
-
     'badges' => [
         'vacant' => 'Vacant',
     ],
-
-    'tooltips' => [
-        'copy_address' => 'Click to copy address',
-        'occupied_by' => 'Occupied by :name',
-        'no_tenant' => 'No tenant assigned',
-        'meters_count' => 'Number of installed meters',
-    ],
-
-    'filters' => [
-        'type' => 'Property Type',
-        'building' => 'Building',
-        'occupancy' => 'Occupancy Status',
-        'all_properties' => 'All Properties',
-        'occupied' => 'Occupied',
-        'vacant' => 'Vacant',
-        'large_properties' => 'Large Properties (>100 m²)',
-    ],
-
-    'actions' => [
-        'manage_tenant' => 'Manage Tenant',
-        'assign_tenant' => 'Assign Tenant',
-        'reassign_tenant' => 'Reassign Tenant',
-        'export_selected' => 'Export Selected',
-        'add_first_property' => 'Add First Property',
-        'add' => 'Add Property',
-        'view' => 'View',
-        'edit' => 'Edit',
-    ],
-
-    'notifications' => [
-        'created' => [
-            'title' => 'Property Created',
-            'body' => 'The property has been created successfully.',
-        ],
-        'updated' => [
-            'title' => 'Property Updated',
-            'body' => 'The property has been updated successfully.',
-        ],
-        'deleted' => [
-            'title' => 'Property Deleted',
-            'body' => 'The property has been deleted successfully.',
-        ],
-        'bulk_deleted' => [
-            'title' => 'Properties Deleted',
-            'body' => ':count properties have been deleted successfully.',
-        ],
-        'tenant_assigned' => [
-            'title' => 'Tenant Assigned',
-            'body' => 'The tenant has been assigned to the property successfully.',
-        ],
-        'tenant_removed' => [
-            'title' => 'Tenant Removed',
-            'body' => 'The tenant has been removed from the property successfully.',
-        ],
-        'export_started' => [
-            'title' => 'Export Started',
-            'body' => 'Your export is being processed. You will be notified when it is ready.',
-        ],
-    ],
-
-    'modals' => [
-        'delete_confirmation' => 'Are you sure you want to delete this property? This action cannot be undone.',
-        'bulk_delete' => [
-            'title' => 'Delete Selected Properties',
-            'description' => 'Are you sure you want to delete the selected properties? This action cannot be undone.',
-            'confirm' => 'Delete Properties',
-        ],
-    ],
-
     'empty_state' => [
-        'heading' => 'No Properties',
-        'description' => 'Get started by creating your first property.',
+        'description' => 'Description',
+        'heading' => 'Heading',
     ],
-
+    'errors' => [
+        'has_relations' => 'Has Relations',
+    ],
+    'filters' => [
+        'all_properties' => 'All Properties',
+        'building' => 'Building',
+        'large_properties' => 'Large Properties',
+        'occupancy' => 'Occupancy',
+        'occupied' => 'Occupied',
+        'type' => 'Type',
+        'vacant' => 'Vacant',
+    ],
+    'helper_text' => [
+        'address' => 'Address',
+        'area' => 'Area',
+        'tenant_available' => 'Tenant Available',
+        'tenant_reassign' => 'Tenant Reassign',
+        'type' => 'Type',
+    ],
+    'labels' => [
+        'address' => 'Address',
+        'area' => 'Area',
+        'building' => 'Building',
+        'created' => 'Created',
+        'current_tenant' => 'Current Tenant',
+        'installed_meters' => 'Installed Meters',
+        'meters' => 'Meters',
+        'properties' => 'Properties',
+        'property' => 'Property',
+        'type' => 'Type',
+    ],
     'manager' => [
         'index' => [
-            'title' => 'Properties',
-            'description' => 'A list of all properties in your portfolio.',
-            'caption' => 'Properties list',
+            'caption' => 'Caption',
+            'description' => 'Description',
+            'empty' => [
+                'cta' => 'Cta',
+                'text' => 'Text',
+            ],
             'filters' => [
-                'search' => 'Search',
-                'search_placeholder' => 'Search by address...',
-                'type' => 'Type',
-                'building' => 'Building',
-                'all_types' => 'All Types',
                 'all_buildings' => 'All Buildings',
-                'filter' => 'Filter',
+                'all_types' => 'All Types',
+                'building' => 'Building',
                 'clear' => 'Clear',
+                'filter' => 'Filter',
+                'search' => 'Search',
+                'search_placeholder' => 'Search Placeholder',
+                'type' => 'Type',
             ],
             'headers' => [
+                'actions' => 'Actions',
                 'address' => 'Address',
-                'type' => 'Type',
                 'area' => 'Area',
                 'building' => 'Building',
                 'meters' => 'Meters',
                 'tenants' => 'Tenants',
-                'actions' => 'Actions',
+                'type' => 'Type',
             ],
-            'empty' => [
-                'text' => 'No properties found.',
-                'cta' => 'Create one now',
-            ],
-        ],
-        'show' => [
-            'title' => 'Property Details',
-            'description' => 'Property details and associated information',
-            'information' => 'Property Information',
-            'building_missing' => 'Not in a building',
-            'current_tenant' => 'Current Tenant',
-            'phone' => 'Phone',
-            'no_tenant' => 'No current tenant',
-            'meters' => 'Meters',
-            'add_meter' => 'Add Meter',
-            'latest_reading' => 'Latest Reading',
-            'no_meters' => 'No meters installed for this property.',
+            'title' => 'Title',
         ],
     ],
-
-    'validation' => [
-        'address' => [
-            'required' => 'The property address is required.',
-            'string' => 'The property address must be text.',
-            'max' => 'The property address may not be greater than 255 characters.',
-            'invalid_characters' => 'The address contains invalid characters.',
-            'prohibited_content' => 'The address contains prohibited content.',
-            'format' => 'The address may only contain letters, numbers, spaces, and common punctuation (.,#/-()).',
+    'modals' => [
+        'bulk_delete' => [
+            'confirm' => 'Confirm',
+            'description' => 'Description',
+            'title' => 'Title',
         ],
-        'type' => [
-            'required' => 'The property type is required.',
-            'enum' => 'The property type must be either apartment or house.',
+        'delete_confirmation' => 'Delete Confirmation',
+    ],
+    'notifications' => [
+        'bulk_deleted' => [
+            'body' => 'Body',
+            'title' => 'Title',
         ],
-        'area_sqm' => [
-            'required' => 'The property area is required.',
-            'numeric' => 'The property area must be a number.',
-            'min' => 'The property area must be at least 0 square meters.',
-            'max' => 'The property area cannot exceed 10,000 square meters.',
-            'format' => 'The area must be a standard decimal number.',
-            'negative' => 'The area cannot be negative.',
-            'precision' => 'The area may have at most 2 decimal places.',
+        'created' => [
+            'body' => 'Body',
+            'title' => 'Title',
         ],
-        'building_id' => [
-            'exists' => 'The selected building does not exist.',
+        'deleted' => [
+            'body' => 'Body',
+            'title' => 'Title',
         ],
-        'tenant_id' => [
-            'required' => 'Tenant is required.',
-            'integer' => 'Tenant identifier must be a valid number.',
+        'export_started' => [
+            'body' => 'Body',
+            'title' => 'Title',
         ],
-        'property_id' => [
-            'required' => 'A property selection is required.',
-            'exists' => 'The selected property does not exist.',
+        'updated' => [
+            'body' => 'Body',
+            'title' => 'Title',
+        ],
+        '{$action}' => [
+            'body' => 'Body',
+            'title' => 'Title',
         ],
     ],
-
-    'errors' => [
-        'has_relations' => 'Cannot delete property with associated meters or tenants.',
-    ],
-
     'pages' => [
         'manager_form' => [
-            'create_title' => 'Create Property',
-            'create_subtitle' => 'Add a new property to your portfolio',
-            'breadcrumb_create' => 'Create',
-            'edit_title' => 'Edit Property',
-            'edit_subtitle' => 'Update property information',
-            'breadcrumb_edit' => 'Edit',
-            'labels' => [
-                'address' => 'Address',
-                'type' => 'Property Type',
-                'area' => 'Area (m²)',
-                'building' => 'Building (Optional)',
-            ],
-            'placeholders' => [
-                'address' => '123 Main Street, Vilnius',
-                'area' => '50.00',
-                'building' => 'Select a building...',
-            ],
             'actions' => [
                 'cancel' => 'Cancel',
-                'save_create' => 'Create Property',
-                'save_edit' => 'Update Property',
+                'save_create' => 'Save Create',
+                'save_edit' => 'Save Edit',
             ],
-        ],
-        'manager_show' => [
-            'title' => 'Property Details',
-            'description' => 'Property details and associated information',
-            'info_title' => 'Property Information',
+            'create_subtitle' => 'Create Subtitle',
+            'create_title' => 'Create Title',
+            'edit_subtitle' => 'Edit Subtitle',
+            'edit_title' => 'Edit Title',
             'labels' => [
                 'address' => 'Address',
+                'area' => 'Area',
+                'building' => 'Building',
                 'type' => 'Type',
+            ],
+            'placeholders' => [
+                'address' => 'Address',
                 'area' => 'Area',
                 'building' => 'Building',
             ],
-            'building_missing' => 'Not in a building',
-            'current_tenant_title' => 'Current Tenant',
+        ],
+        'manager_show' => [
+            'add_meter' => 'Add Meter',
+            'building_missing' => 'Building Missing',
+            'current_tenant_title' => 'Current Tenant Title',
+            'delete_confirm' => 'Delete Confirm',
+            'delete_property' => 'Delete Property',
+            'description' => 'Description',
+            'edit_property' => 'Edit Property',
+            'info_title' => 'Info Title',
+            'labels' => [
+                'address' => 'Address',
+                'area' => 'Area',
+                'building' => 'Building',
+                'type' => 'Type',
+            ],
+            'latest_none' => 'Latest None',
+            'meters_headers' => [
+                'actions' => 'Actions',
+                'installation' => 'Installation',
+                'latest' => 'Latest',
+                'serial' => 'Serial',
+                'type' => 'Type',
+            ],
+            'meters_title' => 'Meters Title',
+            'no_meters_installed' => 'No Meters Installed',
+            'no_tenant' => 'No Tenant',
             'tenant_labels' => [
-                'name' => 'Name',
                 'email' => 'Email',
+                'name' => 'Name',
                 'phone' => 'Phone',
             ],
-            'tenant_na' => 'N/A',
-            'no_tenant' => 'No current tenant',
-            'meters_title' => 'Meters',
-            'add_meter' => 'Add Meter',
-            'meters_headers' => [
-                'serial' => 'Serial Number',
-                'type' => 'Type',
-                'installation' => 'Installation Date',
-                'latest' => 'Latest Reading',
-                'actions' => 'Actions',
-            ],
-            'latest_none' => 'No readings',
+            'tenant_na' => 'Tenant Na',
+            'title' => 'Title',
             'view' => 'View',
-            'edit_property' => 'Edit Property',
-            'delete_property' => 'Delete',
-            'delete_confirm' => 'Are you sure you want to delete this property?',
-            'no_meters_installed' => 'No meters installed for this property.',
         ],
     ],
-
+    'placeholders' => [
+        'address' => 'Address',
+        'area' => 'Area',
+    ],
+    'sections' => [
+        'additional_info' => 'Additional Info',
+        'additional_info_description' => 'Additional Info Description',
+        'property_details' => 'Property Details',
+        'property_details_description' => 'Property Details Description',
+    ],
+    'tooltips' => [
+        'copy_address' => 'Copy Address',
+        'meters_count' => 'Meters Count',
+        'no_tenant' => 'No Tenant',
+        'occupied_by' => 'Occupied By',
+    ],
+    'validation' => [
+        'address' => [
+            'format' => 'Format',
+            'invalid_characters' => 'Invalid Characters',
+            'max' => 'Max',
+            'prohibited_content' => 'Prohibited Content',
+            'required' => 'Required',
+            'string' => 'String',
+        ],
+        'area_sqm' => [
+            'format' => 'Format',
+            'max' => 'Max',
+            'min' => 'Min',
+            'negative' => 'Negative',
+            'numeric' => 'Numeric',
+            'precision' => 'Precision',
+            'required' => 'Required',
+        ],
+        'building_id' => [
+            'exists' => 'Exists',
+        ],
+        'property_id' => [
+            'exists' => 'Exists',
+            'required' => 'Required',
+        ],
+        'tenant_id' => [
+            'integer' => 'Integer',
+            'required' => 'Required',
+        ],
+        'type' => [
+            'enum' => 'Enum',
+            'required' => 'Required',
+        ],
+    ],
 ];

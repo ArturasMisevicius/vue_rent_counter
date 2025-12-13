@@ -16,24 +16,24 @@
             </svg>
             <div>
                 <p class="font-bold">
-                    {{ __('Impersonation Mode Active') }}
+                    {{ __('app.impersonation.mode_active') }}
                 </p>
                 <p class="text-sm">
-                    {{ __('You are impersonating') }} <strong>{{ $targetUser?->name }}</strong> ({{ $targetUser?->email }})
+                    {{ __('app.impersonation.you_are_impersonating') }} <strong>{{ $targetUser?->name }}</strong> ({{ $targetUser?->email }})
                     @if($impersonationData['reason'])
-                        - {{ __('Reason') }}: {{ $impersonationData['reason'] }}
+                        - {{ __('app.impersonation.reason') }}: {{ $impersonationData['reason'] }}
                     @endif
                 </p>
                 <p class="text-xs mt-1">
-                    {{ __('Started at') }}: {{ \Carbon\Carbon::parse($impersonationData['started_at'])->format('Y-m-d H:i:s') }}
-                    {{ __('by') }} {{ $superadmin?->name }}
+                    {{ __('app.impersonation.started_at') }}: {{ \Carbon\Carbon::parse($impersonationData['started_at'])->format('Y-m-d H:i:s') }}
+                    {{ __('app.impersonation.by') }} {{ $superadmin?->name }}
                 </p>
             </div>
         </div>
         <form method="POST" action="{{ route('superadmin.impersonation.end') }}">
             @csrf
             <button type="submit" class="bg-white text-yellow-600 px-4 py-2 rounded font-semibold hover:bg-yellow-50 transition">
-                {{ __('End Impersonation') }}
+                {{ __('app.impersonation.end') }}
             </button>
         </form>
     </div>

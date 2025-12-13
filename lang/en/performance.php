@@ -1,8 +1,9 @@
 <?php
 
-return array (
-  'test' => 
-  array (
-    'key' => 'Performance Test',
-  ),
-);
+declare(strict_types=1);
+
+return [
+    'test' => [
+        'key' => 'Performance Test',
+    ],
+];

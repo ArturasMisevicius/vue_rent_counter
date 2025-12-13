@@ -3,126 +3,147 @@
 declare(strict_types=1);
 
 return [
-    'labels' => [
-        'meter' => 'Счетчик',
-        'meters' => 'Счетчики',
-        'property' => 'Объект',
-        'type' => 'Тип счетчика',
-        'serial_number' => 'Серийный номер',
-        'installation_date' => 'Дата установки',
-        'last_reading' => 'Последний показатель',
-        'status' => 'Статус',
-        'supports_zones' => 'Поддерживает зоны',
-        'supports_time_of_use' => 'Поддерживает тарифы по зонам времени',
-        'zones' => 'Зоны',
-        'created_at' => 'Создано',
-        'initial_reading' => 'Начальные показания',
-        'installed' => 'Установлен',
-        'readings' => 'Показания',
-    ],
-
-    'headings' => [
-        'show' => 'Счетчик :serial',
-        'show_description' => 'Детали счетчика и история показаний',
-        'information' => 'Информация о счетчике',
-    ],
-
     'actions' => [
-        'add' => 'Добавить счетчик',
-        'view' => 'Просмотреть',
-        'edit' => 'Редактировать',
-        'edit_meter' => 'Редактировать счетчик',
-        'delete' => 'Удалить',
+        'add' => 'Add',
+        'create' => 'Create',
+        'delete' => 'Delete',
+        'edit' => 'Edit',
+        'edit_meter' => 'Edit Meter',
+        'view' => 'View',
     ],
-
     'confirmations' => [
-        'delete' => 'Вы уверены, что хотите удалить этот счетчик?',
+        'delete' => 'Delete',
     ],
-
+    'empty_state' => [
+        'description' => 'Description',
+        'heading' => 'Heading',
+    ],
+    'errors' => [
+        'has_readings' => 'Has Readings',
+    ],
+    'filters' => [
+        'no_readings' => 'No Readings',
+        'property' => 'Property',
+        'supports_zones' => 'Supports Zones',
+        'type' => 'Type',
+    ],
+    'headings' => [
+        'information' => 'Information',
+        'show' => 'Show',
+        'show_description' => 'Show Description',
+    ],
+    'helper_text' => [
+        'installation_date' => 'Installation Date',
+        'property' => 'Property',
+        'serial_number' => 'Serial Number',
+        'supports_zones' => 'Supports Zones',
+        'type' => 'Type',
+    ],
+    'labels' => [
+        'created' => 'Created',
+        'installation_date' => 'Installation Date',
+        'meter' => 'Meter',
+        'meters' => 'Meters',
+        'property' => 'Property',
+        'readings' => 'Readings',
+        'readings_count' => 'Readings Count',
+        'serial_number' => 'Serial Number',
+        'supports_zones' => 'Supports Zones',
+        'type' => 'Type',
+    ],
     'manager' => [
         'index' => [
-            'title' => 'Счетчики',
-            'description' => 'Коммунальные счетчики по всем объектам',
-            'caption' => 'Список счетчиков',
-            'headers' => [
-                'serial_number' => 'Серийный номер',
-                'type' => 'Тип',
-                'property' => 'Объект',
-                'installation_date' => 'Дата установки',
-                'latest_reading' => 'Последний показатель',
-                'zones' => 'Зоны',
-                'actions' => 'Действия',
-            ],
-            'zones' => [
-                'yes' => 'Да',
-                'no' => 'Нет',
-            ],
+            'caption' => 'Caption',
+            'description' => 'Description',
             'empty' => [
-                'text' => 'Счетчики не найдены.',
-                'cta' => 'Создать счетчик',
+                'cta' => 'Cta',
+                'text' => 'Text',
+            ],
+            'headers' => [
+                'actions' => 'Actions',
+                'installation_date' => 'Installation Date',
+                'latest_reading' => 'Latest Reading',
+                'property' => 'Property',
+                'serial_number' => 'Serial Number',
+                'type' => 'Type',
+                'zones' => 'Zones',
+            ],
+            'title' => 'Title',
+            'zones' => [
+                'no' => 'No',
+                'yes' => 'Yes',
             ],
         ],
     ],
-
-    'helper_text' => [
-        'supports_time_of_use' => 'Включите для электросчетчиков с дневным/ночным тарифом',
+    'modals' => [
+        'bulk_delete' => [
+            'confirm' => 'Confirm',
+            'description' => 'Description',
+            'title' => 'Title',
+        ],
+        'delete_confirm' => 'Delete Confirm',
+        'delete_description' => 'Delete Description',
+        'delete_heading' => 'Delete Heading',
     ],
-
-    'filters' => [
-        'supports_zones' => 'Поддерживает зоны',
-        'all_meters' => 'Все счетчики',
-        'with_zones' => 'С зонами',
-        'without_zones' => 'Без зон',
+    'notifications' => [
+        'created' => 'Created',
+        'updated' => 'Updated',
     ],
-
+    'placeholders' => [
+        'serial_number' => 'Serial Number',
+    ],
     'relation' => [
-        'meter_type' => 'Тип счетчика',
-        'serial_number' => 'Серийный номер',
-        'installation_date' => 'Дата установки',
-        'initial_reading' => 'Начальные показания',
-        'readings' => 'Показания',
-        'installed' => 'Установлен',
-        'type' => 'Тип',
-        'empty_heading' => 'Счетчиков нет',
-        'empty_description' => 'Добавьте счетчики, чтобы отслеживать потребление для этого объекта.',
-        'add_first' => 'Добавить первый счетчик',
+        'add_first' => 'Add First',
+        'empty_description' => 'Empty Description',
+        'empty_heading' => 'Empty Heading',
+        'initial_reading' => 'Initial Reading',
+        'installation_date' => 'Installation Date',
+        'installed' => 'Installed',
+        'meter_type' => 'Meter Type',
+        'readings' => 'Readings',
+        'serial_number' => 'Serial Number',
+        'type' => 'Type',
     ],
-
+    'sections' => [
+        'meter_details' => 'Meter Details',
+        'meter_details_description' => 'Meter Details Description',
+    ],
+    'tooltips' => [
+        'copy_serial' => 'Copy Serial',
+        'property_address' => 'Property Address',
+        'readings_count' => 'Readings Count',
+        'supports_zones_no' => 'Supports Zones No',
+        'supports_zones_yes' => 'Supports Zones Yes',
+    ],
     'units' => [
-        'kwh' => 'кВт·ч',
+        'kwh' => 'Kwh',
     ],
-
     'validation' => [
-        'tenant_id' => [
-            'required' => 'Необходимо указать арендатора.',
-            'integer' => 'Идентификатор арендатора должен быть числом.',
+        'installation_date' => [
+            'before_or_equal' => 'Before Or Equal',
+            'date' => 'Date',
+            'required' => 'Required',
         ],
         'property_id' => [
-            'required' => 'Необходимо указать объект.',
-            'exists' => 'Выбранный объект не существует.',
-        ],
-        'type' => [
-            'required' => 'Необходимо указать тип счетчика.',
-            'enum' => 'Тип счетчика должен быть допустимым.',
-            'enum_detail' => 'Тип счетчика должен быть одним из: электричество, холодная вода, горячая вода или отопление.',
+            'exists' => 'Exists',
+            'required' => 'Required',
         ],
         'serial_number' => [
-            'required' => 'Серийный номер счетчика обязателен.',
-            'string' => 'Серийный номер должен быть текстовым.',
-            'unique' => 'Этот серийный номер уже используется.',
-            'max' => 'Серийный номер не может превышать 255 символов.',
-        ],
-        'installation_date' => [
-            'required' => 'Дата установки обязательна.',
-            'date' => 'Дата установки должна быть корректной датой.',
-            'before_or_equal' => 'Дата установки не может быть в будущем.',
+            'max' => 'Max',
+            'required' => 'Required',
+            'string' => 'String',
+            'unique' => 'Unique',
         ],
         'supports_zones' => [
-            'boolean' => 'Поле поддержки зон должно быть истинным или ложным.',
+            'boolean' => 'Boolean',
         ],
-    ],
-
-    'errors' => [
-        'has_readings' => 'Нельзя удалить счетчик с привязанными показаниями.',
+        'tenant_id' => [
+            'integer' => 'Integer',
+            'required' => 'Required',
+        ],
+        'type' => [
+            'enum_detail' => 'Enum Detail',
+            'required' => 'Required',
+        ],
     ],
 ];

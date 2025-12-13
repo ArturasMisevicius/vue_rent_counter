@@ -3,261 +3,225 @@
 declare(strict_types=1);
 
 return [
-
-    /*
-    |--------------------------------------------------------------------------
-    | Properties Language Lines (Russian)
-    |--------------------------------------------------------------------------
-    */
-
-    'labels' => [
-        'property' => 'Недвижимость',
-        'properties' => 'Недвижимость',
-        'address' => 'Адрес',
-        'type' => 'Тип недвижимости',
-        'area' => 'Площадь (м²)',
-        'current_tenant' => 'Текущий арендатор',
-        'building' => 'Здание',
-        'installed_meters' => 'Установленные счетчики',
-        'meters' => 'Счетчики',
-        'created' => 'Создано',
+    'actions' => [
+        'add' => 'Add',
+        'add_first_property' => 'Add First Property',
+        'assign_tenant' => 'Assign Tenant',
+        'edit' => 'Edit',
+        'export_selected' => 'Export Selected',
+        'manage_tenant' => 'Manage Tenant',
+        'reassign_tenant' => 'Reassign Tenant',
+        'view' => 'View',
     ],
-
-    'placeholders' => [
-        'address' => 'Введите адрес недвижимости',
-        'area' => 'Введите площадь в квадратных метрах',
-    ],
-
-    'helper_text' => [
-        'address' => 'Полный адрес улицы, включая номер здания и квартиры',
-        'type' => 'Выберите квартиру или дом',
-        'area' => 'Площадь недвижимости в квадратных метрах (макс. 2 знака после запятой)',
-        'tenant_available' => 'Выберите доступного арендатора для назначения этой недвижимости',
-        'tenant_reassign' => 'Выберите нового арендатора или оставьте пустым, чтобы освободить недвижимость',
-    ],
-
-    'sections' => [
-        'property_details' => 'Информация о недвижимости',
-        'property_details_description' => 'Основная информация о недвижимости',
-        'additional_info' => 'Дополнительная информация',
-        'additional_info_description' => 'Информация о здании, арендаторе и счетчиках',
-    ],
-
     'badges' => [
-        'vacant' => 'Свободна',
+        'vacant' => 'Vacant',
     ],
-
-    'tooltips' => [
-        'copy_address' => 'Нажмите, чтобы скопировать адрес',
-        'occupied_by' => 'Занято :name',
-        'no_tenant' => 'Арендатор не назначен',
-        'meters_count' => 'Количество установленных счетчиков',
-    ],
-
-    'filters' => [
-        'type' => 'Тип недвижимости',
-        'building' => 'Здание',
-        'occupancy' => 'Статус занятости',
-        'all_properties' => 'Вся недвижимость',
-        'occupied' => 'Занята',
-        'vacant' => 'Свободна',
-        'large_properties' => 'Большая недвижимость (>100 м²)',
-    ],
-
-   'actions' => [
-       'manage_tenant' => 'Управление арендатором',
-       'assign_tenant' => 'Назначить арендатора',
-       'reassign_tenant' => 'Переназначить арендатора',
-       'export_selected' => 'Экспортировать выбранные',
-       'add_first_property' => 'Добавить первую недвижимость',
-        'add' => 'Добавить объект',
-        'view' => 'Просмотреть',
-        'edit' => 'Редактировать',
-   ],
-
-    'notifications' => [
-        'created' => [
-            'title' => 'Недвижимость создана',
-            'body' => 'Недвижимость успешно создана.',
-        ],
-        'updated' => [
-            'title' => 'Недвижимость обновлена',
-            'body' => 'Недвижимость успешно обновлена.',
-        ],
-        'deleted' => [
-            'title' => 'Недвижимость удалена',
-            'body' => 'Недвижимость успешно удалена.',
-        ],
-        'bulk_deleted' => [
-            'title' => 'Недвижимость удалена',
-            'body' => ':count недвижимость успешно удалена.',
-        ],
-        'tenant_assigned' => [
-            'title' => 'Арендатор назначен',
-            'body' => 'Арендатор успешно назначен недвижимости.',
-        ],
-        'tenant_removed' => [
-            'title' => 'Арендатор удален',
-            'body' => 'Арендатор успешно удален из недвижимости.',
-        ],
-        'export_started' => [
-            'title' => 'Экспорт начат',
-            'body' => 'Ваш экспорт обрабатывается. Вы будете уведомлены, когда он будет готов.',
-        ],
-    ],
-
-    'modals' => [
-        'delete_confirmation' => 'Вы уверены, что хотите удалить эту недвижимость? Это действие нельзя отменить.',
-    ],
-
     'empty_state' => [
-        'heading' => 'Нет недвижимости',
-        'description' => 'Начните с создания вашей первой недвижимости.',
+        'description' => 'Description',
+        'heading' => 'Heading',
     ],
-
-    'validation' => [
-        'address' => [
-            'required' => 'Адрес недвижимости обязателен.',
-            'string' => 'Адрес должен быть текстовым.',
-            'max' => 'Адрес недвижимости не может быть длиннее 255 символов.',
-            'invalid_characters' => 'Адрес содержит недопустимые символы.',
-            'prohibited_content' => 'Адрес содержит запрещенное содержимое.',
-            'format' => 'Адрес может содержать только буквы, цифры, пробелы и обычные знаки препинания (.,#/-()).',
-        ],
-        'type' => [
-            'required' => 'Тип недвижимости обязателен.',
-            'enum' => 'Тип недвижимости должен быть квартирой или домом.',
-        ],
-        'area_sqm' => [
-            'required' => 'Площадь недвижимости обязательна.',
-            'numeric' => 'Площадь недвижимости должна быть числом.',
-            'min' => 'Площадь недвижимости должна быть не менее 0 квадратных метров.',
-            'max' => 'Площадь недвижимости не может превышать 10 000 квадратных метров.',
-            'format' => 'Площадь должна быть стандартным десятичным числом.',
-            'negative' => 'Площадь не может быть отрицательной.',
-            'precision' => 'Площадь может иметь не более 2 знаков после запятой.',
-        ],
-        'building_id' => [
-            'exists' => 'Выбранное здание не существует.',
-        ],
-        'tenant_id' => [
-            'required' => 'Необходимо указать арендатора.',
-            'integer' => 'Идентификатор арендатора должен быть числом.',
-        ],
-        'property_id' => [
-            'required' => 'Необходимо выбрать объект.',
-            'exists' => 'Выбранный объект не существует.',
-        ],
+    'errors' => [
+        'has_relations' => 'Has Relations',
     ],
-
-   'errors' => [
-       'has_relations' => 'Нельзя удалить объект с привязанными счетчиками или арендаторами.',
-   ],
-
+    'filters' => [
+        'all_properties' => 'All Properties',
+        'building' => 'Building',
+        'large_properties' => 'Large Properties',
+        'occupancy' => 'Occupancy',
+        'occupied' => 'Occupied',
+        'type' => 'Type',
+        'vacant' => 'Vacant',
+    ],
+    'helper_text' => [
+        'address' => 'Address',
+        'area' => 'Area',
+        'tenant_available' => 'Tenant Available',
+        'tenant_reassign' => 'Tenant Reassign',
+        'type' => 'Type',
+    ],
+    'labels' => [
+        'address' => 'Address',
+        'area' => 'Area',
+        'building' => 'Building',
+        'created' => 'Created',
+        'current_tenant' => 'Current Tenant',
+        'installed_meters' => 'Installed Meters',
+        'meters' => 'Meters',
+        'properties' => 'Properties',
+        'property' => 'Property',
+        'type' => 'Type',
+    ],
     'manager' => [
         'index' => [
-            'title' => 'Объекты',
-            'description' => 'Список всех объектов вашего портфеля.',
-            'caption' => 'Список объектов',
+            'caption' => 'Caption',
+            'description' => 'Description',
+            'empty' => [
+                'cta' => 'Cta',
+                'text' => 'Text',
+            ],
             'filters' => [
-                'search' => 'Поиск',
-                'search_placeholder' => 'Искать по адресу...',
-                'type' => 'Тип',
-                'building' => 'Здание',
-                'all_types' => 'Все типы',
-                'all_buildings' => 'Все здания',
-                'filter' => 'Фильтр',
-                'clear' => 'Сбросить',
+                'all_buildings' => 'All Buildings',
+                'all_types' => 'All Types',
+                'building' => 'Building',
+                'clear' => 'Clear',
+                'filter' => 'Filter',
+                'search' => 'Search',
+                'search_placeholder' => 'Search Placeholder',
+                'type' => 'Type',
             ],
             'headers' => [
-                'address' => 'Адрес',
-                'type' => 'Тип',
-                'area' => 'Площадь',
-                'building' => 'Здание',
-                'meters' => 'Счетчики',
-                'tenants' => 'Арендаторы',
-                'actions' => 'Действия',
+                'actions' => 'Actions',
+                'address' => 'Address',
+                'area' => 'Area',
+                'building' => 'Building',
+                'meters' => 'Meters',
+                'tenants' => 'Tenants',
+                'type' => 'Type',
             ],
-            'empty' => [
-                'text' => 'Объекты не найдены.',
-                'cta' => 'Создать объект',
-            ],
-        ],
-        'show' => [
-            'title' => 'Детали объекта',
-            'description' => 'Информация об объекте и связанные данные',
-            'information' => 'Информация об объекте',
-            'building_missing' => 'Не привязан к зданию',
-            'current_tenant' => 'Текущий арендатор',
-            'phone' => 'Телефон',
-            'no_tenant' => 'Текущего арендатора нет',
-            'meters' => 'Счетчики',
-            'add_meter' => 'Добавить счетчик',
-            'latest_reading' => 'Последнее показание',
-            'no_meters' => 'Для этого объекта счетчиков нет.',
+            'title' => 'Title',
         ],
     ],
-
+    'modals' => [
+        'bulk_delete' => [
+            'confirm' => 'Confirm',
+            'description' => 'Description',
+            'title' => 'Title',
+        ],
+        'delete_confirmation' => 'Delete Confirmation',
+    ],
+    'notifications' => [
+        'bulk_deleted' => [
+            'body' => 'Body',
+            'title' => 'Title',
+        ],
+        'created' => [
+            'body' => 'Body',
+            'title' => 'Title',
+        ],
+        'deleted' => [
+            'body' => 'Body',
+            'title' => 'Title',
+        ],
+        'export_started' => [
+            'body' => 'Body',
+            'title' => 'Title',
+        ],
+        'updated' => [
+            'body' => 'Body',
+            'title' => 'Title',
+        ],
+        '{$action}' => [
+            'body' => 'Body',
+            'title' => 'Title',
+        ],
+    ],
     'pages' => [
         'manager_form' => [
-            'create_title' => 'Создать объект',
-            'create_subtitle' => 'Добавьте новый объект в свой портфель',
-            'breadcrumb_create' => 'Создать',
-            'edit_title' => 'Редактировать объект',
-            'edit_subtitle' => 'Обновите информацию об объекте',
-            'breadcrumb_edit' => 'Редактировать',
+            'actions' => [
+                'cancel' => 'Cancel',
+                'save_create' => 'Save Create',
+                'save_edit' => 'Save Edit',
+            ],
+            'create_subtitle' => 'Create Subtitle',
+            'create_title' => 'Create Title',
+            'edit_subtitle' => 'Edit Subtitle',
+            'edit_title' => 'Edit Title',
             'labels' => [
-                'address' => 'Адрес',
-                'type' => 'Тип объекта',
-                'area' => 'Площадь (м²)',
-                'building' => 'Здание (необязательно)',
+                'address' => 'Address',
+                'area' => 'Area',
+                'building' => 'Building',
+                'type' => 'Type',
             ],
             'placeholders' => [
-                'address' => 'Улица, город',
-                'area' => '50.00',
-                'building' => 'Выберите здание...',
-            ],
-            'actions' => [
-                'cancel' => 'Отмена',
-                'save_create' => 'Создать объект',
-                'save_edit' => 'Обновить объект',
+                'address' => 'Address',
+                'area' => 'Area',
+                'building' => 'Building',
             ],
         ],
         'manager_show' => [
-            'title' => 'Детали объекта',
-            'description' => 'Информация об объекте и связанные данные',
-            'info_title' => 'Информация об объекте',
+            'add_meter' => 'Add Meter',
+            'building_missing' => 'Building Missing',
+            'current_tenant_title' => 'Current Tenant Title',
+            'delete_confirm' => 'Delete Confirm',
+            'delete_property' => 'Delete Property',
+            'description' => 'Description',
+            'edit_property' => 'Edit Property',
+            'info_title' => 'Info Title',
             'labels' => [
-                'address' => 'Адрес',
-                'type' => 'Тип',
-                'area' => 'Площадь',
-                'building' => 'Здание',
+                'address' => 'Address',
+                'area' => 'Area',
+                'building' => 'Building',
+                'type' => 'Type',
             ],
-            'building_missing' => 'Не привязан к зданию',
-            'current_tenant_title' => 'Текущий арендатор',
-            'tenant_labels' => [
-                'name' => 'Имя',
-                'email' => 'Email',
-                'phone' => 'Телефон',
-            ],
-            'tenant_na' => 'Н/Д',
-            'no_tenant' => 'Текущего арендатора нет',
-            'meters_title' => 'Счетчики',
-            'add_meter' => 'Добавить счетчик',
+            'latest_none' => 'Latest None',
             'meters_headers' => [
-                'serial' => 'Серийный номер',
-                'type' => 'Тип',
-                'installation' => 'Дата установки',
-                'latest' => 'Последнее показание',
-                'actions' => 'Действия',
+                'actions' => 'Actions',
+                'installation' => 'Installation',
+                'latest' => 'Latest',
+                'serial' => 'Serial',
+                'type' => 'Type',
             ],
-            'latest_none' => 'Показаний нет',
-            'view' => 'Просмотр',
-            'edit_property' => 'Редактировать объект',
-            'delete_property' => 'Удалить',
-            'delete_confirm' => 'Вы уверены, что хотите удалить этот объект?',
-            'no_meters_installed' => 'Для этого объекта счетчиков нет.',
+            'meters_title' => 'Meters Title',
+            'no_meters_installed' => 'No Meters Installed',
+            'no_tenant' => 'No Tenant',
+            'tenant_labels' => [
+                'email' => 'Email',
+                'name' => 'Name',
+                'phone' => 'Phone',
+            ],
+            'tenant_na' => 'Tenant Na',
+            'title' => 'Title',
+            'view' => 'View',
         ],
     ],
-
+    'placeholders' => [
+        'address' => 'Address',
+        'area' => 'Area',
+    ],
+    'sections' => [
+        'additional_info' => 'Additional Info',
+        'additional_info_description' => 'Additional Info Description',
+        'property_details' => 'Property Details',
+        'property_details_description' => 'Property Details Description',
+    ],
+    'tooltips' => [
+        'copy_address' => 'Copy Address',
+        'meters_count' => 'Meters Count',
+        'no_tenant' => 'No Tenant',
+        'occupied_by' => 'Occupied By',
+    ],
+    'validation' => [
+        'address' => [
+            'format' => 'Format',
+            'invalid_characters' => 'Invalid Characters',
+            'max' => 'Max',
+            'prohibited_content' => 'Prohibited Content',
+            'required' => 'Required',
+            'string' => 'String',
+        ],
+        'area_sqm' => [
+            'format' => 'Format',
+            'max' => 'Max',
+            'min' => 'Min',
+            'negative' => 'Negative',
+            'numeric' => 'Numeric',
+            'precision' => 'Precision',
+            'required' => 'Required',
+        ],
+        'building_id' => [
+            'exists' => 'Exists',
+        ],
+        'property_id' => [
+            'exists' => 'Exists',
+            'required' => 'Required',
+        ],
+        'tenant_id' => [
+            'integer' => 'Integer',
+            'required' => 'Required',
+        ],
+        'type' => [
+            'enum' => 'Enum',
+            'required' => 'Required',
+        ],
+    ],
 ];

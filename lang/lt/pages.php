@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'privacy_policy' => 'Privatumo politika',
-    'terms_of_service' => 'Paslaugų teikimo sąlygos',
-    'gdpr_compliance' => 'BDAR atitiktis',
+    'gdpr_compliance' => 'Gdpr Compliance',
+    'privacy_policy' => 'Privacy Policy',
+    'terms_of_service' => 'Terms Of Service',
 ];

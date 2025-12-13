@@ -3,60 +3,63 @@
 declare(strict_types=1);
 
 return [
-    'labels' => [
-        'resource' => 'FAQ',
-        'question' => 'Вопрос',
-        'category' => 'Категория',
-        'answer' => 'Ответ',
-        'display_order' => 'Порядок отображения',
-        'published' => 'Опубликовано',
-        'status' => 'Статус',
-        'order' => 'Очередность',
-        'last_updated' => 'Последнее обновление',
-        'details' => 'Запись FAQ',
-    ],
-
-    'sections' => [
-        'faq_entry' => 'Запись FAQ',
-    ],
-
-    'placeholders' => [
-        'question' => 'Каков биллинговый цикл?',
-        'category' => 'Биллинг, доступ, счетчики...',
-    ],
-
-    'helper_text' => [
-        'entry' => 'Создавайте или редактируйте записи FAQ, отображаемые на публичной странице',
-        'category' => 'Необязательная категория для группировки похожих вопросов',
-        'answer' => 'Пишите лаконичные и полные ответы. Содержимое видно на публичной странице.',
-        'order' => 'Меньшие номера отображаются первыми.',
-        'published' => 'Только опубликованные записи видны на публичной странице',
-        'visible' => 'Отображается на публичной странице',
-        'hidden' => 'Скрыто от публики',
-    ],
-
-    'filters' => [
-        'status' => 'Статус',
-        'category' => 'Категория',
-        'options' => [
-            'published' => 'Опубликовано',
-            'draft' => 'Черновик',
-        ],
-    ],
-
-    'empty' => [
-        'heading' => 'Записей FAQ пока нет',
-        'description' => 'Создайте первую запись FAQ, чтобы помочь пользователям.',
-    ],
-
     'actions' => [
-        'add_first' => 'Добавить первую запись FAQ',
+        'add_first' => 'Add First',
     ],
-
+    'empty' => [
+        'description' => 'Description',
+        'heading' => 'Heading',
+    ],
+    'errors' => [
+        'bulk_limit_exceeded' => 'Bulk Limit Exceeded',
+    ],
+    'filters' => [
+        'category' => 'Category',
+        'options' => [
+            'draft' => 'Draft',
+            'published' => 'Published',
+        ],
+        'status' => 'Status',
+    ],
+    'helper_text' => [
+        'answer' => 'Answer',
+        'category' => 'Category',
+        'entry' => 'Entry',
+        'hidden' => 'Hidden',
+        'order' => 'Order',
+        'published' => 'Published',
+        'visible' => 'Visible',
+    ],
+    'hints' => [
+        'html_sanitized' => 'Html Sanitized',
+    ],
+    'labels' => [
+        'answer' => 'Answer',
+        'category' => 'Category',
+        'display_order' => 'Display Order',
+        'last_updated' => 'Last Updated',
+        'order' => 'Order',
+        'published' => 'Published',
+        'question' => 'Question',
+        'resource' => 'Resource',
+    ],
     'modals' => [
         'delete' => [
-            'heading' => 'Удалить записи FAQ',
-            'description' => 'Вы уверены, что хотите удалить эти записи FAQ? Это действие нельзя отменить.',
+            'description' => 'Description',
+            'heading' => 'Heading',
         ],
+    ],
+    'placeholders' => [
+        'category' => 'Category',
+        'question' => 'Question',
+    ],
+    'sections' => [
+        'faq_entry' => 'Faq Entry',
+    ],
+    'validation' => [
+        'answer_too_long' => 'Answer Too Long',
+        'answer_too_short' => 'Answer Too Short',
+        'category_format' => 'Category Format',
+        'question_format' => 'Question Format',
     ],
 ];

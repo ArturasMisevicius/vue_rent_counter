@@ -3,42 +3,41 @@
 declare(strict_types=1);
 
 return [
-    'navigation' => 'Переводы',
-    'sections' => [
-        'key' => 'Ключ перевода',
-        'values' => 'Значения перевода',
-    ],
-    'labels' => [
-        'group' => 'Группа',
-        'key' => 'Ключ',
-        'value' => 'Значение',
-        'last_updated' => 'Последнее обновление',
-    ],
-    'placeholders' => [
-        'group' => 'app',
-        'key' => 'nav.dashboard',
-        'value' => '—',
+    'empty' => [
+        'action' => 'Action',
+        'description' => 'Description',
+        'heading' => 'Heading',
     ],
     'helper_text' => [
-        'key' => 'Укажите группу и ключ для этого перевода',
-        'group' => 'Имя PHP-файла в каталоге lang/{locale}/ (например, «app» для app.php)',
-        'key_full' => 'Ключ перевода с точечной нотацией (например, «nav.dashboard»)',
-        'values' => 'Укажите переводы для каждого активного языка. Значения записываются в PHP-файлы переводов.',
-        'default_language' => 'Язык по умолчанию',
+        'default_language' => 'Default Language',
+        'group' => 'Group',
+        'key' => 'Key',
+        'key_full' => 'Key Full',
+        'values' => 'Values',
     ],
-    'empty' => [
-        'heading' => 'Переводов пока нет',
-        'description' => 'Создайте записи переводов для управления многоязычным контентом.',
-        'action' => 'Добавить первый перевод',
+    'labels' => [
+        'group' => 'Group',
+        'key' => 'Key',
+        'last_updated' => 'Last Updated',
     ],
     'modals' => [
         'delete' => [
-            'heading' => 'Удалить переводы',
-            'description' => 'Вы уверены, что хотите удалить эти переводы? Это повлияет на интерфейс приложения.',
+            'description' => 'Description',
+            'heading' => 'Heading',
         ],
     ],
+    'navigation' => 'Navigation',
+    'placeholders' => [
+        'group' => 'Group',
+        'key' => 'Key',
+        'value' => 'Value',
+    ],
+    'sections' => [
+        'key' => 'Key',
+        'values' => 'Values',
+    ],
     'table' => [
-        'value_label' => 'Значение для :locale',
-        'language_label' => ':language (:code)',
+        'language_label' => 'Language Label',
+        'value_label' => 'Value Label',
     ],
 ];

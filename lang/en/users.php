@@ -3,88 +3,129 @@
 declare(strict_types=1);
 
 return [
-    'labels' => [
+    'actions' => [
+        'add' => 'Add',
+        'back' => 'Back',
+        'clear' => 'Clear',
+        'create' => 'Create',
+        'delete' => 'Delete',
+        'edit' => 'Edit',
+        'filter' => 'Filter',
+        'update' => 'Update',
+        'view' => 'View',
+    ],
+    'descriptions' => [
+        'index' => 'Index',
+    ],
+    'empty' => [
         'users' => 'Users',
-        'user' => 'User',
-        'name' => 'Name',
-        'email' => 'Email',
-        'password' => 'Password',
-        'password_confirmation' => 'Confirm Password',
-        'role' => 'Role',
-        'tenant' => 'Organization',
-        'is_active' => 'Active',
-        'created' => 'Created At',
     ],
-
-    'placeholders' => [
-        'name' => 'Enter full name',
-        'email' => 'user@example.com',
-        'password' => 'Enter password',
-        'password_confirmation' => 'Re-enter password',
-    ],
-
-    'helper_text' => [
-        'password' => 'Minimum 8 characters required',
-        'role' => 'Select the user role',
-        'tenant' => 'Required for Manager and Tenant roles',
-        'is_active' => 'Inactive users cannot log in',
-    ],
-
-    'sections' => [
-        'user_details' => 'User Details',
-        'user_details_description' => 'Basic information about the user',
-        'role_and_access' => 'Role and Access',
-        'role_and_access_description' => 'User role and organization assignment',
-    ],
-
-    'filters' => [
-        'role' => 'Role',
-        'is_active' => 'Status',
-        'all_users' => 'All Users',
-        'active_only' => 'Active Only',
-        'inactive_only' => 'Inactive Only',
-    ],
-
-    'tooltips' => [
-        'copy_email' => 'Email copied to clipboard',
-    ],
-
     'empty_state' => [
-        'heading' => 'No users found',
-        'description' => 'Get started by creating your first user.',
+        'description' => 'Description',
+        'heading' => 'Heading',
     ],
-
+    'errors' => [
+        'has_readings' => 'Has Readings',
+    ],
+    'filters' => [
+        'active_only' => 'Active Only',
+        'all_users' => 'All Users',
+        'inactive_only' => 'Inactive Only',
+        'is_active' => 'Is Active',
+        'role' => 'Role',
+    ],
+    'headings' => [
+        'create' => 'Create',
+        'edit' => 'Edit',
+        'index' => 'Index',
+        'information' => 'Information',
+        'quick_actions' => 'Quick Actions',
+        'show' => 'Show',
+    ],
+    'helper_text' => [
+        'is_active' => 'Is Active',
+        'password' => 'Password',
+        'role' => 'Role',
+        'tenant' => 'Tenant',
+    ],
+    'labels' => [
+        'activity_hint' => 'Activity Hint',
+        'activity_history' => 'Activity History',
+        'created' => 'Created',
+        'created_at' => 'Created At',
+        'email' => 'Email',
+        'is_active' => 'Is Active',
+        'last_login_at' => 'Last Login At',
+        'meter_readings_entered' => 'Meter Readings Entered',
+        'name' => 'Name',
+        'no_activity' => 'No Activity',
+        'password' => 'Password',
+        'password_confirmation' => 'Password Confirmation',
+        'role' => 'Role',
+        'tenant' => 'Tenant',
+        'updated_at' => 'Updated At',
+        'user' => 'User',
+        'users' => 'Users',
+    ],
+    'placeholders' => [
+        'email' => 'Email',
+        'name' => 'Name',
+        'password' => 'Password',
+        'password_confirmation' => 'Password Confirmation',
+    ],
+    'sections' => [
+        'role_and_access' => 'Role And Access',
+        'role_and_access_description' => 'Role And Access Description',
+        'user_details' => 'User Details',
+        'user_details_description' => 'User Details Description',
+    ],
+    'tables' => [
+        'actions' => 'Actions',
+        'email' => 'Email',
+        'name' => 'Name',
+        'role' => 'Role',
+        'tenant' => 'Tenant',
+    ],
+    'tooltips' => [
+        'copy_email' => 'Copy Email',
+    ],
     'validation' => [
-        'name' => [
-            'required' => 'Name is required',
-            'string' => 'Name must be a valid text',
-            'max' => 'Name cannot exceed 255 characters',
+        'current_password' => [
+            'current_password' => 'Current Password',
+            'required' => 'Required',
+            'required_with' => 'Required With',
+            'string' => 'String',
         ],
         'email' => [
-            'required' => 'Email is required',
-            'email' => 'Please provide a valid email address',
-            'unique' => 'This email is already in use',
-            'max' => 'Email cannot exceed 255 characters',
+            'email' => 'Email',
+            'max' => 'Max',
+            'required' => 'Required',
+            'string' => 'String',
+            'unique' => 'Unique',
         ],
-        'current_password' => [
-            'required_with' => 'Current password is required when changing password',
-            'string' => 'Current password must be valid text',
-            'current_password' => 'The current password is incorrect',
+        'name' => [
+            'max' => 'Max',
+            'required' => 'Required',
+            'string' => 'String',
+        ],
+        'organization_name' => [
+            'max' => 'Max',
+            'string' => 'String',
         ],
         'password' => [
-            'required' => 'Password is required',
-            'string' => 'Password must be valid text',
-            'min' => 'Password must be at least 8 characters',
-            'confirmed' => 'Password confirmation does not match',
+            'confirmed' => 'Confirmed',
+            'min' => 'Min',
+            'required' => 'Required',
+            'string' => 'String',
         ],
         'role' => [
-            'required' => 'Role is required',
-            'enum' => 'Invalid role selected',
+            'enum' => 'Enum',
+            'required' => 'Required',
         ],
         'tenant_id' => [
-            'required' => 'Organization is required for this role',
-            'integer' => 'Organization must be a valid number',
-            'exists' => 'Selected organization does not exist',
+            'exists' => 'Exists',
+            'integer' => 'Integer',
+            'required' => 'Required',
         ],
     ],
 ];

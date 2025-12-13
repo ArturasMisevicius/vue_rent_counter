@@ -1,166 +1,85 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'meter_type' => [
-        'electricity' => 'Электричество',
-        'water_cold' => 'Холодная вода',
-        'water_hot' => 'Горячая вода',
-        'heating' => 'Отопление',
-    ],
-
-    'property_type' => [
-        'apartment' => 'Квартира',
-        'house' => 'Дом',
-    ],
-
-    'service_type' => [
-        'electricity' => 'Электричество',
-        'water' => 'Вода',
-        'heating' => 'Отопление',
-    ],
-
-    'invoice_status' => [
-        'draft' => 'Черновик',
-        'finalized' => 'Завершен',
-        'paid' => 'Оплачен',
-    ],
-
-    'user_role' => [
-        'superadmin' => 'Суперадмин',
-        'admin' => 'Администратор',
-        'manager' => 'Менеджер',
-        'tenant' => 'Арендатор',
-    ],
-
-    'tariff_type' => [
-        'flat' => 'Фиксированный тариф',
-        'time_of_use' => 'Тариф по времени суток',
-    ],
-
-    'tariff_zone' => [
-        'day' => 'Дневной тариф',
-        'night' => 'Ночной тариф',
-        'weekend' => 'Тариф выходного дня',
-    ],
-
-    'weekend_logic' => [
-        'apply_night_rate' => 'Применять ночной тариф в выходные',
-        'apply_day_rate' => 'Применять дневной тариф в выходные',
-        'apply_weekend_rate' => 'Применять тариф выходного дня',
-    ],
-
-    'subscription_plan_type' => [
-        'basic' => 'Базовый',
-        'professional' => 'Профессиональный',
-        'enterprise' => 'Корпоративный',
-    ],
-
-    'subscription_status' => [
-        'active' => 'Активна',
-        'expired' => 'Истекла',
-        'suspended' => 'Приостановлена',
-        'cancelled' => 'Отменена',
-    ],
-
-    'user_assignment_action' => [
-        'created' => 'Создано',
-        'assigned' => 'Назначено',
-        'reassigned' => 'Переназначено',
-        'deactivated' => 'Деактивировано',
-        'reactivated' => 'Повторно активировано',
-    ],
-
-    'distribution_method' => [
-        'equal' => 'Равномерное распределение',
-        'area' => 'Распределение по площади',
-        'by_consumption' => 'Распределение по потреблению',
-        'custom_formula' => 'Распределение по формуле',
-        'equal_description' => 'Расходы распределяются равномерно между всеми объектами',
-        'area_description' => 'Расходы распределяются пропорционально площади объекта',
-        'by_consumption_description' => 'Расходы распределяются по соотношению фактического потребления',
-        'custom_formula_description' => 'Используется индивидуальная математическая формула для распределения',
-    ],
-
-    'pricing_model' => [
-        'fixed_monthly' => 'Фиксированная ежемесячная плата',
-        'consumption_based' => 'Ценообразование по потреблению',
-        'tiered_rates' => 'Ступенчатая структура тарифов',
-        'hybrid' => 'Гибридная модель ценообразования',
-        'custom_formula' => 'Индивидуальное ценообразование по формуле',
-        'flat' => 'Фиксированный тариф',
-        'time_of_use' => 'Ценообразование по времени суток',
-        'fixed_monthly_description' => 'Фиксированная ежемесячная плата независимо от потребления',
-        'consumption_based_description' => 'Ценообразование на основе фактического объема потребления',
-        'tiered_rates_description' => 'Разные тарифы для разных уровней потребления',
-        'hybrid_description' => 'Комбинация фиксированной платы и ценообразования по потреблению',
-        'custom_formula_description' => 'Индивидуальная математическая формула для расчета цены',
-        'flat_description' => 'Единый тариф для всего потребления',
-        'time_of_use_description' => 'Разные тарифы в разное время суток',
-    ],
-
-    'input_method' => [
-        'manual' => 'Ручной ввод',
-        'photo_ocr' => 'Фото с OCR',
-        'csv_import' => 'Импорт CSV',
-        'api_integration' => 'Интеграция API',
-        'estimated' => 'Расчетное показание',
-        'manual_description' => 'Введено вручную пользователем',
-        'photo_ocr_description' => 'Извлечено из фотографии счетчика с помощью OCR',
-        'csv_import_description' => 'Импортировано из CSV файла',
-        'api_integration_description' => 'Получено через интеграцию API',
-        'estimated_description' => 'Рассчитано на основе исторических данных',
-    ],
-
-    'validation_status' => [
-        'pending' => 'Ожидает проверки',
-        'validated' => 'Проверено',
-        'rejected' => 'Отклонено',
-        'requires_review' => 'Требует проверки',
-        'pending_description' => 'Ожидает проверки',
-        'validated_description' => 'Одобрено и готово к расчету',
-        'rejected_description' => 'Отклонено из-за ошибок или несоответствий',
-        'requires_review_description' => 'Требуется ручная проверка перед одобрением',
-    ],
-
     'area_type' => [
-        'total_area' => 'Общая площадь',
-        'heated_area' => 'Отапливаемая площадь',
-        'commercial_area' => 'Коммерческая площадь',
+        'commercial_area' => 'Commercial Area',
+        'heated_area' => 'Heated Area',
+        'total_area' => 'Total Area',
     ],
-
+    'distribution_method' => [
+        'area' => 'Area',
+        'area_description' => 'Area Description',
+        'by_consumption' => 'By Consumption',
+        'by_consumption_description' => 'By Consumption Description',
+        'custom_formula' => 'Custom Formula',
+        'custom_formula_description' => 'Custom Formula Description',
+        'equal' => 'Equal',
+        'equal_description' => 'Equal Description',
+    ],
     'gyvatukas_calculation_type' => [
-        'summer' => 'Летний расчет',
-        'winter' => 'Зимний расчет',
+        'summer' => 'Summer',
+        'winter' => 'Winter',
     ],
-
-    'system_tenant_status' => [
-        'active' => 'Активный',
-        'suspended' => 'Приостановлен',
-        'pending' => 'Ожидает',
-        'cancelled' => 'Отменен',
+    'input_method' => [
+        'api_integration_description' => 'Api Integration Description',
+        'csv_import_description' => 'Csv Import Description',
+        'estimated_description' => 'Estimated Description',
+        'manual_description' => 'Manual Description',
+        'photo_ocr_description' => 'Photo Ocr Description',
     ],
-
-    'system_subscription_plan' => [
-        'starter' => 'Начальный',
-        'professional' => 'Профессиональный',
-        'enterprise' => 'Корпоративный',
-        'custom' => 'Индивидуальный',
+    'pricing_model' => [
+        'consumption_based_description' => 'Consumption Based Description',
+        'custom_formula_description' => 'Custom Formula Description',
+        'fixed_monthly_description' => 'Fixed Monthly Description',
+        'flat_description' => 'Flat Description',
+        'hybrid_description' => 'Hybrid Description',
+        'tiered_rates_description' => 'Tiered Rates Description',
+        'time_of_use_description' => 'Time Of Use Description',
     ],
-
+    'service_type' => [
+        'electricity' => 'Electricity',
+        'heating' => 'Heating',
+        'water' => 'Water',
+    ],
     'super_admin_audit_action' => [
-        'system_tenant_created' => 'Системный арендатор создан',
-        'system_tenant_updated' => 'Системный арендатор обновлен',
-        'system_tenant_suspended' => 'Системный арендатор приостановлен',
-        'system_tenant_activated' => 'Системный арендатор активирован',
-        'system_tenant_deleted' => 'Системный арендатор удален',
-        'user_impersonated' => 'Пользователь олицетворен',
-        'impersonation_ended' => 'Олицетворение завершено',
-        'bulk_operation' => 'Массовая операция',
-        'system_config_changed' => 'Конфигурация системы изменена',
-        'backup_created' => 'Резервная копия создана',
-        'backup_restored' => 'Резервная копия восстановлена',
-        'notification_sent' => 'Уведомление отправлено',
-        'feature_flag_changed' => 'Флаг функции изменен',
-        'security_policy_changed' => 'Политика безопасности изменена',
+        'backup_created' => 'Backup Created',
+        'backup_restored' => 'Backup Restored',
+        'bulk_operation' => 'Bulk Operation',
+        'feature_flag_changed' => 'Feature Flag Changed',
+        'impersonation_ended' => 'Impersonation Ended',
+        'notification_sent' => 'Notification Sent',
+        'security_policy_changed' => 'Security Policy Changed',
+        'system_config_changed' => 'System Config Changed',
+        'system_tenant_activated' => 'System Tenant Activated',
+        'system_tenant_created' => 'System Tenant Created',
+        'system_tenant_deleted' => 'System Tenant Deleted',
+        'system_tenant_suspended' => 'System Tenant Suspended',
+        'system_tenant_updated' => 'System Tenant Updated',
+        'user_impersonated' => 'User Impersonated',
+    ],
+    'system_subscription_plan' => [
+        'custom' => 'Custom',
+        'enterprise' => 'Enterprise',
+        'professional' => 'Professional',
+        'starter' => 'Starter',
+    ],
+    'system_tenant_status' => [
+        'active' => 'Active',
+        'cancelled' => 'Cancelled',
+        'pending' => 'Pending',
+        'suspended' => 'Suspended',
+    ],
+    'user_role' => [
+        'admin' => 'Admin',
+        'manager' => 'Manager',
+        'tenant' => 'Tenant',
+    ],
+    'validation_status' => [
+        'pending_description' => 'Pending Description',
+        'rejected_description' => 'Rejected Description',
+        'requires_review_description' => 'Requires Review Description',
+        'validated_description' => 'Validated Description',
     ],
 ];

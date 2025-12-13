@@ -1,15 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-  'yes' => 'Yes',
-  'no' => 'No',
-  'greeting' => 'Hello',
-  'language' => 'Language',
-  'english' => 'English',
-  'lithuanian' => 'Lithuanian',
-  'russian' => 'Russian',
-  'language_switched' => 'Language has been changed successfully.',
-  'status' => [
+    'language_switched' => 'Language Switched',
+    'no' => 'No',
+    'status' => [
+        'active' => 'Active',
+        'suspended' => 'Suspended',
+        'trial' => 'Trial',
+        'unknown' => 'Unknown',
+    ],
     'unknown' => 'Unknown',
-  ],
+    'yes' => 'Yes',
 ];

@@ -3,262 +3,220 @@
 declare(strict_types=1);
 
 return [
-    'validation' => [
-        'report_type' => [
-            'required' => 'Report type is required.',
-            'in' => 'Report type must be one of consumption, revenue, outstanding, or meter-readings.',
-        ],
-        'format' => [
-            'required' => 'Export format is required.',
-            'in' => 'Export format must be csv, excel, or pdf.',
-        ],
-        'start_date' => [
-            'date' => 'Start date must be a valid date.',
-        ],
-        'end_date' => [
-            'date' => 'End date must be a valid date.',
-            'after_or_equal' => 'End date must be after or the same as the start date.',
-        ],
-        'property_id' => [
-            'exists' => 'The selected property does not exist.',
-        ],
-        'month' => [
-            'date_format' => 'Month must be in YYYY-MM format.',
-        ],
-    ],
-
-    'public' => [
-        'title' => 'Reports',
-        'links' => [
-            'consumption' => 'Consumption Report',
-            'revenue' => 'Revenue Report',
-            'outstanding' => 'Outstanding Report',
-        ],
-    ],
-
     'common' => [
-        'title' => 'Reports',
-        'export_csv' => 'Export CSV',
-        'generate_report' => 'Generate Report',
-        'start_date' => 'Start Date',
-        'end_date' => 'End Date',
+        'all_buildings' => 'All Buildings',
+        'all_properties' => 'All Properties',
+        'all_statuses' => 'All Statuses',
+        'all_types' => 'All Types',
         'building' => 'Building',
-        'property' => 'Property',
+        'end_date' => 'End Date',
         'meter_type' => 'Meter Type',
+        'na' => 'Na',
+        'property' => 'Property',
+        'start_date' => 'Start Date',
         'status' => 'Status',
-        'month' => 'Month',
-        'all_buildings' => 'All buildings...',
-        'all_properties' => 'All properties...',
-        'all_types' => 'All types...',
-        'all_statuses' => 'All statuses...',
-        'na' => 'N/A',
-        'invoices_count' => '{1} :count invoice|[2,*] :count invoices',
-        'readings_count' => '{1} :count reading|[2,*] :count readings',
     ],
-
+    'errors' => [
+        'export_pending' => 'Export Pending',
+    ],
     'manager' => [
-        'index' => [
-            'title' => 'Reports',
-            'description' => 'Analytics and insights for your managed units',
-            'breadcrumbs' => [
-                'reports' => 'Reports',
+        'compliance' => [
+            'by_building' => [
+                'properties' => 'Properties',
+                'title' => 'Title',
+            ],
+            'by_meter_type' => [
+                'meters' => 'Meters',
+                'title' => 'Title',
+            ],
+            'description' => 'Description',
+            'details' => [
+                'add_readings' => 'Add Readings',
+                'caption' => 'Caption',
+                'headers' => [
+                    'actions' => 'Actions',
+                    'building' => 'Building',
+                    'property' => 'Property',
+                    'readings_submitted' => 'Readings Submitted',
+                    'status' => 'Status',
+                    'total_meters' => 'Total Meters',
+                ],
+                'mobile' => [
+                    'meters' => 'Meters',
+                    'readings' => 'Readings',
+                ],
+                'title' => 'Title',
+            ],
+            'export' => 'Export',
+            'filters' => [
+                'building' => 'Building',
+                'month' => 'Month',
+                'placeholders' => [
+                    'building' => 'Building',
+                ],
+                'submit' => 'Submit',
+            ],
+            'summary' => [
+                'complete' => [
+                    'description' => 'Description',
+                    'label' => 'Label',
+                ],
+                'none' => [
+                    'description' => 'Description',
+                    'label' => 'Label',
+                ],
+                'overall' => 'Overall',
+                'partial' => [
+                    'description' => 'Description',
+                    'label' => 'Label',
+                ],
+                'properties' => 'Properties',
+                'title' => 'Title',
+            ],
+            'title' => 'Title',
+        ],
+        'consumption' => [
+            'description' => 'Description',
+            'export' => 'Export',
+            'filters' => [
+                'submit' => 'Submit',
             ],
             'stats' => [
-                'properties' => 'Properties',
-                'meters' => 'Total Meters',
-                'readings' => 'Readings This Month',
-                'invoices' => 'Invoices This Month',
+                'consumption_label' => 'Consumption Label',
+                'empty' => 'Empty',
+                'monthly_trend' => 'Monthly Trend',
+                'property_caption' => 'Property Caption',
+                'readings' => 'Readings',
+                'readings_label' => 'Readings Label',
+                'top_caption' => 'Top Caption',
+                'top_properties' => 'Top Properties',
+                'total_consumption' => 'Total Consumption',
             ],
+            'title' => 'Title',
+        ],
+        'index' => [
             'cards' => [
+                'compliance' => [
+                    'cta' => 'Cta',
+                    'description' => 'Description',
+                    'title' => 'Title',
+                ],
                 'consumption' => [
-                    'title' => 'Consumption',
-                    'description' => 'Track usage trends by property, meter type, or date range',
-                    'cta' => 'View detailed analytics',
+                    'cta' => 'Cta',
+                    'description' => 'Description',
+                    'title' => 'Title',
                 ],
                 'revenue' => [
-                    'title' => 'Revenue',
-                    'description' => 'See invoiced, paid, and outstanding amounts over time',
-                    'cta' => 'Monitor billing health',
-                ],
-                'compliance' => [
-                    'title' => 'Compliance',
-                    'description' => 'Spot properties missing meter readings for the current cycle',
-                    'cta' => 'Stay on schedule',
+                    'cta' => 'Cta',
+                    'description' => 'Description',
+                    'title' => 'Title',
                 ],
             ],
+            'description' => 'Description',
             'guide' => [
-                'title' => 'How to use these reports',
                 'items' => [
+                    'compliance' => [
+                        'body' => 'Body',
+                        'title' => 'Title',
+                    ],
                     'consumption' => [
-                        'title' => 'Consumption',
-                        'body' => 'Compare usage month-over-month, filter by property or building, and export trends for provider reviews. Includes meter type breakdowns and top consuming properties.',
+                        'body' => 'Body',
+                        'title' => 'Title',
                     ],
                     'revenue' => [
-                        'title' => 'Revenue',
-                        'body' => 'Validate invoicing progress before closing the period and ensure overdue balances are visible. Track payment rates and revenue by building.',
-                    ],
-                    'compliance' => [
-                        'title' => 'Compliance',
-                        'body' => 'Identify meters without current readings and redirect your team to the right properties. Monitor compliance rates by building and meter type.',
+                        'body' => 'Body',
+                        'title' => 'Title',
                     ],
                 ],
-            ],
-        ],
-
-        'consumption' => [
-            'title' => 'Consumption Report',
-            'breadcrumb' => 'Consumption',
-            'description' => 'Utility consumption by property and meter type',
-            'export' => 'Export CSV',
-            'filters' => [
-                'start_date' => 'Start Date',
-                'end_date' => 'End Date',
-                'building' => 'Building',
-                'property' => 'Property',
-                'meter_type' => 'Meter Type',
-                'placeholders' => [
-                    'building' => 'All buildings...',
-                    'property' => 'All properties...',
-                    'meter_type' => 'All types...',
-                ],
-                'submit' => 'Generate Report',
+                'title' => 'Title',
             ],
             'stats' => [
-                'monthly_trend' => 'Monthly Consumption Trend',
-                'top_properties' => 'Top Consuming Properties',
-                'top_caption' => 'Top consuming properties',
-                'total_consumption' => 'Total Consumption',
+                'invoices' => 'Invoices',
+                'meters' => 'Meters',
+                'properties' => 'Properties',
                 'readings' => 'Readings',
-                'consumption_label' => 'Consumption:',
-                'readings_label' => 'Readings:',
-                'table' => [
-                    'date' => 'Date',
-                    'meter' => 'Meter',
-                    'type' => 'Type',
-                    'value' => 'Value',
-                    'zone' => 'Zone',
-                ],
-                'property_caption' => 'Consumption readings for :property',
-                'empty' => 'No consumption data found for the selected period.',
             ],
+            'title' => 'Title',
         ],
-
         'revenue' => [
-            'title' => 'Revenue Report',
-            'breadcrumb' => 'Revenue',
-            'description' => 'Billing revenue by period and status',
-            'export' => 'Export CSV',
-            'filters' => [
-                'start_date' => 'Start Date',
-                'end_date' => 'End Date',
-                'building' => 'Building',
-                'status' => 'Status',
-                'placeholders' => [
-                    'building' => 'All buildings...',
-                    'status' => 'All statuses...',
+            'by_building' => [
+                'caption' => 'Caption',
+                'headers' => [
+                    'invoices' => 'Invoices',
+                    'revenue' => 'Revenue',
                 ],
+                'mobile' => [
+                    'invoices' => 'Invoices',
+                    'revenue' => 'Revenue',
+                ],
+                'title' => 'Title',
+            ],
+            'description' => 'Description',
+            'export' => 'Export',
+            'filters' => [
                 'status_options' => [
                     'draft' => 'Draft',
                     'finalized' => 'Finalized',
                     'paid' => 'Paid',
                 ],
-                'submit' => 'Generate Report',
-            ],
-            'stats' => [
-                'total' => 'Total Revenue',
-                'paid' => 'Paid',
-                'payment_rate' => ':rate% payment rate',
-                'finalized' => 'Finalized',
-                'overdue' => 'Overdue',
-            ],
-            'monthly' => [
-                'title' => 'Monthly Revenue Trend',
-                'invoices' => ':count invoices',
-                'paid' => '€:amount paid',
-            ],
-            'by_building' => [
-                'title' => 'Revenue by Building',
-                'caption' => 'Revenue breakdown by building',
-                'headers' => [
-                    'building' => 'Building',
-                    'revenue' => 'Total Revenue',
-                    'invoices' => 'Invoices',
-                ],
-                'mobile' => [
-                    'revenue' => 'Revenue:',
-                    'invoices' => 'Invoices:',
-                ],
+                'submit' => 'Submit',
             ],
             'invoices' => [
-                'title' => 'Invoice Details',
-                'caption' => 'Invoices in revenue report',
+                'caption' => 'Caption',
+                'empty' => 'Empty',
                 'headers' => [
-                    'number' => 'Invoice #',
-                    'property' => 'Property',
-                    'period' => 'Period',
                     'amount' => 'Amount',
-                    'status' => 'Status',
                     'due' => 'Due',
-                ],
-                'empty' => 'No invoices found for the selected period.',
-            ],
-        ],
-
-        'compliance' => [
-            'title' => 'Meter Reading Compliance Report',
-            'breadcrumb' => 'Reading Compliance',
-            'description' => 'Track meter reading completion by property',
-            'export' => 'Export CSV',
-            'filters' => [
-                'month' => 'Month',
-                'building' => 'Building',
-                'placeholders' => [
-                    'building' => 'All buildings...',
-                ],
-                'submit' => 'Generate Report',
-            ],
-            'summary' => [
-                'title' => 'Compliance Summary',
-                'complete' => [
-                    'label' => 'Complete',
-                    'description' => 'All meters read',
-                ],
-                'partial' => [
-                    'label' => 'Partial',
-                    'description' => 'Some meters missing',
-                ],
-                'none' => [
-                    'label' => 'No Readings',
-                    'description' => 'No meters read',
-                ],
-                'overall' => 'Overall Compliance Rate',
-                'properties' => 'Properties',
-            ],
-            'by_building' => [
-                'title' => 'Compliance by Building',
-                'properties' => ':complete / :total properties',
-            ],
-            'by_meter_type' => [
-                'title' => 'Compliance by Meter Type',
-                'meters' => ':complete / :total meters',
-            ],
-            'details' => [
-                'title' => 'Property Details',
-                'caption' => 'Property meter reading compliance',
-                'headers' => [
+                    'number' => 'Number',
+                    'period' => 'Period',
                     'property' => 'Property',
-                    'building' => 'Building',
-                    'total_meters' => 'Total Meters',
-                    'readings_submitted' => 'Readings Submitted',
                     'status' => 'Status',
-                    'actions' => 'Actions',
                 ],
-                'add_readings' => 'Add Readings',
-                'mobile' => [
-                    'meters' => 'Meters:',
-                    'readings' => 'Readings:',
-                ],
+                'title' => 'Title',
             ],
+            'monthly' => [
+                'paid' => 'Paid',
+                'title' => 'Title',
+            ],
+            'stats' => [
+                'finalized' => 'Finalized',
+                'overdue' => 'Overdue',
+                'paid' => 'Paid',
+                'payment_rate' => 'Payment Rate',
+                'total' => 'Total',
+            ],
+            'title' => 'Title',
+        ],
+    ],
+    'public' => [
+        'links' => [
+            'consumption' => 'Consumption',
+            'outstanding' => 'Outstanding',
+            'revenue' => 'Revenue',
+        ],
+        'title' => 'Title',
+    ],
+    'validation' => [
+        'end_date' => [
+            'after_or_equal' => 'After Or Equal',
+            'date' => 'Date',
+        ],
+        'format' => [
+            'in' => 'In',
+            'required' => 'Required',
+        ],
+        'month' => [
+            'date_format' => 'Date Format',
+        ],
+        'property_id' => [
+            'exists' => 'Exists',
+        ],
+        'report_type' => [
+            'in' => 'In',
+            'required' => 'Required',
+        ],
+        'start_date' => [
+            'date' => 'Date',
         ],
     ],
 ];

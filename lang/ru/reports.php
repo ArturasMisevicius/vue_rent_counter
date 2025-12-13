@@ -3,262 +3,220 @@
 declare(strict_types=1);
 
 return [
-    'validation' => [
-        'report_type' => [
-            'required' => 'Тип отчета обязателен.',
-            'in' => 'Тип отчета должен быть одним из: consumption, revenue, outstanding или meter-readings.',
-        ],
-        'format' => [
-            'required' => 'Формат экспорта обязателен.',
-            'in' => 'Формат экспорта должен быть csv, excel или pdf.',
-        ],
-        'start_date' => [
-            'date' => 'Дата начала должна быть корректной датой.',
-        ],
-        'end_date' => [
-            'date' => 'Дата окончания должна быть корректной датой.',
-            'after_or_equal' => 'Дата окончания должна быть не раньше даты начала.',
-        ],
-        'property_id' => [
-            'exists' => 'Выбранный объект не существует.',
-        ],
-        'month' => [
-            'date_format' => 'Месяц должен быть в формате YYYY-MM.',
-        ],
-    ],
-
-    'public' => [
-        'title' => 'Отчеты',
-        'links' => [
-            'consumption' => 'Отчет по потреблению',
-            'revenue' => 'Отчет по выручке',
-            'outstanding' => 'Отчет по задолженности',
-        ],
-    ],
-
     'common' => [
-        'title' => 'Отчеты',
-        'export_csv' => 'Экспорт CSV',
-        'generate_report' => 'Сформировать отчет',
-        'start_date' => 'Дата начала',
-        'end_date' => 'Дата окончания',
-        'building' => 'Здание',
-        'property' => 'Объект',
-        'meter_type' => 'Тип счетчика',
-        'status' => 'Статус',
-        'month' => 'Месяц',
-        'all_buildings' => 'Все здания...',
-        'all_properties' => 'Все объекты...',
-        'all_types' => 'Все типы...',
-        'all_statuses' => 'Все статусы...',
-        'na' => '—',
-        'invoices_count' => '{1} :count счет|[2,*] :count счетов',
-        'readings_count' => '{1} :count показание|[2,*] :count показаний',
+        'all_buildings' => 'All Buildings',
+        'all_properties' => 'All Properties',
+        'all_statuses' => 'All Statuses',
+        'all_types' => 'All Types',
+        'building' => 'Building',
+        'end_date' => 'End Date',
+        'meter_type' => 'Meter Type',
+        'na' => 'Na',
+        'property' => 'Property',
+        'start_date' => 'Start Date',
+        'status' => 'Status',
     ],
-
+    'errors' => [
+        'export_pending' => 'Export Pending',
+    ],
     'manager' => [
-        'index' => [
-            'title' => 'Отчеты',
-            'description' => 'Аналитика и инсайты для ваших объектов',
-            'breadcrumbs' => [
-                'reports' => 'Отчеты',
-            ],
-            'stats' => [
-                'properties' => 'Объекты',
-                'meters' => 'Всего счетчиков',
-                'readings' => 'Показаний в этом месяце',
-                'invoices' => 'Счетов в этом месяце',
-            ],
-            'cards' => [
-                'consumption' => [
-                    'title' => 'Потребление',
-                    'description' => 'Отслеживайте тенденции использования по объекту, типу счетчика или диапазону дат',
-                    'cta' => 'Смотреть аналитику',
-                ],
-                'revenue' => [
-                    'title' => 'Выручка',
-                    'description' => 'Видите выставленные, оплаченные и просроченные суммы во времени',
-                    'cta' => 'Контролировать платежи',
-                ],
-                'compliance' => [
-                    'title' => 'Своевременность',
-                    'description' => 'Находите объекты без текущих показаний в этом цикле',
-                    'cta' => 'Держать график',
-                ],
-            ],
-            'guide' => [
-                'title' => 'Как использовать эти отчеты',
-                'items' => [
-                    'consumption' => [
-                        'title' => 'Потребление',
-                        'body' => 'Сравнивайте потребление по месяцам, фильтруйте по объекту или зданию и экспортируйте тенденции для поставщиков. Включает разбивку по типам счетчиков и топ потребителей.',
-                    ],
-                    'revenue' => [
-                        'title' => 'Выручка',
-                        'body' => 'Проверьте прогресс выставления счетов перед закрытием периода и убедитесь, что просрочки видны. Отслеживайте уровень оплат и выручку по зданиям.',
-                    ],
-                    'compliance' => [
-                        'title' => 'Своевременность',
-                        'body' => 'Находите счетчики без актуальных показаний и направляйте команду к нужным объектам. Контролируйте уровень выполнения по зданиям и типам счетчиков.',
-                    ],
-                ],
-            ],
-        ],
-
-        'consumption' => [
-            'title' => 'Отчет по потреблению',
-            'breadcrumb' => 'Потребление',
-            'description' => 'Потребление коммунальных услуг по объектам и типам счетчиков',
-            'export' => 'Экспорт CSV',
-            'filters' => [
-                'start_date' => 'Дата начала',
-                'end_date' => 'Дата окончания',
-                'building' => 'Здание',
-                'property' => 'Объект',
-                'meter_type' => 'Тип счетчика',
-                'placeholders' => [
-                    'building' => 'Все здания...',
-                    'property' => 'Все объекты...',
-                    'meter_type' => 'Все типы...',
-                ],
-                'submit' => 'Сформировать отчет',
-            ],
-            'stats' => [
-                'monthly_trend' => 'Динамика потребления по месяцам',
-                'top_properties' => 'Объекты с наибольшим потреблением',
-                'top_caption' => 'ТОП потребления по объектам',
-                'total_consumption' => 'Общий объем потребления',
-                'readings' => 'Показания',
-                'consumption_label' => 'Потребление:',
-                'readings_label' => 'Показаний:',
-                'table' => [
-                    'date' => 'Дата',
-                    'meter' => 'Счетчик',
-                    'type' => 'Тип',
-                    'value' => 'Значение',
-                    'zone' => 'Зона',
-                ],
-                'property_caption' => 'Показания для :property',
-                'empty' => 'Нет данных за выбранный период.',
-            ],
-        ],
-
-        'revenue' => [
-            'title' => 'Отчет по выручке',
-            'breadcrumb' => 'Выручка',
-            'description' => 'Доходы по счетам по периодам и статусам',
-            'export' => 'Экспорт CSV',
-            'filters' => [
-                'start_date' => 'Дата начала',
-                'end_date' => 'Дата окончания',
-                'building' => 'Здание',
-                'status' => 'Статус',
-                'placeholders' => [
-                    'building' => 'Все здания...',
-                    'status' => 'Все статусы...',
-                ],
-                'status_options' => [
-                    'draft' => 'Черновик',
-                    'finalized' => 'Завершен',
-                    'paid' => 'Оплачен',
-                ],
-                'submit' => 'Сформировать отчет',
-            ],
-            'stats' => [
-                'total' => 'Общая выручка',
-                'paid' => 'Оплачено',
-                'payment_rate' => ':rate% уровень оплаты',
-                'finalized' => 'Завершено',
-                'overdue' => 'Просрочено',
-            ],
-            'monthly' => [
-                'title' => 'Динамика выручки по месяцам',
-                'invoices' => ':count счетов',
-                'paid' => '€:amount оплачено',
-            ],
-            'by_building' => [
-                'title' => 'Выручка по зданиям',
-                'caption' => 'Разбивка выручки по зданиям',
-                'headers' => [
-                    'building' => 'Здание',
-                    'revenue' => 'Общая выручка',
-                    'invoices' => 'Счета',
-                ],
-                'mobile' => [
-                    'revenue' => 'Выручка:',
-                    'invoices' => 'Счета:',
-                ],
-            ],
-            'invoices' => [
-                'title' => 'Детализация счетов',
-                'caption' => 'Счета в этом отчете',
-                'headers' => [
-                    'number' => 'Счет #',
-                    'property' => 'Объект',
-                    'period' => 'Период',
-                    'amount' => 'Сумма',
-                    'status' => 'Статус',
-                    'due' => 'Срок',
-                ],
-                'empty' => 'За выбранный период счета не найдены.',
-            ],
-        ],
-
         'compliance' => [
-            'title' => 'Отчет по сбору показаний',
-            'breadcrumb' => 'Собранные показания',
-            'description' => 'Отслеживайте выполнение снятия показаний по объектам',
-            'export' => 'Экспорт CSV',
-            'filters' => [
-                'month' => 'Месяц',
-                'building' => 'Здание',
-                'placeholders' => [
-                    'building' => 'Все здания...',
-                ],
-                'submit' => 'Сформировать отчет',
-            ],
-            'summary' => [
-                'title' => 'Сводка по выполнению',
-                'complete' => [
-                    'label' => 'Выполнено',
-                    'description' => 'Все счетчики сняты',
-                ],
-                'partial' => [
-                    'label' => 'Частично',
-                    'description' => 'Некоторые счетчики без показаний',
-                ],
-                'none' => [
-                    'label' => 'Нет показаний',
-                    'description' => 'Показания не сняты',
-                ],
-                'overall' => 'Общий уровень выполнения',
-                'properties' => 'Объекты',
-            ],
             'by_building' => [
-                'title' => 'Выполнение по зданиям',
-                'properties' => ':complete / :total объектов',
+                'properties' => 'Properties',
+                'title' => 'Title',
             ],
             'by_meter_type' => [
-                'title' => 'Выполнение по типу счетчиков',
-                'meters' => ':complete / :total счетчиков',
+                'meters' => 'Meters',
+                'title' => 'Title',
             ],
+            'description' => 'Description',
             'details' => [
-                'title' => 'Детали по объектам',
-                'caption' => 'Выполнение снятия показаний по объектам',
+                'add_readings' => 'Add Readings',
+                'caption' => 'Caption',
                 'headers' => [
-                    'property' => 'Объект',
-                    'building' => 'Здание',
-                    'total_meters' => 'Всего счетчиков',
-                    'readings_submitted' => 'Передано показаний',
-                    'status' => 'Статус',
-                    'actions' => 'Действия',
+                    'actions' => 'Actions',
+                    'building' => 'Building',
+                    'property' => 'Property',
+                    'readings_submitted' => 'Readings Submitted',
+                    'status' => 'Status',
+                    'total_meters' => 'Total Meters',
                 ],
-                'add_readings' => 'Добавить показания',
                 'mobile' => [
-                    'meters' => 'Счетчики:',
-                    'readings' => 'Показания:',
+                    'meters' => 'Meters',
+                    'readings' => 'Readings',
+                ],
+                'title' => 'Title',
+            ],
+            'export' => 'Export',
+            'filters' => [
+                'building' => 'Building',
+                'month' => 'Month',
+                'placeholders' => [
+                    'building' => 'Building',
+                ],
+                'submit' => 'Submit',
+            ],
+            'summary' => [
+                'complete' => [
+                    'description' => 'Description',
+                    'label' => 'Label',
+                ],
+                'none' => [
+                    'description' => 'Description',
+                    'label' => 'Label',
+                ],
+                'overall' => 'Overall',
+                'partial' => [
+                    'description' => 'Description',
+                    'label' => 'Label',
+                ],
+                'properties' => 'Properties',
+                'title' => 'Title',
+            ],
+            'title' => 'Title',
+        ],
+        'consumption' => [
+            'description' => 'Description',
+            'export' => 'Export',
+            'filters' => [
+                'submit' => 'Submit',
+            ],
+            'stats' => [
+                'consumption_label' => 'Consumption Label',
+                'empty' => 'Empty',
+                'monthly_trend' => 'Monthly Trend',
+                'property_caption' => 'Property Caption',
+                'readings' => 'Readings',
+                'readings_label' => 'Readings Label',
+                'top_caption' => 'Top Caption',
+                'top_properties' => 'Top Properties',
+                'total_consumption' => 'Total Consumption',
+            ],
+            'title' => 'Title',
+        ],
+        'index' => [
+            'cards' => [
+                'compliance' => [
+                    'cta' => 'Cta',
+                    'description' => 'Description',
+                    'title' => 'Title',
+                ],
+                'consumption' => [
+                    'cta' => 'Cta',
+                    'description' => 'Description',
+                    'title' => 'Title',
+                ],
+                'revenue' => [
+                    'cta' => 'Cta',
+                    'description' => 'Description',
+                    'title' => 'Title',
                 ],
             ],
+            'description' => 'Description',
+            'guide' => [
+                'items' => [
+                    'compliance' => [
+                        'body' => 'Body',
+                        'title' => 'Title',
+                    ],
+                    'consumption' => [
+                        'body' => 'Body',
+                        'title' => 'Title',
+                    ],
+                    'revenue' => [
+                        'body' => 'Body',
+                        'title' => 'Title',
+                    ],
+                ],
+                'title' => 'Title',
+            ],
+            'stats' => [
+                'invoices' => 'Invoices',
+                'meters' => 'Meters',
+                'properties' => 'Properties',
+                'readings' => 'Readings',
+            ],
+            'title' => 'Title',
+        ],
+        'revenue' => [
+            'by_building' => [
+                'caption' => 'Caption',
+                'headers' => [
+                    'invoices' => 'Invoices',
+                    'revenue' => 'Revenue',
+                ],
+                'mobile' => [
+                    'invoices' => 'Invoices',
+                    'revenue' => 'Revenue',
+                ],
+                'title' => 'Title',
+            ],
+            'description' => 'Description',
+            'export' => 'Export',
+            'filters' => [
+                'status_options' => [
+                    'draft' => 'Draft',
+                    'finalized' => 'Finalized',
+                    'paid' => 'Paid',
+                ],
+                'submit' => 'Submit',
+            ],
+            'invoices' => [
+                'caption' => 'Caption',
+                'empty' => 'Empty',
+                'headers' => [
+                    'amount' => 'Amount',
+                    'due' => 'Due',
+                    'number' => 'Number',
+                    'period' => 'Period',
+                    'property' => 'Property',
+                    'status' => 'Status',
+                ],
+                'title' => 'Title',
+            ],
+            'monthly' => [
+                'paid' => 'Paid',
+                'title' => 'Title',
+            ],
+            'stats' => [
+                'finalized' => 'Finalized',
+                'overdue' => 'Overdue',
+                'paid' => 'Paid',
+                'payment_rate' => 'Payment Rate',
+                'total' => 'Total',
+            ],
+            'title' => 'Title',
+        ],
+    ],
+    'public' => [
+        'links' => [
+            'consumption' => 'Consumption',
+            'outstanding' => 'Outstanding',
+            'revenue' => 'Revenue',
+        ],
+        'title' => 'Title',
+    ],
+    'validation' => [
+        'end_date' => [
+            'after_or_equal' => 'After Or Equal',
+            'date' => 'Date',
+        ],
+        'format' => [
+            'in' => 'In',
+            'required' => 'Required',
+        ],
+        'month' => [
+            'date_format' => 'Date Format',
+        ],
+        'property_id' => [
+            'exists' => 'Exists',
+        ],
+        'report_type' => [
+            'in' => 'In',
+            'required' => 'Required',
+        ],
+        'start_date' => [
+            'date' => 'Date',
         ],
     ],
 ];

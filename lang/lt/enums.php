@@ -1,166 +1,85 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-    'meter_type' => [
-        'electricity' => 'Elektra',
-        'water_cold' => 'Šaltas vanduo',
-        'water_hot' => 'Karštas vanduo',
-        'heating' => 'Šildymas',
-    ],
-
-    'property_type' => [
-        'apartment' => 'Butas',
-        'house' => 'Namas',
-    ],
-
-    'service_type' => [
-        'electricity' => 'Elektra',
-        'water' => 'Vanduo',
-        'heating' => 'Šildymas',
-    ],
-
-    'invoice_status' => [
-        'draft' => 'Juodraštis',
-        'finalized' => 'Galutinis',
-        'paid' => 'Apmokėtas',
-    ],
-
-    'user_role' => [
-        'superadmin' => 'Super administratorius',
-        'admin' => 'Administratorius',
-        'manager' => 'Vadybininkas',
-        'tenant' => 'Nuomininkas',
-    ],
-
-    'tariff_type' => [
-        'flat' => 'Fiksuotas tarifas',
-        'time_of_use' => 'Laiko zonų tarifas',
-    ],
-
-    'tariff_zone' => [
-        'day' => 'Dieninis tarifas',
-        'night' => 'Naktinis tarifas',
-        'weekend' => 'Savaitgalio tarifas',
-    ],
-
-    'weekend_logic' => [
-        'apply_night_rate' => 'Taikyti naktinį tarifą savaitgaliais',
-        'apply_day_rate' => 'Taikyti dieninį tarifą savaitgaliais',
-        'apply_weekend_rate' => 'Taikyti savaitgalio tarifą',
-    ],
-
-    'subscription_plan_type' => [
-        'basic' => 'Pagrindinis',
-        'professional' => 'Profesionalus',
-        'enterprise' => 'Įmonės',
-    ],
-
-    'subscription_status' => [
-        'active' => 'Aktyvi',
-        'expired' => 'Pasibaigusi',
-        'suspended' => 'Sustabdyta',
-        'cancelled' => 'Atšaukta',
-    ],
-
-    'user_assignment_action' => [
-        'created' => 'Sukurta',
-        'assigned' => 'Priskirta',
-        'reassigned' => 'Priskirta iš naujo',
-        'deactivated' => 'Deaktyvuota',
-        'reactivated' => 'Aktyvuota iš naujo',
-    ],
-
-    'system_tenant_status' => [
-        'active' => 'Aktyvus',
-        'suspended' => 'Sustabdytas',
-        'pending' => 'Laukiantis',
-        'cancelled' => 'Atšauktas',
-    ],
-
-    'system_subscription_plan' => [
-        'starter' => 'Pradedantysis',
-        'professional' => 'Profesionalus',
-        'enterprise' => 'Įmonės',
-        'custom' => 'Individualus',
-    ],
-
-    'super_admin_audit_action' => [
-        'system_tenant_created' => 'Sistemos nuomininkas sukurtas',
-        'system_tenant_updated' => 'Sistemos nuomininkas atnaujintas',
-        'system_tenant_suspended' => 'Sistemos nuomininkas sustabdytas',
-        'system_tenant_activated' => 'Sistemos nuomininkas aktyvuotas',
-        'system_tenant_deleted' => 'Sistemos nuomininkas ištrintas',
-        'user_impersonated' => 'Vartotojas apsimetas',
-        'impersonation_ended' => 'Apsimetimas baigtas',
-        'bulk_operation' => 'Masinis veiksmas',
-        'system_config_changed' => 'Sistemos konfigūracija pakeista',
-        'backup_created' => 'Atsarginė kopija sukurta',
-        'backup_restored' => 'Atsarginė kopija atkurta',
-        'notification_sent' => 'Pranešimas išsiųstas',
-        'feature_flag_changed' => 'Funkcijos žymė pakeista',
-        'security_policy_changed' => 'Saugumo politika pakeista',
-    ],
-
-    'distribution_method' => [
-        'equal' => 'Vienodas paskirstymas',
-        'area' => 'Paskirstymas pagal plotą',
-        'by_consumption' => 'Paskirstymas pagal suvartojimą',
-        'custom_formula' => 'Paskirstymas pagal formulę',
-        'equal_description' => 'Išlaidos paskirstomos vienodai visiems objektams',
-        'area_description' => 'Išlaidos paskirstomos proporcingai pagal objekto plotą',
-        'by_consumption_description' => 'Išlaidos paskirstomos pagal faktinio suvartojimo santykius',
-        'custom_formula_description' => 'Naudojama individuali matematinė formulė paskirstymui',
-    ],
-
-    'pricing_model' => [
-        'fixed_monthly' => 'Fiksuotas mėnesinis mokestis',
-        'consumption_based' => 'Kainodara pagal suvartojimą',
-        'tiered_rates' => 'Pakopinė tarifų struktūra',
-        'hybrid' => 'Hibridinis kainodaros modelis',
-        'custom_formula' => 'Individuali formulės kainodara',
-        'flat' => 'Fiksuotas tarifas',
-        'time_of_use' => 'Laiko zonų kainodara',
-        'fixed_monthly_description' => 'Fiksuotas mėnesinis mokestis nepriklausomai nuo suvartojimo',
-        'consumption_based_description' => 'Kainodara pagal faktinį suvartojimo kiekį',
-        'tiered_rates_description' => 'Skirtingi tarifai skirtingiems suvartojimo lygiams',
-        'hybrid_description' => 'Fiksuoto mokesčio ir suvartojimo pagrindu kainodaros derinys',
-        'custom_formula_description' => 'Individuali matematinė formulė kainos apskaičiavimui',
-        'flat_description' => 'Vienodas tarifas visam suvartojimui',
-        'time_of_use_description' => 'Skirtingi tarifai skirtingu paros metu',
-    ],
-
-    'input_method' => [
-        'manual' => 'Rankinis įvedimas',
-        'photo_ocr' => 'Nuotrauka su OCR',
-        'csv_import' => 'CSV importas',
-        'api_integration' => 'API integracija',
-        'estimated' => 'Įvertintas rodmuo',
-        'manual_description' => 'Rankiniu būdu įvestas vartotojo',
-        'photo_ocr_description' => 'Išgautas iš skaitiklio nuotraukos naudojant OCR',
-        'csv_import_description' => 'Importuotas iš CSV failo',
-        'api_integration_description' => 'Gautas per API integraciją',
-        'estimated_description' => 'Įvertintas pagal istorinius duomenis',
-    ],
-
-    'validation_status' => [
-        'pending' => 'Laukiama patvirtinimo',
-        'validated' => 'Patvirtinta',
-        'rejected' => 'Atmesta',
-        'requires_review' => 'Reikia peržiūros',
-        'pending_description' => 'Laukiama patvirtinimo',
-        'validated_description' => 'Patvirtinta ir paruošta apskaičiavimui',
-        'rejected_description' => 'Atmesta dėl klaidų ar neatitikimų',
-        'requires_review_description' => 'Reikalinga rankinė peržiūra prieš patvirtinimą',
-    ],
-
     'area_type' => [
-        'total_area' => 'Bendras plotas',
-        'heated_area' => 'Šildomas plotas',
-        'commercial_area' => 'Komercinis plotas',
+        'commercial_area' => 'Commercial Area',
+        'heated_area' => 'Heated Area',
+        'total_area' => 'Total Area',
     ],
-
+    'distribution_method' => [
+        'area' => 'Area',
+        'area_description' => 'Area Description',
+        'by_consumption' => 'By Consumption',
+        'by_consumption_description' => 'By Consumption Description',
+        'custom_formula' => 'Custom Formula',
+        'custom_formula_description' => 'Custom Formula Description',
+        'equal' => 'Equal',
+        'equal_description' => 'Equal Description',
+    ],
     'gyvatukas_calculation_type' => [
-        'summer' => 'Vasaros apskaičiavimas',
-        'winter' => 'Žiemos apskaičiavimas',
+        'summer' => 'Summer',
+        'winter' => 'Winter',
+    ],
+    'input_method' => [
+        'api_integration_description' => 'Api Integration Description',
+        'csv_import_description' => 'Csv Import Description',
+        'estimated_description' => 'Estimated Description',
+        'manual_description' => 'Manual Description',
+        'photo_ocr_description' => 'Photo Ocr Description',
+    ],
+    'pricing_model' => [
+        'consumption_based_description' => 'Consumption Based Description',
+        'custom_formula_description' => 'Custom Formula Description',
+        'fixed_monthly_description' => 'Fixed Monthly Description',
+        'flat_description' => 'Flat Description',
+        'hybrid_description' => 'Hybrid Description',
+        'tiered_rates_description' => 'Tiered Rates Description',
+        'time_of_use_description' => 'Time Of Use Description',
+    ],
+    'service_type' => [
+        'electricity' => 'Electricity',
+        'heating' => 'Heating',
+        'water' => 'Water',
+    ],
+    'super_admin_audit_action' => [
+        'backup_created' => 'Backup Created',
+        'backup_restored' => 'Backup Restored',
+        'bulk_operation' => 'Bulk Operation',
+        'feature_flag_changed' => 'Feature Flag Changed',
+        'impersonation_ended' => 'Impersonation Ended',
+        'notification_sent' => 'Notification Sent',
+        'security_policy_changed' => 'Security Policy Changed',
+        'system_config_changed' => 'System Config Changed',
+        'system_tenant_activated' => 'System Tenant Activated',
+        'system_tenant_created' => 'System Tenant Created',
+        'system_tenant_deleted' => 'System Tenant Deleted',
+        'system_tenant_suspended' => 'System Tenant Suspended',
+        'system_tenant_updated' => 'System Tenant Updated',
+        'user_impersonated' => 'User Impersonated',
+    ],
+    'system_subscription_plan' => [
+        'custom' => 'Custom',
+        'enterprise' => 'Enterprise',
+        'professional' => 'Professional',
+        'starter' => 'Starter',
+    ],
+    'system_tenant_status' => [
+        'active' => 'Active',
+        'cancelled' => 'Cancelled',
+        'pending' => 'Pending',
+        'suspended' => 'Suspended',
+    ],
+    'user_role' => [
+        'admin' => 'Admin',
+        'manager' => 'Manager',
+        'tenant' => 'Tenant',
+    ],
+    'validation_status' => [
+        'pending_description' => 'Pending Description',
+        'rejected_description' => 'Rejected Description',
+        'requires_review_description' => 'Requires Review Description',
+        'validated_description' => 'Validated Description',
     ],
 ];

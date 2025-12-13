@@ -3,26 +3,129 @@
 declare(strict_types=1);
 
 return [
+    'actions' => [
+        'add' => 'Add',
+        'back' => 'Back',
+        'clear' => 'Clear',
+        'create' => 'Create',
+        'delete' => 'Delete',
+        'edit' => 'Edit',
+        'filter' => 'Filter',
+        'update' => 'Update',
+        'view' => 'View',
+    ],
+    'descriptions' => [
+        'index' => 'Index',
+    ],
+    'empty' => [
+        'users' => 'Users',
+    ],
+    'empty_state' => [
+        'description' => 'Description',
+        'heading' => 'Heading',
+    ],
+    'errors' => [
+        'has_readings' => 'Has Readings',
+    ],
+    'filters' => [
+        'active_only' => 'Active Only',
+        'all_users' => 'All Users',
+        'inactive_only' => 'Inactive Only',
+        'is_active' => 'Is Active',
+        'role' => 'Role',
+    ],
+    'headings' => [
+        'create' => 'Create',
+        'edit' => 'Edit',
+        'index' => 'Index',
+        'information' => 'Information',
+        'quick_actions' => 'Quick Actions',
+        'show' => 'Show',
+    ],
+    'helper_text' => [
+        'is_active' => 'Is Active',
+        'password' => 'Password',
+        'role' => 'Role',
+        'tenant' => 'Tenant',
+    ],
+    'labels' => [
+        'activity_hint' => 'Activity Hint',
+        'activity_history' => 'Activity History',
+        'created' => 'Created',
+        'created_at' => 'Created At',
+        'email' => 'Email',
+        'is_active' => 'Is Active',
+        'last_login_at' => 'Last Login At',
+        'meter_readings_entered' => 'Meter Readings Entered',
+        'name' => 'Name',
+        'no_activity' => 'No Activity',
+        'password' => 'Password',
+        'password_confirmation' => 'Password Confirmation',
+        'role' => 'Role',
+        'tenant' => 'Tenant',
+        'updated_at' => 'Updated At',
+        'user' => 'User',
+        'users' => 'Users',
+    ],
+    'placeholders' => [
+        'email' => 'Email',
+        'name' => 'Name',
+        'password' => 'Password',
+        'password_confirmation' => 'Password Confirmation',
+    ],
+    'sections' => [
+        'role_and_access' => 'Role And Access',
+        'role_and_access_description' => 'Role And Access Description',
+        'user_details' => 'User Details',
+        'user_details_description' => 'User Details Description',
+    ],
+    'tables' => [
+        'actions' => 'Actions',
+        'email' => 'Email',
+        'name' => 'Name',
+        'role' => 'Role',
+        'tenant' => 'Tenant',
+    ],
+    'tooltips' => [
+        'copy_email' => 'Copy Email',
+    ],
     'validation' => [
-        'name' => [
-            'required' => 'Vardas yra privalomas',
-            'string' => 'Vardas turi būti tekstas',
-            'max' => 'Vardas negali viršyti 255 simbolių',
+        'current_password' => [
+            'current_password' => 'Current Password',
+            'required' => 'Required',
+            'required_with' => 'Required With',
+            'string' => 'String',
         ],
         'email' => [
-            'required' => 'El. paštas yra privalomas',
-            'email' => 'Įveskite teisingą el. pašto adresą',
-            'unique' => 'Šis el. paštas jau naudojamas',
+            'email' => 'Email',
+            'max' => 'Max',
+            'required' => 'Required',
+            'string' => 'String',
+            'unique' => 'Unique',
         ],
-        'current_password' => [
-            'required_with' => 'Dabartinis slaptažodis reikalingas keičiant slaptažodį',
-            'string' => 'Dabartinis slaptažodis turi būti tekstas',
-            'current_password' => 'Dabartinis slaptažodis neteisingas',
+        'name' => [
+            'max' => 'Max',
+            'required' => 'Required',
+            'string' => 'String',
+        ],
+        'organization_name' => [
+            'max' => 'Max',
+            'string' => 'String',
         ],
         'password' => [
-            'string' => 'Slaptažodis turi būti tekstas',
-            'min' => 'Slaptažodis turi būti bent 8 simbolių',
-            'confirmed' => 'Slaptažodžio patvirtinimas nesutampa',
+            'confirmed' => 'Confirmed',
+            'min' => 'Min',
+            'required' => 'Required',
+            'string' => 'String',
+        ],
+        'role' => [
+            'enum' => 'Enum',
+            'required' => 'Required',
+        ],
+        'tenant_id' => [
+            'exists' => 'Exists',
+            'integer' => 'Integer',
+            'required' => 'Required',
         ],
     ],
 ];

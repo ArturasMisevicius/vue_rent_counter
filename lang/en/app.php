@@ -1,113 +1,102 @@
 <?php
 
-return array (
-  'brand' => 
-  array (
-    'name' => 'Vilnius Utilities',
-    'product' => 'Rent Counter',
-  ),
-  'meta' => 
-  array (
-    'default_title' => 'Vilnius Utilities Billing',
-  ),
-  'accessibility' => 
-  array (
-    'skip_to_content' => 'Skip to main content',
-    'open_menu' => 'Open main menu',
-    'dismiss' => 'Dismiss',
-  ),
-  'nav' => 
-  array (
-    'dashboard' => 'Dashboard',
-    'users' => 'Users',
-    'providers' => 'Providers',
-    'tariffs' => 'Tariffs',
-    'settings' => 'Settings',
-    'audit' => 'Audit',
-    'properties' => 'Properties',
-    'buildings' => 'Buildings',
-    'meters' => 'Meters',
-    'readings' => 'Readings',
-    'invoices' => 'Invoices',
-    'reports' => 'Reports',
-    'profile' => 'Profile',
-    'logout' => 'Logout',
-    'tenants' => 'Tenants',
-    'meters_quick' => 'View Meters',
-    'buildings_quick' => 'View Buildings',
-    'reports_quick' => 'View Reports',
-    'organizations' => 'Organizations',
-    'subscriptions' => 'Subscriptions',
-  ),
-  'cta' => 
-  array (
-    'login' => 'Log in',
-    'register' => 'Register',
-    'start_now' => 'Start now',
-    'go_to_app' => 'Go to app',
-    'create_account' => 'Create account',
-  ),
-  'auth' => 
-  array (
-    'authentication_required' => 'Authentication required.',
-    'no_permission_admin_panel' => 'You do not have permission to access the admin panel.',
-    'too_many_attempts' => 'Too many failed attempts. Please try again later.',
-    'current_password_required' => 'Current password is required to change password.',
-    'current_password_incorrect' => 'Current password is incorrect.',
-    'login_page' => 
-    array (
-      'status_active' => 'Active',
-      'status_inactive' => 'Inactive',
-      'no_users' => 'No users found',
-      'total_users' => 'Total users:',
-      'click_hint' => 'Click any row to auto-fill email and password',
-    ),
-  ),
-  'demo' => 
-  array (
-    'mutations_disabled' => 'Modifications are disabled in demo mode.',
-  ),
-  'nav_groups' => 
-  array (
-    'operations' => 'Operations',
-    'configuration' => 'Configuration',
-    'administration' => 'Administration',
-    'system_management' => 'System Management',
-    'localization' => 'Localization',
-    'system' => 'System',
-    'property_management' => 'Property Management',
-    'billing' => 'Billing',
-  ),
-  'common' => 
-  array (
-    'na' => 'N/A',
-    'dash' => '—',
-  ),
-  'units' => 
-  array (
-    'euro' => '€',
-    'square_meter' => 'm²',
-    'square_meter_spaced' => ' m²',
-  ),
-  'errors' => 
-  array (
-    'access_denied' => 'Access Denied',
-    'forbidden_action' => 'You do not have permission to perform this action.',
-    'generic' => 'An error occurred while processing your request. Please try again.',
-    'error_title' => 'Error',
-  ),
-  'welcome' => 'Welcome',
-  'welcome_updated' => 'Welcome Updated',
-  'goodbye' => 'Goodbye',
-  'special_chars' => 'Hello! @#$%^&*()_+-=[]{}|;:\'",.<>?/',
-  'html_content' => '<strong>Bold</strong> and <em>italic</em> text',
-  'multiline' => 'Line 1
-Line 2
-Line 3',
-  'long_text' => 'This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. ',
-  'tempora' => 'Voluptatem aut praesentium sit.',
-  'test' => 
-  array (
-    'message' => 'Test message',
-  ),
-);
+declare(strict_types=1);
+
+return [
+    'End Impersonation' => 'End Impersonation',
+    'Impersonation Mode Active' => 'Impersonation Mode Active',
+    'Impersonation session has timed out after 30 minutes.' => 'Impersonation session has timed out after 30 minutes.',
+    'Reason' => 'Reason',
+    'Started at' => 'Started at',
+    'Too many requests. Please try again in :seconds seconds.' => 'Too many requests. Please try again in :seconds seconds.',
+    'You are impersonating' => 'You are impersonating',
+    'by' => 'by',
+    'impersonation' => [
+        'mode_active' => 'Impersonation Mode Active',
+        'you_are_impersonating' => 'You are impersonating',
+        'reason' => 'Reason',
+        'started_at' => 'Started at',
+        'by' => 'by',
+        'end' => 'End Impersonation',
+        'timeout' => 'Impersonation session has timed out after 30 minutes.',
+    ],
+    'accessibility' => [
+        'dismiss' => 'Dismiss',
+        'open_menu' => 'Open Menu',
+        'skip_to_content' => 'Skip To Content',
+    ],
+    'auth' => [
+        'authentication_required' => 'Authentication Required',
+        'login_page' => [
+            'click_hint' => 'Click Hint',
+            'no_users' => 'No Users',
+            'status_active' => 'Status Active',
+            'status_inactive' => 'Status Inactive',
+            'total_users' => 'Total Users',
+        ],
+        'no_permission_admin_panel' => 'No Permission Admin Panel',
+        'too_many_attempts' => 'Too Many Attempts',
+    ],
+    'brand' => [
+        'name' => 'Name',
+        'product' => 'Product',
+    ],
+    'by' => 'By',
+    'common' => [
+        'created_at' => 'Created At',
+        'dash' => 'Dash',
+        'metadata' => 'Metadata',
+        'na' => 'Na',
+        'none' => 'None',
+        'updated_at' => 'Updated At',
+    ],
+    'cta' => [
+        'create_account' => 'Create Account',
+        'go_to_app' => 'Go To App',
+        'login' => 'Login',
+        'register' => 'Register',
+        'start_now' => 'Start Now',
+    ],
+    'errors' => [
+        'access_denied' => 'Access Denied',
+        'error_title' => 'Error Title',
+        'forbidden_action' => 'Forbidden Action',
+        'generic' => 'Generic',
+    ],
+    'meta' => [
+        'default_title' => 'Default Title',
+    ],
+    'nav' => [
+        'audit' => 'Audit',
+        'buildings' => 'Buildings',
+        'dashboard' => 'Dashboard',
+        'invoices' => 'Invoices',
+        'logout' => 'Logout',
+        'meters' => 'Meters',
+        'organizations' => 'Organizations',
+        'profile' => 'Profile',
+        'properties' => 'Properties',
+        'providers' => 'Providers',
+        'readings' => 'Readings',
+        'reports' => 'Reports',
+        'settings' => 'Settings',
+        'subscriptions' => 'Subscriptions',
+        'tariffs' => 'Tariffs',
+        'tenants' => 'Tenants',
+        'users' => 'Users',
+    ],
+    'nav_groups' => [
+        'administration' => 'Administration',
+        'billing' => 'Billing',
+        'localization' => 'Localization',
+        'operations' => 'Operations',
+        'property_management' => 'Property Management',
+        'system' => 'System',
+        'system_management' => 'System Management',
+    ],
+    'units' => [
+        'euro' => 'Euro',
+        'square_meter' => 'Square Meter',
+        'square_meter_spaced' => 'Square Meter Spaced',
+    ],
+];

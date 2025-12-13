@@ -3,92 +3,82 @@
 declare(strict_types=1);
 
 return [
-    'navigation' => 'Kalbos',
-
-    'labels' => [
-        'locale' => 'Lokalė',
-        'code' => 'Lokalės kodas',
-        'name' => 'Kalbos pavadinimas',
-        'native_name' => 'Originalus pavadinimas',
-        'active' => 'Aktyvi',
-        'default' => 'Numatytoji kalba',
-        'order' => 'Rikiavimo eilė',
-        'created' => 'Sukurta',
+    'actions' => [
+        'activate' => 'Activate',
+        'bulk_activate' => 'Bulk Activate',
+        'bulk_deactivate' => 'Bulk Deactivate',
+        'deactivate' => 'Deactivate',
+        'set_default' => 'Set Default',
     ],
-
-    'placeholders' => [
-        'code' => 'lt',
-        'name' => 'Lithuanian',
-        'native_name' => 'Lietuvių',
-    ],
-
-    'sections' => [
-        'details' => 'Kalbos informacija',
-        'settings' => 'Nustatymai',
-    ],
-
-    'helper_text' => [
-        'details' => 'Konfigūruokite programos kalbos nustatymus',
-        'code' => 'ISO 639-1 kalbos kodas (pvz., en, lt, ru)',
-        'name' => 'Pavadinimas anglų kalba',
-        'native_name' => 'Pavadinimas originalia kalba',
-        'active' => 'Tik aktyvios kalbos prieinamos pasirinkime',
-        'default' => 'Tik viena kalba gali būti numatytoji',
-        'order' => 'Mažesni numeriai rodomi pirmiau kalbų sąrašuose',
-    ],
-
-    'filters' => [
-        'active_placeholder' => 'Visos kalbos',
-        'active_only' => 'Tik aktyvios',
-        'inactive_only' => 'Tik neaktyvios',
-        'default_placeholder' => 'Visos kalbos',
-        'default_only' => 'Tik numatytosios',
-        'non_default_only' => 'Tik ne numatytosios',
-    ],
-
     'empty' => [
-        'heading' => 'Kalbos nesukonfigūruotos',
-        'description' => 'Pridėkite kalbas, kad įjungtumėte daugiakalbystę.',
-        'action' => 'Pridėti pirmą kalbą',
+        'action' => 'Action',
+        'description' => 'Description',
+        'heading' => 'Heading',
     ],
-
+    'errors' => [
+        'cannot_deactivate_default' => 'Cannot Deactivate Default',
+        'cannot_delete_default' => 'Cannot Delete Default',
+        'cannot_delete_last_active' => 'Cannot Delete Last Active',
+    ],
+    'filters' => [
+        'active_only' => 'Active Only',
+        'active_placeholder' => 'Active Placeholder',
+        'default_only' => 'Default Only',
+        'default_placeholder' => 'Default Placeholder',
+        'inactive_only' => 'Inactive Only',
+        'non_default_only' => 'Non Default Only',
+    ],
+    'helper_text' => [
+        'active' => 'Active',
+        'code' => 'Code',
+        'default' => 'Default',
+        'details' => 'Details',
+        'name' => 'Name',
+        'native_name' => 'Native Name',
+        'order' => 'Order',
+    ],
+    'labels' => [
+        'active' => 'Active',
+        'code' => 'Code',
+        'created' => 'Created',
+        'default' => 'Default',
+        'locale' => 'Locale',
+        'name' => 'Name',
+        'native_name' => 'Native Name',
+        'order' => 'Order',
+    ],
+    'messages' => [
+        'code_copied' => 'Code Copied',
+    ],
     'modals' => [
         'delete' => [
-            'heading' => 'Ištrinti kalbas',
-            'description' => 'Ar tikrai norite ištrinti šias kalbas? Tai gali paveikti vertimus.',
+            'description' => 'Description',
+            'heading' => 'Heading',
         ],
         'set_default' => [
-            'heading' => 'Nustatyti numatytąją kalbą',
-            'description' => 'Ar tikrai norite nustatyti šią kalbą kaip numatytąją? Dabartinė numatytoji kalba bus pakeista.',
+            'description' => 'Description',
+            'heading' => 'Heading',
         ],
     ],
-
-    'actions' => [
-        'activate' => 'Aktyvuoti',
-        'deactivate' => 'Deaktyvuoti',
-        'bulk_activate' => 'Aktyvuoti pasirinktus',
-        'bulk_deactivate' => 'Deaktyvuoti pasirinktus',
-        'set_default' => 'Nustatyti kaip numatytąją',
-    ],
-
-    'messages' => [
-        'code_copied' => 'Kalbos kodas nukopijuotas',
-    ],
-
+    'navigation' => 'Navigation',
     'notifications' => [
-        'default_set' => 'Numatytoji kalba sėkmingai atnaujinta',
+        'default_set' => 'Default Set',
     ],
-
-    'errors' => [
-        'cannot_delete_default' => 'Negalima ištrinti numatytosios kalbos',
-        'cannot_delete_last_active' => 'Negalima ištrinti paskutinės aktyvios kalbos',
-        'cannot_deactivate_default' => 'Negalima deaktyvuoti numatytosios kalbos',
+    'placeholders' => [
+        'code' => 'Code',
+        'name' => 'Name',
+        'native_name' => 'Native Name',
+    ],
+    'sections' => [
+        'details' => 'Details',
+        'settings' => 'Settings',
     ],
     'validation' => [
+        'code_format' => 'Code Format',
         'locale' => [
-            'required' => 'Kalba yra privaloma.',
-            'string' => 'Kalbos kodas turi būti tekstas.',
-            'max' => 'Kalbos kodas negali viršyti 5 simbolių.',
+            'max' => 'Max',
+            'required' => 'Required',
+            'string' => 'String',
         ],
     ],
 ];

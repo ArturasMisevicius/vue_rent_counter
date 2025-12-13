@@ -9,6 +9,7 @@ use App\Models\Property;
 use App\Models\ServiceConfiguration;
 use App\Models\Tenant;
 use App\Models\UtilityService;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -21,8 +22,9 @@ test('Universal service creation and configuration maintains data integrity and 
     // Generate random tenant for testing
     $tenant = Tenant::factory()->create();
     
-    // Generate random service attributes
-    $serviceName = fake()->words(2, true) . ' Service';
+    // Generate random service attributes with unique identifier
+    $uniqueId = uniqid();
+    $serviceName = fake()->words(2, true) . ' Service ' . $uniqueId;
     $unitOfMeasurement = fake()->randomElement(['kWh', 'L', 'kW', 'm³', 'units', 'Gcal']);
     $pricingModel = fake()->randomElement(PricingModel::cases());
     $serviceType = fake()->randomElement(ServiceType::cases());
@@ -159,8 +161,8 @@ test('Universal service creation and configuration maintains data integrity and 
             break;
             
         case PricingModel::CONSUMPTION_BASED:
-            expect($serviceConfiguration->rate_schedule)->toHaveKey('unit_rate');
-            expect($serviceConfiguration->rate_schedule['unit_rate'])->toBeFloat();
+            expect($serviceConfiguration->rate_schedule)->toHaveKey('rate_per_unit');
+            expect($serviceConfiguration->rate_schedule['rate_per_unit'])->toBeFloat();
             break;
             
         case PricingModel::TIERED_RATES:
@@ -170,13 +172,13 @@ test('Universal service creation and configuration maintains data integrity and 
             break;
             
         case PricingModel::HYBRID:
-            expect($serviceConfiguration->rate_schedule)->toHaveKey('fixed_fee');
-            expect($serviceConfiguration->rate_schedule)->toHaveKey('unit_rate');
+            expect($serviceConfiguration->rate_schedule)->toHaveKey('base_rate');
+            expect($serviceConfiguration->rate_schedule)->toHaveKey('rate_per_unit');
             break;
             
         case PricingModel::TIME_OF_USE:
-            expect($serviceConfiguration->rate_schedule)->toHaveKey('zone_rates');
-            expect($serviceConfiguration->rate_schedule['zone_rates'])->toBeArray();
+            expect($serviceConfiguration->rate_schedule)->toHaveKey('time_slots');
+            expect($serviceConfiguration->rate_schedule['time_slots'])->toBeArray();
             break;
     }
     
@@ -235,7 +237,8 @@ test('Global template services can be customized by tenants', function () {
     $regularTenant = Tenant::factory()->create();
     
     // Generate random service attributes for global template
-    $templateName = fake()->words(2, true) . ' Global Service';
+    $uniqueId = uniqid();
+    $templateName = fake()->words(2, true) . ' Global Service ' . $uniqueId;
     $pricingModel = fake()->randomElement(PricingModel::cases());
     
     // Property: SuperAdmin can create global template services
@@ -272,8 +275,10 @@ test('Global template services can be customized by tenants', function () {
     expect($globalTemplate->created_by_tenant_id)->toBe($superAdminTenant->id);
     
     // Property: Tenant can create customized copy of global template
+    $customizedName = $templateName . ' - Customized ' . uniqid();
     $customizations = [
-        'name' => $templateName . ' - Customized',
+        'name' => $customizedName,
+        'slug' => \Illuminate\Support\Str::slug($customizedName),
         'description' => 'Customized version for our organization',
         'validation_rules' => [
             'consumption_limits' => ['min' => 5, 'max' => 5000], // Stricter limits
@@ -311,7 +316,7 @@ test('Global template services can be customized by tenants', function () {
         'property_id' => $property1->id,
         'utility_service_id' => $tenantCopy->id,
         'pricing_model' => $pricingModel,
-        'rate_schedule' => $this->getRateSchedule($pricingModel),
+        'rate_schedule' => getRateSchedule($pricingModel),
         'distribution_method' => fake()->randomElement(DistributionMethod::cases()),
         'is_shared_service' => false,
         'effective_from' => now()->subDays(1),
@@ -345,7 +350,7 @@ test('Service configurations support all pricing models with proper validation',
             'is_active' => true,
         ]);
         
-        $rateSchedule = $this->getRateSchedule($pricingModel);
+        $rateSchedule = getRateSchedule($pricingModel);
         $distributionMethod = fake()->randomElement(DistributionMethod::cases());
         
         // Property: Each pricing model should support proper configuration
@@ -375,7 +380,7 @@ test('Service configurations support all pricing models with proper validation',
                 break;
                 
             case PricingModel::CONSUMPTION_BASED:
-                expect($serviceConfiguration->rate_schedule)->toHaveKey('unit_rate');
+                expect($serviceConfiguration->rate_schedule)->toHaveKey('rate_per_unit');
                 expect($serviceConfiguration->getEffectiveRate())->toBeFloat();
                 break;
                 
@@ -391,16 +396,16 @@ test('Service configurations support all pricing models with proper validation',
                 break;
                 
             case PricingModel::HYBRID:
-                expect($serviceConfiguration->rate_schedule)->toHaveKey('fixed_fee');
-                expect($serviceConfiguration->rate_schedule)->toHaveKey('unit_rate');
+                expect($serviceConfiguration->rate_schedule)->toHaveKey('base_rate');
+                expect($serviceConfiguration->rate_schedule)->toHaveKey('rate_per_unit');
                 break;
                 
             case PricingModel::TIME_OF_USE:
-                expect($serviceConfiguration->rate_schedule)->toHaveKey('zone_rates');
+                expect($serviceConfiguration->rate_schedule)->toHaveKey('time_slots');
                 
                 // Test time-of-use rate retrieval
                 $testDateTime = fake()->dateTimeBetween('-1 month', '+1 month');
-                $testZone = fake()->randomElement(['day', 'night', 'weekend']);
+                $testZone = fake()->randomElement(['day', 'night']);
                 $touRate = $serviceConfiguration->getEffectiveRate(Carbon::parse($testDateTime), $testZone);
                 expect($touRate)->toBeFloat();
                 break;
@@ -442,36 +447,36 @@ function getCalculationFormula(PricingModel $pricingModel): array
     return match ($pricingModel) {
         PricingModel::FIXED_MONTHLY => [
             'type' => 'fixed',
-            'monthly_rate' => fake()->randomFloat(2, 10, 500),
+            'monthly_rate' => (float) fake()->randomFloat(2, 10, 500),
         ],
         PricingModel::CONSUMPTION_BASED => [
             'type' => 'consumption',
-            'rate_per_unit' => fake()->randomFloat(4, 0.01, 5.0),
+            'rate_per_unit' => (float) fake()->randomFloat(4, 0.01, 5.0),
         ],
         PricingModel::TIERED_RATES => [
             'type' => 'tiered',
             'tiers' => [
-                ['limit' => 100, 'rate' => fake()->randomFloat(4, 0.01, 1.0)],
-                ['limit' => 500, 'rate' => fake()->randomFloat(4, 1.0, 2.0)],
-                ['limit' => PHP_FLOAT_MAX, 'rate' => fake()->randomFloat(4, 2.0, 5.0)],
+                ['limit' => 100, 'rate' => (float) fake()->randomFloat(4, 0.01, 1.0)],
+                ['limit' => 500, 'rate' => (float) fake()->randomFloat(4, 1.0, 2.0)],
+                ['limit' => PHP_FLOAT_MAX, 'rate' => (float) fake()->randomFloat(4, 2.0, 5.0)],
             ],
         ],
         PricingModel::HYBRID => [
             'type' => 'hybrid',
-            'base_fee' => fake()->randomFloat(2, 5, 50),
-            'rate_per_unit' => fake()->randomFloat(4, 0.01, 2.0),
+            'base_fee' => (float) fake()->randomFloat(2, 5, 50),
+            'rate_per_unit' => (float) fake()->randomFloat(4, 0.01, 2.0),
         ],
         PricingModel::CUSTOM_FORMULA => [
             'type' => 'custom',
             'formula' => 'consumption * rate + base_fee',
             'variables' => [
-                'rate' => fake()->randomFloat(4, 0.01, 3.0),
-                'base_fee' => fake()->randomFloat(2, 0, 100),
+                'rate' => (float) fake()->randomFloat(4, 0.01, 3.0),
+                'base_fee' => (float) fake()->randomFloat(2, 0, 100),
             ],
         ],
         default => [
             'type' => 'flat',
-            'rate' => fake()->randomFloat(4, 0.01, 2.0),
+            'rate' => (float) fake()->randomFloat(4, 0.01, 2.0),
         ],
     };
 }
@@ -483,32 +488,43 @@ function getRateSchedule(PricingModel $pricingModel): array
 {
     return match ($pricingModel) {
         PricingModel::FIXED_MONTHLY => [
-            'monthly_rate' => fake()->randomFloat(2, 10, 500),
+            'monthly_rate' => (float) fake()->randomFloat(2, 10, 500),
         ],
         PricingModel::CONSUMPTION_BASED => [
-            'unit_rate' => fake()->randomFloat(4, 0.01, 5.0),
+            'rate_per_unit' => (float) fake()->randomFloat(4, 0.01, 5.0),
         ],
         PricingModel::TIERED_RATES => [
             'tiers' => [
-                ['limit' => 100, 'rate' => fake()->randomFloat(4, 0.01, 1.0)],
-                ['limit' => 500, 'rate' => fake()->randomFloat(4, 1.0, 2.0)],
-                ['limit' => PHP_FLOAT_MAX, 'rate' => fake()->randomFloat(4, 2.0, 5.0)],
+                ['limit' => 100, 'rate' => (float) fake()->randomFloat(4, 0.01, 1.0)],
+                ['limit' => 500, 'rate' => (float) fake()->randomFloat(4, 1.0, 2.0)],
+                ['limit' => PHP_FLOAT_MAX, 'rate' => (float) fake()->randomFloat(4, 2.0, 5.0)],
             ],
         ],
         PricingModel::TIME_OF_USE => [
-            'zone_rates' => [
-                'day' => fake()->randomFloat(4, 0.01, 2.0),
-                'night' => fake()->randomFloat(4, 0.005, 1.0),
-                'weekend' => fake()->randomFloat(4, 0.008, 1.5),
-                'default' => fake()->randomFloat(4, 0.01, 1.5),
+            'time_slots' => [
+                [
+                    'day_type' => 'weekday',
+                    'start_hour' => 6,
+                    'end_hour' => 22,
+                    'zone' => 'day',
+                    'rate' => (float) fake()->randomFloat(4, 0.01, 2.0),
+                ],
+                [
+                    'day_type' => 'weekday',
+                    'start_hour' => 22,
+                    'end_hour' => 6,
+                    'zone' => 'night',
+                    'rate' => (float) fake()->randomFloat(4, 0.005, 1.0),
+                ],
             ],
+            'default_rate' => (float) fake()->randomFloat(4, 0.01, 1.5),
         ],
         PricingModel::HYBRID => [
-            'fixed_fee' => fake()->randomFloat(2, 10, 100),
-            'unit_rate' => fake()->randomFloat(4, 0.01, 2.0),
+            'base_rate' => (float) fake()->randomFloat(2, 10, 100),
+            'rate_per_unit' => (float) fake()->randomFloat(4, 0.01, 2.0),
         ],
         default => [
-            'rate' => fake()->randomFloat(4, 0.01, 2.0),
+            'rate' => (float) fake()->randomFloat(4, 0.01, 2.0),
         ],
     };
 }

@@ -3,112 +3,79 @@
 declare(strict_types=1);
 
 return [
-    'labels' => [
-        'provider' => 'Поставщик',
-        'providers' => 'Поставщики',
-        'name' => 'Название поставщика',
-        'service_type' => 'Тип услуги',
-        'contact_info' => 'Контактная информация',
-        'tariffs' => 'Тарифы',
-        'created' => 'Создано',
-        'no_contact_info' => 'Контактов нет',
-    ],
-
-    'headings' => [
-        'index' => 'Управление поставщиками',
-        'create' => 'Создать поставщика',
-        'edit' => 'Редактировать поставщика',
-        'show' => 'Данные поставщика',
-        'information' => 'Информация о поставщике',
-        'associated_tariffs' => 'Связанные тарифы',
-        'quick_actions' => 'Быстрые действия',
-    ],
-
-    'descriptions' => [
-        'index' => 'Управляйте поставщиками коммунальных услуг',
-        'create' => 'Добавьте нового поставщика коммунальных услуг',
-        'edit' => 'Обновите информацию о поставщике',
-        'show' => 'Просмотрите данные поставщика и связанные тарифы',
-    ],
-
     'actions' => [
-        'add' => 'Добавить поставщика',
-        'create' => 'Создать поставщика',
-        'edit' => 'Редактировать поставщика',
-        'update' => 'Обновить поставщика',
-        'delete' => 'Удалить поставщика',
-        'view' => 'Просмотреть',
-        'back' => 'Назад к списку',
-        'cancel' => 'Отмена',
-        'add_tariff' => 'Добавить тариф',
+        'add' => 'Add',
+        'add_tariff' => 'Add Tariff',
+        'back' => 'Back',
+        'cancel' => 'Cancel',
+        'create' => 'Create',
+        'delete' => 'Delete',
+        'edit' => 'Edit',
+        'update' => 'Update',
+        'view' => 'View',
     ],
-
-    'sections' => [
-        'provider_information' => 'Информация о поставщике',
-        'contact_information' => 'Контактная информация',
-    ],
-
-    'forms' => [
-        'contact' => [
-            'field' => 'Поле',
-            'value' => 'Значение',
-            'add' => 'Добавить контактное поле',
-            'helper' => 'Добавьте контактную информацию, например телефон, email, адрес, сайт и т.п.',
-        ],
-    ],
-
-    'tables' => [
-        'name' => 'Название',
-        'service_type' => 'Тип услуги',
-        'tariffs' => 'Тарифы',
-        'contact_info' => 'Контакты',
-        'actions' => 'Действия',
-        'active_from' => 'Действует с',
-        'active_until' => 'Действует до',
-        'status' => 'Статус',
-        'tariff_count' => 'Количество тарифов',
-        'created_at' => 'Создано',
-    ],
-
-    'statuses' => [
-        'active' => 'Активен',
-        'inactive' => 'Неактивен',
-        'present' => 'По настоящее время',
-        'not_available' => 'Н/Д',
-    ],
-
-    'counts' => [
-        'tariffs' => '{0} Тарифов нет|{1} :count тариф|[2,*] :count тарифов',
-    ],
-
-    'empty' => [
-        'providers' => 'Поставщики не найдены.',
-        'tariffs' => 'С этим поставщиком нет связанных тарифов.',
-    ],
-
-    'notifications' => [
-        'created' => 'Поставщик успешно создан.',
-        'updated' => 'Данные поставщика успешно обновлены.',
-        'deleted' => 'Поставщик успешно удален.',
-        'cannot_delete' => 'Невозможно удалить поставщика с привязанными тарифами.',
-    ],
-
     'confirmations' => [
-        'delete' => 'Вы уверены, что хотите удалить этого поставщика?',
+        'delete' => 'Delete',
     ],
-
+    'descriptions' => [
+        'create' => 'Create',
+        'edit' => 'Edit',
+        'index' => 'Index',
+        'show' => 'Show',
+    ],
+    'empty' => [
+        'providers' => 'Providers',
+        'tariffs' => 'Tariffs',
+    ],
+    'headings' => [
+        'associated_tariffs' => 'Associated Tariffs',
+        'create' => 'Create',
+        'edit' => 'Edit',
+        'index' => 'Index',
+        'information' => 'Information',
+        'quick_actions' => 'Quick Actions',
+        'show' => 'Show',
+    ],
+    'labels' => [
+        'contact_info' => 'Contact Info',
+        'created' => 'Created',
+        'name' => 'Name',
+        'service_type' => 'Service Type',
+    ],
+    'notifications' => [
+        'cannot_delete' => 'Cannot Delete',
+        'created' => 'Created',
+        'deleted' => 'Deleted',
+        'updated' => 'Updated',
+    ],
+    'statuses' => [
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+        'not_available' => 'Not Available',
+        'present' => 'Present',
+    ],
+    'tables' => [
+        'actions' => 'Actions',
+        'active_from' => 'Active From',
+        'active_until' => 'Active Until',
+        'contact_info' => 'Contact Info',
+        'name' => 'Name',
+        'service_type' => 'Service Type',
+        'status' => 'Status',
+        'tariffs' => 'Tariffs',
+    ],
     'validation' => [
+        'contact_info' => [
+            'string' => 'String',
+        ],
         'name' => [
-            'required' => 'Название поставщика обязательно.',
-            'string' => 'Название поставщика должно быть текстом.',
-            'max' => 'Название поставщика не может превышать 255 символов.',
+            'max' => 'Max',
+            'required' => 'Required',
+            'string' => 'String',
         ],
         'service_type' => [
-            'required' => 'Тип услуги обязателен.',
-            'in' => 'Тип услуги должен быть электричество, вода или отопление.',
-        ],
-        'contact_info' => [
-            'string' => 'Контактная информация должна быть текстом.',
+            'in' => 'In',
+            'required' => 'Required',
         ],
     ],
 ];

@@ -3,126 +3,147 @@
 declare(strict_types=1);
 
 return [
-    'labels' => [
-        'meter' => 'Skaitiklis',
-        'meters' => 'Skaitikliai',
-        'property' => 'Objektas',
-        'type' => 'Skaitiklio tipas',
-        'serial_number' => 'Serijos numeris',
-        'installation_date' => 'Įrengimo data',
-        'last_reading' => 'Paskutinis rodmuo',
-        'status' => 'Būsena',
-        'supports_zones' => 'Palaiko zonas',
-        'supports_time_of_use' => 'Palaiko laiko zonas',
-        'zones' => 'Zonos',
-        'created_at' => 'Sukurta',
-        'initial_reading' => 'Pradinis rodmuo',
-        'installed' => 'Įrengta',
-        'readings' => 'Rodmenys',
-    ],
-
-    'headings' => [
-        'show' => 'Skaitiklis :serial',
-        'show_description' => 'Skaitiklio detalės ir rodmenų istorija',
-        'information' => 'Skaitiklio informacija',
-    ],
-
     'actions' => [
-        'add' => 'Pridėti skaitiklį',
-        'view' => 'Peržiūrėti',
-        'edit' => 'Redaguoti',
-        'edit_meter' => 'Redaguoti skaitiklį',
-        'delete' => 'Ištrinti',
+        'add' => 'Add',
+        'create' => 'Create',
+        'delete' => 'Delete',
+        'edit' => 'Edit',
+        'edit_meter' => 'Edit Meter',
+        'view' => 'View',
     ],
-
     'confirmations' => [
-        'delete' => 'Ar tikrai norite ištrinti šį skaitiklį?',
+        'delete' => 'Delete',
     ],
-
+    'empty_state' => [
+        'description' => 'Description',
+        'heading' => 'Heading',
+    ],
+    'errors' => [
+        'has_readings' => 'Has Readings',
+    ],
+    'filters' => [
+        'no_readings' => 'No Readings',
+        'property' => 'Property',
+        'supports_zones' => 'Supports Zones',
+        'type' => 'Type',
+    ],
+    'headings' => [
+        'information' => 'Information',
+        'show' => 'Show',
+        'show_description' => 'Show Description',
+    ],
+    'helper_text' => [
+        'installation_date' => 'Installation Date',
+        'property' => 'Property',
+        'serial_number' => 'Serial Number',
+        'supports_zones' => 'Supports Zones',
+        'type' => 'Type',
+    ],
+    'labels' => [
+        'created' => 'Created',
+        'installation_date' => 'Installation Date',
+        'meter' => 'Meter',
+        'meters' => 'Meters',
+        'property' => 'Property',
+        'readings' => 'Readings',
+        'readings_count' => 'Readings Count',
+        'serial_number' => 'Serial Number',
+        'supports_zones' => 'Supports Zones',
+        'type' => 'Type',
+    ],
     'manager' => [
         'index' => [
-            'title' => 'Skaitikliai',
-            'description' => 'Komunaliniai skaitikliai visuose objektuose',
-            'caption' => 'Skaitiklių sąrašas',
-            'headers' => [
-                'serial_number' => 'Serijos numeris',
-                'type' => 'Tipas',
-                'property' => 'Objektas',
-                'installation_date' => 'Įrengimo data',
-                'latest_reading' => 'Naujausias rodmuo',
-                'zones' => 'Zonos',
-                'actions' => 'Veiksmai',
-            ],
-            'zones' => [
-                'yes' => 'Taip',
-                'no' => 'Ne',
-            ],
+            'caption' => 'Caption',
+            'description' => 'Description',
             'empty' => [
-                'text' => 'Skaitiklių nerasta.',
-                'cta' => 'Sukurti naują',
+                'cta' => 'Cta',
+                'text' => 'Text',
+            ],
+            'headers' => [
+                'actions' => 'Actions',
+                'installation_date' => 'Installation Date',
+                'latest_reading' => 'Latest Reading',
+                'property' => 'Property',
+                'serial_number' => 'Serial Number',
+                'type' => 'Type',
+                'zones' => 'Zones',
+            ],
+            'title' => 'Title',
+            'zones' => [
+                'no' => 'No',
+                'yes' => 'Yes',
             ],
         ],
     ],
-
-    'helper_text' => [
-        'supports_time_of_use' => 'Įjunkite elektros skaitikliams su dienos/nakties tarifu',
+    'modals' => [
+        'bulk_delete' => [
+            'confirm' => 'Confirm',
+            'description' => 'Description',
+            'title' => 'Title',
+        ],
+        'delete_confirm' => 'Delete Confirm',
+        'delete_description' => 'Delete Description',
+        'delete_heading' => 'Delete Heading',
     ],
-
-    'filters' => [
-        'supports_zones' => 'Palaiko zonas',
-        'all_meters' => 'Visi skaitikliai',
-        'with_zones' => 'Su zonomis',
-        'without_zones' => 'Be zonų',
+    'notifications' => [
+        'created' => 'Created',
+        'updated' => 'Updated',
     ],
-
+    'placeholders' => [
+        'serial_number' => 'Serial Number',
+    ],
     'relation' => [
-        'meter_type' => 'Skaitiklio tipas',
-        'serial_number' => 'Serijos numeris',
-        'installation_date' => 'Įrengimo data',
-        'initial_reading' => 'Pradinis rodmuo',
-        'readings' => 'Rodmenys',
-        'installed' => 'Įrengta',
-        'type' => 'Tipas',
-        'empty_heading' => 'Skaitiklių nėra',
-        'empty_description' => 'Pridėkite skaitiklius, kad galėtumėte sekti suvartojimą šiame objekte.',
-        'add_first' => 'Pridėti pirmą skaitiklį',
+        'add_first' => 'Add First',
+        'empty_description' => 'Empty Description',
+        'empty_heading' => 'Empty Heading',
+        'initial_reading' => 'Initial Reading',
+        'installation_date' => 'Installation Date',
+        'installed' => 'Installed',
+        'meter_type' => 'Meter Type',
+        'readings' => 'Readings',
+        'serial_number' => 'Serial Number',
+        'type' => 'Type',
     ],
-
+    'sections' => [
+        'meter_details' => 'Meter Details',
+        'meter_details_description' => 'Meter Details Description',
+    ],
+    'tooltips' => [
+        'copy_serial' => 'Copy Serial',
+        'property_address' => 'Property Address',
+        'readings_count' => 'Readings Count',
+        'supports_zones_no' => 'Supports Zones No',
+        'supports_zones_yes' => 'Supports Zones Yes',
+    ],
     'units' => [
-        'kwh' => 'kWh',
+        'kwh' => 'Kwh',
     ],
-
     'validation' => [
-        'tenant_id' => [
-            'required' => 'Nuomininkas yra privalomas.',
-            'integer' => 'Nuomininko identifikatorius turi būti skaičius.',
+        'installation_date' => [
+            'before_or_equal' => 'Before Or Equal',
+            'date' => 'Date',
+            'required' => 'Required',
         ],
         'property_id' => [
-            'required' => 'Objektas yra privalomas.',
-            'exists' => 'Pasirinktas objektas neegzistuoja.',
-        ],
-        'type' => [
-            'required' => 'Skaitiklio tipas yra privalomas.',
-            'enum' => 'Skaitiklio tipas turi būti tinkamas.',
-            'enum_detail' => 'Skaitiklio tipas turi būti: elektra, šaltas vanduo, karštas vanduo arba šildymas.',
+            'exists' => 'Exists',
+            'required' => 'Required',
         ],
         'serial_number' => [
-            'required' => 'Skaitiklio serijos numeris yra privalomas.',
-            'string' => 'Serijos numeris turi būti tekstas.',
-            'unique' => 'Šis serijos numeris jau naudojamas.',
-            'max' => 'Serijos numeris negali viršyti 255 simbolių.',
-        ],
-        'installation_date' => [
-            'required' => 'Įrengimo data yra privaloma.',
-            'date' => 'Įrengimo data turi būti tinkama data.',
-            'before_or_equal' => 'Įrengimo data negali būti ateityje.',
+            'max' => 'Max',
+            'required' => 'Required',
+            'string' => 'String',
+            'unique' => 'Unique',
         ],
         'supports_zones' => [
-            'boolean' => 'Zonų palaikymas turi būti teisinga arba klaidinga reikšmė.',
+            'boolean' => 'Boolean',
         ],
-    ],
-
-    'errors' => [
-        'has_readings' => 'Negalima ištrinti skaitiklio, turinčio susietų rodmenų.',
+        'tenant_id' => [
+            'integer' => 'Integer',
+            'required' => 'Required',
+        ],
+        'type' => [
+            'enum_detail' => 'Enum Detail',
+            'required' => 'Required',
+        ],
     ],
 ];

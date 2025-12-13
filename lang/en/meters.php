@@ -3,119 +3,147 @@
 declare(strict_types=1);
 
 return [
-
-    /*
-    |--------------------------------------------------------------------------
-    | Meters Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | The following language lines are used in the Meters Resource
-    | and related components. All user-facing strings should be localized.
-    |
-    */
-
+    'actions' => [
+        'add' => 'Add',
+        'create' => 'Create',
+        'delete' => 'Delete',
+        'edit' => 'Edit',
+        'edit_meter' => 'Edit Meter',
+        'view' => 'View',
+    ],
+    'confirmations' => [
+        'delete' => 'Delete',
+    ],
+    'empty_state' => [
+        'description' => 'Description',
+        'heading' => 'Heading',
+    ],
+    'errors' => [
+        'has_readings' => 'Has Readings',
+    ],
+    'filters' => [
+        'no_readings' => 'No Readings',
+        'property' => 'Property',
+        'supports_zones' => 'Supports Zones',
+        'type' => 'Type',
+    ],
+    'headings' => [
+        'information' => 'Information',
+        'show' => 'Show',
+        'show_description' => 'Show Description',
+    ],
+    'helper_text' => [
+        'installation_date' => 'Installation Date',
+        'property' => 'Property',
+        'serial_number' => 'Serial Number',
+        'supports_zones' => 'Supports Zones',
+        'type' => 'Type',
+    ],
     'labels' => [
+        'created' => 'Created',
+        'installation_date' => 'Installation Date',
         'meter' => 'Meter',
         'meters' => 'Meters',
         'property' => 'Property',
-        'type' => 'Meter Type',
+        'readings' => 'Readings',
+        'readings_count' => 'Readings Count',
         'serial_number' => 'Serial Number',
-        'installation_date' => 'Installation Date',
         'supports_zones' => 'Supports Zones',
-        'readings_count' => 'Readings',
-        'readings' => 'Meter Readings',
-        'created' => 'Created At',
-        'updated' => 'Updated At',
-        'never_updated' => 'Never updated',
+        'type' => 'Type',
     ],
-
+    'manager' => [
+        'index' => [
+            'caption' => 'Caption',
+            'description' => 'Description',
+            'empty' => [
+                'cta' => 'Cta',
+                'text' => 'Text',
+            ],
+            'headers' => [
+                'actions' => 'Actions',
+                'installation_date' => 'Installation Date',
+                'latest_reading' => 'Latest Reading',
+                'property' => 'Property',
+                'serial_number' => 'Serial Number',
+                'type' => 'Type',
+                'zones' => 'Zones',
+            ],
+            'title' => 'Title',
+            'zones' => [
+                'no' => 'No',
+                'yes' => 'Yes',
+            ],
+        ],
+    ],
+    'modals' => [
+        'bulk_delete' => [
+            'confirm' => 'Confirm',
+            'description' => 'Description',
+            'title' => 'Title',
+        ],
+        'delete_confirm' => 'Delete Confirm',
+        'delete_description' => 'Delete Description',
+        'delete_heading' => 'Delete Heading',
+    ],
+    'notifications' => [
+        'created' => 'Created',
+        'updated' => 'Updated',
+    ],
     'placeholders' => [
-        'serial_number' => 'Enter meter serial number',
+        'serial_number' => 'Serial Number',
     ],
-
-    'helper_text' => [
-        'property' => 'Select the property where this meter is installed',
-        'type' => 'Select the type of utility this meter measures',
-        'serial_number' => 'Unique identifier for this meter (must be unique)',
-        'installation_date' => 'Date when the meter was installed (cannot be in the future)',
-        'supports_zones' => 'Enable if this meter supports time-of-use zones (day/night rates)',
+    'relation' => [
+        'add_first' => 'Add First',
+        'empty_description' => 'Empty Description',
+        'empty_heading' => 'Empty Heading',
+        'initial_reading' => 'Initial Reading',
+        'installation_date' => 'Installation Date',
+        'installed' => 'Installed',
+        'meter_type' => 'Meter Type',
+        'readings' => 'Readings',
+        'serial_number' => 'Serial Number',
+        'type' => 'Type',
     ],
-
     'sections' => [
         'meter_details' => 'Meter Details',
-        'meter_details_description' => 'Basic information about the meter',
-        'metadata' => 'Metadata',
+        'meter_details_description' => 'Meter Details Description',
     ],
-
     'tooltips' => [
-        'property_address' => 'Installed at: :address',
-        'copy_serial' => 'Click to copy serial number',
-        'supports_zones_yes' => 'This meter supports time-of-use zones',
-        'supports_zones_no' => 'This meter does not support time-of-use zones',
-        'readings_count' => 'Number of recorded readings',
+        'copy_serial' => 'Copy Serial',
+        'property_address' => 'Property Address',
+        'readings_count' => 'Readings Count',
+        'supports_zones_no' => 'Supports Zones No',
+        'supports_zones_yes' => 'Supports Zones Yes',
     ],
-
-    'filters' => [
-        'type' => 'Meter Type',
-        'property' => 'Property',
-        'supports_zones' => 'Supports Zones',
-        'no_readings' => 'No Readings',
+    'units' => [
+        'kwh' => 'Kwh',
     ],
-
-    'actions' => [
-        'create' => 'Create Meter',
-        'delete' => 'Delete',
-    ],
-
-    'notifications' => [
-        'created' => 'Meter created successfully.',
-        'updated' => 'Meter updated successfully.',
-        'deleted' => 'Meter deleted successfully.',
-    ],
-
-    'modals' => [
-        'delete_heading' => 'Delete Meter',
-        'delete_description' => 'Are you sure you want to delete this meter? This action cannot be undone.',
-        'delete_confirm' => 'Yes, Delete',
-        'bulk_delete' => [
-            'title' => 'Delete Selected Meters',
-            'description' => 'Are you sure you want to delete the selected meters? This action cannot be undone.',
-            'confirm' => 'Delete Meters',
-        ],
-    ],
-
-    'empty_state' => [
-        'heading' => 'No Meters',
-        'description' => 'Get started by creating your first meter.',
-    ],
-
     'validation' => [
-        'tenant_id' => [
-            'required' => 'Tenant is required.',
-            'integer' => 'Tenant identifier must be a valid number.',
-        ],
-        'serial_number' => [
-            'required' => 'The serial number is required.',
-            'unique' => 'This serial number is already in use.',
-            'string' => 'The serial number must be text.',
-            'max' => 'The serial number may not be greater than 255 characters.',
-        ],
-        'type' => [
-            'required' => 'The meter type is required.',
-            'enum_detail' => 'The meter type must be one of: electricity, water_cold, water_hot, or heating.',
+        'installation_date' => [
+            'before_or_equal' => 'Before Or Equal',
+            'date' => 'Date',
+            'required' => 'Required',
         ],
         'property_id' => [
-            'required' => 'A property selection is required.',
-            'exists' => 'The selected property does not exist.',
+            'exists' => 'Exists',
+            'required' => 'Required',
         ],
-        'installation_date' => [
-            'required' => 'The installation date is required.',
-            'date' => 'The installation date must be a valid date.',
-            'before_or_equal' => 'The installation date cannot be in the future.',
+        'serial_number' => [
+            'max' => 'Max',
+            'required' => 'Required',
+            'string' => 'String',
+            'unique' => 'Unique',
         ],
         'supports_zones' => [
-            'boolean' => 'The supports zones field must be true or false.',
+            'boolean' => 'Boolean',
+        ],
+        'tenant_id' => [
+            'integer' => 'Integer',
+            'required' => 'Required',
+        ],
+        'type' => [
+            'enum_detail' => 'Enum Detail',
+            'required' => 'Required',
         ],
     ],
-
 ];

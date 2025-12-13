@@ -1,15 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-  'greeting' => 'Labas',
-  'yes' => 'Taip',
-  'no' => 'Ne',
-  'language' => 'Kalba',
-  'english' => 'Anglų',
-  'lithuanian' => 'Lietuvių',
-  'russian' => 'Rusų',
-  'language_switched' => 'Kalba sėkmingai pakeista.',
-  'status' => [
-    'unknown' => 'Nežinoma',
-  ],
+    'language_switched' => 'Language Switched',
+    'no' => 'No',
+    'status' => [
+        'active' => 'Active',
+        'suspended' => 'Suspended',
+        'trial' => 'Trial',
+        'unknown' => 'Unknown',
+    ],
+    'unknown' => 'Unknown',
+    'yes' => 'Yes',
 ];

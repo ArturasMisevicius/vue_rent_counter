@@ -3,112 +3,141 @@
 declare(strict_types=1);
 
 return [
-    'headings' => [
-        'index' => 'Учетные записи арендаторов',
-        'index_description' => 'Управляйте учетными записями арендаторов и назначением объектов',
-        'list' => 'Список арендаторов',
-        'show' => 'Данные арендатора',
-        'account' => 'Информация об учетной записи',
-        'current_property' => 'Текущий объект',
-        'assignment_history' => 'История назначений',
-        'recent_readings' => 'Недавние показания',
-        'recent_invoices' => 'Недавние счета',
-    ],
-
     'actions' => [
-        'deactivate' => 'Деактивировать',
-        'reactivate' => 'Активировать',
-        'reassign' => 'Переназначить объект',
-        'add' => 'Добавить арендатора',
-        'view' => 'Просмотр',
+        'add' => 'Add',
+        'deactivate' => 'Deactivate',
+        'reactivate' => 'Reactivate',
+        'reassign' => 'Reassign',
+        'view' => 'View',
     ],
-
-    'labels' => [
-        'name' => 'Имя',
-        'status' => 'Статус',
-        'email' => 'Email',
-        'created' => 'Создан',
-        'created_by' => 'Создал',
-        'address' => 'Адрес',
-        'type' => 'Тип',
-        'area' => 'Площадь',
-        'reading' => 'Показание',
-        'invoice' => 'Счет #:id',
-        'reason' => 'Причина',
-        'property' => 'Объект',
-        'actions' => 'Действия',
-    ],
-
-    'statuses' => [
-        'active' => 'Активен',
-        'inactive' => 'Неактивен',
-    ],
-
     'empty' => [
-        'property' => 'Объект не назначен',
-        'assignment_history' => 'История назначений отсутствует',
-        'recent_readings' => 'Недавних показаний нет',
-        'recent_invoices' => 'Недавних счетов нет',
-        'list' => 'Арендаторы не найдены.',
-        'list_cta' => 'Создайте первого арендатора',
+        'assignment_history' => 'Assignment History',
+        'list' => 'List',
+        'list_cta' => 'List Cta',
+        'property' => 'Property',
+        'recent_invoices' => 'Recent Invoices',
+        'recent_readings' => 'Recent Readings',
     ],
-
+    'headings' => [
+        'account' => 'Account',
+        'assignment_history' => 'Assignment History',
+        'current_property' => 'Current Property',
+        'index' => 'Index',
+        'index_description' => 'Index Description',
+        'list' => 'List',
+        'recent_invoices' => 'Recent Invoices',
+        'recent_readings' => 'Recent Readings',
+        'show' => 'Show',
+    ],
+    'labels' => [
+        'actions' => 'Actions',
+        'address' => 'Address',
+        'area' => 'Area',
+        'created' => 'Created',
+        'created_by' => 'Created By',
+        'email' => 'Email',
+        'invoice' => 'Invoice',
+        'name' => 'Name',
+        'property' => 'Property',
+        'reading' => 'Reading',
+        'reason' => 'Reason',
+        'status' => 'Status',
+        'type' => 'Type',
+    ],
     'pages' => [
         'admin_form' => [
-            'title' => 'Создать учетную запись арендатора',
-            'subtitle' => 'Добавьте нового арендатора и назначьте объект',
-            'breadcrumb' => 'Создать',
-            'errors_title' => 'Есть ошибки в вашей форме',
-            'labels' => [
-                'name' => 'Полное имя',
-                'email' => 'Email адрес',
-                'password' => 'Пароль',
-                'password_confirmation' => 'Подтверждение пароля',
-                'property' => 'Назначить объект',
+            'actions' => [
+                'cancel' => 'Cancel',
+                'submit' => 'Submit',
             ],
-            'placeholders' => [
-                'property' => 'Выберите объект',
+            'errors_title' => 'Errors Title',
+            'labels' => [
+                'email' => 'Email',
+                'name' => 'Name',
+                'password' => 'Password',
+                'password_confirmation' => 'Password Confirmation',
+                'property' => 'Property',
             ],
             'notes' => [
-                'credentials_sent' => 'Данные для входа будут отправлены на этот email',
-                'no_properties' => 'Нет доступных объектов. Сначала создайте объект.',
+                'credentials_sent' => 'Credentials Sent',
+                'no_properties' => 'No Properties',
             ],
-            'actions' => [
-                'cancel' => 'Отмена',
-                'submit' => 'Создать арендатора',
+            'placeholders' => [
+                'property' => 'Property',
             ],
+            'subtitle' => 'Subtitle',
+            'title' => 'Title',
         ],
         'reassign' => [
-            'title' => 'Переназначить арендатора на другой объект',
-            'subtitle' => 'Переместите :name на другой объект в портфеле',
-            'breadcrumb' => 'Переназначить',
-            'errors_title' => 'Есть ошибки в вашей форме',
+            'actions' => [
+                'cancel' => 'Cancel',
+                'submit' => 'Submit',
+            ],
             'current_property' => [
-                'title' => 'Текущий объект',
-                'empty' => 'Объект не назначен',
+                'empty' => 'Empty',
+                'title' => 'Title',
+            ],
+            'errors_title' => 'Errors Title',
+            'history' => [
+                'empty' => 'Empty',
+                'title' => 'Title',
             ],
             'new_property' => [
-                'label' => 'Новый объект',
-                'placeholder' => 'Выберите объект',
-                'empty' => 'Нет других объектов для переназначения.',
-                'note' => 'Выберите объект, к которому будет привязан этот арендатор',
+                'empty' => 'Empty',
+                'label' => 'Label',
+                'note' => 'Note',
+                'placeholder' => 'Placeholder',
             ],
+            'subtitle' => 'Subtitle',
+            'title' => 'Title',
             'warning' => [
-                'title' => 'Важная информация',
                 'items' => [
-                    'preserved' => 'Все предыдущие показания счетчиков и счета будут сохранены',
-                    'notify' => 'Арендатор получит уведомление по email о переназначении',
-                    'audit' => 'Это действие будет записано в журнал аудита',
+                    'audit' => 'Audit',
+                    'notify' => 'Notify',
+                    'preserved' => 'Preserved',
                 ],
+                'title' => 'Title',
             ],
-            'history' => [
-                'title' => 'История переназначений',
-                'empty' => 'Предыдущие назначения будут показаны здесь после переназначения',
-            ],
-            'actions' => [
-                'cancel' => 'Отмена',
-                'submit' => 'Переназначить арендатора',
-            ],
+        ],
+    ],
+    'statuses' => [
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+    ],
+    'validation' => [
+        'email' => [
+            'email' => 'Email',
+            'max' => 'Max',
+            'required' => 'Required',
+        ],
+        'invoice_id' => [
+            'exists' => 'Exists',
+            'required' => 'Required',
+        ],
+        'lease_end' => [
+            'after' => 'After',
+            'date' => 'Date',
+        ],
+        'lease_start' => [
+            'date' => 'Date',
+            'required' => 'Required',
+        ],
+        'name' => [
+            'max' => 'Max',
+            'required' => 'Required',
+            'string' => 'String',
+        ],
+        'phone' => [
+            'max' => 'Max',
+            'string' => 'String',
+        ],
+        'property_id' => [
+            'exists' => 'Exists',
+            'required' => 'Required',
+        ],
+        'tenant_id' => [
+            'integer' => 'Integer',
+            'required' => 'Required',
         ],
     ],
 ];

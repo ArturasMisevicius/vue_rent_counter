@@ -118,6 +118,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Load translations moved from lang/vendor to lang/backup so the backup package keeps working
+        $this->loadTranslationsFrom(lang_path('backup'), 'backup');
+
         // Register view composers
         \Illuminate\Support\Facades\View::composer(
             'layouts.app',

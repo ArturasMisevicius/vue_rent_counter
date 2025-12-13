@@ -3,261 +3,225 @@
 declare(strict_types=1);
 
 return [
-
-    /*
-    |--------------------------------------------------------------------------
-    | Properties Language Lines (Lithuanian)
-    |--------------------------------------------------------------------------
-    */
-
-    'labels' => [
-        'property' => 'Nuosavybė',
-        'properties' => 'Nuosavybės',
-        'address' => 'Adresas',
-        'type' => 'Nuosavybės tipas',
-        'area' => 'Plotas (m²)',
-        'current_tenant' => 'Dabartinis nuomininkas',
-        'building' => 'Pastatas',
-        'installed_meters' => 'Įrengti skaitikliai',
-        'meters' => 'Skaitikliai',
-        'created' => 'Sukurta',
-    ],
-
-    'placeholders' => [
-        'address' => 'Įveskite nuosavybės adresą',
-        'area' => 'Įveskite plotą kvadratiniais metrais',
-    ],
-
-    'helper_text' => [
-        'address' => 'Pilnas gatvės adresas, įskaitant pastato ir buto numerį',
-        'type' => 'Pasirinkite butą arba namą',
-        'area' => 'Nuosavybės plotas kvadratiniais metrais (maks. 2 skaitmenys po kablelio)',
-        'tenant_available' => 'Pasirinkite prieinamą nuomininką, kurį priskirsite šiai nuosavybei',
-        'tenant_reassign' => 'Pasirinkite naują nuomininką arba palikite tuščią, kad išlaisvintumėte nuosavybę',
-    ],
-
-    'sections' => [
-        'property_details' => 'Nuosavybės informacija',
-        'property_details_description' => 'Pagrindinė informacija apie nuosavybę',
-        'additional_info' => 'Papildoma informacija',
-        'additional_info_description' => 'Pastato, nuomininko ir skaitiklių informacija',
-    ],
-
-    'badges' => [
-        'vacant' => 'Laisva',
-    ],
-
-    'tooltips' => [
-        'copy_address' => 'Spustelėkite, kad nukopijuotumėte adresą',
-        'occupied_by' => 'Užimta :name',
-        'no_tenant' => 'Nepriskirtas nuomininkas',
-        'meters_count' => 'Įrengtų skaitiklių skaičius',
-    ],
-
-    'filters' => [
-        'type' => 'Nuosavybės tipas',
-        'building' => 'Pastatas',
-        'occupancy' => 'Užimtumo būsena',
-        'all_properties' => 'Visos nuosavybės',
-        'occupied' => 'Užimta',
-        'vacant' => 'Laisva',
-        'large_properties' => 'Didelės nuosavybės (>100 m²)',
-    ],
-
     'actions' => [
-        'manage_tenant' => 'Valdyti nuomininką',
-        'assign_tenant' => 'Priskirti nuomininką',
-        'reassign_tenant' => 'Pakeisti nuomininką',
-        'export_selected' => 'Eksportuoti pasirinktus',
-        'add_first_property' => 'Pridėti pirmą nuosavybę',
-        'add' => 'Pridėti objektą',
-        'view' => 'Peržiūrėti',
-        'edit' => 'Redaguoti',
+        'add' => 'Add',
+        'add_first_property' => 'Add First Property',
+        'assign_tenant' => 'Assign Tenant',
+        'edit' => 'Edit',
+        'export_selected' => 'Export Selected',
+        'manage_tenant' => 'Manage Tenant',
+        'reassign_tenant' => 'Reassign Tenant',
+        'view' => 'View',
     ],
-
-    'notifications' => [
-        'created' => [
-            'title' => 'Nuosavybė sukurta',
-            'body' => 'Nuosavybė sėkmingai sukurta.',
-        ],
-        'updated' => [
-            'title' => 'Nuosavybė atnaujinta',
-            'body' => 'Nuosavybė sėkmingai atnaujinta.',
-        ],
-        'deleted' => [
-            'title' => 'Nuosavybė ištrinta',
-            'body' => 'Nuosavybė sėkmingai ištrinta.',
-        ],
-        'bulk_deleted' => [
-            'title' => 'Nuosavybės ištrintos',
-            'body' => ':count nuosavybės sėkmingai ištrintos.',
-        ],
-        'tenant_assigned' => [
-            'title' => 'Nuomininkas priskirtas',
-            'body' => 'Nuomininkas sėkmingai priskirtas nuosavybei.',
-        ],
-        'tenant_removed' => [
-            'title' => 'Nuomininkas pašalintas',
-            'body' => 'Nuomininkas sėkmingai pašalintas iš nuosavybės.',
-        ],
-        'export_started' => [
-            'title' => 'Eksportavimas pradėtas',
-            'body' => 'Jūsų eksportavimas apdorojamas. Būsite informuotas, kai jis bus paruoštas.',
-        ],
+    'badges' => [
+        'vacant' => 'Vacant',
     ],
-
-    'modals' => [
-        'delete_confirmation' => 'Ar tikrai norite ištrinti šią nuosavybę? Šio veiksmo negalima atšaukti.',
-    ],
-
     'empty_state' => [
-        'heading' => 'Nėra nuosavybių',
-        'description' => 'Pradėkite sukurdami savo pirmą nuosavybę.',
+        'description' => 'Description',
+        'heading' => 'Heading',
     ],
-
-    'validation' => [
-        'address' => [
-            'required' => 'Nuosavybės adresas yra privalomas.',
-            'string' => 'Nuosavybės adresas turi būti tekstas.',
-            'max' => 'Nuosavybės adresas negali būti ilgesnis nei 255 simboliai.',
-            'invalid_characters' => 'Adrese yra netinkamų simbolių.',
-            'prohibited_content' => 'Adrese yra draudžiamo turinio.',
-            'format' => 'Adrese gali būti tik raidės, skaičiai, tarpai ir įprasta skyrybos ženklai (.,#/-()).',
-        ],
-        'type' => [
-            'required' => 'Nuosavybės tipas yra privalomas.',
-            'enum' => 'Nuosavybės tipas turi būti butas arba namas.',
-        ],
-        'area_sqm' => [
-            'required' => 'Nuosavybės plotas yra privalomas.',
-            'numeric' => 'Nuosavybės plotas turi būti skaičius.',
-            'min' => 'Nuosavybės plotas turi būti bent 0 kvadratinių metrų.',
-            'max' => 'Nuosavybės plotas negali viršyti 10 000 kvadratinių metrų.',
-            'format' => 'Plotas turi būti standartinis dešimtainis skaičius.',
-            'negative' => 'Plotas negali būti neigiamas.',
-            'precision' => 'Plotas gali turėti daugiausiai 2 skaitmenis po kablelio.',
-        ],
-        'building_id' => [
-            'exists' => 'Pasirinktas pastatas neegzistuoja.',
-        ],
-        'tenant_id' => [
-            'required' => 'Nuomininkas yra privalomas.',
-            'integer' => 'Nuomininko identifikatorius turi būti skaičius.',
-        ],
-        'property_id' => [
-            'required' => 'Reikia pasirinkti objektą.',
-            'exists' => 'Pasirinktas objektas neegzistuoja.',
-        ],
-    ],
-
     'errors' => [
-        'has_relations' => 'Negalima ištrinti objekto, turinčio susietų skaitiklių ar nuomininkų.',
+        'has_relations' => 'Has Relations',
     ],
-
+    'filters' => [
+        'all_properties' => 'All Properties',
+        'building' => 'Building',
+        'large_properties' => 'Large Properties',
+        'occupancy' => 'Occupancy',
+        'occupied' => 'Occupied',
+        'type' => 'Type',
+        'vacant' => 'Vacant',
+    ],
+    'helper_text' => [
+        'address' => 'Address',
+        'area' => 'Area',
+        'tenant_available' => 'Tenant Available',
+        'tenant_reassign' => 'Tenant Reassign',
+        'type' => 'Type',
+    ],
+    'labels' => [
+        'address' => 'Address',
+        'area' => 'Area',
+        'building' => 'Building',
+        'created' => 'Created',
+        'current_tenant' => 'Current Tenant',
+        'installed_meters' => 'Installed Meters',
+        'meters' => 'Meters',
+        'properties' => 'Properties',
+        'property' => 'Property',
+        'type' => 'Type',
+    ],
     'manager' => [
         'index' => [
-            'title' => 'Objektai',
-            'description' => 'Visų jūsų portfelio objektų sąrašas.',
-            'caption' => 'Objektų sąrašas',
+            'caption' => 'Caption',
+            'description' => 'Description',
+            'empty' => [
+                'cta' => 'Cta',
+                'text' => 'Text',
+            ],
             'filters' => [
-                'search' => 'Paieška',
-                'search_placeholder' => 'Ieškokite pagal adresą...',
-                'type' => 'Tipas',
-                'building' => 'Pastatas',
-                'all_types' => 'Visi tipai',
-                'all_buildings' => 'Visi pastatai',
-                'filter' => 'Filtruoti',
-                'clear' => 'Išvalyti',
+                'all_buildings' => 'All Buildings',
+                'all_types' => 'All Types',
+                'building' => 'Building',
+                'clear' => 'Clear',
+                'filter' => 'Filter',
+                'search' => 'Search',
+                'search_placeholder' => 'Search Placeholder',
+                'type' => 'Type',
             ],
             'headers' => [
-                'address' => 'Adresas',
-                'type' => 'Tipas',
-                'area' => 'Plotas',
-                'building' => 'Pastatas',
-                'meters' => 'Skaitikliai',
-                'tenants' => 'Nuomininkai',
-                'actions' => 'Veiksmai',
+                'actions' => 'Actions',
+                'address' => 'Address',
+                'area' => 'Area',
+                'building' => 'Building',
+                'meters' => 'Meters',
+                'tenants' => 'Tenants',
+                'type' => 'Type',
             ],
-            'empty' => [
-                'text' => 'Objektų nerasta.',
-                'cta' => 'Sukurkite dabar',
-            ],
-        ],
-        'show' => [
-            'title' => 'Objekto detalės',
-            'description' => 'Objekto informacija ir susiję duomenys',
-            'information' => 'Objekto informacija',
-            'building_missing' => 'Nepriskirta pastatui',
-            'current_tenant' => 'Dabartinis nuomininkas',
-            'phone' => 'Telefonas',
-            'no_tenant' => 'Dabartinio nuomininko nėra',
-            'meters' => 'Skaitikliai',
-            'add_meter' => 'Pridėti skaitiklį',
-            'latest_reading' => 'Naujausias rodmuo',
-            'no_meters' => 'Šiam objektui skaitiklių nėra.',
+            'title' => 'Title',
         ],
     ],
-
+    'modals' => [
+        'bulk_delete' => [
+            'confirm' => 'Confirm',
+            'description' => 'Description',
+            'title' => 'Title',
+        ],
+        'delete_confirmation' => 'Delete Confirmation',
+    ],
+    'notifications' => [
+        'bulk_deleted' => [
+            'body' => 'Body',
+            'title' => 'Title',
+        ],
+        'created' => [
+            'body' => 'Body',
+            'title' => 'Title',
+        ],
+        'deleted' => [
+            'body' => 'Body',
+            'title' => 'Title',
+        ],
+        'export_started' => [
+            'body' => 'Body',
+            'title' => 'Title',
+        ],
+        'updated' => [
+            'body' => 'Body',
+            'title' => 'Title',
+        ],
+        '{$action}' => [
+            'body' => 'Body',
+            'title' => 'Title',
+        ],
+    ],
     'pages' => [
         'manager_form' => [
-            'create_title' => 'Sukurti objektą',
-            'create_subtitle' => 'Pridėkite naują objektą į savo portfelį',
-            'breadcrumb_create' => 'Sukurti',
-            'edit_title' => 'Redaguoti objektą',
-            'edit_subtitle' => 'Atnaujinkite objekto informaciją',
-            'breadcrumb_edit' => 'Redaguoti',
+            'actions' => [
+                'cancel' => 'Cancel',
+                'save_create' => 'Save Create',
+                'save_edit' => 'Save Edit',
+            ],
+            'create_subtitle' => 'Create Subtitle',
+            'create_title' => 'Create Title',
+            'edit_subtitle' => 'Edit Subtitle',
+            'edit_title' => 'Edit Title',
             'labels' => [
-                'address' => 'Adresas',
-                'type' => 'Objekto tipas',
-                'area' => 'Plotas (m²)',
-                'building' => 'Pastatas (nebūtina)',
+                'address' => 'Address',
+                'area' => 'Area',
+                'building' => 'Building',
+                'type' => 'Type',
             ],
             'placeholders' => [
-                'address' => 'Gatvė, miestas',
-                'area' => '50.00',
-                'building' => 'Pasirinkite pastatą...',
-            ],
-            'actions' => [
-                'cancel' => 'Atšaukti',
-                'save_create' => 'Sukurti objektą',
-                'save_edit' => 'Atnaujinti objektą',
+                'address' => 'Address',
+                'area' => 'Area',
+                'building' => 'Building',
             ],
         ],
         'manager_show' => [
-            'title' => 'Objekto detalės',
-            'description' => 'Objekto informacija ir susiję duomenys',
-            'info_title' => 'Objekto informacija',
+            'add_meter' => 'Add Meter',
+            'building_missing' => 'Building Missing',
+            'current_tenant_title' => 'Current Tenant Title',
+            'delete_confirm' => 'Delete Confirm',
+            'delete_property' => 'Delete Property',
+            'description' => 'Description',
+            'edit_property' => 'Edit Property',
+            'info_title' => 'Info Title',
             'labels' => [
-                'address' => 'Adresas',
-                'type' => 'Tipas',
-                'area' => 'Plotas',
-                'building' => 'Pastatas',
+                'address' => 'Address',
+                'area' => 'Area',
+                'building' => 'Building',
+                'type' => 'Type',
             ],
-            'building_missing' => 'Nepriskirta pastatui',
-            'current_tenant_title' => 'Dabartinis nuomininkas',
-            'tenant_labels' => [
-                'name' => 'Vardas',
-                'email' => 'El. paštas',
-                'phone' => 'Telefonas',
-            ],
-            'tenant_na' => 'N/D',
-            'no_tenant' => 'Dabartinio nuomininko nėra',
-            'meters_title' => 'Skaitikliai',
-            'add_meter' => 'Pridėti skaitiklį',
+            'latest_none' => 'Latest None',
             'meters_headers' => [
-                'serial' => 'Serijos numeris',
-                'type' => 'Tipas',
-                'installation' => 'Įrengimo data',
-                'latest' => 'Naujausias rodmuo',
-                'actions' => 'Veiksmai',
+                'actions' => 'Actions',
+                'installation' => 'Installation',
+                'latest' => 'Latest',
+                'serial' => 'Serial',
+                'type' => 'Type',
             ],
-            'latest_none' => 'Rodmenų nėra',
-            'view' => 'Peržiūrėti',
-            'edit_property' => 'Redaguoti objektą',
-            'delete_property' => 'Ištrinti',
-            'delete_confirm' => 'Ar tikrai norite ištrinti šį objektą?',
-            'no_meters_installed' => 'Šiam objektui skaitiklių nėra.',
+            'meters_title' => 'Meters Title',
+            'no_meters_installed' => 'No Meters Installed',
+            'no_tenant' => 'No Tenant',
+            'tenant_labels' => [
+                'email' => 'Email',
+                'name' => 'Name',
+                'phone' => 'Phone',
+            ],
+            'tenant_na' => 'Tenant Na',
+            'title' => 'Title',
+            'view' => 'View',
         ],
     ],
-
+    'placeholders' => [
+        'address' => 'Address',
+        'area' => 'Area',
+    ],
+    'sections' => [
+        'additional_info' => 'Additional Info',
+        'additional_info_description' => 'Additional Info Description',
+        'property_details' => 'Property Details',
+        'property_details_description' => 'Property Details Description',
+    ],
+    'tooltips' => [
+        'copy_address' => 'Copy Address',
+        'meters_count' => 'Meters Count',
+        'no_tenant' => 'No Tenant',
+        'occupied_by' => 'Occupied By',
+    ],
+    'validation' => [
+        'address' => [
+            'format' => 'Format',
+            'invalid_characters' => 'Invalid Characters',
+            'max' => 'Max',
+            'prohibited_content' => 'Prohibited Content',
+            'required' => 'Required',
+            'string' => 'String',
+        ],
+        'area_sqm' => [
+            'format' => 'Format',
+            'max' => 'Max',
+            'min' => 'Min',
+            'negative' => 'Negative',
+            'numeric' => 'Numeric',
+            'precision' => 'Precision',
+            'required' => 'Required',
+        ],
+        'building_id' => [
+            'exists' => 'Exists',
+        ],
+        'property_id' => [
+            'exists' => 'Exists',
+            'required' => 'Required',
+        ],
+        'tenant_id' => [
+            'integer' => 'Integer',
+            'required' => 'Required',
+        ],
+        'type' => [
+            'enum' => 'Enum',
+            'required' => 'Required',
+        ],
+    ],
 ];
