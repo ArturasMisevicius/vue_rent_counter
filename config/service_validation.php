@@ -173,6 +173,27 @@ return [
         'enable_validation_caching' => true, // Enable caching of validation results
         'cache_historical_data' => true, // Cache historical consumption data
         'historical_data_cache_ttl' => 86400, // 24 hours for historical data cache
+        
+        // PERFORMANCE OPTIMIZATIONS
+        'enable_bulk_preloading' => env('VALIDATION_BULK_PRELOADING', true), // Enable optimized bulk data loading
+        'enable_query_optimization' => env('VALIDATION_QUERY_OPTIMIZATION', true), // Enable query optimizations
+        'enable_memoization' => env('VALIDATION_MEMOIZATION', true), // Enable computation memoization
+        'chunk_size' => env('VALIDATION_CHUNK_SIZE', 50), // Memory-efficient processing chunk size
+        'max_batch_size' => env('VALIDATION_MAX_BATCH_SIZE', 500), // Maximum batch size for safety
+        
+        // MONITORING AND ALERTING
+        'enable_performance_monitoring' => env('VALIDATION_PERFORMANCE_MONITORING', true),
+        'performance_alert_thresholds' => [
+            'slow_operation_ms' => 1000, // Alert if operation takes >1 second
+            'high_memory_mb' => 100, // Alert if memory usage >100MB
+            'excessive_queries' => 50, // Alert if >50 queries per operation
+            'low_throughput_per_sec' => 10, // Alert if <10 readings per second
+        ],
+        
+        // CACHE WARMING
+        'enable_cache_warming' => env('VALIDATION_CACHE_WARMING', true),
+        'cache_warm_on_startup' => env('VALIDATION_CACHE_WARM_STARTUP', false),
+        'cache_warm_batch_size' => 20, // Service configurations to warm per batch
     ],
 
     /*

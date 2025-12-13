@@ -41,6 +41,12 @@
                                 <a href="{{ route('superadmin.organizations.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.organizations') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
                                     {{ __('app.nav.organizations') }}
                                 </a>
+                                <a href="{{ route('superadmin.tenants.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.tenants') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.tenants') }}
+                                </a>
+                                <a href="{{ route('superadmin.managers.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.managers') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.managers') }}
+                                </a>
                                 <a href="{{ route('superadmin.subscriptions.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.subscriptions') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
                                     {{ __('app.nav.subscriptions') }}
                                 </a>
@@ -172,6 +178,12 @@
                         </a>
                         <a href="{{ route('superadmin.organizations.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.organizations') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
                             {{ __('app.nav.organizations') }}
+                        </a>
+                        <a href="{{ route('superadmin.tenants.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.tenants') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.tenants') }}
+                        </a>
+                        <a href="{{ route('superadmin.managers.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.managers') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                            {{ __('app.nav.managers') }}
                         </a>
                         <a href="{{ route('superadmin.subscriptions.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.subscriptions') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
                             {{ __('app.nav.subscriptions') }}

@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Superadmin;
 
-use App\Enums\UserRole;
 use App\Enums\SubscriptionStatus;
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOrganizationRequest;
 use App\Http\Requests\UpdateOrganizationRequest;
+use App\Models\Building;
+use App\Models\Invoice;
+use App\Models\Property;
 use App\Models\User;
 use App\Services\AccountManagementService;
 use Illuminate\Http\Request;
@@ -104,7 +107,9 @@ class OrganizationController extends Controller
         if ($organization->role !== UserRole::ADMIN) {
             abort(404);
         }
-        
+
+        $tenantId = $organization->tenant_id;
+
         // Load relationships without global scopes
         $organization->load([
             'subscription',
@@ -112,23 +117,131 @@ class OrganizationController extends Controller
                 $query->withoutGlobalScopes();
             }
         ]);
-        
+
         // Get organization statistics
         $stats = [
-            'total_properties' => $organization->properties()->withoutGlobalScopes()->count(),
-            'total_buildings' => $organization->buildings()->withoutGlobalScopes()->count(),
+            'total_properties' => Property::withoutGlobalScopes()->where('tenant_id', $tenantId)->count(),
+            'total_buildings' => Building::withoutGlobalScopes()->where('tenant_id', $tenantId)->count(),
             'total_tenants' => $organization->childUsers()->count(),
-            'total_invoices' => $organization->invoices()->withoutGlobalScopes()->count(),
+            'total_invoices' => Invoice::withoutGlobalScopes()->where('tenant_id', $tenantId)->count(),
             'active_tenants' => $organization->childUsers()->where('is_active', true)->count(),
         ];
-        
+
+        $occupiedPropertiesCount = Property::withoutGlobalScopes()
+            ->where('tenant_id', $tenantId)
+            ->whereHas('tenants')
+            ->count();
+
+        $relationshipMetrics = [
+            'occupied_properties' => $occupiedPropertiesCount,
+            'vacant_properties' => max($stats['total_properties'] - $occupiedPropertiesCount, 0),
+            'metered_properties' => Property::withoutGlobalScopes()
+                ->where('tenant_id', $tenantId)
+                ->whereHas('meters')
+                ->count(),
+            'draft_invoices' => Invoice::withoutGlobalScopes()
+                ->where('tenant_id', $tenantId)
+                ->draft()
+                ->count(),
+            'finalized_invoices' => Invoice::withoutGlobalScopes()
+                ->where('tenant_id', $tenantId)
+                ->finalized()
+                ->count(),
+            'paid_invoices' => Invoice::withoutGlobalScopes()
+                ->where('tenant_id', $tenantId)
+                ->paid()
+                ->count(),
+        ];
+
+        $properties = Property::withoutGlobalScopes()
+            ->where('tenant_id', $tenantId)
+            ->with([
+                'building:id,name,address',
+                'tenants' => fn ($query) => $query
+                    ->select(
+                        'tenants.id',
+                        'tenants.tenant_id',
+                        'tenants.name',
+                        'tenants.email',
+                        'tenants.phone',
+                        'tenants.property_id',
+                        'tenants.lease_start'
+                    )
+                    ->orderBy('tenants.lease_start', 'desc'),
+            ])
+            ->withCount([
+                'meters',
+                'tenantAssignments as tenant_history_count',
+            ])
+            ->orderBy('address')
+            ->paginate(10, ['*'], 'properties_page');
+
+        $buildings = Building::withoutGlobalScopes()
+            ->where('tenant_id', $tenantId)
+            ->withCount([
+                'properties',
+                'properties as occupied_units_count' => fn ($query) => $query->whereHas('tenants'),
+            ])
+            ->with([
+                'properties' => fn ($query) => $query
+                    ->select('id', 'building_id', 'address')
+                    ->withCount('tenants')
+                    ->orderBy('address')
+                    ->limit(3),
+            ])
+            ->orderBy('name')
+            ->paginate(10, ['*'], 'buildings_page');
+
+        $invoiceCountsByProperty = Invoice::withoutGlobalScopes()
+            ->selectRaw('tenants.property_id as property_id, COUNT(*) as aggregate')
+            ->join('tenants', 'tenants.id', '=', 'invoices.tenant_renter_id')
+            ->where('invoices.tenant_id', $tenantId)
+            ->groupBy('tenants.property_id')
+            ->pluck('aggregate', 'property_id');
+
+        $latestInvoicesByProperty = Invoice::withoutGlobalScopes()
+            ->select(
+                'invoices.id',
+                'invoices.invoice_number',
+                'invoices.status',
+                'invoices.total_amount',
+                'invoices.billing_period_end',
+                'tenants.property_id'
+            )
+            ->join('tenants', 'tenants.id', '=', 'invoices.tenant_renter_id')
+            ->where('invoices.tenant_id', $tenantId)
+            ->orderByDesc('invoices.billing_period_end')
+            ->get()
+            ->unique('property_id')
+            ->keyBy('property_id');
+
+        $invoices = Invoice::withoutGlobalScopes()
+            ->where('tenant_id', $tenantId)
+            ->with([
+                'tenant' => fn ($query) => $query->select('id', 'tenant_id', 'name', 'email', 'property_id'),
+                'tenant.property' => fn ($query) => $query->select('id', 'tenant_id', 'address', 'building_id'),
+                'tenant.property.building' => fn ($query) => $query->select('id', 'tenant_id', 'name', 'address'),
+            ])
+            ->orderByDesc('billing_period_start')
+            ->paginate(10, ['*'], 'invoices_page');
+
         // Get all tenants for this organization
         $tenants = $organization->childUsers()
             ->with('property')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
-        
-        return view('superadmin.organizations.show', compact('organization', 'stats', 'tenants'));
+
+        return view('superadmin.organizations.show', compact(
+            'organization',
+            'stats',
+            'tenants',
+            'properties',
+            'buildings',
+            'invoices',
+            'invoiceCountsByProperty',
+            'latestInvoicesByProperty',
+            'relationshipMetrics'
+        ));
     }
 
     /**

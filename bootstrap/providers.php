@@ -26,5 +26,6 @@ return [
 
     App\Providers\AppServiceProvider::class,
     App\Providers\DatabaseServiceProvider::class,
+    App\Providers\ValidationServiceProvider::class,
     App\Providers\Filament\AdminPanelProvider::class,
 ];

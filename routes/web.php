@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\TenantController as AdminTenantController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Superadmin\DashboardController as SuperadminDashboardController;
 use App\Http\Controllers\Superadmin\OrganizationController as SuperadminOrganizationController;
+use App\Http\Controllers\Superadmin\TenantController as SuperadminTenantController;
+use App\Http\Controllers\Superadmin\ManagerController as SuperadminManagerController;
 use App\Http\Controllers\Superadmin\SubscriptionController as SuperadminSubscriptionController;
 use App\Http\Controllers\Superadmin\ProfileController as SuperadminProfileController;
 use App\Http\Controllers\Manager\BuildingController as ManagerBuildingController;
@@ -109,6 +111,14 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
     Route::post('organizations/{organization}/deactivate', [SuperadminOrganizationController::class, 'deactivate'])->name('organizations.deactivate');
     Route::post('organizations/{organization}/reactivate', [SuperadminOrganizationController::class, 'reactivate'])->name('organizations.reactivate');
     Route::delete('organizations/{organization}', [SuperadminOrganizationController::class, 'destroy'])->name('organizations.destroy');
+
+    // Tenants (superadmin view)
+    Route::get('tenants', [SuperadminTenantController::class, 'index'])->name('tenants.index');
+    Route::get('tenants/{tenant}', [SuperadminTenantController::class, 'show'])->name('tenants.show');
+
+    // Managers (superadmin view)
+    Route::get('managers', [SuperadminManagerController::class, 'index'])->name('managers.index');
+    Route::get('managers/{manager}', [SuperadminManagerController::class, 'show'])->name('managers.show');
     
     // Subscription Management
     Route::get('subscriptions', [SuperadminSubscriptionController::class, 'index'])->name('subscriptions.index');

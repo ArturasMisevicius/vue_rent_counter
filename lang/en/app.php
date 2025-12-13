@@ -86,7 +86,9 @@ return [
         'subscriptions' => 'Subscriptions',
         'tariffs' => 'Tariffs',
         'tenants' => 'Tenants',
+        'managers' => 'Managers',
         'users' => 'Users',
+        'actions' => 'Actions',
     ],
     'nav_groups' => [
         'administration' => 'Administration',

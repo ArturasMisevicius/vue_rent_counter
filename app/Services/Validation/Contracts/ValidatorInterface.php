@@ -8,19 +8,12 @@ use App\Services\Validation\ValidationContext;
 use App\Services\Validation\ValidationResult;
 
 /**
- * Interface for all validation strategies.
- * 
- * Implements the Strategy pattern for different validation types.
+ * Interface for validation rule implementations.
  */
 interface ValidatorInterface
 {
     /**
-     * Validate the given context and return a validation result.
-     */
-    public function validate(ValidationContext $context): ValidationResult;
-
-    /**
-     * Get the validator name for logging and debugging.
+     * Get the validator name.
      */
     public function getName(): string;
 
@@ -28,4 +21,9 @@ interface ValidatorInterface
      * Check if this validator applies to the given context.
      */
     public function appliesTo(ValidationContext $context): bool;
+
+    /**
+     * Validate the context and return results.
+     */
+    public function validate(ValidationContext $context): ValidationResult;
 }

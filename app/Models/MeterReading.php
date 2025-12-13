@@ -91,13 +91,38 @@ class MeterReading extends Model
 
     /**
      * Get the consumption since the previous reading.
+     * 
+     * PERFORMANCE OPTIMIZATION: Accepts optional previous reading to avoid N+1 queries.
+     * When used in batch operations, pass the preloaded previous reading.
      */
-    public function getConsumption(): ?float
+    public function getConsumption(?MeterReading $previousReading = null): ?float
     {
+        // Use provided previous reading if available (batch optimization)
+        if ($previousReading !== null) {
+            return $this->getEffectiveValue() - $previousReading->getEffectiveValue();
+        }
+
+        // Fallback to service lookup for individual calls
         $service = app(\App\Services\MeterReadingService::class);
         $previous = $service->getPreviousReading($this->meter, $this->zone, $this->reading_date->toDateString());
 
-        return $previous ? $this->value - $previous->value : null;
+        return $previous ? $this->getEffectiveValue() - $previous->getEffectiveValue() : null;
+    }
+
+    /**
+     * OPTIMIZED: Get consumption with caching for repeated calls.
+     * Useful when the same reading consumption is accessed multiple times.
+     */
+    public function getCachedConsumption(?MeterReading $previousReading = null): ?float
+    {
+        // Use model attribute caching to avoid recalculation
+        $cacheKey = 'consumption_' . ($previousReading?->id ?? 'auto');
+        
+        if (!isset($this->attributes[$cacheKey])) {
+            $this->attributes[$cacheKey] = $this->getConsumption($previousReading);
+        }
+        
+        return $this->attributes[$cacheKey];
     }
 
     /**
