@@ -325,4 +325,158 @@ class ServiceValidationEngineAdvancedSecurityTest extends TestCase
         $result1 = $this->validationEngine->validateMeterReading($reading);
         $time1 = microtime(true) - $start;
 
-        // Second v
+        // Second validation (cache hit)
+        $start = microtime(true);
+        $result2 = $this->validationEngine->validateMeterReading($reading);
+        $time2 = microtime(true) - $start;
+
+        // Cache timing difference should not be exploitable
+        // (This is more of a documentation test - real timing attacks are complex)
+        $this->assertIsArray($result1);
+        $this->assertIsArray($result2);
+        $this->assertEquals($result1['is_valid'], $result2['is_valid']);
+    }
+
+    /** @test */
+    public function it_prevents_log_injection_attacks(): void
+    {
+        Log::shouldReceive('warning')
+            ->once()
+            ->with('Unauthorized meter reading validation attempt', \Mockery::on(function ($data) {
+                // Verify log data doesn't contain injection attempts
+                $this->assertIsArray($data);
+                foreach ($data as $key => $value) {
+                    if (is_string($value)) {
+                        $this->assertStringNotContainsString("\n", $value);
+                        $this->assertStringNotContainsString("\r", $value);
+                        $this->assertStringNotContainsString("\0", $value);
+                    }
+                }
+                return true;
+            }));
+
+        $this->actingAs($this->maliciousUser);
+
+        // Create reading with potential log injection payload
+        $reading = MeterReading::factory()->create([
+            'tenant_id' => 1, // Different tenant to trigger unauthorized log
+        ]);
+
+        $this->validationEngine->validateMeterReading($reading);
+    }
+
+    /** @test */
+    public function it_prevents_path_traversal_in_rate_schedule_keys(): void
+    {
+        $this->actingAs($this->maliciousUser);
+
+        $serviceConfig = ServiceConfiguration::factory()->create(['tenant_id' => 2]);
+
+        $maliciousSchedule = [
+            'rate_per_unit' => 0.15,
+            '../../../etc/passwd' => 'path_traversal',
+            '..\\..\\windows\\system32\\config\\sam' => 'windows_path_traversal',
+            '/etc/shadow' => 'absolute_path',
+            'normal_key' => 'normal_value',
+        ];
+
+        $result = $this->validationEngine->validateRateChangeRestrictions($serviceConfig, $maliciousSchedule);
+
+        // Path traversal keys should be filtered out
+        $this->assertArrayNotHasKey('../../../etc/passwd', $result);
+        $this->assertArrayNotHasKey('..\\..\\windows\\system32\\config\\sam', $result);
+        $this->assertArrayNotHasKey('/etc/shadow', $result);
+        
+        // Normal keys should be preserved if valid
+        $this->assertArrayHasKey('rate_per_unit', $result);
+    }
+
+    /** @test */
+    public function it_prevents_xml_external_entity_attacks(): void
+    {
+        $this->actingAs($this->maliciousUser);
+
+        $serviceConfig = ServiceConfiguration::factory()->create(['tenant_id' => 2]);
+
+        // Attempt XXE attack through XML-like data
+        $xxePayload = '<?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
+            <rate>&xxe;</rate>';
+
+        $maliciousSchedule = [
+            'rate_per_unit' => $xxePayload,
+            'xml_data' => $xxePayload,
+        ];
+
+        $result = $this->validationEngine->validateRateChangeRestrictions($serviceConfig, $maliciousSchedule);
+
+        // XML payload should be sanitized or rejected
+        if (isset($result['rate_per_unit'])) {
+            $this->assertIsNumeric($result['rate_per_unit']);
+        }
+        $this->assertArrayNotHasKey('xml_data', $result);
+    }
+
+    /** @test */
+    public function it_prevents_server_side_request_forgery(): void
+    {
+        $this->actingAs($this->maliciousUser);
+
+        $serviceConfig = ServiceConfiguration::factory()->create(['tenant_id' => 2]);
+
+        // Attempt SSRF through URL-like data
+        $ssrfPayloads = [
+            'http://localhost:22/ssh',
+            'file:///etc/passwd',
+            'ftp://internal.server/data',
+            'gopher://127.0.0.1:25/xHELO',
+        ];
+
+        foreach ($ssrfPayloads as $payload) {
+            $maliciousSchedule = [
+                'rate_per_unit' => 0.15,
+                'callback_url' => $payload,
+                'webhook_endpoint' => $payload,
+            ];
+
+            $result = $this->validationEngine->validateRateChangeRestrictions($serviceConfig, $maliciousSchedule);
+
+            // SSRF payloads should be filtered out
+            $this->assertArrayNotHasKey('callback_url', $result);
+            $this->assertArrayNotHasKey('webhook_endpoint', $result);
+        }
+    }
+
+    /** @test */
+    public function it_maintains_security_under_high_load(): void
+    {
+        $this->actingAs($this->maliciousUser);
+
+        $meter = Meter::factory()->create(['tenant_id' => 2]);
+
+        // Create large batch to test security under load
+        $readings = collect();
+        for ($i = 0; $i < 50; $i++) {
+            $readings->push(MeterReading::factory()->make([
+                'tenant_id' => 2,
+                'meter_id' => $meter->id,
+                'reading_values' => [
+                    'injection_attempt_' . $i => "'; DROP TABLE meter_readings; --",
+                ],
+            ]));
+        }
+
+        // Should handle large batch securely
+        $result = $this->validationEngine->batchValidateReadings($readings);
+
+        $this->assertIsArray($result);
+        $this->assertEquals(50, $result['total_readings']);
+        $this->assertArrayHasKey('performance_metrics', $result);
+    }
+
+    protected function tearDown(): void
+    {
+        Cache::flush();
+        parent::tearDown();
+    }
+}

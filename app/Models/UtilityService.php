@@ -6,11 +6,13 @@ namespace App\Models;
 
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
-use App\Traits\BelongsToTenant;
+use App\Enums\UserRole;
+use App\Services\TenantContext;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Universal utility service configuration model.
@@ -18,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class UtilityService extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -198,7 +200,10 @@ class UtilityService extends Model
      */
     public static function getCachedOptions(bool $globalOnly = false): \Illuminate\Support\Collection
     {
-        $cacheKey = $globalOnly ? 'utility_services.global_options' : 'utility_services.form_options';
+        $tenantId = TenantContext::id() ?? auth()->user()?->tenant_id;
+        $cacheKey = $globalOnly
+            ? 'utility_services.global_options'
+            : 'utility_services.form_options.' . ($tenantId ?? 'no-tenant');
         
         return cache()->remember(
             $cacheKey,
@@ -225,7 +230,8 @@ class UtilityService extends Model
      */
     public static function clearCachedOptions(): void
     {
-        cache()->forget('utility_services.form_options');
+        $tenantId = TenantContext::id() ?? auth()->user()?->tenant_id;
+        cache()->forget('utility_services.form_options.' . ($tenantId ?? 'no-tenant'));
         cache()->forget('utility_services.global_options');
     }
 
@@ -234,6 +240,51 @@ class UtilityService extends Model
      */
     protected static function booted(): void
     {
+        static::addGlobalScope('utility_service_visibility', function (Builder $query): void {
+            $user = auth()->user();
+
+            if (!$user) {
+                $query->where('is_active', true)->where('is_global_template', true);
+                return;
+            }
+
+            if ($user->role === UserRole::SUPERADMIN) {
+                return;
+            }
+
+            $tenantId = TenantContext::id() ?? $user->tenant_id;
+
+            $query->where(function (Builder $scoped) use ($tenantId): void {
+                if ($tenantId !== null) {
+                    $scoped->where('tenant_id', $tenantId);
+                } else {
+                    $scoped->whereRaw('1 = 0');
+                }
+
+                $scoped->orWhere('is_global_template', true);
+            });
+        });
+
+        static::creating(function (self $service): void {
+            if ($service->is_global_template) {
+                $service->tenant_id = null;
+                return;
+            }
+
+            if (!empty($service->tenant_id)) {
+                return;
+            }
+
+            if (TenantContext::id() !== null) {
+                $service->tenant_id = TenantContext::id();
+                return;
+            }
+
+            if (auth()->check() && auth()->user()?->tenant_id) {
+                $service->tenant_id = auth()->user()->tenant_id;
+            }
+        });
+
         // Clear cache when services are modified
         static::created(fn () => static::clearCachedOptions());
         static::updated(fn () => static::clearCachedOptions());

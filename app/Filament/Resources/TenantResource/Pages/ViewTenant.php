@@ -7,10 +7,8 @@ namespace App\Filament\Resources\TenantResource\Pages;
 use App\Filament\Resources\TenantResource;
 use App\Models\Tenant;
 use Filament\Actions;
+use Filament\Infolists\Components;
 use Filament\Resources\Pages\ViewRecord;
-use Filament\Schemas\Components\IconEntry;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\TextEntry;
 use Filament\Schemas\Schema;
 
 final class ViewTenant extends ViewRecord
@@ -81,62 +79,62 @@ final class ViewTenant extends ViewRecord
     {
         return $schema
             ->components([
-                Section::make('Tenant Information')
+                Components\Section::make('Tenant Information')
                     ->schema([
-                        TextEntry::make('tenant_id')
+                        Components\TextEntry::make('tenant_id')
                             ->label('Tenant ID')
                             ->copyable(),
                             
-                        TextEntry::make('full_name')
+                        Components\TextEntry::make('full_name')
                             ->label('Full Name')
                             ->getStateUsing(fn ($record) => "{$record->first_name} {$record->last_name}"),
                             
-                        TextEntry::make('email')
+                        Components\TextEntry::make('email')
                             ->copyable()
                             ->placeholder('No email provided'),
                             
-                        TextEntry::make('phone')
+                        Components\TextEntry::make('phone')
                             ->copyable()
                             ->placeholder('No phone provided'),
                     ])
                     ->columns(2),
                     
-                Section::make('Property Information')
+                Components\Section::make('Property Information')
                     ->schema([
-                        TextEntry::make('property.building.name')
+                        Components\TextEntry::make('property.building.name')
                             ->label('Building'),
                             
-                        TextEntry::make('property.unit_number')
+                        Components\TextEntry::make('property.unit_number')
                             ->label('Unit Number'),
                             
-                        TextEntry::make('property.area_sqm')
+                        Components\TextEntry::make('property.area_sqm')
                             ->label('Area')
                             ->suffix(' m²'),
                             
-                        TextEntry::make('property.property_type')
+                        Components\TextEntry::make('property.property_type')
                             ->label('Property Type')
                             ->badge(),
                     ])
                     ->columns(2),
                     
-                Section::make('Lease Information')
+                Components\Section::make('Lease Information')
                     ->schema([
-                        TextEntry::make('lease_start_date')
+                        Components\TextEntry::make('lease_start_date')
                             ->date(),
                             
-                        TextEntry::make('lease_end_date')
+                        Components\TextEntry::make('lease_end_date')
                             ->date()
                             ->placeholder('Ongoing lease'),
                             
-                        TextEntry::make('monthly_rent')
+                        Components\TextEntry::make('monthly_rent')
                             ->money('EUR')
                             ->placeholder('Not specified'),
                             
-                        TextEntry::make('deposit_amount')
+                        Components\TextEntry::make('deposit_amount')
                             ->money('EUR')
                             ->placeholder('No deposit'),
                             
-                        IconEntry::make('is_active')
+                        Components\IconEntry::make('is_active')
                             ->label('Active Status')
                             ->boolean()
                             ->trueIcon('heroicon-o-check-circle')
@@ -146,17 +144,17 @@ final class ViewTenant extends ViewRecord
                     ])
                     ->columns(3),
                     
-                Section::make('Additional Information')
+                Components\Section::make('Additional Information')
                     ->schema([
-                        TextEntry::make('notes')
+                        Components\TextEntry::make('notes')
                             ->placeholder('No notes')
                             ->columnSpanFull(),
                             
-                        TextEntry::make('created_at')
+                        Components\TextEntry::make('created_at')
                             ->label('Created')
                             ->dateTime(),
                             
-                        TextEntry::make('updated_at')
+                        Components\TextEntry::make('updated_at')
                             ->label('Last Updated')
                             ->dateTime(),
                     ])

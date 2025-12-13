@@ -4,25 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Contracts\GyvatukasCalculatorInterface;
-use App\Enums\DistributionMethod;
 use App\Enums\PricingModel;
-use App\Models\Building;
-use App\Models\Meter;
-use App\Models\MeterReading;
-use App\Models\Property;
 use App\Models\ServiceConfiguration;
-use App\Models\Tariff;
 use App\ValueObjects\BillingPeriod;
 use App\ValueObjects\UniversalCalculationResult;
 use App\ValueObjects\UniversalConsumptionData;
-use App\ValueObjects\InvoiceItemData;
 use Carbon\Carbon;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
@@ -30,9 +19,7 @@ use Psr\Log\LoggerInterface;
  * UniversalBillingCalculator - Universal utility billing calculation service
  * 
  * This service provides comprehensive billing calculations for various utility types
- * and pricing models. It integrates with the existing GyvatukasCalculator for
- * Lithuanian heating system calculations while supporting modern universal
- * utility billing scenarios.
+ * and pricing models, supporting modern universal utility billing scenarios.
  * 
  * ## Supported Pricing Models
  * - **Fixed Monthly**: Flat monthly fee regardless of consumption
@@ -43,7 +30,6 @@ use Psr\Log\LoggerInterface;
  * - **Custom Formula**: Mathematical expressions for complex pricing
  * 
  * ## Key Features
- * - Seamless integration with existing GyvatukasCalculator
  * - Support for seasonal adjustments (summer/winter logic)
  * - Time-zone based pricing for electricity meters
  * - Tariff snapshot functionality for invoice immutability
@@ -65,7 +51,6 @@ use Psr\Log\LoggerInterface;
  * $result = $calculator->calculateTimeOfUseBill($serviceConfig, $zoneConsumption);
  * ```
  * 
- * @see \App\Services\GyvatukasCalculator
  * @see \App\Enums\PricingModel
  * @see \App\Models\ServiceConfiguration
  * @see \App\ValueObjects\CalculationResult
@@ -107,7 +92,6 @@ final class UniversalBillingCalculator
     private const CONSUMPTION_PRECISION = 3;
 
     public function __construct(
-        private readonly GyvatukasCalculatorInterface $gyvatukasCalculator,
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
         private readonly LoggerInterface $logger,
@@ -208,7 +192,9 @@ final class UniversalBillingCalculator
         UniversalConsumptionData $consumption
     ): UniversalCalculationResult {
         $rateSchedule = $serviceConfig->rate_schedule;
-        $unitRate = $rateSchedule['unit_rate'] ?? 0.0;
+        $unitRate = $rateSchedule['unit_rate']
+            ?? $rateSchedule['rate_per_unit']
+            ?? 0.0;
         
         $totalConsumption = $consumption->getTotalConsumption();
         $consumptionAmount = $totalConsumption * $unitRate;
@@ -299,8 +285,12 @@ final class UniversalBillingCalculator
         BillingPeriod $billingPeriod
     ): UniversalCalculationResult {
         $rateSchedule = $serviceConfig->rate_schedule;
-        $fixedFee = $rateSchedule['fixed_fee'] ?? 0.0;
-        $unitRate = $rateSchedule['unit_rate'] ?? 0.0;
+        $fixedFee = $rateSchedule['fixed_fee']
+            ?? $rateSchedule['base_rate']
+            ?? 0.0;
+        $unitRate = $rateSchedule['unit_rate']
+            ?? $rateSchedule['rate_per_unit']
+            ?? 0.0;
         
         // Calculate fixed component
         $adjustedFixedFee = $this->applySeasonalAdjustments($fixedFee, $billingPeriod, $serviceConfig);
@@ -338,6 +328,26 @@ final class UniversalBillingCalculator
     ): UniversalCalculationResult {
         $rateSchedule = $serviceConfig->rate_schedule;
         $zoneRates = $rateSchedule['zone_rates'] ?? [];
+
+        // Backward compatibility: derive zone_rates from legacy time_slots config
+        if (empty($zoneRates) && !empty($rateSchedule['time_slots'])) {
+            foreach ($rateSchedule['time_slots'] as $slot) {
+                if (!is_array($slot)) {
+                    continue;
+                }
+
+                $zone = $slot['zone'] ?? null;
+                $rate = $slot['rate'] ?? null;
+
+                if (is_string($zone) && $zone !== '' && is_numeric($rate)) {
+                    $zoneRates[$zone] = (float) $rate;
+                }
+            }
+
+            if (isset($rateSchedule['default_rate']) && is_numeric($rateSchedule['default_rate'])) {
+                $zoneRates['default'] = (float) $rateSchedule['default_rate'];
+            }
+        }
         
         if (empty($zoneRates)) {
             throw new InvalidArgumentException('Time-of-use configuration missing zone rates');
@@ -447,7 +457,9 @@ final class UniversalBillingCalculator
             );
         } else {
             // Consumption-based flat rate
-            $unitRate = $rateSchedule['unit_rate'] ?? 0.0;
+            $unitRate = $rateSchedule['unit_rate']
+                ?? $rateSchedule['rate_per_unit']
+                ?? 0.0;
             $totalConsumption = $consumption->getTotalConsumption();
             $consumptionAmount = $totalConsumption * $unitRate;
             
@@ -465,52 +477,6 @@ final class UniversalBillingCalculator
                 ]
             );
         }
-    }
-
-    /**
-     * Integrate with existing GyvatukasCalculator for heating services.
-     * 
-     * This method provides seamless integration with the existing Lithuanian
-     * heating system calculations while maintaining the universal billing interface.
-     */
-    public function calculateGyvatukasBill(
-        Building $building,
-        BillingPeriod $billingPeriod,
-        DistributionMethod $distributionMethod = DistributionMethod::AREA
-    ): UniversalCalculationResult {
-        $month = $billingPeriod->getStartDate();
-        
-        // Use existing GyvatukasCalculator for core calculation
-        $circulationEnergy = $this->gyvatukasCalculator->calculate($building, $month);
-        
-        // Get tariff rate for energy cost calculation
-        $energyRate = $this->getEnergyRate($building, $month);
-        $totalCost = $circulationEnergy * $energyRate;
-        
-        // Distribute cost among properties
-        $distributionCosts = $this->gyvatukasCalculator->distributeCirculationCost(
-            $building,
-            $totalCost,
-            $distributionMethod->value
-        );
-        
-        return new UniversalCalculationResult(
-            totalAmount: round($totalCost, self::MONETARY_PRECISION),
-            baseAmount: round($totalCost, self::MONETARY_PRECISION),
-            adjustments: [],
-            consumptionAmount: round($totalCost, self::MONETARY_PRECISION),
-            fixedAmount: 0.0,
-            tariffSnapshot: $this->createGyvatukasTariffSnapshot($building, $month),
-            calculationDetails: [
-                'pricing_model' => 'gyvatukas',
-                'circulation_energy_kwh' => $circulationEnergy,
-                'energy_rate' => $energyRate,
-                'distribution_method' => $distributionMethod->value,
-                'property_distribution' => $distributionCosts,
-                'is_summer_period' => $this->gyvatukasCalculator->isSummerPeriod($month),
-                'is_heating_season' => $this->gyvatukasCalculator->isHeatingSeason($month),
-            ]
-        );
     }
 
     /**
@@ -574,7 +540,9 @@ final class UniversalBillingCalculator
      */
     private function isSummerPeriod(Carbon $date): bool
     {
-        return $this->gyvatukasCalculator->isSummerPeriod($date);
+        $summerMonths = $this->config->get('billing.seasons.summer_months', [5, 6, 7, 8, 9]);
+
+        return in_array((int) $date->month, $summerMonths, true);
     }
 
     /**
@@ -589,22 +557,6 @@ final class UniversalBillingCalculator
             'distribution_method' => $serviceConfig->distribution_method->value,
             'effective_from' => $serviceConfig->effective_from?->toISOString(),
             'effective_until' => $serviceConfig->effective_until?->toISOString(),
-            'snapshot_created_at' => now()->toISOString(),
-        ];
-    }
-
-    /**
-     * Create gyvatukas-specific tariff snapshot.
-     */
-    private function createGyvatukasTariffSnapshot(Building $building, Carbon $month): array
-    {
-        return [
-            'calculation_type' => 'gyvatukas',
-            'building_id' => $building->id,
-            'calculation_month' => $month->format('Y-m'),
-            'summer_average' => $building->gyvatukas_summer_average,
-            'is_summer_period' => $this->gyvatukasCalculator->isSummerPeriod($month),
-            'is_heating_season' => $this->gyvatukasCalculator->isHeatingSeason($month),
             'snapshot_created_at' => now()->toISOString(),
         ];
     }
@@ -625,16 +577,6 @@ final class UniversalBillingCalculator
                 'amount' => round($adjustedAmount - $originalAmount, self::MONETARY_PRECISION),
             ],
         ];
-    }
-
-    /**
-     * Get energy rate for gyvatukas calculations.
-     */
-    private function getEnergyRate(Building $building, Carbon $month): float
-    {
-        // This would typically fetch the current energy tariff rate
-        // For now, return a default rate from configuration
-        return $this->config->get('gyvatukas.default_energy_rate', 0.15);
     }
 
     /**

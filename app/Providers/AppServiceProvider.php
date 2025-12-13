@@ -77,6 +77,10 @@ class AppServiceProvider extends ServiceProvider
         // Register validation framework services
         $this->app->singleton(\App\Services\Validation\ValidationRuleFactory::class);
         $this->app->singleton(\App\Services\ServiceValidationEngine::class);
+        
+        // Register new refactored services
+        $this->app->singleton(\App\Services\SystemHealthService::class);
+        $this->app->singleton(\App\Repositories\MeterReadingRepository::class);
 
         // Register TariffResolver with its strategies
         $this->app->singleton(\App\Services\TariffResolver::class, function ($app) {

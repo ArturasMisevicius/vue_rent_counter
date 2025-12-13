@@ -10,14 +10,9 @@ use App\Models\Tenant;
 use App\Models\User;
 use BackedEnum;
 use Filament\Resources\Resource;
-use UnitEnum;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\TextInput;
-use Filament\Schemas\Components\Select;
-use Filament\Schemas\Components\DatePicker;
-use Filament\Schemas\Components\Textarea;
-use Filament\Schemas\Components\Toggle;
+use Filament\Forms;
 use Filament\Schemas\Schema;
+use UnitEnum;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -38,37 +33,37 @@ final class TenantResource extends Resource
     {
         return $schema
             ->components([
-                Section::make('Tenant Information')
+                Forms\Components\Section::make('Tenant Information')
                     ->schema([
-                        TextInput::make('tenant_id')
+                        Forms\Components\TextInput::make('tenant_id')
                             ->label('Tenant ID')
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->maxLength(50)
                             ->helperText('Unique identifier for the tenant'),
                             
-                        TextInput::make('first_name')
+                        Forms\Components\TextInput::make('first_name')
                             ->required()
                             ->maxLength(100),
                             
-                        TextInput::make('last_name')
+                        Forms\Components\TextInput::make('last_name')
                             ->required()
                             ->maxLength(100),
                             
-                        TextInput::make('email')
+                        Forms\Components\TextInput::make('email')
                             ->email()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
                             
-                        TextInput::make('phone')
+                        Forms\Components\TextInput::make('phone')
                             ->tel()
                             ->maxLength(20),
                     ])
                     ->columns(2),
                     
-                Section::make('Property Assignment')
+                Forms\Components\Section::make('Property Assignment')
                     ->schema([
-                        Select::make('property_id')
+                        Forms\Components\Select::make('property_id')
                             ->label('Property')
                             ->relationship('property', 'unit_number')
                             ->getOptionLabelFromRecordUsing(fn ($record) => 
@@ -79,24 +74,24 @@ final class TenantResource extends Resource
                             ->preload(),
                     ]),
                     
-                Section::make('Lease Information')
+                Forms\Components\Section::make('Lease Information')
                     ->schema([
-                        DatePicker::make('lease_start_date')
+                        Forms\Components\DatePicker::make('lease_start_date')
                             ->required()
                             ->native(false),
                             
-                        DatePicker::make('lease_end_date')
+                        Forms\Components\DatePicker::make('lease_end_date')
                             ->native(false)
                             ->after('lease_start_date'),
                             
-                        TextInput::make('monthly_rent')
+                        Forms\Components\TextInput::make('monthly_rent')
                             ->numeric()
                             ->step(0.01)
                             ->minValue(0)
                             ->prefix('€')
                             ->helperText('Monthly rent amount'),
                             
-                        TextInput::make('deposit_amount')
+                        Forms\Components\TextInput::make('deposit_amount')
                             ->numeric()
                             ->step(0.01)
                             ->minValue(0)
@@ -105,13 +100,13 @@ final class TenantResource extends Resource
                     ])
                     ->columns(2),
                     
-                Section::make('Additional Information')
+                Forms\Components\Section::make('Additional Information')
                     ->schema([
-                        Textarea::make('notes')
+                        Forms\Components\Textarea::make('notes')
                             ->maxLength(1000)
                             ->columnSpanFull(),
                             
-                        Toggle::make('is_active')
+                        Forms\Components\Toggle::make('is_active')
                             ->label('Active Tenant')
                             ->default(true)
                             ->helperText('Inactive tenants will not receive new invoices'),
@@ -203,9 +198,9 @@ final class TenantResource extends Resource
                     
                 Tables\Filters\Filter::make('lease_period')
                     ->form([
-                        DatePicker::make('lease_from')
+                        Forms\Components\DatePicker::make('lease_from')
                             ->label('Lease Start From'),
-                        DatePicker::make('lease_until')
+                        Forms\Components\DatePicker::make('lease_until')
                             ->label('Lease Start Until'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
@@ -233,13 +228,13 @@ final class TenantResource extends Resource
                     ->icon('heroicon-o-document-text')
                     ->color('success')
                     ->form([
-                        DatePicker::make('period_start')
+                        Forms\Components\DatePicker::make('period_start')
                             ->label('Billing Period Start')
                             ->required()
                             ->default(now()->startOfMonth())
                             ->native(false),
                             
-                        DatePicker::make('period_end')
+                        Forms\Components\DatePicker::make('period_end')
                             ->label('Billing Period End')
                             ->required()
                             ->default(now()->endOfMonth())
@@ -335,7 +330,7 @@ final class TenantResource extends Resource
     
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('is_active', true)->count();
+        return (string) static::getModel()::where('is_active', true)->count();
     }
     
     public static function getNavigationBadgeColor(): ?string

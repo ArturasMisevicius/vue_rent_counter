@@ -196,10 +196,10 @@ class ServiceConfiguration extends Model
         // Handle different pricing models
         return match ($this->pricing_model) {
             PricingModel::FIXED_MONTHLY => $schedule['monthly_rate'] ?? null,
-            PricingModel::CONSUMPTION_BASED => $schedule['rate_per_unit'] ?? null,
+            PricingModel::CONSUMPTION_BASED => $schedule['unit_rate'] ?? $schedule['rate_per_unit'] ?? null,
             PricingModel::TIME_OF_USE => $this->getTimeOfUseRate($dateTime, $zone, $schedule),
             PricingModel::TIERED_RATES => $schedule['base_rate'] ?? null, // Base rate, tiers handled separately
-            PricingModel::HYBRID => $schedule['base_rate'] ?? null,
+            PricingModel::HYBRID => $schedule['unit_rate'] ?? $schedule['rate_per_unit'] ?? null,
             PricingModel::FLAT => $schedule['rate'] ?? null, // Legacy compatibility
             default => null,
         };
@@ -210,6 +210,13 @@ class ServiceConfiguration extends Model
      */
     protected function getTimeOfUseRate(Carbon $dateTime, ?string $zone, array $schedule): ?float
     {
+        $zoneRates = $schedule['zone_rates'] ?? [];
+
+        if (!empty($zoneRates)) {
+            $key = $zone ?? 'default';
+            return $zoneRates[$key] ?? $zoneRates['default'] ?? null;
+        }
+
         $timeSlots = $schedule['time_slots'] ?? [];
         $hour = $dateTime->hour;
         $dayType = $dateTime->isWeekend() ? 'weekend' : 'weekday';

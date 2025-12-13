@@ -187,6 +187,7 @@ class MeterResource extends Resource
                         MeterType::WATER_COLD => 'info',
                         MeterType::WATER_HOT => 'danger',
                         MeterType::HEATING => 'success',
+                        MeterType::CUSTOM => 'gray',
                     })
                     ->formatStateUsing(fn (?MeterType $state): ?string => $state?->label())
                     ->sortable(),

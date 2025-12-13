@@ -388,27 +388,26 @@
   - Create Import Configuration action
   - _Requirements: 10.5_
 
-- [-] 12. Implement impersonation system
-- [x] 12.1 Create ImpersonationService
+- [x] 12 Create ImpersonationService
   - Implement startImpersonation method with audit logging
   - Implement endImpersonation method with session cleanup
   - Add impersonation banner component
   - Add automatic timeout (30 minutes)
   - _Requirements: 11.1, 11.2, 11.3, 11.4_
 
-- [-] 12.2 Add impersonation middleware
+- [x] 12.2 Add impersonation middleware
   - Create middleware to detect impersonation mode
   - Add banner display logic
   - Implement context switching
   - _Requirements: 11.3_
 
-- [ ] 12.3 Create impersonation history view
+- [x] 12.3 Create impersonation history view
   - Display all past impersonation sessions
   - Show duration and actions taken
   - Add filtering by superadmin, target user, date
   - _Requirements: 11.5_
 
-- [ ] 13. Implement notification system
+- [-] 13. Implement notification system
 - [ ] 13.1 Create SendPlatformNotificationAction
   - Add targeting form (all, specific plans, individual orgs)
   - Add rich text editor for message composition

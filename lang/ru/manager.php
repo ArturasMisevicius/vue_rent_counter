@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 return [
     'profile' => [
-        'account_information' => 'Account Information',
-        'description' => 'Description',
+        'account_information' => 'Информация об аккаунте',
+        'description' => 'Описание',
         'labels' => [
-            'email' => 'Email',
-            'language' => 'Language',
-            'name' => 'Name',
+            'email' => 'Электронная почта',
+            'language' => 'Язык',
+            'name' => 'Имя',
         ],
-        'language_description' => 'Language Description',
-        'language_hint' => 'Language Hint',
-        'language_preference' => 'Language Preference',
+        'language_description' => 'Описание языка',
+        'language_hint' => 'Языковая подсказка',
+        'language_preference' => 'Языковые предпочтения',
         'password' => [
-            'confirmation' => 'Confirmation',
-            'hint' => 'Hint',
-            'label' => 'Label',
+            'confirmation' => 'Подтверждение',
+            'hint' => 'Намекать',
+            'label' => 'Этикетка',
         ],
-        'title' => 'Title',
-        'update_profile' => 'Update Profile',
+        'title' => 'Заголовок',
+        'update_profile' => 'Обновить профиль',
     ],
 ];

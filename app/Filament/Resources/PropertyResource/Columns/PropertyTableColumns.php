@@ -59,6 +59,7 @@ class PropertyTableColumns
             ->color(fn (PropertyType $state): string => match ($state) {
                 PropertyType::APARTMENT => 'info',
                 PropertyType::HOUSE => 'success',
+                PropertyType::COMMERCIAL => 'warning',
             })
             ->formatStateUsing(fn (?PropertyType $state): ?string => $state?->label())
             ->sortable();

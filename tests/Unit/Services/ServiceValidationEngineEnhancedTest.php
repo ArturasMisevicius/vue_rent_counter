@@ -47,13 +47,17 @@ class ServiceValidationEngineEnhancedTest extends TestCase
 
         $this->validationEngine = app(ServiceValidationEngine::class);
         
+        // Create tenants first
+        $tenant1 = \App\Models\Tenant::factory()->create(['id' => 1]);
+        $tenant2 = \App\Models\Tenant::factory()->create(['id' => 2]);
+        
         // Create test users with proper tenant isolation
         $this->authorizedUser = User::factory()->create([
-            'tenant_id' => 1,
+            'tenant_id' => $tenant1->id,
         ]);
         
         $this->unauthorizedUser = User::factory()->create([
-            'tenant_id' => 2,
+            'tenant_id' => $tenant2->id,
         ]);
 
         // Set up validation configuration
@@ -150,6 +154,12 @@ class ServiceValidationEngineEnhancedTest extends TestCase
         $this->assertArrayHasKey('errors', $result);
         $this->assertArrayHasKey('warnings', $result);
         $this->assertArrayHasKey('metadata', $result);
+        
+        // Debug output if validation fails
+        if (!$result['is_valid']) {
+            $this->fail('Validation failed with errors: ' . implode(', ', $result['errors']));
+        }
+        
         $this->assertTrue($result['is_valid']);
         $this->assertEmpty($result['errors']);
     }

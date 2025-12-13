@@ -19,7 +19,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="space-y-6 mb-8">
         <x-card>
             <h2 class="text-lg font-semibold mb-3">{{ __('manager.sections.details') ?? 'Details' }}</h2>
             <dl class="space-y-2 text-sm">
@@ -42,7 +42,7 @@
             </dl>
         </x-card>
 
-        <x-card class="md:col-span-2">
+        <x-card>
             <h2 class="text-lg font-semibold mb-3">{{ __('manager.sections.properties') ?? 'Properties' }}</h2>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
@@ -68,7 +68,7 @@
                                         {{ $property->building->display_name ?? $property->building->address }}
                                     </a>
                                 @else
-                                    <span class="text-slate-400">—</span>
+                                    <span class="text-slate-400">-</span>
                                 @endif
                             </td>
                             <td class="px-4 py-2 text-sm text-slate-500">{{ $property->tenants_count ?? $property->tenants()->count() }}</td>

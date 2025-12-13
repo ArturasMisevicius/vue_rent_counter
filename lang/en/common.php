@@ -17,4 +17,12 @@ return [
     ],
     'unknown' => 'Unknown',
     'yes' => 'Yes',
+    'all' => 'All',
+    'filter' => 'Filter',
+    'clear' => 'Clear',
+    'date_from' => 'Date From',
+    'date_to' => 'Date To',
+    'date_time' => 'Date & Time',
+    'organization' => 'Organization',
+    'action' => 'Action',
 ];

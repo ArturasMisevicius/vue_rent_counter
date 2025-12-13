@@ -1,559 +1,492 @@
-# Service Layer Architecture
+# Service Layer Architecture Guide
 
 ## Overview
 
-This document describes the complete service layer architecture for the Vilnius Utilities Billing Platform. The service layer provides a clean separation layer acts as the orchestration layer between controllers and models, encapsulating complex business logic, ensuring transaction integrity, and maintaining separation of concerns.
+This document provides comprehensive guidance on implementing a proper service layer architecture for the Universal Utility Management System. The architecture follows SOLID principles and provides clear separation of concerns between HTTP handling, business logic, and data persistence.
 
-**Date**: November 26, 2025  
-**Status**: ✅ PRODUCTION READY  
-**Laravel Version**: 12.x
+## Architecture Patterns
 
----
+### 1. Service Layer Pattern
+- **Services**: Orchestrate business operations and coordinate between multiple actions
+- **Actions**: Handle single atomic operations with single responsibility
+- **DTOs**: Transfer data between layers with type safety and validation
+- **Interfaces**: Enable dependency injection and testing with mocks
 
-## Table of Contents
+### 2. Dependency Injection
+- All services use constructor injection for dependencies
+- Interfaces are bound to implementations in service providers
+- Actions are registered as singletons for performance
+- Mocking is enabled through interface bindings
 
-1. [Current Architecture Analysis](#current-architecture-analysis)
-2. [Service Layer Principles](#service-layer-principles)
-3. [Base Service Class](#base-service-class)
-4. [Service Classes](#service-classes)
-5. [Action Classes](#action-classes)
-6. [DTOs (Data Transfer Objects)](#dtos-data-transfer-objects)
-7. [Service Container Binding](#service-container-binding)
-8. [Controller Integration](#controller-integration)
-9. [Testing Strategy](#testing-strategy)
-10. [Best Practices](#best-practices)
+### 3. Error Handling Strategy
+- Standardized ServiceResponse objects for all operations
+- Comprehensive exception handling with context preservation
+- Structured logging with tenant and user context
+- Performance monitoring and metrics collection
 
----
+## Core Components
 
-## Current Architecture Analysis
+### Base Service Class
 
-### Existing Services (✅ Well-Designed)
-
-The application already has excellent service layer examples:
-
-1. **BillingService** - Orchestrates invoice generation with tariff snapshotting
-2. **TariffResolver** - Resolves active tariffs and calculates costs
-3. **GyvatukasCalculator** - Handles seasonal circulation fee calculations
-4. **SubscriptionService** - Manages subscription lifecycle
-5. **AccountManagementService** - Handles user account operations
-
-### New Controller Analysis
-
-**MeterReadingUpdateController** (newly created):
-- ✅ Single-action controller (good)
-- ✅ Delegates to observer for audit trail
-- ✅ Uses FormRequest for validation
-- ✅ Clear documentation
-- ⚠️ Could benefit from a dedicated service for complex reading updates
-
-### Opportunities for Improvement
-
-1. **MeterReadingService** - Extract reading validation and update logic
-2. **InvoiceService** - Separate invoice operations from BillingService
-3. **NotificationService** - Centralize notification dispatching
-4. **AuditService** - Standardize audit logging across services
-
----
-
-## Service Layer Principles
-
-### When to Use Services vs Actions vs Helpers
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Decision Tree                             │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  Is it a pure function with no dependencies?                │
-│  └─ YES → Helper Function (app/Support/helpers.php)         │
-│  └─ NO  → Continue                                           │
-│                                                              │
-│  Does it perform a single atomic operation?                 │
-│  └─ YES → Action Class (app/Actions/)                       │
-│  └─ NO  → Continue                                           │
-│                                                              │
-│  Does it orchestrate multiple operations?                   │
-│  └─ YES → Service Class (app/Services/)                     │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Service Responsibilities
-
-**Services SHOULD**:
-- Orchestrate complex business logic
-- Manage transactions
-- Coordinate multiple actions
-- Handle cross-cuttingr logic here
-                return $data;
-            });
-            
-            return $this->success($result);
-        } catch (\Throwable $e) {
-            $this->handleException($e);
-            return $this->error('Operation failed');
-        }
-    }
-}
-```
-
-### ServiceResponse
-
-Immutable DTO for service responses:
-
-**Location**: `app/Services/ServiceResponse.php`
-
-**Properties**:
-- `success` (bool): Operation success status
-- `data` (mixed): Response data
-- `message` (string): Human-readable message
-- `code` (int): Error code (optional)
-
-**Methods**:
-- `isSuccess()`: Check if successful
-- `isFailure()`: Check if failed
-- `getDataOrFail()`: Get data or throw exception
-- `toArray()`: Convert to array
-
-**Usage**:
 ```php
-$response = $service->calculate($building, $month);
-
-if ($response->isSuccess()) {
-    $energy = $response->data;
-} else {
-    return back()->withErrors($response->message);
-}
-```
-
-### DTOs (Data Transfer Objects)
-
-Immutable objects for transferring data between layers:
-
-**Location**: `app/DTOs/`
-
-**Example**: `GyvatukasCalculationDTO`
-
-**Features**:
-- Immutable (readonly properties)
-- Factory methods (fromRequest, fromModel)
-- Validation methods
-- Type safety
-
-**Usage**:
-```php
-$dto = GyvatukasCalculationDTO::fromRequest($request);
-
-if (!$dto->isValid()) {
-    return back()->withErrors($dto->validate());
-}
-
-$response = $service->calculate($dto);
-```
-
-## Service Examples
-
-### GyvatukasCalculatorService
-
-Comprehensive service for gyvatukas calculations:
-
-**Location**: `app/Services/GyvatukasCalculatorService.php`
-
-**Features**:
-- Authorization enforcement via policy
-- Rate limiting (10/min per user, 100/min per tenant)
-- Caching (1 hour TTL)
-- Audit trail for all calculations
-- Structured error handling
-
-**Usage**:
-```php
-// In controller
-public function calculate(CalculateGyvatukasRequest $request)
+abstract class BaseService
 {
-    $building = Building::findOrFail($request->building_id);
-    $month = Carbon::parse($request->billing_month);
-    
-    $response = $this->gyvatukasService->calculate($building, $month);
-    
-    if ($response->isFailure()) {
-        return back()->withErrors($response->message);
+    // Transaction management with savepoints
+    protected function executeInTransaction(callable $callback, ?string $savepointName = null): mixed
+
+    // Standardized error handling with context
+    protected function handleException(Throwable $e, array $context = [], bool $notify = false): void
+
+    // Consistent response formatting
+    protected function success(mixed $data = null, string $message = '', array $metadata = []): ServiceResponse
+    protected function error(string $message, mixed $data = null, int $code = 0, array $metadata = []): ServiceResponse
+
+    // Structured logging with context
+    protected function log(string $level, string $message, array $context = []): void
+
+    // Authorization helpers with audit trails
+    protected function authorize(string $ability, mixed $model = null, bool $throwOnFailure = true): bool
+    protected function validateTenantOwnership(object $model, bool $throwOnFailure = true): bool
+
+    // Performance monitoring
+    protected function withMetrics(string $operationName, callable $callback): mixed
+    protected function recordMetric(string $operation, float $duration, array $metadata = []): void
+}
+```
+
+### Service Response Object
+
+```php
+final readonly class ServiceResponse
+{
+    public function __construct(
+        public bool $success,
+        public mixed $data = null,
+        public string $message = '',
+        public int $code = 0,
+        public ?array $metadata = null
+    ) {}
+
+    public function isSuccess(): bool
+    public function isFailure(): bool
+    public function getDataOrFail(): mixed
+    public function toArray(): array
+}
+```
+
+## Service Classes
+
+### 1. BillingService
+
+**Responsibilities:**
+- Invoice generation with consumption calculations
+- Bulk billing operations with batch optimization
+- Payment processing integration
+- Billing period management
+- Tariff application and rate calculations
+
+**Key Methods:**
+```php
+public function generateInvoice(InvoiceGenerationDTO $dto): ServiceResponse
+public function generateBulkInvoices(Collection $tenants, Carbon $periodStart, Carbon $periodEnd): ServiceResponse
+public function finalizeInvoice(Invoice $invoice): ServiceResponse
+public function calculateConsumption(Property $property, Carbon $periodStart, Carbon $periodEnd): ServiceResponse
+public function getBillingHistory(Tenant $tenant, int $months = 12): ServiceResponse
+```
+
+### 2. UserManagementService
+
+**Responsibilities:**
+- User creation with role assignment
+- Account activation and deactivation
+- Role management with authorization
+- Organization membership management
+- User profile updates with validation
+- Bulk user operations
+
+**Key Methods:**
+```php
+public function createUser(CreateUserDTO $dto, bool $sendWelcomeEmail = true): ServiceResponse
+public function updateUserProfile(User $user, array $data): ServiceResponse
+public function changeUserRole(User $user, UserRole $newRole): ServiceResponse
+public function activateUser(User $user): ServiceResponse
+public function deactivateUser(User $user): ServiceResponse
+public function getTenantUsers(int $tenantId, array $filters = []): ServiceResponse
+public function bulkCreateUsers(array $usersData, bool $sendWelcomeEmails = false): ServiceResponse
+```
+
+### 3. ConsumptionCalculationService
+
+**Responsibilities:**
+- Multi-meter property consumption calculations
+- Zone-based calculations
+- Seasonal adjustments
+- Estimation handling
+- Historical pattern analysis
+
+**Key Methods:**
+```php
+public function calculatePropertyConsumption(Property $property, Carbon $periodStart, Carbon $periodEnd): ServiceResponse
+public function calculateMeterConsumption(Meter $meter, Carbon $periodStart, Carbon $periodEnd): ServiceResponse
+public function getConsumptionHistory(Meter $meter, int $months = 12): ServiceResponse
+```
+
+## Action Classes
+
+### When to Use Actions vs Services
+
+**Actions (Single Responsibility):**
+- Single atomic operation
+- Reusable across services
+- Stateless and focused
+- Examples: CreateUserAction, ProcessPaymentAction, ValidateMeterReadingAction
+
+**Services (Orchestration):**
+- Complex business logic
+- Multiple steps coordination
+- Cross-domain operations
+- Examples: BillingService, UserManagementService
+
+### Action Examples
+
+```php
+// ProcessPaymentAction - Single responsibility: Process one payment
+final class ProcessPaymentAction
+{
+    public function execute(PaymentProcessingDTO $dto): Payment
+    {
+        return DB::transaction(function () use ($dto) {
+            $invoice = Invoice::findOrFail($dto->invoiceId);
+            $this->validateInvoiceForPayment($invoice, $dto->amount);
+            
+            $payment = Payment::create([...]);
+            $this->updateInvoiceStatus($invoice, $payment);
+            
+            return $payment;
+        });
     }
-    
-    return view('gyvatukas.result', [
-        'energy' => $response->data,
-        'building' => $building,
-    ]);
+}
+
+// ValidateMeterReadingAction - Single responsibility: Validate one reading
+final class ValidateMeterReadingAction
+{
+    public function execute(MeterReading $reading, bool $autoUpdate = true): array
+    {
+        $validationResult = $this->validationEngine->validateMeterReading($reading);
+        
+        if ($autoUpdate) {
+            $this->updateReadingStatus($reading, $validationResult);
+        }
+        
+        return $validationResult;
+    }
 }
 ```
 
-**Authorization**:
-- Superadmin: Can calculate for any building
-- Admin/Manager: Can calculate for buildings in their tenant
-- Tenant: Cannot calculate (view-only)
+## DTO Classes
 
-**Rate Limiting**:
-- Per-user: 10 calculations per minute
-- Per-tenant: 100 calculations per minute
+### Purpose and Benefits
+- Type safety between layers
+- Input validation and sanitization
+- Immutable data structures
+- Factory methods for creation
 
-**Caching**:
-- Cache key: `gyvatukas:building:{id}:month:{Y-m}`
-- TTL: 1 hour
-- Invalidation: Manual via `clearBuildingCache()`
+### DTO Examples
 
-**Audit Trail**:
-- Table: `gyvatukas_calculation_audits`
-- Records: building_id, billing_month, circulation_energy, execution_time_ms, calculated_by
-
-### BillingService
-
-Service for invoice generation and billing operations:
-
-**Location**: `app/Services/BillingService.php`
-
-**Responsibilities**:
-- Invoice generation
-- Tariff resolution
-- Meter reading validation
-- Cost calculations
-- Invoice finalization
-
-**Usage**:
 ```php
-$response = $billingService->generateInvoice(
-    property: $property,
-    billingPeriod: $period,
-    meterReadings: $readings
-);
+final readonly class CreateUserDTO
+{
+    public function __construct(
+        public string $name,
+        public string $email,
+        public string $password,
+        public UserRole $role,
+        public int $tenantId,
+        public ?int $propertyId = null,
+        public ?int $parentUserId = null,
+        public ?string $organizationName = null,
+        public bool $isActive = true
+    ) {}
 
-if ($response->isSuccess()) {
-    $invoice = $response->data;
-    return redirect()->route('invoices.show', $invoice);
+    public static function fromRequest(Request $request): self
+    public static function fromArray(array $data): self
+    public function toArray(): array
 }
-```
 
-### MeterReadingService
-
-Service for meter reading operations:
-
-**Location**: `app/Services/MeterReadingService.php`
-
-**Responsibilities**:
-- Reading validation (monotonicity, temporal)
-- Consumption calculations
-- Audit trail creation
-- Invoice recalculation triggers
-
-**Usage**:
-```php
-$response = $meterReadingService->createReading(
-    meter: $meter,
-    value: $value,
-    readingDate: $date,
-    enteredBy: $user
-);
-
-if ($response->isSuccess()) {
-    $reading = $response->data;
-    // Trigger invoice recalculation if needed
+final readonly class PaymentProcessingDTO
+{
+    public function __construct(
+        public int $invoiceId,
+        public float $amount,
+        public PaymentMethod $paymentMethod,
+        public string $paymentReference,
+        public Carbon $paymentDate,
+        public ?string $notes = null
+    ) {
+        $this->validate(); // Built-in validation
+    }
 }
 ```
 
 ## Controller Integration
 
-### Thin Controllers
+### Thin Controllers Pattern
 
-Controllers should be thin and delegate to services:
+Controllers should only handle HTTP concerns:
+- Request validation
+- Service delegation
+- Response formatting
+- Route handling
 
 ```php
-class GyvatukasController extends Controller
+final class InvoiceController extends Controller
 {
     public function __construct(
-        private readonly GyvatukasCalculatorService $gyvatukasService
+        private readonly BillingService $billingService,
+        private readonly ProcessPaymentAction $processPaymentAction
     ) {}
 
-    public function calculate(CalculateGyvatukasRequest $request)
+    public function store(StoreInvoiceRequest $request): RedirectResponse
     {
-        $building = Building::findOrFail($request->building_id);
-        $month = Carbon::parse($request->billing_month);
-        
-        $response = $this->gyvatukasService->calculate($building, $month);
-        
-        return $response->isSuccess()
-            ? view('gyvatukas.result', ['energy' => $response->data])
-            : back()->withErrors($response->message);
+        $dto = InvoiceGenerationDTO::fromRequest($request);
+        $result = $this->billingService->generateInvoice($dto);
+
+        if ($result->success) {
+            return redirect()
+                ->route('invoices.show', $result->data)
+                ->with('success', $result->message);
+        }
+
+        return back()
+            ->withInput()
+            ->withErrors(['error' => $result->message]);
+    }
+
+    public function processPayment(ProcessPaymentRequest $request, Invoice $invoice): RedirectResponse
+    {
+        $this->authorize('processPayment', $invoice);
+
+        try {
+            $dto = PaymentProcessingDTO::fromRequest($request);
+            $payment = $this->processPaymentAction->execute($dto);
+
+            return back()->with('success', 'Payment processed successfully');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Payment processing failed: ' . $e->getMessage()]);
+        }
     }
 }
 ```
 
-### Form Request Validation
+## Service Provider Configuration
 
-Use Form Requests for input validation:
+### Dependency Injection Setup
 
 ```php
-class CalculateGyvatukasRequest extends FormRequest
+final class ServiceLayerServiceProvider extends ServiceProvider
 {
-    public function rules(): array
+    public array $bindings = [
+        BillingServiceInterface::class => BillingService::class,
+        UserManagementServiceInterface::class => UserManagementService::class,
+        ConsumptionCalculationServiceInterface::class => ConsumptionCalculationService::class,
+    ];
+
+    public array $singletons = [
+        ProcessPaymentAction::class => ProcessPaymentAction::class,
+        ValidateMeterReadingAction::class => ValidateMeterReadingAction::class,
+        CreateUserAction::class => CreateUserAction::class,
+    ];
+
+    public function register(): void
     {
-        return [
-            'building_id' => ['required', 'integer', 'exists:buildings,id'],
-            'billing_month' => ['required', 'date', 'before_or_equal:today'],
-            'distribution_method' => ['sometimes', 'in:equal,area'],
-        ];
+        // Interface bindings for testability
+        $this->app->bind(BillingServiceInterface::class, function ($app) {
+            return new BillingService(
+                $app->make(GenerateInvoiceAction::class),
+                $app->make(UniversalBillingCalculator::class),
+                $app->make(MeterReadingService::class),
+                $app->make(ConsumptionCalculationService::class)
+            );
+        });
     }
 }
 ```
 
 ## Testing Strategy
 
-### Unit Tests
-
-Test services in isolation with mocked dependencies:
-
-```php
-test('gyvatukas service calculates with authorization', function () {
-    $mockCalculator = Mockery::mock(GyvatukasCalculator::class);
-    $mockPolicy = Mockery::mock(GyvatukasCalculatorPolicy::class);
-    
-    $mockPolicy->shouldReceive('calculate')->andReturn(true);
-    $mockCalculator->shouldReceive('calculate')->andReturn(150.50);
-    
-    $service = new GyvatukasCalculatorService($mockCalculator, $mockPolicy);
-    
-    $response = $service->calculate($building, $month);
-    
-    expect($response->isSuccess())->toBeTrue();
-    expect($response->data)->toBe(150.50);
-});
-```
-
-### Feature Tests
-
-Test services with real dependencies and database:
+### Unit Tests (Services)
+- Mock all dependencies
+- Test business logic in isolation
+- Focus on service behavior
+- No database interactions
 
 ```php
-test('gyvatukas service creates audit record', function () {
-    $building = Building::factory()->create();
-    $month = Carbon::create(2024, 6, 1);
-    
-    $service = app(GyvatukasCalculatorService::class);
-    $response = $service->calculate($building, $month);
-    
-    expect($response->isSuccess())->toBeTrue();
-    
-    $this->assertDatabaseHas('gyvatukas_calculation_audits', [
-        'building_id' => $building->id,
-        'billing_month' => $month->format('Y-m-d'),
-    ]);
-});
-```
-
-### Integration Tests
-
-Test complete workflows:
-
-```php
-test('invoice generation includes gyvatukas calculation', function () {
-    $property = Property::factory()->create();
-    $month = Carbon::create(2024, 6, 1);
-    
-    $billingService = app(BillingService::class);
-    $response = $billingService->generateInvoice($property, $month);
-    
-    expect($response->isSuccess())->toBeTrue();
-    
-    $invoice = $response->data;
-    expect($invoice->items)->toContain(fn($item) => 
-        $item->description === 'Gyvatukas (Circulation Fee)'
-    );
-});
-```
-
-## Service Provider Registration
-
-Register services in `AppServiceProvider`:
-
-```php
-public function register(): void
+final class BillingServiceTest extends TestCase
 {
-    // Singleton for stateless services
-    $this->app->singleton(GyvatukasCalculator::class);
-    $this->app->singleton(TariffResolver::class);
-    
-    // Bind services with dependencies
-    $this->app->bind(GyvatukasCalculatorService::class, function ($app) {
-        return new GyvatukasCalculatorService(
-            $app->make(GyvatukasCalculator::class),
-            $app->make(GyvatukasCalculatorPolicy::class)
+    private BillingService $billingService;
+    private Mockery\MockInterface $generateInvoiceAction;
+    private Mockery\MockInterface $billingCalculator;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->generateInvoiceAction = Mockery::mock(GenerateInvoiceAction::class);
+        $this->billingCalculator = Mockery::mock(UniversalBillingCalculator::class);
+
+        $this->billingService = new BillingService(
+            $this->generateInvoiceAction,
+            $this->billingCalculator,
+            // ... other mocked dependencies
         );
-    });
-    
-    // Interface binding for testability
-    $this->app->bind(
-        BillingServiceInterface::class,
-        BillingService::class
-    );
+    }
+
+    /** @test */
+    public function it_generates_invoice_successfully(): void
+    {
+        // Arrange
+        $dto = new InvoiceGenerationDTO(...);
+        $invoice = Invoice::factory()->make();
+
+        $this->generateInvoiceAction
+            ->shouldReceive('execute')
+            ->once()
+            ->with($dto)
+            ->andReturn($invoice);
+
+        // Act
+        $result = $this->billingService->generateInvoice($dto);
+
+        // Assert
+        $this->assertTrue($result->success);
+        $this->assertInstanceOf(Invoice::class, $result->data);
+    }
 }
 ```
 
-## Error Handling
-
-### Exception Hierarchy
-
-```
-ServiceException (base)
-├── AuthorizationException
-├── ValidationException
-├── CalculationException
-├── RateLimitException
-└── TenantIsolationException
-```
-
-### Error Response Format
+### Feature Tests (End-to-End)
+- Real services and database
+- Complete workflows
+- User interaction scenarios
+- Integration testing
 
 ```php
-ServiceResponse {
-    success: false,
-    data: null,
-    message: 'User-friendly error message',
-    code: 1001 // Optional error code
+final class InvoiceManagementTest extends TestCase
+{
+    use RefreshDatabase;
+
+    /** @test */
+    public function admin_can_create_invoice_through_web_interface(): void
+    {
+        $this->actingAs($this->adminUser);
+
+        $response = $this->post(route('invoices.store'), [
+            'tenant_id' => $this->tenant->id,
+            'billing_period_start' => '2024-01-01',
+            'billing_period_end' => '2024-01-31',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+        
+        $this->assertDatabaseHas('invoices', [
+            'tenant_id' => $this->tenant->id,
+            'status' => 'draft',
+        ]);
+    }
 }
-```
-
-### Logging Errors
-
-All errors are logged with context:
-
-```php
-$this->log('error', 'Calculation failed', [
-    'building_id' => $building->id,
-    'exception' => get_class($e),
-    'message' => $e->getMessage(),
-    'trace' => $e->getTraceAsString(),
-]);
 ```
 
 ## Performance Considerations
 
+### Transaction Management
+- Use savepoints for nested transactions
+- Automatic rollback on exceptions
+- Performance monitoring for slow operations
+
 ### Caching Strategy
+- Service-level caching for expensive operations
+- Cache invalidation on data changes
+- Multi-layer caching (application, database, HTTP)
 
-- **Cache Key Format**: `{service}:{entity}:{id}:{context}`
-- **TTL**: 1 hour for calculations, 24 hours for static data
-- **Invalidation**: Manual via service methods or observers
+### Batch Operations
+- Chunk processing for large datasets
+- Memory management and garbage collection
+- Progress tracking and error handling
 
-### Rate Limiting
+### Monitoring and Metrics
+- Operation duration tracking
+- Memory usage monitoring
+- Query count optimization
+- Error rate tracking
 
-- **Per-User**: 10 requests per minute
-- **Per-Tenant**: 100 requests per minute
-- **Implementation**: Laravel RateLimiter with Redis backend
-
-### Query Optimization
-
-- Eager load relationships in services
-- Use selective column loading
-- Implement query result caching
-- Monitor N+1 queries in tests
-
-## Security Considerations
+## Security Features
 
 ### Authorization
-
-- All service methods check authorization via policies
-- Unauthorized attempts are logged
-- Services validate tenant ownership
-
-### Audit Trail
-
-- All critical operations create audit records
-- Audit records include: user_id, tenant_id, timestamp, operation details
-- Audit records are immutable
-
-### Rate Limiting
-
-- Prevents DoS attacks
-- Configurable limits per user and tenant
-- Logged when limits are exceeded
-
-### Data Validation
-
-- Input validation via Form Requests
-- DTO validation before processing
+- Policy-based authorization checks
 - Tenant isolation validation
+- Role-based access control
+- Audit trail logging
+
+### Input Validation
+- DTO-level validation
+- Sanitization and filtering
+- Type safety enforcement
+- Bounds checking
+
+### Error Handling
+- Secure error messages
+- Context preservation
+- Audit logging
+- Critical error notifications
+
+## Migration Strategy
+
+### Gradual Migration
+1. Start with new features using the enhanced architecture
+2. Refactor existing controllers to use services
+3. Extract business logic into actions
+4. Add comprehensive test coverage
+5. Monitor performance and adjust
+
+### Backward Compatibility
+- Maintain existing API contracts
+- Gradual deprecation of old patterns
+- Feature flags for new implementations
+- Comprehensive testing during migration
 
 ## Best Practices
 
-### DO
+### Service Design
+- Single responsibility principle
+- Dependency injection for all dependencies
+- Interface-based contracts
+- Comprehensive error handling
 
-✅ Use services for business logic  
-✅ Return ServiceResponse from all service methods  
-✅ Log all operations with context  
-✅ Validate authorization in services  
-✅ Create audit trails for critical operations  
-✅ Use DTOs for complex data transfer  
-✅ Write unit tests with mocked dependencies  
-✅ Write feature tests with real database  
+### Action Design
+- Atomic operations only
+- Stateless implementations
+- Reusable across services
+- Clear input/output contracts
 
-### DON'T
+### DTO Design
+- Immutable objects
+- Built-in validation
+- Factory methods for creation
+- Type safety enforcement
 
-❌ Put business logic in controllers  
-❌ Return raw data from services  
-❌ Skip authorization checks  
-❌ Forget to log errors  
-❌ Skip audit trails  
-❌ Use arrays for complex data  
-❌ Skip tests  
-❌ Ignore rate limiting  
+### Testing
+- High test coverage (>90%)
+- Unit tests for services
+- Feature tests for workflows
+- Performance tests for critical paths
 
-## Migration Guide
+### Monitoring
+- Structured logging
+- Performance metrics
+- Error tracking
+- Business metrics
 
-### From Fat Controllers
-
-**Before**:
-```php
-public function calculate(Request $request)
-{
-    $building = Building::find($request->building_id);
-    
-    // Authorization
-    if (!auth()->user()->can('calculate', $building)) {
-        abort(403);
-    }
-    
-    // Business logic
-    $calculator = new GyvatukasCalculator();
-    $energy = $calculator->calculate($building, now());
-    
-    // Audit
-    GyvatukasCalculationAudit::create([...]);
-    
-    return view('result', ['energy' => $energy]);
-}
-```
-
-**After**:
-```php
-public function calculate(CalculateGyvatukasRequest $request)
-{
-    $building = Building::findOrFail($request->building_id);
-    $month = Carbon::parse($request->billing_month);
-    
-    $response = $this->gyvatukasService->calculate($building, $month);
-    
-    return $response->isSuccess()
-        ? view('result', ['energy' => $response->data])
-        : back()->withErrors($response->message);
-}
-```
-
-## Related Documentation
-
-- [GyvatukasCalculator API](../api/GYVATUKAS_CALCULATOR_API.md)
-- [Service Testing Guide](../testing/SERVICE_TESTING_GUIDE.md)
-- [Authorization Guide](../security/AUTHORIZATION_GUIDE.md)
-- [Audit Trail Guide](../security/AUDIT_TRAIL_GUIDE.md)
-
----
-
-**Document Version**: 1.0.0  
-**Last Updated**: 2024-11-25  
-**Status**: Complete ✅
+This architecture provides a solid foundation for scalable, maintainable, and testable Laravel applications with clear separation of concerns and comprehensive business logic handling.

@@ -3,43 +3,43 @@
 declare(strict_types=1);
 
 return [
-    '401' => [
-        'description' => 'Description',
-        'headline' => 'Headline',
-        'title' => 'Title',
+    401 => [
+        'description' => 'Aprašymas',
+        'headline' => 'Antraštė',
+        'title' => 'Pavadinimas',
     ],
-    '403' => [
-        'description' => 'Description',
-        'headline' => 'Headline',
-        'title' => 'Title',
+    403 => [
+        'description' => 'Aprašymas',
+        'headline' => 'Antraštė',
+        'title' => 'Pavadinimas',
     ],
-    '404' => [
-        'description' => 'Description',
-        'headline' => 'Headline',
-        'title' => 'Title',
+    404 => [
+        'description' => 'Aprašymas',
+        'headline' => 'Antraštė',
+        'title' => 'Pavadinimas',
     ],
-    '422' => [
-        'description' => 'Description',
-        'errors_title' => 'Errors Title',
-        'headline' => 'Headline',
-        'title' => 'Title',
+    422 => [
+        'description' => 'Aprašymas',
+        'errors_title' => 'Klaidos Pavadinimas',
+        'headline' => 'Antraštė',
+        'title' => 'Pavadinimas',
     ],
-    '500' => [
-        'description' => 'Description',
-        'headline' => 'Headline',
-        'title' => 'Title',
+    500 => [
+        'description' => 'Aprašymas',
+        'headline' => 'Antraštė',
+        'title' => 'Pavadinimas',
     ],
     'common' => [
-        'actions_title' => 'Actions Title',
-        'back' => 'Back',
-        'back_fix' => 'Back Fix',
-        'contact_support' => 'Contact Support',
-        'dashboard' => 'Dashboard',
-        'home' => 'Home',
-        'login' => 'Login',
-        'refresh' => 'Refresh',
-        'return_home' => 'Return Home',
-        'try_again' => 'Try Again',
-        'try_refresh' => 'Try Refresh',
+        'actions_title' => 'Veiksmų pavadinimas',
+        'back' => 'Atgal',
+        'back_fix' => 'Nugaros taisymas',
+        'contact_support' => 'Susisiekite su palaikymo tarnyba',
+        'dashboard' => 'Prietaisų skydelis',
+        'home' => 'Pradžia',
+        'login' => 'Prisijungti',
+        'refresh' => 'Atnaujinti',
+        'return_home' => 'Grįžti namo',
+        'try_again' => 'Bandyk dar kartą',
+        'try_refresh' => 'Išbandykite Refresh',
     ],
 ];

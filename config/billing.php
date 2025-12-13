@@ -27,6 +27,14 @@ return [
         'default_due_days' => env('INVOICE_DUE_DAYS', 14),
     ],
 
+    'property' => [
+        'default_apartment_area' => env('PROPERTY_DEFAULT_APARTMENT_AREA', 50),
+        'default_house_area' => env('PROPERTY_DEFAULT_HOUSE_AREA', 120),
+        'default_commercial_area' => env('PROPERTY_DEFAULT_COMMERCIAL_AREA', 150),
+        'min_area' => env('PROPERTY_MIN_AREA', 0),
+        'max_area' => env('PROPERTY_MAX_AREA', 10000),
+    ],
+
     'security' => [
         'audit_retention_days' => env('AUDIT_RETENTION_DAYS', 90),
         'encrypt_audit_logs' => env('ENCRYPT_AUDIT_LOGS', true),

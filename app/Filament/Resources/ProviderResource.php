@@ -8,13 +8,9 @@ use App\Filament\Resources\ProviderResource\Pages;
 use App\Models\Provider;
 use BackedEnum;
 use UnitEnum;
+use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\TextInput;
-use Filament\Schemas\Components\Select;
-use Filament\Schemas\Components\Textarea;
-use Filament\Schemas\Components\Toggle;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,20 +30,20 @@ class ProviderResource extends Resource
     {
         return $schema
             ->components([
-                Section::make('Provider Information')
+                Forms\Components\Section::make('Provider Information')
                     ->schema([
-                        TextInput::make('name')
+                        Forms\Components\TextInput::make('name')
                             ->required()
                             ->maxLength(255),
                             
-                        TextInput::make('code')
+                        Forms\Components\TextInput::make('code')
                             ->label('Provider Code')
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->maxLength(20)
                             ->placeholder('e.g., VS, VV'),
                             
-                        Select::make('type')
+                        Forms\Components\Select::make('type')
                             ->label('Service Type')
                             ->options([
                                 'electricity' => 'Electricity',
@@ -60,29 +56,29 @@ class ProviderResource extends Resource
                     ])
                     ->columns(2),
                     
-                Section::make('Contact Information')
+                Forms\Components\Section::make('Contact Information')
                     ->schema([
-                        TextInput::make('contact_email')
+                        Forms\Components\TextInput::make('contact_email')
                             ->email()
                             ->maxLength(255),
                             
-                        TextInput::make('contact_phone')
+                        Forms\Components\TextInput::make('contact_phone')
                             ->tel()
                             ->maxLength(50),
                             
-                        Textarea::make('address')
+                        Forms\Components\Textarea::make('address')
                             ->maxLength(500)
                             ->columnSpanFull(),
                     ])
                     ->columns(2),
                     
-                Section::make('Additional Information')
+                Forms\Components\Section::make('Additional Information')
                     ->schema([
-                        Textarea::make('description')
+                        Forms\Components\Textarea::make('description')
                             ->maxLength(1000)
                             ->columnSpanFull(),
                             
-                        Toggle::make('is_active')
+                        Forms\Components\Toggle::make('is_active')
                             ->default(true),
                     ]),
             ]);

@@ -9,14 +9,9 @@ use App\Models\Tariff;
 use App\Models\Provider;
 use BackedEnum;
 use UnitEnum;
+use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\TextInput;
-use Filament\Schemas\Components\Select;
-use Filament\Schemas\Components\Textarea;
-use Filament\Schemas\Components\Toggle;
-use Filament\Schemas\Components\DatePicker;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -37,20 +32,20 @@ class TariffResource extends Resource
     {
         return $schema
             ->components([
-                Section::make('Tariff Information')
+                Forms\Components\Section::make('Tariff Information')
                     ->schema([
-                        Select::make('provider_id')
+                        Forms\Components\Select::make('provider_id')
                             ->label('Provider')
                             ->relationship('provider', 'name')
                             ->required()
                             ->searchable()
                             ->preload(),
                             
-                        TextInput::make('name')
+                        Forms\Components\TextInput::make('name')
                             ->required()
                             ->maxLength(255),
                             
-                        Select::make('utility_type')
+                        Forms\Components\Select::make('utility_type')
                             ->options([
                                 'electricity' => 'Electricity',
                                 'gas' => 'Gas',
@@ -60,7 +55,7 @@ class TariffResource extends Resource
                             ])
                             ->required(),
                             
-                        TextInput::make('rate_per_unit')
+                        Forms\Components\TextInput::make('rate_per_unit')
                             ->label('Rate per Unit')
                             ->numeric()
                             ->step(0.0001)
@@ -68,36 +63,36 @@ class TariffResource extends Resource
                             ->required()
                             ->prefix('€'),
                             
-                        TextInput::make('currency')
+                        Forms\Components\TextInput::make('currency')
                             ->default('EUR')
                             ->required()
                             ->maxLength(3),
                             
-                        TextInput::make('unit')
+                        Forms\Components\TextInput::make('unit')
                             ->required()
                             ->maxLength(20)
                             ->placeholder('kWh, m³, etc.'),
                     ])
                     ->columns(2),
                     
-                Section::make('Validity Period')
+                Forms\Components\Section::make('Validity Period')
                     ->schema([
-                        DatePicker::make('valid_from')
+                        Forms\Components\DatePicker::make('valid_from')
                             ->required()
                             ->default(now()),
                             
-                        DatePicker::make('valid_to')
+                        Forms\Components\DatePicker::make('valid_to')
                             ->after('valid_from'),
                     ])
                     ->columns(2),
                     
-                Section::make('Additional Information')
+                Forms\Components\Section::make('Additional Information')
                     ->schema([
-                        Textarea::make('description')
+                        Forms\Components\Textarea::make('description')
                             ->maxLength(1000)
                             ->columnSpanFull(),
                             
-                        Toggle::make('is_active')
+                        Forms\Components\Toggle::make('is_active')
                             ->default(true),
                     ]),
             ]);
@@ -168,8 +163,8 @@ class TariffResource extends Resource
                 
                 Tables\Filters\Filter::make('valid_period')
                     ->form([
-                        DatePicker::make('valid_from'),
-                        DatePicker::make('valid_until'),
+                        Forms\Components\DatePicker::make('valid_from'),
+                        Forms\Components\DatePicker::make('valid_until'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query

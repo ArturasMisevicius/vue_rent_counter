@@ -138,6 +138,11 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
     Route::post('subscriptions/{subscription}/renew', [SuperadminSubscriptionController::class, 'renew'])->name('subscriptions.renew');
     Route::post('subscriptions/{subscription}/suspend', [SuperadminSubscriptionController::class, 'suspend'])->name('subscriptions.suspend');
     Route::post('subscriptions/{subscription}/cancel', [SuperadminSubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+
+    // Impersonation Management
+    Route::post('impersonation/start/{user}', [\App\Http\Controllers\Superadmin\ImpersonationController::class, 'start'])->name('impersonation.start');
+    Route::post('impersonation/end', [\App\Http\Controllers\Superadmin\ImpersonationController::class, 'end'])->name('impersonation.end');
+    Route::get('impersonation/history', [\App\Http\Controllers\Superadmin\ImpersonationController::class, 'history'])->name('impersonation.history');
 });
 
 // Filament-style resource deletes for superadmin convenience (no name prefix)

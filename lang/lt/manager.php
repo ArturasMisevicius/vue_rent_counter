@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 return [
     'profile' => [
-        'account_information' => 'Account Information',
-        'description' => 'Description',
+        'account_information' => 'Sąskaitos informacija',
+        'description' => 'Aprašymas',
         'labels' => [
-            'email' => 'Email',
-            'language' => 'Language',
-            'name' => 'Name',
+            'email' => 'El. paštas',
+            'language' => 'Kalba',
+            'name' => 'Vardas',
         ],
-        'language_description' => 'Language Description',
-        'language_hint' => 'Language Hint',
-        'language_preference' => 'Language Preference',
+        'language_description' => 'Kalbos aprašymas',
+        'language_hint' => 'Kalbos patarimas',
+        'language_preference' => 'Kalbos nuostata',
         'password' => [
-            'confirmation' => 'Confirmation',
-            'hint' => 'Hint',
-            'label' => 'Label',
+            'confirmation' => 'Patvirtinimas',
+            'hint' => 'Užuomina',
+            'label' => 'Etiketė',
         ],
-        'title' => 'Title',
-        'update_profile' => 'Update Profile',
+        'title' => 'Pavadinimas',
+        'update_profile' => 'Atnaujinti profilį',
     ],
 ];

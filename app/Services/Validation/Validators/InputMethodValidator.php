@@ -19,6 +19,16 @@ final class InputMethodValidator extends AbstractValidator
         return 'input_method';
     }
 
+    public function isApplicable(ValidationContext $context): bool
+    {
+        return $context->reading->input_method !== null;
+    }
+
+    public function getPriority(): int
+    {
+        return 30; // Medium priority - after consumption but before business rules
+    }
+
     public function validate(ValidationContext $context): ValidationResult
     {
         try {

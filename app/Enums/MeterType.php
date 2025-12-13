@@ -13,4 +13,5 @@ enum MeterType: string implements HasLabel
     case WATER_COLD = 'water_cold';
     case WATER_HOT = 'water_hot';
     case HEATING = 'heating';
+    case CUSTOM = 'custom';
 }

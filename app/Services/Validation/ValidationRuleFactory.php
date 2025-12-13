@@ -7,7 +7,7 @@ namespace App\Services\Validation;
 use App\Services\Validation\Validators\ConsumptionValidator;
 use App\Services\Validation\Validators\SeasonalValidator;
 use App\Services\Validation\Validators\DataQualityValidator;
-use App\Services\Validation\Validators\BusinessRulesValidator;
+use App\Services\Validation\Validators\BusinessRuleValidator;
 use App\Services\Validation\Validators\InputMethodValidator;
 use App\Services\Validation\Validators\RateChangeValidator;
 use App\Services\Validation\Contracts\ValidatorInterface;
@@ -29,7 +29,7 @@ final class ValidationRuleFactory
         'consumption' => ConsumptionValidator::class,
         'seasonal' => SeasonalValidator::class,
         'data_quality' => DataQualityValidator::class,
-        'business_rules' => BusinessRulesValidator::class,
+        'business_rules' => BusinessRuleValidator::class,
         'input_method' => InputMethodValidator::class,
         'rate_change' => RateChangeValidator::class,
     ];

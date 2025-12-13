@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\MeterApiController;
 use App\Http\Controllers\Api\MeterReadingApiController;
 use App\Http\Controllers\Api\ProviderApiController;
+use App\Http\Controllers\Api\ServiceValidationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,4 +34,15 @@ Route::middleware(['auth', 'role:admin,manager'])->group(function () {
     
     // Provider API endpoints
     Route::get('/providers/{provider}/tariffs', [ProviderApiController::class, 'tariffs']);
+    
+    // Service Validation API endpoints
+    Route::prefix('validation')->group(function () {
+        Route::post('/readings/{reading}/validate', [ServiceValidationController::class, 'validateReading']);
+        Route::post('/readings/batch-validate', [ServiceValidationController::class, 'batchValidateReadings']);
+        Route::post('/service-configurations/{serviceConfiguration}/validate-rate-change', [ServiceValidationController::class, 'validateRateChange']);
+        Route::get('/readings/by-status', [ServiceValidationController::class, 'getReadingsByStatus']);
+        Route::patch('/readings/bulk-update-status', [ServiceValidationController::class, 'bulkUpdateValidationStatus']);
+        Route::post('/readings/{reading}/validate-estimated', [ServiceValidationController::class, 'validateEstimatedReading']);
+        Route::get('/health', [ServiceValidationController::class, 'healthCheck']);
+    });
 });

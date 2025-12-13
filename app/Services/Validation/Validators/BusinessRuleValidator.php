@@ -18,9 +18,14 @@ final class BusinessRuleValidator implements ValidatorInterface
         return 'business_rules';
     }
 
-    public function appliesTo(ValidationContext $context): bool
+    public function isApplicable(ValidationContext $context): bool
     {
-        return $context->hasValidationConfig();
+        return $context->serviceConfiguration !== null;
+    }
+
+    public function getPriority(): int
+    {
+        return 20; // Medium-low priority
     }
 
     public function validate(ValidationContext $context): ValidationResult

@@ -31,10 +31,15 @@ final class RateChangeValidator extends AbstractValidator
         return 'rate_change';
     }
 
-    public function appliesTo(ValidationContext $context): bool
+    public function isApplicable(ValidationContext $context): bool
     {
         // This validator is used separately for rate change validation
         return false;
+    }
+
+    public function getPriority(): int
+    {
+        return 10; // Low priority as it's used separately
     }
 
     public function validate(ValidationContext $context): ValidationResult

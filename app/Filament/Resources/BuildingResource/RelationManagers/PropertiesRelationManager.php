@@ -429,6 +429,8 @@ final class PropertiesRelationManager extends RelationManager
             $set('area_sqm', $config['default_apartment_area']);
         } elseif ($stateValue === PropertyType::HOUSE->value) {
             $set('area_sqm', $config['default_house_area']);
+        } elseif ($stateValue === PropertyType::COMMERCIAL->value) {
+            $set('area_sqm', $config['default_commercial_area'] ?? $config['default_house_area']);
         }
     }
 
@@ -497,6 +499,7 @@ final class PropertiesRelationManager extends RelationManager
                     ->color(fn (PropertyType $state): string => match ($state) {
                         PropertyType::APARTMENT => 'info',
                         PropertyType::HOUSE => 'success',
+                        PropertyType::COMMERCIAL => 'warning',
                     })
                     ->sortable(),
 

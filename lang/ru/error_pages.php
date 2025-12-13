@@ -3,43 +3,43 @@
 declare(strict_types=1);
 
 return [
-    '401' => [
-        'description' => 'Description',
-        'headline' => 'Headline',
-        'title' => 'Title',
+    401 => [
+        'description' => 'Описание',
+        'headline' => 'Заголовок',
+        'title' => 'Заголовок',
     ],
-    '403' => [
-        'description' => 'Description',
-        'headline' => 'Headline',
-        'title' => 'Title',
+    403 => [
+        'description' => 'Описание',
+        'headline' => 'Заголовок',
+        'title' => 'Заголовок',
     ],
-    '404' => [
-        'description' => 'Description',
-        'headline' => 'Headline',
-        'title' => 'Title',
+    404 => [
+        'description' => 'Описание',
+        'headline' => 'Заголовок',
+        'title' => 'Заголовок',
     ],
-    '422' => [
-        'description' => 'Description',
-        'errors_title' => 'Errors Title',
-        'headline' => 'Headline',
-        'title' => 'Title',
+    422 => [
+        'description' => 'Описание',
+        'errors_title' => 'Название ошибки',
+        'headline' => 'Заголовок',
+        'title' => 'Заголовок',
     ],
-    '500' => [
-        'description' => 'Description',
-        'headline' => 'Headline',
-        'title' => 'Title',
+    500 => [
+        'description' => 'Описание',
+        'headline' => 'Заголовок',
+        'title' => 'Заголовок',
     ],
     'common' => [
-        'actions_title' => 'Actions Title',
-        'back' => 'Back',
-        'back_fix' => 'Back Fix',
-        'contact_support' => 'Contact Support',
-        'dashboard' => 'Dashboard',
-        'home' => 'Home',
-        'login' => 'Login',
-        'refresh' => 'Refresh',
-        'return_home' => 'Return Home',
-        'try_again' => 'Try Again',
-        'try_refresh' => 'Try Refresh',
+        'actions_title' => 'Название действия',
+        'back' => 'Назад',
+        'back_fix' => 'Исправление спины',
+        'contact_support' => 'Обратиться в службу поддержки',
+        'dashboard' => 'Панель управления',
+        'home' => 'Дом',
+        'login' => 'Авторизоваться',
+        'refresh' => 'Обновить',
+        'return_home' => 'Вернуться домой',
+        'try_again' => 'Попробуйте еще раз',
+        'try_refresh' => 'Попробуйте обновить',
     ],
 ];
