@@ -25,7 +25,8 @@ Extend the existing robust infrastructure to support universal utility types bey
 
 ## 1. Universal Service Framework
 
-- [-] 1 Create UtilityService model and migration
+- [ ] 1 Create UtilityService model and migration
+
   - Create model with configurable attributes (name, unit of measurement, default pricing model, calculation formula)
   - Support global templates (SuperAdmin) and tenant customizations (Admin)
   - Include JSON schema for validation rules and business logic configuration
@@ -61,20 +62,26 @@ Extend the existing robust infrastructure to support universal utility types bey
 
 ## 2. Enhanced Pricing and Calculation Engine
 
-- [ ] 2 Create PricingModel enum extending TariffType capabilities
+- [x] 2 Create PricingModel enum extending TariffType capabilities
   - Add TIERED_RATES, HYBRID, CUSTOM_FORMULA to existing FLAT and TIME_OF_USE
   - Include mathematical expression parsing for custom formulas
   - Maintain backward compatibility with existing `TariffType` usage
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 5.5_
 
-- [ ] 2.2 Extend DistributionMethod enum with consumption-based allocation
-  - Add BY_CONSUMPTION and CUSTOM_FORMULA to existing EQUAL and AREA methods
-  - Include support for different area types (total_area, heated_area, commercial_area)
-  - Maintain existing `requiresAreaData()` method and add `requiresConsumptionData()`
-  - Preserve all existing gyvatukas distribution functionality
+- [x] 2.2 Extend DistributionMethod enum with consumption-based allocation
+  - ✅ Added BY_CONSUMPTION and CUSTOM_FORMULA to existing EQUAL and AREA methods
+  - ✅ Included support for different area types (total_area, heated_area, commercial_area)
+  - ✅ Maintained existing `requiresAreaData()` method and added `requiresConsumptionData()`
+  - ✅ Added `supportsCustomFormulas()` and `getSupportedAreaTypes()` methods
+  - ✅ Preserved all existing gyvatukas distribution functionality
+  - ✅ Added comprehensive unit tests (22 tests, 70 assertions)
+  - ✅ Added translations for EN, LT, RU locales
+  - ✅ Enhanced docblocks with usage examples and integration guidance
+  - ✅ Created comprehensive documentation (enum docs, test coverage, changelog)
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
+  - _Documentation: docs/enums/DISTRIBUTION_METHOD.md, docs/testing/DISTRIBUTION_METHOD_TEST_COVERAGE.md, docs/CHANGELOG_DISTRIBUTION_METHOD_ENHANCEMENT.md_
 
-- [ ] 2.3 Create UniversalBillingCalculator service
+- [x] 2.3 Create UniversalBillingCalculator service
   - Integrate with existing `GyvatukasCalculator` as a specialized calculation engine
   - Support all pricing models: fixed monthly, consumption-based, tiered, hybrid
   - Handle time-of-use pricing extending current zone support in meters
@@ -82,7 +89,7 @@ Extend the existing robust infrastructure to support universal utility types bey
   - Maintain existing tariff snapshot functionality for invoice immutability
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 2.4 Enhance GyvatukasCalculator distribution methods
+- [x] 2.4 Enhance GyvatukasCalculator distribution methods
   - Extend existing `distributeCirculationCost()` method with consumption-based allocation
   - Add support for historical consumption averages using existing meter reading data
   - Maintain existing caching and performance optimizations
@@ -99,19 +106,21 @@ Extend the existing robust infrastructure to support universal utility types bey
 
 ## 3. Service Assignment and Configuration Management
 
-- [ ] 3.1 Create AssignUtilityServiceAction
+- [x] 3 Create AssignUtilityServiceAction
   - Assign utility services to existing `Property` models with individual configurations
   - Create `ServiceConfiguration` records linking properties to utility services
   - Support pricing overrides with full audit trail using existing audit infrastructure
   - Validate configurations don't conflict with existing meter assignments
   - _Requirements: 3.1, 3.2, 3.3_
 
-- [ ] 3.2 Create ServiceTransitionHandler
+- [x] 3.2 Create ServiceTransitionHandler
+
   - Handle tenant move-in/move-out scenarios for existing property relationships
   - Generate final meter readings using existing `MeterReading` model and audit system
   - Calculate pro-rated charges using existing tariff and billing infrastructure
   - Support temporary service suspensions while preserving meter and configuration data
   - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5_
+
 
 - [ ] 3.3 Create ServiceValidationEngine
   - Define consumption limits and validation rules extending existing meter reading validation
@@ -119,6 +128,7 @@ Extend the existing robust infrastructure to support universal utility types bey
   - Include seasonal adjustments building on gyvatukas summer/winter logic
   - Implement data quality checks leveraging existing meter reading audit trail
   - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
+
 
 - [ ] 3.4 Write property test for service assignment and validation
   - **Property 2: Property Service Assignment with Audit Trail**

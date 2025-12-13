@@ -60,6 +60,10 @@ return [
             'password_confirmation' => 'Patvirtinkite slaptažodį',
             'password_hint' => 'Palikite tuščią, jei nenorite keisti slaptažodžio.',
         ],
+        'language_form' => [
+            'title' => 'Kalbos nuostatos',
+            'description' => 'Pasirinkite pageidaujamą sąsajos kalbą.',
+        ],
         'actions' => [
             'update_profile' => 'Išsaugoti pakeitimus',
         ],

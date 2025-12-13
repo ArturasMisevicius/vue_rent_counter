@@ -19,6 +19,13 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::bind('meterReading', function (string $value) {
                 return \App\Models\MeterReading::with('meter')->findOrFail($value);
             });
+            
+            // Explicit binding for organization parameter to ensure it finds admin users
+            Route::bind('organization', function (string $value) {
+                return \App\Models\User::withoutGlobalScopes()
+                    ->where('role', \App\Enums\UserRole::ADMIN)
+                    ->findOrFail($value);
+            });
         },
     )
     ->withMiddleware(function (Middleware $middleware) {

@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             LanguageSeeder::class,
             TestDatabaseSeeder::class, // Includes UsersSeeder after properties are created
+            OrganizationTenantsSeeder::class, // Add tenants to organizations
             FaqSeeder::class,
         ]);
     }

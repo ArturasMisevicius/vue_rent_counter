@@ -18,6 +18,11 @@ class UsersRelationManager extends RelationManager
 
     protected static BackedEnum|string|null $icon = 'heroicon-o-users';
 
+    public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
+    {
+        return __('organizations.relations.users.title');
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -35,11 +40,7 @@ class UsersRelationManager extends RelationManager
                 
                 Forms\Components\Select::make('role')
                     ->label(__('users.labels.role'))
-                    ->options([
-                        'admin' => 'Admin',
-                        'manager' => 'Manager',
-                        'tenant' => 'Tenant',
-                    ])
+                    ->options(\App\Enums\UserRole::labels())
                     ->required(),
                 
                 Forms\Components\Toggle::make('is_active')
@@ -52,6 +53,7 @@ class UsersRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('name')
+            ->recordUrl(fn ($record): string => route('filament.admin.resources.users.edit', ['record' => $record]))
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label(__('users.labels.name'))
@@ -78,7 +80,7 @@ class UsersRelationManager extends RelationManager
                     ->label(__('organizations.relations.users.active')),
                 
                 Tables\Columns\TextColumn::make('last_login_at')
-                    ->label(__('users.labels.created_at', [], false) ?? __('app.common.na'))
+                    ->label(__('users.labels.last_login_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(),
@@ -92,11 +94,7 @@ class UsersRelationManager extends RelationManager
             ->filters([
                 Tables\Filters\SelectFilter::make('role')
                     ->label(__('users.labels.role'))
-                    ->options([
-                        'admin' => 'Admin',
-                        'manager' => 'Manager',
-                        'tenant' => 'Tenant',
-                    ]),
+                    ->options(\App\Enums\UserRole::labels()),
                 
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label(__('organizations.relations.users.active')),

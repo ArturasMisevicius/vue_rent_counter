@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ManagerUpdateProfileRequest;
+use App\Models\Language;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -13,6 +14,7 @@ class ProfileController extends Controller
     {
         return view('superadmin.profile.show', [
             'user' => $request->user(),
+            'languages' => Language::query()->active()->orderBy('display_order')->get(),
         ]);
     }
 

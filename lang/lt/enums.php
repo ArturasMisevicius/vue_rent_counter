@@ -100,4 +100,67 @@ return [
         'feature_flag_changed' => 'Funkcijos žymė pakeista',
         'security_policy_changed' => 'Saugumo politika pakeista',
     ],
+
+    'distribution_method' => [
+        'equal' => 'Vienodas paskirstymas',
+        'area' => 'Paskirstymas pagal plotą',
+        'by_consumption' => 'Paskirstymas pagal suvartojimą',
+        'custom_formula' => 'Paskirstymas pagal formulę',
+        'equal_description' => 'Išlaidos paskirstomos vienodai visiems objektams',
+        'area_description' => 'Išlaidos paskirstomos proporcingai pagal objekto plotą',
+        'by_consumption_description' => 'Išlaidos paskirstomos pagal faktinio suvartojimo santykius',
+        'custom_formula_description' => 'Naudojama individuali matematinė formulė paskirstymui',
+    ],
+
+    'pricing_model' => [
+        'fixed_monthly' => 'Fiksuotas mėnesinis mokestis',
+        'consumption_based' => 'Kainodara pagal suvartojimą',
+        'tiered_rates' => 'Pakopinė tarifų struktūra',
+        'hybrid' => 'Hibridinis kainodaros modelis',
+        'custom_formula' => 'Individuali formulės kainodara',
+        'flat' => 'Fiksuotas tarifas',
+        'time_of_use' => 'Laiko zonų kainodara',
+        'fixed_monthly_description' => 'Fiksuotas mėnesinis mokestis nepriklausomai nuo suvartojimo',
+        'consumption_based_description' => 'Kainodara pagal faktinį suvartojimo kiekį',
+        'tiered_rates_description' => 'Skirtingi tarifai skirtingiems suvartojimo lygiams',
+        'hybrid_description' => 'Fiksuoto mokesčio ir suvartojimo pagrindu kainodaros derinys',
+        'custom_formula_description' => 'Individuali matematinė formulė kainos apskaičiavimui',
+        'flat_description' => 'Vienodas tarifas visam suvartojimui',
+        'time_of_use_description' => 'Skirtingi tarifai skirtingu paros metu',
+    ],
+
+    'input_method' => [
+        'manual' => 'Rankinis įvedimas',
+        'photo_ocr' => 'Nuotrauka su OCR',
+        'csv_import' => 'CSV importas',
+        'api_integration' => 'API integracija',
+        'estimated' => 'Įvertintas rodmuo',
+        'manual_description' => 'Rankiniu būdu įvestas vartotojo',
+        'photo_ocr_description' => 'Išgautas iš skaitiklio nuotraukos naudojant OCR',
+        'csv_import_description' => 'Importuotas iš CSV failo',
+        'api_integration_description' => 'Gautas per API integraciją',
+        'estimated_description' => 'Įvertintas pagal istorinius duomenis',
+    ],
+
+    'validation_status' => [
+        'pending' => 'Laukiama patvirtinimo',
+        'validated' => 'Patvirtinta',
+        'rejected' => 'Atmesta',
+        'requires_review' => 'Reikia peržiūros',
+        'pending_description' => 'Laukiama patvirtinimo',
+        'validated_description' => 'Patvirtinta ir paruošta apskaičiavimui',
+        'rejected_description' => 'Atmesta dėl klaidų ar neatitikimų',
+        'requires_review_description' => 'Reikalinga rankinė peržiūra prieš patvirtinimą',
+    ],
+
+    'area_type' => [
+        'total_area' => 'Bendras plotas',
+        'heated_area' => 'Šildomas plotas',
+        'commercial_area' => 'Komercinis plotas',
+    ],
+
+    'gyvatukas_calculation_type' => [
+        'summer' => 'Vasaros apskaičiavimas',
+        'winter' => 'Žiemos apskaičiavimas',
+    ],
 ];

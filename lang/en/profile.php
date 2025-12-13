@@ -60,6 +60,10 @@ return [
             'password_confirmation' => 'Confirm Password',
             'password_hint' => 'Leave blank to keep your current password.',
         ],
+        'language_form' => [
+            'title' => 'Language Preference',
+            'description' => 'Choose your preferred language for the interface.',
+        ],
         'actions' => [
             'update_profile' => 'Save Changes',
         ],

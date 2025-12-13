@@ -122,13 +122,13 @@ class OrganizationController extends Controller
             'active_tenants' => $organization->childUsers()->where('is_active', true)->count(),
         ];
         
-        // Get recent activity
-        $recentTenants = $organization->childUsers()
+        // Get all tenants for this organization
+        $tenants = $organization->childUsers()
+            ->with('property')
             ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
+            ->paginate(20);
         
-        return view('superadmin.organizations.show', compact('organization', 'stats', 'recentTenants'));
+        return view('superadmin.organizations.show', compact('organization', 'stats', 'tenants'));
     }
 
     /**

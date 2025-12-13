@@ -33,6 +33,11 @@ return array (
     'profile' => 'Профиль',
     'logout' => 'Выход',
     'tenants' => 'Арендаторы',
+    'meters_quick' => 'Просмотр счетчиков',
+    'buildings_quick' => 'Просмотр зданий',
+    'reports_quick' => 'Просмотр отчетов',
+    'organizations' => 'Организации',
+    'subscriptions' => 'Подписки',
   ),
   'cta' => 
   array (

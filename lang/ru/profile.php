@@ -60,6 +60,10 @@ return [
             'password_confirmation' => 'Подтверждение пароля',
             'password_hint' => 'Оставьте пустым, чтобы не менять пароль.',
         ],
+        'language_form' => [
+            'title' => 'Язык интерфейса',
+            'description' => 'Выберите предпочитаемый язык интерфейса.',
+        ],
         'actions' => [
             'update_profile' => 'Сохранить изменения',
         ],

@@ -10,6 +10,7 @@ return [
         'subscription' => 'Подписка и лимиты',
         'regional' => 'Региональные настройки',
         'status' => 'Статус',
+        'usage_statistics' => 'Статистика использования',
     ],
 
     'labels' => [
@@ -50,6 +51,7 @@ return [
         'remaining_users' => 'Оставшиеся пользователи',
         'not_on_trial' => 'Без пробного периода',
         'not_suspended' => 'Не приостановлена',
+        'updated_at' => 'Обновлено',
     ],
 
     'helper_text' => [
@@ -91,6 +93,7 @@ return [
 
     'relations' => [
         'properties' => [
+            'title' => 'Объекты',
             'building' => 'Здание',
             'area' => 'Площадь (м²)',
             'tenants' => 'Арендаторы',
@@ -99,11 +102,13 @@ return [
             'empty_description' => 'Объекты появятся здесь после создания',
         ],
         'users' => [
+            'title' => 'Пользователи',
             'active' => 'Активен',
             'empty_heading' => 'Пользователей нет',
             'empty_description' => 'Создайте пользователя для этой организации',
         ],
         'subscriptions' => [
+            'title' => 'Подписки',
             'plan' => 'План',
             'start' => 'Дата начала',
             'expiry' => 'Дата окончания',
@@ -113,6 +118,7 @@ return [
             'empty_description' => 'Записи подписок появятся здесь',
         ],
         'activity_logs' => [
+            'title' => 'Журнал активности',
             'time' => 'Время',
             'user' => 'Пользователь',
             'resource' => 'Ресурс',
@@ -122,6 +128,15 @@ return [
             'modal_heading' => 'Детали активности',
             'empty_heading' => 'Журналов активности нет',
             'empty_description' => 'Здесь появятся журналы активности',
+            'actions' => [
+                'created' => 'Создано',
+                'updated' => 'Обновлено',
+                'deleted' => 'Удалено',
+                'suspended' => 'Приостановлено',
+                'reactivated' => 'Активировано',
+                'impersonation_started' => 'Вход от имени начат',
+                'impersonation_ended' => 'Вход от имени завершен',
+            ],
         ],
     ],
 

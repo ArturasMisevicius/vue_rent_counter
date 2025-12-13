@@ -10,6 +10,7 @@ return [
         'subscription' => 'Prenumerata ir limitai',
         'regional' => 'Regioniniai nustatymai',
         'status' => 'Būsena',
+        'usage_statistics' => 'Naudojimo statistika',
     ],
 
     'labels' => [
@@ -50,6 +51,7 @@ return [
         'remaining_users' => 'Likusieji vartotojai',
         'not_on_trial' => 'Nėra bandomojo laikotarpio',
         'not_suspended' => 'Nesustabdytas',
+        'updated_at' => 'Atnaujinta',
     ],
 
     'helper_text' => [
@@ -91,6 +93,7 @@ return [
 
     'relations' => [
         'properties' => [
+            'title' => 'Objektai',
             'building' => 'Pastatas',
             'area' => 'Plotas (m²)',
             'tenants' => 'Nuomininkai',
@@ -99,11 +102,13 @@ return [
             'empty_description' => 'Objektai bus rodomi, kai bus sukurti',
         ],
         'users' => [
+            'title' => 'Vartotojai',
             'active' => 'Aktyvus',
             'empty_heading' => 'Vartotojų nėra',
             'empty_description' => 'Sukurkite vartotoją šiai organizacijai',
         ],
         'subscriptions' => [
+            'title' => 'Prenumeratos',
             'plan' => 'Planas',
             'start' => 'Pradžios data',
             'expiry' => 'Pabaigos data',
@@ -113,6 +118,7 @@ return [
             'empty_description' => 'Prenumeratos įrašai bus matomi čia',
         ],
         'activity_logs' => [
+            'title' => 'Veiklos žurnalai',
             'time' => 'Laikas',
             'user' => 'Vartotojas',
             'resource' => 'Išteklius',
@@ -122,6 +128,15 @@ return [
             'modal_heading' => 'Veiklos detalės',
             'empty_heading' => 'Veiklos žurnalų nėra',
             'empty_description' => 'Čia bus rodomi veiklos žurnalai',
+            'actions' => [
+                'created' => 'Sukurta',
+                'updated' => 'Atnaujinta',
+                'deleted' => 'Ištrinta',
+                'suspended' => 'Sustabdyta',
+                'reactivated' => 'Suaktyvinta',
+                'impersonation_started' => 'Prisijungimas pradėtas',
+                'impersonation_ended' => 'Prisijungimas baigtas',
+            ],
         ],
     ],
 

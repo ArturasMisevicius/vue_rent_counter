@@ -30,6 +30,7 @@ Welcome to the CFlow documentation. This documentation is organized into logical
 - **[Troubleshooting](./troubleshooting/)** - Common issues and solutions
 
 ### 📚 Reference
+- **[Enums](./enums/)** - Enum documentation and usage patterns
 - **[Code Standards](./standards/)** - Coding standards and conventions
 - **[Changelog](./changelog/)** - Version history and changes
 - **[Migration Guides](./migration/)** - Upgrade and migration guides

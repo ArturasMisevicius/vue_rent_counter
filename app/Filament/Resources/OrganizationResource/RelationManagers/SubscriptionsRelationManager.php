@@ -18,9 +18,15 @@ class SubscriptionsRelationManager extends RelationManager
 
     protected static BackedEnum|string|null $icon = 'heroicon-o-credit-card';
 
+    public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
+    {
+        return __('organizations.relations.subscriptions.title');
+    }
+
     public function table(Table $table): Table
     {
         return $table
+            ->recordUrl(fn ($record): string => route('filament.admin.resources.subscriptions.edit', ['record' => $record]))
             ->columns([
                 Tables\Columns\TextColumn::make('plan_type')
                     ->label(__('organizations.relations.subscriptions.plan'))

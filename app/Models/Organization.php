@@ -153,13 +153,15 @@ class Organization extends Model
 
             // Initialize default features based on plan
             if (empty($org->features)) {
+                $plan = $org->plan instanceof SubscriptionPlan ? $org->plan : SubscriptionPlan::from($org->plan);
+
                 $org->features = [
-                    'advanced_reporting' => $org->plan !== 'basic',
-                    'api_access' => $org->plan === 'enterprise',
-                    'custom_branding' => $org->plan === 'enterprise',
+                    'advanced_reporting' => $plan !== SubscriptionPlan::BASIC,
+                    'api_access' => $plan === SubscriptionPlan::ENTERPRISE,
+                    'custom_branding' => $plan === SubscriptionPlan::ENTERPRISE,
                     'bulk_operations' => true,
                     'export_data' => true,
-                    'audit_logs' => $org->plan !== 'basic',
+                    'audit_logs' => $plan !== SubscriptionPlan::BASIC,
                 ];
                 $org->saveQuietly();
             }
@@ -323,28 +325,31 @@ class Organization extends Model
             ->diffInDays($this->subscription_ends_at->startOfDay(), false);
     }
 
-    public function upgradePlan(string $newPlan): void
+    public function upgradePlan(string|SubscriptionPlan $newPlan): void
     {
+        $planEnum = $newPlan instanceof SubscriptionPlan ? $newPlan : SubscriptionPlan::from($newPlan);
+        $planValue = $planEnum->value;
+
         $limits = [
-            'basic' => ['properties' => 100, 'users' => 10],
-            'professional' => ['properties' => 500, 'users' => 50],
-            'enterprise' => ['properties' => 9999, 'users' => 999],
+            SubscriptionPlan::BASIC->value => ['properties' => 100, 'users' => 10],
+            SubscriptionPlan::PROFESSIONAL->value => ['properties' => 500, 'users' => 50],
+            SubscriptionPlan::ENTERPRISE->value => ['properties' => 9999, 'users' => 999],
         ];
 
         $this->update([
-            'plan' => $newPlan,
-            'max_properties' => $limits[$newPlan]['properties'],
-            'max_users' => $limits[$newPlan]['users'],
+            'plan' => $planEnum,
+            'max_properties' => $limits[$planValue]['properties'],
+            'max_users' => $limits[$planValue]['users'],
         ]);
 
         // Update features
         $this->features = [
-            'advanced_reporting' => $newPlan !== 'basic',
-            'api_access' => $newPlan === 'enterprise',
-            'custom_branding' => $newPlan === 'enterprise',
+            'advanced_reporting' => $planEnum !== SubscriptionPlan::BASIC,
+            'api_access' => $planEnum === SubscriptionPlan::ENTERPRISE,
+            'custom_branding' => $planEnum === SubscriptionPlan::ENTERPRISE,
             'bulk_operations' => true,
             'export_data' => true,
-            'audit_logs' => $newPlan !== 'basic',
+            'audit_logs' => $planEnum !== SubscriptionPlan::BASIC,
         ];
         $this->save();
     }
@@ -355,9 +360,11 @@ class Organization extends Model
         return $query->where('is_active', true)->whereNull('suspended_at');
     }
 
-    public function scopeOnPlan($query, string $plan)
+    public function scopeOnPlan($query, string|SubscriptionPlan $plan)
     {
-        return $query->where('plan', $plan);
+        $planValue = $plan instanceof SubscriptionPlan ? $plan->value : $plan;
+
+        return $query->where('plan', $planValue);
     }
 
     public function scopeWithExpiredSubscription($query)

@@ -33,6 +33,11 @@ return array (
     'profile' => 'Profilis',
     'logout' => 'Atsijungti',
     'tenants' => 'Nuomininkai',
+    'meters_quick' => 'Peržiūrėti skaitiklius',
+    'buildings_quick' => 'Peržiūrėti pastatus',
+    'reports_quick' => 'Peržiūrėti ataskaitas',
+    'organizations' => 'Organizacijos',
+    'subscriptions' => 'Prenumeratos',
   ),
   'cta' => 
   array (

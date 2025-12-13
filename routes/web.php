@@ -31,7 +31,7 @@ use App\Http\Controllers\Tenant\MeterController as TenantMeterController;
 use App\Http\Controllers\Tenant\MeterReadingController as TenantMeterReadingController;
 use App\Http\Controllers\MeterReadingUpdateController;
 use App\Http\Controllers\FinalizeInvoiceController;
-use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\LanguageController;
 
 // Public routes
 Route::get('/', function () {
@@ -58,9 +58,10 @@ Route::get('/dashboard', function () {
     };
 })->middleware('auth')->name('dashboard');
 
-Route::post('/locale', [LocaleController::class, 'store'])
+// Language switching route
+Route::get('/language/{locale}', [LanguageController::class, 'switch'])
     ->middleware('web')
-    ->name('locale.set');
+    ->name('language.switch');
 
 // Debug route to test if routing works
 Route::get('/test-debug', function () {
@@ -102,10 +103,12 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
     Route::get('organizations', [SuperadminOrganizationController::class, 'index'])->name('organizations.index');
     Route::get('organizations/create', [SuperadminOrganizationController::class, 'create'])->name('organizations.create');
     Route::post('organizations', [SuperadminOrganizationController::class, 'store'])->name('organizations.store');
-    Route::get('organizations/{user}', [SuperadminOrganizationController::class, 'show'])->name('organizations.show');
-    Route::get('organizations/{user}/edit', [SuperadminOrganizationController::class, 'edit'])->name('organizations.edit');
-    Route::put('organizations/{user}', [SuperadminOrganizationController::class, 'update'])->name('organizations.update');
-    Route::delete('organizations/{user}', [SuperadminOrganizationController::class, 'destroy'])->name('organizations.destroy');
+    Route::get('organizations/{organization}', [SuperadminOrganizationController::class, 'show'])->name('organizations.show');
+    Route::get('organizations/{organization}/edit', [SuperadminOrganizationController::class, 'edit'])->name('organizations.edit');
+    Route::put('organizations/{organization}', [SuperadminOrganizationController::class, 'update'])->name('organizations.update');
+    Route::post('organizations/{organization}/deactivate', [SuperadminOrganizationController::class, 'deactivate'])->name('organizations.deactivate');
+    Route::post('organizations/{organization}/reactivate', [SuperadminOrganizationController::class, 'reactivate'])->name('organizations.reactivate');
+    Route::delete('organizations/{organization}', [SuperadminOrganizationController::class, 'destroy'])->name('organizations.destroy');
     
     // Subscription Management
     Route::get('subscriptions', [SuperadminSubscriptionController::class, 'index'])->name('subscriptions.index');

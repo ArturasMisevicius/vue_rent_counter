@@ -10,10 +10,13 @@ use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 
 class ViewSubscription extends ViewRecord
 {
     protected static string $resource = SubscriptionResource::class;
+
+    protected Width|string|null $maxContentWidth = Width::Full;
 
     protected function getHeaderActions(): array
     {

@@ -163,6 +163,7 @@ class SubscriptionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(fn (Subscription $record): string => static::getUrl('view', ['record' => $record]))
             ->columns([
                 Tables\Columns\TextColumn::make('user.organization_name')
                     ->label(__('subscriptions.labels.organization'))

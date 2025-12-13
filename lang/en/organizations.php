@@ -10,6 +10,9 @@ return [
         'subscription' => 'Subscription & Limits',
         'regional' => 'Regional Settings',
         'status' => 'Status',
+        'usage_statistics' => 'Usage Statistics',
+        'relations' => 'Related Data',
+        'relations_description' => 'All data associated with this organization',
     ],
 
     'labels' => [
@@ -31,6 +34,12 @@ return [
         'suspension_reason' => 'Suspension Reason',
         'users' => 'Users',
         'properties' => 'Properties',
+        'buildings' => 'Buildings',
+        'invoices' => 'Invoices',
+        'meters' => 'Meters',
+        'tenants' => 'Tenants',
+        'invitations' => 'Invitations',
+        'activity_logs' => 'Activity Logs',
         'subscription_status' => 'Subscription Status',
         'expired_subscriptions' => 'Expired Subscriptions',
         'expiring_soon' => 'Expiring Soon (14 days)',
@@ -38,10 +47,6 @@ return [
         'new_plan' => 'New Plan',
         'reason' => 'Reason',
         'created_at' => 'Created At',
-        'max_users' => 'Max Users',
-        'timezone' => 'Timezone',
-        'locale' => 'Locale',
-        'currency' => 'Currency',
         'total_users' => 'Total Users',
         'total_properties' => 'Total Properties',
         'total_buildings' => 'Total Buildings',
@@ -50,6 +55,12 @@ return [
         'remaining_users' => 'Remaining Users',
         'not_on_trial' => 'Not on trial',
         'not_suspended' => 'Not suspended',
+        'updated_at' => 'Updated At',
+        'and_more' => 'and :count more',
+        'invoice_count' => ':count invoices',
+        'meter_count' => ':count meters',
+        'invitation_count' => ':count invitations',
+        'log_count' => ':count logs',
     ],
 
     'helper_text' => [
@@ -87,6 +98,8 @@ return [
         'impersonation_reason' => 'Reason for Impersonation',
         'no_admin' => 'No admin user found',
         'impersonation_started' => 'Impersonation started',
+        'delete_heading' => 'Delete Organization',
+        'delete_description' => 'Are you sure you want to delete this organization? This action cannot be undone. All related activity logs and invitations will be permanently deleted.',
     ],
 
     'notifications' => [
@@ -94,10 +107,14 @@ return [
         'bulk_reactivated' => 'Reactivated :count organizations',
         'bulk_updated' => 'Updated :count organizations',
         'bulk_failed_suffix' => ', :count failed',
+        'cannot_delete' => 'Cannot Delete Organization',
+        'has_relations' => 'This organization has related data and cannot be deleted. Please remove all related data first: :users users, :properties properties, :buildings buildings, :invoices invoices, :meters meters, :tenants tenants.',
+        'deleted' => 'Organization deleted successfully',
     ],
 
     'relations' => [
         'properties' => [
+            'title' => 'Properties',
             'building' => 'Building',
             'area' => 'Area (m²)',
             'tenants' => 'Tenants',
@@ -106,11 +123,13 @@ return [
             'empty_description' => 'Properties will appear here when created',
         ],
         'users' => [
+            'title' => 'Users',
             'active' => 'Active',
             'empty_heading' => 'No users yet',
             'empty_description' => 'Create a user for this organization',
         ],
         'subscriptions' => [
+            'title' => 'Subscriptions',
             'plan' => 'Plan',
             'start' => 'Start Date',
             'expiry' => 'Expiry Date',
@@ -120,6 +139,7 @@ return [
             'empty_description' => 'Subscription records will appear here',
         ],
         'activity_logs' => [
+            'title' => 'Activity Logs',
             'time' => 'Time',
             'user' => 'User',
             'resource' => 'Resource',
@@ -129,6 +149,15 @@ return [
             'modal_heading' => 'Activity Details',
             'empty_heading' => 'No activity logs',
             'empty_description' => 'Activity logs will appear here',
+            'actions' => [
+                'created' => 'Created',
+                'updated' => 'Updated',
+                'deleted' => 'Deleted',
+                'suspended' => 'Suspended',
+                'reactivated' => 'Reactivated',
+                'impersonation_started' => 'Impersonation Started',
+                'impersonation_ended' => 'Impersonation Ended',
+            ],
         ],
     ],
     'validation' => [

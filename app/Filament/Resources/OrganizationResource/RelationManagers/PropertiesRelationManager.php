@@ -14,14 +14,20 @@ class PropertiesRelationManager extends RelationManager
 {
     protected static string $relationship = 'properties';
 
-    protected static ?string $title = 'Properties';
+    protected static ?string $title = null;
 
     protected static BackedEnum|string|null $icon = 'heroicon-o-home';
+
+    public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
+    {
+        return __('organizations.relations.properties.title');
+    }
 
     public function table(Table $table): Table
     {
         return $table
             ->recordTitleAttribute('address')
+            ->recordUrl(fn ($record): string => route('filament.admin.resources.properties.edit', ['record' => $record]))
             ->columns([
                 Tables\Columns\TextColumn::make('address')
                     ->label(__('properties.labels.address'))

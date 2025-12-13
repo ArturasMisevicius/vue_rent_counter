@@ -17,9 +17,15 @@ class ActivityLogsRelationManager extends RelationManager
 
     protected static BackedEnum|string|null $icon = 'heroicon-o-clock';
 
+    public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
+    {
+        return __('organizations.relations.activity_logs.title');
+    }
+
     public function table(Table $table): Table
     {
         return $table
+            ->recordUrl(fn ($record): string => '#')
             ->columns([
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('organizations.relations.activity_logs.time'))
@@ -59,13 +65,13 @@ class ActivityLogsRelationManager extends RelationManager
             ->filters([
                 Tables\Filters\SelectFilter::make('action')
                     ->options([
-                        'created' => 'Created',
-                        'updated' => 'Updated',
-                        'deleted' => 'Deleted',
-                        'suspended' => 'Suspended',
-                        'reactivated' => 'Reactivated',
-                        'impersonation_started' => 'Impersonation Started',
-                        'impersonation_ended' => 'Impersonation Ended',
+                        'created' => __('organizations.relations.activity_logs.actions.created'),
+                        'updated' => __('organizations.relations.activity_logs.actions.updated'),
+                        'deleted' => __('organizations.relations.activity_logs.actions.deleted'),
+                        'suspended' => __('organizations.relations.activity_logs.actions.suspended'),
+                        'reactivated' => __('organizations.relations.activity_logs.actions.reactivated'),
+                        'impersonation_started' => __('organizations.relations.activity_logs.actions.impersonation_started'),
+                        'impersonation_ended' => __('organizations.relations.activity_logs.actions.impersonation_ended'),
                     ]),
             ])
             ->actions([

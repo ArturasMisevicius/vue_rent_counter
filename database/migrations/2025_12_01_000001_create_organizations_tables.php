@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('domain')->nullable()->unique();
             $table->string('email')->unique();
+            $table->string('primary_contact_email')->nullable();
             $table->string('phone')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamp('suspended_at')->nullable();
@@ -28,10 +29,17 @@ return new class extends Migration
             $table->timestamp('subscription_ends_at')->nullable();
             $table->json('settings')->nullable();
             $table->json('features')->nullable();
+            $table->json('resource_quotas')->nullable();
+            $table->json('billing_info')->nullable();
             $table->string('timezone')->default('Europe/Vilnius');
             $table->string('locale')->default('lt');
             $table->string('currency')->default('EUR');
+            $table->unsignedInteger('storage_used_mb')->default(0);
+            $table->unsignedInteger('api_calls_today')->default(0);
+            $table->unsignedInteger('api_calls_quota')->default(10000);
+            $table->float('average_response_time')->default(0);
             $table->unsignedBigInteger('created_by')->nullable();
+            $table->foreignId('created_by_admin_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('last_activity_at')->nullable();
             $table->timestamps();
 

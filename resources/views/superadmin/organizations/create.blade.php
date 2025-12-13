@@ -4,8 +4,8 @@
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-2xl mx-auto">
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-slate-900">Create New Organization</h1>
-            <p class="text-slate-600 mt-2">Create a new admin account with subscription</p>
+            <h1 class="text-3xl font-bold text-slate-900">{{ __('superadmin.dashboard.organizations_create.title') }}</h1>
+            <p class="text-slate-600 mt-2">{{ __('superadmin.dashboard.organizations_create.subtitle') }}</p>
         </div>
 
         <x-card>
@@ -14,12 +14,12 @@
 
                 {{-- Organization Information --}}
                 <div class="mb-6">
-                    <h2 class="text-lg font-semibold text-slate-900 mb-4">Organization Information</h2>
+                    <h2 class="text-lg font-semibold text-slate-900 mb-4">{{ __('superadmin.dashboard.organizations_create.organization_info') }}</h2>
                     
                     <div class="space-y-4">
                         <div>
                             <label for="organization_name" class="block text-sm font-medium text-slate-700 mb-1">
-                                Organization Name <span class="text-red-500">*</span>
+                                {{ __('superadmin.dashboard.organizations_create.organization_name') }} <span class="text-red-500">*</span>
                             </label>
                             <input 
                                 type="text" 
@@ -38,12 +38,12 @@
 
                 {{-- Admin Contact Information --}}
                 <div class="mb-6">
-                    <h2 class="text-lg font-semibold text-slate-900 mb-4">Admin Contact Information</h2>
+                    <h2 class="text-lg font-semibold text-slate-900 mb-4">{{ __('superadmin.dashboard.organizations_create.admin_contact') }}</h2>
                     
                     <div class="space-y-4">
                         <div>
                             <label for="name" class="block text-sm font-medium text-slate-700 mb-1">
-                                Contact Name <span class="text-red-500">*</span>
+                                {{ __('superadmin.dashboard.organizations_create.contact_name') }} <span class="text-red-500">*</span>
                             </label>
                             <input 
                                 type="text" 
@@ -60,7 +60,7 @@
 
                         <div>
                             <label for="email" class="block text-sm font-medium text-slate-700 mb-1">
-                                Email Address <span class="text-red-500">*</span>
+                                {{ __('superadmin.dashboard.organizations_create.email') }} <span class="text-red-500">*</span>
                             </label>
                             <input 
                                 type="email" 
@@ -77,7 +77,7 @@
 
                         <div>
                             <label for="password" class="block text-sm font-medium text-slate-700 mb-1">
-                                Password <span class="text-red-500">*</span>
+                                {{ __('superadmin.dashboard.organizations_create.password') }} <span class="text-red-500">*</span>
                             </label>
                             <input 
                                 type="password" 
@@ -87,7 +87,7 @@
                                 required
                                 minlength="8"
                             >
-                            <p class="mt-1 text-xs text-slate-500">Minimum 8 characters</p>
+                            <p class="mt-1 text-xs text-slate-500">{{ __('superadmin.dashboard.organizations_create.password_hint') }}</p>
                             @error('password')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -97,12 +97,12 @@
 
                 {{-- Subscription Details --}}
                 <div class="mb-6">
-                    <h2 class="text-lg font-semibold text-slate-900 mb-4">Subscription Details</h2>
+                    <h2 class="text-lg font-semibold text-slate-900 mb-4">{{ __('superadmin.dashboard.organizations_create.subscription_details') }}</h2>
                     
                     <div class="space-y-4">
                         <div>
                             <label for="plan_type" class="block text-sm font-medium text-slate-700 mb-1">
-                                Plan Type <span class="text-red-500">*</span>
+                                {{ __('superadmin.dashboard.organizations_create.plan_type') }} <span class="text-red-500">*</span>
                             </label>
                             <select 
                                 name="plan_type" 
@@ -110,16 +110,16 @@
                                 class="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 @error('plan_type') border-red-500 @enderror"
                                 required
                             >
-                                <option value="">Select a plan</option>
+                                <option value="">{{ __('superadmin.dashboard.organizations_create.select_plan') }}</option>
                                 @foreach(\App\Enums\SubscriptionPlanType::cases() as $plan)
                                     <option value="{{ $plan->value }}" {{ old('plan_type') === $plan->value ? 'selected' : '' }}>
                                         {{ $plan->label() }}
                                         @if($plan === \App\Enums\SubscriptionPlanType::BASIC)
-                                            (10 properties, 50 tenants)
+                                            {{ __('superadmin.dashboard.organizations_create.plan_limits.basic') }}
                                         @elseif($plan === \App\Enums\SubscriptionPlanType::PROFESSIONAL)
-                                            (50 properties, 200 tenants)
+                                            {{ __('superadmin.dashboard.organizations_create.plan_limits.professional') }}
                                         @elseif($plan === \App\Enums\SubscriptionPlanType::ENTERPRISE)
-                                            (Unlimited)
+                                            {{ __('superadmin.dashboard.organizations_create.plan_limits.enterprise') }}
                                         @endif
                                     </option>
                                 @endforeach
@@ -131,7 +131,7 @@
 
                         <div>
                             <label for="expires_at" class="block text-sm font-medium text-slate-700 mb-1">
-                                Expiry Date <span class="text-red-500">*</span>
+                                {{ __('superadmin.dashboard.organizations_create.expiry_date') }} <span class="text-red-500">*</span>
                             </label>
                             <input 
                                 type="date" 
@@ -152,10 +152,10 @@
                 {{-- Actions --}}
                 <div class="flex justify-end gap-4 pt-6 border-t">
                     <a href="{{ route('superadmin.organizations.index') }}" class="px-4 py-2 bg-slate-300 text-slate-700 rounded hover:bg-slate-400">
-                        Cancel
+                        {{ __('superadmin.dashboard.organizations_create.actions.cancel') }}
                     </a>
                     <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                        Create Organization
+                        {{ __('superadmin.dashboard.organizations_create.actions.create') }}
                     </button>
                 </div>
             </form>

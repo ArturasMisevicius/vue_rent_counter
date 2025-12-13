@@ -285,6 +285,51 @@ class OrganizationResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->modalHeading(__('organizations.modals.delete_heading'))
+                    ->modalDescription(__('organizations.modals.delete_description'))
+                    ->before(function (Tables\Actions\DeleteAction $action, Organization $record) {
+                        // Check if organization has any relations
+                        $hasUsers = $record->users()->exists();
+                        $hasProperties = $record->properties()->exists();
+                        $hasBuildings = $record->buildings()->exists();
+                        $hasInvoices = $record->invoices()->exists();
+                        $hasMeters = $record->meters()->exists();
+                        $hasTenants = $record->tenants()->exists();
+                        
+                        if ($hasUsers || $hasProperties || $hasBuildings || $hasInvoices || $hasMeters || $hasTenants) {
+                            \Filament\Notifications\Notification::make()
+                                ->title(__('organizations.notifications.cannot_delete'))
+                                ->body(__('organizations.notifications.has_relations', [
+                                    'users' => $record->users()->count(),
+                                    'properties' => $record->properties()->count(),
+                                    'buildings' => $record->buildings()->count(),
+                                    'invoices' => $record->invoices()->count(),
+                                    'meters' => $record->meters()->count(),
+                                    'tenants' => $record->tenants()->count(),
+                                ]))
+                                ->danger()
+                                ->persistent()
+                                ->send();
+                            
+                            $action->cancel();
+                        }
+                    })
+                    ->after(function (Organization $record) {
+                        // Delete all relations in proper order
+                        \DB::transaction(function () use ($record) {
+                            // Delete activity logs
+                            $record->activityLogs()->delete();
+                            
+                            // Delete invitations
+                            $record->invitations()->delete();
+                            
+                            // Delete super admin audit logs
+                            $record->superAdminAuditLogs()->delete();
+                        });
+                    })
+                    ->successNotificationTitle(__('organizations.notifications.deleted')),
                 
                 Tables\Actions\Action::make('suspend')
                     ->icon('heroicon-o-pause-circle')

@@ -1,43 +1,50 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
-use App\Models\Language;
+use App\Support\Localization;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class SetLocale
+final class SetLocale
 {
+    /**
+     * Handle an incoming request.
+     */
     public function handle(Request $request, Closure $next): Response
     {
-        $locale = $this->resolveLocale($request);
-        app()->setLocale($locale);
+        $locale = $this->determineLocale($request);
+        
+        if (Localization::isAvailable($locale)) {
+            app()->setLocale($locale);
+        }
 
         return $next($request);
     }
 
-    protected function resolveLocale(Request $request): string
+    /**
+     * Determine the locale for the request.
+     */
+    private function determineLocale(Request $request): string
     {
-        if (! \Illuminate\Support\Facades\Schema::hasTable('languages')) {
-            return config('app.locale', 'en');
-        }
-
-        $sessionLocale = $request->session()->get('app_locale');
-        if ($sessionLocale && $this->isActive($sessionLocale)) {
+        // 1. Check session for stored locale
+        if ($sessionLocale = $request->session()->get('locale')) {
             return $sessionLocale;
         }
 
-        $default = Language::query()->where('is_default', true)->where('is_active', true)->value('code');
-        if ($default && $this->isActive($default)) {
-            return $default;
+        // 2. Check user preference if authenticated
+        if ($request->user() && method_exists($request->user(), 'locale')) {
+            return $request->user()->locale ?? Localization::fallbackLocale();
         }
 
-        return config('app.locale', 'en');
-    }
+        // 3. Check Accept-Language header
+        $preferredLocale = $request->getPreferredLanguage(
+            array_keys(config('locales.available', []))
+        );
 
-    protected function isActive(string $code): bool
-    {
-        return Language::query()->where('code', $code)->where('is_active', true)->exists();
+        return $preferredLocale ?? Localization::fallbackLocale();
     }
 }
