@@ -342,6 +342,14 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Get the dashboard customization for this user.
+     */
+    public function dashboardCustomization(): HasOne
+    {
+        return $this->hasOne(DashboardCustomization::class);
+    }
+
+    /**
      * Scope: Order users by role priority.
      * 
      * Orders users with superadmin first, then admin, manager, and tenant.

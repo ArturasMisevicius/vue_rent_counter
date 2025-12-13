@@ -10,6 +10,7 @@ use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\MeterResource\Pages;
 use App\Filament\Resources\MeterResource\RelationManagers;
 use App\Models\Meter;
+use App\Models\ServiceConfiguration;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Schemas\Schema;
@@ -67,6 +68,8 @@ class MeterResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'serial_number';
 
+    protected static int $globalSearchResultsLimit = 5;
+
     /**
      * Hide from tenant users.
      * Policies handle granular authorization.
@@ -113,6 +116,49 @@ class MeterResource extends Resource
                             ->required()
                             ->helperText(__('meters.helper_text.property'))
                             ->validationMessages(self::getValidationMessages('property_id')),
+
+                        Forms\Components\Select::make('service_configuration_id')
+                            ->label('Service Configuration')
+                            ->options(function (Forms\Get $get): array {
+                                $propertyId = $get('property_id');
+
+                                if (!$propertyId) {
+                                    return [];
+                                }
+
+                                return ServiceConfiguration::query()
+                                    ->where('property_id', $propertyId)
+                                    ->where('is_active', true)
+                                    ->with('utilityService:id,name,unit_of_measurement')
+                                    ->orderBy('effective_from', 'desc')
+                                    ->get()
+                                    ->mapWithKeys(function (ServiceConfiguration $config): array {
+                                        $service = $config->utilityService;
+                                        $label = $service
+                                            ? "{$service->name} ({$service->unit_of_measurement})"
+                                            : "Service #{$config->id}";
+
+                                        return [$config->id => $label];
+                                    })
+                                    ->all();
+                            })
+                            ->searchable()
+                            ->native(false)
+                            ->nullable()
+                            ->live()
+                            ->afterStateUpdated(function ($state, Forms\Set $set): void {
+                                if (!$state) {
+                                    return;
+                                }
+
+                                $set('type', MeterType::CUSTOM->value);
+
+                                $config = ServiceConfiguration::with('utilityService')->find($state);
+                                if ($config?->pricing_model === \App\Enums\PricingModel::TIME_OF_USE) {
+                                    $set('supports_zones', true);
+                                }
+                            })
+                            ->helperText('Link this meter to a property service so it is billed correctly.'),
 
                         Forms\Components\Select::make('type')
                             ->label(__('meters.labels.type'))
@@ -324,6 +370,29 @@ class MeterResource extends Resource
             'create' => Pages\CreateMeter::route('/create'),
             'view' => Pages\ViewMeter::route('/{record}'),
             'edit' => Pages\EditMeter::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['serial_number'];
+    }
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Type' => ucfirst($record->type?->value ?? 'Unknown'),
+            'Installation Date' => $record->installation_date?->format('Y-m-d') ?? 'N/A',
+        ];
+    }
+
+    public static function getGlobalSearchResultActions(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            \Filament\GlobalSearch\Actions\Action::make('view')
+                ->iconButton()
+                ->icon('heroicon-m-eye')
+                ->url(static::getUrl('view', ['record' => $record])),
         ];
     }
 }

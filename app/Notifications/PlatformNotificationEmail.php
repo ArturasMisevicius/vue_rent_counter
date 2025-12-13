@@ -37,6 +37,11 @@ class PlatformNotificationEmail extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $trackingUrl = route('platform-notification.track', [
+            'notification' => $this->platformNotification->id,
+            'organization' => $this->organization->id,
+        ]);
+
         return (new MailMessage)
             ->subject($this->platformNotification->title)
             ->greeting("Hello {$this->organization->name},")
@@ -44,7 +49,8 @@ class PlatformNotificationEmail extends Notification implements ShouldQueue
             ->line('This is an important notification from the Vilnius Utilities Billing Platform.')
             ->action('View in Dashboard', route('filament.admin.pages.dashboard'))
             ->line('If you have any questions, please contact our support team.')
-            ->line("Best regards,\nThe Platform Team");
+            ->line("Best regards,\nThe Platform Team")
+            ->line('<img src="' . $trackingUrl . '" width="1" height="1" style="display:none;" alt="" />');
     }
 
     /**

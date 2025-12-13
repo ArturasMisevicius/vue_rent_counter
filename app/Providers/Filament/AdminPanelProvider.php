@@ -171,6 +171,7 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 FilamentShieldPlugin::make(),
             ])
+            ->globalSearch(true)
             ->authMiddleware([
                 Authenticate::class,
             ])
@@ -178,6 +179,11 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 'panels::auth.login.form.after',
                 fn (): string => ''
+            )
+            // Add global search to header (Requirement 14.2, 14.3)
+            ->renderHook(
+                'panels::topbar.start',
+                fn (): string => view('filament.components.global-search-header')->render()
             )
             // Configure navigation based on user role (Requirement 1.1, 13.1)
             ->navigationGroups([

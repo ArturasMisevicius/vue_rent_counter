@@ -67,6 +67,10 @@ Route::get('/language/{locale}', [LanguageController::class, 'switch'])
     ->middleware('web')
     ->name('language.switch');
 
+// Notification tracking route (for read receipts)
+Route::get('/notification-track/{notification}/{organization}', [\App\Http\Controllers\NotificationTrackingController::class, 'track'])
+    ->name('platform-notification.track');
+
 // Debug route to test if routing works
 Route::get('/test-debug', function () {
     return response()->json([

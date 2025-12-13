@@ -9,7 +9,7 @@
   - Update Subscription model with new methods (renew, suspend, activate, daysUntilExpiry)
   - _Requirements: 2.1, 3.1, 13.1_
 
-- [ ]* 1.1 Write property test for organization resource limits
+- [ ] 1.1 Write property test for organization resource limits
   - **Property 2: Organization resource limit enforcement**
   - **Validates: Requirements 2.1, 3.1**
 
@@ -32,7 +32,7 @@
   - Add quick action buttons for health checks
   - _Requirements: 1.4, 6.1, 6.2, 6.3, 6.4_
 
-- [ ]* 2.4 Write property test for system health status accuracy
+- [ ] 2.4 Write property test for system health status accuracy
   - **Property 12: System health status accuracy**
   - **Validates: Requirements 6.1, 6.2, 6.3, 6.4, 6.5**
 
@@ -42,7 +42,7 @@
   - Implement sorting and filtering
   - _Requirements: 1.3, 8.1_
 
-- [ ]* 2.6 Write property test for subscription expiry notification timing
+- [ ] 2.6 Write property test for subscription expiry notification timing
   - **Property 6: Subscription expiry notification timing**
   - **Validates: Requirements 8.1**
 
@@ -72,11 +72,11 @@
   - Add authorization check (superadmin only)
   - _Requirements: 1.1, 1.5_
 
-- [ ]* 3.1 Write property test for dashboard metrics consistency
+- [ ] 3.1 Write property test for dashboard metrics consistency
   - **Property 1: Dashboard metrics consistency**
   - **Validates: Requirements 1.2**
 
-- [ ]* 3.2 Write property test for dashboard widget data freshness
+- [ ] 3.2 Write property test for dashboard widget data freshness
   - **Property 10: Dashboard widget data freshness**
   - **Validates: Requirements 18.1, 18.5**
 
@@ -103,11 +103,11 @@
   - Create View Analytics action
   - _Requirements: 2.2, 11.1, 11.2_
 
-- [ ]* 4.4 Write property test for organization suspension cascades
+- [ ] 4.4 Write property test for organization suspension cascades
   - **Property 8: Organization suspension cascades**
   - **Validates: Requirements 2.5, 5.5**
 
-- [ ]* 4.5 Write property test for organization deletion dependency validation
+- [ ] 4.5 Write property test for organization deletion dependency validation
   - **Property 15: Organization deletion dependency validation**
   - **Validates: Requirements 2.5**
 
@@ -118,11 +118,11 @@
   - Create BulkExportAction (CSV/Excel)
   - _Requirements: 7.1, 7.2, 7.3_
 
-- [ ]* 4.7 Write property test for bulk operation atomicity
+- [ ] 4.7 Write property test for bulk operation atomicity
   - **Property 5: Bulk operation atomicity**
   - **Validates: Requirements 7.2, 7.3, 7.4, 7.5**
 
-- [ ]* 4.8 Write property test for bulk plan change limit updates
+- [ ] 4.8 Write property test for bulk plan change limit updates
   - **Property 13: Bulk plan change limit updates**
   - **Validates: Requirements 7.3**
 
@@ -156,11 +156,11 @@
   - Create Send Renewal Reminder action
   - _Requirements: 3.2, 3.4, 3.5, 8.1_
 
-- [ ]* 5.4 Write property test for subscription status transitions
+- [ ] 5.4 Write property test for subscription status transitions
   - **Property 3: Subscription status transitions**
   - **Validates: Requirements 3.2, 3.4, 3.5**
 
-- [ ]* 5.5 Write property test for subscription renewal date extension
+- [ ] 5.5 Write property test for subscription renewal date extension
   - **Property 16: Subscription renewal date extension**
   - **Validates: Requirements 3.4, 8.3**
 
@@ -192,11 +192,11 @@
   - Implement bulk export
   - _Requirements: 4.5_
 
-- [ ]* 6.4 Write property test for activity log completeness
+- [ ] 6.4 Write property test for activity log completeness
   - **Property 4: Activity log completeness**
   - **Validates: Requirements 4.1, 16.1**
 
-- [ ]* 6.5 Write property test for activity log filtering correctness
+- [ ] 6.5 Write property test for activity log filtering correctness
   - **Property 14: Activity log filtering correctness**
   - **Validates: Requirements 4.2**
 
@@ -222,11 +222,11 @@
   - Create View Activity action
   - _Requirements: 5.3, 5.4, 5.5, 11.1_
 
-- [ ]* 7.4 Write property test for user password reset security
+- [ ] 7.4 Write property test for user password reset security
   - **Property 17: User password reset security**
   - **Validates: Requirements 5.4**
 
-- [ ]* 7.5 Write property test for impersonation audit trail
+- [ ] 7.5 Write property test for impersonation audit trail
   - **Property 7: Impersonation audit trail**
   - **Validates: Requirements 11.1, 11.4, 16.1**
 
@@ -256,7 +256,7 @@
   - Implement invitation acceptance flow
   - _Requirements: 13.2, 13.3, 13.4_
 
-- [ ]* 8.4 Write property test for invitation token uniqueness
+- [ ] 8.4 Write property test for invitation token uniqueness
   - **Property 11: Invitation token uniqueness**
   - **Validates: Requirements 13.2**
 
@@ -407,26 +407,26 @@
   - Add filtering by superadmin, target user, date
   - _Requirements: 11.5_
 
-- [-] 13. Implement notification system
-- [ ] 13.1 Create SendPlatformNotificationAction
+- [x] 13. Implement notification system
+- [x] 13.1 Create SendPlatformNotificationAction
   - Add targeting form (all, specific plans, individual orgs)
   - Add rich text editor for message composition
   - Add scheduling options (immediate/scheduled)
   - Implement email and in-app delivery
   - _Requirements: 15.1, 15.2, 15.3, 15.4_
 
-- [ ] 13.2 Create notification history view
+- [x] 13.2 Create notification history view
   - Display all sent notifications
   - Show delivery status and read receipts
   - Add filtering by date, target, status
   - _Requirements: 15.5_
 
-- [ ]* 13.3 Write property test for notification delivery targeting
+- [ ] 13.3 Write property test for notification delivery targeting
   - **Property 20: Notification delivery targeting**
   - **Validates: Requirements 15.1, 15.4**
 
-- [ ] 14. Implement global search
-- [ ] 14.1 Create GlobalSearchProvider
+- [-] 14. Implement global search
+- [x] 14.1 Create GlobalSearchProvider
   - Implement search across organizations, users, properties, buildings, meters, invoices
   - Add result grouping by resource type
   - Implement result ranking by relevance
@@ -439,49 +439,49 @@
   - Implement search suggestions
   - _Requirements: 14.2, 14.3, 14.5_
 
-- [ ]* 14.3 Write property test for search result accuracy
+- [ ] 14.3 Write property test for search result accuracy
   - **Property 9: Search result accuracy**
   - **Validates: Requirements 14.1, 14.4**
 
-- [ ] 15. Implement dashboard customization
-- [ ] 15.1 Create DashboardCustomizationService
+- [-] 15. Implement dashboard customization
+- [x] 15.1 Create DashboardCustomizationService
   - Implement widget add/remove functionality
   - Add widget rearrangement (drag-and-drop)
   - Add widget size adjustment
   - Add refresh interval configuration
   - _Requirements: 17.1, 17.2_
 
-- [ ] 15.2 Add customization UI
+- [x] 15.2 Add customization UI
   - Create customization mode toggle
   - Add widget library panel
   - Implement drag-and-drop interface
   - Add widget configuration modals
   - _Requirements: 17.1, 17.2_
 
-- [ ] 15.3 Implement layout persistence
+- [x] 15.3 Implement layout persistence
   - Save layout to user preferences
   - Load layout on dashboard access
   - Add reset to default option
   - _Requirements: 17.3, 17.4_
 
-- [ ]* 15.4 Write property test for dashboard customization persistence
+- [ ] 15.4 Write property test for dashboard customization persistence
   - **Property 18: Dashboard customization persistence**
   - **Validates: Requirements 17.3**
 
-- [ ] 15.5 Add layout sharing
+- [x] 15.5 Add layout sharing
   - Create export layout action
   - Create import layout action
   - _Requirements: 17.5_
 
-- [ ] 16. Implement data export system
-- [ ] 16.1 Create ExportService
+- [-] 16. Implement data export system
+- [-] 16.1 Create ExportService
   - Implement CSV export for organizations
   - Implement CSV export for subscriptions
   - Implement CSV export for activity logs
   - Implement Excel export with formatting
   - _Requirements: 12.1, 12.2, 12.3_
 
-- [ ] 16.2 Create PDF report generator
+- [-] 16.2 Create PDF report generator
   - Implement PDF generation with charts
   - Add executive summary template
   - Add table formatting
@@ -493,7 +493,7 @@
   - Add email delivery
   - _Requirements: 12.5_
 
-- [ ]* 16.4 Write property test for export data completeness
+- [ ] 16.4 Write property test for export data completeness
   - **Property 19: Export data completeness**
   - **Validates: Requirements 12.1, 12.2, 12.3**
 
@@ -579,50 +579,50 @@
   - _Requirements: 16.1, 16.2_
 
 - [ ] 20. Create comprehensive test suite
-- [ ]* 20.1 Write unit tests for models
+- [ ] 20.1 Write unit tests for models
   - Test Organization methods (isSuspended, suspend, reactivate, daysUntilExpiry)
   - Test Subscription methods (renew, suspend, activate, daysUntilExpiry)
   - Test OrganizationInvitation methods (accept, cancel, resend)
   - Test SystemHealthMetric methods (isHealthy, getStatusColor)
 
-- [ ]* 20.2 Write unit tests for services
+- [ ] 20.2 Write unit tests for services
   - Test ImpersonationService (start, end, audit)
   - Test SubscriptionAutomationService (notifications, auto-renewal)
   - Test ExportService (CSV, Excel, PDF generation)
   - Test DashboardCustomizationService (add, remove, rearrange widgets)
 
-- [ ]* 20.3 Write integration tests for dashboard
+- [ ] 20.3 Write integration tests for dashboard
   - Test dashboard page load with all widgets
   - Test widget data fetching and caching
   - Test quick action buttons
   - Test dashboard export
 
-- [ ]* 20.4 Write integration tests for CRUD workflows
+- [ ] 20.4 Write integration tests for CRUD workflows
   - Test organization create-read-update-delete flow
   - Test subscription create-read-update-delete flow
   - Test invitation create-send-accept flow
   - Test user management workflows
 
-- [ ]* 20.5 Write integration tests for bulk operations
+- [ ] 20.5 Write integration tests for bulk operations
   - Test bulk suspend organizations
   - Test bulk change plan
   - Test bulk renew subscriptions
   - Test bulk export
 
-- [ ]* 20.6 Write integration tests for impersonation
+- [ ] 20.6 Write integration tests for impersonation
   - Test impersonation start with audit logging
   - Test impersonation context switching
   - Test impersonation end with cleanup
   - Test impersonation timeout
 
-- [ ]* 20.7 Write Filament-specific tests
+- [ ] 20.7 Write Filament-specific tests
   - Test resource authorization (superadmin-only)
   - Test form validation for all resources
   - Test table filtering and sorting
   - Test bulk actions execution
   - Test relation managers
 
-- [ ]* 20.8 Write performance tests
+- [ ] 20.8 Write performance tests
   - Test dashboard load time (<500ms)
   - Test pagination with large datasets
   - Test bulk operations with 100+ records

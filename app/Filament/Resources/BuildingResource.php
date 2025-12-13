@@ -108,6 +108,10 @@ class BuildingResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static int $globalSearchResultsLimit = 5;
+
     public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-building-office-2';
@@ -481,6 +485,29 @@ class BuildingResource extends Resource
             'index' => Pages\ListBuildings::route('/'),
             'create' => Pages\CreateBuilding::route('/create'),
             'edit' => Pages\EditBuilding::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'address'];
+    }
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Address' => $record->address,
+            'Total Apartments' => $record->total_apartments ?? 'N/A',
+        ];
+    }
+
+    public static function getGlobalSearchResultActions(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            \Filament\GlobalSearch\Actions\Action::make('edit')
+                ->iconButton()
+                ->icon('heroicon-m-pencil-square')
+                ->url(static::getUrl('edit', ['record' => $record])),
         ];
     }
 }

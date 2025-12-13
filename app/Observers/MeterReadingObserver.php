@@ -3,9 +3,9 @@
 namespace App\Observers;
 
 use App\Models\Invoice;
-use App\Models\InvoiceItem;
 use App\Models\MeterReading;
 use App\Models\MeterReadingAudit;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class MeterReadingObserver
@@ -59,69 +59,32 @@ class MeterReadingObserver
      */
     private function recalculateAffectedDraftInvoices(MeterReading $meterReading): void
     {
-        // Find all invoice items that reference this meter reading in their snapshot
-        $affectedItems = InvoiceItem::whereJsonContains('meter_reading_snapshot->start_reading_id', $meterReading->id)
-            ->orWhereJsonContains('meter_reading_snapshot->end_reading_id', $meterReading->id)
-            ->get();
+        $meter = $meterReading->meter;
 
-        // Get unique draft invoices from affected items
-        $affectedInvoiceIds = $affectedItems->pluck('invoice_id')->unique();
-        
-        $draftInvoices = Invoice::whereIn('id', $affectedInvoiceIds)
+        if (!$meter) {
+            return;
+        }
+
+        $draftInvoices = Invoice::query()
             ->draft()
+            ->whereHas('tenant', fn ($q) => $q->where('property_id', $meter->property_id))
+            ->whereDate('billing_period_start', '<=', $meterReading->reading_date)
+            ->whereDate('billing_period_end', '>=', $meterReading->reading_date)
             ->get();
 
         // Recalculate each affected draft invoice
+        $billingService = app(\App\Services\BillingService::class);
+
         foreach ($draftInvoices as $invoice) {
-            $this->recalculateInvoice($invoice);
-        }
-    }
-
-    /**
-     * Recalculate an invoice's totals based on current meter readings.
-     *
-     * @param  \App\Models\Invoice  $invoice
-     * @return void
-     */
-    private function recalculateInvoice(Invoice $invoice): void
-    {
-        $totalAmount = 0;
-
-        foreach ($invoice->items as $item) {
-            $snapshot = $item->meter_reading_snapshot;
-            
-            if (!$snapshot) {
-                continue;
+            try {
+                $billingService->recalculateDraftInvoice($invoice);
+            } catch (\Throwable $e) {
+                Log::warning('Failed to recalculate draft invoice after meter reading update', [
+                    'invoice_id' => $invoice->id,
+                    'meter_reading_id' => $meterReading->id,
+                    'error' => $e->getMessage(),
+                ]);
             }
-
-            // Get current meter reading values
-            $startReading = MeterReading::find($snapshot['start_reading_id']);
-            $endReading = MeterReading::find($snapshot['end_reading_id']);
-
-            if (!$startReading || !$endReading) {
-                continue;
-            }
-
-            // Recalculate consumption with current values
-            $newConsumption = $endReading->value - $startReading->value;
-            
-            // Update item with new consumption and total
-            $newTotal = $newConsumption * $item->unit_price;
-            
-            $item->update([
-                'quantity' => $newConsumption,
-                'total' => $newTotal,
-                'meter_reading_snapshot' => array_merge($snapshot, [
-                    'start_value' => $startReading->value,
-                    'end_value' => $endReading->value,
-                ]),
-            ]);
-
-            $totalAmount += $newTotal;
         }
-
-        // Update invoice total
-        $invoice->update(['total_amount' => $totalAmount]);
     }
 }
-

@@ -71,6 +71,8 @@ class PropertyResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'address';
 
+    protected static int $globalSearchResultsLimit = 5;
+
     /**
      * Get the displayable label for the resource.
      */
@@ -221,6 +223,30 @@ class PropertyResource extends Resource
             'index' => Pages\ListProperties::route('/'),
             'create' => Pages\CreateProperty::route('/create'),
             'edit' => Pages\EditProperty::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['address', 'unit_number'];
+    }
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Unit Number' => $record->unit_number ?? 'N/A',
+            'Type' => ucfirst($record->type?->value ?? 'Unknown'),
+            'Area' => $record->area_sqm ? number_format($record->area_sqm, 2) . ' m²' : 'N/A',
+        ];
+    }
+
+    public static function getGlobalSearchResultActions(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            \Filament\GlobalSearch\Actions\Action::make('edit')
+                ->iconButton()
+                ->icon('heroicon-m-pencil-square')
+                ->url(static::getUrl('edit', ['record' => $record])),
         ];
     }
 }

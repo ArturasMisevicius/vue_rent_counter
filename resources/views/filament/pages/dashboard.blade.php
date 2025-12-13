@@ -1,5 +1,10 @@
 <x-filament-panels::page>
     <div class="space-y-6">
+        {{-- Dashboard Customization (Superadmin only) --}}
+        @if(auth()->user()->isSuperadmin())
+            <livewire:dashboard-customization />
+        @endif
+
         {{-- Welcome Message --}}
         <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
             <h2 class="text-2xl font-bold text-slate-900 dark:text-white">
@@ -10,6 +15,8 @@
                     {{ __('filament.pages.dashboard.admin_description') }}
                 @elseif(auth()->user()->role === \App\Enums\UserRole::MANAGER)
                     {{ __('filament.pages.dashboard.manager_description') }}
+                @elseif(auth()->user()->isSuperadmin())
+                    {{ __('Manage the entire platform with comprehensive tools and analytics.') }}
                 @else
                     {{ __('filament.pages.dashboard.tenant_description') }}
                 @endif

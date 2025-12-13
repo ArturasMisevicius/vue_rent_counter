@@ -26,6 +26,10 @@ class OrganizationResource extends Resource
 
     protected static ?string $navigationLabel = null;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static int $globalSearchResultsLimit = 5;
+
     public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-building-office-2';
@@ -571,5 +575,34 @@ class OrganizationResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->withoutGlobalScopes();
+    }
+
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->withoutGlobalScopes();
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'email', 'slug', 'domain', 'phone'];
+    }
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Email' => $record->email,
+            'Plan' => ucfirst($record->plan?->value ?? 'Unknown'),
+            'Subscription Ends' => $record->subscription_ends_at?->format('Y-m-d') ?? 'N/A',
+        ];
+    }
+
+    public static function getGlobalSearchResultActions(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            \Filament\GlobalSearch\Actions\Action::make('edit')
+                ->iconButton()
+                ->icon('heroicon-m-pencil-square')
+                ->url(static::getUrl('edit', ['record' => $record])),
+        ];
     }
 }

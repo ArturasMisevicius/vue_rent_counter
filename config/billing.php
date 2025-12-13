@@ -27,6 +27,11 @@ return [
         'default_due_days' => env('INVOICE_DUE_DAYS', 14),
     ],
 
+    'seasons' => [
+        // Used for seasonal multipliers in service rate schedules.
+        'summer_months' => [5, 6, 7, 8, 9],
+    ],
+
     'property' => [
         'default_apartment_area' => env('PROPERTY_DEFAULT_APARTMENT_AREA', 50),
         'default_house_area' => env('PROPERTY_DEFAULT_HOUSE_AREA', 120),

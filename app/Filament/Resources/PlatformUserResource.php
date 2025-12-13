@@ -24,6 +24,10 @@ class PlatformUserResource extends Resource
 
     protected static ?string $navigationLabel = 'Platform Users';
 
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static int $globalSearchResultsLimit = 5;
+
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-users';
 
     protected static UnitEnum|string|null $navigationGroup = 'System Management';
@@ -477,6 +481,30 @@ class PlatformUserResource extends Resource
             'create' => Pages\CreatePlatformUser::route('/create'),
             'edit' => Pages\EditPlatformUser::route('/{record}/edit'),
             'view' => Pages\ViewPlatformUser::route('/{record}'),
+        ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'email', 'organization_name'];
+    }
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Email' => $record->email,
+            'Role' => ucfirst($record->role->value),
+            'Organization' => $record->organization_name ?? 'N/A',
+        ];
+    }
+
+    public static function getGlobalSearchResultActions(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            \Filament\GlobalSearch\Actions\Action::make('edit')
+                ->iconButton()
+                ->icon('heroicon-m-pencil-square')
+                ->url(static::getUrl('edit', ['record' => $record])),
         ];
     }
 }

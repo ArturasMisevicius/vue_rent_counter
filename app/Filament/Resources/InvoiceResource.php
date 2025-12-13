@@ -41,6 +41,10 @@ class InvoiceResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    protected static ?string $recordTitleAttribute = 'invoice_number';
+
+    protected static int $globalSearchResultsLimit = 5;
+
     public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-document-text';
@@ -311,6 +315,30 @@ class InvoiceResource extends Resource
             'create' => Pages\CreateInvoice::route('/create'),
             'view' => Pages\ViewInvoice::route('/{record}'),
             'edit' => Pages\EditInvoice::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['invoice_number', 'payment_reference'];
+    }
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Total Amount' => number_format((float) $record->total_amount, 2) . ' EUR',
+            'Status' => ucfirst($record->status?->value ?? 'Unknown'),
+            'Due Date' => $record->due_date?->format('Y-m-d') ?? 'N/A',
+        ];
+    }
+
+    public static function getGlobalSearchResultActions(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            \Filament\GlobalSearch\Actions\Action::make('view')
+                ->iconButton()
+                ->icon('heroicon-m-eye')
+                ->url(static::getUrl('view', ['record' => $record])),
         ];
     }
 }
