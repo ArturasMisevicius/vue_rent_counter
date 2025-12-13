@@ -90,6 +90,8 @@ class User extends Authenticatable implements FilamentUser
      * @var array<int, string>
      */
     protected $fillable = [
+        'system_tenant_id',
+        'is_super_admin',
         'tenant_id',
         'property_id',
         'parent_user_id',
@@ -123,6 +125,7 @@ class User extends Authenticatable implements FilamentUser
             'password' => 'hashed',
             'role' => UserRole::class,
             'is_active' => 'boolean',
+            'is_super_admin' => 'boolean',
         ];
     }
 
@@ -184,6 +187,14 @@ class User extends Authenticatable implements FilamentUser
     public function isTenantUser(): bool
     {
         return $this->role === UserRole::TENANT;
+    }
+
+    /**
+     * Get the system tenant this user belongs to.
+     */
+    public function systemTenant(): BelongsTo
+    {
+        return $this->belongsTo(SystemTenant::class, 'system_tenant_id');
     }
 
     /**

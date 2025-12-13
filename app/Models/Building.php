@@ -44,7 +44,7 @@ class Building extends Model
      */
     public function properties(): HasMany
     {
-        return $this->hasMany(Property::class);
+        return $this->hasMany(\App\Models\Property::class);
     }
 
     /**
@@ -67,6 +67,7 @@ class Building extends Model
      */
     public function calculateSummerAverage(Carbon $startDate, Carbon $endDate): float
     {
+        // Use the GyvatukasCalculator service for proper calculation
         $calculator = app(\App\Services\GyvatukasCalculator::class);
         
         $totalCirculation = 0.0;

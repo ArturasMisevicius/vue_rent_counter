@@ -475,7 +475,167 @@ Cache::tags(['status-badge', 'translations'])->flush();
 - [Tailwind Configuration](../frontend/TAILWIND_SETUP.md)
 - [Caching Strategy](../architecture/CACHING.md)
 
+## Security Considerations
+
+### CSS Class Injection Protection
+
+The StatusBadge component implements secure CSS class concatenation to prevent potential CSS injection attacks:
+
+```blade
+{{-- SECURE: Uses string concatenation operator --}}
+<span {{ $attributes->merge(['class' => 'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border ' . $badgeClasses]) }}>
+
+{{-- AVOID: Direct variable interpolation in class strings --}}
+<span class="base-classes {$badgeClasses}">
+```
+
+**Why This Matters:**
+- **XSS Prevention**: Proper concatenation ensures CSS classes are treated as strings, not executable code
+- **Template Security**: Follows Laravel's Blade security best practices for dynamic class injection
+- **Consistency**: Aligns with Laravel's `@class` directive and `Arr::toCssClasses()` helper patterns
+
+### Variable Sanitization
+
+All CSS class variables are pre-sanitized in the component constructor:
+
+```php
+// All badge classes are predefined constants - no user input
+$this->badgeClasses = $colors['badge']; // e.g., 'bg-emerald-50 text-emerald-700 border-emerald-200'
+$this->dotClasses = $colors['dot'];     // e.g., 'bg-emerald-500'
+```
+
+**Security Features:**
+- **No User Input**: CSS classes come from predefined constants, never user data
+- **Enum Validation**: Status values are validated against known enum types
+- **Fallback Protection**: Unknown statuses default to safe gray styling
+
+### ARIA and Accessibility Security
+
+The component includes proper ARIA attributes for screen reader security:
+
+```blade
+<span class="..." aria-hidden="true"></span> {{-- Decorative dot hidden from screen readers --}}
+<span>{{ $slot->isEmpty() ? $label : $slot }}</span> {{-- Semantic label exposed --}}
+```
+
+## Performance Optimizations
+
+### Translation Caching Strategy
+
+The component uses Laravel's tagged cache system for optimal performance:
+
+```php
+Cache::tags(['status-badge', 'translations'])
+    ->remember('status-badge.translations', now()->addDay(), function () {
+        return array_merge(
+            InvoiceStatus::labels(),
+            ServiceType::labels(),
+            // ... other enum labels
+        );
+    });
+```
+
+**Benefits:**
+- **24-Hour TTL**: Reduces translation file lookups
+- **Tagged Invalidation**: Selective cache clearing when translations change
+- **Memory Efficiency**: Single merged lookup table for all status types
+
+### Enum Label Resolution
+
+Prioritizes fast enum methods over translation lookups:
+
+```php
+// 1. Fast: Direct enum method call
+if ($status instanceof BackedEnum && method_exists($status, 'label')) {
+    return $status->label();
+}
+
+// 2. Cached: Translation lookup
+if (isset($translations[$statusValue])) {
+    return $translations[$statusValue];
+}
+
+// 3. Fallback: String formatting
+return Str::of($statusValue)->replace('_', ' ')->title()->toString();
+```
+
+## Integration with Filament v4
+
+### Table Columns
+
+Use with Filament table columns for consistent status display:
+
+```php
+use Filament\Tables\Columns\ViewColumn;
+
+ViewColumn::make('status')
+    ->view('components.status-badge')
+    ->label('Status')
+    ->sortable()
+    ->searchable(),
+```
+
+### Form Fields
+
+Display status in Filament forms (read-only):
+
+```php
+use Filament\Forms\Components\ViewField;
+
+ViewField::make('status')
+    ->view('components.status-badge')
+    ->label('Current Status'),
+```
+
+### Bulk Actions
+
+Use in bulk action results:
+
+```php
+use Filament\Tables\Actions\BulkAction;
+
+BulkAction::make('updateStatus')
+    ->action(function (Collection $records) {
+        // Update logic...
+        
+        Notification::make()
+            ->title('Status Updated')
+            ->body(view('components.status-badge', ['status' => 'active']))
+            ->success()
+            ->send();
+    }),
+```
+
+## Multi-Tenant Considerations
+
+### Tenant-Aware Status Display
+
+The component respects tenant context for status labels:
+
+```php
+// Tenant-specific translations are automatically resolved
+$component = new StatusBadge($invoice->status);
+// Uses current tenant's locale for label resolution
+```
+
+### Subscription Status Integration
+
+Special handling for subscription-related statuses in multi-tenant context:
+
+```blade
+{{-- Subscription status with tenant context --}}
+<x-status-badge :status="$subscription->status" />
+
+{{-- Shows tenant-appropriate labels like "Expired" vs "Grace Period" --}}
+```
+
 ## Changelog
+
+### 2024-12-13
+- **Security**: Fixed CSS class concatenation to use secure string concatenation operator (`. $badgeClasses`)
+- **Security**: Enhanced documentation with CSS injection prevention guidelines
+- **Performance**: Documented caching strategy and enum resolution optimization
+- **Integration**: Added Filament v4 integration examples and multi-tenant considerations
 
 ### 2024-12-02
 - **Fixed**: Blade template now properly handles both enum objects and string values

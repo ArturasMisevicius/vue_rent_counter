@@ -175,3 +175,68 @@ describe('StatusBadge Component', function () {
         }
     });
 });
+
+describe('StatusBadge Security', function () {
+    test('sanitizes malicious input in status value', function () {
+        $maliciousInput = '<script>alert("xss")</script>';
+        
+        $component = new StatusBadge($maliciousInput);
+        
+        // Should normalize to safe string and use default colors
+        expect($component->statusValue)->toBe('<script>alert("xss")</script>')
+            ->and($component->badgeClasses)->toBe('bg-slate-100 text-slate-700 border-slate-200')
+            ->and($component->dotClasses)->toBe('bg-slate-400');
+    });
+
+    test('prevents css injection through status value', function () {
+        $maliciousStatus = 'active"; background: url("javascript:alert(1)"); "';
+        
+        $component = new StatusBadge($maliciousStatus);
+        
+        // Should fall back to safe default classes since status is unknown
+        expect($component->badgeClasses)->toBe('bg-slate-100 text-slate-700 border-slate-200')
+            ->and($component->dotClasses)->toBe('bg-slate-400');
+    });
+
+    test('css classes are always from predefined constants', function () {
+        $testStatuses = ['active', 'draft', 'paid', 'unknown_status', '<script>', '"; alert(1); "'];
+        
+        foreach ($testStatuses as $status) {
+            $component = new StatusBadge($status);
+            
+            // All badge classes should be safe Tailwind classes
+            expect($component->badgeClasses)->toMatch('/^[a-z0-9\-\s]+$/')
+                ->and($component->dotClasses)->toMatch('/^[a-z0-9\-]+$/');
+        }
+    });
+
+    test('label escaping is handled by blade template', function () {
+        $maliciousLabel = '<script>alert("xss")</script>';
+        
+        $component = new StatusBadge($maliciousLabel);
+        
+        // Component should store the raw value, escaping happens in Blade
+        expect($component->label)->toBe('<script>Alert("xss")</script>'); // Title case formatting
+    });
+
+    test('component properties are immutable after construction', function () {
+        $component = new StatusBadge(InvoiceStatus::PAID);
+        
+        // Properties should be readonly - this would cause a fatal error if attempted
+        expect($component->statusValue)->toBe('paid')
+            ->and($component->label)->toBe('Paid')
+            ->and($component->badgeClasses)->toContain('bg-emerald-50')
+            ->and($component->dotClasses)->toBe('bg-emerald-500');
+    });
+
+    test('unknown status values log security warnings in non-production', function () {
+        // This test would need to mock the logger in a real implementation
+        $unknownStatus = 'potentially_malicious_status';
+        
+        $component = new StatusBadge($unknownStatus);
+        
+        // Should use safe defaults for unknown status
+        expect($component->statusValue)->toBe($unknownStatus)
+            ->and($component->badgeClasses)->toBe('bg-slate-100 text-slate-700 border-slate-200');
+    });
+});

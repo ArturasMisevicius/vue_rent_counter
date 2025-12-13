@@ -99,25 +99,25 @@
             :title="__('superadmin.dashboard.stats.total_properties')" 
             :value="$totalProperties" 
             icon="🏢"
-            href="#resource-properties"
+            href="{{ route('filament.admin.resources.properties.index') }}"
         />
         <x-stat-card 
             :title="__('superadmin.dashboard.stats.total_buildings')" 
             :value="$totalBuildings" 
             icon="🏗️"
-            href="#resource-buildings"
+            href="{{ route('filament.admin.resources.buildings.index') }}"
         />
         <x-stat-card 
             :title="__('superadmin.dashboard.stats.total_tenants')" 
             :value="$totalTenants" 
             icon="👥"
-            href="#resource-tenants"
+            href="{{ route('filament.admin.resources.users.index') }}"
         />
         <x-stat-card 
             :title="__('superadmin.dashboard.stats.total_invoices')" 
             :value="$totalInvoices" 
             icon="📄"
-            href="#resource-invoices"
+            href="{{ route('filament.admin.resources.invoices.index') }}"
         />
     </div>
 

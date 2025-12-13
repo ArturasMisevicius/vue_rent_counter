@@ -1,7 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use App\Enums\AuditAction;
+use App\Enums\SubscriptionPlan;
+use App\Enums\TenantStatus;
+use App\Models\SuperAdminAuditLog;
+use App\ValueObjects\TenantMetrics;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -36,6 +43,15 @@ class Organization extends Model
         'locale',
         'currency',
         'created_by',
+        'resource_quotas',
+        'billing_info',
+        'primary_contact_email',
+        'created_by_admin_id',
+        'last_activity_at',
+        'storage_used_mb',
+        'api_calls_today',
+        'api_calls_quota',
+        'average_response_time',
     ];
 
     protected $casts = [
@@ -46,16 +62,26 @@ class Organization extends Model
         'last_activity_at' => 'datetime',
         'settings' => 'array',
         'features' => 'array',
+        'resource_quotas' => 'array',
+        'billing_info' => 'array',
+        'plan' => SubscriptionPlan::class,
+        'storage_used_mb' => 'float',
+        'api_calls_today' => 'integer',
+        'api_calls_quota' => 'integer',
+        'average_response_time' => 'float',
     ];
 
     protected $attributes = [
         'is_active' => true,
-        'plan' => 'basic',
         'max_properties' => 100,
         'max_users' => 10,
         'timezone' => 'Europe/Vilnius',
         'locale' => 'lt',
         'currency' => 'EUR',
+        'storage_used_mb' => 0,
+        'api_calls_today' => 0,
+        'api_calls_quota' => 10000,
+        'average_response_time' => 0,
     ];
 
     protected static function booted(): void
@@ -308,5 +334,158 @@ class Organization extends Model
     {
         return $query->whereNotNull('trial_ends_at')
             ->where('trial_ends_at', '>', now());
+    }
+
+    // Super Admin Methods
+    public function getTenantStatus(): TenantStatus
+    {
+        if ($this->isSuspended()) {
+            return TenantStatus::SUSPENDED;
+        }
+        
+        if (!$this->is_active) {
+            return TenantStatus::CANCELLED;
+        }
+        
+        if ($this->isOnTrial() || !$this->hasActiveSubscription()) {
+            return TenantStatus::PENDING;
+        }
+        
+        return TenantStatus::ACTIVE;
+    }
+
+    public function getMetrics(): TenantMetrics
+    {
+        return new TenantMetrics(
+            totalUsers: $this->users()->count(),
+            activeUsers: $this->users()->where('last_login_at', '>', now()->subDays(30))->count(),
+            storageUsedMB: $this->storage_used_mb,
+            storageQuotaMB: $this->getResourceQuota('storage_mb', 1000),
+            apiCallsToday: $this->api_calls_today,
+            apiCallsQuota: $this->api_calls_quota,
+            monthlyRevenue: $this->calculateMonthlyRevenue(),
+            lastActivity: $this->last_activity_at ?? $this->updated_at,
+            healthStatus: $this->calculateHealthStatus(),
+        );
+    }
+
+    public function getResourceQuota(string $resource, int $default = 0): int
+    {
+        return $this->resource_quotas[$resource] ?? $default;
+    }
+
+    public function setResourceQuota(string $resource, int $value): void
+    {
+        $quotas = $this->resource_quotas ?? [];
+        $quotas[$resource] = $value;
+        $this->resource_quotas = $quotas;
+        $this->save();
+    }
+
+    public function isOverQuota(string $resource): bool
+    {
+        return match ($resource) {
+            'storage_mb' => $this->storage_used_mb > $this->getResourceQuota('storage_mb', 1000),
+            'api_calls' => $this->api_calls_today > $this->api_calls_quota,
+            'users' => $this->users()->count() > $this->max_users,
+            'properties' => $this->properties()->count() > $this->max_properties,
+            default => false,
+        };
+    }
+
+    public function calculateMonthlyRevenue(): float
+    {
+        $planPricing = [
+            'basic' => 29.99,
+            'professional' => 99.99,
+            'enterprise' => 299.99,
+        ];
+
+        return $planPricing[$this->plan->value] ?? 0;
+    }
+
+    private function calculateHealthStatus(): string
+    {
+        $issues = 0;
+        
+        if ($this->isOverQuota('storage_mb')) $issues++;
+        if ($this->isOverQuota('api_calls')) $issues++;
+        if ($this->average_response_time > 2000) $issues++; // > 2 seconds
+        if (!$this->hasActiveSubscription()) $issues++;
+        
+        return match (true) {
+            $issues === 0 => 'healthy',
+            $issues <= 2 => 'warning',
+            default => 'critical',
+        };
+    }
+
+    public function suspendByAdmin(string $reason, int $adminId): void
+    {
+        $this->update([
+            'is_active' => false,
+            'suspended_at' => now(),
+            'suspension_reason' => $reason,
+        ]);
+
+        // Log the action
+        SuperAdminAuditLog::create([
+            'admin_id' => $adminId,
+            'action' => AuditAction::TENANT_SUSPENDED,
+            'target_type' => static::class,
+            'target_id' => $this->id,
+            'tenant_id' => $this->id,
+            'changes' => [
+                'reason' => $reason,
+                'suspended_at' => now()->toISOString(),
+            ],
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+    }
+
+    public function reactivateByAdmin(int $adminId): void
+    {
+        $this->update([
+            'is_active' => true,
+            'suspended_at' => null,
+            'suspension_reason' => null,
+        ]);
+
+        // Log the action
+        SuperAdminAuditLog::create([
+            'admin_id' => $adminId,
+            'action' => AuditAction::TENANT_UPDATED,
+            'target_type' => static::class,
+            'target_id' => $this->id,
+            'tenant_id' => $this->id,
+            'changes' => [
+                'action' => 'reactivated',
+                'reactivated_at' => now()->toISOString(),
+            ],
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+    }
+
+    public function updateResourceUsage(array $usage): void
+    {
+        $this->update([
+            'storage_used_mb' => $usage['storage_mb'] ?? $this->storage_used_mb,
+            'api_calls_today' => $usage['api_calls'] ?? $this->api_calls_today,
+            'average_response_time' => $usage['response_time'] ?? $this->average_response_time,
+            'last_activity_at' => now(),
+        ]);
+    }
+
+    // Relationships for super admin
+    public function superAdminAuditLogs(): HasMany
+    {
+        return $this->hasMany(SuperAdminAuditLog::class, 'tenant_id');
+    }
+
+    public function createdByAdmin(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by_admin_id');
     }
 }

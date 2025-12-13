@@ -40,6 +40,13 @@ class AppServiceProvider extends ServiceProvider
         // Register singleton services for better performance
         $this->app->singleton(\App\Services\MeterReadingService::class);
         $this->app->singleton(\App\Services\TimeRangeValidator::class);
+        $this->app->singleton(\App\Services\BillingService::class);
+        
+        // Register GyvatukasCalculator with interface binding
+        $this->app->singleton(
+            \App\Contracts\GyvatukasCalculatorInterface::class,
+            \App\Services\GyvatukasCalculator::class
+        );
         $this->app->singleton(\App\Services\GyvatukasCalculator::class);
         
         // Register InputSanitizer with interface binding for dependency inversion

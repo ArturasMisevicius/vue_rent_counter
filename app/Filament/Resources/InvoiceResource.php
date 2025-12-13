@@ -16,6 +16,7 @@ use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Schemas\Schema;
@@ -227,11 +228,11 @@ class InvoiceResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('downloadPdf')
+                Action::make('downloadPdf')
                     ->label('Download PDF')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->action(fn (Invoice $record) => app(InvoicePdfService::class)->download($record)),
-                Tables\Actions\Action::make('sendToTenant')
+                Action::make('sendToTenant')
                     ->label('Send to Tenant')
                     ->icon('heroicon-o-paper-airplane')
                     ->color('gray')

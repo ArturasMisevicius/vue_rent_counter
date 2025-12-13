@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\OrganizationActivityLog;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 

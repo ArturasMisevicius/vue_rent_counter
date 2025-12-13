@@ -1,67 +1,118 @@
-# Product Overview
+---
+inclusion: always
+---
 
-## Vilnius Utilities Billing Platform
+# CFlow Product Overview
 
-Modern, multi-tenant utility and rental management for Lithuanian property portfolios. Built on Laravel 12 with Filament, it tracks buildings, meters, invoices, and tenants through role-aware dashboards, guards every request with tenant scope, and keeps gyvatukas/tariff math auditable.
+CFlow is a comprehensive web-based accounting and invoicing platform designed specifically for Lithuanian individual activity (sole proprietorship) businesses.
 
 ## Core Purpose
 
-Deliver a single-pane control center where:
-- Superadmins monitor organizations, subscriptions, and system health.
-- Admins/property owners manage portfolios, tariffs, meters, and invoice workflows without leaving the app.
-- Managers capture meter readings, finalize invoices, and review reports per building, while gyvatukas and zone pricing live inside `BillingService`.
-- Tenants inspect their property, meter history, and invoices with clear breakdowns (PDF export + status badges) and localized copy (EN/LT/RU).
-
-## Value Proposition
-
-- **Subscription visibility:** Superadmin dashboards surface expiring subscriptions, tenant usage stats, and organization activity with `SubscriptionService` and `AccountManagementService`.
-- **Accurate billing:** `TariffResolver`, `GyvatukasCalculator`, and `MeterReadingObserver` snapshot tariffs/meter readings, recalc drafts, and prevent finalized edits.
-- **Multi-tier security:** `BelongsToTenant`, tenant policies, and `TenantContext` ensure admins/managers/tenants cannot cross data boundaries; every critical action logs via observers/notifications.
-- **Tenant-friendly UX:** Blade + Filament components (stat cards, data tables, modals) paired with CDN-delivered Tailwind & Alpine keep interactions quick without a full SPA stack.
-- **Reproducible ops:** `php artisan test:setup`, deterministic seeders (buildings, meters, invoices), and Spatie backup + WAL readiness make deployments predictable.
+Automates tax calculations, invoice generation, expense tracking, VAT declarations, and provides complete accounting management for freelancers and small business owners in Lithuania.
 
 ## Key Features
 
-### Superadmin & Platform Operations
-- Dashboard with totals for organizations, properties, buildings, and invoices plus expiring subscriptions.
-- Organization, subscription, and audit management CRUD under `Superadmin` controllers.
-- Account hierarchy helpers, quota enforcement, and email notifications for tenant reassignment and subscription warnings.
-- Global WAL/backups plus tenant-switching helpers that respect `spatie/laravel-backup` configuration.
+### Invoice Management
+- Multi-currency invoices with automatic EUR conversion
+- PDF generation with Lithuanian tax compliance formatting
+- Credit invoices and future invoice scheduling
+- Invoice templates and recurring invoice automation
+- Public invoice sharing with secure access tokens
 
-### Admin & Manager Workflows
-- Filament resources for `Property`, `Building`, `Meter`, `MeterReading`, `Invoice`, `Tariff`, `Provider`, `User`, and `Subscription` with multi-select bulk actions, validation, tenant filtering, and `Invoice` itemization forms.
-- Precision billing for electricity (day/night zones), water/heating, gyvatukas circulation fees, and meter-specific tariffs stored per invoice item.
-- Manager routes to create readings, finalize invoices, upload meter collections, export reports, and view compliance dashboards.
-- Notifications for meter reading changes (`MeterReadingSubmittedEmail`) and tenant onboarding (`WelcomeEmail`, `TenantReassignedEmail`).
+### Tax Compliance
+- Lithuanian tax calculations (GPM, PSD, VSD)
+- VAT threshold monitoring with automatic notifications
+- VAT declaration generation and submission
+- Tax payment tracking and reporting
+- EVRK economic activity classification
 
-### Tenant Experience
-- Tenant-specific dashboard exposing property details, meter readings per meter (with zone breakdowns), and invoice history with statuses (draft, finalized, paid).
-- Downloadable invoice PDFs, localized copy (EN/LT/RU), and restricted profile edits (email, password with confirmation).
-- Breadcrumb navigation, status badges, and filterable tables share components with Filament to keep the UI consistent.
+### Client & Supplier Management
+- Unified client/supplier directory with transaction history
+- Company and individual contact management
+- Client categorization and relationship tracking
+- Integration with invoice and expense workflows
 
-## Success Metrics
+### Multi-Currency Support
+- EUR, USD, GBP, NOK, DKK currency support
+- Daily exchange rate fetching from European Central Bank (ECB)
+- Automatic currency conversion for tax reporting
+- Historical exchange rate tracking
 
-- 100% of generated invoices snapshot tariff rates and gyvatukas logic; no finalized invoice recalculations occur due to subsequent tariff changes.
-- Manager meter readings validate monotonicity/temporal rules with <2% rollbacks and guaranteed audit trails via `MeterReadingAudit`.
-- Superadmin sees every expiring subscription (14-day window) and enforces tenant quotas before onboarding new users.
-- Tenant and manager dashboards render within 300ms on cached pages; Filament tables remain searchable/sortable with PostgreSQL/MySQL/SQLite indexing.
-- CI runs (`composer test`, Pest property suites, `php artisan test:setup --fresh`) stay green before merges.
+### Background Processing
+- Three-tier priority queue system (high/normal/low)
+- Async invoice generation and email delivery
+- Scheduled tax calculations and notifications
+- Background data synchronization and cleanup
+
+### Multilingual System
+- Dynamic database-driven translation system
+- Lithuanian and English language support
+- Translatable content for invoices and reports
+- Locale-aware number and date formatting
 
 ## Target Users
 
-- Superadmins overseeing multiple organizations and their subscriptions.
-- Admins/property owners who manage buildings, tenants, and invoices for a tenant_id-scoped portfolio.
-- Managers capturing meter readings, reviewing reports, and finalizing invoices per building.
-- Tenants verifying their usage, invoices, and staying in sync with their admin.
+- **Primary**: Lithuanian freelancers and sole proprietors
+- **Secondary**: Small business owners managing individual activity businesses
+- **Tertiary**: Accountants and bookkeepers serving Lithuanian clients
 
-## Non-Goals
+## Technical Architecture
 
-- Building a public headless CMS or marketing site; focus is utility/account operations.
-- Billing for markets outside the Lithuanian gyvatukas/tariff rules.
-- Adding rich WYSIWYG editors or third-party payment processors.
+### Current Status
+- Complete rewrite from Ruby on Rails to Laravel 12
+- Phase 1 (core infrastructure and invoice system) complete with 108+ passing tests
+- Phase 2 (expense management and tax calculations) in active development
+- Filament v4.3+ admin panels for user and admin interfaces
 
+### Key Technical Decisions
+- **Database Caching**: Use database cache driver for session storage and application caching
+- **Multi-Tenancy**: Team-based tenancy with automatic scoping in Filament
+- **Queue System**: Database-backed queues with three priority levels
+- **File Storage**: Local storage for development, configurable for production
+- **Currency Data**: ECB API integration for real-time exchange rates
 
-- do not use command like a: php artisan test --compact 2>&1 | head -100
-- always use php artisan test --filter to make tests by files, do not start all tests, only with filtering
+## Business Rules
 
-- always use MCP servers, use mcp services
+### Lithuanian Tax Compliance
+- All monetary amounts must support EUR conversion for tax reporting
+- VAT calculations must follow Lithuanian tax authority requirements
+- Invoice numbering must be sequential within each activity book
+- Tax periods align with Lithuanian fiscal calendar
+
+### Data Integrity
+- All financial transactions must be auditable
+- Currency conversions must use official ECB rates
+- Invoice modifications create audit trails
+- User actions are logged for compliance
+
+### User Experience
+- Interface defaults to Lithuanian locale for Lithuanian users
+- All user-facing text must be translatable
+- Financial data displays in user's preferred currency
+- Tax notifications are proactive and contextual
+
+## Development Guidelines
+
+### Code Organization
+- Business logic in Action classes (`app/Actions/`)
+- Domain models with rich behavior (avoid anemic models)
+- Service classes for complex operations (`app/Services/`)
+- Repository pattern for data access abstraction
+
+### Testing Requirements
+- Feature tests for all user workflows
+- Unit tests for business logic and calculations
+- Integration tests for external API dependencies (ECB rates)
+- Filament resource tests for admin panel functionality
+
+### Performance Considerations
+- Cache expensive calculations (tax rates, currency conversions)
+- Use database transactions for multi-step operations
+- Optimize queries with eager loading for reports
+- Background processing for heavy operations (PDF generation, email sending)
+
+### Security & Compliance
+- All financial data must be encrypted at rest
+- User permissions follow role-based access control
+- API endpoints require authentication and rate limiting
+- Audit logs for all financial transactions and user actions

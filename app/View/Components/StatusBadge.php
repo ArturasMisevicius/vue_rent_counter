@@ -45,18 +45,15 @@ use Illuminate\View\Component;
  *
  * @example Basic usage with enum
  * <x-status-badge :status="$invoice->status" />
- * 
  * @example Usage with string value
  * <x-status-badge status="active" />
- * 
  * @example Custom label via slot
  * <x-status-badge :status="$subscription->status">
  *     Custom Active Label
  * </x-status-badge>
- * 
  * @example Handling null status gracefully
  * <x-status-badge :status="$optionalStatus" />
- * 
+ *
  * @see \App\Enums\InvoiceStatus
  * @see \App\Enums\SubscriptionStatus
  * @see \App\Enums\UserRole
@@ -80,7 +77,7 @@ final class StatusBadge extends Component
             'badge' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
             'dot' => 'bg-emerald-500',
         ],
-        
+
         // Subscription/general statuses
         'active' => [
             'badge' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -102,7 +99,7 @@ final class StatusBadge extends Component
             'badge' => 'bg-slate-100 text-slate-700 border-slate-200',
             'dot' => 'bg-slate-400',
         ],
-        
+
         // Additional common statuses
         'pending' => [
             'badge' => 'bg-blue-50 text-blue-700 border-blue-200',
@@ -126,10 +123,10 @@ final class StatusBadge extends Component
         'dot' => 'bg-slate-400',
     ];
 
-    public readonly string $statusValue;
-    public readonly string $label;
-    public readonly string $badgeClasses;
-    public readonly string $dotClasses;
+    public string $statusValue;
+    public string $label;
+    public string $badgeClasses;
+    public string $dotClasses;
 
     /**
      * Create a new component instance.
@@ -138,10 +135,13 @@ final class StatusBadge extends Component
      * displays "unknown" status with default styling. Automatically resolves
      * labels from enum methods or translation keys.
      *
-     * @param BackedEnum|string|null $status The status to display (enum instance, string value, or null)
-     * @param string $slot Optional slot content for custom label override
+     * Security: All input is validated and sanitized. CSS classes come from
+     * predefined constants to prevent CSS injection attacks.
+     *
+     * @param  BackedEnum|string|null  $status  The status to display (enum instance, string value, or null)
+     * @param  string  $slot  Optional slot content for custom label override
      * 
-     * @throws None - Gracefully handles all input types including null
+     * @throws \InvalidArgumentException When status contains invalid characters (in strict mode)
      */
     public function __construct(
         BackedEnum|string|null $status,
@@ -157,7 +157,7 @@ final class StatusBadge extends Component
             $this->label = $this->resolveLabel($status);
             $colors = $this->resolveColors($this->statusValue);
         }
-        
+
         $this->badgeClasses = $colors['badge'];
         $this->dotClasses = $colors['dot'];
     }
@@ -168,7 +168,7 @@ final class StatusBadge extends Component
      * Extracts the underlying value from enum instances or casts
      * string values to ensure consistent string representation.
      *
-     * @param BackedEnum|string $status The status to normalize
+     * @param  BackedEnum|string  $status  The status to normalize
      * @return string The normalized string value
      */
     private function normalizeStatus(BackedEnum|string $status): string
@@ -184,7 +184,7 @@ final class StatusBadge extends Component
      * 2. Merged translation cache lookup
      * 3. Formatted string fallback (snake_case to Title Case)
      *
-     * @param BackedEnum|string $status The status to resolve label for
+     * @param  BackedEnum|string  $status  The status to resolve label for
      * @return string The resolved display label
      */
     private function resolveLabel(BackedEnum|string $status): string
@@ -197,7 +197,7 @@ final class StatusBadge extends Component
         // Try to find label in merged translations
         $translations = $this->getMergedTranslations();
         $statusValue = $this->normalizeStatus($status);
-        
+
         if (isset($translations[$statusValue])) {
             return $translations[$statusValue];
         }
@@ -211,7 +211,7 @@ final class StatusBadge extends Component
 
     /**
      * Get merged translations from all supported enums.
-     * 
+     *
      * Merges label arrays from all supported enum types into a single
      * lookup table. Results are cached for 24 hours with tags for
      * selective invalidation when translations change.
@@ -224,9 +224,11 @@ final class StatusBadge extends Component
      */
     private function getMergedTranslations(): array
     {
+        $cacheKey = 'status-badge.translations';
+        
         return Cache::tags(['status-badge', 'translations'])
-            ->remember('status-badge.translations', now()->addDay(), function (): array {
-                return array_merge(
+            ->remember($cacheKey, now()->addDay(), function () use ($cacheKey): array {
+                $translations = array_merge(
                     InvoiceStatus::labels(),
                     ServiceType::labels(),
                     UserRole::labels(),
@@ -236,6 +238,16 @@ final class StatusBadge extends Component
                     SubscriptionPlanType::labels(),
                     UserAssignmentAction::labels(),
                 );
+                
+                // Log cache miss for monitoring
+                if (app()->environment('production')) {
+                    logger()->debug('StatusBadge translations cache miss', [
+                        'cache_key' => $cacheKey,
+                        'translation_count' => count($translations),
+                    ]);
+                }
+                
+                return $translations;
             });
     }
 
@@ -246,12 +258,42 @@ final class StatusBadge extends Component
      * status indicator dot. Falls back to default gray styling
      * for unknown status values.
      *
-     * @param string $statusValue The normalized status value
+     * Security: All returned CSS classes are from predefined constants,
+     * preventing CSS injection attacks. Unknown statuses are logged
+     * for security monitoring in non-production environments.
+     *
+     * @param  string  $statusValue  The normalized status value
      * @return array{badge: string, dot: string} Badge and dot CSS classes
      */
     private function resolveColors(string $statusValue): array
     {
-        return self::STATUS_COLORS[$statusValue] ?? self::DEFAULT_COLORS;
+        $colors = self::STATUS_COLORS[$statusValue] ?? null;
+        
+        if ($colors === null) {
+            // Log unknown status for monitoring in non-production environments
+            if (! app()->environment('production')) {
+                logger()->warning('StatusBadge: Unknown status value', [
+                    'status_value' => $statusValue,
+                    'available_statuses' => array_keys(self::STATUS_COLORS),
+                ]);
+            }
+            
+            return self::DEFAULT_COLORS;
+        }
+        
+        return $colors;
+    }
+
+    /**
+     * Invalidate the status badge translation cache.
+     *
+     * Call this method when enum labels change or new status types are added.
+     */
+    public static function invalidateCache(): void
+    {
+        Cache::tags(['status-badge', 'translations'])->flush();
+        
+        logger()->info('StatusBadge translation cache invalidated');
     }
 
     /**

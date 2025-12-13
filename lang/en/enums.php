@@ -69,4 +69,35 @@ return [
         'deactivated' => 'Deactivated',
         'reactivated' => 'Reactivated',
     ],
+
+    'system_tenant_status' => [
+        'active' => 'Active',
+        'suspended' => 'Suspended',
+        'pending' => 'Pending',
+        'cancelled' => 'Cancelled',
+    ],
+
+    'system_subscription_plan' => [
+        'starter' => 'Starter',
+        'professional' => 'Professional',
+        'enterprise' => 'Enterprise',
+        'custom' => 'Custom',
+    ],
+
+    'super_admin_audit_action' => [
+        'system_tenant_created' => 'System Tenant Created',
+        'system_tenant_updated' => 'System Tenant Updated',
+        'system_tenant_suspended' => 'System Tenant Suspended',
+        'system_tenant_activated' => 'System Tenant Activated',
+        'system_tenant_deleted' => 'System Tenant Deleted',
+        'user_impersonated' => 'User Impersonated',
+        'impersonation_ended' => 'Impersonation Ended',
+        'bulk_operation' => 'Bulk Operation',
+        'system_config_changed' => 'System Configuration Changed',
+        'backup_created' => 'Backup Created',
+        'backup_restored' => 'Backup Restored',
+        'notification_sent' => 'Notification Sent',
+        'feature_flag_changed' => 'Feature Flag Changed',
+        'security_policy_changed' => 'Security Policy Changed',
+    ],
 ];

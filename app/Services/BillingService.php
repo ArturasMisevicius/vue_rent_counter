@@ -64,7 +64,8 @@ class BillingService extends BaseService
     private array $configCache = [];
 
     public function __construct(
-        private readonly TariffResolver $tariffResolver
+        private readonly TariffResolver $tariffResolver,
+        private readonly \App\Contracts\GyvatukasCalculatorInterface $gyvatukasCalculator
     ) {
         // Pre-cache frequently accessed config values
         $this->configCache = [

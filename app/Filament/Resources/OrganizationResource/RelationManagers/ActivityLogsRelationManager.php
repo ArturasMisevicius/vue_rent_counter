@@ -5,6 +5,7 @@ namespace App\Filament\Resources\OrganizationResource\RelationManagers;
 use BackedEnum;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 
 class ActivityLogsRelationManager extends RelationManager
