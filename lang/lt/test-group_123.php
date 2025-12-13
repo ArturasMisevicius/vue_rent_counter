@@ -3,4 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'test' => [
+        'key' => 'Test Value',
+    ],
 ];

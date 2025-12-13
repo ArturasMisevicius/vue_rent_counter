@@ -182,6 +182,8 @@ final class CheckMissingTranslationsCommand extends Command
         foreach ($data as $key => $value) {
             $full = $prefix === '' ? (string) $key : "{$prefix}.{$key}";
             if (is_array($value)) {
+                // Mark the array node itself as present so parent-level translations don't appear missing
+                $target->put($full, '__array__');
                 $this->flattenArray($value, $full, $target);
             } else {
                 $target->put($full, $value);

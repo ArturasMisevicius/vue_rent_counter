@@ -4,9 +4,21 @@ declare(strict_types=1);
 
 return [
     'pages' => [
-        'gdpr' => 'GDPR',
-        'privacy' => 'Privacy',
-        'terms' => 'Terms',
+        'gdpr' => [
+            'title' => 'GDPR Compliance',
+            'last_updated' => 'Last updated: :date',
+            'sections' => [],
+        ],
+        'privacy' => [
+            'title' => 'Privacy Policy',
+            'last_updated' => 'Last updated: :date',
+            'sections' => [],
+        ],
+        'terms' => [
+            'title' => 'Terms of Service',
+            'last_updated' => 'Last updated: :date',
+            'sections' => [],
+        ],
         'dashboard' => [
             'admin_description' => 'Admin Description',
             'cards' => [

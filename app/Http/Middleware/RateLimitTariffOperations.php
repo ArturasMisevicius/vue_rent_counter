@@ -45,7 +45,7 @@ class RateLimitTariffOperations
             ]);
 
             return response()->json([
-                'message' => __('Too many requests. Please try again in :seconds seconds.', ['seconds' => $seconds]),
+                'message' => __('app.rate_limit.seconds', ['seconds' => $seconds]),
                 'retry_after' => $seconds,
             ], 429);
         }

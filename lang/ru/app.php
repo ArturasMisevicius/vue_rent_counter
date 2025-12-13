@@ -20,6 +20,9 @@ return [
         'end' => 'End Impersonation',
         'timeout' => 'Impersonation session has timed out after 30 minutes.',
     ],
+    'rate_limit' => [
+        'seconds' => 'Too many requests. Please try again in :seconds seconds.',
+    ],
     'accessibility' => [
         'dismiss' => 'Dismiss',
         'open_menu' => 'Open Menu',

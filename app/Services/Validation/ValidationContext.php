@@ -7,6 +7,7 @@ namespace App\Services\Validation;
 use App\Models\MeterReading;
 use App\Models\ServiceConfiguration;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 /**
  * Validation context containing all data needed for validation operations.

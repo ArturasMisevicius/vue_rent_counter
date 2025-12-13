@@ -74,6 +74,10 @@ class AppServiceProvider extends ServiceProvider
             \App\Services\InputSanitizer::class
         );
 
+        // Register validation framework services
+        $this->app->singleton(\App\Services\Validation\ValidationRuleFactory::class);
+        $this->app->singleton(\App\Services\ServiceValidationEngine::class);
+
         // Register TariffResolver with its strategies
         $this->app->singleton(\App\Services\TariffResolver::class, function ($app) {
             return new \App\Services\TariffResolver([
