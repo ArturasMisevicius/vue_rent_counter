@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CalculateGyvatukasRequest;
 use App\Http\Requests\StoreBuildingRequest;
 use App\Http\Requests\UpdateBuildingRequest;
 use App\Models\Building;
-use Carbon\Carbon;
 
 class BuildingController extends Controller
 {
@@ -58,18 +56,6 @@ class BuildingController extends Controller
 
         return redirect()->route('buildings.index')
             ->with('success', __('notifications.building.deleted'));
-    }
-
-    public function calculateGyvatukas(CalculateGyvatukasRequest $request, Building $building)
-    {
-        $startDate = Carbon::parse($request->validated('start_date'));
-        $endDate = Carbon::parse($request->validated('end_date'));
-
-        $average = $building->calculateSummerAverage($startDate, $endDate);
-
-        return back()->with('success', __('notifications.building.gyvatukas', [
-            'average' => $average,
-        ]));
     }
 
     public function properties(Building $building)

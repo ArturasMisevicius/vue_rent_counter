@@ -28,7 +28,7 @@
     </div>
 
     <!-- Building Details -->
-    <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-1">
         <x-card>
             <x-slot name="title">{{ __('buildings.pages.manager_show.info_title') }}</x-slot>
             
@@ -50,74 +50,6 @@
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $building->properties->count() }}</dd>
                 </div>
             </dl>
-        </x-card>
-
-        <!-- Gyvatukas Calculation -->
-        <x-card>
-            <x-slot name="title">{{ __('buildings.pages.manager_show.gyvatukas_title') }}</x-slot>
-            
-            <dl class="divide-y divide-slate-100">
-                <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('buildings.pages.manager_show.summer_average') }}</dt>
-                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
-                        @if($building->gyvatukas_summer_average)
-                            <span class="font-semibold">{{ number_format($building->gyvatukas_summer_average, 2) }} kWh</span>
-                        @else
-                            <span class="text-slate-400">{{ __('buildings.pages.manager_show.not_calculated') }}</span>
-                        @endif
-                    </dd>
-                </div>
-                <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('buildings.pages.manager_show.last_calculated') }}</dt>
-                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
-                        @if($building->gyvatukas_last_calculated)
-                            {{ $building->gyvatukas_last_calculated->format('M d, Y') }}
-                        @else
-                            <span class="text-slate-400">{{ __('buildings.pages.manager_show.never') }}</span>
-                        @endif
-                    </dd>
-                </div>
-                <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('buildings.pages.manager_show.status') }}</dt>
-                    <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
-                        @if($building->gyvatukas_summer_average)
-                            <x-status-badge status="active">{{ __('buildings.pages.manager_show.calculated') }}</x-status-badge>
-                        @else
-                            <x-status-badge status="inactive">{{ __('buildings.pages.manager_show.pending') }}</x-status-badge>
-                        @endif
-                    </dd>
-                </div>
-            </dl>
-
-            @can('update', $building)
-            <div class="mt-6 border-t border-slate-200 pt-6">
-                <form action="{{ route('manager.buildings.calculate-gyvatukas', $building) }}" method="POST" class="space-y-4">
-                    @csrf
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <x-form-input
-                            name="start_date"
-                            label="{{ __('buildings.pages.manager_show.form.start_date') }}"
-                            type="date"
-                            :value="old('start_date', now()->month(5)->startOfMonth()->format('Y-m-d'))"
-                            required
-                        />
-                        
-                        <x-form-input
-                            name="end_date"
-                            label="{{ __('buildings.pages.manager_show.form.end_date') }}"
-                            type="date"
-                            :value="old('end_date', now()->month(9)->endOfMonth()->format('Y-m-d'))"
-                            required
-                        />
-                    </div>
-
-                    <x-button type="submit" variant="secondary" class="w-full">
-                        {{ __('buildings.pages.manager_show.form.submit') }}
-                    </x-button>
-                </form>
-            </div>
-            @endcan
         </x-card>
     </div>
 

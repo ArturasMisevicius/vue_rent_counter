@@ -10,7 +10,6 @@ use App\Models\ServiceConfiguration;
 use App\Models\UtilityService;
 use App\Models\Tariff;
 use App\Services\MeterReadingService;
-use App\Services\GyvatukasCalculator;
 use App\Services\Validation\ValidationRuleFactory;
 use App\Services\Validation\ValidationContext;
 use App\Services\Validation\ValidationResult;
@@ -25,7 +24,7 @@ use Psr\Log\LoggerInterface;
  * 
  * This comprehensive validation engine provides modular validation architecture with individual 
  * validators for different validation concerns, improving maintainability and testability while
- * maintaining full backward compatibility with the existing gyvatukas system.
+ * maintaining backward compatibility for legacy meter reading workflows.
  * 
  * ## Architecture Patterns
  * - **Strategy Pattern**: Runtime selection of validation algorithms based on context
@@ -37,7 +36,7 @@ use Psr\Log\LoggerInterface;
  * - **Modular Validation**: Single responsibility validators (consumption, seasonal, data quality, etc.)
  * - **Security**: Authorization checks, input sanitization, audit trail logging
  * - **Performance**: Multi-layer caching, batch optimization, eager loading
- * - **Integration**: Seamless gyvatukas integration, multi-tenant isolation
+ * - **Integration**: Multi-tenant isolation and rule composition
  * - **Extensibility**: Plugin architecture for custom validators and rules
  * 
  * ## Performance Optimizations
@@ -53,7 +52,6 @@ use Psr\Log\LoggerInterface;
  * - **Tenant Isolation**: Automatic tenant scoping for multi-tenant security
  * 
  * ## Integration Points
- * - **GyvatukasCalculator**: Preserves existing heating calculation accuracy
  * - **MeterReadingService**: Leverages existing reading management infrastructure
  * - **Audit System**: Extends existing audit trail for validation operations
  * - **Filament Resources**: Compatible with existing admin interfaces
@@ -61,7 +59,6 @@ use Psr\Log\LoggerInterface;
  * @see \App\Services\Validation\ValidationRuleFactory For validator creation and management
  * @see \App\Services\Validation\ValidationContext For immutable validation context
  * @see \App\Services\Validation\ValidationResult For immutable validation results
- * @see \App\Services\GyvatukasCalculator For gyvatukas integration
  * @see \App\Models\ServiceConfiguration For service configuration model
  * @see \App\Models\UtilityService For utility service model
  * 
@@ -93,7 +90,6 @@ final class ServiceValidationEngine
         private readonly ConfigRepository $config,
         private readonly LoggerInterface $logger,
         private readonly MeterReadingService $meterReadingService,
-        private readonly GyvatukasCalculator $gyvatukasCalculator,
         private readonly ValidationRuleFactory $validatorFactory,
     ) {
     }

@@ -42,32 +42,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\TimeRangeValidator::class);
         $this->app->singleton(\App\Services\BillingService::class);
         
-        // Register new refactored GyvatukasCalculator services
-        $this->app->singleton(\App\Services\BillingCalculation\GyvatukasCacheManager::class);
-        $this->app->singleton(\App\Services\BillingCalculation\CirculationCostDistributor::class);
-        
-        // Register winter adjustment strategy
-        $this->app->singleton(
-            \App\Services\BillingCalculation\WinterAdjustmentStrategy::class,
-            \App\Services\BillingCalculation\StandardWinterAdjustmentStrategy::class
-        );
-        
-        // Register repository dependencies
-        $this->app->singleton(\App\Repositories\BuildingRepository::class);
-        
-        // Register optimized GyvatukasCalculator with interface binding
-        $this->app->singleton(
-            \App\Contracts\GyvatukasCalculatorInterface::class,
-            \App\Services\GyvatukasCalculator::class
-        );
-        
-        // Register batch processor and performance monitor
-        $this->app->singleton(\App\Services\GyvatukasBatchProcessor::class);
-        $this->app->singleton(\App\Services\GyvatukasPerformanceMonitor::class);
-        
-        // Keep legacy service for backward compatibility during migration
-        $this->app->singleton(\App\Services\GyvatukasCalculatorService::class);
-        
         // Register InputSanitizer with interface binding for dependency inversion
         $this->app->singleton(
             \App\Contracts\InputSanitizerInterface::class,
@@ -89,9 +63,6 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(\App\Services\TariffCalculation\TimeOfUseStrategy::class),
             ]);
         });
-
-        // Register BillingCalculatorFactory
-        $this->app->singleton(\App\Services\BillingCalculation\BillingCalculatorFactory::class);
 
         // Register SubscriptionChecker with interface binding
         $this->app->singleton(

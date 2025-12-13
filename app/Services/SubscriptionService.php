@@ -41,14 +41,20 @@ class SubscriptionService
      *
      * @param Subscription $subscription The subscription to renew
      * @param Carbon $newExpiryDate The new expiration date
+     * @param string $period The renewal period (monthly, quarterly, annually)
      * @return Subscription The renewed subscription
      */
-    public function renewSubscription(Subscription $subscription, Carbon $newExpiryDate): Subscription
+    public function renewSubscription(Subscription $subscription, Carbon $newExpiryDate, string $period = 'annually'): Subscription
     {
+        $oldExpiry = $subscription->expires_at;
+        
         $subscription->update([
             'status' => SubscriptionStatus::ACTIVE->value,
             'expires_at' => $newExpiryDate,
         ]);
+
+        // Log the manual renewal
+        $this->logRenewal($subscription, $oldExpiry, $newExpiryDate, 'manual', $period);
 
         return $subscription->fresh();
     }
@@ -187,5 +193,31 @@ class SubscriptionService
         ];
 
         return $limits[$planType] ?? $limits['basic'];
+    }
+
+    /**
+     * Log a renewal action to the renewal history.
+     *
+     * @param Subscription $subscription
+     * @param Carbon $oldExpiry
+     * @param Carbon $newExpiry
+     * @param string $method
+     * @param string $period
+     * @return void
+     */
+    protected function logRenewal(Subscription $subscription, Carbon $oldExpiry, Carbon $newExpiry, string $method, string $period): void
+    {
+        $durationDays = $newExpiry->diffInDays($oldExpiry);
+
+        \App\Models\SubscriptionRenewal::create([
+            'subscription_id' => $subscription->id,
+            'user_id' => $method === 'manual' ? auth()->id() : null,
+            'method' => $method,
+            'period' => $period,
+            'old_expires_at' => $oldExpiry,
+            'new_expires_at' => $newExpiry,
+            'duration_days' => $durationDays,
+            'notes' => $method === 'manual' ? 'Manually renewed by ' . (auth()->user()?->name ?? 'system') : 'Automatically renewed by system',
+        ]);
     }
 }

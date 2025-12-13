@@ -16,8 +16,6 @@ return new class extends Migration
             $table->unsignedBigInteger('tenant_id')->index();
             $table->text('address');
             $table->integer('total_apartments');
-            $table->decimal('gyvatukas_summer_average', 10, 2)->nullable();
-            $table->date('gyvatukas_last_calculated')->nullable();
             $table->timestamps();
         });
     }

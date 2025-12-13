@@ -44,7 +44,7 @@ class PdfReportService
     /**
      * Generate organizations report PDF
      */
-    public function generateOrganizationsReport(Builder $query = null): string
+    public function generateOrganizationsReport(?Builder $query = null): string
     {
         $organizations = $query ? $query->get() : Organization::all();
         $data = $this->getOrganizationsReportData($organizations);
@@ -63,10 +63,10 @@ class PdfReportService
     /**
      * Generate subscriptions report PDF
      */
-    public function generateSubscriptionsReport(Builder $query = null): string
+    public function generateSubscriptionsReport(?Builder $query = null): string
     {
-        $subscriptions = $query ? $query->with(['user.organization'])->get() : 
-                        Subscription::with(['user.organization'])->get();
+        $subscriptions = $query ? $query->with(['user'])->get() : 
+                        Subscription::with(['user'])->get();
         $data = $this->getSubscriptionsReportData($subscriptions);
         
         $pdf = Pdf::loadView('reports.subscriptions', $data);
@@ -83,7 +83,7 @@ class PdfReportService
     /**
      * Generate activity logs report PDF
      */
-    public function generateActivityLogsReport(Builder $query = null, ?Carbon $startDate = null, ?Carbon $endDate = null): string
+    public function generateActivityLogsReport(?Builder $query = null, ?Carbon $startDate = null, ?Carbon $endDate = null): string
     {
         $logs = $this->buildActivityLogsQuery($query, $startDate, $endDate)->limit(1000)->get();
         $data = $this->getActivityLogsReportData($logs, $startDate, $endDate);
@@ -261,7 +261,7 @@ class PdfReportService
     /**
      * Build activity logs query with date filtering
      */
-    private function buildActivityLogsQuery(Builder $query = null, ?Carbon $startDate = null, ?Carbon $endDate = null): Builder
+    private function buildActivityLogsQuery(?Builder $query = null, ?Carbon $startDate = null, ?Carbon $endDate = null): Builder
     {
         $logsQuery = $query ?: OrganizationActivityLog::with(['organization', 'user']);
         

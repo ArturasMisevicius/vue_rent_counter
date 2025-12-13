@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ReportExportRequest;
 use App\Models\Invoice;
 use App\Models\MeterReading;
-use App\Models\Property;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -75,17 +74,6 @@ class ReportController extends Controller
             ->get();
 
         return view('reports.meter-readings', compact('readings', 'startDate', 'endDate'));
-    }
-
-    public function gyvatukas(Request $request)
-    {
-        $year = $request->input('year', Carbon::now()->year);
-
-        $properties = Property::with('building')
-            ->whereHas('building')
-            ->get();
-
-        return view('reports.gyvatukas', compact('properties', 'year'));
     }
 
     public function tariffComparison()

@@ -30,7 +30,6 @@ use Filament\Tables\Table;
  * - Automatic tenant_id assignment on create (inherits from authenticated user)
  * - Localized form validation using HasTranslatedValidation trait
  * - Properties relation manager for managing building→property relationships
- * - Gyvatukas calculation support (summer average tracking)
  * - Navigation hidden from tenant users (Requirements 9.1, 9.2, 9.3)
  *
  * ## Authorization Matrix
@@ -44,7 +43,7 @@ use Filament\Tables\Table;
  * ## Form Fields
  * - **Name**: Building identifier (max 255 chars, required)
  * - **Address**: Physical location (max 255 chars, required, full-width)
- * - **Total Apartments**: Capacity for gyvatukas calculations (1-1000, required)
+ * - **Total Apartments**: Total unit count (1-1000, required)
  *
  * ## Table Columns
  * - Name (searchable, sortable)
@@ -327,35 +326,17 @@ class BuildingResource extends Resource
      * Build the total apartments input field.
      *
      * Creates a numeric input for the total number of apartments in the
-     * building. This value is critical for gyvatukas (circulation fee)
-     * calculations, which distribute heating costs across all units.
+     * building. This value is used for capacity reporting and validation.
      *
      * ## Validation Rules
      * - **Required**: Cannot be empty
      * - **Numeric**: Integer values only  
-     * - **Range**: 1-1000 apartments (configurable via gyvatukas.validation.max_apartments)
+     * - **Range**: 1-1000 apartments
      * - **Localized**: Error messages via HasTranslatedValidation trait
-     *
-     * ## Gyvatukas Integration
-     * This field directly impacts circulation energy calculations:
-     * - **Summer Formula**: `apartments × default_circulation_rate × building_factors`
-     * - **Winter Formula**: `summer_average × winter_adjustments × building_factors`
-     * - **Building Size Factors**:
-     *   - Large buildings (>50): 5% efficiency gain (0.95 multiplier)
-     *   - Small buildings (<10): 10% penalty (1.1 multiplier)
-     *   - Medium buildings: No adjustment (1.0 multiplier)
-     *
-     * ## Cache Behavior
-     * Changes to this field automatically clear gyvatukas calculation cache
-     * to ensure accurate billing in subsequent periods.
      *
      * @return Forms\Components\TextInput Configured total apartments input field
      *
-     * @see \App\Services\GyvatukasCalculator Main calculation service
-     * @see \App\Contracts\GyvatukasCalculatorInterface Service contract  
-     * @see \App\Models\Building::calculateSummerAverage() Model integration
      * @see \App\Filament\Concerns\HasTranslatedValidation::getValidationMessages() Validation
-     * @see config/gyvatukas.php Configuration settings
      */
     private static function buildTotalApartmentsField(): Forms\Components\TextInput
     {

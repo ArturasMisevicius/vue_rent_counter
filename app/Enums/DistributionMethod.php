@@ -11,7 +11,7 @@ use App\Enums\Concerns\HasLabel;
  * 
  * Defines how shared costs (circulation energy, common area utilities, etc.) 
  * are distributed among properties in a building. Part of the Universal Utility 
- * Management System with full backward compatibility for gyvatukas calculations.
+ * Management System.
  * 
  * ## Available Methods
  * - **EQUAL**: Distribute costs equally among all properties
@@ -37,7 +37,6 @@ use App\Enums\Concerns\HasLabel;
  * ]);
  * ```
  * 
- * @see \App\Services\GyvatukasCalculator For circulation cost distribution
  * @see \App\Services\UniversalBillingCalculator For universal billing integration
  * @see \App\Models\ServiceConfiguration For service-specific configuration
  * 

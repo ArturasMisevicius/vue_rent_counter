@@ -205,7 +205,6 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('superadmin.dashboard.organization_show.resources.buildings.table.properties') }}</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('superadmin.dashboard.organization_show.resources.buildings.table.occupied') }}</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('superadmin.dashboard.organization_show.resources.buildings.table.vacant') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('superadmin.dashboard.organization_show.resources.buildings.table.last_gyvatukas') }}</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('superadmin.dashboard.organization_show.resources.buildings.table.sample_properties') }}</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('superadmin.dashboard.organization_show.resources.buildings.table.actions') }}</th>
                     </tr>
@@ -222,13 +221,6 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $building->properties_count }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $building->occupied_units_count }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ max($building->properties_count - $building->occupied_units_count, 0) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                            @if($building->gyvatukas_last_calculated)
-                                {{ $building->gyvatukas_last_calculated->format('M d, Y') }}
-                            @else
-                                <span class="text-slate-400">—</span>
-                            @endif
-                        </td>
                         <td class="px-6 py-4 text-sm text-slate-500">
                             <div class="flex flex-wrap gap-2">
                                 @forelse($building->properties as $property)
@@ -258,7 +250,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="px-6 py-4 text-center text-slate-500">
+                        <td colspan="7" class="px-6 py-4 text-center text-slate-500">
                             {{ __('superadmin.dashboard.organization_show.resources.buildings.empty') }}
                         </td>
                     </tr>

@@ -26,8 +26,6 @@
                     <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">{{ __('buildings.pages.manager_index.headers.building') }}</th>
                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('buildings.pages.manager_index.headers.total_apartments') }}</th>
                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('buildings.pages.manager_index.headers.properties') }}</th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('buildings.pages.manager_index.headers.gyvatukas') }}</th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('buildings.pages.manager_index.headers.last_calculated') }}</th>
                     <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
                         <span class="sr-only">{{ __('buildings.pages.manager_index.headers.actions') }}</span>
                     </th>
@@ -48,20 +46,6 @@
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                     {{ $building->properties_count }}
                 </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                    @if($building->gyvatukas_summer_average)
-                        {{ number_format($building->gyvatukas_summer_average, 2) }} kWh
-                    @else
-                        <span class="text-slate-400">{{ __('buildings.pages.manager_index.not_calculated') }}</span>
-                    @endif
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                    @if($building->gyvatukas_last_calculated)
-                        {{ $building->gyvatukas_last_calculated->format('M d, Y') }}
-                    @else
-                        <span class="text-slate-400">{{ __('buildings.pages.manager_index.never') }}</span>
-                    @endif
-                </td>
                 <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                     <div class="flex justify-end gap-2">
                         @can('view', $building)
@@ -79,7 +63,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="6" class="px-3 py-8 text-center text-sm text-slate-500">
+                <td colspan="4" class="px-3 py-8 text-center text-sm text-slate-500">
                     {{ __('buildings.pages.manager_index.empty') }} 
                     @can('create', App\Models\Building::class)
                         <a href="{{ route('manager.buildings.create') }}" class="text-indigo-600 hover:text-indigo-900">{{ __('buildings.pages.manager_index.create_now') }}</a>
@@ -99,16 +83,6 @@
                             <p class="text-xs text-slate-600">{{ $building->address }}</p>
                             <p class="text-xs text-slate-600">{{ __('buildings.pages.manager_index.mobile.apartments') }} {{ $building->total_apartments }}</p>
                             <p class="text-xs text-slate-600">{{ __('buildings.pages.manager_index.mobile.properties') }} {{ $building->properties_count }}</p>
-                        </div>
-                        <div class="text-right text-xs text-slate-600">
-                            <p>{{ __('buildings.pages.manager_index.mobile.gyvatukas') }} 
-                                @if($building->gyvatukas_summer_average)
-                                    <span class="font-semibold text-slate-900">{{ number_format($building->gyvatukas_summer_average, 2) }} kWh</span>
-                                @else
-                                    <span class="text-slate-400">{{ __('buildings.pages.manager_index.not_calculated') }}</span>
-                                @endif
-                            </p>
-                            <p class="mt-1">{{ __('buildings.pages.manager_index.mobile.last') }} {{ $building->gyvatukas_last_calculated?->format('M d, Y') ?? __('buildings.pages.manager_index.never') }}</p>
                         </div>
                     </div>
                     <div class="mt-3 flex flex-wrap gap-2">

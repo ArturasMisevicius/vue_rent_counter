@@ -51,7 +51,6 @@ class ValidationServiceProvider extends ServiceProvider
                 $app->make(ConfigRepository::class),
                 $app->make(LoggerInterface::class),
                 $app->make(\App\Services\MeterReadingService::class),
-                $app->make(\App\Services\GyvatukasCalculator::class),
                 $app->make(ValidationRuleFactory::class)
             );
         });

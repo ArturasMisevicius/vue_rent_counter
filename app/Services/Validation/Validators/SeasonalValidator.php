@@ -11,8 +11,7 @@ use App\Services\Validation\ValidationResult;
 /**
  * Validates seasonal consumption patterns.
  * 
- * Builds on gyvatukas summer/winter logic to validate consumption
- * against expected seasonal patterns for different utility types.
+ * Validates consumption against expected seasonal patterns for different utility types.
  */
 final class SeasonalValidator implements ValidatorInterface
 {
@@ -57,7 +56,7 @@ final class SeasonalValidator implements ValidatorInterface
     }
 
     /**
-     * Validate heating consumption seasonal patterns (gyvatukas integration).
+     * Validate heating consumption seasonal patterns.
      */
     private function validateHeatingSeasonalPattern(
         ValidationContext $context,

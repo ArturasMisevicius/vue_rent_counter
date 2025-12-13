@@ -34,7 +34,7 @@ class ExportService
     /**
      * Export organizations to CSV format
      */
-    public function exportOrganizationsCSV(Builder $query = null): string
+    public function exportOrganizationsCSV(?Builder $query = null): string
     {
         $organizations = $query ? $query->get() : Organization::all();
         
@@ -49,7 +49,7 @@ class ExportService
     /**
      * Export organizations to Excel format with formatting
      */
-    public function exportOrganizationsExcel(Builder $query = null): string
+    public function exportOrganizationsExcel(?Builder $query = null): string
     {
         $organizations = $query ? $query->get() : Organization::all();
         
@@ -64,10 +64,10 @@ class ExportService
     /**
      * Export subscriptions to CSV format
      */
-    public function exportSubscriptionsCSV(Builder $query = null): string
+    public function exportSubscriptionsCSV(?Builder $query = null): string
     {
-        $subscriptions = $query ? $query->with(['user.organization'])->get() : 
-                        Subscription::with(['user.organization'])->get();
+        $subscriptions = $query ? $query->with(['user'])->get() : 
+                        Subscription::with(['user'])->get();
         
         $export = new SubscriptionsExport($subscriptions);
         $filename = 'subscriptions_' . now()->format('Y-m-d_H-i-s') . '.csv';
@@ -80,10 +80,10 @@ class ExportService
     /**
      * Export subscriptions to Excel format with formatting
      */
-    public function exportSubscriptionsExcel(Builder $query = null): string
+    public function exportSubscriptionsExcel(?Builder $query = null): string
     {
-        $subscriptions = $query ? $query->with(['user.organization'])->get() : 
-                        Subscription::with(['user.organization'])->get();
+        $subscriptions = $query ? $query->with(['user'])->get() : 
+                        Subscription::with(['user'])->get();
         
         $export = new SubscriptionsExport($subscriptions);
         $filename = 'subscriptions_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
@@ -96,7 +96,7 @@ class ExportService
     /**
      * Export activity logs to CSV format
      */
-    public function exportActivityLogsCSV(Builder $query = null, ?Carbon $startDate = null, ?Carbon $endDate = null): string
+    public function exportActivityLogsCSV(?Builder $query = null, ?Carbon $startDate = null, ?Carbon $endDate = null): string
     {
         $logs = $this->buildActivityLogsQuery($query, $startDate, $endDate)->get();
         
@@ -111,7 +111,7 @@ class ExportService
     /**
      * Export activity logs to JSON format
      */
-    public function exportActivityLogsJSON(Builder $query = null, ?Carbon $startDate = null, ?Carbon $endDate = null): string
+    public function exportActivityLogsJSON(?Builder $query = null, ?Carbon $startDate = null, ?Carbon $endDate = null): string
     {
         $logs = $this->buildActivityLogsQuery($query, $startDate, $endDate)->get();
         
@@ -143,7 +143,7 @@ class ExportService
     /**
      * Build activity logs query with date filtering
      */
-    private function buildActivityLogsQuery(Builder $query = null, ?Carbon $startDate = null, ?Carbon $endDate = null): Builder
+    private function buildActivityLogsQuery(?Builder $query = null, ?Carbon $startDate = null, ?Carbon $endDate = null): Builder
     {
         $logsQuery = $query ?: OrganizationActivityLog::with(['organization', 'user']);
         
@@ -346,7 +346,7 @@ class SubscriptionsExport implements FromCollection, WithHeadings, WithMapping, 
     {
         return [
             $subscription->id,
-            $subscription->user?->organization?->name ?? 'N/A',
+            $subscription->user?->tenant_id ? Organization::find($subscription->user->tenant_id)?->name ?? 'N/A' : 'N/A',
             $subscription->user_id,
             $subscription->user?->name,
             $subscription->user?->email,

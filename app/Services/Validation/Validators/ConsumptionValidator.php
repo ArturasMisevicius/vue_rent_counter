@@ -241,7 +241,7 @@ final class ConsumptionValidator implements ValidatorInterface
     }
 
     /**
-     * Validate heating consumption patterns (integrates with gyvatukas logic).
+     * Validate heating consumption patterns (seasonal thresholds).
      */
     private function validateHeatingConsumption(
         ValidationContext $context,

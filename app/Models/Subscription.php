@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Subscription Model - Subscription-Based Access Control
@@ -65,6 +66,8 @@ class Subscription extends Model
         'expires_at',
         'max_properties',
         'max_tenants',
+        'auto_renew',
+        'renewal_period',
     ];
 
     /**
@@ -80,6 +83,7 @@ class Subscription extends Model
             'expires_at' => 'datetime',
             'max_properties' => 'integer',
             'max_tenants' => 'integer',
+            'auto_renew' => 'boolean',
         ];
     }
 
@@ -89,6 +93,14 @@ class Subscription extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the renewal history for this subscription.
+     */
+    public function renewals(): HasMany
+    {
+        return $this->hasMany(SubscriptionRenewal::class);
     }
 
     /**

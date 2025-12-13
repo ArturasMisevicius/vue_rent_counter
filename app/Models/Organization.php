@@ -320,7 +320,7 @@ class Organization extends Model
             return 0;
         }
 
-        return now()
+        return (int) now()
             ->startOfDay()
             ->diffInDays($this->subscription_ends_at->startOfDay(), false);
     }

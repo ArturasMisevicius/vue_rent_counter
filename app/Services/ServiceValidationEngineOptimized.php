@@ -10,7 +10,6 @@ use App\Models\ServiceConfiguration;
 use App\Models\UtilityService;
 use App\Models\Tariff;
 use App\Services\MeterReadingService;
-use App\Services\GyvatukasCalculator;
 use App\Services\Validation\ValidationRuleFactory;
 use App\Services\Validation\ValidationContext;
 use App\Services\Validation\ValidationResult;
@@ -51,7 +50,6 @@ final class ServiceValidationEngineOptimized
         private readonly ConfigRepository $config,
         private readonly LoggerInterface $logger,
         private readonly MeterReadingService $meterReadingService,
-        private readonly GyvatukasCalculator $gyvatukasCalculator,
         private readonly ValidationRuleFactory $validatorFactory,
     ) {}
 

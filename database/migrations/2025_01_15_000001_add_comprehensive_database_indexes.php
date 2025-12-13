@@ -66,11 +66,6 @@ return new class extends Migration
             if (!$this->indexExists('buildings', 'buildings_created_at_index')) {
                 $table->index('created_at', 'buildings_created_at_index');
             }
-            
-            // Index for gyvatukas calculation tracking
-            if (!$this->indexExists('buildings', 'buildings_gyvatukas_index')) {
-                $table->index('gyvatukas_last_calculated', 'buildings_gyvatukas_index');
-            }
         });
 
         // Properties table indexes (some already exist from previous migration)
@@ -281,7 +276,6 @@ return new class extends Migration
 
         Schema::table('buildings', function (Blueprint $table) {
             $this->dropIndexIfExists($table, 'buildings_created_at_index');
-            $this->dropIndexIfExists($table, 'buildings_gyvatukas_index');
         });
 
         Schema::table('properties', function (Blueprint $table) {

@@ -536,7 +536,7 @@ final class UniversalBillingCalculator
     }
 
     /**
-     * Check if the given date is in summer period (using gyvatukas logic).
+     * Check if the given date is in summer period (using seasonal config).
      */
     private function isSummerPeriod(Carbon $date): bool
     {
