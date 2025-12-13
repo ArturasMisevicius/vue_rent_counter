@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Pages;
 
-use UnitEnum;
 use BackedEnum;
 use Filament\Pages\Page;
+use UnitEnum;
 
 class GDPRCompliance extends Page
 {
@@ -27,7 +29,7 @@ class GDPRCompliance extends Page
         return __('pages.gdpr_compliance');
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    public static function getNavigationGroup(): ?string
     {
         return __('app.nav_groups.system');
     }

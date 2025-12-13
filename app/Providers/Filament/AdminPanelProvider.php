@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Enums\UserRole;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -166,6 +167,9 @@ class AdminPanelProvider extends PanelProvider
                 \App\Http\Middleware\EnsureUserIsAdminOrManager::class, // 2. Role check
                 \App\Http\Middleware\CheckSubscriptionStatus::class,    // 3. Subscription validation (Req 3.4)
                 \App\Http\Middleware\EnsureHierarchicalAccess::class,   // 4. Tenant/property access (Req 12.5, 13.3)
+            ])
+            ->plugins([
+                FilamentShieldPlugin::make(),
             ])
             ->authMiddleware([
                 Authenticate::class,

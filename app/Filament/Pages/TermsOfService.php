@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Pages;
 
-use UnitEnum;
 use BackedEnum;
 use Filament\Pages\Page;
+use UnitEnum;
 
 class TermsOfService extends Page
 {
@@ -27,7 +29,7 @@ class TermsOfService extends Page
         return __('pages.terms_of_service');
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    public static function getNavigationGroup(): ?string
     {
         return __('app.nav_groups.system');
     }

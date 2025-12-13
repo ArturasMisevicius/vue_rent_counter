@@ -12,8 +12,7 @@ use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\PropertyResource\Pages;
 use App\Filament\Resources\PropertyResource\RelationManagers;
 use App\Models\Property;
-use BackedEnum;
-use UnitEnum;
+
 use Filament\Forms;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
@@ -55,7 +54,7 @@ class PropertyResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    public static function getNavigationIcon(): string|BackedEnum|null
+    public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-home';
     }
@@ -65,7 +64,7 @@ class PropertyResource extends Resource
         return __('properties.labels.properties');
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    public static function getNavigationGroup(): ?string
     {
         return __('app.nav_groups.operations');
     }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
-use BackedEnum;
 use App\Enums\UserRole;
 use App\Filament\Widgets\DashboardStatsWidget;
 use App\Filament\Widgets\ExpiringSubscriptionsWidget;
@@ -14,6 +13,7 @@ use App\Filament\Widgets\RecentActivityWidget;
 use App\Filament\Widgets\SubscriptionStatsWidget;
 use App\Filament\Widgets\SystemHealthWidget;
 use App\Filament\Widgets\TopOrganizationsWidget;
+use BackedEnum;
 use Filament\Pages\Dashboard as BaseDashboard;
 
 class Dashboard extends BaseDashboard

@@ -8,7 +8,6 @@ use App\Enums\UserRole;
 use App\Filament\Resources\FaqResource\Pages;
 use App\Models\Faq;
 use App\Models\User;
-use BackedEnum;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\RichEditor;
@@ -20,7 +19,6 @@ use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use UnitEnum;
 
 /**
  * Filament resource for managing FAQ entries.
@@ -55,12 +53,12 @@ class FaqResource extends Resource
      */
     private static array $translationCache = [];
 
-    public static function getNavigationIcon(): string|BackedEnum|null
+    public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-question-mark-circle';
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    public static function getNavigationGroup(): ?string
     {
         return __('app.nav_groups.system_management');
     }

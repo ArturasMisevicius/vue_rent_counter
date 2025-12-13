@@ -11,7 +11,6 @@ use App\Models\Invoice;
 use App\Models\Tenant;
 use App\Notifications\InvoiceReadyNotification;
 use App\Services\InvoicePdfService;
-use BackedEnum;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -20,7 +19,6 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Schemas\Schema;
-use UnitEnum;
 
 /**
  * Filament resource for managing invoices.
@@ -43,7 +41,7 @@ class InvoiceResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
-    public static function getNavigationIcon(): string|BackedEnum|null
+    public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-document-text';
     }
@@ -53,7 +51,7 @@ class InvoiceResource extends Resource
         return __('invoices.admin.navigation');
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    public static function getNavigationGroup(): ?string
     {
         return __('app.nav_groups.operations');
     }

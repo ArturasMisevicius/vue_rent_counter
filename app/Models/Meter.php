@@ -25,6 +25,8 @@ class Meter extends Model
         'property_id',
         'installation_date',
         'supports_zones',
+        'reading_structure',
+        'service_configuration_id',
     ];
 
     /**
@@ -38,6 +40,7 @@ class Meter extends Model
             'type' => MeterType::class,
             'installation_date' => 'date',
             'supports_zones' => 'boolean',
+            'reading_structure' => 'array',
         ];
     }
 
@@ -55,6 +58,14 @@ class Meter extends Model
     public function readings(): HasMany
     {
         return $this->hasMany(MeterReading::class);
+    }
+
+    /**
+     * Get the service configuration for this meter.
+     */
+    public function serviceConfiguration(): BelongsTo
+    {
+        return $this->belongsTo(ServiceConfiguration::class);
     }
 
     /**
@@ -81,5 +92,110 @@ class Meter extends Model
         $query->with(['readings' => function ($q) {
             $q->latest('reading_date')->limit(1);
         }]);
+    }
+
+    /**
+     * Scope a query to meters with service configurations.
+     */
+    public function scopeWithServiceConfiguration($query): void
+    {
+        $query->with('serviceConfiguration.utilityService');
+    }
+
+    /**
+     * Scope a query to meters linked to universal services.
+     */
+    public function scopeUniversalServices($query): void
+    {
+        $query->whereNotNull('service_configuration_id');
+    }
+
+    /**
+     * Scope a query to legacy meters (not linked to universal services).
+     */
+    public function scopeLegacyMeters($query): void
+    {
+        $query->whereNull('service_configuration_id');
+    }
+
+    /**
+     * Check if this meter supports multi-value readings.
+     */
+    public function supportsMultiValueReadings(): bool
+    {
+        return !empty($this->reading_structure);
+    }
+
+    /**
+     * Get the expected reading structure for this meter.
+     */
+    public function getReadingStructure(): array
+    {
+        return $this->reading_structure ?? [];
+    }
+
+    /**
+     * Validate a reading value against the meter's structure.
+     */
+    public function validateReadingStructure(array $readingValues): array
+    {
+        $structure = $this->getReadingStructure();
+        $errors = [];
+
+        if (empty($structure)) {
+            // Legacy meter - only validate single value
+            if (count($readingValues) > 1) {
+                $errors[] = 'Legacy meter only supports single reading value';
+            }
+            return $errors;
+        }
+
+        // Validate against defined structure
+        foreach ($structure['fields'] ?? [] as $field) {
+            $fieldName = $field['name'];
+            $isRequired = $field['required'] ?? false;
+            $dataType = $field['type'] ?? 'number';
+
+            if ($isRequired && !isset($readingValues[$fieldName])) {
+                $errors[] = "Required field '{$fieldName}' is missing";
+                continue;
+            }
+
+            if (isset($readingValues[$fieldName])) {
+                $value = $readingValues[$fieldName];
+                
+                // Type validation
+                if ($dataType === 'number' && !is_numeric($value)) {
+                    $errors[] = "Field '{$fieldName}' must be numeric";
+                }
+                
+                // Range validation
+                if (isset($field['min']) && $value < $field['min']) {
+                    $errors[] = "Field '{$fieldName}' must be at least {$field['min']}";
+                }
+                
+                if (isset($field['max']) && $value > $field['max']) {
+                    $errors[] = "Field '{$fieldName}' must not exceed {$field['max']}";
+                }
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Check if this meter is linked to a universal service.
+     */
+    public function isUniversalService(): bool
+    {
+        return !is_null($this->service_configuration_id);
+    }
+
+    /**
+     * Get the utility service for this meter (if linked).
+     */
+    public function getUtilityService(): ?UtilityService
+    {
+        return $this->serviceConfiguration?->utilityService;
     }
 }

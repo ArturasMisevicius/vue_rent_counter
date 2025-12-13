@@ -38,6 +38,13 @@ return [
         'calculation_failed' => 'Calculation failed. Please try again.',
     ],
 
+    'calculation_types' => [
+        'summer' => 'Summer Calculation',
+        'winter' => 'Winter Calculation',
+        'summer_description' => 'Circulation energy calculation for non-heating season (May-September)',
+        'winter_description' => 'Circulation energy calculation for heating season (October-April)',
+    ],
+
     'messages' => [
         'calculation_complete' => 'Gyvatukas calculation completed successfully.',
         'audit_created' => 'Calculation audit record created.',

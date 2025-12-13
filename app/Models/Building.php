@@ -56,44 +56,68 @@ class Building extends Model
     }
 
     /**
-     * Calculate the summer average gyvatukas for this building.
-     * 
-     * This method calculates the average circulation energy across the summer months
-     * (May-September) and stores it for use during the heating season.
-     *
-     * @param Carbon $startDate Start of summer period (typically May 1)
-     * @param Carbon $endDate End of summer period (typically September 30)
-     * @return float Average circulation energy in kWh (2 decimal places)
+     * Check if the building has a valid summer average.
      */
-    public function calculateSummerAverage(Carbon $startDate, Carbon $endDate): float
+    public function hasSummerAverage(): bool
     {
-        // Use the GyvatukasCalculator service for proper calculation
-        $calculator = app(\App\Services\GyvatukasCalculator::class);
-        
-        $totalCirculation = 0.0;
-        $monthCount = 0;
-        
-        // Iterate through each month in the summer period
-        $currentMonth = $startDate->copy()->startOfMonth();
-        
-        while ($currentMonth->lte($endDate)) {
-            // Only calculate for non-heating season months
-            if (!$calculator->isHeatingSeason($currentMonth)) {
-                $totalCirculation += $calculator->calculateSummerGyvatukas($this, $currentMonth);
-                $monthCount++;
-            }
-            
-            $currentMonth->addMonth();
+        return $this->gyvatukas_summer_average !== null 
+            && $this->gyvatukas_last_calculated !== null;
+    }
+
+    /**
+     * Check if the summer average needs recalculation.
+     */
+    public function needsSummerAverageRecalculation(): bool
+    {
+        if (!$this->hasSummerAverage()) {
+            return true;
         }
-        
-        // Calculate average
-        $average = $monthCount > 0 ? round($totalCirculation / $monthCount, 2) : 0.0;
-        
-        // Store the calculated average
-        $this->gyvatukas_summer_average = $average;
-        $this->gyvatukas_last_calculated = now();
-        $this->save();
-        
-        return $average;
+
+        $validityMonths = config('gyvatukas.summer_average_validity_months', 12);
+        $cutoffDate = now()->subMonths($validityMonths);
+
+        return $this->gyvatukas_last_calculated->isBefore($cutoffDate);
+    }
+
+    /**
+     * Scope to buildings with valid summer averages.
+     */
+    public function scopeWithValidSummerAverage($query): void
+    {
+        $validityMonths = config('gyvatukas.summer_average_validity_months', 12);
+        $cutoffDate = now()->subMonths($validityMonths);
+
+        $query->whereNotNull('gyvatukas_summer_average')
+              ->whereNotNull('gyvatukas_last_calculated')
+              ->where('gyvatukas_last_calculated', '>=', $cutoffDate);
+    }
+
+    /**
+     * Scope to buildings needing summer average recalculation.
+     */
+    public function scopeNeedingSummerAverageRecalculation($query): void
+    {
+        $validityMonths = config('gyvatukas.summer_average_validity_months', 12);
+        $cutoffDate = now()->subMonths($validityMonths);
+
+        $query->where(function ($q) use ($cutoffDate) {
+            $q->whereNull('gyvatukas_summer_average')
+              ->orWhereNull('gyvatukas_last_calculated')
+              ->orWhere('gyvatukas_last_calculated', '<', $cutoffDate);
+        });
+    }
+
+    /**
+     * Scope for efficient gyvatukas calculations (select only needed columns).
+     */
+    public function scopeForGyvatukasCalculation($query): void
+    {
+        $query->select([
+            'id',
+            'tenant_id',
+            'total_apartments',
+            'gyvatukas_summer_average',
+            'gyvatukas_last_calculated',
+        ]);
     }
 }

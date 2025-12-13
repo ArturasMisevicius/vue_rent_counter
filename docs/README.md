@@ -1,285 +1,56 @@
-# Documentation
+# CFlow Documentation
 
-Complete documentation for the Vilnius Utilities Billing Platform.
+Welcome to the CFlow documentation. This documentation is organized into logical groups for easy navigation and maintenance.
 
-**Last Updated**: 2025-11-25
+## Documentation Structure
+
+### 📋 Core Documentation
+- **[Architecture](./architecture/)** - System architecture, patterns, and design decisions
+- **[Development](./development/)** - Development guides, standards, and best practices
+- **[Testing](./testing/)** - Testing strategies, patterns, and guidelines
+- **[Deployment](./deployment/)** - Deployment guides and infrastructure
+
+### 🏗️ Framework & Technology
+- **[Laravel](./laravel/)** - Laravel-specific documentation and patterns
+- **[Filament](./filament/)** - Filament admin panel documentation
+- **[Frontend](./frontend/)** - Frontend development (Alpine.js, Tailwind CSS)
+- **[Database](./database/)** - Database design, migrations, and optimization
+
+### 🔧 Features & Components
+- **[Authentication](./features/authentication/)** - User authentication and authorization
+- **[Billing](./features/billing/)** - Subscription and billing system
+- **[Notifications](./features/notifications/)** - Notification system
+- **[Translations](./features/translations/)** - Multi-language support
+- **[API](./api/)** - API documentation and integration guides
+
+### 📊 Operations & Maintenance
+- **[Performance](./performance/)** - Performance optimization and monitoring
+- **[Security](./security/)** - Security guidelines and best practices
+- **[Monitoring](./monitoring/)** - Application monitoring and logging
+- **[Troubleshooting](./troubleshooting/)** - Common issues and solutions
+
+### 📚 Reference
+- **[Code Standards](./standards/)** - Coding standards and conventions
+- **[Changelog](./changelog/)** - Version history and changes
+- **[Migration Guides](./migration/)** - Upgrade and migration guides
 
 ## Quick Start
 
-- **[Setup Guide](guides/SETUP.md)** - Installation and configuration
-- **[User Guide](guides/HIERARCHICAL_USER_GUIDE.md)** - Guide for each user role
-- **[HierarchicalScope Quick Start](guides/HIERARCHICAL_SCOPE_QUICK_START.md)** - 5-minute guide to multi-tenant filtering
-- **[Testing Guide](guides/TESTING_GUIDE.md)** - Testing approach and conventions
+1. **New Developers**: Start with [Development Setup](./development/setup.md)
+2. **Architecture Overview**: Read [System Architecture](./architecture/overview.md)
+3. **Coding Standards**: Review [Code Standards](./standards/overview.md)
+4. **Testing**: Follow [Testing Guidelines](./testing/overview.md)
 
-## Project Handover
+## Contributing to Documentation
 
-- **[Final Technical Handover Report](handover/FINAL_TECHNICAL_HANDOVER_REPORT.md)** - Comprehensive technical handover documentation
-- **[Executive Summary](handover/EXECUTIVE_SUMMARY.md)** - High-level project overview
-- **[Architecture Diagram](handover/ARCHITECTURE_DIAGRAM.md)** - System architecture visualization
-- **[Auditor Checklist](handover/AUDITOR_CHECKLIST.md)** - External audit verification checklist
-- **[Functional Logic Map (Russian)](business/FUNCTIONAL_LOGIC_MAP_RU.md)** - Complete functional requirements and user scenarios in Russian
-- **[Detailed User Journeys (Russian)](business/USER_JOURNEYS_DETAILED_RU.md)** - End-to-end user scenarios with detailed UI mockups in Russian
-
-## Feature Documentation
-
-### Invoice Management
-- **[Invoice Documentation Index](controllers/INVOICE_DOCUMENTATION_INDEX.md)** - Complete invoice management documentation
-- **[Invoice Finalization Quick Reference](reference/INVOICE_FINALIZATION_QUICK_REFERENCE.md)** - Quick reference guide
-- **[Invoice Finalization Flow](architecture/INVOICE_FINALIZATION_FLOW.md)** - Architecture and data flow
-
-### Billing System
-- **[BillingService API](api/BILLING_SERVICE_API.md)** - Billing service methods
-- **[BillingService Implementation](implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md)** - Implementation details
-- **[BillingService Performance](performance/BILLING_SERVICE_PERFORMANCE_OPTIMIZATION.md)** - Performance optimization
-
-### Meter Reading Management
-- **[Meter Reading Controller](api/METER_READING_CONTROLLER_API.md)** - Meter reading endpoints
-- **[Meter Reading Update Controller](api/METER_READING_UPDATE_CONTROLLER_API.md)** - Update endpoints
-- **[Meter Reading Observer](api/METER_READING_OBSERVER_API.md)** - Audit trail implementation
-
-### Tariff Management
-- **[Tariff Manual Mode](filament/TARIFF_MANUAL_MODE.md)** - Manual entry mode feature guide
-- **[Tariff Quick Reference](filament/TARIFF_QUICK_REFERENCE.md)** - Quick reference for tariff management
-- **[Tariff API](api/TARIFF_API.md)** - Complete API documentation
-- **[Tariff Controller](api/TARIFF_CONTROLLER_API.md)** - Tariff management endpoints
-- **[Tariff Policy](api/TARIFF_POLICY_API.md)** - Authorization rules
-- **[Tariff Resolver](implementation/TARIFF_RESOLVER_IMPLEMENTATION.md)** - Tariff selection logic
-- **[Tariff Architecture](architecture/TARIFF_MANUAL_MODE_ARCHITECTURE.md)** - Manual mode architecture
-
-### Gyvatukas Calculator (ARCHIVED)
-- **[Gyvatukas Calculator API](api/GYVATUKAS_CALCULATOR_API.md)** - Circulation fee calculation (archived)
-- **[Gyvatukas Service Documentation](services/GYVATUKAS_CALCULATOR_ARCHIVED.md)** - Complete service documentation (archived)
-- **[Gyvatukas Implementation](implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)** - Implementation details (archived)
-- **[Gyvatukas Performance](performance/GYVATUKAS_CALCULATOR_OPTIMIZATION.md)** - Performance optimization (archived)
-
-## Architecture
-
-### System Architecture
-- **[Multi-Tenancy Architecture](architecture/MULTI_TENANCY_ARCHITECTURE.md)** - Tenant isolation patterns
-- **[HierarchicalScope](architecture/HIERARCHICAL_SCOPE.md)** - Role-based query filtering
-- **[Authorization Architecture](architecture/AUTHORIZATION_ARCHITECTURE.md)** - Policy-based access control
-- **[Database Schema](architecture/DATABASE_SCHEMA.md)** - Database design
-- **[Bootstrap Application Architecture](architecture/BOOTSTRAP_APP_ARCHITECTURE.md)** - Application bootstrap and configuration
-
-### Middleware
-- **[Middleware Configuration](middleware/MIDDLEWARE_CONFIGURATION.md)** - Complete middleware reference and configuration
-
-### Data Flow
-- **[Invoice Finalization Flow](architecture/INVOICE_FINALIZATION_FLOW.md)** - Complete finalization architecture
-- **[Billing Flow](architecture/BILLING_FLOW.md)** - Invoice generation flow
-- **[Meter Reading Flow](architecture/METER_READING_FLOW.md)** - Reading submission flow
-
-## Exception Documentation
-
-### Custom Exceptions
-- **[Exception Index](exceptions/README.md)** - Complete guide to custom exceptions
-- **[InvalidPropertyAssignmentException](exceptions/INVALID_PROPERTY_ASSIGNMENT_EXCEPTION.md)** - Multi-tenancy enforcement exception
-
-## API Reference
-
-### REST API Endpoints
-- **[Account Management API](api/account-management.md)** - User account management endpoints
-
-### Controllers
-- **[FinalizeInvoiceController](api/FINALIZE_INVOICE_CONTROLLER_API.md)** - Invoice finalization
-- **[InvoiceController](api/INVOICE_CONTROLLER_API.md)** - Invoice CRUD operations
-- **[MeterReadingController](api/METER_READING_CONTROLLER_API.md)** - Meter reading submission
-- **[MeterReadingUpdateController](api/METER_READING_UPDATE_CONTROLLER_API.md)** - Reading corrections
-- **[TariffController](api/TARIFF_CONTROLLER_API.md)** - Tariff management
-
-### Services
-- **[AccountManagementService](services/AccountManagementService.md)** - Hierarchical user account management
-- **[BillingService](api/BILLING_SERVICE_API.md)** - Core billing operations
-- **[GyvatukasCalculator](api/GYVATUKAS_CALCULATOR_API.md)** - Circulation fee calculation
-- **[TariffResolver](api/TARIFF_RESOLVER_API.md)** - Tariff selection
-- **[SubscriptionService](api/SUBSCRIPTION_SERVICE_API.md)** - Subscription management
-
-### Scopes
-- **[HierarchicalScope API](api/HIERARCHICAL_SCOPE_API.md)** - Multi-tenant query filtering API
-
-### Policies
-- **[InvoicePolicy](api/INVOICE_POLICY_API.md)** - Invoice authorization
-- **[TariffPolicy](api/TARIFF_POLICY_API.md)** - Tariff authorization
-- **[MeterReadingPolicy](api/METER_READING_POLICY_API.md)** - Meter reading authorization
-
-## Implementation Guides
-
-### Controllers
-- **[Invoice Controller Implementation](controllers/INVOICE_CONTROLLER_IMPLEMENTATION_COMPLETE.md)** - Invoice management
-- **[FinalizeInvoiceController Implementation](controllers/FINALIZE_INVOICE_CONTROLLER_REFACTORING_COMPLETE.md)** - Finalization logic
-- **[FinalizeInvoiceController Usage](controllers/FINALIZE_INVOICE_CONTROLLER_USAGE.md)** - Usage examples
-- **[FinalizeInvoiceController Summary](controllers/FINALIZE_INVOICE_CONTROLLER_SUMMARY.md)** - Executive summary
-- **[Tariff Controller](controllers/TARIFF_CONTROLLER_COMPLETE.md)** - Tariff management
-- **[Meter Reading Update Controller](controllers/METER_READING_UPDATE_CONTROLLER_COMPLETE.md)** - Reading corrections
-
-### Services
-- **[BillingService v2](implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md)** - Complete implementation
-- **[BillingService Refactoring](implementation/BILLING_SERVICE_REFACTORING.md)** - Refactoring report
-- **[Gyvatukas Calculator](implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)** - Implementation details
-- **[Tariff Resolver](implementation/TARIFF_RESOLVER_IMPLEMENTATION.md)** - Tariff selection logic
-
-### Observers
-- **[Meter Reading Observer](implementation/METER_READING_OBSERVER_IMPLEMENTATION.md)** - Audit trail
-- **[Draft Invoice Recalculation](implementation/DRAFT_INVOICE_RECALCULATION_IMPLEMENTATION.md)** - Auto-recalculation
-
-### Scopes
-- **[HierarchicalScope Implementation](implementation/HIERARCHICAL_SCOPE_IMPLEMENTATION_SUMMARY.md)** - Multi-tenant data isolation
-
-## Performance
-
-### Optimization Guides
-- **[BillingService Performance](performance/BILLING_SERVICE_PERFORMANCE_OPTIMIZATION.md)** - 85% query reduction
-- **[Gyvatukas Performance](performance/GYVATUKAS_CALCULATOR_OPTIMIZATION.md)** - 80% faster execution
-- **[Tariff Controller Performance](performance/TARIFF_CONTROLLER_PERFORMANCE_OPTIMIZATION.md)** - 90% query reduction
-- **[Policy Performance](performance/POLICY_PERFORMANCE_ANALYSIS.md)** - <0.05ms overhead
-
-### Performance Summaries
-- **[BillingService Summary](performance/BILLING_SERVICE_PERFORMANCE_SUMMARY.md)** - Executive summary
-- **[Gyvatukas Summary](performance/GYVATUKAS_PERFORMANCE_SUMMARY.md)** - Performance metrics
-- **[Tariff Controller Summary](performance/TARIFF_CONTROLLER_PERFORMANCE_SUMMARY.md)** - Optimization results
-
-## Security
-
-### Security Audits
-- **[BillingService Security](security/BILLING_SERVICE_SECURITY_AUDIT.md)** - Comprehensive audit
-- **[Tariff Policy Security](security/TARIFF_POLICY_SECURITY_AUDIT.md)** - Security hardening
-- **[Migration Security](security/MIGRATION_SECURITY_AUDIT.md)** - SQL injection prevention
-
-### Security Implementation
-- **[BillingService Security Implementation](security/BILLING_SERVICE_SECURITY_IMPLEMENTATION.md)** - Step-by-step guide
-- **[Security Implementation Complete](security/SECURITY_IMPLEMENTATION_COMPLETE.md)** - Implementation summary
-- **[Rate Limiting Strategy](security/RATE_LIMITING_STRATEGY.md)** - Rate limiting configuration and monitoring
-
-## Testing
-
-### Test Coverage
-- **[Gyvatukas Test Coverage](testing/GYVATUKAS_CALCULATOR_TEST_COVERAGE.md)** - 43 tests, 100% coverage
-- **[Meter Reading Observer Tests](testing/METER_READING_OBSERVER_TEST_COVERAGE.md)** - 6 tests, 100% coverage
-- **[Tariff Policy Tests](testing/TARIFF_POLICY_TEST_SUMMARY.md)** - 20 tests, 100% coverage
-
-### Test Guides
-- **[Testing Guide](guides/TESTING_GUIDE.md)** - Testing approach
-- **[Property-Based Testing](testing/PROPERTY_BASED_TESTING.md)** - Property tests
-- **[Model Verification](testing/MODEL_VERIFICATION_GUIDE.md)** - Model testing
-
-### Quick References
-- **[Gyvatukas Test Quick Reference](testing/GYVATUKAS_CALCULATOR_TEST_QUICK_REFERENCE.md)** - Test scenarios
-- **[Meter Reading Observer Quick Reference](testing/METER_READING_OBSERVER_TEST_QUICK_REFERENCE.md)** - Test cases
-
-## Database
-
-### Migrations
-- **[Migration Patterns](database/MIGRATION_PATTERNS.md)** - Best practices
-- **[Migration Refactoring](database/MIGRATION_REFACTORING_COMPLETE.md)** - Refactoring report
-- **[Migration Final Status](database/MIGRATION_FINAL_STATUS.md)** - Status summary
-
-### Database Design
-- **[Database Schema](architecture/DATABASE_SCHEMA.md)** - Complete schema
-- **[Indexing Strategy](database/INDEXING_STRATEGY.md)** - Performance indexes
-
-## Upgrades
-
-### Framework Upgrades
-- **[Laravel 12 & Filament 4 Upgrade](upgrades/LARAVEL_12_FILAMENT_4_UPGRADE.md)** - Complete upgrade guide
-- **[Framework Version Test](upgrades/FRAMEWORK_VERSION_TEST.md)** - Version verification
-
-### Migration Guides
-- **[Batch Migration Guide](upgrades/BATCH_MIGRATION_GUIDE.md)** - Batch migrations
-- **[Upgrade Complete Summary](misc/UPGRADE_COMPLETE_SUMMARY.md)** - Upgrade status
-
-## Frontend
-
-### Design System
-- **[Design System Overview](overview/readme.md)** - daisyUI component library and design tokens
-- **[Integration Guide](guides/INTEGRATION_GUIDE.md)** - Step-by-step daisyUI integration
-- **[Component Audit](misc/COMPONENT_AUDIT.md)** - Current component inventory
-- **[Migration Plan](misc/MIGRATION_PLAN.md)** - Phased migration strategy
-
-### Blade & Components
-- **[Frontend Guide](frontend/FRONTEND.md)** - Blade, Tailwind, Alpine
-- **[Blade Components](frontend/BLADE_COMPONENTS.md)** - Reusable components
-- **[Status Badge Component](components/STATUS_BADGE_COMPONENT.md)** - Status badge usage and architecture
-- **[View Composers](frontend/VIEW_COMPOSERS.md)** - Navigation logic
-
-### Filament
-- **[Filament Admin Panel](filament/FILAMENT_ADMIN_PANEL.md)** - Admin interface
-- **[Filament Resources](filament/FILAMENT_RESOURCES.md)** - Resource configuration
-- **[Filament Namespace Consolidation](upgrades/FILAMENT_NAMESPACE_CONSOLIDATION.md)** - Namespace cleanup
-
-## Routes
-
-### Route Documentation
-- **[Routes Implementation](routes/ROUTES_IMPLEMENTATION_COMPLETE.md)** - Complete route documentation
-- **[Route Cleanup](routes/ROUTE_CLEANUP.md)** - Route organization
-
-## Specifications
-
-### Feature Specs
-- **[Vilnius Utilities Billing](.kiro/specs/2-vilnius-utilities-billing/)** - Complete billing spec
-- **[Hierarchical User Management](.kiro/specs/3-hierarchical-user-management/)** - User management spec
-- **[Filament Admin Panel](.kiro/specs/4-filament-admin-panel/)** - Admin panel spec
-- **[Framework Upgrade](.kiro/specs/1-framework-upgrade/)** - Upgrade spec
-
-## Quick References
-
-### Invoice Management
-- **[Invoice Finalization Quick Reference](reference/INVOICE_FINALIZATION_QUICK_REFERENCE.md)** - At-a-glance guide
-
-### Common Tasks
-- **[Common Commands](reference/COMMON_COMMANDS.md)** - Frequently used commands
-- **[Troubleshooting](reference/TROUBLESHOOTING.md)** - Common issues and solutions
-
-## Changelog
-
-- **[Changelog](CHANGELOG.md)** - All notable changes
-- **[Tariff Manual Mode](CHANGELOG_TARIFF_MANUAL_MODE.md)** - Manual entry mode implementation
-- **[Migration Changelog](CHANGELOG_MIGRATION_REFACTORING.md)** - Migration changes
-- **[Status Badge Fix](CHANGELOG_STATUS_BADGE_FIX.md)** - Status badge enum handling fix
-
-## Status Documents
-
-### Completion Reports
-- **[Billing Service Performance Complete](misc/BILLING_SERVICE_PERFORMANCE_COMPLETE.md)** - Performance optimization
-- **[Billing Service Security Complete](misc/BILLING_SERVICE_SECURITY_COMPLETE.md)** - Security hardening
-- **[Meter Reading Update Controller Complete](misc/METER_READING_UPDATE_CONTROLLER_SPEC_COMPLETE.md)** - Controller implementation
-- **[Tariff Controller Implementation Complete](implementation/TARIFF_CONTROLLER_IMPLEMENTATION_COMPLETE.md)** - Tariff management
-- **[Final Verification Status](misc/FINAL_VERIFICATION_STATUS.md)** - Overall status
-
-## Contributing
-
-### Development Guidelines
-- Follow Laravel 12 conventions
-- Use Pest 3.x for testing
-- Maintain 100% test coverage for critical paths
-- Document all public APIs
-- Use strict typing (`declare(strict_types=1)`)
-- Follow PSR-12 coding standards
-
-### Documentation Guidelines
 - Keep documentation up-to-date with code changes
-- Include code examples in usage guides
-- Add architecture diagrams for complex flows
-- Cross-reference related documentation
-- Update changelog for notable changes
+- Use clear, concise language
+- Include code examples where appropriate
+- Follow the established structure and naming conventions
+- Update this README when adding new sections
 
-## Support
+## Documentation Maintenance
 
-### Getting Help
-- Check the relevant documentation section
-- Review the quick reference guides
-- Search the changelog for recent changes
-- Run the test suite to verify functionality
-- Check logs for error details
+This documentation is automatically read by the development agent to ensure consistency and adherence to project standards. All steering rules and guidelines are derived from this documentation.
 
-### Reporting Issues
-- Include relevant error messages
-- Provide steps to reproduce
-- Include environment details
-- Reference related documentation
-- Attach relevant logs
-
----
-
-**Maintained by**: Development Team  
-**Last Review**: 2025-11-25  
-**Next Review**: 2026-02-25
+Last Updated: December 2024

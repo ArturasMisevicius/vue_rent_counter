@@ -4,105 +4,63 @@ declare(strict_types=1);
 
 namespace App\ValueObjects;
 
-use App\Models\Building;
+use Carbon\Carbon;
 
 /**
- * Value Object representing the result of a summer average calculation.
+ * Value object representing a gyvatukas calculation result.
  */
 final readonly class CalculationResult
 {
     public function __construct(
-        public Building $building,
-        public string $status,
-        public ?float $average = null,
-        public ?string $errorMessage = null,
+        public float $energy,
+        public Carbon $calculatedAt,
+        public string $calculationType,
+        public int $buildingId,
+        public ?string $cacheKey = null,
+        public ?array $metadata = null,
     ) {}
 
-    /**
-     * Create a successful calculation result.
-     */
-    public static function success(Building $building, float $average): self
-    {
+    public static function create(
+        float $energy,
+        string $calculationType,
+        int $buildingId,
+        ?string $cacheKey = null,
+        ?array $metadata = null,
+    ): self {
         return new self(
-            building: $building,
-            status: 'success',
-            average: $average,
+            energy: max(0.0, round($energy, 2)),
+            calculatedAt: now(),
+            calculationType: $calculationType,
+            buildingId: $buildingId,
+            cacheKey: $cacheKey,
+            metadata: $metadata ?? [],
         );
     }
 
-    /**
-     * Create a skipped calculation result.
-     */
-    public static function skipped(Building $building, string $reason): self
+    public function toArray(): array
     {
-        return new self(
-            building: $building,
-            status: 'skipped',
-            errorMessage: $reason,
-        );
+        return [
+            'energy' => $this->energy,
+            'calculated_at' => $this->calculatedAt->toISOString(),
+            'calculation_type' => $this->calculationType,
+            'building_id' => $this->buildingId,
+            'cache_key' => $this->cacheKey,
+            'metadata' => $this->metadata,
+        ];
     }
 
-    /**
-     * Create a failed calculation result.
-     */
-    public static function failed(Building $building, string $errorMessage): self
+    public function isZero(): bool
     {
-        return new self(
-            building: $building,
-            status: 'failed',
-            errorMessage: $errorMessage,
-        );
+        return $this->energy === 0.0;
     }
 
-    /**
-     * Check if the calculation was successful.
-     */
-    public function isSuccess(): bool
+    public function hasMetadata(string $key): bool
     {
-        return $this->status === 'success';
+        return isset($this->metadata[$key]);
     }
 
-    /**
-     * Check if the calculation was skipped.
-     */
-    public function isSkipped(): bool
+    public function getMetadata(string $key, mixed $default = null): mixed
     {
-        return $this->status === 'skipped';
-    }
-
-    /**
-     * Check if the calculation failed.
-     */
-    public function isFailed(): bool
-    {
-        return $this->status === 'failed';
-    }
-
-    /**
-     * Get a formatted message for display.
-     */
-    public function getMessage(): string
-    {
-        return match ($this->status) {
-            'success' => sprintf(
-                'Building #%d (%s): %.2f kWh',
-                $this->building->id,
-                $this->building->display_name,
-                $this->average
-            ),
-            'skipped' => sprintf(
-                'Building #%d (%s): Skipped - %s',
-                $this->building->id,
-                $this->building->display_name,
-                $this->errorMessage
-            ),
-            'failed' => sprintf(
-                'Building #%d (%s): Failed - %s',
-                $this->building->id,
-                $this->building->display_name,
-                $this->errorMessage
-            ),
-            default => 'Unknown status',
-        };
+        return $this->metadata[$key] ?? $default;
     }
 }

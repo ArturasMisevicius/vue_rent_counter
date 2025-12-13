@@ -8,7 +8,6 @@ use App\Enums\UserRole;
 use App\Filament\Resources\LanguageResource\Pages;
 use App\Models\Language;
 use App\Models\User;
-use BackedEnum;
 use Filament\Actions;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
@@ -19,7 +18,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use UnitEnum;
 
 /**
  * Filament resource for managing languages.
@@ -40,12 +38,12 @@ class LanguageResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    public static function getNavigationIcon(): string|BackedEnum|null
+    public static function getNavigationIcon(): string
     {
         return 'heroicon-o-language';
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    public static function getNavigationGroup(): string|null
     {
         return __('app.nav_groups.localization');
     }

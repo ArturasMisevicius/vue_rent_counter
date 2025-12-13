@@ -2,8 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use BackedEnum;
-use UnitEnum;
+
 use App\Enums\SubscriptionPlanType;
 use App\Enums\SubscriptionStatus;
 use App\Filament\Resources\SubscriptionResource\Pages;
@@ -24,12 +23,12 @@ class SubscriptionResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    public static function getNavigationIcon(): string|BackedEnum|null
+    public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-credit-card';
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    public static function getNavigationGroup(): ?string
     {
         return __('app.nav_groups.system_management');
     }

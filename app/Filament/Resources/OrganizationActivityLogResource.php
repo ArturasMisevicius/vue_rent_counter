@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources;
 
-use UnitEnum;
-use BackedEnum;
+
 use App\Filament\Resources\OrganizationActivityLogResource\Pages;
 use App\Models\OrganizationActivityLog;
+use BackedEnum;
+use UnitEnum;
 use Filament\Forms;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
@@ -21,12 +22,12 @@ class OrganizationActivityLogResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
-    public static function getNavigationIcon(): string|BackedEnum|null
+    public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-clipboard-document-list';
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    public static function getNavigationGroup(): ?string
     {
         return __('app.nav_groups.system_management');
     }

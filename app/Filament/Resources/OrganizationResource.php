@@ -2,8 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use BackedEnum;
-use UnitEnum;
+
 use App\Enums\SubscriptionPlanType;
 use App\Filament\Resources\OrganizationResource\Pages;
 use App\Filament\Resources\OrganizationResource\RelationManagers\ActivityLogsRelationManager;
@@ -27,12 +26,12 @@ class OrganizationResource extends Resource
 
     protected static ?string $navigationLabel = null;
 
-    public static function getNavigationIcon(): string|BackedEnum|null
+    public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-building-office-2';
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    public static function getNavigationGroup(): ?string
     {
         return __('app.nav_groups.system_management');
     }

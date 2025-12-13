@@ -6,6 +6,8 @@ namespace App\Filament\Resources\BuildingResource\RelationManagers;
 
 use Closure;
 use App\Enums\PropertyType;
+use BackedEnum;
+use UnitEnum;
 use App\Filament\Resources\BuildingResource\Pages\EditBuilding;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
@@ -86,7 +88,7 @@ final class PropertiesRelationManager extends RelationManager
 
     protected static ?string $title = 'Properties';
 
-    protected static string|\BackedEnum|null $icon = 'heroicon-o-home';
+    protected static BackedEnum|string|null $icon = 'heroicon-o-home';
 
     /**
      * Cached property configuration to avoid repeated config() calls.

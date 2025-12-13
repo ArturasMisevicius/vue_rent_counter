@@ -42,12 +42,31 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\TimeRangeValidator::class);
         $this->app->singleton(\App\Services\BillingService::class);
         
-        // Register GyvatukasCalculator with interface binding
+        // Register new refactored GyvatukasCalculator services
+        $this->app->singleton(\App\Services\BillingCalculation\GyvatukasCacheManager::class);
+        $this->app->singleton(\App\Services\BillingCalculation\CirculationCostDistributor::class);
+        
+        // Register winter adjustment strategy
+        $this->app->singleton(
+            \App\Services\BillingCalculation\WinterAdjustmentStrategy::class,
+            \App\Services\BillingCalculation\StandardWinterAdjustmentStrategy::class
+        );
+        
+        // Register repository dependencies
+        $this->app->singleton(\App\Repositories\BuildingRepository::class);
+        
+        // Register optimized GyvatukasCalculator with interface binding
         $this->app->singleton(
             \App\Contracts\GyvatukasCalculatorInterface::class,
             \App\Services\GyvatukasCalculator::class
         );
-        $this->app->singleton(\App\Services\GyvatukasCalculator::class);
+        
+        // Register batch processor and performance monitor
+        $this->app->singleton(\App\Services\GyvatukasBatchProcessor::class);
+        $this->app->singleton(\App\Services\GyvatukasPerformanceMonitor::class);
+        
+        // Keep legacy service for backward compatibility during migration
+        $this->app->singleton(\App\Services\GyvatukasCalculatorService::class);
         
         // Register InputSanitizer with interface binding for dependency inversion
         $this->app->singleton(
@@ -70,6 +89,22 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(
             \App\Contracts\SubscriptionCheckerInterface::class,
             \App\Services\SubscriptionChecker::class
+        );
+
+        // Register Super Admin services with interface bindings
+        $this->app->singleton(
+            \App\Contracts\TenantManagementInterface::class,
+            \App\Services\TenantManagementService::class
+        );
+        
+        $this->app->singleton(
+            \App\Contracts\SystemMonitoringInterface::class,
+            \App\Services\SystemMonitoringService::class
+        );
+        
+        $this->app->singleton(
+            \App\Contracts\SuperAdminUserInterface::class,
+            \App\Services\SuperAdminUserService::class
         );
 
         // Laravel 12 no longer binds the legacy 'files' service alias; add it for packages (Debugbar)

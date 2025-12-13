@@ -11,8 +11,6 @@ use App\Filament\Resources\MeterResource\Pages;
 use App\Filament\Resources\MeterResource\RelationManagers;
 use App\Models\Meter;
 use App\Models\User;
-use BackedEnum;
-use UnitEnum;
 use Filament\Forms;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
@@ -52,7 +50,7 @@ class MeterResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
-    public static function getNavigationIcon(): string|BackedEnum|null
+    public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-bolt';
     }
@@ -62,7 +60,7 @@ class MeterResource extends Resource
         return __('meters.labels.meters');
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    public static function getNavigationGroup(): ?string
     {
         return __('app.nav_groups.operations');
     }

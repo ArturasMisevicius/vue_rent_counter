@@ -19,7 +19,8 @@ final readonly class SystemMonitoringService implements SystemMonitoringInterfac
 {
     public function getSystemHealth(): SystemHealthStatus
     {
-        return Cache::remember('system_health', 300, function () {
+        try {
+            return Cache::remember('system_health', 300, function () {
             $activeTenants = Organization::active()->count();
             $totalUsers = DB::table('users')->count();
             
@@ -39,17 +40,42 @@ final readonly class SystemMonitoringService implements SystemMonitoringInterfac
             // Determine overall health
             $healthLevel = $this->calculateOverallHealth($cpuUsage, $memoryUsage, $diskUsage, $avgResponseTime);
 
+                return new SystemHealthStatus(
+                    overall: $healthLevel,
+                    cpuUsage: $cpuUsage,
+                    memoryUsage: $memoryUsage,
+                    diskUsage: $diskUsage,
+                    activeTenants: $activeTenants,
+                    totalUsers: $totalUsers,
+                    averageResponseTime: $avgResponseTime,
+                    alerts: collect($alerts),
+                );
+            });
+        } catch (\Exception $e) {
+            Log::error('Failed to get system health', [
+                'error' => $e->getMessage(),
+                'stack_trace' => $e->getTraceAsString(),
+            ]);
+            
+            // Return a degraded health status
             return new SystemHealthStatus(
-                overall: $healthLevel,
-                cpuUsage: $cpuUsage,
-                memoryUsage: $memoryUsage,
-                diskUsage: $diskUsage,
-                activeTenants: $activeTenants,
-                totalUsers: $totalUsers,
-                averageResponseTime: $avgResponseTime,
-                alerts: collect($alerts),
+                overall: 'critical',
+                cpuUsage: 0,
+                memoryUsage: 0,
+                diskUsage: 0,
+                activeTenants: 0,
+                totalUsers: 0,
+                averageResponseTime: 0,
+                alerts: collect([
+                    [
+                        'type' => 'system_error',
+                        'severity' => 'critical',
+                        'message' => 'Failed to retrieve system health metrics',
+                        'created_at' => now(),
+                    ]
+                ]),
             );
-        });
+        }
     }
 
     public function getTenantUsageStats(): Collection

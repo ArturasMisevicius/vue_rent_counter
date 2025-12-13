@@ -6,89 +6,123 @@ namespace App\DTOs;
 
 use App\Models\Building;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 /**
- * Gyvatukas Calculation Data Transfer Object
+ * Data Transfer Object for Gyvatukas calculations.
  * 
- * Immutable DTO for gyvatukas calculation requests.
- *
- * @package App\DTOs
+ * Encapsulates all data needed for gyvatukas calculations with validation.
  */
 final readonly class GyvatukasCalculationDTO
 {
     public function __construct(
-        public int $buildingId,
-        public Carbon $billingMonth,
-        public ?string $distributionMethod = 'equal'
-    ) {}
+        public Building $building,
+        public Carbon $month,
+        public float $baseRate,
+        public string $calculationType,
+        public ?float $summerAverage = null,
+        public ?float $winterAdjustment = null,
+    ) {
+        $this->validate();
+    }
 
     /**
-     * Create from HTTP request.
-     *
-     * @param Request $request
-     * @return self
+     * Create DTO for summer calculation.
      */
-    public static function fromRequest(Request $request): self
+    public static function forSummer(Building $building, Carbon $month, float $baseRate): self
     {
         return new self(
-            buildingId: (int) $request->input('building_id'),
-            billingMonth: Carbon::parse($request->input('billing_month')),
-            distributionMethod: $request->input('distribution_method', 'equal')
+            building: $building,
+            month: $month,
+            baseRate: $baseRate,
+            calculationType: 'summer'
         );
     }
 
     /**
-     * Create from building and month.
-     *
-     * @param Building $building
-     * @param Carbon $billingMonth
-     * @param string $distributionMethod
-     * @return self
+     * Create DTO for winter calculation.
      */
-    public static function fromBuilding(
+    public static function forWinter(
         Building $building,
-        Carbon $billingMonth,
-        string $distributionMethod = 'equal'
+        Carbon $month,
+        float $baseRate,
+        float $summerAverage,
+        float $winterAdjustment
     ): self {
         return new self(
-            buildingId: $building->id,
-            billingMonth: $billingMonth,
-            distributionMethod: $distributionMethod
+            building: $building,
+            month: $month,
+            baseRate: $baseRate,
+            calculationType: 'winter',
+            summerAverage: $summerAverage,
+            winterAdjustment: $winterAdjustment
         );
+    }
+
+    /**
+     * Get the cache key for this calculation.
+     */
+    public function getCacheKey(): string
+    {
+        return sprintf(
+            'gyvatukas:%s:%d:%s',
+            $this->calculationType,
+            $this->building->id,
+            $this->month->format('Y-m')
+        );
+    }
+
+    /**
+     * Get calculation context for logging.
+     */
+    public function getLogContext(): array
+    {
+        return [
+            'building_id' => $this->building->id,
+            'month' => $this->month->format('Y-m'),
+            'calculation_type' => $this->calculationType,
+            'base_rate' => $this->baseRate,
+            'summer_average' => $this->summerAverage,
+            'winter_adjustment' => $this->winterAdjustment,
+        ];
     }
 
     /**
      * Validate the DTO data.
-     *
-     * @return array Validation errors (empty if valid)
+     * 
+     * @throws \InvalidArgumentException When data is invalid
      */
-    public function validate(): array
+    private function validate(): void
     {
-        $errors = [];
-
-        if ($this->buildingId <= 0) {
-            $errors['building_id'] = 'Building ID must be positive';
+        if ($this->building->total_apartments <= 0) {
+            throw new \InvalidArgumentException(
+                "Building {$this->building->id} has invalid apartment count: {$this->building->total_apartments}"
+            );
         }
 
-        if ($this->billingMonth->isFuture()) {
-            $errors['billing_month'] = 'Billing month cannot be in the future';
+        if ($this->baseRate < 0) {
+            throw new \InvalidArgumentException(
+                "Base rate cannot be negative: {$this->baseRate}"
+            );
         }
 
-        if (!in_array($this->distributionMethod, ['equal', 'area'])) {
-            $errors['distribution_method'] = 'Distribution method must be "equal" or "area"';
+        if (!in_array($this->calculationType, ['summer', 'winter'], true)) {
+            throw new \InvalidArgumentException(
+                "Invalid calculation type: {$this->calculationType}"
+            );
         }
 
-        return $errors;
-    }
+        if ($this->calculationType === 'winter') {
+            if ($this->summerAverage === null || $this->summerAverage < 0) {
+                throw new \InvalidArgumentException(
+                    "Winter calculation requires valid summer average: {$this->summerAverage}"
+                );
+            }
 
-    /**
-     * Check if DTO is valid.
-     *
-     * @return bool
-     */
-    public function isValid(): bool
-    {
-        return empty($this->validate());
+            if ($this->winterAdjustment === null || $this->winterAdjustment <= 0) {
+                throw new \InvalidArgumentException(
+                    "Winter calculation requires valid adjustment factor: {$this->winterAdjustment}"
+                );
+            }
+        }
     }
 }

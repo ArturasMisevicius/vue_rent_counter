@@ -8,7 +8,6 @@ use App\Enums\UserRole;
 use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
-use BackedEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -17,7 +16,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
-use UnitEnum;
 
 /**
  * Filament resource for managing users.
@@ -71,7 +69,7 @@ class UserResource extends Resource
         UserRole::MANAGER,
     ];
 
-    public static function getNavigationIcon(): string|BackedEnum|null
+    public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-users';
     }
@@ -81,7 +79,7 @@ class UserResource extends Resource
         return __('users.labels.users');
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    public static function getNavigationGroup(): ?string
     {
         return __('app.nav_groups.system');
     }

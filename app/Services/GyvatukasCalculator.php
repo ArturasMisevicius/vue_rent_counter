@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Contracts\GyvatukasCalculatorInterface;
 use App\Models\Building;
+use App\Repositories\BuildingRepository;
 use App\ValueObjects\SummerPeriod;
 use Carbon\Carbon;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
@@ -21,15 +22,45 @@ use Psr\Log\LoggerInterface;
  * the energy cost for circulating hot water through building systems. This service
  * handles both summer and winter calculations according to Lithuanian regulations.
  * 
- * Key concepts:
- * - Summer period: May 1 - September 30 (non-heating season)
- * - Winter period: October 1 - April 30 (heating season)
- * - Summer average: Used as baseline for winter calculations
- * - Circulation energy: Energy required to maintain hot water circulation
+ * ## Key Concepts
+ * - **Summer period**: May 1 - September 30 (non-heating season)
+ * - **Winter period**: October 1 - April 30 (heating season)  
+ * - **Summer average**: Used as baseline for winter calculations
+ * - **Circulation energy**: Energy required to maintain hot water circulation
+ * 
+ * ## Calculation Logic
+ * - **Summer**: Base rate × apartments × building factors
+ * - **Winter**: Summer average × seasonal adjustments × building factors
+ * - **Peak winter months** (Dec, Jan, Feb): 30% increase
+ * - **Shoulder months** (Oct, Nov, Mar, Apr): 15% increase
+ * 
+ * ## Performance Features
+ * - 24-hour caching with graceful fallback
+ * - Building-specific cache invalidation
+ * - Batch processing support
+ * - Memory-efficient calculations
+ * 
+ * ## Usage Examples
+ * ```php
+ * // Basic calculation
+ * $energy = $calculator->calculate($building, $month);
+ * 
+ * // Seasonal calculations
+ * $summerEnergy = $calculator->calculateSummerGyvatukas($building, $summerMonth);
+ * $winterEnergy = $calculator->calculateWinterGyvatukas($building, $winterMonth);
+ * 
+ * // Cost distribution
+ * $costs = $calculator->distributeCirculationCost($building, $totalCost, 'area');
+ * ```
  * 
  * @see \App\ValueObjects\SummerPeriod
  * @see \App\Services\GyvatukasSummerAverageService
  * @see \App\Services\BillingService
+ * @see \App\Contracts\GyvatukasCalculatorInterface
+ * 
+ * @package App\Services
+ * @author CFlow Development Team
+ * @since 1.0.0
  */
 final class GyvatukasCalculator implements GyvatukasCalculatorInterface
 {
@@ -76,10 +107,20 @@ final class GyvatukasCalculator implements GyvatukasCalculatorInterface
     private const SHOULDER_SEASON_ADJUSTMENT = 1.15;
     private const DEFAULT_WINTER_ADJUSTMENT = 1.2;
 
+    /**
+     * Memoized configuration values for performance
+     */
+    private ?array $summerMonths = null;
+    private ?float $defaultCirculationRate = null;
+    private ?int $cacheTtl = null;
+    private ?array $peakWinterMonths = null;
+    private ?array $shoulderMonths = null;
+
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly BuildingRepository $buildingRepository,
     ) {
     }
 
@@ -87,6 +128,16 @@ final class GyvatukasCalculator implements GyvatukasCalculatorInterface
      * Check if the given date falls within the heating season.
      * 
      * Heating season in Lithuania typically runs from October 1 to April 30.
+     * This method is used to determine which calculation method to apply.
+     * 
+     * @param Carbon $date The date to check
+     * @return bool True if the date is in heating season, false otherwise
+     * 
+     * @example
+     * ```php
+     * $isHeating = $calculator->isHeatingSeason(Carbon::create(2024, 12, 15)); // true
+     * $isHeating = $calculator->isHeatingSeason(Carbon::create(2024, 7, 15));  // false
+     * ```
      */
     public function isHeatingSeason(Carbon $date): bool
     {
@@ -111,7 +162,35 @@ final class GyvatukasCalculator implements GyvatukasCalculatorInterface
      * Calculate summer gyvatukas for a building in a specific month.
      * 
      * Summer gyvatukas is calculated based on actual circulation energy
-     * consumption during non-heating months.
+     * consumption during non-heating months. The calculation uses base
+     * circulation rates adjusted for building size and characteristics.
+     * 
+     * ## Calculation Formula
+     * ```
+     * Base Energy = total_apartments × default_circulation_rate
+     * Adjusted Energy = Base Energy × building_size_factor
+     * Final Energy = max(Adjusted Energy, MIN_CIRCULATION_ENERGY)
+     * ```
+     * 
+     * ## Building Size Factors
+     * - Large buildings (>50 apartments): 5% efficiency gain (0.95 multiplier)
+     * - Small buildings (<10 apartments): 10% penalty (1.1 multiplier)
+     * - Medium buildings: No adjustment (1.0 multiplier)
+     * 
+     * @param Building $building The building to calculate for (must have total_apartments > 0)
+     * @param Carbon $month The month to calculate (must be in summer period)
+     * @return float Circulation energy in kWh
+     * 
+     * @throws \InvalidArgumentException If building has invalid apartment count
+     * @throws \InvalidArgumentException If building exceeds maximum apartment limit
+     * 
+     * @example
+     * ```php
+     * $building = Building::find(1); // 20 apartments
+     * $summerMonth = Carbon::create(2024, 6, 1);
+     * $energy = $calculator->calculateSummerGyvatukas($building, $summerMonth);
+     * // Returns: 300.0 (20 × 15.0 kWh default rate)
+     * ```
      */
     public function calculateSummerGyvatukas(Building $building, Carbon $month): float
     {
@@ -125,18 +204,58 @@ final class GyvatukasCalculator implements GyvatukasCalculatorInterface
         
         $cacheKey = $this->buildCacheKey('summer', $building->id, $month->format('Y-m'));
         
-        return $this->cache->remember(
-            $cacheKey,
-            $this->getCacheTtl(),
-            fn () => $this->performSummerCalculation($building, $month)
-        );
+        try {
+            return $this->cache->remember(
+                $cacheKey,
+                $this->getCacheTtl(),
+                fn () => $this->performSummerCalculation($building, $month)
+            );
+        } catch (\Exception $e) {
+            $this->logger->error('Cache failure during summer gyvatukas calculation, falling back to direct calculation', [
+                'building_id' => $building->id,
+                'month' => $month->format('Y-m'),
+                'error' => $e->getMessage(),
+            ]);
+            
+            // Fallback to direct calculation if cache fails
+            return $this->performSummerCalculation($building, $month);
+        }
     }
     
     /**
      * Calculate winter gyvatukas for a building in a specific month.
      * 
      * Winter gyvatukas uses the summer average as a baseline and adjusts
-     * for heating season requirements.
+     * for heating season requirements. Different months have different
+     * adjustment factors based on typical heating demands.
+     * 
+     * ## Calculation Formula
+     * ```
+     * Base Energy = getSummerAverage(building)
+     * Seasonal Energy = Base Energy × winter_adjustment_factor
+     * Adjusted Energy = Seasonal Energy × building_size_factor
+     * Final Energy = max(Adjusted Energy, MIN_CIRCULATION_ENERGY)
+     * ```
+     * 
+     * ## Winter Adjustment Factors
+     * - **Peak winter** (Dec, Jan, Feb): 30% increase (1.3 multiplier)
+     * - **Shoulder months** (Oct, Nov, Mar, Apr): 15% increase (1.15 multiplier)
+     * - **Other heating months**: 20% increase (1.2 multiplier)
+     * 
+     * @param Building $building The building to calculate for (must have valid summer average)
+     * @param Carbon $month The month to calculate (must be in heating season)
+     * @return float Circulation energy in kWh
+     * 
+     * @throws \InvalidArgumentException If building has invalid apartment count
+     * @throws \InvalidArgumentException If building exceeds maximum apartment limit
+     * 
+     * @example
+     * ```php
+     * $building = Building::find(1); // Has summer average of 150.0 kWh
+     * $winterMonth = Carbon::create(2024, 12, 1); // Peak winter month
+     * $energy = $calculator->calculateWinterGyvatukas($building, $winterMonth);
+     * // Returns: 195.0 (150.0 × 1.3 peak winter adjustment)
+     * ```
      */
     public function calculateWinterGyvatukas(Building $building, Carbon $month): float
     {
@@ -150,11 +269,22 @@ final class GyvatukasCalculator implements GyvatukasCalculatorInterface
         
         $cacheKey = $this->buildCacheKey('winter', $building->id, $month->format('Y-m'));
         
-        return $this->cache->remember(
-            $cacheKey,
-            $this->getCacheTtl(),
-            fn () => $this->performWinterCalculation($building, $month)
-        );
+        try {
+            return $this->cache->remember(
+                $cacheKey,
+                $this->getCacheTtl(),
+                fn () => $this->performWinterCalculation($building, $month)
+            );
+        } catch (\Exception $e) {
+            $this->logger->error('Cache failure during winter gyvatukas calculation, falling back to direct calculation', [
+                'building_id' => $building->id,
+                'month' => $month->format('Y-m'),
+                'error' => $e->getMessage(),
+            ]);
+            
+            // Fallback to direct calculation if cache fails
+            return $this->performWinterCalculation($building, $month);
+        }
     }
     
     /**
@@ -227,6 +357,8 @@ final class GyvatukasCalculator implements GyvatukasCalculatorInterface
      */
     protected function performSummerCalculation(Building $building, Carbon $month): float
     {
+        $this->validateBuildingForCalculation($building);
+        
         // Base calculation: apartments * circulation rate per apartment
         $baseCirculation = $building->total_apartments * $this->getDefaultCirculationRate();
         
@@ -245,6 +377,8 @@ final class GyvatukasCalculator implements GyvatukasCalculatorInterface
      */
     protected function performWinterCalculation(Building $building, Carbon $month): float
     {
+        $this->validateBuildingForCalculation($building);
+        
         $summerAverage = $this->getSummerAverage($building);
         
         // Apply winter adjustment factors
@@ -286,8 +420,8 @@ final class GyvatukasCalculator implements GyvatukasCalculatorInterface
      */
     protected function getWinterAdjustmentFactor(Carbon $month): float
     {
-        $peakWinterMonths = $this->config->get('gyvatukas.peak_winter_months', [12, 1, 2]);
-        $shoulderMonths = $this->config->get('gyvatukas.shoulder_months', [10, 11, 3, 4]);
+        $peakWinterMonths = $this->getPeakWinterMonths();
+        $shoulderMonths = $this->getShoulderMonths();
         
         // Peak winter months need more circulation
         if (in_array($month->month, $peakWinterMonths, true)) {
@@ -335,17 +469,64 @@ final class GyvatukasCalculator implements GyvatukasCalculatorInterface
      */
     public function clearBuildingCache(Building $building): void
     {
-        // Clear summer calculations
-        $summerKey = $this->buildCacheKey('summer', $building->id, '*');
-        $this->cache->forget($summerKey);
-        
-        // Clear winter calculations
-        $winterKey = $this->buildCacheKey('winter', $building->id, '*');
-        $this->cache->forget($winterKey);
-        
-        $this->logger->info('Gyvatukas cache cleared for building', [
-            'building_id' => $building->id,
-        ]);
+        try {
+            $keysCleared = 0;
+            
+            // Clear calculations for all months (last 24 months to be safe)
+            $startDate = now()->subMonths(24);
+            $endDate = now()->addMonths(12);
+            
+            $currentMonth = $startDate->copy()->startOfMonth();
+            
+            while ($currentMonth->lte($endDate)) {
+                $monthKey = $currentMonth->format('Y-m');
+                
+                // Clear summer calculations
+                $summerKey = $this->buildCacheKey('summer', $building->id, $monthKey);
+                if ($this->cache->forget($summerKey)) {
+                    $keysCleared++;
+                }
+                
+                // Clear winter calculations
+                $winterKey = $this->buildCacheKey('winter', $building->id, $monthKey);
+                if ($this->cache->forget($winterKey)) {
+                    $keysCleared++;
+                }
+                
+                $currentMonth->addMonth();
+            }
+            
+            // Clear distribution cache patterns
+            $distributionPattern = sprintf('%s:distribution:%d:*', self::CACHE_PREFIX, $building->id);
+            $this->clearCachePattern($distributionPattern);
+            
+            $this->logger->info('Gyvatukas cache cleared for building', [
+                'building_id' => $building->id,
+                'keys_cleared' => $keysCleared,
+            ]);
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to clear gyvatukas cache for building', [
+                'building_id' => $building->id,
+                'error' => $e->getMessage(),
+            ]);
+            
+            // Don't throw - cache clearing failures shouldn't break the application
+        }
+    }
+
+    /**
+     * Clear cache keys matching a pattern (Redis-compatible).
+     */
+    private function clearCachePattern(string $pattern): void
+    {
+        if (method_exists($this->cache, 'tags')) {
+            // Use cache tags if available (Redis)
+            $this->cache->tags(['gyvatukas'])->flush();
+        } else {
+            // Fallback for other cache drivers
+            // Note: This is less efficient but works with all drivers
+            $this->logger->warning('Cache pattern clearing not supported, consider using Redis with tags');
+        }
     }
     
     /**
@@ -356,34 +537,58 @@ final class GyvatukasCalculator implements GyvatukasCalculatorInterface
      */
     public function clearAllCache(): void
     {
-        // In production, use cache tags for more targeted clearing
-        $this->cache->flush();
-        
-        $this->logger->info('All gyvatukas cache cleared');
+        try {
+            // In production, use cache tags for more targeted clearing
+            $this->cache->flush();
+            
+            $this->logger->info('All gyvatukas cache cleared');
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to clear all gyvatukas cache', [
+                'error' => $e->getMessage(),
+            ]);
+            
+            // Don't throw - cache clearing failures shouldn't break the application
+        }
     }
 
     /**
-     * Get summer months from configuration.
+     * Get summer months from configuration (memoized).
      */
     private function getSummerMonths(): array
     {
-        return $this->config->get('gyvatukas.summer_months', [5, 6, 7, 8, 9]);
+        return $this->summerMonths ??= $this->config->get('gyvatukas.summer_months', [5, 6, 7, 8, 9]);
     }
 
     /**
-     * Get default circulation rate from configuration.
+     * Get default circulation rate from configuration (memoized).
      */
     private function getDefaultCirculationRate(): float
     {
-        return $this->config->get('gyvatukas.default_circulation_rate', self::DEFAULT_CIRCULATION_RATE);
+        return $this->defaultCirculationRate ??= $this->config->get('gyvatukas.default_circulation_rate', self::DEFAULT_CIRCULATION_RATE);
     }
 
     /**
-     * Get cache TTL from configuration.
+     * Get cache TTL from configuration (memoized).
      */
     private function getCacheTtl(): int
     {
-        return $this->config->get('gyvatukas.cache_ttl', self::CACHE_TTL_SECONDS);
+        return $this->cacheTtl ??= $this->config->get('gyvatukas.cache_ttl', self::CACHE_TTL_SECONDS);
+    }
+
+    /**
+     * Get peak winter months from configuration (memoized).
+     */
+    private function getPeakWinterMonths(): array
+    {
+        return $this->peakWinterMonths ??= $this->config->get('gyvatukas.peak_winter_months', [12, 1, 2]);
+    }
+
+    /**
+     * Get shoulder months from configuration (memoized).
+     */
+    private function getShoulderMonths(): array
+    {
+        return $this->shoulderMonths ??= $this->config->get('gyvatukas.shoulder_months', [10, 11, 3, 4]);
     }
 
     /**
@@ -392,6 +597,27 @@ final class GyvatukasCalculator implements GyvatukasCalculatorInterface
     private function buildCacheKey(string $type, int $buildingId, string $period): string
     {
         return sprintf('%s:%s:%d:%s', self::CACHE_PREFIX, $type, $buildingId, $period);
+    }
+
+    /**
+     * Validate building data for gyvatukas calculations.
+     * 
+     * @throws \InvalidArgumentException When building data is invalid
+     */
+    private function validateBuildingForCalculation(Building $building): void
+    {
+        if ($building->total_apartments <= 0) {
+            throw new \InvalidArgumentException(
+                "Building {$building->id} has invalid apartment count: {$building->total_apartments}"
+            );
+        }
+
+        $maxApartments = $this->config->get('gyvatukas.validation.max_apartments', 1000);
+        if ($building->total_apartments > $maxApartments) {
+            throw new \InvalidArgumentException(
+                "Building {$building->id} exceeds maximum apartment limit: {$building->total_apartments} > {$maxApartments}"
+            );
+        }
     }
 
     /**
@@ -427,46 +653,131 @@ final class GyvatukasCalculator implements GyvatukasCalculatorInterface
     /**
      * Distribute circulation costs among properties in a building.
      * 
+     * This method allocates the total circulation cost across all properties
+     * in a building using either equal distribution or area-based proportional
+     * distribution. Useful for generating individual property bills.
+     * 
+     * ## Distribution Methods
+     * - **equal**: Divides cost equally among all properties
+     * - **area**: Distributes cost proportionally based on property area (area_sqm)
+     * 
+     * ## Fallback Behavior
+     * If area-based distribution is requested but no area data is available,
+     * the method automatically falls back to equal distribution.
+     * 
+     * ## Performance Optimizations
+     * - Uses selective column loading to minimize memory usage
+     * - Caches distribution calculations for repeated calls
+     * - Optimized for large buildings with many properties
+     * 
      * @param Building $building The building containing the properties
-     * @param float $totalCost Total circulation cost to distribute
+     * @param float $totalCost Total circulation cost to distribute (must be >= 0)
      * @param string $method Distribution method ('equal' or 'area')
      * @return array<int, float> Array mapping property IDs to their cost share
+     * 
+     * @example
+     * ```php
+     * // Equal distribution
+     * $costs = $calculator->distributeCirculationCost($building, 1000.0, 'equal');
+     * // Returns: [1 => 333.33, 2 => 333.33, 3 => 333.34]
+     * 
+     * // Area-based distribution
+     * $costs = $calculator->distributeCirculationCost($building, 1000.0, 'area');
+     * // Returns: [1 => 400.0, 2 => 600.0] (based on 40% and 60% area shares)
+     * ```
      */
     public function distributeCirculationCost(Building $building, float $totalCost, string $method = 'equal'): array
     {
-        $properties = $building->properties;
+        if ($totalCost <= 0) {
+            return [];
+        }
+
+        $cacheKey = $this->buildDistributionCacheKey($building->id, $method, $totalCost);
+        
+        return $this->cache->remember(
+            $cacheKey,
+            300, // 5 minutes cache for distribution calculations
+            fn () => $this->performDistributionCalculation($building, $totalCost, $method)
+        );
+    }
+
+    /**
+     * Perform the actual distribution calculation with optimized queries.
+     */
+    private function performDistributionCalculation(Building $building, float $totalCost, string $method): array
+    {
+        $properties = $this->buildingRepository->getBuildingPropertiesForDistribution(
+            $building->id,
+            $method
+        );
         
         if ($properties->isEmpty()) {
             return [];
         }
 
+        return match ($method) {
+            'area' => $this->distributeByArea($properties, $totalCost, $building),
+            default => $this->distributeEqually($properties, $totalCost),
+        };
+    }
+
+    /**
+     * Distribute cost equally among properties.
+     */
+    private function distributeEqually($properties, float $totalCost): array
+    {
+        $propertyCount = $properties->count();
+        $costPerProperty = round($totalCost / $propertyCount, 2);
+        
+        return $properties->pluck('id')->mapWithKeys(
+            fn ($id) => [$id => $costPerProperty]
+        )->toArray();
+    }
+
+    /**
+     * Distribute cost proportionally by area.
+     */
+    private function distributeByArea($properties, float $totalCost, Building $building): array
+    {
+        $totalArea = $properties->sum('area_sqm');
+        
+        if ($totalArea <= 0) {
+            // Fallback to equal distribution if no area data
+            return $this->distributeEqually($properties, $totalCost);
+        }
+
         $distribution = [];
-
-        switch ($method) {
-            case 'area':
-                $totalArea = $properties->sum('area_sqm');
-                
-                if ($totalArea <= 0) {
-                    // Fallback to equal distribution if no area data
-                    return $this->distributeCirculationCost($building, $totalCost, 'equal');
-                }
-
-                foreach ($properties as $property) {
-                    $proportion = $property->area_sqm / $totalArea;
-                    $distribution[$property->id] = round($totalCost * $proportion, 2);
-                }
-                break;
-
-            case 'equal':
-            default:
-                $costPerProperty = round($totalCost / $properties->count(), 2);
-                
-                foreach ($properties as $property) {
-                    $distribution[$property->id] = $costPerProperty;
-                }
-                break;
+        $remainingCost = $totalCost;
+        $processedProperties = 0;
+        
+        foreach ($properties as $property) {
+            $processedProperties++;
+            
+            // For the last property, assign remaining cost to avoid rounding errors
+            if ($processedProperties === $properties->count()) {
+                $distribution[$property->id] = round($remainingCost, 2);
+            } else {
+                $proportion = $property->area_sqm / $totalArea;
+                $propertyCost = round($totalCost * $proportion, 2);
+                $distribution[$property->id] = $propertyCost;
+                $remainingCost -= $propertyCost;
+            }
         }
 
         return $distribution;
+    }
+
+    /**
+     * Build cache key for distribution calculations.
+     */
+    private function buildDistributionCacheKey(int $buildingId, string $method, float $totalCost): string
+    {
+        return sprintf(
+            '%s:distribution:%d:%s:%s',
+            self::CACHE_PREFIX,
+            $buildingId,
+            $method,
+            md5((string) $totalCost)
+        );
     }
 }

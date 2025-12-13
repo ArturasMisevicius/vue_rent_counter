@@ -1,74 +1,91 @@
 <?php
 
-use App\Models\Meter;
-use App\Models\MeterReading;
+declare(strict_types=1);
+
+use App\Models\Building;
 use App\ValueObjects\ConsumptionData;
 
-test('creates consumption data with valid readings', function () {
-    $meter = Meter::factory()->create();
-    $startReading = MeterReading::factory()->for($meter)->create(['value' => 100]);
-    $endReading = MeterReading::factory()->for($meter)->create(['value' => 150]);
-    
-    $consumption = new ConsumptionData($startReading, $endReading);
-    
-    expect($consumption->amount())->toBe(50.0)
-        ->and($consumption->hasConsumption())->toBeTrue();
-});
+describe('ConsumptionData Value Object', function () {
+    test('creates from building correctly', function () {
+        $building = Building::factory()->make([
+            'total_apartments' => 20,
+            'gyvatukas_summer_average' => 150.0,
+        ]);
 
-test('throws exception when end reading is less than start reading', function () {
-    $meter = Meter::factory()->create();
-    $startReading = MeterReading::factory()->for($meter)->create(['value' => 150]);
-    $endReading = MeterReading::factory()->for($meter)->create(['value' => 100]);
-    
-    new ConsumptionData($startReading, $endReading);
-})->throws(InvalidArgumentException::class);
+        $data = ConsumptionData::fromBuilding($building, 15.0);
 
-test('detects zero consumption', function () {
-    $meter = Meter::factory()->create();
-    $startReading = MeterReading::factory()->for($meter)->create(['value' => 100]);
-    $endReading = MeterReading::factory()->for($meter)->create(['value' => 100]);
-    
-    $consumption = new ConsumptionData($startReading, $endReading);
-    
-    expect($consumption->hasConsumption())->toBeFalse()
-        ->and($consumption->amount())->toBe(0.0);
-});
+        expect($data->totalApartments)->toBe(20);
+        expect($data->baseCirculationRate)->toBe(15.0);
+        expect($data->summerAverage)->toBe(150.0);
+        expect($data->buildingEfficiencyFactor)->toBe(1.0); // Medium building
+    });
 
-test('includes zone in consumption data', function () {
-    $meter = Meter::factory()->create(['supports_zones' => true]);
-    $startReading = MeterReading::factory()->for($meter)->create(['value' => 100, 'zone' => 'day']);
-    $endReading = MeterReading::factory()->for($meter)->create(['value' => 150, 'zone' => 'day']);
-    
-    $consumption = new ConsumptionData($startReading, $endReading, 'day');
-    
-    expect($consumption->zone)->toBe('day');
-});
+    test('calculates efficiency factors correctly', function () {
+        // Large building (>= 50 apartments)
+        $largeBuilding = Building::factory()->make(['total_apartments' => 60]);
+        $largeData = ConsumptionData::fromBuilding($largeBuilding, 15.0);
+        expect($largeData->buildingEfficiencyFactor)->toBe(0.95);
 
-test('generates snapshot array with all required fields', function () {
-    $meter = Meter::factory()->create();
-    $startReading = MeterReading::factory()->for($meter)->create([
-        'value' => 100,
-        'reading_date' => '2024-01-01'
-    ]);
-    $endReading = MeterReading::factory()->for($meter)->create([
-        'value' => 150,
-        'reading_date' => '2024-01-31'
-    ]);
-    
-    $consumption = new ConsumptionData($startReading, $endReading);
-    $snapshot = $consumption->toSnapshot();
-    
-    expect($snapshot)->toHaveKeys([
-        'start_reading_id',
-        'start_value',
-        'start_date',
-        'end_reading_id',
-        'end_value',
-        'end_date',
-        'zone',
-        'consumption'
-    ])
-        ->and($snapshot['consumption'])->toBe(50.0)
-        ->and($snapshot['start_value'])->toBe(100.0)
-        ->and($snapshot['end_value'])->toBe(150.0);
+        // Small building (< 10 apartments)
+        $smallBuilding = Building::factory()->make(['total_apartments' => 5]);
+        $smallData = ConsumptionData::fromBuilding($smallBuilding, 15.0);
+        expect($smallData->buildingEfficiencyFactor)->toBe(1.1);
+
+        // Medium building (10-49 apartments)
+        $mediumBuilding = Building::factory()->make(['total_apartments' => 25]);
+        $mediumData = ConsumptionData::fromBuilding($mediumBuilding, 15.0);
+        expect($mediumData->buildingEfficiencyFactor)->toBe(1.0);
+    });
+
+    test('calculates base energy correctly', function () {
+        $data = new ConsumptionData(
+            totalApartments: 20,
+            baseCirculationRate: 15.0
+        );
+
+        expect($data->calculateBaseEnergy())->toBe(300.0); // 20 * 15.0
+    });
+
+    test('calculates adjusted energy correctly', function () {
+        $data = new ConsumptionData(
+            totalApartments: 20,
+            baseCirculationRate: 15.0,
+            buildingEfficiencyFactor: 0.95
+        );
+
+        expect($data->calculateAdjustedEnergy())->toBe(285.0); // 300.0 * 0.95
+    });
+
+    test('validates apartment count', function () {
+        expect(fn () => new ConsumptionData(
+            totalApartments: 0,
+            baseCirculationRate: 15.0
+        ))->toThrow(InvalidArgumentException::class, 'Total apartments must be greater than 0');
+
+        expect(fn () => new ConsumptionData(
+            totalApartments: -5,
+            baseCirculationRate: 15.0
+        ))->toThrow(InvalidArgumentException::class, 'Total apartments must be greater than 0');
+    });
+
+    test('validates circulation rate', function () {
+        expect(fn () => new ConsumptionData(
+            totalApartments: 10,
+            baseCirculationRate: -5.0
+        ))->toThrow(InvalidArgumentException::class, 'Base circulation rate cannot be negative');
+    });
+
+    test('validates efficiency factor', function () {
+        expect(fn () => new ConsumptionData(
+            totalApartments: 10,
+            baseCirculationRate: 15.0,
+            buildingEfficiencyFactor: 0.0
+        ))->toThrow(InvalidArgumentException::class, 'Building efficiency factor must be greater than 0');
+
+        expect(fn () => new ConsumptionData(
+            totalApartments: 10,
+            baseCirculationRate: 15.0,
+            buildingEfficiencyFactor: -0.5
+        ))->toThrow(InvalidArgumentException::class, 'Building efficiency factor must be greater than 0');
+    });
 });

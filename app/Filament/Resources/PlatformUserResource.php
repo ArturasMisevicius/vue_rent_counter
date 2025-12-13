@@ -6,6 +6,8 @@ use App\Enums\UserRole;
 use App\Filament\Resources\PlatformUserResource\Pages;
 use App\Models\Organization;
 use App\Models\User;
+use BackedEnum;
+use UnitEnum;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\Resource;
@@ -22,9 +24,9 @@ class PlatformUserResource extends Resource
 
     protected static ?string $navigationLabel = 'Platform Users';
 
-    protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-users';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-users';
 
-    protected static \UnitEnum|string|null $navigationGroup = 'System Management';
+    protected static UnitEnum|string|null $navigationGroup = 'System Management';
 
     public static function shouldRegisterNavigation(): bool
     {

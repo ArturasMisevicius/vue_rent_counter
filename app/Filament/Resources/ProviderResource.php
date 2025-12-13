@@ -4,124 +4,86 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
-use App\Enums\ServiceType;
 use App\Filament\Resources\ProviderResource\Pages;
-use App\Filament\Resources\ProviderResource\RelationManagers;
 use App\Models\Provider;
 use BackedEnum;
-use Filament\Forms;
+use UnitEnum;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\TextInput;
+use Filament\Schemas\Components\Select;
+use Filament\Schemas\Components\Textarea;
+use Filament\Schemas\Components\Toggle;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Schemas\Schema;
-use UnitEnum;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-/**
- * Filament resource for managing utility providers.
- *
- * Provides CRUD operations for providers with:
- * - Tenant-scoped data access
- * - Role-based navigation visibility (admin only)
- * - Service type categorization
- * - Contact information management
- * - Relationship management (tariffs)
- *
- * @see \App\Models\Provider
- * @see \App\Policies\ProviderPolicy
- */
 class ProviderResource extends Resource
 {
     protected static ?string $model = Provider::class;
 
-    protected static ?string $navigationLabel = null;
-
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-building-office';
+    
+    protected static UnitEnum|string|null $navigationGroup = 'Configuration';
+    
     protected static ?int $navigationSort = 2;
-
-    public static function getNavigationIcon(): string|BackedEnum|null
-    {
-        return 'heroicon-o-building-library';
-    }
-
-    public static function getNavigationLabel(): string
-    {
-        return __('app.nav.providers');
-    }
-
-    public static function getNavigationGroup(): string|UnitEnum|null
-    {
-        return __('app.nav_groups.configuration');
-    }
-
-    // Integrate ProviderPolicy for authorization (Requirement 9.5)
-    public static function canViewAny(): bool
-    {
-        return auth()->check() && auth()->user()->can('viewAny', Provider::class);
-    }
-
-    public static function canCreate(): bool
-    {
-        return auth()->check() && auth()->user()->can('create', Provider::class);
-    }
-
-    public static function canEdit($record): bool
-    {
-        return auth()->check() && auth()->user()->can('update', $record);
-    }
-
-    public static function canDelete($record): bool
-    {
-        return auth()->check() && auth()->user()->can('delete', $record);
-    }
-
-    /**
-     * Hide from non-admin users (Requirements 9.1, 9.2, 9.3).
-     * Providers are system configuration resources accessible only to admins and superadmins.
-     */
-    public static function shouldRegisterNavigation(): bool
-    {
-        $user = auth()->user();
-
-        return $user instanceof \App\Models\User && in_array($user->role, [
-            \App\Enums\UserRole::SUPERADMIN,
-            \App\Enums\UserRole::ADMIN,
-        ], true);
-    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
-            ->schema([
-                Forms\Components\Section::make(__('providers.sections.provider_information'))
+            ->components([
+                Section::make('Provider Information')
                     ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->label(__('providers.labels.name'))
+                        TextInput::make('name')
                             ->required()
-                            ->maxLength(255)
-                            ->validationMessages([
-                                'required' => __('providers.validation.name.required'),
-                            ]),
-                        
-                        Forms\Components\Select::make('service_type')
-                            ->label(__('providers.labels.service_type'))
-                            ->options(ServiceType::class)
+                            ->maxLength(255),
+                            
+                        TextInput::make('code')
+                            ->label('Provider Code')
                             ->required()
-                            ->native(false)
-                            ->validationMessages([
-                                'required' => __('providers.validation.service_type.required'),
-                            ]),
+                            ->unique(ignoreRecord: true)
+                            ->maxLength(20)
+                            ->placeholder('e.g., VS, VV'),
+                            
+                        Select::make('type')
+                            ->label('Service Type')
+                            ->options([
+                                'electricity' => 'Electricity',
+                                'gas' => 'Gas',
+                                'water' => 'Water',
+                                'heat' => 'Heat',
+                                'sewage' => 'Sewage',
+                            ])
+                            ->required(),
                     ])
                     ->columns(2),
-
-                Forms\Components\Section::make(__('providers.sections.contact_information'))
+                    
+                Section::make('Contact Information')
                     ->schema([
-                        Forms\Components\KeyValue::make('contact_info')
-                            ->label(__('providers.labels.contact_info'))
-                            ->keyLabel(__('providers.forms.contact.field'))
-                            ->valueLabel(__('providers.forms.contact.value'))
-                            ->addActionLabel(__('providers.forms.contact.add'))
-                            ->reorderable(false)
-                            ->helperText(__('providers.forms.contact.helper')),
+                        TextInput::make('contact_email')
+                            ->email()
+                            ->maxLength(255),
+                            
+                        TextInput::make('contact_phone')
+                            ->tel()
+                            ->maxLength(50),
+                            
+                        Textarea::make('address')
+                            ->maxLength(500)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2),
+                    
+                Section::make('Additional Information')
+                    ->schema([
+                        Textarea::make('description')
+                            ->maxLength(1000)
+                            ->columnSpanFull(),
+                            
+                        Toggle::make('is_active')
+                            ->default(true),
                     ]),
             ]);
     }
@@ -129,75 +91,94 @@ class ProviderResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->searchable()
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label(__('providers.labels.name'))
                     ->searchable()
                     ->sortable(),
-                
-                Tables\Columns\TextColumn::make('service_type')
-                    ->label(__('providers.labels.service_type'))
+                    
+                Tables\Columns\TextColumn::make('code')
+                    ->label('Code')
+                    ->searchable()
+                    ->sortable()
+                    ->badge(),
+                    
+                Tables\Columns\TextColumn::make('type')
+                    ->label('Service Type')
                     ->badge()
-                    ->color(fn (ServiceType $state): string => match ($state) {
-                        ServiceType::ELECTRICITY => 'warning',
-                        ServiceType::WATER => 'info',
-                        ServiceType::HEATING => 'danger',
-                    })
-                    ->formatStateUsing(fn (?ServiceType $state): ?string => $state?->label())
-                    ->sortable(),
-                
-                Tables\Columns\TextColumn::make('contact_info')
-                    ->label(__('providers.labels.contact_info'))
-                    ->formatStateUsing(function (array|string|null $state): string {
-                        if (is_string($state)) {
-                            $decoded = json_decode($state, true);
-                            $state = is_array($decoded) ? $decoded : ['contact' => $state];
-                        }
-
-                        if (empty($state)) {
-                            return __('providers.labels.no_contact_info');
-                        }
-
-                        $items = [];
-                        foreach ($state as $key => $value) {
-                            $items[] = ucfirst((string) $key) . ': ' . $value;
-                        }
-
-                        return implode(' | ', array_slice($items, 0, 2)) . (count($items) > 2 ? '...' : '');
-                    })
-                    ->wrap(),
-                
+                    ->color(fn (string $state): string => match ($state) {
+                        'electricity' => 'warning',
+                        'gas' => 'danger',
+                        'water' => 'info',
+                        'heat' => 'success',
+                        'sewage' => 'gray',
+                        default => 'secondary',
+                    }),
+                    
+                Tables\Columns\TextColumn::make('contact_email')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                    
+                Tables\Columns\TextColumn::make('contact_phone')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                    
+                Tables\Columns\IconColumn::make('is_active')
+                    ->boolean(),
+                    
                 Tables\Columns\TextColumn::make('tariffs_count')
-                    ->label(__('providers.tables.tariff_count'))
+                    ->label('Tariffs')
                     ->counts('tariffs')
-                    ->sortable(),
-                
+                    ->badge()
+                    ->color('info'),
+                    
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label(__('providers.tables.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('type')
+                    ->label('Service Type')
+                    ->options([
+                        'electricity' => 'Electricity',
+                        'gas' => 'Gas',
+                        'water' => 'Water',
+                        'heat' => 'Heat',
+                        'sewage' => 'Sewage',
+                    ]),
+                    
+                Tables\Filters\TernaryFilter::make('is_active'),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('activate')
+                        ->label('Activate')
+                        ->icon('heroicon-o-check')
+                        ->action(fn ($records) => 
+                            $records->each(fn ($record) => $record->update(['is_active' => true]))
+                        )
+                        ->deselectRecordsAfterCompletion(),
+                    Tables\Actions\BulkAction::make('deactivate')
+                        ->label('Deactivate')
+                        ->icon('heroicon-o-x-mark')
+                        ->action(fn ($records) => 
+                            $records->each(fn ($record) => $record->update(['is_active' => false]))
+                        )
+                        ->deselectRecordsAfterCompletion(),
                 ]),
-            ])
-            ->defaultSort('name', 'asc');
+            ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            RelationManagers\TariffsRelationManager::class,
+            //
         ];
     }
 
@@ -208,5 +189,13 @@ class ProviderResource extends Resource
             'create' => Pages\CreateProvider::route('/create'),
             'edit' => Pages\EditProvider::route('/{record}/edit'),
         ];
+    }
+    
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 }

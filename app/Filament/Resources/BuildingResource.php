@@ -10,7 +10,6 @@ use App\Filament\Resources\BuildingResource\Pages;
 use App\Filament\Resources\BuildingResource\RelationManagers;
 use App\Models\Building;
 use App\Models\User;
-use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Forms;
@@ -18,7 +17,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use UnitEnum;
 
 /**
  * Building Resource for Filament Admin Panel
@@ -110,7 +108,7 @@ class BuildingResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
-    public static function getNavigationIcon(): string|BackedEnum|null
+    public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-building-office-2';
     }
@@ -120,7 +118,7 @@ class BuildingResource extends Resource
         return __('app.nav.buildings');
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    public static function getNavigationGroup(): ?string
     {
         return __('app.nav_groups.operations');
     }
@@ -328,22 +326,32 @@ class BuildingResource extends Resource
      * building. This value is critical for gyvatukas (circulation fee)
      * calculations, which distribute heating costs across all units.
      *
-     * Validation Rules:
-     * - Required
-     * - Numeric (integer only)
-     * - Min value: 1 (at least one apartment)
-     * - Max value: 1000 (reasonable upper limit)
-     * - Localized error messages via HasTranslatedValidation trait
+     * ## Validation Rules
+     * - **Required**: Cannot be empty
+     * - **Numeric**: Integer values only  
+     * - **Range**: 1-1000 apartments (configurable via gyvatukas.validation.max_apartments)
+     * - **Localized**: Error messages via HasTranslatedValidation trait
      *
-     * Business Context:
-     * Used by GyvatukasCalculator to determine per-apartment circulation
-     * fees during the heating season (October-April in Lithuania).
+     * ## Gyvatukas Integration
+     * This field directly impacts circulation energy calculations:
+     * - **Summer Formula**: `apartments × default_circulation_rate × building_factors`
+     * - **Winter Formula**: `summer_average × winter_adjustments × building_factors`
+     * - **Building Size Factors**:
+     *   - Large buildings (>50): 5% efficiency gain (0.95 multiplier)
+     *   - Small buildings (<10): 10% penalty (1.1 multiplier)
+     *   - Medium buildings: No adjustment (1.0 multiplier)
+     *
+     * ## Cache Behavior
+     * Changes to this field automatically clear gyvatukas calculation cache
+     * to ensure accurate billing in subsequent periods.
      *
      * @return Forms\Components\TextInput Configured total apartments input field
      *
-     * @see \App\Services\GyvatukasCalculator
-     * @see \App\Models\Building::calculateSummerAverage()
-     * @see \App\Filament\Concerns\HasTranslatedValidation::getValidationMessages()
+     * @see \App\Services\GyvatukasCalculator Main calculation service
+     * @see \App\Contracts\GyvatukasCalculatorInterface Service contract  
+     * @see \App\Models\Building::calculateSummerAverage() Model integration
+     * @see \App\Filament\Concerns\HasTranslatedValidation::getValidationMessages() Validation
+     * @see config/gyvatukas.php Configuration settings
      */
     private static function buildTotalApartmentsField(): Forms\Components\TextInput
     {

@@ -1,0 +1,154 @@
+{
+  "task_categories": {
+    "authentication": {
+      "steering_files": [
+        "filament-auth-tenancy.md",
+        "filament-shield.md",
+        "laravel.md",
+        "ILO-LARAVEL12.md",
+        "testing-standards.md",
+        "security.md"
+      ],
+      "description": "Authentication, authorization, and security-related tasks"
+    },
+    "filament": {
+      "steering_files": [
+        "filament-conventions.md",
+        "filament-forms-inputs.md",
+        "filament-navigation.md",
+        "filament-dashboard-widgets.md",
+        "filament-notifications.md",
+        "filament-performance.md",
+        "filament-testing.md",
+        "filament-theming-branding.md",
+        "filament-content-layouts.md",
+        "filament-relation-managers.md"
+      ],
+      "description": "Filament admin panel development tasks"
+    },
+    "testing": {
+      "steering_files": [
+        "ILO-TESTING.md",
+        "testing-standards.md",
+        "pest-route-testing.md",
+        "filament-testing.md",
+        "playwright-rules.md",
+        "quality.md"
+      ],
+      "description": "Testing, quality assurance, and code coverage tasks"
+    },
+    "laravel": {
+      "steering_files": [
+        "ILO-LARAVEL12.md",
+        "laravel.md",
+        "laravel-architecture-patterns.md",
+        "laravel-container-services.md",
+        "blade-guardrails.md",
+        "structure.md"
+      ],
+      "description": "Laravel framework development tasks"
+    },
+    "frontend": {
+      "steering_files": [
+        "development-guide.md",
+        "tallstack-cursor-rules.md",
+        "blade-guardrails.md",
+        "filament-theming-branding.md",
+        "tech.md"
+      ],
+      "description": "Frontend development with Blade, Alpine.js, and Tailwind CSS"
+    },
+    "database": {
+      "steering_files": [
+        "laravel.md",
+        "ILO-LARAVEL12.md",
+        "structure.md",
+        "laravel-architecture-patterns.md",
+        "quality.md"
+      ],
+      "description": "Database design, migrations, and data management tasks"
+    },
+    "utilities": {
+      "steering_files": [
+        "product.md",
+        "goals.md",
+        "structure.md",
+        "laravel-architecture-patterns.md",
+        "translation-guide.md",
+        "operating-principles.md"
+      ],
+      "description": "Utility management, billing, and tenant-specific features"
+    },
+    "quality": {
+      "steering_files": [
+        "ILO-QUALITY-TOOLS.md",
+        "quality.md",
+        "phpstan-larastan-guide.md",
+        "rector-v2.md",
+        "php.md",
+        "oop-best-practices.md",
+        "oop-fundamentals.md"
+      ],
+      "description": "Code quality, static analysis, and refactoring tasks"
+    },
+    "architecture": {
+      "steering_files": [
+        "laravel-architecture-patterns.md",
+        "oop-best-practices.md",
+        "oop-fundamentals.md",
+        "oop-avoiding-spaghetti-code.md",
+        "structure.md",
+        "operating-principles.md"
+      ],
+      "description": "System architecture and design pattern tasks"
+    },
+    "translation": {
+      "steering_files": [
+        "translation-guide.md",
+        "filament-conventions.md",
+        "laravel.md",
+        "structure.md"
+      ],
+      "description": "Multi-language support and localization tasks"
+    },
+    "security": {
+      "steering_files": [
+        "filament-auth-tenancy.md",
+        "filament-shield.md",
+        "risk-register.md",
+        "operating-principles.md",
+        "quality.md"
+      ],
+      "description": "Security hardening and vulnerability mitigation tasks"
+    },
+    "performance": {
+      "steering_files": [
+        "filament-performance.md",
+        "laravel-architecture-patterns.md",
+        "quality.md",
+        "tech.md",
+        "operating-principles.md"
+      ],
+      "description": "Performance optimization and monitoring tasks"
+    }
+  },
+  "spec_mappings": {
+    "authentication-testing": ["authentication", "testing", "filament"],
+    "universal-utility-management": ["utilities", "laravel", "filament", "database"],
+    "hierarchical-scope-enhancement": ["laravel", "architecture", "security"],
+    "superadmin-dashboard-enhancement": ["filament", "utilities", "frontend"],
+    "superadmin-tenant-control": ["filament", "utilities", "security"],
+    "design-system-integration": ["frontend", "filament", "architecture"],
+    "exception-enhancement": ["laravel", "quality", "architecture"],
+    "input-sanitizer-security-enhancement": ["security", "laravel", "quality"],
+    "language-resource-filament-v4-fix": ["translation", "filament", "laravel"],
+    "OK-middleware-authorization-hardening": ["security", "laravel", "authentication"],
+    "OK-user-group-frontends": ["frontend", "authentication", "filament"],
+    "checksubscriptionstatus-csrf-docs": ["security", "utilities", "laravel"]
+  },
+  "common_files": [
+    "goals.md",
+    "product.md",
+    "operating-principles.md"
+  ]
+}

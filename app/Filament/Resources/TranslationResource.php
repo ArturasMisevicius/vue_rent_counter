@@ -9,14 +9,12 @@ use App\Filament\Resources\TranslationResource\Pages;
 use App\Models\Language;
 use App\Models\Translation;
 use App\Models\User;
-use BackedEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use UnitEnum;
 
 /**
  * Filament resource for managing translations.
@@ -37,12 +35,12 @@ class TranslationResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    public static function getNavigationIcon(): string|BackedEnum|null
+    public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-rectangle-stack';
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
+    public static function getNavigationGroup(): ?string
     {
         return __('app.nav_groups.localization');
     }

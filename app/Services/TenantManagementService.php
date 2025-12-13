@@ -21,7 +21,17 @@ final readonly class TenantManagementService implements TenantManagementInterfac
     public function createTenant(CreateTenantData $data): Organization
     {
         return DB::transaction(function () use ($data) {
-            $tenant = Organization::create($data->toArray());
+            try {
+                // Validate unique constraints
+                if (Organization::where('email', $data->email)->exists()) {
+                    throw new \InvalidArgumentException("Tenant with email {$data->email} already exists");
+                }
+
+                if ($data->domain && Organization::where('domain', $data->domain)->exists()) {
+                    throw new \InvalidArgumentException("Tenant with domain {$data->domain} already exists");
+                }
+
+                $tenant = Organization::create($data->toArray());
 
             // Log the creation
             SuperAdminAuditLog::create([
@@ -42,46 +52,110 @@ final readonly class TenantManagementService implements TenantManagementInterfac
             // Send welcome email (async)
             $this->sendWelcomeEmail($tenant);
 
-            Log::info('Tenant created successfully', [
-                'tenant_id' => $tenant->id,
-                'name' => $tenant->name,
-                'admin_id' => $data->createdByAdminId,
-            ]);
+                Log::info('Tenant created successfully', [
+                    'tenant_id' => $tenant->id,
+                    'name' => $tenant->name,
+                    'email' => $tenant->email,
+                    'plan' => $tenant->plan->value,
+                    'admin_id' => $data->createdByAdminId,
+                ]);
 
-            return $tenant;
+                return $tenant;
+            } catch (\Exception $e) {
+                Log::error('Failed to create tenant', [
+                    'name' => $data->name,
+                    'email' => $data->email,
+                    'admin_id' => $data->createdByAdminId,
+                    'error' => $e->getMessage(),
+                    'stack_trace' => $e->getTraceAsString(),
+                ]);
+                throw new \RuntimeException('Failed to create tenant: ' . $e->getMessage(), 0, $e);
+            }
         });
     }
 
     public function updateTenantSettings(Organization $tenant, array $settings): void
     {
-        $originalSettings = $tenant->settings;
-        $tenant->updateSettings($settings);
+        try {
+            $originalSettings = $tenant->settings ?? [];
+            $tenant->updateSettings($settings);
 
-        Log::info('Tenant settings updated', [
-            'tenant_id' => $tenant->id,
-            'changes' => array_diff_assoc($settings, $originalSettings),
-        ]);
+            Log::info('Tenant settings updated', [
+                'tenant_id' => $tenant->id,
+                'tenant_name' => $tenant->name,
+                'changes' => array_diff_assoc($settings, $originalSettings),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to update tenant settings', [
+                'tenant_id' => $tenant->id,
+                'tenant_name' => $tenant->name,
+                'settings' => $settings,
+                'error' => $e->getMessage(),
+            ]);
+            throw new \RuntimeException('Failed to update tenant settings: ' . $e->getMessage(), 0, $e);
+        }
     }
 
     public function suspendTenant(Organization $tenant, string $reason, int $adminId): void
     {
-        $tenant->suspendByAdmin($reason, $adminId);
+        try {
+            if ($tenant->suspended_at) {
+                Log::warning('Attempted to suspend already suspended tenant', [
+                    'tenant_id' => $tenant->id,
+                    'tenant_name' => $tenant->name,
+                    'admin_id' => $adminId,
+                ]);
+                return;
+            }
 
-        Log::warning('Tenant suspended', [
-            'tenant_id' => $tenant->id,
-            'reason' => $reason,
-            'admin_id' => $adminId,
-        ]);
+            $tenant->suspendByAdmin($reason, $adminId);
+
+            Log::warning('Tenant suspended', [
+                'tenant_id' => $tenant->id,
+                'tenant_name' => $tenant->name,
+                'reason' => $reason,
+                'admin_id' => $adminId,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to suspend tenant', [
+                'tenant_id' => $tenant->id,
+                'tenant_name' => $tenant->name,
+                'reason' => $reason,
+                'admin_id' => $adminId,
+                'error' => $e->getMessage(),
+            ]);
+            throw new \RuntimeException('Failed to suspend tenant: ' . $e->getMessage(), 0, $e);
+        }
     }
 
     public function activateTenant(Organization $tenant, int $adminId): void
     {
-        $tenant->reactivateByAdmin($adminId);
+        try {
+            if (!$tenant->suspended_at && $tenant->is_active) {
+                Log::info('Attempted to activate already active tenant', [
+                    'tenant_id' => $tenant->id,
+                    'tenant_name' => $tenant->name,
+                    'admin_id' => $adminId,
+                ]);
+                return;
+            }
 
-        Log::info('Tenant reactivated', [
-            'tenant_id' => $tenant->id,
-            'admin_id' => $adminId,
-        ]);
+            $tenant->reactivateByAdmin($adminId);
+
+            Log::info('Tenant reactivated', [
+                'tenant_id' => $tenant->id,
+                'tenant_name' => $tenant->name,
+                'admin_id' => $adminId,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to activate tenant', [
+                'tenant_id' => $tenant->id,
+                'tenant_name' => $tenant->name,
+                'admin_id' => $adminId,
+                'error' => $e->getMessage(),
+            ]);
+            throw new \RuntimeException('Failed to activate tenant: ' . $e->getMessage(), 0, $e);
+        }
     }
 
     public function deleteTenant(Organization $tenant, int $adminId): void

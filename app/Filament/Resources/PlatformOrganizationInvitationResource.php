@@ -10,24 +10,25 @@ use App\Filament\Resources\PlatformOrganizationInvitationResource\Actions\Cancel
 use App\Filament\Resources\PlatformOrganizationInvitationResource\Actions\ResendInvitationAction;
 use App\Filament\Resources\PlatformOrganizationInvitationResource\Pages;
 use App\Models\PlatformOrganizationInvitation;
+use BackedEnum;
+use UnitEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use BackedEnum;
-use UnitEnum;
+
 
 class PlatformOrganizationInvitationResource extends Resource
 {
     protected static ?string $model = PlatformOrganizationInvitation::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-envelope';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-envelope';
 
     protected static ?string $navigationLabel = 'Organization Invitations';
 
-    protected static string|UnitEnum|null $navigationGroup = 'System Management';
+    protected static UnitEnum|string|null $navigationGroup = 'System Management';
 
     protected static ?int $navigationSort = 5;
 

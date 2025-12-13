@@ -2,91 +2,90 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\ValueObjects;
-
-use App\Models\Building;
 use App\ValueObjects\CalculationResult;
-use Tests\TestCase;
+use Carbon\Carbon;
 
-final class CalculationResultTest extends TestCase
-{
-    private Building $building;
+describe('CalculationResult Value Object', function () {
+    test('creates result with proper data', function () {
+        $result = CalculationResult::create(
+            energy: 150.5,
+            calculationType: 'summer',
+            buildingId: 1,
+            cacheKey: 'test-key',
+            metadata: ['test' => 'value']
+        );
 
-    protected function setUp(): void
-    {
-        parent::setUp();
+        expect($result->energy)->toBe(150.5);
+        expect($result->calculationType)->toBe('summer');
+        expect($result->buildingId)->toBe(1);
+        expect($result->cacheKey)->toBe('test-key');
+        expect($result->metadata)->toBe(['test' => 'value']);
+        expect($result->calculatedAt)->toBeInstanceOf(Carbon::class);
+    });
 
-        // Create a mock building without database interaction
-        $this->building = new Building();
-        $this->building->id = 1;
-        $this->building->name = 'Test Building';
-    }
+    test('rounds energy to 2 decimal places', function () {
+        $result = CalculationResult::create(
+            energy: 150.555,
+            calculationType: 'summer',
+            buildingId: 1
+        );
 
-    public function test_creates_success_result(): void
-    {
-        $result = CalculationResult::success($this->building, 123.45);
+        expect($result->energy)->toBe(150.56);
+    });
 
-        $this->assertTrue($result->isSuccess());
-        $this->assertFalse($result->isSkipped());
-        $this->assertFalse($result->isFailed());
-        $this->assertEquals('success', $result->status);
-        $this->assertEquals(123.45, $result->average);
-        $this->assertNull($result->errorMessage);
-    }
+    test('ensures minimum energy of zero', function () {
+        $result = CalculationResult::create(
+            energy: -50.0,
+            calculationType: 'summer',
+            buildingId: 1
+        );
 
-    public function test_creates_skipped_result(): void
-    {
-        $result = CalculationResult::skipped($this->building, 'Already calculated');
+        expect($result->energy)->toBe(0.0);
+    });
 
-        $this->assertFalse($result->isSuccess());
-        $this->assertTrue($result->isSkipped());
-        $this->assertFalse($result->isFailed());
-        $this->assertEquals('skipped', $result->status);
-        $this->assertNull($result->average);
-        $this->assertEquals('Already calculated', $result->errorMessage);
-    }
+    test('converts to array correctly', function () {
+        $result = CalculationResult::create(
+            energy: 150.0,
+            calculationType: 'summer',
+            buildingId: 1,
+            metadata: ['apartments' => 10]
+        );
 
-    public function test_creates_failed_result(): void
-    {
-        $result = CalculationResult::failed($this->building, 'Calculation error');
+        $array = $result->toArray();
 
-        $this->assertFalse($result->isSuccess());
-        $this->assertFalse($result->isSkipped());
-        $this->assertTrue($result->isFailed());
-        $this->assertEquals('failed', $result->status);
-        $this->assertNull($result->average);
-        $this->assertEquals('Calculation error', $result->errorMessage);
-    }
+        expect($array)->toHaveKeys([
+            'energy',
+            'calculated_at',
+            'calculation_type',
+            'building_id',
+            'cache_key',
+            'metadata'
+        ]);
+        expect($array['energy'])->toBe(150.0);
+        expect($array['calculation_type'])->toBe('summer');
+        expect($array['building_id'])->toBe(1);
+        expect($array['metadata'])->toBe(['apartments' => 10]);
+    });
 
-    public function test_get_message_for_success(): void
-    {
-        $result = CalculationResult::success($this->building, 123.45);
+    test('checks if energy is zero', function () {
+        $zeroResult = CalculationResult::create(0.0, 'summer', 1);
+        $nonZeroResult = CalculationResult::create(150.0, 'summer', 1);
 
-        $message = $result->getMessage();
+        expect($zeroResult->isZero())->toBeTrue();
+        expect($nonZeroResult->isZero())->toBeFalse();
+    });
 
-        $this->assertStringContainsString('Test Building', $message);
-        $this->assertStringContainsString('123.45', $message);
-    }
+    test('handles metadata operations', function () {
+        $result = CalculationResult::create(
+            energy: 150.0,
+            calculationType: 'summer',
+            buildingId: 1,
+            metadata: ['apartments' => 10, 'efficiency' => 0.95]
+        );
 
-    public function test_get_message_for_skipped(): void
-    {
-        $result = CalculationResult::skipped($this->building, 'Already calculated');
-
-        $message = $result->getMessage();
-
-        $this->assertStringContainsString('Test Building', $message);
-        $this->assertStringContainsString('Skipped', $message);
-        $this->assertStringContainsString('Already calculated', $message);
-    }
-
-    public function test_get_message_for_failed(): void
-    {
-        $result = CalculationResult::failed($this->building, 'Calculation error');
-
-        $message = $result->getMessage();
-
-        $this->assertStringContainsString('Test Building', $message);
-        $this->assertStringContainsString('Failed', $message);
-        $this->assertStringContainsString('Calculation error', $message);
-    }
-}
+        expect($result->hasMetadata('apartments'))->toBeTrue();
+        expect($result->hasMetadata('nonexistent'))->toBeFalse();
+        expect($result->getMetadata('apartments'))->toBe(10);
+        expect($result->getMetadata('nonexistent', 'default'))->toBe('default');
+    });
+});
