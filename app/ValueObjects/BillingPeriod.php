@@ -49,6 +49,30 @@ class BillingPeriod
     }
 
     /**
+     * Get the number of days in this period (alias for days()).
+     */
+    public function getDays(): int
+    {
+        return $this->days();
+    }
+
+    /**
+     * Get the start date of this period.
+     */
+    public function getStartDate(): Carbon
+    {
+        return $this->start;
+    }
+
+    /**
+     * Get the end date of this period.
+     */
+    public function getEndDate(): Carbon
+    {
+        return $this->end;
+    }
+
+    /**
      * Check if a date falls within this period.
      */
     public function contains(Carbon $date): bool

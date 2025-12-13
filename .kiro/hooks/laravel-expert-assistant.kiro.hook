@@ -2,7 +2,7 @@
   "enabled": false,
   "name": "Laravel Expert Code Generator",
   "description": "Generates/assesses Laravel code with project conventions (Laravel 12, Filament v4 admin, strict types, PSR-12, SOLID).",
-  "version": "2",
+  "version": "2.0",
   "when": {
     "type": "fileEdited",
     "patterns": [
@@ -13,6 +13,6 @@
     "type": "askAgent",
     "prompt": ""
   },
-  "workspaceFolderName": "rent_counter",
+  "workspaceFolderName": "laravel",
   "shortName": "laravel-expert-assistant"
 }

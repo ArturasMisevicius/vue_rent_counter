@@ -2,7 +2,7 @@
   "enabled": true,
   "name": "Database Query Optimizer",
   "description": "Analyzes slow database queries and provides comprehensive optimization recommendations including EXPLAIN ANALYZE, index strategies, query rewriting (Eloquent/Query Builder/Raw SQL), subquery optimization, aggregate optimization, pagination strategies, caching, database-specific optimizations, schema improvements, monitoring setup, batch processing, and connection pooling with before/after metrics",
-  "version": "1",
+  "version": "1.0",
   "when": {
     "type": "fileEdited",
     "patterns": [
@@ -18,6 +18,6 @@
     "type": "askAgent",
     "prompt": "A user has pasted a slow database query that needs optimization. Analyze the query file and provide comprehensive optimization guidance:\n\n- use MCP servers, use mcp services\n\n1. **EXPLAIN ANALYZE**: Show the query execution plan, identify bottlenecks (full table scan, missing indexes, etc.), and explain each step in the query plan.\n\n2. **INDEX OPTIMIZATION**: Provide SQL for needed indexes, composite index strategy, index column order importance, partial indexes (PostgreSQL), covering indexes, and index maintenance considerations.\n\n3. **QUERY REWRITING**: Provide three optimized versions:\n   - OPTIMIZED VERSION 1: Better Eloquent (using Eloquent features)\n   - OPTIMIZED VERSION 2: Query Builder (using DB facade for performance)\n   - OPTIMIZED VERSION 3: Raw SQL (direct SQL for maximum performance)\n   Explain what changed in each version and when to use each approach.\n\n4. **SUBQUERY OPTIMIZATION**: Compare subquery vs JOIN performance, correlated vs non-correlated subqueries, and subquery placement (SELECT vs WHERE vs FROM).\n\n5. **AGGREGATE OPTIMIZATION**: Optimize COUNT, SUM, AVG operations, withCount() vs counting related records, and using database aggregates vs application logic.\n\n6. **PAGINATION OPTIMIZATION**: Address standard pagination issues with OFFSET, implement cursor-based pagination, keyset pagination, and load more patterns.\n\n7. **CACHING STRATEGY**: Show what to cache, cache key strategy, cache invalidation, remember vs rememberForever, and cache tags for organized clearing.\n\n8. **DATABASE-SPECIFIC OPTIMIZATIONS**:\n   - FOR POSTGRESQL: Partial indexes, expression indexes, GIN/GiST indexes for full-text, materialized views, table partitioning\n   - FOR MYSQL: Index hints, query cache (if applicable), covering indexes, table partitioning\n\n9. **SCHEMA OPTIMIZATION**: Denormalization when beneficial, computed/generated columns, column type optimization (INT vs BIGINT), JSON column querying.\n\n10. **MONITORING & PROFILING**: Laravel Telescope setup, query logging, slow query log, performance testing code.\n\n11. **BATCH PROCESSING**: Chunk queries for large datasets, lazy collections, cursor iteration, memory management.\n\n12. **CONNECTION POOLING**: Configuration for high traffic, read/write splitting, connection management.\n\nProvide complete optimized code examples with benchmarks showing:\n- Before: [queries, time, memory]\n- After: [queries, time, memory]\n- % improvement\n- Scale testing results\n\nFormat all code examples properly with syntax highlighting and detailed explanations."
   },
-  "workspaceFolderName": "vue_rent_counter",
+  "workspaceFolderName": "laravel",
   "shortName": "database-query-optimization"
 }

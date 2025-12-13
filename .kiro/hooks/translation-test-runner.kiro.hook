@@ -1,9 +1,10 @@
 {
+  "enabled": true,
   "version": "1.0",
   "name": "Translation Test Runner",
   "description": "Automatically runs translation tests after translation file changes",
-  "trigger": {
-    "type": "onFileSave",
+  "when": {
+    "type": "fileEdited",
     "patterns": [
       "resources/lang/**/*.php",
       "resources/lang/**/*.json",
@@ -15,5 +16,6 @@
     "command": "php artisan test --filter=LocalizationTest --filter=FilamentTranslationTest",
     "workingDirectory": "."
   },
-  "workspaceFolderName": "vue_rent_counter"
+  "workspaceFolderName": "laravel",
+  "shortName": "translation-test-runner"
 }

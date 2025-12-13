@@ -2,7 +2,7 @@
   "enabled": true,
   "name": "Laravel Code Refactoring Assistant",
   "description": "Analyzes Laravel/PHP files for code smells and modernizes them with project conventions (Laravel 12, Filament v4, strict types).",
-  "version": "2",
+  "version": "2.0",
   "when": {
     "type": "fileEdited",
     "patterns": [
@@ -13,6 +13,6 @@
     "type": "askAgent",
     "prompt": ""
   },
-  "workspaceFolderName": "rent_counter",
+  "workspaceFolderName": "laravel",
   "shortName": "laravel-code-refactor"
 }

@@ -14,8 +14,8 @@ use App\Models\Property;
 use App\Models\ServiceConfiguration;
 use App\Models\Tariff;
 use App\ValueObjects\BillingPeriod;
-use App\ValueObjects\CalculationResult;
-use App\ValueObjects\ConsumptionData;
+use App\ValueObjects\UniversalCalculationResult;
+use App\ValueObjects\UniversalConsumptionData;
 use App\ValueObjects\InvoiceItemData;
 use Carbon\Carbon;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
@@ -122,18 +122,18 @@ final class UniversalBillingCalculator
      * on the pricing model and delegates to specialized calculation methods.
      * 
      * @param ServiceConfiguration $serviceConfig Service configuration with pricing model
-     * @param ConsumptionData $consumption Consumption data for the billing period
+     * @param UniversalConsumptionData $consumption Consumption data for the billing period
      * @param BillingPeriod $billingPeriod Period for which to calculate the bill
-     * @return CalculationResult Complete calculation result with breakdown
+     * @return UniversalCalculationResult Complete calculation result with breakdown
      * 
      * @throws InvalidArgumentException When service configuration is invalid
      * @throws InvalidArgumentException When consumption data is invalid
      */
     public function calculateBill(
         ServiceConfiguration $serviceConfig,
-        ConsumptionData $consumption,
+        UniversalConsumptionData $consumption,
         BillingPeriod $billingPeriod
-    ): CalculationResult {
+    ): UniversalCalculationResult {
         $this->validateServiceConfiguration($serviceConfig);
         $this->validateConsumptionData($consumption);
         
@@ -151,9 +151,9 @@ final class UniversalBillingCalculator
      */
     private function performBillCalculation(
         ServiceConfiguration $serviceConfig,
-        ConsumptionData $consumption,
+        UniversalConsumptionData $consumption,
         BillingPeriod $billingPeriod
-    ): CalculationResult {
+    ): UniversalCalculationResult {
         $pricingModel = $serviceConfig->pricing_model;
         
         return match ($pricingModel) {
@@ -174,7 +174,7 @@ final class UniversalBillingCalculator
     private function calculateFixedMonthlyBill(
         ServiceConfiguration $serviceConfig,
         BillingPeriod $billingPeriod
-    ): CalculationResult {
+    ): UniversalCalculationResult {
         $rateSchedule = $serviceConfig->rate_schedule;
         $monthlyRate = $rateSchedule['monthly_rate'] ?? 0.0;
         
@@ -184,7 +184,7 @@ final class UniversalBillingCalculator
         // Pro-rate for partial months if needed
         $finalAmount = $this->applyProRation($adjustedRate, $billingPeriod);
         
-        return new CalculationResult(
+        return new UniversalCalculationResult(
             totalAmount: round($finalAmount, self::MONETARY_PRECISION),
             baseAmount: round($monthlyRate, self::MONETARY_PRECISION),
             adjustments: $this->buildAdjustmentsArray($monthlyRate, $finalAmount),
@@ -205,15 +205,15 @@ final class UniversalBillingCalculator
      */
     private function calculateConsumptionBasedBill(
         ServiceConfiguration $serviceConfig,
-        ConsumptionData $consumption
-    ): CalculationResult {
+        UniversalConsumptionData $consumption
+    ): UniversalCalculationResult {
         $rateSchedule = $serviceConfig->rate_schedule;
         $unitRate = $rateSchedule['unit_rate'] ?? 0.0;
         
         $totalConsumption = $consumption->getTotalConsumption();
         $consumptionAmount = $totalConsumption * $unitRate;
         
-        return new CalculationResult(
+        return new UniversalCalculationResult(
             totalAmount: round($consumptionAmount, self::MONETARY_PRECISION),
             baseAmount: round($consumptionAmount, self::MONETARY_PRECISION),
             adjustments: [],
@@ -233,8 +233,8 @@ final class UniversalBillingCalculator
      */
     private function calculateTieredRatesBill(
         ServiceConfiguration $serviceConfig,
-        ConsumptionData $consumption
-    ): CalculationResult {
+        UniversalConsumptionData $consumption
+    ): UniversalCalculationResult {
         $rateSchedule = $serviceConfig->rate_schedule;
         $tiers = $rateSchedule['tiers'] ?? [];
         
@@ -246,6 +246,7 @@ final class UniversalBillingCalculator
         $consumptionAmount = 0.0;
         $remainingConsumption = $totalConsumption;
         $tierBreakdown = [];
+        $previousLimit = 0.0;
         
         foreach ($tiers as $tier) {
             if ($remainingConsumption <= 0) {
@@ -255,7 +256,9 @@ final class UniversalBillingCalculator
             $tierLimit = $tier['limit'] ?? PHP_FLOAT_MAX;
             $tierRate = $tier['rate'] ?? 0.0;
             
-            $tierConsumption = min($remainingConsumption, $tierLimit);
+            // Calculate the consumption that falls within this tier
+            $tierCapacity = $tierLimit - $previousLimit;
+            $tierConsumption = min($remainingConsumption, $tierCapacity);
             $tierAmount = $tierConsumption * $tierRate;
             
             $consumptionAmount += $tierAmount;
@@ -266,10 +269,13 @@ final class UniversalBillingCalculator
                 'rate' => $tierRate,
                 'amount' => $tierAmount,
                 'limit' => $tierLimit,
+                'tier_capacity' => $tierCapacity,
             ];
+            
+            $previousLimit = $tierLimit;
         }
         
-        return new CalculationResult(
+        return new UniversalCalculationResult(
             totalAmount: round($consumptionAmount, self::MONETARY_PRECISION),
             baseAmount: round($consumptionAmount, self::MONETARY_PRECISION),
             adjustments: [],
@@ -289,9 +295,9 @@ final class UniversalBillingCalculator
      */
     private function calculateHybridBill(
         ServiceConfiguration $serviceConfig,
-        ConsumptionData $consumption,
+        UniversalConsumptionData $consumption,
         BillingPeriod $billingPeriod
-    ): CalculationResult {
+    ): UniversalCalculationResult {
         $rateSchedule = $serviceConfig->rate_schedule;
         $fixedFee = $rateSchedule['fixed_fee'] ?? 0.0;
         $unitRate = $rateSchedule['unit_rate'] ?? 0.0;
@@ -306,7 +312,7 @@ final class UniversalBillingCalculator
         
         $totalAmount = $proRatedFixedFee + $consumptionAmount;
         
-        return new CalculationResult(
+        return new UniversalCalculationResult(
             totalAmount: round($totalAmount, self::MONETARY_PRECISION),
             baseAmount: round($fixedFee + $consumptionAmount, self::MONETARY_PRECISION),
             adjustments: $this->buildAdjustmentsArray($fixedFee, $proRatedFixedFee),
@@ -328,8 +334,8 @@ final class UniversalBillingCalculator
      */
     private function calculateTimeOfUseBill(
         ServiceConfiguration $serviceConfig,
-        ConsumptionData $consumption
-    ): CalculationResult {
+        UniversalConsumptionData $consumption
+    ): UniversalCalculationResult {
         $rateSchedule = $serviceConfig->rate_schedule;
         $zoneRates = $rateSchedule['zone_rates'] ?? [];
         
@@ -352,7 +358,7 @@ final class UniversalBillingCalculator
             ];
         }
         
-        return new CalculationResult(
+        return new UniversalCalculationResult(
             totalAmount: round($consumptionAmount, self::MONETARY_PRECISION),
             baseAmount: round($consumptionAmount, self::MONETARY_PRECISION),
             adjustments: [],
@@ -371,9 +377,9 @@ final class UniversalBillingCalculator
      */
     private function calculateCustomFormulaBill(
         ServiceConfiguration $serviceConfig,
-        ConsumptionData $consumption,
+        UniversalConsumptionData $consumption,
         BillingPeriod $billingPeriod
-    ): CalculationResult {
+    ): UniversalCalculationResult {
         $rateSchedule = $serviceConfig->rate_schedule;
         $formula = $rateSchedule['formula'] ?? '';
         
@@ -398,7 +404,7 @@ final class UniversalBillingCalculator
         // Evaluate the formula (this would need a safe math expression evaluator)
         $calculatedAmount = $this->evaluateFormula($formula, $variables);
         
-        return new CalculationResult(
+        return new UniversalCalculationResult(
             totalAmount: round($calculatedAmount, self::MONETARY_PRECISION),
             baseAmount: round($calculatedAmount, self::MONETARY_PRECISION),
             adjustments: [],
@@ -418,8 +424,8 @@ final class UniversalBillingCalculator
      */
     private function calculateLegacyFlatBill(
         ServiceConfiguration $serviceConfig,
-        ConsumptionData $consumption
-    ): CalculationResult {
+        UniversalConsumptionData $consumption
+    ): UniversalCalculationResult {
         // For legacy compatibility, treat flat rate as consumption-based
         return $this->calculateConsumptionBasedBill($serviceConfig, $consumption);
     }
@@ -434,7 +440,7 @@ final class UniversalBillingCalculator
         Building $building,
         BillingPeriod $billingPeriod,
         DistributionMethod $distributionMethod = DistributionMethod::AREA
-    ): CalculationResult {
+    ): UniversalCalculationResult {
         $month = $billingPeriod->getStartDate();
         
         // Use existing GyvatukasCalculator for core calculation
@@ -451,7 +457,7 @@ final class UniversalBillingCalculator
             $distributionMethod->value
         );
         
-        return new CalculationResult(
+        return new UniversalCalculationResult(
             totalAmount: round($totalCost, self::MONETARY_PRECISION),
             baseAmount: round($totalCost, self::MONETARY_PRECISION),
             adjustments: [],
@@ -622,7 +628,7 @@ final class UniversalBillingCalculator
      */
     private function buildCalculationCacheKey(
         ServiceConfiguration $serviceConfig,
-        ConsumptionData $consumption,
+        UniversalConsumptionData $consumption,
         BillingPeriod $billingPeriod
     ): string {
         $keyData = [
@@ -651,7 +657,7 @@ final class UniversalBillingCalculator
     /**
      * Validate consumption data for calculations.
      */
-    private function validateConsumptionData(ConsumptionData $consumption): void
+    private function validateConsumptionData(UniversalConsumptionData $consumption): void
     {
         $totalConsumption = $consumption->getTotalConsumption();
         

@@ -2,12 +2,14 @@
   "enabled": true,
   "name": "Multi-Tenant Architecture Guide",
   "description": "Provides complete multi-tenant architecture implementation guidance for Laravel applications, including database strategies, middleware, model scoping, tenant identification, file storage, queue handling, security considerations, and onboarding flows. Covers single database with tenant_id, database per tenant, and schema per tenant approaches with subdomain/domain/path-based routing.",
-  "version": "1",
+  "version": "1.0",
   "when": {
     "type": "userTriggered"
   },
   "then": {
     "type": "askAgent",
     "prompt": "Design a complete multi-tenant architecture for my Laravel application.\n\n- use MCP servers, use mcp services\n\nTENANCY TYPE:\n- [Single database with tenant_id column]\n- [Database per tenant]\n- [Schema per tenant]\n- [Subdomain-based / Domain-based / Path-based]\n\nAPPLICATION DETAILS:\n- Expected tenants: [number]\n- Tenant data isolation level: [strict/moderate]\n- Shared resources: [users can belong to multiple tenants: yes/no]\n- Custom domains per tenant: [yes/no]\n- Tenant-specific configuration: [themes, email settings, etc.]\n\nPROVIDE COMPLETE IMPLEMENTATION:\n\n1. Database architecture:\n   - Migration files for tenant management\n   - Proper indexes and foreign keys\n   - Tenant identification strategy\n\n2. Middleware for tenant identification:\n   - Complete middleware code\n   - How to handle tenant context\n   - Fallback strategies\n\n3. Model scoping:\n   - Global scopes for automatic tenant filtering\n   - Trait for tenant-aware models\n   - Handle models that shouldn't be scoped\n\n4. Tenant configuration:\n   - Config caching per tenant\n   - Tenant-specific settings storage\n   - Runtime configuration switching\n\n5. Database connection switching (if multi-database)\n\n6. File storage strategy:\n   - Tenant-specific storage paths\n   - Public vs private files\n   - S3/cloud storage organization\n\n7. Queue job handling:\n   - Maintaining tenant context in jobs\n   - Tenant-specific queues if needed\n\n8. Testing strategy:\n   - How to test multi-tenant features\n   - Database setup for tests\n\n9. Subdomain/domain routing setup\n\n10. Tenant onboarding flow:\n    - Registration process\n    - Database/schema provisioning\n    - Initial data seeding\n\nSECURITY CONSIDERATIONS:\n- Preventing tenant data leakage\n- Tenant switching attacks\n- Database transaction boundaries\n\nShow complete, working code for everything. Explain trade-offs of different approaches. Consider the existing application structure and provide implementation that integrates with current Laravel 12 setup, SQLite database, and existing TenantScope implementation."
-  }
+  },
+  "workspaceFolderName": "laravel",
+  "shortName": "multi-tenant-architecture"
 }

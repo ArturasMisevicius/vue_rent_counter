@@ -96,7 +96,11 @@ Extend the existing robust infrastructure to support universal utility types bey
   - Add different area type support leveraging existing property area data
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 2.5 Write property test for universal billing calculations
+- [x] 2.5 Write property test for universal billing calculations
+
+
+
+
   - **Property 4: Billing Calculation Accuracy**
   - **Validates: Requirements 5.1, 5.2, 5.4, 5.5**
 
@@ -107,6 +111,7 @@ Extend the existing robust infrastructure to support universal utility types bey
 ## 3. Service Assignment and Configuration Management
 
 - [x] 3 Create AssignUtilityServiceAction
+
   - Assign utility services to existing `Property` models with individual configurations
   - Create `ServiceConfiguration` records linking properties to utility services
   - Support pricing overrides with full audit trail using existing audit infrastructure

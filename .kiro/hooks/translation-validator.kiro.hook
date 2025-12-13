@@ -1,9 +1,10 @@
 {
-  "version": "1.0",
+  "enabled": true,
   "name": "Translation Validator",
   "description": "Validates translation keys and ensures all locales are synchronized",
-  "trigger": {
-    "type": "onFileSave",
+  "version": "2.0",
+  "when": {
+    "type": "fileEdited",
     "patterns": [
       "resources/lang/**/*.php",
       "resources/lang/**/*.json",
@@ -13,7 +14,8 @@
   },
   "then": {
     "type": "askAgent",
-    "message": "TRANSLATION VALIDATION TASK\n\nCONTEXT: Translation file or code with translation keys was modified.\n\nYOUR ROLE: Validate translation consistency across all supported locales (en, lt).\n\nVALIDATION CHECKLIST:\n1) **Missing Keys**: Check if all translation keys exist in both `en` and `lt` locales\n2) **Hardcoded Strings**: Scan for hardcoded user-facing strings in Filament resources/Blade views\n3) **Key Conventions**: Verify snake_case naming and proper nesting (app.labels.*, app.actions.*, etc.)\n4) **Enum Labels**: Ensure enums use `getLabel()` with `__()` for translations\n5) **JSON Sync**: Check if string-based lookups need entries in `lt.json`\n6) **Vendor Overrides**: Verify Filament vendor translations are synced\n\nACTIONS:\n- List any missing translation keys with file locations\n- Identify hardcoded strings that should use translation keys\n- Suggest proper translation key names following conventions\n- Flag any inconsistencies between locales\n\nOUTPUT FORMAT:\n✅ PASSED: [list of checks that passed]\n⚠️ WARNINGS: [list of potential issues]\n❌ ERRORS: [list of critical issues requiring fixes]\n\nRECOMMENDATIONS: [specific fixes needed]\n\nRun tests: `php artisan test --filter=LocalizationTest && php artisan test --filter=FilamentTranslationTest`"
+    "prompt": "TRANSLATION VALIDATION TASK\n\nCONTEXT: Translation file or code with translation keys was modified.\n\nYOUR ROLE: Validate translation consistency across all supported locales (en, lt).\n\nVALIDATION CHECKLIST:\n1) **Missing Keys**: Check if all translation keys exist in both `en` and `lt` locales\n2) **Hardcoded Strings**: Scan for hardcoded user-facing strings in Filament resources/Blade views\n3) **Key Conventions**: Verify snake_case naming and proper nesting (app.labels.*, app.actions.*, etc.)\n4) **Enum Labels**: Ensure enums use `getLabel()` with `__()` for translations\n5) **JSON Sync**: Check if string-based lookups need entries in `lt.json`\n6) **Vendor Overrides**: Verify Filament vendor translations are synced\n\nACTIONS:\n- List any missing translation keys with file locations\n- Identify hardcoded strings that should use translation keys\n- Suggest proper translation key names following conventions\n- Flag any inconsistencies between locales\n\nOUTPUT FORMAT:\n✅ PASSED: [list of checks that passed]\n⚠️ WARNINGS: [list of potential issues]\n❌ ERRORS: [list of critical issues requiring fixes]\n\nRECOMMENDATIONS: [specific fixes needed]\n\nRun tests: `php artisan test --filter=LocalizationTest && php artisan test --filter=FilamentTranslationTest`"
   },
-  "workspaceFolderName": "vue_rent_counter"
+  "workspaceFolderName": "laravel",
+  "shortName": "translation-validator"
 }

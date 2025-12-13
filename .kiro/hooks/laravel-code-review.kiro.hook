@@ -2,7 +2,7 @@
   "enabled": true,
   "name": "Laravel Code Review",
   "description": "Runs opinionated code reviews for PHP changes, focusing on correctness, security, performance, and adherence to Laravel conventions.",
-  "version": "2",
+  "version": "2.0",
   "when": {
     "type": "fileEdited",
     "patterns": [
@@ -17,6 +17,6 @@
     "type": "askAgent",
     "prompt": "You are a Laravel reviewer. Critique the edited file with project standards.\n\n- use MCP servers, use mcp services\n\nPROJECT CONTEXT: Laravel 12; Filament v4 admin; Tailwind CSS + Alpine.js; multi-tenant architecture; quality gates via Pint, PHPStan, Pest tests.\n\nREVIEW CHECKLIST:\n- Correctness & safety: validation, policies, null/edge cases, type safety, mass assignment, query safety.\n- Architecture: reuse scopes/traits/services; avoid duplication; follow naming/routing conventions; URL/query-string persistence where expected.\n- Performance: eager loading vs N+1; pagination; caching opportunities; avoid heavy work in views/Livewire render.\n- Security: authorization on mutations, sanitized inputs/outputs, CSP/cors impacts, sensitive data handling.\n- A11y/Localization: no hardcoded strings; ARIA/focus for UI changes; respects dark mode/design tokens.\n- Tests: what to add/update (Pest/Playwright/property) to cover the change.\n\nOUTPUT:\n1) Findings ordered by severity with file/line refs when possible.\n2) Quick risk summary and regressions to watch.\n3) Recommended fixes/next steps.\n4). Do all recomendations, start code changing by yourself\n\nBe concise but specific; preserve backward compatibility and existing conventions.\n\ndo it all, do all changes, use mcp, use another sources, do all code changes"
   },
-  "workspaceFolderName": "rent_counter",
+  "workspaceFolderName": "laravel",
   "shortName": "laravel-code-review"
 }

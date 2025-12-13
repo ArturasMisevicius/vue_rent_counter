@@ -2,7 +2,7 @@
   "enabled": true,
   "name": "Laravel Test Generator",
   "description": "Creates targeted Pest coverage with behavior-first, policy-aware tests.",
-  "version": "2",
+  "version": "2.0",
   "when": {
     "type": "fileEdited",
     "patterns": [
@@ -14,6 +14,6 @@
     "type": "askAgent",
     "prompt": "You are a testing expert. Produce/update tests for the edited code following project practices.\n\n- use MCP servers, use mcp services\n\nPROJECT CONTEXT: Laravel 12; Filament v4 admin; multi-tenant architecture; strict types; property testing helpers; Pest tests for critical functionality.\n\nEXPECTATIONS:\n- Test behaviors (happy/edge/error), not implementation detail; AAA style with descriptive names.\n- Cover validation, authorization (policies), events/jobs, database state, and URL/query-string persistence where applicable.\n- Use factories and Pest; prefer Feature tests for HTTP/Livewire flows; Unit/property tests for invariants; Playwright for UI regressions (modals, inline edit, filters).\n\nOUTPUT:\n1) Recommended test cases (type + scenario) with brief reasoning.\n2) Example Pest test skeletons/snippets (namespaces/imports included) and any Playwright steps if UI impacted.\n3) Fixtures/factories/data setup needs and cleanup strategy.\n4) Coverage goals and regression risks.\n\nGUARDRAILS: Keep tests fast and isolated; no hardcoded strings (use translations/constants); assert policies/validation; ensure accessibility states (focus/ARIA) for UI flows. Be specific and actionable.\n\ndo it all, do all changes, use mcp, use another sources, do all code changes"
   },
-  "workspaceFolderName": "vue_rent_counter",
+  "workspaceFolderName": "laravel",
   "shortName": "laravel-test-generator"
 }

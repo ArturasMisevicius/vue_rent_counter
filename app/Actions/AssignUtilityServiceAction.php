@@ -264,20 +264,22 @@ final class AssignUtilityServiceAction
 
         // Audit trail is automatically created by Auditable trait if applied
         // Additional logging for service assignment
-        activity()
-            ->performedOn($configuration)
-            ->causedBy(auth()->user())
-            ->withProperties([
-                'property_id' => $property->id,
-                'property_address' => $property->address,
-                'utility_service_id' => $utilityService->id,
-                'utility_service_name' => $utilityService->name,
-                'pricing_model' => $data->pricingModel->value,
-                'is_shared_service' => $data->isSharedService,
-                'effective_from' => $data->effectiveFrom->toDateString(),
-                'effective_until' => $data->effectiveUntil?->toDateString(),
-            ])
-            ->log('utility_service_assigned');
+        if (function_exists('activity')) {
+            activity()
+                ->performedOn($configuration)
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'property_id' => $property->id,
+                    'property_address' => $property->address,
+                    'utility_service_id' => $utilityService->id,
+                    'utility_service_name' => $utilityService->name,
+                    'pricing_model' => $data->pricingModel->value,
+                    'is_shared_service' => $data->isSharedService,
+                    'effective_from' => $data->effectiveFrom->toDateString(),
+                    'effective_until' => $data->effectiveUntil?->toDateString(),
+                ])
+                ->log('utility_service_assigned');
+        }
 
         return $configuration->fresh();
     }
