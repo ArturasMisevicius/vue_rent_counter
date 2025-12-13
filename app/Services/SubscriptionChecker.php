@@ -125,8 +125,7 @@ class SubscriptionChecker implements SubscriptionCheckerInterface
         $cacheKey = $this->buildCacheKey($user, self::CACHE_KEY_SUBSCRIPTION);
         
         try {
-            $subscription = $this->cache->tags([self::CACHE_TAG])
-                ->remember($cacheKey, $this->getCacheTTL(), function () use ($user, $cacheKey) {
+            $subscription = $this->cache->remember($cacheKey, $this->getCacheTTL(), function () use ($user, $cacheKey) {
                     Log::debug('Cache miss for subscription', [
                         'user_id' => $user->id,
                         'cache_key' => $cacheKey,
@@ -242,7 +241,7 @@ class SubscriptionChecker implements SubscriptionCheckerInterface
             $keys = $this->getAllCacheKeys($user);
             
             foreach ($keys as $key) {
-                $this->cache->tags([self::CACHE_TAG])->forget($key);
+                $this->cache->forget($key);
             }
             
             Log::info('Subscription cache invalidated', [
@@ -289,7 +288,7 @@ class SubscriptionChecker implements SubscriptionCheckerInterface
                 $keys = $this->getAllCacheKeys($user);
                 
                 foreach ($keys as $key) {
-                    $this->cache->tags([self::CACHE_TAG])->forget($key);
+                    $this->cache->forget($key);
                 }
             }
         } catch (\Exception $e) {
@@ -364,7 +363,7 @@ class SubscriptionChecker implements SubscriptionCheckerInterface
             // Check Laravel cache
             $cacheKey = $this->buildCacheKey($user, self::CACHE_KEY_SUBSCRIPTION);
             try {
-                $cached = $this->cache->tags([self::CACHE_TAG])->get($cacheKey);
+                $cached = $this->cache->get($cacheKey);
                 if ($cached !== null) {
                     $results[$user->id] = $cached;
                     $this->requestCache[$user->id] = $cached;
@@ -407,7 +406,7 @@ class SubscriptionChecker implements SubscriptionCheckerInterface
                     $user = new User(['id' => $userId]);
                     $cacheKey = $this->buildCacheKey($user, self::CACHE_KEY_SUBSCRIPTION);
                     try {
-                        $this->cache->tags([self::CACHE_TAG])->put(
+                        $this->cache->put(
                             $cacheKey,
                             $subscription,
                             $this->getCacheTTL()

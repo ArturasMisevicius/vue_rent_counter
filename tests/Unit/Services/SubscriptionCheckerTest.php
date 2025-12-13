@@ -205,7 +205,7 @@ test('handles cache failures gracefully', function () {
     
     // Mock cache to throw exception
     $mockCache = Mockery::mock(CacheRepository::class);
-    $mockCache->shouldReceive('tags')->andThrow(new \Exception('Cache error'));
+    $mockCache->shouldReceive('remember')->andThrow(new \Exception('Cache error'));
     
     $checker = new SubscriptionChecker($mockCache);
     
@@ -214,7 +214,7 @@ test('handles cache failures gracefully', function () {
     expect($result->id)->toBe($subscription->id);
 });
 
-test('uses cache tags for efficient invalidation', function () {
+test('uses cache for efficient invalidation', function () {
     $user = User::factory()->create();
     Subscription::factory()->create(['user_id' => $user->id]);
     
@@ -234,7 +234,7 @@ test('uses cache tags for efficient invalidation', function () {
     // Third call should fetch fresh data
     $subscription3 = $checker->getSubscription($user);
     expect($subscription3->id)->toBe($subscription1->id);
-})->skip(fn () => config('cache.default') === 'file', 'Cache tags not supported by file driver');
+});
 
 test('respects configured cache TTL', function () {
     config(['subscription.cache_ttl' => 600]); // 10 minutes

@@ -161,6 +161,12 @@ return [
                 'per_minute' => 10,
                 'per_hour' => 100,
             ],
+            
+            // Validation operation limits
+            'single_validation' => 300, // per hour
+            'batch_validation' => 100,  // items per hour
+            'rate_change_validation' => 20, // per hour
+            'estimated_reading_validation' => 150, // per hour
         ],
     ],
 

@@ -85,7 +85,9 @@ return [
         'subscriptions' => 'Prenumeratos',
         'tariffs' => 'Tarifai',
         'tenants' => 'Nuomininkai',
+        'managers' => 'Vadovai',
         'users' => 'Vartotojai',
+        'actions' => 'Veiksmai',
     ],
     'nav_groups' => [
         'administration' => 'Administravimas',

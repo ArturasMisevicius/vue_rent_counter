@@ -3,6 +3,6 @@
 declare(strict_types=1);
 
 return [
-    'account_deactivated' => 'Account Deactivated',
-    'failed' => 'Failed',
+    'account_deactivated' => 'Paskyra deaktyvinta',
+    'failed' => 'Nepavyko',
 ];

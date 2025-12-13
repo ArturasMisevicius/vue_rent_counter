@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 return [
     'fields' => [
-        'period_end' => 'Period End',
-        'period_start' => 'Period Start',
-        'tenant' => 'Tenant',
+        'period_end' => 'Laikotarpio pabaiga',
+        'period_start' => 'Laikotarpio pradžia',
+        'tenant' => 'Nuomininkas',
     ],
     'validation' => [
-        'duplicate_invoice' => 'Duplicate Invoice',
-        'period_end_future' => 'Period End Future',
-        'period_end_required' => 'Period End Required',
-        'period_start_future' => 'Period Start Future',
-        'period_start_required' => 'Period Start Required',
-        'period_too_long' => 'Period Too Long',
-        'tenant_inactive' => 'Tenant Inactive',
-        'tenant_not_found' => 'Tenant Not Found',
-        'tenant_required' => 'Tenant Required',
+        'duplicate_invoice' => 'Sąskaitos faktūros dublikatas',
+        'period_end_future' => 'Laikotarpio pabaiga Ateitis',
+        'period_end_required' => 'Reikalingas laikotarpio pabaiga',
+        'period_start_future' => 'Laikotarpio pradžia Ateitis',
+        'period_start_required' => 'Reikalingas laikotarpio pradžia',
+        'period_too_long' => 'Per ilgas laikotarpis',
+        'tenant_inactive' => 'Nuomininkas neaktyvus',
+        'tenant_not_found' => 'Nuomininkas Nerastas',
+        'tenant_required' => 'Reikalingas nuomininkas',
     ],
 ];

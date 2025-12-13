@@ -12,11 +12,6 @@ describe('StatusBadge Cache Management', function () {
     });
 
     test('cache is populated on first access', function () {
-        Cache::shouldReceive('tags')
-            ->with(['status-badge', 'translations'])
-            ->once()
-            ->andReturnSelf();
-        
         Cache::shouldReceive('remember')
             ->once()
             ->andReturn([
@@ -34,14 +29,14 @@ describe('StatusBadge Cache Management', function () {
         $component = new StatusBadge(InvoiceStatus::PAID);
         
         // Verify cache exists
-        expect(Cache::tags(['status-badge', 'translations'])->has('status-badge.translations'))
+        expect(Cache::has('status-badge.translations'))
             ->toBeTrue();
         
         // Invalidate cache
         StatusBadge::invalidateCache();
         
         // Verify cache is cleared
-        expect(Cache::tags(['status-badge', 'translations'])->has('status-badge.translations'))
+        expect(Cache::has('status-badge.translations'))
             ->toBeFalse();
     });
 

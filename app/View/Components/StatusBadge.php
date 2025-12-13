@@ -213,11 +213,10 @@ final class StatusBadge extends Component
      * Get merged translations from all supported enums.
      *
      * Merges label arrays from all supported enum types into a single
-     * lookup table. Results are cached for 24 hours with tags for
-     * selective invalidation when translations change.
+     * lookup table. Results are cached for 24 hours using database cache.
      *
      * Cache invalidation:
-     * - Cache::tags(['status-badge', 'translations'])->flush()
+     * - Cache::forget('status-badge.translations')
      * - Automatic on cache clear
      *
      * @return array<string, string> Map of status values to display labels
@@ -226,8 +225,7 @@ final class StatusBadge extends Component
     {
         $cacheKey = 'status-badge.translations';
         
-        return Cache::tags(['status-badge', 'translations'])
-            ->remember($cacheKey, now()->addDay(), function () use ($cacheKey): array {
+        return Cache::remember($cacheKey, now()->addDay(), function () use ($cacheKey): array {
                 $translations = array_merge(
                     InvoiceStatus::labels(),
                     ServiceType::labels(),
@@ -291,7 +289,7 @@ final class StatusBadge extends Component
      */
     public static function invalidateCache(): void
     {
-        Cache::tags(['status-badge', 'translations'])->flush();
+        Cache::forget('status-badge.translations');
         
         logger()->info('StatusBadge translation cache invalidated');
     }

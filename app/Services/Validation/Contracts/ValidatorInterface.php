@@ -8,22 +8,30 @@ use App\Services\Validation\ValidationContext;
 use App\Services\Validation\ValidationResult;
 
 /**
- * Interface for validation rule implementations.
+ * Interface for all validation strategies.
+ * 
+ * Defines the contract for validation implementations using the Strategy pattern.
+ * Each validator focuses on a single validation concern for maintainability.
  */
 interface ValidatorInterface
 {
     /**
-     * Get the validator name.
+     * Validate the given context and return a result.
+     */
+    public function validate(ValidationContext $context): ValidationResult;
+
+    /**
+     * Get the name of this validator for logging and debugging.
      */
     public function getName(): string;
 
     /**
-     * Check if this validator applies to the given context.
+     * Check if this validator is applicable to the given context.
      */
-    public function appliesTo(ValidationContext $context): bool;
+    public function isApplicable(ValidationContext $context): bool;
 
     /**
-     * Validate the context and return results.
+     * Get the priority of this validator (higher numbers run first).
      */
-    public function validate(ValidationContext $context): ValidationResult;
+    public function getPriority(): int;
 }

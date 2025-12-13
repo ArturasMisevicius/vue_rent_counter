@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -71,7 +73,52 @@ use Spatie\Permission\Traits\HasRoles;
  */
 class User extends Authenticatable implements FilamentUser
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles {
+        HasRoles::bootHasRoles as protected bootHasRolesTrait;
+        HasRoles::hasRole as protected hasRoleTrait;
+    }
+
+    /**
+     * Guard Spatie role boot hooks when permission tables are not present.
+     */
+    public static function bootHasRoles(): void
+    {
+        if (!Schema::hasTable(config('permission.table_names.model_has_roles'))) {
+            return;
+        }
+
+        static::bootHasRolesTrait();
+    }
+
+    /**
+     * Guard permission pivot detaching when permission tables are not present.
+     */
+    public static function bootHasPermissions(): void
+    {
+        if (!Schema::hasTable(config('permission.table_names.model_has_permissions'))) {
+            return;
+        }
+
+        static::deleting(function ($model) {
+            if (method_exists($model, 'isForceDeleting') && !$model->isForceDeleting()) {
+                return;
+            }
+
+            $registrar = app(\Spatie\Permission\PermissionRegistrar::class);
+            $teams = $registrar->teams;
+            $registrar->teams = false;
+
+            if (!is_a($model, \Spatie\Permission\Contracts\Permission::class)) {
+                $model->permissions()->detach();
+            }
+
+            if (is_a($model, \Spatie\Permission\Contracts\Role::class)) {
+                $model->users()->detach();
+            }
+
+            $registrar->teams = $teams;
+        });
+    }
 
     /**
      * The "booted" method of the model.
@@ -188,6 +235,22 @@ class User extends Authenticatable implements FilamentUser
     public function isTenantUser(): bool
     {
         return $this->role === UserRole::TENANT;
+    }
+
+    /**
+     * Override role check to work without pivot tables in lightweight setups.
+     */
+    public function hasRole($roles, ?string $guard = null): bool
+    {
+        if (Schema::hasTable(config('permission.table_names.model_has_roles'))) {
+            return $this->hasRoleTrait($roles, $guard);
+        }
+
+        $roleValue = $this->role instanceof UserRole ? $this->role->value : (string) $this->role;
+
+        return collect(Arr::wrap($roles))
+            ->map(fn ($role) => $role instanceof \BackedEnum ? $role->value : (string) $role)
+            ->contains($roleValue);
     }
 
     /**

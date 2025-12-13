@@ -85,7 +85,9 @@ return [
         'subscriptions' => 'Подписки',
         'tariffs' => 'Тарифы',
         'tenants' => 'Арендаторы',
+        'managers' => 'Менеджеры',
         'users' => 'Пользователи',
+        'actions' => 'Действия',
     ],
     'nav_groups' => [
         'administration' => 'Администрация',

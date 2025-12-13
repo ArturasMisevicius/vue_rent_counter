@@ -17,8 +17,6 @@ use App\Models\MeterReading;
 use App\Models\Provider;
 use App\Models\Tenant;
 use App\ValueObjects\BillingPeriod;
-use App\ValueObjects\ConsumptionData;
-use App\ValueObjects\InvoiceItemData;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -193,7 +191,7 @@ class BillingService extends BaseService
             }
 
             // Add gyvatukas items if applicable
-            if ($property->building) {
+            if ($property->building && $property->building->hasSummerAverage()) {
                 try {
                     $gyvatukasItems = $this->generateGyvatukasItems($property, $billingPeriod);
                     $invoiceItems = $invoiceItems->merge($gyvatukasItems);
@@ -290,8 +288,10 @@ class BillingService extends BaseService
         }
 
         // Calculate consumption
-        $consumptionData = new ConsumptionData($startReading, $endReading, $zone);
-        $consumption = $consumptionData->amount();
+        $consumption = round(
+            (float) $endReading->value - (float) $startReading->value,
+            2
+        );
 
         // Skip if no consumption
         if ($consumption <= 0) {

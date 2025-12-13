@@ -6,173 +6,135 @@ namespace App\Services\Validation;
 
 use App\Models\MeterReading;
 use App\Models\ServiceConfiguration;
-use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * Validation context containing all data needed for validation operations.
+ * Immutable validation context value object.
  * 
- * This value object encapsulates the validation context to reduce parameter
- * passing and improve testability.
- * 
- * PERFORMANCE OPTIMIZATIONS:
- * - Memoized expensive computations
- * - Lazy loading of derived values
- * - Cached property access
+ * Contains all data needed for validation operations in a thread-safe,
+ * immutable structure. Prevents side effects and enables safe concurrent validation.
  */
-final class ValidationContext
+final readonly class ValidationContext
 {
-    private array $memoizedValues = [];
-
     public function __construct(
-        public readonly MeterReading $reading,
-        public readonly ?ServiceConfiguration $serviceConfiguration = null,
-        public readonly ?array $validationConfig = null,
-        public readonly ?array $seasonalConfig = null,
-        public readonly ?MeterReading $previousReading = null,
-        public readonly ?Collection $historicalReadings = null,
-    ) {
-    }
-
-    public function hasServiceConfiguration(): bool
-    {
-        return $this->serviceConfiguration !== null;
-    }
-
-    public function hasValidationConfig(): bool
-    {
-        return $this->validationConfig !== null;
-    }
-
-    public function hasSeasonalConfig(): bool
-    {
-        return $this->seasonalConfig !== null;
-    }
-
-    public function hasPreviousReading(): bool
-    {
-        return $this->previousReading !== null;
-    }
-
-    public function hasHistoricalReadings(): bool
-    {
-        return $this->historicalReadings !== null && $this->historicalReadings->isNotEmpty();
-    }
+        public MeterReading $reading,
+        public ?ServiceConfiguration $serviceConfiguration,
+        public array $validationConfig,
+        public array $seasonalConfig,
+        public ?MeterReading $previousReading = null,
+        public ?Collection $historicalReadings = null,
+    ) {}
 
     /**
-     * OPTIMIZED: Get consumption with memoization and preloaded previous reading.
+     * Get the effective consumption for this reading.
      */
     public function getConsumption(): ?float
     {
-        return $this->memoize('consumption', function () {
-            return $this->reading->getConsumption($this->previousReading);
-        });
+        return $this->reading->getConsumption($this->previousReading);
     }
 
     /**
-     * OPTIMIZED: Get reading date with memoization.
+     * Get the utility service for this reading.
      */
-    public function getReadingDate(): Carbon
+    public function getUtilityService(): ?\App\Models\UtilityService
     {
-        return $this->memoize('reading_date', function () {
-            return $this->reading->reading_date;
-        });
+        return $this->serviceConfiguration?->utilityService;
     }
 
     /**
-     * OPTIMIZED: Get utility type with memoization and null coalescing.
+     * Get the meter for this reading.
      */
-    public function getUtilityType(): ?string
+    public function getMeter(): \App\Models\Meter
     {
-        return $this->memoize('utility_type', function () {
-            return $this->serviceConfiguration?->utilityService?->service_type_bridge?->value;
-        });
+        return $this->reading->meter;
     }
 
     /**
-     * OPTIMIZED: Get unit with memoization and fallback.
+     * Check if this reading has historical data for pattern analysis.
      */
-    public function getUnit(): string
+    public function hasHistoricalData(): bool
     {
-        return $this->memoize('unit', function () {
-            return $this->serviceConfiguration?->utilityService?->unit_of_measurement ?? 'units';
-        });
+        return $this->historicalReadings && $this->historicalReadings->isNotEmpty();
     }
 
     /**
-     * OPTIMIZED: Get historical average consumption with caching.
+     * Get historical consumption average.
      */
-    public function getHistoricalAverageConsumption(): ?float
+    public function getHistoricalAverage(): ?float
     {
-        return $this->memoize('historical_average', function () {
-            if (!$this->hasHistoricalReadings()) {
-                return null;
-            }
-
-            $consumptions = $this->historicalReadings
-                ->map(fn($reading) => $reading->getConsumption())
-                ->filter()
-                ->values();
-
-            return $consumptions->isEmpty() ? null : $consumptions->avg();
-        });
-    }
-
-    /**
-     * OPTIMIZED: Get seasonal period with caching.
-     */
-    public function getSeasonalPeriod(): string
-    {
-        return $this->memoize('seasonal_period', function () {
-            $month = $this->getReadingDate()->month;
-            
-            // Northern hemisphere seasons (adjust for location if needed)
-            return match (true) {
-                $month >= 12 || $month <= 2 => 'winter',
-                $month >= 3 && $month <= 5 => 'spring',
-                $month >= 6 && $month <= 8 => 'summer',
-                default => 'autumn',
-            };
-        });
-    }
-
-    /**
-     * OPTIMIZED: Check if reading is in heating season.
-     */
-    public function isHeatingSeason(): bool
-    {
-        return $this->memoize('is_heating_season', function () {
-            $period = $this->getSeasonalPeriod();
-            return in_array($period, ['winter', 'autumn'], true);
-        });
-    }
-
-    /**
-     * OPTIMIZED: Get consumption variance from historical average.
-     */
-    public function getConsumptionVariance(): ?float
-    {
-        return $this->memoize('consumption_variance', function () {
-            $current = $this->getConsumption();
-            $average = $this->getHistoricalAverageConsumption();
-            
-            if ($current === null || $average === null || $average == 0) {
-                return null;
-            }
-            
-            return abs($current - $average) / $average;
-        });
-    }
-
-    /**
-     * Memoization helper to cache expensive computations.
-     */
-    private function memoize(string $key, callable $callback): mixed
-    {
-        if (!isset($this->memoizedValues[$key])) {
-            $this->memoizedValues[$key] = $callback();
+        if (!$this->hasHistoricalData()) {
+            return null;
         }
-        
-        return $this->memoizedValues[$key];
+
+        $consumptions = $this->historicalReadings
+            ->map(fn($reading) => $reading->getConsumption())
+            ->filter(fn($consumption) => $consumption !== null);
+
+        return $consumptions->isNotEmpty() ? $consumptions->avg() : null;
+    }
+
+    /**
+     * Get seasonal configuration for the utility service.
+     */
+    public function getSeasonalConfig(): array
+    {
+        $serviceType = $this->getUtilityService()?->service_type_bridge?->value ?? 'default';
+        return $this->seasonalConfig[$serviceType] ?? $this->seasonalConfig['default'] ?? [];
+    }
+
+    /**
+     * Check if the reading date is in summer period.
+     */
+    public function isSummerPeriod(): bool
+    {
+        $month = $this->reading->reading_date->month;
+        return $month >= 5 && $month <= 9; // May to September
+    }
+
+    /**
+     * Check if the reading date is in winter period.
+     */
+    public function isWinterPeriod(): bool
+    {
+        $month = $this->reading->reading_date->month;
+        return $month <= 3 || $month >= 11; // November to March
+    }
+
+    /**
+     * Get validation configuration value with fallback.
+     */
+    public function getValidationConfig(string $key, mixed $default = null): mixed
+    {
+        return data_get($this->validationConfig, $key, $default);
+    }
+
+    /**
+     * Create a new context with updated reading.
+     */
+    public function withReading(MeterReading $reading): self
+    {
+        return new self(
+            reading: $reading,
+            serviceConfiguration: $this->serviceConfiguration,
+            validationConfig: $this->validationConfig,
+            seasonalConfig: $this->seasonalConfig,
+            previousReading: $this->previousReading,
+            historicalReadings: $this->historicalReadings,
+        );
+    }
+
+    /**
+     * Create a new context with updated service configuration.
+     */
+    public function withServiceConfiguration(?ServiceConfiguration $serviceConfiguration): self
+    {
+        return new self(
+            reading: $this->reading,
+            serviceConfiguration: $serviceConfiguration,
+            validationConfig: $this->validationConfig,
+            seasonalConfig: $this->seasonalConfig,
+            previousReading: $this->previousReading,
+            historicalReadings: $this->historicalReadings,
+        );
     }
 }

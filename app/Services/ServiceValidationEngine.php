@@ -213,6 +213,12 @@ final class ServiceValidationEngine
      * Uses eager loading and caching to efficiently validate multiple readings
      * while maintaining the same validation quality as individual validation.
      * 
+     * SECURITY ENHANCEMENTS:
+     * - Pre-validates ALL readings for authorization BEFORE processing
+     * - Enforces rate limiting on batch operations
+     * - Early termination on authorization failures
+     * - Comprehensive audit logging
+     * 
      * PERFORMANCE OPTIMIZATIONS:
      * - Single query for all previous readings (eliminates N+1)
      * - Bulk cache warming for validation rules
@@ -224,11 +230,19 @@ final class ServiceValidationEngine
      * @return array{total_readings: int, valid_readings: int, invalid_readings: int, warnings_count: int, results: array<int, array>, summary: array<string, float>, performance_metrics: array<string, mixed>} Batch validation results
      * 
      * @throws \InvalidArgumentException When readings collection contains invalid models
+     * @throws \Illuminate\Auth\Access\AuthorizationException When user lacks authorization
+     * @throws \Illuminate\Http\Exceptions\ThrottleRequestsException When rate limit exceeded
      */
     public function batchValidateReadings(Collection $readings, array $options = []): array
     {
-        // Validate input collection contains only MeterReading models FIRST
+        // SECURITY: Validate input collection contains only MeterReading models FIRST
         $this->validateReadingsCollection($readings);
+        
+        // SECURITY: Pre-validate ALL readings for authorization BEFORE processing
+        $this->validateBatchAuthorization($readings);
+        
+        // SECURITY: Enforce rate limiting on batch operations
+        $this->enforceRateLimit('batch_validation', $readings->count());
         
         $startTime = microtime(true);
         $queryCount = DB::getQueryLog() ? count(DB::getQueryLog()) : 0;
@@ -680,11 +694,38 @@ final class ServiceValidationEngine
     /**
      * Sanitize rate schedule input to prevent injection attacks.
      * 
+     * SECURITY ENHANCEMENTS:
+     * - Validates array depth to prevent nested injection attacks
+     * - Enforces size limits to prevent memory exhaustion
+     * - Enhanced type validation with bounds checking
+     * - Secure date validation with range limits
+     * - Structure-specific validation for time_slots and tiers
+     * 
      * @param array<string, mixed> $rateSchedule
      * @return array<string, mixed>
+     * @throws \InvalidArgumentException If input is malicious or invalid
      */
     private function sanitizeRateSchedule(array $rateSchedule): array
     {
+        // SECURITY: Validate array depth to prevent nested injection
+        if ($this->getArrayDepth($rateSchedule) > 3) {
+            $this->logger->warning('Rate schedule structure too complex', [
+                'depth' => $this->getArrayDepth($rateSchedule),
+                'user_id' => auth()->id(),
+            ]);
+            throw new \InvalidArgumentException('Rate schedule structure too complex');
+        }
+
+        // SECURITY: Validate total array size to prevent memory exhaustion
+        $arraySize = $this->getArraySize($rateSchedule);
+        if ($arraySize > 1000) {
+            $this->logger->warning('Rate schedule too large', [
+                'size' => $arraySize,
+                'user_id' => auth()->id(),
+            ]);
+            throw new \InvalidArgumentException('Rate schedule too large');
+        }
+
         $sanitized = [];
         $allowedKeys = [
             'rate_per_unit', 'monthly_rate', 'base_rate', 'default_rate',
@@ -693,28 +734,221 @@ final class ServiceValidationEngine
         ];
 
         foreach ($rateSchedule as $key => $value) {
-            // Only allow whitelisted keys
-            if (!in_array($key, $allowedKeys, true)) {
+            // SECURITY: Strict key validation with type checking
+            if (!is_string($key) || !in_array($key, $allowedKeys, true)) {
                 continue;
             }
 
-            // Sanitize based on expected data types
-            $sanitized[$key] = match ($key) {
-                'rate_per_unit', 'monthly_rate', 'base_rate', 'default_rate', 
-                'peak_rate', 'off_peak_rate', 'weekend_rate' => is_numeric($value) ? (float) $value : null,
-                'effective_from', 'effective_until' => is_string($value) ? filter_var($value, FILTER_SANITIZE_STRING) : null,
-                'time_slots', 'tiers' => is_array($value) ? $this->sanitizeNestedArray($value) : [],
-                default => is_scalar($value) ? filter_var($value, FILTER_SANITIZE_STRING) : null,
-            };
+            // SECURITY: Enhanced type validation with bounds checking
+            try {
+                $sanitized[$key] = match ($key) {
+                    'rate_per_unit', 'monthly_rate', 'base_rate', 'default_rate', 
+                    'peak_rate', 'off_peak_rate', 'weekend_rate' => $this->validateNumericRate($value),
+                    'effective_from', 'effective_until' => $this->validateDateString($value),
+                    'time_slots', 'tiers' => $this->validateNestedStructure($value, $key),
+                    default => null,
+                };
 
-            // Remove null values
-            if ($sanitized[$key] !== null) {
+                // Remove null values
+                if ($sanitized[$key] === null) {
+                    unset($sanitized[$key]);
+                }
+            } catch (\Exception $e) {
+                $this->logger->warning('Rate schedule validation error', [
+                    'key' => $key,
+                    'error' => $e->getMessage(),
+                    'user_id' => auth()->id(),
+                ]);
+                // Skip invalid values instead of failing completely
                 continue;
             }
-            unset($sanitized[$key]);
         }
 
         return $sanitized;
+    }
+
+    /**
+     * SECURITY: Validate numeric rate values with bounds checking.
+     */
+    private function validateNumericRate(mixed $value): ?float
+    {
+        if (!is_numeric($value)) {
+            return null;
+        }
+        
+        $rate = (float) $value;
+        
+        // SECURITY: Validate reasonable bounds to prevent overflow attacks
+        if ($rate < 0 || $rate > 999999.99) {
+            throw new \InvalidArgumentException('Rate value out of acceptable range (0-999999.99)');
+        }
+        
+        // SECURITY: Check for NaN and infinite values
+        if (!is_finite($rate)) {
+            throw new \InvalidArgumentException('Rate value must be finite');
+        }
+        
+        return $rate;
+    }
+
+    /**
+     * SECURITY: Validate date strings with format and range checking.
+     */
+    private function validateDateString(mixed $value): ?string
+    {
+        if (!is_string($value) || strlen($value) > 25) { // Reasonable date string length
+            return null;
+        }
+        
+        // SECURITY: Validate date format and range
+        try {
+            $date = new \DateTime($value);
+            $now = new \DateTime();
+            $minDate = (clone $now)->sub(new \DateInterval('P50Y')); // 50 years ago
+            $maxDate = (clone $now)->add(new \DateInterval('P10Y')); // 10 years future
+            
+            if ($date < $minDate || $date > $maxDate) {
+                throw new \InvalidArgumentException('Date out of acceptable range');
+            }
+            
+            return $date->format('Y-m-d H:i:s');
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * SECURITY: Validate nested structures with type-specific rules.
+     */
+    private function validateNestedStructure(mixed $value, string $type): array
+    {
+        if (!is_array($value) || empty($value)) {
+            return [];
+        }
+        
+        // SECURITY: Limit nested array size
+        if (count($value) > 50) {
+            throw new \InvalidArgumentException("Too many {$type} entries (max 50)");
+        }
+        
+        // Type-specific validation
+        return match ($type) {
+            'time_slots' => $this->validateTimeSlots($value),
+            'tiers' => $this->validateTiers($value),
+            default => [],
+        };
+    }
+
+    /**
+     * SECURITY: Validate time slots structure.
+     */
+    private function validateTimeSlots(array $timeSlots): array
+    {
+        $validated = [];
+        
+        foreach ($timeSlots as $slot) {
+            if (!is_array($slot)) {
+                continue;
+            }
+            
+            $validatedSlot = [];
+            
+            // Validate required fields
+            if (isset($slot['start_hour']) && is_numeric($slot['start_hour'])) {
+                $hour = (int) $slot['start_hour'];
+                if ($hour >= 0 && $hour <= 23) {
+                    $validatedSlot['start_hour'] = $hour;
+                }
+            }
+            
+            if (isset($slot['end_hour']) && is_numeric($slot['end_hour'])) {
+                $hour = (int) $slot['end_hour'];
+                if ($hour >= 0 && $hour <= 23) {
+                    $validatedSlot['end_hour'] = $hour;
+                }
+            }
+            
+            if (isset($slot['rate']) && is_numeric($slot['rate'])) {
+                $validatedSlot['rate'] = $this->validateNumericRate($slot['rate']);
+            }
+            
+            if (isset($slot['day_type']) && is_string($slot['day_type'])) {
+                $dayType = trim($slot['day_type']);
+                if (in_array($dayType, ['weekday', 'weekend'], true)) {
+                    $validatedSlot['day_type'] = $dayType;
+                }
+            }
+            
+            // Only add if has minimum required fields
+            if (isset($validatedSlot['start_hour'], $validatedSlot['end_hour'], $validatedSlot['rate'])) {
+                $validated[] = $validatedSlot;
+            }
+        }
+        
+        return $validated;
+    }
+
+    /**
+     * SECURITY: Validate tiers structure.
+     */
+    private function validateTiers(array $tiers): array
+    {
+        $validated = [];
+        
+        foreach ($tiers as $tier) {
+            if (!is_array($tier)) {
+                continue;
+            }
+            
+            $validatedTier = [];
+            
+            if (isset($tier['limit']) && is_numeric($tier['limit'])) {
+                $limit = (float) $tier['limit'];
+                if ($limit > 0 && $limit <= 999999) {
+                    $validatedTier['limit'] = $limit;
+                }
+            }
+            
+            if (isset($tier['rate']) && is_numeric($tier['rate'])) {
+                $validatedTier['rate'] = $this->validateNumericRate($tier['rate']);
+            }
+            
+            // Only add if has required fields
+            if (isset($validatedTier['limit'], $validatedTier['rate'])) {
+                $validated[] = $validatedTier;
+            }
+        }
+        
+        return $validated;
+    }
+
+    /**
+     * SECURITY: Calculate array depth to prevent deeply nested attacks.
+     */
+    private function getArrayDepth(array $array): int
+    {
+        $maxDepth = 1;
+        foreach ($array as $value) {
+            if (is_array($value)) {
+                $depth = $this->getArrayDepth($value) + 1;
+                $maxDepth = max($maxDepth, $depth);
+            }
+        }
+        return $maxDepth;
+    }
+
+    /**
+     * SECURITY: Calculate total array size to prevent memory exhaustion.
+     */
+    private function getArraySize(array $array): int
+    {
+        $size = count($array);
+        foreach ($array as $value) {
+            if (is_array($value)) {
+                $size += $this->getArraySize($value);
+            }
+        }
+        return $size;
     }
 
     /**
@@ -1008,5 +1242,87 @@ final class ServiceValidationEngine
                 "Batch size ({$readings->count()}) exceeds maximum allowed size ({$maxBatchSize})"
             );
         }
+    }
+
+    /**
+     * SECURITY: Validate authorization for all readings in batch BEFORE processing.
+     * 
+     * This prevents partial processing and potential information leakage.
+     * 
+     * @param Collection<int, MeterReading> $readings
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    private function validateBatchAuthorization(Collection $readings): void
+    {
+        if (!auth()->check()) {
+            throw new \Illuminate\Auth\Access\AuthorizationException(
+                'Authentication required for batch validation'
+            );
+        }
+
+        // Check authorization for ALL readings before processing ANY
+        $unauthorizedReadings = $readings->filter(function ($reading) {
+            return !auth()->user()->can('view', $reading);
+        });
+
+        if ($unauthorizedReadings->isNotEmpty()) {
+            $this->logger->warning('Batch validation attempted with unauthorized readings', [
+                'user_id' => auth()->id(),
+                'unauthorized_count' => $unauthorizedReadings->count(),
+                'total_count' => $readings->count(),
+                'unauthorized_ids' => $unauthorizedReadings->pluck('id')->toArray(),
+                'ip_address' => request()->ip(),
+            ]);
+            
+            throw new \Illuminate\Auth\Access\AuthorizationException(
+                'Unauthorized access to one or more meter readings'
+            );
+        }
+    }
+
+    /**
+     * SECURITY: Enforce rate limiting on validation operations.
+     * 
+     * @param string $operation Operation type for rate limiting
+     * @param int $itemCount Number of items being processed
+     * @throws \Illuminate\Http\Exceptions\ThrottleRequestsException
+     */
+    private function enforceRateLimit(string $operation, int $itemCount): void
+    {
+        $user = auth()->user();
+        $identifier = $user ? "user:{$user->id}" : "ip:" . request()->ip();
+        $key = "rate_limit:{$operation}:{$identifier}";
+        
+        // Get operation-specific limits
+        $limits = $this->config->get('security.rate_limiting.limits', [
+            'batch_validation' => 100, // items per hour
+            'single_validation' => 300, // operations per hour
+            'rate_change_validation' => 20, // operations per hour
+        ]);
+        
+        $limit = $limits[$operation] ?? 50;
+        $window = 3600; // 1 hour in seconds
+        
+        $current = $this->cache->get($key, 0);
+        
+        if ($current + $itemCount > $limit) {
+            $this->logger->warning('Rate limit exceeded', [
+                'operation' => $operation,
+                'user_id' => $user?->id,
+                'ip_address' => request()->ip(),
+                'current_count' => $current,
+                'attempted_count' => $itemCount,
+                'limit' => $limit,
+            ]);
+            
+            throw new \Illuminate\Http\Exceptions\ThrottleRequestsException(
+                'Rate limit exceeded for validation operations',
+                [],
+                $window - (time() % $window) // Retry after remaining window time
+            );
+        }
+        
+        // Update rate limit counter
+        $this->cache->put($key, $current + $itemCount, $window);
     }
 }

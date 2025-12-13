@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 return [
     'fields' => [
-        'period_end' => 'Period End',
-        'period_start' => 'Period Start',
-        'tenant' => 'Tenant',
+        'period_end' => 'Конец периода',
+        'period_start' => 'Начало периода',
+        'tenant' => 'Жилец',
     ],
     'validation' => [
-        'duplicate_invoice' => 'Duplicate Invoice',
-        'period_end_future' => 'Period End Future',
-        'period_end_required' => 'Period End Required',
-        'period_start_future' => 'Period Start Future',
-        'period_start_required' => 'Period Start Required',
-        'period_too_long' => 'Period Too Long',
-        'tenant_inactive' => 'Tenant Inactive',
-        'tenant_not_found' => 'Tenant Not Found',
-        'tenant_required' => 'Tenant Required',
+        'duplicate_invoice' => 'Дубликат счета',
+        'period_end_future' => 'Конец периода Будущее',
+        'period_end_required' => 'Требуется конец периода',
+        'period_start_future' => 'Период Начало Будущее',
+        'period_start_required' => 'Требуется начало периода',
+        'period_too_long' => 'Слишком длинный период',
+        'tenant_inactive' => 'Арендатор неактивен',
+        'tenant_not_found' => 'Арендатор не найден',
+        'tenant_required' => 'Требуется арендатор',
     ],
 ];
