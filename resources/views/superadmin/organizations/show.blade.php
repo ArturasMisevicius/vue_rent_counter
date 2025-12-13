@@ -244,13 +244,13 @@
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end gap-2">
                                 <a href="{{ route('filament.admin.resources.buildings.edit', $building) }}" class="px-2 py-1 text-xs font-semibold text-white bg-indigo-600 rounded hover:bg-indigo-700">
-                                    {{ __('superadmin.dashboard.organization_show.resources.action_view') }}
+                                    {{ __('common.edit') }}
                                 </a>
-                                <form action="{{ route('filament.admin.resources.buildings.destroy', $building) }}" method="POST" onsubmit="return confirm('{{ __('common.confirm_delete') ?? 'Are you sure?' }}');">
+                                <form action="{{ route('filament.admin.resources.buildings.destroy', $building) }}" method="POST" onsubmit="return confirm('{{ __('common.confirm_delete') }}');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="px-2 py-1 text-xs font-semibold text-white bg-red-600 rounded hover:bg-red-700">
-                                        {{ __('common.delete') ?? 'Delete' }}
+                                        {{ __('common.delete') }}
                                     </button>
                                 </form>
                             </div>

@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('service_configurations')) {
+            return;
+        }
+
         Schema::table('service_configurations', function (Blueprint $table) {
             // PERFORMANCE OPTIMIZATION: Add indexes for validation engine queries
             
@@ -36,6 +40,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (! Schema::hasTable('service_configurations')) {
+            return;
+        }
+
         Schema::table('service_configurations', function (Blueprint $table) {
             $table->dropIndex('idx_utility_active_effective');
             $table->dropIndex('idx_shared_distribution_active');

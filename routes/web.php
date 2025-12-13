@@ -119,7 +119,7 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
     // Managers (superadmin view)
     Route::get('managers', [SuperadminManagerController::class, 'index'])->name('managers.index');
     Route::get('managers/{manager}', [SuperadminManagerController::class, 'show'])->name('managers.show');
-    
+
     // Subscription Management
     Route::get('subscriptions', [SuperadminSubscriptionController::class, 'index'])->name('subscriptions.index');
     Route::get('subscriptions/{subscription}', [SuperadminSubscriptionController::class, 'show'])->name('subscriptions.show');
@@ -128,6 +128,15 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
     Route::post('subscriptions/{subscription}/renew', [SuperadminSubscriptionController::class, 'renew'])->name('subscriptions.renew');
     Route::post('subscriptions/{subscription}/suspend', [SuperadminSubscriptionController::class, 'suspend'])->name('subscriptions.suspend');
     Route::post('subscriptions/{subscription}/cancel', [SuperadminSubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+});
+
+// Filament-style resource deletes for superadmin convenience (no name prefix)
+Route::middleware(['auth', 'role:superadmin'])->group(function () {
+    Route::delete('superadmin/filament/buildings/{building}', [ManagerBuildingController::class, 'destroy'])->name('filament.admin.resources.buildings.destroy');
+    Route::delete('superadmin/filament/properties/{property}', [ManagerPropertyController::class, 'destroy'])->name('filament.admin.resources.properties.destroy');
+    Route::delete('superadmin/filament/invoices/{invoice}', [ManagerInvoiceController::class, 'destroy'])->name('filament.admin.resources.invoices.destroy');
+    Route::delete('superadmin/filament/tenants/{tenant}', [AdminTenantController::class, 'destroy'])->name('filament.admin.resources.tenants.destroy');
+    Route::delete('superadmin/filament/users/{user}', [AdminUserController::class, 'destroy'])->name('filament.admin.resources.users.destroy');
 });
 
 // ============================================================================
