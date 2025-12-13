@@ -3,14 +3,18 @@
 declare(strict_types=1);
 
 return [
-    'language_switched' => 'Language Switched',
-    'no' => 'No',
+    'language_switched' => 'Kalba perjungta',
+    'no' => 'Nr',
+    'view' => 'Žiūrėti',
+    'edit' => 'Redaguoti',
+    'delete' => 'Ištrinti',
+    'confirm_delete' => 'Ar tikrai norite ištrinti šį elementą?',
     'status' => [
-        'active' => 'Active',
-        'suspended' => 'Suspended',
-        'trial' => 'Trial',
-        'unknown' => 'Unknown',
+        'active' => 'Aktyvus',
+        'suspended' => 'Sustabdytas',
+        'trial' => 'Teismo procesas',
+        'unknown' => 'Nežinoma',
     ],
-    'unknown' => 'Unknown',
-    'yes' => 'Yes',
+    'unknown' => 'Nežinoma',
+    'yes' => 'Taip',
 ];

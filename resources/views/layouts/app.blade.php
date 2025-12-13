@@ -41,6 +41,12 @@
                                 <a href="{{ route('superadmin.organizations.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.organizations') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
                                     {{ __('app.nav.organizations') }}
                                 </a>
+                                <a href="{{ route('superadmin.buildings.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.buildings') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.buildings') }}
+                                </a>
+                                <a href="{{ route('superadmin.properties.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.properties') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
+                                    {{ __('app.nav.properties') }}
+                                </a>
                                 <a href="{{ route('superadmin.tenants.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.tenants') ? $activeClass : $inactiveClass }} px-3 py-2 rounded-lg text-sm font-semibold inline-flex items-center transition">
                                     {{ __('app.nav.tenants') }}
                                 </a>
@@ -172,18 +178,24 @@
             <div x-show="mobileMenuOpen" x-transition class="md:hidden bg-white/95 backdrop-blur border-t border-slate-200 shadow-lg">
                 <div class="space-y-1 px-4 pb-4 pt-3">
                     {{-- Superadmin Mobile Navigation --}}
-                    @if($userRole === 'superadmin')
-                        <a href="{{ route('superadmin.dashboard') }}" class="{{ str_starts_with($currentRoute, 'superadmin.dashboard') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
-                            {{ __('app.nav.dashboard') }}
-                        </a>
-                        <a href="{{ route('superadmin.organizations.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.organizations') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
-                            {{ __('app.nav.organizations') }}
-                        </a>
-                        <a href="{{ route('superadmin.tenants.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.tenants') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
-                            {{ __('app.nav.tenants') }}
-                        </a>
-                        <a href="{{ route('superadmin.managers.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.managers') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
-                            {{ __('app.nav.managers') }}
+                        @if($userRole === 'superadmin')
+                            <a href="{{ route('superadmin.dashboard') }}" class="{{ str_starts_with($currentRoute, 'superadmin.dashboard') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                                {{ __('app.nav.dashboard') }}
+                            </a>
+                            <a href="{{ route('superadmin.organizations.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.organizations') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                                {{ __('app.nav.organizations') }}
+                            </a>
+                            <a href="{{ route('superadmin.buildings.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.buildings') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                                {{ __('app.nav.buildings') }}
+                            </a>
+                            <a href="{{ route('superadmin.properties.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.properties') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                                {{ __('app.nav.properties') }}
+                            </a>
+                            <a href="{{ route('superadmin.tenants.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.tenants') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                                {{ __('app.nav.tenants') }}
+                            </a>
+                            <a href="{{ route('superadmin.managers.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.managers') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
+                                {{ __('app.nav.managers') }}
                         </a>
                         <a href="{{ route('superadmin.subscriptions.index') }}" class="{{ str_starts_with($currentRoute, 'superadmin.subscriptions') ? $mobileActiveClass : $mobileInactiveClass }} block px-3 py-2 rounded-lg text-base font-semibold">
                             {{ __('app.nav.subscriptions') }}

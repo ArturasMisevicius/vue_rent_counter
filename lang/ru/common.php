@@ -3,14 +3,18 @@
 declare(strict_types=1);
 
 return [
-    'language_switched' => 'Language Switched',
-    'no' => 'No',
+    'language_switched' => 'Язык переключен',
+    'no' => 'Нет',
+    'view' => 'Вид',
+    'edit' => 'Редактировать',
+    'delete' => 'Удалить',
+    'confirm_delete' => 'Вы уверены, что хотите удалить этот элемент?',
     'status' => [
-        'active' => 'Active',
-        'suspended' => 'Suspended',
-        'trial' => 'Trial',
-        'unknown' => 'Unknown',
+        'active' => 'Активный',
+        'suspended' => 'Приостановленный',
+        'trial' => 'Пробный',
+        'unknown' => 'Неизвестный',
     ],
-    'unknown' => 'Unknown',
-    'yes' => 'Yes',
+    'unknown' => 'Неизвестный',
+    'yes' => 'Да',
 ];

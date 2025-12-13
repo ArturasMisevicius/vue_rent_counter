@@ -132,6 +132,30 @@ return [
             'unknown' => 'Unknown',
         ],
     ],
+    'buildings' => [
+        'title' => 'Buildings',
+        'singular' => 'Building',
+        'fields' => [
+            'name' => 'Name',
+            'address' => 'Address',
+            'total_apartments' => 'Total Apartments',
+            'properties' => 'Properties',
+            'meters' => 'Meters',
+            'tenants' => 'Tenants',
+        ],
+    ],
+    'properties' => [
+        'title' => 'Properties',
+        'singular' => 'Property',
+        'fields' => [
+            'address' => 'Address',
+            'type' => 'Type',
+            'area' => 'Area (sqm)',
+            'building' => 'Building',
+            'meters' => 'Meters',
+            'tenants' => 'Tenants',
+        ],
+    ],
     'common' => [
         'status' => [
             'active' => 'Active',

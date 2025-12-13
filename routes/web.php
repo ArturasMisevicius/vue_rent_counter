@@ -17,6 +17,8 @@ use App\Http\Controllers\Superadmin\TenantController as SuperadminTenantControll
 use App\Http\Controllers\Superadmin\ManagerController as SuperadminManagerController;
 use App\Http\Controllers\Superadmin\SubscriptionController as SuperadminSubscriptionController;
 use App\Http\Controllers\Superadmin\ProfileController as SuperadminProfileController;
+use App\Http\Controllers\Superadmin\BuildingController as SuperadminBuildingController;
+use App\Http\Controllers\Superadmin\PropertyController as SuperadminPropertyController;
 use App\Http\Controllers\Manager\BuildingController as ManagerBuildingController;
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
 use App\Http\Controllers\Manager\InvoiceController as ManagerInvoiceController;
@@ -112,6 +114,14 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
     Route::post('organizations/{organization}/reactivate', [SuperadminOrganizationController::class, 'reactivate'])->name('organizations.reactivate');
     Route::delete('organizations/{organization}', [SuperadminOrganizationController::class, 'destroy'])->name('organizations.destroy');
 
+    // Buildings (superadmin view)
+    Route::get('buildings', [SuperadminBuildingController::class, 'index'])->name('buildings.index');
+    Route::get('buildings/{building}', [SuperadminBuildingController::class, 'show'])->name('buildings.show');
+
+    // Properties (superadmin view)
+    Route::get('properties', [SuperadminPropertyController::class, 'index'])->name('properties.index');
+    Route::get('properties/{property}', [SuperadminPropertyController::class, 'show'])->name('properties.show');
+
     // Tenants (superadmin view)
     Route::get('tenants', [SuperadminTenantController::class, 'index'])->name('tenants.index');
     Route::get('tenants/{tenant}', [SuperadminTenantController::class, 'show'])->name('tenants.show');
@@ -135,6 +145,7 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
     Route::delete('superadmin/filament/buildings/{building}', [ManagerBuildingController::class, 'destroy'])->name('filament.admin.resources.buildings.destroy');
     Route::delete('superadmin/filament/properties/{property}', [ManagerPropertyController::class, 'destroy'])->name('filament.admin.resources.properties.destroy');
     Route::delete('superadmin/filament/invoices/{invoice}', [ManagerInvoiceController::class, 'destroy'])->name('filament.admin.resources.invoices.destroy');
+    Route::delete('superadmin/filament/meters/{meter}', [ManagerMeterController::class, 'destroy'])->name('filament.admin.resources.meters.destroy');
     Route::delete('superadmin/filament/tenants/{tenant}', [AdminTenantController::class, 'destroy'])->name('filament.admin.resources.tenants.destroy');
     Route::delete('superadmin/filament/users/{user}', [AdminUserController::class, 'destroy'])->name('filament.admin.resources.users.destroy');
 });
