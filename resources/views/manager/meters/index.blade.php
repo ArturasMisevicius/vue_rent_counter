@@ -43,7 +43,14 @@
                     </a>
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                    <span class="capitalize">{{ $meter->type->label() }}</span>
+                    @if($meter->serviceConfiguration?->utilityService)
+                        {{ $meter->serviceConfiguration->utilityService->name }}
+                        @if($meter->serviceConfiguration->utilityService->unit_of_measurement)
+                            <span class="text-slate-400 text-xs">({{ $meter->serviceConfiguration->utilityService->unit_of_measurement }})</span>
+                        @endif
+                    @else
+                        <span class="capitalize">{{ $meter->type->label() }}</span>
+                    @endif
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                     <a href="{{ route('manager.properties.show', $meter->property) }}" class="text-indigo-600 hover:text-indigo-900">
@@ -55,7 +62,7 @@
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                     @if($meter->readings->isNotEmpty())
-                        {{ number_format($meter->readings->first()->value, 2) }}
+                        {{ number_format($meter->readings->first()->getEffectiveValue(), 2) }}
                         <span class="text-slate-400 text-xs">({{ $meter->readings->first()->reading_date->format('M d') }})</span>
                     @else
                         <span class="text-slate-400">{{ __('meter_readings.empty.readings') }}</span>
@@ -102,7 +109,9 @@
                     <div class="flex items-start justify-between gap-3">
                         <div>
                             <p class="text-sm font-semibold text-slate-900">{{ $meter->serial_number }}</p>
-                            <p class="text-xs text-slate-600 capitalize">{{ $meter->type->label() }}</p>
+                            <p class="text-xs text-slate-600 capitalize">
+                                {{ $meter->serviceConfiguration?->utilityService?->name ?? $meter->type->label() }}
+                            </p>
                             <p class="text-xs text-slate-600 mt-1">{{ $meter->property->address }}</p>
                         </div>
                         <div class="text-right text-xs text-slate-600">
@@ -113,7 +122,7 @@
                     <p class="mt-2 text-xs text-slate-600">
                         {{ __('meters.manager.index.headers.latest_reading') }}:
                         @if($meter->readings->isNotEmpty())
-                            <span class="font-semibold text-slate-900">{{ number_format($meter->readings->first()->value, 2) }}</span>
+                            <span class="font-semibold text-slate-900">{{ number_format($meter->readings->first()->getEffectiveValue(), 2) }}</span>
                             <span class="text-slate-400">({{ $meter->readings->first()->reading_date->format('M d') }})</span>
                         @else
                             <span class="text-slate-400">{{ __('meter_readings.empty.readings') }}</span>

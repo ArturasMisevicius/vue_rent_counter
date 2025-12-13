@@ -5,7 +5,8 @@
 @section('tenant-content')
 <x-tenant.page :title="__('tenant.meters.index_title')" :description="__('tenant.meters.index_description')">
     @php 
-        $unitFor = fn($type) => $type === 'electricity' ? 'kWh' : 'm³'; 
+        $unitFor = fn($meter) => $meter->serviceConfiguration?->utilityService?->unit_of_measurement
+            ?? ($meter->type->value === 'electricity' ? 'kWh' : 'm³');
         $metersCollection = $meters instanceof \Illuminate\Pagination\LengthAwarePaginator ? $meters->getCollection() : $meters;
         $latestReadingDate = $metersCollection
             ->flatMap(fn($meter) => $meter->readings)
@@ -22,7 +23,7 @@
         ];
     @endphp
 
-    @if($meters->isEmpty())
+    @if($metersCollection->isEmpty())
         <x-tenant.alert type="info" :title="__('tenant.meters.empty_title')">
             {{ __('tenant.meters.empty_body') }}
         </x-tenant.alert>
@@ -75,7 +76,7 @@
                                 <div class="flex items-center gap-2">
                                     <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold {{ $style['chip'] }}">
                                         <span class="text-base">&bull;</span>
-                                        {{ enum_label($meter->type) }}
+                                        {{ $meter->serviceConfiguration?->utilityService?->name ?? enum_label($meter->type) }}
                                     </span>
                                     <span class="inline-flex items-center gap-2 rounded-full bg-slate-900/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-700">
                                         {{ $meter->supports_zones ? __('tenant.meters.labels.day_night') : __('tenant.meters.labels.single_zone') }}
@@ -95,9 +96,9 @@
                                     <div class="mt-1 flex items-baseline gap-2">
                                         @if($latest)
                                             <p class="text-xl font-semibold text-slate-900">
-                                                {{ number_format($latest->value, 2) }}
+                                                {{ number_format($latest->getEffectiveValue(), 2) }}
                                             </p>
-                                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $unitFor($meter->type->value) }}</p>
+                                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $unitFor($meter) }}</p>
                                         @else
                                             <span class="text-sm text-slate-500">{{ __('tenant.meters.labels.not_recorded') }}</span>
                                         @endif

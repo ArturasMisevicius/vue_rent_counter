@@ -28,6 +28,14 @@
                     />
 
                     <x-form-select
+                        name="service_configuration_id"
+                        label="Service"
+                        :options="$serviceConfigurationOptions"
+                        :selected="old('service_configuration_id')"
+                        placeholder="—"
+                    />
+
+                    <x-form-select
                         name="type"
                         :label="__('meters.labels.type')"
                         :options="$meterTypeOptions"

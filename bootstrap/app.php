@@ -54,6 +54,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'hierarchical.access' => \App\Http\Middleware\EnsureHierarchicalAccess::class,
             'locale' => \App\Http\Middleware\SetLocale::class,
             'impersonation' => \App\Http\Middleware\HandleImpersonation::class,
+            'superadmin.rate_limit' => \App\Http\Middleware\RateLimitSuperadminOperations::class,
         ]);
 
         // Apply global middleware

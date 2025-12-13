@@ -56,7 +56,7 @@ class MeterReadingController extends Controller
         
         // Eager load meter and property relationships to prevent N+1 queries
         $readings = $tenant->meterReadings()
-            ->with(['meter.property'])
+            ->with(['meter.property', 'meter.serviceConfiguration.utilityService'])
             ->latest('reading_date')
             ->paginate(self::READINGS_PER_PAGE);
 
@@ -80,7 +80,7 @@ class MeterReadingController extends Controller
         $this->authorizeReadingAccess($request->user(), $meterReading);
 
         // Eager load relationships for display
-        $meterReading->load(['meter.property', 'tenant', 'enteredByUser']);
+        $meterReading->load(['meter.property', 'meter.serviceConfiguration.utilityService', 'tenant', 'enteredByUser']);
 
         return view('tenant.meter-readings.show', compact('meterReading'));
     }
@@ -168,7 +168,7 @@ class MeterReadingController extends Controller
         }
 
         // Eager load meters to prevent N+1 in form rendering
-        return collect([$property->load('meters')]);
+        return collect([$property->load('meters.serviceConfiguration.utilityService')]);
     }
 
     /**

@@ -1,8 +1,8 @@
 <x-tenant.stack>
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <x-tenant.stat-card label="Meter Type" :value="enum_label($meter->type)" />
-        <x-tenant.stat-card label="Latest Reading" :value="$latestReading ? number_format($latestReading->value, 2) . ' ' . $unit : 'Not recorded yet'" :value-color="$latestReading ? 'text-indigo-700' : 'text-slate-500'" />
-        <x-tenant.stat-card label="Last Updated" :value="$latestReading ? $latestReading->reading_date->format('Y-m-d') : '—'" />
+        <x-tenant.stat-card label="Service" :value="$meter->serviceConfiguration?->utilityService?->name ?? enum_label($meter->type)" />
+        <x-tenant.stat-card label="Latest Reading" :value="$latestReading ? number_format($latestReading->getEffectiveValue(), 2) . ' ' . $unit : 'Not recorded yet'" :value-color="$latestReading ? 'text-indigo-700' : 'text-slate-500'" />
+        <x-tenant.stat-card label="Last Updated" :value="$latestReading ? $latestReading->reading_date->format('Y-m-d') : '-'" />
     </div>
 
     @php
@@ -34,7 +34,7 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                         <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Latest</p>
-                        <p class="mt-1 text-2xl font-bold text-slate-900">{{ number_format($latestReading->value, 2) }} {{ $unit }}</p>
+                        <p class="mt-1 text-2xl font-bold text-slate-900">{{ number_format($latestReading->getEffectiveValue(), 2) }} {{ $unit }}</p>
                         <p class="text-xs text-slate-500">on {{ $latestReading->reading_date->format('Y-m-d') }}</p>
                     </div>
                     <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -136,7 +136,7 @@
                     <p class="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">Latest reading</p>
                     @if($latestReading)
                         <div class="mt-3 flex items-baseline gap-3">
-                            <span class="text-4xl font-bold text-slate-900">{{ number_format($latestReading->value, 2) }}</span>
+                            <span class="text-4xl font-bold text-slate-900">{{ number_format($latestReading->getEffectiveValue(), 2) }}</span>
                             <span class="text-sm font-semibold text-slate-500">{{ $unit }}</span>
                         </div>
                         <p class="mt-2 text-sm text-slate-600">{{ __('tenant.meter_details.recorded_on', ['date' => $latestReading->reading_date->format('Y-m-d')]) }}</p>
@@ -183,16 +183,16 @@
                                     {{ $reading->reading_date->format('Y-m-d') }}
                                 </td>
                                 <td class="px-4 py-3 text-sm text-slate-700">
-                                    {{ number_format($reading->value, 2) }} {{ $unit }}
+                                    {{ number_format($reading->getEffectiveValue(), 2) }} {{ $unit }}
                                 </td>
                                 <td class="px-4 py-3 text-sm text-slate-700">
-                                    {{ $previousValue !== null ? '+' . number_format(max($previousValue - $reading->value, 0), 2) . ' ' . $unit : '—' }}
+                                    {{ $previousValue !== null ? '+' . number_format(max($previousValue - $reading->getEffectiveValue(), 0), 2) . ' ' . $unit : '—' }}
                                 </td>
                                 <td class="px-4 py-3 text-sm text-slate-600">
                                     {{ $reading->zone ?? '—' }}
                                 </td>
                             </tr>
-                            @php $previousValue = $reading->value; @endphp
+                            @php $previousValue = $reading->getEffectiveValue(); @endphp
                         @endforeach
                     </tbody>
                 </table>
@@ -205,13 +205,13 @@
                             <p class="text-sm font-semibold text-slate-900">{{ $reading->reading_date->format('Y-m-d') }}</p>
                             <p class="text-xs font-semibold text-slate-500">{{ $reading->zone ?? '—' }}</p>
                         </div>
-                        <p class="mt-1 text-sm text-slate-700">{{ __('tenant.meter_details.mobile.value') }} <span class="font-semibold">{{ number_format($reading->value, 2) }} {{ $unit }}</span></p>
+                        <p class="mt-1 text-sm text-slate-700">{{ __('tenant.meter_details.mobile.value') }} <span class="font-semibold">{{ number_format($reading->getEffectiveValue(), 2) }} {{ $unit }}</span></p>
                         <p class="mt-1 text-sm text-slate-700">
                             {{ __('tenant.meter_details.mobile.change') }}
-                            <span class="font-semibold">{{ $previousValue !== null ? '+' . number_format(max($previousValue - $reading->value, 0), 2) . ' ' . $unit : '—' }}</span>
+                            <span class="font-semibold">{{ $previousValue !== null ? '+' . number_format(max($previousValue - $reading->getEffectiveValue(), 0), 2) . ' ' . $unit : '—' }}</span>
                         </p>
                     </div>
-                    @php $previousValue = $reading->value; @endphp
+                    @php $previousValue = $reading->getEffectiveValue(); @endphp
                 @endforeach
             </x-tenant.stack>
         @endif

@@ -45,7 +45,14 @@
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                     <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('meters.labels.type') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
-                        <span class="capitalize">{{ $meter->type->label() }}</span>
+                        @if($meter->serviceConfiguration?->utilityService)
+                            {{ $meter->serviceConfiguration->utilityService->name }}
+                            @if($meter->serviceConfiguration->utilityService->unit_of_measurement)
+                                <span class="text-slate-400 text-xs">({{ $meter->serviceConfiguration->utilityService->unit_of_measurement }})</span>
+                            @endif
+                        @else
+                            <span class="capitalize">{{ $meter->type->label() }}</span>
+                        @endif
                     </dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
@@ -83,7 +90,7 @@
                     <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                         <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('meter_readings.labels.value') }}</dt>
                         <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
-                            <span class="text-2xl font-semibold">{{ number_format($latestReading->value, 2) }}</span>
+                            <span class="text-2xl font-semibold">{{ number_format($latestReading->getEffectiveValue(), 2) }}</span>
                         </dd>
                     </div>
                     <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
@@ -183,7 +190,7 @@
                             {{ $reading->reading_date->format('M d, Y') }}
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                            {{ number_format($reading->value, 2) }}
+                            {{ number_format($reading->getEffectiveValue(), 2) }}
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                             {{ $reading->zone ?? '-' }}

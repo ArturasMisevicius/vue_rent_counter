@@ -10,28 +10,14 @@ use Illuminate\Support\Facades\Cache;
 class OrganizationStatsWidget extends BaseWidget
 {
     protected static ?int $sort = 2;
+    
+    // Enable lazy loading for better performance
+    protected static bool $isLazy = true;
 
     protected function getStats(): array
     {
-        // Cache for 5 minutes as per requirements
-        $stats = Cache::remember('superadmin.organization_stats', 300, function () {
-            $total = Organization::count();
-            $active = Organization::where('is_active', true)->count();
-            $inactive = Organization::where('is_active', false)->count();
-            
-            // Calculate growth (new orgs in last 30 days)
-            $lastMonth = Organization::where('created_at', '>=', now()->subDays(30))->count();
-            $previousMonth = Organization::whereBetween('created_at', [
-                now()->subDays(60),
-                now()->subDays(30)
-            ])->count();
-            
-            $growthRate = $previousMonth > 0 
-                ? round((($lastMonth - $previousMonth) / $previousMonth) * 100, 1)
-                : 0;
-
-            return compact('total', 'active', 'inactive', 'lastMonth', 'growthRate');
-        });
+        $cacheService = app(\App\Services\DashboardCacheService::class);
+        $stats = $cacheService->getOrganizationStats();
 
         return [
             Stat::make(__('superadmin.dashboard.organizations_widget.total'), $stats['total'])
@@ -49,14 +35,14 @@ class OrganizationStatsWidget extends BaseWidget
                 ->descriptionIcon('heroicon-o-x-circle')
                 ->color('danger'),
 
-            Stat::make(__('superadmin.dashboard.organizations_widget.new_this_month'), $stats['lastMonth'])
-                ->description($stats['growthRate'] >= 0 
-                    ? __('superadmin.dashboard.organizations_widget.growth_up', ['value' => $stats['growthRate']]) 
-                    : __('superadmin.dashboard.organizations_widget.growth_down', ['value' => abs($stats['growthRate'])]))
-                ->descriptionIcon($stats['growthRate'] >= 0 
+            Stat::make(__('superadmin.dashboard.organizations_widget.new_this_month'), $stats['new_this_month'])
+                ->description($stats['growth_rate'] >= 0 
+                    ? __('superadmin.dashboard.organizations_widget.growth_up', ['value' => $stats['growth_rate']]) 
+                    : __('superadmin.dashboard.organizations_widget.growth_down', ['value' => abs($stats['growth_rate'])]))
+                ->descriptionIcon($stats['growth_rate'] >= 0 
                     ? 'heroicon-o-arrow-trending-up' 
                     : 'heroicon-o-arrow-trending-down')
-                ->color($stats['growthRate'] >= 0 ? 'success' : 'danger'),
+                ->color($stats['growth_rate'] >= 0 ? 'success' : 'danger'),
         ];
     }
 

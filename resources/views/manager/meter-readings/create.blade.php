@@ -51,7 +51,7 @@
 
     <div class="mb-6">
         <a href="{{ route('manager.meter-readings.index') }}" class="text-blue-600 hover:text-blue-800">
-            ← {{ __('meter_readings.actions.back') }}
+            &larr; {{ __('meter_readings.actions.back') }}
         </a>
     </div>
 

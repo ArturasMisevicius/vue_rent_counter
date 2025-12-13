@@ -11,18 +11,14 @@ use Illuminate\Support\Facades\Queue;
 class SystemHealthWidget extends BaseWidget
 {
     protected static ?int $sort = 3;
+    
+    // Enable lazy loading for better performance
+    protected static bool $isLazy = true;
 
     protected function getStats(): array
     {
-        // Cache for 30 seconds as per requirements
-        $stats = Cache::remember('superadmin.system_health', 30, function () {
-            return [
-                'database' => $this->checkDatabaseHealth(),
-                'cache' => $this->checkCacheHealth(),
-                'queue' => $this->checkQueueHealth(),
-                'storage' => $this->checkStorageHealth(),
-            ];
-        });
+        $cacheService = app(\App\Services\DashboardCacheService::class);
+        $stats = $cacheService->getSystemHealthStats();
 
         return [
             Stat::make('Database', $stats['database']['status'])

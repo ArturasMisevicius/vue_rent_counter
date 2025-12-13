@@ -11,19 +11,14 @@ use Illuminate\Support\Facades\Cache;
 class SubscriptionStatsWidget extends BaseWidget
 {
     protected static ?int $sort = 1;
+    
+    // Enable lazy loading for better performance
+    protected static bool $isLazy = true;
 
     protected function getStats(): array
     {
-        // Cache for 60 seconds as per requirements
-        $stats = Cache::remember('superadmin.subscription_stats', 60, function () {
-            $total = Subscription::count();
-            $active = Subscription::where('status', SubscriptionStatus::ACTIVE->value)->count();
-            $expired = Subscription::where('status', SubscriptionStatus::EXPIRED->value)->count();
-            $suspended = Subscription::where('status', SubscriptionStatus::SUSPENDED->value)->count();
-            $cancelled = Subscription::where('status', SubscriptionStatus::CANCELLED->value)->count();
-
-            return compact('total', 'active', 'expired', 'suspended', 'cancelled');
-        });
+        $cacheService = app(\App\Services\DashboardCacheService::class);
+        $stats = $cacheService->getSubscriptionStats();
 
         return [
             Stat::make(__('superadmin.dashboard.stats.total_subscriptions'), $stats['total'])
@@ -50,6 +45,11 @@ class SubscriptionStatsWidget extends BaseWidget
                 ->description(__('superadmin.dashboard.stats_descriptions.cancelled_subscriptions'))
                 ->descriptionIcon('heroicon-o-no-symbol')
                 ->color('gray'),
+
+            Stat::make(__('superadmin.dashboard.stats.expiring_soon'), $stats['expiring_soon'])
+                ->description(__('superadmin.dashboard.stats_descriptions.expiring_soon'))
+                ->descriptionIcon('heroicon-o-clock')
+                ->color('warning'),
         ];
     }
 

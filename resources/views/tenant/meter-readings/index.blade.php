@@ -35,15 +35,15 @@
         @if(($properties ?? collect())->isEmpty())
             <p class="text-sm text-slate-600">{{ __('meter_readings.tenant.submit.no_property') }}</p>
         @else
-        <form method="POST" action="{{ route('tenant.meter-readings.store') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <form method="POST" action="{{ route('tenant.meter-readings.store') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-3" x-data="{ meterSupportsZones: false }" x-init="meterSupportsZones = ($el.querySelector('select[name=meter_id]')?.selectedOptions[0]?.dataset.supportsZones === 'true')">
             @csrf
             <div>
                 <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.tenant.submit.meter') }}</label>
-                <select name="meter_id" class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                <select name="meter_id" class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required @change="meterSupportsZones = ($event.target.selectedOptions[0]?.dataset.supportsZones === 'true')">
                     @foreach(($properties ?? collect()) as $property)
                         @foreach($property->meters as $meter)
-                            <option value="{{ $meter->id }}" {{ old('meter_id') == $meter->id ? 'selected' : '' }}>
-                                {{ $meter->serial_number }} ({{ enum_label($meter->type) }})
+                            <option value="{{ $meter->id }}" data-supports-zones="{{ $meter->supports_zones ? 'true' : 'false' }}" {{ old('meter_id') == $meter->id ? 'selected' : '' }}>
+                                {{ $meter->serial_number }} ({{ $meter->serviceConfiguration?->utilityService?->name ?? enum_label($meter->type) }})
                             </option>
                         @endforeach
                     @endforeach
@@ -59,6 +59,11 @@
                 <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.tenant.submit.value') }}</label>
                 <input type="number" step="0.01" name="value" value="{{ old('value') }}" class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
                 @error('value') <p class="text-sm text-rose-600 mt-1">{{ $message }}</p> @enderror
+            </div>
+            <div x-show="meterSupportsZones">
+                <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.tables.zone') }}</label>
+                <input type="text" name="zone" value="{{ old('zone') }}" class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="day" :disabled="!meterSupportsZones" :required="meterSupportsZones">
+                @error('zone') <p class="text-sm text-rose-600 mt-1">{{ $message }}</p> @enderror
             </div>
             <div class="sm:col-span-3">
                 <button type="submit" class="inline-flex w-full items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:w-auto">

@@ -7,6 +7,7 @@ use App\Http\Requests\StoreMeterRequest;
 use App\Http\Requests\UpdateMeterRequest;
 use App\Models\Meter;
 use App\Models\Property;
+use App\Models\ServiceConfiguration;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -20,7 +21,7 @@ class MeterController extends Controller
     {
         $this->authorize('viewAny', Meter::class);
 
-        $query = Meter::with(['property', 'readings' => function ($query) {
+        $query = Meter::with(['property', 'serviceConfiguration.utilityService', 'readings' => function ($query) {
             $query->latest('reading_date')->limit(1);
         }]);
         
@@ -68,8 +69,9 @@ class MeterController extends Controller
         $this->authorize('create', Meter::class);
 
         $properties = Property::orderBy('address')->get();
+        $serviceConfigurationOptions = $this->getServiceConfigurationOptions();
 
-        return view('manager.meters.create', compact('properties'));
+        return view('manager.meters.create', compact('properties', 'serviceConfigurationOptions'));
     }
 
     /**
@@ -93,7 +95,7 @@ class MeterController extends Controller
     {
         $this->authorize('view', $meter);
 
-        $meter->load(['property', 'readings' => function ($query) {
+        $meter->load(['property', 'serviceConfiguration.utilityService', 'readings' => function ($query) {
             $query->latest('reading_date')->limit(12);
         }]);
 
@@ -101,7 +103,7 @@ class MeterController extends Controller
         $readingHistory = $meter->readings->map(function ($reading) {
             return [
                 'date' => $reading->reading_date->format('M d'),
-                'value' => $reading->value,
+                'value' => $reading->getEffectiveValue(),
             ];
         })->reverse()->values();
 
@@ -116,8 +118,9 @@ class MeterController extends Controller
         $this->authorize('update', $meter);
 
         $properties = Property::orderBy('address')->get();
+        $serviceConfigurationOptions = $this->getServiceConfigurationOptions();
 
-        return view('manager.meters.edit', compact('meter', 'properties'));
+        return view('manager.meters.edit', compact('meter', 'properties', 'serviceConfigurationOptions'));
     }
 
     /**
@@ -151,5 +154,31 @@ class MeterController extends Controller
         return redirect()
             ->route('manager.meters.index')
             ->with('success', __('notifications.meter.deleted'));
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function getServiceConfigurationOptions(): array
+    {
+        return ServiceConfiguration::query()
+            ->active()
+            ->with([
+                'property:id,address',
+                'utilityService:id,name,unit_of_measurement',
+            ])
+            ->orderBy('property_id')
+            ->orderBy('utility_service_id')
+            ->get()
+            ->mapWithKeys(function (ServiceConfiguration $configuration) {
+                $propertyAddress = $configuration->property?->address ?? __('app.common.na');
+                $serviceName = $configuration->utilityService?->name ?? __('app.common.na');
+                $unit = $configuration->utilityService?->unit_of_measurement;
+
+                $label = $unit ? "{$propertyAddress} — {$serviceName} ({$unit})" : "{$propertyAddress} — {$serviceName}";
+
+                return [$configuration->id => $label];
+            })
+            ->all();
     }
 }

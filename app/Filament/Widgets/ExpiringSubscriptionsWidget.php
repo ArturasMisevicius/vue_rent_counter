@@ -2,94 +2,139 @@
 
 namespace App\Filament\Widgets;
 
-use App\Enums\SubscriptionPlanType;
-use App\Enums\SubscriptionStatus;
-use App\Models\Subscription;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use Illuminate\Database\Eloquent\Builder;
+use App\Services\QueryOptimizationService;
+use App\Models\Subscription;
+use Filament\Tables\Actions\Action;
 
+/**
+ * Expiring Subscriptions Widget with optimized loading
+ * 
+ * Shows subscriptions expiring within 14 days with quick renewal actions
+ */
 class ExpiringSubscriptionsWidget extends BaseWidget
 {
-    protected static ?int $sort = 4;
-
+    protected static ?int $sort = 7;
+    
+    // Enable lazy loading for better performance
+    protected static bool $isLazy = true;
+    
+    // Polling interval - refresh every 5 minutes
+    protected static ?string $pollingInterval = '300s';
+    
     protected int | string | array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
+        $queryService = app(QueryOptimizationService::class);
+        
         return $table
             ->query(
-                Subscription::query()
-                    ->where('status', SubscriptionStatus::ACTIVE->value)
-                    ->where('expires_at', '>=', now())
-                    ->where('expires_at', '<=', now()->addDays(14))
-                    ->with('user')
-                    ->orderBy('expires_at', 'asc')
+                // Use optimized service method
+                $queryService->getExpiringSubscriptions(14)->toQuery()
             )
             ->columns([
-                Tables\Columns\TextColumn::make('user.organization_name')
-                    ->label(__('subscriptions.labels.organization'))
+                Tables\Columns\TextColumn::make('user.organization.name')
+                    ->label('Organization')
+                    ->limit(25)
                     ->searchable()
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('plan_type')
-                    ->label(__('subscriptions.labels.plan_type'))
-                    ->badge()
-                    ->formatStateUsing(fn ($state) => enum_label($state, SubscriptionPlanType::class))
-                    ->color(fn ($state): string => match ($state) {
-                        SubscriptionPlanType::BASIC->value => 'gray',
-                        SubscriptionPlanType::PROFESSIONAL->value => 'info',
-                        SubscriptionPlanType::ENTERPRISE->value => 'success',
-                        default => 'gray',
-                    }),
-
-                Tables\Columns\TextColumn::make('expires_at')
-                    ->label(__('subscriptions.labels.expires_at'))
-                    ->dateTime()
                     ->sortable()
-                    ->color(fn ($record) => $record->daysUntilExpiry() <= 7 ? 'danger' : 'warning'),
-
+                    ->tooltip(function (Subscription $record): ?string {
+                        return $record->user?->organization?->name;
+                    }),
+                    
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Admin User')
+                    ->limit(20)
+                    ->searchable()
+                    ->tooltip(function (Subscription $record): ?string {
+                        return $record->user?->name . ' (' . $record->user?->email . ')';
+                    }),
+                    
+                Tables\Columns\BadgeColumn::make('plan_type')
+                    ->label('Plan')
+                    ->colors([
+                        'success' => 'enterprise',
+                        'warning' => 'professional',
+                        'danger' => 'basic',
+                    ]),
+                    
+                Tables\Columns\BadgeColumn::make('status')
+                    ->colors([
+                        'success' => 'active',
+                        'warning' => 'suspended',
+                        'danger' => 'expired',
+                    ]),
+                    
+                Tables\Columns\TextColumn::make('expires_at')
+                    ->label('Expires')
+                    ->date('M j, Y')
+                    ->sortable()
+                    ->color(function (Subscription $record): string {
+                        $daysUntilExpiry = $record->daysUntilExpiry();
+                        if ($daysUntilExpiry <= 3) return 'danger';
+                        if ($daysUntilExpiry <= 7) return 'warning';
+                        return 'primary';
+                    }),
+                    
                 Tables\Columns\TextColumn::make('days_until_expiry')
-                    ->label(__('subscriptions.labels.days_left'))
-                    ->state(fn (Subscription $record) => $record->daysUntilExpiry())
+                    ->label('Days Left')
+                    ->getStateUsing(fn (Subscription $record): int => $record->daysUntilExpiry())
                     ->badge()
-                    ->color(fn ($state) => $state <= 7 ? 'danger' : 'warning'),
+                    ->color(function (int $state): string {
+                        if ($state <= 3) return 'danger';
+                        if ($state <= 7) return 'warning';
+                        return 'primary';
+                    }),
             ])
             ->actions([
-                Tables\Actions\Action::make('renew')
-                    ->label(__('subscriptions.actions.renew'))
+                Action::make('renew')
+                    ->label('Quick Renew')
                     ->icon('heroicon-o-arrow-path')
                     ->color('success')
                     ->form([
-                        \Filament\Forms\Components\DateTimePicker::make('new_expires_at')
-                            ->label(__('subscriptions.labels.new_expiration_date'))
-                            ->required()
-                            ->after('today')
-                            ->default(now()->addYear()),
+                        \Filament\Forms\Components\Select::make('duration')
+                            ->label('Renewal Duration')
+                            ->options([
+                                '30' => '1 Month',
+                                '90' => '3 Months',
+                                '180' => '6 Months',
+                                '365' => '1 Year',
+                            ])
+                            ->default('365')
+                            ->required(),
                     ])
-                    ->action(function (Subscription $record, array $data) {
-                        $record->update([
-                            'expires_at' => $data['new_expires_at'],
-                            'status' => SubscriptionStatus::ACTIVE->value,
-                        ]);
+                    ->action(function (Subscription $record, array $data): void {
+                        $newExpiryDate = $record->expires_at->addDays((int) $data['duration']);
+                        $record->renew($newExpiryDate);
+                        
+                        \Filament\Notifications\Notification::make()
+                            ->title('Subscription Renewed')
+                            ->body("Subscription renewed until {$newExpiryDate->format('M j, Y')}")
+                            ->success()
+                            ->send();
                     })
                     ->requiresConfirmation()
-                    ->successNotificationTitle(__('subscriptions.notifications.renewed')),
-
-                Tables\Actions\Action::make('view')
-                    ->label(__('subscriptions.actions.view'))
+                    ->modalHeading('Renew Subscription')
+                    ->modalDescription('This will extend the subscription expiry date.'),
+                    
+                Action::make('view')
+                    ->label('View Details')
                     ->icon('heroicon-o-eye')
-                    ->url(fn (Subscription $record): string => route('filament.admin.resources.subscriptions.view', ['record' => $record]))
-                    ->openUrlInNewTab(false),
+                    ->url(fn (Subscription $record): string => 
+                        route('filament.admin.resources.subscriptions.view', $record)
+                    )
+                    ->openUrlInNewTab(),
             ])
-            ->heading(__('subscriptions.widgets.expiring_heading'))
-            ->description(__('subscriptions.widgets.expiring_description'))
-            ->emptyStateHeading(__('subscriptions.widgets.expiring_empty_heading'))
-            ->emptyStateDescription(__('subscriptions.widgets.expiring_empty_description'))
-            ->emptyStateIcon('heroicon-o-check-circle')
-            ->paginated([5, 10, 25]);
+            ->heading('Expiring Subscriptions')
+            ->description('Subscriptions expiring within 14 days')
+            ->emptyStateHeading('No expiring subscriptions')
+            ->emptyStateDescription('All subscriptions are current.')
+            ->defaultSort('expires_at', 'asc')
+            ->defaultPaginationPageOption(10)
+            ->poll('300s'); // Refresh every 5 minutes
     }
 
     public static function canView(): bool

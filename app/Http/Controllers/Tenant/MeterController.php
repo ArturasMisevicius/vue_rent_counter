@@ -19,7 +19,7 @@ class MeterController extends Controller
         $meters = $property 
             ? $property->meters()->with(['readings' => function ($query) {
                 $query->latest('reading_date')->limit(1);
-            }])->paginate(20)
+            }, 'serviceConfiguration.utilityService'])->paginate(20)
             : collect();
 
         return view('tenant.meters.index', compact('meters'));
@@ -40,7 +40,7 @@ class MeterController extends Controller
         // Eager load readings and property for the meter
         $meter->load(['readings' => function ($query) {
             $query->latest('reading_date')->limit(12);
-        }, 'property']);
+        }, 'property', 'serviceConfiguration.utilityService']);
         
         return view('tenant.meters.show', compact('meter'));
     }

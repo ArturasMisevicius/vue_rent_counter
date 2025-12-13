@@ -30,6 +30,8 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Subscription::class => \App\Policies\SubscriptionPolicy::class,
         \App\Models\Faq::class => \App\Policies\FaqPolicy::class,
         \App\Models\Language::class => \App\Policies\LanguagePolicy::class,
+        // Note: PlatformUserPolicy is used for cross-organization user management
+        // and is applied manually in Filament resources rather than auto-mapped
     ];
 
     /**
@@ -41,6 +43,18 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\MeterReadingService::class);
         $this->app->singleton(\App\Services\TimeRangeValidator::class);
         $this->app->singleton(\App\Services\BillingService::class);
+        
+        // Register dashboard cache service
+        $this->app->singleton(\App\Services\DashboardCacheService::class);
+        
+        // Register query optimization service
+        $this->app->singleton(\App\Services\QueryOptimizationService::class);
+        
+        // Register background job service
+        $this->app->singleton(\App\Services\BackgroundJobService::class);
+        
+        // Register asset optimization service
+        $this->app->singleton(\App\Services\AssetOptimizationService::class);
         
         // Register InputSanitizer with interface binding for dependency inversion
         $this->app->singleton(
@@ -113,6 +127,17 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\User::observe(\App\Observers\UserObserver::class);
         \App\Models\Language::observe(\App\Observers\LanguageObserver::class);
         \App\Models\Subscription::observe(\App\Observers\SubscriptionObserver::class);
+        
+        // Register superadmin audit observers
+        \App\Models\Organization::observe(\App\Observers\SuperadminOrganizationObserver::class);
+        \App\Models\Subscription::observe(\App\Observers\SuperadminSubscriptionObserver::class);
+        \App\Models\User::observe(\App\Observers\SuperadminUserObserver::class);
+        
+        // Register cache invalidation observers
+        $cacheObserver = app(\App\Observers\CacheInvalidationObserver::class);
+        \App\Models\Organization::observe($cacheObserver);
+        \App\Models\Subscription::observe($cacheObserver);
+        \App\Models\OrganizationActivityLog::observe($cacheObserver);
 
         // Register security event listeners
         Event::listen(
