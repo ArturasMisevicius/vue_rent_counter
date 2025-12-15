@@ -7,8 +7,10 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
@@ -356,6 +358,72 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Organizations this user belongs to with roles
+     */
+    public function organizations(): BelongsToMany
+    {
+        return $this->belongsToMany(Organization::class)
+            ->using(OrganizationUser::class)
+            ->withPivot(['role', 'permissions', 'joined_at', 'left_at', 'is_active', 'invited_by'])
+            ->withTimestamps()
+            ->wherePivot('is_active', true);
+    }
+
+    /**
+     * All organization memberships including inactive
+     */
+    public function organizationMemberships(): BelongsToMany
+    {
+        return $this->belongsToMany(Organization::class)
+            ->using(OrganizationUser::class)
+            ->withPivot(['role', 'permissions', 'joined_at', 'left_at', 'is_active', 'invited_by'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Projects created by this user
+     */
+    public function createdProjects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'created_by');
+    }
+
+    /**
+     * Projects assigned to this user
+     */
+    public function assignedProjects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'assigned_to');
+    }
+
+    /**
+     * Tasks assigned to this user with roles
+     */
+    public function taskAssignments(): BelongsToMany
+    {
+        return $this->belongsToMany(Task::class, 'task_assignments')
+            ->using(TaskAssignment::class)
+            ->withPivot(['role', 'assigned_at', 'completed_at', 'notes'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Tasks where user is the primary assignee
+     */
+    public function assignedTasks(): BelongsToMany
+    {
+        return $this->taskAssignments()->wherePivot('role', 'assignee');
+    }
+
+    /**
+     * Tasks where user is a reviewer
+     */
+    public function reviewTasks(): BelongsToMany
+    {
+        return $this->taskAssignments()->wherePivot('role', 'reviewer');
+    }
+
+    /**
      * Scope: Order users by role priority.
      * 
      * Orders users with superadmin first, then admin, manager, and tenant.
@@ -423,5 +491,40 @@ class User extends Authenticatable implements FilamentUser
     public function scopeUnverified($query)
     {
         return $query->whereNull('email_verified_at');
+    }
+
+    /**
+     * Get user's role in a specific organization
+     */
+    public function getRoleInOrganization(Organization $organization): ?string
+    {
+        $membership = $this->organizations()
+            ->where('organization_id', $organization->id)
+            ->first();
+            
+        return $membership?->pivot->role;
+    }
+
+    /**
+     * Check if user has role in organization
+     */
+    public function hasRoleInOrganization(Organization $organization, string $role): bool
+    {
+        return $this->organizations()
+            ->where('organization_id', $organization->id)
+            ->wherePivot('role', $role)
+            ->exists();
+    }
+
+    /**
+     * Get all projects across all organizations
+     */
+    public function allProjects(): Builder
+    {
+        $organizationIds = $this->organizations()->pluck('organizations.id');
+        
+        return Project::whereIn('tenant_id', $organizationIds)
+            ->orWhere('created_by', $this->id)
+            ->orWhere('assigned_to', $this->id);
     }
 }

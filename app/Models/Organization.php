@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -538,5 +540,44 @@ class Organization extends Model
     public function createdByAdmin(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by_admin_id');
+    }
+
+    /**
+     * Users that belong to this organization with roles
+     */
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)
+            ->using(OrganizationUser::class)
+            ->withPivot(['role', 'permissions', 'joined_at', 'left_at', 'is_active', 'invited_by'])
+            ->withTimestamps()
+            ->wherePivot('is_active', true);
+    }
+
+    /**
+     * All user memberships including inactive
+     */
+    public function allMemberships(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)
+            ->using(OrganizationUser::class)
+            ->withPivot(['role', 'permissions', 'joined_at', 'left_at', 'is_active', 'invited_by'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Get projects for this organization (polymorphic)
+     */
+    public function projects(): MorphMany
+    {
+        return $this->morphMany(Project::class, 'projectable');
+    }
+
+    /**
+     * Get organization-wide projects
+     */
+    public function organizationProjects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'tenant_id');
     }
 }

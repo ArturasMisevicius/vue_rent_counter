@@ -25,6 +25,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $body
  * @property bool $is_internal
  * @property bool $is_pinned
+ * @property int $depth
+ * @property string|null $path
+ * @property int $sort_order
+ * @property array|null $mentions
+ * @property bool $is_resolved
+ * @property int|null $resolved_by
+ * @property \Carbon\Carbon|null $resolved_at
  * @property \Carbon\Carbon|null $edited_at
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
@@ -43,6 +50,13 @@ class Comment extends Model
         'body',
         'is_internal',
         'is_pinned',
+        'depth',
+        'path',
+        'sort_order',
+        'mentions',
+        'is_resolved',
+        'resolved_by',
+        'resolved_at',
         'edited_at',
         'moderation_status',
         'moderated_by',
@@ -61,6 +75,9 @@ class Comment extends Model
     protected $casts = [
         'is_internal' => 'boolean',
         'is_pinned' => 'boolean',
+        'mentions' => 'array',
+        'is_resolved' => 'boolean',
+        'resolved_at' => 'datetime',
         'edited_at' => 'datetime',
         'moderated_at' => 'datetime',
         'moderation_flags' => 'array',

@@ -155,6 +155,31 @@ class PropertyResource extends Resource
                             ->preload()
                             ->nullable()
                             ->helperText(__('properties.helper_text.tenant_available')),
+
+                        Forms\Components\Select::make('tags')
+                            ->label(__('properties.labels.tags'))
+                            ->relationship(
+                                name: 'tags',
+                                titleAttribute: 'name',
+                                modifyQueryUsing: fn (Builder $query) => self::scopeToUserTenant($query)
+                            )
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('name')
+                                    ->label(__('tags.labels.name'))
+                                    ->required()
+                                    ->maxLength(100),
+                                Forms\Components\ColorPicker::make('color')
+                                    ->label(__('tags.labels.color'))
+                                    ->nullable(),
+                                Forms\Components\Textarea::make('description')
+                                    ->label(__('tags.labels.description'))
+                                    ->nullable()
+                                    ->maxLength(500),
+                            ])
+                            ->helperText(__('properties.helper_text.tags')),
                     ])
                     ->columns(2),
             ]);
@@ -186,6 +211,14 @@ class PropertyResource extends Resource
                     ->label(__('properties.filters.large_properties'))
                     ->query(fn (Builder $query): Builder => $query->where('area_sqm', '>', 100))
                     ->toggle(),
+
+                Tables\Filters\SelectFilter::make('tags')
+                    ->label(__('properties.filters.tags'))
+                    ->relationship('tags', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->multiple()
+                    ->native(false),
             ])
             ->recordActions([
                 // Table row actions removed - use page header actions instead

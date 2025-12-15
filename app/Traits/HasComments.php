@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\Comment;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
@@ -18,17 +19,16 @@ trait HasComments
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable')
-            ->orderBy('created_at', 'desc');
+            ->orderBy('path')
+            ->orderBy('sort_order');
     }
 
     /**
-     * Get only top-level comments (no replies)
+     * Get only top-level comments
      */
     public function topLevelComments(): MorphMany
     {
-        return $this->morphMany(Comment::class, 'commentable')
-            ->whereNull('parent_id')
-            ->orderBy('created_at', 'desc');
+        return $this->comments()->whereNull('parent_id');
     }
 
     /**
@@ -36,9 +36,7 @@ trait HasComments
      */
     public function internalComments(): MorphMany
     {
-        return $this->morphMany(Comment::class, 'commentable')
-            ->where('is_internal', true)
-            ->orderBy('created_at', 'desc');
+        return $this->comments()->where('is_internal', true);
     }
 
     /**
@@ -46,9 +44,15 @@ trait HasComments
      */
     public function publicComments(): MorphMany
     {
-        return $this->morphMany(Comment::class, 'commentable')
-            ->where('is_internal', false)
-            ->orderBy('created_at', 'desc');
+        return $this->comments()->where('is_internal', false);
+    }
+
+    /**
+     * Get unresolved comments
+     */
+    public function unresolvedComments(): MorphMany
+    {
+        return $this->comments()->where('is_resolved', false);
     }
 
     /**
@@ -56,58 +60,147 @@ trait HasComments
      */
     public function pinnedComments(): MorphMany
     {
-        return $this->morphMany(Comment::class, 'commentable')
-            ->where('is_pinned', true)
-            ->orderBy('created_at', 'desc');
+        return $this->comments()->where('is_pinned', true);
     }
 
     /**
-     * Add a comment to the model
+     * Add a comment
      */
-    public function addComment(string $body, int $userId, bool $isInternal = false): Comment
-    {
+    public function addComment(
+        string $body, 
+        ?User $user = null, 
+        bool $isInternal = false,
+        ?Comment $parent = null
+    ): Comment {
+        $depth = $parent ? $parent->depth + 1 : 0;
+        $path = $parent ? $parent->path . '.' . $parent->id : null;
+
         $comment = $this->comments()->create([
-            'tenant_id' => $this->tenant_id ?? auth()->user()->tenant_id,
-            'user_id' => $userId,
+            'tenant_id' => $this->tenant_id ?? auth()->user()?->tenant_id,
+            'user_id' => $user?->id ?? auth()->id(),
+            'parent_id' => $parent?->id,
             'body' => $body,
             'is_internal' => $isInternal,
-            'moderation_status' => 'pending', // All comments start as pending
+            'depth' => $depth,
+            'path' => $path,
+            'sort_order' => $this->getNextSortOrder($parent),
         ]);
 
-        // Trigger automatic moderation
-        $moderationService = app(\App\Services\ContentModerationService::class);
-        $moderationService->moderateComment($comment);
+        // Update path after creation if it's a root comment
+        if (!$parent) {
+            $comment->update(['path' => (string) $comment->id]);
+        }
 
         return $comment;
     }
 
     /**
-     * Report a comment
+     * Reply to a comment
      */
-    public function reportComment(int $commentId, int $reportedBy, string $reason, string $description = null): \App\Models\CommentReport
-    {
-        $comment = $this->comments()->findOrFail($commentId);
-        
-        // Create the report
-        $report = \App\Models\CommentReport::create([
-            'tenant_id' => $this->tenant_id ?? auth()->user()->tenant_id,
-            'comment_id' => $commentId,
-            'reported_by' => $reportedBy,
-            'reason' => $reason,
-            'description' => $description,
-        ]);
-
-        // Update comment report count
-        $comment->reportByUser();
-
-        return $report;
+    public function replyToComment(
+        Comment $parentComment, 
+        string $body, 
+        ?User $user = null, 
+        bool $isInternal = false
+    ): Comment {
+        return $this->addComment($body, $user, $isInternal, $parentComment);
     }
 
     /**
-     * Get total comment count
+     * Get comment count
      */
     public function getCommentCountAttribute(): int
     {
         return $this->comments()->count();
+    }
+
+    /**
+     * Get unresolved comment count
+     */
+    public function getUnresolvedCommentCountAttribute(): int
+    {
+        return $this->comments()->where('is_resolved', false)->count();
+    }
+
+    /**
+     * Get public comment count
+     */
+    public function getPublicCommentCountAttribute(): int
+    {
+        return $this->comments()->where('is_internal', false)->count();
+    }
+
+    /**
+     * Get internal comment count
+     */
+    public function getInternalCommentCountAttribute(): int
+    {
+        return $this->comments()->where('is_internal', true)->count();
+    }
+
+    /**
+     * Check if model has unresolved comments
+     */
+    public function hasUnresolvedComments(): bool
+    {
+        return $this->comments()->where('is_resolved', false)->exists();
+    }
+
+    /**
+     * Resolve all comments
+     */
+    public function resolveAllComments(?User $user = null): void
+    {
+        $this->comments()
+            ->where('is_resolved', false)
+            ->update([
+                'is_resolved' => true,
+                'resolved_by' => $user?->id ?? auth()->id(),
+                'resolved_at' => now(),
+            ]);
+    }
+
+    /**
+     * Get next sort order for comments
+     */
+    protected function getNextSortOrder(?Comment $parent = null): int
+    {
+        $query = $this->comments();
+        
+        if ($parent) {
+            $query->where('parent_id', $parent->id);
+        } else {
+            $query->whereNull('parent_id');
+        }
+
+        return $query->max('sort_order') + 1;
+    }
+
+    /**
+     * Scope: Models with comments
+     */
+    public function scopeWithComments($query)
+    {
+        return $query->whereHas('comments');
+    }
+
+    /**
+     * Scope: Models with unresolved comments
+     */
+    public function scopeWithUnresolvedComments($query)
+    {
+        return $query->whereHas('comments', function ($q) {
+            $q->where('is_resolved', false);
+        });
+    }
+
+    /**
+     * Scope: Models with recent comments
+     */
+    public function scopeWithRecentComments($query, int $days = 7)
+    {
+        return $query->whereHas('comments', function ($q) use ($days) {
+            $q->where('created_at', '>', now()->subDays($days));
+        });
     }
 }
