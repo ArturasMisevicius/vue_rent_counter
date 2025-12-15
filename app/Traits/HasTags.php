@@ -52,7 +52,7 @@ trait HasTags
     public function detachTags($tags = null): void
     {
         if ($tags === null) {
-            $tagIds = $this->tags()->pluck('tags.id');
+            $tagIds = $this->tags()->pluck('tags.id')->toArray();
             $this->tags()->detach();
         } else {
             $tagIds = $this->parseTagIds($tags);
@@ -60,7 +60,7 @@ trait HasTags
         }
 
         // Update usage counts
-        Tag::whereIn('id', $tagIds)->each(fn($tag) => $tag->updateUsageCount());
+        Tag::bulkUpdateUsageCounts($tagIds);
     }
 
     /**
@@ -84,7 +84,7 @@ trait HasTags
         
         // Update usage counts for old and new tags
         $affectedTagIds = $oldTagIds->merge($tagIds)->unique();
-        Tag::whereIn('id', $affectedTagIds)->each(fn($tag) => $tag->updateUsageCount());
+        Tag::bulkUpdateUsageCounts($affectedTagIds->toArray());
     }
 
     /**

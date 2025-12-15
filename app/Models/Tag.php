@@ -6,6 +6,7 @@ use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
@@ -107,7 +108,7 @@ class Tag extends Model
      */
     public function updateUsageCount(): void
     {
-        $count = \DB::table('taggables')
+        $count = DB::table('taggables')
             ->where('tag_id', $this->id)
             ->count();
 
@@ -143,10 +144,10 @@ class Tag extends Model
         }
 
         // Use a single query with subquery to update all usage counts at once
-        \DB::table('tags')
+        DB::table('tags')
             ->whereIn('id', $tagIds)
             ->update([
-                'usage_count' => \DB::raw('(
+                'usage_count' => DB::raw('(
                     SELECT COUNT(*) 
                     FROM taggables 
                     WHERE taggables.tag_id = tags.id
