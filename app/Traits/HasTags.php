@@ -40,8 +40,8 @@ trait HasTags
 
         $this->tags()->syncWithoutDetaching($pivotData);
         
-        // Update usage counts
-        Tag::whereIn('id', $tagIds)->each(fn($tag) => $tag->updateUsageCount());
+        // Update usage counts efficiently using bulk operations
+        Tag::bulkUpdateUsageCounts($tagIds);
     }
 
     /**

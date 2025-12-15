@@ -130,4 +130,28 @@ class Tag extends Model
     {
         return $query->where('usage_count', 0);
     }
+
+    /**
+     * Bulk update usage counts for multiple tags efficiently
+     * 
+     * @param array<int> $tagIds
+     */
+    public static function bulkUpdateUsageCounts(array $tagIds): void
+    {
+        if (empty($tagIds)) {
+            return;
+        }
+
+        // Use a single query with subquery to update all usage counts at once
+        \DB::table('tags')
+            ->whereIn('id', $tagIds)
+            ->update([
+                'usage_count' => \DB::raw('(
+                    SELECT COUNT(*) 
+                    FROM taggables 
+                    WHERE taggables.tag_id = tags.id
+                )'),
+                'updated_at' => now(),
+            ]);
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PropertyType;
 use App\Traits\BelongsToTenant;
+use App\Traits\HasTags;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,13 +13,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Property extends Model
 {
-    use BelongsToTenant, HasFactory;
+    use BelongsToTenant, HasFactory, HasTags;
 
     /**
      * Backwards-compatible computed display name.
      *
      * Some parts of the UI and tests refer to a `name` field even though the
      * database uses `address` + optional `unit_number`.
+     *
+     * @return string The computed display name for the property
      */
     public function getNameAttribute(): string
     {
@@ -29,10 +32,48 @@ class Property extends Model
      * Backwards-compatible alias for the `type` enum.
      *
      * Legacy UI code expects `property_type` to be an enum-like value.
+     *
+     * @return PropertyType|null The property type enum
      */
     public function getPropertyTypeAttribute(): ?PropertyType
     {
         return $this->type;
+    }
+
+    /**
+     * Get the full display address including unit number.
+     *
+     * @return string The formatted address with unit number if available
+     */
+    public function getFullAddressAttribute(): string
+    {
+        $address = $this->address ?? '';
+        
+        if ($this->unit_number) {
+            return trim($address . ', Unit ' . $this->unit_number);
+        }
+        
+        return $address;
+    }
+
+    /**
+     * Check if the property is currently occupied.
+     *
+     * @return bool True if the property has active tenants
+     */
+    public function isOccupied(): bool
+    {
+        return $this->tenants()->exists();
+    }
+
+    /**
+     * Get the current tenant(s) for this property.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getCurrentTenants()
+    {
+        return $this->tenants;
     }
 
     /**
