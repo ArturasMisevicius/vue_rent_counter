@@ -152,25 +152,99 @@ class Property extends Model
 
     /**
      * Scope a query to properties of a specific type.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param PropertyType $type
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeOfType($query, PropertyType $type): void
+    public function scopeOfType($query, PropertyType $type)
     {
-        $query->where('type', $type);
+        return $query->where('type', $type);
     }
 
     /**
      * Scope a query to apartment properties.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeApartments($query): void
+    public function scopeApartments($query)
     {
-        $query->where('type', PropertyType::APARTMENT);
+        return $query->where('type', PropertyType::APARTMENT);
     }
 
     /**
      * Scope a query to house properties.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeHouses($query): void
+    public function scopeHouses($query)
     {
-        $query->where('type', PropertyType::HOUSE);
+        return $query->where('type', PropertyType::HOUSE);
+    }
+
+    /**
+     * Scope a query to residential properties (apartments, houses, studios).
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeResidential($query)
+    {
+        return $query->whereIn('type', [
+            PropertyType::APARTMENT,
+            PropertyType::HOUSE,
+            PropertyType::STUDIO,
+        ]);
+    }
+
+    /**
+     * Scope a query to commercial properties.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeCommercial($query)
+    {
+        return $query->whereIn('type', [
+            PropertyType::OFFICE,
+            PropertyType::RETAIL,
+            PropertyType::WAREHOUSE,
+            PropertyType::COMMERCIAL,
+        ]);
+    }
+
+    /**
+     * Scope a query to occupied properties.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeOccupied($query)
+    {
+        return $query->whereHas('tenants');
+    }
+
+    /**
+     * Scope a query to vacant properties.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeVacant($query)
+    {
+        return $query->whereDoesntHave('tenants');
+    }
+
+    /**
+     * Scope a query to properties with active meters.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeWithActiveMeters($query)
+    {
+        return $query->whereHas('meters');
     }
 }
