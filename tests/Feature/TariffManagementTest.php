@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Provider;
+use App\Models\Subscription;
 use App\Models\Tariff;
 use App\Models\User;
 use App\Enums\UserRole;
@@ -8,6 +9,7 @@ use App\Enums\ServiceType;
 
 test('admin can view tariffs index', function () {
     $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+    Subscription::factory()->active()->create(['user_id' => $admin->id]);
     $provider = Provider::factory()->create();
     $tariff = Tariff::factory()->create(['provider_id' => $provider->id]);
 
@@ -19,16 +21,18 @@ test('admin can view tariffs index', function () {
 
 test('admin can view tariff create form', function () {
     $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+    Subscription::factory()->active()->create(['user_id' => $admin->id]);
     Provider::factory()->create();
 
     $response = $this->actingAs($admin)->get(route('admin.tariffs.create'));
 
     $response->assertOk();
-    $response->assertSee('Create Tariff');
+    $response->assertSee(__('tariffs.pages.admin_form.create_title'));
 });
 
 test('admin can create flat rate tariff', function () {
     $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+    Subscription::factory()->active()->create(['user_id' => $admin->id]);
     $provider = Provider::factory()->create();
 
     $response = $this->actingAs($admin)->post(route('admin.tariffs.store'), [
@@ -51,6 +55,7 @@ test('admin can create flat rate tariff', function () {
 
 test('admin can create time of use tariff', function () {
     $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+    Subscription::factory()->active()->create(['user_id' => $admin->id]);
     $provider = Provider::factory()->create();
 
     $response = $this->actingAs($admin)->post(route('admin.tariffs.store'), [
@@ -76,6 +81,7 @@ test('admin can create time of use tariff', function () {
 
 test('admin can view tariff details with version history', function () {
     $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+    Subscription::factory()->active()->create(['user_id' => $admin->id]);
     $provider = Provider::factory()->create();
     
     // Create original tariff
@@ -103,6 +109,7 @@ test('admin can view tariff details with version history', function () {
 
 test('admin can edit tariff', function () {
     $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+    Subscription::factory()->active()->create(['user_id' => $admin->id]);
     $provider = Provider::factory()->create();
     $tariff = Tariff::factory()->create(['provider_id' => $provider->id]);
 
@@ -115,6 +122,7 @@ test('admin can edit tariff', function () {
 
 test('admin can update tariff', function () {
     $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+    Subscription::factory()->active()->create(['user_id' => $admin->id]);
     $provider = Provider::factory()->create();
     $tariff = Tariff::factory()->create([
         'provider_id' => $provider->id,
@@ -141,6 +149,7 @@ test('admin can update tariff', function () {
 
 test('admin can create new tariff version', function () {
     $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+    Subscription::factory()->active()->create(['user_id' => $admin->id]);
     $provider = Provider::factory()->create();
     $tariff = Tariff::factory()->create([
         'provider_id' => $provider->id,
@@ -179,6 +188,7 @@ test('admin can create new tariff version', function () {
 
 test('tariff validation rejects invalid configuration', function () {
     $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+    Subscription::factory()->active()->create(['user_id' => $admin->id]);
     $provider = Provider::factory()->create();
 
     $response = $this->actingAs($admin)->post(route('admin.tariffs.store'), [
@@ -196,6 +206,7 @@ test('tariff validation rejects invalid configuration', function () {
 
 test('active tariffs are highlighted in index', function () {
     $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+    Subscription::factory()->active()->create(['user_id' => $admin->id]);
     $provider = Provider::factory()->create();
     
     // Create active tariff

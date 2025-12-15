@@ -198,4 +198,38 @@ class Meter extends Model
     {
         return $this->serviceConfiguration?->utilityService;
     }
+
+    public function getServiceDisplayName(): string
+    {
+        $name = $this->serviceConfiguration?->utilityService?->name;
+
+        if (is_string($name) && $name !== '') {
+            return $name;
+        }
+
+        $meterType = $this->type instanceof MeterType
+            ? $this->type
+            : MeterType::tryFrom((string) $this->type);
+
+        return $meterType?->label() ?? ucfirst((string) $this->type);
+    }
+
+    public function getUnitOfMeasurement(): string
+    {
+        $unit = $this->serviceConfiguration?->utilityService?->unit_of_measurement;
+
+        if (is_string($unit) && $unit !== '') {
+            return $unit;
+        }
+
+        $meterType = $this->type instanceof MeterType
+            ? $this->type
+            : MeterType::tryFrom((string) $this->type);
+
+        return match ($meterType) {
+            MeterType::ELECTRICITY, MeterType::HEATING => 'kWh',
+            MeterType::WATER_COLD, MeterType::WATER_HOT => 'm³',
+            default => 'unit',
+        };
+    }
 }

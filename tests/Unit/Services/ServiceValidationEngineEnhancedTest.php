@@ -107,7 +107,7 @@ class ServiceValidationEngineEnhancedTest extends TestCase
                 'constraints' => [
                     [
                         'field' => 'value',
-                        'operator' => '<',
+                        'operator' => '>',
                         'value' => 1000,
                         'message' => 'Reading exceeds maximum allowed value',
                         'severity' => 'error',

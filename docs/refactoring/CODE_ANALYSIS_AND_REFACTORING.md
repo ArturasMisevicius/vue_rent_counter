@@ -15,7 +15,7 @@ Comprehensive code analysis and refactoring performed on the Vilnius Utilities B
 **Problem:** Several models lacked factory definitions, preventing proper test data generation.
 
 **Solution:** Created missing factories:
-- `BuildingFactory.php` - For building entities with gyvatukas fields
+- `BuildingFactory.php` - For building entities with hot water circulation fields
 - `TenantFactory.php` - For tenant/renter entities with lease dates
 - `InvoiceFactory.php` - For invoice entities with status states
 
@@ -276,7 +276,7 @@ All refactorings maintain existing:
 3. ✅ Missing factories created - **COMPLETE**
 
 ### Short Term (Next Sprint)
-1. Implement `GyvatukasCalculator` service for heating calculations
+1. Implement `hot water circulationCalculator` service for heating calculations
 2. Create `BillingService` for invoice generation
 3. Add Eloquent Observers for audit trail
 4. Implement authorization Policies for RBAC

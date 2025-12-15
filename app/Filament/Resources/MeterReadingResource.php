@@ -1,28 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources;
 
+use App\Enums\MeterType;
 use App\Filament\Resources\MeterReadingResource\Pages;
-use App\Models\MeterReading;
 use App\Models\Meter;
+use App\Models\MeterReading;
+use App\Services\MeterReadingService;
 use BackedEnum;
-use UnitEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Carbon;
+use UnitEnum;
 
 class MeterReadingResource extends Resource
 {
     protected static ?string $model = MeterReading::class;
 
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-chart-bar';
-    
-    protected static UnitEnum|string|null $navigationGroup = 'Utilities Management';
-    
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chart-bar';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Utilities Management';
+
     protected static ?int $navigationSort = 4;
 
     public static function form(Schema $schema): Schema
@@ -33,45 +38,150 @@ class MeterReadingResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('meter_id')
                             ->label('Meter')
-                            ->relationship('meter', 'meter_number')
-                            ->getOptionLabelFromRecordUsing(fn ($record) => 
-                                "{$record->meter_number} ({$record->property->building->name} - {$record->property->unit_number})"
-                            )
+                            ->relationship('meter', 'serial_number')
+                            ->getOptionLabelFromRecordUsing(function (Meter $meter): string {
+                                $property = $meter->property;
+
+                                if (! $property) {
+                                    return $meter->serial_number;
+                                }
+
+                                $buildingLabel = $property->building?->display_name ?? $property->address;
+                                $unitLabel = filled($property->unit_number) ? $property->unit_number : '—';
+
+                                return "{$meter->serial_number} ({$buildingLabel} - {$unitLabel})";
+                            })
                             ->required()
                             ->searchable()
                             ->preload(),
-                            
+
                         Forms\Components\DatePicker::make('reading_date')
                             ->required()
                             ->default(now())
                             ->maxDate(now()),
-                            
+
                         Forms\Components\TextInput::make('value')
                             ->label('Reading Value')
                             ->numeric()
                             ->step(0.01)
                             ->minValue(0)
                             ->required()
-                            ->suffix(''),
-                            
+                            ->rule(function (Get $get, ?MeterReading $record): \Closure {
+                                return function (string $attribute, mixed $value, \Closure $fail) use ($get, $record): void {
+                                    $meterId = $get('meter_id');
+
+                                    if (! $meterId) {
+                                        return;
+                                    }
+
+                                    $meter = Meter::find($meterId);
+
+                                    if (! $meter) {
+                                        return;
+                                    }
+
+                                    $service = app(MeterReadingService::class);
+
+                                    if (! is_numeric($value)) {
+                                        return;
+                                    }
+
+                                    $readingDate = $get('reading_date');
+                                    $readingDateString = $readingDate instanceof \DateTimeInterface
+                                        ? $readingDate->format('Y-m-d')
+                                        : (is_string($readingDate) && $readingDate !== '' ? $readingDate : null);
+
+                                    $zone = $get('zone');
+                                    $zone = is_string($zone) && $zone !== '' ? $zone : null;
+
+                                    if ($record instanceof MeterReading && $record->exists) {
+                                        $candidate = new MeterReading();
+                                        $candidate->id = $record->id;
+                                        $candidate->setRelation('meter', $meter);
+                                        $candidate->reading_date = $readingDateString ? Carbon::parse($readingDateString) : $record->reading_date;
+                                        $candidate->zone = $zone;
+
+                                        $previousReading = $service->getAdjacentReading($candidate, $zone, 'previous');
+
+                                        if ($previousReading && (float) $value < (float) $previousReading->value) {
+                                            $fail(__('meter_readings.validation.custom.monotonicity_lower', [
+                                                'previous' => $previousReading->value,
+                                            ]));
+                                        }
+
+                                        $nextReading = $service->getAdjacentReading($candidate, $zone, 'next');
+
+                                        if ($nextReading && (float) $value > (float) $nextReading->value) {
+                                            $fail(__('meter_readings.validation.custom.monotonicity_higher', [
+                                                'next' => $nextReading->value,
+                                            ]));
+                                        }
+
+                                        return;
+                                    }
+
+                                    if ($readingDateString) {
+                                        $previousReading = $service->getPreviousReading($meter, $zone, $readingDateString);
+
+                                        if ($previousReading && (float) $value < (float) $previousReading->value) {
+                                            $fail(__('meter_readings.validation.custom.monotonicity_lower', [
+                                                'previous' => $previousReading->value,
+                                            ]));
+                                        }
+
+                                        $nextReading = $service->getNextReading($meter, $zone, $readingDateString);
+
+                                        if ($nextReading && (float) $value > (float) $nextReading->value) {
+                                            $fail(__('meter_readings.validation.custom.monotonicity_higher', [
+                                                'next' => $nextReading->value,
+                                            ]));
+                                        }
+
+                                        return;
+                                    }
+
+                                    $previousReading = $service->getPreviousReading($meter, $zone);
+
+                                    if ($previousReading && (float) $value < (float) $previousReading->value) {
+                                        $fail(__('meter_readings.validation.custom.monotonicity_lower', [
+                                            'previous' => $previousReading->value,
+                                        ]));
+                                    }
+                                };
+                            }),
+
                         Forms\Components\TextInput::make('zone')
                             ->label('Tariff Zone')
                             ->maxLength(50)
                             ->placeholder('e.g., day, night')
-                            ->helperText('Leave empty for single-zone meters'),
+                            ->helperText('Leave empty for single-zone meters')
+                            ->rule(function (Get $get): \Closure {
+                                return function (string $attribute, mixed $value, \Closure $fail) use ($get): void {
+                                    $meterId = $get('meter_id');
+
+                                    if (! $meterId) {
+                                        return;
+                                    }
+
+                                    $meter = Meter::find($meterId);
+
+                                    if (! $meter) {
+                                        return;
+                                    }
+
+                                    $zone = is_string($value) && $value !== '' ? $value : null;
+
+                                    if ($zone && ! $meter->supports_zones) {
+                                        $fail(__('meter_readings.validation.custom.zone.unsupported'));
+                                    }
+
+                                    if (! $zone && $meter->supports_zones) {
+                                        $fail(__('meter_readings.validation.custom.zone.required_for_multi_zone'));
+                                    }
+                                };
+                            }),
                     ])
                     ->columns(2),
-                    
-                Forms\Components\Section::make('Additional Information')
-                    ->schema([
-                        Forms\Components\Textarea::make('notes')
-                            ->maxLength(1000)
-                            ->columnSpanFull(),
-                            
-                        Forms\Components\Toggle::make('is_estimated')
-                            ->label('Estimated Reading')
-                            ->helperText('Check if this is an estimated reading'),
-                    ]),
             ]);
     }
 
@@ -79,80 +189,63 @@ class MeterReadingResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('meter.meter_number')
+                Tables\Columns\TextColumn::make('meter.serial_number')
                     ->label('Meter')
                     ->searchable()
                     ->sortable(),
-                    
-                Tables\Columns\TextColumn::make('meter.property.building.name')
+
+                Tables\Columns\TextColumn::make('meter.property.building.display_name')
                     ->label('Building')
                     ->searchable()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('meter.property.unit_number')
                     ->label('Unit')
                     ->searchable()
                     ->sortable(),
-                    
+
+                Tables\Columns\TextColumn::make('meter.type')
+                    ->label('Type')
+                    ->badge()
+                    ->formatStateUsing(fn ($state): string => $state instanceof MeterType ? $state->label() : ucfirst(str_replace('_', ' ', (string) $state)))
+                    ->color(fn ($state): string => match ($state instanceof MeterType ? $state->value : (string) $state) {
+                        'electricity' => 'warning',
+                        'water_cold' => 'info',
+                        'water_hot' => 'danger',
+                        'heating' => 'success',
+                        default => 'gray',
+                    }),
+
                 Tables\Columns\TextColumn::make('reading_date')
-                    ->date()
+                    ->dateTime()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('value')
                     ->label('Reading')
                     ->numeric()
                     ->sortable()
-                    ->suffix(fn ($record) => " {$record->meter->unit}"),
-                    
+                    ->suffix(fn (MeterReading $record) => $record->meter ? (' ' . $record->meter->getUnitOfMeasurement()) : ''),
+
                 Tables\Columns\TextColumn::make('zone')
                     ->badge()
                     ->placeholder('Single Zone'),
-                    
-                Tables\Columns\IconColumn::make('is_estimated')
-                    ->label('Est.')
-                    ->boolean()
-                    ->tooltip('Estimated Reading'),
-                    
-                Tables\Columns\TextColumn::make('meter.utility_type')
-                    ->label('Type')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'electricity' => 'warning',
-                        'gas' => 'danger',
-                        'water' => 'info',
-                        'heat' => 'success',
-                        'sewage' => 'gray',
-                        default => 'secondary',
-                    }),
-                    
+
+                Tables\Columns\TextColumn::make('enteredBy.name')
+                    ->label('Entered By')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('meter')
-                    ->relationship('meter', 'meter_number')
+                Tables\Filters\SelectFilter::make('meter_id')
+                    ->label('Meter')
+                    ->relationship('meter', 'serial_number')
                     ->searchable()
                     ->preload(),
-                    
-                Tables\Filters\SelectFilter::make('utility_type')
-                    ->label('Utility Type')
-                    ->options([
-                        'electricity' => 'Electricity',
-                        'gas' => 'Gas',
-                        'water' => 'Water',
-                        'heat' => 'Heat',
-                        'sewage' => 'Sewage',
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query->when(
-                            $data['value'],
-                            fn (Builder $query, $value): Builder => 
-                                $query->whereHas('meter', fn ($q) => $q->where('utility_type', $value))
-                        );
-                    }),
-                    
+
                 Tables\Filters\Filter::make('reading_date')
                     ->form([
                         Forms\Components\DatePicker::make('from'),
@@ -161,16 +254,14 @@ class MeterReadingResource extends Resource
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
-                                $data['from'],
+                                $data['from'] ?? null,
                                 fn (Builder $query, $date): Builder => $query->whereDate('reading_date', '>=', $date),
                             )
                             ->when(
-                                $data['until'],
+                                $data['until'] ?? null,
                                 fn (Builder $query, $date): Builder => $query->whereDate('reading_date', '<=', $date),
                             );
                     }),
-                    
-                Tables\Filters\TernaryFilter::make('is_estimated'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -187,9 +278,7 @@ class MeterReadingResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
@@ -199,13 +288,5 @@ class MeterReadingResource extends Resource
             'create' => Pages\CreateMeterReading::route('/create'),
             'edit' => Pages\EditMeterReading::route('/{record}/edit'),
         ];
-    }
-    
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
     }
 }

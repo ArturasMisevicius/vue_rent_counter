@@ -45,7 +45,7 @@ Tenant: tenant@example.com / password
 #### Service Layer Pattern
 - [ ] Проверить `app/Services/BillingService.php`
 - [ ] Проверить `app/Services/TariffResolver.php`
-- [ ] Проверить `app/Services/GyvatukasCalculator.php`
+- [ ] Проверить `app/Services/hot water circulationCalculator.php`
 - [ ] Проверить `app/Services/InputSanitizer.php`
 
 **Вопросы:**
@@ -217,7 +217,7 @@ php artisan test --filter=InvoiceGenerationTest
 - [ ] Правильный расчет потребления
 - [ ] Применение тарифов
 - [ ] Снапшот тарифов в invoice_items
-- [ ] Расчет Gyvatukas
+- [ ] Расчет hot water circulation
 - [ ] Обработка multi-zone meters
 
 **Ручная проверка:**
@@ -234,7 +234,7 @@ $invoice = app(BillingService::class)->generateInvoice(
 // 1. invoice->items содержит все meters
 // 2. Каждый item имеет rate_snapshot
 // 3. Суммы рассчитаны правильно
-// 4. Gyvatukas добавлен для hot water
+// 4. hot water circulation добавлен для hot water
 ```
 
 #### Tariff Resolution

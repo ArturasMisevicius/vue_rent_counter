@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Models\OrganizationActivityLog;
+use App\Models\Organization;
 use App\Models\User;
 use App\Services\ImpersonationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -20,14 +20,17 @@ class ImpersonationServiceTest extends TestCase
     {
         parent::setUp();
         $this->impersonationService = app(ImpersonationService::class);
+
+        Organization::factory()->create(['id' => 1]);
+        Session::start();
     }
 
     /** @test */
     public function it_can_start_impersonation_with_audit_logging()
     {
         // Create superadmin and target user
-        $superadmin = User::factory()->create(['role' => 'superadmin']);
-        $targetUser = User::factory()->create(['role' => 'admin']);
+        $superadmin = User::factory()->superadmin()->create();
+        $targetUser = User::factory()->admin(1)->create();
 
         // Authenticate as superadmin
         Auth::login($superadmin);
@@ -58,8 +61,8 @@ class ImpersonationServiceTest extends TestCase
     public function it_can_end_impersonation_with_audit_logging()
     {
         // Create superadmin and target user
-        $superadmin = User::factory()->create(['role' => 'superadmin']);
-        $targetUser = User::factory()->create(['role' => 'admin']);
+        $superadmin = User::factory()->superadmin()->create();
+        $targetUser = User::factory()->admin(1)->create();
 
         // Set up impersonation session
         Session::put('impersonation', [

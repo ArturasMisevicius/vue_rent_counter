@@ -192,7 +192,7 @@ php artisan test --testsuite=Feature
 #### Services (7 classes)
 - BillingService
 - TariffResolver
-- GyvatukasCalculator
+- hot water circulationCalculator
 - SubscriptionService
 - AccountManagementService
 - TenantContext

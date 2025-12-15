@@ -23,8 +23,18 @@ class UpdateBuildingRequest extends FormRequest
     {
         return [
             'tenant_id' => ['required', 'integer'],
-            'name' => ['required', 'string', 'max:255'],
-            'address' => ['required', 'string', 'max:255'],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[a-zA-Z0-9\\s\\-_\\.#]+$/',
+            ],
+            'address' => [
+                'required',
+                'string',
+                'max:500',
+                'regex:/^[a-zA-Z0-9\\s\\-_\\.,#\\/]+$/',
+            ],
             'total_apartments' => ['required', 'integer', 'min:1', 'max:1000'],
         ];
     }
@@ -42,9 +52,11 @@ class UpdateBuildingRequest extends FormRequest
             'name.required' => __('buildings.validation.name.required'),
             'name.string' => __('buildings.validation.name.string'),
             'name.max' => __('buildings.validation.name.max'),
+            'name.regex' => __('buildings.validation.name.regex'),
             'address.required' => __('buildings.validation.address.required'),
             'address.string' => __('buildings.validation.address.string'),
             'address.max' => __('buildings.validation.address.max'),
+            'address.regex' => __('buildings.validation.address.regex'),
             'total_apartments.required' => __('buildings.validation.total_apartments.required'),
             'total_apartments.integer' => __('buildings.validation.total_apartments.integer'),
             'total_apartments.min' => __('buildings.validation.total_apartments.min'),

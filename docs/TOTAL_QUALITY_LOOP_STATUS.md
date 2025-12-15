@@ -47,7 +47,7 @@ Need to create tests for:
 3. AuditLog.php
 4. Comment.php
 5. Faq.php
-6. GyvatukasCalculationAudit.php
+6. hot water circulationCalculationAudit.php
 7. InvoiceGenerationAudit.php
 8. MeterReadingAudit.php
 9. Organization.php
@@ -65,9 +65,9 @@ Need to create tests for:
 Need to create tests for:
 1. BaseService.php
 2. BillingServiceSecure.php
-3. GyvatukasCalculatorSecure.php
-4. GyvatukasCalculatorService.php
-5. GyvatukasSummerAverageService.php
+3. hot water circulationCalculatorSecure.php
+4. hot water circulationCalculatorService.php
+5. hot water circulationSummerAverageService.php
 6. ImpersonationService.php
 7. InputSanitizer.php
 8. ServiceResponse.php
@@ -88,7 +88,7 @@ Need to create tests for:
 Need to create tests for:
 1. BillingPolicy.php
 2. FaqPolicy.php
-3. GyvatukasCalculatorPolicy.php
+3. hot water circulationCalculatorPolicy.php
 4. LanguagePolicy.php
 5. MeterPolicy.php
 6. OrganizationActivityLogPolicy.php
@@ -115,7 +115,7 @@ Need to create tests for:
 
 ### Priority 6: Other Missing Tests (14 total)
 Need to create tests for:
-1. DTOs/GyvatukasCalculationDTO.php
+1. DTOs/hot water circulationCalculationDTO.php
 2. Scopes/HierarchicalScope.php
 3. Scopes/TenantScope.php
 4. Traits/Auditable.php

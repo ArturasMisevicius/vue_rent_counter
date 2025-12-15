@@ -84,7 +84,7 @@ test('admin with expired subscription cannot perform write operations', function
     ]);
 
     $this->actingAs($admin)
-        ->post(route('admin.dashboard'))
+        ->post(route('admin.settings.update'))
         ->assertRedirect(route('admin.dashboard'))
         ->assertSessionHas('error');
 });
@@ -363,8 +363,7 @@ test('auth route bypass does not log subscription checks', function () {
         ->get(route('login'));
 
     // Should NOT log subscription check for auth routes
-    Log::shouldNotHaveReceived('channel')
-        ->with('audit');
+    Log::shouldNotHaveReceived('channel', ['audit']);
 });
 
 test('non-admin users can access auth routes without subscription', function () {

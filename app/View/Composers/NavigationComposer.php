@@ -166,9 +166,6 @@ final class NavigationComposer
         }
 
         // SECURITY: Use scope to prevent SQL injection and ensure consistent filtering
-        return Language::query()
-            ->active()
-            ->orderBy('display_order')
-            ->get();
+        return Language::getActiveLanguages();
     }
 }

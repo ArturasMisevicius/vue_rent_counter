@@ -114,7 +114,8 @@ trait HasAttachments
     protected static function bootHasAttachments(): void
     {
         static::deleting(function ($model) {
-            $model->attachments()->each(function ($attachment) {
+            // Eager load attachments to avoid N+1 queries during deletion
+            $model->attachments()->get()->each(function ($attachment) {
                 $attachment->delete();
             });
         });

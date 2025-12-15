@@ -10,7 +10,7 @@ use UnitEnum;
 
 class TermsOfService extends Page
 {
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-document-text';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?string $navigationLabel = null;
 
@@ -18,7 +18,7 @@ class TermsOfService extends Page
 
     protected string $view = 'filament.pages.terms-of-service';
 
-    protected static UnitEnum|string|null $navigationGroup = null;
+    protected static string|UnitEnum|null $navigationGroup = null;
 
     protected static ?int $navigationSort = 91;
 

@@ -101,7 +101,7 @@ class PropertyResource extends Resource
                             ->placeholder(__('properties.placeholders.address'))
                             ->helperText(__('properties.helper_text.address'))
                             ->required()
-                            ->maxLength(255)
+                            ->maxLength(500)
                             ->columnSpanFull()
                             ->validationMessages(self::getValidationMessages('address')),
 
@@ -120,7 +120,7 @@ class PropertyResource extends Resource
                             ->required()
                             ->numeric()
                             ->minValue(0)
-                            ->maxValue(10000)
+                            ->maxValue(999999.99)
                             ->suffix(__('app.units.square_meter'))
                             ->step(0.01)
                             ->validationMessages(self::getValidationMessages('area_sqm')),
@@ -214,6 +214,7 @@ class PropertyResource extends Resource
     {
         return [
             RelationManagers\MetersRelationManager::class,
+            RelationManagers\ServiceConfigurationsRelationManager::class,
         ];
     }
 

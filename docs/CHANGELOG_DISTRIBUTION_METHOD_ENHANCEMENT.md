@@ -7,7 +7,7 @@
 
 ## Summary
 
-Enhanced the `DistributionMethod` enum to support consumption-based and custom formula distribution methods as part of the Universal Utility Management System. All changes maintain full backward compatibility with existing gyvatukas calculations.
+Enhanced the `DistributionMethod` enum to support consumption-based and custom formula distribution methods as part of the Universal Utility Management System. All changes maintain full backward compatibility with existing hot water circulation calculations.
 
 ## Changes
 
@@ -114,7 +114,7 @@ if ($config->requiresConsumptionData()) {
 }
 ```
 
-### GyvatukasCalculator Service
+### hot water circulationCalculator Service
 ```php
 // Consumption-based distribution
 $costs = $calculator->distributeCirculationCost(
@@ -150,7 +150,7 @@ if ($method->requiresConsumptionData()) {
 - ✅ `AREA` case unchanged
 - ✅ `requiresAreaData()` method behavior preserved
 - ✅ `getLabel()` and `getDescription()` methods unchanged
-- ✅ All existing gyvatukas calculations work identically
+- ✅ All existing hot water circulation calculations work identically
 
 ### Migration Path
 No migration required. Existing code continues to work:
@@ -192,7 +192,7 @@ $costs = $calculator->distributeCirculationCost($building, 1000.0, $method->valu
 
 ## Next Steps
 
-1. Implement consumption-based distribution logic in `GyvatukasCalculator`
+1. Implement consumption-based distribution logic in `hot water circulationCalculator`
 2. Implement custom formula evaluation engine
 3. Add Filament UI for distribution method selection
 4. Create property-based tests for distribution calculations

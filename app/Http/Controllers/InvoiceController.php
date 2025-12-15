@@ -4,10 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\GenerateBulkInvoicesRequest;
 use App\Http\Requests\StoreInvoiceRequest;
+use App\Models\MeterReading;
 use App\Models\Invoice;
 use App\Models\Tenant;
+use App\Enums\InvoiceStatus;
 use App\Services\BillingService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class InvoiceController extends Controller
 {
@@ -18,11 +23,14 @@ class InvoiceController extends Controller
     /**
      * Display a listing of invoices.
      */
-    public function index(): \Illuminate\View\View
+    public function index(): View
     {
+        $this->authorize('viewAny', Invoice::class);
+
         $invoices = Invoice::with(['tenant.property', 'items'])
             ->latest()
             ->paginate(20);
+
         return view('invoices.index', compact('invoices'));
     }
 
@@ -31,6 +39,8 @@ class InvoiceController extends Controller
      */
     public function create(): \Illuminate\View\View
     {
+        $this->authorize('create', Invoice::class);
+
         $tenants = Tenant::with('property')->get();
         return view('invoices.create', compact('tenants'));
     }
@@ -38,17 +48,25 @@ class InvoiceController extends Controller
     /**
      * Store a newly created invoice.
      */
-    public function store(StoreInvoiceRequest $request): \Illuminate\Http\RedirectResponse
+    public function store(StoreInvoiceRequest $request): RedirectResponse
     {
+        $this->authorize('create', Invoice::class);
+
         $validated = $request->validated();
 
         $tenant = Tenant::findOrFail($validated['tenant_renter_id']);
         
-        $invoice = $this->billingService->generateInvoice(
-            $tenant,
-            $validated['billing_period_start'],
-            $validated['billing_period_end']
-        );
+        try {
+            $invoice = $this->billingService->generateInvoice(
+                $tenant,
+                Carbon::parse($validated['billing_period_start']),
+                Carbon::parse($validated['billing_period_end'])
+            );
+        } catch (\Throwable $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['error' => $e->getMessage()]);
+        }
 
         return redirect()->route('invoices.show', $invoice)
             ->with('success', __('notifications.invoice.created'));
@@ -62,17 +80,19 @@ class InvoiceController extends Controller
      * - 6.3: Display chronologically ordered consumption history
      * - 6.4: Show consumption amount and rate applied for each item
      */
-    public function show(Invoice $invoice): \Illuminate\View\View
+    public function show(Invoice $invoice): View
     {
+        $this->authorize('view', $invoice);
+
         $invoice->load(['tenant.property', 'items']);
         
         // Get consumption history for the billing period (Requirement 6.3)
         $consumptionHistory = collect();
         if ($invoice->tenant && $invoice->tenant->property) {
-            $consumptionHistory = \App\Models\MeterReading::whereHas('meter', function ($query) use ($invoice) {
+            $consumptionHistory = MeterReading::whereHas('meter', function ($query) use ($invoice) {
                 $query->where('property_id', $invoice->tenant->property_id);
             })
-            ->with(['meter'])
+            ->with(['meter.serviceConfiguration.utilityService'])
             ->whereBetween('reading_date', [
                 $invoice->billing_period_start,
                 $invoice->billing_period_end
@@ -82,7 +102,7 @@ class InvoiceController extends Controller
             
             // Calculate consumption for each reading
             $consumptionHistory = $consumptionHistory->map(function ($reading) {
-                $previousReading = \App\Models\MeterReading::where('meter_id', $reading->meter_id)
+                $previousReading = MeterReading::where('meter_id', $reading->meter_id)
                     ->where('reading_date', '<', $reading->reading_date)
                     ->orderBy('reading_date', 'desc')
                     ->first();
@@ -103,6 +123,8 @@ class InvoiceController extends Controller
      */
     public function edit(Invoice $invoice): \Illuminate\Http\RedirectResponse|\Illuminate\View\View
     {
+        $this->authorize('update', $invoice);
+
         if (!$invoice->isDraft()) {
             return back()->with('error', __('invoices.errors.edit_draft_only'));
         }
@@ -116,6 +138,8 @@ class InvoiceController extends Controller
      */
     public function update(StoreInvoiceRequest $request, Invoice $invoice): \Illuminate\Http\RedirectResponse
     {
+        $this->authorize('update', $invoice);
+
         if (!$invoice->isDraft()) {
             return back()->with('error', __('invoices.errors.update_draft_only'));
         }
@@ -137,6 +161,8 @@ class InvoiceController extends Controller
             return back()->with('error', __('invoices.errors.delete_draft_only'));
         }
 
+        $this->authorize('delete', $invoice);
+
         $invoice->delete();
 
         return redirect()->route('invoices.index')
@@ -146,27 +172,50 @@ class InvoiceController extends Controller
     /**
      * Finalize an invoice, making it immutable.
      */
-    public function finalize(Invoice $invoice): \Illuminate\Http\RedirectResponse
+    public function finalize(Invoice $invoice): RedirectResponse
     {
-        if (!$invoice->isDraft()) {
-            return back()->with('error', __('invoices.errors.already_finalized'));
-        }
+        $this->authorize('finalize', $invoice);
 
-        $invoice->finalize();
+        try {
+            $this->billingService->finalizeInvoice($invoice);
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         return back()->with('success', __('notifications.invoice.finalized'));
     }
 
-    /**
-     * Mark an invoice as paid.
-     */
-    public function markPaid(Invoice $invoice): \Illuminate\Http\RedirectResponse
+    public function processPayment(Request $request, Invoice $invoice): RedirectResponse
     {
+        $this->authorize('processPayment', $invoice);
+
         if (!$invoice->isFinalized()) {
             return back()->with('error', __('invoices.errors.mark_paid_finalized'));
         }
 
-        $invoice->update(['status' => 'paid']);
+        $validated = $request->validate([
+            'amount' => ['required', 'numeric', 'min:0.01'],
+            'payment_reference' => ['nullable', 'string', 'max:255'],
+            'payment_date' => ['nullable', 'date'],
+        ]);
+
+        $amount = (float) $validated['amount'];
+        $total = (float) $invoice->total_amount;
+
+        $invoice->paid_amount = $amount;
+
+        if (!empty($validated['payment_reference'])) {
+            $invoice->payment_reference = $validated['payment_reference'];
+        }
+
+        if ($amount >= $total) {
+            $invoice->status = InvoiceStatus::PAID;
+            $invoice->paid_at = isset($validated['payment_date'])
+                ? Carbon::parse($validated['payment_date'])
+                : now();
+        }
+
+        $invoice->save();
 
         return back()->with('success', __('notifications.invoice.marked_paid'));
     }
@@ -189,6 +238,8 @@ class InvoiceController extends Controller
      */
     public function send(Invoice $invoice): \Illuminate\Http\RedirectResponse
     {
+        $this->authorize('view', $invoice);
+
         if (!$invoice->isFinalized()) {
             return back()->with('error', __('invoices.errors.send_finalized_only'));
         }
@@ -200,9 +251,13 @@ class InvoiceController extends Controller
     /**
      * Generate invoices for multiple tenants.
      */
-    public function generateBulk(GenerateBulkInvoicesRequest $request): \Illuminate\Http\RedirectResponse
+    public function generateBulk(GenerateBulkInvoicesRequest $request): RedirectResponse
     {
+        $this->authorize('create', Invoice::class);
+
         $validated = $request->validated();
+        $periodStart = Carbon::parse($validated['billing_period_start']);
+        $periodEnd = Carbon::parse($validated['billing_period_end']);
 
         $tenants = isset($validated['tenant_ids']) 
             ? Tenant::whereIn('id', $validated['tenant_ids'])->get()
@@ -210,12 +265,13 @@ class InvoiceController extends Controller
 
         $count = 0;
         foreach ($tenants as $tenant) {
-            $this->billingService->generateInvoice(
-                $tenant,
-                $validated['billing_period_start'],
-                $validated['billing_period_end']
-            );
-            $count++;
+            try {
+                $this->billingService->generateInvoice($tenant, $periodStart, $periodEnd);
+                $count++;
+            } catch (\Throwable) {
+                // Skip tenant failures to keep bulk operation resilient.
+                continue;
+            }
         }
 
         return back()->with('success', __('notifications.invoice.generated_bulk', ['count' => $count]));

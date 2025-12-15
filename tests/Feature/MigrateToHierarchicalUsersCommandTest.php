@@ -28,7 +28,7 @@ test('command migrates manager users to admin role', function () {
     
     // Verify subscription was created
     expect($manager->subscription)->not->toBeNull();
-    expect($manager->subscription->status)->toBe('active');
+    expect($manager->subscription->status)->toBe(SubscriptionStatus::ACTIVE);
     expect($manager->subscription->plan_type)->toBe('professional');
 });
 
@@ -76,7 +76,7 @@ test('command creates subscriptions for admin users without one', function () {
     // Verify subscription was created
     $admin->refresh();
     expect($admin->subscription)->not->toBeNull();
-    expect($admin->subscription->status)->toBe('active');
+    expect($admin->subscription->status)->toBe(SubscriptionStatus::ACTIVE);
     expect($admin->subscription->max_properties)->toBe(50);
     expect($admin->subscription->max_tenants)->toBe(200);
 });

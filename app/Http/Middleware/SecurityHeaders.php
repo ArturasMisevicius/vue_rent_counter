@@ -55,7 +55,7 @@ final class SecurityHeaders
         $response->headers->set('Permissions-Policy', $this->getPermissionsPolicy());
         
         // HSTS (only in production with HTTPS)
-        if (app()->environment('production') && $request->secure()) {
+        if (config('app.env') === 'production' && $request->secure()) {
             $response->headers->set(
                 'Strict-Transport-Security',
                 'max-age=31536000; includeSubDomains; preload'

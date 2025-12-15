@@ -18,22 +18,57 @@ class TenantContext
 
     private static ?Organization $currentTenant = null;
     private static bool $initialized = false;
+    private static ?int $initializedForUserId = null;
+    private static ?int $forcedTenantId = null;
 
     /**
      * Initialize tenant context from session or user
      */
     public static function initialize(): void
     {
-        if (static::$initialized) {
+        $user = auth()->user();
+        $userId = $user?->id;
+
+        // For non-superadmin users, tenant context must always match the authenticated user.
+        // For superadmins (or guests), the context is driven by the session (switchable).
+        $desiredTenantId = static::$forcedTenantId;
+
+        if ($desiredTenantId === null && $user && ! $user->isSuperadmin()) {
+            $desiredTenantId = $user->tenant_id;
+        } elseif ($desiredTenantId === null) {
+            $desiredTenantId = Session::get(static::SESSION_KEY);
+        }
+
+        $desiredTenantId = $desiredTenantId !== null ? (int) $desiredTenantId : null;
+
+        // No-op if we're already initialized for this user and target tenant.
+        if (
+            static::$initialized
+            && static::$initializedForUserId === $userId
+            && static::$currentTenant?->id === $desiredTenantId
+        ) {
             return;
         }
 
-        $tenantId = Session::get(static::SESSION_KEY);
+        // Reset state so long-running processes/tests can't leak tenant context
+        // across user switches (e.g., impersonation, multi-tenant jobs).
+        static::$currentTenant = null;
+        static::$initialized = false;
+        static::$initializedForUserId = $userId;
 
-        if ($tenantId) {
-            static::$currentTenant = static::loadTenant($tenantId);
-        } elseif (auth()->check()) {
-            static::setFromUser(auth()->user());
+        if ($user && ! $user->isSuperadmin()) {
+            if ($desiredTenantId !== null) {
+                static::set($desiredTenantId);
+            } else {
+                Session::forget(static::SESSION_KEY);
+            }
+
+            static::$initialized = true;
+            return;
+        }
+
+        if ($desiredTenantId !== null) {
+            static::$currentTenant = static::loadTenant($desiredTenantId);
         }
 
         static::$initialized = true;
@@ -81,9 +116,7 @@ class TenantContext
      */
     public static function get(): ?Organization
     {
-        if (!static::$initialized) {
-            static::initialize();
-        }
+        static::initialize();
 
         return static::$currentTenant;
     }
@@ -111,6 +144,8 @@ class TenantContext
     {
         static::$currentTenant = null;
         static::$initialized = false;
+        static::$initializedForUserId = null;
+        static::$forcedTenantId = null;
         Session::forget(static::SESSION_KEY);
     }
 
@@ -133,13 +168,18 @@ class TenantContext
     {
         $previousTenant = static::$currentTenant;
         $previousInitialized = static::$initialized;
+        $previousInitializedForUserId = static::$initializedForUserId;
+        $previousForcedTenantId = static::$forcedTenantId;
 
         try {
+            static::$forcedTenantId = $tenantId;
             static::set($tenantId);
             return $callback();
         } finally {
             static::$currentTenant = $previousTenant;
             static::$initialized = $previousInitialized;
+            static::$initializedForUserId = $previousInitializedForUserId;
+            static::$forcedTenantId = $previousForcedTenantId;
             
             if ($previousTenant) {
                 Session::put(static::SESSION_KEY, $previousTenant->id);

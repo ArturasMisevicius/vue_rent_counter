@@ -45,14 +45,8 @@
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                     <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('meters.labels.type') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
-                        @if($meter->serviceConfiguration?->utilityService)
-                            {{ $meter->serviceConfiguration->utilityService->name }}
-                            @if($meter->serviceConfiguration->utilityService->unit_of_measurement)
-                                <span class="text-slate-400 text-xs">({{ $meter->serviceConfiguration->utilityService->unit_of_measurement }})</span>
-                            @endif
-                        @else
-                            <span class="capitalize">{{ $meter->type->label() }}</span>
-                        @endif
+                        {{ $meter->getServiceDisplayName() }}
+                        <span class="text-slate-400 text-xs">({{ $meter->getUnitOfMeasurement() }})</span>
                     </dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">

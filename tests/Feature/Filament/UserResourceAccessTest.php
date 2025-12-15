@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Enums\UserRole;
 use App\Filament\Resources\UserResource;
+use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -21,6 +22,7 @@ describe('UserResource HTTP Access', function () {
 
     test('admin can access user resource index', function () {
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        Subscription::factory()->active()->create(['user_id' => $admin->id]);
         
         $response = $this->actingAs($admin)
             ->get(UserResource::getUrl('index'));
@@ -28,13 +30,13 @@ describe('UserResource HTTP Access', function () {
         $response->assertSuccessful();
     });
 
-    test('manager can access user resource index', function () {
+    test('manager cannot access user resource index', function () {
         $manager = User::factory()->create(['role' => UserRole::MANAGER]);
         
         $response = $this->actingAs($manager)
             ->get(UserResource::getUrl('index'));
         
-        $response->assertSuccessful();
+        $response->assertForbidden();
     });
 
     test('tenant cannot access user resource index', function () {
@@ -49,7 +51,7 @@ describe('UserResource HTTP Access', function () {
     test('unauthenticated user redirected to login', function () {
         $response = $this->get(UserResource::getUrl('index'));
         
-        $response->assertRedirect('/login');
+        $response->assertRedirect('/admin/login');
     });
 });
 
@@ -65,6 +67,7 @@ describe('UserResource Create Access', function () {
 
     test('admin can access create page', function () {
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        Subscription::factory()->active()->create(['user_id' => $admin->id]);
         
         $response = $this->actingAs($admin)
             ->get(UserResource::getUrl('create'));
@@ -72,13 +75,13 @@ describe('UserResource Create Access', function () {
         $response->assertSuccessful();
     });
 
-    test('manager can access create page', function () {
+    test('manager cannot access create page', function () {
         $manager = User::factory()->create(['role' => UserRole::MANAGER]);
         
         $response = $this->actingAs($manager)
             ->get(UserResource::getUrl('create'));
         
-        $response->assertSuccessful();
+        $response->assertForbidden();
     });
 
     test('tenant cannot access create page', function () {
@@ -105,6 +108,7 @@ describe('UserResource Edit Access', function () {
     test('admin can access edit page for tenant users', function () {
         $tenantId = 1;
         $admin = User::factory()->create(['role' => UserRole::ADMIN, 'tenant_id' => $tenantId]);
+        Subscription::factory()->active()->create(['user_id' => $admin->id]);
         $user = User::factory()->create(['tenant_id' => $tenantId]);
         
         $response = $this->actingAs($admin)
@@ -113,7 +117,7 @@ describe('UserResource Edit Access', function () {
         $response->assertSuccessful();
     });
 
-    test('manager can access edit page for tenant users', function () {
+    test('manager cannot access edit page for tenant users', function () {
         $tenantId = 1;
         $manager = User::factory()->create(['role' => UserRole::MANAGER, 'tenant_id' => $tenantId]);
         $user = User::factory()->create(['tenant_id' => $tenantId]);
@@ -121,7 +125,7 @@ describe('UserResource Edit Access', function () {
         $response = $this->actingAs($manager)
             ->get(UserResource::getUrl('edit', ['record' => $user]));
         
-        $response->assertSuccessful();
+        $response->assertForbidden();
     });
 
     test('tenant cannot access edit page', function () {
@@ -136,6 +140,7 @@ describe('UserResource Edit Access', function () {
 
     test('admin cannot edit users from different tenant', function () {
         $admin = User::factory()->create(['role' => UserRole::ADMIN, 'tenant_id' => 1]);
+        Subscription::factory()->active()->create(['user_id' => $admin->id]);
         $user = User::factory()->create(['tenant_id' => 2]);
         
         $response = $this->actingAs($admin)
@@ -160,6 +165,7 @@ describe('UserResource View Access', function () {
     test('admin can access view page for tenant users', function () {
         $tenantId = 1;
         $admin = User::factory()->create(['role' => UserRole::ADMIN, 'tenant_id' => $tenantId]);
+        Subscription::factory()->active()->create(['user_id' => $admin->id]);
         $user = User::factory()->create(['tenant_id' => $tenantId]);
         
         $response = $this->actingAs($admin)
@@ -196,12 +202,12 @@ describe('UserResource Navigation', function () {
         expect(UserResource::shouldRegisterNavigation())->toBeTrue();
     });
 
-    test('navigation item visible for manager', function () {
+    test('navigation item hidden for manager', function () {
         $manager = User::factory()->create(['role' => UserRole::MANAGER]);
         
         $this->actingAs($manager);
         
-        expect(UserResource::shouldRegisterNavigation())->toBeTrue();
+        expect(UserResource::shouldRegisterNavigation())->toBeFalse();
     });
 
     test('navigation item hidden for tenant', function () {
@@ -228,18 +234,14 @@ describe('UserResource Tenant Isolation', function () {
             ->and($users->every(fn($user) => $user->tenant_id === 1))->toBeTrue();
     });
 
-    test('manager only sees users from their tenant', function () {
+    test('manager cannot access user resource tenant scope', function () {
         $manager = User::factory()->create(['role' => UserRole::MANAGER, 'tenant_id' => 1]);
         User::factory()->count(5)->create(['tenant_id' => 1]);
         User::factory()->count(3)->create(['tenant_id' => 2]);
         
         $this->actingAs($manager);
-        
-        $query = UserResource::getEloquentQuery();
-        $users = $query->get();
-        
-        expect($users)->toHaveCount(6) // 5 + manager
-            ->and($users->every(fn($user) => $user->tenant_id === 1))->toBeTrue();
+
+        expect(UserResource::canViewAny())->toBeFalse();
     });
 
     test('superadmin sees all users regardless of tenant', function () {

@@ -193,7 +193,7 @@
                                 
                                 init() {
                                     try {
-                                        const initialConfig = @json(old('configuration', $tariff->configuration));
+                                        const initialConfig = @js(old('configuration', $tariff->configuration));
                                         this.config = typeof initialConfig === 'string' ? JSON.parse(initialConfig) : initialConfig;
                                         this.jsonText = JSON.stringify(this.config, null, 2);
                                     } catch (e) {

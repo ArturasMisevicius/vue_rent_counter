@@ -87,7 +87,7 @@
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                         @if($audit->meterReading && $audit->meterReading->meter)
                             <div class="font-medium text-slate-900">{{ $audit->meterReading->meter->serial_number }}</div>
-                            <div class="text-xs text-slate-500">{{ enum_label($audit->meterReading->meter->meter_type ?? null, \App\Enums\MeterType::class) }}</div>
+                            <div class="text-xs text-slate-500">{{ $audit->meterReading->meter->getServiceDisplayName() }}</div>
                         @else
                             <span class="text-slate-400">{{ __('audit.pages.index.states.not_available') }}</span>
                         @endif

@@ -43,9 +43,9 @@ The Vilnius Utilities Billing Platform now implements a comprehensive service la
 - Easy error handling in controllers
 - Testable responses
 
-### 3. GyvatukasCalculatorService
+### 3. hot water circulationCalculatorService
 
-**Purpose**: Service layer wrapper for GyvatukasCalculator with enterprise features
+**Purpose**: Service layer wrapper for hot water circulationCalculator with enterprise features
 
 **Features**:
 - ✅ Authorization enforcement via policy
@@ -66,7 +66,7 @@ The Vilnius Utilities Billing Platform now implements a comprehensive service la
 
 **Purpose**: Immutable objects for transferring data between layers
 
-**Example**: `GyvatukasCalculationDTO`
+**Example**: `hot water circulationCalculationDTO`
 
 **Features**:
 - Immutable (readonly properties)
@@ -149,8 +149,8 @@ The Vilnius Utilities Billing Platform now implements a comprehensive service la
 
 - [x] Create BaseService abstract class
 - [x] Create ServiceResponse DTO
-- [x] Create GyvatukasCalculatorService
-- [x] Create GyvatukasCalculationDTO
+- [x] Create hot water circulationCalculatorService
+- [x] Create hot water circulationCalculationDTO
 - [x] Write comprehensive documentation
 
 ### Phase 2: Additional Services (Next)
@@ -162,7 +162,7 @@ The Vilnius Utilities Billing Platform now implements a comprehensive service la
 
 ### Phase 3: Controller Refactoring (Next)
 
-- [ ] Refactor GyvatukasController to use service
+- [ ] Refactor hot water circulationController to use service
 - [ ] Refactor InvoiceController to use BillingService
 - [ ] Refactor MeterReadingController to use MeterReadingService
 - [ ] Update all controllers to use thin controller pattern
@@ -190,11 +190,11 @@ public function calculate(Request $request)
     }
     
     // Business logic
-    $calculator = new GyvatukasCalculator();
+    $calculator = new hot water circulationCalculator();
     $energy = $calculator->calculate($building, now());
     
     // Audit
-    GyvatukasCalculationAudit::create([...]);
+    hot water circulationCalculationAudit::create([...]);
     
     return view('result', ['energy' => $energy]);
 }
@@ -202,12 +202,12 @@ public function calculate(Request $request)
 
 **After** (Thin Controller):
 ```php
-public function calculate(CalculateGyvatukasRequest $request)
+public function calculate(Calculatehot water circulationRequest $request)
 {
     $building = Building::findOrFail($request->building_id);
     $month = Carbon::parse($request->billing_month);
     
-    $response = $this->gyvatukasService->calculate($building, $month);
+    $response = $this->hot water circulationService->calculate($building, $month);
     
     return $response->isSuccess()
         ? view('result', ['energy' => $response->data])
@@ -220,11 +220,11 @@ public function calculate(CalculateGyvatukasRequest $request)
 ```php
 // In controller constructor
 public function __construct(
-    private readonly GyvatukasCalculatorService $gyvatukasService
+    private readonly hot water circulationCalculatorService $hot water circulationService
 ) {}
 
 // In controller method
-$response = $this->gyvatukasService->calculate($building, $month);
+$response = $this->hot water circulationService->calculate($building, $month);
 
 if ($response->isSuccess()) {
     $energy = $response->data;
@@ -239,7 +239,7 @@ if ($response->isSuccess()) {
 
 ```php
 // Create from request
-$dto = GyvatukasCalculationDTO::fromRequest($request);
+$dto = hot water circulationCalculationDTO::fromRequest($request);
 
 // Validate
 if (!$dto->isValid()) {
@@ -337,8 +337,8 @@ $response = $service->calculate($dto);
 
 1. Create BillingService with service layer
 2. Create MeterReadingService with service layer
-3. Refactor GyvatukasController to use service
-4. Write unit tests for GyvatukasCalculatorService
+3. Refactor hot water circulationController to use service
+4. Write unit tests for hot water circulationCalculatorService
 
 ### Short-term (Week 2-3)
 
@@ -357,7 +357,7 @@ $response = $service->calculate($dto);
 ## Related Documentation
 
 - [Service Layer Architecture](SERVICE_LAYER_ARCHITECTURE.md) - Complete guide
-- [GyvatukasCalculator API](../api/GYVATUKAS_CALCULATOR_API.md) - API reference
+- [hot water circulationCalculator API](../api/hot water circulation_CALCULATOR_API.md) - API reference
 - [Testing Guide](../testing/SERVICE_TESTING_GUIDE.md) - Testing strategy
 - [Authorization Guide](../security/AUTHORIZATION_GUIDE.md) - Authorization patterns
 

@@ -68,9 +68,14 @@ return new class extends Migration
 
         Schema::create('organization_invitations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('organization_id')->constrained('organizations')->onDelete('cascade');
+            $table->foreignId('organization_id')->nullable()->constrained('organizations')->onDelete('cascade');
+            $table->string('organization_name')->nullable();
             $table->string('email');
             $table->string('role');
+            $table->string('plan_type')->nullable();
+            $table->integer('max_properties')->nullable();
+            $table->integer('max_users')->nullable();
+            $table->string('status')->default('pending'); // pending, accepted, cancelled, expired
             $table->string('token')->unique();
             $table->timestamp('expires_at');
             $table->timestamp('accepted_at')->nullable();

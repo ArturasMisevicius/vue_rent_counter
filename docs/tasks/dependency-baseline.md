@@ -77,7 +77,7 @@ PHP 8.2+
 - `config/auth.php` - Authentication configuration
 - `config/database.php` - Database configuration
 - `config/billing.php` - Custom billing configuration
-- `config/gyvatukas.php` - Custom gyvatukas configuration
+- `config/hot water circulation.php` - Custom hot water circulation configuration
 - `config/subscription.php` - Custom subscription configuration
 - `config/backup.php` - Spatie backup configuration
 - `vite.config.js` - Vite configuration
@@ -87,7 +87,7 @@ PHP 8.2+
 
 - Multi-tenancy with `BelongsToTenant`, `TenantScope`, `TenantContext`
 - Filament resources (Properties, Buildings, Meters, MeterReadings, Invoices, Tariffs, Providers, Users, Subscriptions)
-- Billing system with `BillingService`, `TariffResolver`, `GyvatukasCalculator`
+- Billing system with `BillingService`, `TariffResolver`, `hot water circulationCalculator`
 - Role-based access control (superadmin, admin, manager, tenant)
 - Property-based testing suite
 - SQLite WAL mode with Spatie backups

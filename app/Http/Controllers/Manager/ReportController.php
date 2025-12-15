@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Manager;
 
-use App\Enums\MeterType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ManagerConsumptionReportRequest;
 use App\Http\Requests\ManagerMeterComplianceRequest;
@@ -44,10 +43,17 @@ class ReportController extends Controller
 
         $startDate = $validated['start_date'] ?? Carbon::now()->startOfMonth()->format('Y-m-d');
         $endDate = $validated['end_date'] ?? Carbon::now()->endOfMonth()->format('Y-m-d');
-        $meterType = $validated['meter_type'] ?? null;
         $buildingId = $validated['building_id'] ?? null;
+        $serviceFilter = $validated['service'] ?? null;
 
-        $query = MeterReading::with(['meter.property.building'])
+        if (!$serviceFilter && !empty($validated['meter_type'])) {
+            $serviceFilter = 'type:' . (string) $validated['meter_type'];
+        }
+
+        $query = MeterReading::with([
+            'meter.property.building',
+            'meter.serviceConfiguration.utilityService',
+        ])
             ->whereBetween('reading_date', [$startDate, $endDate]);
 
         if (isset($validated['property_id'])) {
@@ -56,9 +62,18 @@ class ReportController extends Controller
             });
         }
 
-        if ($meterType) {
-            $query->whereHas('meter', function ($q) use ($meterType) {
-                $q->where('type', $meterType);
+        if ($serviceFilter) {
+            $query->whereHas('meter', function ($q) use ($serviceFilter) {
+                [$kind, $value] = array_pad(explode(':', (string) $serviceFilter, 2), 2, null);
+
+                if ($kind === 'utility' && is_numeric($value)) {
+                    $q->whereHas('serviceConfiguration', fn ($sq) => $sq->where('utility_service_id', (int) $value));
+                    return;
+                }
+
+                if ($kind === 'type' && is_string($value) && $value !== '') {
+                    $q->whereNull('service_configuration_id')->where('type', $value);
+                }
             });
         }
 
@@ -73,17 +88,32 @@ class ReportController extends Controller
         // Group by property
         $readingsByProperty = $readings->groupBy('meter.property.address');
 
-        // Calculate consumption by meter type
-        $consumptionByType = $readings->groupBy('meter.type')->map(function ($typeReadings) {
-            return [
-                'count' => $typeReadings->count(),
-                'total' => $typeReadings->sum('value'),
-                'average' => $typeReadings->avg('value'),
-            ];
-        });
+        // Calculate totals by service (utility service preferred; legacy meters fall back to type)
+        $consumptionByService = $readings->groupBy(function (MeterReading $reading): string {
+            $utilityServiceId = $reading->meter?->serviceConfiguration?->utility_service_id;
 
-        // Monthly trend data
-        $monthlyTrend = $readings->groupBy(function ($reading) {
+            if (is_int($utilityServiceId)) {
+                return "utility:{$utilityServiceId}";
+            }
+
+            return 'type:' . (string) $reading->meter?->type?->value;
+        })->map(function ($serviceReadings) {
+            $first = $serviceReadings->first();
+
+            return [
+                'label' => $first?->meter?->getServiceDisplayName() ?? __('app.common.na'),
+                'unit' => $first?->meter?->getUnitOfMeasurement() ?? null,
+                'count' => $serviceReadings->count(),
+                'total' => $serviceReadings->sum('value'),
+                'average' => $serviceReadings->avg('value'),
+            ];
+        })->sortByDesc('total');
+
+        // Back-compat alias used by older views/tests
+        $consumptionByType = $consumptionByService;
+
+        // Monthly trend data (raw reading totals within the period)
+        $monthlyTrend = $readings->groupBy(function (MeterReading $reading) {
             return $reading->reading_date->format('Y-m');
         })->map(function ($monthReadings) {
             return [
@@ -104,7 +134,36 @@ class ReportController extends Controller
 
         $properties = Property::all();
         $buildings = Building::all();
-        $meterTypes = MeterType::cases();
+        $metersForOptions = Meter::query()
+            ->with('serviceConfiguration.utilityService:id,name,unit_of_measurement')
+            ->when($buildingId, fn ($q) => $q->whereHas('property', fn ($pq) => $pq->where('building_id', $buildingId)))
+            ->when(isset($validated['property_id']), fn ($q) => $q->where('property_id', $validated['property_id']))
+            ->get();
+
+        $utilityServices = $metersForOptions
+            ->map(fn (Meter $meter) => $meter->serviceConfiguration?->utilityService)
+            ->filter()
+            ->unique('id')
+            ->sortBy('name')
+            ->values();
+
+        $legacyMeterTypes = $metersForOptions
+            ->filter(fn (Meter $meter) => $meter->serviceConfiguration === null)
+            ->map(fn (Meter $meter) => $meter->type?->value)
+            ->filter(fn ($value) => is_string($value) && $value !== '')
+            ->unique()
+            ->sort()
+            ->values();
+
+        $serviceFilterOptions = [];
+        foreach ($utilityServices as $service) {
+            $unit = $service->unit_of_measurement ? " ({$service->unit_of_measurement})" : '';
+            $serviceFilterOptions["utility:{$service->id}"] = "{$service->name}{$unit}";
+        }
+        foreach ($legacyMeterTypes as $type) {
+            $label = \App\Enums\MeterType::tryFrom((string) $type)?->label() ?? ucfirst(str_replace('_', ' ', (string) $type));
+            $serviceFilterOptions["type:{$type}"] = "Legacy: {$label}";
+        }
 
         return view('manager.reports.consumption', compact(
             'readingsByProperty',
@@ -115,8 +174,8 @@ class ReportController extends Controller
             'endDate',
             'properties',
             'buildings',
-            'meterTypes',
-            'meterType',
+            'serviceFilterOptions',
+            'serviceFilter',
             'buildingId'
         ));
     }
@@ -130,8 +189,16 @@ class ReportController extends Controller
 
         $startDate = $validated['start_date'] ?? Carbon::now()->startOfMonth()->format('Y-m-d');
         $endDate = $validated['end_date'] ?? Carbon::now()->endOfMonth()->format('Y-m-d');
+        $serviceFilter = $validated['service'] ?? null;
 
-        $query = MeterReading::with(['meter.property'])
+        if (!$serviceFilter && !empty($validated['meter_type'])) {
+            $serviceFilter = 'type:' . (string) $validated['meter_type'];
+        }
+
+        $query = MeterReading::with([
+            'meter.property',
+            'meter.serviceConfiguration.utilityService',
+        ])
             ->whereBetween('reading_date', [$startDate, $endDate]);
 
         if (isset($validated['property_id'])) {
@@ -140,16 +207,38 @@ class ReportController extends Controller
             });
         }
 
+        if (!empty($validated['building_id'])) {
+            $query->whereHas('meter.property', function ($q) use ($validated) {
+                $q->where('building_id', $validated['building_id']);
+            });
+        }
+
+        if ($serviceFilter) {
+            $query->whereHas('meter', function ($q) use ($serviceFilter) {
+                [$kind, $value] = array_pad(explode(':', (string) $serviceFilter, 2), 2, null);
+
+                if ($kind === 'utility' && is_numeric($value)) {
+                    $q->whereHas('serviceConfiguration', fn ($sq) => $sq->where('utility_service_id', (int) $value));
+                    return;
+                }
+
+                if ($kind === 'type' && is_string($value) && $value !== '') {
+                    $q->whereNull('service_configuration_id')->where('type', $value);
+                }
+            });
+        }
+
         $readings = $query->get();
 
-        $csv = "Date,Property,Meter Serial,Meter Type,Value,Zone\n";
+        $csv = "Date,Property,Meter Serial,Service,Unit,Value,Zone\n";
         foreach ($readings as $reading) {
             $csv .= sprintf(
-                "%s,%s,%s,%s,%s,%s\n",
+                "%s,%s,%s,%s,%s,%s,%s\n",
                 $reading->reading_date->format('Y-m-d'),
                 $reading->meter->property->address ?? 'N/A',
                 $reading->meter->serial_number,
-                $reading->meter->type->value,
+                $reading->meter->getServiceDisplayName(),
+                $reading->meter->getUnitOfMeasurement(),
                 $reading->value,
                 $reading->zone ?? '-'
             );

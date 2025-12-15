@@ -20,9 +20,9 @@ class ProviderResource extends Resource
 {
     protected static ?string $model = Provider::class;
 
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-building-office';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-building-office';
     
-    protected static UnitEnum|string|null $navigationGroup = 'Configuration';
+    protected static string|UnitEnum|null $navigationGroup = 'Configuration';
     
     protected static ?int $navigationSort = 2;
 

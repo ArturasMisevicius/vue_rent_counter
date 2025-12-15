@@ -43,7 +43,7 @@
    - 15 comprehensive tests
    - Covers all scenarios
    - Multi-zone meter support
-   - Gyvatukas integration
+   - hot water circulation integration
 
 3. **docs/implementation/BILLING_SERVICE_REFACTORING.md** (NEW)
    - Complete refactoring report

@@ -73,14 +73,10 @@ test('Filament TariffResource applies same validation rules as StoreTariffReques
     ]);
     
     // Try to create - this will trigger validation
-    try {
-        $component->call('create');
-        $filamentPasses = true;
-        $filamentErrors = [];
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $filamentPasses = false;
-        $filamentErrors = $e->errors();
-    }
+    $component->call('create');
+
+    $filamentErrors = $component->instance()->getErrorBag()->toArray();
+    $filamentPasses = empty($filamentErrors);
     
     // Property: Both should have the same validation outcome
     expect($filamentPasses)->toBe($formRequestPasses, 
@@ -181,14 +177,10 @@ test('Filament TariffResource applies same validation rules as StoreTariffReques
     ]);
     
     // Try to create - this will trigger validation
-    try {
-        $component->call('create');
-        $filamentPasses = true;
-        $filamentErrors = [];
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $filamentPasses = false;
-        $filamentErrors = $e->errors();
-    }
+    $component->call('create');
+
+    $filamentErrors = $component->instance()->getErrorBag()->toArray();
+    $filamentPasses = empty($filamentErrors);
     
     // Property: Both should have the same validation outcome
     expect($filamentPasses)->toBe($formRequestPasses,
@@ -267,6 +259,9 @@ test('Filament TariffResource rejects invalid flat rate tariffs consistently wit
     switch ($invalidationType) {
         case 'missing_provider':
             unset($testData['provider_id']);
+            // StoreTariffRequest allows manual tariffs (no provider) unless remote_id is present.
+            // Add remote_id to ensure missing provider is invalid consistently in both layers.
+            $testData['remote_id'] = 'EXT-' . fake()->numerify('#####');
             break;
         case 'invalid_provider':
             $testData['provider_id'] = 999999;
@@ -336,6 +331,9 @@ test('Filament TariffResource rejects invalid flat rate tariffs consistently wit
     if (isset($testData['provider_id'])) {
         $formData['provider_id'] = $testData['provider_id'];
     }
+    if (isset($testData['remote_id'])) {
+        $formData['remote_id'] = $testData['remote_id'];
+    }
     if (isset($testData['name'])) {
         $formData['name'] = $testData['name'];
     }
@@ -350,13 +348,14 @@ test('Filament TariffResource rejects invalid flat rate tariffs consistently wit
     }
     
     $component->fillForm($formData);
-    
-    try {
-        $component->call('create');
-        $filamentPasses = true;
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $filamentPasses = false;
+
+    // Currency has a default in the Filament form; explicitly clear it when testing "missing_currency".
+    if ($invalidationType === 'missing_currency') {
+        $component->set('data.configuration.currency', null);
     }
+    
+    $component->call('create');
+    $filamentPasses = $component->instance()->getErrorBag()->isEmpty();
     
     // Property: Both should reject the invalid data
     expect($formRequestPasses)->toBeFalse("StoreTariffRequest should reject invalid data (type: {$invalidationType})");
@@ -492,12 +491,8 @@ test('Filament TariffResource rejects invalid time-of-use tariffs consistently w
     
     $component->fillForm($formData);
     
-    try {
-        $component->call('create');
-        $filamentPasses = true;
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $filamentPasses = false;
-    }
+    $component->call('create');
+    $filamentPasses = $component->instance()->getErrorBag()->isEmpty();
     
     // Property: Both should reject the invalid data
     expect($formRequestPasses)->toBeFalse("StoreTariffRequest should reject invalid data (type: {$invalidationType})");

@@ -110,12 +110,12 @@ class TestCaseHelpersTest extends TestCase
     public function test_create_test_meter_creates_meter_for_property(): void
     {
         $property = $this->createTestProperty(1);
-        $meter = $this->createTestMeter($property->id, MeterType::WATER);
+        $meter = $this->createTestMeter($property->id, MeterType::WATER_COLD);
 
         $this->assertInstanceOf(Meter::class, $meter);
         $this->assertEquals($property->id, $meter->property_id);
         $this->assertEquals($property->tenant_id, $meter->tenant_id);
-        $this->assertEquals(MeterType::WATER, $meter->type);
+        $this->assertEquals(MeterType::WATER_COLD, $meter->type);
     }
 
     public function test_create_test_meter_reading_creates_reading_with_manager(): void
@@ -158,8 +158,9 @@ class TestCaseHelpersTest extends TestCase
         $invoice = $this->createTestInvoice($property->id);
 
         $this->assertInstanceOf(Invoice::class, $invoice);
-        $this->assertEquals($property->id, $invoice->property_id);
         $this->assertEquals($property->tenant_id, $invoice->tenant_id);
+        $this->assertNotNull($invoice->property);
+        $this->assertEquals($property->id, $invoice->property->id);
         $this->assertNotNull($invoice->billing_period_start);
         $this->assertNotNull($invoice->billing_period_end);
     }
@@ -170,8 +171,8 @@ class TestCaseHelpersTest extends TestCase
 
         $this->assertInstanceOf(Organization::class, $organization);
         $this->assertEquals(5, $organization->id);
-        $this->assertEquals('active', $organization->status);
-        $this->assertNotNull($organization->subscription_expires_at);
+        $this->assertTrue($organization->is_active);
+        $this->assertNotNull($organization->subscription_ends_at);
     }
 
     public function test_ensure_tenant_exists_returns_existing_organization(): void
@@ -233,6 +234,7 @@ class TestCaseHelpersTest extends TestCase
         
         // Simulate tearDown
         TenantContext::clear();
+        auth()->logout();
         
         $this->assertNoTenantContext();
     }

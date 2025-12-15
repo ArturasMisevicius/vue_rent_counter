@@ -8,6 +8,7 @@ use App\Models\Property;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Notifications\MeterReadingSubmittedEmail;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
 beforeEach(function () {
@@ -73,13 +74,13 @@ describe('index method', function () {
             'tenant_id' => 1,
         ]);
         
-        \DB::enableQueryLog();
+        DB::enableQueryLog();
         
         $response = $this->actingAs($this->tenantUser)
             ->get(route('tenant.meter-readings.index'));
         
-        $queries = \DB::getQueryLog();
-        \DB::disableQueryLog();
+        $queries = DB::getQueryLog();
+        DB::disableQueryLog();
         
         // Should have minimal queries due to eager loading
         expect(count($queries))->toBeLessThan(10);

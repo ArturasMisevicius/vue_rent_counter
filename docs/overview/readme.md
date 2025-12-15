@@ -4,7 +4,7 @@ A comprehensive web application for managing utility billing in the Vilnius (Lit
 
 ## Overview
 
-The Vilnius Utilities Billing System is a monolithic Laravel 11 application that handles complex utility billing calculations specific to the Lithuanian market, including multi-tariff electricity plans, regulated water supply tariffs, and seasonal heating calculations with "gyvatukas" (hot water circulation fees).
+The Vilnius Utilities Billing System is a monolithic Laravel 11 application that handles complex utility billing calculations specific to the Lithuanian market, including multi-tariff electricity plans, regulated water supply tariffs, and seasonal heating calculations with "hot water circulation" (hot water circulation fees).
 
 ## Key Features
 

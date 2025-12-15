@@ -66,12 +66,41 @@ trait HasComments
      */
     public function addComment(string $body, int $userId, bool $isInternal = false): Comment
     {
-        return $this->comments()->create([
+        $comment = $this->comments()->create([
             'tenant_id' => $this->tenant_id ?? auth()->user()->tenant_id,
             'user_id' => $userId,
             'body' => $body,
             'is_internal' => $isInternal,
+            'moderation_status' => 'pending', // All comments start as pending
         ]);
+
+        // Trigger automatic moderation
+        $moderationService = app(\App\Services\ContentModerationService::class);
+        $moderationService->moderateComment($comment);
+
+        return $comment;
+    }
+
+    /**
+     * Report a comment
+     */
+    public function reportComment(int $commentId, int $reportedBy, string $reason, string $description = null): \App\Models\CommentReport
+    {
+        $comment = $this->comments()->findOrFail($commentId);
+        
+        // Create the report
+        $report = \App\Models\CommentReport::create([
+            'tenant_id' => $this->tenant_id ?? auth()->user()->tenant_id,
+            'comment_id' => $commentId,
+            'reported_by' => $reportedBy,
+            'reason' => $reason,
+            'description' => $description,
+        ]);
+
+        // Update comment report count
+        $comment->reportByUser();
+
+        return $report;
     }
 
     /**

@@ -140,15 +140,20 @@ class SubscriptionService
      *
      * @param User $admin The admin user to check limits for
      * @param string|null $resourceType The type of resource being created ('property' or 'tenant')
+     * @param bool $requireSubscription Whether missing subscriptions should throw
      * @return void
      * @throws SubscriptionExpiredException If subscription is expired
      * @throws SubscriptionLimitExceededException If resource limit is exceeded
      */
-    public function enforceSubscriptionLimits(User $admin, ?string $resourceType = null): void
+    public function enforceSubscriptionLimits(User $admin, ?string $resourceType = null, bool $requireSubscription = true): void
     {
         $subscription = $admin->subscription()->first();
 
         if (!$subscription) {
+            if (! $requireSubscription) {
+                return;
+            }
+
             throw new SubscriptionExpiredException('No active subscription found.');
         }
 
@@ -207,7 +212,7 @@ class SubscriptionService
      */
     protected function logRenewal(Subscription $subscription, Carbon $oldExpiry, Carbon $newExpiry, string $method, string $period): void
     {
-        $durationDays = $newExpiry->diffInDays($oldExpiry);
+        $durationDays = (int) $oldExpiry->diffInDays($newExpiry, true);
 
         \App\Models\SubscriptionRenewal::create([
             'subscription_id' => $subscription->id,

@@ -15,6 +15,27 @@ class Property extends Model
     use BelongsToTenant, HasFactory;
 
     /**
+     * Backwards-compatible computed display name.
+     *
+     * Some parts of the UI and tests refer to a `name` field even though the
+     * database uses `address` + optional `unit_number`.
+     */
+    public function getNameAttribute(): string
+    {
+        return (string) ($this->attributes['name'] ?? $this->unit_number ?? $this->address ?? '');
+    }
+
+    /**
+     * Backwards-compatible alias for the `type` enum.
+     *
+     * Legacy UI code expects `property_type` to be an enum-like value.
+     */
+    public function getPropertyTypeAttribute(): ?PropertyType
+    {
+        return $this->type;
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
  * 
  * @package App\Actions
  */
-final class GenerateInvoiceAction
+class GenerateInvoiceAction
 {
     /**
      * Execute the action to generate an invoice.

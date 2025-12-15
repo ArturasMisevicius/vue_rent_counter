@@ -13,7 +13,10 @@ return new class extends Migration
     {
         Schema::create('service_configurations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tenant_id')->constrained()->onDelete('cascade');
+            // NOTE: tenant_id represents the owning Organization (multi-tenancy scope),
+            // not the renters stored in the `tenants` table. We intentionally do not
+            // constrain it to keep it consistent with the rest of the tenant-scoped schema.
+            $table->unsignedBigInteger('tenant_id')->index();
             $table->foreignId('property_id')->constrained()->onDelete('cascade');
             $table->foreignId('utility_service_id')->constrained()->onDelete('cascade');
             $table->string('pricing_model');

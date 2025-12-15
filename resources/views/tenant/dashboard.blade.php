@@ -72,14 +72,14 @@
                         @foreach($stats['latest_readings'] as $reading)
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
-                                {{ enum_label($reading->meter->type) }}
+                                {{ $reading->meter->getServiceDisplayName() }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                                 {{ $reading->meter->serial_number }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                                @php($unitKey = $reading->meter->type->value === 'electricity' ? 'electricity' : 'default')
-                                {{ number_format($reading->value, 2) }} {{ __('dashboard.tenant.readings.units.' . $unitKey) }}
+                                @php($unit = $reading->meter->getUnitOfMeasurement())
+                                {{ number_format($reading->value, 2) }} {{ $unit }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                                 {{ $reading->reading_date->format('Y-m-d') }}
@@ -93,13 +93,13 @@
                 @foreach($stats['latest_readings'] as $reading)
                     <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-slate-900">{{ enum_label($reading->meter->type) }}</p>
+                            <p class="text-sm font-semibold text-slate-900">{{ $reading->meter->getServiceDisplayName() }}</p>
                             <p class="text-xs font-semibold text-slate-500">{{ $reading->reading_date->format('Y-m-d') }}</p>
                         </div>
                         <p class="mt-1 text-sm text-slate-600">{{ __('dashboard.tenant.readings.serial_short') }} {{ $reading->meter->serial_number }}</p>
                         <p class="mt-1 text-sm font-semibold text-slate-900">
-                            @php($unitKey = $reading->meter->type->value === 'electricity' ? 'electricity' : 'default')
-                            {{ number_format($reading->value, 2) }} {{ __('dashboard.tenant.readings.units.' . $unitKey) }}
+                            @php($unit = $reading->meter->getUnitOfMeasurement())
+                            {{ number_format($reading->value, 2) }} {{ $unit }}
                         </p>
                     </div>
                 @endforeach
@@ -115,7 +115,7 @@
                     @foreach($stats['consumption_trends'] as $trend)
                         <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                             <div class="flex items-center justify-between">
-                                <p class="text-sm font-semibold text-slate-900">{{ enum_label($trend['meter']->type) }}</p>
+                                <p class="text-sm font-semibold text-slate-900">{{ $trend['meter']->getServiceDisplayName() }}</p>
                                 <p class="text-xs text-slate-500">{{ $trend['meter']->serial_number }}</p>
                             </div>
                             <div class="mt-2 flex items-baseline gap-2">

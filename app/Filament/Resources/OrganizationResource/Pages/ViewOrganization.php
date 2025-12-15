@@ -3,12 +3,16 @@
 namespace App\Filament\Resources\OrganizationResource\Pages;
 
 
+use BackedEnum;
 use App\Enums\SubscriptionPlanType;
 use App\Filament\Resources\OrganizationResource;
 use Filament\Actions;
+use Filament\Forms;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Illuminate\Support\Facades\DB;
 
 class ViewOrganization extends ViewRecord
 {
@@ -18,6 +22,28 @@ class ViewOrganization extends ViewRecord
     {
         return [
             Actions\EditAction::make(),
+            Actions\Action::make('suspend')
+                ->icon('heroicon-o-pause-circle')
+                ->color('warning')
+                ->requiresConfirmation()
+                ->form([
+                    Forms\Components\Textarea::make('reason')
+                        ->required()
+                        ->label(__('organizations.labels.suspension_reason'))
+                        ->maxLength(500),
+                ])
+                ->action(function ($record, array $data): void {
+                    $record->suspend($data['reason']);
+                })
+                ->visible(fn ($record): bool => ! $record->isSuspended())
+                ->successNotificationTitle(__('organizations.actions.suspend')),
+            Actions\Action::make('reactivate')
+                ->icon('heroicon-o-play-circle')
+                ->color('success')
+                ->requiresConfirmation()
+                ->action(fn ($record): bool => $record->reactivate())
+                ->visible(fn ($record): bool => $record->isSuspended())
+                ->successNotificationTitle(__('organizations.actions.reactivate')),
             Actions\DeleteAction::make()
                 ->requiresConfirmation()
                 ->modalHeading(__('organizations.modals.delete_heading'))
@@ -51,19 +77,16 @@ class ViewOrganization extends ViewRecord
                 })
                 ->after(function ($record) {
                     // Delete all relations in proper order
-                    \DB::transaction(function () use ($record) {
+                    DB::transaction(function () use ($record) {
                         // Delete activity logs
                         $record->activityLogs()->delete();
                         
                         // Delete invitations
                         $record->invitations()->delete();
-                        
-                        // Delete super admin audit logs
-                        $record->superAdminAuditLogs()->delete();
                     });
                 })
                 ->successNotificationTitle(__('organizations.notifications.deleted'))
-                ->successRedirectUrl(route('filament.superadmin.resources.organizations.index')),
+                ->successRedirectUrl(OrganizationResource::getUrl('index')),
         ];
     }
 
@@ -71,7 +94,7 @@ class ViewOrganization extends ViewRecord
     {
         return $schema
             ->schema([
-                Infolists\Components\Section::make(__('organizations.sections.details'))
+                Section::make(__('organizations.sections.details'))
                     ->schema([
                         Infolists\Components\TextEntry::make('name')->label(__('organizations.labels.name')),
                         Infolists\Components\TextEntry::make('slug')->label(__('organizations.labels.slug')),
@@ -80,7 +103,7 @@ class ViewOrganization extends ViewRecord
                         Infolists\Components\TextEntry::make('domain')->label(__('organizations.labels.domain')),
                     ])->columns(2),
 
-                Infolists\Components\Section::make(__('organizations.sections.subscription'))
+                Section::make(__('organizations.sections.subscription'))
                     ->schema([
                         Infolists\Components\TextEntry::make('plan')
                             ->badge()
@@ -103,7 +126,7 @@ class ViewOrganization extends ViewRecord
                             ->color(fn ($record) => $record->subscription_ends_at?->isPast() ? 'danger' : 'success'),
                     ])->columns(3),
 
-                Infolists\Components\Section::make(__('organizations.sections.usage_statistics'))
+                Section::make(__('organizations.sections.usage_statistics'))
                     ->schema([
                         Infolists\Components\TextEntry::make('users_count')
                             ->label(__('organizations.labels.total_users'))
@@ -125,14 +148,14 @@ class ViewOrganization extends ViewRecord
                             ->state(fn ($record) => $record->getRemainingUsers()),
                     ])->columns(3),
 
-                Infolists\Components\Section::make(__('organizations.sections.regional'))
+                Section::make(__('organizations.sections.regional'))
                     ->schema([
                         Infolists\Components\TextEntry::make('timezone')->label(__('organizations.labels.timezone')),
                         Infolists\Components\TextEntry::make('locale')->label(__('organizations.labels.locale')),
                         Infolists\Components\TextEntry::make('currency')->label(__('organizations.labels.currency')),
                     ])->columns(3),
 
-                Infolists\Components\Section::make(__('organizations.sections.status'))
+                Section::make(__('organizations.sections.status'))
                     ->schema([
                         Infolists\Components\IconEntry::make('is_active')
                             ->boolean()
@@ -150,7 +173,7 @@ class ViewOrganization extends ViewRecord
                             ->dateTime(),
                     ])->columns(2),
 
-                Infolists\Components\Section::make(__('organizations.sections.relations'))
+                Section::make(__('organizations.sections.relations'))
                     ->schema([
                         Infolists\Components\TextEntry::make('users_relation')
                             ->label(__('organizations.labels.users'))

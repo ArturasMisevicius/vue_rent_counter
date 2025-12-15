@@ -15,6 +15,8 @@ use App\Models\User;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -97,7 +99,7 @@ class ServiceConfigurationResource extends Resource
                         ->required()
                         ->native(false)
                         ->live()
-                        ->afterStateUpdated(function ($state, Forms\Set $set): void {
+                        ->afterStateUpdated(function ($state, Set $set): void {
                             if (!$state) {
                                 return;
                             }
@@ -145,28 +147,39 @@ class ServiceConfigurationResource extends Resource
                         ->numeric()
                         ->minValue(0)
                         ->prefix('€')
-                        ->visible(fn (Forms\Get $get): bool => $get('pricing_model') === PricingModel::FIXED_MONTHLY->value),
+                        ->required(fn (Get $get): bool => $get('pricing_model') === PricingModel::FIXED_MONTHLY->value)
+                        ->visible(fn (Get $get): bool => $get('pricing_model') === PricingModel::FIXED_MONTHLY->value),
 
                     Forms\Components\TextInput::make('rate_schedule.unit_rate')
                         ->label('Unit Rate')
                         ->numeric()
                         ->minValue(0)
                         ->prefix('€')
-                        ->visible(fn (Forms\Get $get): bool => $get('pricing_model') === PricingModel::CONSUMPTION_BASED->value),
+                        ->required(fn (Get $get): bool => in_array($get('pricing_model'), [
+                            PricingModel::CONSUMPTION_BASED->value,
+                            PricingModel::HYBRID->value,
+                        ], true))
+                        ->visible(fn (Get $get): bool => in_array($get('pricing_model'), [
+                            PricingModel::CONSUMPTION_BASED->value,
+                            PricingModel::HYBRID->value,
+                        ], true)),
+
+                    Forms\Components\TextInput::make('rate_schedule.rate')
+                        ->label('Rate')
+                        ->numeric()
+                        ->minValue(0)
+                        ->prefix('€')
+                        ->helperText('Legacy flat rate. Prefer modern pricing models for new services.')
+                        ->required(fn (Get $get): bool => $get('pricing_model') === PricingModel::FLAT->value)
+                        ->visible(fn (Get $get): bool => $get('pricing_model') === PricingModel::FLAT->value),
 
                     Forms\Components\TextInput::make('rate_schedule.fixed_fee')
                         ->label('Fixed Fee')
                         ->numeric()
                         ->minValue(0)
                         ->prefix('€')
-                        ->visible(fn (Forms\Get $get): bool => $get('pricing_model') === PricingModel::HYBRID->value),
-
-                    Forms\Components\TextInput::make('rate_schedule.unit_rate')
-                        ->label('Unit Rate')
-                        ->numeric()
-                        ->minValue(0)
-                        ->prefix('€')
-                        ->visible(fn (Forms\Get $get): bool => $get('pricing_model') === PricingModel::HYBRID->value),
+                        ->required(fn (Get $get): bool => $get('pricing_model') === PricingModel::HYBRID->value)
+                        ->visible(fn (Get $get): bool => $get('pricing_model') === PricingModel::HYBRID->value),
 
                     Forms\Components\KeyValue::make('rate_schedule.zone_rates')
                         ->label('Zone Rates')
@@ -174,10 +187,13 @@ class ServiceConfigurationResource extends Resource
                         ->valueLabel('Rate (€)')
                         ->addButtonLabel('Add Zone')
                         ->reorderable()
-                        ->visible(fn (Forms\Get $get): bool => $get('pricing_model') === PricingModel::TIME_OF_USE->value),
+                        ->required(fn (Get $get): bool => $get('pricing_model') === PricingModel::TIME_OF_USE->value)
+                        ->visible(fn (Get $get): bool => $get('pricing_model') === PricingModel::TIME_OF_USE->value),
 
                     Forms\Components\Repeater::make('rate_schedule.tiers')
                         ->label('Tiers')
+                        ->required(fn (Get $get): bool => $get('pricing_model') === PricingModel::TIERED_RATES->value)
+                        ->minItems(1)
                         ->schema([
                             Forms\Components\TextInput::make('limit')
                                 ->numeric()
@@ -190,7 +206,23 @@ class ServiceConfigurationResource extends Resource
                                 ->required(),
                         ])
                         ->columns(2)
-                        ->visible(fn (Forms\Get $get): bool => $get('pricing_model') === PricingModel::TIERED_RATES->value),
+                        ->visible(fn (Get $get): bool => $get('pricing_model') === PricingModel::TIERED_RATES->value),
+
+                    Forms\Components\Textarea::make('rate_schedule.formula')
+                        ->label('Formula')
+                        ->rows(3)
+                        ->helperText('Available variables: consumption, days, month, year, is_summer, is_winter. Add custom variables below.')
+                        ->required(fn (Get $get): bool => $get('pricing_model') === PricingModel::CUSTOM_FORMULA->value)
+                        ->visible(fn (Get $get): bool => $get('pricing_model') === PricingModel::CUSTOM_FORMULA->value),
+
+                    Forms\Components\KeyValue::make('rate_schedule.variables')
+                        ->label('Variables')
+                        ->keyLabel('Variable')
+                        ->valueLabel('Value')
+                        ->addButtonLabel('Add Variable')
+                        ->reorderable()
+                        ->helperText('Variables must be numeric (boolean values are treated as 1/0).')
+                        ->visible(fn (Get $get): bool => $get('pricing_model') === PricingModel::CUSTOM_FORMULA->value),
                 ])
                 ->columns(2),
         ]);

@@ -6,6 +6,6 @@
 <body>
     <h1>{{ __('meters.headings.show', ['serial' => $meter->serial_number]) }}</h1>
     <p>{{ __('meters.labels.serial_number') }}: {{ $meter->serial_number }}</p>
-    <p>{{ __('meters.labels.type') }}: {{ enum_label($meter->type) }}</p>
+    <p>{{ __('meters.labels.type') }}: {{ $meter->getServiceDisplayName() }} ({{ $meter->getUnitOfMeasurement() }})</p>
 </body>
 </html>

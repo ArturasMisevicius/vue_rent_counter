@@ -6,10 +6,14 @@ namespace Tests\Performance;
 
 use App\Enums\UserRole;
 use App\Models\Provider;
+use App\Models\Language;
+use App\Models\Subscription;
 use App\Models\Tariff;
 use App\Models\User;
+use App\Services\SubscriptionChecker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 use PHPUnit\Framework\Attributes\Group;
@@ -40,12 +44,39 @@ class TariffControllerPerformanceTest extends TestCase
     private User $admin;
     private Provider $provider;
 
+    /**
+     * Format a slice of the DB query log for assertion output.
+     *
+     * @param  array<int, array{query:string, bindings:array<int, mixed>, time:float}>  $queries
+     */
+    private function formatQueriesForOutput(array $queries): string
+    {
+        return collect($queries)
+            ->map(function (array $entry, int $index): string {
+                $sql = $entry['query'] ?? '';
+                $bindings = $entry['bindings'] ?? [];
+                $time = $entry['time'] ?? 0.0;
+
+                $bindingsText = json_encode($bindings, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+                return sprintf('[%d] %s | bindings=%s | time=%sms', $index + 1, $sql, $bindingsText, $time);
+            })
+            ->implode(PHP_EOL);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->admin = User::factory()->create(['role' => UserRole::ADMIN, 'tenant_id' => 1]);
+        Subscription::factory()->active()->create(['user_id' => $this->admin->id]);
         $this->provider = Provider::factory()->create();
+
+        // Warm up caches used by global middleware/view composers so performance tests
+        // measure controller/query behavior rather than first-hit cache misses.
+        app(SubscriptionChecker::class)->getSubscription($this->admin);
+        Language::getActiveLanguages();
+        app(PermissionRegistrar::class)->getPermissions();
     }
 
     /**
@@ -71,6 +102,7 @@ class TariffControllerPerformanceTest extends TestCase
 
         $queryCountAfter = count(DB::getQueryLog());
         $queriesExecuted = $queryCountAfter - $queryCountBefore;
+        $queries = array_slice(DB::getQueryLog(), $queryCountBefore, $queriesExecuted);
 
         $response->assertOk();
 
@@ -78,8 +110,10 @@ class TariffControllerPerformanceTest extends TestCase
         // 1. SELECT tariffs with pagination
         // 2. SELECT providers (eager loaded in single query)
         // Note: Session/auth queries happen before our measurement
-        $this->assertLessThanOrEqual(3, $queriesExecuted, 
-            'Index should execute at most 3 queries (tariffs + providers + count). Actual: ' . $queriesExecuted
+        $this->assertLessThanOrEqual(
+            3,
+            $queriesExecuted,
+            'Index should execute at most 3 queries (tariffs + providers + count). Actual: ' . $queriesExecuted . PHP_EOL . $this->formatQueriesForOutput($queries),
         );
     }
 
@@ -105,12 +139,15 @@ class TariffControllerPerformanceTest extends TestCase
 
         $queryCountAfter = count(DB::getQueryLog());
         $queriesExecuted = $queryCountAfter - $queryCountBefore;
+        $queries = array_slice(DB::getQueryLog(), $queryCountBefore, $queriesExecuted);
 
         $response->assertOk();
 
         // Query count should remain constant regardless of total records
-        $this->assertLessThanOrEqual(3, $queriesExecuted,
-            'Query count should not scale with number of records. Actual: ' . $queriesExecuted
+        $this->assertLessThanOrEqual(
+            3,
+            $queriesExecuted,
+            'Query count should not scale with number of records. Actual: ' . $queriesExecuted . PHP_EOL . $this->formatQueriesForOutput($queries),
         );
     }
 
@@ -185,12 +222,15 @@ class TariffControllerPerformanceTest extends TestCase
 
         $queryCountAfter = count(DB::getQueryLog());
         $queriesExecuted = $queryCountAfter - $queryCountBefore;
+        $queries = array_slice(DB::getQueryLog(), $queryCountBefore, $queriesExecuted);
 
         $response->assertOk();
 
         // Sorting should not add additional queries
-        $this->assertLessThanOrEqual(3, $queriesExecuted,
-            'Sorting should not increase query count. Actual: ' . $queriesExecuted
+        $this->assertLessThanOrEqual(
+            3,
+            $queriesExecuted,
+            'Sorting should not increase query count. Actual: ' . $queriesExecuted . PHP_EOL . $this->formatQueriesForOutput($queries),
         );
     }
 
@@ -237,6 +277,7 @@ class TariffControllerPerformanceTest extends TestCase
 
         $queryCountAfter = count(DB::getQueryLog());
         $queriesExecuted = $queryCountAfter - $queryCountBefore;
+        $queries = array_slice(DB::getQueryLog(), $queryCountBefore, $queriesExecuted);
 
         $response->assertOk();
 
@@ -244,8 +285,10 @@ class TariffControllerPerformanceTest extends TestCase
         // 1. Load tariff (if needed)
         // 2. Load tariff's provider (if needed)
         // 3. Load all providers for dropdown
-        $this->assertLessThanOrEqual(4, $queriesExecuted,
-            'Edit form should execute at most 4 queries. Actual: ' . $queriesExecuted
+        $this->assertLessThanOrEqual(
+            4,
+            $queriesExecuted,
+            'Edit form should execute at most 4 queries. Actual: ' . $queriesExecuted . PHP_EOL . $this->formatQueriesForOutput($queries),
         );
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Enums\UserRole;
 use Closure;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
@@ -82,10 +83,12 @@ class EnsureHierarchicalAccess
     protected function validateAdminAccess(Request $request, $user): bool
     {
         // Performance: Cache key based on route and user with secure hashing
-        $routeParams = json_encode($request->route()->parameters(), JSON_THROW_ON_ERROR);
+        $routeParams = json_encode($this->normalizeRouteParameters($request->route()->parameters()), JSON_THROW_ON_ERROR);
         $cacheKey = sprintf(
-            'hierarchical_access:%d:%s:%s',
+            'hierarchical_access:%d:%s:%s:%s:%s',
             $user->id,
+            $user->role?->value ?? (string) $user->role,
+            (string) ($user->tenant_id ?? 'null'),
             $request->route()->getName(),
             hash('sha256', $routeParams)  // Use SHA-256 instead of MD5 for security
         );
@@ -105,9 +108,10 @@ class EnsureHierarchicalAccess
                 $resourceId = $request->route($param);
                 
                 if ($resourceId) {
-                    // Performance: Only select tenant_id to minimize data transfer
-                    $resource = $modelClass::select('id', 'tenant_id')
-                        ->find($resourceId);
+                    $resource = $resourceId instanceof Model
+                        ? $resourceId
+                        // Performance: Only select tenant_id to minimize data transfer
+                        : $modelClass::select('id', 'tenant_id')->find($resourceId);
                     
                     if ($resource && isset($resource->tenant_id)) {
                         // Validate tenant_id matches
@@ -130,7 +134,15 @@ class EnsureHierarchicalAccess
     protected function validateTenantAccess(Request $request, $user): bool
     {
         // Performance: Cache key based on route and user
-        $cacheKey = 'tenant_access:' . $user->id . ':' . $request->route()->getName() . ':' . md5(serialize($request->route()->parameters()));
+        $routeParams = json_encode($this->normalizeRouteParameters($request->route()->parameters()), JSON_THROW_ON_ERROR);
+        $cacheKey = sprintf(
+            'tenant_access:%d:%s:%s:%s:%s',
+            $user->id,
+            $user->role?->value ?? (string) $user->role,
+            (string) ($user->tenant_id ?? 'null'),
+            $request->route()->getName(),
+            hash('sha256', $routeParams)
+        );
         
         return cache()->remember($cacheKey, 300, function () use ($request, $user) {
             // First validate tenant_id matches (same as admin)
@@ -150,9 +162,10 @@ class EnsureHierarchicalAccess
                 $resourceId = $request->route($param);
                 
                 if ($resourceId) {
-                    // Performance: Only select necessary columns
-                    $resource = $modelClass::select('id', 'property_id')
-                        ->find($resourceId);
+                    $resource = $resourceId instanceof Model
+                        ? $resourceId
+                        // Performance: Only select necessary columns
+                        : $modelClass::select('id', 'property_id')->find($resourceId);
                     
                     if ($resource) {
                         // For property, check direct match
@@ -190,5 +203,22 @@ class EnsureHierarchicalAccess
             'method' => $request->method(),
             'timestamp' => now()->timestamp, // Use timestamp instead of string for better performance
         ]);
+    }
+
+    /**
+     * Normalize route parameters for safe hashing (casts bound models to IDs).
+     *
+     * @param  array<string, mixed>  $parameters
+     * @return array<string, mixed>
+     */
+    protected function normalizeRouteParameters(array $parameters): array
+    {
+        $normalized = [];
+
+        foreach ($parameters as $key => $value) {
+            $normalized[$key] = $value instanceof Model ? $value->getKey() : $value;
+        }
+
+        return $normalized;
     }
 }

@@ -45,7 +45,6 @@ return [
             'headers' => [
                 'actions' => 'Действия',
                 'building' => 'Здание',
-                'gyvatukas' => 'Гиватукас',
                 'last_calculated' => 'Последний расчет',
                 'properties' => 'Характеристики',
                 'total_apartments' => 'Всего квартир',
@@ -53,7 +52,6 @@ return [
             'mobile' => [
                 'apartments' => 'Квартиры',
                 'edit' => 'Редактировать',
-                'gyvatukas' => 'Гиватукас',
                 'last' => 'Последний',
                 'properties' => 'Характеристики',
                 'view' => 'Вид',
@@ -76,7 +74,6 @@ return [
                 'start_date' => 'Дата начала',
                 'submit' => 'Представлять на рассмотрение',
             ],
-            'gyvatukas_title' => 'Титул Гиватукаса',
             'info_title' => 'Информация Название',
             'labels' => [
                 'address' => 'Адрес',

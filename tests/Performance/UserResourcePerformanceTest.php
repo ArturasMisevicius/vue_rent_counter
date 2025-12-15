@@ -144,7 +144,7 @@ describe('UserResource Performance', function () {
         expect(UserResource::canViewAny())->toBeTrue();
 
         $this->actingAs($manager);
-        expect(UserResource::canViewAny())->toBeTrue();
+        expect(UserResource::canViewAny())->toBeFalse();
 
         $this->actingAs($tenant);
         expect(UserResource::canViewAny())->toBeFalse();

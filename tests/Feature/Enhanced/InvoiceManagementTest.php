@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace Tests\Feature\Enhanced;
 
 use App\Models\Invoice;
+use App\Models\ServiceConfiguration;
 use App\Models\Tenant;
+use App\Models\UtilityService;
 use App\Models\User;
+use App\Enums\PricingModel;
+use App\Enums\DistributionMethod;
 use App\Enums\UserRole;
-use App\Services\Enhanced\BillingService;
+use App\Enums\InvoiceStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -27,6 +31,7 @@ final class InvoiceManagementTest extends TestCase
     private User $adminUser;
     private User $tenantUser;
     private Tenant $tenant;
+    private UtilityService $utilityService;
 
     protected function setUp(): void
     {
@@ -44,6 +49,26 @@ final class InvoiceManagementTest extends TestCase
         ]);
 
         $this->tenant = Tenant::factory()->create(['id' => 1]);
+
+        $this->utilityService = UtilityService::factory()->create([
+            'tenant_id' => 1,
+            'name' => 'Fixed Service',
+            'unit_of_measurement' => 'month',
+            'default_pricing_model' => PricingModel::FIXED_MONTHLY,
+        ]);
+
+        ServiceConfiguration::factory()->create([
+            'tenant_id' => 1,
+            'property_id' => $this->tenant->property_id,
+            'utility_service_id' => $this->utilityService->id,
+            'pricing_model' => PricingModel::FIXED_MONTHLY,
+            'rate_schedule' => ['monthly_rate' => 25.00],
+            'distribution_method' => DistributionMethod::EQUAL,
+            'is_shared_service' => false,
+            'effective_from' => now()->subYears(5),
+            'effective_until' => null,
+            'is_active' => true,
+        ]);
     }
 
     /** @test */
@@ -66,7 +91,8 @@ final class InvoiceManagementTest extends TestCase
         $response->assertSessionHas('success');
         
         $this->assertDatabaseHas('invoices', [
-            'tenant_id' => $this->tenant->id,
+            'tenant_id' => $this->tenant->tenant_id,
+            'tenant_renter_id' => $this->tenant->id,
             'billing_period_start' => '2024-01-01',
             'billing_period_end' => '2024-01-31',
             'status' => 'draft',
@@ -98,8 +124,9 @@ final class InvoiceManagementTest extends TestCase
         $this->actingAs($this->adminUser);
         
         $invoice = Invoice::factory()->create([
-            'tenant_id' => $this->tenant->id,
-            'status' => 'draft',
+            'tenant_id' => $this->tenant->tenant_id,
+            'tenant_renter_id' => $this->tenant->id,
+            'status' => InvoiceStatus::DRAFT,
             'total_amount' => 100.00,
         ]);
 
@@ -124,6 +151,21 @@ final class InvoiceManagementTest extends TestCase
         
         $tenants = Tenant::factory()->count(3)->create();
 
+        foreach ($tenants as $tenant) {
+            ServiceConfiguration::factory()->create([
+                'tenant_id' => $tenant->tenant_id,
+                'property_id' => $tenant->property_id,
+                'utility_service_id' => $this->utilityService->id,
+                'pricing_model' => PricingModel::FIXED_MONTHLY,
+                'rate_schedule' => ['monthly_rate' => 25.00],
+                'distribution_method' => DistributionMethod::EQUAL,
+                'is_shared_service' => false,
+                'effective_from' => now()->subYears(5),
+                'effective_until' => null,
+                'is_active' => true,
+            ]);
+        }
+
         // Act
         $response = $this->post(route('invoices.generate-bulk'), [
             'tenant_ids' => $tenants->pluck('id')->toArray(),
@@ -138,7 +180,8 @@ final class InvoiceManagementTest extends TestCase
         // Check that invoices were created for all tenants
         foreach ($tenants as $tenant) {
             $this->assertDatabaseHas('invoices', [
-                'tenant_id' => $tenant->id,
+                'tenant_id' => $tenant->tenant_id,
+                'tenant_renter_id' => $tenant->id,
                 'billing_period_start' => '2024-01-01',
                 'billing_period_end' => '2024-01-31',
             ]);
@@ -152,7 +195,8 @@ final class InvoiceManagementTest extends TestCase
         $this->actingAs($this->adminUser);
         
         $invoice = Invoice::factory()->create([
-            'tenant_id' => $this->tenant->id,
+            'tenant_id' => $this->tenant->tenant_id,
+            'tenant_renter_id' => $this->tenant->id,
         ]);
 
         // Act
@@ -172,7 +216,8 @@ final class InvoiceManagementTest extends TestCase
         $this->actingAs($this->adminUser);
         
         Invoice::factory()->count(3)->create([
-            'tenant_id' => $this->tenant->id,
+            'tenant_id' => $this->tenant->tenant_id,
+            'tenant_renter_id' => $this->tenant->id,
         ]);
 
         // Act
@@ -201,8 +246,9 @@ final class InvoiceManagementTest extends TestCase
         $this->actingAs($this->adminUser);
         
         $invoice = Invoice::factory()->create([
-            'tenant_id' => $this->tenant->id,
-            'status' => 'finalized',
+            'tenant_id' => $this->tenant->tenant_id,
+            'tenant_renter_id' => $this->tenant->id,
+            'status' => InvoiceStatus::FINALIZED,
             'total_amount' => 100.00,
         ]);
 
@@ -223,11 +269,11 @@ final class InvoiceManagementTest extends TestCase
             'id' => $invoice->id,
             'status' => 'paid',
         ]);
-        
-        $this->assertDatabaseHas('payments', [
-            'invoice_id' => $invoice->id,
-            'amount' => 100.00,
+
+        $this->assertDatabaseHas('invoices', [
+            'id' => $invoice->id,
             'payment_reference' => 'REF123456',
+            'paid_amount' => 100.00,
         ]);
     }
 
@@ -238,8 +284,9 @@ final class InvoiceManagementTest extends TestCase
         $this->actingAs($this->adminUser);
         
         $invoice = Invoice::factory()->create([
-            'tenant_id' => $this->tenant->id,
-            'status' => 'finalized',
+            'tenant_id' => $this->tenant->tenant_id,
+            'tenant_renter_id' => $this->tenant->id,
+            'status' => InvoiceStatus::FINALIZED,
             'total_amount' => 100.00,
         ]);
 
@@ -258,7 +305,8 @@ final class InvoiceManagementTest extends TestCase
         
         $this->assertDatabaseHas('invoices', [
             'id' => $invoice->id,
-            'status' => 'partially_paid',
+            'status' => 'finalized',
+            'paid_amount' => 50.00,
         ]);
     }
 

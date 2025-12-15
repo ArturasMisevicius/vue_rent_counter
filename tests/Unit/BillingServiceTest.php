@@ -9,7 +9,6 @@ declare(strict_types=1);
  * - Invoice generation with tariff snapshotting
  * - Multi-zone electricity meter handling
  * - Water billing with supply, sewage, and fixed fees
- * - Gyvatukas (circulation fee) calculations
  * - Invoice finalization and immutability
  * - Meter reading snapshot preservation
  * 
@@ -46,23 +45,24 @@ declare(strict_types=1);
  * @group unit
  */
 
+use App\Enums\DistributionMethod;
 use App\Enums\InvoiceStatus;
 use App\Enums\MeterType;
+use App\Enums\PricingModel;
 use App\Enums\PropertyType;
 use App\Enums\ServiceType;
-use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Property;
 use App\Models\Provider;
+use App\Models\ServiceConfiguration;
 use App\Models\Tariff;
 use App\Models\Tenant;
+use App\Models\UtilityService;
 use App\Models\User;
 use App\Services\BillingService;
-use App\Services\GyvatukasCalculator;
-use App\Services\TariffResolver;
 use Carbon\Carbon;
 
 beforeEach(function () {
@@ -126,6 +126,32 @@ test('generateInvoice creates draft invoice with correct structure', function ()
         'active_from' => $startDate->copy()->subMonth(),
         'active_until' => null,
     ]);
+
+    $electricityService = UtilityService::create([
+        'tenant_id' => $this->tenantId,
+        'name' => 'Electricity',
+        'slug' => 'electricity',
+        'unit_of_measurement' => 'kWh',
+        'default_pricing_model' => PricingModel::CONSUMPTION_BASED,
+        'is_global_template' => false,
+        'service_type_bridge' => ServiceType::ELECTRICITY,
+        'is_active' => true,
+    ]);
+
+    $serviceConfiguration = ServiceConfiguration::create([
+        'tenant_id' => $this->tenantId,
+        'property_id' => $property->id,
+        'utility_service_id' => $electricityService->id,
+        'pricing_model' => PricingModel::CONSUMPTION_BASED,
+        'rate_schedule' => ['unit_rate' => 0.15],
+        'distribution_method' => DistributionMethod::EQUAL,
+        'is_shared_service' => false,
+        'effective_from' => $startDate->copy()->subMonth(),
+        'effective_until' => null,
+        'is_active' => true,
+    ]);
+
+    $meter->update(['service_configuration_id' => $serviceConfiguration->id]);
 
     // Generate invoice
     $billingService = app(BillingService::class);
@@ -197,6 +223,32 @@ test('generateInvoice calculates electricity consumption correctly', function ()
         'active_from' => $startDate->copy()->subMonth(),
         'active_until' => null,
     ]);
+
+    $electricityService = UtilityService::create([
+        'tenant_id' => $this->tenantId,
+        'name' => 'Electricity',
+        'slug' => 'electricity',
+        'unit_of_measurement' => 'kWh',
+        'default_pricing_model' => PricingModel::CONSUMPTION_BASED,
+        'is_global_template' => false,
+        'service_type_bridge' => ServiceType::ELECTRICITY,
+        'is_active' => true,
+    ]);
+
+    $serviceConfiguration = ServiceConfiguration::create([
+        'tenant_id' => $this->tenantId,
+        'property_id' => $property->id,
+        'utility_service_id' => $electricityService->id,
+        'pricing_model' => PricingModel::CONSUMPTION_BASED,
+        'rate_schedule' => ['unit_rate' => 0.15],
+        'distribution_method' => DistributionMethod::EQUAL,
+        'is_shared_service' => false,
+        'effective_from' => $startDate->copy()->subMonth(),
+        'effective_until' => null,
+        'is_active' => true,
+    ]);
+
+    $meter->update(['service_configuration_id' => $serviceConfiguration->id]);
 
     // Generate invoice
     $billingService = app(BillingService::class);
@@ -270,6 +322,35 @@ test('generateInvoice handles water billing with supply, sewage, and fixed fee',
         'active_until' => null,
     ]);
 
+    $waterService = UtilityService::create([
+        'tenant_id' => $this->tenantId,
+        'name' => 'Water',
+        'slug' => 'water',
+        'unit_of_measurement' => 'm³',
+        'default_pricing_model' => PricingModel::HYBRID,
+        'is_global_template' => false,
+        'service_type_bridge' => ServiceType::WATER,
+        'is_active' => true,
+    ]);
+
+    $serviceConfiguration = ServiceConfiguration::create([
+        'tenant_id' => $this->tenantId,
+        'property_id' => $property->id,
+        'utility_service_id' => $waterService->id,
+        'pricing_model' => PricingModel::HYBRID,
+        'rate_schedule' => [
+            'fixed_fee' => 0.85,
+            'unit_rate' => 0.97 + 1.23,
+        ],
+        'distribution_method' => DistributionMethod::EQUAL,
+        'is_shared_service' => false,
+        'effective_from' => $startDate->copy()->subMonth(),
+        'effective_until' => null,
+        'is_active' => true,
+    ]);
+
+    $meter->update(['service_configuration_id' => $serviceConfiguration->id]);
+
     // Generate invoice
     $billingService = app(BillingService::class);
     $invoice = $billingService->generateInvoice($tenant, $startDate, $endDate);
@@ -279,13 +360,16 @@ test('generateInvoice handles water billing with supply, sewage, and fixed fee',
     // Plus 0.85 fixed fee = 22.85 total
     expect($invoice->items)->toHaveCount(2); // Consumption + fixed fee
     
-    $consumptionItem = $invoice->items->first();
+    $consumptionItem = $invoice->items->firstWhere('meter_reading_snapshot.component', 'consumption');
+    $fixedFeeItem = $invoice->items->firstWhere('meter_reading_snapshot.component', 'fixed');
+
+    expect($consumptionItem)->not->toBeNull();
+    expect($fixedFeeItem)->not->toBeNull();
     expect($consumptionItem->quantity)->toBe('10.00');
     expect($consumptionItem->unit)->toBe('m³');
     expect($consumptionItem->unit_price)->toBe('2.2000'); // 0.97 + 1.23
     expect($consumptionItem->total)->toBe('22.00');
     
-    $fixedFeeItem = $invoice->items->last();
     expect($fixedFeeItem->quantity)->toBe('1.00');
     expect($fixedFeeItem->unit)->toBe('month');
     // unit_price is stored as decimal:4, but when it's a round number like 0.85, 
@@ -351,6 +435,34 @@ test('generateInvoice snapshots meter readings and tariff configuration', functi
         'active_until' => null,
     ]);
 
+    $electricityService = UtilityService::create([
+        'tenant_id' => $this->tenantId,
+        'name' => 'Electricity',
+        'slug' => 'electricity',
+        'unit_of_measurement' => 'kWh',
+        'default_pricing_model' => PricingModel::CONSUMPTION_BASED,
+        'is_global_template' => false,
+        'service_type_bridge' => ServiceType::ELECTRICITY,
+        'is_active' => true,
+    ]);
+
+    $serviceConfiguration = ServiceConfiguration::create([
+        'tenant_id' => $this->tenantId,
+        'property_id' => $property->id,
+        'utility_service_id' => $electricityService->id,
+        'pricing_model' => PricingModel::CONSUMPTION_BASED,
+        'rate_schedule' => ['unit_rate' => 0.15],
+        'distribution_method' => DistributionMethod::EQUAL,
+        'is_shared_service' => false,
+        'effective_from' => $startDate->copy()->subMonth(),
+        'effective_until' => null,
+        'tariff_id' => $tariff->id,
+        'provider_id' => $provider->id,
+        'is_active' => true,
+    ]);
+
+    $meter->update(['service_configuration_id' => $serviceConfiguration->id]);
+
     // Generate invoice
     $billingService = app(BillingService::class);
     $invoice = $billingService->generateInvoice($tenant, $startDate, $endDate);
@@ -360,14 +472,18 @@ test('generateInvoice snapshots meter readings and tariff configuration', functi
     $snapshot = $item->meter_reading_snapshot;
 
     expect($snapshot)->toBeArray();
-    expect($snapshot['meter_id'])->toBe($meter->id);
-    expect($snapshot['meter_serial'])->toBe($meter->serial_number);
-    expect($snapshot['start_reading_id'])->toBe($startReading->id);
-    expect($snapshot['start_value'])->toBe('1000.00');
-    expect($snapshot['end_reading_id'])->toBe($endReading->id);
-    expect($snapshot['end_value'])->toBe('1100.00');
-    expect($snapshot['tariff_id'])->toBe($tariff->id);
-    expect($snapshot['tariff_configuration'])->toBe($tariff->configuration);
+    expect($snapshot['service_configuration']['id'])->toBe($serviceConfiguration->id);
+    expect($snapshot['service_configuration']['tariff_snapshot']['id'])->toBe($tariff->id);
+    expect($snapshot['service_configuration']['tariff_snapshot']['configuration'])->toBe($tariff->configuration);
+
+    expect($snapshot['meters'])->toBeArray();
+    expect($snapshot['meters'])->toHaveCount(1);
+    expect($snapshot['meters'][0]['meter_id'])->toBe($meter->id);
+    expect($snapshot['meters'][0]['meter_serial'])->toBe($meter->serial_number);
+    expect($snapshot['meters'][0]['start_reading_id'])->toBe($startReading->id);
+    expect($snapshot['meters'][0]['start_value'])->toBe('1000.00');
+    expect($snapshot['meters'][0]['end_reading_id'])->toBe($endReading->id);
+    expect($snapshot['meters'][0]['end_value'])->toBe('1100.00');
 });
 
 /**
@@ -520,6 +636,37 @@ test('generateInvoice handles multi-zone electricity meters', function () {
         'active_from' => $startDate->copy()->subMonth(),
         'active_until' => null,
     ]);
+
+    $electricityService = UtilityService::create([
+        'tenant_id' => $this->tenantId,
+        'name' => 'Electricity',
+        'slug' => 'electricity',
+        'unit_of_measurement' => 'kWh',
+        'default_pricing_model' => PricingModel::TIME_OF_USE,
+        'is_global_template' => false,
+        'service_type_bridge' => ServiceType::ELECTRICITY,
+        'is_active' => true,
+    ]);
+
+    $serviceConfiguration = ServiceConfiguration::create([
+        'tenant_id' => $this->tenantId,
+        'property_id' => $property->id,
+        'utility_service_id' => $electricityService->id,
+        'pricing_model' => PricingModel::TIME_OF_USE,
+        'rate_schedule' => [
+            'zone_rates' => [
+                'day' => 0.18,
+                'night' => 0.10,
+            ],
+        ],
+        'distribution_method' => DistributionMethod::EQUAL,
+        'is_shared_service' => false,
+        'effective_from' => $startDate->copy()->subMonth(),
+        'effective_until' => null,
+        'is_active' => true,
+    ]);
+
+    $meter->update(['service_configuration_id' => $serviceConfiguration->id]);
 
     // Generate invoice
     $billingService = app(BillingService::class);

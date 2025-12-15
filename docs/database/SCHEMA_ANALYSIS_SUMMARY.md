@@ -206,7 +206,7 @@ php artisan test:setup --fresh
 
 **Creates**:
 - 3 providers (Ignitis, VV, VE)
-- 5 buildings with gyvatukas data
+- 5 buildings with hot water circulation data
 - 20 properties (apartments + houses)
 - 15 tenants with lease dates
 - 60 meters (3 per property avg)

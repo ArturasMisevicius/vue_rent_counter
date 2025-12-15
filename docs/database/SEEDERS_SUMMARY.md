@@ -82,18 +82,18 @@ All required database seeders for the Vilnius Utilities Billing system have been
 **Tenant 1 Buildings:**
 - **Gedimino 15** - Gedimino pr. 15, Vilnius
   - Total apartments: 12
-  - Gyvatukas summer average: 150.50
+  - hot water circulation summer average: 150.50
   - Location: Prestigious central location
 
 - **Konstitucijos 7** - Konstitucijos pr. 7, Vilnius
   - Total apartments: 8
-  - Gyvatukas summer average: 120.30
+  - hot water circulation summer average: 120.30
   - Location: Modern business district
 
 **Tenant 2 Buildings:**
 - **Pilies 22** - Pilies g. 22, Vilnius
   - Total apartments: 6
-  - Gyvatukas summer average: 95.75
+  - hot water circulation summer average: 95.75
   - Location: Old Town
 
 ### 5. TestPropertiesSeeder ✅
@@ -207,7 +207,7 @@ All seeders provide:
 - ✅ Lithuanian names for tenant users
 - ✅ Proper tenant_id scoping for multi-tenancy
 - ✅ Realistic property sizes (40-150 m²)
-- ✅ Gyvatukas summer averages for buildings
+- ✅ hot water circulation summer averages for buildings
 
 ## Status
 

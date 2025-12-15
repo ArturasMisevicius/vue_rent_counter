@@ -152,7 +152,7 @@ GET    /buildings/{id}            - Просмотр здания
 GET    /buildings/{id}/edit       - Форма редактирования
 PUT    /buildings/{id}            - Обновление здания
 DELETE /buildings/{id}            - Удаление здания
-POST   /buildings/{id}/calculate-gyvatukas - Расчет gyvatukas
+POST   /buildings/{id}/calculate-hot water circulation - Расчет hot water circulation
 GET    /buildings/{id}/properties - Список квартир в здании
 ```
 
@@ -299,7 +299,7 @@ GET /reports/consumption           - Отчет по потреблению
 GET /reports/revenue               - Отчет по доходам
 GET /reports/outstanding           - Отчет по неоплаченным счетам
 GET /reports/meter-readings        - Отчет по показаниям счетчиков
-GET /reports/gyvatukas             - Отчет по gyvatukas
+GET /reports/hot water circulation             - Отчет по hot water circulation
 GET /reports/tariff-comparison     - Сравнение тарифов
 POST /reports/export               - Экспорт отчета
 ```

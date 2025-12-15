@@ -159,7 +159,8 @@
                         <div class="flex items-center space-x-4">
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-slate-900 truncate">
-                                    {{ enum_label($reading->meter->type) }}
+                                    {{ $reading->meter->getServiceDisplayName() }}
+                                    <span class="text-xs text-slate-400">({{ $reading->meter->getUnitOfMeasurement() }})</span>
                                 </p>
                                 <p class="text-sm text-slate-500 truncate">
                                     {{ __('tenants.labels.reading') }}: {{ number_format($reading->value, 2) }}

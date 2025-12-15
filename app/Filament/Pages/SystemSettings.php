@@ -26,9 +26,9 @@ class SystemSettings extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
 
-    protected static UnitEnum|string|null $navigationGroup = 'System';
+    protected static string|UnitEnum|null $navigationGroup = 'System';
 
     protected static ?int $navigationSort = 3;
 

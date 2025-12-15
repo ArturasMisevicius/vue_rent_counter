@@ -44,12 +44,40 @@ return [
     'title' => 'Title',
     'validation' => [
         'app_name' => [
-            'max' => 'Max',
-            'string' => 'String',
+            'max' => 'The application name may not be greater than 255 characters.',
+            'string' => 'The application name must be a string.',
+            'regex' => 'The application name may only contain letters, numbers, spaces, hyphens, underscores, and dots.',
         ],
         'timezone' => [
-            'in' => 'In',
-            'string' => 'String',
+            'in' => 'The selected timezone is invalid.',
+            'string' => 'The timezone must be a string.',
         ],
+        'language' => [
+            'in' => 'The selected language is not supported.',
+        ],
+        'date_format' => [
+            'in' => 'The selected date format is invalid.',
+        ],
+        'currency' => [
+            'size' => 'The currency code must be exactly 3 characters.',
+            'in' => 'The selected currency is not supported.',
+        ],
+        'invoice_due_days' => [
+            'min' => 'Invoice due days must be at least 1 day.',
+            'max' => 'Invoice due days may not be greater than 90 days.',
+        ],
+    ],
+    'attributes' => [
+        'app_name' => 'application name',
+        'timezone' => 'timezone',
+        'language' => 'language',
+        'date_format' => 'date format',
+        'currency' => 'currency',
+        'notifications_enabled' => 'notifications enabled',
+        'email_notifications' => 'email notifications',
+        'sms_notifications' => 'SMS notifications',
+        'invoice_due_days' => 'invoice due days',
+        'auto_generate_invoices' => 'auto-generate invoices',
+        'maintenance_mode' => 'maintenance mode',
     ],
 ];

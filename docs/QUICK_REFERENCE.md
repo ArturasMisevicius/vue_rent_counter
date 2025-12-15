@@ -98,9 +98,10 @@ Model::withCount('attachments')->get(); // Query
 ## 🏷️ Tags Cheat Sheet
 
 ```php
-// Attach tags
+// Attach tags (v2.0+ optimized)
 $model->attachTags(['tag1', 'tag2'], $taggedBy);
 $model->attachTags([$tag1, $tag2]);  // Tag objects
+$model->attachTagsByNames(['urgent', 'maintenance']); // Auto-create
 
 // Detach tags
 $model->detachTags(['tag1']);        // Specific
@@ -114,16 +115,28 @@ $model->hasTag('urgent');            // Boolean
 $model->hasAnyTag(['urgent', 'high']); // Boolean
 $model->hasAllTags(['urgent', 'high']); // Boolean
 $model->tag_names;                   // Array of names
+$model->tag_slugs;                   // Array of slugs
 
-// Query
+// Query scopes
 Model::withTag('urgent')->get();
 Model::withAnyTag(['urgent', 'high'])->get();
 Model::withAllTags(['urgent', 'high'])->get();
+Model::withoutTags()->get();         // Untagged models
 
 // Tag management
 Tag::popular(10)->get();             // Most used
 Tag::unused()->get();                // Unused tags
-$tag->updateUsageCount();            // Refresh count
+Tag::getCachedPopularTags($tenantId, 10); // Cached popular
+Tag::bulkUpdateUsageCounts($tagIds); // Bulk update (v2.0+)
+$tag->updateUsageCount();            // Individual update
+
+// Performance (v2.0+)
+// ✅ Good - Bulk operations
+$model->attachTags($manyTags);
+// ❌ Avoid - Individual operations in loops
+foreach ($tags as $tag) {
+    $model->attachTags([$tag]); // Creates N+1 queries
+}
 ```
 
 ---

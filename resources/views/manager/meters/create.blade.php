@@ -3,7 +3,6 @@
 @section('title', __('meters.actions.add'))
 
 @section('content')
-@php($meterTypeOptions = \App\Enums\MeterType::labels())
 <div class="px-4 sm:px-6 lg:px-8">
 <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
@@ -18,6 +17,7 @@
                 @csrf
 
                 <div class="space-y-6">
+                    <input type="hidden" name="type" value="{{ \App\Enums\MeterType::CUSTOM->value }}">
                     <x-form-input
                         name="serial_number"
                         :label="__('meters.labels.serial_number')"
@@ -33,14 +33,6 @@
                         :options="$serviceConfigurationOptions"
                         :selected="old('service_configuration_id')"
                         placeholder="—"
-                    />
-
-                    <x-form-select
-                        name="type"
-                        :label="__('meters.labels.type')"
-                        :options="$meterTypeOptions"
-                        :selected="old('type')"
-                        required
                     />
 
                     <x-form-select

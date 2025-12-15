@@ -765,17 +765,17 @@ curl -X GET http://localhost:8000/tenant/invoices/999 \
    >>> DB::select('PRAGMA journal_mode;')
    ```
 
-### Issue 7: Gyvatukas Calculation Errors
+### Issue 7: hot water circulation Calculation Errors
 
 **Symptoms:**
-- Gyvatukas not appearing in invoices
+- hot water circulation not appearing in invoices
 - Calculation values seem incorrect
 
 **Solutions:**
-1. Verify building has `gyvatukas_summer_average` set:
+1. Verify building has `hot water circulation_summer_average` set:
    ```bash
    php artisan tinker
-   >>> Building::find(1)->gyvatukas_summer_average
+   >>> Building::find(1)->hot water circulation_summer_average
    ```
 2. Check that property is in a building (not standalone house):
    ```bash
@@ -783,7 +783,7 @@ curl -X GET http://localhost:8000/tenant/invoices/999 \
    >>> Property::find(1)->building_id
    ```
 3. Verify season detection is correct (May-September = summer, October-April = winter)
-4. Check that `GyvatukasCalculator` service is being called during invoice generation
+4. Check that `hot water circulationCalculator` service is being called during invoice generation
 5. Verify circulation fee appears as separate invoice item
 
 ## Test Data Reference

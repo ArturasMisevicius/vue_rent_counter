@@ -15,8 +15,10 @@ use App\Models\Organization;
 use App\Models\Property;
 use App\Models\User;
 use App\Services\TenantContext;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 
 /**
@@ -90,6 +92,15 @@ use Illuminate\Support\Facades\Hash;
 abstract class TestCase extends BaseTestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config([
+            'security.rate_limiting.test_salt' => bin2hex(random_bytes(8)),
+        ]);
+    }
 
     /**
      * Clean up tenant context after each test.
@@ -282,6 +293,56 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
+     * Attach a consumption-based universal service configuration to an existing meter.
+     *
+     * This is a convenience helper for tests migrating from legacy "meter + tariff"
+     * billing to the universal ServiceConfiguration-based billing pipeline.
+     */
+    protected function attachConsumptionServiceToMeter(
+        Meter $meter,
+        string $serviceName,
+        string $unitOfMeasurement,
+        float $unitRate,
+        ?\App\Enums\ServiceType $bridgeType = null,
+        ?Carbon $effectiveFrom = null,
+        ?int $providerId = null,
+        ?int $tariffId = null,
+    ): \App\Models\ServiceConfiguration {
+        $property = Property::findOrFail($meter->property_id);
+
+        $utilityService = \App\Models\UtilityService::factory()->create([
+            'tenant_id' => $property->tenant_id,
+            'name' => $serviceName,
+            'slug' => Str::slug($serviceName) . '-' . uniqid(),
+            'unit_of_measurement' => $unitOfMeasurement,
+            'default_pricing_model' => \App\Enums\PricingModel::CONSUMPTION_BASED,
+            'service_type_bridge' => $bridgeType,
+            'is_global_template' => false,
+            'is_active' => true,
+        ]);
+
+        $serviceConfiguration = \App\Models\ServiceConfiguration::factory()->create([
+            'tenant_id' => $property->tenant_id,
+            'property_id' => $property->id,
+            'utility_service_id' => $utilityService->id,
+            'pricing_model' => \App\Enums\PricingModel::CONSUMPTION_BASED,
+            'rate_schedule' => ['unit_rate' => $unitRate],
+            'distribution_method' => \App\Enums\DistributionMethod::EQUAL,
+            'is_shared_service' => false,
+            'effective_from' => $effectiveFrom ?? now()->subYear(),
+            'effective_until' => null,
+            'provider_id' => $providerId,
+            'tariff_id' => $tariffId,
+            'configuration_overrides' => [],
+            'is_active' => true,
+        ]);
+
+        $meter->update(['service_configuration_id' => $serviceConfiguration->id]);
+
+        return $serviceConfiguration;
+    }
+
+    /**
      * Create a test meter reading for a specific meter.
      * 
      * Automatically creates a manager user if one doesn't exist for the tenant.
@@ -329,10 +390,13 @@ abstract class TestCase extends BaseTestCase
     protected function createTestInvoice(int $propertyId, array $attributes = []): Invoice
     {
         $property = Property::findOrFail($propertyId);
-        
-        return Invoice::factory()->create(array_merge([
-            'tenant_id' => $property->tenant_id,
-            'property_id' => $propertyId,
+
+        // Ensure a renter tenant exists for this property.
+        $tenantRenter = \App\Models\Tenant::factory()
+            ->forProperty($property)
+            ->create();
+
+        return Invoice::factory()->forTenantRenter($tenantRenter)->create(array_merge([
             'billing_period_start' => now()->startOfMonth(),
             'billing_period_end' => now()->endOfMonth(),
         ], $attributes));
@@ -348,16 +412,26 @@ abstract class TestCase extends BaseTestCase
      */
     protected function ensureTenantExists(int $tenantId): Organization
     {
-        return Organization::firstOrCreate(
-            ['id' => $tenantId],
-            [
-                'name' => 'Test Organization ' . $tenantId,
-                'status' => 'active',
-                'subscription_plan' => 'basic',
-                'subscription_status' => 'active',
-                'subscription_expires_at' => now()->addYear(),
-            ]
-        );
+        $existing = Organization::query()->find($tenantId);
+
+        if ($existing) {
+            return $existing;
+        }
+
+        return Organization::factory()->create([
+            'id' => $tenantId,
+            'name' => 'Test Organization ' . $tenantId,
+            'slug' => 'test-organization-' . $tenantId,
+            'domain' => null,
+            'email' => "test-organization-{$tenantId}@example.test",
+            'primary_contact_email' => "contact-{$tenantId}@example.test",
+            'phone' => '+37060000000',
+            'is_active' => true,
+            'plan' => 'basic',
+            'subscription_plan' => 'basic',
+            'trial_ends_at' => null,
+            'subscription_ends_at' => now()->addYear(),
+        ]);
     }
 
     /**

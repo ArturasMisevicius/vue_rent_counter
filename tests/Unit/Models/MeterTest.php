@@ -55,6 +55,8 @@ final class MeterTest extends TestCase
             'property_id',
             'installation_date',
             'supports_zones',
+            'reading_structure',
+            'service_configuration_id',
         ];
 
         $this->assertEquals($expectedFillable, $meter->getFillable());

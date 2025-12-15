@@ -31,12 +31,13 @@ class UtilityServiceFactory extends Factory
     {
         $name = $this->faker->words(2, true) . ' Service';
         $pricingModel = $this->faker->randomElement(PricingModel::cases());
-        
+
         return [
-            'tenant_id' => Tenant::factory(),
+            // tenant_id is the Organization (multi-tenancy scope)
+            'tenant_id' => 1,
             'name' => $name,
             'slug' => \Illuminate\Support\Str::slug($name),
-            'unit_of_measurement' => $this->faker->randomElement(['kWh', 'L', 'kW', 'm³', 'units']),
+            'unit_of_measurement' => $this->faker->randomElement(['kWh', 'L', 'kW', 'm3', 'units']),
             'default_pricing_model' => $pricingModel,
             'calculation_formula' => $this->getCalculationFormula($pricingModel),
             'is_global_template' => false,

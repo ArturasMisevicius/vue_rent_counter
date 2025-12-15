@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 /**
  * Handler for missing subscriptions.
  *
- * Allows dashboard access to display subscription warning,
+ * Allows dashboard access to display subscription error,
  * blocks access to all other routes.
  */
 final readonly class MissingSubscriptionHandler implements SubscriptionStatusHandler
@@ -22,9 +22,9 @@ final readonly class MissingSubscriptionHandler implements SubscriptionStatusHan
 
     public function handle(Request $request, ?Subscription $subscription): SubscriptionCheckResult
     {
-        // Allow access to dashboard to see subscription warning
+        // Allow access to dashboard to see subscription error
         if ($request->routeIs(self::DASHBOARD_ROUTE)) {
-            return SubscriptionCheckResult::allowWithWarning(self::MISSING_MESSAGE);
+            return SubscriptionCheckResult::allowWithError(self::MISSING_MESSAGE);
         }
 
         return SubscriptionCheckResult::block(

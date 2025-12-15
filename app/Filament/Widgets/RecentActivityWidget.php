@@ -21,7 +21,7 @@ class RecentActivityWidget extends BaseWidget
     protected static bool $isLazy = true;
     
     // Polling interval - refresh every 2 minutes
-    protected static ?string $pollingInterval = '120s';
+    protected ?string $pollingInterval = '120s';
     
     protected int | string | array $columnSpan = 'full';
 

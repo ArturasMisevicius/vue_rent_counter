@@ -10,7 +10,7 @@ class OrganizationActivityLog extends Model
 {
     use HasFactory;
 
-    protected $table = 'organization_activity_log';
+    protected $table = 'organization_activity_logs';
 
     protected $fillable = [
         'organization_id',

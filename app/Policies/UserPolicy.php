@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
  * This policy enforces hierarchical access control with strict tenant boundaries:
  * - Superadmin: Full access to all users across all tenants
  * - Admin: Can manage users within their tenant only
- * - Manager: Can manage users within their tenant only
+ * - Manager: Can only view/update their own profile
  * - Tenant: Can only view/update their own profile
  * 
  * Security: All operations are audited for compliance
@@ -25,7 +25,7 @@ final class UserPolicy
 {
     /**
      * Determine whether the user can view any users.
-     * Respects role hierarchy: superadmin sees all, admin/manager sees their tenants.
+     * Respects role hierarchy: superadmin sees all, admin sees their tenant.
      * 
      * @param User $user The authenticated user
      * @return bool True if the user can view the users list
@@ -35,8 +35,7 @@ final class UserPolicy
     public function viewAny(User $user): bool
     {
         return $user->isSuperadmin() 
-            || $user->isAdmin() 
-            || $user->isManager();
+            || $user->isAdmin();
     }
 
     /**
@@ -52,7 +51,7 @@ final class UserPolicy
     public function view(User $user, User $model): bool
     {
         // Superadmin can view any user (Requirement 13.1)
-        if ($user->isSuperadmin()) {
+        if ($user->isSuperadmin() || $this->isPlatformAdmin($user)) {
             return true;
         }
 
@@ -72,7 +71,7 @@ final class UserPolicy
 
     /**
      * Determine whether the user can create users.
-     * Allows superadmin→admin, admin/manager→tenant creation.
+     * Allows superadmin and admins to create users.
      * 
      * @param User $user The authenticated user
      * @return bool True if the user can create new users
@@ -82,8 +81,7 @@ final class UserPolicy
     public function create(User $user): bool
     {
         return $user->isSuperadmin() 
-            || $user->isAdmin() 
-            || $user->isManager();
+            || $user->isAdmin();
     }
 
     /**
@@ -106,12 +104,12 @@ final class UserPolicy
         }
 
         // Superadmin can update any user (Requirement 13.1)
-        if ($user->isSuperadmin()) {
+        if ($user->isSuperadmin() || $this->isPlatformAdmin($user)) {
             $this->logSensitiveOperation('update', $user, $model);
             return true;
         }
 
-        // Admins and Managers can update users within their tenant (Requirement 13.3)
+        // Admins can update users within their tenant (Requirement 13.3)
         if ($this->canManageTenantUser($user, $model)) {
             $this->logSensitiveOperation('update', $user, $model);
             return true;
@@ -141,12 +139,12 @@ final class UserPolicy
         }
 
         // Superadmin can delete any user (except themselves) (Requirement 13.1)
-        if ($user->isSuperadmin()) {
+        if ($user->isSuperadmin() || $this->isPlatformAdmin($user)) {
             $this->logSensitiveOperation('delete', $user, $model);
             return true;
         }
 
-        // Admins and Managers can delete users within their tenant (Requirement 13.3)
+        // Admins can delete users within their tenant (Requirement 13.3)
         if ($this->canManageTenantUser($user, $model)) {
             $this->logSensitiveOperation('delete', $user, $model);
             return true;
@@ -171,12 +169,12 @@ final class UserPolicy
     public function restore(User $user, User $model): bool
     {
         // Superadmin can restore any user (Requirement 13.1)
-        if ($user->isSuperadmin()) {
+        if ($user->isSuperadmin() || $this->isPlatformAdmin($user)) {
             $this->logSensitiveOperation('restore', $user, $model);
             return true;
         }
 
-        // Admins and Managers can restore users within their tenant (Requirement 13.3)
+        // Admins can restore users within their tenant (Requirement 13.3)
         if ($this->canManageTenantUser($user, $model)) {
             $this->logSensitiveOperation('restore', $user, $model);
             return true;
@@ -257,8 +255,12 @@ final class UserPolicy
      */
     private function canManageTenantUser(User $user, User $model): bool
     {
-        return ($user->isAdmin() || $user->isManager()) 
-            && $this->isSameTenant($user, $model);
+        return $user->isAdmin() && $this->isSameTenant($user, $model);
+    }
+
+    private function isPlatformAdmin(User $user): bool
+    {
+        return $user->isAdmin() && $user->tenant_id === null;
     }
 
     /**

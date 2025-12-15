@@ -21,8 +21,6 @@ class BuildingFactory extends Factory
             'name' => "{$street} Residence",
             'address' => "{$street}, Vilnius",
             'total_apartments' => fake()->numberBetween(4, 50),
-            'gyvatukas_summer_average' => null,
-            'gyvatukas_last_calculated' => null,
         ];
     }
 

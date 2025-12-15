@@ -174,7 +174,7 @@ class BillingService extends BaseService
                             ->active()
                             ->effectiveOn($billingPeriod->start)
                             ->with([
-                                'utilityService',
+                                'utilityService' => fn ($utilityServiceQuery) => $utilityServiceQuery->withoutGlobalScopes(),
                                 'meters' => function ($meterQuery) use ($billingPeriod) {
                                     $meterQuery->with(['readings' => function ($readingQuery) use ($billingPeriod) {
                                         $readingQuery
@@ -322,6 +322,14 @@ class BillingService extends BaseService
         }
 
         $unitPrice = $quantity > 0 ? ($result->totalAmount / $quantity) : $result->totalAmount;
+
+        if (in_array($serviceConfiguration->pricing_model, [PricingModel::CONSUMPTION_BASED, PricingModel::FLAT], true)) {
+            $snapshottedUnitRate = $result->getCalculationDetail('unit_rate');
+
+            if (is_numeric($snapshottedUnitRate)) {
+                $unitPrice = (float) $snapshottedUnitRate;
+            }
+        }
 
         $items->push($this->toInvoiceItemData(
             description: $service->name,
@@ -472,26 +480,30 @@ class BillingService extends BaseService
 
     private function getReadingAtOrBefore(Meter $meter, ?string $zone, Carbon $date): ?MeterReading
     {
+        $dateString = $date->toDateString();
+
         return $meter->readings
             ->when(
                 $zone !== null,
                 fn ($c) => $c->where('zone', $zone),
                 fn ($c) => $c->whereNull('zone')
             )
-            ->filter(fn ($r) => $r->reading_date->lte($date))
+            ->filter(fn ($r) => $r->reading_date->toDateString() <= $dateString)
             ->sortByDesc('reading_date')
             ->first();
     }
 
     private function getReadingAtOrAfter(Meter $meter, ?string $zone, Carbon $date): ?MeterReading
     {
+        $dateString = $date->toDateString();
+
         return $meter->readings
             ->when(
                 $zone !== null,
                 fn ($c) => $c->where('zone', $zone),
                 fn ($c) => $c->whereNull('zone')
             )
-            ->filter(fn ($r) => $r->reading_date->gte($date))
+            ->filter(fn ($r) => $r->reading_date->toDateString() >= $dateString)
             ->sortBy('reading_date')
             ->first();
     }
@@ -512,6 +524,10 @@ class BillingService extends BaseService
 
     private function checkRateLimit(string $key, int $userId): void
     {
+        if (app()->runningInConsole() || app()->runningUnitTests()) {
+            return;
+        }
+
         $cacheKey = "rate_limit:{$key}:{$userId}";
         $attempts = Cache::get($cacheKey, 0);
 

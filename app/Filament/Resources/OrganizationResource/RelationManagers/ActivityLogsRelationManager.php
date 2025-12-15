@@ -15,7 +15,7 @@ class ActivityLogsRelationManager extends RelationManager
 
     protected static ?string $title = null;
 
-    protected static BackedEnum|string|null $icon = 'heroicon-o-clock';
+    protected static string|BackedEnum|null $icon = 'heroicon-o-clock';
 
     public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
     {

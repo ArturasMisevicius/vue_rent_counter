@@ -13,8 +13,13 @@ class OrganizationInvitation extends Model
 
     protected $fillable = [
         'organization_id',
+        'organization_name',
         'email',
         'role',
+        'plan_type',
+        'max_properties',
+        'max_users',
+        'status',
         'token',
         'expires_at',
         'accepted_at',
@@ -24,6 +29,8 @@ class OrganizationInvitation extends Model
     protected $casts = [
         'expires_at' => 'datetime',
         'accepted_at' => 'datetime',
+        'max_properties' => 'integer',
+        'max_users' => 'integer',
     ];
 
     protected static function booted(): void
@@ -35,6 +42,10 @@ class OrganizationInvitation extends Model
 
             if (empty($invitation->expires_at)) {
                 $invitation->expires_at = now()->addDays(7);
+            }
+
+            if (empty($invitation->status)) {
+                $invitation->status = 'pending';
             }
         });
     }

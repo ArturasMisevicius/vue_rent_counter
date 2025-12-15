@@ -8,7 +8,6 @@ use App\Enums\DistributionMethod;
 use App\Enums\PricingModel;
 use App\Models\Property;
 use App\Models\ServiceConfiguration;
-use App\Models\Tenant;
 use App\Models\UtilityService;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -35,7 +34,7 @@ class ServiceConfigurationFactory extends Factory
         $distributionMethod = $this->faker->randomElement(DistributionMethod::cases());
         
         return [
-            'tenant_id' => Tenant::factory(),
+            'tenant_id' => 1,
             'property_id' => Property::factory(),
             'utility_service_id' => UtilityService::factory(),
             'pricing_model' => $pricingModel,

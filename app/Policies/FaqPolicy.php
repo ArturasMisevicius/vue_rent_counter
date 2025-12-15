@@ -32,7 +32,7 @@ final class FaqPolicy
      */
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, [UserRole::ADMIN, UserRole::SUPERADMIN], true);
+        return $user->role === UserRole::SUPERADMIN;
     }
 
     /**
@@ -44,7 +44,7 @@ final class FaqPolicy
      */
     public function view(User $user, Faq $faq): bool
     {
-        return in_array($user->role, [UserRole::ADMIN, UserRole::SUPERADMIN], true);
+        return $user->role === UserRole::SUPERADMIN;
     }
 
     /**
@@ -55,7 +55,7 @@ final class FaqPolicy
      */
     public function create(User $user): bool
     {
-        return in_array($user->role, [UserRole::ADMIN, UserRole::SUPERADMIN], true);
+        return $user->role === UserRole::SUPERADMIN;
     }
 
     /**
@@ -67,7 +67,7 @@ final class FaqPolicy
      */
     public function update(User $user, Faq $faq): bool
     {
-        return in_array($user->role, [UserRole::ADMIN, UserRole::SUPERADMIN], true);
+        return $user->role === UserRole::SUPERADMIN;
     }
 
     /**
@@ -79,7 +79,7 @@ final class FaqPolicy
      */
     public function delete(User $user, Faq $faq): bool
     {
-        return in_array($user->role, [UserRole::ADMIN, UserRole::SUPERADMIN], true);
+        return $user->role === UserRole::SUPERADMIN;
     }
 
     /**
@@ -91,7 +91,7 @@ final class FaqPolicy
      */
     public function restore(User $user, Faq $faq): bool
     {
-        return in_array($user->role, [UserRole::ADMIN, UserRole::SUPERADMIN], true);
+        return $user->role === UserRole::SUPERADMIN;
     }
 
     /**
@@ -115,6 +115,6 @@ final class FaqPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return in_array($user->role, [UserRole::ADMIN, UserRole::SUPERADMIN], true);
+        return $user->role === UserRole::SUPERADMIN;
     }
 }

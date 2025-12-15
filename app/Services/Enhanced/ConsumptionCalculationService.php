@@ -23,7 +23,7 @@ use Illuminate\Support\Collection;
  * 
  * @package App\Services\Enhanced
  */
-final class ConsumptionCalculationService extends BaseService
+class ConsumptionCalculationService extends BaseService
 {
     public function __construct(
         private readonly MeterReadingService $meterReadingService

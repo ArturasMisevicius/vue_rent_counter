@@ -22,7 +22,7 @@ use Filament\Notifications\Notification;
 
 class Dashboard extends BaseDashboard
 {
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-home';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-home';
 
     protected static ?string $title = 'Dashboard';
 

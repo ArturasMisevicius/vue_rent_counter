@@ -142,7 +142,7 @@ Route::middleware(['auth', 'role:admin,manager'])->group(function () {
 ### Console Routes (`routes/console.php`)
 
 Scheduled tasks are properly configured:
-- Gyvatukas calculation (yearly)
+- hot water circulation calculation (yearly)
 - Database backups (daily)
 - Overdue invoice notifications (daily)
 

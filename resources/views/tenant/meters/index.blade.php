@@ -5,8 +5,7 @@
 @section('tenant-content')
 <x-tenant.page :title="__('tenant.meters.index_title')" :description="__('tenant.meters.index_description')">
     @php 
-        $unitFor = fn($meter) => $meter->serviceConfiguration?->utilityService?->unit_of_measurement
-            ?? ($meter->type->value === 'electricity' ? 'kWh' : 'm³');
+        $unitFor = fn($meter) => $meter->getUnitOfMeasurement();
         $metersCollection = $meters instanceof \Illuminate\Pagination\LengthAwarePaginator ? $meters->getCollection() : $meters;
         $latestReadingDate = $metersCollection
             ->flatMap(fn($meter) => $meter->readings)
@@ -15,12 +14,23 @@
             ->filter()
             ->sortDesc()
             ->first();
-        $typeStyles = [
-            'electricity' => ['chip' => 'bg-amber-100 text-amber-800', 'halo' => 'from-amber-200/70 via-white to-white'],
-            'water_cold' => ['chip' => 'bg-sky-100 text-sky-800', 'halo' => 'from-sky-200/80 via-white to-white'],
-            'water_hot' => ['chip' => 'bg-rose-100 text-rose-800', 'halo' => 'from-rose-200/80 via-white to-white'],
-            'heating' => ['chip' => 'bg-orange-100 text-orange-800', 'halo' => 'from-orange-200/80 via-white to-white'],
+
+        $stylePalettes = [
+            ['chip' => 'bg-indigo-100 text-indigo-800', 'halo' => 'from-indigo-200/70 via-white to-white'],
+            ['chip' => 'bg-sky-100 text-sky-800', 'halo' => 'from-sky-200/80 via-white to-white'],
+            ['chip' => 'bg-emerald-100 text-emerald-800', 'halo' => 'from-emerald-200/75 via-white to-white'],
+            ['chip' => 'bg-amber-100 text-amber-800', 'halo' => 'from-amber-200/70 via-white to-white'],
+            ['chip' => 'bg-rose-100 text-rose-800', 'halo' => 'from-rose-200/80 via-white to-white'],
+            ['chip' => 'bg-violet-100 text-violet-800', 'halo' => 'from-violet-200/75 via-white to-white'],
         ];
+
+        $styleForMeter = function ($meter) use ($stylePalettes) {
+            $serviceId = $meter->serviceConfiguration?->utilityService?->id;
+            $seed = is_int($serviceId) ? $serviceId : crc32((string) $meter->serial_number);
+            $index = abs((int) $seed) % count($stylePalettes);
+
+            return $stylePalettes[$index];
+        };
     @endphp
 
     @if($metersCollection->isEmpty())
@@ -66,7 +76,7 @@
                 @foreach($meters as $meter)
                     @php 
                         $latest = $meter->readings->first(); 
-                        $style = $typeStyles[$meter->type->value] ?? ['chip' => 'bg-slate-100 text-slate-800', 'halo' => 'from-slate-200/80 via-white to-white'];
+                        $style = $styleForMeter($meter);
                     @endphp
                     <div class="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/95 shadow-md shadow-slate-200/60 transition hover:border-indigo-200">
                         <div class="absolute inset-0 bg-gradient-to-br {{ $style['halo'] }}"></div>
@@ -76,7 +86,7 @@
                                 <div class="flex items-center gap-2">
                                     <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold {{ $style['chip'] }}">
                                         <span class="text-base">&bull;</span>
-                                        {{ $meter->serviceConfiguration?->utilityService?->name ?? enum_label($meter->type) }}
+                                        {{ $meter->getServiceDisplayName() }}
                                     </span>
                                     <span class="inline-flex items-center gap-2 rounded-full bg-slate-900/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-700">
                                         {{ $meter->supports_zones ? __('tenant.meters.labels.day_night') : __('tenant.meters.labels.single_zone') }}

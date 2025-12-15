@@ -7,7 +7,7 @@ Successfully completed the refactoring of `CalculateSummerAverageCommand` to use
 ## Quality Score: 9.5/10
 
 ### Strengths ✅
-- **Service Layer Pattern**: Command delegates all business logic to `GyvatukasSummerAverageService`
+- **Service Layer Pattern**: Command delegates all business logic to `hot water circulationSummerAverageService`
 - **Value Objects**: Uses `SummerPeriod` and `CalculationResult` for type-safe data structures
 - **Dependency Injection**: Service injected via constructor
 - **Input Validation**: Dedicated methods for validating year and building ID
@@ -20,7 +20,7 @@ Successfully completed the refactoring of `CalculateSummerAverageCommand` to use
 
 ### 1. app/Console/Commands/CalculateSummerAverageCommand.php
 **Changes:**
-- Added constructor injection of `GyvatukasSummerAverageService`
+- Added constructor injection of `hot water circulationSummerAverageService`
 - Removed direct database queries and business logic
 - Added validation methods: `getYear()`, `getBuildingId()`
 - Added display methods: `displayResult()`, `displaySummary()`
@@ -30,7 +30,7 @@ Successfully completed the refactoring of `CalculateSummerAverageCommand` to use
 **Before:** 155 lines with mixed concerns
 **After:** 210 lines with clear separation
 
-### 2. app/Services/GyvatukasSummerAverageService.php
+### 2. app/Services/hot water circulationSummerAverageService.php
 **Created new service with:**
 - `calculateForBuilding()` - Single building calculation
 - `calculateForBuildings()` - Multiple buildings
@@ -60,7 +60,7 @@ Successfully completed the refactoring of `CalculateSummerAverageCommand` to use
 ## Test Coverage
 
 ### Created Tests:
-1. **tests/Unit/Services/GyvatukasSummerAverageServiceTest.php** (9 tests)
+1. **tests/Unit/Services/hot water circulationSummerAverageServiceTest.php** (9 tests)
    - ✅ calculates for building successfully
    - ✅ skips already calculated building
    - ✅ forces recalculation when requested
@@ -121,19 +121,19 @@ Successfully completed the refactoring of `CalculateSummerAverageCommand` to use
 
 ```bash
 # Calculate for previous year (default)
-php artisan gyvatukas:calculate-summer-average
+php artisan hot water circulation:calculate-summer-average
 
 # Calculate for specific year
-php artisan gyvatukas:calculate-summer-average --year=2023
+php artisan hot water circulation:calculate-summer-average --year=2023
 
 # Calculate for specific building
-php artisan gyvatukas:calculate-summer-average --building=5
+php artisan hot water circulation:calculate-summer-average --building=5
 
 # Force recalculation
-php artisan gyvatukas:calculate-summer-average --force
+php artisan hot water circulation:calculate-summer-average --force
 
 # Combined options
-php artisan gyvatukas:calculate-summer-average --year=2023 --building=5 --force
+php artisan hot water circulation:calculate-summer-average --year=2023 --building=5 --force
 ```
 
 ## Performance Improvements
@@ -194,7 +194,7 @@ php artisan gyvatukas:calculate-summer-average --year=2023 --building=5 --force
 
 1. Deploy new service and value object files
 2. Deploy refactored command
-3. Run tests to verify functionality: `vendor\bin\pest tests\Unit\Services\GyvatukasSummerAverageServiceTest.php`
+3. Run tests to verify functionality: `vendor\bin\pest tests\Unit\Services\hot water circulationSummerAverageServiceTest.php`
 4. Monitor logs for any issues
 5. Verify scheduled task continues to work
 

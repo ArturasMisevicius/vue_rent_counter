@@ -5,7 +5,7 @@
 @section('tenant-content')
 <x-tenant.page
     :title="__('tenant.meters.show_title', ['serial' => $meter->serial_number])"
-    :description="__('tenant.meters.show_description', ['type' => ($meter->serviceConfiguration?->utilityService?->name ?? enum_label($meter->type)), 'property' => $meter->property->address ?? __('tenant.property.title')])"
+    :description="__('tenant.meters.show_description', ['type' => $meter->getServiceDisplayName(), 'property' => $meter->property->address ?? __('tenant.property.title')])"
 >
     <x-slot name="actions">
         <div class="flex flex-wrap gap-2">

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Scopes\HierarchicalScope;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 uses(RefreshDatabase::class);
@@ -358,16 +359,16 @@ describe('Performance Security', function () {
         $this->actingAs($admin);
         
         // Enable query logging
-        \DB::enableQueryLog();
+        DB::enableQueryLog();
         
         Property::all();
         
-        $queries = \DB::getQueryLog();
+        $queries = DB::getQueryLog();
         
         // Should be 1 query (SELECT * FROM properties WHERE tenant_id = 1)
         expect($queries)->toHaveCount(1);
         
-        \DB::disableQueryLog();
+        DB::disableQueryLog();
     });
 
     test('cache hit rate is high for repeated queries', function () {

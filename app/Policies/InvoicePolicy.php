@@ -171,6 +171,25 @@ class InvoicePolicy
     }
 
     /**
+     * Determine whether the user can process payments for the invoice.
+     *
+     * Allows admins and managers to record payments within their tenant scope.
+     * Tenants have read-only access.
+     */
+    public function processPayment(User $user, Invoice $invoice): bool
+    {
+        if ($user->role === UserRole::SUPERADMIN) {
+            return true;
+        }
+
+        if ($this->isAdmin($user) || $user->role === UserRole::MANAGER) {
+            return $invoice->tenant_id === $user->tenant_id;
+        }
+
+        return false;
+    }
+
+    /**
      * Determine whether the user can delete the invoice.
      * 
      * Requirements: 11.1, 13.3

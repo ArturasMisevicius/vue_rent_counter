@@ -12,7 +12,6 @@ use App\Models\Tariff;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\BillingService;
-use App\Services\GyvatukasCalculator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use function Pest\Laravel\actingAs;
 
@@ -501,38 +500,6 @@ test('property types receive appropriate tariffs', function () {
     expect($apartment->type->value)->toBe('apartment');
     expect($house->type->value)->toBe('house');
     expect($apartment->type->value)->not->toBe($house->type->value);
-})->repeat(100);
-
-// Feature: vilnius-utilities-billing, Property 12: Summer gyvatukas calculation formula
-// Validates: Requirements 4.1, 4.3
-test('summer gyvatukas follows calculation formula', function () {
-    // Property: Q_circ = Q_total - (V_water × c × ΔT)
-    // This is a placeholder test - actual implementation would require GyvatukasCalculator
-    $Q_total = fake()->randomFloat(2, 1000, 5000);
-    $V_water = fake()->randomFloat(2, 10, 100);
-    $c = 4.18; // Specific heat capacity of water
-    $deltaT = 50; // Temperature difference
-    
-    $Q_circ = $Q_total - ($V_water * $c * $deltaT);
-    
-    // Verify calculation is mathematically correct
-    expect($Q_circ)->toBeLessThan($Q_total);
-})->repeat(100);
-
-// Feature: vilnius-utilities-billing, Property 13: Winter gyvatukas norm application
-// Validates: Requirements 4.2
-test('winter gyvatukas uses stored summer average', function () {
-    $tenantId = fake()->numberBetween(1, 1000);
-    session(['tenant_id' => $tenantId]);
-    
-    // Property: Winter calculation should use stored summer average
-    $building = Building::factory()->create([
-        'tenant_id' => $tenantId,
-        'gyvatukas_summer_average' => fake()->randomFloat(2, 100, 500),
-    ]);
-    
-    expect($building->gyvatukas_summer_average)->not->toBeNull();
-    expect($building->gyvatukas_summer_average)->toBeGreaterThan(0);
 })->repeat(100);
 
 // Feature: vilnius-utilities-billing, Property 14: Circulation cost distribution

@@ -539,7 +539,7 @@ public function building(): HasOneThrough
 
 // Usage
 $tenant->building; // Direct access to building
-$tenant->building->gyvatukas_summer_average;
+$tenant->building->hot water circulation_summer_average;
 ```
 
 ### Invoice → Property (through Tenant)

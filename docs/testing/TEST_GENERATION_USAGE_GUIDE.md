@@ -129,9 +129,9 @@ trait CustomTestHelpers
         // Custom billing assertions
     }
     
-    protected function assertGyvatukasCalculation(Property $property): void
+    protected function asserthot water circulationCalculation(Property $property): void
     {
-        // Custom gyvatukas assertions
+        // Custom hot water circulation assertions
     }
 }
 ```
@@ -256,10 +256,10 @@ it('calculates billing correctly for multi-zone tariffs', function () {
     // Custom billing logic tests
 });
 
-it('handles gyvatukas calculation for summer period', function () {
+it('handles hot water circulation calculation for summer period', function () {
     $property = Property::factory()->create();
     
-    // Custom gyvatukas tests
+    // Custom hot water circulation tests
 });
 ```
 

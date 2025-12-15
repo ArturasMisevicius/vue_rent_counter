@@ -8,6 +8,7 @@ use App\Filament\Resources\UserResource;
 use Filament\Actions;
 use Filament\Infolists\Components;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class ViewUser extends ViewRecord
@@ -26,7 +27,7 @@ class ViewUser extends ViewRecord
     {
         return $schema
             ->schema([
-                Components\Section::make(__('users.sections.user_details'))
+                Section::make(__('users.sections.user_details'))
                     ->schema([
                         Components\TextEntry::make('name')
                             ->label(__('users.labels.name'))
@@ -41,7 +42,7 @@ class ViewUser extends ViewRecord
                     ])
                     ->columns(2),
 
-                Components\Section::make(__('users.sections.role_and_access'))
+                Section::make(__('users.sections.role_and_access'))
                     ->schema([
                         Components\TextEntry::make('role')
                             ->label(__('users.labels.role'))
@@ -65,7 +66,7 @@ class ViewUser extends ViewRecord
                     ])
                     ->columns(3),
 
-                Components\Section::make(__('app.common.metadata'))
+                Section::make(__('app.common.metadata'))
                     ->schema([
                         Components\TextEntry::make('created_at')
                             ->label(__('app.common.created_at'))

@@ -100,7 +100,7 @@ return new class extends Migration
 $property = $tenant->load([
     'property' => function ($query) use ($billingPeriod) {
         $query->with([
-            'building', // For gyvatukas calculations
+            'building', // For hot water circulation calculations
             'meters' => function ($meterQuery) use ($billingPeriod) {
                 $meterQuery->with(['readings' => function ($readingQuery) use ($billingPeriod) {
                     // ±7 day buffer ensures boundary readings captured
@@ -167,7 +167,7 @@ private array $configCache = [];
 
 public function __construct(
     private readonly TariffResolver $tariffResolver,
-    private readonly GyvatukasCalculator $gyvatukasCalculator
+    private readonly hot water circulationCalculator $hot water circulationCalculator
 ) {
     // Pre-cache frequently accessed config values
     $this->configCache = [

@@ -3,13 +3,16 @@
 namespace App\Filament\Resources;
 
 
+use BackedEnum;
 use App\Enums\SubscriptionPlanType;
 use App\Enums\SubscriptionStatus;
 use App\Filament\Resources\SubscriptionResource\Pages;
 use App\Models\Subscription;
+use App\Models\User;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -95,7 +98,8 @@ class SubscriptionResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('user_id')
                             ->label(__('subscriptions.labels.organization'))
-                            ->relationship('user', 'organization_name')
+                            ->relationship('user', 'email')
+                            ->getOptionLabelFromRecordUsing(fn (User $record): string => $record->organization_name ?: $record->email)
                             ->searchable()
                             ->preload()
                             ->required()
@@ -107,15 +111,18 @@ class SubscriptionResource extends Resource
                             ->required()
                             ->default(SubscriptionPlanType::BASIC->value)
                             ->live()
-                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                            ->afterStateUpdated(function ($state, Set $set) {
                                 $plan = $state instanceof BackedEnum ? $state->value : $state;
                                 $limits = [
                                     SubscriptionPlanType::BASIC->value => ['properties' => 100, 'tenants' => 50],
                                     SubscriptionPlanType::PROFESSIONAL->value => ['properties' => 500, 'tenants' => 250],
                                     SubscriptionPlanType::ENTERPRISE->value => ['properties' => 9999, 'tenants' => 9999],
                                 ];
-                                $set('max_properties', $limits[$plan]['properties']);
-                                $set('max_tenants', $limits[$plan]['tenants']);
+
+                                $planLimits = $limits[$plan] ?? $limits[SubscriptionPlanType::BASIC->value];
+
+                                $set('max_properties', $planLimits['properties']);
+                                $set('max_tenants', $planLimits['tenants']);
                             }),
                         
                         Forms\Components\Select::make('status')

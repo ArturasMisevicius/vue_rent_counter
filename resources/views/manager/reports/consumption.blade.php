@@ -15,7 +15,7 @@
                 <input type="hidden" name="end_date" value="{{ $endDate }}">
                 <input type="hidden" name="property_id" value="{{ request('property_id') }}">
                 <input type="hidden" name="building_id" value="{{ $buildingId }}">
-                <input type="hidden" name="meter_type" value="{{ $meterType }}">
+                <input type="hidden" name="service" value="{{ $serviceFilter }}">
                 <x-button type="submit" variant="secondary">
                     <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
@@ -60,11 +60,11 @@
                 />
 
                 <x-form-select
-                    name="meter_type"
-                    label="{{ __('reports.common.meter_type') }}"
-                    :options="collect($meterTypes)->mapWithKeys(fn($type) => [$type->value => enum_label($type)])->toArray()"
-                    :selected="$meterType"
-                    placeholder="{{ __('reports.common.all_types') }}"
+                    name="service"
+                    label="{{ __('meter_readings.tenant.filters.service') }}"
+                    :options="$serviceFilterOptions"
+                    :selected="$serviceFilter"
+                    placeholder="{{ __('meter_readings.tenant.filters.all_services') }}"
                 />
 
                 <div class="flex items-end">
@@ -85,7 +85,12 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5m.75-9l3-3 2.148 2.148A12.061 12.061 0 0116.5 7.605" />
                 </svg>
             </x-slot>
-            <x-slot name="label">{{ enum_label($type, \App\Enums\MeterType::class) }}</x-slot>
+            <x-slot name="label">
+                {{ $data['label'] ?? $type }}
+                @if(!empty($data['unit']))
+                    <span class="text-xs text-slate-400">({{ $data['unit'] }})</span>
+                @endif
+            </x-slot>
             <x-slot name="value">{{ number_format($data['total'], 2) }}</x-slot>
             <x-slot name="change">{{ trans_choice('reports.common.readings_count', $data['count'], ['count' => $data['count']]) }}</x-slot>
         </x-stat-card>
@@ -186,7 +191,7 @@
                         <tr>
                             <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">{{ __('meter_readings.tables.date') }}</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.meter') }}</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meters.labels.type') }}</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tenant.filters.service') }}</th>
                             <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.value') }}</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.zone') }}</th>
                         </tr>
@@ -201,7 +206,8 @@
                             {{ $reading->meter->serial_number }}
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                            <span class="capitalize">{{ enum_label($reading->meter->type) }}</span>
+                            {{ $reading->meter->getServiceDisplayName() }}
+                            <span class="text-xs text-slate-400">({{ $reading->meter->getUnitOfMeasurement() }})</span>
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-900 text-right">
                             {{ number_format($reading->value, 2) }}
@@ -218,7 +224,7 @@
                     <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                         <div class="flex items-center justify-between">
                             <p class="text-sm font-semibold text-slate-900">{{ $reading->reading_date->format('M d, Y') }}</p>
-                            <p class="text-xs font-semibold text-slate-500 capitalize">{{ enum_label($reading->meter->type) }}</p>
+                            <p class="text-xs font-semibold text-slate-500">{{ $reading->meter->getServiceDisplayName() }}</p>
                         </div>
                         <p class="text-xs text-slate-600">{{ __('meters.labels.meter') }}: {{ $reading->meter->serial_number }}</p>
                         <p class="text-xs text-slate-600">{{ __('meter_readings.labels.value') }}: <span class="font-semibold text-slate-900">{{ number_format($reading->value, 2) }}</span></p>

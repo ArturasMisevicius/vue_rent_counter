@@ -142,7 +142,7 @@ class InvoiceResourceTest extends TestCase
 
         // Create tariff
         $provider = Provider::where('service_type', ServiceType::ELECTRICITY)->first();
-        Tariff::factory()->create([
+        $tariff = Tariff::factory()->create([
             'provider_id' => $provider->id,
             'configuration' => [
                 'type' => 'flat',
@@ -156,6 +156,17 @@ class InvoiceResourceTest extends TestCase
         // Create meter readings
         $periodStart = Carbon::parse('2024-01-01');
         $periodEnd = Carbon::parse('2024-02-01');
+
+        $this->attachConsumptionServiceToMeter(
+            meter: $meter,
+            serviceName: 'Electricity',
+            unitOfMeasurement: 'kWh',
+            unitRate: 0.20,
+            bridgeType: ServiceType::ELECTRICITY,
+            effectiveFrom: $periodStart->copy()->subMonth(),
+            providerId: $provider->id,
+            tariffId: $tariff->id,
+        );
 
         MeterReading::factory()->create([
             'tenant_id' => 1,

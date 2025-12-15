@@ -9,7 +9,6 @@ use App\Filament\Resources\FaqResource\Pages;
 use App\Models\Faq;
 use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
@@ -82,7 +81,7 @@ class FaqResource extends Resource
             return false;
         }
 
-        return in_array($user->role, [UserRole::ADMIN, UserRole::SUPERADMIN], true);
+        return $user->role === UserRole::SUPERADMIN;
     }
 
     /**
@@ -190,22 +189,19 @@ class FaqResource extends Resource
                             ->hint(__('faq.hints.html_sanitized'))
                             ->columnSpanFull(),
 
-                        Grid::make(2)
-                            ->schema([
-                                TextInput::make('display_order')
-                                    ->numeric()
-                                    ->default(0)
-                                    ->minValue(0)
-                                    ->maxValue(config('faq.validation.display_order_max', 9999))
-                                    ->label(__('faq.labels.display_order'))
-                                    ->helperText(__('faq.helper_text.order')),
+                        TextInput::make('display_order')
+                            ->numeric()
+                            ->default(0)
+                            ->minValue(0)
+                            ->maxValue(config('faq.validation.display_order_max', 9999))
+                            ->label(__('faq.labels.display_order'))
+                            ->helperText(__('faq.helper_text.order')),
 
-                                Toggle::make('is_published')
-                                    ->label(__('faq.labels.published'))
-                                    ->default(true)
-                                    ->inline(false)
-                                    ->helperText(__('faq.helper_text.published')),
-                            ]),
+                        Toggle::make('is_published')
+                            ->label(__('faq.labels.published'))
+                            ->default(true)
+                            ->inline(false)
+                            ->helperText(__('faq.helper_text.published')),
                     ])
                     ->columns(2),
             ]);

@@ -42,7 +42,7 @@ Comprehensive database indexing migration that adds missing indexes across all t
 
 ### Buildings Table
 - `buildings_created_at_index` - Sorting by creation date
-- `buildings_gyvatukas_index` - Gyvatukas calculation tracking
+- `buildings_hot water circulation_index` - hot water circulation calculation tracking
 
 ### Properties Table
 - `properties_created_at_index` - Sorting by creation date

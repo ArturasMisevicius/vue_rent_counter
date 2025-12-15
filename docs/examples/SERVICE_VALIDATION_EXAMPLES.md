@@ -658,9 +658,9 @@ class ServiceValidationEngineTest extends TestCase
 ```php
 class ValidationIntegrationTest extends TestCase
 {
-    public function test_validation_integrates_with_gyvatukas_system()
+    public function test_validation_integrates_with_hot water circulation_system()
     {
-        // Create heating service configuration (gyvatukas compatible)
+        // Create heating service configuration (hot water circulation compatible)
         $heatingService = UtilityService::factory()->create([
             'service_type_bridge' => ServiceType::HEATING,
             'name' => 'Heating Service',
@@ -682,11 +682,11 @@ class ValidationIntegrationTest extends TestCase
         // Validate using universal system
         $universalResult = $this->validator->validateMeterReading($reading, $config);
 
-        // Ensure gyvatukas integration works
+        // Ensure hot water circulation integration works
         $this->assertTrue($universalResult['is_valid']);
         $this->assertArrayHasKey('validation_metadata', $universalResult);
         
-        // Check that seasonal validation was applied (gyvatukas feature)
+        // Check that seasonal validation was applied (hot water circulation feature)
         $metadata = $universalResult['validation_metadata'];
         $this->assertContains('seasonal', $metadata['validators_applied'] ?? []);
     }

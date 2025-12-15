@@ -159,7 +159,7 @@ $invoice = $billingService->generateInvoice($tenant, $period->start, $period->en
 **Coverage**:
 - ✅ Invoice generation with all meter types
 - ✅ Multi-zone meter handling (day/night electricity)
-- ✅ Gyvatukas integration
+- ✅ hot water circulation integration
 - ✅ Water fixed fee calculation
 - ✅ Missing meter reading handling
 - ✅ Exception scenarios
@@ -365,7 +365,7 @@ All operations logged with structured context:
 
 1. **Caching Layer**
    - Cache tariff resolutions
-   - Cache gyvatukas calculations
+   - Cache hot water circulation calculations
    - Reduce database load
 
 2. **Batch Processing**

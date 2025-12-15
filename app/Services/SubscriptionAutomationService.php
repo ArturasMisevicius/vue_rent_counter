@@ -266,11 +266,13 @@ class SubscriptionAutomationService
      */
     protected function calculateNewExpiryDate(Carbon $currentExpiry, string $renewalPeriod): Carbon
     {
+        $baseExpiry = $currentExpiry->copy();
+
         return match ($renewalPeriod) {
-            'monthly' => $currentExpiry->addMonth(),
-            'quarterly' => $currentExpiry->addMonths(3),
-            'annually' => $currentExpiry->addYear(),
-            default => $currentExpiry->addYear()
+            'monthly' => $baseExpiry->addMonth(),
+            'quarterly' => $baseExpiry->addMonths(3),
+            'annually' => $baseExpiry->addYear(),
+            default => $baseExpiry->addYear()
         };
     }
 
@@ -286,7 +288,10 @@ class SubscriptionAutomationService
     {
         $oldExpiry = $subscription->getOriginal('expires_at');
         $newExpiry = $subscription->expires_at;
-        $durationDays = $oldExpiry ? $newExpiry->diffInDays($oldExpiry) : 0;
+
+        $durationDays = $oldExpiry
+            ? (int) Carbon::parse($oldExpiry)->diffInDays($newExpiry, true)
+            : 0;
 
         // Create renewal history record
         \App\Models\SubscriptionRenewal::create([

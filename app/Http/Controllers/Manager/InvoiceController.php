@@ -241,11 +241,11 @@ class InvoiceController extends Controller
      */
     public function destroy(Invoice $invoice): RedirectResponse
     {
-        $this->authorize('delete', $invoice);
-
         if (!$invoice->isDraft()) {
             return back()->with('error', __('invoices.errors.delete_draft_only'));
         }
+
+        $this->authorize('delete', $invoice);
 
         $invoice->delete();
 

@@ -159,7 +159,7 @@ private function auditInvoiceGeneration(
         'items_count' => $invoice->items()->count(),
         'metadata' => [
             'meters_processed' => $invoice->items()->distinct('meter_id')->count(),
-            'gyvatukas_included' => $invoice->items()->where('description', 'like', '%Gyvatukas%')->exists(),
+            'hot water circulation_included' => $invoice->items()->where('description', 'like', '%hot water circulation%')->exists(),
         ],
         'execution_time_ms' => $executionTime,
         'query_count' => $queryCount,

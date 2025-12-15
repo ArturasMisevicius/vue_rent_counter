@@ -56,7 +56,6 @@ return [
             'driver' => 'stack',
             'channels' => explode(',', env('LOG_STACK', 'single')),
             'ignore_exceptions' => false,
-            'processors' => [\App\Logging\RedactSensitiveData::class],
         ],
 
         'single' => [
@@ -64,7 +63,7 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
-            'processors' => [\App\Logging\RedactSensitiveData::class],
+            'tap' => [\App\Logging\Tap\RedactSensitiveDataTap::class],
         ],
 
         'daily' => [
@@ -73,7 +72,7 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,
-            'processors' => [\App\Logging\RedactSensitiveData::class],
+            'tap' => [\App\Logging\Tap\RedactSensitiveDataTap::class],
         ],
 
         'slack' => [
@@ -137,7 +136,7 @@ return [
             'days' => 90,
             'replace_placeholders' => true,
             'permission' => 0640, // Restricted access for security
-            'processors' => [\App\Logging\RedactSensitiveData::class],
+            'tap' => [\App\Logging\Tap\RedactSensitiveDataTap::class],
         ],
 
         'security' => [
@@ -146,8 +145,18 @@ return [
             'level' => 'warning',
             'days' => 90,
             'permission' => 0640, // Restricted access for security
-            'processors' => [\App\Logging\RedactSensitiveData::class],
             'replace_placeholders' => true,
+            'tap' => [\App\Logging\Tap\RedactSensitiveDataTap::class],
+        ],
+
+        'services' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/services.log'),
+            'level' => env('LOG_SERVICES_LEVEL', 'info'),
+            'days' => env('LOG_SERVICES_DAYS', 14),
+            'permission' => 0640, // Restricted access for security
+            'replace_placeholders' => true,
+            'tap' => [\App\Logging\Tap\RedactSensitiveDataTap::class],
         ],
 
     ],

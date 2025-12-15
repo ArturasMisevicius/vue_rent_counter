@@ -188,6 +188,13 @@ class ServiceConfiguration extends Model
     /**
      * Get the effective rate schedule for a given date and time.
      */
+    /**
+     * Get the effective rate for a given date/time and zone.
+     * 
+     * @param Carbon|null $dateTime The date/time to get rate for (defaults to now)
+     * @param string|null $zone The zone (e.g., 'day', 'night') for time-of-use rates
+     * @return float|null The effective rate or null if not found
+     */
     public function getEffectiveRate(Carbon $dateTime = null, ?string $zone = null): ?float
     {
         $dateTime = $dateTime ?? now();

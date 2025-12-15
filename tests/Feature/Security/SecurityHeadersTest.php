@@ -48,7 +48,7 @@ test('subscription middleware enforces checks on protected routes', function () 
     
     $this->actingAs($admin)
         ->get(route('admin.dashboard'))
-        ->assertSessionHas('error');
+        ->assertSessionHas('warning');
 });
 
 test('security headers are present on all routes', function () {

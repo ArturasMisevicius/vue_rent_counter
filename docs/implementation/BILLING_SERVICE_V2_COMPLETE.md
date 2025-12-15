@@ -46,9 +46,9 @@ Automatically handles day/night electricity meters with separate invoice items p
 
 Automatically calculates supply + sewage + fixed fee according to Lithuanian regulations.
 
-### 4. Gyvatukas Integration
+### 4. hot water circulation Integration
 
-Seamlessly integrates with `GyvatukasCalculator` for hot water circulation fees.
+Seamlessly integrates with `hot water circulationCalculator` for hot water circulation fees.
 
 ### 5. Graceful Error Handling
 
@@ -125,7 +125,7 @@ All operations logged with full context for monitoring and debugging.
 2. Invoice generation with multiple meters
 3. Multi-zone meter handling
 4. Water billing (supply + sewage + fixed fee)
-5. Gyvatukas integration
+5. hot water circulation integration
 6. Missing meter readings handling
 7. Invoice finalization
 8. Error scenarios
@@ -315,7 +315,7 @@ Total: 3 queries (constant)
 
 ### Related Services
 - [TariffResolver Implementation](TARIFF_RESOLVER_IMPLEMENTATION.md)
-- [GyvatukasCalculator Implementation](GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
+- [hot water circulationCalculator Implementation](hot water circulation_CALCULATOR_IMPLEMENTATION.md)
 
 ### Project Docs
 - [CHANGELOG.md](../CHANGELOG.md)

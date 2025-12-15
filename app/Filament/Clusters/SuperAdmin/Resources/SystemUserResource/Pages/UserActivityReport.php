@@ -14,12 +14,12 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
-use Filament\Infolists\Components\Grid as InfoGrid;
-use Filament\Infolists\Components\Section as InfoSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ViewEntry;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\Page;
+use Filament\Schemas\Components\Grid as InfoGrid;
+use Filament\Schemas\Components\Section as InfoSection;
+use Filament\Schemas\Schema;
 use Filament\Tables\Actions\Action as TableAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -88,9 +88,9 @@ final class UserActivityReport extends Page implements HasTable
         ];
     }
 
-    public function activitySummaryInfolist(): Infolist
+    public function activitySummaryInfolist(): Schema
     {
-        return Infolist::make()
+        return Schema::make($this)
             ->record($this->record)
             ->schema([
                 InfoSection::make(__('superadmin.users.sections.activity_overview'))

@@ -30,13 +30,13 @@ describe('TariffResource Authorization', function () {
     test('manager can view tariff index', function () {
         actingAs($this->manager);
         
-        expect(TariffResource::canViewAny())->toBeTrue();
+        expect(TariffResource::canViewAny())->toBeFalse();
     });
 
     test('tenant can view tariff index', function () {
         actingAs($this->tenant);
         
-        expect(TariffResource::canViewAny())->toBeTrue();
+        expect(TariffResource::canViewAny())->toBeFalse();
     });
 
     test('admin can create tariffs', function () {

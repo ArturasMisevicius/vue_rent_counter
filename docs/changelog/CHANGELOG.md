@@ -9,14 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-#### GyvatukasCalculator Syntax Error Fix (2024-12-13)
+#### hot water circulationCalculator Syntax Error Fix (2024-12-13)
 
 **Summary**: Fixed syntax error in `DEFAULT_CIRCULATION_RATE` constant that was preventing proper service initialization.
 
 **Issue**: 
 - Malformed constant declaration: `private const DEFAULT_CIRCULATION_RATE = 1.0;5.0;`
 - Caused PHP parse error during service instantiation
-- Prevented gyvatukas calculations from executing
+- Prevented hot water circulation calculations from executing
 
 **Fix**:
 - Corrected constant to: `private const DEFAULT_CIRCULATION_RATE = 15.0;`
@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ Configuration-driven rate still takes precedence
 
 **Files Modified**:
-- `app/Services/GyvatukasCalculator.php` - Fixed constant syntax
+- `app/Services/hot water circulationCalculator.php` - Fixed constant syntax
 - Enhanced inline documentation with usage examples
 - Added comprehensive method documentation with calculation formulas
 
@@ -49,10 +49,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Created usage examples and integration patterns
 
 **Related Components**:
-- `app/Contracts/GyvatukasCalculatorInterface.php` - Enhanced documentation
-- `config/gyvatukas.php` - Configuration reference
+- `app/Contracts/hot water circulationCalculatorInterface.php` - Enhanced documentation
+- `config/hot water circulation.php` - Configuration reference
 - `app/ValueObjects/SummerPeriod.php` - Related value object
-- `tests/Unit/Services/GyvatukasCalculatorTest.php` - Test coverage
+- `tests/Unit/Services/hot water circulationCalculatorTest.php` - Test coverage
 
 **Risk Assessment**:
 - **Before Fix**: CRITICAL - Service unusable due to syntax error

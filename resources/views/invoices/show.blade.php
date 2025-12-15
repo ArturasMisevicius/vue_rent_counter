@@ -32,8 +32,9 @@
                 </button>
             </form>
         @elseif($invoice->isFinalized())
-            <form action="{{ route('invoices.mark-paid', $invoice) }}" method="POST" class="inline">
+            <form action="{{ route('invoices.process-payment', $invoice) }}" method="POST" class="inline">
                 @csrf
+                <input type="hidden" name="amount" value="{{ $invoice->total_amount }}">
                 <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
                     Mark as Paid
                 </button>
@@ -41,12 +42,14 @@
             <a href="{{ route('invoices.pdf', $invoice) }}" class="px-4 py-2 bg-slate-600 text-white rounded hover:bg-slate-700">
                 {{ $invoice->isPaid() ? 'Download Receipt (PDF)' : 'Download PDF' }}
             </a>
-            <form action="{{ route('invoices.send', $invoice) }}" method="POST" class="inline">
-                @csrf
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                    Send to Tenant
-                </button>
-            </form>
+            @if(Route::has('invoices.send'))
+                <form action="{{ route('invoices.send', $invoice) }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        Send to Tenant
+                    </button>
+                </form>
+            @endif
         @endif
     </div>
 </div>

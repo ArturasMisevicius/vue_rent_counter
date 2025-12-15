@@ -2,7 +2,7 @@
 
 ## Summary
 
-Successfully enhanced the `DistributionMethod` enum to support universal utility management while maintaining full backward compatibility with existing gyvatukas functionality.
+Successfully enhanced the `DistributionMethod` enum to support universal utility management while maintaining full backward compatibility with existing hot water circulation functionality.
 
 ## Changes Made
 
@@ -103,22 +103,22 @@ Successfully enhanced the `DistributionMethod` enum to support universal utility
 ✅ **Fully Maintained:**
 - Existing EQUAL and AREA cases unchanged
 - requiresAreaData() method behavior preserved
-- All existing gyvatukas functionality intact
+- All existing hot water circulation functionality intact
 - No breaking changes to existing code
 
 ## Integration Points
 
 ### Current Usage
 The `DistributionMethod` enum is currently used in:
-- `GyvatukasCalculator` service for circulation cost distribution
-- Building models for gyvatukas calculation configuration
+- `hot water circulationCalculator` service for circulation cost distribution
+- Building models for hot water circulation calculation configuration
 - Filament resources for distribution method selection
 
 ### Future Usage (Universal Utility Management)
 Will be used in:
 - `UniversalBillingCalculator` for flexible cost distribution
 - `ServiceConfiguration` model for property-specific distribution rules
-- Enhanced `GyvatukasCalculator` with consumption-based allocation
+- Enhanced `hot water circulationCalculator` with consumption-based allocation
 - Filament resources for universal service configuration
 
 ## Performance Considerations
@@ -198,7 +198,7 @@ Duration: 4.91s
 
 ### Upcoming (Universal Utility Management)
 1. Create `UniversalBillingCalculator` service (Task 2.3)
-2. Enhance `GyvatukasCalculator` distribution methods (Task 2.4)
+2. Enhance `hot water circulationCalculator` distribution methods (Task 2.4)
 3. Implement consumption-based allocation logic
 4. Add custom formula parsing and evaluation
 
@@ -255,7 +255,7 @@ Duration: 4.91s
 
 ## Conclusion
 
-The `DistributionMethod` enum has been successfully enhanced to support universal utility management while maintaining 100% backward compatibility with existing gyvatukas functionality. All tests pass, translations are complete, and the code is production-ready.
+The `DistributionMethod` enum has been successfully enhanced to support universal utility management while maintaining 100% backward compatibility with existing hot water circulation functionality. All tests pass, translations are complete, and the code is production-ready.
 
 ---
 

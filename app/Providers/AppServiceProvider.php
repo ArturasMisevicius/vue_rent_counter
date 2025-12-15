@@ -28,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Organization::class => \App\Policies\OrganizationPolicy::class,
         \App\Models\OrganizationActivityLog::class => \App\Policies\OrganizationActivityLogPolicy::class,
         \App\Models\Subscription::class => \App\Policies\SubscriptionPolicy::class,
+        \App\Models\ServiceConfiguration::class => \App\Policies\ServiceConfigurationPolicy::class,
+        \App\Models\Tenant::class => \App\Policies\TenantPolicy::class,
         \App\Models\Faq::class => \App\Policies\FaqPolicy::class,
         \App\Models\Language::class => \App\Policies\LanguagePolicy::class,
         // Note: PlatformUserPolicy is used for cross-organization user management
@@ -185,6 +187,11 @@ class AppServiceProvider extends ServiceProvider
             class_alias(\Filament\Actions\ViewAction::class, \Filament\Tables\Actions\ViewAction::class);
         }
 
+        if (! class_exists(\Filament\Tables\Actions\Action::class) &&
+            class_exists(\Filament\Actions\Action::class)) {
+            class_alias(\Filament\Actions\Action::class, \Filament\Tables\Actions\Action::class);
+        }
+
         if (! class_exists(\Filament\Tables\Actions\BulkAction::class) &&
             class_exists(\Filament\Actions\BulkAction::class)) {
             class_alias(\Filament\Actions\BulkAction::class, \Filament\Tables\Actions\BulkAction::class);
@@ -217,6 +224,17 @@ class AppServiceProvider extends ServiceProvider
         // Prevents brute force attacks and DoS attempts
         \Illuminate\Support\Facades\RateLimiter::for('admin', function (\Illuminate\Http\Request $request) {
             return \Illuminate\Cache\RateLimiting\Limit::perMinute(120)
+                ->by($request->user()?->id ?: $request->ip())
+                ->response(function () {
+                    return response()->json([
+                        'message' => 'Too many requests. Please try again later.'
+                    ], 429);
+                });
+        });
+
+        // Rate limiting for API routes (60 requests per minute per user)
+        \Illuminate\Support\Facades\RateLimiter::for('api', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(60)
                 ->by($request->user()?->id ?: $request->ip())
                 ->response(function () {
                     return response()->json([

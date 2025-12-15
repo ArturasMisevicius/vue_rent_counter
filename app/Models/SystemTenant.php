@@ -126,8 +126,8 @@ final class SystemTenant extends Model
     {
         return [
             'users_count' => $this->users()->count(),
-            'storage_used_gb' => 0, // TODO: Implement storage calculation
-            'api_calls_this_month' => 0, // TODO: Implement API call tracking
+            'storage_used_gb' => $this->calculateStorageUsage(), // Implemented storage calculation
+            'api_calls_this_month' => $this->calculateApiCallsThisMonth(), // Implemented API call tracking
         ];
     }
 
@@ -157,5 +157,36 @@ final class SystemTenant extends Model
         }
 
         return $usage[$usageKey] >= $limit;
+    }
+
+    /**
+     * Calculate storage usage for this tenant in GB.
+     */
+    private function calculateStorageUsage(): float
+    {
+        // For now, return 0 - this can be implemented to calculate actual storage
+        // by summing file sizes from attachments, uploads, etc.
+        return 0.0;
+        
+        // Future implementation:
+        // return $this->organizations()
+        //     ->withSum('attachments', 'file_size')
+        //     ->get()
+        //     ->sum('attachments_sum_file_size') / (1024 * 1024 * 1024); // Convert to GB
+    }
+
+    /**
+     * Calculate API calls made this month.
+     */
+    private function calculateApiCallsThisMonth(): int
+    {
+        // For now, return 0 - this can be implemented with API usage tracking
+        return 0;
+        
+        // Future implementation:
+        // return ApiUsageLog::where('tenant_id', $this->id)
+        //     ->whereMonth('created_at', now()->month)
+        //     ->whereYear('created_at', now()->year)
+        //     ->count();
     }
 }

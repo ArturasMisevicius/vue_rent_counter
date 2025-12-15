@@ -6,6 +6,7 @@ use App\Models\Provider;
 use App\Models\Tariff;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -57,7 +58,7 @@ test('Filament TariffResource persists flat rate configuration as valid JSON', f
     expect($tariff)->not->toBeNull('Tariff should be created');
     
     // Get the raw JSON from database
-    $rawJson = \DB::table('tariffs')
+    $rawJson = DB::table('tariffs')
         ->where('id', $tariff->id)
         ->value('configuration');
     
@@ -150,26 +151,15 @@ test('Filament TariffResource persists time-of-use configuration as valid JSON',
         'active_until' => $testData['active_until'],
     ]);
     
-    try {
-        $component->call('create');
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        // If validation fails due to time range issues, skip this iteration
-        // This is expected as we're generating random time ranges
-        expect(true)->toBeTrue();
-        return;
-    }
+    $component->call('create');
     
     // Property: The saved tariff should have valid JSON in configuration column
     $tariff = Tariff::where('name', $testData['name'])->first();
     
-    if ($tariff === null) {
-        // Tariff creation failed due to validation, which is acceptable
-        expect(true)->toBeTrue();
-        return;
-    }
+    expect($tariff)->not->toBeNull('Tariff should be created');
     
     // Get the raw JSON from database
-    $rawJson = \DB::table('tariffs')
+    $rawJson = DB::table('tariffs')
         ->where('id', $tariff->id)
         ->value('configuration');
     
@@ -260,7 +250,7 @@ test('Filament TariffResource persists optional configuration fields as valid JS
     expect($tariff)->not->toBeNull('Tariff should be created');
     
     // Get the raw JSON from database
-    $rawJson = \DB::table('tariffs')
+    $rawJson = DB::table('tariffs')
         ->where('id', $tariff->id)
         ->value('configuration');
     
@@ -332,7 +322,7 @@ test('Filament TariffResource can update tariff configuration and maintain valid
     $tariff->refresh();
     
     // Get the raw JSON from database
-    $rawJson = \DB::table('tariffs')
+    $rawJson = DB::table('tariffs')
         ->where('id', $tariff->id)
         ->value('configuration');
     

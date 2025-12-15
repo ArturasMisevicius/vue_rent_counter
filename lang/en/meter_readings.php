@@ -166,11 +166,15 @@ return [
             'title' => 'Title',
         ],
         'filters' => [
+            'all_services' => 'All Services',
             'all_types' => 'All Types',
             'date_from' => 'Date From',
             'date_to' => 'Date To',
             'description' => 'Description',
+            'legacy_group' => 'Legacy meter types',
             'meter_type' => 'Meter Type',
+            'service' => 'Service',
+            'services_group' => 'Services',
             'title' => 'Title',
         ],
         'submit' => [

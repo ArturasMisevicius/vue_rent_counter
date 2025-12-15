@@ -139,9 +139,7 @@ class SuperadminFilamentResourcesTest extends TestCase
         Livewire::actingAs($this->superadmin)
             ->test(OrganizationResource\Pages\ListOrganizations::class)
             ->sortTable('name')
-            ->assertCanSeeTableRecords([
-                Organization::orderBy('name')->get()
-            ], inOrder: true);
+            ->assertCanSeeTableRecords(Organization::orderBy('name')->get(), inOrder: true);
     }
 
     /** @test */
@@ -153,8 +151,7 @@ class SuperadminFilamentResourcesTest extends TestCase
 
         Livewire::actingAs($this->superadmin)
             ->test(OrganizationResource\Pages\ListOrganizations::class)
-            ->selectTableRecords($organizations->pluck('id')->toArray())
-            ->callTableBulkAction('suspend', data: [
+            ->callTableBulkAction('bulk_suspend', $organizations->pluck('id')->toArray(), data: [
                 'reason' => 'Bulk suspension test'
             ]);
 
@@ -268,9 +265,8 @@ class SuperadminFilamentResourcesTest extends TestCase
 
         Livewire::actingAs($this->superadmin)
             ->test(SubscriptionResource\Pages\ListSubscriptions::class)
-            ->selectTableRecords($subscriptions->pluck('id')->toArray())
-            ->callTableBulkAction('bulkRenew', data: [
-                'duration' => 'annually'
+            ->callTableBulkAction('bulk_renew', $subscriptions->pluck('id')->toArray(), data: [
+                'duration' => '1_year'
             ]);
 
         // Verify all subscriptions are renewed

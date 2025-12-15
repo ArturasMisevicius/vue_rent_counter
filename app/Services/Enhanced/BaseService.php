@@ -111,12 +111,6 @@ abstract class BaseService
      */
     protected function success(mixed $data = null, string $message = '', array $metadata = []): ServiceResponse
     {
-        $response = new ServiceResponse(
-            success: true,
-            data: $data,
-            message: $message
-        );
-
         // Add performance metrics if available
         if (!empty($this->performanceMetrics)) {
             $metadata['performance'] = $this->performanceMetrics;
@@ -127,11 +121,12 @@ abstract class BaseService
             $metadata['tenant_id'] = $tenantId;
         }
 
-        if (!empty($metadata)) {
-            $response->metadata = $metadata;
-        }
-
-        return $response;
+        return new ServiceResponse(
+            success: true,
+            data: $data,
+            message: $message,
+            metadata: $metadata
+        );
     }
 
     /**
@@ -149,13 +144,6 @@ abstract class BaseService
         int $code = 0, 
         array $metadata = []
     ): ServiceResponse {
-        $response = new ServiceResponse(
-            success: false,
-            data: $data,
-            message: $message,
-            code: $code
-        );
-
         // Add error context
         $metadata['error_context'] = [
             'service' => static::class,
@@ -163,11 +151,13 @@ abstract class BaseService
             'request_id' => request()->header('X-Request-ID', uniqid('req_')),
         ];
 
-        if (!empty($metadata)) {
-            $response->metadata = $metadata;
-        }
-
-        return $response;
+        return new ServiceResponse(
+            success: false,
+            data: $data,
+            message: $message,
+            code: $code,
+            metadata: $metadata
+        );
     }
 
     /**

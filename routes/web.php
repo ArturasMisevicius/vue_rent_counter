@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\PropertyController as AdminPropertyController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\ProviderController as AdminProviderController;
 use App\Http\Controllers\Admin\TariffController as AdminTariffController;
@@ -16,9 +17,12 @@ use App\Http\Controllers\Superadmin\OrganizationController as SuperadminOrganiza
 use App\Http\Controllers\Superadmin\TenantController as SuperadminTenantController;
 use App\Http\Controllers\Superadmin\ManagerController as SuperadminManagerController;
 use App\Http\Controllers\Superadmin\SubscriptionController as SuperadminSubscriptionController;
+use App\Http\Controllers\Superadmin\InvitationController as SuperadminInvitationController;
+use App\Http\Controllers\Superadmin\UserController as SuperadminUserController;
 use App\Http\Controllers\Superadmin\ProfileController as SuperadminProfileController;
 use App\Http\Controllers\Superadmin\BuildingController as SuperadminBuildingController;
 use App\Http\Controllers\Superadmin\PropertyController as SuperadminPropertyController;
+use App\Http\Controllers\InvitationAcceptanceController;
 use App\Http\Controllers\Manager\BuildingController as ManagerBuildingController;
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
 use App\Http\Controllers\Manager\InvoiceController as ManagerInvoiceController;
@@ -35,6 +39,7 @@ use App\Http\Controllers\Tenant\MeterController as TenantMeterController;
 use App\Http\Controllers\Tenant\MeterReadingController as TenantMeterReadingController;
 use App\Http\Controllers\MeterReadingUpdateController;
 use App\Http\Controllers\FinalizeInvoiceController;
+use App\Http\Controllers\InvoiceController as SharedInvoiceController;
 use App\Http\Controllers\LanguageController;
 
 // Public routes
@@ -71,6 +76,10 @@ Route::get('/language/{locale}', [LanguageController::class, 'switch'])
 Route::get('/notification-track/{notification}/{organization}', [\App\Http\Controllers\NotificationTrackingController::class, 'track'])
     ->name('platform-notification.track');
 
+// Invitation acceptance (public)
+Route::post('/invitations/{token}/accept', [InvitationAcceptanceController::class, 'accept'])
+    ->name('invitations.accept');
+
 // Debug route to test if routing works
 Route::get('/test-debug', function () {
     return response()->json([
@@ -91,6 +100,31 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
 // ============================================================================
+// SHARED INVOICE ROUTES (ADMIN/MANAGER/SUPERADMIN)
+// ============================================================================
+
+Route::middleware(['auth', 'role:superadmin,admin,manager'])->group(function () {
+    Route::get('/invoices', [SharedInvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('/invoices/drafts', [SharedInvoiceController::class, 'drafts'])->name('invoices.drafts');
+    Route::get('/invoices/finalized', [SharedInvoiceController::class, 'finalized'])->name('invoices.finalized');
+    Route::get('/invoices/paid', [SharedInvoiceController::class, 'paid'])->name('invoices.paid');
+
+    Route::get('/invoices/create', [SharedInvoiceController::class, 'create'])->name('invoices.create');
+    Route::post('/invoices', [SharedInvoiceController::class, 'store'])->name('invoices.store');
+    Route::post('/invoices/generate-bulk', [SharedInvoiceController::class, 'generateBulk'])->name('invoices.generate-bulk');
+
+    Route::get('/invoices/{invoice}', [SharedInvoiceController::class, 'show'])->name('invoices.show');
+    Route::get('/invoices/{invoice}/edit', [SharedInvoiceController::class, 'edit'])->name('invoices.edit');
+    Route::match(['put', 'patch'], '/invoices/{invoice}', [SharedInvoiceController::class, 'update'])->name('invoices.update');
+    Route::delete('/invoices/{invoice}', [SharedInvoiceController::class, 'destroy'])->name('invoices.destroy');
+
+    Route::post('/invoices/{invoice}/finalize', [SharedInvoiceController::class, 'finalize'])->name('invoices.finalize');
+    Route::post('/invoices/{invoice}/process-payment', [SharedInvoiceController::class, 'processPayment'])->name('invoices.process-payment');
+    Route::post('/invoices/{invoice}/send', [SharedInvoiceController::class, 'send'])->name('invoices.send');
+    Route::get('/invoices/{invoice}/pdf', [SharedInvoiceController::class, 'pdf'])->name('invoices.pdf');
+});
+
+// ============================================================================
 // SUPERADMIN ROUTES
 // ============================================================================
 // Middleware applied:
@@ -102,6 +136,9 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
     
     // Dashboard
     Route::get('/dashboard', [SuperadminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/search', [SuperadminDashboardController::class, 'search'])->name('search');
+    Route::post('/dashboard/export', [SuperadminDashboardController::class, 'export'])->name('dashboard.export');
+    Route::post('/dashboard/health-check', [SuperadminDashboardController::class, 'healthCheck'])->name('dashboard.health-check');
     
     // Profile
     Route::get('profile', [SuperadminProfileController::class, 'show'])->name('profile.show');
@@ -111,12 +148,34 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
     Route::get('organizations', [SuperadminOrganizationController::class, 'index'])->name('organizations.index');
     Route::get('organizations/create', [SuperadminOrganizationController::class, 'create'])->name('organizations.create');
     Route::post('organizations', [SuperadminOrganizationController::class, 'store'])->name('organizations.store');
+    Route::post('organizations/bulk-suspend', [SuperadminOrganizationController::class, 'bulkSuspend'])->name('organizations.bulk-suspend');
+    Route::post('organizations/bulk-reactivate', [SuperadminOrganizationController::class, 'bulkReactivate'])->name('organizations.bulk-reactivate');
+    Route::post('organizations/bulk-change-plan', [SuperadminOrganizationController::class, 'bulkChangePlan'])->name('organizations.bulk-change-plan');
+    Route::post('organizations/bulk-export', [SuperadminOrganizationController::class, 'bulkExport'])->name('organizations.bulk-export');
+    Route::post('organizations/bulk-delete', [SuperadminOrganizationController::class, 'bulkDelete'])->name('organizations.bulk-delete');
     Route::get('organizations/{organization}', [SuperadminOrganizationController::class, 'show'])->name('organizations.show');
     Route::get('organizations/{organization}/edit', [SuperadminOrganizationController::class, 'edit'])->name('organizations.edit');
     Route::put('organizations/{organization}', [SuperadminOrganizationController::class, 'update'])->name('organizations.update');
     Route::post('organizations/{organization}/deactivate', [SuperadminOrganizationController::class, 'deactivate'])->name('organizations.deactivate');
     Route::post('organizations/{organization}/reactivate', [SuperadminOrganizationController::class, 'reactivate'])->name('organizations.reactivate');
     Route::delete('organizations/{organization}', [SuperadminOrganizationController::class, 'destroy'])->name('organizations.destroy');
+
+    // Invitation Management
+    Route::post('invitations', [SuperadminInvitationController::class, 'store'])->name('invitations.store');
+    Route::post('invitations/bulk-resend', [SuperadminInvitationController::class, 'bulkResend'])->name('invitations.bulk-resend');
+    Route::post('invitations/bulk-cancel', [SuperadminInvitationController::class, 'bulkCancel'])->name('invitations.bulk-cancel');
+    Route::get('invitations/{invitation}', [SuperadminInvitationController::class, 'show'])->name('invitations.show');
+    Route::post('invitations/{invitation}/resend', [SuperadminInvitationController::class, 'resend'])->name('invitations.resend');
+    Route::post('invitations/{invitation}/cancel', [SuperadminInvitationController::class, 'cancel'])->name('invitations.cancel');
+
+    // User Management
+    Route::post('users/bulk-deactivate', [SuperadminUserController::class, 'bulkDeactivate'])->name('users.bulk-deactivate');
+    Route::post('users/bulk-reactivate', [SuperadminUserController::class, 'bulkReactivate'])->name('users.bulk-reactivate');
+    Route::get('users/{user}', [SuperadminUserController::class, 'show'])->name('users.show');
+    Route::post('users/{user}/reset-password', [SuperadminUserController::class, 'resetPassword'])->name('users.reset-password');
+    Route::post('users/{user}/deactivate', [SuperadminUserController::class, 'deactivate'])->name('users.deactivate');
+    Route::post('users/{user}/reactivate', [SuperadminUserController::class, 'reactivate'])->name('users.reactivate');
+    Route::post('users/{user}/impersonate', [SuperadminUserController::class, 'impersonate'])->name('users.impersonate');
 
     // Buildings (superadmin view)
     Route::get('buildings', [SuperadminBuildingController::class, 'index'])->name('buildings.index');
@@ -136,18 +195,27 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('supe
 
     // Subscription Management
     Route::get('subscriptions', [SuperadminSubscriptionController::class, 'index'])->name('subscriptions.index');
+    Route::post('subscriptions', [SuperadminSubscriptionController::class, 'store'])->name('subscriptions.store');
+    Route::post('subscriptions/bulk-renew', [SuperadminSubscriptionController::class, 'bulkRenew'])->name('subscriptions.bulk-renew');
+    Route::post('subscriptions/bulk-suspend', [SuperadminSubscriptionController::class, 'bulkSuspend'])->name('subscriptions.bulk-suspend');
+    Route::post('subscriptions/bulk-activate', [SuperadminSubscriptionController::class, 'bulkActivate'])->name('subscriptions.bulk-activate');
     Route::get('subscriptions/{subscription}', [SuperadminSubscriptionController::class, 'show'])->name('subscriptions.show');
     Route::get('subscriptions/{subscription}/edit', [SuperadminSubscriptionController::class, 'edit'])->name('subscriptions.edit');
     Route::put('subscriptions/{subscription}', [SuperadminSubscriptionController::class, 'update'])->name('subscriptions.update');
     Route::post('subscriptions/{subscription}/renew', [SuperadminSubscriptionController::class, 'renew'])->name('subscriptions.renew');
     Route::post('subscriptions/{subscription}/suspend', [SuperadminSubscriptionController::class, 'suspend'])->name('subscriptions.suspend');
     Route::post('subscriptions/{subscription}/cancel', [SuperadminSubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+    Route::delete('subscriptions/{subscription}', [SuperadminSubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
 
     // Impersonation Management
     Route::post('impersonation/start/{user}', [\App\Http\Controllers\Superadmin\ImpersonationController::class, 'start'])->name('impersonation.start');
-    Route::post('impersonation/end', [\App\Http\Controllers\Superadmin\ImpersonationController::class, 'end'])->name('impersonation.end');
     Route::get('impersonation/history', [\App\Http\Controllers\Superadmin\ImpersonationController::class, 'history'])->name('impersonation.history');
 });
+
+// Impersonation end must remain accessible while impersonating (current user is not a superadmin).
+Route::middleware(['auth'])
+    ->post('superadmin/impersonation/end', [\App\Http\Controllers\Superadmin\ImpersonationController::class, 'end'])
+    ->name('superadmin.impersonation.end');
 
 // Filament-style resource deletes for superadmin convenience (no name prefix)
 Route::middleware(['auth', 'role:superadmin'])->group(function () {
@@ -200,6 +268,10 @@ Route::middleware(['auth', 'role:admin', 'throttle:admin', 'subscription.check',
     
     // User Management
     Route::resource('users', AdminUserController::class);
+
+    // Property (minimal admin UI endpoints used by impersonation workflows)
+    Route::get('properties/{property}', [AdminPropertyController::class, 'show'])->name('properties.show');
+    Route::match(['put', 'patch'], 'properties/{property}', [AdminPropertyController::class, 'update'])->name('properties.update');
     
     // Provider Management
     Route::resource('providers', AdminProviderController::class);
@@ -241,6 +313,8 @@ Route::middleware(['auth', 'role:admin', 'subscription.check', 'hierarchical.acc
     Route::get('providers/create', [AdminProviderController::class, 'create'])->name('filament.admin.resources.providers.create');
     Route::get('tariffs', [AdminTariffController::class, 'index'])->name('filament.admin.resources.tariffs.index');
     Route::get('tariffs/create', [AdminTariffController::class, 'create'])->name('filament.admin.resources.tariffs.create');
+    Route::get('tenants', [AdminTenantController::class, 'index'])->name('filament.admin.resources.tenants.index');
+    Route::get('tenants/create', [AdminTenantController::class, 'create'])->name('filament.admin.resources.tenants.create');
 });
 
 // ============================================================================
@@ -261,7 +335,7 @@ Route::middleware(['auth', 'role:admin', 'subscription.check', 'hierarchical.acc
 // 
 // Performance: Middleware chain adds ~2-10ms overhead per request (optimized with caching)
 
-Route::middleware(['auth', 'role:manager', 'subscription.check', 'hierarchical.access'])->prefix('manager')->name('manager.')->group(function () {
+Route::middleware(['auth', 'role:manager,admin', 'subscription.check', 'hierarchical.access'])->prefix('manager')->name('manager.')->group(function () {
     // Dashboard - Custom manager overview
     Route::get('/dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');
 

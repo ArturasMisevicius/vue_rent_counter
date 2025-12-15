@@ -16,7 +16,7 @@ class SubscriptionsRelationManager extends RelationManager
 
     protected static ?string $title = null;
 
-    protected static BackedEnum|string|null $icon = 'heroicon-o-credit-card';
+    protected static string|BackedEnum|null $icon = 'heroicon-o-credit-card';
 
     public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
     {

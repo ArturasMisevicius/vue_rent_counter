@@ -39,6 +39,8 @@ class MeterReading extends Model
         'validation_status',
         'photo_path',
         'validated_by',
+        'validated_at',
+        'validation_notes',
     ];
 
     /**
@@ -54,6 +56,7 @@ class MeterReading extends Model
             'reading_values' => 'array',
             'input_method' => InputMethod::class,
             'validation_status' => ValidationStatus::class,
+            'validated_at' => 'datetime',
         ];
     }
 

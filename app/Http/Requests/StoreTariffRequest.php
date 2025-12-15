@@ -44,12 +44,9 @@ class StoreTariffRequest extends FormRequest
             'provider_id' => [
                 'nullable',
                 'exists:providers,id',
-                function ($attribute, $value, $fail) {
-                    // If remote_id is provided, provider_id is required
-                    if ($this->filled('remote_id') && empty($value)) {
-                        $fail(__('tariffs.validation.provider_id.required_with'));
-                    }
-                },
+                // If remote_id is provided, provider_id is required.
+                // Note: This must be a built-in rule to ensure it runs even when provider_id is missing from input.
+                'required_with:remote_id',
             ],
             // Add remote_id validation for external system integration
             'remote_id' => [
@@ -122,6 +119,7 @@ class StoreTariffRequest extends FormRequest
     {
         return [
             'provider_id.required' => __('tariffs.validation.provider_id.required'),
+            'provider_id.required_with' => __('tariffs.validation.provider_id.required_with'),
             'provider_id.exists' => __('tariffs.validation.provider_id.exists'),
             'remote_id.max' => __('tariffs.validation.remote_id.max'),
             'remote_id.regex' => __('tariffs.validation.remote_id.format'),

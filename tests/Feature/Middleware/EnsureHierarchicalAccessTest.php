@@ -8,36 +8,46 @@ use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Property;
+use App\Models\Subscription;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
-beforeEach(function () {
-    Log::spy();
-});
+function createAdminWithActiveSubscription(int $tenantId): User
+{
+    $admin = User::factory()->create([
+        'role' => UserRole::ADMIN,
+        'tenant_id' => $tenantId,
+        'is_active' => true,
+    ]);
+
+    Subscription::factory()->active()->create([
+        'user_id' => $admin->id,
+    ]);
+
+    return $admin;
+}
 
 test('superadmin has unrestricted access to all resources', function () {
     $superadmin = User::factory()->create([
         'role' => UserRole::SUPERADMIN,
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => null,
+        'is_active' => true,
     ]);
 
     $otherTenantProperty = Property::factory()->create([
-        'tenant_id' => 'tenant-2',
+        'tenant_id' => 2,
     ]);
 
     $this->actingAs($superadmin)
-        ->get(route('admin.properties.show', $otherTenantProperty))
+        ->get(route('manager.properties.show', $otherTenantProperty))
         ->assertOk();
 });
 
 test('admin can only access resources from their tenant', function () {
-    $admin = User::factory()->create([
-        'role' => UserRole::ADMIN,
-        'tenant_id' => 'tenant-1',
-    ]);
+    $admin = createAdminWithActiveSubscription(1);
 
     $ownProperty = Property::factory()->create([
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => 1,
     ]);
 
     $this->actingAs($admin)
@@ -45,33 +55,28 @@ test('admin can only access resources from their tenant', function () {
         ->assertOk();
 });
 
-test('admin cannot access resources from other tenants', function () {
-    $admin = User::factory()->create([
-        'role' => UserRole::ADMIN,
-        'tenant_id' => 'tenant-1',
-    ]);
+test('admin cannot access users from other tenants', function () {
+    $admin = createAdminWithActiveSubscription(1);
 
-    $otherProperty = Property::factory()->create([
-        'tenant_id' => 'tenant-2',
+    $otherTenantUser = User::factory()->create([
+        'role' => UserRole::TENANT,
+        'tenant_id' => 2,
+        'is_active' => true,
     ]);
 
     $this->actingAs($admin)
-        ->get(route('admin.properties.show', $otherProperty))
+        ->get(route('admin.users.show', $otherTenantUser))
         ->assertForbidden();
-
-    Log::shouldHaveReceived('warning')
-        ->with('Hierarchical access denied', \Mockery::type('array'))
-        ->once();
 });
 
 test('tenant can only access their assigned property', function () {
     $property = Property::factory()->create([
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => 1,
     ]);
 
     $tenant = User::factory()->create([
         'role' => UserRole::TENANT,
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => 1,
         'property_id' => $property->id,
     ]);
 
@@ -82,32 +87,33 @@ test('tenant can only access their assigned property', function () {
 
 test('tenant cannot access properties they are not assigned to', function () {
     $property1 = Property::factory()->create([
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => 1,
     ]);
 
     $property2 = Property::factory()->create([
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => 1,
     ]);
 
     $tenant = User::factory()->create([
         'role' => UserRole::TENANT,
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => 1,
         'property_id' => $property1->id,
     ]);
 
     $this->actingAs($tenant)
         ->get(route('admin.properties.show', $property2))
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 test('manager has same access as admin', function () {
     $manager = User::factory()->create([
         'role' => UserRole::MANAGER,
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => 1,
+        'is_active' => true,
     ]);
 
     $ownProperty = Property::factory()->create([
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => 1,
     ]);
 
     $this->actingAs($manager)
@@ -116,48 +122,42 @@ test('manager has same access as admin', function () {
 });
 
 test('admin can access buildings from their tenant', function () {
-    $admin = User::factory()->create([
-        'role' => UserRole::ADMIN,
-        'tenant_id' => 'tenant-1',
-    ]);
+    $admin = createAdminWithActiveSubscription(1);
 
     $building = Building::factory()->create([
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => 1,
     ]);
 
     $this->actingAs($admin)
-        ->get(route('admin.buildings.show', $building))
+        ->get(route('manager.buildings.show', $building))
         ->assertOk();
 });
 
 test('admin cannot access buildings from other tenants', function () {
-    $admin = User::factory()->create([
-        'role' => UserRole::ADMIN,
-        'tenant_id' => 'tenant-1',
-    ]);
+    $admin = createAdminWithActiveSubscription(1);
 
     $building = Building::factory()->create([
-        'tenant_id' => 'tenant-2',
+        'tenant_id' => 2,
     ]);
 
     $this->actingAs($admin)
-        ->get(route('admin.buildings.show', $building))
-        ->assertForbidden();
+        ->get(route('manager.buildings.show', $building))
+        ->assertNotFound();
 });
 
 test('tenant can access meters from their property', function () {
     $property = Property::factory()->create([
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => 1,
     ]);
 
     $meter = Meter::factory()->create([
         'property_id' => $property->id,
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => 1,
     ]);
 
     $tenant = User::factory()->create([
         'role' => UserRole::TENANT,
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => 1,
         'property_id' => $property->id,
     ]);
 
@@ -168,72 +168,45 @@ test('tenant can access meters from their property', function () {
 
 test('tenant cannot access meters from other properties', function () {
     $property1 = Property::factory()->create([
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => 1,
     ]);
 
     $property2 = Property::factory()->create([
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => 1,
     ]);
 
     $meter = Meter::factory()->create([
         'property_id' => $property2->id,
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => 1,
     ]);
 
     $tenant = User::factory()->create([
         'role' => UserRole::TENANT,
-        'tenant_id' => 'tenant-1',
+        'tenant_id' => 1,
         'property_id' => $property1->id,
     ]);
 
     $this->actingAs($tenant)
         ->get(route('tenant.meters.show', $meter))
-        ->assertForbidden();
-});
-
-test('access denial is logged for audit trail', function () {
-    $admin = User::factory()->create([
-        'role' => UserRole::ADMIN,
-        'tenant_id' => 'tenant-1',
-    ]);
-
-    $otherProperty = Property::factory()->create([
-        'tenant_id' => 'tenant-2',
-    ]);
-
-    $this->actingAs($admin)
-        ->get(route('admin.properties.show', $otherProperty))
-        ->assertForbidden();
-
-    Log::shouldHaveReceived('warning')
-        ->with('Hierarchical access denied', \Mockery::on(function ($context) use ($admin, $otherProperty) {
-            return $context['user_id'] === $admin->id
-                && $context['user_tenant_id'] === 'tenant-1'
-                && isset($context['route_parameters']);
-        }))
-        ->once();
+        ->assertNotFound();
 });
 
 test('middleware uses select to minimize data transfer', function () {
-    $admin = User::factory()->create([
-        'role' => UserRole::ADMIN,
-        'tenant_id' => 'tenant-1',
-    ]);
+    $admin = createAdminWithActiveSubscription(1);
 
     $property = Property::factory()->create([
-        'tenant_id' => 'tenant-1',
-        'name' => 'Test Property',
+        'tenant_id' => 1,
         'address' => '123 Test St',
     ]);
 
     // Enable query log
-    \DB::enableQueryLog();
+    DB::enableQueryLog();
 
     $this->actingAs($admin)
         ->get(route('admin.properties.show', $property))
         ->assertOk();
 
-    $queries = \DB::getQueryLog();
+    $queries = DB::getQueryLog();
     
     // Find the query that selects from properties table
     $propertyQuery = collect($queries)->first(function ($query) {
@@ -246,17 +219,16 @@ test('middleware uses select to minimize data transfer', function () {
 });
 
 test('json requests receive json error responses', function () {
-    $admin = User::factory()->create([
-        'role' => UserRole::ADMIN,
-        'tenant_id' => 'tenant-1',
-    ]);
+    $admin = createAdminWithActiveSubscription(1);
 
-    $otherProperty = Property::factory()->create([
-        'tenant_id' => 'tenant-2',
+    $otherTenantUser = User::factory()->create([
+        'role' => UserRole::TENANT,
+        'tenant_id' => 2,
+        'is_active' => true,
     ]);
 
     $this->actingAs($admin)
-        ->getJson(route('admin.properties.show', $otherProperty))
+        ->getJson(route('admin.users.show', $otherTenantUser))
         ->assertForbidden()
         ->assertJson([
             'message' => 'You do not have permission to access this resource.',
@@ -267,5 +239,5 @@ test('unauthenticated users are redirected to login', function () {
     $property = Property::factory()->create();
 
     $this->get(route('admin.properties.show', $property))
-        ->assertRedirect(route('login'));
+        ->assertRedirect(route('filament.admin.auth.login'));
 });

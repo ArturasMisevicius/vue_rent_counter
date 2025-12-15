@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\MeterApiController;
 use App\Http\Controllers\Api\MeterReadingApiController;
 use App\Http\Controllers\Api\ProviderApiController;
 use App\Http\Controllers\Api\ServiceValidationController;
+use App\Http\Controllers\Enhanced\InvoiceController as EnhancedInvoiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,9 +41,24 @@ Route::middleware(['auth', 'role:admin,manager'])->group(function () {
         Route::post('/readings/{reading}/validate', [ServiceValidationController::class, 'validateReading']);
         Route::post('/readings/batch-validate', [ServiceValidationController::class, 'batchValidateReadings']);
         Route::post('/service-configurations/{serviceConfiguration}/validate-rate-change', [ServiceValidationController::class, 'validateRateChange']);
+        Route::post('/service-configurations/{serviceConfiguration}/rate-changes', [ServiceValidationController::class, 'validateRateChange']);
+        Route::get('/readings', [ServiceValidationController::class, 'getReadingsByStatus']);
         Route::get('/readings/by-status', [ServiceValidationController::class, 'getReadingsByStatus']);
         Route::patch('/readings/bulk-update-status', [ServiceValidationController::class, 'bulkUpdateValidationStatus']);
         Route::post('/readings/{reading}/validate-estimated', [ServiceValidationController::class, 'validateEstimatedReading']);
         Route::get('/health', [ServiceValidationController::class, 'healthCheck']);
     });
+
+    // Invoice API endpoints
+    Route::prefix('invoices')->name('api.invoices.')->group(function () {
+        Route::get('/{tenant}/billing-history', [EnhancedInvoiceController::class, 'billingHistory'])
+            ->name('billing-history');
+        Route::get('/{invoice}/consumption-data', [EnhancedInvoiceController::class, 'consumptionData'])
+            ->name('consumption-data');
+    });
+});
+
+// API v1 (Sanctum) routes
+Route::prefix('v1/validation')->group(function () {
+    require __DIR__ . '/api_v1_validation.php';
 });

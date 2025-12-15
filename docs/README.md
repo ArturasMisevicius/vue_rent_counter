@@ -21,6 +21,7 @@ Welcome to the CFlow documentation. This documentation is organized into logical
 - **[Billing](./features/billing/)** - Subscription and billing system
 - **[Notifications](./features/notifications/)** - Notification system
 - **[Translations](./features/translations/)** - Multi-language support
+- **[Tagging System](./traits/HASTAGS_TRAIT_DOCUMENTATION.md)** - Polymorphic tagging with HasTags trait
 - **[API](./api/)** - API documentation and integration guides
 
 ### 📊 Operations & Maintenance

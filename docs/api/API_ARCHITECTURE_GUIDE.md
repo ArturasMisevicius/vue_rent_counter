@@ -50,7 +50,7 @@
 
 ### Service APIs
 - **[Billing Service API](BILLING_SERVICE_API.md)** - Invoice generation and billing calculations
-- **[Gyvatukas Calculator API](GYVATUKAS_CALCULATOR_API.md)** - Heating circulation fee calculations
+- **[hot water circulation Calculator API](hot water circulation_CALCULATOR_API.md)** - Heating circulation fee calculations
 - **[Invoice Finalization API](INVOICE_FINALIZATION_API.md)** - Invoice finalization workflow
 
 ### Observer APIs

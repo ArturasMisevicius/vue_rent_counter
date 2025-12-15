@@ -8,7 +8,8 @@
 @endphp
 
 @if($isImpersonating)
-<div class="bg-yellow-500 text-white px-4 py-3 shadow-lg sticky top-0 z-50" role="alert">
+<div id="impersonation-banner" class="impersonation-banner bg-yellow-500 text-white px-4 py-3 shadow-lg sticky top-0 z-50" role="alert">
+    <span class="sr-only">You are currently impersonating</span>
     <div class="container mx-auto flex items-center justify-between">
         <div class="flex items-center space-x-4">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

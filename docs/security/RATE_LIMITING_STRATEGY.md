@@ -76,7 +76,7 @@ Route::middleware(['auth', 'throttle:20,1'])->group(function () {
 });
 ```
 
-### 3. GyvatukasCalculator Operations
+### 3. hot water circulationCalculator Operations
 
 **Current Status**: No explicit rate limiting
 **Security Concern**: Complex calculations can be resource-intensive
@@ -85,7 +85,7 @@ Route::middleware(['auth', 'throttle:20,1'])->group(function () {
 ```php
 // Example implementation
 Route::middleware(['auth', 'throttle:10,1'])->group(function () {
-    Route::post('/calculate/gyvatukas', [GyvatukasController::class, 'calculate']);
+    Route::post('/calculate/hot water circulation', [hot water circulationController::class, 'calculate']);
 });
 ```
 

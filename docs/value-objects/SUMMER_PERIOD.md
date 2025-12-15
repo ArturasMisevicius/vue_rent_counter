@@ -10,7 +10,7 @@ The `SummerPeriod` value object encapsulates the logic for determining summer pe
 
 ## Purpose
 
-Provides a type-safe, self-validating representation of the summer calculation period used for gyvatukas baseline calculations. Ensures consistent date handling across the application.
+Provides a type-safe, self-validating representation of the summer calculation period used for hot water circulation baseline calculations. Ensures consistent date handling across the application.
 
 ## Class Definition
 
@@ -71,7 +71,7 @@ public function __construct(int $year)
 **Throws**: `InvalidArgumentException` if year is invalid
 
 **Validation Rules**:
-- Year must be >= `gyvatukas.validation.min_year` (default: 2020)
+- Year must be >= `hot water circulation.validation.min_year` (default: 2020)
 - Year must be <= current year
 - Year must be numeric
 
@@ -86,12 +86,12 @@ echo $period->endDate;     // 2023-09-30 23:59:59
 
 **Configuration**:
 
-The start and end months are configurable in `config/gyvatukas.php`:
+The start and end months are configurable in `config/hot water circulation.php`:
 
 ```php
 return [
-    'summer_start_month' => env('GYVATUKAS_SUMMER_START', 5),  // May
-    'summer_end_month' => env('GYVATUKAS_SUMMER_END', 9),      // September
+    'summer_start_month' => env('hot water circulation_SUMMER_START', 5),  // May
+    'summer_end_month' => env('hot water circulation_SUMMER_END', 9),      // September
     
     'validation' => [
         'min_year' => 2020,
@@ -179,7 +179,7 @@ The constructor validates the year against configured constraints:
 ```php
 private function validateYear(int $year): void
 {
-    $minYear = config('gyvatukas.validation.min_year', 2020);
+    $minYear = config('hot water circulation.validation.min_year', 2020);
     $maxYear = now()->year;
 
     if ($year < $minYear || $year > $maxYear) {
@@ -251,11 +251,11 @@ Description: 2023-05-01 to 2023-09-30
 ### With Service Layer
 
 ```php
-use App\Services\GyvatukasSummerAverageService;
+use App\Services\hot water circulationSummerAverageService;
 use App\ValueObjects\SummerPeriod;
 use App\Models\Building;
 
-$service = new GyvatukasSummerAverageService();
+$service = new hot water circulationSummerAverageService();
 $building = Building::find(42);
 $period = new SummerPeriod(2023);
 
@@ -323,7 +323,7 @@ try {
 To change the summer period months (e.g., June-August):
 
 ```php
-// config/gyvatukas.php
+// config/hot water circulation.php
 return [
     'summer_start_month' => 6,  // June
     'summer_end_month' => 8,    // August
@@ -340,7 +340,7 @@ echo $period->endDate;    // 2023-08-31 23:59:59
 ### Custom Minimum Year
 
 ```php
-// config/gyvatukas.php
+// config/hot water circulation.php
 return [
     'validation' => [
         'min_year' => 2015,
@@ -421,7 +421,7 @@ Static factory methods provide convenient construction:
 ## Related Documentation
 
 - [CalculateSummerAverageCommand](../commands/CALCULATE_SUMMER_AVERAGE_COMMAND.md)
-- [GyvatukasSummerAverageService](../services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md)
+- [hot water circulationSummerAverageService](../services/hot water circulation_SUMMER_AVERAGE_SERVICE.md)
 - [CalculationResult Value Object](CALCULATION_RESULT.md)
 - [Building Model](../models/BUILDING.md)
 

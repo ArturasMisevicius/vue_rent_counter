@@ -16,7 +16,7 @@ Comprehensive documentation has been created for the `DistributionMethod` enum e
 - Complete enum overview and purpose
 - Detailed documentation for all 4 cases (EQUAL, AREA, BY_CONSUMPTION, CUSTOM_FORMULA)
 - Method reference with examples
-- Usage patterns in system (ServiceConfiguration, GyvatukasCalculator, UniversalBillingCalculator)
+- Usage patterns in system (ServiceConfiguration, hot water circulationCalculator, UniversalBillingCalculator)
 - Localization guide with translation keys
 - Database storage patterns
 - Backward compatibility notes
@@ -135,7 +135,7 @@ docs/
 - Capability checks
 - Configuration validation
 
-### 2. GyvatukasCalculator Service
+### 2. hot water circulationCalculator Service
 - Cost distribution methods
 - Area type selection
 - Consumption-based distribution

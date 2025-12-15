@@ -299,7 +299,7 @@ class ServiceValidationEngineTest extends TestCase
                 'constraints' => [
                     [
                         'field' => 'value',
-                        'operator' => '<',
+                        'operator' => '>',
                         'value' => 1000,
                         'message' => 'Value must be less than 1000',
                         'severity' => 'error',

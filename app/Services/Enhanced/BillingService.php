@@ -7,12 +7,15 @@ namespace App\Services\Enhanced;
 use App\Actions\GenerateInvoiceAction;
 use App\DTOs\InvoiceGenerationDTO;
 use App\Enums\InvoiceStatus;
+use App\Enums\PricingModel;
 use App\Models\Invoice;
 use App\Models\Property;
 use App\Models\Tenant;
 use App\Services\ServiceResponse;
 use App\Services\UniversalBillingCalculator;
 use App\Services\MeterReadingService;
+use App\ValueObjects\BillingPeriod;
+use App\ValueObjects\UniversalConsumptionData;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
@@ -51,8 +54,12 @@ final class BillingService extends BaseService
             return $this->withMetrics('generate_invoice', function () use ($dto) {
                 return $this->executeInTransaction(function () use ($dto) {
                     // Validate tenant exists and user has access
-                    $tenant = Tenant::findOrFail($dto->tenantId);
-                    $this->authorize('billing', $tenant);
+                    $tenant = Tenant::findOrFail($dto->tenantRenterId);
+
+                    if (auth()->check()) {
+                        $this->authorize('create', Invoice::class);
+                    }
+
                     $this->validateTenantOwnership($tenant);
 
                     // Validate billing period
@@ -67,7 +74,7 @@ final class BillingService extends BaseService
                     $invoice = $this->generateInvoiceAction->execute($dto);
 
                     // Calculate and add invoice items
-                    $this->addInvoiceItems($invoice, $dto);
+                    $this->addInvoiceItems($invoice, $tenant, $dto);
 
                     // Calculate totals
                     $this->calculateInvoiceTotals($invoice);
@@ -86,7 +93,7 @@ final class BillingService extends BaseService
         } catch (\Exception $e) {
             $this->handleException($e, [
                 'operation' => 'generate_invoice',
-                'tenant_id' => $dto->tenantId,
+                'tenant_id' => $dto->tenantRenterId,
                 'period_start' => $dto->periodStart->toDateString(),
                 'period_end' => $dto->periodEnd->toDateString(),
             ]);
@@ -112,7 +119,10 @@ final class BillingService extends BaseService
             return $this->withMetrics('generate_bulk_invoices', function () use ($tenants, $periodStart, $periodEnd) {
                 // Validate all tenants first
                 foreach ($tenants as $tenant) {
-                    $this->authorize('billing', $tenant);
+                    if (auth()->check()) {
+                        $this->authorize('create', Invoice::class);
+                    }
+
                     $this->validateTenantOwnership($tenant);
                 }
 
@@ -139,7 +149,7 @@ final class BillingService extends BaseService
                             }
 
                             $dto = new InvoiceGenerationDTO(
-                                tenantId: $tenant->id,
+                                tenantId: $tenant->tenant_id,
                                 tenantRenterId: $tenant->id,
                                 periodStart: $periodStart,
                                 periodEnd: $periodEnd,
@@ -202,7 +212,10 @@ final class BillingService extends BaseService
     public function finalizeInvoice(Invoice $invoice): ServiceResponse
     {
         try {
-            $this->authorize('finalize', $invoice);
+            if (auth()->check()) {
+                $this->authorize('finalize', $invoice);
+            }
+
             $this->validateTenantOwnership($invoice);
 
             if (!$invoice->isDraft()) {
@@ -214,16 +227,13 @@ final class BillingService extends BaseService
             }
 
             return $this->executeInTransaction(function () use ($invoice) {
-                $invoice->update([
-                    'status' => InvoiceStatus::FINALIZED,
-                    'finalized_at' => now(),
-                    'finalized_by' => auth()->id(),
-                ]);
+                $invoice->status = InvoiceStatus::FINALIZED;
+                $invoice->finalized_at = now();
+                $invoice->save();
 
                 $this->log('info', 'Invoice finalized', [
                     'invoice_id' => $invoice->id,
                     'total_amount' => $invoice->total_amount,
-                    'finalized_by' => auth()->id(),
                 ]);
 
                 return $this->success($invoice, 'Invoice finalized successfully');
@@ -287,7 +297,8 @@ final class BillingService extends BaseService
             $this->authorize('view', $tenant);
             $this->validateTenantOwnership($tenant);
 
-            $invoices = Invoice::where('tenant_id', $tenant->id)
+            $invoices = Invoice::where('tenant_id', $tenant->tenant_id)
+                ->where('tenant_renter_id', $tenant->id)
                 ->where('created_at', '>=', now()->subMonths($months))
                 ->with(['items.serviceConfiguration.utilityService'])
                 ->orderBy('billing_period_start', 'desc')
@@ -327,18 +338,18 @@ final class BillingService extends BaseService
      */
     private function hasExistingInvoice(Tenant $tenant, Carbon $start, Carbon $end): bool
     {
-        return Invoice::where('tenant_id', $tenant->id)
-            ->where('billing_period_start', $start->toDateString())
-            ->where('billing_period_end', $end->toDateString())
+        return Invoice::where('tenant_id', $tenant->tenant_id)
+            ->where('tenant_renter_id', $tenant->id)
+            ->whereDate('billing_period_start', $start->toDateString())
+            ->whereDate('billing_period_end', $end->toDateString())
             ->exists();
     }
 
     /**
      * Add invoice items based on consumption calculations.
      */
-    private function addInvoiceItems(Invoice $invoice, InvoiceGenerationDTO $dto): void
+    private function addInvoiceItems(Invoice $invoice, Tenant $tenant, InvoiceGenerationDTO $dto): void
     {
-        $tenant = $invoice->tenant;
         $property = $tenant->property;
 
         if (!$property) {
@@ -357,27 +368,52 @@ final class BillingService extends BaseService
         }
 
         $consumptionData = $consumptionResult->data;
+        $billingPeriod = new BillingPeriod($dto->periodStart, $dto->periodEnd);
 
-        // Generate invoice items for each service
+        // Generate invoice items for each configured service.
         foreach ($consumptionData as $serviceData) {
-            $billingResult = $this->billingCalculator->calculateBilling(
-                $serviceData['service_configuration'],
-                $serviceData['consumption'],
-                $dto->periodStart,
-                $dto->periodEnd
+            $serviceConfiguration = $serviceData['service_configuration'];
+            $service = $serviceConfiguration?->utilityService;
+
+            if (!$serviceConfiguration || !$service) {
+                continue;
+            }
+
+            $consumption = (float) ($serviceData['consumption'] ?? 0.0);
+            $consumptionValue = $serviceConfiguration->pricing_model === PricingModel::TIME_OF_USE
+                ? UniversalConsumptionData::fromZones(['default' => $consumption])
+                : UniversalConsumptionData::fromTotal($consumption);
+
+            $calculation = $this->billingCalculator->calculateBill(
+                $serviceConfiguration,
+                $consumptionValue,
+                $billingPeriod,
             );
 
-            if ($billingResult->success && $billingResult->data['amount'] > 0) {
-                $invoice->items()->create([
-                    'service_configuration_id' => $serviceData['service_configuration']->id,
-                    'description' => $this->generateItemDescription($serviceData),
-                    'quantity' => $serviceData['consumption'],
-                    'unit_price' => $billingResult->data['rate'],
-                    'amount' => $billingResult->data['amount'],
-                    'period_start' => $dto->periodStart->toDateString(),
-                    'period_end' => $dto->periodEnd->toDateString(),
-                ]);
+            if ($calculation->isZero()) {
+                continue;
             }
+
+            $isFixed = $serviceConfiguration->pricing_model === PricingModel::FIXED_MONTHLY;
+            $quantity = $isFixed ? 1.0 : max(0.0, $consumption);
+            $unit = $isFixed ? 'month' : ($service->unit_of_measurement ?: null);
+            $unitPrice = $quantity > 0 ? ($calculation->totalAmount / $quantity) : $calculation->totalAmount;
+
+            $invoice->items()->create([
+                'description' => $this->generateItemDescription($serviceData),
+                'quantity' => $quantity,
+                'unit' => $unit,
+                'unit_price' => $unitPrice,
+                'total' => $calculation->totalAmount,
+                'meter_reading_snapshot' => [
+                    'service_configuration_id' => $serviceConfiguration->id,
+                    'pricing_model' => $serviceConfiguration->pricing_model?->value,
+                    'consumption' => $consumptionValue->toArray(),
+                    'calculation' => $calculation->toArray(),
+                    'meter_ids' => $serviceData['meter_ids'] ?? [],
+                    'readings_count' => $serviceData['readings_count'] ?? null,
+                ],
+            ]);
         }
     }
 
@@ -386,12 +422,10 @@ final class BillingService extends BaseService
      */
     private function calculateInvoiceTotals(Invoice $invoice): void
     {
-        $totalAmount = $invoice->items()->sum('amount');
+        $totalAmount = (float) $invoice->items()->sum('total');
         
         $invoice->update([
-            'subtotal' => $totalAmount,
-            'tax_amount' => 0, // Tax calculation would go here
-            'total_amount' => $totalAmount,
+            'total_amount' => round($totalAmount, 2),
         ]);
     }
 

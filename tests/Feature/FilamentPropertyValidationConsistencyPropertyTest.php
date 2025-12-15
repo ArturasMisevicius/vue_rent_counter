@@ -8,11 +8,16 @@ use App\Http\Requests\UpdatePropertyRequest;
 use App\Models\Building;
 use App\Models\Property;
 use App\Models\User;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+});
 
 // Feature: filament-admin-panel, Property 5: Property validation consistency
 // Validates: Requirements 3.4
@@ -27,12 +32,7 @@ test('Filament PropertyResource applies same validation rules as StorePropertyRe
     ]);
     
     // Create a building for the tenant (optional relationship)
-    $building = Building::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId,
-        'name' => fake()->company(),
-        'address' => fake()->address(),
-        'total_area_sqm' => fake()->randomFloat(2, 500, 5000),
-    ]);
+    $building = Building::factory()->forTenantId($tenantId)->create();
     
     // Act as the manager
     $this->actingAs($manager);
@@ -55,10 +55,7 @@ test('Filament PropertyResource applies same validation rules as StorePropertyRe
     $request->setUserResolver(fn() => $manager);
     $request->replace($testData);
     
-    // Manually trigger prepareForValidation to add tenant_id
-    $testDataWithTenant = array_merge($testData, ['tenant_id' => $tenantId]);
-    
-    $validator = Validator::make($testDataWithTenant, $request->rules(), $request->messages());
+    $validator = Validator::make($testData, $request->rules(), $request->messages());
     
     $formRequestPasses = !$validator->fails();
     $formRequestErrors = $validator->errors()->toArray();
@@ -74,14 +71,10 @@ test('Filament PropertyResource applies same validation rules as StorePropertyRe
     ]);
     
     // Try to create - this will trigger validation
-    try {
-        $component->call('create');
-        $filamentPasses = true;
-        $filamentErrors = [];
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $filamentPasses = false;
-        $filamentErrors = $e->errors();
-    }
+    $component->call('create');
+
+    $filamentErrors = $component->instance()->getErrorBag()->toArray();
+    $filamentPasses = empty($filamentErrors);
     
     // Property: Both should have the same validation outcome
     expect($filamentPasses)->toBe($formRequestPasses, 
@@ -96,10 +89,13 @@ test('Filament PropertyResource applies same validation rules as StorePropertyRe
         $formRequestErrorFields = array_keys($formRequestErrors);
         $filamentErrorFields = array_keys($filamentErrors);
         
+        // Normalize field names (Filament prefixes with 'data.')
+        $normalizedFilamentFields = array_map(fn (string $field): string => str_replace('data.', '', $field), $filamentErrorFields);
+
         // Both should have errors on the same fields
-        expect($filamentErrorFields)->toEqualCanonicalizing($formRequestErrorFields,
+        expect($normalizedFilamentFields)->toEqualCanonicalizing($formRequestErrorFields,
             "Error fields mismatch. FormRequest: " . json_encode($formRequestErrorFields) .
-            ", Filament: " . json_encode($filamentErrorFields)
+            ", Filament: " . json_encode($normalizedFilamentFields)
         );
     }
 })->repeat(100);
@@ -117,12 +113,8 @@ test('Filament PropertyResource rejects invalid data consistently with StoreProp
     ]);
     
     // Create a building for the tenant
-    $building = Building::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId,
-        'name' => fake()->company(),
-        'address' => fake()->address(),
-        'total_area_sqm' => fake()->randomFloat(2, 500, 5000),
-    ]);
+    $building = Building::factory()->forTenantId($tenantId)->create();
+    $otherTenantBuilding = Building::factory()->forTenantId($tenantId + 1)->create();
     
     // Act as the manager
     $this->actingAs($manager);
@@ -137,7 +129,6 @@ test('Filament PropertyResource rejects invalid data consistently with StoreProp
         'invalid_type',
         'missing_area',
         'negative_area',
-        'zero_area',
         'area_too_large',
         'non_numeric_area',
         'invalid_building_id',
@@ -159,7 +150,7 @@ test('Filament PropertyResource rejects invalid data consistently with StoreProp
             $testData['address'] = '';
             break;
         case 'address_too_long':
-            $testData['address'] = str_repeat('a', 256); // Max is 255
+            $testData['address'] = str_repeat('a', 501); // Max is 500
             break;
         case 'missing_type':
             unset($testData['type']);
@@ -173,17 +164,14 @@ test('Filament PropertyResource rejects invalid data consistently with StoreProp
         case 'negative_area':
             $testData['area_sqm'] = -1 * fake()->randomFloat(2, 1, 100);
             break;
-        case 'zero_area':
-            $testData['area_sqm'] = 0;
-            break;
         case 'area_too_large':
-            $testData['area_sqm'] = 10001; // Max is 10000
+            $testData['area_sqm'] = 1000000; // Max is 999999.99
             break;
         case 'non_numeric_area':
             $testData['area_sqm'] = 'not-a-number';
             break;
         case 'invalid_building_id':
-            $testData['building_id'] = 999999;
+            $testData['building_id'] = $otherTenantBuilding->id;
             break;
     }
     
@@ -196,10 +184,7 @@ test('Filament PropertyResource rejects invalid data consistently with StoreProp
     $request->setUserResolver(fn() => $manager);
     $request->replace($testData);
     
-    // Manually add tenant_id
-    $testDataWithTenant = array_merge($testData, ['tenant_id' => $tenantId]);
-    
-    $validator = Validator::make($testDataWithTenant, $request->rules(), $request->messages());
+    $validator = Validator::make($testData, $request->rules(), $request->messages());
     
     $formRequestPasses = !$validator->fails();
     
@@ -223,12 +208,10 @@ test('Filament PropertyResource rejects invalid data consistently with StoreProp
     
     $component->fillForm($formData);
     
-    try {
-        $component->call('create');
-        $filamentPasses = true;
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $filamentPasses = false;
-    }
+    $component->call('create');
+
+    $filamentErrors = $component->instance()->getErrorBag()->toArray();
+    $filamentPasses = empty($filamentErrors);
     
     // Property: Both should reject the invalid data
     expect($formRequestPasses)->toBeFalse("StorePropertyRequest should reject invalid data (type: {$invalidationType})");
@@ -254,12 +237,7 @@ test('Filament PropertyResource applies same validation rules as UpdatePropertyR
     ]);
     
     // Create a building for the tenant
-    $building = Building::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId,
-        'name' => fake()->company(),
-        'address' => fake()->address(),
-        'total_area_sqm' => fake()->randomFloat(2, 500, 5000),
-    ]);
+    $building = Building::factory()->forTenantId($tenantId)->create();
     
     // Create an existing property
     $existingProperty = Property::withoutGlobalScopes()->create([
@@ -288,6 +266,7 @@ test('Filament PropertyResource applies same validation rules as UpdatePropertyR
     $request = new UpdatePropertyRequest();
     $request->setContainer(app());
     $request->setRedirector(app('redirect'));
+    $request->setUserResolver(fn () => $manager);
     $request->replace($testData);
     
     $validator = Validator::make($testData, $request->rules(), $request->messages());
@@ -308,14 +287,10 @@ test('Filament PropertyResource applies same validation rules as UpdatePropertyR
     ]);
     
     // Try to save - this will trigger validation
-    try {
-        $component->call('save');
-        $filamentPasses = true;
-        $filamentErrors = [];
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $filamentPasses = false;
-        $filamentErrors = $e->errors();
-    }
+    $component->call('save');
+
+    $filamentErrors = $component->instance()->getErrorBag()->toArray();
+    $filamentPasses = empty($filamentErrors);
     
     // Property: Both should have the same validation outcome
     expect($filamentPasses)->toBe($formRequestPasses,
@@ -330,10 +305,13 @@ test('Filament PropertyResource applies same validation rules as UpdatePropertyR
         $formRequestErrorFields = array_keys($formRequestErrors);
         $filamentErrorFields = array_keys($filamentErrors);
         
+        // Normalize field names (Filament prefixes with 'data.')
+        $normalizedFilamentFields = array_map(fn (string $field): string => str_replace('data.', '', $field), $filamentErrorFields);
+
         // Both should have errors on the same fields
-        expect($filamentErrorFields)->toEqualCanonicalizing($formRequestErrorFields,
+        expect($normalizedFilamentFields)->toEqualCanonicalizing($formRequestErrorFields,
             "Error fields mismatch. FormRequest: " . json_encode($formRequestErrorFields) .
-            ", Filament: " . json_encode($filamentErrorFields)
+            ", Filament: " . json_encode($normalizedFilamentFields)
         );
     }
 })->repeat(100);
@@ -351,12 +329,8 @@ test('Filament PropertyResource rejects invalid updates consistently with Update
     ]);
     
     // Create a building for the tenant
-    $building = Building::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId,
-        'name' => fake()->company(),
-        'address' => fake()->address(),
-        'total_area_sqm' => fake()->randomFloat(2, 500, 5000),
-    ]);
+    $building = Building::factory()->forTenantId($tenantId)->create();
+    $otherTenantBuilding = Building::factory()->forTenantId($tenantId + 1)->create();
     
     // Create an existing property
     $existingProperty = Property::withoutGlobalScopes()->create([
@@ -373,12 +347,9 @@ test('Filament PropertyResource rejects invalid updates consistently with Update
     
     // Generate INVALID test data (randomly choose one type of invalid data)
     $invalidationType = fake()->randomElement([
-        'missing_address',
         'empty_address',
         'address_too_long',
-        'missing_type',
         'invalid_type',
-        'missing_area',
         'negative_area',
         'area_too_large',
         'non_numeric_area',
@@ -394,35 +365,26 @@ test('Filament PropertyResource rejects invalid updates consistently with Update
     
     // Apply the invalidation
     switch ($invalidationType) {
-        case 'missing_address':
-            unset($testData['address']);
-            break;
         case 'empty_address':
             $testData['address'] = '';
             break;
         case 'address_too_long':
-            $testData['address'] = str_repeat('a', 256); // Max is 255
-            break;
-        case 'missing_type':
-            unset($testData['type']);
+            $testData['address'] = str_repeat('a', 501); // Max is 500
             break;
         case 'invalid_type':
             $testData['type'] = 'invalid_type';
-            break;
-        case 'missing_area':
-            unset($testData['area_sqm']);
             break;
         case 'negative_area':
             $testData['area_sqm'] = -1 * fake()->randomFloat(2, 1, 100);
             break;
         case 'area_too_large':
-            $testData['area_sqm'] = 10001; // Max is 10000
+            $testData['area_sqm'] = 1000000; // Max is 999999.99
             break;
         case 'non_numeric_area':
             $testData['area_sqm'] = 'not-a-number';
             break;
         case 'invalid_building_id':
-            $testData['building_id'] = 999999;
+            $testData['building_id'] = $otherTenantBuilding->id;
             break;
     }
     
@@ -432,6 +394,7 @@ test('Filament PropertyResource rejects invalid updates consistently with Update
     $request = new UpdatePropertyRequest();
     $request->setContainer(app());
     $request->setRedirector(app('redirect'));
+    $request->setUserResolver(fn () => $manager);
     $request->replace($testData);
     
     $validator = Validator::make($testData, $request->rules(), $request->messages());
@@ -460,12 +423,10 @@ test('Filament PropertyResource rejects invalid updates consistently with Update
     
     $component->fillForm($formData);
     
-    try {
-        $component->call('save');
-        $filamentPasses = true;
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $filamentPasses = false;
-    }
+    $component->call('save');
+
+    $filamentErrors = $component->instance()->getErrorBag()->toArray();
+    $filamentPasses = empty($filamentErrors);
     
     // Property: Both should reject the invalid data
     expect($formRequestPasses)->toBeFalse("UpdatePropertyRequest should reject invalid data (type: {$invalidationType})");

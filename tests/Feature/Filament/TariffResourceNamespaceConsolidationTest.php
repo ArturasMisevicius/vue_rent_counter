@@ -7,6 +7,7 @@ namespace Tests\Feature\Filament;
 use App\Enums\UserRole;
 use App\Filament\Resources\TariffResource;
 use App\Models\Provider;
+use App\Models\Subscription;
 use App\Models\Tariff;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -41,6 +42,7 @@ class TariffResourceNamespaceConsolidationTest extends TestCase
     {
         // Arrange
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        Subscription::factory()->active()->create(['user_id' => $admin->id]);
         Provider::factory()->count(3)->create();
         Tariff::factory()->count(5)->create();
 
@@ -60,6 +62,7 @@ class TariffResourceNamespaceConsolidationTest extends TestCase
     {
         // Arrange
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        Subscription::factory()->active()->create(['user_id' => $admin->id]);
         $provider = Provider::factory()->create(['name' => 'Test Provider']);
         Tariff::factory()->create([
             'provider_id' => $provider->id,
@@ -89,6 +92,7 @@ class TariffResourceNamespaceConsolidationTest extends TestCase
     {
         // Arrange
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        Subscription::factory()->active()->create(['user_id' => $admin->id]);
         $tariff = Tariff::factory()->create();
 
         // Act & Assert
@@ -106,6 +110,7 @@ class TariffResourceNamespaceConsolidationTest extends TestCase
     {
         // Arrange
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        Subscription::factory()->active()->create(['user_id' => $admin->id]);
         $provider = Provider::factory()->create();
 
         $this->actingAs($admin);
@@ -188,6 +193,7 @@ class TariffResourceNamespaceConsolidationTest extends TestCase
     {
         // Arrange
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        Subscription::factory()->active()->create(['user_id' => $admin->id]);
         $provider = Provider::factory()->create(['name' => 'Unique Provider']);
         Tariff::factory()->create([
             'provider_id' => $provider->id,
@@ -211,6 +217,7 @@ class TariffResourceNamespaceConsolidationTest extends TestCase
     {
         // Arrange
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        Subscription::factory()->active()->create(['user_id' => $admin->id]);
         Tariff::factory()->create(['active_from' => now()->subDays(10)]);
         Tariff::factory()->create(['active_from' => now()->subDays(5)]);
         Tariff::factory()->create(['active_from' => now()->subDays(1)]);
@@ -230,6 +237,7 @@ class TariffResourceNamespaceConsolidationTest extends TestCase
     {
         // Arrange
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        Subscription::factory()->active()->create(['user_id' => $admin->id]);
 
         $this->actingAs($admin);
 
@@ -254,6 +262,7 @@ class TariffResourceNamespaceConsolidationTest extends TestCase
     {
         // Arrange
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        Subscription::factory()->active()->create(['user_id' => $admin->id]);
         Provider::factory()->count(3)->create();
         Tariff::factory()->count(10)->create();
 

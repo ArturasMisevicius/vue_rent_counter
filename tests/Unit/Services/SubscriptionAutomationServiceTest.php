@@ -112,7 +112,6 @@ class SubscriptionAutomationServiceTest extends TestCase
     {
         $subscription = Subscription::factory()->create([
             'auto_renew' => false,
-            'renewal_period' => null,
         ]);
 
         $this->service->configureAutoRenewal($subscription, true, 'quarterly');
@@ -144,7 +143,7 @@ class SubscriptionAutomationServiceTest extends TestCase
         $subscription->refresh();
         $this->assertEquals(SubscriptionStatus::ACTIVE, $subscription->status);
         $this->assertTrue($subscription->expires_at->isAfter($originalExpiry));
-        $this->assertEquals(365, $subscription->expires_at->diffInDays($originalExpiry));
+        $this->assertTrue($subscription->expires_at->isSameDay($originalExpiry->copy()->addYear()));
     }
 
     /** @test */
@@ -175,22 +174,18 @@ class SubscriptionAutomationServiceTest extends TestCase
             'renewal_period' => 'annually',
         ]);
 
-        // Mock DB transaction failure
-        DB::shouldReceive('beginTransaction')->once();
-        DB::shouldReceive('rollBack')->once();
-        DB::shouldReceive('commit')->never();
+        $service = new class extends SubscriptionAutomationService {
+            protected function executeAutoRenewal(Subscription $subscription): void
+            {
+                throw new \Exception('Payment failed');
+            }
+        };
 
-        // Mock the renewal method to throw an exception
-        $subscription = $this->getMockBuilder(Subscription::class)
-            ->onlyMethods(['renew'])
-            ->setConstructorArgs([])
-            ->getMock();
-        
-        $subscription->method('renew')->willThrowException(new \Exception('Payment failed'));
-        
-        // This test would need more complex mocking to work properly
-        // For now, let's test the basic flow
-        $this->assertTrue(true);
+        $result = $service->processAutoRenewals();
+
+        $this->assertEquals(0, $result['renewals_processed']);
+        $this->assertCount(1, $result['failures']);
+        $this->assertSame($subscription->id, $result['failures'][0]['subscription_id']);
     }
 
     /** @test */

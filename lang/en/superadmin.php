@@ -289,9 +289,21 @@ return [
     ],
     'dashboard' => [
         'expiring_subscriptions' => [
-            'alert' => 'Alert',
+            'title' => 'Expiring Subscriptions',
+            'alert' => ':count subscriptions are expiring soon.',
             'expires' => 'Expires',
-            'title' => 'Title',
+        ],
+        'system_health' => [
+            'title' => 'System Health',
+            'description' => 'Latest status checks for critical services',
+            'actions' => [
+                'run_check' => 'Run Health Check',
+            ],
+            'empty' => 'No data available',
+        ],
+        'analytics' => [
+            'title' => 'Analytics',
+            'empty' => 'No data available',
         ],
         'organization_show' => [
             'actions' => [
@@ -345,7 +357,6 @@ return [
                         'properties' => 'Properties',
                         'occupied' => 'Occupied',
                         'vacant' => 'Vacant',
-                        'last_gyvatukas' => 'Last Gyvatukas Check',
                         'sample_properties' => 'Sample Properties',
                         'actions' => 'Actions',
                     ],
@@ -398,13 +409,13 @@ return [
             'tenants_title' => 'Tenants Title',
         ],
         'organizations' => [
-            'active' => 'Active',
-            'inactive' => 'Inactive',
-            'no_organizations' => 'No Organizations',
-            'properties_count' => 'Properties Count',
-            'title' => 'Title',
-            'top_by_properties' => 'Top By Properties',
-            'total' => 'Total',
+            'title' => 'Organization Statistics',
+            'total' => 'Total Organizations',
+            'active' => 'Active Organizations',
+            'inactive' => 'Inactive Organizations',
+            'top_by_properties' => 'Top Organizations',
+            'properties_count' => 'Properties',
+            'no_organizations' => 'No data available',
             'view_all' => 'View All',
         ],
         'organizations_create' => [
@@ -544,14 +555,18 @@ return [
         ],
         'quick_actions' => [
             'create_organization' => 'Create Organization',
+            'create_subscription' => 'Create Subscription',
+            'view_all_activity' => 'View All Activity',
             'manage_organizations' => 'Manage Organizations',
             'manage_subscriptions' => 'Manage Subscriptions',
-            'title' => 'Title',
+            'title' => 'Quick Actions',
         ],
         'recent_activity' => [
+            'title' => 'Recent Activity',
             'last_activity' => 'Last Activity',
-            'no_activity' => 'No Activity',
-            'title' => 'Title',
+            'occurred' => 'Occurred',
+            'system' => 'System',
+            'no_activity' => 'No data available',
         ],
         'recent_activity_widget' => [
             'columns' => [
@@ -574,6 +589,7 @@ return [
             'active_subscriptions' => 'Active Subscriptions',
             'cancelled_subscriptions' => 'Cancelled Subscriptions',
             'expired_subscriptions' => 'Expired Subscriptions',
+            'expiring_soon' => 'Expiring Soon',
             'suspended_subscriptions' => 'Suspended Subscriptions',
             'total_buildings' => 'Total Buildings',
             'total_invoices' => 'Total Invoices',
@@ -586,6 +602,7 @@ return [
             'active_subscriptions' => 'Active Subscriptions',
             'cancelled_subscriptions' => 'Cancelled Subscriptions',
             'expired_subscriptions' => 'Expired Subscriptions',
+            'expiring_soon' => 'Subscriptions expiring soon',
             'inactive_organizations' => 'Inactive Organizations',
             'suspended_subscriptions' => 'Suspended Subscriptions',
             'total_organizations' => 'Total Organizations',
@@ -595,11 +612,11 @@ return [
             'basic' => 'Basic',
             'enterprise' => 'Enterprise',
             'professional' => 'Professional',
-            'title' => 'Title',
+            'title' => 'Subscriptions by Plan',
             'view_all' => 'View All',
         ],
-        'subtitle' => 'Subtitle',
-        'title' => 'Title',
+        'title' => 'Superadmin Dashboard',
+        'subtitle' => 'System-wide oversight and tenant controls',
         'widgets' => [
             'recent_activity' => [
                 'no_activity' => 'No Activity',

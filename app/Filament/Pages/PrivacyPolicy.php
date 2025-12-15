@@ -10,7 +10,7 @@ use UnitEnum;
 
 class PrivacyPolicy extends Page
 {
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-shield-check';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
 
     protected static ?string $navigationLabel = null;
 
@@ -18,7 +18,7 @@ class PrivacyPolicy extends Page
 
     protected string $view = 'filament.pages.privacy-policy';
 
-    protected static UnitEnum|string|null $navigationGroup = null;
+    protected static string|UnitEnum|null $navigationGroup = null;
 
     protected static ?int $navigationSort = 90;
 

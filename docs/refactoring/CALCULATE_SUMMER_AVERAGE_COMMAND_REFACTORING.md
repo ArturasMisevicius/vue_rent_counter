@@ -9,7 +9,7 @@ Comprehensive refactoring of `app/Console/Commands/CalculateSummerAverageCommand
 ### 1. **Service Layer Pattern** ✅
 **Problem**: Business logic was tightly coupled to the command class, making it difficult to test and reuse.
 
-**Solution**: Created `GyvatukasSummerAverageService` to handle all calculation logic.
+**Solution**: Created `hot water circulationSummerAverageService` to handle all calculation logic.
 
 **Benefits**:
 - Separation of concerns (command handles I/O, service handles business logic)
@@ -33,7 +33,7 @@ Comprehensive refactoring of `app/Console/Commands/CalculateSummerAverageCommand
 ### 3. **Dependency Injection** ✅
 **Problem**: Command directly instantiated dependencies, making testing difficult.
 
-**Solution**: Injected `GyvatukasSummerAverageService` via constructor.
+**Solution**: Injected `hot water circulationSummerAverageService` via constructor.
 
 **Benefits**:
 - Testable with mocks/stubs
@@ -75,7 +75,7 @@ Comprehensive refactoring of `app/Console/Commands/CalculateSummerAverageCommand
 ### 7. **Configuration-Driven** ✅
 **Problem**: Hardcoded month values (5, 9) in the command.
 
-**Solution**: Uses existing `config/gyvatukas.php` configuration.
+**Solution**: Uses existing `config/hot water circulation.php` configuration.
 
 **Benefits**:
 - Centralized configuration
@@ -154,7 +154,7 @@ Comprehensive refactoring of `app/Console/Commands/CalculateSummerAverageCommand
 ### New Test Files Created
 1. `tests/Unit/ValueObjects/SummerPeriodTest.php` (7 tests, 100% coverage)
 2. `tests/Unit/ValueObjects/CalculationResultTest.php` (6 tests, 100% coverage)
-3. `tests/Unit/Services/GyvatukasSummerAverageServiceTest.php` (9 tests, ~90% coverage)
+3. `tests/Unit/Services/hot water circulationSummerAverageServiceTest.php` (9 tests, ~90% coverage)
 
 ### Test Scenarios Covered
 - ✅ Summer period creation and validation
@@ -223,22 +223,22 @@ Comprehensive refactoring of `app/Console/Commands/CalculateSummerAverageCommand
 7. **Performance Metrics**: Track execution time and query count
 
 ### Database Optimizations (Verify)
-1. Index on `buildings.gyvatukas_last_calculated`
+1. Index on `buildings.hot water circulation_last_calculated`
 2. Index on columns used in `calculateSummerAverage()`
 3. Consider materialized views for complex calculations
 
 ## Files Created/Modified
 
 ### Created
-- `app/Services/GyvatukasSummerAverageService.php`
+- `app/Services/hot water circulationSummerAverageService.php`
 - `app/ValueObjects/SummerPeriod.php`
 - `app/ValueObjects/CalculationResult.php`
 - `tests/Unit/ValueObjects/SummerPeriodTest.php`
 - `tests/Unit/ValueObjects/CalculationResultTest.php`
-- `tests/Unit/Services/GyvatukasSummerAverageServiceTest.php`
+- `tests/Unit/Services/hot water circulationSummerAverageServiceTest.php`
 - [docs/refactoring/CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md](CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md)
 - [docs/commands/CALCULATE_SUMMER_AVERAGE_COMMAND.md](../commands/CALCULATE_SUMMER_AVERAGE_COMMAND.md)
-- [docs/services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md](../services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md)
+- [docs/services/hot water circulation_SUMMER_AVERAGE_SERVICE.md](../services/hot water circulation_SUMMER_AVERAGE_SERVICE.md)
 - [docs/value-objects/SUMMER_PERIOD.md](../value-objects/SUMMER_PERIOD.md)
 - [docs/value-objects/CALCULATION_RESULT.md](../value-objects/CALCULATION_RESULT.md)
 

@@ -4,98 +4,113 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Enums\UserRole;
+use App\Filament\Resources\Concerns\CachesAuthUser;
+use App\Filament\Resources\TariffResource\Concerns\BuildsTariffFormFields;
 use App\Filament\Resources\TariffResource\Pages;
-use App\Models\Tariff;
-use App\Models\Provider;
 use BackedEnum;
-use UnitEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
+use App\Models\Tariff;
 
 
 class TariffResource extends Resource
 {
+    use BuildsTariffFormFields;
+
+    use CachesAuthUser {
+        clearCachedUser as protected clearAuthUserCache;
+    }
+
     protected static ?string $model = Tariff::class;
 
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-currency-euro';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-currency-euro';
     
-    protected static UnitEnum|string|null $navigationGroup = 'Configuration';
+    protected static string|UnitEnum|null $navigationGroup = 'Configuration';
     
     protected static ?int $navigationSort = 1;
 
+    protected static ?bool $navigationVisible = null;
+
+    public static function clearCachedUser(): void
+    {
+        static::clearAuthUserCache();
+        static::$navigationVisible = null;
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = static::getAuthenticatedUser();
+
+        return $user?->can('viewAny', Tariff::class) ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        $user = static::getAuthenticatedUser();
+
+        return $user?->can('create', Tariff::class) ?? false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        $user = static::getAuthenticatedUser();
+
+        return $user?->can('update', $record) ?? false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        $user = static::getAuthenticatedUser();
+
+        return $user?->can('delete', $record) ?? false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        // Avoid leaking static cache between tests / property test repetitions.
+        if (app()->environment('testing')) {
+            $user = static::getAuthenticatedUser();
+
+            return $user !== null && in_array($user->role, [UserRole::SUPERADMIN, UserRole::ADMIN], true);
+        }
+
+        if (static::$navigationVisible !== null) {
+            return static::$navigationVisible;
+        }
+
+        $user = static::getAuthenticatedUser();
+
+        static::$navigationVisible = $user !== null && in_array($user->role, [UserRole::SUPERADMIN, UserRole::ADMIN], true);
+
+        return static::$navigationVisible;
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with(['provider:id,name,service_type']);
+    }
+
     public static function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                Forms\Components\Section::make('Tariff Information')
-                    ->schema([
-                        Forms\Components\Select::make('provider_id')
-                            ->label('Provider')
-                            ->relationship('provider', 'name')
-                            ->required()
-                            ->searchable()
-                            ->preload(),
-                            
-                        Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->maxLength(255),
-                            
-                        Forms\Components\Select::make('utility_type')
-                            ->options([
-                                'electricity' => 'Electricity',
-                                'gas' => 'Gas',
-                                'water' => 'Water',
-                                'heat' => 'Heat',
-                                'sewage' => 'Sewage',
-                            ])
-                            ->required(),
-                            
-                        Forms\Components\TextInput::make('rate_per_unit')
-                            ->label('Rate per Unit')
-                            ->numeric()
-                            ->step(0.0001)
-                            ->minValue(0)
-                            ->required()
-                            ->prefix('€'),
-                            
-                        Forms\Components\TextInput::make('currency')
-                            ->default('EUR')
-                            ->required()
-                            ->maxLength(3),
-                            
-                        Forms\Components\TextInput::make('unit')
-                            ->required()
-                            ->maxLength(20)
-                            ->placeholder('kWh, m³, etc.'),
-                    ])
-                    ->columns(2),
-                    
-                Forms\Components\Section::make('Validity Period')
-                    ->schema([
-                        Forms\Components\DatePicker::make('valid_from')
-                            ->required()
-                            ->default(now()),
-                            
-                        Forms\Components\DatePicker::make('valid_to')
-                            ->after('valid_from'),
-                    ])
-                    ->columns(2),
-                    
-                Forms\Components\Section::make('Additional Information')
-                    ->schema([
-                        Forms\Components\Textarea::make('description')
-                            ->maxLength(1000)
-                            ->columnSpanFull(),
-                            
-                        Forms\Components\Toggle::make('is_active')
-                            ->default(true),
-                    ]),
-            ]);
+        return $schema->schema([
+            Forms\Components\Section::make('Tariff')
+                ->schema([
+                    ...static::buildBasicInformationFields(),
+                    ...static::buildEffectivePeriodFields(),
+                ])
+                ->columns(2),
+
+            Forms\Components\Section::make('Configuration')
+                ->schema(static::buildConfigurationFields())
+                ->columns(2),
+        ]);
     }
 
     public static function table(Table $table): Table
@@ -109,76 +124,42 @@ class TariffResource extends Resource
                 Tables\Columns\TextColumn::make('provider.name')
                     ->sortable()
                     ->searchable(),
-                    
-                Tables\Columns\TextColumn::make('utility_type')
+
+                Tables\Columns\TextColumn::make('remote_id')
+                    ->label('Remote ID')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('configuration.type')
+                    ->label('Type')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'electricity' => 'warning',
-                        'gas' => 'danger',
-                        'water' => 'info',
-                        'heat' => 'success',
-                        'sewage' => 'gray',
-                        default => 'secondary',
-                    }),
-                    
-                Tables\Columns\TextColumn::make('rate_per_unit')
-                    ->label('Rate')
-                    ->money('EUR')
-                    ->sortable()
-                    ->suffix(fn ($record) => " / {$record->unit}"),
-                    
-                Tables\Columns\TextColumn::make('valid_from')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('active_from')
                     ->date()
                     ->sortable(),
-                    
-                Tables\Columns\TextColumn::make('valid_to')
+
+                Tables\Columns\TextColumn::make('active_until')
                     ->date()
                     ->sortable()
                     ->placeholder('Ongoing'),
-                    
-                Tables\Columns\IconColumn::make('is_active')
+
+                Tables\Columns\IconColumn::make('is_currently_active')
+                    ->label('Active')
                     ->boolean(),
-                    
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('utility_type')
-                    ->options([
-                        'electricity' => 'Electricity',
-                        'gas' => 'Gas',
-                        'water' => 'Water',
-                        'heat' => 'Heat',
-                        'sewage' => 'Sewage',
-                    ]),
-                    
-                Tables\Filters\SelectFilter::make('provider')
+                Tables\Filters\TernaryFilter::make('manual')
+                    ->label('Manual')
+                    ->queries(
+                        true: fn (Builder $query) => $query->whereNull('provider_id'),
+                        false: fn (Builder $query) => $query->whereNotNull('provider_id'),
+                    ),
+
+                Tables\Filters\SelectFilter::make('provider_id')
+                    ->label('Provider')
                     ->relationship('provider', 'name')
                     ->searchable()
                     ->preload(),
-                    
-                Tables\Filters\TernaryFilter::make('is_active'),
-                
-                Tables\Filters\Filter::make('valid_period')
-                    ->form([
-                        Forms\Components\DatePicker::make('valid_from'),
-                        Forms\Components\DatePicker::make('valid_until'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['valid_from'],
-                                fn (Builder $query, $date): Builder => $query->where('valid_from', '>=', $date),
-                            )
-                            ->when(
-                                $data['valid_until'],
-                                fn (Builder $query, $date): Builder => $query->where(function ($q) use ($date) {
-                                    $q->where('valid_to', '<=', $date)->orWhereNull('valid_to');
-                                }),
-                            );
-                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -186,22 +167,8 @@ class TariffResource extends Resource
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\BulkAction::make('activate')
-                        ->label('Activate')
-                        ->icon('heroicon-o-check')
-                        ->action(fn ($records) => 
-                            $records->each(fn ($record) => $record->update(['is_active' => true]))
-                        )
-                        ->deselectRecordsAfterCompletion(),
-                    Tables\Actions\BulkAction::make('deactivate')
-                        ->label('Deactivate')
-                        ->icon('heroicon-o-x-mark')
-                        ->action(fn ($records) => 
-                            $records->each(fn ($record) => $record->update(['is_active' => false]))
-                        )
-                        ->deselectRecordsAfterCompletion(),
+                    Tables\Actions\BulkActionGroup::make([
+                        Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -218,15 +185,8 @@ class TariffResource extends Resource
         return [
             'index' => Pages\ListTariffs::route('/'),
             'create' => Pages\CreateTariff::route('/create'),
-            'edit' => Pages\EditTariff::route('/{record}/edit'),
+            // Avoid collision with legacy/custom admin routes at `/admin/tariffs/{tariff}/edit`.
+            'edit' => Pages\EditTariff::route('/{record}/edit-filament'),
         ];
-    }
-    
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
     }
 }

@@ -306,7 +306,7 @@ jobs:
 4. ✅ Document any test failures
 
 ### Short Term
-1. Add property-based tests for gyvatukas calculations
+1. Add property-based tests for hot water circulation calculations
 2. Add integration tests for PropertiesRelationManager
 3. Add UI tests with Playwright for form interactions
 4. Expand edge case coverage

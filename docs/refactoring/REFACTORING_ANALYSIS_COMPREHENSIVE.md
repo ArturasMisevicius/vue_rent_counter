@@ -24,10 +24,10 @@ $sewageRate = $config['sewage_rate'] ?? 1.23;  // Magic number
 $fixedFee = $config['fixed_fee'] ?? 0.85;      // Magic number
 ```
 
-**Location**: `GyvatukasCalculator.php` lines 27-28
+**Location**: `hot water circulationCalculator.php` lines 27-28
 ```php
-$this->waterSpecificHeat = $waterSpecificHeat ?? config('gyvatukas.water_specific_heat', 1.163);
-$this->temperatureDelta = $temperatureDelta ?? config('gyvatukas.temperature_delta', 45.0);
+$this->waterSpecificHeat = $waterSpecificHeat ?? config('hot water circulation.water_specific_heat', 1.163);
+$this->temperatureDelta = $temperatureDelta ?? config('hot water circulation.temperature_delta', 45.0);
 ```
 
 **Impact**: Maintainability issues, unclear business rules
@@ -214,7 +214,7 @@ class InvalidBillingPeriodException extends DomainException {}
 ```php
 public function __construct(
     private TariffResolver $tariffResolver,
-    private GyvatukasCalculator $gyvatukasCalculator
+    private hot water circulationCalculator $hot water circulationCalculator
 ) {}
 // Plus direct dependencies on: Meter, Provider, Invoice, InvoiceItem, MeterReading
 ```
@@ -241,7 +241,7 @@ return $meter->readings()
 ## 6. PERFORMANCE ISSUES
 
 ### 6.1 N+1 Query Problems ⚠️
-**Location**: `GyvatukasCalculator.php`
+**Location**: `hot water circulationCalculator.php`
 ```php
 foreach ($properties as $property) {
     foreach ($property->meters as $meter) {
@@ -286,7 +286,7 @@ foreach ($timeRanges as $range) {
 ### 6.4 Caching Opportunities 💡
 **Recommendations**:
 1. Cache tariff resolutions (rarely change)
-2. Cache gyvatukas summer averages (calculated once per season)
+2. Cache hot water circulation summer averages (calculated once per season)
 3. Cache dashboard statistics (update on data changes)
 
 ---

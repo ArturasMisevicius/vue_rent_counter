@@ -94,7 +94,7 @@ class PropertyController extends Controller
 
         $property->load(['building', 'tenants', 'meters.readings' => function ($query) {
             $query->latest('reading_date')->limit(1);
-        }]);
+        }, 'meters.serviceConfiguration.utilityService']);
 
         return view('manager.properties.show', compact('property'));
     }

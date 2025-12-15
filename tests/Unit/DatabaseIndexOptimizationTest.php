@@ -11,7 +11,7 @@ test('optimization indexes are present for new tables', function () {
         ->and($orgIndexes)->toContain('organizations_plan_index')
         ->and($orgIndexes)->toContain('organizations_created_by_index');
 
-    $activityIndexes = collect(DB::select("PRAGMA index_list('organization_activity_log')"))->pluck('name');
+    $activityIndexes = collect(DB::select("PRAGMA index_list('organization_activity_logs')"))->pluck('name');
     expect($activityIndexes)->toContain('org_activity_org_created_index')
         ->and($activityIndexes)->toContain('org_activity_user_created_index')
         ->and($activityIndexes)->toContain('org_activity_action_index');

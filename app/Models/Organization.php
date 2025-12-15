@@ -7,12 +7,13 @@ namespace App\Models;
 use App\Enums\AuditAction;
 use App\Enums\SubscriptionPlan;
 use App\Enums\TenantStatus;
-use App\Models\SuperAdminAuditLog;
 use App\ValueObjects\TenantMetrics;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 /**
@@ -22,6 +23,7 @@ use Illuminate\Support\Str;
 class Organization extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -207,6 +209,18 @@ class Organization extends Model
     public function invitations(): HasMany
     {
         return $this->hasMany(OrganizationInvitation::class, 'organization_id');
+    }
+
+    public function subscriptions(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Subscription::class,
+            User::class,
+            'tenant_id',
+            'user_id',
+            'id',
+            'id',
+        );
     }
 
     public function creator(): BelongsTo
@@ -519,12 +533,6 @@ class Organization extends Model
             'average_response_time' => $usage['response_time'] ?? $this->average_response_time,
             'last_activity_at' => now(),
         ]);
-    }
-
-    // Relationships for super admin
-    public function superAdminAuditLogs(): HasMany
-    {
-        return $this->hasMany(SuperAdminAuditLog::class, 'tenant_id');
     }
 
     public function createdByAdmin(): BelongsTo

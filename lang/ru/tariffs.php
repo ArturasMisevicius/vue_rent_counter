@@ -166,9 +166,9 @@ return [
                     'string' => 'String',
                 ],
                 'errors' => [
-                    'coverage' => 'Coverage',
-                    'overlap' => 'Overlap',
-                    'required' => 'Required',
+                    'coverage' => 'Gap detected starting at :time',
+                    'overlap' => 'Time zones cannot overlap.',
+                    'required' => 'At least one zone is required',
                 ],
                 'id' => [
                     'max' => 'Max',

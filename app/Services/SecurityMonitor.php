@@ -209,7 +209,8 @@ class SecurityMonitor
             'context' => $context,
         ]);
         
-        // TODO: Integrate with external alerting systems (Slack, PagerDuty, etc.)
+        // Future: Integrate with external alerting systems (Slack, PagerDuty, etc.)
+        // This can be implemented using Laravel notifications or dedicated alerting services
     }
 
     /**

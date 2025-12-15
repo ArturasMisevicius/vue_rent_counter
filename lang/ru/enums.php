@@ -18,10 +18,6 @@ return [
         'equal' => 'Равный',
         'equal_description' => 'Равное описание',
     ],
-    'gyvatukas_calculation_type' => [
-        'summer' => 'Лето',
-        'winter' => 'Зима',
-    ],
     'input_method' => [
         'api_integration_description' => 'Описание интеграции API',
         'csv_import_description' => 'Описание импорта CsV',
@@ -72,6 +68,7 @@ return [
         'suspended' => 'Приостановленный',
     ],
     'user_role' => [
+        'superadmin' => 'Супер админ',
         'admin' => 'Админ',
         'manager' => 'Менеджер',
         'tenant' => 'Жилец',

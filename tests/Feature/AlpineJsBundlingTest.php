@@ -12,8 +12,11 @@ it('loads Alpine.js from bundled assets', function () {
     // Should NOT contain CDN script
     $response->assertDontSee('cdn.jsdelivr.net/npm/alpinejs');
     
-    // Should contain Vite directive
-    $response->assertSee('resources/js/app.js');
+    // Should include the compiled Vite entry (not a CDN script)
+    $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
+    $jsEntry = 'build/' . $manifest['resources/js/app.js']['file'];
+    
+    $response->assertSee($jsEntry);
 });
 
 it('has compiled Vite manifest', function () {

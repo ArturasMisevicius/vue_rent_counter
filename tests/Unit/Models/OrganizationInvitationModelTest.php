@@ -113,7 +113,7 @@ class OrganizationInvitationModelTest extends TestCase
 
         $this->assertNotEquals($originalToken, $invitation->token);
         $this->assertTrue($invitation->expires_at->isFuture());
-        $this->assertEquals(7, $invitation->expires_at->diffInDays(now()));
+        $this->assertEqualsWithDelta(7.0, now()->diffInDays($invitation->expires_at), 0.01);
     }
 
     /** @test */
@@ -142,7 +142,7 @@ class OrganizationInvitationModelTest extends TestCase
         $invitation = OrganizationInvitation::factory()->create(['expires_at' => null]);
 
         $this->assertNotNull($invitation->expires_at);
-        $this->assertEquals(7, $invitation->expires_at->diffInDays(now()));
+        $this->assertEqualsWithDelta(7.0, now()->diffInDays($invitation->expires_at), 0.01);
     }
 
     /** @test */

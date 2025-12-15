@@ -1,10 +1,10 @@
-# Calculate Summer Average Gyvatukas Command
+# Calculate Summer Average hot water circulation Command
 
 ## Overview
 
-The `CalculateSummerAverageCommand` is an Artisan command that calculates and stores the average gyvatukas (circulation fee) for buildings across the summer months (May-September). This average is used as a baseline during the heating season (October-April) for billing calculations.
+The `CalculateSummerAverageCommand` is an Artisan command that calculates and stores the average hot water circulation (circulation fee) for buildings across the summer months (May-September). This average is used as a baseline during the heating season (October-April) for billing calculations.
 
-**Command**: `php artisan gyvatukas:calculate-summer-average`
+**Command**: `php artisan hot water circulation:calculate-summer-average`
 
 **Scheduled**: Automatically runs on October 1st each year
 
@@ -14,12 +14,12 @@ The `CalculateSummerAverageCommand` is an Artisan command that calculates and st
 
 ### Service Layer Pattern
 
-The command follows Laravel best practices by delegating business logic to the `GyvatukasSummerAverageService`:
+The command follows Laravel best practices by delegating business logic to the `hot water circulationSummerAverageService`:
 
 ```
 CalculateSummerAverageCommand (Console Layer)
     ↓
-GyvatukasSummerAverageService (Business Logic)
+hot water circulationSummerAverageService (Business Logic)
     ↓
 Building Model (Data Layer)
 ```
@@ -38,7 +38,7 @@ Building Model (Data Layer)
 ## Command Signature
 
 ```bash
-php artisan gyvatukas:calculate-summer-average [options]
+php artisan hot water circulation:calculate-summer-average [options]
 ```
 
 ### Options
@@ -54,7 +54,7 @@ php artisan gyvatukas:calculate-summer-average [options]
 ### Calculate for All Buildings (Default)
 
 ```bash
-php artisan gyvatukas:calculate-summer-average
+php artisan hot water circulation:calculate-summer-average
 ```
 
 Calculates summer average for all buildings using the previous year's data.
@@ -62,7 +62,7 @@ Calculates summer average for all buildings using the previous year's data.
 ### Calculate for Specific Year
 
 ```bash
-php artisan gyvatukas:calculate-summer-average --year=2023
+php artisan hot water circulation:calculate-summer-average --year=2023
 ```
 
 Calculates summer average for all buildings using 2023 data (May-September 2023).
@@ -70,7 +70,7 @@ Calculates summer average for all buildings using 2023 data (May-September 2023)
 ### Calculate for Single Building
 
 ```bash
-php artisan gyvatukas:calculate-summer-average --building=42
+php artisan hot water circulation:calculate-summer-average --building=42
 ```
 
 Calculates summer average for building ID 42 only.
@@ -78,7 +78,7 @@ Calculates summer average for building ID 42 only.
 ### Force Recalculation
 
 ```bash
-php artisan gyvatukas:calculate-summer-average --force
+php artisan hot water circulation:calculate-summer-average --force
 ```
 
 Recalculates even if buildings already have a summer average for the specified year.
@@ -86,7 +86,7 @@ Recalculates even if buildings already have a summer average for the specified y
 ### Combined Options
 
 ```bash
-php artisan gyvatukas:calculate-summer-average --year=2023 --building=42 --force
+php artisan hot water circulation:calculate-summer-average --year=2023 --building=42 --force
 ```
 
 Force recalculate building 42 for year 2023.
@@ -96,7 +96,7 @@ Force recalculate building 42 for year 2023.
 ### Progress Display
 
 ```
-Starting summer average gyvatukas calculation...
+Starting summer average hot water circulation calculation...
 Calculating for period: 2023-05-01 to 2023-09-30
 Processing 150 building(s)...
 
@@ -127,10 +127,10 @@ Errors: 1
 2. **Skip Logic**: Buildings already calculated for the year are skipped (unless `--force` is used)
 3. **Calculation**: Calls `Building::calculateSummerAverage()` which:
    - Iterates through each summer month
-   - Calculates circulation energy using `GyvatukasCalculator`
+   - Calculates circulation energy using `hot water circulationCalculator`
    - Averages the monthly values
-   - Stores result in `gyvatukas_summer_average` column
-   - Updates `gyvatukas_last_calculated` timestamp
+   - Stores result in `hot water circulation_summer_average` column
+   - Updates `hot water circulation_last_calculated` timestamp
 4. **Transaction Safety**: Each building calculation is wrapped in a database transaction
 
 ### Chunked Processing
@@ -205,7 +205,7 @@ Log::error('Failed to calculate summer average for building', [
 ]);
 ```
 
-Logs respect the `gyvatukas.audit.enabled` configuration setting.
+Logs respect the `hot water circulation.audit.enabled` configuration setting.
 
 ## Scheduling
 
@@ -216,7 +216,7 @@ Add to `routes/console.php`:
 ```php
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('gyvatukas:calculate-summer-average')
+Schedule::command('hot water circulation:calculate-summer-average')
     ->yearlyOn(10, 1, '02:00') // October 1st at 2:00 AM
     ->timezone('Europe/Vilnius');
 ```
@@ -226,24 +226,24 @@ Schedule::command('gyvatukas:calculate-summer-average')
 Run manually when needed:
 
 ```bash
-php artisan gyvatukas:calculate-summer-average
+php artisan hot water circulation:calculate-summer-average
 ```
 
 ## Configuration
 
-The command uses configuration from `config/gyvatukas.php`:
+The command uses configuration from `config/hot water circulation.php`:
 
 ```php
 return [
-    'summer_start_month' => env('GYVATUKAS_SUMMER_START', 5),  // May
-    'summer_end_month' => env('GYVATUKAS_SUMMER_END', 9),      // September
+    'summer_start_month' => env('hot water circulation_SUMMER_START', 5),  // May
+    'summer_end_month' => env('hot water circulation_SUMMER_END', 9),      // September
     
     'validation' => [
         'min_year' => 2020,
     ],
     
     'audit' => [
-        'enabled' => env('GYVATUKAS_AUDIT_ENABLED', true),
+        'enabled' => env('hot water circulation_AUDIT_ENABLED', true),
     ],
 ];
 ```
@@ -252,7 +252,7 @@ return [
 
 ### Tables Modified
 
-- **buildings**: Updates `gyvatukas_summer_average` and `gyvatukas_last_calculated` columns
+- **buildings**: Updates `hot water circulation_summer_average` and `hot water circulation_last_calculated` columns
 
 ### Indexes Used
 
@@ -260,7 +260,7 @@ Ensure these indexes exist for optimal performance:
 
 ```sql
 CREATE INDEX idx_buildings_last_calculated 
-ON buildings(gyvatukas_last_calculated);
+ON buildings(hot water circulation_last_calculated);
 
 CREATE INDEX idx_buildings_tenant_id 
 ON buildings(tenant_id);
@@ -271,7 +271,7 @@ ON buildings(tenant_id);
 ### Unit Tests
 
 ```bash
-php artisan test --filter=GyvatukasSummerAverageServiceTest
+php artisan test --filter=hot water circulationSummerAverageServiceTest
 php artisan test --filter=SummerPeriodTest
 php artisan test --filter=CalculationResultTest
 ```
@@ -280,17 +280,17 @@ php artisan test --filter=CalculationResultTest
 
 ```bash
 # Test with specific year
-php artisan gyvatukas:calculate-summer-average --year=2023
+php artisan hot water circulation:calculate-summer-average --year=2023
 
 # Test single building
-php artisan gyvatukas:calculate-summer-average --building=1
+php artisan hot water circulation:calculate-summer-average --building=1
 
 # Test force recalculation
-php artisan gyvatukas:calculate-summer-average --force
+php artisan hot water circulation:calculate-summer-average --force
 
 # Test invalid inputs
-php artisan gyvatukas:calculate-summer-average --year=abc
-php artisan gyvatukas:calculate-summer-average --building=-1
+php artisan hot water circulation:calculate-summer-average --year=abc
+php artisan hot water circulation:calculate-summer-average --building=-1
 ```
 
 ## Performance Considerations
@@ -357,7 +357,7 @@ Enable detailed logging:
 
 ```bash
 # Set log level to debug
-LOG_LEVEL=debug php artisan gyvatukas:calculate-summer-average
+LOG_LEVEL=debug php artisan hot water circulation:calculate-summer-average
 ```
 
 Check logs:
@@ -368,17 +368,17 @@ tail -f storage/logs/laravel.log
 
 ## Related Documentation
 
-- [GyvatukasSummerAverageService](../services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md)
+- [hot water circulationSummerAverageService](../services/hot water circulation_SUMMER_AVERAGE_SERVICE.md)
 - [SummerPeriod Value Object](../value-objects/SUMMER_PERIOD.md)
 - [CalculationResult Value Object](../value-objects/CALCULATION_RESULT.md)
 - [Building Model](../models/BUILDING.md)
-- [Gyvatukas Calculator](../services/GYVATUKAS_CALCULATOR.md)
+- [hot water circulation Calculator](../services/hot water circulation_CALCULATOR.md)
 
 ## Changelog
 
 ### v1.2 (2024-11-25) - Service Layer Refactoring
 
-- Extracted business logic to `GyvatukasSummerAverageService`
+- Extracted business logic to `hot water circulationSummerAverageService`
 - Created `SummerPeriod` and `CalculationResult` value objects
 - Implemented dependency injection
 - Added input validation methods

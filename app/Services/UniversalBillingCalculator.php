@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\PricingModel;
+use App\Exceptions\FormulaEvaluationException;
 use App\Models\ServiceConfiguration;
 use App\ValueObjects\BillingPeriod;
 use App\ValueObjects\UniversalCalculationResult;
@@ -59,7 +60,7 @@ use Psr\Log\LoggerInterface;
  * @author Universal Utility Management Team
  * @since 2.0.0
  */
-final class UniversalBillingCalculator
+class UniversalBillingCalculator
 {
     /**
      * Cache TTL for billing calculations (1 hour)
@@ -95,6 +96,7 @@ final class UniversalBillingCalculator
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
         private readonly LoggerInterface $logger,
+        private readonly FormulaEvaluator $formulaEvaluator,
     ) {
     }
 
@@ -411,7 +413,7 @@ final class UniversalBillingCalculator
         $customVariables = $rateSchedule['variables'] ?? [];
         $variables = array_merge($variables, $customVariables);
         
-        // Evaluate the formula (this would need a safe math expression evaluator)
+        // Evaluate the formula using the safe FormulaEvaluator.
         $calculatedAmount = $this->evaluateFormula($formula, $variables);
         
         return new UniversalCalculationResult(
@@ -459,6 +461,7 @@ final class UniversalBillingCalculator
             // Consumption-based flat rate
             $unitRate = $rateSchedule['unit_rate']
                 ?? $rateSchedule['rate_per_unit']
+                ?? $rateSchedule['rate']
                 ?? 0.0;
             $totalConsumption = $consumption->getTotalConsumption();
             $consumptionAmount = $totalConsumption * $unitRate;
@@ -580,26 +583,24 @@ final class UniversalBillingCalculator
     }
 
     /**
-     * Evaluate mathematical formula safely.
-     * 
-     * Note: This is a placeholder implementation. In production, you would
-     * use a safe mathematical expression evaluator library.
+     * Evaluate mathematical formula safely using FormulaEvaluator.
      */
     private function evaluateFormula(string $formula, array $variables): float
     {
-        // This is a simplified implementation
-        // In production, use a proper math expression evaluator like:
-        // - symfony/expression-language
-        // - hoa/math
-        // - Or a custom safe evaluator
-        
-        $this->logger->warning('Custom formula evaluation not fully implemented', [
-            'formula' => $formula,
-            'variables' => $variables,
-        ]);
-        
-        // Return consumption-based calculation as fallback
-        return $variables['consumption'] * 0.15; // Default rate
+        try {
+            return $this->formulaEvaluator->evaluate($formula, $variables);
+        } catch (FormulaEvaluationException $e) {
+            $this->logger->error('Custom formula evaluation failed', [
+                'formula' => $formula,
+                'variables' => $variables,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw new InvalidArgumentException(
+                "Custom formula evaluation failed: {$e->getMessage()}",
+                previous: $e
+            );
+        }
     }
 
     /**
@@ -610,8 +611,21 @@ final class UniversalBillingCalculator
         UniversalConsumptionData $consumption,
         BillingPeriod $billingPeriod
     ): string {
+        $serviceConfigFingerprint = [
+            'utility_service_id' => $serviceConfig->utility_service_id,
+            'pricing_model' => $serviceConfig->pricing_model?->value,
+            'rate_schedule' => $serviceConfig->rate_schedule,
+            'distribution_method' => $serviceConfig->distribution_method?->value,
+            'tariff_id' => $serviceConfig->tariff_id,
+            'provider_id' => $serviceConfig->provider_id,
+            'effective_from' => $serviceConfig->effective_from?->format('Y-m-d H:i:s'),
+            'effective_until' => $serviceConfig->effective_until?->format('Y-m-d H:i:s'),
+            'is_active' => (bool) $serviceConfig->is_active,
+        ];
+
         $keyData = [
             'service_config_id' => $serviceConfig->id,
+            'service_config_hash' => md5(serialize($serviceConfigFingerprint)),
             'consumption_hash' => md5(serialize($consumption->toArray())),
             'period_hash' => md5($billingPeriod->getStartDate()->format('Y-m-d') . $billingPeriod->getEndDate()->format('Y-m-d')),
         ];

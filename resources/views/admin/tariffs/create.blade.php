@@ -199,7 +199,7 @@
                                 
                                 init() {
                                     try {
-                                        const initialConfig = @json(old('configuration', ['type' => 'flat', 'currency' => 'EUR', 'rate' => 0.15]));
+                                        const initialConfig = @js(old('configuration', ['type' => 'flat', 'currency' => 'EUR', 'rate' => 0.15]));
                                         this.config = typeof initialConfig === 'string' ? JSON.parse(initialConfig) : initialConfig;
                                         this.jsonText = JSON.stringify(this.config, null, 2);
                                     } catch (e) {

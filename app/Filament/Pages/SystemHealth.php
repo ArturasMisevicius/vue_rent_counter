@@ -17,9 +17,9 @@ use UnitEnum;
 
 class SystemHealth extends Page
 {
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-heart';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-heart';
 
-    protected static UnitEnum|string|null $navigationGroup = 'System';
+    protected static string|UnitEnum|null $navigationGroup = 'System';
 
     protected static ?int $navigationSort = 2;
 

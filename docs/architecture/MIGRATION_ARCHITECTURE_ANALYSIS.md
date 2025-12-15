@@ -17,7 +17,7 @@
 | Layer | Impact | Details |
 |-------|--------|---------|
 | **Data Layer** | ✅ Fixed | Migration now compatible with Laravel 12/Doctrine DBAL 4.x |
-| **Service Layer** | ✅ None | BillingService, TariffResolver, GyvatukasCalculator unaffected |
+| **Service Layer** | ✅ None | BillingService, TariffResolver, hot water circulationCalculator unaffected |
 | **Presentation Layer** | ✅ None | Filament resources and Blade views unaffected |
 | **Business Logic** | ✅ None | No changes to billing calculations or tenant scoping |
 | **Security** | ✅ None | Policies and authorization unchanged |

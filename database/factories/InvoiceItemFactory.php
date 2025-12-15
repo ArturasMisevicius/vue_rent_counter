@@ -37,11 +37,11 @@ class InvoiceItemFactory extends Factory
                 'Water Sewage',
                 'Heating',
                 'Hot Water',
-                'Gyvatukas (Circulation Fee)',
                 'Fixed Meter Fee',
+                'Internet (Fixed)',
             ]),
             'quantity' => $quantity,
-            'unit' => fake()->randomElement(['kWh', 'm³', 'month']),
+            'unit' => fake()->randomElement(['kWh', 'm³', 'month', 'L']),
             'unit_price' => $unitPrice,
             'total' => null,
             'meter_reading_snapshot' => null,
@@ -55,14 +55,60 @@ class InvoiceItemFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $previousReading = fake()->randomFloat(2, 1000, 5000);
-            $currentReading = $previousReading + $attributes['quantity'];
+            $quantity = (float) ($attributes['quantity'] ?? 0);
+            $unitPrice = (float) ($attributes['unit_price'] ?? 0);
+            $total = (float) ($attributes['total'] ?? ($quantity * $unitPrice));
+
+            $currentReading = $previousReading + $quantity;
+            $endReadingDate = fake()->dateTimeBetween('-1 month', 'now');
+            $startReadingDate = (clone $endReadingDate)->modify('-1 month');
             
             return [
                 'meter_reading_snapshot' => [
-                    'previous_reading' => $previousReading,
-                    'current_reading' => $currentReading,
-                    'meter_id' => fake()->numberBetween(1, 100),
-                    'reading_date' => fake()->dateTimeBetween('-1 month', 'now')->format('Y-m-d'),
+                    'service_configuration' => [
+                        'id' => fake()->numberBetween(1, 5000),
+                        'pricing_model' => 'consumption_based',
+                        'rate_schedule' => [
+                            'unit_rate' => $unitPrice,
+                        ],
+                        'distribution_method' => 'equal',
+                        'snapshot_date' => now()->toISOString(),
+                    ],
+                    'utility_service' => [
+                        'id' => fake()->numberBetween(1, 5000),
+                        'name' => (string) ($attributes['description'] ?? 'Utility Service'),
+                        'unit_of_measurement' => (string) ($attributes['unit'] ?? ''),
+                    ],
+                    'consumption' => [
+                        'total_consumption' => $quantity,
+                        'zone_consumption' => [],
+                        'metadata' => [],
+                    ],
+                    'meters' => [
+                        [
+                            'meter_id' => fake()->numberBetween(1, 100),
+                            'meter_serial' => fake()->unique()->numerify('LT-####-####'),
+                            'zone' => null,
+                            'start_reading_id' => null,
+                            'start_value' => number_format((float) $previousReading, 2, '.', ''),
+                            'start_date' => $startReadingDate->format('Y-m-d'),
+                            'end_reading_id' => null,
+                            'end_value' => number_format((float) $currentReading, 2, '.', ''),
+                            'end_date' => $endReadingDate->format('Y-m-d'),
+                            'consumption' => round($quantity, 3),
+                        ],
+                    ],
+                    'calculation' => [
+                        'total_amount' => $total,
+                        'base_amount' => $total,
+                        'adjustments' => [],
+                        'consumption_amount' => $total,
+                        'fixed_amount' => 0.0,
+                        'tariff_snapshot' => [],
+                        'calculation_details' => [
+                            'unit_rate' => $unitPrice,
+                        ],
+                    ],
                 ],
             ];
         });
@@ -98,7 +144,7 @@ class InvoiceItemFactory extends Factory
     public function heating(): static
     {
         return $this->state(fn (array $attributes) => [
-            'description' => fake()->randomElement(['Heating', 'Hot Water', 'Gyvatukas (Circulation Fee)']),
+            'description' => fake()->randomElement(['Heating', 'Hot Water']),
             'unit' => 'kWh',
             'unit_price' => fake()->randomFloat(4, 0.08, 0.15),
         ]);

@@ -301,7 +301,7 @@ class CompleteIntegrationExample
             'commentable_type' => Invoice::class,
             'parent_id' => $mainComment->id,
             'user_id' => $adminUser->id,
-            'body' => 'Need to check the gyvatukas calculation for this period.',
+            'body' => 'Need to check the hot water circulation calculation for this period.',
             'is_internal' => true,
         ]);
         

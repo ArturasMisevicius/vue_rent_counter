@@ -50,7 +50,7 @@ This report provides a detailed analysis of the Vilnius Utilities Billing System
 
 **Severity:** High (blocks feature completion)
 
-**Recommendation:** Implement GyvatukasCalculator service (Task 7).
+**Recommendation:** Implement hot water circulationCalculator service (Task 7).
 
 ---
 

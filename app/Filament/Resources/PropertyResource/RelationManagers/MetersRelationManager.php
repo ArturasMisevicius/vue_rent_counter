@@ -6,9 +6,12 @@ namespace App\Filament\Resources\PropertyResource\RelationManagers;
 
 use App\Enums\MeterType;
 use App\Models\Meter;
+use App\Models\ServiceConfiguration;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -23,11 +26,55 @@ class MetersRelationManager extends RelationManager
     {
         return $schema
             ->schema([
-                Forms\Components\Select::make('meter_type')
+                Forms\Components\Select::make('service_configuration_id')
+                    ->label('Service')
+                    ->options(function (): array {
+                        $propertyId = $this->getOwnerRecord()->id;
+
+                        return ServiceConfiguration::query()
+                            ->where('property_id', $propertyId)
+                            ->where('is_active', true)
+                            ->with('utilityService:id,name,unit_of_measurement')
+                            ->orderBy('effective_from', 'desc')
+                            ->get()
+                            ->mapWithKeys(function (ServiceConfiguration $config): array {
+                                $service = $config->utilityService;
+
+                                $label = $service
+                                    ? "{$service->name} ({$service->unit_of_measurement})"
+                                    : "Service #{$config->id}";
+
+                                return [$config->id => $label];
+                            })
+                            ->all();
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->native(false)
+                    ->nullable()
+                    ->live()
+                    ->afterStateUpdated(function ($state, Set $set): void {
+                        if (!$state) {
+                            return;
+                        }
+
+                        $set('type', MeterType::CUSTOM->value);
+
+                        $config = ServiceConfiguration::with('utilityService')->find($state);
+                        if ($config?->pricing_model === \App\Enums\PricingModel::TIME_OF_USE) {
+                            $set('supports_zones', true);
+                        }
+                    })
+                    ->helperText('Link this meter to a configured service for billing.'),
+
+                Forms\Components\Select::make('type')
                     ->label(__('meters.relation.meter_type'))
                     ->options(MeterType::class)
                     ->required()
-                    ->native(false),
+                    ->native(false)
+                    ->default(MeterType::CUSTOM->value)
+                    ->disabled(fn (Get $get): bool => filled($get('service_configuration_id')))
+                    ->dehydrated(fn (?string $state): bool => true),
                 
                 Forms\Components\TextInput::make('serial_number')
                     ->label(__('meters.relation.serial_number'))
@@ -40,14 +87,11 @@ class MetersRelationManager extends RelationManager
                     ->required()
                     ->native(false)
                     ->maxDate(now()),
-                
-                Forms\Components\TextInput::make('initial_reading')
-                    ->label(__('meters.relation.initial_reading'))
-                    ->required()
-                    ->numeric()
-                    ->minValue(0)
-                    ->default(0)
-                    ->suffix(__('meters.units.kwh')),
+
+                Forms\Components\Toggle::make('supports_zones')
+                    ->label(__('meters.labels.supports_zones'))
+                    ->inline(false)
+                    ->default(false),
             ]);
     }
 
@@ -56,7 +100,7 @@ class MetersRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('serial_number')
             ->columns([
-                Tables\Columns\TextColumn::make('meter_type')
+                Tables\Columns\TextColumn::make('type')
                     ->label(__('meters.relation.type'))
                     ->badge()
                     ->formatStateUsing(fn (?MeterType $state): ?string => $state?->label()),
@@ -65,16 +109,20 @@ class MetersRelationManager extends RelationManager
                     ->label(__('meters.relation.serial_number'))
                     ->searchable()
                     ->copyable(),
-                
+
                 Tables\Columns\TextColumn::make('installation_date')
                     ->label(__('meters.relation.installed'))
                     ->date()
                     ->sortable(),
-                
-                Tables\Columns\TextColumn::make('initial_reading')
-                    ->label(__('meters.relation.initial_reading'))
-                    ->numeric()
-                    ->suffix(__('meters.units.kwh')),
+
+                Tables\Columns\IconColumn::make('supports_zones')
+                    ->label(__('meters.labels.supports_zones'))
+                    ->boolean(),
+
+                Tables\Columns\TextColumn::make('serviceConfiguration.utilityService.name')
+                    ->label('Service')
+                    ->toggleable()
+                    ->placeholder(__('app.common.na')),
                 
                 Tables\Columns\TextColumn::make('readings_count')
                     ->label(__('meters.relation.readings'))
@@ -83,7 +131,7 @@ class MetersRelationManager extends RelationManager
                     ->color('gray'),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('meter_type')
+                Tables\Filters\SelectFilter::make('type')
                     ->label(__('meters.relation.meter_type'))
                     ->options(MeterType::labels())
                     ->native(false),

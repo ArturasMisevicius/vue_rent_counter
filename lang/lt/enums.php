@@ -18,10 +18,6 @@ return [
         'equal' => 'Lygus',
         'equal_description' => 'Lygus aprašymas',
     ],
-    'gyvatukas_calculation_type' => [
-        'summer' => 'Vasara',
-        'winter' => 'Žiema',
-    ],
     'input_method' => [
         'api_integration_description' => 'Api integracijos aprašymas',
         'csv_import_description' => 'Csv importavimo aprašymas',
@@ -72,6 +68,7 @@ return [
         'suspended' => 'Sustabdytas',
     ],
     'user_role' => [
+        'superadmin' => 'Super Admin',
         'admin' => 'Admin',
         'manager' => 'Vadovas',
         'tenant' => 'Nuomininkas',

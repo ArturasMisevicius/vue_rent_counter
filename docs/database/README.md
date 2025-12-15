@@ -156,7 +156,7 @@ Complete database schema analysis and optimization documentation for the Vilnius
 
 ### Audit Trails
 - Meter reading audits with change tracking
-- Gyvatukas calculation audits
+- hot water circulation calculation audits
 - Invoice generation audits with performance metrics
 - Organization activity logs
 
@@ -311,7 +311,7 @@ php artisan backup:list
 ### 2025-11-24
 - ✅ Added billing service performance indexes
 - ✅ Implemented invoice generation audits
-- ✅ Added gyvatukas calculation audits
+- ✅ Added hot water circulation calculation audits
 
 ### 2025-11-23
 - ✅ Created property_tenant pivot table

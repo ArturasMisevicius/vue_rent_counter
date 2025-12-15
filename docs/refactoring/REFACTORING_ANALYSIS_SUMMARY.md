@@ -8,7 +8,7 @@ Performed comprehensive code analysis and refactoring of the Vilnius Utilities B
 
 ### 1. Performance Issues (CRITICAL)
 
-#### N+1 Query Problems in GyvatukasCalculator
+#### N+1 Query Problems in hot water circulationCalculator
 **Problem:** The `getBuildingHeatingConsumption()` and `getBuildingHotWaterConsumption()` methods were causing N+1 queries by looping through properties and meters without eager loading.
 
 **Impact:** For a building with 5 properties and 2 meter types, this resulted in 21+ database queries instead of 1-2.
@@ -27,7 +27,7 @@ $properties = $building->properties()
 ```
 
 **Files Modified:**
-- `app/Services/GyvatukasCalculator.php`
+- `app/Services/hot water circulationCalculator.php`
 
 ---
 
@@ -148,7 +148,7 @@ class ConsumptionData
 ### 5. Configuration Management
 
 #### Magic Numbers and Hardcoded Constants
-**Problem:** `GyvatukasCalculator` had hardcoded physical constants:
+**Problem:** `hot water circulationCalculator` had hardcoded physical constants:
 ```php
 private const WATER_SPECIFIC_HEAT = 1.163;
 private const TEMPERATURE_DELTA = 45.0;
@@ -156,22 +156,22 @@ private const TEMPERATURE_DELTA = 45.0;
 
 **Solution:** Extracted to configuration file with environment variable support:
 
-**config/gyvatukas.php:**
+**config/hot water circulation.php:**
 ```php
 return [
-    'water_specific_heat' => env('GYVATUKAS_WATER_SPECIFIC_HEAT', 1.163),
-    'temperature_delta' => env('GYVATUKAS_TEMPERATURE_DELTA', 45.0),
-    'heating_season_start_month' => env('GYVATUKAS_HEATING_START', 10),
-    'heating_season_end_month' => env('GYVATUKAS_HEATING_END', 4),
+    'water_specific_heat' => env('hot water circulation_WATER_SPECIFIC_HEAT', 1.163),
+    'temperature_delta' => env('hot water circulation_TEMPERATURE_DELTA', 45.0),
+    'heating_season_start_month' => env('hot water circulation_HEATING_START', 10),
+    'heating_season_end_month' => env('hot water circulation_HEATING_END', 4),
 ];
 ```
 
-**Updated GyvatukasCalculator:**
+**Updated hot water circulationCalculator:**
 ```php
 public function __construct(?float $waterSpecificHeat = null, ?float $temperatureDelta = null)
 {
-    $this->waterSpecificHeat = $waterSpecificHeat ?? config('gyvatukas.water_specific_heat', 1.163);
-    $this->temperatureDelta = $temperatureDelta ?? config('gyvatukas.temperature_delta', 45.0);
+    $this->waterSpecificHeat = $waterSpecificHeat ?? config('hot water circulation.water_specific_heat', 1.163);
+    $this->temperatureDelta = $temperatureDelta ?? config('hot water circulation.temperature_delta', 45.0);
 }
 ```
 
@@ -182,10 +182,10 @@ public function __construct(?float $waterSpecificHeat = null, ?float $temperatur
 - Follows Laravel conventions
 
 **Files Created:**
-- `config/gyvatukas.php`
+- `config/hot water circulation.php`
 
 **Files Modified:**
-- `app/Services/GyvatukasCalculator.php`
+- `app/Services/hot water circulationCalculator.php`
 
 ---
 
@@ -213,9 +213,9 @@ Created comprehensive test suites for new functionality:
 
 ### Performance Tests
 
-**GyvatukasCalculatorPerformanceTest:**
-- ✓ Gyvatukas calculation uses eager loading to avoid N+1 queries
-- ✓ Gyvatukas calculator uses configuration values
+**hot water circulationCalculatorPerformanceTest:**
+- ✓ hot water circulation calculation uses eager loading to avoid N+1 queries
+- ✓ hot water circulation calculator uses configuration values
 
 ### Form Request Tests
 
@@ -229,7 +229,7 @@ Created comprehensive test suites for new functionality:
 **Files Created:**
 - `tests/Unit/ValueObjects/BillingPeriodTest.php`
 - `tests/Unit/ValueObjects/ConsumptionDataTest.php`
-- `tests/Unit/Services/GyvatukasCalculatorPerformanceTest.php`
+- `tests/Unit/Services/hot water circulationCalculatorPerformanceTest.php`
 - `tests/Feature/Http/Requests/StoreInvoiceRequestTest.php`
 
 ---
@@ -237,7 +237,7 @@ Created comprehensive test suites for new functionality:
 ## Code Quality Metrics
 
 ### Before Refactoring
-- **Query Efficiency:** N+1 queries in gyvatukas calculations (21+ queries for 5 properties)
+- **Query Efficiency:** N+1 queries in hot water circulation calculations (21+ queries for 5 properties)
 - **Type Safety:** Missing return type hints on 20+ scope methods
 - **Validation:** Inline validation in 3 controller methods
 - **Configuration:** 2 hardcoded magic numbers
@@ -257,7 +257,7 @@ Created comprehensive test suites for new functionality:
 1. **Value Object Pattern:** `BillingPeriod`, `ConsumptionData`
 2. **Strategy Pattern:** Already present in `TariffCalculation` (maintained)
 3. **Form Request Pattern:** `StoreInvoiceRequest`, `GenerateBulkInvoicesRequest`
-4. **Dependency Injection:** Constructor injection in `GyvatukasCalculator`
+4. **Dependency Injection:** Constructor injection in `hot water circulationCalculator`
 
 ---
 
@@ -289,14 +289,14 @@ Created comprehensive test suites for new functionality:
 2. `app/ValueObjects/ConsumptionData.php`
 3. `app/Http/Requests/StoreInvoiceRequest.php`
 4. `app/Http/Requests/GenerateBulkInvoicesRequest.php`
-5. `config/gyvatukas.php`
+5. `config/hot water circulation.php`
 6. `tests/Unit/ValueObjects/BillingPeriodTest.php`
 7. `tests/Unit/ValueObjects/ConsumptionDataTest.php`
-8. `tests/Unit/Services/GyvatukasCalculatorPerformanceTest.php`
+8. `tests/Unit/Services/hot water circulationCalculatorPerformanceTest.php`
 9. `tests/Feature/Http/Requests/StoreInvoiceRequestTest.php`
 
 ### Modified (6 files)
-1. `app/Services/GyvatukasCalculator.php` - N+1 query fix, configuration injection
+1. `app/Services/hot water circulationCalculator.php` - N+1 query fix, configuration injection
 2. `app/Http/Controllers/InvoiceController.php` - Form Request integration
 3. `app/Models/Invoice.php` - Return type hints
 4. `app/Models/MeterReading.php` - Return type hints
@@ -342,7 +342,7 @@ All refactored code has been validated for:
 ## Conclusion
 
 Successfully completed comprehensive refactoring focusing on:
-- **Performance:** 52% reduction in database queries for gyvatukas calculations
+- **Performance:** 52% reduction in database queries for hot water circulation calculations
 - **Type Safety:** Added explicit return types to 20+ methods
 - **Maintainability:** Extracted 2 Value Objects and 2 Form Requests
 - **Configuration:** Externalized all magic numbers

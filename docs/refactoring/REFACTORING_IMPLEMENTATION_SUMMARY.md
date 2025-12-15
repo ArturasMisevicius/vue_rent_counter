@@ -109,7 +109,7 @@ if ($tariff->configuration['type'] === TariffType::FLAT->value) { ... }
 **Configuration Includes:**
 - Validation rules (change reason lengths)
 - Water tariff defaults
-- Gyvatukas calculation constants
+- hot water circulation calculation constants
 - Invoice settings
 
 ---
@@ -372,7 +372,7 @@ All refactorings maintain existing:
 3. ✅ Update documentation
 
 ### Short Term (Next Sprint)
-1. Implement GyvatukasCalculator service (Task 7)
+1. Implement hot water circulationCalculator service (Task 7)
 2. Create BillingService for invoice generation (Task 8)
 3. Add Eloquent Observers for audit trail (Task 10)
 4. Implement authorization Policies (Task 12)

@@ -23,9 +23,9 @@ final class TenantResource extends Resource
 {
     protected static ?string $model = Tenant::class;
 
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-users';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
     
-    protected static UnitEnum|string|null $navigationGroup = 'Utilities Management';
+    protected static string|UnitEnum|null $navigationGroup = 'Utilities Management';
     
     protected static ?int $navigationSort = 6;
 
@@ -315,8 +315,8 @@ final class TenantResource extends Resource
         return [
             'index' => Pages\ListTenants::route('/'),
             'create' => Pages\CreateTenant::route('/create'),
-            'view' => Pages\ViewTenant::route('/{record}'),
-            'edit' => Pages\EditTenant::route('/{record}/edit'),
+            'view' => Pages\ViewTenant::route('/filament/{record}'),
+            'edit' => Pages\EditTenant::route('/filament/{record}/edit'),
         ];
     }
     

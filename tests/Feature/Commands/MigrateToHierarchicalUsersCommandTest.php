@@ -190,7 +190,7 @@ class MigrateToHierarchicalUsersCommandTest extends TestCase
         $manager->refresh();
         $this->assertNotNull($manager->subscription);
         $this->assertSame(SubscriptionPlanType::PROFESSIONAL->value, $manager->subscription->plan_type);
-        $this->assertSame(SubscriptionStatus::ACTIVE->value, $manager->subscription->status);
+        $this->assertSame(SubscriptionStatus::ACTIVE, $manager->subscription->status);
         $this->assertSame(50, $manager->subscription->max_properties);
         $this->assertSame(200, $manager->subscription->max_tenants);
     }

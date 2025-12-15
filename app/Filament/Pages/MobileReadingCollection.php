@@ -16,6 +16,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Enums\MaxWidth;
+use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -35,7 +36,7 @@ use BackedEnum;
  */
 class MobileReadingCollection extends Page
 {
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-device-phone-mobile';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-device-phone-mobile';
     
     protected static ?string $navigationLabel = 'Mobile Reading Collection';
     
@@ -43,7 +44,7 @@ class MobileReadingCollection extends Page
     
     protected string $view = 'filament.pages.mobile-reading-collection';
     
-    protected static UnitEnum|string|null $navigationGroup = 'Field Operations';
+    protected static string|UnitEnum|null $navigationGroup = 'Field Operations';
     
     protected static ?int $navigationSort = 1;
 
@@ -129,7 +130,7 @@ class MobileReadingCollection extends Page
                             ->visibility('private')
                             ->acceptedFileTypes(['image/jpeg', 'image/png'])
                             ->maxSize(5120) // 5MB
-                            ->visible(fn (Forms\Get $get) => $get('input_method') === InputMethod::PHOTO_OCR->value)
+                            ->visible(fn (Get $get) => $get('input_method') === InputMethod::PHOTO_OCR->value)
                             ->afterStateUpdated(function (TemporaryUploadedFile $state = null) {
                                 if ($state) {
                                     $this->dispatch('photo-uploaded', path: $state->getPathname());
@@ -154,7 +155,7 @@ class MobileReadingCollection extends Page
                                 'class' => 'mobile-toggle-large',
                             ]),
                     ])
-                    ->visible(fn (Forms\Get $get) => filled($get('meter_id')))
+                    ->visible(fn (Get $get) => filled($get('meter_id')))
                     ->columns(1),
 
                 Forms\Components\Section::make('Location & Notes')
@@ -174,7 +175,7 @@ class MobileReadingCollection extends Page
                                 'class' => 'mobile-textarea-large',
                             ]),
                     ])
-                    ->visible(fn (Forms\Get $get) => filled($get('meter_id')))
+                    ->visible(fn (Get $get) => filled($get('meter_id')))
                     ->collapsible()
                     ->persistCollapsed(),
             ])

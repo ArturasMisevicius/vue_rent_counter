@@ -190,8 +190,8 @@ if (!$provider) {
 
 ---
 
-### 7. ✅ Performance Optimization - GyvatukasCalculator
-**File**: `app/Services/GyvatukasCalculator.php`
+### 7. ✅ Performance Optimization - hot water circulationCalculator
+**File**: `app/Services/hot water circulationCalculator.php`
 
 **Achievement**: Changed from lazy loading to eager loading with `load()`.
 
@@ -238,7 +238,7 @@ if (!$provider) {
 | Invoice Finalized | O(n) queries | O(1) queries | Eliminated N+1 |
 | Invoice Paid | O(n) queries | O(1) queries | Eliminated N+1 |
 | Meter Readings Index | O(n) queries | O(1) queries | Eliminated N+1 |
-| Gyvatukas Calculation | O(n²) queries | O(1) queries | Eager loading |
+| hot water circulation Calculation | O(n²) queries | O(1) queries | Eager loading |
 
 ### Algorithm Optimization
 | Component | Before | After | Improvement |
@@ -317,7 +317,7 @@ if (!$provider) {
 - ✅ `tests/Unit/CorrectnessPropertiesTest.php` - Fixed type mismatch (1 test)
 
 ### Previously Modified (from earlier refactoring)
-- ✅ `app/Services/GyvatukasCalculator.php` - Eager loading optimization
+- ✅ `app/Services/hot water circulationCalculator.php` - Eager loading optimization
 - ✅ `app/Services/TimeRangeValidator.php` - Algorithm optimization
 - ✅ `app/Services/BillingCalculation/WaterCalculator.php` - Configuration extraction
 - ✅ `app/ValueObjects/InvoiceItemData.php` - New value object

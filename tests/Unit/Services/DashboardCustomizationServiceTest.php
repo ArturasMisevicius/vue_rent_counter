@@ -109,18 +109,16 @@ class DashboardCustomizationServiceTest extends TestCase
     public function add_widget_adds_new_widget_successfully(): void
     {
         $user = User::factory()->create();
-        
-        // Mock available widgets
-        DashboardCustomization::shouldReceive('getAvailableWidgets')
-            ->andReturn([
-                'TestWidget' => [
-                    'name' => 'Test Widget',
-                    'default_size' => 'medium',
-                    'default_refresh' => 60,
-                ]
-            ]);
 
-        $result = $this->service->addWidget($user, 'TestWidget', [
+        // Start from an empty dashboard so we can add an available widget.
+        $this->service->saveUserConfiguration($user, [
+            'widgets' => [],
+            'layout' => [],
+        ]);
+
+        $widgetClass = 'App\\Filament\\Widgets\\SubscriptionStatsWidget';
+
+        $result = $this->service->addWidget($user, $widgetClass, [
             'size' => 'large',
             'refresh_interval' => 120
         ]);
@@ -129,7 +127,7 @@ class DashboardCustomizationServiceTest extends TestCase
         
         $configuration = $this->service->getUserConfiguration($user);
         $this->assertCount(1, $configuration['widgets']);
-        $this->assertEquals('TestWidget', $configuration['widgets'][0]['class']);
+        $this->assertEquals($widgetClass, $configuration['widgets'][0]['class']);
         $this->assertEquals('large', $configuration['widgets'][0]['size']);
         $this->assertEquals(120, $configuration['widgets'][0]['refresh_interval']);
     }
@@ -138,9 +136,6 @@ class DashboardCustomizationServiceTest extends TestCase
     public function add_widget_fails_for_unavailable_widget(): void
     {
         $user = User::factory()->create();
-        
-        DashboardCustomization::shouldReceive('getAvailableWidgets')
-            ->andReturn([]);
 
         $result = $this->service->addWidget($user, 'NonExistentWidget');
 
@@ -151,21 +146,19 @@ class DashboardCustomizationServiceTest extends TestCase
     public function add_widget_fails_for_duplicate_widget(): void
     {
         $user = User::factory()->create();
-        
-        DashboardCustomization::shouldReceive('getAvailableWidgets')
-            ->andReturn([
-                'TestWidget' => [
-                    'name' => 'Test Widget',
-                    'default_size' => 'medium',
-                    'default_refresh' => 60,
-                ]
-            ]);
+
+        $this->service->saveUserConfiguration($user, [
+            'widgets' => [],
+            'layout' => [],
+        ]);
+
+        $widgetClass = 'App\\Filament\\Widgets\\SubscriptionStatsWidget';
 
         // Add widget first time
-        $this->service->addWidget($user, 'TestWidget');
+        $this->service->addWidget($user, $widgetClass);
         
         // Try to add same widget again
-        $result = $this->service->addWidget($user, 'TestWidget');
+        $result = $this->service->addWidget($user, $widgetClass);
 
         $this->assertFalse($result);
     }

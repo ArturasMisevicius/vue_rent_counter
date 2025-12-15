@@ -208,27 +208,4 @@ class Subscription extends Model
         ]);
     }
 
-    /**
-     * Boot the model and register event listeners.
-     *
-     * Invalidates subscription cache when subscription is updated.
-     */
-    protected static function booted(): void
-    {
-        static::saved(function (Subscription $subscription) {
-            // Invalidate cache when subscription is updated
-            if ($subscription->user) {
-                app(\App\Services\SubscriptionChecker::class)
-                    ->invalidateCache($subscription->user);
-            }
-        });
-
-        static::deleted(function (Subscription $subscription) {
-            // Invalidate cache when subscription is deleted
-            if ($subscription->user) {
-                app(\App\Services\SubscriptionChecker::class)
-                    ->invalidateCache($subscription->user);
-            }
-        });
-    }
 }

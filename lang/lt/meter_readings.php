@@ -166,11 +166,15 @@ return [
             'title' => 'Pavadinimas',
         ],
         'filters' => [
+            'all_services' => 'Visos paslaugos',
             'all_types' => 'Visi tipai',
             'date_from' => 'Data Nuo',
             'date_to' => 'Data Iki',
             'description' => 'Aprašymas',
+            'legacy_group' => 'Senesni skaitikliai',
             'meter_type' => 'Skaitiklio tipas',
+            'service' => 'Paslauga',
+            'services_group' => 'Paslaugos',
             'title' => 'Pavadinimas',
         ],
         'submit' => [

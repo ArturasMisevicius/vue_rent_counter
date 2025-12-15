@@ -17,7 +17,7 @@ Comprehensive test suite created for the refactored BillingService V3 with 32 te
    - Single electricity meter
    - Water meter with supply, sewage, and fixed fee
    - Multi-zone electricity meter
-   - Gyvatukas integration
+   - hot water circulation integration
    - Tariff snapshotting
    - Meter reading snapshotting
 
@@ -71,7 +71,7 @@ Comprehensive test suite created for the refactored BillingService V3 with 32 te
 | 5.1 | Snapshot tariff rates | ✅ 1 |
 | 5.2 | Snapshot meter readings | ✅ 1 |
 | 5.5 | Invoice finalization immutability | ✅ 3 |
-| 4.1, 4.2 | Gyvatukas calculation | ✅ 1 |
+| 4.1, 4.2 | hot water circulation calculation | ✅ 1 |
 
 ## Test Execution
 
@@ -130,7 +130,7 @@ expect(fn() => $this->billingService->generateInvoice($tenant, $periodStart, $pe
 ### Services Tested
 - ✅ BillingService (main)
 - ✅ TariffResolver (integrated)
-- ✅ GyvatukasCalculator (integrated)
+- ✅ hot water circulationCalculator (integrated)
 - ✅ MeterReadingService (integrated)
 - ✅ BaseService (transaction management)
 

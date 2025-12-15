@@ -366,53 +366,6 @@ final class ViewInvoice extends ViewRecord
     }
 
     /**
-     * Cache header actions while keeping an executable copy of the finalize action
-     * always available for programmatic calls (tests, concurrent submissions).
-     */
-    public function cacheInteractsWithHeaderActions(): void
-    {
-        $actions = $this->getHeaderActions();
-
-        foreach ($actions as $action) {
-            if ($action instanceof ActionGroup) {
-                $action->livewire($this);
-
-                if (! $action->getDropdownPlacement()) {
-                    $action->dropdownPlacement('bottom-end');
-                }
-
-                foreach ($action->getFlatActions() as $flatAction) {
-                    $this->cacheAction(
-                        $flatAction->getName() === 'finalize'
-                            ? $this->makeExecutableFinalizeAction($flatAction)
-                            : $flatAction
-                    );
-                }
-
-                $this->cachedHeaderActions[] = $action;
-                continue;
-            }
-
-            if ($action->getName() === 'finalize') {
-                $this->cacheAction($this->makeExecutableFinalizeAction($action));
-                $this->cachedHeaderActions[] = $action;
-                continue;
-            }
-
-            $this->cacheAction($action);
-            $this->cachedHeaderActions[] = $action;
-        }
-    }
-
-    private function makeExecutableFinalizeAction(Actions\Action $action): Actions\Action
-    {
-        $executable = clone $action;
-
-        // Keep the action callable for tests and concurrency guards even when hidden in the UI
-        return $executable->visible(fn () => true);
-    }
-
-    /**
      * Extract the first validation error message from a ValidationException.
      *
      * Checks multiple possible error keys in priority order:

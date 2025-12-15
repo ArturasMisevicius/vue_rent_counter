@@ -29,7 +29,7 @@ Database: MySQL/PostgreSQL (production), SQLite (dev)
 - ✅ Генерация инвойсов
 - ✅ Multi-meter support
 - ✅ Tariff calculations (Flat + Time-of-Use)
-- ✅ Gyvatukas calculations
+- ✅ hot water circulation calculations
 - ✅ Tariff snapshots (immutability)
 
 ### Security

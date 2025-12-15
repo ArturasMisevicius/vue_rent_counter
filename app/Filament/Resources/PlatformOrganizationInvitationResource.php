@@ -15,6 +15,7 @@ use UnitEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,11 +25,11 @@ class PlatformOrganizationInvitationResource extends Resource
 {
     protected static ?string $model = PlatformOrganizationInvitation::class;
 
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-envelope';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-envelope';
 
     protected static ?string $navigationLabel = 'Organization Invitations';
 
-    protected static UnitEnum|string|null $navigationGroup = 'System Management';
+    protected static string|UnitEnum|null $navigationGroup = 'System Management';
 
     protected static ?int $navigationSort = 5;
 
@@ -72,7 +73,7 @@ class PlatformOrganizationInvitationResource extends Resource
                             ])
                             ->required()
                             ->live()
-                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                            ->afterStateUpdated(function ($state, Set $set) {
                                 // Auto-populate limits based on plan type
                                 $limits = match($state) {
                                     SubscriptionPlanType::BASIC->value => ['properties' => 10, 'users' => 5],

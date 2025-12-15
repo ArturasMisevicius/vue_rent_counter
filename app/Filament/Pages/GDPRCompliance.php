@@ -10,7 +10,7 @@ use UnitEnum;
 
 class GDPRCompliance extends Page
 {
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-lock-closed';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-lock-closed';
 
     protected static ?string $navigationLabel = null;
 
@@ -18,7 +18,7 @@ class GDPRCompliance extends Page
 
     protected string $view = 'filament.pages.gdpr-compliance';
 
-    protected static UnitEnum|string|null $navigationGroup = null;
+    protected static string|UnitEnum|null $navigationGroup = null;
 
     protected static ?int $navigationSort = 92;
 

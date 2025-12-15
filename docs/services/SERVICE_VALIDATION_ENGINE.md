@@ -49,10 +49,10 @@ ServiceValidationEngine
 - Batch size limits to prevent memory exhaustion
 
 ### 4. Integration with Existing Systems
-- Seamless integration with existing `GyvatukasCalculator`
+- Seamless integration with existing `hot water circulationCalculator`
 - Leverages existing `MeterReadingService` and audit infrastructure
 - Compatible with existing tariff and provider systems
-- Maintains backward compatibility with gyvatukas calculations
+- Maintains backward compatibility with hot water circulation calculations
 
 ## API Reference
 
@@ -188,7 +188,7 @@ The service is configured via `config/service_validation.php`:
 
 ### 2. Seasonal Validation
 - Applies seasonal adjustments based on utility type
-- Integrates with gyvatukas summer/winter logic
+- Integrates with hot water circulation summer/winter logic
 - Validates consumption patterns against seasonal expectations
 
 ### 3. Data Quality Validation
@@ -278,7 +278,7 @@ All validation methods return consistent error structures:
 ## Integration Points
 
 ### Existing Systems
-- **GyvatukasCalculator**: Seamless integration for heating calculations
+- **hot water circulationCalculator**: Seamless integration for heating calculations
 - **MeterReadingService**: Leverages existing reading management
 - **Tariff System**: Validates against active tariffs and effective dates
 - **Audit System**: Extends existing audit trail infrastructure
@@ -312,8 +312,8 @@ The service includes comprehensive property-based tests:
 
 ## Migration and Backward Compatibility
 
-### Gyvatukas Integration
-- Preserves all existing gyvatukas calculation accuracy
+### hot water circulation Integration
+- Preserves all existing hot water circulation calculation accuracy
 - Maintains existing caching and performance optimizations
 - Seamless transition with zero downtime
 - Full backward compatibility with existing functionality

@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Enums\UserRole;
+use App\Models\Organization;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -113,5 +115,32 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'is_active' => false,
         ]);
+    }
+
+    /**
+     * Ensure an Organization exists for tenant-scoped users.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (User $user): void {
+            if ($user->tenant_id === null || $user->role === UserRole::SUPERADMIN) {
+                return;
+            }
+
+            if (Organization::whereKey($user->tenant_id)->exists()) {
+                return;
+            }
+
+            Organization::factory()->create([
+                'id' => $user->tenant_id,
+                'name' => $user->organization_name ?: "Test Organization {$user->tenant_id}",
+                'email' => $user->email,
+                'domain' => null,
+                'created_by' => $user->id,
+                'is_active' => true,
+                'suspended_at' => null,
+                'suspension_reason' => null,
+            ]);
+        });
     }
 }

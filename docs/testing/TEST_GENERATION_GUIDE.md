@@ -234,7 +234,7 @@ Add project-specific scenarios:
 
 ```php
 /** @test */
-public function it_calculates_gyvatukas_correctly(): void
+public function it_calculates_hot water circulation_correctly(): void
 {
     // Arrange
     $property = Property::factory()->create([
@@ -242,12 +242,12 @@ public function it_calculates_gyvatukas_correctly(): void
     ]);
     
     $tariff = Tariff::factory()->create([
-        'type' => TariffType::GYVATUKAS,
+        'type' => TariffType::hot water circulation,
         'rate' => 0.50,
     ]);
 
     // Act
-    $result = $this->billingService->calculateGyvatukas($property, $tariff);
+    $result = $this->billingService->calculatehot water circulation($property, $tariff);
 
     // Assert
     $this->assertEquals(50.00, $result);

@@ -28,7 +28,7 @@ BaseService (abstract)
 BillingService extends BaseService
     ├── Invoice generation orchestration
     ├── Tariff snapshotting
-    ├── Gyvatukas integration
+    ├── hot water circulation integration
     └── Multi-zone meter support
 ```
 
@@ -37,7 +37,7 @@ BillingService extends BaseService
 ```php
 public function __construct(
     private readonly TariffResolver $tariffResolver,
-    private readonly GyvatukasCalculator $gyvatukasCalculator
+    private readonly hot water circulationCalculator $hot water circulationCalculator
 ) {}
 ```
 
@@ -67,7 +67,7 @@ public function __construct(
    ├── Resolve tariffs
    ├── Snapshot readings
    └── Add fixed fees (water)
-6. Add gyvatukas items (if building exists)
+6. Add hot water circulation items (if building exists)
 7. Calculate total amount
 8. Return invoice with items
 ```
@@ -149,22 +149,22 @@ $total = ($consumption * $supplyRate) + ($consumption * $sewageRate) + $fixedFee
 ],
 ```
 
-### 4. Gyvatukas Integration
+### 4. hot water circulation Integration
 
 **Requirements**: 4.1, 4.2, 4.3
 
-**Method**: `generateGyvatukasItems(Property $property, BillingPeriod $period): Collection`
+**Method**: `generatehot water circulationItems(Property $property, BillingPeriod $period): Collection`
 
 **Process**:
 ```php
 if ($property->building) {
-    $gyvatukasResult = $this->gyvatukasCalculator->calculate(
+    $hot water circulationResult = $this->hot water circulationCalculator->calculate(
         $property->building,
         $period->start
     );
     
-    if ($gyvatukasResult > 0) {
-        // Create gyvatukas invoice item
+    if ($hot water circulationResult > 0) {
+        // Create hot water circulation invoice item
     }
 }
 ```
@@ -266,15 +266,15 @@ $this->log('info', 'Starting invoice generation', [
 ### Log Levels
 
 - **info**: Normal operations (start, complete, finalize)
-- **warning**: Recoverable issues (missing readings, gyvatukas failure)
-- **error**: Critical failures (gyvatukas calculation error)
+- **warning**: Recoverable issues (missing readings, hot water circulation failure)
+- **error**: Critical failures (hot water circulation calculation error)
 
 ### Log Entries
 
 1. **Invoice Generation Start**
 2. **Invoice Created**
 3. **Missing Meter Reading** (per meter)
-4. **Gyvatukas Calculation Failed** (if applicable)
+4. **hot water circulation Calculation Failed** (if applicable)
 5. **Invoice Generation Completed**
 6. **Invoice Finalization** (start + complete)
 
@@ -375,7 +375,7 @@ DB::transaction(function () use ($billingService, $tenant, $periodStart, $period
 2. Invoice generation with multiple meters
 3. Multi-zone meter handling
 4. Water billing (supply + sewage + fixed fee)
-5. Gyvatukas integration
+5. hot water circulation integration
 6. Missing meter readings handling
 7. Invoice finalization
 8. Error scenarios
@@ -518,19 +518,19 @@ if ($readings->isEmpty()) {
 }
 ```
 
-### Issue: Gyvatukas Calculation Fails
+### Issue: hot water circulation Calculation Fails
 
-**Symptom**: Warning logged, invoice generated without gyvatukas
+**Symptom**: Warning logged, invoice generated without hot water circulation
 
 **Causes**:
 1. Building has no properties
-2. No meter readings for gyvatukas calculation
-3. Invalid gyvatukas configuration
+2. No meter readings for hot water circulation calculation
+3. Invalid hot water circulation configuration
 
 **Solution**:
 - Check building has properties
 - Verify heating/water meter readings exist
-- Review `config/gyvatukas.php` configuration
+- Review `config/hot water circulation.php` configuration
 
 ### Issue: Invoice Total Mismatch
 
@@ -560,7 +560,7 @@ if (abs($calculatedTotal - $invoiceTotal) > 0.01) {
 - [Service Layer Architecture](../architecture/SERVICE_LAYER_ARCHITECTURE.md)
 - [Value Objects Guide](../architecture/VALUE_OBJECTS_GUIDE.md)
 - [TariffResolver Implementation](TARIFF_RESOLVER_IMPLEMENTATION.md)
-- [GyvatukasCalculator Implementation](GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
+- [hot water circulationCalculator Implementation](hot water circulation_CALCULATOR_IMPLEMENTATION.md)
 
 ## Changelog
 
@@ -578,7 +578,7 @@ if (abs($calculatedTotal - $invoiceTotal) > 0.01) {
 - Simplified constructor (removed MeterReadingService)
 - Refactored meter item generation
 - Improved water billing calculation
-- Enhanced gyvatukas integration
+- Enhanced hot water circulation integration
 - Better exception handling
 
 **Performance**:

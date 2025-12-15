@@ -80,7 +80,10 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($tariffs as $tariff)
-                        <tr class="hover:bg-gray-50 transition-colors">
+                        <tr @class([
+                            'hover:bg-gray-50 transition-colors',
+                            'bg-green-50' => $tariff->is_currently_active,
+                        ])>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">
                                     {{ $tariff->name }}

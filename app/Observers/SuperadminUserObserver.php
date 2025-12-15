@@ -133,8 +133,34 @@ class SuperadminUserObserver
         
         $logLevel = $isCritical ? 'warning' : 'info';
         $logMessage = "Superadmin user {$action}" . ($isCritical ? ' (CRITICAL)' : '');
-        
-        Log::channel('audit')->{$logLevel}($logMessage, [
+
+        $auditLogger = Log::channel('audit');
+
+        if (is_object($auditLogger) && method_exists($auditLogger, $logLevel)) {
+            $auditLogger->{$logLevel}($logMessage, [
+                'action' => $action,
+                'resource_type' => 'user',
+                'resource_id' => $targetUser->id,
+                'target_user_email' => $targetUser->email,
+                'target_user_role' => $targetUser->role->value,
+                'target_user_tenant_id' => $targetUser->tenant_id,
+                'target_user_organization' => $targetUser->organization_name,
+                'actor_id' => $actor->id,
+                'actor_email' => $actor->email,
+                'actor_role' => $actor->role->value,
+                'before_data' => $sanitizedBefore,
+                'after_data' => $sanitizedAfter,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'timestamp' => now()->toIso8601String(),
+                'session_id' => session()->getId(),
+                'is_critical' => $isCritical,
+            ]);
+
+            return;
+        }
+
+        Log::{$logLevel}($logMessage, [
             'action' => $action,
             'resource_type' => 'user',
             'resource_id' => $targetUser->id,

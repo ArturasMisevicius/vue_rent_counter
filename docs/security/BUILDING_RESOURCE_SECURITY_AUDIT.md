@@ -41,7 +41,7 @@ Comprehensive security audit of BuildingResource and PropertiesRelationManager f
 **Description**:
 Filament actions (create, edit, delete, bulk operations) lack explicit rate limiting. An authenticated attacker could:
 - Spam create/delete operations to exhaust database resources
-- Trigger expensive operations (gyvatukas calculations) repeatedly
+- Trigger expensive operations (hot water circulation calculations) repeatedly
 - Cause performance degradation for legitimate users
 
 **Current State**:
@@ -421,8 +421,8 @@ protected function casts(): array
 {
     return [
         'address' => 'encrypted', // If addresses are considered sensitive
-        'gyvatukas_summer_average' => 'decimal:2',
-        'gyvatukas_last_calculated' => 'date',
+        'hot water circulation_summer_average' => 'decimal:2',
+        'hot water circulation_last_calculated' => 'date',
     ];
 }
 ```

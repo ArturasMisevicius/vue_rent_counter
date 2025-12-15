@@ -36,7 +36,7 @@
 - [ ] Verify `config/billing.php` exists
 - [ ] Check water tariff rates are correct
 - [ ] Confirm invoice due days setting
-- [ ] Review gyvatukas configuration
+- [ ] Review hot water circulation configuration
 
 ### 5. Database Verification
 
@@ -125,7 +125,7 @@ php artisan pail
 - [ ] Generate invoice for test tenant
 - [ ] Verify invoice items are created
 - [ ] Check tariff snapshotting works
-- [ ] Confirm gyvatukas items added (if applicable)
+- [ ] Confirm hot water circulation items added (if applicable)
 - [ ] Test invoice finalization
 - [ ] Verify immutability after finalization
 
@@ -213,15 +213,15 @@ php artisan pail
 3. Enter missing readings
 4. Retry invoice generation
 
-### Issue: Gyvatukas Calculation Fails
+### Issue: hot water circulation Calculation Fails
 
-**Symptom**: Warning logged, invoice generated without gyvatukas
+**Symptom**: Warning logged, invoice generated without hot water circulation
 
 **Solution**:
 1. Check building has properties
 2. Verify heating/water meter readings exist
-3. Review `config/gyvatukas.php`
-4. Check GyvatukasCalculator logs
+3. Review `config/hot water circulation.php`
+4. Check hot water circulationCalculator logs
 
 ### Issue: Performance Degradation
 

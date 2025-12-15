@@ -6,7 +6,7 @@
 <body>
     <h1>Meters</h1>
     @foreach($meters as $meter)
-        <p>{{ $meter->serial_number }} - {{ enum_label($meter->type) }}</p>
+        <p>{{ $meter->serial_number }} - {{ $meter->getServiceDisplayName() }} ({{ $meter->getUnitOfMeasurement() }})</p>
     @endforeach
 </body>
 </html>

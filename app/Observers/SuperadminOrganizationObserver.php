@@ -121,8 +121,31 @@ class SuperadminOrganizationObserver
         }
 
         $request = request();
-        
-        Log::channel('audit')->info("Superadmin organization {$action}", [
+
+        $auditLogger = Log::channel('audit');
+
+        if (is_object($auditLogger) && method_exists($auditLogger, 'info')) {
+            $auditLogger->info("Superadmin organization {$action}", [
+                'action' => $action,
+                'resource_type' => 'organization',
+                'resource_id' => $organization->id,
+                'resource_name' => $organization->name,
+                'resource_slug' => $organization->slug,
+                'actor_id' => $user->id,
+                'actor_email' => $user->email,
+                'actor_role' => $user->role->value,
+                'before_data' => $beforeData,
+                'after_data' => $afterData,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'timestamp' => now()->toIso8601String(),
+                'session_id' => session()->getId(),
+            ]);
+
+            return;
+        }
+
+        Log::info("Superadmin organization {$action}", [
             'action' => $action,
             'resource_type' => 'organization',
             'resource_id' => $organization->id,

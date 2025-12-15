@@ -10,6 +10,8 @@ use App\Services\PlatformNotificationService;
 use Filament\Actions;
 use Filament\Infolists;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Support\Enums\FontWeight;
 
@@ -31,7 +33,7 @@ class ViewPlatformNotification extends ViewRecord
     {
         return $schema
             ->schema([
-                Infolists\Components\Section::make('Notification Details')
+                Section::make('Notification Details')
                     ->schema([
                         Infolists\Components\TextEntry::make('title')
                             ->weight(FontWeight::Bold)
@@ -41,7 +43,7 @@ class ViewPlatformNotification extends ViewRecord
                             ->html()
                             ->columnSpanFull(),
                         
-                        Infolists\Components\Grid::make(2)
+                        Grid::make(2)
                             ->schema([
                                 Infolists\Components\TextEntry::make('status')
                                     ->badge()
@@ -58,7 +60,7 @@ class ViewPlatformNotification extends ViewRecord
                             ]),
                     ]),
 
-                Infolists\Components\Section::make('Targeting')
+                Section::make('Targeting')
                     ->schema([
                         Infolists\Components\TextEntry::make('target_type')
                             ->label('Target Audience')
@@ -89,9 +91,9 @@ class ViewPlatformNotification extends ViewRecord
                     ])
                     ->columns(2),
 
-                Infolists\Components\Section::make('Scheduling & Delivery')
+                Section::make('Scheduling & Delivery')
                     ->schema([
-                        Infolists\Components\Grid::make(2)
+                        Grid::make(2)
                             ->schema([
                                 Infolists\Components\TextEntry::make('scheduled_at')
                                     ->label('Scheduled At')
@@ -111,9 +113,9 @@ class ViewPlatformNotification extends ViewRecord
                             ->columnSpanFull(),
                     ]),
 
-                Infolists\Components\Section::make('Delivery Statistics')
+                Section::make('Delivery Statistics')
                     ->schema([
-                        Infolists\Components\Grid::make(4)
+                        Grid::make(4)
                             ->schema([
                                 Infolists\Components\TextEntry::make('total_recipients')
                                     ->label('Total Recipients')
@@ -139,7 +141,7 @@ class ViewPlatformNotification extends ViewRecord
                                     ->color('info'),
                             ]),
                         
-                        Infolists\Components\Grid::make(2)
+                        Grid::make(2)
                             ->schema([
                                 Infolists\Components\TextEntry::make('delivery_rate')
                                     ->label('Delivery Rate')
@@ -154,9 +156,9 @@ class ViewPlatformNotification extends ViewRecord
                     ])
                     ->visible(fn (PlatformNotification $record) => $record->isSent()),
 
-                Infolists\Components\Section::make('Timestamps')
+                Section::make('Timestamps')
                     ->schema([
-                        Infolists\Components\Grid::make(2)
+                        Grid::make(2)
                             ->schema([
                                 Infolists\Components\TextEntry::make('created_at')
                                     ->dateTime(),

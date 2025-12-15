@@ -28,7 +28,7 @@ php verify-models.php
 Verifying Eloquent Models...
 
 ✓ User model: role cast = UserRole::class
-✓ Building model: gyvatukas_summer_average cast = decimal:2
+✓ Building model: hot water circulation_summer_average cast = decimal:2
 ✓ Property model: type cast = PropertyType::class
 ✓ Tenant model: lease_start cast = date, lease_end cast = date
 ✓ Provider model: service_type cast = ServiceType::class
@@ -65,9 +65,9 @@ All required casts and relationships are properly defined.
 - **Purpose**: Hierarchical user management with role-based access control
 
 ### Building Model
-- **Cast**: `gyvatukas_summer_average` → `decimal:2`
+- **Cast**: `hot water circulation_summer_average` → `decimal:2`
 - **Relationships**: properties()
-- **Purpose**: Gyvatukas circulation fee calculations for heating season
+- **Purpose**: hot water circulation circulation fee calculations for heating season
 
 ### Property Model
 - **Cast**: `type` → `PropertyType::class` (enum)
@@ -136,7 +136,7 @@ Ensures temporal data is properly cast:
 
 ### 4. Decimal Casts
 Validates precision for financial and measurement data:
-- Gyvatukas values (2 decimal places)
+- hot water circulation values (2 decimal places)
 - Meter readings (3 decimal places)
 - Invoice amounts (2 decimal places)
 - Consumption quantities (3 decimal places)

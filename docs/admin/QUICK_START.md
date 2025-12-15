@@ -84,7 +84,7 @@
    - Finds meter readings in period
    - Calculates consumption
    - Applies tariffs
-   - Adds gyvatukas fees
+   - Adds hot water circulation fees
 5. Review invoice items
 6. Click "Create" to save as draft
 

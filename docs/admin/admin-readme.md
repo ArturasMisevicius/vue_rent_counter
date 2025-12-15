@@ -185,7 +185,7 @@ All data is automatically scoped by `tenant_id`:
    - System finds readings in period
    - Calculates consumption (current - previous)
    - Applies tariffs (snapshotted)
-   - Adds gyvatukas fees
+   - Adds hot water circulation fees
    - Creates draft invoice
 
 3. **Finalize Invoice**

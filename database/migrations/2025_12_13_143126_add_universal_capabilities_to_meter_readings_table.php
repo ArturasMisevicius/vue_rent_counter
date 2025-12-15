@@ -28,7 +28,13 @@ return new class extends Migration
             if (!Schema::hasColumn('meter_readings', 'validated_by')) {
                 $table->foreignId('validated_by')->nullable()->after('photo_path')->constrained('users')->onDelete('set null');
             }
-            
+            if (!Schema::hasColumn('meter_readings', 'validated_at')) {
+                $table->timestamp('validated_at')->nullable()->after('validated_by');
+            }
+            if (!Schema::hasColumn('meter_readings', 'validation_notes')) {
+                $table->text('validation_notes')->nullable()->after('validated_at');
+            }
+             
             // Add indexes for performance
             if (Schema::hasColumn('meter_readings', 'input_method') && !Schema::hasIndex('meter_readings', 'meter_readings_input_method_index')) {
                 $table->index('input_method');
@@ -68,6 +74,8 @@ return new class extends Migration
                 Schema::hasColumn('meter_readings', 'validation_status') ? 'validation_status' : null,
                 Schema::hasColumn('meter_readings', 'photo_path') ? 'photo_path' : null,
                 Schema::hasColumn('meter_readings', 'validated_by') ? 'validated_by' : null,
+                Schema::hasColumn('meter_readings', 'validated_at') ? 'validated_at' : null,
+                Schema::hasColumn('meter_readings', 'validation_notes') ? 'validation_notes' : null,
             ]);
 
             if (!empty($columnsToDrop)) {

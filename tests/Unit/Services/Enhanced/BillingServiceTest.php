@@ -8,6 +8,7 @@ use App\Actions\GenerateInvoiceAction;
 use App\DTOs\InvoiceGenerationDTO;
 use App\Models\Invoice;
 use App\Models\Tenant;
+use App\Enums\InvoiceStatus;
 use App\Services\Enhanced\BillingService;
 use App\Services\Enhanced\ConsumptionCalculationService;
 use App\Services\MeterReadingService;
@@ -60,10 +61,10 @@ final class BillingServiceTest extends TestCase
     {
         // Arrange
         $tenant = Tenant::factory()->create();
-        $invoice = Invoice::factory()->make(['id' => 1]);
+        $invoice = Invoice::factory()->forTenantRenter($tenant)->make(['id' => 1]);
         
         $dto = new InvoiceGenerationDTO(
-            tenantId: $tenant->id,
+            tenantId: $tenant->tenant_id,
             tenantRenterId: $tenant->id,
             periodStart: Carbon::parse('2024-01-01'),
             periodEnd: Carbon::parse('2024-01-31'),
@@ -99,7 +100,7 @@ final class BillingServiceTest extends TestCase
         $tenant = Tenant::factory()->create();
         
         $dto = new InvoiceGenerationDTO(
-            tenantId: $tenant->id,
+            tenantId: $tenant->tenant_id,
             tenantRenterId: $tenant->id,
             periodStart: Carbon::parse('2024-01-01'),
             periodEnd: Carbon::parse('2024-01-31'),
@@ -118,7 +119,7 @@ final class BillingServiceTest extends TestCase
 
         // Assert
         $this->assertFalse($result->success);
-        $this->assertStringContains('Failed to generate invoice', $result->message);
+        $this->assertStringContainsString('Failed to generate invoice', $result->message);
     }
 
     /** @test */
@@ -129,7 +130,7 @@ final class BillingServiceTest extends TestCase
         
         // Invalid period: start after end
         $dto = new InvoiceGenerationDTO(
-            tenantId: $tenant->id,
+            tenantId: $tenant->tenant_id,
             tenantRenterId: $tenant->id,
             periodStart: Carbon::parse('2024-01-31'),
             periodEnd: Carbon::parse('2024-01-01'),
@@ -141,7 +142,7 @@ final class BillingServiceTest extends TestCase
 
         // Assert
         $this->assertFalse($result->success);
-        $this->assertStringContains('Period start must be before period end', $result->message);
+        $this->assertStringContainsString('Period start must be before period end', $result->message);
     }
 
     /** @test */
@@ -151,14 +152,13 @@ final class BillingServiceTest extends TestCase
         $tenant = Tenant::factory()->create();
         
         // Create existing invoice for the same period
-        Invoice::factory()->create([
-            'tenant_id' => $tenant->id,
+        Invoice::factory()->forTenantRenter($tenant)->create([
             'billing_period_start' => '2024-01-01',
             'billing_period_end' => '2024-01-31',
         ]);
 
         $dto = new InvoiceGenerationDTO(
-            tenantId: $tenant->id,
+            tenantId: $tenant->tenant_id,
             tenantRenterId: $tenant->id,
             periodStart: Carbon::parse('2024-01-01'),
             periodEnd: Carbon::parse('2024-01-31'),
@@ -199,8 +199,7 @@ final class BillingServiceTest extends TestCase
             ->andReturn(new ServiceResponse(true, []));
 
         // Mock failure for second tenant (existing invoice)
-        Invoice::factory()->create([
-            'tenant_id' => 2,
+        Invoice::factory()->forTenantRenter($tenants[1])->create([
             'billing_period_start' => '2024-01-01',
             'billing_period_end' => '2024-01-31',
         ]);
@@ -238,7 +237,7 @@ final class BillingServiceTest extends TestCase
 
         // Assert
         $this->assertTrue($result->success);
-        $this->assertEquals('finalized', $invoice->fresh()->status);
+        $this->assertEquals(InvoiceStatus::FINALIZED, $invoice->fresh()->status);
         $this->assertNotNull($invoice->fresh()->finalized_at);
     }
 

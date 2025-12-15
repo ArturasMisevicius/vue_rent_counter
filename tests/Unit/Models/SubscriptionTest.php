@@ -21,7 +21,7 @@ class SubscriptionTest extends TestCase
     {
         $fillable = [
             'user_id', 'plan_type', 'status', 'starts_at', 'expires_at',
-            'max_properties', 'max_tenants',
+            'max_properties', 'max_tenants', 'auto_renew', 'renewal_period',
         ];
 
         $subscription = new Subscription();

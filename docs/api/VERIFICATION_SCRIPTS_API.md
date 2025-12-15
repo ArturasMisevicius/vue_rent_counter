@@ -99,7 +99,7 @@ php verify-models.php
 1. Model instantiation (class existence)
 2. Enum casts (UserRole, PropertyType, ServiceType, MeterType, InvoiceStatus)
 3. Date/datetime casts (lease dates, billing periods, reading dates)
-4. Decimal casts (gyvatukas values, meter readings, invoice amounts)
+4. Decimal casts (hot water circulation values, meter readings, invoice amounts)
 5. Array/JSON casts (tariff configuration, meter reading snapshots)
 6. Boolean casts (supports_zones)
 7. Relationship documentation (40+ relationships)
@@ -114,7 +114,7 @@ php verify-models.php
 Verifying Eloquent Models...
 
 ✓ User model: role cast = UserRole::class
-✓ Building model: gyvatukas_summer_average cast = decimal:2
+✓ Building model: hot water circulation_summer_average cast = decimal:2
 ...
 
 --- Verifying Relationships ---

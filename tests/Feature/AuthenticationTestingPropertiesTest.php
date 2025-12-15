@@ -10,15 +10,60 @@ use App\Models\Building;
 use App\Models\Tariff;
 use App\Models\Provider;
 use App\Models\Tenant;
+use App\Models\ServiceConfiguration;
+use App\Models\UtilityService;
+use App\Models\Subscription;
 use App\Enums\UserRole;
 use App\Enums\MeterType;
 use App\Enums\PropertyType;
 use App\Enums\InvoiceStatus;
+use App\Enums\DistributionMethod;
+use App\Enums\PricingModel;
+use App\Enums\ServiceType;
+use App\Enums\SubscriptionStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
 uses(RefreshDatabase::class);
+
+function createConsumptionServiceForProperty(
+    int $tenantId,
+    Property $property,
+    string $serviceName,
+    string $unitOfMeasurement,
+    float $unitRate,
+    ?ServiceType $bridgeType = null,
+    ?int $providerId = null,
+    ?int $tariffId = null,
+): ServiceConfiguration {
+    $utilityService = UtilityService::factory()->create([
+        'tenant_id' => $tenantId,
+        'name' => $serviceName,
+        'slug' => \Illuminate\Support\Str::slug($serviceName),
+        'unit_of_measurement' => $unitOfMeasurement,
+        'default_pricing_model' => PricingModel::CONSUMPTION_BASED,
+        'service_type_bridge' => $bridgeType,
+        'is_global_template' => false,
+        'is_active' => true,
+    ]);
+
+    return ServiceConfiguration::factory()->create([
+        'tenant_id' => $tenantId,
+        'property_id' => $property->id,
+        'utility_service_id' => $utilityService->id,
+        'pricing_model' => PricingModel::CONSUMPTION_BASED,
+        'rate_schedule' => ['unit_rate' => $unitRate],
+        'distribution_method' => DistributionMethod::EQUAL,
+        'is_shared_service' => false,
+        'effective_from' => now()->subYear(),
+        'effective_until' => null,
+        'provider_id' => $providerId,
+        'tariff_id' => $tariffId,
+        'configuration_overrides' => [],
+        'is_active' => true,
+    ]);
+}
 
 // Feature: authentication-testing, Property 1: Test user tenant assignment
 // Validates: Requirements 1.4
@@ -547,6 +592,17 @@ test('any invoice contains items for each utility type with consumption', functi
             'active_until' => null,
         ]
     );
+
+    $electricityTariff = Tariff::where('provider_id', $electricityProvider->id)
+        ->where('name', 'Test Electricity')
+        ->first();
+    $electricityRate = (float) ($electricityTariff?->configuration['rate'] ?? 0.0);
+    
+    $waterTariff = Tariff::where('provider_id', $waterProvider->id)
+        ->where('name', 'Test Water')
+        ->first();
+    $waterUnitRate = (float) ($waterTariff?->configuration['supply_rate'] ?? 0.0)
+        + (float) ($waterTariff?->configuration['sewage_rate'] ?? 0.0);
     
     // Randomly decide which meter types to create (at least 1, up to 3)
     $meterTypes = [];
@@ -560,11 +616,22 @@ test('any invoice contains items for each utility type with consumption', functi
     // Create electricity meter and readings if selected
     if ($shouldHaveElectricity) {
         $meterTypes[] = MeterType::ELECTRICITY;
+        $electricityConfig = createConsumptionServiceForProperty(
+            tenantId: $tenantId,
+            property: $property,
+            serviceName: 'Electricity',
+            unitOfMeasurement: 'kWh',
+            unitRate: $electricityRate,
+            bridgeType: ServiceType::ELECTRICITY,
+            providerId: $electricityProvider->id,
+            tariffId: $electricityTariff?->id,
+        );
         $electricityMeter = Meter::factory()->create([
             'tenant_id' => $tenantId,
             'property_id' => $property->id,
             'type' => MeterType::ELECTRICITY,
             'supports_zones' => false,
+            'service_configuration_id' => $electricityConfig->id,
         ]);
         
         $startValue = fake()->numberBetween(1000, 5000);
@@ -590,11 +657,22 @@ test('any invoice contains items for each utility type with consumption', functi
     // Create water cold meter and readings if selected
     if ($shouldHaveWaterCold) {
         $meterTypes[] = MeterType::WATER_COLD;
+        $coldWaterConfig = createConsumptionServiceForProperty(
+            tenantId: $tenantId,
+            property: $property,
+            serviceName: 'Cold Water',
+            unitOfMeasurement: 'm3',
+            unitRate: $waterUnitRate,
+            bridgeType: ServiceType::WATER,
+            providerId: $waterProvider->id,
+            tariffId: $waterTariff?->id,
+        );
         $waterColdMeter = Meter::factory()->create([
             'tenant_id' => $tenantId,
             'property_id' => $property->id,
             'type' => MeterType::WATER_COLD,
             'supports_zones' => false,
+            'service_configuration_id' => $coldWaterConfig->id,
         ]);
         
         $startValue = fake()->numberBetween(100, 500);
@@ -620,11 +698,22 @@ test('any invoice contains items for each utility type with consumption', functi
     // Create water hot meter and readings if selected
     if ($shouldHaveWaterHot) {
         $meterTypes[] = MeterType::WATER_HOT;
+        $hotWaterConfig = createConsumptionServiceForProperty(
+            tenantId: $tenantId,
+            property: $property,
+            serviceName: 'Hot Water',
+            unitOfMeasurement: 'm3',
+            unitRate: $waterUnitRate,
+            bridgeType: ServiceType::WATER,
+            providerId: $waterProvider->id,
+            tariffId: $waterTariff?->id,
+        );
         $waterHotMeter = Meter::factory()->create([
             'tenant_id' => $tenantId,
             'property_id' => $property->id,
             'type' => MeterType::WATER_HOT,
             'supports_zones' => false,
+            'service_configuration_id' => $hotWaterConfig->id,
         ]);
         
         $startValue = fake()->numberBetween(50, 300);
@@ -650,11 +739,22 @@ test('any invoice contains items for each utility type with consumption', functi
     // Ensure we have at least one meter type
     if (empty($meterTypes)) {
         $meterTypes[] = MeterType::ELECTRICITY;
+        $electricityConfig = createConsumptionServiceForProperty(
+            tenantId: $tenantId,
+            property: $property,
+            serviceName: 'Electricity',
+            unitOfMeasurement: 'kWh',
+            unitRate: $electricityRate,
+            bridgeType: ServiceType::ELECTRICITY,
+            providerId: $electricityProvider->id,
+            tariffId: $electricityTariff?->id,
+        );
         $electricityMeter = Meter::factory()->create([
             'tenant_id' => $tenantId,
             'property_id' => $property->id,
             'type' => MeterType::ELECTRICITY,
             'supports_zones' => false,
+            'service_configuration_id' => $electricityConfig->id,
         ]);
         
         $startValue = fake()->numberBetween(1000, 5000);
@@ -745,12 +845,24 @@ test('any invoice is calculated from meter readings and tariffs', function () {
         'active_until' => null,
     ]);
     
+    $electricityConfig = createConsumptionServiceForProperty(
+        tenantId: $tenantId,
+        property: $property,
+        serviceName: 'Electricity',
+        unitOfMeasurement: 'kWh',
+        unitRate: $rate,
+        bridgeType: ServiceType::ELECTRICITY,
+        providerId: $provider->id,
+        tariffId: Tariff::where('provider_id', $provider->id)->orderByDesc('id')->value('id'),
+    );
+
     // Create meter
     $meter = Meter::factory()->create([
         'tenant_id' => $tenantId,
         'property_id' => $property->id,
         'type' => MeterType::ELECTRICITY,
         'supports_zones' => false,
+        'service_configuration_id' => $electricityConfig->id,
     ]);
     
     // Create meter readings for billing period
@@ -845,12 +957,24 @@ test('any invoice items contain snapshotted tariff rates', function () {
         'active_until' => null,
     ]);
     
+    $electricityConfig = createConsumptionServiceForProperty(
+        tenantId: $tenantId,
+        property: $property,
+        serviceName: 'Electricity',
+        unitOfMeasurement: 'kWh',
+        unitRate: $originalRate,
+        bridgeType: ServiceType::ELECTRICITY,
+        providerId: $provider->id,
+        tariffId: $tariff->id,
+    );
+
     // Create meter
     $meter = Meter::factory()->create([
         'tenant_id' => $tenantId,
         'property_id' => $property->id,
         'type' => MeterType::ELECTRICITY,
         'supports_zones' => false,
+        'service_configuration_id' => $electricityConfig->id,
     ]);
     
     // Create meter readings for billing period
@@ -949,12 +1073,26 @@ test('any finalized invoice cannot be modified', function () {
         'active_until' => null,
     ]);
     
+    $latestTariffId = Tariff::where('provider_id', $provider->id)->orderByDesc('id')->value('id');
+    $latestRate = (float) (Tariff::find($latestTariffId)?->configuration['rate'] ?? 0.0);
+    $electricityConfig = createConsumptionServiceForProperty(
+        tenantId: $tenantId,
+        property: $property,
+        serviceName: 'Electricity',
+        unitOfMeasurement: 'kWh',
+        unitRate: $latestRate,
+        bridgeType: ServiceType::ELECTRICITY,
+        providerId: $provider->id,
+        tariffId: $latestTariffId,
+    );
+
     // Create meter
     $meter = Meter::factory()->create([
         'tenant_id' => $tenantId,
         'property_id' => $property->id,
         'type' => MeterType::ELECTRICITY,
         'supports_zones' => false,
+        'service_configuration_id' => $electricityConfig->id,
     ]);
     
     // Create meter readings for billing period
@@ -1081,12 +1219,24 @@ test('any finalized invoice remains unchanged when tariffs change', function () 
         'active_until' => null,
     ]);
     
+    $electricityConfig = createConsumptionServiceForProperty(
+        tenantId: $tenantId,
+        property: $property,
+        serviceName: 'Electricity',
+        unitOfMeasurement: 'kWh',
+        unitRate: $originalRate,
+        bridgeType: ServiceType::ELECTRICITY,
+        providerId: $provider->id,
+        tariffId: $tariff->id,
+    );
+
     // Create meter
     $meter = Meter::factory()->create([
         'tenant_id' => $tenantId,
         'property_id' => $property->id,
         'type' => MeterType::ELECTRICITY,
         'supports_zones' => false,
+        'service_configuration_id' => $electricityConfig->id,
     ]);
     
     // Create meter readings for billing period
@@ -1193,6 +1343,11 @@ test('any tariff with overlapping time-of-use zones is rejected', function () {
     $admin = User::factory()->create([
         'role' => UserRole::ADMIN,
         'tenant_id' => fake()->numberBetween(1, 100),
+    ]);
+
+    Subscription::factory()->active()->create([
+        'user_id' => $admin->id,
+        'status' => SubscriptionStatus::ACTIVE->value,
     ]);
     
     // Create provider

@@ -19,12 +19,32 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::bind('meterReading', function (string $value) {
                 return \App\Models\MeterReading::with('meter')->findOrFail($value);
             });
+
+            // Validation API uses `{reading}` and expects authorization failures (403) rather than hidden 404s.
+            // Bind without tenant scope so policies can decide access.
+            Route::bind('reading', function (string $value) {
+                $reading = \App\Models\MeterReading::withoutGlobalScopes()->with('meter')->find($value);
+
+                if (!$reading) {
+                    abort(404, 'Reading not found.');
+                }
+
+                return $reading;
+            });
+
+            // Bind service configurations without tenant scope for validation endpoints.
+            Route::bind('serviceConfiguration', function (string $value) {
+                return \App\Models\ServiceConfiguration::withoutGlobalScopes()->findOrFail($value);
+            });
+
+            // Same pattern for estimated readings in v1 routes.
+            Route::bind('estimatedReading', function (string $value) {
+                return \App\Models\MeterReading::withoutGlobalScopes()->with('meter')->findOrFail($value);
+            });
             
-            // Explicit binding for organization parameter to ensure it finds admin users
+            // Explicit binding for organization parameter to ensure consistent tenant resolution
             Route::bind('organization', function (string $value) {
-                return \App\Models\User::withoutGlobalScopes()
-                    ->where('role', \App\Enums\UserRole::ADMIN)
-                    ->findOrFail($value);
+                return \App\Models\Organization::query()->findOrFail($value);
             });
         },
     )

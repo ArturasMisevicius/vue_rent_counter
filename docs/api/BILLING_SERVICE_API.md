@@ -6,7 +6,7 @@
 
 ## Overview
 
-The `BillingService` provides invoice generation and finalization capabilities for the Vilnius Utilities Billing Platform. It orchestrates tariff resolution, meter reading collection, gyvatukas calculations, and invoice item creation with full tariff and reading snapshotting.
+The `BillingService` provides invoice generation and finalization capabilities for the Vilnius Utilities Billing Platform. It orchestrates tariff resolution, meter reading collection, hot water circulation calculations, and invoice item creation with full tariff and reading snapshotting.
 
 ## Class Reference
 
@@ -26,7 +26,7 @@ App\Services\BaseService
 
 ```php
 use App\Services\TariffResolver;
-use App\Services\GyvatukasCalculator;
+use App\Services\hot water circulationCalculator;
 ```
 
 ### Constructor
@@ -34,7 +34,7 @@ use App\Services\GyvatukasCalculator;
 ```php
 public function __construct(
     private readonly TariffResolver $tariffResolver,
-    private readonly GyvatukasCalculator $gyvatukasCalculator
+    private readonly hot water circulationCalculator $hot water circulationCalculator
 )
 ```
 
@@ -46,7 +46,7 @@ $billingService = app(BillingService::class);
 // or
 $billingService = new BillingService(
     app(TariffResolver::class),
-    app(GyvatukasCalculator::class)
+    app(hot water circulationCalculator::class)
 );
 ```
 
@@ -100,7 +100,7 @@ echo "Items: {$invoice->items->count()}\n";
 2. Eager loads meters with readings (±7 day buffer)
 3. Creates draft Invoice
 4. Generates items for each meter
-5. Adds gyvatukas items (if applicable)
+5. Adds hot water circulation items (if applicable)
 6. Calculates total amount
 7. Returns invoice with items
 
@@ -332,12 +332,12 @@ private function createWaterFixedFeeItem(Meter $meter): array
 
 ---
 
-### generateGyvatukasItems()
+### generatehot water circulationItems()
 
-Generate gyvatukas (circulation fee) invoice items.
+Generate hot water circulation (circulation fee) invoice items.
 
 ```php
-private function generateGyvatukasItems(
+private function generatehot water circulationItems(
     Property $property,
     BillingPeriod $period
 ): Collection
@@ -347,7 +347,7 @@ private function generateGyvatukasItems(
 - `$property` (Property) - The property
 - `$period` (BillingPeriod) - The billing period
 
-**Returns**: `Collection<int, array>` - Collection of gyvatukas invoice item data
+**Returns**: `Collection<int, array>` - Collection of hot water circulation invoice item data
 
 **Requirements**: 4.1, 4.2, 4.3
 
@@ -360,14 +360,14 @@ private function generateGyvatukasItems(
 ```php
 [
     [
-        'description' => 'Gyvatukas (Hot Water Circulation)',
+        'description' => 'hot water circulation (Hot Water Circulation)',
         'quantity' => 1.00,
         'unit' => 'month',
         'unit_price' => 150.50,
         'total' => 150.50,
         'meter_reading_snapshot' => [
             'building_id' => 1,
-            'calculation_type' => 'gyvatukas',
+            'calculation_type' => 'hot water circulation',
             'calculation_date' => '2024-11-01',
         ]
     ]
@@ -820,7 +820,7 @@ class GenerateInvoiceJob implements ShouldQueue
 - [BillingService v2.0 Implementation Guide](../implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md)
 - [Service Layer Architecture](../architecture/SERVICE_LAYER_ARCHITECTURE.md)
 - [TariffResolver API](./TARIFF_RESOLVER_API.md)
-- [GyvatukasCalculator API](GYVATUKAS_CALCULATOR_API.md)
+- [hot water circulationCalculator API](hot water circulation_CALCULATOR_API.md)
 - [Value Objects Guide](../architecture/VALUE_OBJECTS_GUIDE.md)
 
 ---

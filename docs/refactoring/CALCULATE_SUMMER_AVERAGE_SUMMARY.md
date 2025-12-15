@@ -13,7 +13,7 @@ Successfully refactored `CalculateSummerAverageCommand` from a procedural comman
 ## Key Achievements
 
 ### 1. Service Layer Pattern ✅
-- Created `GyvatukasSummerAverageService` to handle all business logic
+- Created `hot water circulationSummerAverageService` to handle all business logic
 - Command now focuses solely on I/O and user interaction
 - Service can be reused in API endpoints, queued jobs, or other commands
 
@@ -78,10 +78,10 @@ Successfully refactored `CalculateSummerAverageCommand` from a procedural comman
 ## Files Modified
 
 ### Created
-1. `app/Services/GyvatukasSummerAverageService.php` - Business logic service
+1. `app/Services/hot water circulationSummerAverageService.php` - Business logic service
 2. `app/ValueObjects/SummerPeriod.php` - Date period value object
 3. `app/ValueObjects/CalculationResult.php` - Result value object
-4. `tests/Unit/Services/GyvatukasSummerAverageServiceTest.php` - Service tests
+4. `tests/Unit/Services/hot water circulationSummerAverageServiceTest.php` - Service tests
 5. `tests/Unit/ValueObjects/SummerPeriodTest.php` - Period tests
 6. `tests/Unit/ValueObjects/CalculationResultTest.php` - Result tests
 
@@ -107,16 +107,16 @@ Successfully refactored `CalculateSummerAverageCommand` from a procedural comman
 
 ```bash
 # Calculate for previous year (default)
-php artisan gyvatukas:calculate-summer-average
+php artisan hot water circulation:calculate-summer-average
 
 # Calculate for specific year
-php artisan gyvatukas:calculate-summer-average --year=2023
+php artisan hot water circulation:calculate-summer-average --year=2023
 
 # Calculate for specific building
-php artisan gyvatukas:calculate-summer-average --building=5
+php artisan hot water circulation:calculate-summer-average --building=5
 
 # Force recalculation
-php artisan gyvatukas:calculate-summer-average --force
+php artisan hot water circulation:calculate-summer-average --force
 ```
 
 ## Benefits Realized

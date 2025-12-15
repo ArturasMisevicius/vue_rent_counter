@@ -86,7 +86,7 @@ $service->generateInvoice($tenantB, $start, $end); // No tenant check!
 **CWE**: CWE-770 (Allocation of Resources Without Limits)  
 **CVSS**: 7.5 (High)
 
-**Finding**: Expensive invoice generation can be triggered repeatedly without throttling. Combined with database queries and gyvatukas calculations, this is a severe DoS vector.
+**Finding**: Expensive invoice generation can be triggered repeatedly without throttling. Combined with database queries and hot water circulation calculations, this is a severe DoS vector.
 
 **Location**: Lines 54-156 (`generateInvoice` method)
 
@@ -196,7 +196,7 @@ $service->generateInvoice($tenant, $futureStart, $futureStart->copy()->addMonth(
 **CWE**: CWE-755 (Improper Handling of Exceptional Conditions)  
 **CVSS**: 6.1 (Medium)
 
-**Finding**: While the method uses `executeInTransaction`, if gyvatukas calculation fails (line 113-125), the invoice is still created with incomplete data.
+**Finding**: While the method uses `executeInTransaction`, if hot water circulation calculation fails (line 113-125), the invoice is still created with incomplete data.
 
 **Location**: Lines 113-125
 

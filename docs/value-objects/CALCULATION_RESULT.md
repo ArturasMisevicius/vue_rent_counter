@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `CalculationResult` value object represents the outcome of a summer average gyvatukas calculation for a building. It encapsulates success, skip, or failure states with relevant data.
+The `CalculationResult` value object represents the outcome of a summer average hot water circulation calculation for a building. It encapsulates success, skip, or failure states with relevant data.
 
 **Namespace**: `App\ValueObjects`
 
@@ -297,10 +297,10 @@ echo $message;
 ### Service Layer Usage
 
 ```php
-use App\Services\GyvatukasSummerAverageService;
+use App\Services\hot water circulationSummerAverageService;
 use App\ValueObjects\SummerPeriod;
 
-$service = new GyvatukasSummerAverageService();
+$service = new hot water circulationSummerAverageService();
 $building = Building::find(42);
 $period = new SummerPeriod(2023);
 
@@ -552,7 +552,7 @@ $errors = $results
 ## Related Documentation
 
 - [CalculateSummerAverageCommand](../commands/CALCULATE_SUMMER_AVERAGE_COMMAND.md)
-- [GyvatukasSummerAverageService](../services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md)
+- [hot water circulationSummerAverageService](../services/hot water circulation_SUMMER_AVERAGE_SERVICE.md)
 - [SummerPeriod Value Object](SUMMER_PERIOD.md)
 - [Building Model](../models/BUILDING.md)
 

@@ -4,7 +4,7 @@
 
 The Vilnius Utilities Billing Platform uses a multi-tenant architecture with SQLite (dev) and MySQL/PostgreSQL (prod) support. The schema is optimized for:
 - **Multi-tenancy**: Global `TenantScope` on all tenant-scoped models
-- **Audit trails**: Complete history for meter readings, gyvatukas calculations, and invoice generation
+- **Audit trails**: Complete history for meter readings, hot water circulation calculations, and invoice generation
 - **Performance**: Composite indexes for common query patterns, eager loading strategies
 - **Data integrity**: Foreign key constraints with appropriate cascade rules
 - **Snapshot-based billing**: Historical tariff and meter reading preservation
@@ -91,7 +91,7 @@ The Vilnius Utilities Billing Platform uses a multi-tenant architecture with SQL
 
 
 ┌─────────────────────────────┐
-│  gyvatukas_calculation_     │
+│  hot water circulation_calculation_     │
 │         audits              │
 │  (seasonal heating calc)    │
 └─────────────────────────────┘
@@ -139,7 +139,7 @@ The Vilnius Utilities Billing Platform uses a multi-tenant architecture with SQL
 27. **2025_11_24_000004** - Add FAQ category index
 28. **2025_11_24_000005** - Add audit fields to FAQs + performance indexes
 29. **2025_11_24_003226** - Add payment_reference to invoices
-30. **2025_11_25_000001** - `gyvatukas_calculation_audits`
+30. **2025_11_25_000001** - `hot water circulation_calculation_audits`
 31. **2025_11_25_060200** - Add billing service performance indexes
 32. **2025_11_25_120000** - `invoice_generation_audits`
 33. **2025_12_01_000001** - `organizations`, `organization_activity_log`, `organization_invitations`
@@ -171,9 +171,9 @@ The Vilnius Utilities Billing Platform uses a multi-tenant architecture with SQL
 | `users` | `users` | `parent_user_id` | SET NULL | CASCADE | Hierarchical user relationships |
 | `properties` | `property_tenant` | `property_id` | CASCADE | CASCADE | Pivot table cleanup |
 | `tenants` | `property_tenant` | `tenant_id` | CASCADE | CASCADE | Pivot table cleanup |
-| `buildings` | `gyvatukas_calculation_audits` | `building_id` | CASCADE | CASCADE | Audit tied to building |
-| `organizations` | `gyvatukas_calculation_audits` | `tenant_id` | CASCADE | CASCADE | Audit tied to organization |
-| `users` | `gyvatukas_calculation_audits` | `calculated_by_user_id` | CASCADE | CASCADE | Track who calculated |
+| `buildings` | `hot water circulation_calculation_audits` | `building_id` | CASCADE | CASCADE | Audit tied to building |
+| `organizations` | `hot water circulation_calculation_audits` | `tenant_id` | CASCADE | CASCADE | Audit tied to organization |
+| `users` | `hot water circulation_calculation_audits` | `calculated_by_user_id` | CASCADE | CASCADE | Track who calculated |
 | `invoices` | `invoice_generation_audits` | `invoice_id` | CASCADE | CASCADE | Audit tied to invoice |
 | `users` | `invoice_generation_audits` | `user_id` | CASCADE | CASCADE | Track who generated |
 | `organizations` | `organization_activity_log` | `organization_id` | CASCADE | CASCADE | Activity log tied to org |
@@ -224,8 +224,8 @@ The Vilnius Utilities Billing Platform uses a multi-tenant architecture with SQL
 | `tariffs` | `provider_id, active_from, active_until` | `tariffs_provider_active_index` | Tariff resolution by date |
 | `subscriptions` | `user_id, status` | `subscriptions_user_status_index` | Active subscription lookup |
 | `faqs` | `is_published, display_order` | `faqs_published_order_index` | Published FAQ ordering |
-| `gyvatukas_calculation_audits` | `building_id, billing_month` | `gyvatukas_building_month_index` | Historical calculation lookup |
-| `gyvatukas_calculation_audits` | `tenant_id, created_at` | `gyvatukas_tenant_created_index` | Audit trail by tenant |
+| `hot water circulation_calculation_audits` | `building_id, billing_month` | `hot water circulation_building_month_index` | Historical calculation lookup |
+| `hot water circulation_calculation_audits` | `tenant_id, created_at` | `hot water circulation_tenant_created_index` | Audit trail by tenant |
 | `invoice_generation_audits` | `tenant_id, created_at` | `invoice_audits_tenant_created_index` | Performance monitoring |
 | `organization_activity_log` | `organization_id, created_at` | `org_activity_org_created_index` | Activity timeline |
 | `organization_activity_log` | `user_id, created_at` | `org_activity_user_created_index` | User activity tracking |
@@ -253,7 +253,7 @@ The Vilnius Utilities Billing Platform uses a multi-tenant architecture with SQL
 | Invoice amounts (`total_amount`) | DECIMAL(10,2) | Max €99,999,999.99 |
 | Unit prices (`unit_price`) | DECIMAL(10,4) | Precise rate calculations (€0.0001) |
 | Area (`area_sqm`) | DECIMAL(8,2) | Max 999,999.99 m² |
-| Gyvatukas average | DECIMAL(10,2) | Consistent with meter readings |
+| hot water circulation average | DECIMAL(10,2) | Consistent with meter readings |
 
 **Why DECIMAL over FLOAT**:
 - Exact representation (no rounding errors)
@@ -294,8 +294,8 @@ The Vilnius Utilities Billing Platform uses a multi-tenant architecture with SQL
 | `providers` | `contact_info` | Flexible contact data | `{"phone": "+370...", "email": "..."}` |
 | `tariffs` | `configuration` | Tariff rules | `{"type": "flat", "rate": 0.15}` or `{"type": "time_of_use", "zones": [...]}` |
 | `invoice_items` | `meter_reading_snapshot` | Historical data preservation | `{"meter_id": 1, "start_value": "1000.00", "tariff_id": 5}` |
-| `gyvatukas_calculation_audits` | `distribution_result` | Per-property distribution | `{"property_1": 12.50, "property_2": 15.75}` |
-| `gyvatukas_calculation_audits` | `calculation_metadata` | Debug information | `{"query_count": 5, "execution_time_ms": 45}` |
+| `hot water circulation_calculation_audits` | `distribution_result` | Per-property distribution | `{"property_1": 12.50, "property_2": 15.75}` |
+| `hot water circulation_calculation_audits` | `calculation_metadata` | Debug information | `{"query_count": 5, "execution_time_ms": 45}` |
 | `invoice_generation_audits` | `metadata` | Performance metrics | `{"meters_processed": 5, "items_created": 8}` |
 | `organizations` | `settings` | Org-specific config | `{"invoice_prefix": "INV", "locale": "lt"}` |
 | `organizations` | `features` | Feature flags | `{"advanced_reporting": true}` |
@@ -381,8 +381,8 @@ CREATE INDEX idx_tariffs_config_gin ON tariffs USING GIN (configuration);
 | **User** | `password` | hashed | Automatic password hashing |
 | **User** | `role` | UserRole (enum) | Type-safe role handling |
 | **User** | `is_active` | boolean | Account status |
-| **Building** | `gyvatukas_summer_average` | decimal:2 | Precise calculation |
-| **Building** | `gyvatukas_last_calculated` | date | Calculation tracking |
+| **Building** | `hot water circulation_summer_average` | decimal:2 | Precise calculation |
+| **Building** | `hot water circulation_last_calculated` | date | Calculation tracking |
 | **Property** | `type` | PropertyType (enum) | Type-safe property type |
 | **Property** | `area_sqm` | decimal:2 | Precise area measurement |
 | **Tenant** | `lease_start` | date | Lease period tracking |
@@ -536,7 +536,7 @@ protected static function booted(): void
 | Model | Fillable Attributes | Protected (Never Fillable) |
 |-------|---------------------|----------------------------|
 | **User** | tenant_id, property_id, parent_user_id, name, email, password, role, is_active, organization_name | id, remember_token, email_verified_at, created_at, updated_at |
-| **Building** | tenant_id, name, address, total_apartments, gyvatukas_summer_average, gyvatukas_last_calculated | id, created_at, updated_at |
+| **Building** | tenant_id, name, address, total_apartments, hot water circulation_summer_average, hot water circulation_last_calculated | id, created_at, updated_at |
 | **Property** | tenant_id, address, type, area_sqm, unit_number, building_id | id, created_at, updated_at |
 | **Tenant** | slug, tenant_id, name, email, phone, property_id, lease_start, lease_end | id, created_at, updated_at |
 | **Meter** | tenant_id, serial_number, type, property_id, installation_date, supports_zones | id, created_at, updated_at |
@@ -681,7 +681,7 @@ class Invoice extends Model
 $invoice->audits()->latest()->get();
 ```
 
-**Decision**: Not implemented yet. Current approach uses dedicated audit tables (`meter_reading_audits`, `gyvatukas_calculation_audits`, `invoice_generation_audits`) for type-specific data.
+**Decision**: Not implemented yet. Current approach uses dedicated audit tables (`meter_reading_audits`, `hot water circulation_calculation_audits`, `invoice_generation_audits`) for type-specific data.
 
 ### 2. Commentable (Polymorphic Comments)
 
@@ -707,7 +707,7 @@ All models have corresponding factories in `database/factories/`:
 | Factory | Key Features | Realistic Data |
 |---------|--------------|----------------|
 | **UserFactory** | Role states, hierarchical relationships | Lithuanian names, valid emails |
-| **BuildingFactory** | Gyvatukas fields, apartment counts | Vilnius addresses, realistic apartment counts |
+| **BuildingFactory** | hot water circulation fields, apartment counts | Vilnius addresses, realistic apartment counts |
 | **PropertyFactory** | Type states, area ranges | Unit numbers, realistic m² values |
 | **TenantFactory** | Lease dates, contact info | Lithuanian names, phone numbers |
 | **ProviderFactory** | Service type states | Ignitis, Vilniaus Vandenys, Vilniaus Energija |
@@ -750,7 +750,7 @@ $invoice = Invoice::factory()
 | **ProvidersSeeder** | Utility companies | 3 providers (Ignitis, VV, VE) |
 | **UsersSeeder** | User accounts | Superadmin, admins, managers, tenants |
 | **OrganizationSeeder** | Organizations | 2-3 test organizations |
-| **TestBuildingsSeeder** | Buildings | 5 buildings with gyvatukas data |
+| **TestBuildingsSeeder** | Buildings | 5 buildings with hot water circulation data |
 | **TestPropertiesSeeder** | Properties | 20 properties (apartments + houses) |
 | **TestTenantsSeeder** | Tenants | 15 tenants with lease dates |
 | **TestMetersSeeder** | Meters | 60 meters (3 per property avg) |
@@ -924,7 +924,7 @@ $readings = DB::select("
 $property = $tenant->load([
     'property' => function ($query) use ($billingPeriod) {
         $query->with([
-            'building', // For gyvatukas
+            'building', // For hot water circulation
             'meters' => function ($meterQuery) use ($billingPeriod) {
                 $meterQuery->with(['readings' => function ($readingQuery) use ($billingPeriod) {
                     // ±7 day buffer for period boundaries
@@ -1103,7 +1103,7 @@ DB::statement('PRAGMA page_size=4096');
 | Property listing (20 properties) | 2 | 30ms | 1MB | `properties_tenant_id_index` |
 | Invoice generation (5 meters) | 10-15 | 100ms | 4MB | Multiple composite indexes |
 | Tariff resolution | 1 | 5ms | 100KB | `tariffs_provider_active_index` |
-| Gyvatukas calculation | 5-8 | 50ms | 1MB | `meters_property_type_index` |
+| hot water circulation calculation | 5-8 | 50ms | 1MB | `meters_property_type_index` |
 
 ---
 
@@ -1494,7 +1494,7 @@ The Vilnius Utilities Billing Platform database schema is production-ready with:
 ✅ **Multi-tenancy**: Global scopes on all tenant-scoped models
 ✅ **Performance**: 85% query reduction, 80% faster execution
 ✅ **Data Integrity**: Foreign keys with appropriate cascade rules
-✅ **Audit Trails**: Complete history for meter readings, gyvatukas, invoices
+✅ **Audit Trails**: Complete history for meter readings, hot water circulation, invoices
 ✅ **Type Safety**: Enum-backed status fields, precise decimal types
 ✅ **Flexibility**: JSON columns for tariff configurations
 ✅ **Scalability**: Composite indexes for common query patterns

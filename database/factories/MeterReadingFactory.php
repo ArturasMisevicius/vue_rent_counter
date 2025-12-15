@@ -24,7 +24,7 @@ class MeterReadingFactory extends Factory
             'reading_date' => fake()->dateTimeBetween('-1 year', 'now'),
             'value' => fake()->randomFloat(2, 0, 10000),
             'zone' => null,
-            'entered_by' => User::factory(),
+            'entered_by' => auth()->id() ?? User::factory(),
         ];
     }
 

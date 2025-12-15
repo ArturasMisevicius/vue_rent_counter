@@ -60,7 +60,7 @@ class MobileReadingInterface extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-device-phone-mobile';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-device-phone-mobile';
     protected static ?string $navigationLabel = 'Mobile Reading';
     protected static ?string $title = 'Field Reading Collection';
     protected string $view = 'filament.pages.mobile-reading-interface';

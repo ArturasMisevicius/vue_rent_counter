@@ -31,9 +31,9 @@ $areaTypes = DistributionMethod::AREA->getSupportedAreaTypes();
 
 ### Use in Distribution
 ```php
-use App\Services\GyvatukasCalculator;
+use App\Services\hot water circulationCalculator;
 
-$calculator = app(GyvatukasCalculator::class);
+$calculator = app(hot water circulationCalculator::class);
 
 // Equal distribution
 $costs = $calculator->distributeCirculationCost(

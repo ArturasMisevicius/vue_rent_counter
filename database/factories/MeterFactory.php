@@ -82,13 +82,21 @@ class MeterFactory extends Factory
             $property = $meter->property ?? Property::find($meter->property_id);
 
             if ($property && $meter->tenant_id !== $property->tenant_id) {
-                $meter->tenant_id = $property->tenant_id;
+                if ($meter->relationLoaded('property')) {
+                    $property->tenant_id = $meter->tenant_id;
+                } else {
+                    $meter->tenant_id = $property->tenant_id;
+                }
             }
         })->afterCreating(function (Meter $meter) {
             $property = $meter->property ?? Property::find($meter->property_id);
 
             if ($property && $meter->tenant_id !== $property->tenant_id) {
-                $meter->update(['tenant_id' => $property->tenant_id]);
+                if ($meter->relationLoaded('property')) {
+                    $property->update(['tenant_id' => $meter->tenant_id]);
+                } else {
+                    $meter->update(['tenant_id' => $property->tenant_id]);
+                }
             }
         });
     }

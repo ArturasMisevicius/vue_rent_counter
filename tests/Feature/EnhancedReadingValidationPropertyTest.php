@@ -146,6 +146,10 @@ class EnhancedReadingValidationPropertyTest extends TestCase
                         'Non-estimated reading should be REJECTED when validation fails');
                 }
             } else {
+                if (!empty($validationResult['warnings']) && $expectedStatus === ValidationStatus::PENDING) {
+                    $expectedStatus = ValidationStatus::REQUIRES_REVIEW;
+                }
+
                 $this->assertEquals($expectedStatus, $reading->validation_status,
                     "Reading status should match expected for input method {$inputMethod->value}");
             }

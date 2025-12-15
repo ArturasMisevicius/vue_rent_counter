@@ -118,16 +118,36 @@ trait BuildsTariffFormFields
                 ->maxLength(255)
                 ->visible(fn (Get $get): bool => !$get('manual_mode'))
                 ->helperText(__('tariffs.forms.remote_id_helper'))
+                ->mutateStateForValidationUsing(function (mixed $state): mixed {
+                    if (! is_string($state)) {
+                        return $state;
+                    }
+
+                    $state = trim($state);
+
+                    if ($state === '') {
+                        return null;
+                    }
+
+                    try {
+                        return app(\App\Services\InputSanitizer::class)->sanitizeIdentifier($state);
+                    } catch (\InvalidArgumentException) {
+                        // Fall back to original state; validation rules handle rejection.
+                        return $state;
+                    }
+                })
                 ->rules([
                     'nullable',
                     'string',
                     'max:255',
                     'regex:/^[a-zA-Z0-9\-\_\.]+$/', // Security: Alphanumeric, hyphens, underscores, dots only
+                    'not_regex:/\.\./',
                     fn (Get $get): string => $get('remote_id') && !$get('provider_id') ? 'required_with:provider_id' : '',
                 ])
                 ->validationMessages([
                     'max' => __('tariffs.validation.remote_id.max'),
                     'regex' => __('tariffs.validation.remote_id.format'),
+                    'not_regex' => __('tariffs.validation.remote_id.format'),
                     'required_with' => __('tariffs.validation.provider_id.required_with'),
                 ])
                 ->dehydrateStateUsing(fn (?string $state): ?string => 
@@ -318,7 +338,9 @@ trait BuildsTariffFormFields
                     'max' => __('tariffs.validation.configuration.zones.id.max'),
                     'regex' => __('tariffs.validation.configuration.zones.id.regex'),
                 ])
-                ->dehydrateStateUsing(fn (string $state): string => app(\App\Services\InputSanitizer::class)->sanitizeIdentifier($state)),
+                ->dehydrateStateUsing(fn (?string $state): ?string => $state !== null && $state !== ''
+                    ? app(\App\Services\InputSanitizer::class)->sanitizeIdentifier($state)
+                    : null),
             
             Forms\Components\TextInput::make('start')
                 ->label(__('tariffs.forms.start_time'))

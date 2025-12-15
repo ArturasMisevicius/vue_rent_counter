@@ -20,9 +20,9 @@ use UnitEnum;
 
 class PlatformAnalytics extends Page
 {
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-chart-bar';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chart-bar';
 
-    protected static UnitEnum|string|null $navigationGroup = 'System';
+    protected static string|UnitEnum|null $navigationGroup = 'System';
 
     protected static ?int $navigationSort = 3;
 
@@ -731,4 +731,3 @@ class PlatformAnalytics extends Page
         });
     }
 }
-

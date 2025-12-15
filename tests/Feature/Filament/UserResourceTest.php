@@ -67,7 +67,7 @@ test('superadmin can view all users across all tenants', function () {
         ->assertCanSeeTableRecords($tenant2Users);
 });
 
-test('manager can view users in their tenant', function () {
+test('manager cannot view users in their tenant', function () {
     $manager = User::factory()->create([
         'role' => UserRole::MANAGER,
         'tenant_id' => 1,
@@ -79,9 +79,7 @@ test('manager can view users in their tenant', function () {
     actingAs($manager);
 
     Livewire::test(ListUsers::class)
-        ->assertSuccessful()
-        ->assertCanSeeTableRecords($tenantUsers)
-        ->assertCanNotSeeTableRecords($otherUsers);
+        ->assertForbidden();
 });
 
 test('tenant users cannot access user resource', function () {

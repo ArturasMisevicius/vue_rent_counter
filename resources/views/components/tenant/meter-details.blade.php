@@ -1,6 +1,6 @@
 <x-tenant.stack>
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <x-tenant.stat-card label="Service" :value="$meter->serviceConfiguration?->utilityService?->name ?? enum_label($meter->type)" />
+        <x-tenant.stat-card label="Service" :value="$meter->getServiceDisplayName()" />
         <x-tenant.stat-card label="Latest Reading" :value="$latestReading ? number_format($latestReading->getEffectiveValue(), 2) . ' ' . $unit : 'Not recorded yet'" :value-color="$latestReading ? 'text-indigo-700' : 'text-slate-500'" />
         <x-tenant.stat-card label="Last Updated" :value="$latestReading ? $latestReading->reading_date->format('Y-m-d') : '-'" />
     </div>

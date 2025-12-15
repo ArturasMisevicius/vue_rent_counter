@@ -6,10 +6,10 @@ namespace App\Filament\Clusters\SuperAdmin\Resources\SystemConfigResource\Pages;
 
 use App\Filament\Clusters\SuperAdmin\Resources\SystemConfigResource;
 use Filament\Actions;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 
 final class ViewSystemConfig extends ViewRecord

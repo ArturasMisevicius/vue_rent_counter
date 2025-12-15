@@ -50,7 +50,7 @@ The analysis was conducted using:
 - **Status**: Already well-implemented for different meter types
 
 ### 2.2 Repository Pattern (RECOMMENDED)
-**Location**: Data access in `BillingService`, `GyvatukasCalculator`
+**Location**: Data access in `BillingService`, `hot water circulationCalculator`
 - **Issue**: Direct Eloquent queries scattered throughout service layer
 - **Recommendation**: 
   ```php
@@ -130,7 +130,7 @@ if (!$startReading || !$endReading) {
 
 #### Single Responsibility ✅ GOOD
 - Most classes have clear, focused responsibilities
-- Services handle specific domains (billing, gyvatukas, tariffs)
+- Services handle specific domains (billing, hot water circulation, tariffs)
 
 #### Open/Closed ✅ GOOD
 - Calculator strategies allow extension without modification
@@ -160,14 +160,14 @@ if (!$startReading || !$endReading) {
 ### 4.2 Method Complexity ⚠️ MODERATE
 **Cyclomatic Complexity Analysis**:
 - `BillingService::processMeters()`: **8** (threshold: 10)
-- `GyvatukasCalculator::calculateSummerGyvatukas()`: **3** (good)
+- `hot water circulationCalculator::calculateSummerhot water circulation()`: **3** (good)
 - `TimeRangeValidator::hasOverlappingRanges()`: **4** (good)
 
 **Recommendation**: Consider extracting zone processing logic from `processMeters()`
 
 ### 4.3 Comment Quality ✅ GOOD
 - PHPDoc blocks on public methods
-- Inline comments explain complex logic (gyvatukas formula)
+- Inline comments explain complex logic (hot water circulation formula)
 - Property-based test comments reference design document
 
 ### 4.4 Code Organization ✅ EXCELLENT
@@ -216,7 +216,7 @@ class RecalculateDraftInvoices {
 
 ### 6.1 N+1 Query Issues
 
-#### 6.1.1 GyvatukasCalculator ✅ RESOLVED
+#### 6.1.1 hot water circulationCalculator ✅ RESOLVED
 **Previous Issue**: Lazy loading in consumption calculations
 **Solution Implemented**: Eager loading with `load()`
 ```php
@@ -489,7 +489,7 @@ The refactorings already completed (Value Objects, Configuration Management, Per
 
 - [x] Extract magic numbers to configuration
 - [x] Create value objects for data clumps
-- [x] Optimize N+1 queries in GyvatukasCalculator
+- [x] Optimize N+1 queries in hot water circulationCalculator
 - [x] Optimize TimeRangeValidator algorithm
 - [ ] Fix test type mismatch
 - [ ] Add eager loading to controllers

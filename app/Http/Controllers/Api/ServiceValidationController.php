@@ -47,7 +47,9 @@ class ServiceValidationController extends Controller
      */
     public function validateReading(MeterReading $reading): JsonResponse
     {
-        $this->authorize('view', $reading);
+        if (! auth()->user()?->can('view', $reading)) {
+            abort(403, 'This action is unauthorized.');
+        }
         
         // Apply rate limiting for validation operations
         $this->applyRateLimit('validation', auth()->id());
@@ -95,7 +97,9 @@ class ServiceValidationController extends Controller
         ServiceConfiguration $serviceConfiguration,
         ValidateRateChangeRequest $request
     ): JsonResponse {
-        $this->authorize('update', $serviceConfiguration);
+        if (! auth()->user()?->can('update', $serviceConfiguration)) {
+            abort(403, 'This action is unauthorized.');
+        }
 
         $rateSchedule = $request->validated('rate_schedule');
 
@@ -150,7 +154,9 @@ class ServiceValidationController extends Controller
 
         // Authorize all readings
         foreach ($readings as $reading) {
-            $this->authorize('update', $reading);
+            if (! auth()->user()?->can('update', $reading)) {
+                abort(403, 'This action is unauthorized.');
+            }
         }
 
         $result = $this->validationEngine->bulkUpdateValidationStatus(
@@ -176,13 +182,17 @@ class ServiceValidationController extends Controller
         MeterReading $reading,
         ValidateEstimatedReadingRequest $request
     ): JsonResponse {
-        $this->authorize('view', $reading);
+        if (! auth()->user()?->can('view', $reading)) {
+            abort(403, 'This action is unauthorized.');
+        }
 
         $actualReadingId = $request->validated('actual_reading_id');
         $actualReading = $actualReadingId ? MeterReading::findOrFail($actualReadingId) : null;
 
         if ($actualReading) {
-            $this->authorize('view', $actualReading);
+            if (! auth()->user()?->can('view', $actualReading)) {
+                abort(403, 'This action is unauthorized.');
+            }
         }
 
         $result = $this->validationEngine->validateEstimatedReading($reading, $actualReading);
@@ -209,7 +219,7 @@ class ServiceValidationController extends Controller
             return $this->healthService->performHealthCheck();
         });
 
-        return $this->successResponse($healthData);
+        return response()->json($healthData);
     }
 
     /**
@@ -223,20 +233,20 @@ class ServiceValidationController extends Controller
     private function applyRateLimit(string $operation, mixed $identifier, int $weight = 1): void
     {
         $key = "rate_limit:{$operation}:{$identifier}";
+
+        $defaultLimit = (int) config('service_validation.api.rate_limit', 60);
+
         $maxAttempts = match ($operation) {
-            'validation' => 100,
-            'batch_validation' => 10,
-            'rate_change' => 20,
-            default => 50,
+            'batch_validation' => (int) config('service_validation.api.batch_rate_limit', 10),
+            'rate_change' => (int) config('service_validation.api.rate_change_rate_limit', 20),
+            default => $defaultLimit,
         };
 
         if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
-            throw new \Illuminate\Http\Exceptions\ThrottleRequestsException(
-                'Too many validation requests. Please try again later.'
-            );
+            throw new \Illuminate\Http\Exceptions\ThrottleRequestsException('Too Many Attempts.');
         }
 
-        RateLimiter::hit($key, 3600); // 1 hour window
+        RateLimiter::hit($key, 60); // 1 minute window
     }
 
     /**
@@ -248,7 +258,9 @@ class ServiceValidationController extends Controller
     private function authorizeReadings(\Illuminate\Support\Collection $readings): void
     {
         foreach ($readings as $reading) {
-            $this->authorize('view', $reading);
+            if (! auth()->user()?->can('view', $reading)) {
+                abort(403, 'This action is unauthorized.');
+            }
         }
     }
 

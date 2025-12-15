@@ -138,6 +138,7 @@ class OrganizationModelTest extends TestCase
     public function has_active_subscription_returns_true_for_future_expiry(): void
     {
         $organization = Organization::factory()->create([
+            'trial_ends_at' => null,
             'subscription_ends_at' => now()->addDays(30),
         ]);
 
@@ -148,6 +149,7 @@ class OrganizationModelTest extends TestCase
     public function has_active_subscription_returns_false_for_past_expiry(): void
     {
         $organization = Organization::factory()->create([
+            'trial_ends_at' => null,
             'subscription_ends_at' => now()->subDays(1),
         ]);
 
@@ -262,6 +264,7 @@ class OrganizationModelTest extends TestCase
         $organization = Organization::factory()->create([
             'is_active' => true,
             'suspended_at' => null,
+            'trial_ends_at' => null,
             'subscription_ends_at' => now()->addDays(30),
         ]);
 

@@ -31,8 +31,7 @@ final class MeterDetails extends Component
 
     public function __construct(public readonly Meter $meter)
     {
-        $this->unit = $meter->serviceConfiguration?->utilityService?->unit_of_measurement
-            ?? ($meter->type->value === 'electricity' ? 'kWh' : 'm³');
+        $this->unit = $meter->getUnitOfMeasurement();
         $this->latestReading = $meter->readings->first();
         $this->previousReading = $meter->readings->skip(1)->first();
         

@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PlatformNotification;
 use App\Models\PlatformNotificationRecipient;
+use App\Models\Organization;
 use App\Services\PlatformNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -21,10 +22,10 @@ class NotificationTrackingController extends Controller
     /**
      * Track notification read receipt
      */
-    public function track(Request $request, PlatformNotification $notification, int $organizationId): Response
+    public function track(Request $request, PlatformNotification $notification, Organization $organization): Response
     {
         $recipient = $notification->recipients()
-            ->where('organization_id', $organizationId)
+            ->where('organization_id', $organization->id)
             ->first();
 
         if ($recipient && $recipient->isSent()) {

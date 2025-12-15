@@ -72,20 +72,23 @@ class ImpersonationService
 
         $currentUser = Auth::user();
         $superadminId = $impersonationData['superadmin_id'];
+        $targetUser = User::find($impersonationData['target_user_id']);
         $startedAt = \Carbon\Carbon::parse($impersonationData['started_at']);
-        $duration = now()->diffInSeconds($startedAt);
+        $duration = now()->diffInSeconds($startedAt, true);
 
         // Log the impersonation end
-        if ($currentUser) {
+        $logTarget = $targetUser ?? $currentUser;
+
+        if ($logTarget && $logTarget->tenant_id !== null) {
             OrganizationActivityLog::create([
-                'organization_id' => $currentUser->tenant_id,
+                'organization_id' => $logTarget->tenant_id,
                 'user_id' => $superadminId,
                 'action' => 'impersonation_ended',
                 'resource_type' => 'User',
-                'resource_id' => $currentUser->id,
+                'resource_id' => $logTarget->id,
                 'metadata' => [
-                    'target_user_name' => $currentUser->name,
-                    'target_user_email' => $currentUser->email,
+                    'target_user_name' => $logTarget->name,
+                    'target_user_email' => $logTarget->email,
                     'duration_seconds' => $duration,
                     'started_at' => $impersonationData['started_at'],
                     'ended_at' => now()->toIso8601String(),
@@ -137,7 +140,7 @@ class ImpersonationService
         $startedAt = \Carbon\Carbon::parse($impersonationData['started_at']);
         $timeoutMinutes = 30;
 
-        return now()->diffInMinutes($startedAt) >= $timeoutMinutes;
+        return now()->diffInMinutes($startedAt, true) >= $timeoutMinutes;
     }
 
     /**
@@ -168,4 +171,3 @@ class ImpersonationService
         return User::find($impersonationData['target_user_id']);
     }
 }
-

@@ -21,6 +21,9 @@ final class DataQualityValidator implements ValidatorInterface
     {
         $result = ValidationResult::valid();
 
+        // Validate absolute reading bounds (even when consumption cannot be computed yet)
+        $result = $this->validateReadingBounds($context, $result);
+
         // Validate reading sequence
         $result = $this->validateReadingSequence($context, $result);
 
@@ -67,7 +70,7 @@ final class DataQualityValidator implements ValidatorInterface
         $previousReading = $context->previousReading;
 
         if (!$previousReading) {
-            return $result->addWarning(__('validation.no_previous_reading_for_sequence'));
+            return $result->addWarning(__('validation_service.no_previous_reading_for_sequence'));
         }
 
         // Check if current reading is less than previous (meter rollover or error)
@@ -78,16 +81,16 @@ final class DataQualityValidator implements ValidatorInterface
 
             if ($previousReading->getEffectiveValue() > $rolloverThreshold) {
                 $result = $result->addWarning(
-                    __('validation.possible_meter_rollover', [
+                    __('validation_service.possible_meter_rollover', [
                         'current' => $currentReading->getEffectiveValue(),
                         'previous' => $previousReading->getEffectiveValue(),
                         'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units'
                     ])
                 );
-                $result = $result->addRecommendation(__('validation.verify_meter_rollover'));
+                $result = $result->addRecommendation(__('validation_service.verify_meter_rollover'));
             } else {
                 $result = $result->addError(
-                    __('validation.reading_sequence_invalid', [
+                    __('validation_service.reading_sequence_invalid', [
                         'current' => $currentReading->getEffectiveValue(),
                         'previous' => $previousReading->getEffectiveValue(),
                         'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units'
@@ -99,9 +102,46 @@ final class DataQualityValidator implements ValidatorInterface
         // Check reading date sequence
         if ($currentReading->reading_date <= $previousReading->reading_date) {
             $result = $result->addError(
-                __('validation.reading_date_sequence_invalid', [
+                __('validation_service.reading_date_sequence_invalid', [
                     'current_date' => $currentReading->reading_date->format('Y-m-d'),
                     'previous_date' => $previousReading->reading_date->format('Y-m-d')
+                ])
+            );
+        }
+
+        return $result;
+    }
+
+    /**
+     * Validate the absolute reading value is within configured bounds.
+     *
+     * This provides a safety net for cases where consumption cannot be computed
+     * yet (e.g., first reading) while still preventing obviously invalid data.
+     */
+    private function validateReadingBounds(ValidationContext $context, ValidationResult $result): ValidationResult
+    {
+        $value = $context->reading->getEffectiveValue();
+        $unit = $context->getUtilityService()?->unit_of_measurement ?? 'units';
+
+        $min = (float) $context->getValidationConfig('default_min_consumption', 0);
+        $max = (float) $context->getValidationConfig('default_max_consumption', 10000);
+
+        if ($value < $min) {
+            $result = $result->addError(
+                __('validation_service.consumption_below_minimum', [
+                    'consumption' => $value,
+                    'minimum' => $min,
+                    'unit' => $unit,
+                ])
+            );
+        }
+
+        if ($value > $max) {
+            $result = $result->addError(
+                __('validation_service.consumption_exceeds_maximum', [
+                    'consumption' => $value,
+                    'maximum' => $max,
+                    'unit' => $unit,
                 ])
             );
         }
@@ -130,7 +170,7 @@ final class DataQualityValidator implements ValidatorInterface
             ->values();
 
         if ($consumptions->count() < 3) {
-            return $result->addWarning(__('validation.insufficient_data_for_anomaly_detection'));
+            return $result->addWarning(__('validation_service.insufficient_data_for_anomaly_detection'));
         }
 
         // Calculate statistical measures
@@ -147,7 +187,7 @@ final class DataQualityValidator implements ValidatorInterface
 
         if ($zScore > $anomalyThreshold) {
             $result = $result->addWarning(
-                __('validation.statistical_anomaly_detected', [
+                __('validation_service.statistical_anomaly_detected', [
                     'consumption' => $consumption,
                     'z_score' => round($zScore, 2),
                     'threshold' => $anomalyThreshold,
@@ -156,7 +196,7 @@ final class DataQualityValidator implements ValidatorInterface
                 ])
             );
 
-            $result = $result->addRecommendation(__('validation.investigate_consumption_anomaly'));
+            $result = $result->addRecommendation(__('validation_service.investigate_consumption_anomaly'));
         }
 
         return $result->addMetadata('z_score', round($zScore, 2))
@@ -184,7 +224,7 @@ final class DataQualityValidator implements ValidatorInterface
 
         if ($duplicates) {
             $result = $result->addWarning(
-                __('validation.duplicate_reading_detected', [
+                __('validation_service.duplicate_reading_detected', [
                     'value' => $currentReading->getEffectiveValue(),
                     'date' => $currentReading->reading_date->format('Y-m-d H:i'),
                     'window_hours' => $detectionWindow,
@@ -192,7 +232,7 @@ final class DataQualityValidator implements ValidatorInterface
                 ])
             );
 
-            $result = $result->addRecommendation(__('validation.verify_reading_uniqueness'));
+            $result = $result->addRecommendation(__('validation_service.verify_reading_uniqueness'));
         }
 
         return $result;
@@ -221,7 +261,7 @@ final class DataQualityValidator implements ValidatorInterface
                 foreach ($expectedStructure['required_fields'] ?? [] as $field) {
                     if (!isset($actualValues[$field])) {
                         $result = $result->addError(
-                            __('validation.missing_required_reading_field', ['field' => $field])
+                            __('validation_service.missing_required_reading_field', ['field' => $field])
                         );
                     }
                 }
@@ -235,7 +275,7 @@ final class DataQualityValidator implements ValidatorInterface
 
             if (abs($reading->value - $calculatedValue) > $tolerance) {
                 $result = $result->addWarning(
-                    __('validation.reading_value_mismatch', [
+                    __('validation_service.reading_value_mismatch', [
                         'stored_value' => $reading->value,
                         'calculated_value' => $calculatedValue,
                         'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units'
@@ -260,18 +300,18 @@ final class DataQualityValidator implements ValidatorInterface
 
         // Check if reading has proper audit information
         if (!$reading->entered_by) {
-            $result = $result->addWarning(__('validation.missing_audit_entered_by'));
+            $result = $result->addWarning(__('validation_service.missing_audit_entered_by'));
         }
 
         // Check validation status consistency
-        if ($reading->validation_status->isApproved() && !$reading->validated_by) {
-            $result = $result->addError(__('validation.validated_reading_missing_validator'));
+        if ($reading->validation_status?->isApproved() && !$reading->validated_by) {
+            $result = $result->addError(__('validation_service.validated_reading_missing_validator'));
         }
 
         // Check input method consistency
-        if ($reading->input_method->requiresPhoto() && !$reading->hasPhoto()) {
+        if ($reading->input_method?->requiresPhoto() && !$reading->hasPhoto()) {
             $result = $result->addError(
-                __('validation.photo_required_for_input_method', [
+                __('validation_service.photo_required_for_input_method', [
                     'input_method' => $reading->input_method->getLabel()
                 ])
             );

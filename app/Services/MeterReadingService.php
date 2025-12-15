@@ -17,34 +17,39 @@ use App\Models\MeterReading;
  * 
  * Performance: Optimized queries with proper indexing and eager loading
  */
-class MeterReadingService
+class MeterReadingService extends BaseService
 {
     /**
      * Create a new meter reading.
      * 
      * @param Meter $meter
-     * @param int $tenantId
      * @param string $readingDate
      * @param float $value
      * @param string|null $zone
      * @param int $enteredByUserId
+     * @param int|null $tenantId Organization tenant_id (optional)
      * @return MeterReading
      */
     public function createReading(
         Meter $meter,
-        int $tenantId,
         string $readingDate,
         float $value,
         ?string $zone,
-        int $enteredByUserId
+        int $enteredByUserId,
+        ?int $tenantId = null
     ): MeterReading {
+        $tenantId ??= $meter->tenant_id ?? auth()->user()?->tenant_id;
+
+        if (!$tenantId) {
+            throw new \InvalidArgumentException('Missing tenant_id for meter reading');
+        }
+
         return $meter->readings()->create([
             'tenant_id' => $tenantId,
-            'meter_id' => $meter->id,
             'reading_date' => $readingDate,
             'value' => $value,
             'zone' => $zone,
-            'entered_by_user_id' => $enteredByUserId,
+            'entered_by' => $enteredByUserId,
         ]);
     }
 
@@ -99,25 +104,75 @@ class MeterReadingService
      */
     public function getAdjacentReading(MeterReading $reading, ?string $zone, string $direction): ?MeterReading
     {
-        // Use select() to minimize data transfer
+        $direction = $direction === 'previous' ? 'previous' : 'next';
+
         $query = $reading->meter
             ->readings()
             ->select(['id', 'meter_id', 'value', 'reading_date', 'zone'])
-            ->where('id', '!=', $reading->id)
-            ->when($zone, fn($q) => $q->where('zone', $zone), fn($q) => $q->whereNull('zone'));
+            ->whereKeyNot($reading->id)
+            ->when($zone, fn ($q) => $q->where('zone', $zone), fn ($q) => $q->whereNull('zone'));
 
         if ($direction === 'previous') {
             return $query
-                ->where('reading_date', '<=', $reading->reading_date)
+                ->where(function ($q) use ($reading) {
+                    $q->where('reading_date', '<', $reading->reading_date)
+                        ->orWhere(function ($sameDate) use ($reading) {
+                            $sameDate
+                                ->where('reading_date', '=', $reading->reading_date)
+                                ->where('id', '<', $reading->id);
+                        });
+                })
                 ->orderBy('reading_date', 'desc')
-                ->orderBy('id', 'desc') // Secondary sort for same-day readings
+                ->orderBy('id', 'desc')
                 ->first();
         }
 
         return $query
-            ->where('reading_date', '>=', $reading->reading_date)
+            ->where(function ($q) use ($reading) {
+                $q->where('reading_date', '>', $reading->reading_date)
+                    ->orWhere(function ($sameDate) use ($reading) {
+                        $sameDate
+                            ->where('reading_date', '=', $reading->reading_date)
+                            ->where('id', '>', $reading->id);
+                    });
+            })
             ->orderBy('reading_date', 'asc')
-            ->orderBy('id', 'asc') // Secondary sort for same-day readings
+            ->orderBy('id', 'asc')
             ->first();
+    }
+
+    /**
+     * Validate input data for meter reading creation.
+     * 
+     * @param array $data
+     * @return bool
+     * @throws \InvalidArgumentException
+     */
+    public function validateInput(array $data): bool
+    {
+        $required = ['meter_id', 'reading_date', 'value', 'tenant_id'];
+        
+        foreach ($required as $field) {
+            if (!isset($data[$field]) || $data[$field] === null) {
+                throw new \InvalidArgumentException("Missing required field: {$field}");
+            }
+        }
+
+        if (!is_numeric($data['value']) || $data['value'] < 0) {
+            throw new \InvalidArgumentException("Reading value must be a positive number");
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the meter reading service is available.
+     * 
+     * @return bool
+     */
+    public function isAvailable(): bool
+    {
+        // Check if meter reading functionality is enabled
+        return config('app.features.meter_readings', true);
     }
 }

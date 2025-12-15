@@ -115,7 +115,7 @@ class BillingService extends BaseService
 {
     public function __construct(
         private readonly TariffResolver $tariffResolver,
-        private readonly GyvatukasCalculator $gyvatukasCalculator,
+        private readonly hot water circulationCalculator $hot water circulationCalculator,
         private readonly MeterReadingService $meterReadingService
     ) {}
 
@@ -150,10 +150,10 @@ class BillingService extends BaseService
                 $invoiceItems = $invoiceItems->merge($items);
             }
 
-            // 6. Add gyvatukas items if applicable
+            // 6. Add hot water circulation items if applicable
             if ($property->building) {
-                $gyvatukasItems = $this->generateGyvatukasItems($property, $billingPeriod);
-                $invoiceItems = $invoiceItems->merge($gyvatukasItems);
+                $hot water circulationItems = $this->generatehot water circulationItems($property, $billingPeriod);
+                $invoiceItems = $invoiceItems->merge($hot water circulationItems);
             }
 
             // 7. Create invoice items and calculate total
@@ -186,7 +186,7 @@ class BillingService extends BaseService
 - Exception handling with context
 - Atomic transaction wrapping entire operation
 
-### Pattern 2: GyvatukasCalculatorService (Authorization + Audit)
+### Pattern 2: hot water circulationCalculatorService (Authorization + Audit)
 
 **Use Case**: Secure calculation with authorization and audit trail
 
@@ -194,23 +194,23 @@ class BillingService extends BaseService
 
 
 ```php
-class GyvatukasCalculatorService extends BaseService
+class hot water circulationCalculatorService extends BaseService
 {
     public function __construct(
-        private readonly GyvatukasCalculator $calculator
+        private readonly hot water circulationCalculator $calculator
     ) {}
 
-    public function calculate(GyvatukasCalculationDTO $dto): ServiceResponse
+    public function calculate(hot water circulationCalculationDTO $dto): ServiceResponse
     {
         try {
             // 1. Authorization check
-            if (!Gate::allows('calculate-gyvatukas', $dto->building)) {
-                return $this->error('Unauthorized to calculate gyvatukas');
+            if (!Gate::allows('calculate-hot water circulation', $dto->building)) {
+                return $this->error('Unauthorized to calculate hot water circulation');
             }
 
             // 2. Rate limiting
             RateLimiter::attempt(
-                "gyvatukas-calc:{$dto->userId}",
+                "hot water circulation-calc:{$dto->userId}",
                 10, // 10 per minute
                 fn() => true
             );
@@ -219,7 +219,7 @@ class GyvatukasCalculatorService extends BaseService
             $result = $this->calculator->calculate($dto->building, $dto->month);
 
             // 4. Create audit record
-            GyvatukasCalculationAudit::create([
+            hot water circulationCalculationAudit::create([
                 'building_id' => $dto->building->id,
                 'user_id' => $dto->userId,
                 'calculation_month' => $dto->month,
@@ -228,7 +228,7 @@ class GyvatukasCalculatorService extends BaseService
             ]);
 
             // 5. Log success
-            $this->log('info', 'Gyvatukas calculated', [
+            $this->log('info', 'hot water circulation calculated', [
                 'building_id' => $dto->building->id,
                 'result' => $result,
             ]);
@@ -405,7 +405,7 @@ public function register(): void
 {
     // Singleton for stateless services
     $this->app->singleton(TariffResolver::class);
-    $this->app->singleton(GyvatukasCalculator::class);
+    $this->app->singleton(hot water circulationCalculator::class);
 
     // Instance binding for stateful services
     $this->app->bind(BillingService::class);
@@ -434,12 +434,12 @@ public function register(): void
 test('billing service generates invoice with correct calculations', function () {
     // Arrange
     $mockTariffResolver = Mockery::mock(TariffResolver::class);
-    $mockGyvatukas = Mockery::mock(GyvatukasCalculator::class);
+    $mockhot water circulation = Mockery::mock(hot water circulationCalculator::class);
     $mockMeterReading = Mockery::mock(MeterReadingService::class);
 
     $service = new BillingService(
         $mockTariffResolver,
-        $mockGyvatukas,
+        $mockhot water circulation,
         $mockMeterReading
     );
 
@@ -603,7 +603,7 @@ foreach ($property->meters as $meter) {
 // Cache expensive calculations
 public function calculate(...): float
 {
-    $cacheKey = "gyvatukas:{$building->id}:{$month}";
+    $cacheKey = "hot water circulation:{$building->id}:{$month}";
     
     return Cache::remember($cacheKey, 3600, function () use (...) {
         return $this->calculator->calculate(...);
@@ -742,7 +742,7 @@ public function generateInvoice(...): Invoice
 
 - [Service Layer Summary](SERVICE_LAYER_SUMMARY.md)
 - [BillingService Implementation](../implementation/BILLING_SERVICE_V2_IMPLEMENTATION.md)
-- [GyvatukasCalculatorService](../implementation/GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
+- [hot water circulationCalculatorService](../implementation/hot water circulation_CALCULATOR_IMPLEMENTATION.md)
 - [Testing Guide](../guides/TESTING_GUIDE.md)
 
 ---

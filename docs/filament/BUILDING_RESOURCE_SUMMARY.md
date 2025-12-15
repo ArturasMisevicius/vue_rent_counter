@@ -55,7 +55,7 @@ Added comprehensive DocBlocks:
 - All private methods documented with:
   - Purpose and implementation details
   - Validation rules
-  - Business context (gyvatukas calculations)
+  - Business context (hot water circulation calculations)
   - Performance notes
 
 ## Key Features Documented
@@ -69,7 +69,7 @@ Added comprehensive DocBlocks:
 ### Form Fields
 - Name field (building identifier)
 - Address field (physical location)
-- Total apartments field (gyvatukas calculations)
+- Total apartments field (hot water circulation calculations)
 - Validation rules and error messages
 - Localization integration
 
@@ -192,7 +192,7 @@ All UI strings are externalized via Laravel's translation system:
 ### Testing
 1. ⏳ Fix 5 failing tests
 2. ⏳ Add integration tests for tenant scoping
-3. ⏳ Add tests for gyvatukas calculations
+3. ⏳ Add tests for hot water circulation calculations
 4. ⏳ Add tests for properties relation manager
 
 ## Quality Metrics
@@ -219,7 +219,7 @@ All UI strings are externalized via Laravel's translation system:
 - Enhanced DocBlocks for BuildingResource class
   - Class-level documentation with feature overview
   - Method-level documentation with parameters, returns, and examples
-  - Business context for gyvatukas calculations
+  - Business context for hot water circulation calculations
   - Authorization rules and tenant scoping details
 
 ### Changed

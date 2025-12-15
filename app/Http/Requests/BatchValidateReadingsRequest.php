@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class BatchValidateReadingsRequest extends FormRequest
 {
@@ -28,6 +29,26 @@ class BatchValidateReadingsRequest extends FormRequest
             'options.include_performance_metrics' => 'nullable|boolean',
             'options.validation_level' => 'nullable|string|in:basic,comprehensive,strict',
         ];
+    }
+
+    /**
+     * Ensure API clients can rely on a top-level `reading_ids` validation key.
+     *
+     * PHPUnit assertions in the API feature tests expect `reading_ids` rather than
+     * per-index keys like `reading_ids.0` when element validation fails.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            $keys = $validator->errors()->keys();
+
+            $hasIndexedReadingIdErrors = collect($keys)
+                ->contains(fn (string $key): bool => str_starts_with($key, 'reading_ids.'));
+
+            if ($hasIndexedReadingIdErrors && ! $validator->errors()->has('reading_ids')) {
+                $validator->errors()->add('reading_ids', __('validation.batch_readings_required'));
+            }
+        });
     }
 
     /**

@@ -6,15 +6,18 @@ namespace Tests\Feature\Http\Controllers;
 
 use App\Enums\InvoiceStatus;
 use App\Enums\UserRole;
-use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Property;
+use App\Models\ServiceConfiguration;
+use App\Models\Subscription;
 use App\Models\Tenant;
 use App\Models\User;
-use App\Services\BillingService;
+use App\Models\UtilityService;
+use App\Enums\DistributionMethod;
+use App\Enums\PricingModel;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -68,6 +71,7 @@ class InvoiceControllerTest extends TestCase
             'role' => UserRole::TENANT,
             'tenant_id' => 1,
             'property_id' => $this->property->id,
+            'email' => $this->tenantRecord->email,
         ]);
     }
 
@@ -148,10 +152,31 @@ class InvoiceControllerTest extends TestCase
      */
     public function test_manager_can_store_invoice(): void
     {
+        $utilityService = UtilityService::factory()->create([
+            'tenant_id' => 1,
+            'name' => 'Electricity',
+            'unit_of_measurement' => 'kWh',
+            'default_pricing_model' => PricingModel::CONSUMPTION_BASED,
+        ]);
+
+        $serviceConfiguration = ServiceConfiguration::factory()->create([
+            'tenant_id' => 1,
+            'property_id' => $this->property->id,
+            'utility_service_id' => $utilityService->id,
+            'pricing_model' => PricingModel::CONSUMPTION_BASED,
+            'distribution_method' => DistributionMethod::EQUAL,
+            'rate_schedule' => ['rate_per_unit' => 2.0],
+            'effective_from' => now()->subYears(5),
+            'effective_until' => null,
+            'is_active' => true,
+        ]);
+
         // Create meter with readings
         $meter = Meter::factory()->create([
             'tenant_id' => 1,
             'property_id' => $this->property->id,
+            'service_configuration_id' => $serviceConfiguration->id,
+            'supports_zones' => false,
         ]);
 
         $periodStart = Carbon::now()->subMonth()->startOfDay();
@@ -298,10 +323,6 @@ class InvoiceControllerTest extends TestCase
      */
     public function test_tenant_can_download_invoice_pdf(): void
     {
-        // Ensure tenant user has the tenant relationship
-        $this->tenant->tenant_renter_id = $this->tenantRecord->id;
-        $this->tenant->save();
-        
         $invoice = Invoice::factory()->create([
             'tenant_id' => 1,
             'tenant_renter_id' => $this->tenantRecord->id,
@@ -372,6 +393,10 @@ class InvoiceControllerTest extends TestCase
             'role' => UserRole::ADMIN,
             'tenant_id' => 1,
         ]);
+
+        Subscription::factory()->active()->create([
+            'user_id' => $admin->id,
+        ]);
         
         $invoice = Invoice::factory()->create([
             'tenant_id' => 1,
@@ -394,6 +419,10 @@ class InvoiceControllerTest extends TestCase
         $admin = User::factory()->create([
             'role' => UserRole::ADMIN,
             'tenant_id' => 1,
+        ]);
+
+        Subscription::factory()->active()->create([
+            'user_id' => $admin->id,
         ]);
         
         $invoice = Invoice::factory()->create([

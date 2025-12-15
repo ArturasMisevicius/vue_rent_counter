@@ -28,9 +28,9 @@ class PlatformUserResource extends Resource
 
     protected static int $globalSearchResultsLimit = 5;
 
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-users';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
-    protected static UnitEnum|string|null $navigationGroup = 'System Management';
+    protected static string|UnitEnum|null $navigationGroup = 'System Management';
 
     public static function shouldRegisterNavigation(): bool
     {

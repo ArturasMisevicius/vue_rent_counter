@@ -25,7 +25,7 @@
                 <dl class="space-y-3">
                     <div>
                         <dt class="text-sm font-medium text-slate-500">Plan Type</dt>
-                        <dd class="mt-1 text-sm text-slate-900">{{ enum_label($subscription->plan_type, \App\Enums\SubscriptionPlanType::class) }}</dd>
+                        <dd class="mt-1 text-sm text-slate-900">{{ $subscription->plan_type }}</dd>
                     </div>
                     <div>
                         <dt class="text-sm font-medium text-slate-500">Status</dt>

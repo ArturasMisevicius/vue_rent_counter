@@ -11,6 +11,7 @@ use UnitEnum;
 use App\Filament\Resources\BuildingResource\Pages\EditBuilding;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
+use App\Models\Building;
 use App\Models\Property;
 use App\Models\Tenant;
 use Filament\Forms;
@@ -88,7 +89,7 @@ final class PropertiesRelationManager extends RelationManager
 
     protected static ?string $title = 'Properties';
 
-    protected static BackedEnum|string|null $icon = 'heroicon-o-home';
+    protected static string|BackedEnum|null $icon = 'heroicon-o-home';
 
     /**
      * Cached property configuration to avoid repeated config() calls.
@@ -103,6 +104,18 @@ final class PropertiesRelationManager extends RelationManager
      * @var array<string, string>|null
      */
     private static ?array $cachedRequestMessages = null;
+
+    public function mount(): void
+    {
+        parent::mount();
+
+        // Defense-in-depth: re-fetch the building through tenant-scoped queries.
+        // This prevents callers (including tests) from passing an owner record
+        // instance belonging to a different tenant.
+        if ($this->ownerRecord instanceof Building) {
+            $this->ownerRecord = Building::query()->findOrFail($this->ownerRecord->getKey());
+        }
+    }
 
     /**
      * Provide a schema instance for form rendering in tests.
@@ -476,6 +489,7 @@ final class PropertiesRelationManager extends RelationManager
 
         return $table
             ->recordTitleAttribute('address')
+            ->paginated(false)
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
                 ->with([
                     'tenants:id,name',

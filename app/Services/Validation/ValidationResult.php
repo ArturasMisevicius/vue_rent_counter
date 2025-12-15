@@ -189,16 +189,20 @@ final readonly class ValidationResult
      */
     public function toArray(): array
     {
+        $metadata = array_merge($this->metadata, [
+            'error_count' => $this->getErrorCount(),
+            'warning_count' => $this->getWarningCount(),
+            'has_recommendations' => $this->hasRecommendations(),
+        ]);
+
         return [
             'is_valid' => $this->isValid,
             'errors' => $this->errors,
             'warnings' => $this->warnings,
             'recommendations' => $this->recommendations,
-            'metadata' => array_merge($this->metadata, [
-                'error_count' => $this->getErrorCount(),
-                'warning_count' => $this->getWarningCount(),
-                'has_recommendations' => $this->hasRecommendations(),
-            ]),
+            'metadata' => $metadata,
+            // Backward-compatible alias used by docs and older clients/tests.
+            'validation_metadata' => $metadata,
         ];
     }
 

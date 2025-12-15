@@ -57,7 +57,7 @@
 │  │   ├─ resolveActiveTariff()                                    │
 │  │   └─ calculateCost()                                          │
 │  │                                                                │
-│  ├─ GyvatukasCalculator                                          │
+│  ├─ hot water circulationCalculator                                          │
 │  │   ├─ calculateCirculationFee()                                │
 │  │   └─ determineSeason()                                        │
 │  │                                                                │
@@ -162,10 +162,10 @@
 │   - Select strategy                  │
 │   - Calculate cost                   │
 └──────┬───────────────────────────────┘
-       │ 4. Calculate Gyvatukas
+       │ 4. Calculate hot water circulation
        ↓
 ┌──────────────────────────────────────┐
-│   GyvatukasCalculator                │
+│   hot water circulationCalculator                │
 │   - Determine season                 │
 │   - Calculate circulation fee        │
 └──────┬───────────────────────────────┘

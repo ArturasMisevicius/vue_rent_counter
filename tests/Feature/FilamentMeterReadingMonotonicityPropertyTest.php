@@ -8,10 +8,15 @@ use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Property;
 use App\Models\User;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+});
 
 // Feature: filament-admin-panel, Property 3: Monotonicity enforcement
 // Validates: Requirements 2.5
@@ -67,30 +72,19 @@ test('Filament MeterReadingResource rejects new readings that are less than the 
     $component = Livewire::test(MeterReadingResource\Pages\CreateMeterReading::class);
     
     $component->fillForm([
-        'property_id' => $property->id,
         'meter_id' => $meter->id,
         'reading_date' => now()->subDays(fake()->numberBetween(1, 29))->format('Y-m-d'),
         'value' => $newValue,
         'zone' => $zone,
     ]);
     
-    // Try to create - this should fail due to monotonicity validation
-    try {
-        $component->call('create');
-        
-        // If we get here, the test should fail because the submission should have been rejected
-        expect(false)->toBeTrue('System should reject meter reading that is less than previous reading');
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        // This is expected - the reading should be rejected
-        $errors = $e->errors();
-        
-        // Verify that there's a validation error on the 'value' field
-        expect($errors)->toHaveKey('value');
-        
-        // Verify the error message mentions the previous reading or monotonicity
-        $errorMessage = is_array($errors['value']) ? $errors['value'][0] : $errors['value'];
-        expect($errorMessage)->toContain('lower');
-    }
+    $component->call('create');
+
+    $errors = $component->instance()->getErrorBag()->toArray();
+    expect($errors)->toHaveKey('data.value');
+    expect($errors['data.value'][0] ?? null)->toBe(__('meter_readings.validation.custom.monotonicity_lower', [
+        'previous' => $previousValue,
+    ]));
     
     // Verify that no new meter reading was created
     $readingCount = MeterReading::withoutGlobalScopes()
@@ -154,7 +148,6 @@ test('Filament MeterReadingResource accepts new readings that are greater than o
     $component = Livewire::test(MeterReadingResource\Pages\CreateMeterReading::class);
     
     $component->fillForm([
-        'property_id' => $property->id,
         'meter_id' => $meter->id,
         'reading_date' => now()->subDays(fake()->numberBetween(1, 29))->format('Y-m-d'),
         'value' => $newValue,
@@ -163,19 +156,23 @@ test('Filament MeterReadingResource accepts new readings that are greater than o
     
     // Try to create - this should succeed
     $component->call('create');
+
+    $errors = $component->instance()->getErrorBag()->toArray();
+    expect($errors)->toBe([]);
     
     // Verify that a new meter reading was created
     $createdReading = MeterReading::withoutGlobalScopes()
         ->where('meter_id', $meter->id)
-        ->where('value', $newValue)
+        ->orderByDesc('reading_date')
+        ->orderByDesc('id')
         ->first();
     
     expect($createdReading)->not->toBeNull();
-    expect($createdReading->value)->toBe($newValue);
+    expect((string) $createdReading->value)->toBe(number_format($newValue, 2, '.', ''));
     expect($createdReading->tenant_id)->toBe($tenantId);
     
     // Verify that the new reading is greater than or equal to the previous reading
-    expect($createdReading->value)->toBeGreaterThanOrEqual($previousValue);
+    expect((float) $createdReading->value)->toBeGreaterThanOrEqual($previousValue);
 })->repeat(100);
 
 // Feature: filament-admin-panel, Property 3: Monotonicity enforcement
@@ -255,30 +252,24 @@ test('Filament MeterReadingResource enforces monotonicity when editing existing 
     ]);
     
     $component->fillForm([
-        'property_id' => $property->id,
         'meter_id' => $meter->id,
         'reading_date' => $currentReading->reading_date->format('Y-m-d'),
         'value' => $invalidValue,
         'zone' => $zone,
+        'change_reason' => 'Adjustment required for audit',
     ]);
     
-    // Try to save - this should fail due to monotonicity validation
-    try {
-        $component->call('save');
-        
-        // If we get here, the test should fail because the submission should have been rejected
-        expect(false)->toBeTrue('System should reject meter reading edit that is less than previous reading');
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        // This is expected - the reading should be rejected
-        $errors = $e->errors();
-        
-        // Verify that there's a validation error on the 'value' field
-        expect($errors)->toHaveKey('value');
-    }
+    $component->call('save');
+
+    $errors = $component->instance()->getErrorBag()->toArray();
+    expect($errors)->toHaveKey('data.value');
+    expect($errors['data.value'][0] ?? null)->toBe(__('meter_readings.validation.custom.monotonicity_lower', [
+        'previous' => $previousValue,
+    ]));
     
     // Verify that the reading was not updated
     $currentReading->refresh();
-    expect($currentReading->value)->toBe($currentValue);
+    expect((string) $currentReading->value)->toBe(number_format($currentValue, 2, '.', ''));
 })->repeat(100);
 
 // Feature: filament-admin-panel, Property 3: Monotonicity enforcement
@@ -358,30 +349,24 @@ test('Filament MeterReadingResource rejects edits that exceed the next reading v
     ]);
     
     $component->fillForm([
-        'property_id' => $property->id,
         'meter_id' => $meter->id,
         'reading_date' => $currentReading->reading_date->format('Y-m-d'),
         'value' => $invalidValue,
         'zone' => $zone,
+        'change_reason' => 'Adjustment required for audit',
     ]);
     
-    // Try to save - this should fail due to monotonicity validation
-    try {
-        $component->call('save');
-        
-        // If we get here, the test should fail because the submission should have been rejected
-        expect(false)->toBeTrue('System should reject meter reading edit that is greater than next reading');
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        // This is expected - the reading should be rejected
-        $errors = $e->errors();
-        
-        // Verify that there's a validation error on the 'value' field
-        expect($errors)->toHaveKey('value');
-    }
+    $component->call('save');
+
+    $errors = $component->instance()->getErrorBag()->toArray();
+    expect($errors)->toHaveKey('data.value');
+    expect($errors['data.value'][0] ?? null)->toBe(__('meter_readings.validation.custom.monotonicity_higher', [
+        'next' => $nextValue,
+    ]));
     
     // Verify that the reading was not updated
     $currentReading->refresh();
-    expect($currentReading->value)->toBe($currentValue);
+    expect((string) $currentReading->value)->toBe(number_format($currentValue, 2, '.', ''));
 })->repeat(100);
 
 // Feature: filament-admin-panel, Property 3: Monotonicity enforcement
@@ -461,21 +446,24 @@ test('Filament MeterReadingResource allows valid edits within monotonicity bound
     ]);
     
     $component->fillForm([
-        'property_id' => $property->id,
         'meter_id' => $meter->id,
         'reading_date' => $currentReading->reading_date->format('Y-m-d'),
         'value' => $validValue,
         'zone' => $zone,
+        'change_reason' => 'Adjustment required for audit',
     ]);
     
     // Try to save - this should succeed
     $component->call('save');
+
+    $errors = $component->instance()->getErrorBag()->toArray();
+    expect($errors)->toBe([]);
     
     // Verify that the reading was updated
     $currentReading->refresh();
-    expect($currentReading->value)->toBe($validValue);
+    expect((string) $currentReading->value)->toBe(number_format($validValue, 2, '.', ''));
     
     // Verify monotonicity is maintained
-    expect($currentReading->value)->toBeGreaterThanOrEqual($previousValue);
-    expect($currentReading->value)->toBeLessThanOrEqual($nextValue);
+    expect((float) $currentReading->value)->toBeGreaterThanOrEqual($previousValue);
+    expect((float) $currentReading->value)->toBeLessThanOrEqual($nextValue);
 })->repeat(100);

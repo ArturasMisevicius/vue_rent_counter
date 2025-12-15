@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Enums\InvoiceStatus;
 use App\View\Components\StatusBadge;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 describe('StatusBadge Cache Management', function () {
     beforeEach(function () {
@@ -45,10 +46,12 @@ describe('StatusBadge Cache Management', function () {
         
         Log::shouldReceive('warning')
             ->once()
-            ->with('StatusBadge: Unknown status value', [
-                'status_value' => 'unknown_status',
-                'available_statuses' => Mockery::type('array'),
-            ]);
+            ->with('StatusBadge: Unknown status value', \Mockery::on(function ($context): bool {
+                return is_array($context)
+                    && ($context['status_value'] ?? null) === 'unknown_status'
+                    && isset($context['available_statuses'])
+                    && is_array($context['available_statuses']);
+            }));
 
         $component = new StatusBadge('unknown_status');
         

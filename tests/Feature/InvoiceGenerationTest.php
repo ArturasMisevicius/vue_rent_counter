@@ -90,6 +90,17 @@ test('invoice is calculated from meter readings and tariffs', function () {
     $periodStart = now()->startOfMonth();
     $periodEnd = now()->endOfMonth();
 
+    $this->attachConsumptionServiceToMeter(
+        meter: $meter,
+        serviceName: 'Electricity',
+        unitOfMeasurement: 'kWh',
+        unitRate: 0.15,
+        bridgeType: ServiceType::ELECTRICITY,
+        effectiveFrom: $periodStart->copy()->subYear(),
+        providerId: $provider->id,
+        tariffId: $tariff->id,
+    );
+
     MeterReading::withoutGlobalScopes()->create([
         'tenant_id' => 1,
         'meter_id' => $meter->id,
@@ -161,7 +172,7 @@ test('invoice items are created for each utility type', function () {
         'service_type' => ServiceType::ELECTRICITY,
     ]);
 
-    Tariff::create([
+    $electricityTariff = Tariff::create([
         'provider_id' => $electricityProvider->id,
         'name' => 'Electricity Standard',
         'configuration' => [
@@ -178,7 +189,7 @@ test('invoice items are created for each utility type', function () {
         'service_type' => ServiceType::WATER,
     ]);
 
-    Tariff::create([
+    $waterTariff = Tariff::create([
         'provider_id' => $waterProvider->id,
         'name' => 'Water Standard',
         'configuration' => [
@@ -222,6 +233,42 @@ test('invoice items are created for each utility type', function () {
     // Create meter readings
     $periodStart = now()->startOfMonth();
     $periodEnd = now()->endOfMonth();
+
+    $waterUnitRate = (float) ($waterTariff->configuration['supply_rate'] ?? 0.0)
+        + (float) ($waterTariff->configuration['sewage_rate'] ?? 0.0);
+
+    $this->attachConsumptionServiceToMeter(
+        meter: $electricityMeter,
+        serviceName: 'Electricity',
+        unitOfMeasurement: 'kWh',
+        unitRate: 0.15,
+        bridgeType: ServiceType::ELECTRICITY,
+        effectiveFrom: $periodStart->copy()->subYear(),
+        providerId: $electricityProvider->id,
+        tariffId: $electricityTariff->id,
+    );
+
+    $this->attachConsumptionServiceToMeter(
+        meter: $waterColdMeter,
+        serviceName: 'Cold Water',
+        unitOfMeasurement: 'm3',
+        unitRate: $waterUnitRate,
+        bridgeType: ServiceType::WATER,
+        effectiveFrom: $periodStart->copy()->subYear(),
+        providerId: $waterProvider->id,
+        tariffId: $waterTariff->id,
+    );
+
+    $this->attachConsumptionServiceToMeter(
+        meter: $waterHotMeter,
+        serviceName: 'Hot Water',
+        unitOfMeasurement: 'm3',
+        unitRate: $waterUnitRate,
+        bridgeType: ServiceType::WATER,
+        effectiveFrom: $periodStart->copy()->subYear(),
+        providerId: $waterProvider->id,
+        tariffId: $waterTariff->id,
+    );
 
     // Electricity readings
     MeterReading::withoutGlobalScopes()->create([
@@ -355,6 +402,17 @@ test('tariff rates are snapshotted in invoice_items', function () {
     $periodStart = now()->startOfMonth();
     $periodEnd = now()->endOfMonth();
 
+    $this->attachConsumptionServiceToMeter(
+        meter: $meter,
+        serviceName: 'Electricity',
+        unitOfMeasurement: 'kWh',
+        unitRate: $originalRate,
+        bridgeType: ServiceType::ELECTRICITY,
+        effectiveFrom: $periodStart->copy()->subYear(),
+        providerId: $provider->id,
+        tariffId: $tariff->id,
+    );
+
     MeterReading::withoutGlobalScopes()->create([
         'tenant_id' => 1,
         'meter_id' => $meter->id,
@@ -444,7 +502,7 @@ test('finalized invoice cannot be modified', function () {
         'service_type' => ServiceType::ELECTRICITY,
     ]);
 
-    Tariff::create([
+    $tariff = Tariff::create([
         'provider_id' => $provider->id,
         'name' => 'Standard Rate',
         'configuration' => [
@@ -459,6 +517,17 @@ test('finalized invoice cannot be modified', function () {
     // Create meter readings
     $periodStart = now()->startOfMonth();
     $periodEnd = now()->endOfMonth();
+
+    $this->attachConsumptionServiceToMeter(
+        meter: $meter,
+        serviceName: 'Electricity',
+        unitOfMeasurement: 'kWh',
+        unitRate: $tariff->configuration['rate'],
+        bridgeType: ServiceType::ELECTRICITY,
+        effectiveFrom: $periodStart->copy()->subYear(),
+        providerId: $provider->id,
+        tariffId: $tariff->id,
+    );
 
     MeterReading::withoutGlobalScopes()->create([
         'tenant_id' => 1,
@@ -565,6 +634,17 @@ test('finalized invoice is not recalculated when tariffs change', function () {
     // Create meter readings
     $periodStart = now()->startOfMonth();
     $periodEnd = now()->endOfMonth();
+
+    $this->attachConsumptionServiceToMeter(
+        meter: $meter,
+        serviceName: 'Electricity',
+        unitOfMeasurement: 'kWh',
+        unitRate: $tariff->configuration['rate'],
+        bridgeType: ServiceType::ELECTRICITY,
+        effectiveFrom: $periodStart->copy()->subYear(),
+        providerId: $provider->id,
+        tariffId: $tariff->id,
+    );
 
     MeterReading::withoutGlobalScopes()->create([
         'tenant_id' => 1,

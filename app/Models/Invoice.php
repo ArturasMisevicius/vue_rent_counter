@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Support\Carbon;
 
 class Invoice extends Model
 {
@@ -38,23 +39,30 @@ class Invoice extends Model
                 || $originalStatus === InvoiceStatus::PAID;
             
             if ($isImmutable) {
-                // Allow only status changes (e.g., from FINALIZED to PAID)
+                // Allow only status changes and payment metadata updates.
                 $dirtyAttributes = array_keys($invoice->getDirty());
+                $allowedMutableAttributes = [
+                    'status',
+                    'paid_at',
+                    'payment_reference',
+                    'paid_amount',
+                    'overdue_notified_at',
+                ];
                 
-                // If only status is changing, allow it
-                if (count($dirtyAttributes) === 1 && in_array('status', $dirtyAttributes)) {
-                    return; // Continue with save
+                // If only allowed attributes are changing, allow it.
+                if (empty(array_diff($dirtyAttributes, $allowedMutableAttributes))) {
+                    return;
                 }
                 
-                // If status is changing along with other fields, allow only status
-                if (in_array('status', $dirtyAttributes)) {
-                    // Reset all non-status changes
+                // If status is changing along with other fields, allow only the allowed mutable fields.
+                if (in_array('status', $dirtyAttributes, true)) {
                     foreach ($dirtyAttributes as $attr) {
-                        if ($attr !== 'status') {
+                        if (!in_array($attr, $allowedMutableAttributes, true)) {
                             $invoice->$attr = $invoice->getOriginal($attr);
                         }
                     }
-                    return; // Continue with save (status only)
+
+                    return;
                 }
                 
                 // Prevent all other modifications by throwing exception
@@ -102,6 +110,21 @@ class Invoice extends Model
             'paid_amount' => 'decimal:2',
             'overdue_notified_at' => 'datetime',
         ];
+    }
+
+    public function setBillingPeriodStartAttribute(mixed $value): void
+    {
+        $this->attributes['billing_period_start'] = $value === null ? null : Carbon::parse($value)->toDateString();
+    }
+
+    public function setBillingPeriodEndAttribute(mixed $value): void
+    {
+        $this->attributes['billing_period_end'] = $value === null ? null : Carbon::parse($value)->toDateString();
+    }
+
+    public function setDueDateAttribute(mixed $value): void
+    {
+        $this->attributes['due_date'] = $value === null ? null : Carbon::parse($value)->toDateString();
     }
 
     /**

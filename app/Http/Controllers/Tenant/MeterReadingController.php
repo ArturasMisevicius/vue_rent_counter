@@ -110,7 +110,6 @@ class MeterReadingController extends Controller
         // Create meter reading via service layer
         $reading = $this->meterReadingService->createReading(
             meter: $meter,
-            tenantId: $tenant->id,
             readingDate: $validated['reading_date'],
             value: $validated['value'],
             zone: $validated['zone'] ?? null,

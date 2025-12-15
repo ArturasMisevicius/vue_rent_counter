@@ -146,7 +146,7 @@ $invoice->addComment('Heating charges seem incorrect', $tenantId, false);
 $invoice->addComment('Reviewing calculation', $adminId, false);
 
 // Admin adds internal note
-$invoice->addComment('Need to check gyvatukas formula', $adminId, true);
+$invoice->addComment('Need to check hot water circulation formula', $adminId, true);
 
 // Admin attaches corrected invoice
 $invoice->attachFile($correctedPdf, $adminId, 'Corrected invoice');

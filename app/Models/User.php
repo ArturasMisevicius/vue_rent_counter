@@ -13,6 +13,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Schema;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -73,7 +74,7 @@ use Spatie\Permission\Traits\HasRoles;
  */
 class User extends Authenticatable implements FilamentUser
 {
-    use HasFactory, Notifiable, HasRoles {
+    use HasApiTokens, HasFactory, Notifiable, HasRoles {
         HasRoles::bootHasRoles as protected bootHasRolesTrait;
         HasRoles::hasRole as protected hasRoleTrait;
     }
@@ -148,6 +149,9 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'role',
         'is_active',
+        'suspended_at',
+        'suspension_reason',
+        'last_login_at',
         'organization_name',
     ];
 
@@ -174,6 +178,8 @@ class User extends Authenticatable implements FilamentUser
             'role' => UserRole::class,
             'is_active' => 'boolean',
             'is_super_admin' => 'boolean',
+            'suspended_at' => 'datetime',
+            'last_login_at' => 'datetime',
         ];
     }
 

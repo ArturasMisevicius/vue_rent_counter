@@ -130,7 +130,7 @@ echo "✓ User model: role cast = {$rolecast}\n";
 | Model | Primary Casts | Key Relationships | Purpose |
 |-------|--------------|-------------------|---------|
 | User | role (enum) | property(), parentUser(), childUsers(), subscription() | Hierarchical user management |
-| Building | gyvatukas_summer_average (decimal:2) | properties() | Gyvatukas calculations |
+| Building | hot water circulation_summer_average (decimal:2) | properties() | hot water circulation calculations |
 | Property | type (enum) | building(), tenants(), meters() | Property management |
 | Tenant | lease_start (date), lease_end (date) | property(), invoices() | Lease tracking |
 | Provider | service_type (enum) | tariffs() | Utility providers |
@@ -155,7 +155,7 @@ echo "✓ User model: role cast = {$rolecast}\n";
 - `datetime` - Reading timestamps, tariff validity
 
 #### Decimal Casts
-- `decimal:2` - Gyvatukas values, invoice amounts
+- `decimal:2` - hot water circulation values, invoice amounts
 - `decimal:3` - Meter readings, consumption quantities
 
 #### Array/JSON Casts

@@ -434,7 +434,7 @@ protected $casts = [
 ## Related Documentation
 
 - [Universal Utility Management Spec](../.kiro/specs/universal-utility-management/requirements.md)
-- [GyvatukasCalculator Service](../services/GYVATUKAS_CALCULATOR.md)
+- [hot water circulationCalculator Service](../services/hot water circulation_CALCULATOR.md)
 - [Enum Best Practices](./ENUM_BEST_PRACTICES.md)
 
 ---

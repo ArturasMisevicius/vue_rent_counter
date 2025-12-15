@@ -26,7 +26,12 @@ class ManagerConsumptionReportRequest extends FormRequest
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'property_id' => ['nullable', 'exists:properties,id'],
             'building_id' => ['nullable', 'exists:buildings,id'],
-            'meter_type' => ['nullable', 'string'],
+            // Universal service filter:
+            // - utility:{id} (preferred)
+            // - type:{meter_type} (legacy meters only)
+            'service' => ['nullable', 'string', 'max:64'],
+            // Backward compatibility (deprecated): meter_type is mapped to service=type:{meter_type}
+            'meter_type' => ['nullable', 'string', 'max:64'],
         ];
     }
 

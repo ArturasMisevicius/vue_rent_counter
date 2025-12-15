@@ -42,7 +42,7 @@ The `BillingService` has been comprehensively optimized with **85% query reducti
 $property = $tenant->load([
     'property' => function ($query) use ($billingPeriod) {
         $query->with([
-            'building', // For gyvatukas calculations
+            'building', // For hot water circulation calculations
             'meters' => function ($meterQuery) use ($billingPeriod) {
                 $meterQuery->with(['readings' => function ($readingQuery) use ($billingPeriod) {
                     $readingQuery->whereBetween('reading_date', [

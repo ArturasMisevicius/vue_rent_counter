@@ -22,10 +22,10 @@ describe('UserPolicy - viewAny', function () {
         expect($admin->can('viewAny', User::class))->toBeTrue();
     });
 
-    test('manager can view users list', function () {
+    test('manager cannot view users list', function () {
         $manager = User::factory()->create(['role' => UserRole::MANAGER, 'tenant_id' => 1]);
         
-        expect($manager->can('viewAny', User::class))->toBeTrue();
+        expect($manager->can('viewAny', User::class))->toBeFalse();
     });
 
     test('tenant cannot view users list', function () {
@@ -84,10 +84,10 @@ describe('UserPolicy - create', function () {
         expect($admin->can('create', User::class))->toBeTrue();
     });
 
-    test('manager can create users', function () {
+    test('manager cannot create users', function () {
         $manager = User::factory()->create(['role' => UserRole::MANAGER, 'tenant_id' => 1]);
         
-        expect($manager->can('create', User::class))->toBeTrue();
+        expect($manager->can('create', User::class))->toBeFalse();
     });
 
     test('tenant cannot create users', function () {
@@ -99,6 +99,9 @@ describe('UserPolicy - create', function () {
 
 describe('UserPolicy - update', function () {
     test('superadmin can update any user and operation is logged', function () {
+        $superadmin = User::factory()->create(['role' => UserRole::SUPERADMIN]);
+        $otherUser = User::factory()->create(['role' => UserRole::ADMIN, 'tenant_id' => 1]);
+
         Log::shouldReceive('channel')
             ->with('audit')
             ->once()
@@ -107,9 +110,6 @@ describe('UserPolicy - update', function () {
         Log::shouldReceive('info')
             ->once()
             ->with('User update operation', \Mockery::type('array'));
-        
-        $superadmin = User::factory()->create(['role' => UserRole::SUPERADMIN]);
-        $otherUser = User::factory()->create(['role' => UserRole::ADMIN, 'tenant_id' => 1]);
         
         expect($superadmin->can('update', $otherUser))->toBeTrue();
     });
@@ -179,6 +179,9 @@ describe('UserPolicy - delete', function () {
     });
 
     test('delete operation is logged for audit', function () {
+        $admin = User::factory()->create(['role' => UserRole::ADMIN, 'tenant_id' => 1]);
+        $targetUser = User::factory()->create(['role' => UserRole::TENANT, 'tenant_id' => 1]);
+
         Log::shouldReceive('channel')
             ->with('audit')
             ->once()
@@ -187,9 +190,6 @@ describe('UserPolicy - delete', function () {
         Log::shouldReceive('info')
             ->once()
             ->with('User delete operation', \Mockery::type('array'));
-        
-        $admin = User::factory()->create(['role' => UserRole::ADMIN, 'tenant_id' => 1]);
-        $targetUser = User::factory()->create(['role' => UserRole::TENANT, 'tenant_id' => 1]);
         
         $admin->can('delete', $targetUser);
     });
@@ -262,6 +262,9 @@ describe('UserPolicy - impersonate', function () {
     });
 
     test('impersonate operation is logged', function () {
+        $superadmin = User::factory()->create(['role' => UserRole::SUPERADMIN]);
+        $targetUser = User::factory()->create(['role' => UserRole::ADMIN, 'tenant_id' => 1]);
+
         Log::shouldReceive('channel')
             ->with('audit')
             ->once()
@@ -270,9 +273,6 @@ describe('UserPolicy - impersonate', function () {
         Log::shouldReceive('info')
             ->once()
             ->with('User impersonate operation', \Mockery::type('array'));
-        
-        $superadmin = User::factory()->create(['role' => UserRole::SUPERADMIN]);
-        $targetUser = User::factory()->create(['role' => UserRole::ADMIN, 'tenant_id' => 1]);
         
         $superadmin->can('impersonate', $targetUser);
     });

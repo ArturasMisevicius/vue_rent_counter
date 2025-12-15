@@ -1,26 +1,19 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Filament\Widgets;
 
-use App\Enums\InvoiceStatus;
 use App\Enums\UserRole;
 use App\Models\Building;
 use App\Models\Invoice;
-use App\Models\MeterReading;
 use App\Models\Property;
 use App\Models\User;
-use Filament\Widgets\StatsOverviewWidget;
+use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Cache;
 
-class DashboardStatsWidget extends StatsOverviewWidget
+class DashboardStatsWidget extends BaseWidget
 {
-    /**
-     * Cache duration in seconds for stats
-     */
-    protected int $cacheDuration = 300; // 5 minutes
+    protected static ?int $sort = 1;
 
     protected function getStats(): array
     {
@@ -30,11 +23,11 @@ class DashboardStatsWidget extends StatsOverviewWidget
             return [];
         }
 
-        // Cache key based on user ID and role to ensure proper isolation
-        $cacheKey = sprintf('dashboard_stats_%s_%s', $user->id, $user->role->value);
-
-        return Cache::remember($cacheKey, $this->cacheDuration, function () use ($user) {
+        $cacheKey = "dashboard_stats_{$user->id}_{$user->tenant_id}";
+        
+        return Cache::remember($cacheKey, 300, function () use ($user) {
             return match ($user->role) {
+                UserRole::SUPERADMIN => $this->getSuperadminStats(),
                 UserRole::ADMIN => $this->getAdminStats($user),
                 UserRole::MANAGER => $this->getManagerStats($user),
                 UserRole::TENANT => $this->getTenantStats($user),
@@ -43,136 +36,80 @@ class DashboardStatsWidget extends StatsOverviewWidget
         });
     }
 
-    /**
-     * Get statistics for admin users
-     */
-    protected function getAdminStats(User $user): array
+    private function getSuperadminStats(): array
     {
-        $tenantId = $user->tenant_id;
-
         return [
-            Stat::make(__('dashboard.widgets.admin.total_properties.label'), Property::where('tenant_id', $tenantId)->count())
-                ->description(__('dashboard.widgets.admin.total_properties.description'))
-                ->descriptionIcon('heroicon-o-building-office')
+            Stat::make('Total Properties', Property::count())
+                ->description('Across all organizations')
                 ->color('success'),
-
-            Stat::make(__('dashboard.widgets.admin.total_buildings.label'), Building::where('tenant_id', $tenantId)->count())
-                ->description(__('dashboard.widgets.admin.total_buildings.description'))
-                ->descriptionIcon('heroicon-o-building-office-2')
+            Stat::make('Total Buildings', Building::count())
+                ->description('Across all organizations')
                 ->color('info'),
-
-            Stat::make(__('dashboard.widgets.admin.active_tenants.label'), User::where('tenant_id', $tenantId)
-                ->where('role', UserRole::TENANT)
-                ->where('is_active', true)
-                ->count())
-                ->description(__('dashboard.widgets.admin.active_tenants.description'))
-                ->descriptionIcon('heroicon-o-users')
+            Stat::make('Total Users', User::whereNotNull('tenant_id')->count())
+                ->description('Active tenant users')
                 ->color('warning'),
-
-            Stat::make(__('dashboard.widgets.admin.draft_invoices.label'), Invoice::where('tenant_id', $tenantId)
-                ->whereNull('finalized_at')
-                ->count())
-                ->description(__('dashboard.widgets.admin.draft_invoices.description'))
-                ->descriptionIcon('heroicon-o-document-text')
-                ->color('danger'),
-
-            Stat::make(__('dashboard.widgets.admin.pending_readings.label'), MeterReading::whereHas('meter', function ($query) use ($tenantId) {
-                $query->where('tenant_id', $tenantId);
-            })
-                ->whereDoesntHave('auditTrail')
-                ->count())
-                ->description(__('dashboard.widgets.admin.pending_readings.description'))
-                ->descriptionIcon('heroicon-o-chart-bar')
-                ->color('warning'),
-
-            Stat::make(__('dashboard.widgets.admin.total_revenue.label'), $this->formatRevenue(
-                Invoice::where('tenant_id', $tenantId)
-                    ->whereNotNull('finalized_at')
-                    ->whereMonth('created_at', now()->month)
-                    ->sum('total_amount')
-            ))
-                ->description(__('dashboard.widgets.admin.total_revenue.description'))
-                ->descriptionIcon('heroicon-o-currency-euro')
-                ->color('success'),
+            Stat::make('Total Invoices', Invoice::count())
+                ->description('All invoices generated')
+                ->color('primary'),
         ];
     }
 
-    /**
-     * Get statistics for manager users
-     */
-    protected function getManagerStats(User $user): array
+    private function getAdminStats(User $user): array
     {
-        $tenantId = $user->tenant_id;
-
         return [
-            Stat::make(__('dashboard.widgets.manager.total_properties.label'), Property::where('tenant_id', $tenantId)->count())
-                ->description(__('dashboard.widgets.manager.total_properties.description'))
-                ->descriptionIcon('heroicon-o-building-office')
+            Stat::make('Total Properties', Property::where('tenant_id', $user->tenant_id)->count())
+                ->description('In your organization')
                 ->color('success'),
-
-            Stat::make(__('dashboard.widgets.manager.total_buildings.label'), Building::where('tenant_id', $tenantId)->count())
-                ->description(__('dashboard.widgets.manager.total_buildings.description'))
-                ->descriptionIcon('heroicon-o-building-office-2')
+            Stat::make('Total Buildings', Building::where('tenant_id', $user->tenant_id)->count())
+                ->description('In your organization')
                 ->color('info'),
-
-            Stat::make(__('dashboard.widgets.manager.pending_readings.label'), MeterReading::whereHas('meter', function ($query) use ($tenantId) {
-                $query->where('tenant_id', $tenantId);
-            })
-                ->whereDoesntHave('auditTrail')
-                ->count())
-                ->description(__('dashboard.widgets.manager.pending_readings.description'))
-                ->descriptionIcon('heroicon-o-chart-bar')
+            Stat::make('Total Users', User::where('tenant_id', $user->tenant_id)->count())
+                ->description('In your organization')
                 ->color('warning'),
-
-            Stat::make(__('dashboard.widgets.manager.draft_invoices.label'), Invoice::where('tenant_id', $tenantId)
-                ->whereNull('finalized_at')
-                ->count())
-                ->description(__('dashboard.widgets.manager.draft_invoices.description'))
-                ->descriptionIcon('heroicon-o-document-text')
-                ->color('danger'),
+            Stat::make('Total Invoices', Invoice::where('tenant_id', $user->tenant_id)->count())
+                ->description('Generated this month')
+                ->color('primary'),
         ];
     }
 
-    /**
-     * Get statistics for tenant users
-     */
-    protected function getTenantStats(User $user): array
+    private function getManagerStats(User $user): array
     {
-        if (!$user->property_id) {
-            return [];
+        return [
+            Stat::make('Total Properties', Property::where('tenant_id', $user->tenant_id)->count())
+                ->description('In your organization')
+                ->color('success'),
+            Stat::make('Total Buildings', Building::where('tenant_id', $user->tenant_id)->count())
+                ->description('In your organization')
+                ->color('info'),
+            Stat::make('Recent Invoices', Invoice::where('tenant_id', $user->tenant_id)
+                ->where('created_at', '>=', now()->subDays(30))
+                ->count())
+                ->description('Last 30 days')
+                ->color('primary'),
+        ];
+    }
+
+    private function getTenantStats(User $user): array
+    {
+        $property = Property::where('tenant_id', $user->tenant_id)->first();
+        
+        if (!$property) {
+            return [
+                Stat::make('No Property', '0')
+                    ->description('No property assigned')
+                    ->color('danger'),
+            ];
         }
 
-        $property = Property::find($user->property_id);
-
         return [
-            Stat::make(__('dashboard.widgets.tenant.property.label'), $property?->address ?? __('app.common.na'))
-                ->description(__('dashboard.widgets.tenant.property.description'))
-                ->descriptionIcon('heroicon-o-building-office')
-                ->color('info'),
-
-            Stat::make(__('dashboard.widgets.tenant.invoices.label'), Invoice::whereHas('property', function ($query) use ($user) {
-                $query->where('properties.id', $user->property_id);
-            })->count())
-                ->description(__('dashboard.widgets.tenant.invoices.description'))
-                ->descriptionIcon('heroicon-o-document-text')
+            Stat::make('Your Property', $property->name)
+                ->description('Assigned property')
                 ->color('success'),
-
-            Stat::make(__('dashboard.widgets.tenant.unpaid.label'), Invoice::whereHas('property', function ($query) use ($user) {
-                $query->where('properties.id', $user->property_id);
-            })
-                ->where('status', InvoiceStatus::FINALIZED)
+            Stat::make('Recent Invoices', Invoice::where('tenant_id', $user->tenant_id)
+                ->where('created_at', '>=', now()->subDays(30))
                 ->count())
-                ->description(__('dashboard.widgets.tenant.unpaid.description'))
-                ->descriptionIcon('heroicon-o-exclamation-circle')
-                ->color('danger'),
+                ->description('Last 30 days')
+                ->color('primary'),
         ];
-    }
-
-    /**
-     * Format revenue amount in euros
-     */
-    protected function formatRevenue(int $amountInCents): string
-    {
-        return '€' . number_format($amountInCents / 100, 2);
     }
 }

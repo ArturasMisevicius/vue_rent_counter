@@ -24,9 +24,9 @@
             <div>
                 <label for="group_by" class="block text-sm font-medium text-slate-700">{{ __('meter_readings.manager.index.filters.group_by') }}</label>
                 <select name="group_by" id="group_by" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    <option value="none" {{ request('group_by', 'none') === 'none' ? 'selected' : '' }}>{{ __('meter_readings.manager.index.filters.none') }}</option>
-                    <option value="property" {{ request('group_by') === 'property' ? 'selected' : '' }}>{{ __('meter_readings.manager.index.filters.property') }}</option>
-                    <option value="meter_type" {{ request('group_by') === 'meter_type' ? 'selected' : '' }}>{{ __('meter_readings.manager.index.filters.meter_type') }}</option>
+                    <option value="none" {{ $groupBy === 'none' ? 'selected' : '' }}>{{ __('meter_readings.manager.index.filters.none') }}</option>
+                    <option value="property" {{ $groupBy === 'property' ? 'selected' : '' }}>{{ __('meter_readings.manager.index.filters.property') }}</option>
+                    <option value="service" {{ $groupBy === 'service' ? 'selected' : '' }}>{{ __('meter_readings.tenant.filters.service') }}</option>
                 </select>
             </div>
 
@@ -43,11 +43,11 @@
             </div>
 
             <div>
-                <label for="meter_type" class="block text-sm font-medium text-slate-700">{{ __('meter_readings.manager.index.filters.meter_type_label') }}</label>
-                <select name="meter_type" id="meter_type" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    <option value="">{{ __('meter_readings.manager.index.filters.all_types') }}</option>
-                    @foreach($meterTypeLabels as $value => $label)
-                        <option value="{{ $value }}" {{ request('meter_type') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                <label for="service" class="block text-sm font-medium text-slate-700">{{ __('meter_readings.tenant.filters.service') }}</label>
+                <select name="service" id="service" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <option value="">{{ __('meter_readings.tenant.filters.all_services') }}</option>
+                    @foreach($serviceFilterOptions as $value => $label)
+                        <option value="{{ $value }}" {{ $serviceFilter === $value ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>
             </div>
@@ -81,7 +81,7 @@
                             <tr>
                                 <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">{{ __('meter_readings.tables.date') }}</th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.meter') }}</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meters.labels.type') }}</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tenant.filters.service') }}</th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.value') }}</th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.zone') }}</th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.entered_by') }}</th>
@@ -102,7 +102,8 @@
                                 </a>
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                                <span class="capitalize">{{ $reading->meter->type->label() }}</span>
+                                {{ $reading->meter->getServiceDisplayName() }}
+                                <span class="text-xs text-slate-400">({{ $reading->meter->getUnitOfMeasurement() }})</span>
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                                 {{ number_format($reading->value, 2) }}
@@ -136,7 +137,7 @@
                         <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                             <div class="flex items-center justify-between">
                                 <p class="text-sm font-semibold text-slate-900">{{ $reading->reading_date->format('M d, Y') }}</p>
-                                <p class="text-xs font-semibold text-slate-500 capitalize">{{ $reading->meter->type->label() }}</p>
+                                <p class="text-xs font-semibold text-slate-500">{{ $reading->meter->getServiceDisplayName() }}</p>
                             </div>
                             <p class="text-xs text-slate-600">{{ __('meter_readings.tables.meter') }}: {{ $reading->meter->serial_number }}</p>
                             <p class="text-xs text-slate-600">{{ __('meter_readings.tables.value') }}: <span class="font-semibold text-slate-900">{{ number_format($reading->value, 2) }}</span></p>
@@ -167,20 +168,28 @@
                 </p>
             @endforelse
 
-        @elseif($groupBy === 'meter_type')
-            <!-- Grouped by Meter Type -->
-            @forelse($readings as $meterType => $typeReadings)
+        @elseif($groupBy === 'service')
+            <!-- Grouped by Service -->
+            @forelse($readings as $serviceKey => $typeReadings)
+                @php
+                    $firstReading = $typeReadings->first();
+                    $serviceLabel = $firstReading?->meter?->getServiceDisplayName() ?? $serviceKey;
+                    $serviceUnit = $firstReading?->meter?->getUnitOfMeasurement();
+                @endphp
                 <div class="mb-8 last:mb-0">
                     <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center">
                         <svg class="h-5 w-5 text-slate-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
-                        <span class="capitalize">{{ $meterTypeLabels[$meterType] ?? $meterType }}</span>
+                        <span class="capitalize">{{ $serviceLabel }}</span>
+                        @if(!empty($serviceUnit))
+                            <span class="ml-2 text-xs font-semibold text-slate-500">({{ $serviceUnit }})</span>
+                        @endif
                         <span class="ml-2 text-sm font-normal text-slate-500">({{ trans_choice('meter_readings.manager.index.count', $typeReadings->count(), ['count' => $typeReadings->count()]) }})</span>
                     </h3>
                     
                     <div class="hidden sm:block">
-                    <x-data-table :caption="__('meter_readings.manager.index.captions.meter_type')">
+                    <x-data-table :caption="__('meter_readings.tenant.filters.services_group')">
                         <x-slot name="header">
                             <tr>
                                 <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">{{ __('meter_readings.tables.date') }}</th>
@@ -282,7 +291,7 @@
                         <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">{{ __('meter_readings.tables.date') }}</th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meters.labels.property') }}</th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.meter') }}</th>
-                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meters.labels.type') }}</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tenant.filters.service') }}</th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.value') }}</th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.zone') }}</th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.entered_by') }}</th>
@@ -307,9 +316,10 @@
                             {{ $reading->meter->serial_number }}
                         </a>
                     </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                                <span class="capitalize">{{ $reading->meter->type->label() }}</span>
-                            </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
+                        {{ $reading->meter->getServiceDisplayName() }}
+                        <span class="text-xs text-slate-400">({{ $reading->meter->getUnitOfMeasurement() }})</span>
+                    </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                         {{ number_format($reading->value, 2) }}
                     </td>
@@ -351,7 +361,7 @@
                 <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                     <div class="flex items-center justify-between">
                         <p class="text-sm font-semibold text-slate-900">{{ $reading->reading_date->format('M d, Y') }}</p>
-                        <p class="text-xs font-semibold text-slate-500 capitalize">{{ $reading->meter->type->label() }}</p>
+                        <p class="text-xs font-semibold text-slate-500">{{ $reading->meter->getServiceDisplayName() }}</p>
                     </div>
                     <p class="text-xs text-slate-600">{{ $reading->meter->property->address }}</p>
                     <p class="text-xs text-slate-600">{{ __('meter_readings.manager.mobile.meter') }} {{ $reading->meter->serial_number }}</p>

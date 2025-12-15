@@ -33,7 +33,6 @@ class BatchValidateReadingsRequest extends FormRequest
             ],
             'reading_ids.*' => [
                 'integer',
-                'exists:meter_readings,id',
             ],
             'validation_options' => 'sometimes|array',
             'validation_options.parallel_processing' => 'boolean',
@@ -57,7 +56,6 @@ class BatchValidateReadingsRequest extends FormRequest
                 'max' => config('service_validation.performance.max_batch_size', 500)
             ]),
             'reading_ids.*.integer' => __('validation.reading_id_must_be_integer'),
-            'reading_ids.*.exists' => __('validation.reading_id_not_found'),
         ];
     }
 

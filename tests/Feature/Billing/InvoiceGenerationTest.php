@@ -109,6 +109,17 @@ class InvoiceGenerationTest extends TestCase
         $periodStart = Carbon::parse('2024-01-01');
         $periodEnd = Carbon::parse('2024-02-01');
 
+        $this->attachConsumptionServiceToMeter(
+            meter: $meter,
+            serviceName: 'Electricity',
+            unitOfMeasurement: 'kWh',
+            unitRate: 0.20,
+            bridgeType: ServiceType::ELECTRICITY,
+            effectiveFrom: $periodStart->copy()->subMonth(),
+            providerId: $provider->id,
+            tariffId: $tariff->id,
+        );
+
         $reading1 = MeterReading::factory()->create([
             'tenant_id' => 1,
             'meter_id' => $meter->id,
@@ -214,7 +225,7 @@ class InvoiceGenerationTest extends TestCase
 
         // Create tariffs for both services
         $electricityProvider = Provider::where('service_type', ServiceType::ELECTRICITY)->first();
-        Tariff::factory()->create([
+        $electricityTariff = Tariff::factory()->create([
             'provider_id' => $electricityProvider->id,
             'configuration' => [
                 'type' => 'flat',
@@ -226,7 +237,7 @@ class InvoiceGenerationTest extends TestCase
         ]);
 
         $waterProvider = Provider::where('service_type', ServiceType::WATER)->first();
-        Tariff::factory()->create([
+        $waterTariff = Tariff::factory()->create([
             'provider_id' => $waterProvider->id,
             'configuration' => [
                 'type' => 'flat',
@@ -240,6 +251,28 @@ class InvoiceGenerationTest extends TestCase
         // Create readings for electricity: 100 kWh consumption
         $periodStart = Carbon::parse('2024-01-01');
         $periodEnd = Carbon::parse('2024-01-31');
+
+        $this->attachConsumptionServiceToMeter(
+            meter: $electricityMeter,
+            serviceName: 'Electricity',
+            unitOfMeasurement: 'kWh',
+            unitRate: 0.15,
+            bridgeType: ServiceType::ELECTRICITY,
+            effectiveFrom: $periodStart->copy()->subMonth(),
+            providerId: $electricityProvider->id,
+            tariffId: $electricityTariff->id,
+        );
+
+        $this->attachConsumptionServiceToMeter(
+            meter: $waterMeter,
+            serviceName: 'Water',
+            unitOfMeasurement: 'm3',
+            unitRate: 1.50,
+            bridgeType: ServiceType::WATER,
+            effectiveFrom: $periodStart->copy()->subMonth(),
+            providerId: $waterProvider->id,
+            tariffId: $waterTariff->id,
+        );
 
         MeterReading::factory()->create([
             'tenant_id' => 1,
@@ -327,7 +360,7 @@ class InvoiceGenerationTest extends TestCase
 
         // Create tariff
         $provider = Provider::where('service_type', ServiceType::ELECTRICITY)->first();
-        Tariff::factory()->create([
+        $tariff = Tariff::factory()->create([
             'provider_id' => $provider->id,
             'configuration' => [
                 'type' => 'flat',
@@ -341,6 +374,17 @@ class InvoiceGenerationTest extends TestCase
         // Create readings with ZERO consumption (same value)
         $periodStart = Carbon::parse('2024-01-01');
         $periodEnd = Carbon::parse('2024-01-31');
+
+        $this->attachConsumptionServiceToMeter(
+            meter: $meter,
+            serviceName: 'Electricity',
+            unitOfMeasurement: 'kWh',
+            unitRate: 0.15,
+            bridgeType: ServiceType::ELECTRICITY,
+            effectiveFrom: $periodStart->copy()->subMonth(),
+            providerId: $provider->id,
+            tariffId: $tariff->id,
+        );
 
         MeterReading::factory()->create([
             'tenant_id' => 1,
@@ -402,7 +446,7 @@ class InvoiceGenerationTest extends TestCase
 
         // Create tariff
         $provider = Provider::where('service_type', ServiceType::ELECTRICITY)->first();
-        Tariff::factory()->create([
+        $tariff = Tariff::factory()->create([
             'provider_id' => $provider->id,
             'configuration' => [
                 'type' => 'flat',
@@ -418,6 +462,17 @@ class InvoiceGenerationTest extends TestCase
         // Action & Assertion: Should throw MissingMeterReadingException
         $periodStart = Carbon::parse('2024-01-01');
         $periodEnd = Carbon::parse('2024-01-31');
+
+        $this->attachConsumptionServiceToMeter(
+            meter: $meter,
+            serviceName: 'Electricity',
+            unitOfMeasurement: 'kWh',
+            unitRate: 0.15,
+            bridgeType: ServiceType::ELECTRICITY,
+            effectiveFrom: $periodStart->copy()->subMonth(),
+            providerId: $provider->id,
+            tariffId: $tariff->id,
+        );
 
         $billingService = app(BillingService::class);
 
@@ -466,6 +521,17 @@ class InvoiceGenerationTest extends TestCase
         // Create readings
         $periodStart = Carbon::parse('2024-01-01');
         $periodEnd = Carbon::parse('2024-01-31');
+
+        $this->attachConsumptionServiceToMeter(
+            meter: $meter,
+            serviceName: 'Electricity',
+            unitOfMeasurement: 'kWh',
+            unitRate: $originalRate,
+            bridgeType: ServiceType::ELECTRICITY,
+            effectiveFrom: $periodStart->copy()->subMonth(),
+            providerId: $provider->id,
+            tariffId: $tariff->id,
+        );
 
         MeterReading::factory()->create([
             'tenant_id' => 1,
@@ -556,6 +622,19 @@ class InvoiceGenerationTest extends TestCase
         // Create readings
         $periodStart = Carbon::parse('2024-01-01');
         $periodEnd = Carbon::parse('2024-01-31');
+
+        $tariff = Tariff::where('provider_id', $provider->id)->orderByDesc('id')->first();
+
+        $this->attachConsumptionServiceToMeter(
+            meter: $meter,
+            serviceName: 'Electricity',
+            unitOfMeasurement: 'kWh',
+            unitRate: 0.15,
+            bridgeType: ServiceType::ELECTRICITY,
+            effectiveFrom: $periodStart->copy()->subMonth(),
+            providerId: $provider->id,
+            tariffId: $tariff?->id,
+        );
 
         MeterReading::factory()->create([
             'tenant_id' => 1,

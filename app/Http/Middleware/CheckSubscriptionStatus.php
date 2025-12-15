@@ -11,6 +11,7 @@ use App\Services\SubscriptionStatusHandlers\SubscriptionStatusHandlerFactory;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -126,6 +127,13 @@ final class CheckSubscriptionStatus
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Allow superadmin support sessions (impersonation) to operate even when
+        // the tenant has no/expired subscription. The acting user is the tenant
+        // admin, but the session is initiated by a superadmin.
+        if ($request->session()->has('impersonation')) {
+            return $next($request);
+        }
+
         // CRITICAL: Skip auth routes to prevent 419 errors and authentication flow disruption
         if ($this->shouldBypassCheck($request)) {
             return $next($request);
@@ -137,6 +145,10 @@ final class CheckSubscriptionStatus
         // Superadmins, managers, and tenants bypass subscription checks
         if (! $user || $this->shouldBypassRoleCheck($user->role)) {
             return $next($request);
+        }
+
+        if ($rateLimitedResponse = $this->enforceRateLimit($request)) {
+            return $rateLimitedResponse;
         }
 
         try {
@@ -177,6 +189,55 @@ final class CheckSubscriptionStatus
 
             return $next($request);
         }
+    }
+
+    /**
+     * Rate-limit subscription check requests to prevent DoS attacks.
+     *
+     * Limits are configurable via:
+     * - subscription.rate_limit.authenticated (default 60/min)
+     * - subscription.rate_limit.unauthenticated (default 10/min)
+     */
+    private function enforceRateLimit(Request $request): ?Response
+    {
+        $user = $request->user();
+
+        $key = $user
+            ? sprintf('subscription-check:user:%d', $user->id)
+            : sprintf('subscription-check:ip:%s', (string) $request->ip());
+
+        $maxAttempts = $user
+            ? (int) config('subscription.rate_limit.authenticated', 60)
+            : (int) config('subscription.rate_limit.unauthenticated', 10);
+
+        if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
+            Log::channel('security')->warning('Rate limit exceeded for subscription checks', [
+                'key' => $key,
+                'user_id' => $user?->id,
+                'ip' => $request->ip(),
+                'route' => $request->route()?->getName(),
+                'user_agent' => $request->userAgent(),
+                'timestamp' => now()->toIso8601String(),
+            ]);
+
+            $retryAfter = RateLimiter::availableIn($key);
+
+            $response = $request->expectsJson()
+                ? response()->json([
+                    'message' => 'Too many subscription check attempts. Please try again later.',
+                    'retry_after' => $retryAfter,
+                ], 429)
+                : response('Too many subscription check attempts. Please try again later.', 429);
+
+            return $response
+                ->header('Retry-After', (string) $retryAfter)
+                ->header('X-RateLimit-Limit', (string) $maxAttempts)
+                ->header('X-RateLimit-Remaining', '0');
+        }
+
+        RateLimiter::hit($key, 60);
+
+        return null;
     }
 
     /**
@@ -242,10 +303,32 @@ final class CheckSubscriptionStatus
     ): void {
         // Memoize audit logger to avoid repeated channel resolution
         if ($this->auditLogger === null) {
-            $this->auditLogger = Log::channel('audit');
+            $candidate = Log::channel('audit');
+
+            $this->auditLogger = is_object($candidate)
+                ? $candidate
+                : Log::getFacadeRoot();
         }
 
-        $this->auditLogger->info('Subscription check performed', [
+        if (is_object($this->auditLogger) && method_exists($this->auditLogger, 'info')) {
+            $this->auditLogger->info('Subscription check performed', [
+                'check_result' => $result->shouldProceed ? 'allowed' : 'blocked',
+                'message_type' => $result->messageType,
+                'user_id' => $request->user()?->id,
+                'user_email' => $request->user()?->email,
+                'subscription_id' => $subscription?->id,
+                'subscription_status' => $subscription?->status?->value,
+                'expires_at' => $subscription?->expires_at?->toIso8601String(),
+                'route' => $request->route()?->getName(),
+                'method' => $request->method(),
+                'ip' => $request->ip(),
+                'timestamp' => now()->toIso8601String(),
+            ]);
+
+            return;
+        }
+
+        Log::info('Subscription check performed', [
             'check_result' => $result->shouldProceed ? 'allowed' : 'blocked',
             'message_type' => $result->messageType,
             'user_id' => $request->user()?->id,

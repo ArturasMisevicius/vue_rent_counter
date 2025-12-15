@@ -2,6 +2,12 @@
 
 namespace App\Filament\Resources\OrganizationResource\RelationManagers;
 
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use BackedEnum;
 use UnitEnum;
 use Filament\Forms;
@@ -16,7 +22,7 @@ class UsersRelationManager extends RelationManager
 
     protected static ?string $title = null;
 
-    protected static BackedEnum|string|null $icon = 'heroicon-o-users';
+    protected static string|BackedEnum|null $icon = 'heroicon-o-users';
 
     public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
     {
@@ -68,7 +74,7 @@ class UsersRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('role')
                     ->label(__('users.labels.role'))
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn (string|BackedEnum $state): string => match ($state instanceof BackedEnum ? $state->value : $state) {
                         'admin' => 'danger',
                         'manager' => 'warning',
                         'tenant' => 'success',
@@ -100,16 +106,16 @@ class UsersRelationManager extends RelationManager
                     ->label(__('organizations.relations.users.active')),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateHeading(__('organizations.relations.users.empty_heading'))

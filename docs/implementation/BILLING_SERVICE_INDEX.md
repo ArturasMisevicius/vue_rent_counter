@@ -31,7 +31,7 @@
 ### 🔗 Related Services
 
 - **[TariffResolver Implementation](TARIFF_RESOLVER_IMPLEMENTATION.md)** - Tariff resolution service
-- **[GyvatukasCalculator Implementation](GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)** - Gyvatukas calculation service
+- **[hot water circulationCalculator Implementation](hot water circulation_CALCULATOR_IMPLEMENTATION.md)** - hot water circulation calculation service
 
 ## Documentation by Purpose
 
@@ -112,10 +112,10 @@
 - [API Reference](../api/BILLING_SERVICE_API.md#calculatewatertotal)
 - [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#3-water-billing)
 
-### Gyvatukas Integration
-- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md#gyvatukas-integration)
-- [API Reference](../api/BILLING_SERVICE_API.md#generategyvatukasitems)
-- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#4-gyvatukas-integration)
+### hot water circulation Integration
+- [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md#hot water circulation-integration)
+- [API Reference](../api/BILLING_SERVICE_API.md#generatehot water circulationitems)
+- [Implementation Guide](BILLING_SERVICE_V2_IMPLEMENTATION.md#4-hot water circulation-integration)
 
 ### Invoice Finalization
 - [Quick Reference](BILLING_SERVICE_QUICK_REFERENCE.md#invoice-finalization)

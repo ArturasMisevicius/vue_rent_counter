@@ -2,85 +2,90 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\PropertyCreateDTO;
+use App\DTOs\PropertyUpdateDTO;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
-use App\Models\Building;
 use App\Models\Property;
+use App\Services\PropertyManagementService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class PropertyController extends Controller
 {
-    public function index()
+    public function __construct(
+        private readonly PropertyManagementService $propertyService
+    ) {}
+
+    public function index(Request $request): View
     {
-        $properties = Property::with('building')->paginate(20);
-        return view('properties.index', compact('properties'));
+        $filters = $request->only(['search', 'type', 'city', 'is_active', 'owner_id']);
+        $properties = $this->propertyService->getProperties($filters, $request->get('per_page', 15));
+
+        return view('properties.index', compact('properties', 'filters'));
     }
 
-    public function create()
+    public function show(Property $property): View
     {
-        $buildings = Building::all();
-        return view('properties.create', compact('buildings'));
+        $analytics = $this->propertyService->getPropertyAnalytics($property->id);
+
+        return view('properties.show', compact('property', 'analytics'));
     }
 
-    public function store(StorePropertyRequest $request)
+    public function create(): View
     {
-        $validated = $request->validated();
-
-        Property::create($validated);
-
-        return redirect()->route('properties.index')
-            ->with('success', __('notifications.property.created'));
+        return view('properties.create');
     }
 
-    public function show(Property $property)
+    public function store(StorePropertyRequest $request): RedirectResponse
     {
-        $property->load(['building', 'tenants', 'meters']);
-        return view('properties.show', compact('property'));
+        try {
+            $dto = PropertyCreateDTO::fromArray($request->validated());
+            $property = $this->propertyService->createProperty($dto);
+
+            return redirect()
+                ->route('properties.show', $property)
+                ->with('success', 'Property created successfully.');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['error' => $e->getMessage()]);
+        }
     }
 
-    public function edit(Property $property)
+    public function edit(Property $property): View
     {
-        $buildings = Building::all();
-        return view('properties.edit', compact('property', 'buildings'));
+        return view('properties.edit', compact('property'));
     }
 
-    public function update(UpdatePropertyRequest $request, Property $property)
+    public function update(UpdatePropertyRequest $request, Property $property): RedirectResponse
     {
-        $validated = $request->validated();
+        try {
+            $dto = PropertyUpdateDTO::fromArray($request->validated());
+            $this->propertyService->updateProperty($property->id, $dto);
 
-        $property->update($validated);
-
-        return redirect()->route('properties.index')
-            ->with('success', __('notifications.property.updated'));
+            return redirect()
+                ->route('properties.show', $property)
+                ->with('success', 'Property updated successfully.');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['error' => $e->getMessage()]);
+        }
     }
 
-    public function destroy(Property $property)
+    public function destroy(Property $property): RedirectResponse
     {
-        $property->delete();
+        try {
+            $this->propertyService->deactivateProperty($property->id, 'Deleted by user');
 
-        return redirect()->route('properties.index')
-            ->with('success', __('notifications.property.deleted'));
-    }
-
-    public function meters(Property $property)
-    {
-        $meters = $property->meters()->with('readings')->paginate(20);
-        return view('properties.meters', compact('property', 'meters'));
-    }
-
-    public function tenants(Property $property)
-    {
-        $tenants = $property->tenants()->paginate(20);
-        return view('properties.tenants', compact('property', 'tenants'));
-    }
-
-    public function invoices(Property $property)
-    {
-        $invoices = $property->tenants()
-            ->with('invoices')
-            ->get()
-            ->pluck('invoices')
-            ->flatten();
-        
-        return view('properties.invoices', compact('property', 'invoices'));
+            return redirect()
+                ->route('properties.index')
+                ->with('success', 'Property deactivated successfully.');
+        } catch (\Exception $e) {
+            return back()
+                ->withErrors(['error' => $e->getMessage()]);
+        }
     }
 }

@@ -38,7 +38,28 @@ class ServiceValidationController extends Controller
         ValidateMeterReadingRequest $request,
         MeterReading $reading
     ): JsonResponse {
-        Gate::authorize('view', $reading);
+        $user = $request->user();
+
+        if (! $user?->can('view', $reading)) {
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'UNAUTHORIZED',
+                    'message' => __('validation.unauthorized_operation'),
+                ],
+            ], 403);
+        }
+
+        // V1 API restriction: A user may validate only readings they entered.
+        if (filled($reading->entered_by) && ((int) $reading->entered_by !== (int) $user->id)) {
+            return response()->json([
+                'success' => false,
+                'error' => [
+                    'code' => 'UNAUTHORIZED',
+                    'message' => __('validation.unauthorized_operation'),
+                ],
+            ], 403);
+        }
         
         try {
             $serviceConfigId = $request->validated()['service_configuration_id'] ?? null;

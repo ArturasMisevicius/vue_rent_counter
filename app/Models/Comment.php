@@ -44,12 +44,30 @@ class Comment extends Model
         'is_internal',
         'is_pinned',
         'edited_at',
+        'moderation_status',
+        'moderated_by',
+        'moderated_at',
+        'moderation_reason',
+        'spam_score',
+        'toxicity_score',
+        'moderation_flags',
+        'report_count',
+        'last_reported_at',
+        'sentiment',
+        'technical_value',
+        'relevance',
     ];
 
     protected $casts = [
         'is_internal' => 'boolean',
         'is_pinned' => 'boolean',
         'edited_at' => 'datetime',
+        'moderated_at' => 'datetime',
+        'moderation_flags' => 'array',
+        'last_reported_at' => 'datetime',
+        'spam_score' => 'integer',
+        'toxicity_score' => 'integer',
+        'report_count' => 'integer',
     ];
 
     /**
@@ -66,6 +84,22 @@ class Comment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the user who moderated the comment
+     */
+    public function moderator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'moderated_by');
+    }
+
+    /**
+     * Get all reports for this comment
+     */
+    public function reports(): HasMany
+    {
+        return $this->hasMany(CommentReport::class);
     }
 
     /**
@@ -148,5 +182,126 @@ class Comment extends Model
     {
         $this->edited_at = now();
         $this->save();
+    }
+
+    /**
+     * Moderation Scopes
+     */
+    public function scopePending($query)
+    {
+        return $query->where('moderation_status', 'pending');
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->where('moderation_status', 'approved');
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('moderation_status', 'rejected');
+    }
+
+    public function scopeFlagged($query)
+    {
+        return $query->where('moderation_status', 'flagged');
+    }
+
+    public function scopeNeedsModeration($query)
+    {
+        return $query->whereIn('moderation_status', ['pending', 'flagged']);
+    }
+
+    public function scopeHighRisk($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('spam_score', '>', 70)
+              ->orWhere('toxicity_score', '>', 70)
+              ->orWhere('report_count', '>', 2);
+        });
+    }
+
+    /**
+     * Moderation Methods
+     */
+    public function approve(int $moderatorId, string $reason = null): void
+    {
+        $this->update([
+            'moderation_status' => 'approved',
+            'moderated_by' => $moderatorId,
+            'moderated_at' => now(),
+            'moderation_reason' => $reason,
+        ]);
+    }
+
+    public function reject(int $moderatorId, string $reason): void
+    {
+        $this->update([
+            'moderation_status' => 'rejected',
+            'moderated_by' => $moderatorId,
+            'moderated_at' => now(),
+            'moderation_reason' => $reason,
+        ]);
+    }
+
+    public function flag(int $moderatorId, string $reason): void
+    {
+        $this->update([
+            'moderation_status' => 'flagged',
+            'moderated_by' => $moderatorId,
+            'moderated_at' => now(),
+            'moderation_reason' => $reason,
+        ]);
+    }
+
+    public function reportByUser(): void
+    {
+        $this->increment('report_count');
+        $this->update(['last_reported_at' => now()]);
+        
+        // Auto-flag if too many reports
+        if ($this->report_count >= 3 && $this->moderation_status === 'pending') {
+            $this->update(['moderation_status' => 'flagged']);
+        }
+    }
+
+    public function updateModerationScores(int $spamScore, int $toxicityScore, array $flags = []): void
+    {
+        $this->update([
+            'spam_score' => $spamScore,
+            'toxicity_score' => $toxicityScore,
+            'moderation_flags' => $flags,
+        ]);
+
+        // Auto-flag high-risk content
+        if ($spamScore > 80 || $toxicityScore > 80) {
+            $this->update(['moderation_status' => 'flagged']);
+        }
+    }
+
+    /**
+     * Check if comment needs moderation
+     */
+    public function needsModeration(): bool
+    {
+        return in_array($this->moderation_status, ['pending', 'flagged']);
+    }
+
+    /**
+     * Check if comment is approved
+     */
+    public function isApproved(): bool
+    {
+        return $this->moderation_status === 'approved';
+    }
+
+    /**
+     * Check if comment is high risk
+     */
+    public function isHighRisk(): bool
+    {
+        return $this->spam_score > 70 || 
+               $this->toxicity_score > 70 || 
+               $this->report_count > 2;
     }
 }

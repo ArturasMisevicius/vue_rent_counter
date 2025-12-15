@@ -2,313 +2,342 @@
 
 namespace App\Http\Controllers\Superadmin;
 
-use App\Enums\SubscriptionStatus;
-use App\Enums\UserRole;
+use App\Enums\SubscriptionPlan;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOrganizationRequest;
 use App\Http\Requests\UpdateOrganizationRequest;
 use App\Models\Building;
 use App\Models\Invoice;
+use App\Models\Meter;
+use App\Models\Organization;
+use App\Models\OrganizationActivityLog;
 use App\Models\Property;
+use App\Models\Tenant;
 use App\Models\User;
-use App\Services\AccountManagementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class OrganizationController extends Controller
 {
-    public function __construct(
-        private AccountManagementService $accountService
-    ) {}
-
-    /**
-     * Display a listing of all organizations (admin accounts).
-     * 
-     * Requirements: 1.2, 1.3, 17.5
-     */
     public function index(Request $request)
     {
-        $query = User::withoutGlobalScopes()
-            ->where('role', UserRole::ADMIN)
-            ->with('subscription');
-        
-        // Filter by status if provided
-        if ($request->filled('status')) {
-            if ($request->status === 'active') {
-                $query->where('is_active', true);
-            } elseif ($request->status === 'inactive') {
-                $query->where('is_active', false);
-            }
-        }
-        
-        // Filter by subscription status if provided
-        if ($request->filled('subscription_status') && in_array($request->subscription_status, SubscriptionStatus::values(), true)) {
-            $query->whereHas('subscription', function ($q) use ($request) {
-                $q->where('status', $request->subscription_status);
-            });
-        }
-        
-        // Search by organization name or email
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('organization_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('name', 'like', "%{$search}%");
-            });
-        }
-        
-        // Sort
-        $sortBy = $request->get('sort_by', 'created_at');
-        $sortDirection = $request->get('sort_direction', 'desc');
-        $query->orderBy($sortBy, $sortDirection);
-        
-        $organizations = $query->paginate(20);
-        
+        $organizations = Organization::query()
+            ->orderByDesc('created_at')
+            ->paginate(20);
+
         return view('superadmin.organizations.index', compact('organizations'));
     }
 
-    /**
-     * Show the form for creating a new organization.
-     * 
-     * Requirements: 2.1, 2.2, 2.3
-     */
     public function create()
     {
         return view('superadmin.organizations.create');
     }
 
-    /**
-     * Store a newly created organization.
-     * 
-     * Requirements: 2.1, 2.2, 2.3
-     */
     public function store(StoreOrganizationRequest $request)
     {
         $validated = $request->validated();
-        
-        $superadmin = Auth::user();
-        
-        $admin = $this->accountService->createAdminAccount($validated, $superadmin);
-        
-        return redirect()
-            ->route('superadmin.organizations.show', $admin)
-            ->with('success', __('notifications.organization.created'));
-    }
 
-    /**
-     * Display the specified organization.
-     * 
-     * Requirements: 1.2, 1.3, 17.5
-     */
-    public function show(User $organization)
-    {
-        // Ensure we're viewing an admin user
-        if ($organization->role !== UserRole::ADMIN) {
-            abort(404);
-        }
-
-        $tenantId = $organization->tenant_id;
-
-        // Load relationships without global scopes
-        $organization->load([
-            'subscription',
-            'childUsers' => function ($query) {
-                $query->withoutGlobalScopes();
-            }
+        $organization = Organization::create([
+            ...$validated,
+            'created_by_admin_id' => Auth::id(),
         ]);
 
-        // Get organization statistics
-        $stats = [
-            'total_properties' => Property::withoutGlobalScopes()->where('tenant_id', $tenantId)->count(),
-            'total_buildings' => Building::withoutGlobalScopes()->where('tenant_id', $tenantId)->count(),
-            'total_tenants' => $organization->childUsers()->count(),
-            'total_invoices' => Invoice::withoutGlobalScopes()->where('tenant_id', $tenantId)->count(),
-            'active_tenants' => $organization->childUsers()->where('is_active', true)->count(),
-        ];
-
-        $occupiedPropertiesCount = Property::withoutGlobalScopes()
-            ->where('tenant_id', $tenantId)
-            ->whereHas('tenants')
-            ->count();
-
-        $relationshipMetrics = [
-            'occupied_properties' => $occupiedPropertiesCount,
-            'vacant_properties' => max($stats['total_properties'] - $occupiedPropertiesCount, 0),
-            'metered_properties' => Property::withoutGlobalScopes()
-                ->where('tenant_id', $tenantId)
-                ->whereHas('meters')
-                ->count(),
-            'draft_invoices' => Invoice::withoutGlobalScopes()
-                ->where('tenant_id', $tenantId)
-                ->draft()
-                ->count(),
-            'finalized_invoices' => Invoice::withoutGlobalScopes()
-                ->where('tenant_id', $tenantId)
-                ->finalized()
-                ->count(),
-            'paid_invoices' => Invoice::withoutGlobalScopes()
-                ->where('tenant_id', $tenantId)
-                ->paid()
-                ->count(),
-        ];
-
-        $properties = Property::withoutGlobalScopes()
-            ->where('tenant_id', $tenantId)
-            ->with([
-                'building:id,name,address',
-                'tenants' => fn ($query) => $query
-                    ->select(
-                        'tenants.id',
-                        'tenants.tenant_id',
-                        'tenants.name',
-                        'tenants.email',
-                        'tenants.phone',
-                        'tenants.property_id',
-                        'tenants.lease_start'
-                    )
-                    ->orderBy('tenants.lease_start', 'desc'),
-            ])
-            ->withCount([
-                'meters',
-                'tenantAssignments as tenant_history_count',
-            ])
-            ->orderBy('address')
-            ->paginate(10, ['*'], 'properties_page');
-
-        $buildings = Building::withoutGlobalScopes()
-            ->where('tenant_id', $tenantId)
-            ->withCount([
-                'properties',
-                'properties as occupied_units_count' => fn ($query) => $query->whereHas('tenants'),
-            ])
-            ->with([
-                'properties' => fn ($query) => $query
-                    ->select('id', 'building_id', 'address')
-                    ->withCount('tenants')
-                    ->orderBy('address')
-                    ->limit(3),
-            ])
-            ->orderBy('name')
-            ->paginate(10, ['*'], 'buildings_page');
-
-        $invoiceCountsByProperty = Invoice::withoutGlobalScopes()
-            ->selectRaw('tenants.property_id as property_id, COUNT(*) as aggregate')
-            ->join('tenants', 'tenants.id', '=', 'invoices.tenant_renter_id')
-            ->where('invoices.tenant_id', $tenantId)
-            ->groupBy('tenants.property_id')
-            ->pluck('aggregate', 'property_id');
-
-        $latestInvoicesByProperty = Invoice::withoutGlobalScopes()
-            ->select(
-                'invoices.id',
-                'invoices.invoice_number',
-                'invoices.status',
-                'invoices.total_amount',
-                'invoices.billing_period_end',
-                'tenants.property_id'
-            )
-            ->join('tenants', 'tenants.id', '=', 'invoices.tenant_renter_id')
-            ->where('invoices.tenant_id', $tenantId)
-            ->orderByDesc('invoices.billing_period_end')
-            ->get()
-            ->unique('property_id')
-            ->keyBy('property_id');
-
-        $invoices = Invoice::withoutGlobalScopes()
-            ->where('tenant_id', $tenantId)
-            ->with([
-                'tenant' => fn ($query) => $query->select('id', 'tenant_id', 'name', 'email', 'property_id'),
-                'tenant.property' => fn ($query) => $query->select('id', 'tenant_id', 'address', 'building_id'),
-                'tenant.property.building' => fn ($query) => $query->select('id', 'tenant_id', 'name', 'address'),
-            ])
-            ->orderByDesc('billing_period_start')
-            ->paginate(10, ['*'], 'invoices_page');
-
-        // Get all tenants for this organization
-        $tenants = $organization->childUsers()
-            ->with('property')
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
-
-        return view('superadmin.organizations.show', compact(
-            'organization',
-            'stats',
-            'tenants',
-            'properties',
-            'buildings',
-            'invoices',
-            'invoiceCountsByProperty',
-            'latestInvoicesByProperty',
-            'relationshipMetrics'
-        ));
+        return redirect()
+            ->route('superadmin.organizations.show', $organization)
+            ->with('success', 'Organization created.');
     }
 
-    /**
-     * Show the form for editing the specified organization.
-     */
-    public function edit(User $organization)
+    public function show(Organization $organization)
     {
-        // Ensure we're editing an admin user
-        if ($organization->role !== UserRole::ADMIN) {
-            abort(404);
-        }
-        
-        $organization->load('subscription');
-        
+        return view('superadmin.organizations.show', compact('organization'));
+    }
+
+    public function edit(Organization $organization)
+    {
         return view('superadmin.organizations.edit', compact('organization'));
     }
 
-    /**
-     * Update the specified organization.
-     */
-    public function update(UpdateOrganizationRequest $request, User $organization)
+    public function update(UpdateOrganizationRequest $request, Organization $organization)
     {
-        // Ensure we're updating an admin user
-        if ($organization->role !== UserRole::ADMIN) {
-            abort(404);
-        }
-        
         $validated = $request->validated();
-        
+
         $organization->update($validated);
-        
+
+        OrganizationActivityLog::create([
+            'organization_id' => $organization->id,
+            'user_id' => Auth::id(),
+            'action' => 'organization_updated',
+            'resource_type' => 'Organization',
+            'resource_id' => $organization->id,
+            'metadata' => [
+                'updated_fields' => array_keys($validated),
+            ],
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
         return redirect()
             ->route('superadmin.organizations.show', $organization)
-            ->with('success', __('notifications.organization.updated'));
+            ->with('success', 'Organization updated.');
     }
 
-    /**
-     * Deactivate the specified organization.
-     */
-    public function deactivate(User $organization)
+    public function deactivate(Organization $organization)
     {
-        // Ensure we're deactivating an admin user
-        if ($organization->role !== UserRole::ADMIN) {
-            abort(404);
-        }
-        
-        $this->accountService->deactivateAccount($organization, 'Deactivated by superadmin');
-        
+        $organization->update([
+            'is_active' => false,
+            'suspended_at' => now(),
+            'suspension_reason' => 'Deactivated by superadmin',
+        ]);
+
         return redirect()
             ->route('superadmin.organizations.show', $organization)
-            ->with('success', __('notifications.organization.deactivated'));
+            ->with('success', 'Organization deactivated.');
     }
 
-    /**
-     * Reactivate the specified organization.
-     */
-    public function reactivate(User $organization)
+    public function reactivate(Organization $organization)
     {
-        // Ensure we're reactivating an admin user
-        if ($organization->role !== UserRole::ADMIN) {
-            abort(404);
-        }
-        
-        $this->accountService->reactivateAccount($organization);
-        
+        $organization->update([
+            'is_active' => true,
+            'suspended_at' => null,
+            'suspension_reason' => null,
+        ]);
+
         return redirect()
             ->route('superadmin.organizations.show', $organization)
-            ->with('success', __('notifications.organization.reactivated'));
+            ->with('success', 'Organization reactivated.');
+    }
+
+    public function destroy(Organization $organization)
+    {
+        $hasDependencies = User::where('tenant_id', $organization->id)->exists()
+            || Property::where('tenant_id', $organization->id)->exists()
+            || Building::where('tenant_id', $organization->id)->exists()
+            || Tenant::where('tenant_id', $organization->id)->exists()
+            || Meter::where('tenant_id', $organization->id)->exists()
+            || Invoice::where('tenant_id', $organization->id)->exists();
+
+        if ($hasDependencies) {
+            return response()->json([
+                'message' => 'Organization has dependencies and cannot be deleted.',
+                'errors' => [
+                    'dependencies' => ['Organization has dependent records.'],
+                ],
+            ], 422);
+        }
+
+        $organization->forceDelete();
+
+        return redirect()
+            ->route('superadmin.organizations.index')
+            ->with('success', 'Organization deleted.');
+    }
+
+    public function bulkSuspend(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'organization_ids' => ['required', 'array', 'min:1'],
+            'organization_ids.*' => ['integer'],
+            'reason' => ['required', 'string', 'max:500'],
+        ]);
+
+        $validator->after(function ($validator) use ($request): void {
+            $organizationIds = $request->input('organization_ids', []);
+
+            if (!is_array($organizationIds) || $organizationIds === []) {
+                return;
+            }
+
+            $uniqueIds = array_values(array_unique($organizationIds));
+            $existingCount = Organization::whereIn('id', $uniqueIds)->count();
+
+            if ($existingCount !== count($uniqueIds)) {
+                $validator->errors()->add('organization_ids', 'One or more organization IDs are invalid.');
+            }
+        });
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+        $organizationIds = $validated['organization_ids'];
+        $reason = $validated['reason'];
+
+        Organization::whereIn('id', $organizationIds)->update([
+            'is_active' => false,
+            'suspended_at' => now(),
+            'suspension_reason' => $reason,
+        ]);
+
+        foreach ($organizationIds as $organizationId) {
+            OrganizationActivityLog::create([
+                'organization_id' => $organizationId,
+                'user_id' => Auth::id(),
+                'action' => 'bulk_suspend',
+                'resource_type' => 'Organization',
+                'resource_id' => $organizationId,
+                'metadata' => ['reason' => $reason],
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function bulkReactivate(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'organization_ids' => ['required', 'array', 'min:1'],
+            'organization_ids.*' => ['integer', 'exists:organizations,id'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        Organization::whereIn('id', $validated['organization_ids'])->update([
+            'is_active' => true,
+            'suspended_at' => null,
+            'suspension_reason' => null,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function bulkChangePlan(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'organization_ids' => ['required', 'array', 'min:1'],
+            'organization_ids.*' => ['integer', 'exists:organizations,id'],
+            'new_plan' => ['required', Rule::enum(SubscriptionPlan::class)],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+        $newPlan = SubscriptionPlan::from((string) $validated['new_plan']);
+
+        Organization::whereIn('id', $validated['organization_ids'])->update([
+            'plan' => $newPlan->value,
+            'max_properties' => $newPlan->getMaxProperties(),
+            'max_users' => $newPlan->getMaxUsers(),
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function bulkExport(Request $request)
+    {
+        $format = $request->input('format', 'csv');
+        abort_unless($format === 'csv', 422);
+
+        $includeInactive = (bool) $request->boolean('include_inactive', false);
+
+        $query = Organization::query();
+        if (!$includeInactive) {
+            $query->where('is_active', true);
+        }
+
+        $organizations = $query->orderBy('name')->get(['name', 'email', 'plan', 'is_active']);
+
+        $lines = [];
+        $lines[] = 'Name,Email,Plan,Status';
+
+        foreach ($organizations as $organization) {
+            $lines[] = implode(',', [
+                $this->escapeCsv($organization->name),
+                $this->escapeCsv($organization->email),
+                $this->escapeCsv($organization->plan->value),
+                $organization->is_active ? 'active' : 'inactive',
+            ]);
+        }
+
+        $csv = implode("\n", $lines) . "\n";
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="organizations.csv"',
+        ]);
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'organization_ids' => ['required', 'array', 'min:1'],
+            'organization_ids.*' => ['integer', 'exists:organizations,id'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        $deleted = [];
+        $failed = [];
+
+        foreach ($validated['organization_ids'] as $organizationId) {
+            $organization = Organization::find($organizationId);
+
+            if (!$organization) {
+                $failed[] = $organizationId;
+                continue;
+            }
+
+            $hasDependencies = User::where('tenant_id', $organization->id)->exists()
+                || Property::where('tenant_id', $organization->id)->exists()
+                || Building::where('tenant_id', $organization->id)->exists()
+                || Tenant::where('tenant_id', $organization->id)->exists()
+                || Meter::where('tenant_id', $organization->id)->exists()
+                || Invoice::where('tenant_id', $organization->id)->exists();
+
+            if ($hasDependencies) {
+                $failed[] = $organizationId;
+                continue;
+            }
+
+            $organization->forceDelete();
+            $deleted[] = $organizationId;
+        }
+
+        $allSucceeded = count($failed) === 0;
+        $partialSuccess = !$allSucceeded && count($deleted) > 0;
+
+        return response()->json([
+            'success' => $allSucceeded,
+            'partial_success' => $partialSuccess,
+            'deleted_ids' => $deleted,
+            'failed_ids' => $failed,
+        ]);
+    }
+
+    private function escapeCsv(string $value): string
+    {
+        $escaped = str_replace('"', '""', $value);
+
+        if (str_contains($escaped, ',') || str_contains($escaped, '"') || str_contains($escaped, "\n")) {
+            return "\"{$escaped}\"";
+        }
+
+        return $escaped;
     }
 }

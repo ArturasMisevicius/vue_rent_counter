@@ -18,7 +18,8 @@ final readonly class ServiceResponse
         public bool $success,
         public mixed $data = null,
         public string $message = '',
-        public int $code = 0
+        public int $code = 0,
+        public array $metadata = [],
     ) {}
 
     /**
@@ -68,6 +69,7 @@ final readonly class ServiceResponse
             'data' => $this->data,
             'message' => $this->message,
             'code' => $this->code,
+            'metadata' => $this->metadata,
         ];
     }
 }

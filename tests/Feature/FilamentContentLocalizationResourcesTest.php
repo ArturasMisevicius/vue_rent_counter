@@ -64,7 +64,8 @@ test('FaqResource form schema is properly configured', function () {
 test('FaqResource table is properly configured', function () {
     $this->actingAs($this->superadmin);
     
-    $table = FaqResource::table(\Filament\Tables\Table::make(FaqResource::class));
+    $livewire = Mockery::mock(\Filament\Tables\Contracts\HasTable::class);
+    $table = FaqResource::table(\Filament\Tables\Table::make($livewire));
     
     expect($table)->toBeInstanceOf(\Filament\Tables\Table::class);
     expect($table->getColumns())->not->toBeEmpty();
@@ -112,7 +113,8 @@ test('LanguageResource form schema is properly configured', function () {
 test('LanguageResource table is properly configured', function () {
     $this->actingAs($this->superadmin);
     
-    $table = LanguageResource::table(\Filament\Tables\Table::make(LanguageResource::class));
+    $livewire = Mockery::mock(\Filament\Tables\Contracts\HasTable::class);
+    $table = LanguageResource::table(\Filament\Tables\Table::make($livewire));
     
     expect($table)->toBeInstanceOf(\Filament\Tables\Table::class);
     expect($table->getColumns())->not->toBeEmpty();
@@ -176,7 +178,8 @@ test('TranslationResource table is properly configured', function () {
         'is_active' => true,
     ]);
     
-    $table = TranslationResource::table(\Filament\Tables\Table::make(TranslationResource::class));
+    $livewire = Mockery::mock(\Filament\Tables\Contracts\HasTable::class);
+    $table = TranslationResource::table(\Filament\Tables\Table::make($livewire));
     
     expect($table)->toBeInstanceOf(\Filament\Tables\Table::class);
     expect($table->getColumns())->not->toBeEmpty();
@@ -207,7 +210,15 @@ test('FaqResource CRUD operations work correctly', function () {
 
 test('LanguageResource CRUD operations work correctly', function () {
     $this->actingAs($this->superadmin);
-    
+
+    // Ensure we don't violate "cannot delete last active language" constraint.
+    Language::factory()->create([
+        'code' => 'en',
+        'name' => 'English',
+        'is_active' => true,
+        'is_default' => true,
+    ]);
+
     // Create
     $language = Language::factory()->create([
         'code' => 'fr',

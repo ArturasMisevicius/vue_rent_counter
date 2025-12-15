@@ -11,6 +11,7 @@ use App\Services\AccountManagementService;
 use App\Services\SubscriptionService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 
@@ -59,11 +60,11 @@ describe('Complete User Workflows - Manual Testing Scenarios', function () {
         $subscription = $admin->subscription;
         expect($subscription)->not->toBeNull()
             ->and($subscription->plan_type)->toBe(SubscriptionPlanType::PROFESSIONAL->value)
-            ->and($subscription->status)->toBe(SubscriptionStatus::ACTIVE->value)
+            ->and($subscription->status)->toBe(SubscriptionStatus::ACTIVE)
             ->and($subscription->isActive())->toBeTrue();
         
         // Verify audit log was created
-        $auditLog = \DB::table('user_assignments_audit')
+        $auditLog = DB::table('user_assignments_audit')
             ->where('user_id', $admin->id)
             ->where('action', 'created')
             ->first();
@@ -72,6 +73,9 @@ describe('Complete User Workflows - Manual Testing Scenarios', function () {
             ->and($auditLog->performed_by)->toBe($superadmin->id);
         
         // Step 4: Verify admin can login
+        auth()->logout();
+        $this->assertGuest();
+
         $this->post('/login', [
             'email' => 'admin@testorg.com',
             'password' => 'SecurePassword123',
@@ -154,6 +158,9 @@ describe('Complete User Workflows - Manual Testing Scenarios', function () {
             ->and($tenant2->tenant_id)->toBe($admin->tenant_id);
         
         // Step 6: Verify tenants can login
+        auth()->logout();
+        $this->assertGuest();
+
         $this->post('/login', [
             'email' => 'tenant1@example.com',
             'password' => 'TenantPass123',
@@ -260,7 +267,7 @@ describe('Complete User Workflows - Manual Testing Scenarios', function () {
         // Step 3: Expire the subscription
         $subscription->update([
             'expires_at' => now()->subDay(),
-            'status' => 'expired',
+            'status' => SubscriptionStatus::EXPIRED->value,
         ]);
         
         $subscription = $subscription->fresh();
@@ -287,7 +294,7 @@ describe('Complete User Workflows - Manual Testing Scenarios', function () {
         $renewedSubscription = $subscriptionService->renewSubscription($subscription, $newExpiryDate);
         
         // Step 7: Verify subscription is active again
-        expect($renewedSubscription->status)->toBe('active')
+        expect($renewedSubscription->status)->toBe(SubscriptionStatus::ACTIVE)
             ->and($renewedSubscription->isActive())->toBeTrue()
             ->and($renewedSubscription->expires_at->format('Y-m-d'))->toBe($newExpiryDate->format('Y-m-d'));
         
@@ -342,7 +349,7 @@ describe('Complete User Workflows - Manual Testing Scenarios', function () {
         expect($tenant->is_active)->toBeFalse();
         
         // Verify audit log
-        $auditLog = \DB::table('user_assignments_audit')
+        $auditLog = DB::table('user_assignments_audit')
             ->where('user_id', $tenant->id)
             ->where('action', 'deactivated')
             ->first();
@@ -372,7 +379,7 @@ describe('Complete User Workflows - Manual Testing Scenarios', function () {
         expect($tenant->is_active)->toBeTrue();
         
         // Verify audit log
-        $auditLog = \DB::table('user_assignments_audit')
+        $auditLog = DB::table('user_assignments_audit')
             ->where('user_id', $tenant->id)
             ->where('action', 'reactivated')
             ->first();
@@ -439,7 +446,7 @@ describe('Complete User Workflows - Manual Testing Scenarios', function () {
         expect($tenant->property_id)->toBe($property2->id);
         
         // Step 5: Verify audit log records the reassignment
-        $auditLog = \DB::table('user_assignments_audit')
+        $auditLog = DB::table('user_assignments_audit')
             ->where('user_id', $tenant->id)
             ->where('action', 'reassigned')
             ->first();

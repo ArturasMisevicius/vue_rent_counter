@@ -6,16 +6,21 @@ namespace Database\Seeders;
 
 use App\Enums\MeterType;
 use App\Enums\PropertyType;
+use App\Enums\DistributionMethod;
+use App\Enums\PricingModel;
 use App\Enums\ServiceType;
 use App\Models\Building;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Property;
 use App\Models\Provider;
+use App\Models\ServiceConfiguration;
 use App\Models\Tariff;
 use App\Models\Tenant;
+use App\Models\UtilityService;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 final class UtilitiesSystemSeeder extends Seeder
 {
@@ -37,18 +42,174 @@ final class UtilitiesSystemSeeder extends Seeder
         
         // Create properties
         $properties = $this->createProperties($buildings);
+
+        // Create universal utility services and property-specific configurations
+        $utilityServices = $this->createUtilityServices();
+        $serviceConfigurations = $this->createServiceConfigurations($properties, $utilityServices);
         
         // Create tenants
         $tenants = $this->createTenants($properties);
         
         // Create meters
-        $meters = $this->createMeters($properties);
+        $meters = $this->createMeters($properties, $serviceConfigurations);
         
         // Create meter readings
         $this->createMeterReadings($meters);
 
         $this->command->info('Utilities system seeded successfully!');
-        $this->command->info("Created: {$buildings->count()} buildings, {$properties->count()} properties, {$tenants->count()} tenants, {$meters->count()} meters");
+
+        $serviceConfigurationCount = collect($serviceConfigurations)
+            ->flatMap(fn (array $configs) => array_values($configs))
+            ->count();
+
+        $this->command->info("Created: {$buildings->count()} buildings, {$properties->count()} properties, {$serviceConfigurationCount} service configurations, {$tenants->count()} tenants, {$meters->count()} meters");
+    }
+
+    /**
+     * Create base utility services for the universal service system.
+     *
+     * @return array<string, UtilityService>
+     */
+    private function createUtilityServices(): array
+    {
+        $definitions = [
+            'electricity' => [
+                'name' => 'Electricity',
+                'unit_of_measurement' => 'kWh',
+                'default_pricing_model' => PricingModel::CONSUMPTION_BASED,
+                'service_type_bridge' => ServiceType::ELECTRICITY,
+                'description' => 'Electricity consumption charges (kWh)',
+            ],
+            'heating' => [
+                'name' => 'Heating',
+                'unit_of_measurement' => 'kWh',
+                'default_pricing_model' => PricingModel::CONSUMPTION_BASED,
+                'service_type_bridge' => ServiceType::HEATING,
+                'description' => 'Heating consumption charges (kWh)',
+            ],
+            'water' => [
+                'name' => 'Water',
+                'unit_of_measurement' => 'm3',
+                'default_pricing_model' => PricingModel::HYBRID,
+                'service_type_bridge' => ServiceType::WATER,
+                'description' => 'Water supply/sewage charges (m3) with optional monthly fee',
+            ],
+        ];
+
+        $services = [];
+
+        foreach ($definitions as $key => $definition) {
+            $slug = Str::slug($definition['name']);
+
+            $services[$key] = UtilityService::updateOrCreate(
+                ['slug' => $slug],
+                [
+                    'tenant_id' => 1,
+                    'name' => $definition['name'],
+                    'slug' => $slug,
+                    'unit_of_measurement' => $definition['unit_of_measurement'],
+                    'default_pricing_model' => $definition['default_pricing_model'],
+                    'is_global_template' => false,
+                    'service_type_bridge' => $definition['service_type_bridge'],
+                    'description' => $definition['description'],
+                    'is_active' => true,
+                ],
+            );
+        }
+
+        $this->command->info('Created utility services');
+
+        return $services;
+    }
+
+    /**
+     * Create property-attached service configurations.
+     *
+     * @param \Illuminate\Support\Collection<int, Property> $properties
+     * @param array<string, UtilityService> $utilityServices
+     * @return array<int, array<string, ServiceConfiguration>>
+     */
+    private function createServiceConfigurations(\Illuminate\Support\Collection $properties, array $utilityServices): array
+    {
+        $electricityTariff = Tariff::where('provider_id', 1)->latest('active_from')->first();
+        $heatingTariff = Tariff::where('provider_id', 2)->latest('active_from')->first();
+        $waterTariff = Tariff::where('provider_id', 3)->latest('active_from')->first();
+
+        $electricityRate = (float) ($electricityTariff?->configuration['rate'] ?? 0.1234);
+        $heatingRate = (float) ($heatingTariff?->configuration['rate'] ?? 0.0567);
+        $waterSupplyRate = (float) ($waterTariff?->configuration['supply_rate'] ?? 0.97);
+        $waterSewageRate = (float) ($waterTariff?->configuration['sewage_rate'] ?? 1.23);
+        $waterFixedFee = (float) ($waterTariff?->configuration['fixed_fee'] ?? 0.85);
+
+        $effectiveFrom = now()->startOfYear();
+
+        $configurations = [];
+
+        foreach ($properties as $property) {
+            $configurations[$property->id] = [
+                'electricity' => ServiceConfiguration::updateOrCreate(
+                    [
+                        'property_id' => $property->id,
+                        'utility_service_id' => $utilityServices['electricity']->id,
+                        'effective_from' => $effectiveFrom,
+                    ],
+                    [
+                        'tenant_id' => 1,
+                        'pricing_model' => PricingModel::CONSUMPTION_BASED,
+                        'rate_schedule' => ['unit_rate' => $electricityRate],
+                        'distribution_method' => DistributionMethod::EQUAL,
+                        'is_shared_service' => false,
+                        'effective_until' => null,
+                        'tariff_id' => $electricityTariff?->id,
+                        'provider_id' => $electricityTariff?->provider_id,
+                        'is_active' => true,
+                    ],
+                ),
+                'heating' => ServiceConfiguration::updateOrCreate(
+                    [
+                        'property_id' => $property->id,
+                        'utility_service_id' => $utilityServices['heating']->id,
+                        'effective_from' => $effectiveFrom,
+                    ],
+                    [
+                        'tenant_id' => 1,
+                        'pricing_model' => PricingModel::CONSUMPTION_BASED,
+                        'rate_schedule' => ['unit_rate' => $heatingRate],
+                        'distribution_method' => DistributionMethod::EQUAL,
+                        'is_shared_service' => false,
+                        'effective_until' => null,
+                        'tariff_id' => $heatingTariff?->id,
+                        'provider_id' => $heatingTariff?->provider_id,
+                        'is_active' => true,
+                    ],
+                ),
+                'water' => ServiceConfiguration::updateOrCreate(
+                    [
+                        'property_id' => $property->id,
+                        'utility_service_id' => $utilityServices['water']->id,
+                        'effective_from' => $effectiveFrom,
+                    ],
+                    [
+                        'tenant_id' => 1,
+                        'pricing_model' => PricingModel::HYBRID,
+                        'rate_schedule' => [
+                            'fixed_fee' => $waterFixedFee,
+                            'unit_rate' => $waterSupplyRate + $waterSewageRate,
+                        ],
+                        'distribution_method' => DistributionMethod::EQUAL,
+                        'is_shared_service' => false,
+                        'effective_until' => null,
+                        'tariff_id' => $waterTariff?->id,
+                        'provider_id' => $waterTariff?->provider_id,
+                        'is_active' => true,
+                    ],
+                ),
+            ];
+        }
+
+        $this->command->info('Created service configurations');
+
+        return $configurations;
     }
 
     private function createProviders(): void
@@ -142,24 +303,18 @@ final class UtilitiesSystemSeeder extends Seeder
                 'name' => 'Gedimino pr. 15',
                 'address' => 'Gedimino prospektas 15, Vilnius',
                 'total_apartments' => 24,
-                'gyvatukas_summer_average' => 15.50,
-                'gyvatukas_last_calculated' => now(),
             ],
             [
                 'tenant_id' => 1, // Default tenant for seeding
                 'name' => 'Konstitucijos pr. 7A',
                 'address' => 'Konstitucijos prospektas 7A, Vilnius',
                 'total_apartments' => 36,
-                'gyvatukas_summer_average' => 18.20,
-                'gyvatukas_last_calculated' => now(),
             ],
             [
                 'tenant_id' => 1, // Default tenant for seeding
                 'name' => 'Pilies g. 22',
                 'address' => 'Pilies gatvė 22, Vilnius',
                 'total_apartments' => 12,
-                'gyvatukas_summer_average' => 12.80,
-                'gyvatukas_last_calculated' => now(),
             ],
         ];
 
@@ -226,7 +381,11 @@ final class UtilitiesSystemSeeder extends Seeder
         return $collection;
     }
 
-    private function createMeters(\Illuminate\Support\Collection $properties): \Illuminate\Support\Collection
+    /**
+     * @param \Illuminate\Support\Collection<int, Property> $properties
+     * @param array<int, array<string, ServiceConfiguration>> $serviceConfigurations
+     */
+    private function createMeters(\Illuminate\Support\Collection $properties, array $serviceConfigurations): \Illuminate\Support\Collection
     {
         $collection = collect();
         
@@ -239,13 +398,26 @@ final class UtilitiesSystemSeeder extends Seeder
             ];
             
             foreach ($meterTypes as $meterType) {
+                $serviceKey = match ($meterType) {
+                    MeterType::ELECTRICITY => 'electricity',
+                    MeterType::WATER_COLD => 'water',
+                    MeterType::HEATING => 'heating',
+                    default => null,
+                };
+
+                $serviceConfigurationId = null;
+                if (is_string($serviceKey) && isset($serviceConfigurations[$property->id][$serviceKey])) {
+                    $serviceConfigurationId = $serviceConfigurations[$property->id][$serviceKey]->id;
+                }
+
                 $meter = Meter::create([
                     'tenant_id' => 1, // Default tenant for seeding
                     'property_id' => $property->id,
                     'serial_number' => $this->generateMeterNumber($meterType),
                     'type' => $meterType,
                     'installation_date' => fake()->dateTimeBetween('-5 years', '-1 year'),
-                    'supports_zones' => $meterType === MeterType::ELECTRICITY ? fake()->boolean(20) : false,
+                    'supports_zones' => false,
+                    'service_configuration_id' => $serviceConfigurationId,
                 ]);
                 
                 $collection->push($meter);

@@ -63,7 +63,7 @@ final readonly class TenantMetrics
     
     public function getDaysSinceLastActivity(): int
     {
-        return now()->diffInDays($this->lastActivity);
+        return (int) now()->diffInDays($this->lastActivity, true);
     }
     
     public function isHealthy(): bool

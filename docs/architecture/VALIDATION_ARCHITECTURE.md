@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Service Validation Architecture implements a modular, extensible validation system for utility services using modern design patterns. This architecture supports the Universal Utility Management System while maintaining full backward compatibility with the existing gyvatukas system.
+The Service Validation Architecture implements a modular, extensible validation system for utility services using modern design patterns. This architecture supports the Universal Utility Management System while maintaining full backward compatibility with the existing hot water circulation system.
 
 ## Architectural Principles
 
@@ -57,7 +57,7 @@ graph TB
     end
 
     subgraph "Integration Layer"
-        Gyvatukas[GyvatukasCalculator]
+        hot water circulation[hot water circulationCalculator]
         MeterService[MeterReadingService]
         AuditSystem[Audit System]
     end
@@ -73,7 +73,7 @@ graph TB
     SVE --> Cache
     SVE --> Config
     SVE --> Logger
-    SVE --> Gyvatukas
+    SVE --> hot water circulation
     SVE --> MeterService
     SVE --> AuditSystem
     Validators --> Database
@@ -408,7 +408,7 @@ private function logValidationResult(MeterReading $reading, array $validationRes
 
 ## Integration Architecture
 
-### 1. Gyvatukas Integration
+### 1. hot water circulation Integration
 
 ```mermaid
 graph LR
@@ -417,14 +417,14 @@ graph LR
         USC[Universal Service Config]
     end
     
-    subgraph "Gyvatukas System"
-        GC[GyvatukasCalculator]
+    subgraph "hot water circulation System"
+        GC[hot water circulationCalculator]
         GSL[Summer/Winter Logic]
         GDM[Distribution Methods]
     end
     
     subgraph "Bridge Layer"
-        GB[GyvatukasUniversalBridge]
+        GB[hot water circulationUniversalBridge]
         HSC[HeatingServiceConfiguration]
     end
     
@@ -532,13 +532,13 @@ Property::forAll(
 ```php
 class ValidationIntegrationTest extends TestCase
 {
-    public function test_validation_with_gyvatukas_integration()
+    public function test_validation_with_hot water circulation_integration()
     {
-        // Test that universal validation produces same results as gyvatukas
-        $gyvatukasResult = $this->gyvatukasCalculator->calculate($reading);
+        // Test that universal validation produces same results as hot water circulation
+        $hot water circulationResult = $this->hot water circulationCalculator->calculate($reading);
         $universalResult = $this->validationEngine->validateMeterReading($reading);
         
-        $this->assertEquals($gyvatukasResult, $universalResult);
+        $this->assertEquals($hot water circulationResult, $universalResult);
     }
 }
 ```

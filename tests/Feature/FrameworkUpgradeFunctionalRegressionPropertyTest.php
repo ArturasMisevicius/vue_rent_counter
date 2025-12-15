@@ -10,12 +10,16 @@ use App\Models\Property;
 use App\Models\Provider;
 use App\Models\Tariff;
 use App\Models\Tenant;
+use App\Models\ServiceConfiguration;
+use App\Models\UtilityService;
 use App\Models\User;
 use App\Services\BillingService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Enums\DistributionMethod;
+use App\Enums\PricingModel;
 
 // Feature: framework-upgrade, Property 1: Functional regression prevention
 // Validates: Requirements 1.2, 7.1, 7.2, 7.3
@@ -56,7 +60,7 @@ test('baseline upgrade flows preserve functional correctness', function () {
         'service_type' => ServiceType::ELECTRICITY,
     ]);
 
-    Tariff::factory()->create([
+    $electricityTariff = Tariff::factory()->create([
         'provider_id' => $electricityProvider->id,
         'configuration' => [
             'type' => 'flat',
@@ -74,7 +78,7 @@ test('baseline upgrade flows preserve functional correctness', function () {
         'service_type' => ServiceType::WATER,
     ]);
 
-    Tariff::factory()->create([
+    $waterTariff = Tariff::factory()->create([
         'provider_id' => $waterProvider->id,
         'configuration' => [
             'type' => 'flat',
@@ -101,6 +105,49 @@ test('baseline upgrade flows preserve functional correctness', function () {
         'type' => MeterType::WATER_COLD,
         'supports_zones' => false,
     ]);
+
+    $this->attachConsumptionServiceToMeter(
+        meter: $electricityMeter,
+        serviceName: 'Electricity',
+        unitOfMeasurement: 'kWh',
+        unitRate: $electricityRate,
+        bridgeType: ServiceType::ELECTRICITY,
+        effectiveFrom: $periodStart->copy()->subMonth(),
+        providerId: $electricityProvider->id,
+        tariffId: $electricityTariff->id,
+    );
+
+    $waterService = UtilityService::factory()->create([
+        'tenant_id' => $tenantId,
+        'name' => 'Water',
+        'slug' => 'water-' . uniqid(),
+        'unit_of_measurement' => 'm3',
+        'default_pricing_model' => PricingModel::HYBRID,
+        'service_type_bridge' => ServiceType::WATER,
+        'is_global_template' => false,
+        'is_active' => true,
+    ]);
+
+    $waterServiceConfiguration = ServiceConfiguration::factory()->create([
+        'tenant_id' => $tenantId,
+        'property_id' => $property->id,
+        'utility_service_id' => $waterService->id,
+        'pricing_model' => PricingModel::HYBRID,
+        'rate_schedule' => [
+            'fixed_fee' => $waterFixedFee,
+            'unit_rate' => $waterSupplyRate + $waterSewageRate,
+        ],
+        'distribution_method' => DistributionMethod::EQUAL,
+        'is_shared_service' => false,
+        'effective_from' => $periodStart->copy()->subMonth(),
+        'effective_until' => null,
+        'provider_id' => $waterProvider->id,
+        'tariff_id' => $waterTariff->id,
+        'configuration_overrides' => [],
+        'is_active' => true,
+    ]);
+
+    $waterMeter->update(['service_configuration_id' => $waterServiceConfiguration->id]);
 
     $electricityStartValue = fake()->numberBetween(500, 1500);
     $electricityConsumption = fake()->numberBetween(50, 300);
@@ -151,23 +198,28 @@ test('baseline upgrade flows preserve functional correctness', function () {
     // Invoice generation still derives totals from readings + tariffs
     $invoice = app(BillingService::class)->generateInvoice($tenant, $periodStart, $periodEnd);
 
-    expect($invoice->items->count())->toBe(2);
+    expect($invoice->items->count())->toBe(3);
 
     $electricityItem = $invoice->items->first(function ($item) use ($electricityMeter) {
-        return (int) ($item->meter_reading_snapshot['meter_id'] ?? 0) === $electricityMeter->id;
+        return (int) ($item->meter_reading_snapshot['meters'][0]['meter_id'] ?? 0) === $electricityMeter->id;
     });
-    $waterItem = $invoice->items->first(function ($item) use ($waterMeter) {
-        return (int) ($item->meter_reading_snapshot['meter_id'] ?? 0) === $waterMeter->id;
+
+    $waterItems = $invoice->items->filter(function ($item) use ($waterMeter) {
+        return (int) ($item->meter_reading_snapshot['meters'][0]['meter_id'] ?? 0) === $waterMeter->id;
     });
 
     expect($electricityItem)->not->toBeNull();
-    expect($waterItem)->not->toBeNull();
+    expect($waterItems)->toHaveCount(2);
 
     $expectedElectricityTotal = $electricityConsumption * $electricityRate;
     expect(abs((float) $electricityItem->total - $expectedElectricityTotal))->toBeLessThan(0.01);
 
-    $expectedWaterTotal = ($waterConsumption * $waterSupplyRate) + ($waterConsumption * $waterSewageRate) + $waterFixedFee;
-    expect(abs((float) $waterItem->total - $expectedWaterTotal))->toBeLessThan(0.01);
+    $daysInPeriod = $periodStart->diffInDays($periodEnd) + 1;
+    $proRatedFixedFee = $waterFixedFee * ($daysInPeriod / $periodStart->daysInMonth);
+
+    $expectedWaterTotal = round($waterConsumption * ($waterSupplyRate + $waterSewageRate), 2) + round($proRatedFixedFee, 2);
+    $actualWaterTotal = $waterItems->sum(fn ($item) => (float) $item->total);
+    expect(abs($actualWaterTotal - $expectedWaterTotal))->toBeLessThan(0.01);
 
     Auth::logout();
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Enums\SubscriptionStatus;
 use App\Models\Building;
 use App\Models\Property;
 use App\Models\Subscription;
@@ -36,7 +37,7 @@ test('subscription renewal restores write access for expired subscriptions', fun
     $this->actingAs($admin);
     
     // Verify write operations fail with expired subscription
-    $responseBeforeRenewal = $this->post(route('properties.store'), [
+    $responseBeforeRenewal = $this->post(route('manager.properties.store'), [
         'address' => fake()->address(),
         'type' => fake()->randomElement(['apartment', 'house']),
         'area_sqm' => fake()->randomFloat(2, 20, 200),
@@ -55,7 +56,7 @@ test('subscription renewal restores write access for expired subscriptions', fun
     $admin->refresh();
     
     // Property: After renewal, write operations should succeed
-    $responseAfterRenewal = $this->post(route('properties.store'), [
+    $responseAfterRenewal = $this->post(route('manager.properties.store'), [
         'address' => fake()->address(),
         'type' => fake()->randomElement(['apartment', 'house']),
         'area_sqm' => fake()->randomFloat(2, 20, 200),
@@ -66,7 +67,7 @@ test('subscription renewal restores write access for expired subscriptions', fun
     
     // Verify subscription is now active
     $subscription->refresh();
-    expect($subscription->status)->toBe('active')
+    expect($subscription->status)->toBe(SubscriptionStatus::ACTIVE)
         ->and($subscription->isActive())->toBeTrue()
         ->and($subscription->expires_at->isFuture())->toBeTrue();
 })->repeat(100);
@@ -97,7 +98,7 @@ test('subscription renewal restores write access for suspended subscriptions', f
     $this->actingAs($admin);
     
     // Verify write operations fail with suspended subscription
-    $responseBeforeRenewal = $this->post(route('buildings.store'), [
+    $responseBeforeRenewal = $this->post(route('manager.buildings.store'), [
         'name' => fake()->company(),
         'address' => fake()->address(),
     ]);
@@ -115,7 +116,7 @@ test('subscription renewal restores write access for suspended subscriptions', f
     $admin->refresh();
     
     // Property: After renewal, write operations should succeed
-    $responseAfterRenewal = $this->post(route('buildings.store'), [
+    $responseAfterRenewal = $this->post(route('manager.buildings.store'), [
         'name' => fake()->company(),
         'address' => fake()->address(),
     ]);
@@ -125,7 +126,7 @@ test('subscription renewal restores write access for suspended subscriptions', f
     
     // Verify subscription is now active
     $subscription->refresh();
-    expect($subscription->status)->toBe('active')
+    expect($subscription->status)->toBe(SubscriptionStatus::ACTIVE)
         ->and($subscription->isActive())->toBeTrue();
 })->repeat(100);
 
@@ -163,7 +164,7 @@ test('subscription renewal allows property updates that were previously blocked'
     $this->actingAs($admin);
     
     // Verify update operations fail with expired subscription
-    $responseBeforeRenewal = $this->put(route('properties.update', $property), [
+    $responseBeforeRenewal = $this->put(route('manager.properties.update', $property), [
         'address' => fake()->address(),
         'type' => 'house',
         'area_sqm' => fake()->randomFloat(2, 20, 200),
@@ -181,7 +182,7 @@ test('subscription renewal allows property updates that were previously blocked'
     $admin->refresh();
     
     // Property: After renewal, update operations should succeed
-    $responseAfterRenewal = $this->put(route('properties.update', $property), [
+    $responseAfterRenewal = $this->put(route('manager.properties.update', $property), [
         'address' => fake()->address(),
         'type' => 'house',
         'area_sqm' => fake()->randomFloat(2, 20, 200),
@@ -232,7 +233,7 @@ test('subscription renewal allows property deletions that were previously blocke
     $this->actingAs($admin);
     
     // Verify delete operations fail with expired subscription
-    $responseBeforeRenewal = $this->delete(route('properties.destroy', $property1));
+    $responseBeforeRenewal = $this->delete(route('manager.properties.destroy', $property1));
     
     // Should fail (not 200)
     expect($responseBeforeRenewal->status())->not->toBe(200);
@@ -250,7 +251,7 @@ test('subscription renewal allows property deletions that were previously blocke
     $admin->refresh();
     
     // Property: After renewal, delete operations should succeed
-    $responseAfterRenewal = $this->delete(route('properties.destroy', $property2));
+    $responseAfterRenewal = $this->delete(route('manager.properties.destroy', $property2));
     
     // Should succeed (200 or redirect to success page)
     expect($responseAfterRenewal->status())->toBeIn([200, 302]);
@@ -282,13 +283,13 @@ test('subscription renewal restores all write operations across different resour
     $this->actingAs($admin);
     
     // Verify multiple write operations fail with expired subscription
-    $propertyResponse = $this->post(route('properties.store'), [
+    $propertyResponse = $this->post(route('manager.properties.store'), [
         'address' => fake()->address(),
         'type' => fake()->randomElement(['apartment', 'house']),
         'area_sqm' => fake()->randomFloat(2, 20, 200),
     ]);
     
-    $buildingResponse = $this->post(route('buildings.store'), [
+    $buildingResponse = $this->post(route('manager.buildings.store'), [
         'name' => fake()->company(),
         'address' => fake()->address(),
     ]);
@@ -308,13 +309,13 @@ test('subscription renewal restores all write operations across different resour
     $admin->refresh();
     
     // Property: After renewal, all write operations should succeed
-    $propertyResponseAfter = $this->post(route('properties.store'), [
+    $propertyResponseAfter = $this->post(route('manager.properties.store'), [
         'address' => fake()->address(),
         'type' => fake()->randomElement(['apartment', 'house']),
         'area_sqm' => fake()->randomFloat(2, 20, 200),
     ]);
     
-    $buildingResponseAfter = $this->post(route('buildings.store'), [
+    $buildingResponseAfter = $this->post(route('manager.buildings.store'), [
         'name' => fake()->company(),
         'address' => fake()->address(),
     ]);
@@ -361,7 +362,7 @@ test('subscription renewal maintains read access throughout the process', functi
     $this->actingAs($admin);
     
     // Verify read operations work before renewal
-    $responseBeforeRenewal = $this->get(route('properties.index'));
+    $responseBeforeRenewal = $this->get(route('manager.properties.index'));
     expect($responseBeforeRenewal->status())->toBe(200);
     
     $propertiesBeforeRenewal = Property::all();
@@ -376,7 +377,7 @@ test('subscription renewal maintains read access throughout the process', functi
     $admin->refresh();
     
     // Property: Read operations should still work after renewal
-    $responseAfterRenewal = $this->get(route('properties.index'));
+    $responseAfterRenewal = $this->get(route('manager.properties.index'));
     expect($responseAfterRenewal->status())->toBe(200);
     
     $propertiesAfterRenewal = Property::all();

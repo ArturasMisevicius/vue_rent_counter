@@ -4,36 +4,36 @@ This directory contains comprehensive documentation for all Artisan console comm
 
 ## Available Commands
 
-### Gyvatukas Calculations
+### hot water circulation Calculations
 
 #### Calculate Summer Average
 
-**Command**: `php artisan gyvatukas:calculate-summer-average`
+**Command**: `php artisan hot water circulation:calculate-summer-average`
 
-**Purpose**: Calculates and stores summer average gyvatukas (circulation fees) for buildings to establish baseline for winter billing.
+**Purpose**: Calculates and stores summer average hot water circulation (circulation fees) for buildings to establish baseline for winter billing.
 
 **Documentation**: [CALCULATE_SUMMER_AVERAGE_COMMAND.md](CALCULATE_SUMMER_AVERAGE_COMMAND.md)
 
-**Quick Reference**: [Quick Reference Guide](../reference/GYVATUKAS_SUMMER_AVERAGE_QUICK_REFERENCE.md)
+**Quick Reference**: [Quick Reference Guide](../reference/hot water circulation_SUMMER_AVERAGE_QUICK_REFERENCE.md)
 
 **Related Documentation**:
-- [Service Documentation](../services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md)
-- [API Reference](../api/GYVATUKAS_SUMMER_AVERAGE_API.md)
+- [Service Documentation](../services/hot water circulation_SUMMER_AVERAGE_SERVICE.md)
+- [API Reference](../api/hot water circulation_SUMMER_AVERAGE_API.md)
 - [Value Objects](../value-objects/SUMMER_PERIOD.md)
 
 **Usage**:
 ```bash
 # Calculate for all buildings (previous year)
-php artisan gyvatukas:calculate-summer-average
+php artisan hot water circulation:calculate-summer-average
 
 # Calculate for specific year
-php artisan gyvatukas:calculate-summer-average --year=2023
+php artisan hot water circulation:calculate-summer-average --year=2023
 
 # Calculate for single building
-php artisan gyvatukas:calculate-summer-average --building=42
+php artisan hot water circulation:calculate-summer-average --building=42
 
 # Force recalculation
-php artisan gyvatukas:calculate-summer-average --force
+php artisan hot water circulation:calculate-summer-average --force
 ```
 
 **Scheduled**: October 1st at 2:00 AM (automatic)
@@ -100,7 +100,7 @@ php artisan invoices:notify-overdue
 ## Command Categories
 
 ### Billing & Calculations
-- `gyvatukas:calculate-summer-average` - Calculate summer average gyvatukas
+- `hot water circulation:calculate-summer-average` - Calculate summer average hot water circulation
 
 ### User Management
 - `users:migrate-hierarchical` - Migrate to hierarchical users
@@ -239,5 +239,5 @@ For questions about commands:
 
 ## Version History
 
-- **2024-11-25**: Added gyvatukas summer average command documentation
+- **2024-11-25**: Added hot water circulation summer average command documentation
 - **2024-11-20**: Initial command documentation structure

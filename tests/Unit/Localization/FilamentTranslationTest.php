@@ -55,31 +55,19 @@ final class FilamentTranslationTest extends TestCase
         $content = File::get($filePath);
         
         // Find translation keys using __() function
-        preg_match_all('/__(\'([^\']+)\'|\\"([^\\"]+)\\")/', $content, $matches);
-        
+        preg_match_all('/\\b__\\(\\s*([\\\'"])([^\\\'"]+)\\1\\s*(?:,|\\))/m', $content, $matches);
+
         foreach ($matches[2] as $key) {
-            if (!empty($key)) {
-                $this->checkTranslationKey($key);
-            }
-        }
-        
-        foreach ($matches[3] as $key) {
-            if (!empty($key)) {
+            if ($key !== '') {
                 $this->checkTranslationKey($key);
             }
         }
 
         // Find translation keys using trans() function
-        preg_match_all('/trans\(\'([^\']+)\'|\\"([^\\"]+)\\"\)/', $content, $transMatches);
-        
-        foreach ($transMatches[1] as $key) {
-            if (!empty($key)) {
-                $this->checkTranslationKey($key);
-            }
-        }
-        
+        preg_match_all('/\\btrans\\(\\s*([\\\'"])([^\\\'"]+)\\1\\s*(?:,|\\))/m', $content, $transMatches);
+
         foreach ($transMatches[2] as $key) {
-            if (!empty($key)) {
+            if ($key !== '') {
                 $this->checkTranslationKey($key);
             }
         }

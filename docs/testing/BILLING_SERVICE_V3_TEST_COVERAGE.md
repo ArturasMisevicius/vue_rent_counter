@@ -50,11 +50,11 @@ Comprehensive test suite for the refactored BillingService V3, covering invoice 
 - Day zone item has correct consumption
 - Night zone item has correct consumption
 
-#### Test: generates invoice with gyvatukas for property with building
-**Purpose**: Verify gyvatukas integration (Req 4.1, 4.2)  
+#### Test: generates invoice with hot water circulation for property with building
+**Purpose**: Verify hot water circulation integration (Req 4.1, 4.2)  
 **Assertions**:
-- Gyvatukas item exists in invoice
-- Gyvatukas total is greater than 0
+- hot water circulation item exists in invoice
+- hot water circulation total is greater than 0
 
 #### Test: snapshots tariff configuration in invoice items
 **Purpose**: Verify tariff snapshotting (Req 5.1)  
@@ -227,7 +227,7 @@ Comprehensive test suite for the refactored BillingService V3, covering invoice 
 | 5.1: Snapshot tariff rates | 1 | ✅ |
 | 5.2: Snapshot meter readings | 1 | ✅ |
 | 5.5: Invoice finalization immutability | 3 | ✅ |
-| 4.1, 4.2: Gyvatukas calculation | 1 | ✅ |
+| 4.1, 4.2: hot water circulation calculation | 1 | ✅ |
 
 ## Test Execution
 
@@ -304,7 +304,7 @@ Log::shouldHaveReceived('warning')->with(...);
 
 ### Integration Coverage
 - **TariffResolver**: ✅ Integrated
-- **GyvatukasCalculator**: ✅ Integrated
+- **hot water circulationCalculator**: ✅ Integrated
 - **MeterReadingService**: ✅ Integrated
 - **BaseService**: ✅ Transaction management tested
 

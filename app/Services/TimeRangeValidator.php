@@ -93,10 +93,16 @@ class TimeRangeValidator
         // Sort ranges by start time
         usort($timeRanges, fn($a, $b) => $a['start'] <=> $b['start']);
 
-        // Check adjacent ranges only (if sorted ranges don't overlap, no ranges overlap)
-        for ($i = 0; $i < count($timeRanges) - 1; $i++) {
-            if ($this->rangesOverlap($timeRanges[$i], $timeRanges[$i + 1])) {
+        $maxEnd = $timeRanges[0]['end'];
+
+        // Sweep line: if the next range starts before the current max end, we have overlap.
+        for ($i = 1; $i < count($timeRanges); $i++) {
+            if ($timeRanges[$i]['start'] < $maxEnd) {
                 return true;
+            }
+
+            if ($timeRanges[$i]['end'] > $maxEnd) {
+                $maxEnd = $timeRanges[$i]['end'];
             }
         }
 

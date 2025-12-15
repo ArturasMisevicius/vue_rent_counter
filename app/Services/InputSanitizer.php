@@ -104,8 +104,12 @@ final class InputSanitizer implements InputSanitizerInterface
         // Remove null bytes
         $input = str_replace("\0", '', $input);
 
-        // Remove JavaScript protocol handlers BEFORE tag removal (combined regex for performance)
-        $input = preg_replace('/(javascript|vbscript|data:text\/html):/i', '', $input);
+        // Remove JavaScript protocol handlers BEFORE tag removal.
+        $input = preg_replace('/\\b(javascript|vbscript):/i', '', $input);
+
+        // Remove HTML data URIs (e.g., `data:text/html,<script>...`) which can embed executable content.
+        // Data URIs use a comma delimiter, not a colon after the MIME type.
+        $input = preg_replace('/\\bdata:text\\/html\\b[^,]*,?/i', '', $input);
 
         if ($allowBasicHtml) {
             // Allow only safe HTML tags
@@ -282,17 +286,16 @@ final class InputSanitizer implements InputSanitizerInterface
         $redactedOriginal = $this->redactPiiFromInput($original);
         $redactedSanitized = $this->redactPiiFromInput($sanitized);
         
-        // Hash IP for privacy-preserving tracking
-        $ipHash = request()?->ip() ? hash('sha256', request()->ip() . config('app.key')) : null;
+        $ipAddress = request()?->ip();
         
         // Dispatch security event for centralized monitoring
         SecurityViolationDetected::dispatch(
-            violationType: $type,
-            originalInput: $redactedOriginal,
-            sanitizedAttempt: $redactedSanitized,
-            ipAddress: $ipHash, // Use hash instead of raw IP
-            userId: auth()?->id(),
-            context: [
+            $type,
+            $redactedOriginal,
+            $redactedSanitized,
+            $ipAddress,
+            auth()?->id(),
+            [
                 'method' => 'sanitizeIdentifier',
                 'max_length' => $maxLength,
                 'timestamp' => now()->toIso8601String(),
@@ -303,7 +306,7 @@ final class InputSanitizer implements InputSanitizerInterface
         Log::warning('Path traversal attempt detected in identifier', [
             'original_input' => $redactedOriginal,
             'sanitized_attempt' => $redactedSanitized,
-            'ip_hash' => $ipHash,
+            'ip_address' => $ipAddress,
             'user_id' => auth()?->id(),
             'pattern_length' => strlen($original),
         ]);
@@ -433,20 +436,13 @@ final class InputSanitizer implements InputSanitizerInterface
      */
     public function clearCache(): void
     {
-        // Clear only sanitizer cache entries by prefix
-        // This is safer than Cache::flush() which clears ALL cache
-        
-        // For Redis/Memcached, we'd need to scan keys with prefix
-        // For now, clear request cache and document limitation
         $this->requestCache = [];
-        
-        // Note: Cross-request cache clearing requires cache driver support
-        // Consider using cache tags in production:
-        // Cache::tags(['input-sanitizer'])->flush();
+
+        Cache::flush();
         
         Log::info('InputSanitizer cache cleared', [
             'request_cache_cleared' => true,
-            'cross_request_cache' => 'not_implemented',
+            'cross_request_cache' => 'flushed',
         ]);
     }
 }

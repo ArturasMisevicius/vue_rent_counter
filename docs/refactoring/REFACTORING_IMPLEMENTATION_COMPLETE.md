@@ -22,7 +22,7 @@
 - `BillingCalculatorFactory` - Creates appropriate calculator based on meter type
 - `ElectricityCalculator` - Handles electricity billing
 - `WaterCalculator` - Handles water billing with supply, sewage, and fixed fees
-- `HeatingCalculator` - Handles heating with gyvatukas calculations
+- `HeatingCalculator` - Handles heating with hot water circulation calculations
 
 **Benefits:**
 - Eliminated magic numbers (moved to constants)
@@ -58,7 +58,7 @@ $result = $calculator->calculate($meter, $consumption, $tariff, $periodStart, $p
 ### 4. Service Provider Configuration ✅
 **Updated `AppServiceProvider` to register new services:**
 - Registered `BillingCalculatorFactory` as singleton
-- Registered `GyvatukasCalculator` as singleton
+- Registered `hot water circulationCalculator` as singleton
 - Maintained existing service registrations
 
 ### 5. Test Infrastructure Improvements ✅

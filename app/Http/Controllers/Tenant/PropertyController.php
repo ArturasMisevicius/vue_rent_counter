@@ -16,7 +16,14 @@ class PropertyController extends Controller
         
         // Eager load relationships
         if ($property) {
-            $property->load(['meters', 'building']);
+            $property->load([
+                'building',
+                'meters.serviceConfiguration.utilityService',
+                'serviceConfigurations' => fn ($query) => $query
+                    ->active()
+                    ->effectiveOn(now())
+                    ->with(['utilityService', 'meters']),
+            ]);
         }
 
         return view('tenant.property.show', compact('property'));
@@ -28,7 +35,9 @@ class PropertyController extends Controller
         
         // Get assigned property from hierarchical user model
         $property = $user->property;
-        $meters = $property?->meters ?? collect();
+        $meters = $property
+            ? $property->meters()->with('serviceConfiguration.utilityService')->get()
+            : collect();
 
         return view('tenant.property.meters', compact('meters', 'property'));
     }

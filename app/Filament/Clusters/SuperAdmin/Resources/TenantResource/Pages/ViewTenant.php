@@ -8,9 +8,11 @@ use App\Contracts\TenantManagementInterface;
 use App\Filament\Clusters\SuperAdmin\Resources\TenantResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
-use Filament\Infolists\Infolist;
 use Filament\Infolists\Components;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 final class ViewTenant extends ViewRecord
 {
@@ -73,13 +75,13 @@ final class ViewTenant extends ViewRecord
         ];
     }
 
-    public function infolist(Infolist $infolist): Infolist
+    public function infolist(Schema $schema): Schema
     {
-        return $infolist
+        return $schema
             ->schema([
-                Components\Section::make(__('superadmin.tenant.sections.overview'))
+                Section::make(__('superadmin.tenant.sections.overview'))
                     ->schema([
-                        Components\Grid::make(3)
+                        Grid::make(3)
                             ->schema([
                                 Components\TextEntry::make('name')
                                     ->label(__('superadmin.tenant.fields.name'))
@@ -95,9 +97,9 @@ final class ViewTenant extends ViewRecord
                             ]),
                     ]),
 
-                Components\Section::make(__('superadmin.tenant.sections.metrics'))
+                Section::make(__('superadmin.tenant.sections.metrics'))
                     ->schema([
-                        Components\Grid::make(4)
+                        Grid::make(4)
                             ->schema([
                                 Components\TextEntry::make('users_count')
                                     ->label(__('superadmin.tenant.fields.users_count'))
@@ -124,9 +126,9 @@ final class ViewTenant extends ViewRecord
                             ]),
                     ]),
 
-                Components\Section::make(__('superadmin.tenant.sections.subscription'))
+                Section::make(__('superadmin.tenant.sections.subscription'))
                     ->schema([
-                        Components\Grid::make(2)
+                        Grid::make(2)
                             ->schema([
                                 Components\TextEntry::make('trial_ends_at')
                                     ->label(__('superadmin.tenant.fields.trial_ends_at'))
@@ -140,9 +142,9 @@ final class ViewTenant extends ViewRecord
                             ]),
                     ]),
 
-                Components\Section::make(__('superadmin.tenant.sections.status'))
+                Section::make(__('superadmin.tenant.sections.status'))
                     ->schema([
-                        Components\Grid::make(2)
+                        Grid::make(2)
                             ->schema([
                                 Components\IconEntry::make('is_active')
                                     ->label(__('superadmin.tenant.fields.is_active'))
@@ -168,9 +170,9 @@ final class ViewTenant extends ViewRecord
                             ->visible(fn () => $this->record->suspension_reason !== null),
                     ]),
 
-                Components\Section::make(__('superadmin.tenant.sections.timestamps'))
+                Section::make(__('superadmin.tenant.sections.timestamps'))
                     ->schema([
-                        Components\Grid::make(2)
+                        Grid::make(2)
                             ->schema([
                                 Components\TextEntry::make('created_at')
                                     ->label(__('superadmin.tenant.fields.created_at'))

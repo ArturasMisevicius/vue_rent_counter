@@ -14,6 +14,7 @@ use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
@@ -65,7 +66,7 @@ class UtilityServiceResource extends Resource
                         ->required()
                         ->maxLength(255)
                         ->live(onBlur: true)
-                        ->afterStateUpdated(function ($state, Forms\Set $set): void {
+                        ->afterStateUpdated(function ($state, Set $set): void {
                             if (!is_string($state) || $state === '') {
                                 return;
                             }
@@ -202,4 +203,3 @@ class UtilityServiceResource extends Resource
         ];
     }
 }
-

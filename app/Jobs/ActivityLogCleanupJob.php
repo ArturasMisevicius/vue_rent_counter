@@ -53,7 +53,7 @@ class ActivityLogCleanupJob implements ShouldQueue
 
         do {
             // Delete in batches to avoid long-running transactions
-            $deleted = DB::table('organization_activity_log')
+            $deleted = DB::table('organization_activity_logs')
                 ->where('created_at', '<', $cutoffDate)
                 ->limit($this->batchSize)
                 ->delete();

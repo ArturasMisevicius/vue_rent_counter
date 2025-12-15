@@ -40,6 +40,8 @@ class SuperadminImpersonationTest extends TestCase
         ]);
 
         $this->impersonationService = app(ImpersonationService::class);
+
+        $this->actingAs($this->superadmin);
     }
 
     /** @test */

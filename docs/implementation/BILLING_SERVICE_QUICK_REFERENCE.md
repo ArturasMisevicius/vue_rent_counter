@@ -94,13 +94,13 @@ Automatically calculates supply + sewage + fixed fee:
 // Total: €22.85
 ```
 
-### Gyvatukas Integration
+### hot water circulation Integration
 
-Automatically adds gyvatukas items if building exists:
+Automatically adds hot water circulation items if building exists:
 
 ```php
 [
-    'description' => 'Gyvatukas (Hot Water Circulation)',
+    'description' => 'hot water circulation (Hot Water Circulation)',
     'quantity' => 1.00,
     'unit' => 'month',
     'unit_price' => 150.50,

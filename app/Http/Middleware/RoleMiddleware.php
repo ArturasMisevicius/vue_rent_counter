@@ -15,11 +15,18 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (!$request->user()) {
+        $user = $request->user();
+
+        if (!$user) {
             return redirect()->route('login');
         }
 
-        $userRole = $request->user()->role->value;
+        // Superadmin has access to all role-gated routes.
+        if (method_exists($user, 'isSuperadmin') && $user->isSuperadmin()) {
+            return $next($request);
+        }
+
+        $userRole = $user->role->value;
 
         if (!in_array($userRole, $roles)) {
             abort(403, 'Unauthorized action.');

@@ -31,7 +31,7 @@ class GetReadingsByStatusRequest extends FormRequest
             'status' => 'required|string|in:pending,validated,rejected,requires_review',
             'date_from' => 'nullable|date|before_or_equal:today',
             'date_to' => 'nullable|date|after_or_equal:date_from|before_or_equal:today',
-            'input_method' => 'nullable|string|in:manual,automatic,estimated,api,csv_import',
+            'input_method' => 'nullable|string|in:manual,photo_ocr,csv_import,api_integration,estimated',
             'meter_ids' => 'nullable|array|max:100',
             'meter_ids.*' => 'integer|exists:meters,id',
             'per_page' => 'nullable|integer|min:1|max:100',
@@ -77,10 +77,13 @@ class GetReadingsByStatusRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
+        $perPage = $this->input('per_page', 15);
+        $page = $this->input('page', 1);
+
         // Set default values
         $this->merge([
-            'per_page' => $this->input('per_page', 15),
-            'page' => $this->input('page', 1),
+            'per_page' => is_numeric($perPage) ? (int) $perPage : $perPage,
+            'page' => is_numeric($page) ? (int) $page : $page,
         ]);
 
         // Clean up meter_ids array

@@ -4,18 +4,49 @@
 
 @section('tenant-content')
 @php($meterTypeLabels = \App\Enums\MeterType::labels())
+@php
+    $serviceOptions = collect($properties ?? collect())
+        ->flatMap(fn ($property) => $property->meters ?? [])
+        ->map(fn ($meter) => $meter->serviceConfiguration?->utilityService)
+        ->filter()
+        ->unique('id')
+        ->sortBy('name')
+        ->values();
+
+    $legacyTypeOptions = collect($properties ?? collect())
+        ->flatMap(fn ($property) => $property->meters ?? [])
+        ->filter(fn ($meter) => $meter->serviceConfiguration === null)
+        ->map(fn ($meter) => $meter->type?->value)
+        ->filter()
+        ->unique()
+        ->sort()
+        ->values();
+@endphp
 <x-tenant.page :title="__('meter_readings.tenant.title')" :description="__('meter_readings.tenant.description')" x-data="consumptionHistory()">
     <x-tenant.quick-actions />
 
     <x-tenant.section-card :title="__('meter_readings.tenant.filters.title')" :description="__('meter_readings.tenant.filters.description')">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
-                <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.tenant.filters.meter_type') }}</label>
-                <select x-model="filters.meterType" @change="applyFilters()" class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    <option value="">{{ __('meter_readings.tenant.filters.all_types') }}</option>
-                    @foreach($meterTypeLabels as $value => $label)
-                        <option value="{{ $value }}">{{ $label }}</option>
-                    @endforeach
+                <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.tenant.filters.service') }}</label>
+                <select x-model="filters.service" @change="applyFilters()" class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">{{ __('meter_readings.tenant.filters.all_services') }}</option>
+
+                    @if($serviceOptions->isNotEmpty())
+                        <optgroup label="{{ __('meter_readings.tenant.filters.services_group') }}">
+                            @foreach($serviceOptions as $service)
+                                <option value="utility:{{ $service->id }}">{{ $service->name }}</option>
+                            @endforeach
+                        </optgroup>
+                    @endif
+
+                    @if($legacyTypeOptions->isNotEmpty())
+                        <optgroup label="{{ __('meter_readings.tenant.filters.legacy_group') }}">
+                            @foreach($legacyTypeOptions as $type)
+                                <option value="type:{{ $type }}">{{ $meterTypeLabels[$type] ?? $type }}</option>
+                            @endforeach
+                        </optgroup>
+                    @endif
                 </select>
             </div>
 
@@ -43,7 +74,7 @@
                     @foreach(($properties ?? collect()) as $property)
                         @foreach($property->meters as $meter)
                             <option value="{{ $meter->id }}" data-supports-zones="{{ $meter->supports_zones ? 'true' : 'false' }}" {{ old('meter_id') == $meter->id ? 'selected' : '' }}>
-                                {{ $meter->serial_number }} ({{ $meter->serviceConfiguration?->utilityService?->name ?? enum_label($meter->type) }})
+                                {{ $meter->serial_number }} ({{ $meter->getServiceDisplayName() }})
                             </option>
                         @endforeach
                     @endforeach
@@ -147,7 +178,7 @@ function consumptionHistory() {
         readings: @json($readings instanceof \Illuminate\Pagination\AbstractPaginator ? $readings->items() : $readings),
         meterTypeLabels: @json($meterTypeLabels),
         filters: {
-            meterType: '{{ request('meter_type') }}',
+            service: '{{ request('service') }}',
             dateFrom: '{{ request('date_from') }}',
             dateTo: '{{ request('date_to') }}'
         },
@@ -164,8 +195,17 @@ function consumptionHistory() {
             let filtered = this.readings;
             
             // Apply filters
-            if (this.filters.meterType) {
-                filtered = filtered.filter(r => r.meter.type === this.filters.meterType);
+            if (this.filters.service) {
+                const [kind, value] = this.filters.service.split(':', 2);
+
+                if (kind === 'utility') {
+                    const serviceId = parseInt(value, 10);
+                    filtered = filtered.filter(r => this.getUtilityServiceId(r.meter) === serviceId);
+                }
+
+                if (kind === 'type') {
+                    filtered = filtered.filter(r => r.meter.type === value && this.getUtilityServiceId(r.meter) === null);
+                }
             }
             
             if (this.filters.dateFrom) {
@@ -179,7 +219,7 @@ function consumptionHistory() {
             // Group by meter
             const grouped = {};
             filtered.forEach(reading => {
-                const key = `${reading.meter.serial_number} (${this.formatMeterType(reading.meter.type)})`;
+                const key = this.formatMeterLabel(reading.meter);
                 if (!grouped[key]) {
                     grouped[key] = [];
                 }
@@ -204,6 +244,24 @@ function consumptionHistory() {
         
         formatMeterType(type) {
             return this.meterTypeLabels[type] || type;
+        },
+
+        getUtilityServiceId(meter) {
+            return meter?.service_configuration?.utility_service?.id ?? null;
+        },
+
+        getUtilityServiceName(meter) {
+            return meter?.service_configuration?.utility_service?.name ?? null;
+        },
+
+        formatMeterLabel(meter) {
+            const serviceName = this.getUtilityServiceName(meter);
+
+            if (serviceName) {
+                return `${meter.serial_number} (${serviceName})`;
+            }
+
+            return `${meter.serial_number} (${this.formatMeterType(meter.type)})`;
         },
         
         calculateConsumption(current, previous) {

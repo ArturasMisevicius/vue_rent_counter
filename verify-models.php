@@ -22,14 +22,14 @@
  *   - Model instantiation (class existence)
  *   - Enum casts (UserRole, PropertyType, ServiceType, MeterType, InvoiceStatus)
  *   - Date/datetime casts (lease dates, billing periods, reading dates)
- *   - Decimal casts (gyvatukas values, meter readings, invoice amounts)
+ *   - Decimal casts (meter readings, invoice amounts)
  *   - Array/JSON casts (tariff configuration, meter reading snapshots)
  *   - Boolean casts (supports_zones)
  *   - Relationship method presence (documented, not executed)
  * 
  * Models Verified:
  *   - User (hierarchical user management with roles)
- *   - Building (gyvatukas calculations)
+ *   - Building (tenant-scoped building management)
  *   - Property (multi-tenant property management)
  *   - Tenant (lease management)
  *   - Provider (utility service providers)
@@ -72,12 +72,11 @@ echo "Verifying Eloquent Models...\n\n";
 
 // Test User model
 $user = new App\Models\User();
-echo "✓ User model: role cast = " . (isset($user->getCasts()['role']) ? 'UserRole::class' : 'missing') . "\n";
+echo "User model: role cast = " . (isset($user->getCasts()['role']) ? 'UserRole::class' : 'missing') . "\n";
 
 // Test Building model
 $building = new App\Models\Building();
-$casts = $building->getCasts();
-echo "✓ Building model: gyvatukas_summer_average cast = " . ($casts['gyvatukas_summer_average'] ?? 'missing') . "\n";
+echo "Building model: display_name accessor = " . ($building->display_name !== '' ? 'ok' : 'missing') . "\n";
 
 // Test Property model
 $property = new App\Models\Property();

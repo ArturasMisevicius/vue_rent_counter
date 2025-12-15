@@ -16,10 +16,12 @@ use Throwable;
  * - Standardized error handling
  * - Consistent response formatting
  * - Structured logging with context
+ * - Input validation
+ * - Service availability checks
  * 
  * @package App\Services
  */
-abstract class BaseService
+abstract class BaseService implements \App\Contracts\ServiceInterface
 {
     /**
      * Execute a callback within a database transaction.
@@ -137,5 +139,41 @@ abstract class BaseService
         }
 
         return $model->tenant_id === $currentTenantId;
+    }
+
+    /**
+     * Get the service name for logging and identification.
+     * 
+     * @return string
+     */
+    public function getServiceName(): string
+    {
+        return class_basename(static::class);
+    }
+
+    /**
+     * Validate input data before processing.
+     * Default implementation - override in child classes for specific validation.
+     * 
+     * @param array $data
+     * @return bool
+     * @throws \InvalidArgumentException
+     */
+    public function validateInput(array $data): bool
+    {
+        // Default validation - can be overridden
+        return !empty($data);
+    }
+
+    /**
+     * Check if the service is available/enabled.
+     * Default implementation - override in child classes for specific checks.
+     * 
+     * @return bool
+     */
+    public function isAvailable(): bool
+    {
+        // Default availability - can be overridden
+        return true;
     }
 }

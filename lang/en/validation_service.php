@@ -65,7 +65,7 @@ return [
     'reading_value_mismatch' => 'Reading value mismatch: stored :stored_value :unit vs calculated :calculated_value :unit.',
     'missing_audit_entered_by' => 'Missing audit information: entered_by field is required.',
     'validated_reading_missing_validator' => 'Validated reading is missing validator information.',
-    'photo_required_for_input_method' => 'Photo is required for input method: :input_method.',
+    'photo_required_for_input_method' => 'Photo path is required for input method: :input_method.',
 
     // Recommendations
     'check_for_leaks_or_issues' => 'Consider checking for leaks or equipment issues if high consumption continues.',

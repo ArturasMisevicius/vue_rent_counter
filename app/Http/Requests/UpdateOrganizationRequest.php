@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
 class UpdateOrganizationRequest extends FormRequest
@@ -26,9 +28,18 @@ class UpdateOrganizationRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($organization?->id)],
-            'organization_name' => ['required', 'string', 'max:255'],
-            'is_active' => ['boolean'],
+            'slug' => ['sometimes', 'string', 'max:255', 'alpha_dash', Rule::unique('organizations', 'slug')->ignore($organization?->id)],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('organizations', 'email')->ignore($organization?->id)],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'domain' => ['nullable', 'string', 'max:255', Rule::unique('organizations', 'domain')->ignore($organization?->id)],
+            'plan' => ['required', Rule::enum(\App\Enums\SubscriptionPlan::class)],
+            'max_properties' => ['required', 'integer', 'min:1'],
+            'max_users' => ['required', 'integer', 'min:1'],
+            'subscription_ends_at' => ['nullable', 'date'],
+            'timezone' => ['nullable', 'string', 'max:100'],
+            'locale' => ['nullable', 'string', 'max:10'],
+            'currency' => ['nullable', 'string', 'max:10'],
+            'is_active' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -39,19 +50,18 @@ class UpdateOrganizationRequest extends FormRequest
      */
     public function messages(): array
     {
-        return [
-            'name.required' => __('organizations.validation.name.required'),
-            'name.string' => __('organizations.validation.name.string'),
-            'name.max' => __('organizations.validation.name.max'),
-            'email.required' => __('organizations.validation.email.required'),
-            'email.string' => __('organizations.validation.email.string'),
-            'email.email' => __('organizations.validation.email.email'),
-            'email.max' => __('organizations.validation.email.max'),
-            'email.unique' => __('organizations.validation.email.unique'),
-            'organization_name.required' => __('organizations.validation.organization_name.required'),
-            'organization_name.string' => __('organizations.validation.organization_name.string'),
-            'organization_name.max' => __('organizations.validation.organization_name.max'),
-            'is_active.boolean' => __('organizations.validation.is_active.boolean'),
-        ];
+        return [];
+    }
+
+    protected function failedValidation(Validator $validator): void
+    {
+        if ($this->is('superadmin/*')) {
+            throw new HttpResponseException(response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $validator->errors(),
+            ], 422));
+        }
+
+        parent::failedValidation($validator);
     }
 }

@@ -363,11 +363,22 @@ final readonly class TenantManagementService implements TenantManagementInterfac
 
     private function sendWelcomeEmail(Organization $tenant): void
     {
-        // TODO: Implement welcome email sending
-        // This would typically use a queued job
-        Log::info('Welcome email queued for tenant', [
-            'tenant_id' => $tenant->id,
-            'email' => $tenant->email,
-        ]);
+        // Queue welcome email for new tenant
+        try {
+            // For now, log the action - email implementation can be added later
+            Log::info('Welcome email queued for tenant', [
+                'tenant_id' => $tenant->id,
+                'email' => $tenant->email,
+                'tenant_name' => $tenant->name ?? 'Unknown',
+            ]);
+            
+            // Future implementation:
+            // dispatch(new SendWelcomeEmailJob($tenant));
+        } catch (\Exception $e) {
+            Log::error('Failed to queue welcome email', [
+                'tenant_id' => $tenant->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

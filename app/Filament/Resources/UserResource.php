@@ -11,6 +11,7 @@ use App\Models\User;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -66,7 +67,6 @@ class UserResource extends Resource
     private const ALLOWED_ROLES = [
         UserRole::SUPERADMIN,
         UserRole::ADMIN,
-        UserRole::MANAGER,
     ];
 
     public static function getNavigationIcon(): ?string
@@ -89,9 +89,9 @@ class UserResource extends Resource
     /**
      * Determine if the current user can view any users.
      *
-     * Controls access to the user management interface. Only SUPERADMIN, ADMIN,
-     * and MANAGER roles can access user management. TENANT role is explicitly
-     * excluded from user management.
+     * Controls access to the user management interface. Only SUPERADMIN and
+     * ADMIN roles can access user management. MANAGER and TENANT roles are
+     * explicitly excluded from user management.
      *
      * This method serves as the primary authorization checkpoint for the resource.
      * It works in conjunction with UserPolicy for granular authorization checks.
@@ -283,8 +283,8 @@ class UserResource extends Resource
                             )
                             ->searchable()
                             ->preload()
-                            ->required(fn (Forms\Get $get): bool => self::isTenantRequired($get('role')))
-                            ->visible(fn (Forms\Get $get): bool => self::isTenantVisible($get('role')))
+                            ->required(fn (Get $get): bool => self::isTenantRequired($get('role')))
+                            ->visible(fn (Get $get): bool => self::isTenantVisible($get('role')))
                             ->helperText(__('users.helper_text.tenant'))
                             ->validationMessages(self::getValidationMessages('tenant_id')),
 
@@ -360,9 +360,11 @@ class UserResource extends Resource
      * @param string|null $role The user role value
      * @return bool
      */
-    protected static function isTenantRequired(?string $role): bool
+    protected static function isTenantRequired(UserRole|string|null $role): bool
     {
-        return in_array($role, [
+        $roleValue = $role instanceof UserRole ? $role->value : $role;
+
+        return in_array($roleValue, [
             UserRole::MANAGER->value,
             UserRole::TENANT->value,
         ], true);
@@ -374,9 +376,11 @@ class UserResource extends Resource
      * @param string|null $role The user role value
      * @return bool
      */
-    protected static function isTenantVisible(?string $role): bool
+    protected static function isTenantVisible(UserRole|string|null $role): bool
     {
-        return in_array($role, [
+        $roleValue = $role instanceof UserRole ? $role->value : $role;
+
+        return in_array($roleValue, [
             UserRole::MANAGER->value,
             UserRole::TENANT->value,
             UserRole::ADMIN->value,
@@ -528,8 +532,8 @@ class UserResource extends Resource
         return [
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
-            'view' => Pages\ViewUser::route('/{record}'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
+            'view' => Pages\ViewUser::route('/filament/{record}'),
+            'edit' => Pages\EditUser::route('/filament/{record}/edit'),
         ];
     }
 }

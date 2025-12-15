@@ -22,7 +22,7 @@ class ExpiringSubscriptionsWidget extends BaseWidget
     protected static bool $isLazy = true;
     
     // Polling interval - refresh every 5 minutes
-    protected static ?string $pollingInterval = '300s';
+    protected ?string $pollingInterval = '300s';
     
     protected int | string | array $columnSpan = 'full';
 

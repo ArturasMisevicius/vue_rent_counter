@@ -42,7 +42,7 @@
    │ id           │                                             │ id           │
    │ tenant_id    │                                             │ tenant_id    │
    │ address      │                                             │ address      │
-   │ gyvatukas_   │                                             │ type (enum)  │
+   │ hot water circulation_   │                                             │ type (enum)  │
    │   summer_avg │                                             │ area_sqm     │
    └──────┬───────┘                                             │ building_id  │
           │                                                     └──────┬───────┘
@@ -181,7 +181,7 @@
    └──────────────────────┘
 
    ┌──────────────────────────┐
-   │gyvatukas_calculation_    │  Tracks gyvatukas calculations
+   │hot water circulation_calculation_    │  Tracks hot water circulation calculations
    │         audits           │
    │──────────────────────────│
    │ building_id              │
@@ -266,8 +266,8 @@
    │   ├─► Calculate consumption
    │   └─► Create invoice item with snapshot
    │
-   ├─► Calculate gyvatukas (if applicable)
-   │   └─► GyvatukasCalculator.calculate()
+   ├─► Calculate hot water circulation (if applicable)
+   │   └─► hot water circulationCalculator.calculate()
    │
    ├─► Create invoice (status: draft)
    │

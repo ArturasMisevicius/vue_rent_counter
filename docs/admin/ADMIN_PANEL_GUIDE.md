@@ -65,11 +65,11 @@ Manage residential and commercial properties.
 ### Buildings
 **Path**: `/admin/buildings`
 
-Manage multi-unit buildings and calculate gyvatukas fees.
+Manage multi-unit buildings and calculate hot water circulation fees.
 
 #### Features
 - Create, edit, and delete buildings
-- Calculate gyvatukas (circulation fees)
+- Calculate hot water circulation (circulation fees)
 - View all properties in a building
 - Track building-level meters
 
@@ -152,7 +152,7 @@ Each invoice contains line items for:
 - Water (cold/hot)
 - Heating
 - Gas
-- Gyvatukas (circulation fees)
+- hot water circulation (circulation fees)
 
 #### Workflow
 1. Create draft invoice

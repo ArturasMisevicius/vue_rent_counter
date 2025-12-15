@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 
+use BackedEnum;
 use App\Enums\SubscriptionPlanType;
 use App\Filament\Resources\OrganizationResource\Pages;
 use App\Filament\Resources\OrganizationResource\RelationManagers\ActivityLogsRelationManager;
@@ -10,11 +11,18 @@ use App\Filament\Resources\OrganizationResource\RelationManagers\PropertiesRelat
 use App\Filament\Resources\OrganizationResource\RelationManagers\SubscriptionsRelationManager;
 use App\Filament\Resources\OrganizationResource\RelationManagers\UsersRelationManager;
 use App\Models\Organization;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ExportBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -92,7 +100,7 @@ class OrganizationResource extends Resource
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn ($state, Forms\Set $set) => $set('slug', \Illuminate\Support\Str::slug($state))),
+                            ->afterStateUpdated(fn ($state, Set $set) => $set('slug', \Illuminate\Support\Str::slug($state))),
                         
                         Forms\Components\TextInput::make('slug')
                             ->label(__('organizations.labels.slug'))
@@ -126,15 +134,18 @@ class OrganizationResource extends Resource
                             ->required()
                             ->default(SubscriptionPlanType::BASIC->value)
                             ->live()
-                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                            ->afterStateUpdated(function ($state, Set $set) {
                                 $plan = $state instanceof BackedEnum ? $state->value : $state;
                                 $limits = [
                                     SubscriptionPlanType::BASIC->value => ['properties' => 100, 'users' => 10],
                                     SubscriptionPlanType::PROFESSIONAL->value => ['properties' => 500, 'users' => 50],
                                     SubscriptionPlanType::ENTERPRISE->value => ['properties' => 9999, 'users' => 999],
                                 ];
-                                $set('max_properties', $limits[$plan]['properties']);
-                                $set('max_users', $limits[$plan]['users']);
+
+                                $planLimits = $limits[$plan] ?? $limits[SubscriptionPlanType::BASIC->value];
+
+                                $set('max_properties', $planLimits['properties']);
+                                $set('max_users', $planLimits['users']);
                             }),
                         
                         Forms\Components\TextInput::make('max_properties')
@@ -287,13 +298,13 @@ class OrganizationResource extends Resource
                     ->label(__('organizations.labels.expiring_soon')),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make()
                     ->requiresConfirmation()
                     ->modalHeading(__('organizations.modals.delete_heading'))
                     ->modalDescription(__('organizations.modals.delete_description'))
-                    ->before(function (Tables\Actions\DeleteAction $action, Organization $record) {
+                    ->before(function (DeleteAction $action, Organization $record) {
                         // Check if organization has any relations
                         $hasUsers = $record->users()->exists();
                         $hasProperties = $record->properties()->exists();
@@ -328,14 +339,11 @@ class OrganizationResource extends Resource
                             
                             // Delete invitations
                             $record->invitations()->delete();
-                            
-                            // Delete super admin audit logs
-                            $record->superAdminAuditLogs()->delete();
                         });
                     })
                     ->successNotificationTitle(__('organizations.notifications.deleted')),
                 
-                Tables\Actions\Action::make('suspend')
+                Action::make('suspend')
                     ->icon('heroicon-o-pause-circle')
                     ->color('warning')
                     ->requiresConfirmation()
@@ -351,7 +359,7 @@ class OrganizationResource extends Resource
                     ->visible(fn (Organization $record) => !$record->isSuspended())
                     ->successNotificationTitle(__('organizations.actions.suspend')),
                 
-                Tables\Actions\Action::make('reactivate')
+                Action::make('reactivate')
                     ->icon('heroicon-o-play-circle')
                     ->color('success')
                     ->requiresConfirmation()
@@ -359,7 +367,7 @@ class OrganizationResource extends Resource
                     ->visible(fn (Organization $record) => $record->isSuspended())
                     ->successNotificationTitle(__('organizations.actions.reactivate')),
                 
-                Tables\Actions\Action::make('impersonate')
+                Action::make('impersonate')
                     ->icon('heroicon-o-user-circle')
                     ->color('info')
                     ->requiresConfirmation()
@@ -421,7 +429,7 @@ class OrganizationResource extends Resource
                     })
                     ->visible(fn (Organization $record) => $record->is_active),
                 
-                Tables\Actions\Action::make('view_analytics')
+                Action::make('view_analytics')
                     ->label(__('organizations.labels.analytics'))
                     ->icon('heroicon-o-chart-bar')
                     ->color('gray')
@@ -430,8 +438,8 @@ class OrganizationResource extends Resource
                     ->tooltip(__('organizations.labels.analytics')),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('bulk_suspend')
+                BulkActionGroup::make([
+                    BulkAction::make('bulk_suspend')
                         ->label(__('organizations.actions.suspend_selected'))
                         ->icon('heroicon-o-pause-circle')
                         ->color('warning')
@@ -468,7 +476,7 @@ class OrganizationResource extends Resource
                         })
                         ->deselectRecordsAfterCompletion(),
                     
-                    Tables\Actions\BulkAction::make('bulk_reactivate')
+                    BulkAction::make('bulk_reactivate')
                         ->label(__('organizations.actions.reactivate_selected'))
                         ->icon('heroicon-o-play-circle')
                         ->color('success')
@@ -498,7 +506,7 @@ class OrganizationResource extends Resource
                         })
                         ->deselectRecordsAfterCompletion(),
                     
-                    Tables\Actions\BulkAction::make('bulk_change_plan')
+                    BulkAction::make('bulk_change_plan')
                         ->label(__('organizations.actions.change_plan'))
                         ->icon('heroicon-o-arrow-path')
                         ->color('info')
@@ -544,7 +552,7 @@ class OrganizationResource extends Resource
                         })
                         ->deselectRecordsAfterCompletion(),
                     
-                    Tables\Actions\ExportBulkAction::make()
+                    ExportBulkAction::make()
                         ->label(__('organizations.actions.export_selected'))
                         ->icon('heroicon-o-arrow-down-tray'),
                 ]),

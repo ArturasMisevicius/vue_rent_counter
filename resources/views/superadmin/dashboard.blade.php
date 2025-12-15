@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-4 py-8" wire:poll.60s>
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-slate-900">{{ __('superadmin.dashboard.title') }}</h1>
         <p class="text-slate-600 mt-2">{{ __('superadmin.dashboard.subtitle') }}</p>
     </div>
 
     {{-- Subscription Statistics --}}
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
         <x-stat-card 
             :title="__('superadmin.dashboard.stats.total_subscriptions')" 
             :value="$totalSubscriptions" 
@@ -37,6 +37,38 @@
             href="{{ route('superadmin.subscriptions.index', ['status' => \App\Enums\SubscriptionStatus::SUSPENDED->value]) }}"
         />
     </div>
+
+    {{-- System Health --}}
+    <x-card class="mb-8" id="system-health">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h2 class="text-xl font-semibold">{{ __('superadmin.dashboard.system_health.title') }}</h2>
+                <p class="text-slate-500 text-sm">{{ __('superadmin.dashboard.system_health.description') }}</p>
+            </div>
+            <form method="POST" action="{{ route('superadmin.dashboard.health-check') }}">
+                @csrf
+                <button type="submit" class="inline-flex items-center px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm font-semibold">
+                    {{ __('superadmin.dashboard.system_health.actions.run_check') }}
+                </button>
+            </form>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            @forelse($systemHealthMetrics as $metric)
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <div class="flex items-center justify-between">
+                        <div class="font-semibold text-slate-900">{{ ucfirst($metric->metric_type) }}</div>
+                        <span class="text-xs font-semibold px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-700">
+                            {{ ucfirst($metric->status) }}
+                        </span>
+                    </div>
+                    <div class="text-xs text-slate-500 mt-2">{{ $metric->checked_at?->diffForHumans() }}</div>
+                </div>
+            @empty
+                <p class="text-slate-500">{{ __('superadmin.dashboard.system_health.empty') }}</p>
+            @endforelse
+        </div>
+    </x-card>
 
     {{-- Organization Statistics --}}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -141,7 +173,7 @@
                         <div class="text-right">
                             <span class="text-sm text-slate-600">{{ __('superadmin.dashboard.expiring_subscriptions.expires') }}</span>
                             <span class="font-medium text-yellow-700">{{ $subscription->expires_at->format('M d, Y') }}</span>
-                            <span class="text-sm text-slate-600 ml-2">({{ $subscription->expires_at->diffForHumans() }})</span>
+                            <span class="text-sm text-slate-600 ml-2">({{ now()->startOfDay()->diffInDays($subscription->expires_at->startOfDay()) }} days)</span>
                         </div>
                     </div>
                     @endforeach
@@ -159,7 +191,7 @@
                 @forelse($topOrganizations as $org)
                 <div class="flex justify-between items-center p-3 bg-slate-50 rounded">
                     <div>
-                        <div class="font-medium">{{ $org->organization_name }}</div>
+                        <div class="font-medium">{{ $org->name }}</div>
                         <div class="text-sm text-slate-600">{{ $org->email }}</div>
                     </div>
                     <div class="text-right">
@@ -173,18 +205,18 @@
             </div>
         </x-card>
 
-        <x-card>
+        <x-card id="recent-activity">
             <h2 class="text-xl font-semibold mb-4">{{ __('superadmin.dashboard.recent_activity.title') }}</h2>
             <div class="space-y-3">
-                @forelse($recentActivity as $admin)
+                @forelse($recentActivity as $activity)
                 <div class="flex justify-between items-center p-3 bg-slate-50 rounded">
                     <div>
-                        <div class="font-medium">{{ $admin->organization_name }}</div>
-                        <div class="text-sm text-slate-600">{{ $admin->email }}</div>
+                        <div class="font-medium">{{ $activity->organization?->name ?? __('superadmin.dashboard.recent_activity.system') }}</div>
+                        <div class="text-sm text-slate-600">{{ $activity->action }}</div>
                     </div>
                     <div class="text-right">
-                        <div class="text-sm text-slate-600">{{ __('superadmin.dashboard.recent_activity.last_activity') }}</div>
-                        <div class="text-sm font-medium">{{ $admin->updated_at->diffForHumans() }}</div>
+                        <div class="text-sm text-slate-600">{{ __('superadmin.dashboard.recent_activity.occurred') }}</div>
+                        <div class="text-sm font-medium">{{ $activity->created_at->diffForHumans() }}</div>
                     </div>
                 </div>
                 @empty
@@ -265,12 +297,12 @@
                         @forelse($organizationList as $organization)
                             <tr class="hover:bg-slate-50">
                                 <td class="px-4 py-3">
-                                    <div class="font-medium text-slate-900">{{ $organization->organization_name }}</div>
+                                    <div class="font-medium text-slate-900">{{ $organization->name }}</div>
                                     <div class="text-sm text-slate-500">{{ $organization->email }}</div>
                                 </td>
                                 <td class="px-4 py-3 text-sm text-slate-700">
-                                    @if($organization->subscription)
-                                        {{ enum_label($organization->subscription->plan_type, \App\Enums\SubscriptionPlanType::class) }}
+                                    @if($organization->plan)
+                                        {{ enum_label($organization->plan, \App\Enums\SubscriptionPlan::class) }}
                                     @else
                                         <span class="text-slate-400">{{ __('superadmin.dashboard.overview.organizations.no_subscription') }}</span>
                                     @endif
@@ -319,7 +351,7 @@
                         <div>
                             <div class="font-medium text-slate-900">{{ $property->address }}</div>
                             <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.properties.building') }}: {{ $property->building?->display_name ?? '—' }}</div>
-                            <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.properties.organization') }}: {{ $org->organization_name ?? __('superadmin.dashboard.overview.resources.properties.unknown_org') }}</div>
+                            <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.properties.organization') }}: {{ $org->name ?? __('superadmin.dashboard.overview.resources.properties.unknown_org') }}</div>
                         </div>
                         @if($org)
                             <a href="{{ route('superadmin.organizations.show', $org->id) }}" class="text-xs font-semibold text-blue-600 hover:text-blue-800">{{ __('superadmin.dashboard.overview.organizations.headers.manage') }}</a>
@@ -341,7 +373,7 @@
                         <div>
                             <div class="font-medium text-slate-900">{{ $building->display_name }}</div>
                             <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.buildings.address') }}: {{ $building->address }}</div>
-                            <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.buildings.organization') }}: {{ $org->organization_name ?? __('superadmin.dashboard.overview.resources.properties.unknown_org') }}</div>
+                            <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.buildings.organization') }}: {{ $org->name ?? __('superadmin.dashboard.overview.resources.properties.unknown_org') }}</div>
                         </div>
                         @if($org)
                             <a href="{{ route('superadmin.organizations.show', $org->id) }}" class="text-xs font-semibold text-blue-600 hover:text-blue-800">{{ __('superadmin.dashboard.overview.organizations.headers.manage') }}</a>
@@ -364,7 +396,7 @@
                             <div class="font-medium text-slate-900">{{ $tenant->name }}</div>
                             <div class="text-xs text-slate-500">{{ $tenant->email }}</div>
                             <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.tenants.property') }}: {{ $tenant->property?->address ?? __('superadmin.dashboard.overview.resources.tenants.not_assigned') }}</div>
-                            <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.tenants.organization') }}: {{ $org->organization_name ?? __('superadmin.dashboard.overview.resources.properties.unknown_org') }}</div>
+                            <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.tenants.organization') }}: {{ $org->name ?? __('superadmin.dashboard.overview.resources.properties.unknown_org') }}</div>
                         </div>
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $tenant->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">{{ $tenant->is_active ? __('superadmin.dashboard.overview.resources.tenants.status_active') : __('superadmin.dashboard.overview.resources.tenants.status_inactive') }}</span>
                     </div>
@@ -385,7 +417,7 @@
                             <div class="font-medium text-slate-900">{{ $invoice->tenant?->name ?? __('tenants.labels.name') }}</div>
                             <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.invoices.amount') }}: {{ number_format($invoice->total_amount, 2) }}</div>
                             <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.invoices.status') }}: {{ enum_label($invoice->status, \App\Enums\InvoiceStatus::class) }}</div>
-                            <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.invoices.organization') }}: {{ $org->organization_name ?? __('superadmin.dashboard.overview.resources.properties.unknown_org') }}</div>
+                            <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.invoices.organization') }}: {{ $org->name ?? __('superadmin.dashboard.overview.resources.properties.unknown_org') }}</div>
                         </div>
                         @if($org)
                             <a href="{{ route('superadmin.organizations.show', $org->id) }}" class="text-xs font-semibold text-blue-600 hover:text-blue-800">{{ __('superadmin.dashboard.overview.resources.invoices.manage') }}</a>
@@ -398,6 +430,12 @@
         </div>
     </x-card>
 
+    {{-- Analytics --}}
+    <x-card class="mb-8" id="analytics">
+        <h2 class="text-xl font-semibold mb-2">{{ __('superadmin.dashboard.analytics.title') }}</h2>
+        <p class="text-slate-500">{{ __('superadmin.dashboard.analytics.empty') }}</p>
+    </x-card>
+
     {{-- Quick Actions --}}
     <x-card>
         <h2 class="text-xl font-semibold mb-4">{{ __('superadmin.dashboard.quick_actions.title') }}</h2>
@@ -405,6 +443,14 @@
             <a href="{{ route('superadmin.organizations.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                 <span class="mr-2">➕</span>
                 {{ __('superadmin.dashboard.quick_actions.create_organization') }}
+            </a>
+            <a href="{{ route('superadmin.subscriptions.index') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                <span class="mr-2">🧾</span>
+                {{ __('superadmin.dashboard.quick_actions.create_subscription') }}
+            </a>
+            <a href="#recent-activity" class="inline-flex items-center px-4 py-2 bg-slate-600 text-white rounded hover:bg-slate-700">
+                <span class="mr-2">🕒</span>
+                {{ __('superadmin.dashboard.quick_actions.view_all_activity') }}
             </a>
             <a href="{{ route('superadmin.organizations.index') }}" class="inline-flex items-center px-4 py-2 bg-slate-600 text-white rounded hover:bg-slate-700">
                 <span class="mr-2">🏢</span>

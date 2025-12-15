@@ -21,28 +21,36 @@ class OrganizationFactory extends Factory
 
         return [
             'name' => $name,
-            'slug' => null,
-            'domain' => fn (array $attributes) => Str::slug($attributes['name']) . '.example.com',
+            'slug' => fn (array $attributes) => Str::slug((string) ($attributes['name'] ?? $name)),
+            'domain' => fn (array $attributes) => Str::slug((string) ($attributes['name'] ?? $name)) . '.example.com',
             'email' => fake()->unique()->companyEmail(),
             'phone' => fake()->phoneNumber(),
             'is_active' => true,
             'suspended_at' => null,
             'suspension_reason' => null,
             'plan' => $plan,
-            'max_properties' => $plan === 'enterprise' ? 999 : ($plan === 'professional' ? 250 : 100),
-            'max_users' => $plan === 'enterprise' ? 500 : ($plan === 'professional' ? 150 : 50),
+            'max_properties' => fn (array $attributes) => match ($attributes['plan'] ?? $plan) {
+                'enterprise' => 999,
+                'professional' => 250,
+                default => 100,
+            },
+            'max_users' => fn (array $attributes) => match ($attributes['plan'] ?? $plan) {
+                'enterprise' => 500,
+                'professional' => 150,
+                default => 50,
+            },
             'trial_ends_at' => now()->addDays(14),
             'subscription_ends_at' => now()->addMonths(6),
-            'settings' => [
-                'invoice_prefix' => strtoupper(Str::substr($name, 0, 3)),
+            'settings' => fn (array $attributes) => [
+                'invoice_prefix' => strtoupper(Str::substr((string) ($attributes['name'] ?? $name), 0, 3)),
                 'invoice_number_start' => fake()->numberBetween(1000, 5000),
                 'enable_notifications' => true,
             ],
-            'features' => [
-                'advanced_reporting' => $plan !== 'basic',
-                'api_access' => $plan === 'enterprise',
-                'custom_branding' => $plan === 'enterprise',
-                'audit_logs' => $plan !== 'basic',
+            'features' => fn (array $attributes) => [
+                'advanced_reporting' => ($attributes['plan'] ?? $plan) !== 'basic',
+                'api_access' => ($attributes['plan'] ?? $plan) === 'enterprise',
+                'custom_branding' => ($attributes['plan'] ?? $plan) === 'enterprise',
+                'audit_logs' => ($attributes['plan'] ?? $plan) !== 'basic',
             ],
             'timezone' => 'Europe/Vilnius',
             'locale' => 'lt',

@@ -78,6 +78,18 @@ final readonly class SubscriptionCheckResult
     }
 
     /**
+     * Create a result that allows the request with an error message.
+     */
+    public static function allowWithError(string $message): self
+    {
+        return new self(
+            shouldProceed: true,
+            message: $message,
+            messageType: 'error'
+        );
+    }
+
+    /**
      * Create a result that blocks the request with an error message.
      */
     public static function block(string $message, string $redirectRoute): self

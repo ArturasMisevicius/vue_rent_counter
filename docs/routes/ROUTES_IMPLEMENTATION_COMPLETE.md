@@ -129,14 +129,14 @@
 - Profile - Управление своим профилем
 - Providers - Просмотр провайдеров (read-only)
 - Tariffs - Просмотр тарифов (read-only)
-- Buildings - Полное управление зданиями (CRUD + расчет gyvatukas)
+- Buildings - Полное управление зданиями (CRUD + расчет hot water circulation)
 - Properties - Полное управление недвижимостью (CRUD)
 - Tenants - Управление арендаторами (CRUD + отправка счетов)
 - Meters - Управление счетчиками (CRUD + pending readings)
 - Meter Readings - Ввод и управление показаниями (CRUD + bulk + audit)
 - Invoices - Управление счетами (CRUD + finalize + mark paid + PDF + bulk generation)
 - Invoice Items - Управление позициями счетов
-- Reports - Все отчеты (потребление, доходы, неоплаченные, gyvatukas)
+- Reports - Все отчеты (потребление, доходы, неоплаченные, hot water circulation)
 - Audit - Ограниченный доступ к аудиту показаний счетчиков
 
 ### TENANT (Арендатор)
@@ -180,7 +180,7 @@ Route::middleware(['auth', 'role:tenant'])->group(...)
 
 ### BuildingController
 - CRUD операции для зданий
-- `calculateGyvatukas()` - Расчет летнего среднего gyvatukas
+- `calculatehot water circulation()` - Расчет летнего среднего hot water circulation
 - `properties()` - Список квартир в здании
 
 ### PropertyController
@@ -208,7 +208,7 @@ Route::middleware(['auth', 'role:tenant'])->group(...)
 - `revenue()` - Отчет по доходам
 - `outstanding()` - Неоплаченные счета
 - `meterReadings()` - Отчет по показаниям
-- `gyvatukas()` - Отчет по циркуляционным сборам
+- `hot water circulation()` - Отчет по циркуляционным сборам
 - `export()` - Экспорт отчетов (будущая реализация)
 
 ---
@@ -224,7 +224,7 @@ Route::middleware(['auth', 'role:tenant'])->group(...)
 - Валидация показаний
 - Получение предыдущих показаний
 
-### GyvatukasCalculator
+### hot water circulationCalculator
 Используется в `BuildingController`:
 - Расчет летнего среднего для зданий
 
@@ -395,4 +395,4 @@ php artisan test --coverage
 
 ## Заключение
 
-Создана полная структура маршрутов для системы Vilnius Utilities Billing с правильным разделением доступа по ролям. Все контроллеры интегрированы с существующими сервисами (BillingService, MeterReadingService, GyvatukasCalculator, TariffResolver). Система готова к дальнейшей разработке UI и добавлению дополнительных функций.
+Создана полная структура маршрутов для системы Vilnius Utilities Billing с правильным разделением доступа по ролям. Все контроллеры интегрированы с существующими сервисами (BillingService, MeterReadingService, hot water circulationCalculator, TariffResolver). Система готова к дальнейшей разработке UI и добавлению дополнительных функций.

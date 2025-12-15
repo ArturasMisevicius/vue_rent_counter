@@ -49,7 +49,7 @@ PHPUnit: ^11.5
 - **Service Layer Pattern:**
   - `BillingService` - генерация инвойсов, расчеты
   - `TariffResolver` - выбор тарифов по датам
-  - `GyvatukasCalculator` - расчет циркуляционных сборов
+  - `hot water circulationCalculator` - расчет циркуляционных сборов
   - `AccountManagementService` - управление пользователями
   - `SubscriptionService` - управление подписками
   - `InputSanitizer` - санитизация входных данных
@@ -115,7 +115,7 @@ class BillingService {
 - Поддержка множественных типов счетчиков (электричество, вода, отопление)
 - Расчет по зонам (день/ночь для электричества)
 - Снапшот тарифов в invoice items (иммутабельность)
-- Расчет Gyvatukas (циркуляционные сборы для горячей воды)
+- Расчет hot water circulation (циркуляционные сборы для горячей воды)
 
 **Тесты:**
 - ✅ `BillingServiceTest` - 7+ тестов

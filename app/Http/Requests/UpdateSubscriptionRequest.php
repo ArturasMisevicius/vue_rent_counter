@@ -27,9 +27,12 @@ class UpdateSubscriptionRequest extends FormRequest
         return [
             'plan_type' => ['required', Rule::in(SubscriptionPlanType::values())],
             'status' => ['required', Rule::in(SubscriptionStatus::values())],
+            'starts_at' => ['sometimes', 'date'],
             'expires_at' => ['required', 'date'],
             'max_properties' => ['required', 'integer', 'min:1'],
             'max_tenants' => ['required', 'integer', 'min:1'],
+            'auto_renew' => ['sometimes', 'boolean'],
+            'renewal_period' => ['sometimes', Rule::in(['monthly', 'quarterly', 'annually'])],
         ];
     }
 

@@ -123,7 +123,8 @@
                             </a>
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                            <span class="capitalize">{{ enum_label($meter->type) }}</span>
+                            {{ $meter->getServiceDisplayName() }}
+                            <span class="text-xs text-slate-400">({{ $meter->getUnitOfMeasurement() }})</span>
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                             {{ $meter->installation_date->format('M d, Y') }}

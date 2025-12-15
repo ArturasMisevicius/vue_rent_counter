@@ -216,14 +216,14 @@ if ($config->distribution_method->requiresAreaData()) {
 }
 ```
 
-### GyvatukasCalculator Service
-The enum is used in the `GyvatukasCalculator` service for circulation cost distribution:
+### hot water circulationCalculator Service
+The enum is used in the `hot water circulationCalculator` service for circulation cost distribution:
 
 ```php
-use App\Services\GyvatukasCalculator;
+use App\Services\hot water circulationCalculator;
 use App\Enums\DistributionMethod;
 
-$calculator = app(GyvatukasCalculator::class);
+$calculator = app(hot water circulationCalculator::class);
 
 // Equal distribution
 $costs = $calculator->distributeCirculationCost(
@@ -338,7 +338,7 @@ protected function casts(): array
 ## Backward Compatibility
 
 ### Legacy Support
-The enum maintains full backward compatibility with the existing gyvatukas system:
+The enum maintains full backward compatibility with the existing hot water circulation system:
 
 **Original Methods (Preserved):**
 - `EQUAL` - Existed in original implementation
@@ -433,7 +433,7 @@ php artisan test --filter="DistributionMethod.*area data"
 Distribution calculations are cached for 5 minutes:
 
 ```php
-// In GyvatukasCalculator
+// In hot water circulationCalculator
 $cacheKey = $this->buildDistributionCacheKey($building->id, $method, $totalCost, $options);
 
 return $this->cache->remember(
@@ -456,7 +456,7 @@ $properties = $this->buildingRepository->getBuildingPropertiesForDistribution(
 
 ## Related Documentation
 
-- [GyvatukasCalculator Service](../services/gyvatukas-calculator.md)
+- [hot water circulationCalculator Service](../services/hot water circulation-calculator.md)
 - [ServiceConfiguration Model](../models/SERVICE_CONFIGURATION.md)
 - [UniversalBillingCalculator Service](../services/UNIVERSAL_BILLING_CALCULATOR.md)
 - [Distribution Method Usage Guide](../guides/DISTRIBUTION_METHOD_USAGE_GUIDE.md)

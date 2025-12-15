@@ -31,7 +31,7 @@
 
 ### Audit Trails
 - ✅ Meter reading audits with change tracking
-- ✅ Gyvatukas calculation audits
+- ✅ hot water circulation calculation audits
 - ✅ Invoice generation audits with performance metrics
 - ✅ Organization activity logs
 
@@ -89,11 +89,11 @@ $provider = Cache::remember(
     fn() => Provider::where('service_type', $serviceType)->first()
 );
 
-// Building gyvatukas average (seasonal)
+// Building hot water circulation average (seasonal)
 $average = Cache::remember(
-    "building.{$buildingId}.gyvatukas_average",
+    "building.{$buildingId}.hot water circulation_average",
     now()->addMonths(6),
-    fn() => $building->gyvatukas_summer_average
+    fn() => $building->hot water circulation_summer_average
 );
 ```
 

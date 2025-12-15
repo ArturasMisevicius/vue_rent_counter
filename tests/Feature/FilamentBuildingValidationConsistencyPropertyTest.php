@@ -60,14 +60,10 @@ test('Filament BuildingResource applies same validation rules as StoreBuildingRe
     ]);
     
     // Try to create - this will trigger validation
-    try {
-        $component->call('create');
-        $filamentPasses = true;
-        $filamentErrors = [];
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $filamentPasses = false;
-        $filamentErrors = $e->errors();
-    }
+    $component->call('create');
+
+    $filamentErrors = $component->instance()->getErrorBag()->toArray();
+    $filamentPasses = empty($filamentErrors);
     
     // Property: Both should have the same validation outcome
     expect($filamentPasses)->toBe($formRequestPasses, 
@@ -80,7 +76,10 @@ test('Filament BuildingResource applies same validation rules as StoreBuildingRe
     // If both failed, verify they failed for similar reasons
     if (!$formRequestPasses && !$filamentPasses) {
         $formRequestErrorFields = array_keys($formRequestErrors);
-        $filamentErrorFields = array_keys($filamentErrors);
+        $filamentErrorFields = array_map(
+            fn (string $field): string => str_replace('data.', '', $field),
+            array_keys($filamentErrors),
+        );
         
         // Both should have errors on the same fields
         expect($filamentErrorFields)->toEqualCanonicalizing($formRequestErrorFields,
@@ -181,12 +180,8 @@ test('Filament BuildingResource rejects invalid data consistently with StoreBuil
     
     $component->fillForm($formData);
     
-    try {
-        $component->call('create');
-        $filamentPasses = true;
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $filamentPasses = false;
-    }
+    $component->call('create');
+    $filamentPasses = $component->instance()->getErrorBag()->isEmpty();
     
     // Property: Both should reject the invalid data
     expect($formRequestPasses)->toBeFalse("StoreBuildingRequest should reject invalid data (type: {$invalidationType})");
@@ -236,7 +231,7 @@ test('Filament BuildingResource applies same validation rules as UpdateBuildingR
     $request->setRedirector(app('redirect'));
     $request->replace($testData);
     
-    $validator = Validator::make($testData, $request->rules(), $request->messages());
+    $validator = Validator::make(array_merge($testData, ['tenant_id' => $tenantId]), $request->rules(), $request->messages());
     
     $formRequestPasses = !$validator->fails();
     $formRequestErrors = $validator->errors()->toArray();
@@ -252,14 +247,10 @@ test('Filament BuildingResource applies same validation rules as UpdateBuildingR
     ]);
     
     // Try to save - this will trigger validation
-    try {
-        $component->call('save');
-        $filamentPasses = true;
-        $filamentErrors = [];
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $filamentPasses = false;
-        $filamentErrors = $e->errors();
-    }
+    $component->call('save');
+
+    $filamentErrors = $component->instance()->getErrorBag()->toArray();
+    $filamentPasses = empty($filamentErrors);
     
     // Property: Both should have the same validation outcome
     expect($filamentPasses)->toBe($formRequestPasses,
@@ -272,7 +263,10 @@ test('Filament BuildingResource applies same validation rules as UpdateBuildingR
     // If both failed, verify they failed for similar reasons
     if (!$formRequestPasses && !$filamentPasses) {
         $formRequestErrorFields = array_keys($formRequestErrors);
-        $filamentErrorFields = array_keys($filamentErrors);
+        $filamentErrorFields = array_map(
+            fn (string $field): string => str_replace('data.', '', $field),
+            array_keys($filamentErrors),
+        );
         
         // Both should have errors on the same fields
         expect($filamentErrorFields)->toEqualCanonicalizing($formRequestErrorFields,
@@ -358,7 +352,7 @@ test('Filament BuildingResource rejects invalid updates consistently with Update
     $request->setRedirector(app('redirect'));
     $request->replace($testData);
     
-    $validator = Validator::make($testData, $request->rules(), $request->messages());
+    $validator = Validator::make(array_merge($testData, ['tenant_id' => $tenantId]), $request->rules(), $request->messages());
     
     $formRequestPasses = !$validator->fails();
     
@@ -378,12 +372,8 @@ test('Filament BuildingResource rejects invalid updates consistently with Update
     
     $component->fillForm($formData);
     
-    try {
-        $component->call('save');
-        $filamentPasses = true;
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $filamentPasses = false;
-    }
+    $component->call('save');
+    $filamentPasses = $component->instance()->getErrorBag()->isEmpty();
     
     // Property: Both should reject the invalid data
     expect($formRequestPasses)->toBeFalse("UpdateBuildingRequest should reject invalid data (type: {$invalidationType})");

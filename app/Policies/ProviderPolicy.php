@@ -13,13 +13,7 @@ class ProviderPolicy
      */
     public function viewAny(User $user): bool
     {
-        // Providers are readable by all authenticated roles
-        return in_array($user->role, [
-            UserRole::SUPERADMIN,
-            UserRole::ADMIN,
-            UserRole::MANAGER,
-            UserRole::TENANT,
-        ], true);
+        return in_array($user->role, [UserRole::SUPERADMIN, UserRole::ADMIN], true);
     }
 
     /**
@@ -27,13 +21,7 @@ class ProviderPolicy
      */
     public function view(User $user, Provider $provider): bool
     {
-        // Providers are readable by all authenticated roles
-        return in_array($user->role, [
-            UserRole::SUPERADMIN,
-            UserRole::ADMIN,
-            UserRole::MANAGER,
-            UserRole::TENANT,
-        ], true);
+        return in_array($user->role, [UserRole::SUPERADMIN, UserRole::ADMIN], true);
     }
 
     /**
@@ -41,8 +29,7 @@ class ProviderPolicy
      */
     public function create(User $user): bool
     {
-        // Only admins can create providers
-        return $user->role === UserRole::ADMIN;
+        return in_array($user->role, [UserRole::SUPERADMIN, UserRole::ADMIN], true);
     }
 
     /**
@@ -50,8 +37,7 @@ class ProviderPolicy
      */
     public function update(User $user, Provider $provider): bool
     {
-        // Only admins can update providers
-        return $user->role === UserRole::ADMIN;
+        return in_array($user->role, [UserRole::SUPERADMIN, UserRole::ADMIN], true);
     }
 
     /**
@@ -59,8 +45,7 @@ class ProviderPolicy
      */
     public function delete(User $user, Provider $provider): bool
     {
-        // Only admins can delete providers
-        return $user->role === UserRole::ADMIN;
+        return in_array($user->role, [UserRole::SUPERADMIN, UserRole::ADMIN], true);
     }
 
     /**
@@ -68,8 +53,7 @@ class ProviderPolicy
      */
     public function restore(User $user, Provider $provider): bool
     {
-        // Only admins can restore providers
-        return $user->role === UserRole::ADMIN;
+        return in_array($user->role, [UserRole::SUPERADMIN, UserRole::ADMIN], true);
     }
 
     /**
@@ -77,7 +61,6 @@ class ProviderPolicy
      */
     public function forceDelete(User $user, Provider $provider): bool
     {
-        // Only admins can force delete providers
-        return $user->role === UserRole::ADMIN;
+        return $user->role === UserRole::SUPERADMIN;
     }
 }

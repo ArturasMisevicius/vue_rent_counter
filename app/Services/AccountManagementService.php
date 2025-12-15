@@ -5,14 +5,15 @@ namespace App\Services;
 use App\Enums\UserRole;
 use App\Exceptions\CannotDeleteWithDependenciesException;
 use App\Exceptions\InvalidPropertyAssignmentException;
+use App\Models\Organization;
 use App\Models\Property;
 use App\Models\User;
 use App\Notifications\TenantReassignedEmail;
 use App\Notifications\WelcomeEmail;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AccountManagementService
@@ -52,23 +53,37 @@ class AccountManagementService
         }
 
         return DB::transaction(function () use ($data, $superadmin, $hashedPassword, $subscriptionData) {
-            // Generate unique tenant_id with caching
-            $tenantId = $this->generateUniqueTenantId();
+            $slugBase = Str::slug($data['organization_name']);
+            $slug = ($slugBase !== '' ? $slugBase : 'organization') . '-' . Str::lower(Str::random(8));
 
-            // Create admin user
+            $organization = Organization::create([
+                'name' => $data['organization_name'],
+                'slug' => $slug,
+                'email' => $data['email'],
+                'domain' => null,
+                'is_active' => true,
+                'plan' => $subscriptionData['plan_type'] ?? 'basic',
+                'created_by' => $superadmin->id,
+                'created_by_admin_id' => $superadmin->id,
+                'last_activity_at' => now(),
+            ]);
+
+            // Create admin user (tenant_id == organization id)
             $admin = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => $hashedPassword,
                 'role' => UserRole::ADMIN,
-                'tenant_id' => $tenantId,
+                'tenant_id' => $organization->id,
                 'organization_name' => $data['organization_name'],
                 'is_active' => true,
             ]);
 
+            $subscription = null;
+
             // Create associated subscription if provided
             if ($subscriptionData) {
-                $this->subscriptionService->createSubscription(
+                $subscription = $this->subscriptionService->createSubscription(
                     $admin,
                     $subscriptionData['plan_type'],
                     $subscriptionData['expires_at']
@@ -78,10 +93,11 @@ class AccountManagementService
             // Log the action
             $this->logAccountAction($admin, 'created', $superadmin);
 
-            // OPTIMIZATION: Invalidate tenant ID cache after creation
-            Cache::forget('max_tenant_id');
+            if ($subscription) {
+                $admin->setRelation('subscription', $subscription);
+            }
 
-            return $admin->fresh(['subscription']);
+            return $admin;
         });
     }
 
@@ -102,8 +118,14 @@ class AccountManagementService
         // OPTIMIZATION: Validate BEFORE transaction
         $this->validateTenantAccountData($data);
 
+        // Enforce subscription limits before tenant creation (Requirements: 2.5)
+        // Accounts may exist without an attached subscription record (e.g. onboarding/trial).
+        // Route-level middleware handles access restriction, but service operations should be
+        // able to proceed in those scenarios.
+        $this->subscriptionService->enforceSubscriptionLimits($admin, 'tenant', requireSubscription: false);
+
         // OPTIMIZATION: Fetch property with select() to limit columns
-        $property = Property::select('id', 'tenant_id', 'name', 'address')
+        $property = Property::select('id', 'tenant_id', 'address')
             ->findOrFail($data['property_id']);
 
         // Validate property ownership
@@ -356,24 +378,6 @@ class AccountManagementService
         if ($validator->fails()) {
             throw new ValidationException($validator);
         }
-    }
-
-    /**
-     * Generate a unique tenant_id.
-     *
-     * OPTIMIZATION: Uses caching to reduce database queries
-     *
-     * @return int A unique tenant_id
-     */
-    protected function generateUniqueTenantId(): int
-    {
-        // Use random ID with collision check for security
-        // Prevents tenant enumeration and exposes no information about tenant count
-        do {
-            $tenantId = random_int(100000, 999999);
-        } while (User::where('tenant_id', $tenantId)->exists());
-
-        return $tenantId;
     }
 
     /**

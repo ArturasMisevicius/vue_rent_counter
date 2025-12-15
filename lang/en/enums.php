@@ -18,10 +18,6 @@ return [
         'equal' => 'Equal',
         'equal_description' => 'Equal Description',
     ],
-    'gyvatukas_calculation_type' => [
-        'summer' => 'Summer',
-        'winter' => 'Winter',
-    ],
     'input_method' => [
         'api_integration_description' => 'Api Integration Description',
         'csv_import_description' => 'Csv Import Description',
@@ -42,6 +38,15 @@ return [
         'electricity' => 'Electricity',
         'heating' => 'Heating',
         'water' => 'Water',
+    ],
+    'tariff_type' => [
+        'flat' => 'Flat Rate',
+        'time_of_use' => 'Time of Use',
+    ],
+    'tariff_zone' => [
+        'day' => 'Day Rate',
+        'night' => 'Night Rate',
+        'weekend' => 'Weekend Rate',
     ],
     'super_admin_audit_action' => [
         'backup_created' => 'Backup Created',
@@ -72,6 +77,7 @@ return [
         'suspended' => 'Suspended',
     ],
     'user_role' => [
+        'superadmin' => 'Super Admin',
         'admin' => 'Admin',
         'manager' => 'Manager',
         'tenant' => 'Tenant',

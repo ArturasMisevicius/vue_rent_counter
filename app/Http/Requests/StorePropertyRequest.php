@@ -3,66 +3,44 @@
 namespace App\Http\Requests;
 
 use App\Enums\PropertyType;
+use App\Models\Property;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StorePropertyRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return true; // Authorization handled by policy
+        return $this->user()->can('create', Property::class);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            'tenant_id' => ['required', 'integer'],
-            'address' => ['required', 'string', 'max:255'],
+            'address' => ['required', 'string', 'max:500'],
             'type' => ['required', Rule::enum(PropertyType::class)],
-            'area_sqm' => ['required', 'numeric', 'min:0', 'max:10000'],
-            'building_id' => ['nullable', 'exists:buildings,id'],
+            'area_sqm' => ['required', 'numeric', 'min:0', 'max:999999.99'],
+            'unit_number' => ['nullable', 'string', 'max:50'],
+            'building_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('buildings', 'id')->where('tenant_id', $this->user()->tenant_id),
+            ],
         ];
     }
 
-    /**
-     * Get custom messages for validator errors.
-     *
-     * @return array<string, string>
-     */
     public function messages(): array
     {
         return [
-            'tenant_id.required' => __('properties.validation.tenant_id.required'),
-            'tenant_id.integer' => __('properties.validation.tenant_id.integer'),
-            'address.required' => __('properties.validation.address.required'),
-            'address.max' => __('properties.validation.address.max'),
-            'address.string' => __('properties.validation.address.string'),
-            'type.required' => __('properties.validation.type.required'),
-            'type.enum' => __('properties.validation.type.enum'),
-            'area_sqm.required' => __('properties.validation.area_sqm.required'),
-            'area_sqm.numeric' => __('properties.validation.area_sqm.numeric'),
-            'area_sqm.min' => __('properties.validation.area_sqm.min'),
-            'area_sqm.max' => __('properties.validation.area_sqm.max'),
-            'building_id.exists' => __('properties.validation.building_id.exists'),
+            'building_id.exists' => 'The selected building must belong to your organization.',
         ];
     }
 
-    /**
-     * Prepare the data for validation.
-     */
-    protected function prepareForValidation(): void
+    public function attributes(): array
     {
-        // Automatically set tenant_id from authenticated user
-        $this->merge([
-            'tenant_id' => auth()->user()->tenant_id,
-        ]);
+        return [
+            'area_sqm' => 'area (m²)',
+            'unit_number' => 'unit number',
+        ];
     }
 }

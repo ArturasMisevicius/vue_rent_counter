@@ -13,8 +13,6 @@ return [
     'building' => [
         'created' => 'Created',
         'deleted' => 'Deleted',
-        'gyvatukas' => 'Gyvatukas',
-        'gyvatukas_summer' => 'Gyvatukas Summer',
         'updated' => 'Updated',
     ],
     'invoice' => [

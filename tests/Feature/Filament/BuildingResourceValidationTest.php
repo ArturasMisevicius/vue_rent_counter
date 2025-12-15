@@ -99,14 +99,14 @@ describe('Address Field Validation', function () {
         expect($addressField->isRequired())->toBeTrue();
     });
 
-    test('address field has max length of 255', function () {
+    test('address field has max length of 500', function () {
         $schema = BuildingResource::form(Schema::make());
         $components = $schema->getComponents();
         $addressField = collect($components)->first(fn ($c) => $c->getName() === 'address');
 
         $rules = $addressField->getValidationRules();
         
-        expect($rules)->toContain('max:255');
+        expect($rules)->toContain('max:500');
     });
 
     test('address field spans full width', function () {
@@ -305,7 +305,7 @@ describe('Edge Cases', function () {
 
     test('building can be created with maximum length strings', function () {
         $longName = str_repeat('A', 255);
-        $longAddress = str_repeat('B', 255);
+        $longAddress = str_repeat('B', 500);
 
         $building = Building::factory()->create([
             'tenant_id' => $this->admin->tenant_id,
@@ -315,7 +315,7 @@ describe('Edge Cases', function () {
         ]);
 
         expect($building->name)->toHaveLength(255)
-            ->and($building->address)->toHaveLength(255);
+            ->and($building->address)->toHaveLength(500);
     });
 
     test('building preserves exact input formatting', function () {

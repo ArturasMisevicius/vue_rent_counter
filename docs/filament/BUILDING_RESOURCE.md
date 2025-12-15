@@ -84,8 +84,8 @@ Forms\Components\TextInput::make('total_apartments')
 ```
 
 - **Validation**: Required, numeric, integer, 1-1000 range
-- **Purpose**: Tracks building capacity for gyvatukas calculations
-- **Business Rule**: Used by `GyvatukasCalculator` for circulation fee distribution
+- **Purpose**: Tracks building capacity for hot water circulation calculations
+- **Business Rule**: Used by `hot water circulationCalculator` for circulation fee distribution
 
 ### 3. Table Configuration
 
@@ -503,7 +503,7 @@ Validation messages are loaded from `lang/{locale}/buildings.php` under the `val
 
 ## Related Documentation
 
-- [Building Model](../../app/Models/Building.php) - Eloquent model with gyvatukas calculations
+- [Building Model](../../app/Models/Building.php) - Eloquent model with hot water circulation calculations
 - [BuildingPolicy](../../app/Policies/BuildingPolicy.php) - Authorization rules
 - [PropertiesRelationManager](./PROPERTIES_RELATION_MANAGER.md) - Managing building properties
 - [HasTranslatedValidation Trait](../../app/Filament/Concerns/HasTranslatedValidation.php) - Validation message loading
@@ -527,7 +527,7 @@ Validation messages are loaded from `lang/{locale}/buildings.php` under the `val
 
 - [ ] Add bulk export action for buildings
 - [ ] Implement building archival (soft delete UI)
-- [ ] Add gyvatukas calculation dashboard widget
+- [ ] Add hot water circulation calculation dashboard widget
 - [ ] Implement building comparison reports
 - [ ] Add building photo upload capability
 - [ ] Implement building document management

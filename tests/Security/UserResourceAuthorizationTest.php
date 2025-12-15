@@ -6,8 +6,9 @@ use App\Enums\UserRole;
 use App\Filament\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-uses(RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 describe('UserResource Authorization Security', function () {
     test('tenant users cannot access user management', function () {
@@ -23,17 +24,17 @@ describe('UserResource Authorization Security', function () {
         expect(UserResource::shouldRegisterNavigation())->toBeFalse();
     });
 
-    test('manager users can access user management', function () {
+    test('manager users cannot access user management', function () {
         $manager = User::factory()->create(['role' => UserRole::MANAGER]);
         $user = User::factory()->create();
         
         $this->actingAs($manager);
         
-        expect(UserResource::canViewAny())->toBeTrue();
-        expect(UserResource::canCreate())->toBeTrue();
-        expect(UserResource::canEdit($user))->toBeTrue();
-        expect(UserResource::canDelete($user))->toBeTrue();
-        expect(UserResource::shouldRegisterNavigation())->toBeTrue();
+        expect(UserResource::canViewAny())->toBeFalse();
+        expect(UserResource::canCreate())->toBeFalse();
+        expect(UserResource::canEdit($user))->toBeFalse();
+        expect(UserResource::canDelete($user))->toBeFalse();
+        expect(UserResource::shouldRegisterNavigation())->toBeFalse();
     });
 
     test('admin users can access user management', function () {
@@ -101,7 +102,7 @@ describe('UserResource Authorization Security', function () {
     test('unauthenticated users cannot access user management', function () {
         $response = $this->get('/admin/users');
         
-        $response->assertRedirect('/login');
+        $response->assertRedirect('/admin/login');
     });
 
     test('authenticated but unauthorized users cannot access user management', function () {

@@ -15,6 +15,10 @@
         {{ __('app.accessibility.skip_to_content') }}
     </a>
     <div id="app">
+        @if(app(\App\Services\ImpersonationService::class)->isImpersonating())
+            <x-impersonation-banner :impersonationService="app(\App\Services\ImpersonationService::class)" />
+        @endif
+
         <!-- Navigation -->
         <nav class="sticky top-0 z-40 border-b border-white/40 bg-white/80 backdrop-blur-xl shadow-[0_10px_50px_rgba(15,23,42,0.08)]" x-data="{ mobileMenuOpen: false }">
             <div class="absolute inset-0 bg-gradient-to-r from-indigo-600/15 via-sky-500/10 to-indigo-500/15"></div>

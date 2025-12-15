@@ -11,12 +11,13 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use BackedEnum;
+use UnitEnum;
 
 class SubscriptionRenewalResource extends Resource
 {
     protected static ?string $model = SubscriptionRenewal::class;
 
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-arrow-path';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-arrow-path';
 
     protected static ?string $navigationLabel = 'Renewal History';
 
@@ -24,10 +25,7 @@ class SubscriptionRenewalResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Subscription Renewals';
 
-    public static function getNavigationGroup(): ?string
-    {
-        return __('app.nav_groups.system_management');
-    }
+    protected static string|UnitEnum|null $navigationGroup = 'System Management';
 
     protected static ?int $navigationSort = 4;
 

@@ -122,7 +122,6 @@ class TestGenerator
         $services = [
             'App\\Services\\BillingService',
             'App\\Services\\TariffResolver',
-            'App\\Services\\GyvatukasCalculator',
             'App\\Services\\SubscriptionService',
             'App\\Services\\AccountManagementService',
             'App\\Services\\TenantContext',

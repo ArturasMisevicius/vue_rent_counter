@@ -30,7 +30,7 @@ test('subscription can be renewed', function () {
     $subscription->renew($newExpiry);
     
     expect($subscription->fresh()->expires_at->toDateString())->toBe($newExpiry->toDateString());
-    expect($subscription->fresh()->status)->toBe(SubscriptionStatus::ACTIVE->value);
+    expect($subscription->fresh()->status)->toBe(SubscriptionStatus::ACTIVE);
 });
 
 test('subscription can be suspended', function () {
@@ -40,7 +40,7 @@ test('subscription can be suspended', function () {
     
     $subscription->suspend();
     
-    expect($subscription->fresh()->status)->toBe(SubscriptionStatus::SUSPENDED->value);
+    expect($subscription->fresh()->status)->toBe(SubscriptionStatus::SUSPENDED);
 });
 
 test('subscription can be activated', function () {
@@ -50,7 +50,7 @@ test('subscription can be activated', function () {
     
     $subscription->activate();
     
-    expect($subscription->fresh()->status)->toBe(SubscriptionStatus::ACTIVE->value);
+    expect($subscription->fresh()->status)->toBe(SubscriptionStatus::ACTIVE);
 });
 
 test('subscription days until expiry is calculated correctly', function () {

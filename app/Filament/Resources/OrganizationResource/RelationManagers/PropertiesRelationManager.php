@@ -4,6 +4,7 @@ namespace App\Filament\Resources\OrganizationResource\RelationManagers;
 
 use BackedEnum;
 use UnitEnum;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Schemas\Schema;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -16,7 +17,7 @@ class PropertiesRelationManager extends RelationManager
 
     protected static ?string $title = null;
 
-    protected static BackedEnum|string|null $icon = 'heroicon-o-home';
+    protected static string|BackedEnum|null $icon = 'heroicon-o-home';
 
     public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
     {
@@ -68,8 +69,10 @@ class PropertiesRelationManager extends RelationManager
                     ->native(false),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
-                    ->url(fn ($record): string => route('filament.admin.resources.properties.view', ['record' => $record]))
+                Action::make('edit')
+                    ->label(__('filament-actions::edit.single.label'))
+                    ->icon('heroicon-o-pencil-square')
+                    ->url(fn ($record): string => route('filament.admin.resources.properties.edit', ['record' => $record]))
                     ->openUrlInNewTab(false),
             ])
             ->emptyStateHeading(__('organizations.relations.properties.empty_heading'))

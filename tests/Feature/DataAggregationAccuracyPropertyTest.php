@@ -7,6 +7,7 @@ use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Property;
 use App\Models\Subscription;
+use App\Models\Tenant;
 use App\Models\User;
 use App\Services\AccountManagementService;
 use App\Services\SubscriptionService;
@@ -173,12 +174,15 @@ test('superadmin dashboard displays accurate system-wide resource counts', funct
             // Create random number of properties per building
             $propertyCount = fake()->numberBetween(1, 4);
             $expectedProperties += $propertyCount;
+            $invoiceProperty = null;
             
             for ($k = 0; $k < $propertyCount; $k++) {
                 $property = Property::factory()->create([
                     'tenant_id' => $admin->tenant_id,
                     'building_id' => $building->id,
                 ]);
+
+                $invoiceProperty ??= $property;
                 
                 // Create tenant for some properties
                 if (fake()->boolean(60)) {
@@ -195,10 +199,9 @@ test('superadmin dashboard displays accurate system-wide resource counts', funct
             }
             
             // Create invoices for this building (outside property loop)
-            if (fake()->boolean(50)) {
-                Invoice::factory()->create([
-                    'tenant_id' => $admin->tenant_id,
-                ]);
+            if (fake()->boolean(50) && $invoiceProperty) {
+                $tenantRenter = Tenant::factory()->forProperty($invoiceProperty)->create();
+                Invoice::factory()->forTenantRenter($tenantRenter)->create();
                 $expectedInvoices++;
             }
         }
@@ -290,9 +293,8 @@ test('admin dashboard displays accurate portfolio statistics', function () {
             
             // Create invoice for this property
             if (fake()->boolean(70)) {
-                Invoice::factory()->create([
-                    'tenant_id' => $admin->tenant_id,
-                ]);
+                $tenantRenter = Tenant::factory()->forProperty($property)->create();
+                Invoice::factory()->forTenantRenter($tenantRenter)->create();
                 $expectedInvoices++;
             }
         }

@@ -189,11 +189,6 @@ final class StatusBadge extends Component
      */
     private function resolveLabel(BackedEnum|string $status): string
     {
-        // If it's an enum with a label method, use it
-        if ($status instanceof BackedEnum && method_exists($status, 'label')) {
-            return $status->label();
-        }
-
         // Try to find label in merged translations
         $translations = $this->getMergedTranslations();
         $statusValue = $this->normalizeStatus($status);
@@ -202,11 +197,88 @@ final class StatusBadge extends Component
             return $translations[$statusValue];
         }
 
+        // If it's an enum with a label method, use it as a fallback
+        if ($status instanceof BackedEnum && method_exists($status, 'label')) {
+            return $status->label();
+        }
+
         // Fallback to formatted string
-        return Str::of($statusValue)
-            ->replace('_', ' ')
-            ->title()
-            ->toString();
+        return $this->formatFallbackLabel($statusValue);
+    }
+
+    private function formatFallbackLabel(string $statusValue): string
+    {
+        $parts = preg_split('/(<[^>]+>)/', $statusValue, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        if (! is_array($parts)) {
+            return $this->titleCaseOutsideQuotes($statusValue);
+        }
+
+        $formatted = array_map(function (string $part): string {
+            if (preg_match('/^<[^>]+>$/', $part) === 1) {
+                return $part;
+            }
+
+            return $this->titleCaseOutsideQuotes($part);
+        }, $parts);
+
+        return implode('', $formatted);
+    }
+
+    private function titleCaseOutsideQuotes(string $text): string
+    {
+        $result = '';
+        $buffer = '';
+        $inQuote = false;
+        $quoteChar = null;
+
+        $flushOutside = function () use (&$result, &$buffer): void {
+            if ($buffer === '') {
+                return;
+            }
+
+            $result .= Str::of($buffer)
+                ->replace('_', ' ')
+                ->title()
+                ->toString();
+
+            $buffer = '';
+        };
+
+        $length = strlen($text);
+
+        for ($index = 0; $index < $length; $index++) {
+            $char = $text[$index];
+
+            if (! $inQuote && ($char === '"' || $char === "'")) {
+                $flushOutside();
+                $inQuote = true;
+                $quoteChar = $char;
+                $result .= $char;
+                continue;
+            }
+
+            if ($inQuote && $char === $quoteChar) {
+                $inQuote = false;
+                $quoteChar = null;
+                $result .= $buffer;
+                $buffer = '';
+                $result .= $char;
+                continue;
+            }
+
+            $buffer .= $char;
+        }
+
+        if ($buffer !== '') {
+            if ($inQuote) {
+                $result .= $buffer;
+            } else {
+                $flushOutside();
+            }
+        }
+
+        return $result;
     }
 
     /**

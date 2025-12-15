@@ -290,6 +290,7 @@ class BuildingResource extends Resource
             ->label(__('buildings.labels.name'))
             ->required()
             ->maxLength(255)
+            ->regex('/^[a-zA-Z0-9\\s\\-_\\.#]+$/')
             ->validationAttribute('name')
             ->validationMessages(self::getValidationMessages('name'));
     }
@@ -303,7 +304,7 @@ class BuildingResource extends Resource
      *
      * Validation Rules:
      * - Required
-     * - Max length: 255 characters
+     * - Max length: 500 characters
      * - Full-width column span for better UX
      * - Localized error messages via HasTranslatedValidation trait
      *
@@ -316,7 +317,8 @@ class BuildingResource extends Resource
         return Forms\Components\TextInput::make('address')
             ->label(__('buildings.labels.address'))
             ->required()
-            ->maxLength(255)
+            ->maxLength(500)
+            ->regex('/^[a-zA-Z0-9\\s\\-_\\.,#\\/]+$/')
             ->columnSpanFull()
             ->validationAttribute('address')
             ->validationMessages(self::getValidationMessages('address'));

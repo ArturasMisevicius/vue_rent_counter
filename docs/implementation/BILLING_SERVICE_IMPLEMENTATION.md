@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `BillingService` class orchestrates invoice generation with tariff snapshotting and gyvatukas calculations for the Vilnius Utilities Billing System. It implements requirements 3.1, 3.2, 3.3, 5.1, 5.2, and 5.5 from the specification.
+The `BillingService` class orchestrates invoice generation with tariff snapshotting and hot water circulation calculations for the Vilnius Utilities Billing System. It implements requirements 3.1, 3.2, 3.3, 5.1, 5.2, and 5.5 from the specification.
 
 ## Implementation Date
 
@@ -22,7 +22,7 @@ Generates a draft invoice for a tenant for a specific billing period:
 1. **Collects meter readings** for the period
 2. **Resolves applicable tariffs** and snapshots rates
 3. **Calculates consumption** per utility type
-4. **Applies GyvatukasCalculator** for heating/hot water
+4. **Applies hot water circulationCalculator** for heating/hot water
 5. **Creates Invoice with InvoiceItems**
 6. **Returns draft invoice**
 
@@ -35,7 +35,7 @@ public function generateInvoice(Tenant $tenant, Carbon $periodStart, Carbon $per
 - Automatic tariff resolution and snapshotting
 - Multi-zone meter support (day/night electricity)
 - Water billing with supply + sewage + fixed fee
-- Gyvatukas calculation integration
+- hot water circulation calculation integration
 - Comprehensive error handling and logging
 - Transaction-based execution for data integrity
 
@@ -86,14 +86,14 @@ Handles meters with multiple tariff zones (e.g., day/night electricity):
 - Creates separate invoice items for each zone
 - Snapshots zone-specific rates and consumption
 
-### 6. Gyvatukas Integration
+### 6. hot water circulation Integration
 
-Integrates with `GyvatukasCalculator` for hot water circulation fees:
+Integrates with `hot water circulationCalculator` for hot water circulation fees:
 
 - Automatically calculates for properties with buildings
 - Handles seasonal variations (summer/winter)
 - Gracefully handles calculation failures
-- Creates dedicated invoice item for gyvatukas
+- Creates dedicated invoice item for hot water circulation
 
 ## Error Handling
 
@@ -113,7 +113,7 @@ Integrates with `GyvatukasCalculator` for hot water circulation fees:
 
 ### Graceful Degradation
 
-- Missing gyvatukas calculation: Logs warning, continues
+- Missing hot water circulation calculation: Logs warning, continues
 - Missing readings for one meter (when multiple exist): Logs warning, continues with others
 
 ## Configuration
@@ -135,7 +135,7 @@ Uses `config/billing.php`:
 ## Dependencies
 
 - **`TariffResolver`**: Resolves and calculates tariff costs
-- **`GyvatukasCalculator`**: Calculates hot water circulation fees
+- **`hot water circulationCalculator`**: Calculates hot water circulation fees
 - **`MeterReadingService`**: Retrieves meter readings
 - **`BaseService`**: Provides transaction management and logging
 
@@ -213,7 +213,7 @@ Comprehensive logging at key points:
 
 - Invoice generation start/completion
 - Missing meter readings (warning level)
-- Gyvatukas calculation failures (error level)
+- hot water circulation calculation failures (error level)
 - Invoice finalization
 
 All logs include:
@@ -244,6 +244,6 @@ All logs include:
 ## Related Documentation
 
 - [Tariff Resolver Implementation](TARIFF_RESOLVER_IMPLEMENTATION.md)
-- [Gyvatukas Calculator Implementation](GYVATUKAS_CALCULATOR_IMPLEMENTATION.md)
+- [hot water circulation Calculator Implementation](hot water circulation_CALCULATOR_IMPLEMENTATION.md)
 - [Service Layer Architecture](../architecture/SERVICE_LAYER_ARCHITECTURE.md)
 - [Billing Configuration](../../config/billing.php)

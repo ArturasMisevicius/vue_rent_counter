@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Enums\SubscriptionPlanType;
+use App\Enums\SubscriptionStatus;
 use App\Models\Building;
 use App\Models\Property;
 use App\Models\Subscription;
@@ -40,7 +41,7 @@ test('UsersSeeder creates admin accounts with subscriptions', function () {
         ->and($admin1->is_active)->toBeTrue()
         ->and($admin1->subscription)->not->toBeNull()
         ->and($admin1->subscription->plan_type)->toBe(\App\Enums\SubscriptionPlanType::PROFESSIONAL->value)
-        ->and($admin1->subscription->status)->toBe('active');
+        ->and($admin1->subscription->status)->toBe(SubscriptionStatus::ACTIVE);
 });
 
 test('UsersSeeder creates tenant accounts with property assignments', function () {
@@ -83,7 +84,7 @@ test('UsersSeeder creates admin with expired subscription', function () {
     
     expect($admin3)->not->toBeNull()
         ->and($admin3->subscription)->not->toBeNull()
-        ->and($admin3->subscription->status)->toBe('expired')
+        ->and($admin3->subscription->status)->toBe(SubscriptionStatus::EXPIRED)
         ->and($admin3->subscription->expires_at)->toBeLessThan(now());
 });
 

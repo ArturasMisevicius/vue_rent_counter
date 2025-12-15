@@ -57,14 +57,14 @@ test('admin with expired subscription can perform read operations', function () 
     
     // Property: Admin with expired subscription should be able to perform read operations
     // Test reading properties
-    $response = $this->get(route('properties.index'));
+    $response = $this->get(route('manager.properties.index'));
     expect($response->status())->toBe(200);
     
     // Verify warning message about expired subscription
     expect(session('warning'))->toContain('subscription has expired');
     
     // Test reading buildings
-    $response = $this->get(route('buildings.index'));
+    $response = $this->get(route('manager.buildings.index'));
     expect($response->status())->toBe(200);
     
     // Verify data is accessible via models
@@ -91,7 +91,7 @@ test('admin with expired subscription cannot perform write operations on propert
     // Create expired subscription
     Subscription::factory()->expired()->create([
         'user_id' => $admin->id,
-        'status' => AppnumsSubscriptionStatus::EXPIRED->value,
+        'status' => SubscriptionStatus::EXPIRED->value,
         'expires_at' => now()->subDays(fake()->numberBetween(1, 30)),
     ]);
     
@@ -99,7 +99,7 @@ test('admin with expired subscription cannot perform write operations on propert
     $this->actingAs($admin);
     
     // Property: Admin with expired subscription should NOT be able to create properties
-    $response = $this->post(route('properties.store'), [
+    $response = $this->post(route('manager.properties.store'), [
         'address' => fake()->address(),
         'type' => fake()->randomElement(['apartment', 'house']),
         'area_sqm' => fake()->randomFloat(2, 20, 200),
@@ -129,7 +129,7 @@ test('admin with expired subscription cannot perform write operations on buildin
     // Create expired subscription
     Subscription::factory()->expired()->create([
         'user_id' => $admin->id,
-        'status' => AppnumsSubscriptionStatus::EXPIRED->value,
+        'status' => SubscriptionStatus::EXPIRED->value,
         'expires_at' => now()->subDays(fake()->numberBetween(1, 30)),
     ]);
     
@@ -137,7 +137,7 @@ test('admin with expired subscription cannot perform write operations on buildin
     $this->actingAs($admin);
     
     // Property: Admin with expired subscription should NOT be able to create buildings
-    $response = $this->post(route('buildings.store'), [
+    $response = $this->post(route('manager.buildings.store'), [
         'name' => fake()->company(),
         'address' => fake()->address(),
         'total_apartments' => fake()->numberBetween(1, 100),
@@ -167,7 +167,7 @@ test('admin with expired subscription cannot update existing properties', functi
     // Create expired subscription
     Subscription::factory()->expired()->create([
         'user_id' => $admin->id,
-        'status' => AppnumsSubscriptionStatus::EXPIRED->value,
+        'status' => SubscriptionStatus::EXPIRED->value,
         'expires_at' => now()->subDays(fake()->numberBetween(1, 30)),
     ]);
     
@@ -183,7 +183,7 @@ test('admin with expired subscription cannot update existing properties', functi
     $this->actingAs($admin);
     
     // Property: Admin with expired subscription should NOT be able to update properties
-    $response = $this->put(route('properties.update', $property), [
+    $response = $this->put(route('manager.properties.update', $property), [
         'address' => fake()->address(),
         'type' => 'house',
         'area_sqm' => fake()->randomFloat(2, 20, 200),
@@ -213,7 +213,7 @@ test('admin with expired subscription cannot delete properties', function () {
     // Create expired subscription
     Subscription::factory()->expired()->create([
         'user_id' => $admin->id,
-        'status' => AppnumsSubscriptionStatus::EXPIRED->value,
+        'status' => SubscriptionStatus::EXPIRED->value,
         'expires_at' => now()->subDays(fake()->numberBetween(1, 30)),
     ]);
     
@@ -229,7 +229,7 @@ test('admin with expired subscription cannot delete properties', function () {
     $this->actingAs($admin);
     
     // Property: Admin with expired subscription should NOT be able to delete properties
-    $response = $this->delete(route('properties.destroy', $property));
+    $response = $this->delete(route('manager.properties.destroy', $property));
     
     // Should be redirected (302) with error message, not successful (200)
     expect($response->status())->toBe(302)
@@ -269,11 +269,11 @@ test('admin with active subscription can perform both read and write operations'
     $this->actingAs($admin);
     
     // Property: Admin with active subscription should be able to perform read operations
-    $response = $this->get(route('properties.index'));
+    $response = $this->get(route('manager.properties.index'));
     expect($response->status())->toBe(200);
     
     // Property: Admin with active subscription should be able to perform write operations
-    $response = $this->post(route('properties.store'), [
+    $response = $this->post(route('manager.properties.store'), [
         'address' => fake()->address(),
         'type' => fake()->randomElement(['apartment', 'house']),
         'area_sqm' => fake()->randomFloat(2, 20, 200),
@@ -305,7 +305,7 @@ test('admin with suspended subscription cannot perform write operations', functi
     // Create suspended subscription
     Subscription::factory()->create([
         'user_id' => $admin->id,
-        'status' => 'suspended',
+        'status' => SubscriptionStatus::SUSPENDED->value,
         'expires_at' => now()->addDays(fake()->numberBetween(1, 30)),
     ]);
     
@@ -313,7 +313,7 @@ test('admin with suspended subscription cannot perform write operations', functi
     $this->actingAs($admin);
     
     // Property: Admin with suspended subscription should NOT be able to create properties
-    $response = $this->post(route('properties.store'), [
+    $response = $this->post(route('manager.properties.store'), [
         'address' => fake()->address(),
         'type' => fake()->randomElement(['apartment', 'house']),
         'area_sqm' => fake()->randomFloat(2, 20, 200),
@@ -324,7 +324,7 @@ test('admin with suspended subscription cannot perform write operations', functi
         ->and($response->headers->get('Location'))->toContain('dashboard');
     
     // Verify error message is in session
-    expect(session('error'))->toContain('subscription has expired');
+    expect(session('error'))->toContain('suspended');
 })->repeat(100);
 
 // Feature: hierarchical-user-management, Property 9: Subscription status affects access
@@ -346,7 +346,7 @@ test('admin with no subscription cannot perform write operations', function () {
     $this->actingAs($admin);
     
     // Property: Admin without subscription should NOT be able to create properties
-    $response = $this->post(route('properties.store'), [
+    $response = $this->post(route('manager.properties.store'), [
         'address' => fake()->address(),
         'type' => fake()->randomElement(['apartment', 'house']),
         'area_sqm' => fake()->randomFloat(2, 20, 200),

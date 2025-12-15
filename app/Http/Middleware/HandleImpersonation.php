@@ -22,7 +22,7 @@ class HandleImpersonation
         if ($impersonationService->isImpersonating() && $impersonationService->hasTimedOut()) {
             $impersonationService->endImpersonation();
             
-            return redirect()->route('filament.admin.pages.dashboard')
+            return redirect()->route('superadmin.dashboard')
                 ->with('warning', __('app.impersonation.timeout'));
         }
 

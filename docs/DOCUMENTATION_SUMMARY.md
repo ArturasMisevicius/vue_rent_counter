@@ -1,4 +1,4 @@
-# Documentation Summary - Gyvatukas Summer Average System
+# Documentation Summary - hot water circulation Summer Average System
 
 ## Overview
 
@@ -17,14 +17,14 @@ docs/
 ├── commands/
 │   └── CALCULATE_SUMMER_AVERAGE_COMMAND.md          # Complete command guide
 ├── services/
-│   └── GYVATUKAS_SUMMER_AVERAGE_SERVICE.md          # Service API reference
+│   └── hot water circulation_SUMMER_AVERAGE_SERVICE.md          # Service API reference
 ├── value-objects/
 │   ├── SUMMER_PERIOD.md                             # SummerPeriod documentation
 │   └── CALCULATION_RESULT.md                        # CalculationResult documentation
 ├── api/
-│   └── GYVATUKAS_SUMMER_AVERAGE_API.md              # Complete API reference
+│   └── hot water circulation_SUMMER_AVERAGE_API.md              # Complete API reference
 ├── reference/
-│   └── GYVATUKAS_SUMMER_AVERAGE_QUICK_REFERENCE.md  # Quick reference guide
+│   └── hot water circulation_SUMMER_AVERAGE_QUICK_REFERENCE.md  # Quick reference guide
 ├── refactoring/
 │   └── CALCULATE_SUMMER_AVERAGE_COMMAND_REFACTORING.md  # Updated with doc links
 └── CHANGELOG.md                                      # New changelog with entries
@@ -57,7 +57,7 @@ docs/
 
 ### 2. Service Documentation
 
-**File**: [docs/services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md](services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md)
+**File**: [docs/services/hot water circulation_SUMMER_AVERAGE_SERVICE.md](services/hot water circulation_SUMMER_AVERAGE_SERVICE.md)
 
 **Contents**:
 - Service overview and purpose
@@ -119,7 +119,7 @@ docs/
 
 ### 5. API Reference
 
-**File**: [docs/api/GYVATUKAS_SUMMER_AVERAGE_API.md](api/GYVATUKAS_SUMMER_AVERAGE_API.md)
+**File**: [docs/api/hot water circulation_SUMMER_AVERAGE_API.md](api/hot water circulation_SUMMER_AVERAGE_API.md)
 
 **Contents**:
 - Complete API reference
@@ -139,7 +139,7 @@ docs/
 
 ### 6. Quick Reference
 
-**File**: [docs/reference/GYVATUKAS_SUMMER_AVERAGE_QUICK_REFERENCE.md](reference/GYVATUKAS_SUMMER_AVERAGE_QUICK_REFERENCE.md)
+**File**: [docs/reference/hot water circulation_SUMMER_AVERAGE_QUICK_REFERENCE.md](reference/hot water circulation_SUMMER_AVERAGE_QUICK_REFERENCE.md)
 
 **Contents**:
 - TL;DR summary
@@ -162,7 +162,7 @@ docs/
 **File**: [docs/CHANGELOG.md](CHANGELOG.md)
 
 **Contents**:
-- Comprehensive changelog entry for gyvatukas system
+- Comprehensive changelog entry for hot water circulation system
 - Added features (command, service, value objects)
 - Changed components (Building model, command refactoring)
 - Fixed issues
@@ -291,14 +291,14 @@ The following files now reference the new documentation:
 
 ### For New Developers
 
-1. Start with: [GYVATUKAS_SUMMER_AVERAGE_QUICK_REFERENCE.md](reference/GYVATUKAS_SUMMER_AVERAGE_QUICK_REFERENCE.md)
+1. Start with: [hot water circulation_SUMMER_AVERAGE_QUICK_REFERENCE.md](reference/hot water circulation_SUMMER_AVERAGE_QUICK_REFERENCE.md)
 2. Read: [CALCULATE_SUMMER_AVERAGE_COMMAND.md](commands/CALCULATE_SUMMER_AVERAGE_COMMAND.md)
 3. Explore: Service and value object documentation as needed
 
 ### For API Integration
 
-1. Start with: [GYVATUKAS_SUMMER_AVERAGE_API.md](api/GYVATUKAS_SUMMER_AVERAGE_API.md)
-2. Reference: [GYVATUKAS_SUMMER_AVERAGE_SERVICE.md](services/GYVATUKAS_SUMMER_AVERAGE_SERVICE.md)
+1. Start with: [hot water circulation_SUMMER_AVERAGE_API.md](api/hot water circulation_SUMMER_AVERAGE_API.md)
+2. Reference: [hot water circulation_SUMMER_AVERAGE_SERVICE.md](services/hot water circulation_SUMMER_AVERAGE_SERVICE.md)
 3. Check: Value object documentation for data structures
 
 ### For Troubleshooting
@@ -391,7 +391,7 @@ Consider adding:
 
 ## Conclusion
 
-The gyvatukas summer average calculation system is now fully documented with:
+The hot water circulation summer average calculation system is now fully documented with:
 - ✅ 7 new comprehensive documentation files
 - ✅ 1 updated refactoring document
 - ✅ Complete API reference

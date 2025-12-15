@@ -43,14 +43,8 @@
                     </a>
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                    @if($meter->serviceConfiguration?->utilityService)
-                        {{ $meter->serviceConfiguration->utilityService->name }}
-                        @if($meter->serviceConfiguration->utilityService->unit_of_measurement)
-                            <span class="text-slate-400 text-xs">({{ $meter->serviceConfiguration->utilityService->unit_of_measurement }})</span>
-                        @endif
-                    @else
-                        <span class="capitalize">{{ $meter->type->label() }}</span>
-                    @endif
+                    {{ $meter->getServiceDisplayName() }}
+                    <span class="text-slate-400 text-xs">({{ $meter->getUnitOfMeasurement() }})</span>
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                     <a href="{{ route('manager.properties.show', $meter->property) }}" class="text-indigo-600 hover:text-indigo-900">
@@ -110,7 +104,7 @@
                         <div>
                             <p class="text-sm font-semibold text-slate-900">{{ $meter->serial_number }}</p>
                             <p class="text-xs text-slate-600 capitalize">
-                                {{ $meter->serviceConfiguration?->utilityService?->name ?? $meter->type->label() }}
+                                {{ $meter->getServiceDisplayName() }}
                             </p>
                             <p class="text-xs text-slate-600 mt-1">{{ $meter->property->address }}</p>
                         </div>

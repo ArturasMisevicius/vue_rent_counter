@@ -14,6 +14,8 @@ use App\Models\ServiceConfiguration;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -119,7 +121,7 @@ class MeterResource extends Resource
 
                         Forms\Components\Select::make('service_configuration_id')
                             ->label('Service Configuration')
-                            ->options(function (Forms\Get $get): array {
+                            ->options(function (Get $get): array {
                                 $propertyId = $get('property_id');
 
                                 if (!$propertyId) {
@@ -146,7 +148,7 @@ class MeterResource extends Resource
                             ->native(false)
                             ->nullable()
                             ->live()
-                            ->afterStateUpdated(function ($state, Forms\Set $set): void {
+                            ->afterStateUpdated(function ($state, Set $set): void {
                                 if (!$state) {
                                     return;
                                 }
@@ -165,6 +167,9 @@ class MeterResource extends Resource
                             ->options(MeterType::class)
                             ->required()
                             ->native(false)
+                            ->default(MeterType::CUSTOM->value)
+                            ->disabled(fn (Get $get): bool => filled($get('service_configuration_id')))
+                            ->dehydrated(fn (?string $state): bool => true)
                             ->helperText(__('meters.helper_text.type'))
                             ->validationMessages(self::getValidationMessages('type')),
 
@@ -225,6 +230,24 @@ class MeterResource extends Resource
                         'address' => $record->property->address,
                     ])),
 
+                Tables\Columns\TextColumn::make('serviceConfiguration.utilityService.name')
+                    ->label('Service')
+                    ->badge()
+                    ->formatStateUsing(fn ($state, Meter $record): string => $record->getServiceDisplayName())
+                    ->color(fn (Meter $record): string => match ($record->type) {
+                        MeterType::ELECTRICITY => 'warning',
+                        MeterType::WATER_COLD => 'info',
+                        MeterType::WATER_HOT => 'danger',
+                        MeterType::HEATING => 'success',
+                        MeterType::CUSTOM => 'gray',
+                    }),
+
+                Tables\Columns\TextColumn::make('serviceConfiguration.utilityService.unit_of_measurement')
+                    ->label('Unit')
+                    ->badge()
+                    ->color('gray')
+                    ->formatStateUsing(fn ($state, Meter $record): string => $record->getUnitOfMeasurement()),
+
                 Tables\Columns\TextColumn::make('type')
                     ->label(__('meters.labels.type'))
                     ->badge()
@@ -236,7 +259,8 @@ class MeterResource extends Resource
                         MeterType::CUSTOM => 'gray',
                     })
                     ->formatStateUsing(fn (?MeterType $state): ?string => $state?->label())
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('serial_number')
                     ->label(__('meters.labels.serial_number'))

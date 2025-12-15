@@ -18,12 +18,13 @@
             >
                 <option value="">{{ __('meter_readings.form_component.meter_placeholder') }}</option>
                 @foreach($meters as $meter)
-                    <option value="{{ $meter->id }}" 
-                            data-type="{{ $meter->type->value }}"
+                        <option value="{{ $meter->id }}" 
+                            data-service="{{ $meter->getServiceDisplayName() }}"
+                            data-unit="{{ $meter->getUnitOfMeasurement() }}"
                             data-supports-zones="{{ $meter->supports_zones ? 'true' : 'false' }}"
                             data-serial="{{ $meter->serial_number }}"
                             data-property="{{ $meter->property->address ?? '' }}">
-                        {{ $meter->serial_number }} - {{ enum_label($meter->type) }} ({{ $meter->property->address ?? __('app.common.na') }})
+                        {{ $meter->serial_number }} - {{ $meter->getServiceDisplayName() }} ({{ $meter->property->address ?? __('app.common.na') }})
                     </option>
                 @endforeach
             </select>
@@ -159,7 +160,8 @@
             <h3 class="text-sm font-semibold text-green-900 mb-2">{{ __('meter_readings.form_component.consumption') }}</h3>
             <div class="text-2xl font-bold text-green-700" x-text="consumption.toFixed(2)"></div>
             <p class="text-sm text-slate-600 mt-1">
-                <span x-text="meterType"></span> {{ __('meter_readings.form_component.units') }}
+                {{ __('meter_readings.form_component.units') }}:
+                <span class="font-semibold text-slate-900" x-text="unitOfMeasurement || '—'"></span>
             </p>
         </div>
 
@@ -214,7 +216,7 @@ function meterReadingForm() {
         availableTariffs: [],
         selectedTariff: null,
         supportsZones: false,
-        meterType: '',
+        unitOfMeasurement: '',
         naText: @js(__('app.common.na')),
         errors: {},
         isSubmitting: false,
@@ -276,7 +278,7 @@ function meterReadingForm() {
             }
             
             this.supportsZones = option.dataset.supportsZones === 'true';
-            this.meterType = option.dataset.type;
+            this.unitOfMeasurement = option.dataset.unit || '';
             
             // Reset provider and tariff
             this.formData.provider_id = '';
@@ -431,7 +433,7 @@ function meterReadingForm() {
             this.availableTariffs = [];
             this.selectedTariff = null;
             this.supportsZones = false;
-            this.meterType = '';
+            this.unitOfMeasurement = '';
             this.errors = {};
         }
     }

@@ -151,7 +151,7 @@ test('login returns error message for invalid credentials', function () {
 
     // Assert error message is present
     $response->assertSessionHasErrors([
-        'email' => 'The provided credentials do not match our records.',
+        'email' => __('auth.failed'),
     ]);
 });
 

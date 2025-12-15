@@ -9,21 +9,21 @@ use App\Filament\Clusters\SuperAdmin\Resources\SystemUserResource;
 use App\Filament\Clusters\SuperAdmin\Resources\TenantResource;
 use App\Models\User;
 use Filament\Actions\Action;
-use Filament\Infolists\Components\Grid;
-use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ViewEntry;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 final class ViewAuditLog extends ViewRecord
 {
     protected static string $resource = AuditLogResource::class;
 
-    public function infolist(Infolist $infolist): Infolist
+    public function infolist(Schema $schema): Schema
     {
-        return $infolist
+        return $schema
             ->schema([
                 Section::make(__('superadmin.audit.sections.basic_info'))
                     ->schema([

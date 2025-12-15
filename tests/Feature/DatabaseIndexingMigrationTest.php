@@ -116,13 +116,6 @@ describe('Database Indexing Migration', function () {
         expect($indexes)->toContain('buildings_created_at_index');
     });
 
-    test('buildings table has gyvatukas index', function () {
-        $this->artisan('migrate', ['--path' => 'database/migrations/2025_12_02_000001_add_comprehensive_database_indexes.php']);
-        
-        $indexes = getTableIndexes('buildings');
-        expect($indexes)->toContain('buildings_gyvatukas_index');
-    });
-
     test('migration can be rolled back without errors', function () {
         $this->artisan('migrate', ['--path' => 'database/migrations/2025_12_02_000001_add_comprehensive_database_indexes.php']);
         

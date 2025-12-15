@@ -83,18 +83,15 @@ final class RedactSensitiveData implements ProcessorInterface
      */
     public function __invoke(LogRecord $record): LogRecord
     {
-        // Redact message
-        $record['message'] = $this->redactString($record['message']);
-        
-        // Redact context
-        $record['context'] = $this->redactArray($record['context']);
-        
-        // Redact extra data
-        if (isset($record['extra'])) {
-            $record['extra'] = $this->redactArray($record['extra']);
-        }
-        
-        return $record;
+        $message = $this->redactString($record->message);
+        $context = $this->redactArray($record->context);
+        $extra = $this->redactArray($record->extra);
+
+        return $record->with(
+            message: $message,
+            context: $context,
+            extra: $extra,
+        );
     }
     
     /**

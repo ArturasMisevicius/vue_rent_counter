@@ -35,6 +35,7 @@ class DashboardController extends Controller
             'meters.readings' => function ($query) {
                 $query->latest('reading_date')->limit(2);
             },
+            'meters.serviceConfiguration.utilityService',
             'building',
         ]);
         
@@ -47,7 +48,7 @@ class DashboardController extends Controller
             $latestReadings = MeterReading::whereHas('meter', function ($query) use ($property) {
                 $query->where('property_id', $property->id);
             })
-            ->with(['meter'])
+            ->with(['meter.serviceConfiguration.utilityService'])
             ->latest('reading_date')
             ->limit(5)
             ->get();

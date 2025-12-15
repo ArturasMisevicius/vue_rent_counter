@@ -13,14 +13,14 @@ use Illuminate\Support\Facades\Cache;
  */
 class TopOrganizationsChartWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Top Organizations by Properties';
+    protected ?string $heading = 'Top Organizations by Properties';
     protected static ?int $sort = 5;
     
     // Enable lazy loading for better performance
     protected static bool $isLazy = true;
     
     // Polling interval - refresh every 10 minutes
-    protected static ?string $pollingInterval = '600s';
+    protected ?string $pollingInterval = '600s';
 
     protected function getData(): array
     {

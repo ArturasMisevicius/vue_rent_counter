@@ -130,7 +130,7 @@ tests/
 │   └── Services/
 │       ├── BillingServiceTest.php
 │       ├── TariffResolverTest.php
-│       └── GyvatukasCalculatorTest.php
+│       └── hot water circulationCalculatorTest.php
 ├── Unit/
 │   ├── Models/
 │   │   ├── PropertyTest.php

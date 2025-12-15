@@ -98,7 +98,10 @@
                         @forelse($meters as $meter)
                             <tr class="hover:bg-slate-50">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $meter->id }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">{{ $meter->type->label() }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                                    {{ $meter->getServiceDisplayName() }}
+                                    <span class="text-xs text-slate-400">({{ $meter->getUnitOfMeasurement() }})</span>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $meter->serial_number }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $meter->property?->address }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-right space-x-2">
