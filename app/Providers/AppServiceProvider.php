@@ -71,6 +71,10 @@ class AppServiceProvider extends ServiceProvider
         // Register new refactored services
         $this->app->singleton(\App\Services\SystemHealthService::class);
         $this->app->singleton(\App\Repositories\MeterReadingRepository::class);
+        
+        // Register User model refactoring services
+        $this->app->singleton(\App\Services\UserRoleService::class);
+        $this->app->singleton(\App\Services\PanelAccessService::class);
 
         // Register TariffResolver with its strategies
         $this->app->singleton(\App\Services\TariffResolver::class, function ($app) {

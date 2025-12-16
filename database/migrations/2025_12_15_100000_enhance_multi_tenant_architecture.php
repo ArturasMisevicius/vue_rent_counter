@@ -97,11 +97,18 @@ return new class extends Migration
             $table->json('tenant_permissions')->nullable()->after('property_id');
             $table->timestamp('tenant_joined_at')->nullable()->after('tenant_permissions');
             $table->boolean('is_tenant_admin')->default(false)->after('tenant_joined_at');
-            
-            // Add indexes for performance
-            $table->index(['tenant_id', 'is_tenant_admin'], 'users_tenant_admin_index');
-            $table->index(['tenant_id', 'role'], 'users_tenant_role_index');
         });
+
+        // Add indexes for performance (check if they exist first)
+        try {
+            Schema::table('users', function (Blueprint $table) {
+                $table->index(['tenant_id', 'is_tenant_admin'], 'users_tenant_admin_index');
+            });
+        } catch (\Exception $e) {
+            // Index might already exist, continue
+        }
+        
+        // Skip users_tenant_role_index as it already exists from previous migrations
 
         // Create tenant user invitations table
         Schema::create('tenant_user_invitations', function (Blueprint $table) {

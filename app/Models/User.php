@@ -1,8 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\UserRole;
+use App\Services\PanelAccessService;
+use App\Services\UserRoleService;
+use App\ValueObjects\UserCapabilities;
+use App\ValueObjects\UserState;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +21,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Schema;
-use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -76,10 +81,22 @@ use Spatie\Permission\Traits\HasRoles;
  */
 class User extends Authenticatable implements FilamentUser
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles {
+    use HasFactory, Notifiable, HasRoles {
         HasRoles::bootHasRoles as protected bootHasRolesTrait;
         HasRoles::hasRole as protected hasRoleTrait;
     }
+
+    // Constants for magic strings
+    public const DEFAULT_ROLE = 'tenant';
+    public const ADMIN_PANEL_ID = 'admin';
+    
+    // Role priorities for ordering
+    public const ROLE_PRIORITIES = [
+        'superadmin' => 1,
+        'admin' => 2,
+        'manager' => 3,
+        'tenant' => 4,
+    ];
 
     /**
      * Guard Spatie role boot hooks when permission tables are not present.
@@ -204,22 +221,7 @@ class User extends Authenticatable implements FilamentUser
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        // Ensure user is active (prevents deactivated accounts from accessing panels)
-        if (!$this->is_active) {
-            return false;
-        }
-
-        // Admin panel: Allow ADMIN, MANAGER, and SUPERADMIN roles
-        if ($panel->getId() === 'admin') {
-            return in_array($this->role, [
-                UserRole::ADMIN,
-                UserRole::MANAGER,
-                UserRole::SUPERADMIN,
-            ], true);
-        }
-
-        // Other panels: Only SUPERADMIN
-        return $this->role === UserRole::SUPERADMIN;
+        return app(PanelAccessService::class)->canAccessPanel($this, $panel);
     }
 
     /**
@@ -227,22 +229,22 @@ class User extends Authenticatable implements FilamentUser
      */
     public function isSuperadmin(): bool
     {
-        return $this->role === UserRole::SUPERADMIN;
+        return app(UserRoleService::class)->isSuperadmin($this);
     }
 
     public function isAdmin(): bool
     {
-        return $this->role === UserRole::ADMIN;
+        return app(UserRoleService::class)->isAdmin($this);
     }
 
     public function isManager(): bool
     {
-        return $this->role === UserRole::MANAGER;
+        return app(UserRoleService::class)->isManager($this);
     }
 
     public function isTenantUser(): bool
     {
-        return $this->role === UserRole::TENANT;
+        return app(UserRoleService::class)->isTenant($this);
     }
 
     /**
@@ -250,15 +252,39 @@ class User extends Authenticatable implements FilamentUser
      */
     public function hasRole($roles, ?string $guard = null): bool
     {
-        if (Schema::hasTable(config('permission.table_names.model_has_roles'))) {
-            return $this->hasRoleTrait($roles, $guard);
-        }
+        return app(UserRoleService::class)->hasRole($this, $roles, $guard);
+    }
 
-        $roleValue = $this->role instanceof UserRole ? $this->role->value : (string) $this->role;
+    /**
+     * Get user capabilities based on role and status.
+     */
+    public function getCapabilities(): UserCapabilities
+    {
+        return UserCapabilities::fromUser($this);
+    }
 
-        return collect(Arr::wrap($roles))
-            ->map(fn ($role) => $role instanceof \BackedEnum ? $role->value : (string) $role)
-            ->contains($roleValue);
+    /**
+     * Get user state information.
+     */
+    public function getState(): UserState
+    {
+        return new UserState($this);
+    }
+
+    /**
+     * Check if user has administrative privileges.
+     */
+    public function hasAdministrativePrivileges(): bool
+    {
+        return app(UserRoleService::class)->hasAdministrativePrivileges($this);
+    }
+
+    /**
+     * Get role priority for ordering.
+     */
+    public function getRolePriority(): int
+    {
+        return app(UserRoleService::class)->getRolePriority($this);
     }
 
     /**
@@ -428,7 +454,7 @@ class User extends Authenticatable implements FilamentUser
      * 
      * Orders users with superadmin first, then admin, manager, and tenant.
      */
-    public function scopeOrderedByRole($query)
+    public function scopeOrderedByRole(Builder $query): Builder
     {
         return $query->orderByRaw("
             CASE role
@@ -444,15 +470,15 @@ class User extends Authenticatable implements FilamentUser
     /**
      * Scope: Filter only active users.
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', true)->whereNull('suspended_at');
     }
 
     /**
      * Scope: Filter users by role.
      */
-    public function scopeOfRole($query, UserRole $role)
+    public function scopeOfRole(Builder $query, UserRole $role): Builder
     {
         return $query->where('role', $role);
     }
@@ -460,7 +486,7 @@ class User extends Authenticatable implements FilamentUser
     /**
      * Scope: Filter users by tenant.
      */
-    public function scopeOfTenant($query, int $tenantId)
+    public function scopeOfTenant(Builder $query, int $tenantId): Builder
     {
         return $query->where('tenant_id', $tenantId);
     }
@@ -468,7 +494,7 @@ class User extends Authenticatable implements FilamentUser
     /**
      * Scope: Filter admin users (admin, manager, superadmin).
      */
-    public function scopeAdmins($query)
+    public function scopeAdmins(Builder $query): Builder
     {
         return $query->whereIn('role', [
             UserRole::ADMIN,
@@ -480,7 +506,7 @@ class User extends Authenticatable implements FilamentUser
     /**
      * Scope: Filter tenant users only.
      */
-    public function scopeTenants($query)
+    public function scopeTenants(Builder $query): Builder
     {
         return $query->where('role', UserRole::TENANT);
     }
@@ -488,13 +514,13 @@ class User extends Authenticatable implements FilamentUser
     /**
      * Scope: Filter users with expired email verification.
      */
-    public function scopeUnverified($query)
+    public function scopeUnverified(Builder $query): Builder
     {
         return $query->whereNull('email_verified_at');
     }
 
     /**
-     * Get user's role in a specific organization
+     * Get user's role in a specific organization.
      */
     public function getRoleInOrganization(Organization $organization): ?string
     {
@@ -506,7 +532,7 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Check if user has role in organization
+     * Check if user has role in organization.
      */
     public function hasRoleInOrganization(Organization $organization, string $role): bool
     {
@@ -517,7 +543,7 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Get all projects across all organizations
+     * Get all projects across all organizations.
      */
     public function allProjects(): Builder
     {
@@ -526,5 +552,14 @@ class User extends Authenticatable implements FilamentUser
         return Project::whereIn('tenant_id', $organizationIds)
             ->orWhere('created_by', $this->id)
             ->orWhere('assigned_to', $this->id);
+    }
+
+    /**
+     * Clear all cached data for this user.
+     */
+    public function clearCache(): void
+    {
+        app(UserRoleService::class)->clearRoleCache($this);
+        app(PanelAccessService::class)->clearPanelAccessCache($this);
     }
 }
