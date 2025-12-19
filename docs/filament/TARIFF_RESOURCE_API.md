@@ -444,5 +444,5 @@ For issues or questions regarding TariffResource:
 
 1. Check the [Filament v4 Documentation](https://filamentphp.com/docs/4.x)
 2. Review the [Laravel 12 Documentation](https://laravel.com/docs/12.x)
-3. Consult the [Project README](../../README.md)
+3. Consult the [Project README](../overview/readme.md)
 4. Review related test files for usage examples

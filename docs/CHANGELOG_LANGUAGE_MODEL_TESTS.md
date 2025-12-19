@@ -44,7 +44,7 @@ Created comprehensive test suite and documentation for the `Language` model, cov
 ### 2. Documentation Created
 
 #### Comprehensive Test Documentation
-**File**: `docs/testing/LANGUAGE_MODEL_TEST_DOCUMENTATION.md`
+**File**: [docs/testing/LANGUAGE_MODEL_TEST_DOCUMENTATION.md](testing/LANGUAGE_MODEL_TEST_DOCUMENTATION.md)
 
 **Contents**:
 - Overview and test coverage summary
@@ -67,7 +67,7 @@ Created comprehensive test suite and documentation for the `Language` model, cov
 - Changelog
 
 #### Quick Reference Guide
-**File**: `docs/testing/LANGUAGE_MODEL_TEST_QUICK_REFERENCE.md`
+**File**: [docs/testing/LANGUAGE_MODEL_TEST_QUICK_REFERENCE.md](testing/LANGUAGE_MODEL_TEST_QUICK_REFERENCE.md)
 
 **Contents**:
 - Quick test execution commands

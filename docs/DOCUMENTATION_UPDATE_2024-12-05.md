@@ -32,7 +32,7 @@ Comprehensive documentation update following the critical security fix in `Input
 ```
 
 ### 2. Security Documentation
-**File**: `docs/security/input-sanitizer-security-fix.md`
+**File**: [docs/security/input-sanitizer-security-fix.md](security/input-sanitizer-security-fix.md)
 
 **Changes**:
 - ✅ Updated code examples to show removed dot collapse logic
@@ -58,7 +58,7 @@ Comprehensive documentation update following the critical security fix in `Input
 - ✅ Included risk assessment
 
 ### 4. README
-**File**: `README.md`
+**File**: [README.md](README.md)
 
 **Changes**:
 - ✅ Added Security section with critical fix notice
@@ -69,7 +69,7 @@ Comprehensive documentation update following the critical security fix in `Input
 ## New Documentation Files Created
 
 ### 1. Service Documentation
-**File**: `docs/services/INPUT_SANITIZER_SERVICE.md`
+**File**: [docs/services/INPUT_SANITIZER_SERVICE.md](services/INPUT_SANITIZER_SERVICE.md)
 
 **Content**:
 - Complete service overview and architecture
@@ -93,7 +93,7 @@ Comprehensive documentation update following the critical security fix in `Input
 9. Related Documentation
 
 ### 2. Quick Reference Guide
-**File**: `docs/security/INPUT_SANITIZER_QUICK_REFERENCE.md`
+**File**: [docs/security/INPUT_SANITIZER_QUICK_REFERENCE.md](security/INPUT_SANITIZER_QUICK_REFERENCE.md)
 
 **Content**:
 - TL;DR summary
@@ -109,7 +109,7 @@ Comprehensive documentation update following the critical security fix in `Input
 **Target Audience**: Developers needing quick reference
 
 ### 3. API Reference
-**File**: `docs/api/INPUT_SANITIZER_API.md`
+**File**: [docs/api/INPUT_SANITIZER_API.md](api/INPUT_SANITIZER_API.md)
 
 **Content**:
 - Complete method signatures
@@ -125,7 +125,7 @@ Comprehensive documentation update following the critical security fix in `Input
 **Target Audience**: API consumers and integrators
 
 ### 4. Documentation Update Summary
-**File**: `docs/DOCUMENTATION_UPDATE_2024-12-05.md` (this file)
+**File**: [docs/DOCUMENTATION_UPDATE_2024-12-05.md](DOCUMENTATION_UPDATE_2024-12-05.md) (this file)
 
 **Content**:
 - Overview of all documentation changes

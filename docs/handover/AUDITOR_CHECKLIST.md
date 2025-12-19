@@ -483,7 +483,7 @@ k6 run load-test.js
 - Project Manager: [Email]
 
 **Documentation:**
-- Full Report: `docs/handover/FINAL_TECHNICAL_HANDOVER_REPORT.md`
-- Architecture: `docs/handover/ARCHITECTURE_DIAGRAM.md`
-- Executive Summary: `docs/handover/EXECUTIVE_SUMMARY.md`
+- Full Report: [docs/handover/FINAL_TECHNICAL_HANDOVER_REPORT.md](FINAL_TECHNICAL_HANDOVER_REPORT.md)
+- Architecture: [docs/handover/ARCHITECTURE_DIAGRAM.md](ARCHITECTURE_DIAGRAM.md)
+- Executive Summary: [docs/handover/EXECUTIVE_SUMMARY.md](EXECUTIVE_SUMMARY.md)
 

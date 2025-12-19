@@ -188,7 +188,7 @@ All tests respect:
 - [SubscriptionFactory](../../database/factories/SubscriptionFactory.php)
 - [SubscriptionStatus Enum](../../app/Enums/SubscriptionStatus.php)
 - [SubscriptionChecker Service](../../app/Services/SubscriptionChecker.php)
-- [TEST_GAP_ANALYSIS.md](../../TEST_GAP_ANALYSIS.md)
+- [TEST_GAP_ANALYSIS.md](../TEST_GAP_ANALYSIS.md)
 
 ## ✨ Summary
 

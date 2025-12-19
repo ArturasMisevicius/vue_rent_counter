@@ -109,10 +109,10 @@
 ### Created Files (7)
 1. `app/Http/Middleware/ThrottleSanitization.php` - Rate limiting
 2. `app/Http/Middleware/SecurityHeaders.php` - Security headers
-3. `docs/security/INPUT_SANITIZER_SECURITY_GUIDE.md` - Usage guide
-4. `docs/security/PII_PROTECTION_POLICY.md` - Privacy policy
-5. `docs/security/MONITORING_GUIDE.md` - Monitoring procedures
-6. `docs/security/SECURITY_COMPLIANCE_CHECKLIST.md` - Deployment checklist
+3. [docs/security/INPUT_SANITIZER_SECURITY_GUIDE.md](INPUT_SANITIZER_SECURITY_GUIDE.md) - Usage guide
+4. [docs/security/PII_PROTECTION_POLICY.md](PII_PROTECTION_POLICY.md) - Privacy policy
+5. [docs/security/MONITORING_GUIDE.md](MONITORING_GUIDE.md) - Monitoring procedures
+6. [docs/security/SECURITY_COMPLIANCE_CHECKLIST.md](SECURITY_COMPLIANCE_CHECKLIST.md) - Deployment checklist
 7. `tests/Security/InputSanitizerSecurityTest.php` - Security tests
 
 ---

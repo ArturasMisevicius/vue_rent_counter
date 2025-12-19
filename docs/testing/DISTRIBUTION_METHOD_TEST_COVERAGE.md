@@ -185,5 +185,5 @@ expect(count($characteristics))->toBeLessThanOrEqual(1);
 ## Related Documentation
 
 - [DistributionMethod Enum](../enums/DISTRIBUTION_METHOD.md)
-- [Testing Guide](./overview.md)
+- [Testing Guide](overview.md)
 - [Enum Testing Patterns](./enum-testing-guide.md)

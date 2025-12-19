@@ -109,7 +109,7 @@ Property::withTags($tags)
 1. **Core Model**: `app/Models/Property.php`
 2. **Filament Resource**: `app/Filament/Resources/PropertyResource.php`
 3. **Test Suite**: `tests/Unit/Models/PropertyTagsIntegrationTest.php`
-4. **Documentation**: `docs/models/PROPERTY_TAGS_INTEGRATION_COMPLETE.md`
+4. **Documentation**: [docs/models/PROPERTY_TAGS_INTEGRATION_COMPLETE.md](../models/PROPERTY_TAGS_INTEGRATION_COMPLETE.md)
 5. **Verification Script**: `scripts/verify-property-tags-integration.php`
 6. **Migration Fix**: `database/migrations/2024_12_15_000001_create_projects_table.php`
 
@@ -194,4 +194,4 @@ The Property Tags Integration is **complete, tested, and production-ready**. The
 
 **Verification Command**: `php scripts/verify-property-tags-integration.php`  
 **Test Command**: `php artisan test tests/Unit/Models/PropertyTagsIntegrationTest.php`  
-**Documentation**: `docs/models/PROPERTY_TAGS_INTEGRATION_COMPLETE.md`
+**Documentation**: [docs/models/PROPERTY_TAGS_INTEGRATION_COMPLETE.md](../models/PROPERTY_TAGS_INTEGRATION_COMPLETE.md)

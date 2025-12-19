@@ -331,10 +331,10 @@ php artisan test --filter=SubscriptionTest::test_renew_method
 
 ## Related Documentation
 
-- **Test Documentation**: `docs/testing/SUBSCRIPTION_MODEL_TEST_DOCUMENTATION.md`
-- **Architecture**: `docs/architecture/SUBSCRIPTION_ARCHITECTURE.md`
+- **Test Documentation**: [docs/testing/SUBSCRIPTION_MODEL_TEST_DOCUMENTATION.md](../testing/SUBSCRIPTION_MODEL_TEST_DOCUMENTATION.md)
+- **Architecture**: [docs/architecture/SUBSCRIPTION_ARCHITECTURE.md](../architecture/SUBSCRIPTION_ARCHITECTURE.md)
 - **Business Rules**: `docs/guides/SUBSCRIPTION_BUSINESS_RULES.md`
-- **API Reference**: `docs/api/SUBSCRIPTION_API.md`
+- **API Reference**: [docs/api/SUBSCRIPTION_API.md](../api/SUBSCRIPTION_API.md)
 
 ---
 

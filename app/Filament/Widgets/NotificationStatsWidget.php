@@ -40,27 +40,32 @@ class NotificationStatsWidget extends BaseWidget
             Stat::make('Total Notifications', $totalNotifications)
                 ->description('All platform notifications')
                 ->descriptionIcon('heroicon-m-document-text')
-                ->color('primary'),
+                ->color('primary')
+                ->url(route('filament.admin.resources.platform-notifications.index')),
 
             Stat::make('Sent Notifications', $sentNotifications)
                 ->description('Successfully sent')
                 ->descriptionIcon('heroicon-m-check-circle')
-                ->color('success'),
+                ->color('success')
+                ->url(route('filament.admin.resources.platform-notifications.index')),
 
             Stat::make('Scheduled Notifications', $scheduledNotifications)
                 ->description('Pending delivery')
                 ->descriptionIcon('heroicon-m-clock')
-                ->color('warning'),
+                ->color('warning')
+                ->url(route('filament.admin.resources.platform-notifications.index')),
 
             Stat::make('Failed Notifications', $failedNotifications)
                 ->description('Delivery failed')
                 ->descriptionIcon('heroicon-m-x-circle')
-                ->color('danger'),
+                ->color('danger')
+                ->url(route('filament.admin.resources.platform-notifications.index')),
 
             Stat::make('Delivery Rate', number_format($deliveryRate, 1) . '%')
                 ->description('Overall delivery success')
                 ->descriptionIcon('heroicon-m-chart-bar')
-                ->color($deliveryRate >= 95 ? 'success' : ($deliveryRate >= 85 ? 'warning' : 'danger')),
+                ->color($deliveryRate >= 95 ? 'success' : ($deliveryRate >= 85 ? 'warning' : 'danger'))
+                ->url(route('filament.admin.resources.platform-notifications.index')),
         ];
     }
 

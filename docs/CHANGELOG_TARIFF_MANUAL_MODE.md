@@ -236,19 +236,19 @@ public function isManual(): bool
 
 ### New Documentation
 
-1. **Feature Guide:** `docs/filament/TARIFF_MANUAL_MODE.md`
+1. **Feature Guide:** [docs/filament/TARIFF_MANUAL_MODE.md](filament/TARIFF_MANUAL_MODE.md)
    - Comprehensive feature documentation
    - Use cases and examples
    - Implementation details
    - Testing guide
 
-2. **API Documentation:** `docs/api/TARIFF_API.md`
+2. **API Documentation:** [docs/api/TARIFF_API.md](api/TARIFF_API.md)
    - Updated endpoint documentation
    - Request/response examples
    - Validation rules
    - Error codes
 
-3. **Changelog:** `docs/CHANGELOG_TARIFF_MANUAL_MODE.md` (this file)
+3. **Changelog:** [docs/CHANGELOG_TARIFF_MANUAL_MODE.md](CHANGELOG_TARIFF_MANUAL_MODE.md) (this file)
 
 ### Updated Documentation
 
@@ -334,7 +334,7 @@ If issues arise, rollback is straightforward:
 
 ## References
 
-- [Tariff Manual Mode Documentation](./filament/TARIFF_MANUAL_MODE.md)
-- [Tariff API Documentation](./api/TARIFF_API.md)
+- [Tariff Manual Mode Documentation](filament/TARIFF_MANUAL_MODE.md)
+- [Tariff API Documentation](api/TARIFF_API.md)
 - [Filament 4 Documentation](https://filamentphp.com/docs)
 - [Laravel 12 Documentation](https://laravel.com/docs/12.x)

@@ -39,7 +39,7 @@ Successfully implemented comprehensive verification infrastructure for Batch 3 F
 
 ### 3. Updated Files
 
-- [README.md](../../README.md) - Added verification command
+- [README.md](../overview/readme.md) - Added verification command
 - [docs/CHANGELOG.md](../CHANGELOG.md) - Added verification entry
 - [docs/upgrades/LARAVEL_12_FILAMENT_4_UPGRADE.md](LARAVEL_12_FILAMENT_4_UPGRADE.md) - Added Step 7
 - [.kiro/specs/1-framework-upgrade/tasks.md](../tasks/tasks.md) - Marked task 12 complete

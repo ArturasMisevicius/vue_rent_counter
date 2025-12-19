@@ -153,6 +153,6 @@ php artisan test --filter=InputSanitizerTest::it_allows_dots_in_identifier
 
 ## Documentation
 
-- **Full Documentation**: `docs/services/INPUT_SANITIZER_SERVICE.md`
-- **Security Audit**: `docs/security/TARIFF_MANUAL_MODE_SECURITY_AUDIT.md`
+- **Full Documentation**: [docs/services/INPUT_SANITIZER_SERVICE.md](INPUT_SANITIZER_SERVICE.md)
+- **Security Audit**: [docs/security/TARIFF_MANUAL_MODE_SECURITY_AUDIT.md](../security/TARIFF_MANUAL_MODE_SECURITY_AUDIT.md)
 - **Test Coverage**: `tests/Unit/Services/InputSanitizerTest.php`

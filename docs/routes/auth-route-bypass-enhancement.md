@@ -507,7 +507,7 @@ Authentication routes must be accessible regardless of subscription status to al
 #### 2. [docs/fixes/LOGIN_FIX_2025_12_01.md](../fixes/LOGIN_FIX_2025_12_01.md)
 - ✅ Already updated with bypass implementation details
 
-#### 3. [README.md](../../README.md)
+#### 3. [README.md](../overview/readme.md)
 ```markdown
 ## Authentication
 

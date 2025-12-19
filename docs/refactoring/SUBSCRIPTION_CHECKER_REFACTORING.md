@@ -293,8 +293,8 @@ Add monitoring for:
 ## Documentation
 
 **Created**:
-- `docs/services/SUBSCRIPTION_CHECKER_SERVICE.md` - Comprehensive service documentation
-- `docs/refactoring/SUBSCRIPTION_CHECKER_REFACTORING.md` - This document
+- [docs/services/SUBSCRIPTION_CHECKER_SERVICE.md](../services/SUBSCRIPTION_CHECKER_SERVICE.md) - Comprehensive service documentation
+- [docs/refactoring/SUBSCRIPTION_CHECKER_REFACTORING.md](SUBSCRIPTION_CHECKER_REFACTORING.md) - This document
 
 **Updated**:
 - Service class PHPDoc comments
@@ -309,8 +309,8 @@ Add monitoring for:
 - `app/Events/SubscriptionCacheWarmed.php`
 - `app/Observers/SubscriptionObserver.php`
 - `tests/Unit/Services/SubscriptionCheckerTest.php`
-- `docs/services/SUBSCRIPTION_CHECKER_SERVICE.md`
-- `docs/refactoring/SUBSCRIPTION_CHECKER_REFACTORING.md`
+- [docs/services/SUBSCRIPTION_CHECKER_SERVICE.md](../services/SUBSCRIPTION_CHECKER_SERVICE.md)
+- [docs/refactoring/SUBSCRIPTION_CHECKER_REFACTORING.md](SUBSCRIPTION_CHECKER_REFACTORING.md)
 
 ### Files Modified
 - `app/Services/SubscriptionChecker.php`

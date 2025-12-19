@@ -203,7 +203,7 @@ php artisan command:name [options]
 ## Quick Links
 
 ### Documentation
-- [Main README](../../README.md)
+- [Main README](../overview/readme.md)
 - [Setup Guide](../guides/SETUP.md)
 - [Testing Guide](../guides/TESTING_GUIDE.md)
 - [API Documentation](../api/)

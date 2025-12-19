@@ -306,7 +306,7 @@ Route::middleware(['auth', 'superadmin'])->group(function () {
 
 ### 2025-12-13 (Latest Update)
 - ✅ Completed final hardcoded string replacement (title and subtitle)
-- ✅ Created comprehensive view documentation: `docs/views/SUPERADMIN_ORGANIZATIONS_CREATE_VIEW.md`
+- ✅ Created comprehensive view documentation: [docs/views/SUPERADMIN_ORGANIZATIONS_CREATE_VIEW.md](views/SUPERADMIN_ORGANIZATIONS_CREATE_VIEW.md)
 - ✅ Documented complete architecture, data flow, and security considerations
 - ✅ Added performance optimization notes and testing guidelines
 - ✅ Verified all translation keys exist in EN and LT locales

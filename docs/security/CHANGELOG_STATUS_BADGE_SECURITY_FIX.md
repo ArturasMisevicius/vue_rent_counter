@@ -29,8 +29,8 @@ Enhanced the StatusBadge Blade component to use secure CSS class concatenation, 
 ### 2. Enhanced Documentation
 
 **Files Created/Updated**:
-- `docs/components/STATUS_BADGE_COMPONENT.md` - Added security considerations section
-- `docs/security/BLADE_TEMPLATE_SECURITY.md` - New comprehensive security guide
+- [docs/components/STATUS_BADGE_COMPONENT.md](../components/STATUS_BADGE_COMPONENT.md) - Added security considerations section
+- [docs/security/BLADE_TEMPLATE_SECURITY.md](BLADE_TEMPLATE_SECURITY.md) - New comprehensive security guide
 - `app/View/Components/StatusBadge.php` - Enhanced DocBlocks with security notes
 
 **Documentation Enhancements**:

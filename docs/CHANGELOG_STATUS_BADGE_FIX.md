@@ -38,7 +38,7 @@ $statusString = $status instanceof \BackedEnum ? $status->value : (string) $stat
 - Clarified label resolution order
 - Documented cache invalidation strategy
 
-**Comprehensive Guide (`docs/components/STATUS_BADGE_COMPONENT.md`):**
+**Comprehensive Guide ([docs/components/STATUS_BADGE_COMPONENT.md](components/STATUS_BADGE_COMPONENT.md)):**
 - Created detailed component documentation
 - Added usage examples for all scenarios
 - Documented architecture and data flow
@@ -141,8 +141,8 @@ test('subscription dashboard shows correct status', function () {
 - `app/View/Components/StatusBadge.php` - Enhanced documentation
 
 ### Created
-- `docs/components/STATUS_BADGE_COMPONENT.md` - Comprehensive component guide
-- `docs/CHANGELOG_STATUS_BADGE_FIX.md` - This changelog
+- [docs/components/STATUS_BADGE_COMPONENT.md](components/STATUS_BADGE_COMPONENT.md) - Comprehensive component guide
+- [docs/CHANGELOG_STATUS_BADGE_FIX.md](CHANGELOG_STATUS_BADGE_FIX.md) - This changelog
 
 ## Migration Notes
 
@@ -188,7 +188,7 @@ php artisan test tests/Feature/Components/StatusBadgeTest.php
 - [Blade Components Documentation](../frontend/BLADE_COMPONENTS.md)
 - [Enum Pattern Documentation](../api/ENUMS.md)
 - [Component Testing Guide](../testing/COMPONENT_TESTING.md)
-- [Status Badge Component Guide](./components/STATUS_BADGE_COMPONENT.md)
+- [Status Badge Component Guide](components/STATUS_BADGE_COMPONENT.md)
 
 ## Approval
 

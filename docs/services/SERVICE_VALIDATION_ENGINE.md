@@ -356,7 +356,7 @@ Enable debug logging to see:
 ## Related Documentation
 
 - [Universal Utility Management Requirements](../../.kiro/specs/universal-utility-management/requirements.md)
-- [Implementation Tasks](../../.kiro/specs/universal-utility-management/tasks.md)
+- [Implementation Tasks](../tasks/tasks.md)
 - [DistributionMethod Enhancement](../enums/DISTRIBUTION_METHOD.md)
 - [Validation Architecture](../architecture/VALIDATION_ARCHITECTURE.md)
 - [Performance Optimization](../performance/VALIDATION_PERFORMANCE.md)

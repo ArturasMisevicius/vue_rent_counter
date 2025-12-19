@@ -116,6 +116,12 @@ public const ROLE_PRIORITIES = [
 - `getRolePriority()`: Gets role ordering priority
 - `clearCache()`: Clears all cached data for user
 
+### API Token Methods (Enhanced)
+- `createApiToken(string $name, ?array $abilities = null)`: Creates role-based API tokens
+- `revokeAllApiTokens()`: Security-focused token revocation
+- `getActiveTokensCount()`: Token monitoring and management
+- `hasApiAbility(string $ability)`: Runtime permission validation
+
 ### 4. Service Registration
 
 **Location**: `app/Providers/AppServiceProvider.php`
@@ -182,6 +188,12 @@ Added singleton registrations for:
 - Active user validation
 - Suspended user handling
 - Email verification requirements
+
+### API Token Security
+- Role-based ability assignment
+- Token revocation for security incidents
+- Runtime permission validation
+- Integration with Laravel Sanctum
 
 ### Cache Security
 - User-specific cache isolation

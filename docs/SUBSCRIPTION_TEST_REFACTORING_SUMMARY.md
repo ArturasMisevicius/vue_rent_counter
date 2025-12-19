@@ -258,11 +258,11 @@ The test suite now provides robust coverage of the Subscription model, ensuring 
 - `tests/Unit/Models/SubscriptionTest.php` (enhanced)
 
 **Files Created:**
-- `docs/testing/SUBSCRIPTION_TEST_IMPROVEMENTS.md` (new)
-- `SUBSCRIPTION_TEST_REFACTORING_SUMMARY.md` (this file)
+- [docs/testing/SUBSCRIPTION_TEST_IMPROVEMENTS.md](testing/SUBSCRIPTION_TEST_IMPROVEMENTS.md) (new)
+- [SUBSCRIPTION_TEST_REFACTORING_SUMMARY.md](SUBSCRIPTION_TEST_REFACTORING_SUMMARY.md) (this file)
 
 **Files Updated:**
-- `TEST_GAP_ANALYSIS.md` (marked Subscription as improved)
+- [TEST_GAP_ANALYSIS.md](TEST_GAP_ANALYSIS.md) (marked Subscription as improved)
 
 **Next Steps:**
 1. Run full test suite: `php artisan test`

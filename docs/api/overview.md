@@ -721,7 +721,7 @@ paths:
 
 ## Related Documentation
 
-- [Authentication Setup](./authentication.md)
+- [Authentication Setup](authentication.md)
 - [Rate Limiting Configuration](./rate-limiting.md)
 - [API Testing](./testing.md)
 - [Security Guidelines](../security/api.md)

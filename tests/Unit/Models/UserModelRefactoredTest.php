@@ -150,6 +150,96 @@ class UserModelRefactoredTest extends TestCase
         $this->assertCount(1, $activeUsers);
     }
 
+    public function test_user_api_token_methods_work_after_trait_removal(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::ADMIN]);
+
+        // Test createApiToken method exists and returns string
+        $token = $user->createApiToken('test-token');
+        $this->assertIsString($token);
+
+        // Test getActiveTokensCount method exists and returns int
+        $count = $user->getActiveTokensCount();
+        $this->assertIsInt($count);
+        $this->assertGreaterThan(0, $count);
+
+        // Test hasApiAbility method exists and returns bool
+        $hasAbility = $user->hasApiAbility('property:read');
+        $this->assertIsBool($hasAbility);
+
+        // Test revokeAllApiTokens method exists and returns int
+        $revokedCount = $user->revokeAllApiTokens();
+        $this->assertIsInt($revokedCount);
+        $this->assertEquals($count, $revokedCount);
+
+        // Test currentAccessToken method exists
+        $currentToken = $user->currentAccessToken();
+        $this->assertNull($currentToken); // Should be null when not set
+    }
+
+    public function test_user_sanctum_compatibility_methods_work(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::MANAGER]);
+
+        // Test createToken method (Sanctum compatibility)
+        $result = $user->createToken('compat-token', ['custom:ability']);
+        
+        $this->assertIsObject($result);
+        $this->assertObjectHasProperty('plainTextToken', $result);
+        $this->assertIsString($result->plainTextToken);
+    }
+
+    public function test_user_tokens_relationship_still_works(): void
+    {
+        $user = User::factory()->create();
+        
+        // Create some tokens
+        $user->createApiToken('token-1');
+        $user->createApiToken('token-2');
+
+        // Test tokens relationship
+        $tokens = $user->tokens;
+        
+        $this->assertCount(2, $tokens);
+        $this->assertContains('token-1', $tokens->pluck('name'));
+        $this->assertContains('token-2', $tokens->pluck('name'));
+    }
+
+    public function test_user_memoization_works_for_services(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::ADMIN]);
+
+        // Access services multiple times
+        $capabilities1 = $user->getCapabilities();
+        $capabilities2 = $user->getCapabilities();
+        
+        $state1 = $user->getState();
+        $state2 = $user->getState();
+
+        // Should return same instances (memoized)
+        $this->assertSame($capabilities1, $capabilities2);
+        $this->assertSame($state1, $state2);
+    }
+
+    public function test_user_refresh_memoized_data_clears_cache(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::ADMIN]);
+
+        // Access memoized data
+        $capabilities1 = $user->getCapabilities();
+        $state1 = $user->getState();
+
+        // Refresh memoized data
+        $user->refreshMemoizedData();
+
+        // Access again - should be new instances
+        $capabilities2 = $user->getCapabilities();
+        $state2 = $user->getState();
+
+        $this->assertNotSame($capabilities1, $capabilities2);
+        $this->assertNotSame($state1, $state2);
+    }
+
     /**
      * Create a mock Panel object for testing.
      */

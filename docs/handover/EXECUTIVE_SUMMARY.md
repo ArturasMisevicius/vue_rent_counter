@@ -158,5 +158,5 @@ Security:         ✅ Passed
 **DevOps Lead:** [Имя]  
 **Project Manager:** [Имя]
 
-**Документация:** `docs/handover/FINAL_TECHNICAL_HANDOVER_REPORT.md`
+**Документация:** [docs/handover/FINAL_TECHNICAL_HANDOVER_REPORT.md](FINAL_TECHNICAL_HANDOVER_REPORT.md)
 

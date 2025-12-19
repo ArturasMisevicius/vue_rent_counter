@@ -154,6 +154,6 @@ php artisan migrate:fresh --seed
 
 ## Related Documentation
 
-- [Coding Standards](./standards.md)
+- [Coding Standards](standards.md)
 - [Testing Guidelines](../testing/overview.md)
 - [Architecture Overview](../architecture/overview.md)

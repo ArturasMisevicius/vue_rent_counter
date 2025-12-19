@@ -177,9 +177,9 @@ Monitor for these log entries:
 **Files Modified**:
 - `app/Services/InputSanitizer.php` - Security fix implementation
 - `tests/Unit/Services/InputSanitizerTest.php` - Added security tests
-- `docs/services/INPUT_SANITIZER_SERVICE.md` - Comprehensive service documentation
-- `docs/security/input-sanitizer-security-fix.md` - Detailed security analysis
-- `docs/security/SECURITY_PATCH_2024-12-05.md` - Patch summary
+- [docs/services/INPUT_SANITIZER_SERVICE.md](../services/INPUT_SANITIZER_SERVICE.md) - Comprehensive service documentation
+- [docs/security/input-sanitizer-security-fix.md](../security/input-sanitizer-security-fix.md) - Detailed security analysis
+- [docs/security/SECURITY_PATCH_2024-12-05.md](../security/SECURITY_PATCH_2024-12-05.md) - Patch summary
 
 **References**:
 - [OWASP Path Traversal](https://owasp.org/www-community/attacks/Path_Traversal)
@@ -297,7 +297,7 @@ $subscriptions = $checker->getSubscriptionsForUsers($users->all());
 - Batch operation efficiency metrics added
 
 **Documentation**:
-- `docs/performance/SUBSCRIPTION_CHECKER_OPTIMIZATION.md` - Comprehensive optimization guide
+- [docs/performance/SUBSCRIPTION_CHECKER_OPTIMIZATION.md](../performance/SUBSCRIPTION_CHECKER_OPTIMIZATION.md) - Comprehensive optimization guide
 - `app/Services/SubscriptionChecker.php` - Updated inline documentation
 - `app/Contracts/SubscriptionCheckerInterface.php` - Added batch method signature
 
@@ -347,9 +347,9 @@ class CustomSubscriptionChecker extends SubscriptionChecker
 
 **Documentation Updates**:
 - `app/Services/SubscriptionChecker.php` - Added @example blocks
-- `docs/services/SUBSCRIPTION_CHECKER_SERVICE.md` - Added extensibility section
-- `docs/refactoring/SUBSCRIPTION_CHECKER_REFACTORING.md` - Added extensibility notes
-- `docs/architecture/SUBSCRIPTION_ARCHITECTURE.md` - New comprehensive architecture doc
+- [docs/services/SUBSCRIPTION_CHECKER_SERVICE.md](../services/SUBSCRIPTION_CHECKER_SERVICE.md) - Added extensibility section
+- [docs/refactoring/SUBSCRIPTION_CHECKER_REFACTORING.md](../refactoring/SUBSCRIPTION_CHECKER_REFACTORING.md) - Added extensibility notes
+- [docs/architecture/SUBSCRIPTION_ARCHITECTURE.md](../architecture/SUBSCRIPTION_ARCHITECTURE.md) - New comprehensive architecture doc
 
 **Testing**:
 - All existing tests pass without modification
@@ -402,8 +402,8 @@ class CustomSubscriptionChecker extends SubscriptionChecker
 - Enhanced audit logging for authorization failures
 
 **Files Created**:
-- `docs/security/USERRESOURCE_SECURITY_AUDIT_2024-12-02.md` - Full audit report
-- `docs/security/SECURITY_AUDIT_SUMMARY.md` - Executive summary
+- [docs/security/USERRESOURCE_SECURITY_AUDIT_2024-12-02.md](../security/USERRESOURCE_SECURITY_AUDIT_2024-12-02.md) - Full audit report
+- [docs/security/SECURITY_AUDIT_SUMMARY.md](../security/SECURITY_AUDIT_SUMMARY.md) - Executive summary
 - `app/Http/Middleware/RateLimitFilamentAccess.php` - Rate limiting
 - `tests/Security/FilamentCsrfProtectionTest.php` - CSRF tests
 - `tests/Security/FilamentSecurityHeadersTest.php` - Header tests
@@ -460,7 +460,7 @@ UserResource::can*() → UserPolicy::*() → Tenant Scope Check → Audit Log
 - 9.5: Policy-based authorization
 
 **Documentation**:
-- Added comprehensive authorization documentation: `docs/filament/USER_RESOURCE_AUTHORIZATION.md`
+- Added comprehensive authorization documentation: [docs/filament/USER_RESOURCE_AUTHORIZATION.md](../filament/USER_RESOURCE_AUTHORIZATION.md)
 - Includes authorization flow diagrams
 - Includes role-based access matrix
 - Includes usage examples and integration guide

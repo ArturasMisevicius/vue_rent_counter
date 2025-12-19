@@ -130,7 +130,7 @@ All CRITICAL and HIGH severity security findings from the audit have been implem
 ### New Files Created
 4. ✅ `app/Observers/TariffObserver.php` - Audit logging observer
 5. ✅ `tests/Feature/Security/TariffManualModeSecurityTest.php` - Security tests
-6. ✅ `docs/security/TARIFF_MANUAL_MODE_SECURITY_AUDIT.md` - Comprehensive audit report
+6. ✅ [docs/security/TARIFF_MANUAL_MODE_SECURITY_AUDIT.md](TARIFF_MANUAL_MODE_SECURITY_AUDIT.md) - Comprehensive audit report
 
 ---
 
@@ -280,10 +280,10 @@ grep "validation" storage/logs/laravel.log
 ## Support & Documentation
 
 ### Documentation
-- Security Audit: `docs/security/TARIFF_MANUAL_MODE_SECURITY_AUDIT.md`
-- Feature Guide: `docs/filament/TARIFF_MANUAL_MODE.md`
-- Developer Guide: `docs/guides/TARIFF_MANUAL_MODE_DEVELOPER_GUIDE.md`
-- API Documentation: `docs/api/TARIFF_API.md`
+- Security Audit: [docs/security/TARIFF_MANUAL_MODE_SECURITY_AUDIT.md](TARIFF_MANUAL_MODE_SECURITY_AUDIT.md)
+- Feature Guide: [docs/filament/TARIFF_MANUAL_MODE.md](../filament/TARIFF_MANUAL_MODE.md)
+- Developer Guide: [docs/guides/TARIFF_MANUAL_MODE_DEVELOPER_GUIDE.md](../guides/TARIFF_MANUAL_MODE_DEVELOPER_GUIDE.md)
+- API Documentation: [docs/api/TARIFF_API.md](../api/TARIFF_API.md)
 
 ### Support Contacts
 - Security Team: security@yourdomain.com

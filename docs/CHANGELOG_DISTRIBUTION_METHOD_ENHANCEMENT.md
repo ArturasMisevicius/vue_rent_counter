@@ -216,9 +216,9 @@ php artisan test --filter=DistributionMethodTest --coverage
 ## References
 
 - [Universal Utility Management Spec](../.kiro/specs/universal-utility-management/)
-- [DistributionMethod Enum Documentation](./enums/DISTRIBUTION_METHOD.md)
-- [Test Coverage Report](./testing/DISTRIBUTION_METHOD_TEST_COVERAGE.md)
-- [Task 2.2 Implementation](../.kiro/specs/universal-utility-management/tasks.md#22)
+- [DistributionMethod Enum Documentation](enums/DISTRIBUTION_METHOD.md)
+- [Test Coverage Report](testing/DISTRIBUTION_METHOD_TEST_COVERAGE.md)
+- [Task 2.2 Implementation](tasks/tasks.md#22)
 
 ## Author
 

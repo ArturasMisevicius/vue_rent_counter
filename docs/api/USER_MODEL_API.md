@@ -1,388 +1,218 @@
 # User Model API Documentation
 
-**Model**: `App\Models\User`  
-**Purpose**: Hierarchical user management with role-based access control  
-**Laravel Version**: 12.x  
-**Last Updated**: 2025-12-02
-
----
-
 ## Overview
 
-The User model implements a three-tier hierarchical system for managing users across the Vilnius Utilities Billing platform:
+The User model provides comprehensive API token management with role-based abilities, hierarchical user relationships, and multi-tenant data isolation.
 
-- **SUPERADMIN**: System owner with full access across all organizations
-- **ADMIN**: Property owner managing their portfolio within tenant_id scope
-- **MANAGER**: Legacy role with admin-level permissions (deprecated, use ADMIN)
-- **TENANT**: Apartment resident with access limited to their assigned property
+## API Token Management
 
----
+### Methods
 
-## Model Properties
+#### `createApiToken(string $name, ?array $abilities = null): string`
 
-### Core Attributes
+Creates a new API token with role-based or custom abilities.
 
-| Property | Type | Description | Nullable |
-|----------|------|-------------|----------|
-| `id` | int | Primary key | No |
-| `tenant_id` | int | Organization identifier for data isolation (null for Superadmin) | Yes |
-| `property_id` | int | Assigned property for Tenant role | Yes |
-| `parent_user_id` | int | Admin who created this user (for Tenant role) | Yes |
-| `name` | string | User's full name | No |
-| `email` | string | Unique email address | No |
-| `password` | string | Hashed password | No |
-| `role` | UserRole | User role enum (superadmin, admin, manager, tenant) | No |
-| `is_active` | boolean | Account activation status | No |
-| `organization_name` | string | Organization name (for Admin role) | Yes |
-| `email_verified_at` | Carbon | Email verification timestamp | Yes |
-| `created_at` | Carbon | Creation timestamp | No |
-| `updated_at` | Carbon | Last update timestamp | No |
+**Parameters:**
+- `$name` (string): Token identifier for management
+- `$abilities` (array|null): Custom abilities array, null for role-based defaults
 
-### Relationships
+**Returns:** Plain text token string for API authentication
 
-| Relationship | Type | Description |
-|--------------|------|-------------|
-| `property` | BelongsTo | Assigned property (for Tenant role) |
-| `parentUser` | BelongsTo | Admin who created this user |
-| `childUsers` | HasMany | Tenants created by this Admin |
-| `subscription` | HasOne | Subscription (for Admin role) |
-| `properties` | HasMany | Properties managed by this Admin |
-| `buildings` | HasMany | Buildings managed by this Admin |
-| `invoices` | HasMany | Invoices for this Admin's organization |
-| `meterReadings` | HasMany | Meter readings entered by this user |
-| `meterReadingAudits` | HasMany | Meter reading audits created by this user |
-| `tenant` | HasOne | Tenant (renter) associated with this user |
-
----
-
-## Authorization Methods
-
-### `canAccessPanel(Panel $panel): bool`
-
-**Purpose**: Primary authorization gate for Filament panel access
-
-**Parameters**:
-- `$panel` (Panel): The Filament panel being accessed
-
-**Returns**: `bool` - True if user can access the panel, false otherwise
-
-**Authorization Rules**:
-- Admin Panel (`admin`): ADMIN, MANAGER, SUPERADMIN roles only
-- Other Panels: SUPERADMIN only
-- TENANT role: Explicitly denied access to all panels
-- Inactive users: Denied access to all panels
-
-**Requirements**: 9.1, 9.2, 9.3
-
-**Example**:
+**Example:**
 ```php
-use Filament\Facades\Filament;
+// Role-based abilities (automatic)
+$token = $user->createApiToken('mobile-app');
 
-$user = auth()->user();
-$panel = Filament::getPanel('admin');
+// Custom abilities
+$token = $user->createApiToken('limited-access', ['meter-reading:read']);
+```
 
-if ($user->canAccessPanel($panel)) {
-    // User can access admin panel
-} else {
-    // Access denied
+#### `revokeAllApiTokens(): void`
+
+Revokes all active API tokens for security purposes.
+
+**Use Cases:**
+- Security incidents
+- Password changes
+- Account deactivation
+- Suspicious activity
+
+**Example:**
+```php
+$user->revokeAllApiTokens();
+```
+
+#### `getActiveTokensCount(): int`
+
+Returns the number of currently active API tokens.
+
+**Returns:** Integer count of active tokens
+
+**Example:**
+```php
+$count = $user->getActiveTokensCount();
+if ($count > 5) {
+    // Too many tokens, consider cleanup
 }
 ```
 
-**Security Notes**:
-- Works in conjunction with `EnsureUserIsAdminOrManager` middleware
-- Provides defense-in-depth security
-- Always checks `is_active` status first
-- Uses strict comparison (`===`) for role checks
+#### `hasApiAbility(string $ability): bool`
 
----
+Checks if the current access token has a specific ability.
 
-## Role Helper Methods
+**Parameters:**
+- `$ability` (string): The ability to check (e.g., 'meter-reading:write')
 
-### `isSuperadmin(): bool`
+**Returns:** Boolean indicating if user has the ability
 
-**Purpose**: Check if user has SUPERADMIN role
-
-**Returns**: `bool` - True if user is superadmin
-
-**Example**:
+**Example:**
 ```php
-if ($user->isSuperadmin()) {
-    // Superadmin-only logic
+if ($user->hasApiAbility('meter-reading:write')) {
+    // Allow meter reading submission
 }
 ```
 
-### `isAdmin(): bool`
+## Role-Based Abilities
 
-**Purpose**: Check if user has ADMIN role
+### Superadmin
+- **Abilities:** `['*']` (all abilities)
+- **Access:** Full system access across all tenants
+- **Use Case:** System administration and management
 
-**Returns**: `bool` - True if user is admin
+### Admin/Manager
+- **Abilities:** 
+  - `meter-reading:read`
+  - `meter-reading:write`
+  - `property:read`
+  - `invoice:read`
+  - `validation:read`
+  - `validation:write`
+- **Access:** Limited to their tenant scope
+- **Use Case:** Property management and tenant administration
 
-**Example**:
+### Tenant
+- **Abilities:**
+  - `meter-reading:read`
+  - `meter-reading:write`
+  - `validation:read`
+- **Access:** Limited to their assigned property
+- **Use Case:** Meter reading submission and consumption viewing
+
+## Security Features
+
+### Token Security
+- **Expiration:** Configurable via `SANCTUM_TOKEN_EXPIRATION`
+- **Revocation:** Bulk revoke all tokens for security
+- **Abilities:** Fine-grained permission control
+- **Rate Limiting:** 60 requests per minute per user
+
+### Account Security
+- **Active Status:** Inactive users cannot create tokens
+- **Suspension:** Suspended users are denied access
+- **Email Verification:** Required for API access
+
+## Integration with Services
+
+### ApiAuthenticationService
 ```php
-if ($user->isAdmin()) {
-    // Admin-only logic
-}
+use App\Services\ApiAuthenticationService;
+
+$authService = app(ApiAuthenticationService::class);
+$result = $authService->authenticate($email, $password, $tokenName);
 ```
 
-### `isManager(): bool`
-
-**Purpose**: Check if user has MANAGER role
-
-**Returns**: `bool` - True if user is manager
-
-**Example**:
+### UserQueryOptimizationService
 ```php
-if ($user->isManager()) {
-    // Manager-only logic
-}
+use App\Services\UserQueryOptimizationService;
+
+$queryService = app(UserQueryOptimizationService::class);
+$stats = $queryService->getApiTokenStatistics($tenantId);
 ```
 
-### `isTenantUser(): bool`
+## Database Schema
 
-**Purpose**: Check if user has TENANT role
-
-**Returns**: `bool` - True if user is tenant
-
-**Example**:
-```php
-if ($user->isTenantUser()) {
-    // Tenant-only logic
-}
+### Personal Access Tokens Table
+```sql
+-- Optimized indexes for token management
+CREATE INDEX pat_tokenable_name_idx ON personal_access_tokens (tokenable_type, tokenable_id, name);
+CREATE INDEX pat_last_used_idx ON personal_access_tokens (last_used_at);
+CREATE INDEX pat_expires_at_idx ON personal_access_tokens (expires_at);
+CREATE INDEX pat_user_tokenable_idx ON personal_access_tokens (tokenable_id) WHERE tokenable_type = 'App\\Models\\User';
 ```
 
----
+## Caching Strategy
 
-## Query Scopes
-
-### `scopeOrderedByRole($query)`
-
-**Purpose**: Order users by role priority (superadmin → admin → manager → tenant)
-
-**Example**:
+### Cache Keys
 ```php
-$users = User::orderedByRole()->get();
+// API token statistics (15 minutes TTL)
+"user_api_tokens:{tenant_id}:stats"
+
+// User role checks (1 hour TTL)
+"user_role:{user_id}:has_role:{role}:{guard}"
 ```
 
-### `scopeActive($query)`
-
-**Purpose**: Filter only active users
-
-**Example**:
-```php
-$activeUsers = User::active()->get();
-```
-
----
-
-## Usage Examples
-
-### Creating Users
-
-#### Create Superadmin
-
-```php
-use App\Enums\UserRole;
-
-$superadmin = User::create([
-    'name' => 'System Administrator',
-    'email' => 'admin@system.com',
-    'password' => bcrypt('secure-password'),
-    'role' => UserRole::SUPERADMIN,
-    'is_active' => true,
-    'tenant_id' => null, // No tenant isolation
-]);
-```
-
-#### Create Admin (Property Owner)
-
-```php
-$admin = User::create([
-    'name' => 'Property Owner',
-    'email' => 'owner@example.com',
-    'password' => bcrypt('secure-password'),
-    'role' => UserRole::ADMIN,
-    'is_active' => true,
-    'tenant_id' => 1, // Unique organization ID
-    'organization_name' => 'ABC Properties',
-]);
-```
-
-#### Create Tenant
-
-```php
-$tenant = User::create([
-    'name' => 'John Doe',
-    'email' => 'john@example.com',
-    'password' => bcrypt('secure-password'),
-    'role' => UserRole::TENANT,
-    'is_active' => true,
-    'tenant_id' => 1, // Inherited from Admin
-    'property_id' => 5, // Assigned property
-    'parent_user_id' => $admin->id, // Admin who created this tenant
-]);
-```
-
-### Checking Authorization
-
-```php
-use Filament\Facades\Filament;
-
-$user = auth()->user();
-$panel = Filament::getPanel('admin');
-
-// Check panel access
-if ($user->canAccessPanel($panel)) {
-    // Allow access
-} else {
-    abort(403, 'Unauthorized access to admin panel');
-}
-
-// Check role-specific permissions
-if ($user->isAdmin() || $user->isManager()) {
-    // Admin/Manager logic
-} elseif ($user->isTenantUser()) {
-    // Tenant logic
-}
-```
-
-### Querying Users
-
-```php
-// Get all active admins
-$admins = User::where('role', UserRole::ADMIN)
-    ->active()
-    ->orderedByRole()
-    ->get();
-
-// Get tenants for a specific admin
-$tenants = User::where('parent_user_id', $admin->id)
-    ->where('role', UserRole::TENANT)
-    ->active()
-    ->get();
-
-// Get users with their properties
-$users = User::with(['property', 'parentUser', 'subscription'])
-    ->active()
-    ->get();
-```
-
----
-
-## Security Considerations
-
-### Multi-Tenancy
-
-- **Tenant Isolation**: Admin and Tenant users are isolated by `tenant_id`
-- **No Global Scope**: User model does NOT apply `BelongsToTenant` scope to avoid circular dependency during authentication
-- **Controller-Level Filtering**: User filtering is handled through policies and controller-level authorization
-
-### Authorization Layers
-
-1. **Model Level**: `canAccessPanel()` method
-2. **Middleware Level**: `EnsureUserIsAdminOrManager` middleware
-3. **Policy Level**: User policies for CRUD operations
-4. **Gate Level**: `access-admin-panel` gate definition
-
-### Best Practices
-
-1. ✅ Always check `is_active` status before granting access
-2. ✅ Use role helper methods for cleaner code
-3. ✅ Implement policies for all user operations
-4. ✅ Log authorization failures for security monitoring
-5. ✅ Never bypass authorization checks "temporarily"
-
----
+### Cache Invalidation
+- User role changes: Clear role and token caches
+- Token operations: Clear token statistics
+- Account status changes: Clear all user-related caches
 
 ## Testing
 
 ### Unit Tests
-
 ```php
-use Tests\TestCase;
-use App\Models\User;
-use App\Enums\UserRole;
-use Filament\Facades\Filament;
+// Token creation
+$token = $user->createApiToken('test-token');
+$this->assertIsString($token);
 
-class UserAuthorizationTest extends TestCase
-{
-    /** @test */
-    public function superadmin_can_access_admin_panel()
-    {
-        $user = User::factory()->create(['role' => UserRole::SUPERADMIN]);
-        $panel = Filament::getPanel('admin');
-        
-        $this->assertTrue($user->canAccessPanel($panel));
-    }
-    
-    /** @test */
-    public function tenant_cannot_access_admin_panel()
-    {
-        $user = User::factory()->create(['role' => UserRole::TENANT]);
-        $panel = Filament::getPanel('admin');
-        
-        $this->assertFalse($user->canAccessPanel($panel));
-    }
-    
-    /** @test */
-    public function inactive_user_cannot_access_admin_panel()
-    {
-        $user = User::factory()->create([
-            'role' => UserRole::ADMIN,
-            'is_active' => false,
-        ]);
-        $panel = Filament::getPanel('admin');
-        
-        $this->assertFalse($user->canAccessPanel($panel));
-    }
-}
+// Token count
+$this->assertEquals(1, $user->getActiveTokensCount());
+
+// Token revocation
+$user->revokeAllApiTokens();
+$this->assertEquals(0, $user->fresh()->getActiveTokensCount());
+
+// Ability checking
+$this->assertTrue($user->hasApiAbility('meter-reading:read'));
 ```
 
 ### Feature Tests
-
 ```php
-/** @test */
-public function tenant_is_blocked_from_admin_routes()
-{
-    $tenant = User::factory()->create(['role' => UserRole::TENANT]);
-    
-    $this->actingAs($tenant)
-        ->get('/admin')
-        ->assertForbidden();
-}
+// API authentication
+$response = $this->postJson('/api/auth/login', [
+    'email' => 'user@example.com',
+    'password' => 'password'
+]);
 
-/** @test */
-public function admin_can_access_admin_routes()
-{
-    $admin = User::factory()->create(['role' => UserRole::ADMIN]);
-    
-    $this->actingAs($admin)
-        ->get('/admin')
-        ->assertSuccessful();
-}
+$token = $response->json('data.token');
+
+// API usage
+$response = $this->withToken($token)
+    ->getJson('/api/v1/validation/health');
 ```
 
----
+## Best Practices
+
+### Token Management
+1. **Use descriptive names** for token identification
+2. **Revoke tokens** when no longer needed
+3. **Monitor token usage** for security
+4. **Implement token rotation** for long-lived applications
+
+### Security
+1. **Validate abilities** before sensitive operations
+2. **Use HTTPS** in production
+3. **Implement rate limiting** to prevent abuse
+4. **Monitor suspicious activity** patterns
+
+### Performance
+1. **Cache token statistics** for dashboard displays
+2. **Use eager loading** for token relationships
+3. **Implement bulk operations** for token cleanup
+4. **Monitor database performance** for token queries
 
 ## Related Documentation
 
-- [Authorization Quick Reference](../security/AUTHORIZATION_QUICK_REFERENCE.md)
-- [Security Incident Report](../security/SECURITY_INCIDENT_2025_12_02.md)
-- [Multi-Tenancy Architecture](../architecture/MULTI_TENANCY.md)
-- [User Policies](../policies/USER_POLICY.md)
-- [Filament Admin Panel](../admin/ADMIN_PANEL_GUIDE.md)
-
----
-
-## Changelog
-
-### 2025-12-02
-- ✅ Fixed critical security vulnerability in `canAccessPanel()`
-- ✅ Added `is_active` check to prevent deactivated users from accessing panels
-- ✅ Enhanced documentation with security notes and examples
-- ✅ Added comprehensive test coverage
-
----
-
-**Maintained by**: Development Team  
-**Security Contact**: security@example.com  
-**Last Security Audit**: 2025-12-02
+- [API Authentication](authentication.md)
+- [User Model Architecture](../database/USER_MODEL_ARCHITECTURE.md)
+- [User Role Service](../services/USER_ROLE_SERVICE.md)
+- [Panel Access Service](../services/PANEL_ACCESS_SERVICE.md)

@@ -75,6 +75,15 @@ class AppServiceProvider extends ServiceProvider
         // Register User model refactoring services
         $this->app->singleton(\App\Services\UserRoleService::class);
         $this->app->singleton(\App\Services\PanelAccessService::class);
+        $this->app->singleton(\App\Services\ApiAuthenticationService::class);
+        $this->app->singleton(\App\Services\ApiTokenManager::class);
+
+        // Register Security Header services
+        $this->app->singleton(\App\Services\Security\NonceGeneratorService::class);
+        $this->app->singleton(\App\Services\Security\CspHeaderBuilder::class);
+        $this->app->singleton(\App\Services\Security\SecurityHeaderFactory::class);
+        $this->app->singleton(\App\Services\Security\SecurityHeaderService::class);
+        $this->app->singleton(\App\Services\Security\ViteCSPIntegration::class);
 
         // Register TariffResolver with its strategies
         $this->app->singleton(\App\Services\TariffResolver::class, function ($app) {

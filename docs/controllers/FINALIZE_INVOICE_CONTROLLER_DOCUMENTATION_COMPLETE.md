@@ -186,7 +186,7 @@ Comprehensive documentation suite created for the `FinalizeInvoiceController`, c
 **Status**: ✅ Updated
 
 ### Main README
-**File**: [README.md](../../README.md)  
+**File**: [README.md](../overview/readme.md)  
 **Changes**:
 - Reorganized documentation section
 - Added architecture subsection
@@ -338,7 +338,7 @@ php artisan test --filter=FinalizeInvoiceControllerTest
 
 ### Primary Entry Points
 
-1. **Main README**: [README.md](../../README.md)
+1. **Main README**: [README.md](../overview/readme.md)
    - Links to all documentation sections
    - Organized by category
 

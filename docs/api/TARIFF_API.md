@@ -305,5 +305,5 @@ curl -X POST https://api.example.com/api/tariffs \
 
 - [Tariff Manual Mode](../filament/TARIFF_MANUAL_MODE.md)
 - [Provider Integration](../filament/PROVIDER_INTEGRATION.md)
-- [Authentication](./AUTHENTICATION.md)
+- [Authentication](authentication.md)
 - [Authorization](./AUTHORIZATION.md)

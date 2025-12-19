@@ -567,7 +567,7 @@ Import the Postman collection for easy API testing:
 ## Related Documentation
 
 - [AccountManagementService Documentation](../services/AccountManagementService.md)
-- [Authentication Guide](./authentication.md)
+- [Authentication Guide](authentication.md)
 - [Multi-Tenancy Architecture](../architecture/multi-tenancy.md)
 - [Webhook Configuration](./webhooks.md)
 

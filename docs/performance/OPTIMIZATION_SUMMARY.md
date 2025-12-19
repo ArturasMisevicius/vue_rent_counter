@@ -35,7 +35,7 @@ Optimized the `InputSanitizer` service achieving significant performance gains w
 
 - `app/Services/InputSanitizer.php` - Core optimizations + security fix
 - `tests/Performance/InputSanitizerPerformanceTest.php` - New performance tests
-- `docs/performance/INPUT_SANITIZER_OPTIMIZATION.md` - Comprehensive documentation
+- [docs/performance/INPUT_SANITIZER_OPTIMIZATION.md](INPUT_SANITIZER_OPTIMIZATION.md) - Comprehensive documentation
 
 ## 🧪 Testing
 
@@ -75,4 +75,4 @@ For questions or issues, contact the development team.
 
 ---
 
-**Full Documentation**: `docs/performance/INPUT_SANITIZER_OPTIMIZATION.md`
+**Full Documentation**: [docs/performance/INPUT_SANITIZER_OPTIMIZATION.md](INPUT_SANITIZER_OPTIMIZATION.md)

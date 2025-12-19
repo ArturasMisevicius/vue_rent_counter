@@ -654,7 +654,7 @@ The system uses a multi-level data isolation approach:
 
 ## Additional Resources
 
-- [README.md](../../README.md) - Project overview and quick start
+- [README.md](../overview/readme.md) - Project overview and quick start
 - [SETUP.md](SETUP.md) - Installation and configuration guide
 - [TESTING_GUIDE.md](TESTING_GUIDE.md) - Testing approach and conventions
 - [Project Overview](../overview/readme.md) - Detailed feature documentation

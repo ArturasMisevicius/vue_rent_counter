@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\UserRole;
+use App\Services\ApiTokenManager;
 use App\Services\PanelAccessService;
 use App\Services\UserRoleService;
 use App\ValueObjects\UserCapabilities;
@@ -16,11 +17,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -73,6 +77,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property-read \Illuminate\Database\Eloquent\Collection|Building[] $buildings Buildings managed by this Admin
  * @property-read \Illuminate\Database\Eloquent\Collection|Invoice[] $invoices Invoices for this Admin's organization
  * @property-read \Illuminate\Database\Eloquent\Collection|MeterReading[] $meterReadings Meter readings entered by this user
+ * @property-read \Illuminate\Database\Eloquent\Collection|PersonalAccessToken[] $tokens API tokens for this user
  * 
  * @see \App\Enums\UserRole
  * @see \App\Models\Subscription
@@ -97,6 +102,21 @@ class User extends Authenticatable implements FilamentUser
         'manager' => 3,
         'tenant' => 4,
     ];
+
+    // Cache TTL constants
+    private const CACHE_TTL_SHORT = 300; // 5 minutes
+    private const CACHE_TTL_MEDIUM = 900; // 15 minutes
+    private const CACHE_TTL_LONG = 3600; // 1 hour
+
+    // Memoization properties
+    private ?UserCapabilities $memoizedCapabilities = null;
+    private ?UserState $memoizedState = null;
+    private ?PanelAccessService $memoizedPanelService = null;
+    private ?UserRoleService $memoizedRoleService = null;
+    private ?ApiTokenManager $memoizedTokenManager = null;
+    
+    // Current access token (set by middleware)
+    public ?PersonalAccessToken $currentAccessToken = null;
 
     /**
      * Guard Spatie role boot hooks when permission tables are not present.
@@ -150,26 +170,33 @@ class User extends Authenticatable implements FilamentUser
     protected static function booted(): void
     {
         // No global scope for User model
+        
+        // Clear cache when user is updated
+        static::updated(function (User $user) {
+            $user->clearCache();
+            $user->refreshMemoizedData();
+        });
+
+        // Clear cache when user is deleted
+        static::deleted(function (User $user) {
+            $user->clearCache();
+        });
     }
 
     /**
      * The attributes that are mass assignable.
+     * 
+     * SECURITY: Sensitive fields removed to prevent privilege escalation attacks.
+     * Use dedicated methods for: system_tenant_id, is_super_admin, tenant_id, 
+     * property_id, parent_user_id, role, suspended_at
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'system_tenant_id',
-        'is_super_admin',
-        'tenant_id',
-        'property_id',
-        'parent_user_id',
         'name',
         'email',
         'password',
-        'role',
         'is_active',
-        'suspended_at',
-        'suspension_reason',
         'last_login_at',
         'organization_name',
     ];
@@ -221,7 +248,7 @@ class User extends Authenticatable implements FilamentUser
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        return app(PanelAccessService::class)->canAccessPanel($this, $panel);
+        return $this->getPanelAccessService()->canAccessPanel($this, $panel);
     }
 
     /**
@@ -229,22 +256,22 @@ class User extends Authenticatable implements FilamentUser
      */
     public function isSuperadmin(): bool
     {
-        return app(UserRoleService::class)->isSuperadmin($this);
+        return $this->getUserRoleService()->isSuperadmin($this);
     }
 
     public function isAdmin(): bool
     {
-        return app(UserRoleService::class)->isAdmin($this);
+        return $this->getUserRoleService()->isAdmin($this);
     }
 
     public function isManager(): bool
     {
-        return app(UserRoleService::class)->isManager($this);
+        return $this->getUserRoleService()->isManager($this);
     }
 
     public function isTenantUser(): bool
     {
-        return app(UserRoleService::class)->isTenant($this);
+        return $this->getUserRoleService()->isTenant($this);
     }
 
     /**
@@ -252,23 +279,23 @@ class User extends Authenticatable implements FilamentUser
      */
     public function hasRole($roles, ?string $guard = null): bool
     {
-        return app(UserRoleService::class)->hasRole($this, $roles, $guard);
+        return $this->getUserRoleService()->hasRole($this, $roles, $guard);
     }
 
     /**
-     * Get user capabilities based on role and status.
+     * Get user capabilities based on role and status (memoized).
      */
     public function getCapabilities(): UserCapabilities
     {
-        return UserCapabilities::fromUser($this);
+        return $this->memoizedCapabilities ??= UserCapabilities::fromUser($this);
     }
 
     /**
-     * Get user state information.
+     * Get user state information (memoized).
      */
     public function getState(): UserState
     {
-        return new UserState($this);
+        return $this->memoizedState ??= new UserState($this);
     }
 
     /**
@@ -276,7 +303,7 @@ class User extends Authenticatable implements FilamentUser
      */
     public function hasAdministrativePrivileges(): bool
     {
-        return app(UserRoleService::class)->hasAdministrativePrivileges($this);
+        return $this->getUserRoleService()->hasAdministrativePrivileges($this);
     }
 
     /**
@@ -284,7 +311,7 @@ class User extends Authenticatable implements FilamentUser
      */
     public function getRolePriority(): int
     {
-        return app(UserRoleService::class)->getRolePriority($this);
+        return $this->getUserRoleService()->getRolePriority($this);
     }
 
     /**
@@ -381,6 +408,15 @@ class User extends Authenticatable implements FilamentUser
     public function dashboardCustomization(): HasOne
     {
         return $this->hasOne(DashboardCustomization::class);
+    }
+
+    /**
+     * Get all API tokens for this user.
+     */
+    public function tokens(): HasMany
+    {
+        return $this->hasMany(PersonalAccessToken::class, 'tokenable_id')
+            ->where('tokenable_type', self::class);
     }
 
     /**
@@ -520,6 +556,97 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Scope: Filter users by system tenant (for superadmin operations).
+     */
+    public function scopeOfSystemTenant(Builder $query, int $systemTenantId): Builder
+    {
+        return $query->where('system_tenant_id', $systemTenantId);
+    }
+
+    /**
+     * Scope: Filter suspended users.
+     */
+    public function scopeSuspended(Builder $query): Builder
+    {
+        return $query->whereNotNull('suspended_at');
+    }
+
+    /**
+     * Scope: Filter users with recent activity (last 30 days).
+     */
+    public function scopeRecentlyActive(Builder $query): Builder
+    {
+        return $query->where('last_login_at', '>=', now()->subDays(30));
+    }
+
+    /**
+     * Scope: Filter users by property assignment.
+     */
+    public function scopeOfProperty(Builder $query, int $propertyId): Builder
+    {
+        return $query->where('property_id', $propertyId);
+    }
+
+    /**
+     * Scope: Filter users created by specific parent user.
+     */
+    public function scopeCreatedBy(Builder $query, int $parentUserId): Builder
+    {
+        return $query->where('parent_user_id', $parentUserId);
+    }
+
+    /**
+     * Scope: Eager load common relationships for performance.
+     */
+    public function scopeWithCommonRelations(Builder $query): Builder
+    {
+        return $query->with([
+            'property:id,name,address,tenant_id',
+            'parentUser:id,name,email,role',
+            'systemTenant:id,name,slug',
+        ]);
+    }
+
+    /**
+     * Scope: Eager load extended relationships for detailed views.
+     */
+    public function scopeWithExtendedRelations(Builder $query): Builder
+    {
+        return $query->with([
+            'property:id,name,address,tenant_id,building_id',
+            'property.building:id,name,address',
+            'parentUser:id,name,email,role,organization_name',
+            'systemTenant:id,name,slug,description',
+            'subscription:id,user_id,status,expires_at',
+            'dashboardCustomization:id,user_id,layout,preferences',
+        ]);
+    }
+
+    /**
+     * Scope: Load only essential fields for listings.
+     */
+    public function scopeForListing(Builder $query): Builder
+    {
+        return $query->select([
+            'id', 'name', 'email', 'role', 'is_active', 
+            'tenant_id', 'property_id', 'last_login_at', 'created_at'
+        ])->with([
+            'property:id,name',
+            'parentUser:id,name',
+        ]);
+    }
+
+    /**
+     * Scope: Filter users for API access (active with verified email).
+     */
+    public function scopeApiEligible(Builder $query): Builder
+    {
+        return $query->active()
+                    ->whereNotNull('email_verified_at')
+                    ->whereNull('suspended_at');
+    }
+
+    /**
      * Get user's role in a specific organization.
      */
     public function getRoleInOrganization(Organization $organization): ?string
@@ -543,11 +670,15 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Get all projects across all organizations.
+     * Get all projects across all organizations (optimized with caching).
      */
     public function allProjects(): Builder
     {
-        $organizationIds = $this->organizations()->pluck('organizations.id');
+        // Cache organization IDs to avoid repeated queries
+        $cacheKey = "user_org_ids:{$this->id}";
+        $organizationIds = Cache::remember($cacheKey, self::CACHE_TTL_MEDIUM, function () {
+            return $this->organizations()->pluck('organizations.id')->toArray();
+        });
         
         return Project::whereIn('tenant_id', $organizationIds)
             ->orWhere('created_by', $this->id)
@@ -555,11 +686,310 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Get all projects with eager loading for performance.
+     */
+    public function allProjectsWithRelations(): Builder
+    {
+        return $this->allProjects()
+            ->with([
+                'organization:id,name',
+                'creator:id,name',
+                'assignee:id,name',
+                'tasks' => function ($query) {
+                    $query->select('id', 'project_id', 'title', 'status')
+                          ->where('status', '!=', 'completed')
+                          ->limit(5);
+                }
+            ]);
+    }
+
+    /**
      * Clear all cached data for this user.
      */
     public function clearCache(): void
     {
-        app(UserRoleService::class)->clearRoleCache($this);
-        app(PanelAccessService::class)->clearPanelAccessCache($this);
+        $this->getUserRoleService()->clearRoleCache($this);
+        $this->getPanelAccessService()->clearPanelAccessCache($this);
+        
+        // Clear memoized properties
+        $this->memoizedCapabilities = null;
+        $this->memoizedState = null;
+        
+        // Clear specific cache keys
+        Cache::forget("user_org_ids:{$this->id}");
+        Cache::forget("user_projects_count:{$this->id}");
+        Cache::forget("user_tasks_summary:{$this->id}");
     }
+
+    /**
+     * Assign user to tenant (secure method).
+     * 
+     * @param int $tenantId Target tenant ID
+     * @param User $admin Admin performing the assignment
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function assignToTenant(int $tenantId, User $admin): void
+    {
+        if (!$admin->hasAdministrativePrivileges()) {
+            throw new \Illuminate\Auth\Access\AuthorizationException('Insufficient privileges to assign tenant');
+        }
+        
+        $this->tenant_id = $tenantId;
+        $this->save();
+        
+        Log::info('User assigned to tenant', [
+            'user_id' => $this->id,
+            'tenant_id' => $tenantId,
+            'admin_id' => $admin->id,
+            'ip_address' => request()?->ip(),
+        ]);
+    }
+
+    /**
+     * Assign user to property (secure method).
+     * 
+     * @param int $propertyId Target property ID
+     * @param User $admin Admin performing the assignment
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function assignToProperty(int $propertyId, User $admin): void
+    {
+        if (!$admin->hasAdministrativePrivileges()) {
+            throw new \Illuminate\Auth\Access\AuthorizationException('Insufficient privileges to assign property');
+        }
+        
+        $this->property_id = $propertyId;
+        $this->parent_user_id = $admin->id;
+        $this->save();
+        
+        Log::info('User assigned to property', [
+            'user_id' => $this->id,
+            'property_id' => $propertyId,
+            'admin_id' => $admin->id,
+            'ip_address' => request()?->ip(),
+        ]);
+    }
+
+    /**
+     * Promote user to superadmin (secure method).
+     * 
+     * @param User $currentSuperAdmin Current superadmin performing the promotion
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function promoteToSuperAdmin(User $currentSuperAdmin): void
+    {
+        if (!$currentSuperAdmin->isSuperadmin()) {
+            throw new \Illuminate\Auth\Access\AuthorizationException('Only superadmins can promote users');
+        }
+        
+        $this->is_super_admin = true;
+        $this->role = UserRole::SUPERADMIN;
+        $this->tenant_id = null; // Superadmins have no tenant scope
+        $this->save();
+        
+        Log::warning('User promoted to superadmin', [
+            'user_id' => $this->id,
+            'promoted_by' => $currentSuperAdmin->id,
+            'ip_address' => request()?->ip(),
+        ]);
+    }
+
+    /**
+     * Suspend user account (secure method).
+     * 
+     * @param string $reason Suspension reason
+     * @param User $admin Admin performing the suspension
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function suspend(string $reason, User $admin): void
+    {
+        if (!$admin->hasAdministrativePrivileges()) {
+            throw new \Illuminate\Auth\Access\AuthorizationException('Insufficient privileges to suspend user');
+        }
+        
+        $this->suspended_at = now();
+        $this->suspension_reason = $reason;
+        $this->save();
+        
+        // Revoke all API tokens for security
+        $this->revokeAllApiTokens();
+        
+        Log::warning('User account suspended', [
+            'user_id' => $this->id,
+            'reason' => $reason,
+            'suspended_by' => $admin->id,
+            'ip_address' => request()?->ip(),
+        ]);
+    }
+
+    /**
+     * Create API token with role-based abilities.
+     * 
+     * Automatically assigns abilities based on user role unless custom abilities are provided.
+     * Uses custom ApiTokenManager service for token management.
+     * 
+     * @param string $name Token name for identification
+     * @param array|null $abilities Custom abilities array, null for role-based defaults
+     * @return string Plain text token for API authentication
+     * 
+     * @see \App\Services\ApiTokenManager
+     */
+    public function createApiToken(string $name, ?array $abilities = null): string
+    {
+        return $this->getApiTokenManager()->createToken($this, $name, $abilities);
+    }
+
+    /**
+     * Revoke all API tokens for security.
+     * 
+     * Useful for security incidents, password changes, or account deactivation.
+     * Immediately invalidates all active tokens for this user.
+     * 
+     * @return int Number of tokens revoked
+     */
+    public function revokeAllApiTokens(): int
+    {
+        return $this->getApiTokenManager()->revokeAllTokens($this);
+    }
+
+    /**
+     * Get active API tokens count.
+     * 
+     * Returns the number of currently active API tokens for monitoring and security purposes.
+     * 
+     * @return int Number of active tokens
+     */
+    public function getActiveTokensCount(): int
+    {
+        return $this->getApiTokenManager()->getActiveTokenCount($this);
+    }
+
+    /**
+     * Check if user has specific API ability.
+     * 
+     * Validates if the current access token has the specified ability.
+     * Used for runtime permission checking in API endpoints.
+     * 
+     * @param string $ability The ability to check (e.g., 'meter-reading:write')
+     * @return bool True if user has the ability, false otherwise
+     */
+    public function hasApiAbility(string $ability): bool
+    {
+        return $this->getApiTokenManager()->hasAbility($this, $ability);
+    }
+
+    /**
+     * Get the current access token.
+     * 
+     * @return PersonalAccessToken|null
+     */
+    public function currentAccessToken(): ?PersonalAccessToken
+    {
+        return $this->currentAccessToken;
+    }
+
+    /**
+     * Create a token (Laravel Sanctum compatibility method).
+     * 
+     * @param string $name
+     * @param array $abilities
+     * @param \DateTimeInterface|null $expiresAt
+     * @return object Object with plainTextToken property
+     */
+    public function createToken(string $name, array $abilities = ['*'], ?\DateTimeInterface $expiresAt = null): object
+    {
+        $plainTextToken = $this->getApiTokenManager()->createToken($this, $name, $abilities, $expiresAt);
+        
+        return (object) [
+            'plainTextToken' => $plainTextToken,
+        ];
+    }
+
+    /**
+     * Get cached project count for this user.
+     */
+    public function getProjectsCount(): int
+    {
+        $cacheKey = "user_projects_count:{$this->id}";
+        
+        return Cache::remember($cacheKey, self::CACHE_TTL_MEDIUM, function () {
+            return $this->allProjects()->count();
+        });
+    }
+
+    /**
+     * Get cached task summary for this user.
+     */
+    public function getTasksSummary(): array
+    {
+        $cacheKey = "user_tasks_summary:{$this->id}";
+        
+        return Cache::remember($cacheKey, self::CACHE_TTL_SHORT, function () {
+            $assignments = $this->taskAssignments()
+                ->join('tasks', 'task_assignments.task_id', '=', 'tasks.id')
+                ->selectRaw('
+                    COUNT(*) as total_tasks,
+                    COUNT(CASE WHEN tasks.status = "pending" THEN 1 END) as pending_tasks,
+                    COUNT(CASE WHEN tasks.status = "in_progress" THEN 1 END) as in_progress_tasks,
+                    COUNT(CASE WHEN tasks.status = "completed" THEN 1 END) as completed_tasks,
+                    COUNT(CASE WHEN tasks.due_date < NOW() AND tasks.status != "completed" THEN 1 END) as overdue_tasks
+                ')
+                ->first();
+
+            return [
+                'total' => $assignments->total_tasks ?? 0,
+                'pending' => $assignments->pending_tasks ?? 0,
+                'in_progress' => $assignments->in_progress_tasks ?? 0,
+                'completed' => $assignments->completed_tasks ?? 0,
+                'overdue' => $assignments->overdue_tasks ?? 0,
+            ];
+        });
+    }
+
+    /**
+     * Personal projects (polymorphic) - optimized.
+     */
+    public function personalProjects(): MorphMany
+    {
+        return $this->morphMany(Project::class, 'projectable')
+            ->select(['id', 'name', 'status', 'created_at', 'projectable_type', 'projectable_id'])
+            ->latest();
+    }
+
+    /**
+     * Get memoized PanelAccessService instance.
+     */
+    private function getPanelAccessService(): PanelAccessService
+    {
+        return $this->memoizedPanelService ??= app(PanelAccessService::class);
+    }
+
+    /**
+     * Get memoized UserRoleService instance.
+     */
+    private function getUserRoleService(): UserRoleService
+    {
+        return $this->memoizedRoleService ??= app(UserRoleService::class);
+    }
+
+    /**
+     * Get memoized ApiTokenManager instance.
+     */
+    private function getApiTokenManager(): ApiTokenManager
+    {
+        return $this->memoizedTokenManager ??= app(ApiTokenManager::class);
+    }
+
+    /**
+     * Refresh memoized data (call after model updates).
+     */
+    public function refreshMemoizedData(): void
+    {
+        $this->memoizedCapabilities = null;
+        $this->memoizedState = null;
+        $this->memoizedPanelService = null;
+        $this->memoizedRoleService = null;
+        $this->memoizedTokenManager = null;
+    }
+
 }

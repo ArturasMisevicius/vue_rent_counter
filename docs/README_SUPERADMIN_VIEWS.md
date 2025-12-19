@@ -16,7 +16,7 @@ This directory contains comprehensive documentation for all SuperAdmin views in 
 ### Organizations Management
 
 #### Create Organization
-- **File:** [SUPERADMIN_ORGANIZATIONS_CREATE_VIEW.md](./views/SUPERADMIN_ORGANIZATIONS_CREATE_VIEW.md)
+- **File:** [SUPERADMIN_ORGANIZATIONS_CREATE_VIEW.md](views/SUPERADMIN_ORGANIZATIONS_CREATE_VIEW.md)
 - **Route:** `GET /superadmin/organizations/create`
 - **Purpose:** Create new tenant organizations with admin accounts and subscriptions
 - **Status:** ✅ Fully Documented & Localized

@@ -130,6 +130,6 @@ php artisan test --filter="DistributionMethod.*area"
 
 ## See Also
 
-- [Full Documentation](./DISTRIBUTION_METHOD.md)
+- [Full Documentation](DISTRIBUTION_METHOD.md)
 - [Test Coverage](../testing/DISTRIBUTION_METHOD_TEST_COVERAGE.md)
 - [Changelog](../CHANGELOG_DISTRIBUTION_METHOD_ENHANCEMENT.md)

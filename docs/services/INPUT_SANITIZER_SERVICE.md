@@ -470,8 +470,8 @@ php artisan test --filter=InputSanitizerTest::it_blocks_path_traversal_with_obfu
 - `tests/Unit/Services/InputSanitizerTest.php`
 
 **Documentation:**
-- `docs/security/input-sanitizer-security-fix.md`
-- `docs/security/SECURITY_PATCH_2024-12-05.md`
+- [docs/security/input-sanitizer-security-fix.md](../security/input-sanitizer-security-fix.md)
+- [docs/security/SECURITY_PATCH_2024-12-05.md](../security/SECURITY_PATCH_2024-12-05.md)
 
 **Test Coverage:** Added 3 new security tests for bypass attempts.
 

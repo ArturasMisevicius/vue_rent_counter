@@ -329,9 +329,9 @@ composer require spatie/laravel-backup:^10.0
 **Текущее состояние:** Alpine.js bundled через Vite (оптимально)
 
 **Документация:**
-- ✅ `docs/architecture/ASSET_STRATEGY.md`
-- ✅ `docs/frontend/ALPINE_BUNDLING.md`
-- ✅ `docs/updates/ALPINE_BUNDLING_MIGRATION.md`
+- ✅ [docs/architecture/ASSET_STRATEGY.md](../architecture/ASSET_STRATEGY.md)
+- ✅ [docs/frontend/ALPINE_BUNDLING.md](../frontend/ALPINE_BUNDLING.md)
+- ✅ [docs/updates/ALPINE_BUNDLING_MIGRATION.md](../updates/ALPINE_BUNDLING_MIGRATION.md)
 
 ---
 
@@ -820,19 +820,19 @@ tail -f storage/logs/laravel.log
 ### Существующая документация
 
 **Архитектура:**
-- ✅ `docs/architecture/ASSET_STRATEGY.md`
+- ✅ [docs/architecture/ASSET_STRATEGY.md](../architecture/ASSET_STRATEGY.md)
 - ✅ `docs/architecture/DATABASE_SCHEMA.md` (если есть)
 
 **Frontend:**
-- ✅ `docs/frontend/ALPINE_BUNDLING.md`
-- ✅ `docs/frontend/FRONTEND.md`
+- ✅ [docs/frontend/ALPINE_BUNDLING.md](../frontend/ALPINE_BUNDLING.md)
+- ✅ [docs/frontend/FRONTEND.md](../frontend/FRONTEND.md)
 
 **Updates:**
-- ✅ `docs/updates/ALPINE_BUNDLING_MIGRATION.md`
-- ✅ `docs/refactoring/LAYOUT_ALPINE_REFACTORING_SUMMARY.md`
+- ✅ [docs/updates/ALPINE_BUNDLING_MIGRATION.md](../updates/ALPINE_BUNDLING_MIGRATION.md)
+- ✅ [docs/refactoring/LAYOUT_ALPINE_REFACTORING_SUMMARY.md](../refactoring/LAYOUT_ALPINE_REFACTORING_SUMMARY.md)
 
 **Setup:**
-- ✅ `docs/guides/SETUP.md`
+- ✅ [docs/guides/SETUP.md](../guides/SETUP.md)
 
 ### Рекомендуемая дополнительная документация
 

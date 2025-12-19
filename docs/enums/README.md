@@ -17,8 +17,8 @@ This directory contains documentation for all enums used in the CFlow applicatio
 - `CUSTOM_FORMULA` - Custom mathematical formula distribution
 
 **Documentation:**
-- [Full Documentation](./DISTRIBUTION_METHOD.md)
-- [Quick Reference](./DISTRIBUTION_METHOD_QUICK_REFERENCE.md)
+- [Full Documentation](DISTRIBUTION_METHOD.md)
+- [Quick Reference](DISTRIBUTION_METHOD_QUICK_REFERENCE.md)
 - [Test Coverage](../testing/DISTRIBUTION_METHOD_TEST_COVERAGE.md)
 - [Changelog](../CHANGELOG_DISTRIBUTION_METHOD_ENHANCEMENT.md)
 

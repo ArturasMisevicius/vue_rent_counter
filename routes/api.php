@@ -58,6 +58,17 @@ Route::middleware(['auth', 'role:admin,manager'])->group(function () {
     });
 });
 
+// API Authentication routes
+Route::prefix('auth')->group(function () {
+    Route::post('/login', [App\Http\Controllers\Api\AuthController::class, 'login']);
+    
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [App\Http\Controllers\Api\AuthController::class, 'logout']);
+        Route::get('/me', [App\Http\Controllers\Api\AuthController::class, 'me']);
+        Route::post('/refresh', [App\Http\Controllers\Api\AuthController::class, 'refresh']);
+    });
+});
+
 // API v1 (Sanctum) routes
 Route::prefix('v1/validation')->group(function () {
     require __DIR__ . '/api_v1_validation.php';

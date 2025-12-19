@@ -75,9 +75,9 @@ Created comprehensive performance test suite with 9 tests covering:
 ### 3. Documentation
 
 **Files Created**:
-1. `docs/performance/USER_RESOURCE_OPTIMIZATION.md` - Detailed optimization guide
-2. `docs/performance/OPTIMIZATION_SUMMARY.md` - Executive summary
-3. `PERFORMANCE_OPTIMIZATION_COMPLETE.md` - This completion report
+1. [docs/performance/USER_RESOURCE_OPTIMIZATION.md](performance/USER_RESOURCE_OPTIMIZATION.md) - Detailed optimization guide
+2. [docs/performance/OPTIMIZATION_SUMMARY.md](performance/OPTIMIZATION_SUMMARY.md) - Executive summary
+3. [PERFORMANCE_OPTIMIZATION_COMPLETE.md](PERFORMANCE_OPTIMIZATION_COMPLETE.md) - This completion report
 
 ## Technical Details
 
@@ -269,11 +269,11 @@ The optimizations maintain code clarity, correctness, and all existing functiona
 
 ## Related Documentation
 
-- [Detailed Optimization Guide](docs/performance/USER_RESOURCE_OPTIMIZATION.md)
-- [Optimization Summary](docs/performance/OPTIMIZATION_SUMMARY.md)
+- [Detailed Optimization Guide](performance/USER_RESOURCE_OPTIMIZATION.md)
+- [Optimization Summary](performance/OPTIMIZATION_SUMMARY.md)
 - [Performance Test Suite](tests/Performance/UserResourcePerformanceTest.php)
-- [Filament Authorization Guide](docs/filament/FILAMENT_AUTHORIZATION_GUIDE.md)
-- [User Resource Authorization](docs/filament/USER_RESOURCE_AUTHORIZATION.md)
+- [Filament Authorization Guide](filament/FILAMENT_AUTHORIZATION_GUIDE.md)
+- [User Resource Authorization](filament/USER_RESOURCE_AUTHORIZATION.md)
 
 ## Sign-off
 

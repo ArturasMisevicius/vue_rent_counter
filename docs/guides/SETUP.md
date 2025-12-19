@@ -575,7 +575,7 @@ After modifying, re-run the seeder:
 php artisan db:seed --class=UsersSeeder
 ```
 
-See the [README.md](../../README.md#default-user-accounts) and [HIERARCHICAL_USER_GUIDE.md](HIERARCHICAL_USER_GUIDE.md) for complete user account details and usage instructions.
+See the [README.md](../overview/readme.md#default-user-accounts) and [HIERARCHICAL_USER_GUIDE.md](HIERARCHICAL_USER_GUIDE.md) for complete user account details and usage instructions.
 
 ### Fresh Installation with Hierarchical Users
 
@@ -971,7 +971,7 @@ The admin panel (Filament) and frontend support:
 
 ## Additional Resources
 
-- [README.md](../../README.md) - Project overview and quick start
+- [README.md](../overview/readme.md) - Project overview and quick start
 - [Project Overview](../overview/readme.md) - Detailed feature documentation
 - [HIERARCHICAL_USER_GUIDE.md](HIERARCHICAL_USER_GUIDE.md) - User guide for all roles
 - [TESTING_GUIDE.md](TESTING_GUIDE.md) - Testing approach and conventions

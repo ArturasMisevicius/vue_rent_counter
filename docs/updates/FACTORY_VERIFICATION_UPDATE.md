@@ -214,7 +214,7 @@ Factories respect subscription constraints:
 - [docs/updates/FACTORY_VERIFICATION_UPDATE.md](FACTORY_VERIFICATION_UPDATE.md) - This file
 
 ### Modified Files
-- [README.md](../../README.md) - Added verification script reference
+- [README.md](../overview/readme.md) - Added verification script reference
 - [.kiro/specs/3-hierarchical-user-management/tasks.md](../tasks/tasks.md) - Added Task 13.5
 
 ### Related Files

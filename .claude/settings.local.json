@@ -110,7 +110,15 @@
       "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test tests/Feature/AuthenticationTest.php)",
       "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --compact)",
       "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --testsuite Feature,Unit)",
-      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test tests/Unit/Models/InvoiceTest.php)"
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test tests/Unit/Models/InvoiceTest.php)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter=\"SecurityAnalyticsMcpServiceEnhancedTest\")",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --filter=\"SecurityAnalyticsMcpServiceEnhancedTest\" --no-output)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan test --testsuite=Unit --stop-on-failure)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan config:show session)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan migrate:status)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan config:clear)",
+      "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan cache:clear)",
+      "Bash(\"C:\\\\Users\\\\menok\\\\.config\\\\herd\\\\bin\\\\php.bat\" artisan cache:forget dashboard_stats_*)"
     ],
     "deny": [],
     "ask": []

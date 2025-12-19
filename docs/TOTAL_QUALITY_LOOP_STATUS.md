@@ -22,7 +22,7 @@
    - Removed `max_buildings`, `max_meters`
    - Added `max_tenants`, `status`
    - Updated all methods to match actual Subscription model
-   - **DOCUMENTED**: Created comprehensive test documentation in `docs/testing/SUBSCRIPTION_MODEL_TEST_DOCUMENTATION.md`
+   - **DOCUMENTED**: Created comprehensive test documentation in [docs/testing/SUBSCRIPTION_MODEL_TEST_DOCUMENTATION.md](testing/SUBSCRIPTION_MODEL_TEST_DOCUMENTATION.md)
 
 3. ✅ **Fixed** `tests/Unit/Models/TranslationTest.php` - Updated to match actual schema:
    - Removed `language_id` and `value` fields
@@ -169,8 +169,8 @@ Need to create tests for:
 ## FILES CREATED/MODIFIED THIS SESSION
 
 ### Created:
-- `TEST_GAP_ANALYSIS.md` - Comprehensive gap analysis
-- `TOTAL_QUALITY_LOOP_STATUS.md` - This status report
+- [TEST_GAP_ANALYSIS.md](TEST_GAP_ANALYSIS.md) - Comprehensive gap analysis
+- [TOTAL_QUALITY_LOOP_STATUS.md](TOTAL_QUALITY_LOOP_STATUS.md) - This status report
 
 ### Modified:
 - `tests/Unit/Models/SubscriptionTest.php` - Fixed schema

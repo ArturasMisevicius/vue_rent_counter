@@ -159,7 +159,7 @@ If issues occur, you can temporarily rollback by:
 - `resources/js/app.js` - Alpine.js initialization
 - `package.json` - Alpine.js dependency (v3.14.0)
 - `vite.config.js` - Vite configuration
-- `docs/guides/SETUP.md` - Updated setup instructions
+- [docs/guides/SETUP.md](../guides/SETUP.md) - Updated setup instructions
 
 ## References
 

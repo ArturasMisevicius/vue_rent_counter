@@ -34,7 +34,7 @@ The UserResource authorization changes are secure and maintain proper security b
 
 ## Files Created
 
-- `docs/security/USERRESOURCE_SECURITY_AUDIT_2024-12-02.md` (Full audit)
+- [docs/security/USERRESOURCE_SECURITY_AUDIT_2024-12-02.md](USERRESOURCE_SECURITY_AUDIT_2024-12-02.md) (Full audit)
 - `app/Http/Middleware/RateLimitFilamentAccess.php`
 - `tests/Security/FilamentCsrfProtectionTest.php`
 - `tests/Security/FilamentSecurityHeadersTest.php`
@@ -61,4 +61,4 @@ The UserResource authorization changes are secure and maintain proper security b
 
 ---
 
-For full details, see: `docs/security/USERRESOURCE_SECURITY_AUDIT_2024-12-02.md`
+For full details, see: [docs/security/USERRESOURCE_SECURITY_AUDIT_2024-12-02.md](USERRESOURCE_SECURITY_AUDIT_2024-12-02.md)

@@ -336,5 +336,5 @@ For additional help:
 
 1. Review the [API Documentation](TARIFF_RESOURCE_API.md)
 2. Check the [Test Files](../../tests/Feature/Filament/) for examples
-3. Consult the [Project README](../../README.md)
+3. Consult the [Project README](../overview/readme.md)
 4. Review related documentation in `docs/filament/`

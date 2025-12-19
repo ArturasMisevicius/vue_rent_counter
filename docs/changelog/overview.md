@@ -6,7 +6,7 @@ This directory contains the complete version history and change documentation fo
 
 ## Structure
 
-- **[CHANGELOG.md](./CHANGELOG.md)** - Main changelog with all versions
+- **[CHANGELOG.md](CHANGELOG.md)** - Main changelog with all versions
 - **[recent-changes.md](./recent-changes.md)** - Recent changes and updates
 - **[breaking-changes.md](./breaking-changes.md)** - Breaking changes by version
 - **[migration-guides.md](./migration-guides.md)** - Migration instructions
@@ -64,7 +64,7 @@ Update the changelog when:
 - Changing APIs
 
 ### How to Update
-1. Add entry to `CHANGELOG.md` under "Unreleased"
+1. Add entry to [CHANGELOG.md](CHANGELOG.md) under "Unreleased"
 2. Use appropriate category (Added, Changed, Fixed, etc.)
 3. Include issue/PR references where applicable
 4. Move to versioned section on release

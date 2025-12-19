@@ -393,7 +393,7 @@ php artisan test --filter=SubscriptionTest --verbose
 - **Service Tests**: `tests/Unit/Services/SubscriptionCheckerTest.php`
 
 ### Architecture Documentation
-- **Subscription System**: `docs/architecture/SUBSCRIPTION_ARCHITECTURE.md`
+- **Subscription System**: [docs/architecture/SUBSCRIPTION_ARCHITECTURE.md](../architecture/SUBSCRIPTION_ARCHITECTURE.md)
 - **Cache Strategy**: `docs/performance/SUBSCRIPTION_CACHE_STRATEGY.md`
 - **Business Rules**: `docs/guides/SUBSCRIPTION_BUSINESS_RULES.md`
 

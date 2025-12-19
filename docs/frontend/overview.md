@@ -625,4 +625,4 @@ export default config[import.meta.env.MODE] || config.development;
 - [Tailwind CSS Configuration](./tailwind.md)
 - [Alpine.js Components](./alpine-components.md)
 - [Livewire Integration](./livewire.md)
-- [Performance Optimization](../performance/frontend.md)
+- [Performance Optimization](FRONTEND.md)

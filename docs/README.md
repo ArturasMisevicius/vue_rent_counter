@@ -23,6 +23,8 @@ Welcome to the CFlow documentation. This documentation is organized into logical
 - **[Translations](./features/translations/)** - Multi-language support
 - **[Tagging System](./traits/HASTAGS_TRAIT_DOCUMENTATION.md)** - Polymorphic tagging with HasTags trait
 - **[API](./api/)** - API documentation and integration guides
+  - [Authentication API](api/authentication.md) - API authentication and token management
+  - [User Model API](api/USER_MODEL_API.md) - User model API token functionality
 
 ### 📊 Operations & Maintenance
 - **[Performance](./performance/)** - Performance optimization and monitoring
@@ -38,10 +40,10 @@ Welcome to the CFlow documentation. This documentation is organized into logical
 
 ## Quick Start
 
-1. **New Developers**: Start with [Development Setup](./development/setup.md)
-2. **Architecture Overview**: Read [System Architecture](./architecture/overview.md)
-3. **Coding Standards**: Review [Code Standards](./standards/overview.md)
-4. **Testing**: Follow [Testing Guidelines](./testing/overview.md)
+1. **New Developers**: Start with [Development Setup](development/setup.md)
+2. **Architecture Overview**: Read [System Architecture](architecture/overview.md)
+3. **Coding Standards**: Review [Code Standards](standards/overview.md)
+4. **Testing**: Follow [Testing Guidelines](testing/overview.md)
 
 ## Contributing to Documentation
 

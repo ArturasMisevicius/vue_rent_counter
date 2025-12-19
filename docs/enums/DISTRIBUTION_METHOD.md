@@ -482,6 +482,6 @@ $properties = $this->buildingRepository->getBuildingPropertiesForDistribution(
 
 ## See Also
 
-- [Task 2.2 Implementation](./.kiro/specs/universal-utility-management/tasks.md#22-extend-distributionmethod-enum)
-- [Distribution Method Enhancement Complete](./DISTRIBUTION_METHOD_ENHANCEMENT_COMPLETE.md)
+- [Task 2.2 Implementation](../tasks/tasks.md#22-extend-distributionmethod-enum)
+- [Distribution Method Enhancement Complete](../DISTRIBUTION_METHOD_ENHANCEMENT_COMPLETE.md)
 - [Enum Testing Guide](../testing/enum-testing-guide.md)

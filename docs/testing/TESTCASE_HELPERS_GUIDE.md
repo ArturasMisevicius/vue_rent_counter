@@ -379,6 +379,6 @@ $reading = $this->createTestMeterReading($meter->id, 100.0);
 
 ## See Also
 
-- [Testing Guide](./TESTING_GUIDE.md)
+- [Testing Guide](../guides/TESTING_GUIDE.md)
 - [Multi-Tenancy Documentation](../architecture/MULTI_TENANCY.md)
 - [Property-Based Testing](./PROPERTY_BASED_TESTING.md)

@@ -597,7 +597,7 @@ public static function canViewAny(): bool
 
 ## Related Documentation
 
-- [UserResource Authorization](./USER_RESOURCE_AUTHORIZATION.md)
+- [UserResource Authorization](USER_RESOURCE_AUTHORIZATION.md)
 - [Multi-Tenancy Architecture](../architecture/MULTI_TENANCY.md)
 - [Authorization Testing Guide](../testing/AUTHORIZATION_TESTING.md)
 - [Filament Resources Guide](./FILAMENT_RESOURCES.md)

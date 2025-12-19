@@ -198,9 +198,9 @@ Event::listen(SecurityViolationDetected::class, BlockSuspiciousIP::class);
 
 ## 📚 Documentation
 
-- **Full Refactoring Guide**: `docs/refactoring/INPUT_SANITIZER_REFACTORING.md`
-- **API Reference**: `docs/api/INPUT_SANITIZER_API.md`
-- **Security Fix Details**: `docs/SECURITY_FIX_COMPLETE_2024-12-05.md`
+- **Full Refactoring Guide**: [docs/refactoring/INPUT_SANITIZER_REFACTORING.md](INPUT_SANITIZER_REFACTORING.md)
+- **API Reference**: [docs/api/INPUT_SANITIZER_API.md](../api/INPUT_SANITIZER_API.md)
+- **Security Fix Details**: [docs/SECURITY_FIX_COMPLETE_2024-12-05.md](../SECURITY_FIX_COMPLETE_2024-12-05.md)
 - **Test Suite**: `tests/Unit/Services/InputSanitizerRefactoredTest.php`
 
 ## ✅ Checklist

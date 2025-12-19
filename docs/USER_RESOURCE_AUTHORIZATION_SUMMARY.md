@@ -44,8 +44,8 @@ public static function shouldRegisterNavigation(): bool
 ## Documentation
 
 📄 **Full Specification:** `.kiro/specs/4-filament-admin-panel/USER_RESOURCE_AUTHORIZATION_ENHANCEMENT_SPEC.md`  
-📄 **Authorization Guide:** `docs/filament/USER_RESOURCE_AUTHORIZATION.md`  
-📄 **Performance Guide:** `docs/performance/USER_RESOURCE_OPTIMIZATION.md`  
+📄 **Authorization Guide:** [docs/filament/USER_RESOURCE_AUTHORIZATION.md](filament/USER_RESOURCE_AUTHORIZATION.md)  
+📄 **Performance Guide:** [docs/performance/USER_RESOURCE_OPTIMIZATION.md](performance/USER_RESOURCE_OPTIMIZATION.md)  
 📄 **Archive:** `memory-bank/archive/archive-userresource-authorization-2024-12-02.md`
 
 ## Key Files Modified

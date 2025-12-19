@@ -1437,7 +1437,7 @@ The UserResource authorization enhancement maintains strong security boundaries 
 ### 7.3 Files Created/Modified
 
 **Created:**
-- ✅ `docs/security/USERRESOURCE_SECURITY_AUDIT_2024-12-02.md`
+- ✅ [docs/security/USERRESOURCE_SECURITY_AUDIT_2024-12-02.md](USERRESOURCE_SECURITY_AUDIT_2024-12-02.md)
 - ✅ `app/Http/Middleware/RateLimitFilamentAccess.php`
 - ✅ `tests/Security/FilamentCsrfProtectionTest.php`
 - ✅ `tests/Security/FilamentSecurityHeadersTest.php`

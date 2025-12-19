@@ -6,7 +6,7 @@
 
 ## 📚 Документы
 
-### 1. [EXECUTIVE_SUMMARY.md](./EXECUTIVE_SUMMARY.md)
+### 1. [EXECUTIVE_SUMMARY.md](EXECUTIVE_SUMMARY.md)
 **Для кого:** C-level, Project Managers  
 **Время чтения:** 5 минут
 
@@ -16,7 +16,7 @@
 - Критические проблемы
 - Roadmap
 
-### 2. [FINAL_TECHNICAL_HANDOVER_REPORT.md](./FINAL_TECHNICAL_HANDOVER_REPORT.md)
+### 2. [FINAL_TECHNICAL_HANDOVER_REPORT.md](FINAL_TECHNICAL_HANDOVER_REPORT.md)
 **Для кого:** Senior Architects, Tech Leads  
 **Время чтения:** 30-40 минут
 
@@ -28,7 +28,7 @@
 - Предложения по развитию
 - Операционные процедуры
 
-### 3. [ARCHITECTURE_DIAGRAM.md](./ARCHITECTURE_DIAGRAM.md)
+### 3. [ARCHITECTURE_DIAGRAM.md](ARCHITECTURE_DIAGRAM.md)
 **Для кого:** Architects, Developers  
 **Время чтения:** 15 минут
 
@@ -40,7 +40,7 @@
 - Multi-tenancy architecture
 - Deployment architecture
 
-### 4. [AUDITOR_CHECKLIST.md](./AUDITOR_CHECKLIST.md)
+### 4. [AUDITOR_CHECKLIST.md](AUDITOR_CHECKLIST.md)
 **Для кого:** External Auditors  
 **Время чтения:** 20 минут + время на проверку
 
@@ -207,7 +207,7 @@ CI/CD:            ⚠️  Needs setup
 ### Внутренняя документация
 - `docs/architecture/` - Архитектурная документация
 - `docs/frontend/` - Frontend документация
-- `docs/guides/SETUP.md` - Setup guide
+- [docs/guides/SETUP.md](../guides/SETUP.md) - Setup guide
 - `docs/updates/` - История обновлений
 
 ### Внешние ресурсы

@@ -286,8 +286,8 @@ Currently, Tailwind CSS 4.x is still loaded via CDN. Future migration to bundled
 - `resources/js/app.js` - Alpine.js initialization
 - `package.json` - Alpine.js dependency
 - `vite.config.js` - Vite configuration
-- `docs/guides/SETUP.md` - Setup instructions
-- `docs/updates/ALPINE_BUNDLING_MIGRATION.md` - Migration guide
+- [docs/guides/SETUP.md](../guides/SETUP.md) - Setup instructions
+- [docs/updates/ALPINE_BUNDLING_MIGRATION.md](../updates/ALPINE_BUNDLING_MIGRATION.md) - Migration guide
 
 ## Conclusion
 

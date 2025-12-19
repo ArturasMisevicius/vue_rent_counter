@@ -242,8 +242,8 @@ Track:
 
 For questions or issues:
 
-1. Check full audit: `docs/security/USERRESOURCE_SECURITY_AUDIT_2024-12-02.md`
-2. Check quick reference: `docs/security/SECURITY_QUICK_REFERENCE.md`
+1. Check full audit: [docs/security/USERRESOURCE_SECURITY_AUDIT_2024-12-02.md](USERRESOURCE_SECURITY_AUDIT_2024-12-02.md)
+2. Check quick reference: [docs/security/SECURITY_QUICK_REFERENCE.md](SECURITY_QUICK_REFERENCE.md)
 3. Review test output: `php artisan test --filter=Security`
 4. Check logs: `storage/logs/security.log`
 

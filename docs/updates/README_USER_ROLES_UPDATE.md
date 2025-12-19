@@ -232,7 +232,7 @@ Potential future documentation improvements:
 
 ## Related Documentation
 
-- [README.md](../../README.md) - Main project documentation
+- [README.md](../overview/readme.md) - Main project documentation
 - [Hierarchical User Guide](../guides/HIERARCHICAL_USER_GUIDE.md) - User guide for all roles
 - [Setup Guide](../guides/SETUP.md) - Installation and configuration
 - [Subscription API](../api/SUBSCRIPTION_API.md) - Subscription system API

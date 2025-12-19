@@ -560,7 +560,7 @@ it('allows read access during grace period', function () {
 - [Account Management Service API](./ACCOUNT_MANAGEMENT_API.md)
 - [Hierarchical User Guide](../guides/HIERARCHICAL_USER_GUIDE.md)
 - [Setup Guide](../guides/SETUP.md)
-- [README](../../README.md)
+- [README](../overview/readme.md)
 
 ## Changelog
 

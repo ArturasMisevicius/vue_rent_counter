@@ -38,7 +38,7 @@ Comprehensive archive including:
 
 ### 3. Quick Reference Created ✅
 
-**File:** `USER_RESOURCE_AUTHORIZATION_SUMMARY.md`
+**File:** [USER_RESOURCE_AUTHORIZATION_SUMMARY.md](USER_RESOURCE_AUTHORIZATION_SUMMARY.md)
 
 Quick summary document with:
 - What changed
@@ -196,9 +196,9 @@ public static function shouldRegisterNavigation(): bool
 
 - **Specification:** `.kiro/specs/4-filament-admin-panel/USER_RESOURCE_AUTHORIZATION_ENHANCEMENT_SPEC.md`
 - **Archive:** `memory-bank/archive/archive-userresource-authorization-2024-12-02.md`
-- **Quick Summary:** `USER_RESOURCE_AUTHORIZATION_SUMMARY.md`
-- **Authorization Guide:** `docs/filament/USER_RESOURCE_AUTHORIZATION.md`
-- **Performance Guide:** `docs/performance/USER_RESOURCE_OPTIMIZATION.md`
+- **Quick Summary:** [USER_RESOURCE_AUTHORIZATION_SUMMARY.md](USER_RESOURCE_AUTHORIZATION_SUMMARY.md)
+- **Authorization Guide:** [docs/filament/USER_RESOURCE_AUTHORIZATION.md](filament/USER_RESOURCE_AUTHORIZATION.md)
+- **Performance Guide:** [docs/performance/USER_RESOURCE_OPTIMIZATION.md](performance/USER_RESOURCE_OPTIMIZATION.md)
 - **Changelog:** `docs/CHANGELOG.md`
 
 ## Sign-off

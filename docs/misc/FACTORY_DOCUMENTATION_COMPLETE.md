@@ -258,7 +258,7 @@ Superadmin (tenant_id: null)
 
 ### Update Documentation
 - [Factory Verification Update](../updates/FACTORY_VERIFICATION_UPDATE.md)
-- [README.md](../../README.md) - Verification scripts section
+- [README.md](../overview/readme.md) - Verification scripts section
 
 ## Success Metrics
 

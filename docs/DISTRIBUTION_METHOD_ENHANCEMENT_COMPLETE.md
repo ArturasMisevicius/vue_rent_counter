@@ -214,7 +214,7 @@ Duration: 4.91s
 - `tests/Unit/Enums/DistributionMethodTest.php` - Comprehensive test suite
 
 ### Updated
-- `.kiro/specs/universal-utility-management/tasks.md` - Marked task 2.2 complete
+- [.kiro/specs/universal-utility-management/tasks.md](tasks/tasks.md) - Marked task 2.2 complete
 
 ## Validation Checklist
 

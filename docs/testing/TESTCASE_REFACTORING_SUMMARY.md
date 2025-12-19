@@ -261,7 +261,7 @@ Created comprehensive test suite (`tests/Unit/TestCaseHelpersTest.php`) with 25+
 
 ## Documentation
 
-Created comprehensive guide (`docs/testing/TESTCASE_HELPERS_GUIDE.md`) including:
+Created comprehensive guide ([docs/testing/TESTCASE_HELPERS_GUIDE.md](TESTCASE_HELPERS_GUIDE.md)) including:
 
 - Helper method reference
 - Usage examples
@@ -367,8 +367,8 @@ All changes follow Laravel 12 and project conventions, maintain backward compati
 
 1. `tests/TestCase.php` - Enhanced with new helpers and context management
 2. `tests/Unit/TestCaseHelpersTest.php` - New comprehensive test suite
-3. `docs/testing/TESTCASE_HELPERS_GUIDE.md` - New user guide
-4. `docs/testing/TESTCASE_REFACTORING_SUMMARY.md` - This document
+3. [docs/testing/TESTCASE_HELPERS_GUIDE.md](TESTCASE_HELPERS_GUIDE.md) - New user guide
+4. [docs/testing/TESTCASE_REFACTORING_SUMMARY.md](TESTCASE_REFACTORING_SUMMARY.md) - This document
 
 ## Running Tests
 
@@ -387,6 +387,6 @@ php artisan test tests/Unit/TestCaseHelpersTest.php
 ## Support
 
 For questions or issues:
-1. Check the [TestCase Helpers Guide](./TESTCASE_HELPERS_GUIDE.md)
+1. Check the [TestCase Helpers Guide](TESTCASE_HELPERS_GUIDE.md)
 2. Review test examples in `tests/Unit/TestCaseHelpersTest.php`
 3. Consult the team lead or senior developer

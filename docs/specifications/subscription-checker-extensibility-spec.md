@@ -560,9 +560,9 @@ This change is **100% backward compatible** and requires no downtime:
 
 **Updated Files:**
 - ✅ `app/Services/SubscriptionChecker.php` - Added extensibility examples in PHPDoc
-- ✅ `docs/services/SUBSCRIPTION_CHECKER_SERVICE.md` - Added extensibility section
-- ✅ `docs/architecture/SUBSCRIPTION_ARCHITECTURE.md` - Updated architecture diagrams
-- ✅ `docs/refactoring/SUBSCRIPTION_CHECKER_REFACTORING.md` - Documented extensibility enhancement
+- ✅ [docs/services/SUBSCRIPTION_CHECKER_SERVICE.md](../services/SUBSCRIPTION_CHECKER_SERVICE.md) - Added extensibility section
+- ✅ [docs/architecture/SUBSCRIPTION_ARCHITECTURE.md](../architecture/SUBSCRIPTION_ARCHITECTURE.md) - Updated architecture diagrams
+- ✅ [docs/refactoring/SUBSCRIPTION_CHECKER_REFACTORING.md](../refactoring/SUBSCRIPTION_CHECKER_REFACTORING.md) - Documented extensibility enhancement
 
 **New Documentation:**
 ```markdown
@@ -602,7 +602,7 @@ $this->app->singleton(
 
 ### README Updates
 
-**Add to `README.md`:**
+**Add to [README.md](README.md):**
 ```markdown
 ## Extending Subscription Checking
 
@@ -622,7 +622,7 @@ $this->app->singleton(
 );
 \`\`\`
 
-See [docs/services/SUBSCRIPTION_CHECKER_SERVICE.md](docs/services/SUBSCRIPTION_CHECKER_SERVICE.md) for details.
+See [docs/services/SUBSCRIPTION_CHECKER_SERVICE.md](../services/SUBSCRIPTION_CHECKER_SERVICE.md) for details.
 ```
 
 ### CHANGELOG Updates
@@ -659,8 +659,8 @@ See [docs/services/SUBSCRIPTION_CHECKER_SERVICE.md](docs/services/SUBSCRIPTION_C
 **Related Files:**
 - `app/Services/SubscriptionChecker.php`
 - `app/Contracts/SubscriptionCheckerInterface.php`
-- `docs/services/SUBSCRIPTION_CHECKER_SERVICE.md`
-- `docs/architecture/SUBSCRIPTION_ARCHITECTURE.md`
+- [docs/services/SUBSCRIPTION_CHECKER_SERVICE.md](../services/SUBSCRIPTION_CHECKER_SERVICE.md)
+- [docs/architecture/SUBSCRIPTION_ARCHITECTURE.md](../architecture/SUBSCRIPTION_ARCHITECTURE.md)
 ```
 
 ---

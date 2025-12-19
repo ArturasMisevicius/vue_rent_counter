@@ -26,7 +26,7 @@ This document summarizes all documentation created for the Tariff Manual Entry M
 
 ### 2. Feature Documentation
 
-**File:** `docs/filament/TARIFF_MANUAL_MODE.md`
+**File:** [docs/filament/TARIFF_MANUAL_MODE.md](filament/TARIFF_MANUAL_MODE.md)
 
 **Content:**
 - ✅ Feature overview and summary
@@ -46,7 +46,7 @@ This document summarizes all documentation created for the Tariff Manual Entry M
 
 ### 3. API Documentation
 
-**File:** `docs/api/TARIFF_API.md`
+**File:** [docs/api/TARIFF_API.md](api/TARIFF_API.md)
 
 **Content:**
 - ✅ Complete REST API endpoint documentation
@@ -64,7 +64,7 @@ This document summarizes all documentation created for the Tariff Manual Entry M
 
 ### 4. Architecture Documentation
 
-**File:** `docs/architecture/TARIFF_MANUAL_MODE_ARCHITECTURE.md`
+**File:** [docs/architecture/TARIFF_MANUAL_MODE_ARCHITECTURE.md](architecture/TARIFF_MANUAL_MODE_ARCHITECTURE.md)
 
 **Content:**
 - ✅ Complete architecture diagram
@@ -82,7 +82,7 @@ This document summarizes all documentation created for the Tariff Manual Entry M
 
 ### 5. Quick Reference Guide
 
-**File:** `docs/filament/TARIFF_QUICK_REFERENCE.md`
+**File:** [docs/filament/TARIFF_QUICK_REFERENCE.md](filament/TARIFF_QUICK_REFERENCE.md)
 
 **Content:**
 - ✅ Step-by-step creation guides
@@ -99,7 +99,7 @@ This document summarizes all documentation created for the Tariff Manual Entry M
 
 ### 6. Changelog
 
-**File:** `docs/CHANGELOG_TARIFF_MANUAL_MODE.md`
+**File:** [docs/CHANGELOG_TARIFF_MANUAL_MODE.md](CHANGELOG_TARIFF_MANUAL_MODE.md)
 
 **Content:**
 - ✅ Summary of changes
@@ -141,7 +141,7 @@ This document summarizes all documentation created for the Tariff Manual Entry M
 
 ### 9. Main Documentation Index
 
-**File:** `docs/README.md`
+**File:** [docs/README.md](README.md)
 
 **Updates:**
 - ✅ Added Tariff Manual Mode to feature documentation

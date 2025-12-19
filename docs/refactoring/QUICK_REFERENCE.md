@@ -246,8 +246,8 @@ ls -la storage/logs/
 
 ## 📚 Documentation
 
-- **Full Guide**: `docs/refactoring/INPUT_SANITIZER_REFACTORING.md`
-- **API Reference**: `docs/api/INPUT_SANITIZER_API.md`
+- **Full Guide**: [docs/refactoring/INPUT_SANITIZER_REFACTORING.md](INPUT_SANITIZER_REFACTORING.md)
+- **API Reference**: [docs/api/INPUT_SANITIZER_API.md](../api/INPUT_SANITIZER_API.md)
 - **Tests**: `tests/Unit/Services/InputSanitizerRefactoredTest.php`
 
 ## ✅ Migration Checklist

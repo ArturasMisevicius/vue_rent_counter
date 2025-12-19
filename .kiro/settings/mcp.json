@@ -1,0 +1,52 @@
+{
+  "mcpServers": {
+    "security-analytics": {
+      "command": "uvx",
+      "args": ["security-analytics-mcp@latest"],
+      "env": {
+        "SECURITY_DB_CONNECTION": "mysql",
+        "SECURITY_LOG_LEVEL": "INFO",
+        "ANALYTICS_BATCH_SIZE": "1000",
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": false,
+      "autoApprove": []
+    },
+    "compliance-checker": {
+      "command": "uvx", 
+      "args": ["compliance-checker-mcp@latest"],
+      "env": {
+        "COMPLIANCE_FRAMEWORKS": "owasp,soc2,gdpr",
+        "CHECK_INTERVAL": "3600",
+        "REPORT_FORMAT": "json",
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": false,
+      "autoApprove": []
+    },
+    "security-performance": {
+      "command": "uvx",
+      "args": ["security-performance-mcp@latest"], 
+      "env": {
+        "PERFORMANCE_THRESHOLD_MS": "5",
+        "MONITORING_INTERVAL": "60",
+        "ALERT_WEBHOOK": "${SECURITY_ALERT_WEBHOOK}",
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": false,
+      "autoApprove": []
+    },
+    "incident-response": {
+      "command": "uvx",
+      "args": ["incident-response-mcp@latest"],
+      "env": {
+        "INCIDENT_SEVERITY_THRESHOLD": "high",
+        "AUTO_RESPONSE_ENABLED": "true",
+        "NOTIFICATION_CHANNELS": "slack,email",
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}

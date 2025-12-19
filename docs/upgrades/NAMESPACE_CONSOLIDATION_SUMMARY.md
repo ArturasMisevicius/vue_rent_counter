@@ -45,7 +45,7 @@ use Filament\Tables;
 **Location**: `.kiro/specs/6-filament-namespace-consolidation/`
 
 **Files**:
-1. ✅ [README.md](../../README.md) - Specification overview and quick links
+1. ✅ [README.md](../overview/readme.md) - Specification overview and quick links
 2. ✅ `requirements.md` - Business requirements and acceptance criteria (1,500+ lines)
 3. ✅ `design.md` - Technical design and implementation approach (1,200+ lines)
 4. ✅ [tasks.md](../tasks/tasks.md) - Actionable tasks with status tracking (800+ lines)

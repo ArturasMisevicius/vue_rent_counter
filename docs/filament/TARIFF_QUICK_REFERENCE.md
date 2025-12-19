@@ -245,7 +245,7 @@ POST /api/tariffs
 
 ## Related Documentation
 
-- [Detailed Feature Guide](./TARIFF_MANUAL_MODE.md)
+- [Detailed Feature Guide](TARIFF_MANUAL_MODE.md)
 - [API Documentation](../api/TARIFF_API.md)
 - [Architecture Documentation](../architecture/TARIFF_MANUAL_MODE_ARCHITECTURE.md)
 - [Testing Guide](../testing/TARIFF_TESTING.md)

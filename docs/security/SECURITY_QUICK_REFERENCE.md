@@ -106,7 +106,7 @@ tail -f storage/logs/performance.log | grep "Slow"
 - **Security Issues**: security@example.com
 - **Audit Logs**: `storage/logs/audit.log`
 - **Security Docs**: `docs/security/`
-- **Full Audit**: `docs/security/USERRESOURCE_SECURITY_AUDIT_2024-12-02.md`
+- **Full Audit**: [docs/security/USERRESOURCE_SECURITY_AUDIT_2024-12-02.md](USERRESOURCE_SECURITY_AUDIT_2024-12-02.md)
 
 ### 🔄 Next Security Review
 
