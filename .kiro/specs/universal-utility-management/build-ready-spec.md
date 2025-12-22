@@ -3,7 +3,7 @@
 ## Executive Summary
 
 ### Project Overview
-Transform the existing Lithuanian-specific "gyvatukas" heating system into a comprehensive Universal Utility Management System supporting multiple utility types (water, electricity, heating, gas, internet) with flexible pricing models, multi-tenant architecture, and role-based access control.
+Transform the existing Lithuanian-specific heating system into a comprehensive Universal Utility Management System supporting multiple utility types (water, electricity, heating, gas, internet) with flexible pricing models, multi-tenant architecture, and role-based access control.
 
 ### Success Metrics
 - **Performance**: <200ms response time for validation operations, <500ms for billing calculations
@@ -11,10 +11,10 @@ Transform the existing Lithuanian-specific "gyvatukas" heating system into a com
 - **Accuracy**: 99.9% billing calculation accuracy with full audit trails
 - **Availability**: 99.9% uptime with graceful degradation
 - **User Experience**: WCAG 2.1 AA compliance, mobile-responsive interfaces
-- **Migration**: Zero-downtime migration from existing gyvatukas system
+- **Migration**: Zero-downtime migration from existing heating system
 
 ### Constraints
-- **Backward Compatibility**: Maintain 100% compatibility with existing gyvatukas calculations
+- **Backward Compatibility**: Maintain 100% compatibility with existing heating calculations
 - **Multi-Tenancy**: Strict data isolation with tenant-scoped queries
 - **Security**: Role-based authorization, input sanitization, audit trails
 - **Localization**: Support EN, LT, RU, ES, MG, PI languages
@@ -181,7 +181,7 @@ $table->index(['input_method', 'validation_status']);
 
 ### Migration Strategy
 1. **Phase 1**: Add new fields to existing models with nullable constraints
-2. **Phase 2**: Migrate existing gyvatukas data to universal format
+2. **Phase 2**: Migrate existing heating data to universal format
 3. **Phase 3**: Add non-nullable constraints and optimize indexes
 4. **Phase 4**: Remove deprecated fields after validation
 
@@ -522,7 +522,7 @@ it('validates 100 readings within performance budget', function () {
 ### Migration Strategy
 1. **Pre-Migration**: Create backups and validate data integrity
 2. **Schema Migration**: Add new fields with nullable constraints
-3. **Data Migration**: Transform existing gyvatukas data to universal format
+3. **Data Migration**: Transform existing heating data to universal format
 4. **Validation**: Verify migrated data accuracy
 5. **Cutover**: Switch to universal system with feature flags
 6. **Cleanup**: Remove deprecated fields and optimize indexes
@@ -592,7 +592,7 @@ class UniversalUtilitySeeder extends Seeder
 - **Universal Billing**: Automated calculations with seasonal adjustments
 
 ### Migration Guide
-See [MIGRATION.md](docs/MIGRATION.md) for detailed migration instructions from gyvatukas system.
+See [MIGRATION.md](docs/MIGRATION.md) for detailed migration instructions from heating system.
 
 ### API Documentation
 - [Service Validation API](docs/api/SERVICE_VALIDATION_API.md)
@@ -683,4 +683,4 @@ class HealthController extends Controller
 }
 ```
 
-This comprehensive specification provides a complete roadmap for implementing the Universal Utility Management System while maintaining backward compatibility with the existing gyvatukas system and ensuring high performance, security, and accessibility standards.
+This comprehensive specification provides a complete roadmap for implementing the Universal Utility Management System while maintaining backward compatibility with the existing heating system and ensuring high performance, security, and accessibility standards.

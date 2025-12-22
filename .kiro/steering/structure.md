@@ -20,7 +20,7 @@ app/
 ├── Observers/             # MeterReadingObserver, FaqObserver (cache invalidation)
 ├── Policies/              # Authorization policies tied to every Filament resource
 ├── Scopes/                # Global scopes (`TenantScope`, `HierarchicalScope`)
-├── Services/              # BillingService, AccountManagementService, TariffResolver, GyvatukasCalculator, SubscriptionService, TenantContext
+├── Services/              # BillingService, AccountManagementService, TariffResolver, SubscriptionService, TenantContext
 ├── Support/               # Global helpers (`helpers.php`)
 ├── Traits/                # `BelongsToTenant`, tenancy helpers
 ├── ValueObjects/          # InvoiceItemData, BillingPeriod, TimeRange, ConsumptionData
@@ -61,8 +61,7 @@ Components directory holds shared primitives (stat cards, data tables, modal wra
 
 ### Configuration (`config/`)
 
-- `config/billing.php` – Tariff, meter, gyvatukas constants and rates.
-- `config/gyvatukas.php` – Season thresholds and formulas for circulation fees.
+- `config/billing.php` – Tariff, meter constants and rates.
 - `config/subscription.php` – Plans, limits, gracefully degrade when expired.
 - `config/backup.php` – Spatie Backup 10.x targeting SQLite/WAL files with enhanced verification.
 - `config/faq.php` – FAQ categories, cache TTL, and pagination settings.
@@ -86,7 +85,7 @@ Components directory holds shared primitives (stat cards, data tables, modal wra
 ```
 database/
 ├── factories/             # Factories for buildings, properties, meters, invoices
-├── migrations/            # Tenant-aware tables, meters, readings, invoices, gyvatukas data
+├── migrations/            # Tenant-aware tables, meters, readings, invoices
 └── seeders/
     ├── ProvidersSeeder.php
     ├── OrganizationSeeder.php
@@ -140,7 +139,7 @@ Property tests verify invariants spanning tariff selection, meter reading valida
 - **Middleware Architecture**: Laravel 12 middleware registration uses alias definitions and group assignments via `Middleware` configuration object. Security headers, locale handling, and impersonation applied globally.
 - **Boundaries**: Superadmin, manager, and tenant responsibilities are separated via controllers, policies, and Filament 4.x navigation. Shared services (`BillingService`, `SubscriptionService`) coordinate cross-cutting logic.
 - **Multi-tenancy**: `BelongsToTenant` trait, `TenantScope`, `HierarchicalScope`, and `TenantContext` ensure every write/read is scoped by `tenant_id` with hierarchical access control.
-- **Billing math**: `MeterReadingObserver` audits adjustments, `GyvatukasCalculator` handles seasons, and `TariffResolver` selects zone-based rates before `InvoiceItemData` persists them.
+- **Billing math**: `MeterReadingObserver` audits adjustments, and `TariffResolver` selects zone-based rates before `InvoiceItemData` persists them.
 - **UI composition**: Filament 4.x components (with Livewire 3 lazy hydration) reuse Blade cards, modals, and data tables; tenant views mirror the same primitives for consistent UX. View composers (e.g., `NavigationComposer`) handle navigation logic without inline PHP in Blade.
 - **Routing**: `routes/web.php` orchestrates role-based middleware; shared controllers (`BuildingController`, `PropertyController`, `MeterController`, `InvoiceController`) include resource routes for both managers and admins.
 - **Performance**: Eager-load relationships (property→meters→readings) in controllers, index hot columns (tenant_id, meter_id, billing_period_start), cache translations and authorization checks, and keep backup/queue tasks observable. Filament 4.x uses `->live(onBlur: true)` for reduced re-renders.

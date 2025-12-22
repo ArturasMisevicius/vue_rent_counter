@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Universal Utility Management System is a comprehensive refactoring of the existing Lithuanian-specific "gyvatukas" system into a flexible, dynamic utility management solution. This system will support multiple utility types (water, electricity, heating, gas, internet, etc.) with configurable pricing models (fixed monthly rates, consumption-based pricing, tiered rates) for different property types (residential flats, commercial properties, mixed-use buildings). The system provides role-based interfaces for SuperAdmin, Admin, Manager, and Tenant users with complete audit trails and multi-tenant data isolation.
+The Universal Utility Management System is a comprehensive refactoring of the existing Lithuanian-specific heating system into a flexible, dynamic utility management solution. This system will support multiple utility types (water, electricity, heating, gas, internet, etc.) with configurable pricing models (fixed monthly rates, consumption-based pricing, tiered rates) for different property types (residential flats, commercial properties, mixed-use buildings). The system provides role-based interfaces for SuperAdmin, Admin, Manager, and Tenant users with complete audit trails and multi-tenant data isolation.
 
 ## Glossary
 
@@ -170,12 +170,12 @@ The Universal Utility Management System is a comprehensive refactoring of the ex
 
 ### Requirement 13
 
-**User Story:** As a SuperAdmin, I want to migrate existing gyvatukas data to the new universal system, so that historical data is preserved and operations continue seamlessly.
+**User Story:** As a SuperAdmin, I want to migrate existing heating data to the new universal system, so that historical data is preserved and operations continue seamlessly.
 
 #### Acceptance Criteria
 
-1. WHEN migration begins THEN the System SHALL create a complete backup of existing gyvatukas data and configurations
-2. WHEN converting gyvatukas calculations THEN the System SHALL map existing logic to equivalent universal service configurations
+1. WHEN migration begins THEN the System SHALL create a complete backup of existing heating data and configurations
+2. WHEN converting heating calculations THEN the System SHALL map existing logic to equivalent universal service configurations
 3. WHEN migrating historical data THEN the System SHALL preserve all meter readings, invoices, and audit trails with proper data lineage
 4. WHEN testing migrated data THEN the System SHALL validate that recalculated bills match original amounts within acceptable tolerance
 5. WHERE migration issues occur THEN the System SHALL provide rollback capabilities and detailed error reporting

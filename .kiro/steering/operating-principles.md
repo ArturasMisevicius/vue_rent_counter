@@ -2,18 +2,18 @@
 
 ## Engineering
 
-- Lean on Filament resources, Blade components, and reusable traits (`BelongsToTenant`, `TenantScope`, `TenantContext`) so every request is scoped to a tenant before it hits the `BillingService`, `GyvatukasCalculator`, or `MeterReadingObserver`.
+- Lean on Filament resources, Blade components, and reusable traits (`BelongsToTenant`, `TenantScope`, `TenantContext`) so every request is scoped to a tenant before it hits the `BillingService` or `MeterReadingObserver`.
 - Keep models final with strict typing, capture invariants via ValueObjects (`BillingPeriod`, `ConsumptionData`, `InvoiceItemData`), and revisit complex calculations with dedicated services instead of inline logic.
-- Follow the Laravel pattern: validation lives in FormRequests, authorization in Policies, and data access via scopes/services (e.g., `TenantScope`, `SubscriptionService`, `GyvatukasCalculator`).
+- Follow the Laravel pattern: validation lives in FormRequests, authorization in Policies, and data access via scopes/services (e.g., `TenantScope`, `SubscriptionService`).
 - Prefer composable Blade components for cards, data tables, badges, modals, and forms so that Filament and tenant-facing views reuse the same building blocks.
 - Guard optimistic UI hints with explicit error/fallback states—especially when recalculating invoices after meter reading edits or when `MeterReadingObserver` flushes drafts.
 
 ## Delivery & Review
 
-- Every PR includes Pest suites (Feature, Unit, Filament folder) plus targeted property-based tests that exercise tenancy, tariff snapshotting, gyvatukas math, and authorization invariants.
+- Every PR includes Pest suites (Feature, Unit, Filament folder) plus targeted property-based tests that exercise tenancy, tariff snapshotting, and authorization invariants.
 - Run `./vendor/bin/pint --test`, `./vendor/bin/phpstan analyse`, `php artisan test` (or `composer test`), and `php artisan test:setup --fresh` locally when changing seeders or user flows; treat warnings as blockers.
 - Document the change in docs/ (frontend, routes, reviews) and `.kiro/specs/*` (especially `filament-admin-panel`, `hierarchical-user-management`, and `vilnius-utilities-billing`) so requirements stay aligned.
-- Keep change sets small and describe rollout implications (backups, tenant switches, gyvatukas recalculations) in PR descriptions.
+- Keep change sets small and describe rollout implications (backups, tenant switches, tariff recalculations) in PR descriptions.
 
 ## Accessibility & UX
 

@@ -2,20 +2,20 @@
 
 ## Vilnius Utilities Billing Platform
 
-Modern, multi-tenant utility and rental management for Lithuanian property portfolios. Built on Laravel 12 with Filament, it tracks buildings, meters, invoices, and tenants through role-aware dashboards, guards every request with tenant scope, and keeps gyvatukas/tariff math auditable.
+Modern, multi-tenant utility and rental management for Lithuanian property portfolios. Built on Laravel 12 with Filament, it tracks buildings, meters, invoices, and tenants through role-aware dashboards, guards every request with tenant scope, and keeps tariff math auditable.
 
 ## Core Purpose
 
 Deliver a single-pane control center where:
 - Superadmins monitor organizations, subscriptions, and system health.
 - Admins/property owners manage portfolios, tariffs, meters, and invoice workflows without leaving the app.
-- Managers capture meter readings, finalize invoices, and review reports per building, while gyvatukas and zone pricing live inside `BillingService`.
+- Managers capture meter readings, finalize invoices, and review reports per building, while zone pricing lives inside `BillingService`.
 - Tenants inspect their property, meter history, and invoices with clear breakdowns (PDF export + status badges) and localized copy (EN/LT/RU).
 
 ## Value Proposition
 
 - **Subscription visibility:** Superadmin dashboards surface expiring subscriptions, tenant usage stats, and organization activity with `SubscriptionService` and `AccountManagementService`.
-- **Accurate billing:** `TariffResolver`, `GyvatukasCalculator`, and `MeterReadingObserver` snapshot tariffs/meter readings, recalc drafts, and prevent finalized edits.
+- **Accurate billing:** `TariffResolver` and `MeterReadingObserver` snapshot tariffs/meter readings, recalc drafts, and prevent finalized edits.
 - **Multi-tier security:** `BelongsToTenant`, tenant policies, and `TenantContext` ensure admins/managers/tenants cannot cross data boundaries; every critical action logs via observers/notifications.
 - **Tenant-friendly UX:** Blade + Filament components (stat cards, data tables, modals) paired with CDN-delivered Tailwind & Alpine keep interactions quick without a full SPA stack.
 - **Reproducible ops:** `php artisan test:setup`, deterministic seeders (buildings, meters, invoices), and Spatie backup + WAL readiness make deployments predictable.
@@ -30,7 +30,7 @@ Deliver a single-pane control center where:
 
 ### Admin & Manager Workflows
 - Filament resources for `Property`, `Building`, `Meter`, `MeterReading`, `Invoice`, `Tariff`, `Provider`, `User`, and `Subscription` with multi-select bulk actions, validation, tenant filtering, and `Invoice` itemization forms.
-- Precision billing for electricity (day/night zones), water/heating, gyvatukas circulation fees, and meter-specific tariffs stored per invoice item.
+- Precision billing for electricity (day/night zones), water/heating, and meter-specific tariffs stored per invoice item.
 - Manager routes to create readings, finalize invoices, upload meter collections, export reports, and view compliance dashboards.
 - Notifications for meter reading changes (`MeterReadingSubmittedEmail`) and tenant onboarding (`WelcomeEmail`, `TenantReassignedEmail`).
 
@@ -41,7 +41,7 @@ Deliver a single-pane control center where:
 
 ## Success Metrics
 
-- 100% of generated invoices snapshot tariff rates and gyvatukas logic; no finalized invoice recalculations occur due to subsequent tariff changes.
+- 100% of generated invoices snapshot tariff rates; no finalized invoice recalculations occur due to subsequent tariff changes.
 - Manager meter readings validate monotonicity/temporal rules with <2% rollbacks and guaranteed audit trails via `MeterReadingAudit`.
 - Superadmin sees every expiring subscription (14-day window) and enforces tenant quotas before onboarding new users.
 - Tenant and manager dashboards render within 300ms on cached pages; Filament tables remain searchable/sortable with PostgreSQL/MySQL/SQLite indexing.
@@ -57,7 +57,7 @@ Deliver a single-pane control center where:
 ## Non-Goals
 
 - Building a public headless CMS or marketing site; focus is utility/account operations.
-- Billing for markets outside the Lithuanian gyvatukas/tariff rules.
+- Billing for markets outside the Lithuanian tariff rules.
 - Adding rich WYSIWYG editors or third-party payment processors.
 
 

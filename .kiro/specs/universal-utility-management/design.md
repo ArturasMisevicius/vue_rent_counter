@@ -2,9 +2,9 @@
 
 ## Overview
 
-The Universal Utility Management System represents a comprehensive refactoring of the existing Lithuanian-specific "gyvatukas" system into a flexible, multi-tenant utility management platform. The system is designed using Clean Architecture principles with Domain-Driven Design (DDD) patterns, supporting multiple utility types, flexible pricing models, and role-based access control across SuperAdmin, Admin, Manager, and Tenant user levels.
+The Universal Utility Management System represents a comprehensive refactoring of the existing Lithuanian-specific heating system into a flexible, multi-tenant utility management platform. The system is designed using Clean Architecture principles with Domain-Driven Design (DDD) patterns, supporting multiple utility types, flexible pricing models, and role-based access control across SuperAdmin, Admin, Manager, and Tenant user levels.
 
-The architecture follows Laravel 12 best practices with Action-based business logic, Repository patterns for data access, and comprehensive audit trails. The system maintains backward compatibility with existing gyvatukas calculations while providing a migration path to the new universal model.
+The architecture follows Laravel 12 best practices with Action-based business logic, Repository patterns for data access, and comprehensive audit trails. The system maintains backward compatibility with existing heating calculations while providing a migration path to the new universal model.
 
 ## Architecture
 
@@ -353,17 +353,17 @@ erDiagram
 
 ### Migration Strategy
 
-The migration from the existing gyvatukas system will be handled through a dedicated migration service:
+The migration from the existing heating system will be handled through a dedicated migration service:
 
 ```php
-final readonly class GyvatukasToUniversalMigrationService
+final readonly class HeatingToUniversalMigrationService
 {
     public function migrate(): MigrationResult
     {
         // 1. Create backup of existing data
         // 2. Create universal heating service configuration
         // 3. Migrate existing buildings and properties
-        // 4. Convert gyvatukas calculations to universal format
+        // 4. Convert heating calculations to universal format
         // 5. Migrate historical readings and invoices
         // 6. Validate migrated data
     }
@@ -421,8 +421,8 @@ After analyzing all acceptance criteria, several properties can be consolidated 
 *For any* tenant move-in or move-out scenario, the system should handle all service transitions, final billing, and account management while preserving historical data
 **Validates: Requirements 12.1, 12.2, 12.3, 12.4, 12.5**
 
-**Property 10: Gyvatukas Migration Accuracy**
-*For any* existing gyvatukas calculation, migration to the universal system should preserve calculation accuracy within acceptable tolerance while maintaining complete data lineage
+**Property 10: Heating Migration Accuracy**
+*For any* existing heating calculation, migration to the universal system should preserve calculation accuracy within acceptable tolerance while maintaining complete data lineage
 **Validates: Requirements 13.2, 13.3, 13.4**
 
 **Property 11: External Integration Resilience**
@@ -505,7 +505,7 @@ it('validates universal service creation and configuration', function () {
 
 - Test complete billing workflows from reading to invoice generation
 - Validate multi-tenant data isolation across all operations
-- Test migration scenarios with real gyvatukas data
+- Test migration scenarios with real heating data
 - Verify external API integrations with mock services
 
 ### Performance Testing

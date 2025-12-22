@@ -23,11 +23,10 @@ This directory contains detailed specifications for major features and initiativ
 ### 2. Vilnius Utilities Billing
 **Path**: `2-vilnius-utilities-billing/`  
 **Status**: ✅ Complete  
-**Description**: Multi-zone tariff system with gyvatukas calculations for Lithuanian utilities billing.
+**Description**: Multi-zone tariff system with heating calculations for Lithuanian utilities billing.
 
 **Key Deliverables**:
 - TariffResolver for zone-based pricing
-- GyvatukasCalculator for circulation fees
 - BillingService with invoice snapshotting
 - MeterReadingObserver for audit trails
 - Multi-tenant billing isolation
@@ -36,7 +35,6 @@ This directory contains detailed specifications for major features and initiativ
 **Sub-Specifications**:
 - `policy-optimization-spec.md` - Authorization policy refactoring (✅ Complete)
 - `billing-service-v3-spec.md` - BillingService performance optimization (✅ Complete)
-- `gyvatukas-performance-spec.md` - GyvatukasCalculator optimization (✅ Complete)
 
 **Documentation**: See `2-vilnius-utilities-billing/README.md`
 

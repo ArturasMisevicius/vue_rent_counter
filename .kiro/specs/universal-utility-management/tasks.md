@@ -7,13 +7,13 @@
 - ✅ Enums: `MeterType` (electricity, water_cold, water_hot, heating), `ServiceType` (electricity, water, heating), `DistributionMethod` (equal, area), `TariffType` (flat, time_of_use)
 - ✅ Multi-tenancy: `BelongsToTenant` trait implemented across all models with tenant scoping
 - ✅ Filament resources: Complete CRUD interfaces for all existing models
-- ✅ Gyvatukas system: Comprehensive `GyvatukasCalculator` with summer/winter calculations, caching, distribution methods, and building-specific factors
+- ✅ Heating system: Comprehensive heating calculator with seasonal calculations, caching, distribution methods, and building-specific factors
 - ✅ Billing infrastructure: Tariff management with active date ranges, configuration arrays, and provider relationships
 - ✅ Meter reading system: Full audit trail, zone support, consumption calculations, and validation scopes
 - ✅ Performance optimizations: Caching, memoization, selective column loading, and batch operations
 
 **CURRENT SYSTEM CAPABILITIES:**
-- Full gyvatukas circulation energy calculations for heating systems
+- Full heating circulation energy calculations for heating systems
 - Multi-zone meter support (day/night electricity rates)
 - Area-based and equal cost distribution methods
 - Comprehensive audit trails for meter reading changes
@@ -21,7 +21,7 @@
 - Tenant-scoped data isolation across all operations
 
 **REMAINING WORK:**
-Extend the existing robust infrastructure to support universal utility types beyond the current Lithuanian heating focus, while maintaining full backward compatibility with gyvatukas calculations.
+Extend the existing robust infrastructure to support universal utility types beyond the current Lithuanian heating focus, while maintaining full backward compatibility with heating calculations.
 
 ## 1. Universal Service Framework
 
@@ -77,7 +77,7 @@ Extend the existing robust infrastructure to support universal utility types bey
   - ✅ Included support for different area types (total_area, heated_area, commercial_area)
   - ✅ Maintained existing `requiresAreaData()` method and added `requiresConsumptionData()`
   - ✅ Added `supportsCustomFormulas()` and `getSupportedAreaTypes()` methods
-  - ✅ Preserved all existing gyvatukas distribution functionality
+  - ✅ Preserved all existing heating distribution functionality
   - ✅ Added comprehensive unit tests (22 tests, 70 assertions)
   - ✅ Added translations for EN, LT, RU locales
   - ✅ Enhanced docblocks with usage examples and integration guidance
@@ -86,14 +86,14 @@ Extend the existing robust infrastructure to support universal utility types bey
   - _Documentation: docs/enums/DISTRIBUTION_METHOD.md, docs/testing/DISTRIBUTION_METHOD_TEST_COVERAGE.md, docs/CHANGELOG_DISTRIBUTION_METHOD_ENHANCEMENT.md_
 
 - [x] 2.3 Create UniversalBillingCalculator service
-  - Integrate with existing `GyvatukasCalculator` as a specialized calculation engine
+  - Integrate with existing heating calculator as a specialized calculation engine
   - Support all pricing models: fixed monthly, consumption-based, tiered, hybrid
   - Handle time-of-use pricing extending current zone support in meters
-  - Apply seasonal adjustments building on gyvatukas summer/winter logic
+  - Apply seasonal adjustments building on heating summer/winter logic
   - Maintain existing tariff snapshot functionality for invoice immutability
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [x] 2.4 Enhance GyvatukasCalculator distribution methods
+- [x] 2.4 Enhance heating calculator distribution methods
   - Extend existing `distributeCirculationCost()` method with consumption-based allocation
   - Add support for historical consumption averages using existing meter reading data
   - Maintain existing caching and performance optimizations
@@ -127,7 +127,7 @@ Extend the existing robust infrastructure to support universal utility types bey
 - [x] 3.3 Create ServiceValidationEngine
   - Define consumption limits and validation rules extending existing meter reading validation
   - Support rate change restrictions using existing tariff active date functionality
-  - Include seasonal adjustments building on gyvatukas summer/winter logic
+  - Include seasonal adjustments building on heating summer/winter logic
   - Implement data quality checks leveraging existing meter reading audit trail
   - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
 
@@ -183,7 +183,7 @@ Extend the existing robust infrastructure to support universal utility types bey
   - Build on existing invoice generation and tariff management systems
   - Support monthly, quarterly, and custom period schedules using existing date handling
   - Automatically collect readings from existing `MeterReading` model with new input methods
-  - Calculate charges using `UniversalBillingCalculator` and existing `GyvatukasCalculator`
+  - Calculate charges using `UniversalBillingCalculator` and existing heating calculator
   - Handle errors gracefully with existing logging infrastructure and admin notifications
   - _Requirements: 7.1, 7.2, 7.3, 7.5_
 
@@ -210,7 +210,7 @@ Extend the existing robust infrastructure to support universal utility types bey
 - [ ] 6.2 Extend TenantInitializationService for universal services
   - Build on existing tenant initialization to include universal service templates
   - Set up default utility service configurations for new tenants
-  - Initialize universal service configurations alongside existing gyvatukas setup
+  - Initialize universal service configurations alongside existing heating setup
   - Leverage existing tenant isolation infrastructure
   - _Requirements: 10.4, 10.5_
 
@@ -220,26 +220,26 @@ Extend the existing robust infrastructure to support universal utility types bey
   - Validate SuperAdmin context switching with universal services
   - **Validates: Requirements 10.1, 10.2, 10.3, 10.4, 10.5**
 
-## 7. Gyvatukas Integration System (Bridge Approach)
+## 7. Heating Integration System (Bridge Approach)
 
-- [ ] 7.1 Create GyvatukasUniversalBridge service
-  - Create heating utility service configuration that maps to existing gyvatukas logic
-  - Bridge existing `GyvatukasCalculator` methods with universal billing engine
+- [ ] 7.1 Create HeatingUniversalBridge service
+  - Create heating utility service configuration that maps to existing heating logic
+  - Bridge existing heating calculator methods with universal billing engine
   - Preserve all existing calculation accuracy and caching optimizations
-  - Enable universal features while maintaining gyvatukas backward compatibility
+  - Enable universal features while maintaining heating backward compatibility
   - _Requirements: 13.1, 13.2, 13.3_
 
 - [ ] 7.2 Implement HeatingServiceConfiguration
   - Create specialized service configuration for Lithuanian heating systems
-  - Map existing gyvatukas summer/winter logic to universal pricing models
+  - Map existing heating seasonal logic to universal pricing models
   - Preserve existing distribution methods (equal, area) with universal extensions
   - Maintain existing building-specific factors and efficiency calculations
   - _Requirements: 13.2, 13.4_
 
-- [ ] 7.3 Write property test for gyvatukas bridge accuracy
-  - **Property 10: Gyvatukas Integration Accuracy**
-  - Validate that bridge calculations match existing gyvatukas results exactly
-  - Test summer/winter calculation preservation through universal system
+- [ ] 7.3 Write property test for heating bridge accuracy
+  - **Property 10: Heating Integration Accuracy**
+  - Validate that bridge calculations match existing heating results exactly
+  - Test seasonal calculation preservation through universal system
   - **Validates: Requirements 13.2, 13.3, 13.4**
 
 ## 8. External Integration Layer
@@ -335,7 +335,7 @@ Extend the existing robust infrastructure to support universal utility types bey
 ## 12. Final Integration and Testing
 
 - [ ] 12 Integrate universal system with existing infrastructure
-  - Update existing controllers to support universal services alongside gyvatukas
+  - Update existing controllers to support universal services alongside heating systems
   - Extend existing billing workflows to handle multiple utility types
   - Ensure seamless transition with zero downtime for existing users
   - Maintain full backward compatibility with all existing functionality
@@ -345,7 +345,7 @@ Extend the existing robust infrastructure to support universal utility types bey
   - Unit tests for all new services and value objects
   - Integration tests for universal service workflows with existing systems
   - Performance tests for large-scale operations with existing optimizations
-  - Regression tests to ensure existing gyvatukas functionality unchanged
+  - Regression tests to ensure existing heating functionality unchanged
   - _Requirements: All requirements validation_
 
 - [ ] 12.3 Write property test for service configuration validation
@@ -361,7 +361,7 @@ Extend the existing robust infrastructure to support universal utility types bey
   - **Validates: Requirements 12.1, 12.2, 12.3, 12.4, 12.5**
 
 - [ ] 12.5 Final system validation and deployment preparation
-  - Validate all existing gyvatukas calculations remain unchanged
+  - Validate all existing heating calculations remain unchanged
   - Ensure all new universal features work alongside existing functionality
   - Verify performance benchmarks meet or exceed existing system performance
   - Complete documentation and deployment guides for universal system features

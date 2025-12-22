@@ -4,7 +4,7 @@
 
 - **Framework**: Laravel 12.x with PHP 8.3+ (8.2 minimum); Filesystem-backed tenancy enforced by `BelongsToTenant`, `TenantScope`, and `TenantContext`; production builds run with opcache preloading and cached config/route/view. Laravel 12 brings improved validation rules, enhanced query performance, and refined middleware architecture.
 - **Admin Layer**: Filament 4.x resources (Properties, Buildings, Meters, MeterReadings, Invoices, Tariffs, Providers, Users, Subscriptions) with navigation visibility controlled by role-aware `can*` methods. Filament 4 leverages Livewire 3 for improved performance through lazy hydration, deferred loading, and optimized table rendering. Use `->live(onBlur: true)` on form fields to reduce re-renders while maintaining validation, and eager-load relationships in table queries to minimize N+1 issues.
-- **Billing**: `BillingService`, `TariffResolver`, `GyvatukasCalculator`, `BillingCalculatorFactory`, and `MeterReadingObserver` manage tariff snapshots, gyvatukas seasons, meter readings audits, and invoice recalculations.
+- **Billing**: `BillingService`, `TariffResolver`, `BillingCalculatorFactory`, and `MeterReadingObserver` manage tariff snapshots, meter readings audits, and invoice recalculations.
 - **Multi-tenancy & security**: Policies gate every resource/action; sessions regenerate on login, and superadmin-only switches respect `TenantContext::switch`.
 - **Persistence**: SQLite (dev) plus MySQL/PostgreSQL (prod) with WAL mode enabled and nightly Spatie Backup 10.x (`config/backup.php`), ensuring `php artisan backup:run` succeeds even under load. Spatie Backup 10 includes improved notification channels and enhanced backup verification.
 
@@ -18,7 +18,7 @@
 
 - **Framework**: Pest 3.x with PHPUnit 11.x runner; `tests/Feature` includes API/Filament suites plus dozens of property-based tests (`*PropertyTest.php`). Pest 3 introduces improved type coverage, enhanced plugin architecture, and better IDE integration. PHPUnit 11 brings refined assertion methods and improved test isolation.
 - **Deterministic data**: `TestDatabaseSeeder` orchestrates providers, users, buildings, properties, meters, readings, tariffs, and invoices; `php artisan test:setup --fresh` rebuilds that dataset.
-- **Property-based coverage**: Suites cover multi-tenancy, tariff selection, gyvatukas math, meter reading validation, invoice immutability, and authorization invariants (`FilamentMeterReadingMonotonicityPropertyTest`, `SubscriptionRenewalPropertyTest`, etc.). Property tests run with 100+ iterations to ensure statistical confidence.
+- **Property-based coverage**: Suites cover multi-tenancy, tariff selection, meter reading validation, invoice immutability, and authorization invariants (`FilamentMeterReadingMonotonicityPropertyTest`, `SubscriptionRenewalPropertyTest`, etc.). Property tests run with 100+ iterations to ensure statistical confidence.
 - **Accessibility/UX**: Accessibility tests include `FilamentPanelAccessibilityTest`, Breadcrumb/Navigation tests, and docs describing keyboard-first flows.
 
 ## Code Quality
@@ -104,8 +104,7 @@ php artisan backup:run
 
 ## Configuration Files
 
-- `config/billing.php` – Rates, meter mapping, gyvatukas connection.
-- `config/gyvatukas.php` – Summer/winter logic and circulation formulas.
+- `config/billing.php` – Rates, meter mapping, and tariff configuration.
 - `config/subscription.php` – Seat limits, grace periods, automatic read-only mode.
 - `config/backup.php` – Spatie Backup 10.x storing WAL files with enhanced verification.
 - `config/auth.php`, `config/session.php`, `config/database.php` – Standard Laravel settings wired for multi-tenancy.
