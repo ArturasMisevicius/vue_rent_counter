@@ -1,184 +1,167 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Traits\BelongsToTenant;
-use App\Traits\HasTags;
-use App\Traits\HasComments;
-use App\Traits\HasAttachments;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * Project Model - Maintenance and improvement projects
- * 
- * Projects can be attached to Properties, Buildings, or Organizations
- * Supports polymorphic relationships for flexible project scoping
- */
-class Project extends Model
+final class Project extends Model
 {
-    use HasFactory, BelongsToTenant, HasTags, HasComments, HasAttachments;
+    use HasFactory, SoftDeletes, BelongsToTenant;
 
     protected $fillable = [
         'tenant_id',
+        'property_id',
+        'building_id',
+        'created_by',
         'name',
         'description',
         'type',
-        'scope',
-        'projectable_type',
-        'projectable_id',
-        'created_by',
-        'assigned_to',
         'status',
         'priority',
-        'start_date',
-        'due_date',
-        'completed_at',
         'budget',
         'actual_cost',
-        'metadata',
+        'start_date',
+        'end_date',
+        'completed_at',
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'due_date' => 'date',
-        'completed_at' => 'datetime',
         'budget' => 'decimal:2',
         'actual_cost' => 'decimal:2',
-        'metadata' => 'array',
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'completed_at' => 'datetime',
     ];
 
-    /**
-     * Get the parent projectable model (Property, Building, etc.)
-     */
-    public function projectable(): MorphTo
+    // ==================== RELATIONSHIPS ====================
+
+    // Belongs To Relationships
+    public function tenant(): BelongsTo
     {
-        return $this->morphTo();
+        return $this->belongsTo(User::class, 'tenant_id');
     }
 
-    /**
-     * Get the user who created this project
-     */
+    public function property(): BelongsTo
+    {
+        return $this->belongsTo(Property::class);
+    }
+
+    public function building(): BelongsTo
+    {
+        return $this->belongsTo(Building::class);
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    /**
-     * Get the user assigned to this project
-     */
-    public function assignee(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'assigned_to');
-    }
-
-    /**
-     * Get all tasks for this project
-     */
+    // Has Many Relationships
     public function tasks(): HasMany
     {
-        return $this->hasMany(Task::class);
+        return $this->hasMany(EnhancedTask::class);
     }
 
-    /**
-     * Get all users involved in this project through tasks
-     */
-    public function involvedUsers(): HasManyThrough
+    // Many-to-Many with Pivot Data
+    public function members(): BelongsToMany
     {
-        return $this->hasManyThrough(
-            User::class,
-            TaskAssignment::class,
-            'task_id',
-            'id',
-            'id',
-            'user_id'
-        )->join('tasks', 'task_assignments.task_id', '=', 'tasks.id')
-         ->where('tasks.project_id', $this->id)
-         ->distinct();
+        return $this->belongsToMany(User::class, 'project_members')
+            ->withPivot(['role', 'status', 'permissions', 'hourly_rate', 'joined_at', 'left_at', 'added_by'])
+            ->withTimestamps()
+            ->using(ProjectMember::class);
     }
 
-    /**
-     * Scope: Projects for specific property
-     */
-    public function scopeForProperty($query, Property $property)
+    // Scoped member relationships
+    public function activeMembers(): BelongsToMany
     {
-        return $query->where('projectable_type', Property::class)
-                    ->where('projectable_id', $property->id);
+        return $this->members()->wherePivot('status', 'active');
     }
 
-    /**
-     * Scope: Projects for specific building
-     */
-    public function scopeForBuilding($query, Building $building)
+    public function managers(): BelongsToMany
     {
-        return $query->where('projectable_type', Building::class)
-                    ->where('projectable_id', $building->id);
+        return $this->members()->wherePivot('role', 'manager');
     }
 
-    /**
-     * Scope: Active projects
-     */
+    public function contractors(): BelongsToMany
+    {
+        return $this->members()->wherePivot('role', 'contractor');
+    }
+
+    // Polymorphic Relationships
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(Comment::class, 'commentable');
+    }
+
+    public function attachments(): MorphMany
+    {
+        return $this->morphMany(EnhancedAttachment::class, 'attachable');
+    }
+
+    public function tags(): MorphToMany
+    {
+        return $this->morphToMany(Tag::class, 'taggable')
+            ->withPivot(['tagged_by'])
+            ->withTimestamps();
+    }
+
+    // ==================== QUERY SCOPES ====================
+
     public function scopeActive($query)
     {
-        return $query->where('status', 'active');
+        return $query->whereIn('status', ['planning', 'in_progress']);
     }
 
-    /**
-     * Scope: Overdue projects
-     */
-    public function scopeOverdue($query)
+    public function scopeCompleted($query)
     {
-        return $query->where('due_date', '<', now())
-                    ->whereNotIn('status', ['completed', 'cancelled']);
+        return $query->where('status', 'completed');
     }
 
-    /**
-     * Check if project is overdue
-     */
-    public function isOverdue(): bool
+    public function scopeByPriority($query, string $priority)
     {
-        return $this->due_date && 
-               $this->due_date->isPast() && 
-               !in_array($this->status, ['completed', 'cancelled']);
+        return $query->where('priority', $priority);
     }
 
-    /**
-     * Get completion percentage based on tasks
-     */
-    public function getCompletionPercentage(): int
+    public function scopeOverBudget($query)
+    {
+        return $query->whereColumn('actual_cost', '>', 'budget');
+    }
+
+    public function scopeForProperty($query, int $propertyId)
+    {
+        return $query->where('property_id', $propertyId);
+    }
+
+    // ==================== ACCESSORS & MUTATORS ====================
+
+    public function getBudgetRemainingAttribute(): float
+    {
+        return (float) ($this->budget - $this->actual_cost);
+    }
+
+    public function getIsOverBudgetAttribute(): bool
+    {
+        return $this->actual_cost > $this->budget;
+    }
+
+    public function getCompletionPercentageAttribute(): int
     {
         $totalTasks = $this->tasks()->count();
-        
         if ($totalTasks === 0) {
             return 0;
         }
         
         $completedTasks = $this->tasks()->where('status', 'completed')->count();
-        
-        return (int) round(($completedTasks / $totalTasks) * 100);
-    }
-
-    /**
-     * Get budget utilization percentage
-     */
-    public function getBudgetUtilization(): float
-    {
-        if (!$this->budget || $this->budget <= 0) {
-            return 0;
-        }
-
-        return ($this->actual_cost / $this->budget) * 100;
-    }
-
-    /**
-     * Check if project is over budget
-     */
-    public function isOverBudget(): bool
-    {
-        return $this->budget && $this->actual_cost > $this->budget;
+        return (int) (($completedTasks / $totalTasks) * 100);
     }
 }

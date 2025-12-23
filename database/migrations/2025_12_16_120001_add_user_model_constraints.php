@@ -19,31 +19,37 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Add check constraints for data integrity
-        DB::statement("
-            ALTER TABLE users 
-            ADD CONSTRAINT users_role_check 
-            CHECK (role IN ('superadmin', 'admin', 'manager', 'tenant'))
-        ");
+        // SQLite doesn't support adding CHECK constraints with ALTER TABLE
+        // We'll skip constraints for SQLite and only add them for MySQL/PostgreSQL
+        $driver = DB::getDriverName();
+        
+        if ($driver !== 'sqlite') {
+            // Add check constraints for data integrity (MySQL/PostgreSQL only)
+            DB::statement("
+                ALTER TABLE users 
+                ADD CONSTRAINT users_role_check 
+                CHECK (role IN ('superadmin', 'admin', 'manager', 'tenant'))
+            ");
 
-        DB::statement("
-            ALTER TABLE users 
-            ADD CONSTRAINT users_tenant_hierarchy_check 
-            CHECK (
-                (role = 'superadmin' AND tenant_id IS NULL) OR
-                (role IN ('admin', 'manager') AND tenant_id IS NOT NULL) OR
-                (role = 'tenant' AND tenant_id IS NOT NULL AND property_id IS NOT NULL)
-            )
-        ");
+            DB::statement("
+                ALTER TABLE users 
+                ADD CONSTRAINT users_tenant_hierarchy_check 
+                CHECK (
+                    (role = 'superadmin' AND tenant_id IS NULL) OR
+                    (role IN ('admin', 'manager') AND tenant_id IS NOT NULL) OR
+                    (role = 'tenant' AND tenant_id IS NOT NULL AND property_id IS NOT NULL)
+                )
+            ");
 
-        DB::statement("
-            ALTER TABLE users 
-            ADD CONSTRAINT users_parent_relationship_check 
-            CHECK (
-                (role = 'tenant' AND parent_user_id IS NOT NULL) OR
-                (role IN ('superadmin', 'admin', 'manager') AND parent_user_id IS NULL)
-            )
-        ");
+            DB::statement("
+                ALTER TABLE users 
+                ADD CONSTRAINT users_parent_relationship_check 
+                CHECK (
+                    (role = 'tenant' AND parent_user_id IS NOT NULL) OR
+                    (role IN ('superadmin', 'admin', 'manager') AND parent_user_id IS NULL)
+                )
+            ");
+        }
 
         // Add soft delete support if not exists
         Schema::table('users', function (Blueprint $table) {
@@ -59,9 +65,13 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
-        DB::statement("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_tenant_hierarchy_check");
-        DB::statement("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_parent_relationship_check");
+        $driver = DB::getDriverName();
+        
+        if ($driver !== 'sqlite') {
+            DB::statement("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
+            DB::statement("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_tenant_hierarchy_check");
+            DB::statement("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_parent_relationship_check");
+        }
 
         Schema::table('users', function (Blueprint $table) {
             if (Schema::hasColumn('users', 'deleted_at')) {

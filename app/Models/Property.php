@@ -89,6 +89,8 @@ class Property extends Model
         'area_sqm',
         'unit_number',
         'building_id',
+        'heating_system_type',
+        'is_active',
     ];
 
     /**
@@ -101,6 +103,7 @@ class Property extends Model
         return [
             'type' => PropertyType::class,
             'area_sqm' => 'decimal:2',
+            'is_active' => 'boolean',
         ];
     }
 
@@ -113,6 +116,15 @@ class Property extends Model
     }
 
     /**
+     * Get the primary renter tenant for this property.
+     * This is the tenant who is currently renting this property.
+     */
+    public function tenant(): HasMany
+    {
+        return $this->hasMany(Tenant::class, 'property_id');
+    }
+
+    /**
      * Get tenants assigned directly to this property.
      */
     public function tenants(): BelongsToMany
@@ -122,6 +134,14 @@ class Property extends Model
             ->withTimestamps()
             ->wherePivotNull('vacated_at')
             ->orderByPivot('assigned_at', 'desc');
+    }
+
+    /**
+     * Get active tenants for this property.
+     */
+    public function activeTenants(): BelongsToMany
+    {
+        return $this->tenants(); // Same as tenants() since it already filters for active
     }
 
     /**
@@ -149,6 +169,40 @@ class Property extends Model
     public function serviceConfigurations(): HasMany
     {
         return $this->hasMany(ServiceConfiguration::class);
+    }
+
+    /**
+     * Get the utility services for this property through service configurations.
+     */
+    public function utilityServices(): BelongsToMany
+    {
+        return $this->belongsToMany(UtilityService::class, 'service_configurations')
+            ->withPivot(['pricing_model', 'rate_schedule', 'distribution_method', 'is_shared_service', 'effective_from', 'effective_until', 'is_active'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the utility readings for this property.
+     */
+    public function utilityReadings(): HasMany
+    {
+        return $this->hasMany(UtilityReading::class);
+    }
+
+    /**
+     * Get the shared services for this property.
+     */
+    public function sharedServices(): HasMany
+    {
+        return $this->hasMany(SharedService::class);
+    }
+
+    /**
+     * Get the billing records for this property.
+     */
+    public function billingRecords(): HasMany
+    {
+        return $this->hasMany(BillingRecord::class);
     }
 
     /**

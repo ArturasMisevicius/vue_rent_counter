@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Traits\BelongsToTenant;
@@ -10,315 +12,207 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * Comment Model - Polymorphic comments system
- * 
- * Can be attached to any model (Invoice, Property, Meter, Building, etc.)
- * Supports nested comments (replies) and internal notes
- * 
- * @property int $id
- * @property int $tenant_id
- * @property int $commentable_id
- * @property string $commentable_type
- * @property int $user_id
- * @property int|null $parent_id
- * @property string $body
- * @property bool $is_internal
- * @property bool $is_pinned
- * @property int $depth
- * @property string|null $path
- * @property int $sort_order
- * @property array|null $mentions
- * @property bool $is_resolved
- * @property int|null $resolved_by
- * @property \Carbon\Carbon|null $resolved_at
- * @property \Carbon\Carbon|null $edited_at
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- * @property \Carbon\Carbon|null $deleted_at
- */
-class Comment extends Model
+final class Comment extends Model
 {
-    use HasFactory, BelongsToTenant, SoftDeletes;
+    use HasFactory, SoftDeletes, BelongsToTenant;
 
     protected $fillable = [
         'tenant_id',
-        'commentable_id',
         'commentable_type',
+        'commentable_id',
         'user_id',
         'parent_id',
-        'body',
+        'content',
+        'type',
         'is_internal',
         'is_pinned',
+        'lft',
+        'rgt',
         'depth',
-        'path',
-        'sort_order',
-        'mentions',
-        'is_resolved',
-        'resolved_by',
-        'resolved_at',
-        'edited_at',
-        'moderation_status',
-        'moderated_by',
-        'moderated_at',
-        'moderation_reason',
-        'spam_score',
-        'toxicity_score',
-        'moderation_flags',
-        'report_count',
-        'last_reported_at',
-        'sentiment',
-        'technical_value',
-        'relevance',
+        'metadata',
     ];
 
     protected $casts = [
         'is_internal' => 'boolean',
         'is_pinned' => 'boolean',
-        'mentions' => 'array',
-        'is_resolved' => 'boolean',
-        'resolved_at' => 'datetime',
-        'edited_at' => 'datetime',
-        'moderated_at' => 'datetime',
-        'moderation_flags' => 'array',
-        'last_reported_at' => 'datetime',
-        'spam_score' => 'integer',
-        'toxicity_score' => 'integer',
-        'report_count' => 'integer',
+        'metadata' => 'array',
     ];
 
-    /**
-     * Get the parent commentable model (Invoice, Property, etc.)
-     */
-    public function commentable(): MorphTo
+    // ==================== RELATIONSHIPS ====================
+
+    public function tenant(): BelongsTo
     {
-        return $this->morphTo();
+        return $this->belongsTo(User::class, 'tenant_id');
     }
 
-    /**
-     * Get the user who created the comment
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Get the user who moderated the comment
-     */
-    public function moderator(): BelongsTo
+    // Polymorphic relationship - can comment on any model
+    public function commentable(): MorphTo
     {
-        return $this->belongsTo(User::class, 'moderated_by');
+        return $this->morphTo();
     }
 
-    /**
-     * Get all reports for this comment
-     */
-    public function reports(): HasMany
-    {
-        return $this->hasMany(CommentReport::class);
-    }
-
-    /**
-     * Get the parent comment (for nested comments)
-     */
+    // Self-referencing relationships for nested comments
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(Comment::class, 'parent_id');
+        return $this->belongsTo(self::class, 'parent_id');
     }
 
-    /**
-     * Get all replies to this comment
-     */
-    public function replies(): HasMany
+    public function children(): HasMany
     {
-        return $this->hasMany(Comment::class, 'parent_id')
-            ->orderBy('created_at', 'asc');
+        return $this->hasMany(self::class, 'parent_id')
+                    ->orderBy('lft');
     }
 
-    /**
-     * Get all descendants (replies and their replies recursively)
-     */
+    // Recursive relationship for all descendants (nested set model)
     public function descendants(): HasMany
     {
-        return $this->replies()->with('descendants');
+        return $this->hasMany(self::class, 'parent_id')
+                    ->with('descendants')
+                    ->orderBy('lft');
     }
 
-    /**
-     * Scope: Only top-level comments (no parent)
-     */
-    public function scopeTopLevel($query)
+    // Get all ancestors (path to root)
+    public function ancestors(): HasMany
+    {
+        return $this->hasMany(self::class)
+                    ->where('lft', '<', $this->lft)
+                    ->where('rgt', '>', $this->rgt)
+                    ->orderBy('lft');
+    }
+
+    // ==================== NESTED SET METHODS ====================
+
+    public function makeRoot(): self
+    {
+        $this->lft = 1;
+        $this->rgt = 2;
+        $this->depth = 0;
+        $this->parent_id = null;
+        $this->save();
+        
+        return $this;
+    }
+
+    public function appendToNode(Comment $parent): self
+    {
+        // Update nested set values for new child
+        $this->parent_id = $parent->id;
+        $this->depth = $parent->depth + 1;
+        
+        // Make space for new node
+        self::where('rgt', '>=', $parent->rgt)
+            ->increment('rgt', 2);
+        self::where('lft', '>', $parent->rgt)
+            ->increment('lft', 2);
+        
+        $this->lft = $parent->rgt;
+        $this->rgt = $parent->rgt + 1;
+        $this->save();
+        
+        // Update parent's rgt value
+        $parent->increment('rgt', 2);
+        
+        return $this;
+    }
+
+    // ==================== QUERY SCOPES ====================
+
+    public function scopeRoots($query)
     {
         return $query->whereNull('parent_id');
     }
 
-    /**
-     * Scope: Only internal comments
-     */
+    public function scopeLeaves($query)
+    {
+        return $query->whereRaw('rgt = lft + 1');
+    }
+
+    public function scopeByType($query, string $type)
+    {
+        return $query->where('type', $type);
+    }
+
     public function scopeInternal($query)
     {
         return $query->where('is_internal', true);
     }
 
-    /**
-     * Scope: Only public comments
-     */
     public function scopePublic($query)
     {
         return $query->where('is_internal', false);
     }
 
-    /**
-     * Scope: Only pinned comments
-     */
     public function scopePinned($query)
     {
         return $query->where('is_pinned', true);
     }
 
-    /**
-     * Check if comment has been edited
-     */
-    public function isEdited(): bool
+    public function scopeThreaded($query)
     {
-        return $this->edited_at !== null;
+        return $query->orderBy('lft');
     }
 
-    /**
-     * Check if comment is a reply
-     */
-    public function isReply(): bool
+    // ==================== ACCESSORS ====================
+
+    public function getIsRootAttribute(): bool
     {
-        return $this->parent_id !== null;
+        return $this->parent_id === null;
     }
 
-    /**
-     * Mark comment as edited
-     */
-    public function markAsEdited(): void
+    public function getIsLeafAttribute(): bool
     {
-        $this->edited_at = now();
-        $this->save();
+        return $this->rgt === $this->lft + 1;
     }
 
-    /**
-     * Moderation Scopes
-     */
-    public function scopePending($query)
+    public function getChildrenCountAttribute(): int
     {
-        return $query->where('moderation_status', 'pending');
+        return (int) (($this->rgt - $this->lft - 1) / 2);
     }
 
-    public function scopeApproved($query)
-    {
-        return $query->where('moderation_status', 'approved');
-    }
+    // ==================== HELPER METHODS ====================
 
-    public function scopeRejected($query)
+    public function getThread(): \Illuminate\Database\Eloquent\Collection
     {
-        return $query->where('moderation_status', 'rejected');
-    }
-
-    public function scopeFlagged($query)
-    {
-        return $query->where('moderation_status', 'flagged');
-    }
-
-    public function scopeNeedsModeration($query)
-    {
-        return $query->whereIn('moderation_status', ['pending', 'flagged']);
-    }
-
-    public function scopeHighRisk($query)
-    {
-        return $query->where(function ($q) {
-            $q->where('spam_score', '>', 70)
-              ->orWhere('toxicity_score', '>', 70)
-              ->orWhere('report_count', '>', 2);
-        });
-    }
-
-    /**
-     * Moderation Methods
-     */
-    public function approve(int $moderatorId, string $reason = null): void
-    {
-        $this->update([
-            'moderation_status' => 'approved',
-            'moderated_by' => $moderatorId,
-            'moderated_at' => now(),
-            'moderation_reason' => $reason,
-        ]);
-    }
-
-    public function reject(int $moderatorId, string $reason): void
-    {
-        $this->update([
-            'moderation_status' => 'rejected',
-            'moderated_by' => $moderatorId,
-            'moderated_at' => now(),
-            'moderation_reason' => $reason,
-        ]);
-    }
-
-    public function flag(int $moderatorId, string $reason): void
-    {
-        $this->update([
-            'moderation_status' => 'flagged',
-            'moderated_by' => $moderatorId,
-            'moderated_at' => now(),
-            'moderation_reason' => $reason,
-        ]);
-    }
-
-    public function reportByUser(): void
-    {
-        $this->increment('report_count');
-        $this->update(['last_reported_at' => now()]);
+        // Get root comment and all its descendants
+        $root = $this->isRoot ? $this : $this->ancestors()->roots()->first();
         
-        // Auto-flag if too many reports
-        if ($this->report_count >= 3 && $this->moderation_status === 'pending') {
-            $this->update(['moderation_status' => 'flagged']);
+        return self::where('lft', '>=', $root->lft)
+                   ->where('rgt', '<=', $root->rgt)
+                   ->where('commentable_type', $this->commentable_type)
+                   ->where('commentable_id', $this->commentable_id)
+                   ->orderBy('lft')
+                   ->get();
+    }
+
+    public function canBeEditedBy(User $user): bool
+    {
+        // User can edit their own comments within 15 minutes
+        if ($this->user_id === $user->id) {
+            return $this->created_at->diffInMinutes(now()) <= 15;
         }
+        
+        // Admins and managers can edit any comment
+        return in_array($user->role, ['admin', 'manager']);
     }
 
-    public function updateModerationScores(int $spamScore, int $toxicityScore, array $flags = []): void
+    public function canBeDeletedBy(User $user): bool
     {
-        $this->update([
-            'spam_score' => $spamScore,
-            'toxicity_score' => $toxicityScore,
-            'moderation_flags' => $flags,
-        ]);
-
-        // Auto-flag high-risk content
-        if ($spamScore > 80 || $toxicityScore > 80) {
-            $this->update(['moderation_status' => 'flagged']);
+        // Can't delete if has children
+        if (!$this->isLeaf) {
+            return false;
         }
-    }
-
-    /**
-     * Check if comment needs moderation
-     */
-    public function needsModeration(): bool
-    {
-        return in_array($this->moderation_status, ['pending', 'flagged']);
-    }
-
-    /**
-     * Check if comment is approved
-     */
-    public function isApproved(): bool
-    {
-        return $this->moderation_status === 'approved';
-    }
-
-    /**
-     * Check if comment is high risk
-     */
-    public function isHighRisk(): bool
-    {
-        return $this->spam_score > 70 || 
-               $this->toxicity_score > 70 || 
-               $this->report_count > 2;
+        
+        // User can delete their own comments
+        if ($this->user_id === $user->id) {
+            return true;
+        }
+        
+        // Admins can delete any comment
+        return $user->role === 'admin';
     }
 }

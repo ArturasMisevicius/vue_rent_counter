@@ -1,28 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-/**
- * Tag Model - Tagging system with morph-to-many
- * 
- * Tags can be attached to multiple model types
- * 
- * @property int $id
- * @property int $tenant_id
- * @property string $name
- * @property string $slug
- * @property string|null $color
- * @property string|null $description
- * @property int $usage_count
- */
-class Tag extends Model
+final class Tag extends Model
 {
     use HasFactory, BelongsToTenant;
 
@@ -32,127 +21,121 @@ class Tag extends Model
         'slug',
         'color',
         'description',
-        'usage_count',
+        'type',
+        'is_system',
     ];
 
     protected $casts = [
-        'usage_count' => 'integer',
+        'is_system' => 'boolean',
     ];
 
-    protected static function booted(): void
+    // ==================== RELATIONSHIPS ====================
+
+    public function tenant(): BelongsTo
     {
+        return $this->belongsTo(User::class, 'tenant_id');
+    }
+
+    // Polymorphic relationships to all taggable models
+    public function properties(): MorphToMany
+    {
+        return $this->morphedByMany(Property::class, 'taggable')
+            ->withPivot(['tagged_by'])
+            ->withTimestamps();
+    }
+
+    public function projects(): MorphToMany
+    {
+        return $this->morphedByMany(Project::class, 'taggable')
+            ->withPivot(['tagged_by'])
+            ->withTimestamps();
+    }
+
+    public function tasks(): MorphToMany
+    {
+        return $this->morphedByMany(EnhancedTask::class, 'taggable')
+            ->withPivot(['tagged_by'])
+            ->withTimestamps();
+    }
+
+    public function meters(): MorphToMany
+    {
+        return $this->morphedByMany(Meter::class, 'taggable')
+            ->withPivot(['tagged_by'])
+            ->withTimestamps();
+    }
+
+    public function invoices(): MorphToMany
+    {
+        return $this->morphedByMany(Invoice::class, 'taggable')
+            ->withPivot(['tagged_by'])
+            ->withTimestamps();
+    }
+
+    public function buildings(): MorphToMany
+    {
+        return $this->morphedByMany(Building::class, 'taggable')
+            ->withPivot(['tagged_by'])
+            ->withTimestamps();
+    }
+
+    // ==================== QUERY SCOPES ====================
+
+    public function scopeByType($query, string $type)
+    {
+        return $query->where('type', $type);
+    }
+
+    public function scopeSystem($query)
+    {
+        return $query->where('is_system', true);
+    }
+
+    public function scopeUserCreated($query)
+    {
+        return $query->where('is_system', false);
+    }
+
+    public function scopePopular($query, int $limit = 10)
+    {
+        return $query->withCount('taggables')
+                    ->orderByDesc('taggables_count')
+                    ->limit($limit);
+    }
+
+    // ==================== HELPER METHODS ====================
+
+    public function getUsageCount(): int
+    {
+        return $this->properties()->count() +
+               $this->projects()->count() +
+               $this->tasks()->count() +
+               $this->meters()->count() +
+               $this->invoices()->count() +
+               $this->buildings()->count();
+    }
+
+    public function canBeDeleted(): bool
+    {
+        return !$this->is_system && $this->getUsageCount() === 0;
+    }
+
+    // ==================== EVENTS ====================
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
         static::creating(function (Tag $tag) {
             if (empty($tag->slug)) {
                 $tag->slug = Str::slug($tag->name);
             }
         });
 
-        // Update usage count when tag is attached/detached
-        static::saved(function (Tag $tag) {
-            $tag->updateUsageCount();
+        static::updating(function (Tag $tag) {
+            if ($tag->isDirty('name')) {
+                $tag->slug = Str::slug($tag->name);
+            }
         });
-    }
-
-    /**
-     * Get all invoices with this tag
-     */
-    public function invoices(): MorphToMany
-    {
-        return $this->morphedByMany(Invoice::class, 'taggable')
-            ->withTimestamps()
-            ->withPivot('tagged_by');
-    }
-
-    /**
-     * Get all properties with this tag
-     */
-    public function properties(): MorphToMany
-    {
-        return $this->morphedByMany(Property::class, 'taggable')
-            ->withTimestamps()
-            ->withPivot('tagged_by');
-    }
-
-    /**
-     * Get all meters with this tag
-     */
-    public function meters(): MorphToMany
-    {
-        return $this->morphedByMany(Meter::class, 'taggable')
-            ->withTimestamps()
-            ->withPivot('tagged_by');
-    }
-
-    /**
-     * Get all buildings with this tag
-     */
-    public function buildings(): MorphToMany
-    {
-        return $this->morphedByMany(Building::class, 'taggable')
-            ->withTimestamps()
-            ->withPivot('tagged_by');
-    }
-
-    /**
-     * Get all tenants with this tag
-     */
-    public function tenants(): MorphToMany
-    {
-        return $this->morphedByMany(Tenant::class, 'taggable')
-            ->withTimestamps()
-            ->withPivot('tagged_by');
-    }
-
-    /**
-     * Update the usage count based on actual usage
-     */
-    public function updateUsageCount(): void
-    {
-        $count = DB::table('taggables')
-            ->where('tag_id', $this->id)
-            ->count();
-
-        $this->usage_count = $count;
-        $this->saveQuietly();
-    }
-
-    /**
-     * Scope: Most used tags
-     */
-    public function scopePopular($query, int $limit = 10)
-    {
-        return $query->orderBy('usage_count', 'desc')->limit($limit);
-    }
-
-    /**
-     * Scope: Unused tags
-     */
-    public function scopeUnused($query)
-    {
-        return $query->where('usage_count', 0);
-    }
-
-    /**
-     * Bulk update usage counts for multiple tags efficiently
-     * 
-     * @param array<int> $tagIds
-     */
-    public static function bulkUpdateUsageCounts(array $tagIds): void
-    {
-        if (empty($tagIds)) {
-            return;
-        }
-
-        // Use a single query with subquery to update all usage counts at once
-        DB::table('tags')
-            ->whereIn('id', $tagIds)
-            ->update([
-                'usage_count' => DB::raw('(
-                    SELECT COUNT(*) 
-                    FROM taggables 
-                    WHERE taggables.tag_id = tags.id
-                )'),
-                'updated_at' => now(),
-            ]);
     }
 }

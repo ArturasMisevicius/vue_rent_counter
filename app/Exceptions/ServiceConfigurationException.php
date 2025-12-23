@@ -81,11 +81,19 @@ final class ServiceConfigurationException extends Exception
     /**
      * Create exception for overlapping configurations.
      */
-    public static function overlappingConfiguration(int $propertyId, string $dateRange): self
+    public static function overlappingConfiguration($propertyIdOrMessage = null, ?string $dateRange = null): self
     {
-        return new self(
-            "Property #{$propertyId} already has an active service configuration for the date range: {$dateRange}"
-        );
+        if (is_int($propertyIdOrMessage) && $dateRange !== null) {
+            return new self(
+                "Property #{$propertyIdOrMessage} already has an active service configuration for the date range: {$dateRange}"
+            );
+        }
+        
+        $message = is_string($propertyIdOrMessage) 
+            ? $propertyIdOrMessage 
+            : 'Service configuration overlaps with existing configuration';
+            
+        return new self($message);
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\PropertyType;
 use App\Models\Property;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -11,11 +10,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class PropertyFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var class-string<\Illuminate\Database\Eloquent\Model>
-     */
     protected $model = Property::class;
 
     /**
@@ -27,43 +21,43 @@ class PropertyFactory extends Factory
     {
         return [
             'tenant_id' => 1,
-            'address' => fake()->address(),
-            'type' => fake()->randomElement([PropertyType::APARTMENT, PropertyType::HOUSE]),
-            'area_sqm' => fake()->randomFloat(2, 20, 200),
-            'unit_number' => fake()->bothify('Apt ###'),
-            'building_id' => \App\Models\Building::factory(),
+            'address' => $this->faker->streetAddress(),
+            'type' => $this->faker->randomElement(['apartment', 'house']),
+            'area_sqm' => $this->faker->randomFloat(2, 30, 200),
+            'unit_number' => $this->faker->optional()->bothify('##?'),
+            'building_id' => null, // Will be set by relationships if needed
         ];
     }
 
     /**
-     * Force the property to belong to a specific tenant and align the building.
+     * Set the tenant_id for this property.
      */
     public function forTenantId(int $tenantId): static
     {
-        return $this->state(fn ($attributes) => [
+        return $this->state(fn (array $attributes) => [
             'tenant_id' => $tenantId,
-            'building_id' => $attributes['building_id']
-                ?? \App\Models\Building::factory()->forTenantId($tenantId),
         ]);
     }
 
     /**
-     * Ensure the property's building inherits the tenant when present.
+     * Indicate that the property is an apartment.
      */
-    public function configure(): static
+    public function apartment(): static
     {
-        return $this->afterMaking(function (\App\Models\Property $property) {
-            $building = $property->building ?? \App\Models\Building::find($property->building_id);
+        return $this->state(fn (array $attributes) => [
+            'type' => 'apartment',
+            'area_sqm' => $this->faker->randomFloat(2, 30, 120),
+        ]);
+    }
 
-            if ($building && $building->tenant_id !== $property->tenant_id) {
-                $building->tenant_id = $property->tenant_id;
-            }
-        })->afterCreating(function (\App\Models\Property $property) {
-            $building = $property->building ?? \App\Models\Building::find($property->building_id);
-
-            if ($building && $building->tenant_id !== $property->tenant_id) {
-                $building->update(['tenant_id' => $property->tenant_id]);
-            }
-        });
+    /**
+     * Indicate that the property is a house.
+     */
+    public function house(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'house',
+            'area_sqm' => $this->faker->randomFloat(2, 80, 300),
+        ]);
     }
 }

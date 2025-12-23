@@ -1,32 +1,47 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\ValueObjects;
 
 use Carbon\Carbon;
+use InvalidArgumentException;
 
 /**
- * Value object representing a billing period.
+ * Represents a billing period with start and end dates.
+ * 
+ * Immutable value object that ensures billing periods are valid
+ * and provides utility methods for period calculations. Used throughout
+ * the utility billing system for consistent date range handling.
+ * 
+ * @package App\ValueObjects
+ * @see \App\Services\SharedServiceCostDistributorService
+ * @see \Tests\Property\SharedServiceCostDistributionPropertyTest
+ * 
+ * @example
+ * ```php
+ * // Create monthly billing period
+ * $period = BillingPeriod::forMonth(2024, 3);
+ * 
+ * // Create custom range
+ * $period = BillingPeriod::fromRange(
+ *     Carbon::parse('2024-03-01'),
+ *     Carbon::parse('2024-03-31')
+ * );
+ * 
+ * echo $period->getDays(); // 31
+ * echo $period->getLabel(); // "March 2024"
+ * ```
  */
-class BillingPeriod
+final readonly class BillingPeriod
 {
     public function __construct(
-        public readonly Carbon $start,
-        public readonly Carbon $end
+        public Carbon $startDate,
+        public Carbon $endDate,
     ) {
-        if ($this->end->lte($this->start)) {
-            throw new \InvalidArgumentException('End date must be after start date');
+        if ($this->startDate->isAfter($this->endDate)) {
+            throw new InvalidArgumentException('Start date must be before or equal to end date');
         }
-    }
-
-    /**
-     * Create a billing period from date strings.
-     */
-    public static function fromStrings(string $start, string $end): self
-    {
-        return new self(
-            Carbon::parse($start),
-            Carbon::parse($end)
-        );
     }
 
     /**
@@ -34,61 +49,156 @@ class BillingPeriod
      */
     public static function forMonth(int $year, int $month): self
     {
-        $start = Carbon::create($year, $month, 1)->startOfMonth();
-        $end = $start->copy()->endOfMonth();
+        $startDate = Carbon::create($year, $month, 1)->startOfMonth();
+        $endDate = $startDate->copy()->endOfMonth();
         
-        return new self($start, $end);
+        return new self($startDate, $endDate);
     }
 
     /**
-     * Get the number of days in this period.
+     * Create a billing period for the current month.
      */
-    public function days(): int
+    public static function currentMonth(): self
     {
-        return $this->start->diffInDays($this->end) + 1;
+        return self::forMonth(now()->year, now()->month);
     }
 
     /**
-     * Get the number of days in this period (alias for days()).
+     * Create a billing period for the previous month.
      */
-    public function getDays(): int
+    public static function previousMonth(): self
     {
-        return $this->days();
+        $previous = now()->subMonth();
+        return self::forMonth($previous->year, $previous->month);
     }
 
     /**
-     * Get the start date of this period.
+     * Create a billing period from a date range.
+     */
+    public static function fromRange(Carbon $startDate, Carbon $endDate): self
+    {
+        return new self($startDate->copy(), $endDate->copy());
+    }
+
+    /**
+     * Get the start date of this billing period.
      */
     public function getStartDate(): Carbon
     {
-        return $this->start;
+        return $this->startDate;
     }
 
     /**
-     * Get the end date of this period.
+     * Get the end date of this billing period.
      */
     public function getEndDate(): Carbon
     {
-        return $this->end;
+        return $this->endDate;
     }
 
     /**
-     * Check if a date falls within this period.
+     * Get the number of days in this billing period.
+     */
+    public function getDays(): int
+    {
+        return (int) ($this->startDate->diffInDays($this->endDate) + 1);
+    }
+
+    /**
+     * Get the number of days in this billing period (alias for getDays).
+     */
+    public function getDaysInPeriod(): int
+    {
+        return $this->getDays();
+    }
+
+    /**
+     * Check if a date falls within this billing period.
      */
     public function contains(Carbon $date): bool
     {
-        return $date->between($this->start, $this->end);
+        return $date->between($this->startDate, $this->endDate);
     }
 
     /**
-     * Get a human-readable representation.
+     * Check if this period overlaps with another period.
      */
-    public function toString(): string
+    public function overlaps(BillingPeriod $other): bool
     {
-        return sprintf(
-            '%s to %s',
-            $this->start->format('Y-m-d'),
-            $this->end->format('Y-m-d')
-        );
+        return $this->startDate->lte($other->endDate) && $this->endDate->gte($other->startDate);
+    }
+
+    /**
+     * Get a human-readable representation of the period.
+     */
+    public function getLabel(): string
+    {
+        if ($this->startDate->isSameMonth($this->endDate)) {
+            return $this->startDate->format('F Y');
+        }
+        
+        return $this->startDate->format('M j, Y') . ' - ' . $this->endDate->format('M j, Y');
+    }
+
+    /**
+     * Get the period as an array.
+     */
+    public function toArray(): array
+    {
+        return [
+            'start_date' => $this->startDate->toISOString(),
+            'end_date' => $this->endDate->toISOString(),
+            'days' => $this->getDays(),
+            'label' => $this->getLabel(),
+        ];
+    }
+
+    /**
+     * Check if this period equals another period.
+     */
+    public function equals(BillingPeriod $other): bool
+    {
+        return $this->startDate->equalTo($other->startDate) 
+            && $this->endDate->equalTo($other->endDate);
+    }
+
+    /**
+     * Get the next billing period (same duration).
+     */
+    public function next(): self
+    {
+        $duration = $this->getDays();
+        $nextStart = $this->endDate->copy()->addDay();
+        $nextEnd = $nextStart->copy()->addDays($duration - 1);
+        
+        return new self($nextStart, $nextEnd);
+    }
+
+    /**
+     * Get the previous billing period (same duration).
+     */
+    public function previous(): self
+    {
+        $duration = $this->getDays();
+        $prevEnd = $this->startDate->copy()->subDay();
+        $prevStart = $prevEnd->copy()->subDays($duration - 1);
+        
+        return new self($prevStart, $prevEnd);
+    }
+
+    /**
+     * Get the duration in days (alias for getDays).
+     */
+    public function getDurationInDays(): int
+    {
+        return $this->getDays();
+    }
+
+    /**
+     * Get the duration in months (approximate).
+     */
+    public function getDurationInMonths(): float
+    {
+        return $this->getDays() / 30.0;
     }
 }

@@ -70,7 +70,8 @@ class UsersSeeder extends Seeder
             email: 'admin@test.com',
             organizationName: 'Test Organization 1',
             planType: SubscriptionPlanType::PROFESSIONAL->value,
-            password: $password
+            password: $password,
+            expiresInMonths: 3
         );
 
         // Admin for tenant 2 - Test Organization 2 (from TestUsersSeeder)
@@ -81,7 +82,7 @@ class UsersSeeder extends Seeder
             organizationName: 'Test Organization 2',
             planType: SubscriptionPlanType::BASIC->value,
             password: $password,
-            expiresInMonths: 6
+            expiresInMonths: 3
         );
 
         // Additional admin for tenant 1 - Vilnius Properties Ltd (from HierarchicalUsersSeeder)
@@ -92,7 +93,8 @@ class UsersSeeder extends Seeder
             email: 'admin1@example.com',
             organizationName: 'Vilnius Properties Ltd',
             planType: SubscriptionPlanType::PROFESSIONAL->value,
-            password: $password
+            password: $password,
+            expiresInMonths: 3
         );
 
         // Additional admin for tenant 2 - Baltic Real Estate (from HierarchicalUsersSeeder)
@@ -104,10 +106,10 @@ class UsersSeeder extends Seeder
             organizationName: 'Baltic Real Estate',
             planType: SubscriptionPlanType::BASIC->value,
             password: $password,
-            expiresInMonths: 6
+            expiresInMonths: 3
         );
 
-        // Admin for tenant 3 - Old Town Management (expired subscription)
+        // Admin for tenant 3 - Old Town Management (now active with 3-month subscription)
         $primaryAdmins[3] = $this->createAdminWithSubscription(
             tenantId: 3,
             name: 'Old Town Management',
@@ -115,9 +117,7 @@ class UsersSeeder extends Seeder
             organizationName: 'Old Town Management',
             planType: SubscriptionPlanType::BASIC->value,
             password: $password,
-            status: SubscriptionStatus::EXPIRED->value,
-            startsAt: now()->subYear(),
-            expiresAt: now()->subDays(10)
+            expiresInMonths: 3
         );
 
         // Store hierarchical admins for tenant user creation

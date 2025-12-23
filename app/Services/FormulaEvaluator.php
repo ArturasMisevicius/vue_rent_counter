@@ -4,518 +4,337 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Exceptions\FormulaEvaluationException;
+use InvalidArgumentException;
 
 /**
- * Safe mathematical expression evaluator.
- *
- * Supported:
- * - Numbers: 1, 1.5, .5, 1e3, 1.2e-3
- * - Variables: consumption, days, month, etc. (A-Z, a-z, 0-9, _; must start with letter/_)
- * - Operators: +, -, *, /, ^ (power)
- * - Parentheses: ( )
- * - Functions: abs, ceil, floor, round, sqrt, pow, min, max, clamp
- *
- * Not supported (by design, for safety):
- * - Property access / method calls
- * - Arrays / objects
- * - Arbitrary PHP evaluation
+ * Safe formula evaluator for custom distribution calculations.
+ * 
+ * Provides secure mathematical expression evaluation without using eval().
+ * Supports basic arithmetic operations and variable substitution for
+ * shared service cost distribution formulas.
+ * 
+ * @package App\Services
+ * @see \App\Services\SharedServiceCostDistributorService
+ * @see \Tests\Property\SharedServiceCostDistributionPropertyTest
  */
-final class FormulaEvaluator
+final readonly class FormulaEvaluator
 {
-    private const MAX_EXPRESSION_LENGTH = 2048;
-    private const MAX_TOKENS = 512;
+    /**
+     * Allowed operators in formulas.
+     */
+    private const ALLOWED_OPERATORS = ['+', '-', '*', '/', '(', ')'];
 
     /**
-     * @param array<string, array{minArgs:int, maxArgs:int}> $functions
+     * Allowed functions in formulas.
      */
-    private array $functions = [
-        'abs' => ['minArgs' => 1, 'maxArgs' => 1],
-        'ceil' => ['minArgs' => 1, 'maxArgs' => 1],
-        'floor' => ['minArgs' => 1, 'maxArgs' => 1],
-        'round' => ['minArgs' => 1, 'maxArgs' => 2],
-        'sqrt' => ['minArgs' => 1, 'maxArgs' => 1],
-        'pow' => ['minArgs' => 2, 'maxArgs' => 2],
-        'min' => ['minArgs' => 2, 'maxArgs' => 16],
-        'max' => ['minArgs' => 2, 'maxArgs' => 16],
-        'clamp' => ['minArgs' => 3, 'maxArgs' => 3],
-    ];
+    private const ALLOWED_FUNCTIONS = ['min', 'max', 'abs', 'round'];
 
     /**
-     * Evaluate a formula using the provided variables.
-     *
-     * @param array<string, mixed> $variables
+     * Evaluate a mathematical formula with given variables.
+     * 
+     * @param string $formula The formula to evaluate (e.g., "area * 0.7 + consumption * 0.3")
+     * @param array<string, float|int> $variables Variables to substitute (e.g., ['area' => 100, 'consumption' => 50])
+     * @return float The calculated result
+     * 
+     * @throws InvalidArgumentException When formula is invalid or unsafe
      */
-    public function evaluate(string $expression, array $variables = []): float
+    public function evaluate(string $formula, array $variables = []): float
     {
-        $expression = trim($expression);
-
-        if ($expression === '') {
-            throw new FormulaEvaluationException('Formula is empty.');
-        }
-
-        if (mb_strlen($expression) > self::MAX_EXPRESSION_LENGTH) {
-            throw new FormulaEvaluationException('Formula is too long.');
-        }
-
-        $tokens = $this->tokenize($expression);
-        $rpn = $this->toReversePolishNotation($tokens);
-
-        return $this->evaluateRpn($rpn, $variables);
+        // Validate and sanitize formula
+        $sanitizedFormula = $this->sanitizeFormula($formula);
+        
+        // Substitute variables
+        $processedFormula = $this->substituteVariables($sanitizedFormula, $variables);
+        
+        // Parse and evaluate safely
+        return $this->parseExpression($processedFormula);
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * Validate that a formula is syntactically correct and safe.
+     * 
+     * @param string $formula The formula to validate
+     * @return bool True if formula is valid
+     */
+    public function validateFormula(string $formula): bool
+    {
+        try {
+            $sanitized = $this->sanitizeFormula($formula);
+            
+            // Check for balanced parentheses
+            if (!$this->hasBalancedParentheses($sanitized)) {
+                return false;
+            }
+            
+            // Check for valid syntax patterns
+            return $this->hasValidSyntax($sanitized);
+            
+        } catch (\Exception) {
+            return false;
+        }
+    }
+
+    /**
+     * Get a list of variables used in a formula.
+     * 
+     * @param string $formula The formula to analyze
+     * @return array<string> Array of variable names
+     */
+    public function getVariables(string $formula): array
+    {
+        $sanitized = $this->sanitizeFormula($formula);
+        
+        // Extract variable names (letters followed by optional letters/numbers/underscores)
+        preg_match_all('/\b[a-zA-Z][a-zA-Z0-9_]*\b/', $sanitized, $matches);
+        
+        // Filter out function names
+        $variables = array_filter($matches[0], function ($match) {
+            return !in_array(strtolower($match), self::ALLOWED_FUNCTIONS, true);
+        });
+        
+        return array_unique($variables);
+    }
+
+    /**
+     * Sanitize formula by removing dangerous characters and validating structure.
+     */
+    private function sanitizeFormula(string $formula): string
+    {
+        // Remove whitespace
+        $formula = preg_replace('/\s+/', '', $formula);
+        
+        // Check for dangerous patterns
+        $dangerousPatterns = [
+            '/\$/',           // PHP variables
+            '/;/',            // Statement separators
+            '/`/',            // Backticks
+            '/exec|system|shell_exec|passthru|eval|file_get_contents|include|require/', // Dangerous functions
+        ];
+        
+        foreach ($dangerousPatterns as $pattern) {
+            if (preg_match($pattern, $formula)) {
+                throw new InvalidArgumentException('Formula contains dangerous patterns');
+            }
+        }
+        
+        // Validate characters (only allow numbers, letters, operators, dots, underscores)
+        if (!preg_match('/^[a-zA-Z0-9+\-*\/()._]+$/', $formula)) {
+            throw new InvalidArgumentException('Formula contains invalid characters');
+        }
+        
+        return $formula;
+    }
+
+    /**
+     * Substitute variables in the formula with their values.
+     */
+    private function substituteVariables(string $formula, array $variables): string
+    {
+        $result = $formula;
+        
+        // Sort variables by length (longest first) to avoid partial replacements
+        uksort($variables, fn($a, $b) => strlen($b) - strlen($a));
+        
+        foreach ($variables as $name => $value) {
+            // Ensure variable name is safe
+            if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $name)) {
+                throw new InvalidArgumentException("Invalid variable name: {$name}");
+            }
+            
+            // Ensure value is numeric
+            if (!is_numeric($value)) {
+                throw new InvalidArgumentException("Variable {$name} must be numeric, got: " . gettype($value));
+            }
+            
+            // Replace variable with value (word boundaries to avoid partial matches)
+            $result = preg_replace('/\b' . preg_quote($name, '/') . '\b/', (string) $value, $result);
+        }
+        
+        return $result;
+    }
+
+    /**
+     * Parse and evaluate a mathematical expression safely.
+     */
+    private function parseExpression(string $expression): float
+    {
+        // Remove any remaining non-numeric, non-operator characters
+        if (!preg_match('/^[0-9+\-*\/().]+$/', $expression)) {
+            throw new InvalidArgumentException('Expression contains invalid characters after substitution');
+        }
+        
+        try {
+            // Use a simple recursive descent parser instead of eval()
+            $tokens = $this->tokenize($expression);
+            $result = $this->parseTokens($tokens);
+            
+            if (!is_finite($result)) {
+                throw new InvalidArgumentException('Formula evaluation resulted in infinite or NaN value');
+            }
+            
+            return $result;
+            
+        } catch (\Exception $e) {
+            throw new InvalidArgumentException('Failed to evaluate expression: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Tokenize the expression into numbers and operators.
      */
     private function tokenize(string $expression): array
     {
         $tokens = [];
         $length = strlen($expression);
-
-        for ($i = 0; $i < $length; ) {
+        $i = 0;
+        
+        while ($i < $length) {
             $char = $expression[$i];
-
-            if (ctype_space($char)) {
-                $i++;
-                continue;
-            }
-
-            if (
-                ctype_digit($char) ||
-                ($char === '.' && ($i + 1) < $length && ctype_digit($expression[$i + 1]))
-            ) {
-                $start = $i;
-                $i++;
-
-                while ($i < $length && (ctype_digit($expression[$i]) || $expression[$i] === '.')) {
+            
+            if (is_numeric($char) || $char === '.') {
+                // Parse number
+                $number = '';
+                while ($i < $length && (is_numeric($expression[$i]) || $expression[$i] === '.')) {
+                    $number .= $expression[$i];
                     $i++;
                 }
-
-                if ($i < $length && ($expression[$i] === 'e' || $expression[$i] === 'E')) {
-                    $i++;
-
-                    if ($i < $length && ($expression[$i] === '+' || $expression[$i] === '-')) {
-                        $i++;
-                    }
-
-                    if ($i >= $length || !ctype_digit($expression[$i])) {
-                        throw new FormulaEvaluationException('Invalid scientific notation in formula.');
-                    }
-
-                    while ($i < $length && ctype_digit($expression[$i])) {
-                        $i++;
-                    }
-                }
-
-                $rawNumber = substr($expression, $start, $i - $start);
-                if (!is_numeric($rawNumber)) {
-                    throw new FormulaEvaluationException("Invalid number '{$rawNumber}' in formula.");
-                }
-
-                $tokens[] = ['type' => 'number', 'value' => (float) $rawNumber];
-                continue;
-            }
-
-            if (ctype_alpha($char) || $char === '_') {
-                $start = $i;
+                $tokens[] = (float) $number;
+            } elseif (in_array($char, self::ALLOWED_OPERATORS, true)) {
+                $tokens[] = $char;
                 $i++;
-
-                while ($i < $length && (ctype_alnum($expression[$i]) || $expression[$i] === '_')) {
-                    $i++;
-                }
-
-                $identifier = substr($expression, $start, $i - $start);
-
-                $j = $i;
-                while ($j < $length && ctype_space($expression[$j])) {
-                    $j++;
-                }
-
-                if ($j < $length && $expression[$j] === '(') {
-                    $tokens[] = ['type' => 'function', 'name' => $identifier];
-                } else {
-                    $tokens[] = ['type' => 'identifier', 'name' => $identifier];
-                }
-
-                continue;
+            } else {
+                throw new InvalidArgumentException("Unexpected character: {$char}");
             }
-
-            if (in_array($char, ['+', '-', '*', '/', '^'], true)) {
-                $tokens[] = ['type' => 'operator', 'op' => $char];
-                $i++;
-                continue;
-            }
-
-            if ($char === '(') {
-                $tokens[] = ['type' => 'lparen'];
-                $i++;
-                continue;
-            }
-
-            if ($char === ')') {
-                $tokens[] = ['type' => 'rparen'];
-                $i++;
-                continue;
-            }
-
-            if ($char === ',') {
-                $tokens[] = ['type' => 'comma'];
-                $i++;
-                continue;
-            }
-
-            $position = $i + 1; // 1-based
-            throw new FormulaEvaluationException("Unexpected character '{$char}' at position {$position}.");
         }
-
-        if (count($tokens) > self::MAX_TOKENS) {
-            throw new FormulaEvaluationException('Formula is too complex.');
-        }
-
+        
         return $tokens;
     }
 
     /**
-     * Convert tokens to Reverse Polish Notation via shunting-yard algorithm.
-     *
-     * @param array<int, array<string, mixed>> $tokens
-     * @return array<int, array<string, mixed>>
+     * Parse tokens using recursive descent parser.
      */
-    private function toReversePolishNotation(array $tokens): array
+    private function parseTokens(array &$tokens): float
     {
-        $output = [];
-        $stack = [];
-        $functionContexts = [];
-
-        $previousType = null;
-
-        foreach ($tokens as $token) {
-            $type = $token['type'];
-
-            if ($type === 'number') {
-                $this->markFunctionArgumentStart($functionContexts);
-                $output[] = $token;
-                $previousType = 'number';
-                continue;
-            }
-
-            if ($type === 'identifier') {
-                $this->markFunctionArgumentStart($functionContexts);
-                $output[] = $token;
-                $previousType = 'identifier';
-                continue;
-            }
-
-            if ($type === 'function') {
-                $this->markFunctionArgumentStart($functionContexts);
-                $stack[] = $token;
-                $previousType = 'function';
-                continue;
-            }
-
-            if ($type === 'comma') {
-                if (empty($functionContexts)) {
-                    throw new FormulaEvaluationException('Unexpected comma outside of a function call.');
-                }
-
-                while (!empty($stack) && ($stack[array_key_last($stack)]['type'] ?? null) !== 'lparen') {
-                    $output[] = array_pop($stack);
-                }
-
-                if (empty($stack)) {
-                    throw new FormulaEvaluationException('Mismatched parentheses in formula.');
-                }
-
-                $functionContexts[array_key_last($functionContexts)]['expectingArgument'] = true;
-                $previousType = 'comma';
-                continue;
-            }
-
-            if ($type === 'operator') {
-                $op = $token['op'];
-                $isUnary = in_array($op, ['+', '-'], true) && in_array($previousType, [null, 'operator', 'lparen', 'comma'], true);
-
-                if ($isUnary) {
-                    $this->markFunctionArgumentStart($functionContexts);
-                    $op = $op === '-' ? 'u-' : 'u+';
-                }
-
-                $o1 = ['type' => 'operator', 'op' => $op];
-
-                while (!empty($stack)) {
-                    $top = $stack[array_key_last($stack)];
-                    if (($top['type'] ?? null) !== 'operator') {
-                        break;
-                    }
-
-                    $o2 = $top;
-
-                    if (
-                        ($this->isLeftAssociative($o1['op']) && $this->precedence($o1['op']) <= $this->precedence($o2['op'])) ||
-                        (!$this->isLeftAssociative($o1['op']) && $this->precedence($o1['op']) < $this->precedence($o2['op']))
-                    ) {
-                        $output[] = array_pop($stack);
-                        continue;
-                    }
-
-                    break;
-                }
-
-                $stack[] = $o1;
-                $previousType = 'operator';
-                continue;
-            }
-
-            if ($type === 'lparen') {
-                $this->markFunctionArgumentStart($functionContexts);
-                $stack[] = $token;
-
-                $previousWasFunction = $previousType === 'function';
-                if ($previousWasFunction) {
-                    $functionContexts[] = [
-                        'argc' => 0,
-                        'expectingArgument' => true,
-                    ];
-                }
-
-                $previousType = 'lparen';
-                continue;
-            }
-
-            if ($type === 'rparen') {
-                while (!empty($stack) && ($stack[array_key_last($stack)]['type'] ?? null) !== 'lparen') {
-                    $output[] = array_pop($stack);
-                }
-
-                if (empty($stack)) {
-                    throw new FormulaEvaluationException('Mismatched parentheses in formula.');
-                }
-
-                array_pop($stack); // pop lparen
-
-                $top = $stack[array_key_last($stack)] ?? null;
-                if (($top['type'] ?? null) === 'function') {
-                    $functionToken = array_pop($stack);
-                    $context = array_pop($functionContexts);
-
-                    if (($context['expectingArgument'] ?? true) === true) {
-                        throw new FormulaEvaluationException("Function '{$functionToken['name']}' has a missing argument.");
-                    }
-
-                    $functionToken['argc'] = (int) ($context['argc'] ?? 0);
-                    $output[] = $functionToken;
-                }
-
-                $previousType = 'rparen';
-                continue;
-            }
-
-            throw new FormulaEvaluationException('Invalid token encountered during parsing.');
-        }
-
-        while (!empty($stack)) {
-            $top = array_pop($stack);
-            if (($top['type'] ?? null) === 'lparen') {
-                throw new FormulaEvaluationException('Mismatched parentheses in formula.');
-            }
-            $output[] = $top;
-        }
-
-        if (!empty($functionContexts)) {
-            throw new FormulaEvaluationException('Mismatched function parentheses in formula.');
-        }
-
-        return $output;
+        return $this->parseAddition($tokens);
     }
 
     /**
-     * If we're inside a function and are expecting a new argument, mark it as started.
-     *
-     * @param array<int, array{argc:int, expectingArgument:bool}> $functionContexts
+     * Parse addition and subtraction (lowest precedence).
      */
-    private function markFunctionArgumentStart(array &$functionContexts): void
+    private function parseAddition(array &$tokens): float
     {
-        if (empty($functionContexts)) {
-            return;
+        $result = $this->parseMultiplication($tokens);
+        
+        while (!empty($tokens) && in_array($tokens[0], ['+', '-'], true)) {
+            $operator = array_shift($tokens);
+            $right = $this->parseMultiplication($tokens);
+            
+            $result = match ($operator) {
+                '+' => $result + $right,
+                '-' => $result - $right,
+            };
         }
-
-        $idx = array_key_last($functionContexts);
-
-        if (($functionContexts[$idx]['expectingArgument'] ?? false) !== true) {
-            return;
-        }
-
-        $functionContexts[$idx]['argc']++;
-        $functionContexts[$idx]['expectingArgument'] = false;
-    }
-
-    private function precedence(string $operator): int
-    {
-        return match ($operator) {
-            '^' => 4,
-            'u-', 'u+' => 3,
-            '*', '/' => 2,
-            '+', '-' => 1,
-            default => throw new FormulaEvaluationException("Unknown operator '{$operator}'."),
-        };
-    }
-
-    private function isLeftAssociative(string $operator): bool
-    {
-        return match ($operator) {
-            '^', 'u-', 'u+' => false,
-            default => true,
-        };
-    }
-
-    /**
-     * @param array<int, array<string, mixed>> $rpn
-     * @param array<string, mixed> $variables
-     */
-    private function evaluateRpn(array $rpn, array $variables): float
-    {
-        $stack = [];
-
-        foreach ($rpn as $token) {
-            $type = $token['type'] ?? null;
-
-            if ($type === 'number') {
-                $stack[] = (float) $token['value'];
-                continue;
-            }
-
-            if ($type === 'identifier') {
-                $name = (string) $token['name'];
-
-                if (!array_key_exists($name, $variables)) {
-                    throw new FormulaEvaluationException("Unknown variable '{$name}'.");
-                }
-
-                $stack[] = $this->toNumeric($variables[$name], $name);
-                continue;
-            }
-
-            if ($type === 'operator') {
-                $op = (string) $token['op'];
-
-                if (in_array($op, ['u-', 'u+'], true)) {
-                    $value = array_pop($stack);
-                    if (!is_float($value) && !is_int($value)) {
-                        throw new FormulaEvaluationException('Invalid unary operator operand.');
-                    }
-
-                    $stack[] = $op === 'u-' ? -(float) $value : (float) $value;
-                    continue;
-                }
-
-                $right = array_pop($stack);
-                $left = array_pop($stack);
-
-                if (!is_numeric($left) || !is_numeric($right)) {
-                    throw new FormulaEvaluationException('Invalid operator operands.');
-                }
-
-                $stack[] = match ($op) {
-                    '+' => (float) $left + (float) $right,
-                    '-' => (float) $left - (float) $right,
-                    '*' => (float) $left * (float) $right,
-                    '/' => $this->safeDivide((float) $left, (float) $right),
-                    '^' => (float) pow((float) $left, (float) $right),
-                    default => throw new FormulaEvaluationException("Unknown operator '{$op}'."),
-                };
-
-                continue;
-            }
-
-            if ($type === 'function') {
-                $name = strtolower((string) ($token['name'] ?? ''));
-                $argc = (int) ($token['argc'] ?? 0);
-
-                $spec = $this->functions[$name] ?? null;
-                if (!$spec) {
-                    throw new FormulaEvaluationException("Unknown function '{$name}'.");
-                }
-
-                if ($argc < $spec['minArgs'] || $argc > $spec['maxArgs']) {
-                    throw new FormulaEvaluationException("Function '{$name}' expects {$spec['minArgs']}..{$spec['maxArgs']} arguments, got {$argc}.");
-                }
-
-                if ($argc > count($stack)) {
-                    throw new FormulaEvaluationException("Not enough arguments for function '{$name}'.");
-                }
-
-                $args = array_splice($stack, -$argc, $argc);
-                $args = array_map(fn ($v) => (float) $v, $args);
-
-                $stack[] = $this->callFunction($name, $args);
-                continue;
-            }
-
-            throw new FormulaEvaluationException('Invalid RPN token encountered during evaluation.');
-        }
-
-        if (count($stack) !== 1) {
-            throw new FormulaEvaluationException('Formula did not evaluate to a single value.');
-        }
-
-        $result = (float) $stack[0];
-
-        if (is_nan($result) || is_infinite($result)) {
-            throw new FormulaEvaluationException('Formula result is not a finite number.');
-        }
-
+        
         return $result;
     }
 
-    private function safeDivide(float $left, float $right): float
+    /**
+     * Parse multiplication and division (higher precedence).
+     */
+    private function parseMultiplication(array &$tokens): float
     {
-        if (abs($right) < 1e-12) {
-            throw new FormulaEvaluationException('Division by zero.');
+        $result = $this->parseFactor($tokens);
+        
+        while (!empty($tokens) && in_array($tokens[0], ['*', '/'], true)) {
+            $operator = array_shift($tokens);
+            $right = $this->parseFactor($tokens);
+            
+            if ($operator === '/' && $right == 0) {
+                throw new InvalidArgumentException('Division by zero');
+            }
+            
+            $result = match ($operator) {
+                '*' => $result * $right,
+                '/' => $result / $right,
+            };
         }
-
-        return $left / $right;
+        
+        return $result;
     }
 
-    private function callFunction(string $name, array $args): float
+    /**
+     * Parse factors (numbers and parentheses).
+     */
+    private function parseFactor(array &$tokens): float
     {
-        return match ($name) {
-            'abs' => abs($args[0]),
-            'ceil' => (float) ceil($args[0]),
-            'floor' => (float) floor($args[0]),
-            'round' => (float) round($args[0], isset($args[1]) ? (int) $args[1] : 0),
-            'sqrt' => $this->safeSqrt($args[0]),
-            'pow' => (float) pow($args[0], $args[1]),
-            'min' => (float) min($args),
-            'max' => (float) max($args),
-            'clamp' => (float) max($args[1], min($args[2], $args[0])),
-            default => throw new FormulaEvaluationException("Unknown function '{$name}'."),
-        };
+        if (empty($tokens)) {
+            throw new InvalidArgumentException('Unexpected end of expression');
+        }
+        
+        $token = array_shift($tokens);
+        
+        if (is_numeric($token)) {
+            return (float) $token;
+        }
+        
+        if ($token === '(') {
+            $result = $this->parseAddition($tokens);
+            
+            if (empty($tokens) || array_shift($tokens) !== ')') {
+                throw new InvalidArgumentException('Missing closing parenthesis');
+            }
+            
+            return $result;
+        }
+        
+        if ($token === '-') {
+            return -$this->parseFactor($tokens);
+        }
+        
+        throw new InvalidArgumentException("Unexpected token: {$token}");
     }
 
-    private function safeSqrt(float $value): float
+    /**
+     * Check if parentheses are balanced.
+     */
+    private function hasBalancedParentheses(string $formula): bool
     {
-        if ($value < 0) {
-            throw new FormulaEvaluationException('sqrt() does not accept negative values.');
+        $count = 0;
+        
+        for ($i = 0; $i < strlen($formula); $i++) {
+            if ($formula[$i] === '(') {
+                $count++;
+            } elseif ($formula[$i] === ')') {
+                $count--;
+                if ($count < 0) {
+                    return false;
+                }
+            }
         }
-
-        return (float) sqrt($value);
+        
+        return $count === 0;
     }
 
-    private function toNumeric(mixed $value, string $name): float
+    /**
+     * Check if formula has valid syntax patterns.
+     */
+    private function hasValidSyntax(string $formula): bool
     {
-        if (is_bool($value)) {
-            return $value ? 1.0 : 0.0;
+        // Check for empty formula
+        if (empty($formula)) {
+            return false;
         }
-
-        if (is_int($value) || is_float($value)) {
-            return (float) $value;
+        
+        // Check for consecutive operators
+        if (preg_match('/[+\-*\/]{2,}/', $formula)) {
+            return false;
         }
-
-        if (is_string($value) && is_numeric($value)) {
-            return (float) $value;
+        
+        // Check for operators at start/end (except minus at start)
+        if (preg_match('/^[+*\/]|[+\-*\/]$/', $formula)) {
+            return false;
         }
-
-        throw new FormulaEvaluationException("Variable '{$name}' must be numeric.");
+        
+        return true;
     }
 }
-

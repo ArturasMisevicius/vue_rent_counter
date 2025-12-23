@@ -634,6 +634,148 @@ final class UniversalReadingCollector
     }
 
     /**
+     * Collect readings for a specific billing period using automated methods.
+     * 
+     * @param BillingPeriod $billingPeriod The period to collect readings for
+     * @param BillingOptions $options Collection options and preferences
+     * @return ReadingCollectionResult Results of the collection process
+     */
+    public function collectReadingsForPeriod(
+        \App\ValueObjects\BillingPeriod $billingPeriod,
+        \App\ValueObjects\BillingOptions $options
+    ): ReadingCollectionResult {
+        $results = [
+            'success_count' => 0,
+            'failure_count' => 0,
+            'errors' => [],
+            'warnings' => [],
+        ];
+
+        try {
+            // Get all meters that need readings for this period
+            $meters = $this->getMetersNeedingReadings($billingPeriod, $options);
+            
+            foreach ($meters as $meter) {
+                try {
+                    // Check if reading already exists for this period
+                    $existingReading = $meter->readings()
+                        ->whereBetween('reading_date', [
+                            $billingPeriod->getStartDate(),
+                            $billingPeriod->getEndDate()
+                        ])
+                        ->first();
+                    
+                    if ($existingReading && !$options->shouldRegenerateExisting()) {
+                        $results['warnings'][] = "Reading already exists for meter {$meter->id} in period {$billingPeriod->getLabel()}";
+                        continue;
+                    }
+                    
+                    // Attempt to collect reading using configured method
+                    $readingResult = $this->collectReadingForMeter($meter, $billingPeriod, $options);
+                    
+                    if ($readingResult['success']) {
+                        $results['success_count']++;
+                    } else {
+                        $results['failure_count']++;
+                        $results['errors'] = array_merge($results['errors'], $readingResult['errors']);
+                    }
+                    
+                } catch (\Exception $e) {
+                    $results['failure_count']++;
+                    $results['errors'][] = "Failed to collect reading for meter {$meter->id}: {$e->getMessage()}";
+                    
+                    Log::error('Reading collection failed for meter', [
+                        'meter_id' => $meter->id,
+                        'period' => $billingPeriod->getLabel(),
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+            
+            Log::info('Reading collection completed', [
+                'period' => $billingPeriod->getLabel(),
+                'success_count' => $results['success_count'],
+                'failure_count' => $results['failure_count'],
+                'total_meters' => count($meters),
+            ]);
+            
+        } catch (\Exception $e) {
+            $results['errors'][] = "Reading collection process failed: {$e->getMessage()}";
+            
+            Log::error('Reading collection process failed', [
+                'period' => $billingPeriod->getLabel(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+
+        return new ReadingCollectionResult($results);
+    }
+
+    /**
+     * Get meters that need readings for the specified billing period.
+     */
+    private function getMetersNeedingReadings(
+        \App\ValueObjects\BillingPeriod $billingPeriod,
+        \App\ValueObjects\BillingOptions $options
+    ): \Illuminate\Support\Collection {
+        $query = \App\Models\Meter::query()
+            ->with(['property', 'serviceConfiguration'])
+            ->whereHas('serviceConfiguration', function ($q) {
+                $q->where('is_active', true);
+            });
+        
+        // Filter by tenant IDs if specified
+        if ($tenantIds = $options->getTenantIds()) {
+            $query->whereHas('property.tenant', function ($q) use ($tenantIds) {
+                $q->whereIn('id', $tenantIds);
+            });
+        }
+        
+        return $query->get();
+    }
+
+    /**
+     * Collect reading for a specific meter and period.
+     */
+    private function collectReadingForMeter(
+        \App\Models\Meter $meter,
+        \App\ValueObjects\BillingPeriod $billingPeriod,
+        \App\ValueObjects\BillingOptions $options
+    ): array {
+        try {
+            // For automated collection, we'll create estimated readings
+            // In a real implementation, this would integrate with:
+            // - Smart meter APIs
+            // - IoT device networks
+            // - Third-party data providers
+            // - Photo OCR systems
+            
+            $readingDate = $billingPeriod->getEndDate()->subDays(rand(1, 5));
+            
+            $reading = $this->createEstimatedReading($meter, $readingDate, [
+                'collection_method' => 'automated',
+                'billing_period' => $billingPeriod->getLabel(),
+            ]);
+            
+            return [
+                'success' => true,
+                'reading' => $reading,
+                'errors' => [],
+                'warnings' => [],
+            ];
+            
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'reading' => null,
+                'errors' => [$e->getMessage()],
+                'warnings' => [],
+            ];
+        }
+    }
+
+    /**
      * Estimate multi-values for complex meters.
      */
     private function estimateMultiValues(Meter $meter, float $totalValue): array
@@ -654,5 +796,53 @@ final class UniversalReadingCollector
         }
 
         return $values;
+    }
+}
+
+/**
+ * Result object for reading collection operations.
+ */
+class ReadingCollectionResult
+{
+    private array $data;
+
+    public function __construct(array $data)
+    {
+        $this->data = $data;
+    }
+
+    public function getSuccessCount(): int
+    {
+        return $this->data['success_count'] ?? 0;
+    }
+
+    public function getFailureCount(): int
+    {
+        return $this->data['failure_count'] ?? 0;
+    }
+
+    public function getErrors(): array
+    {
+        return $this->data['errors'] ?? [];
+    }
+
+    public function getWarnings(): array
+    {
+        return $this->data['warnings'] ?? [];
+    }
+
+    public function isSuccessful(): bool
+    {
+        return $this->getFailureCount() === 0;
+    }
+
+    public function getTotalCount(): int
+    {
+        return $this->getSuccessCount() + $this->getFailureCount();
+    }
+
+    public function toArray(): array
+    {
+        return $this->data;
     }
 }

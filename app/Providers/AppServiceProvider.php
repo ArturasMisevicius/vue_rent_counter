@@ -93,6 +93,13 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
+        // Register Universal Utility Management services
+        $this->app->singleton(\App\Services\FormulaEvaluator::class);
+        $this->app->singleton(
+            \App\Contracts\SharedServiceCostDistributor::class,
+            \App\Services\SharedServiceCostDistributorService::class
+        );
+
         // Register SubscriptionChecker with interface binding
         $this->app->singleton(
             \App\Contracts\SubscriptionCheckerInterface::class,
@@ -114,6 +121,27 @@ class AppServiceProvider extends ServiceProvider
             \App\Contracts\SuperAdminUserInterface::class,
             \App\Services\SuperAdminUserService::class
         );
+
+        // Register Shared Service Cost Distributor
+        $this->app->singleton(
+            \App\Contracts\SharedServiceCostDistributor::class,
+            \App\Services\SharedServiceCostDistributorService::class
+        );
+
+        // Register Enhanced Automated Billing System services
+        $this->app->singleton(\App\Services\AutomatedBillingEngine::class);
+        $this->app->singleton(\App\Services\UniversalBillingCalculator::class);
+        $this->app->singleton(\App\Services\UniversalReadingCollector::class);
+        $this->app->singleton(\App\Services\InvoiceSnapshotService::class);
+        
+        // Register new billing architecture services
+        $this->app->singleton(\App\Services\Billing\TenantBillingProcessor::class);
+        $this->app->singleton(\App\Services\Billing\PropertyBillingProcessor::class);
+        $this->app->singleton(\App\Services\Billing\UniversalServiceProcessor::class);
+        $this->app->singleton(\App\Services\Billing\HeatingChargeProcessor::class);
+        
+        // Register heating calculator service
+        $this->app->singleton(\App\Services\HeatingCalculatorService::class);
 
         // Laravel 12 no longer binds the legacy 'files' service alias; add it for packages (Debugbar)
         if (! $this->app->bound('files')) {

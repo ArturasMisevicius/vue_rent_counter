@@ -1,6 +1,6 @@
 # Diagnostic Report - Rent Counter Application
 **Date:** 2025-12-18
-**Context:** Dashboard failure after authentication (post Gyvatukas removal and per-property expense implementation)
+**Context:** Dashboard failure after authentication (post heating system removal and per-property expense implementation)
 **Report Type:** Comprehensive System Diagnostic
 
 ---
@@ -122,7 +122,7 @@ public function handle(Request $request, Closure $next): Response  // ← ISSUE:
 
 ### Per-Property Expense Items Implementation
 
-**Status:** ✅ Successfully Implemented (No Gyvatukas dependency)
+**Status:** ✅ Successfully Implemented (No heating system dependency)
 
 **Implementation Details:**
 
@@ -162,7 +162,7 @@ class InvoiceItem extends Model
 - ✅ Meter reading snapshot for historical accuracy
 - ✅ Decimal precision for financial calculations
 - ✅ Clean relationship with Invoice model
-- ✅ No dependency on deprecated Gyvatukas system
+- ✅ No dependency on deprecated heating system
 
 **Related Files:**
 - `app/Models/InvoiceItem.php` - Core model
@@ -196,20 +196,20 @@ class InvoiceItem extends Model
 - No changes affecting invoice generation
 
 **InvoiceItem Model:**
-- NEW: Replaces Gyvatukas-based calculation system
+- NEW: Replaces heating-based calculation system
 - Clean invoice relationship
 - Flexible structure supports multiple expense types
 
 ---
 
-## 4. GYVATUKAS REMOVAL STATUS
+## 4. HEATING SYSTEM REMOVAL STATUS
 
 ### Removal Confirmation: ✅ COMPLETE
 
 **Search Results:**
 ```bash
 # App directory search
-No files found containing "gyvatukas"
+No files found containing "heating system"
 
 # Migrations search
 Found 1 file: database/migrations/2025_12_13_220000_remove_legacy_building_calculation_columns.php
@@ -218,16 +218,16 @@ Found 1 file: database/migrations/2025_12_13_220000_remove_legacy_building_calcu
 **Migration Analysis:** [database/migrations/2025_12_13_220000_remove_legacy_building_calculation_columns.php](database/migrations/2025_12_13_220000_remove_legacy_building_calculation_columns.php)
 
 This migration successfully removes:
-- ✅ `gyvatukas_summer_average` column from buildings table
-- ✅ `gyvatukas_last_calculated` column from buildings table
-- ✅ `buildings_gyvatukas_index` index
-- ✅ `buildings_gyvatukas_calculated_idx` index
-- ✅ `buildings_gyvatukas_valid_idx` index
-- ✅ `gyvatukas_calculation_audits` table (entire table dropped)
+- ✅ `heating_summer_average` column from buildings table
+- ✅ `heating_last_calculated` column from buildings table
+- ✅ `buildings_heating_index` index
+- ✅ `buildings_heating_calculated_idx` index
+- ✅ `buildings_heating_valid_idx` index
+- ✅ `heating_calculation_audits` table (entire table dropped)
 
 **Leftover References:** ❌ NONE
 
-**Conclusion:** Gyvatukas system has been **completely removed** from the codebase. The only remaining reference is the migration file itself, which is expected and necessary for database version control.
+**Conclusion:** Heating system has been **completely removed** from the codebase. The only remaining reference is the migration file itself, which is expected and necessary for database version control.
 
 ---
 
@@ -460,7 +460,7 @@ Before deploying the fix:
 - ✅ Security-first approach (headers, tokens, analytics)
 - ✅ Multi-tenancy properly implemented
 - ✅ User model well-architected with scopes and relationships
-- ✅ Successful removal of legacy Gyvatukas system
+- ✅ Successful removal of legacy heating system
 
 **Areas for Improvement:**
 - ⚠️ Middleware type hints need review (similar issues may exist elsewhere)
@@ -545,7 +545,7 @@ Before deploying the fix:
 
 **The application is in good architectural health** despite the critical middleware bug. The issue is **simple to fix** (1-line change) and **isolated** to the SecurityHeaders middleware. Once fixed, the application should function normally.
 
-**Gyvatukas removal was successful** with no orphaned code or broken relationships. The new **per-property expense items architecture** is properly implemented and ready for use.
+**Heating system removal was successful** with no orphaned code or broken relationships. The new **per-property expense items architecture** is properly implemented and ready for use.
 
 **Recommended Action:** Fix the SecurityHeaders middleware return type immediately, then proceed with normal development workflow.
 

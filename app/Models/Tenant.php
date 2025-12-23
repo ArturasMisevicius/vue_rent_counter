@@ -51,6 +51,7 @@ class Tenant extends Model
         'property_id',
         'lease_start',
         'lease_end',
+        'unit_area',
     ];
 
     /**
@@ -63,6 +64,7 @@ class Tenant extends Model
         return [
             'lease_start' => 'date',
             'lease_end' => 'date',
+            'unit_area' => 'decimal:2',
         ];
     }
 
@@ -106,5 +108,104 @@ class Tenant extends Model
             'property_id', // Local key on tenants table
             'id'           // Local key on meters table
         );
+    }
+
+    /**
+     * Get the utility readings for this tenant.
+     */
+    public function utilityReadings(): HasMany
+    {
+        return $this->hasMany(UtilityReading::class);
+    }
+
+    /**
+     * Get the billing records for this tenant.
+     */
+    public function billingRecords(): HasMany
+    {
+        return $this->hasMany(BillingRecord::class);
+    }
+
+    /**
+     * Get the meters associated with this tenant through the property.
+     */
+    public function meters(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Meter::class,
+            Property::class,
+            'id',          // Foreign key on properties table
+            'property_id', // Foreign key on meters table
+            'property_id', // Local key on tenants table
+            'id'           // Local key on properties table
+        );
+    }
+
+    /**
+     * Check if tenant is active for a given period.
+     */
+    public function isActiveForPeriod(\Carbon\Carbon $startDate, \Carbon\Carbon $endDate): bool
+    {
+        // Check if tenant has active status
+        if (!($this->is_active ?? true)) {
+            return false;
+        }
+
+        // Check lease period overlap
+        $leaseStart = $this->lease_start ?? $this->occupancy_start_date;
+        $leaseEnd = $this->lease_end ?? $this->occupancy_end_date;
+
+        // If no lease start, assume active
+        if (!$leaseStart) {
+            return true;
+        }
+
+        // Check if lease period overlaps with billing period
+        $leaseStartCarbon = \Carbon\Carbon::parse($leaseStart);
+        $leaseEndCarbon = $leaseEnd ? \Carbon\Carbon::parse($leaseEnd) : null;
+
+        // Lease starts before or during the billing period
+        if ($leaseStartCarbon->gt($endDate)) {
+            return false;
+        }
+
+        // Lease ends after or during the billing period (or no end date)
+        if ($leaseEndCarbon && $leaseEndCarbon->lt($startDate)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Get the occupancy start date (alias for lease_start).
+     */
+    public function getOccupancyStartDateAttribute(): ?\Carbon\Carbon
+    {
+        return $this->lease_start;
+    }
+
+    /**
+     * Get the occupancy end date (alias for lease_end).
+     */
+    public function getOccupancyEndDateAttribute(): ?\Carbon\Carbon
+    {
+        return $this->lease_end;
+    }
+
+    /**
+     * Get the rent amount for this tenant.
+     */
+    public function getRentAmountAttribute(): float
+    {
+        return $this->attributes['rent_amount'] ?? 0.0;
+    }
+
+    /**
+     * Check if tenant is currently active.
+     */
+    public function getIsActiveAttribute(): bool
+    {
+        return $this->attributes['is_active'] ?? true;
     }
 }

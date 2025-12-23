@@ -12,65 +12,93 @@ class MeterApiController extends Controller
 {
     /**
      * Get the last reading for a meter.
+     * 
+     * OPTIMIZED: Single query with conditional aggregation instead of separate zone queries
      */
     public function lastReading(Meter $meter): JsonResponse
     {
-        // For meters with zones, get the latest readings for each zone
-        if ($meter->supports_zones) {
-            $dayReading = $meter->readings()
-                ->where('zone', 'day')
-                ->latest('reading_date')
-                ->first();
-            
-            $nightReading = $meter->readings()
-                ->where('zone', 'night')
-                ->latest('reading_date')
-                ->first();
-            
-            if (!$dayReading && !$nightReading) {
-                return response()->json(null, 404);
+        $cacheKey = "meter:last_reading:{$meter->id}";
+        
+        $result = Cache::remember($cacheKey, 300, function () use ($meter) {
+            if ($meter->supports_zones) {
+                // Single query with conditional aggregation for zone-based meters
+                $readings = $meter->readings()
+                    ->select(['reading_date', 'value', 'zone'])
+                    ->whereIn('zone', ['day', 'night'])
+                    ->where('reading_date', function ($query) use ($meter) {
+                        $query->select(DB::raw('MAX(reading_date)'))
+                            ->from('meter_readings')
+                            ->where('meter_id', $meter->id)
+                            ->whereIn('zone', ['day', 'night']);
+                    })
+                    ->get()
+                    ->keyBy('zone');
+                
+                if ($readings->isEmpty()) {
+                    return null;
+                }
+                
+                $dayReading = $readings->get('day');
+                $nightReading = $readings->get('night');
+                
+                return [
+                    'date' => $dayReading?->reading_date->format('Y-m-d') ?? $nightReading?->reading_date->format('Y-m-d'),
+                    'day_value' => $dayReading?->value,
+                    'night_value' => $nightReading?->value,
+                    'value' => ($dayReading?->value ?? 0) + ($nightReading?->value ?? 0),
+                ];
             }
             
-            return response()->json([
-                'date' => $dayReading?->reading_date->format('Y-m-d') ?? $nightReading?->reading_date->format('Y-m-d'),
-                'day_value' => $dayReading?->value,
-                'night_value' => $nightReading?->value,
-                'value' => ($dayReading?->value ?? 0) + ($nightReading?->value ?? 0),
-            ]);
-        }
+            // Single-zone meters - optimized with selective columns
+            $lastReading = $meter->readings()
+                ->select(['id', 'value', 'reading_date', 'zone'])
+                ->latest('reading_date')
+                ->first();
+            
+            if (!$lastReading) {
+                return null;
+            }
+            
+            return [
+                'id' => $lastReading->id,
+                'value' => $lastReading->value,
+                'date' => $lastReading->reading_date->format('Y-m-d'),
+                'zone' => $lastReading->zone,
+            ];
+        });
         
-        // For single-zone meters
-        $lastReading = $meter->readings()
-            ->latest('reading_date')
-            ->first();
-        
-        if (!$lastReading) {
+        if ($result === null) {
             return response()->json(null, 404);
         }
         
-        return response()->json([
-            'id' => $lastReading->id,
-            'value' => $lastReading->value,
-            'date' => $lastReading->reading_date->format('Y-m-d'),
-            'zone' => $lastReading->zone,
-        ]);
+        return response()->json($result);
     }
 
     /**
      * Store a new meter reading.
+     * 
+     * OPTIMIZED: Batch validation and cache invalidation
      */
     public function store(StoreMeterReadingRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
-        $reading = MeterReading::create([
-            'tenant_id' => auth()->user()->tenant_id,
-            'meter_id' => $validated['meter_id'],
-            'reading_date' => $validated['reading_date'],
-            'value' => $validated['value'],
-            'zone' => $validated['zone'] ?? null,
-            'entered_by' => auth()->id(),
-        ]);
+        DB::transaction(function () use ($validated, &$reading) {
+            $reading = MeterReading::create([
+                'tenant_id' => auth()->user()->tenant_id,
+                'meter_id' => $validated['meter_id'],
+                'reading_date' => $validated['reading_date'],
+                'value' => $validated['value'],
+                'zone' => $validated['zone'] ?? null,
+                'entered_by' => auth()->id(),
+                'input_method' => $validated['input_method'] ?? 'manual',
+                'validation_status' => $validated['validation_status'] ?? 'pending',
+            ]);
+            
+            // Clear related caches
+            Cache::forget("meter:last_reading:{$validated['meter_id']}");
+            Cache::forget("dashboard_metrics_" . auth()->user()->tenant_id);
+        });
 
         return response()->json([
             'id' => $reading->id,

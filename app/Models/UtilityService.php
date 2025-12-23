@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
@@ -70,6 +71,16 @@ class UtilityService extends Model
     public function serviceConfigurations(): HasMany
     {
         return $this->hasMany(ServiceConfiguration::class);
+    }
+
+    /**
+     * Get the properties that use this utility service through service configurations.
+     */
+    public function properties(): BelongsToMany
+    {
+        return $this->belongsToMany(Property::class, 'service_configurations')
+            ->withPivot(['pricing_model', 'rate_schedule', 'distribution_method', 'is_shared_service', 'effective_from', 'effective_until', 'is_active'])
+            ->withTimestamps();
     }
 
     /**

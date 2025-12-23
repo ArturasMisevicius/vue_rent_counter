@@ -316,10 +316,10 @@ class CustomTokenApiEndpointsTest extends TestCase
         $this->assertContains($response->status(), [200, 403, 404]);
     }
 
-    private function withToken(string $token): self
+    public function withToken(string $token, string $type = 'Bearer'): self
     {
         return $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => $type . ' ' . $token,
             'Accept' => 'application/json',
         ]);
     }
