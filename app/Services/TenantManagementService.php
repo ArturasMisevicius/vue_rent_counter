@@ -18,6 +18,10 @@ use Illuminate\Support\Facades\Mail;
 
 final readonly class TenantManagementService implements TenantManagementInterface
 {
+    public function __construct(
+        private TenantInitializationService $tenantInitializationService,
+    ) {}
+
     public function createTenant(CreateTenantData $data): Organization
     {
         return DB::transaction(function () use ($data) {
@@ -32,6 +36,34 @@ final readonly class TenantManagementService implements TenantManagementInterfac
                 }
 
                 $tenant = Organization::create($data->toArray());
+
+                // Initialize universal services for the new tenant
+                try {
+                    $universalServicesResult = $this->tenantInitializationService->initializeUniversalServices($tenant);
+                    
+                    // Initialize property service assignments if properties exist
+                    $propertyAssignments = $this->tenantInitializationService->initializePropertyServiceAssignments(
+                        $tenant, 
+                        $universalServicesResult['utility_services']
+                    );
+                    
+                    // Ensure heating compatibility
+                    $heatingCompatible = $this->tenantInitializationService->ensureHeatingCompatibility($tenant);
+                    
+                    Log::info('Universal services initialized for new tenant', [
+                        'tenant_id' => $tenant->id,
+                        'services_created' => count($universalServicesResult['utility_services']),
+                        'property_assignments' => count($propertyAssignments),
+                        'heating_compatible' => $heatingCompatible,
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Failed to initialize universal services for tenant', [
+                        'tenant_id' => $tenant->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                    // Continue with tenant creation even if universal services fail
+                    // This ensures backward compatibility
+                }
 
             // Log the creation
             SuperAdminAuditLog::create([
