@@ -80,7 +80,7 @@ return [
         'impersonation_started' => 'Impersonation Started',
         'no_admin' => 'No Admin',
     ],
-    'navigation' => 'Navigation',
+    'navigation' => 'Organizacijos',
     'notifications' => [
         'bulk_failed_suffix' => 'Bulk Failed Suffix',
         'bulk_reactivated' => 'Bulk Reactivated',

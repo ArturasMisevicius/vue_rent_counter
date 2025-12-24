@@ -41,6 +41,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Ensure translation service is properly registered for Laravel 12
+        $this->app->singleton('translation.loader', function ($app) {
+            return new \Illuminate\Translation\FileLoader($app['files'], $app['path.lang']);
+        });
+        
+        // Set language path explicitly for Laravel 12
+        $this->app->instance('path.lang', base_path('lang'));
+        
         // Register singleton services for better performance
         $this->app->singleton(\App\Services\MeterReadingService::class);
         $this->app->singleton(\App\Services\TimeRangeValidator::class);
@@ -143,6 +151,21 @@ class AppServiceProvider extends ServiceProvider
         // Register heating calculator service
         $this->app->singleton(\App\Services\HeatingCalculatorService::class);
 
+        // Register TenantInitializationService and its dependencies
+        $this->app->singleton(\App\Services\TenantInitialization\ServiceDefinitionProvider::class);
+        $this->app->singleton(\App\Services\TenantInitialization\MeterConfigurationProvider::class);
+        $this->app->singleton(\App\Services\TenantInitialization\PropertyServiceAssigner::class);
+        $this->app->singleton(\App\Services\TenantInitialization\TenantValidator::class);
+        $this->app->singleton(\App\Services\TenantInitialization\SlugGeneratorService::class);
+        $this->app->singleton(\App\Services\TenantInitialization\PropertyServiceAssigner::class);
+        $this->app->singleton(\App\Services\TenantInitializationService::class);
+
+        // Register Circuit Breaker service with interface binding
+        $this->app->singleton(
+            \App\Contracts\CircuitBreakerInterface::class,
+            \App\Services\Integration\CircuitBreakerService::class
+        );
+
         // Laravel 12 no longer binds the legacy 'files' service alias; add it for packages (Debugbar)
         if (! $this->app->bound('files')) {
             $this->app->singleton('files', fn () => new Filesystem());
@@ -154,6 +177,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Ensure language path is properly set for Laravel 12
+        $this->app['path.lang'] = base_path('lang');
+        
+        // Explicitly load translation files for Laravel 12
+        $translator = $this->app['translator'];
+        if ($translator instanceof \Illuminate\Translation\Translator) {
+            $translator->addNamespace('*', base_path('lang'));
+        }
+        
         // Load translations moved from lang/vendor to lang/backup so the backup package keeps working
         $this->loadTranslationsFrom(lang_path('backup'), 'backup');
 

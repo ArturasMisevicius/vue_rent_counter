@@ -118,7 +118,12 @@
       "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan migrate:status)",
       "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan config:clear)",
       "Bash(\"C:\\Users\\menok\\.config\\herd\\bin\\php.bat\" artisan cache:clear)",
-      "Bash(\"C:\\\\Users\\\\menok\\\\.config\\\\herd\\\\bin\\\\php.bat\" artisan cache:forget dashboard_stats_*)"
+      "Bash(\"C:\\\\Users\\\\menok\\\\.config\\\\herd\\\\bin\\\\php.bat\" artisan cache:forget dashboard_stats_*)",
+      "Bash(php artisan migrate:status:*)",
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(grep:*)",
+      "Bash(php artisan:*)"
     ],
     "deny": [],
     "ask": []

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Billing;
 
+use App\Enums\ValidationStatus;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Property;
@@ -68,12 +69,15 @@ final readonly class UniversalServiceProcessor
         $items = [];
 
         // Get meters associated with this service configuration
+        // Task 12.1: Only process VALIDATED readings for billing (Truth-but-Verify flow)
         $meters = Meter::where('service_configuration_id', $serviceConfig->id)
             ->with(['readings' => function ($query) use ($billingPeriod) {
                 $query->whereBetween('reading_date', [
                     $billingPeriod->getStartDate(),
                     $billingPeriod->getEndDate()
-                ])->orderBy('reading_date');
+                ])
+                ->where('validation_status', ValidationStatus::VALIDATED)
+                ->orderBy('reading_date');
             }])
             ->get();
 

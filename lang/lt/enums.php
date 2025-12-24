@@ -38,6 +38,7 @@ return [
         'electricity' => 'Elektra',
         'heating' => 'Šildymas',
         'water' => 'Vanduo',
+        'gas' => 'Dujos',
     ],
     'super_admin_audit_action' => [
         'backup_created' => 'Atsarginė kopija sukurta',

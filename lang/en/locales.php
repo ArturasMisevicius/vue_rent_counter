@@ -60,7 +60,7 @@ return [
             'heading' => 'Heading',
         ],
     ],
-    'navigation' => 'Navigation',
+    'navigation' => 'Languages',
     'notifications' => [
         'default_set' => 'Default Set',
     ],

@@ -22,7 +22,7 @@ return [
         'user' => 'Vartotojas',
         'user_agent' => 'Vartotojo agentas',
     ],
-    'navigation' => 'Navigacija',
+    'navigation' => 'Veiklos žurnalas',
     'pages' => [
         'index' => [
             'description' => 'Aprašymas',

@@ -22,7 +22,7 @@ return [
         'user' => 'Пользователь',
         'user_agent' => 'Пользовательский агент',
     ],
-    'navigation' => 'Навигация',
+    'navigation' => 'Журнал активности',
     'pages' => [
         'index' => [
             'description' => 'Описание',

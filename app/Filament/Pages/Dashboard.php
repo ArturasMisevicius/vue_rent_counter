@@ -5,6 +5,12 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use App\Enums\UserRole;
+use App\Filament\Tenant\Widgets\AnomalyDetectionWidget;
+use App\Filament\Tenant\Widgets\AuditChangeHistoryWidget;
+use App\Filament\Tenant\Widgets\AuditOverviewWidget;
+use App\Filament\Tenant\Widgets\AuditTrendsWidget;
+use App\Filament\Tenant\Widgets\ComplianceStatusWidget;
+use App\Filament\Tenant\Widgets\ConfigurationRollbackWidget;
 use App\Filament\Widgets\DashboardStatsWidget;
 use App\Filament\Widgets\ExpiringSubscriptionsWidget;
 use App\Filament\Widgets\OrganizationStatsWidget;
@@ -83,10 +89,24 @@ class Dashboard extends BaseDashboard
             return $customizationService->getEnabledWidgets($user);
         }
         
-        // Default widgets for non-superadmin users
-        return [
+        // Default widgets for admin and manager users
+        $widgets = [
             DashboardStatsWidget::class,
         ];
+        
+        // Add audit widgets for admin users
+        if ($user?->role === UserRole::ADMIN) {
+            $widgets = array_merge($widgets, [
+                AuditOverviewWidget::class,
+                AuditTrendsWidget::class,
+                ComplianceStatusWidget::class,
+                AnomalyDetectionWidget::class,
+                AuditChangeHistoryWidget::class,
+                ConfigurationRollbackWidget::class,
+            ]);
+        }
+        
+        return $widgets;
     }
 
     public function getColumns(): array|int

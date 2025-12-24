@@ -3,6 +3,6 @@
 declare(strict_types=1);
 
 return [
-    'account_deactivated' => 'Аккаунт деактивирован',
-    'failed' => 'Неуспешный',
+    'account_deactivated' => 'Ваш аккаунт был деактивирован. Пожалуйста, обратитесь к администратору за помощью.',
+    'failed' => 'Неудачно',
 ];

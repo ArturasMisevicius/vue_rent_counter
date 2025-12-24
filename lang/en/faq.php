@@ -41,7 +41,7 @@ return [
         'order' => 'Order',
         'published' => 'Published',
         'question' => 'Question',
-        'resource' => 'Resource',
+        'resource' => 'FAQ',
     ],
     'modals' => [
         'delete' => [

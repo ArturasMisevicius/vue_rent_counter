@@ -12,6 +12,7 @@ use App\Models\Tenant;
 use App\Models\User;
 use App\Notifications\MeterReadingSubmittedEmail;
 use App\Services\MeterReadingService;
+use App\Services\UniversalReadingCollector;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

@@ -26,7 +26,7 @@ return [
             'heading' => 'Heading',
         ],
     ],
-    'navigation' => 'Navigation',
+    'navigation' => 'Переводы',
     'placeholders' => [
         'group' => 'Group',
         'key' => 'Key',

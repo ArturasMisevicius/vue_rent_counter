@@ -22,7 +22,7 @@ return [
         'user' => 'User',
         'user_agent' => 'User Agent',
     ],
-    'navigation' => 'Navigation',
+    'navigation' => 'Activity Log',
     'pages' => [
         'index' => [
             'description' => 'Description',

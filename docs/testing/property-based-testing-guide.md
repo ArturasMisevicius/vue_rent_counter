@@ -2,485 +2,175 @@
 
 ## Overview
 
-This guide explains the property-based testing approach used in the Vilnius Utilities Billing Platform, particularly for Filament v4 resource testing and multi-tenant isolation verification.
+Property-based testing validates system invariants by generating random test data and ensuring properties hold across all scenarios. This approach provides higher confidence than traditional example-based tests by exploring edge cases automatically.
 
-## What is Property-Based Testing?
+## Core Concepts
 
-Property-based testing verifies that certain properties (invariants) hold true across a wide range of inputs, rather than testing specific examples. Instead of writing:
+### Properties vs Examples
+- **Example-based tests**: Test specific scenarios with fixed inputs
+- **Property-based tests**: Test invariants that should hold for all valid inputs
 
+### Test Structure
 ```php
-test('user can create building', function () {
-    $building = Building::create(['name' => 'Test Building']);
-    expect($building->name)->toBe('Test Building');
-});
-```
-
-We write:
-
-```php
-test('buildings always belong to authenticated user tenant', function () {
-    $tenantId = fake()->numberBetween(1, 1000);
-    $building = Building::factory()->create(['tenant_id' => $tenantId]);
-    
-    expect($building->tenant_id)->toBe($tenantId);
-})->repeat(100);
-```
-
-## Benefits
-
-### Statistical Confidence
-
-Running tests 100 times with randomized data provides statistical confidence that properties hold across various scenarios:
-
-- Different tenant IDs
-- Varying record counts
-- Random data combinations
-- Edge cases discovered automatically
-
-### Regression Detection
-
-Property-based tests catch regressions that example-based tests might miss:
-
-- Tenant scope bypasses
-- Authorization holes
-- Data leakage between tenants
-- Inconsistent behavior across data ranges
-
-### Self-Documenting
-
-Properties serve as executable specifications:
-
-```php
-/**
- * Property: Managers only see buildings from their tenant
- * Property: Cross-tenant buildings are completely inaccessible
- * Property: All tenant buildings are present (no data loss)
- */
-test('BuildingResource automatically filters buildings by authenticated user tenant_id')
-```
-
-## Implementation Patterns
-
-### Pattern 1: Randomized Test Data
-
-Generate random values to test across different scenarios:
-
-```php
-// Random tenant IDs to avoid conflicts
-$tenantId1 = fake()->numberBetween(1, 1000);
-$tenantId2 = fake()->numberBetween(1001, 2000);
-
-// Random counts to test varying data sizes
-$buildingsCount = fake()->numberBetween(2, 8);
-```
-
-**Why**: Ensures tests work with different data ranges and prevents hardcoded assumptions.
-
-### Pattern 2: Helper Functions
-
-Extract common operations into reusable helpers:
-
-```php
-function createBuildingsForTenant(int $tenantId, int $count): Collection
+public function test_property_name(): void
 {
-    return Building::factory()
-        ->count($count)
-        ->create(['tenant_id' => $tenantId]);
-}
-
-function authenticateWithTenant(User $user): void
-{
-    test()->actingAs($user);
-    session(['tenant_id' => $user->tenant_id]);
+    $this->runPropertyTest($iterations, function (): void {
+        // Generate random test data
+        $input = $this->generateRandomInput();
+        
+        // Execute system under test
+        $result = $this->systemUnderTest($input);
+        
+        // Assert invariant holds
+        $this->assertInvariant($result, $input);
+    });
 }
 ```
 
-**Why**: Reduces duplication, improves readability, and ensures consistent test setup.
+## Heating Integration Property Tests
 
-### Pattern 3: Property Verification
+### Test Class: HeatingIntegrationAccuracyPropertyTest
 
-Verify properties hold across all test data:
+**Purpose**: Validates that the universal billing system produces identical results to the existing heating calculator while preserving all behavioral characteristics.
 
+**Key Invariants Tested**:
+
+1. **Calculation Accuracy** (50 iterations)
+   - Universal system matches existing calculator exactly
+   - Base and consumption charges preserved
+   - Floating-point precision: ±0.01
+
+2. **Seasonal Adjustments** (30 iterations)
+   - Winter/summer ratios preserved between systems
+   - Seasonal multipliers applied consistently
+   - Tolerance: ±10% for ratio comparisons
+
+3. **Building Factors** (25 iterations)
+   - Building age, size, efficiency factors preserved
+   - Old vs new building cost relationships maintained
+   - Tolerance: ±15% for building factor ratios
+
+4. **Distribution Methods** (20 iterations)
+   - Equal and area-based distribution accuracy
+   - Shared cost allocation matches exactly
+   - Per-property amounts within ±0.01
+
+5. **Calculation Consistency** (15 iterations)
+   - Deterministic behavior across periods
+   - Same inputs produce same outputs
+   - Pricing model consistency maintained
+
+6. **Tariff Snapshots** (10 iterations)
+   - Invoice immutability preserved
+   - Configuration snapshots created
+   - Historical rate preservation
+
+### Test Data Generation
+
+**Property Generation**:
 ```php
-// Property: All returned buildings should belong to tenant 1
-expect($tableRecords)
-    ->toHaveCount($buildingsCount1)
-    ->each(fn ($building) => $building->tenant_id->toBe($tenantId1));
-
-// Property: Cross-tenant buildings are inaccessible
-$buildings2->each(fn ($building) => 
-    expect(Building::find($building->id))->toBeNull()
-);
+private function generatePropertyWithHeatingSetup(): Property
+{
+    // Creates realistic property with:
+    // - Building (1970-2020, 500-2000 sqm)
+    // - Property (40-150 sqm)
+    // - Heating meter configuration
+}
 ```
 
-**Why**: Explicitly states and verifies the invariants that must hold.
-
-### Pattern 4: Iteration Count
-
-Use `repeat()` modifier for statistical confidence:
-
+**Consumption Data**:
 ```php
-test('property holds across scenarios', function () {
-    // Test implementation
-})->repeat(100);
+private function generateHeatingConsumptionData(Property $property, BillingPeriod $period): UniversalConsumptionData
+{
+    // Generates realistic consumption based on:
+    // - Property size (2-8 kWh per sqm base)
+    // - Seasonal factors (winter: 1.2-2.0x, summer: 0.2-0.6x)
+    // - Random variation within realistic bounds
+}
 ```
 
-**Why**: 100 iterations provide ~99% confidence that properties hold consistently.
+**Billing Periods**:
+- Random periods: 2023-2024, any month
+- Winter periods: Oct-Apr (heating season)
+- Summer periods: May-Sep (reduced heating)
 
-## Multi-Tenant Testing Patterns
+## Running Property Tests
 
-### Tenant Isolation Verification
+### Command Line
+```bash
+# Run all property tests
+php artisan test --filter=PropertyTest
 
-```php
-test('resource respects tenant scope', function () {
-    // Create data for two tenants
-    $tenant1Data = createDataForTenant($tenantId1);
-    $tenant2Data = createDataForTenant($tenantId2);
-    
-    // Authenticate as tenant 1
-    authenticateWithTenant($tenant1User);
-    
-    // Verify only tenant 1 data is visible
-    $visible = Resource::all();
-    expect($visible)->each(fn ($item) => 
-        $item->tenant_id->toBe($tenantId1)
-    );
-    
-    // Verify tenant 2 data is inaccessible
-    $tenant2Data->each(fn ($item) =>
-        expect(Resource::find($item->id))->toBeNull()
-    );
-})->repeat(100);
+# Run specific heating integration tests
+php artisan test tests/Property/HeatingIntegrationAccuracyPropertyTest.php
+
+# Run with verbose output
+php artisan test tests/Property/HeatingIntegrationAccuracyPropertyTest.php --verbose
 ```
 
-### Cross-Tenant Access Prevention
-
+### Test Configuration
 ```php
-test('cross-tenant access is blocked', function () {
-    $tenant1Item = createItemForTenant($tenantId1);
-    $tenant2Item = createItemForTenant($tenantId2);
-    
-    authenticateWithTenant($tenant1User);
-    
-    // Should succeed for same tenant
-    $component = Livewire::test(EditPage::class, [
-        'record' => $tenant1Item->id
-    ]);
-    $component->assertSuccessful();
-    
-    // Should throw exception for different tenant
-    expect(fn () => Livewire::test(EditPage::class, [
-        'record' => $tenant2Item->id
-    ]))->toThrow(ModelNotFoundException::class);
-})->repeat(100);
+// Test constants for consistency
+private const FLOATING_POINT_PRECISION = 0.01;
+private const SEASONAL_RATIO_TOLERANCE = 0.1;
+private const BUILDING_FACTOR_TOLERANCE = 0.15;
 ```
 
-### Superadmin Unrestricted Access
+## Interpreting Results
 
-```php
-test('superadmin has unrestricted access', function () {
-    $tenant1Item = createItemForTenant($tenantId1);
-    $tenant2Item = createItemForTenant($tenantId2);
-    
-    authenticateWithTenant($superadmin);
-    
-    // Should see all tenant data
-    $allItems = Resource::all();
-    expect($allItems->pluck('id'))
-        ->toContain($tenant1Item->id)
-        ->toContain($tenant2Item->id);
-    
-    // Should edit any tenant data
-    $component1 = Livewire::test(EditPage::class, [
-        'record' => $tenant1Item->id
-    ]);
-    $component1->assertSuccessful();
-    
-    $component2 = Livewire::test(EditPage::class, [
-        'record' => $tenant2Item->id
-    ]);
-    $component2->assertSuccessful();
-})->repeat(100);
-```
+### Success Indicators
+- All iterations pass without exceptions
+- Assertions validate within tolerance ranges
+- No calculation discrepancies detected
 
-## Filament Resource Testing
+### Failure Analysis
+When property tests fail:
 
-### List Page Testing
+1. **Check iteration number**: Identifies specific scenario that failed
+2. **Review assertion message**: Contains context about failure
+3. **Examine generated data**: Random inputs that caused failure
+4. **Validate system behavior**: Ensure both systems handle edge cases
 
-```php
-test('list page respects tenant scope', function () {
-    $items = createItemsForTenant($tenantId, $count);
-    authenticateWithTenant($user);
-    
-    $component = Livewire::test(ListPage::class);
-    $component->assertSuccessful();
-    
-    $tableRecords = $component->instance()->getTableRecords();
-    
-    // Verify count
-    expect($tableRecords)->toHaveCount($count);
-    
-    // Verify tenant isolation
-    expect($tableRecords)->each(fn ($item) =>
-        $item->tenant_id->toBe($tenantId)
-    );
-    
-    // Verify completeness
-    expect($tableRecords->pluck('id')->toArray())
-        ->toEqualCanonicalizing($items->pluck('id')->toArray());
-})->repeat(100);
-```
-
-### Edit Page Testing
-
-```php
-test('edit page respects tenant scope', function () {
-    $ownItem = createItemForTenant($ownTenantId);
-    $otherItem = createItemForTenant($otherTenantId);
-    
-    authenticateWithTenant($user);
-    
-    // Can edit own tenant item
-    $component = Livewire::test(EditPage::class, [
-        'record' => $ownItem->id
-    ]);
-    $component->assertSuccessful();
-    expect($component->instance()->record->id)->toBe($ownItem->id);
-    
-    // Cannot edit other tenant item
-    expect(fn () => Livewire::test(EditPage::class, [
-        'record' => $otherItem->id
-    ]))->toThrow(ModelNotFoundException::class);
-})->repeat(100);
-```
-
-### Form Validation Testing
-
-```php
-test('form validation is consistent', function () {
-    authenticateWithTenant($user);
-    
-    $component = Livewire::test(CreatePage::class);
-    
-    // Test invalid data
-    $component->fillForm([
-        'name' => '', // Required field
-        'email' => 'invalid-email', // Invalid format
-    ])->call('create');
-    
-    $component->assertHasFormErrors([
-        'name' => 'required',
-        'email' => 'email',
-    ]);
-    
-    // Test valid data
-    $component->fillForm([
-        'name' => fake()->name(),
-        'email' => fake()->email(),
-    ])->call('create');
-    
-    $component->assertHasNoFormErrors();
-})->repeat(100);
-```
+### Common Failure Patterns
+- **Floating-point precision**: Adjust tolerance constants
+- **Seasonal edge cases**: Verify month boundary handling
+- **Building factor extremes**: Check very old/new buildings
+- **Distribution rounding**: Ensure consistent rounding rules
 
 ## Best Practices
 
-### 1. Use Descriptive Property Comments
+### Test Design
+- Use sufficient iterations for statistical confidence
+- Generate realistic test data within domain bounds
+- Include edge cases in random generation
+- Validate both positive and negative scenarios
 
-```php
-/**
- * Property: Managers only see buildings from their tenant
- * Property: Cross-tenant buildings are completely inaccessible
- * Property: All tenant buildings are present (no data loss)
- * Property: Direct model queries respect tenant scope
- */
-test('BuildingResource automatically filters buildings')
+### Assertion Strategy
+- Compare relative relationships, not absolute values
+- Use appropriate tolerance for floating-point comparisons
+- Validate structural properties (snapshots, configurations)
+- Check both success and error conditions
+
+### Maintenance
+- Update tests when business rules change
+- Adjust tolerances based on system precision requirements
+- Add new properties as system evolves
+- Monitor test execution time and optimize if needed
+
+## Integration with CI/CD
+
+Property tests run as part of the standard test suite:
+```bash
+# In CI pipeline
+composer test:property
 ```
 
-### 2. Test Both Positive and Negative Cases
-
-```php
-// Positive: Can access own tenant data
-$component = Livewire::test(EditPage::class, ['record' => $ownItem->id]);
-$component->assertSuccessful();
-
-// Negative: Cannot access other tenant data
-expect(fn () => Livewire::test(EditPage::class, ['record' => $otherItem->id]))
-    ->toThrow(ModelNotFoundException::class);
-```
-
-### 3. Verify Completeness
-
-```php
-// Not just that data is filtered, but that ALL expected data is present
-expect($tableRecords->pluck('id')->toArray())
-    ->toEqualCanonicalizing($expectedItems->pluck('id')->toArray());
-```
-
-### 4. Use Meaningful Assertion Messages
-
-```php
-expect($tableRecords)
-    ->toHaveCount($buildingsCount, 'Manager should see exactly their tenant\'s buildings')
-    ->each(fn ($building) => 
-        $building->tenant_id->toBe($tenantId, 'All buildings must belong to tenant 1')
-    );
-```
-
-### 5. Test Edge Cases
-
-```php
-// Test with minimum data
-$items = createItemsForTenant($tenantId, 1);
-
-// Test with maximum reasonable data
-$items = createItemsForTenant($tenantId, 100);
-
-// Test with empty results
-$items = collect();
-```
-
-## Performance Considerations
-
-### Iteration Count
-
-- **100 iterations**: Standard for critical properties (tenant isolation, security)
-- **50 iterations**: Acceptable for less critical properties
-- **10 iterations**: Minimum for basic property verification
-
-### Test Execution Time
-
-- Each iteration creates fresh database records
-- Use `RefreshDatabase` trait for isolation
-- Consider `--parallel` flag for faster execution
-- Monitor total test suite time
-
-### Optimization Strategies
-
-```php
-// Use factories efficiently
-Building::factory()->count(5)->create(['tenant_id' => $tenantId]);
-
-// Reuse test data when possible
-beforeEach(function () {
-    $this->tenant1 = createTenant();
-    $this->tenant2 = createTenant();
-});
-
-// Use database transactions for speed
-uses(RefreshDatabase::class);
-```
-
-## Common Pitfalls
-
-### 1. Hardcoded Test Data
-
-❌ **Bad**:
-```php
-$building = Building::create(['tenant_id' => 1]);
-```
-
-✅ **Good**:
-```php
-$tenantId = fake()->numberBetween(1, 1000);
-$building = Building::factory()->create(['tenant_id' => $tenantId]);
-```
-
-### 2. Insufficient Iterations
-
-❌ **Bad**:
-```php
-test('property holds')->repeat(1); // Not property-based!
-```
-
-✅ **Good**:
-```php
-test('property holds')->repeat(100); // Statistical confidence
-```
-
-### 3. Missing Negative Cases
-
-❌ **Bad**:
-```php
-// Only tests that own tenant data is visible
-expect($visible)->each(fn ($item) => $item->tenant_id->toBe($tenantId));
-```
-
-✅ **Good**:
-```php
-// Tests both visibility and inaccessibility
-expect($visible)->each(fn ($item) => $item->tenant_id->toBe($tenantId));
-$otherTenantData->each(fn ($item) => expect(Model::find($item->id))->toBeNull());
-```
-
-### 4. Unclear Property Statements
-
-❌ **Bad**:
-```php
-test('it works')
-```
-
-✅ **Good**:
-```php
-/**
- * Property: Managers only see buildings from their tenant
- */
-test('BuildingResource automatically filters buildings by authenticated user tenant_id')
-```
+**Performance Considerations**:
+- Heating integration tests: ~2-3 minutes
+- Total property test suite: ~10-15 minutes
+- Parallel execution supported for faster feedback
 
 ## Related Documentation
-
-- [Filament Building Resource Tests](filament-building-resource-tenant-scope-tests.md)
-- [Multi-Tenancy Testing Strategy](./multi-tenancy-testing.md)
-- [Pest Testing Framework](https://pestphp.com/)
-- [Filament Testing Documentation](https://filamentphp.com/docs/3.x/panels/testing)
-
-## Examples in Codebase
-
-### Implemented Property Tests
-
-1. **BuildingResource Tenant Scope** (`FilamentBuildingResourceTenantScopeTest.php`)
-   - List page filtering
-   - Edit page isolation
-   - Superadmin access
-
-2. **UserResource Validation** (`FilamentUserValidationConsistencyPropertyTest.php`)
-   - Form validation consistency
-   - Conditional tenant requirements
-   - Null tenant allowance
-
-3. **InvoiceResource Status** (`FilamentInvoiceStatusFilteringPropertyTest.php`)
-   - Status filtering
-   - Tenant isolation during filtering
-   - Edge case handling
-
-## Maintenance
-
-### When to Add Property Tests
-
-Add property-based tests when:
-- Implementing multi-tenant features
-- Adding authorization logic
-- Creating Filament resources
-- Implementing data filtering
-- Adding validation rules
-
-### When to Update Property Tests
-
-Update tests when:
-- Model relationships change
-- Tenant scope logic is modified
-- Authorization rules change
-- Validation requirements evolve
-- New user roles are added
-
-### Test Review Checklist
-
-- [ ] Properties clearly stated in comments
-- [ ] Both positive and negative cases tested
-- [ ] Appropriate iteration count (50-100)
-- [ ] Randomized test data used
-- [ ] Helper functions for common operations
-- [ ] Meaningful assertion messages
-- [ ] Edge cases considered
-- [ ] Performance acceptable (<30s per test)
+- [Universal Utility Management Architecture](../architecture/universal-utility-management.md)
+- [Heating Calculator Integration](../services/heating-calculator-service.md)
+- [Testing Standards](../testing/testing-standards.md)

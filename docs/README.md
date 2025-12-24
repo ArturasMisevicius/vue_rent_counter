@@ -6,14 +6,17 @@ Welcome to the CFlow documentation. This documentation is organized into logical
 
 ### 📋 Core Documentation
 - **[Architecture](./architecture/)** - System architecture, patterns, and design decisions
+  - [TenantInitializationService Architecture](architecture/TenantInitializationService-Architecture.md) - Service architecture and integration patterns
 - **[Development](./development/)** - Development guides, standards, and best practices
 - **[Testing](./testing/)** - Testing strategies, patterns, and guidelines
+  - [TenantInitializationService Testing Guide](testing/TenantInitializationService-Testing-Guide.md) - Comprehensive testing patterns and strategies
 - **[Deployment](./deployment/)** - Deployment guides and infrastructure
 
 ### 🏗️ Framework & Technology
 - **[Laravel](./laravel/)** - Laravel-specific documentation and patterns
 - **[Filament](./filament/)** - Filament admin panel documentation
 - **[Frontend](./frontend/)** - Frontend development (Alpine.js, Tailwind CSS)
+  - [Landing Page Localization](frontend/landing-page-localization.md) - Multi-language landing page system
 - **[Database](./database/)** - Database design, migrations, and optimization
 
 ### 🔧 Features & Components
@@ -21,7 +24,11 @@ Welcome to the CFlow documentation. This documentation is organized into logical
 - **[Billing](./features/billing/)** - Subscription and billing system
 - **[Notifications](./features/notifications/)** - Notification system
 - **[Translations](./features/translations/)** - Multi-language support
+- **[Landing Page Development](./guides/landing-page-development.md)** - Landing page development guide
 - **[Tagging System](./traits/HASTAGS_TRAIT_DOCUMENTATION.md)** - Polymorphic tagging with HasTags trait
+- **[Services](./services/)** - Application services and business logic
+  - [TenantInitializationService](services/TenantInitializationService.md) - Tenant onboarding and utility service setup
+  - [AccountManagementService](services/AccountManagementService.md) - Hierarchical user account management
 - **[API](./api/)** - API documentation and integration guides
   - [Authentication API](api/authentication.md) - API authentication and token management
   - [User Model API](api/USER_MODEL_API.md) - User model API token functionality
@@ -35,7 +42,10 @@ Welcome to the CFlow documentation. This documentation is organized into logical
 ### 📚 Reference
 - **[Enums](./enums/)** - Enum documentation and usage patterns
 - **[Code Standards](./standards/)** - Coding standards and conventions
+- **[Translation Keys](./reference/)** - Translation key references and specifications
+  - [Landing Page Translation Keys](reference/landing-translation-keys.md) - Complete landing page translation reference
 - **[Changelog](./changelog/)** - Version history and changes
+  - [Landing Page Localization Update](changelog/LANDING_PAGE_LOCALIZATION_UPDATE.md) - Recent landing page improvements
 - **[Migration Guides](./migration/)** - Upgrade and migration guides
 
 ## Quick Start

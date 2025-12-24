@@ -12,4 +12,5 @@ enum ServiceType: string implements HasLabel
     case ELECTRICITY = 'electricity';
     case WATER = 'water';
     case HEATING = 'heating';
+    case GAS = 'gas';
 }

@@ -47,7 +47,7 @@ return [
             'finalize_heading' => 'Finalize Heading',
             'finalize_submit' => 'Finalize Submit',
         ],
-        'navigation' => 'Navigation',
+        'navigation' => 'Invoices',
     ],
     'errors' => [
         'add_to_finalized' => 'Add To Finalized',

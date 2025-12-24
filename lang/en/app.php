@@ -57,8 +57,8 @@ return array (
   ),
   'brand' => 
   array (
-    'name' => 'Name',
-    'product' => 'Product',
+    'name' => 'Vilnius Utilities',
+    'product' => 'Utilities Management Platform',
   ),
   'common' => 
   array (
@@ -72,10 +72,10 @@ return array (
   'cta' => 
   array (
     'create_account' => 'Create Account',
-    'go_to_app' => 'Go To App',
+    'go_to_app' => 'Go to Dashboard',
     'login' => 'Login',
     'register' => 'Register',
-    'start_now' => 'Start Now',
+    'start_now' => 'Get Started',
   ),
   'errors' => 
   array (
@@ -86,7 +86,7 @@ return array (
   ),
   'meta' => 
   array (
-    'default_title' => 'Default Title',
+    'default_title' => 'Vilnius Utilities Management Platform',
   ),
   'nav' => 
   array (
@@ -109,6 +109,10 @@ return array (
     'managers' => 'Managers',
     'users' => 'Users',
     'actions' => 'Actions',
+  ),
+  'navigation' =>
+  array (
+    'integration_health' => 'Integration Health',
   ),
   'nav_groups' => 
   array (

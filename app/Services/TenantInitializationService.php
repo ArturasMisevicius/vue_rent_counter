@@ -4,108 +4,249 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Enums\DistributionMethod;
-use App\Enums\MeterType;
+use App\Data\TenantInitialization\InitializationResult;
+use App\Data\TenantInitialization\PropertyServiceAssignmentResult;
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
+use App\Exceptions\TenantInitializationException;
 use App\Models\Organization;
 use App\Models\Property;
-use App\Models\ServiceConfiguration;
 use App\Models\UtilityService;
+use App\Services\TenantInitialization\ServiceDefinitionProvider;
+use App\Services\TenantInitialization\MeterConfigurationProvider;
+use App\Services\TenantInitialization\PropertyServiceAssigner;
+use App\Services\TenantInitialization\TenantValidator;
+use App\Services\TenantInitialization\SlugGeneratorService;
+use App\Traits\LogsTenantOperations;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 /**
  * Service for initializing new tenants with default utility service templates
  * and configurations. Extends existing tenant creation to include universal
  * service setup alongside existing heating initialization.
+ * 
+ * This service creates the foundational utility services (electricity, water, heating, gas)
+ * for new tenants and handles property-level service assignments. It maintains backward
+ * compatibility with existing heating systems while enabling the universal utility
+ * management framework.
+ * 
+ * @package App\Services
+ * @author Laravel Development Team
+ * @since 1.0.0
+ * 
+ * @see \App\Models\UtilityService
+ * @see \App\Models\ServiceConfiguration
+ * @see \App\Models\Organization
+ * @see \App\Models\Property
  */
 final readonly class TenantInitializationService
 {
+    use LogsTenantOperations;
+
+    private const OPERATION_UNIVERSAL_SERVICES = 'universal_services_initialization';
+    private const OPERATION_PROPERTY_ASSIGNMENT = 'property_service_assignment';
+    private const OPERATION_HEATING_COMPATIBILITY = 'heating_compatibility_check';
+
+    public function __construct(
+        private ServiceDefinitionProvider $serviceDefinitionProvider,
+        private MeterConfigurationProvider $meterConfigurationProvider,
+        private PropertyServiceAssigner $propertyServiceAssigner,
+        private TenantValidator $tenantValidator,
+        private SlugGeneratorService $slugGenerator,
+    ) {}
+
     /**
      * Initialize a new tenant with default utility service templates.
      * Creates tenant-specific copies of global templates and sets up
      * default configurations based on tenant type.
+     * 
+     * This method creates four default utility services (electricity, water, heating, gas)
+     * for the tenant with appropriate pricing models, validation rules, and business logic
+     * configurations. Each service is created with tenant-specific settings while
+     * maintaining compatibility with existing heating system integrations.
+     * 
+     * @param Organization $tenant The organization/tenant to initialize services for
+     * 
+     * @return InitializationResult Returns DTO with created services and meter configurations
+     * 
+     * @throws TenantInitializationException If service initialization fails
+     * 
+     * @example
+     * ```php
+     * $service = app(TenantInitializationService::class);
+     * $result = $service->initializeUniversalServices($tenant);
+     * 
+     * // Access created services
+     * $electricityService = $result->getUtilityService('electricity');
+     * $heatingConfig = $result->getMeterConfiguration('heating');
+     * ```
+     * 
+     * @since 1.0.0
      */
-    public function initializeUniversalServices(Organization $tenant): array
+    public function initializeUniversalServices(Organization $tenant): InitializationResult
     {
+        $this->tenantValidator->validate($tenant);
+
         return DB::transaction(function () use ($tenant) {
             try {
-                Log::info('Initializing universal services for tenant', [
-                    'tenant_id' => $tenant->id,
-                    'tenant_name' => $tenant->name,
-                ]);
+                $this->logTenantOperationStart($tenant, self::OPERATION_UNIVERSAL_SERVICES);
 
-                // Create default utility service templates for the tenant
                 $utilityServices = $this->createDefaultUtilityServices($tenant);
+                $meterConfigurations = $this->createMeterConfigurations($utilityServices);
 
-                // Initialize default meter configurations for each service
-                $meterConfigurations = $this->createDefaultMeterConfigurations($utilityServices);
+                $result = new InitializationResult(
+                    utilityServices: $utilityServices,
+                    meterConfigurations: collect($meterConfigurations),
+                );
 
-                Log::info('Universal services initialized successfully', [
-                    'tenant_id' => $tenant->id,
-                    'services_created' => count($utilityServices),
-                    'meter_configs_created' => count($meterConfigurations),
+                $this->logTenantOperationSuccess($tenant, self::OPERATION_UNIVERSAL_SERVICES, [
+                    'services_created' => $result->getServiceCount(),
+                    'meter_configs_created' => $result->getMeterConfigurationCount(),
                 ]);
 
-                return [
-                    'utility_services' => $utilityServices,
-                    'meter_configurations' => $meterConfigurations,
-                ];
+                return $result;
             } catch (\Exception $e) {
-                Log::error('Failed to initialize universal services for tenant', [
-                    'tenant_id' => $tenant->id,
-                    'error' => $e->getMessage(),
-                    'stack_trace' => $e->getTraceAsString(),
-                ]);
-                throw new \RuntimeException('Failed to initialize universal services: ' . $e->getMessage(), 0, $e);
+                $this->logTenantOperationError($tenant, self::OPERATION_UNIVERSAL_SERVICES, $e);
+                throw TenantInitializationException::serviceCreationFailed($tenant, 'universal', $e);
             }
         });
+    }
+
+    /**
+     * Initialize property-level service assignments for existing properties.
+     * Creates ServiceConfiguration records for properties that already exist.
+     * 
+     * This method assigns all utility services to each property owned by the tenant,
+     * creating ServiceConfiguration records that link properties to utility services
+     * with appropriate pricing models and configuration overrides based on property type.
+     * 
+     * @param Organization $tenant The tenant whose properties to configure
+     * @param \Illuminate\Support\Collection<string, UtilityService>|array<string, UtilityService> $utilityServices Collection or array of utility services to assign
+     * 
+     * @return PropertyServiceAssignmentResult Service configurations grouped by property ID
+     * 
+     * @throws TenantInitializationException If configuration creation fails
+     * 
+     * @since 1.0.0
+     */
+    public function initializePropertyServiceAssignments(
+        Organization $tenant, 
+        \Illuminate\Support\Collection|array $utilityServices
+    ): PropertyServiceAssignmentResult {
+        $this->tenantValidator->validate($tenant);
+
+        $properties = Property::where('tenant_id', $tenant->id)->get();
+
+        if ($properties->isEmpty()) {
+            $this->logTenantOperationInfo(
+                $tenant, 
+                self::OPERATION_PROPERTY_ASSIGNMENT, 
+                'No existing properties found, skipping property service assignments'
+            );
+            return new PropertyServiceAssignmentResult(collect());
+        }
+
+        try {
+            $this->logTenantOperationStart($tenant, self::OPERATION_PROPERTY_ASSIGNMENT, [
+                'properties_count' => $properties->count(),
+                'services_count' => is_array($utilityServices) ? count($utilityServices) : $utilityServices->count(),
+            ]);
+
+            $servicesArray = is_array($utilityServices) ? $utilityServices : $utilityServices->toArray();
+            
+            $configurations = $this->propertyServiceAssigner->assignServicesToProperties(
+                $tenant,
+                $properties,
+                $servicesArray
+            );
+
+            $result = PropertyServiceAssignmentResult::fromArray($configurations);
+
+            $this->logTenantOperationSuccess($tenant, self::OPERATION_PROPERTY_ASSIGNMENT, [
+                'properties_configured' => $result->getPropertyCount(),
+                'total_configurations' => $result->getTotalConfigurationCount(),
+            ]);
+
+            return $result;
+        } catch (\Exception $e) {
+            $this->logTenantOperationError($tenant, self::OPERATION_PROPERTY_ASSIGNMENT, $e);
+            throw TenantInitializationException::propertyAssignmentFailed($tenant, $e);
+        }
+    }
+
+    /**
+     * Ensure backward compatibility with existing heating initialization.
+     * This method can be called to verify that existing heating setup
+     * is preserved and enhanced with universal service capabilities.
+     * 
+     * Validates that the heating service exists and is properly configured
+     * for integration with the existing heating calculator system. This ensures
+     * that universal service initialization doesn't break existing heating
+     * functionality.
+     * 
+     * @param Organization $tenant The tenant to check heating compatibility for
+     * 
+     * @return bool True if heating service is compatible, false otherwise
+     * 
+     * @throws TenantInitializationException If compatibility check fails
+     * 
+     * @since 1.0.0
+     */
+    public function ensureHeatingCompatibility(Organization $tenant): bool
+    {
+        $this->tenantValidator->validate($tenant);
+
+        try {
+            $this->logTenantOperationStart($tenant, self::OPERATION_HEATING_COMPATIBILITY);
+
+            $heatingService = $this->findHeatingService($tenant);
+
+            if (!$heatingService) {
+                $this->logTenantOperationWarning(
+                    $tenant, 
+                    self::OPERATION_HEATING_COMPATIBILITY, 
+                    'No heating service found for tenant during compatibility check'
+                );
+                return false;
+            }
+
+            $isCompatible = $this->validateHeatingServiceConfiguration($heatingService);
+
+            $this->logTenantOperationSuccess($tenant, self::OPERATION_HEATING_COMPATIBILITY, [
+                'heating_service_id' => $heatingService->id,
+                'is_compatible' => $isCompatible,
+            ]);
+
+            return $isCompatible;
+        } catch (\Exception $e) {
+            $this->logTenantOperationError($tenant, self::OPERATION_HEATING_COMPATIBILITY, $e);
+            throw TenantInitializationException::heatingCompatibilityFailed($tenant, $e);
+        }
     }
 
     /**
      * Create default utility service templates for a new tenant.
      * Includes electricity, water, heating, and gas services with
      * standard pricing models and regional defaults.
+     * 
+     * @param Organization $tenant The tenant to create services for
+     * 
+     * @return \Illuminate\Support\Collection<string, UtilityService> Collection of created utility services keyed by service type
+     * 
+     * @throws TenantInitializationException If service creation fails
+     * 
+     * @since 1.0.0
      */
-    private function createDefaultUtilityServices(Organization $tenant): array
+    private function createDefaultUtilityServices(Organization $tenant): \Illuminate\Support\Collection
     {
-        $services = [];
-
-        // Define default utility service templates
-        $serviceDefinitions = $this->getDefaultServiceDefinitions();
+        $services = collect();
+        $serviceDefinitions = $this->serviceDefinitionProvider->getDefaultServiceDefinitions();
 
         foreach ($serviceDefinitions as $key => $definition) {
-            // Check if a global template exists for this service type
-            $globalTemplate = UtilityService::where('is_global_template', true)
-                ->where('service_type_bridge', $definition['service_type_bridge'])
-                ->first();
-
-            if ($globalTemplate) {
-                // Create tenant copy from global template
-                $services[$key] = $globalTemplate->createTenantCopy($tenant->id, [
-                    'name' => $definition['name'],
-                    'description' => $definition['description'],
-                ]);
-            } else {
-                // Create new service if no global template exists
-                $services[$key] = UtilityService::create([
-                    'tenant_id' => $tenant->id,
-                    'name' => $definition['name'],
-                    'slug' => $this->generateUniqueSlug($definition['name'], $tenant->id),
-                    'unit_of_measurement' => $definition['unit_of_measurement'],
-                    'default_pricing_model' => $definition['default_pricing_model'],
-                    'calculation_formula' => $definition['calculation_formula'],
-                    'is_global_template' => false,
-                    'created_by_tenant_id' => $tenant->id,
-                    'configuration_schema' => $definition['configuration_schema'],
-                    'validation_rules' => $definition['validation_rules'],
-                    'business_logic_config' => $definition['business_logic_config'],
-                    'service_type_bridge' => $definition['service_type_bridge'],
-                    'description' => $definition['description'],
-                    'is_active' => true,
-                ]);
+            try {
+                $services[$key] = $this->createUtilityService($tenant, $key, $definition);
+            } catch (\Exception $e) {
+                throw TenantInitializationException::serviceCreationFailed($tenant, $key, $e);
             }
         }
 
@@ -113,341 +254,81 @@ final readonly class TenantInitializationService
     }
 
     /**
-     * Get default service definitions for tenant initialization.
+     * Create a single utility service for the tenant.
+     * 
+     * @param Organization $tenant The tenant to create the service for
+     * @param string $serviceKey The service type key
+     * @param array<string, mixed> $definition The service definition
+     * 
+     * @return UtilityService The created utility service
      */
-    private function getDefaultServiceDefinitions(): array
+    private function createUtilityService(Organization $tenant, string $serviceKey, array $definition): UtilityService
     {
-        return [
-            'electricity' => [
-                'name' => 'Electricity Service',
-                'unit_of_measurement' => 'kWh',
-                'default_pricing_model' => PricingModel::TIME_OF_USE,
-                'calculation_formula' => [
-                    'base_formula' => 'consumption * rate',
-                    'supports_zones' => true,
-                    'zone_multipliers' => ['day' => 1.0, 'night' => 0.7],
-                ],
-                'configuration_schema' => [
-                    'required' => ['rate_schedule', 'zone_configuration'],
-                    'optional' => ['seasonal_adjustments', 'peak_hour_rates'],
-                    'validation' => [
-                        'rate_schedule' => 'array',
-                        'zone_configuration' => 'array',
-                    ],
-                ],
-                'validation_rules' => [
-                    'reading_frequency' => 'monthly',
-                    'min_consumption' => 0,
-                    'max_consumption' => 10000,
-                    'consumption_variance_threshold' => 0.5,
-                ],
-                'business_logic_config' => [
-                    'supports_time_of_use' => true,
-                    'supports_seasonal_rates' => true,
-                    'requires_meter_zones' => true,
-                ],
-                'service_type_bridge' => ServiceType::ELECTRICITY,
-                'description' => 'Standard electricity service with day/night rate support',
-            ],
-            'water' => [
-                'name' => 'Water Service',
-                'unit_of_measurement' => 'm³',
-                'default_pricing_model' => PricingModel::CONSUMPTION_BASED,
-                'calculation_formula' => [
-                    'base_formula' => 'consumption * unit_rate',
-                    'supports_zones' => false,
-                ],
-                'configuration_schema' => [
-                    'required' => ['unit_rate'],
-                    'optional' => ['connection_fee', 'minimum_charge'],
-                    'validation' => [
-                        'unit_rate' => 'numeric|min:0',
-                    ],
-                ],
-                'validation_rules' => [
-                    'reading_frequency' => 'monthly',
-                    'min_consumption' => 0,
-                    'max_consumption' => 1000,
-                    'consumption_variance_threshold' => 0.3,
-                ],
-                'business_logic_config' => [
-                    'supports_time_of_use' => false,
-                    'supports_seasonal_rates' => false,
-                    'requires_meter_zones' => false,
-                ],
-                'service_type_bridge' => ServiceType::WATER,
-                'description' => 'Standard water service with consumption-based billing',
-            ],
-            'heating' => [
-                'name' => 'Heating Service',
-                'unit_of_measurement' => 'kWh',
-                'default_pricing_model' => PricingModel::HYBRID,
-                'calculation_formula' => [
-                    'base_formula' => 'base_fee + (consumption * unit_rate * seasonal_factor)',
-                    'supports_zones' => false,
-                    'seasonal_factors' => ['winter' => 1.2, 'summer' => 0.8],
-                ],
-                'configuration_schema' => [
-                    'required' => ['base_fee', 'unit_rate', 'distribution_method'],
-                    'optional' => ['seasonal_adjustments', 'building_efficiency_factor'],
-                    'validation' => [
-                        'base_fee' => 'numeric|min:0',
-                        'unit_rate' => 'numeric|min:0',
-                    ],
-                ],
-                'validation_rules' => [
-                    'reading_frequency' => 'monthly',
-                    'min_consumption' => 0,
-                    'max_consumption' => 5000,
-                    'consumption_variance_threshold' => 0.4,
-                ],
-                'business_logic_config' => [
-                    'supports_time_of_use' => false,
-                    'supports_seasonal_rates' => true,
-                    'requires_meter_zones' => false,
-                    'supports_shared_distribution' => true,
-                ],
-                'service_type_bridge' => ServiceType::HEATING,
-                'description' => 'Heating service with seasonal adjustments and shared cost distribution',
-            ],
-            'gas' => [
-                'name' => 'Gas Service',
-                'unit_of_measurement' => 'm³',
-                'default_pricing_model' => PricingModel::TIERED_RATES,
-                'calculation_formula' => [
-                    'base_formula' => 'tiered_calculation(consumption, rate_tiers)',
-                    'supports_zones' => false,
-                ],
-                'configuration_schema' => [
-                    'required' => ['rate_tiers'],
-                    'optional' => ['connection_fee', 'delivery_charge'],
-                    'validation' => [
-                        'rate_tiers' => 'array',
-                    ],
-                ],
-                'validation_rules' => [
-                    'reading_frequency' => 'monthly',
-                    'min_consumption' => 0,
-                    'max_consumption' => 2000,
-                    'consumption_variance_threshold' => 0.4,
-                ],
-                'business_logic_config' => [
-                    'supports_time_of_use' => false,
-                    'supports_seasonal_rates' => true,
-                    'requires_meter_zones' => false,
-                    'supports_tiered_rates' => true,
-                ],
-                'service_type_bridge' => ServiceType::GAS,
-                'description' => 'Gas service with tiered rate structure',
-            ],
-        ];
-    }
+        // Check if a global template exists for this service type
+        $globalTemplate = UtilityService::where('is_global_template', true)
+            ->where('service_type_bridge', $definition['service_type_bridge'])
+            ->first();
 
-    /**
-     * Create default meter configurations for each utility service.
-     * Sets up property-level service assignments based on tenant type.
-     */
-    private function createDefaultMeterConfigurations(array $utilityServices): array
-    {
-        $configurations = [];
-
-        foreach ($utilityServices as $serviceKey => $utilityService) {
-            $configurations[$serviceKey] = $this->getDefaultMeterConfiguration($serviceKey, $utilityService);
+        if ($globalTemplate) {
+            return $globalTemplate->createTenantCopy($tenant->id, [
+                'name' => $definition['name'],
+                'description' => $definition['description'],
+            ]);
         }
 
-        return $configurations;
-    }
-
-    /**
-     * Get default meter configuration for a specific utility service.
-     */
-    private function getDefaultMeterConfiguration(string $serviceKey, UtilityService $utilityService): array
-    {
-        $baseConfig = [
-            'utility_service_id' => $utilityService->id,
-            'pricing_model' => $utilityService->default_pricing_model,
+        // Create new service if no global template exists
+        return UtilityService::create([
+            'tenant_id' => $tenant->id,
+            'name' => $definition['name'],
+            'slug' => $this->slugGenerator->generateUniqueSlug($definition['name'], $tenant->id),
+            'unit_of_measurement' => $definition['unit_of_measurement'],
+            'default_pricing_model' => $definition['default_pricing_model'],
+            'calculation_formula' => $definition['calculation_formula'],
+            'is_global_template' => false,
+            'created_by_tenant_id' => $tenant->id,
+            'configuration_schema' => $definition['configuration_schema'],
+            'validation_rules' => $definition['validation_rules'],
+            'business_logic_config' => $definition['business_logic_config'],
+            'service_type_bridge' => $definition['service_type_bridge'],
+            'description' => $definition['description'],
             'is_active' => true,
-            'effective_from' => now(),
-        ];
-
-        return match ($serviceKey) {
-            'electricity' => array_merge($baseConfig, [
-                'distribution_method' => DistributionMethod::EQUAL,
-                'is_shared_service' => false,
-                'rate_schedule' => [
-                    'zone_rates' => [
-                        'day' => 0.15,
-                        'night' => 0.10,
-                    ],
-                    'default_rate' => 0.15,
-                ],
-                'configuration_overrides' => [
-                    'meter_type' => MeterType::ELECTRICITY,
-                    'supports_zones' => true,
-                    'reading_structure' => [
-                        'zones' => ['day', 'night'],
-                        'required_fields' => ['day_reading', 'night_reading'],
-                    ],
-                ],
-            ]),
-            'water' => array_merge($baseConfig, [
-                'distribution_method' => DistributionMethod::EQUAL,
-                'is_shared_service' => false,
-                'rate_schedule' => [
-                    'unit_rate' => 2.50,
-                    'connection_fee' => 5.00,
-                ],
-                'configuration_overrides' => [
-                    'meter_type' => MeterType::WATER,
-                    'supports_zones' => false,
-                    'reading_structure' => [
-                        'zones' => [],
-                        'required_fields' => ['total_reading'],
-                    ],
-                ],
-            ]),
-            'heating' => array_merge($baseConfig, [
-                'distribution_method' => DistributionMethod::BY_AREA,
-                'is_shared_service' => true,
-                'rate_schedule' => [
-                    'base_fee' => 15.00,
-                    'unit_rate' => 0.08,
-                    'seasonal_factors' => [
-                        'winter' => 1.2,
-                        'summer' => 0.8,
-                    ],
-                ],
-                'configuration_overrides' => [
-                    'meter_type' => MeterType::HEATING,
-                    'supports_zones' => false,
-                    'reading_structure' => [
-                        'zones' => [],
-                        'required_fields' => ['consumption_reading'],
-                    ],
-                ],
-                'area_type' => 'heated_area',
-            ]),
-            'gas' => array_merge($baseConfig, [
-                'distribution_method' => DistributionMethod::EQUAL,
-                'is_shared_service' => false,
-                'rate_schedule' => [
-                    'tiers' => [
-                        ['limit' => 50, 'rate' => 0.45],
-                        ['limit' => 150, 'rate' => 0.40],
-                        ['limit' => PHP_FLOAT_MAX, 'rate' => 0.35],
-                    ],
-                    'connection_fee' => 8.00,
-                ],
-                'configuration_overrides' => [
-                    'meter_type' => MeterType::GAS,
-                    'supports_zones' => false,
-                    'reading_structure' => [
-                        'zones' => [],
-                        'required_fields' => ['total_reading'],
-                    ],
-                ],
-            ]),
-            default => $baseConfig,
-        };
+        ]);
     }
 
     /**
-     * Initialize property-level service assignments for existing properties.
-     * Creates ServiceConfiguration records for properties that already exist.
+     * Create meter configurations for utility services.
+     * 
+     * @param \Illuminate\Support\Collection<string, UtilityService> $utilityServices
+     * 
+     * @return array<string, array<string, mixed>>
      */
-    public function initializePropertyServiceAssignments(Organization $tenant, array $utilityServices): array
+    private function createMeterConfigurations(\Illuminate\Support\Collection $utilityServices): array
     {
-        $serviceConfigurations = [];
-        $properties = Property::where('tenant_id', $tenant->id)->get();
-
-        if ($properties->isEmpty()) {
-            Log::info('No existing properties found for tenant, skipping property service assignments', [
-                'tenant_id' => $tenant->id,
-            ]);
-            return $serviceConfigurations;
-        }
-
-        return DB::transaction(function () use ($properties, $utilityServices, $tenant) {
-            $serviceConfigurations = [];
-
-            foreach ($properties as $property) {
-                foreach ($utilityServices as $serviceKey => $utilityService) {
-                    $configData = $this->getDefaultMeterConfiguration($serviceKey, $utilityService);
-                    $configData['tenant_id'] = $tenant->id;
-                    $configData['property_id'] = $property->id;
-
-                    $serviceConfiguration = ServiceConfiguration::create($configData);
-                    $serviceConfigurations[$property->id][$serviceKey] = $serviceConfiguration;
-                }
-            }
-
-            Log::info('Property service assignments initialized', [
-                'tenant_id' => $tenant->id,
-                'properties_configured' => count($properties),
-                'total_configurations' => count($serviceConfigurations) * count($utilityServices),
-            ]);
-
-            return $serviceConfigurations;
-        });
+        return $this->meterConfigurationProvider
+            ->createDefaultMeterConfigurations($utilityServices->toArray());
     }
 
     /**
-     * Generate a unique slug for a utility service within a tenant.
+     * Find heating service for a tenant.
      */
-    private function generateUniqueSlug(string $name, int $tenantId): string
+    private function findHeatingService(Organization $tenant): ?UtilityService
     {
-        $baseSlug = Str::slug($name);
-        $slug = $baseSlug;
-        $counter = 1;
-
-        while (UtilityService::where('slug', $slug)
-            ->where('tenant_id', $tenantId)
-            ->exists()) {
-            $slug = "{$baseSlug}-{$counter}";
-            $counter++;
-        }
-
-        return $slug;
+        return UtilityService::where('tenant_id', $tenant->id)
+            ->where('service_type_bridge', ServiceType::HEATING)
+            ->first();
     }
 
     /**
-     * Ensure backward compatibility with existing heating initialization.
-     * This method can be called to verify that existing heating setup
-     * is preserved and enhanced with universal service capabilities.
+     * Validate heating service configuration for compatibility.
+     * 
+     * @param UtilityService $heatingService The heating service to validate
+     * 
+     * @return bool True if configuration is valid
      */
-    public function ensureHeatingCompatibility(Organization $tenant): bool
+    private function validateHeatingServiceConfiguration(UtilityService $heatingService): bool
     {
-        try {
-            // Check if heating service exists and is properly configured
-            $heatingService = UtilityService::where('tenant_id', $tenant->id)
-                ->where('service_type_bridge', ServiceType::HEATING)
-                ->first();
-
-            if (!$heatingService) {
-                Log::warning('No heating service found for tenant during compatibility check', [
-                    'tenant_id' => $tenant->id,
-                ]);
-                return false;
-            }
-
-            // Verify heating service has proper bridge configuration
-            $isCompatible = $heatingService->service_type_bridge === ServiceType::HEATING
-                && $heatingService->default_pricing_model === PricingModel::HYBRID
-                && !empty($heatingService->business_logic_config['supports_shared_distribution']);
-
-            Log::info('Heating compatibility check completed', [
-                'tenant_id' => $tenant->id,
-                'heating_service_id' => $heatingService->id,
-                'is_compatible' => $isCompatible,
-            ]);
-
-            return $isCompatible;
-        } catch (\Exception $e) {
-            Log::error('Failed to check heating compatibility', [
-                'tenant_id' => $tenant->id,
-                'error' => $e->getMessage(),
-            ]);
-            return false;
-        }
+        return $heatingService->service_type_bridge === ServiceType::HEATING
+            && $heatingService->default_pricing_model === PricingModel::HYBRID
+            && !empty($heatingService->business_logic_config['supports_shared_distribution']);
     }
 }

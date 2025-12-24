@@ -47,7 +47,7 @@ return [
             'finalize_heading' => 'Užbaigti antraštę',
             'finalize_submit' => 'Užbaigti pateikimą',
         ],
-        'navigation' => 'Navigacija',
+        'navigation' => 'Sąskaitos',
     ],
     'errors' => [
         'add_to_finalized' => 'Pridėti į užbaigtą',

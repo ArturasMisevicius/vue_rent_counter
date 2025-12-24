@@ -11,6 +11,7 @@ use App\Models\MeterReading;
 use App\Models\ServiceConfiguration;
 use App\Services\ServiceValidationEngine;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -81,8 +82,6 @@ final class UniversalReadingCollector
                 $meter->serviceConfiguration
             );
 
-
-
             // Update validation status based on results
             $this->updateValidationStatus($reading, $validationResult);
 
@@ -99,6 +98,7 @@ final class UniversalReadingCollector
             return [
                 'success' => true,
                 'reading' => $reading,
+                'reading_id' => $reading->id,
                 'errors' => [],
                 'warnings' => $validationResult['warnings'] ?? [],
             ];
@@ -115,10 +115,106 @@ final class UniversalReadingCollector
             return [
                 'success' => false,
                 'reading' => null,
+                'reading_id' => null,
                 'errors' => [$e->getMessage()],
                 'warnings' => [],
             ];
         }
+    }
+
+    /**
+     * Collect reading with enhanced result format.
+     * 
+     * @param array $data Reading data
+     * @return array Result with validation status
+     */
+    public function collectReading(array $data): array
+    {
+        return $this->createReading($data);
+    }
+
+    /**
+     * Sync offline readings from cache storage.
+     * 
+     * @param int $userId User ID for cache key
+     * @param int|null $maxReadings Maximum readings to sync (for partial sync)
+     * @return array Sync results
+     */
+    public function syncOfflineReadings(int $userId, ?int $maxReadings = null): array
+    {
+        $cacheKey = "offline_readings_{$userId}";
+        $offlineReadings = Cache::get($cacheKey, []);
+        
+        if (empty($offlineReadings)) {
+            return [
+                'success' => true,
+                'synced_count' => 0,
+                'failed_count' => 0,
+                'conflicts_resolved' => 0,
+                'errors' => [],
+            ];
+        }
+
+        // Limit readings if specified (for partial sync simulation)
+        if ($maxReadings !== null) {
+            $readingsToSync = array_slice($offlineReadings, 0, $maxReadings);
+            $remainingReadings = array_slice($offlineReadings, $maxReadings);
+        } else {
+            $readingsToSync = $offlineReadings;
+            $remainingReadings = [];
+        }
+
+        $results = [
+            'success' => true,
+            'synced_count' => 0,
+            'failed_count' => 0,
+            'conflicts_resolved' => 0,
+            'errors' => [],
+        ];
+
+        // Sort readings by date to maintain chronological order
+        usort($readingsToSync, function ($a, $b) {
+            return strtotime($a['reading_date']) <=> strtotime($b['reading_date']);
+        });
+
+        foreach ($readingsToSync as $readingData) {
+            try {
+                // Check for existing reading conflicts
+                $existingReading = MeterReading::where('meter_id', $readingData['meter_id'])
+                    ->whereDate('reading_date', $readingData['reading_date'])
+                    ->first();
+
+                if ($existingReading) {
+                    // Handle conflict by creating a new reading with conflict resolution
+                    $readingData['notes'] = ($readingData['notes'] ?? '') . ' [Conflict resolved - offline sync]';
+                    $readingData['reading_date'] = date('Y-m-d H:i:s', strtotime($readingData['reading_date']) + 60); // Add 1 minute
+                    $results['conflicts_resolved']++;
+                }
+
+                // Create the reading
+                $result = $this->createReading($readingData);
+                
+                if ($result['success']) {
+                    $results['synced_count']++;
+                } else {
+                    $results['failed_count']++;
+                    $results['errors'] = array_merge($results['errors'], $result['errors']);
+                }
+
+            } catch (\Exception $e) {
+                $results['failed_count']++;
+                $results['errors'][] = "Failed to sync reading: {$e->getMessage()}";
+            }
+        }
+
+        // Update cache with remaining readings or clear if all synced
+        if (!empty($remainingReadings)) {
+            Cache::put($cacheKey, $remainingReadings, 3600);
+        } else {
+            Cache::forget($cacheKey);
+        }
+
+        return $results;
     }
 
     /**
@@ -362,9 +458,6 @@ final class UniversalReadingCollector
             'entered_by' => 'required|exists:users,id',
             'zone' => 'nullable|string|max:50',
             'notes' => 'nullable|string|max:1000',
-            'gps_location' => 'nullable|array',
-            'gps_location.latitude' => 'nullable|numeric|between:-90,90',
-            'gps_location.longitude' => 'nullable|numeric|between:-180,180',
         ];
 
         // Add value validation based on input method
@@ -797,6 +890,8 @@ final class UniversalReadingCollector
 
         return $values;
     }
+
+
 }
 
 /**

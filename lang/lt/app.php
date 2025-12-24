@@ -18,6 +18,18 @@ return array (
     'by' => 'pateikė',
     'end' => 'Baigti apsimetinėjimą',
     'timeout' => 'Apsimetinėjimo seansas baigėsi po 30 minučių.',
+    'history' => 'Apsimetinėjimo istorija',
+    'history_description' => 'Peržiūrėti visas ankstesnes apsimetinėjimo sesijas su trukmė ir atliktais veiksmais.',
+    'superadmin' => 'Superadministratorius',
+    'target_user' => 'Tikslo vartotojas',
+    'duration' => 'Trukmė',
+    'sessions' => 'Apsimetinėjimo sesijos',
+    'started' => 'Pradėta',
+    'ended' => 'Baigta',
+    'no_sessions' => 'Nerasta apsimetinėjimo sesijų',
+    'no_sessions_description' => 'Nėra apsimetinėjimo sesijų, atitinkančių jūsų dabartinius filtrus.',
+    'started_successfully' => 'Sėkmingai pradėtas apsimetinėjimas :user',
+    'ended_successfully' => 'Apsimetinėjimo sesija sėkmingai baigta',
   ),
   'rate_limit' => 
   array (
@@ -45,8 +57,8 @@ return array (
   ),
   'brand' => 
   array (
-    'name' => 'Vardas',
-    'product' => 'Produktas',
+    'name' => 'Vilniaus komunalinės paslaugos',
+    'product' => 'Komunalinių paslaugų valdymo platforma',
   ),
   'common' => 
   array (
@@ -74,7 +86,13 @@ return array (
   ),
   'meta' => 
   array (
-    'default_title' => 'Numatytasis pavadinimas',
+    'default_title' => 'Vilniaus komunalinės paslaugos - Valdymo platforma',
+    'description' => 'Šiuolaikinė komunalinių paslaugų valdymo platforma Vilniaus nekilnojamojo turto portfeliams',
+    'keywords' => 'komunalinės paslaugos, valdymas, Vilnius, sąskaitos, skaitikliai',
+  ),
+  'navigation' =>
+  array (
+    'integration_health' => 'Integracijos sveikata',
   ),
   'nav' => 
   array (
@@ -120,8 +138,11 @@ return array (
   ),
   'welcome' => 'Sveiki',
   'welcome_updated' => 'Sveiki Atnaujinta',
-  'special_chars' => 'Labas! ąčęėįšųūž',
-  'html_content' => '<a href="#">Nuoroda</a>',
-  'multiline' => 'Sveiki',
-  'long_text' => 'Sveiki',
+  'goodbye' => 'Viso gero',
+  'special_chars' => 'Labas! ąčęėįšųūž @#$%^&*()_+-=[]{}|;:\'",.<>?/',
+  'html_content' => '<strong>Paryškintas</strong> ir <em>kursyvas</em> tekstas',
+  'multiline' => 'Eilutė 1
+Eilutė 2
+Eilutė 3',
+  'long_text' => 'Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. Tai yra labai ilgas vertimo tekstas. ',
 );

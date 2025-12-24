@@ -41,6 +41,7 @@ class MeterReading extends Model
         'validated_by',
         'validated_at',
         'validation_notes',
+        'notes',
     ];
 
     /**

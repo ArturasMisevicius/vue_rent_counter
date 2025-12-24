@@ -12,6 +12,8 @@ use App\Filament\Resources\ServiceConfigurationResource\Pages;
 use App\Models\ServiceConfiguration;
 use App\Models\UtilityService;
 use App\Models\User;
+use App\Models\AuditLog;
+use App\Services\Audit\ConfigurationRollbackService;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -19,6 +21,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 
 class ServiceConfigurationResource extends Resource
@@ -274,6 +277,86 @@ class ServiceConfigurationResource extends Resource
                     ->label('Active'),
             ])
             ->actions([
+                Tables\Actions\Action::make('audit_history')
+                    ->label('Audit History')
+                    ->icon('heroicon-o-clock')
+                    ->color('gray')
+                    ->modalHeading('Configuration Change History')
+                    ->modalDescription('View all configuration changes and rollback options for this service configuration.')
+                    ->modalContent(fn (ServiceConfiguration $record) => view('filament.tenant.modals.change-details', [
+                        'modelType' => ServiceConfiguration::class,
+                        'modelId' => $record->id,
+                        'modelName' => "{$record->property->address} - {$record->utilityService->name}",
+                    ]))
+                    ->modalWidth('7xl')
+                    ->slideOver(),
+
+                Tables\Actions\Action::make('rollback')
+                    ->label('Rollback')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('warning')
+                    ->visible(fn (ServiceConfiguration $record): bool => 
+                        AuditLog::where('auditable_type', ServiceConfiguration::class)
+                            ->where('auditable_id', $record->id)
+                            ->where('event', '!=', 'rollback')
+                            ->exists()
+                    )
+                    ->form([
+                        Forms\Components\Select::make('audit_log_id')
+                            ->label('Select Change to Rollback')
+                            ->options(function (ServiceConfiguration $record): array {
+                                return AuditLog::where('auditable_type', ServiceConfiguration::class)
+                                    ->where('auditable_id', $record->id)
+                                    ->where('event', '!=', 'rollback')
+                                    ->orderBy('created_at', 'desc')
+                                    ->get()
+                                    ->mapWithKeys(function (AuditLog $audit) {
+                                        $user = $audit->user_id ? "User {$audit->user_id}" : 'System';
+                                        $date = $audit->created_at->format('M j, Y H:i');
+                                        return [$audit->id => "{$audit->event} by {$user} on {$date}"];
+                                    })
+                                    ->toArray();
+                            })
+                            ->required()
+                            ->searchable()
+                            ->native(false),
+                        Forms\Components\Textarea::make('reason')
+                            ->label('Rollback Reason')
+                            ->placeholder(__('dashboard.audit.placeholders.rollback_reason'))
+                            ->required()
+                            ->maxLength(500),
+                        Forms\Components\Toggle::make('notify_stakeholders')
+                            ->label('Notify Stakeholders')
+                            ->default(true)
+                            ->helperText('Send notifications to administrators and managers about this rollback.'),
+                    ])
+                    ->action(function (ServiceConfiguration $record, array $data): void {
+                        $rollbackService = app(ConfigurationRollbackService::class);
+                        
+                        $result = $rollbackService->performRollback(
+                            auditLogId: (int) $data['audit_log_id'],
+                            userId: auth()->id(),
+                            reason: $data['reason'],
+                            notifyStakeholders: $data['notify_stakeholders'] ?? true,
+                        );
+                        
+                        if ($result['success']) {
+                            Notification::make()
+                                ->title(__('dashboard.audit.notifications.rollback_success'))
+                                ->success()
+                                ->send();
+                        } else {
+                            Notification::make()
+                                ->title(__('dashboard.audit.notifications.rollback_failed'))
+                                ->body(implode(', ', $result['errors'] ?? []))
+                                ->danger()
+                                ->send();
+                        }
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading(__('dashboard.audit.rollback_confirmation'))
+                    ->modalDescription(__('dashboard.audit.rollback_warning')),
+
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

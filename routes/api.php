@@ -49,6 +49,24 @@ Route::middleware(['auth', 'role:admin,manager'])->group(function () {
         Route::get('/health', [ServiceValidationController::class, 'healthCheck']);
     });
 
+    // Configuration Rollback API endpoints
+    Route::prefix('rollback')->name('api.rollback.')->group(function () {
+        Route::post('/validate', [\App\Http\Controllers\Api\ConfigurationRollbackController::class, 'validateRollback'])
+            ->name('validate');
+        Route::post('/perform', [\App\Http\Controllers\Api\ConfigurationRollbackController::class, 'performRollback'])
+            ->name('perform');
+        Route::get('/history', [\App\Http\Controllers\Api\ConfigurationRollbackController::class, 'getRollbackHistory'])
+            ->name('history');
+        Route::get('/data', [\App\Http\Controllers\Api\ConfigurationRollbackController::class, 'getRollbackData'])
+            ->name('data');
+        Route::get('/changes', [\App\Http\Controllers\Api\ConfigurationRollbackController::class, 'getChangeHistory'])
+            ->name('changes');
+        Route::get('/analyze', [\App\Http\Controllers\Api\ConfigurationRollbackController::class, 'analyzeChangePatterns'])
+            ->name('analyze');
+        Route::post('/bulk', [\App\Http\Controllers\Api\ConfigurationRollbackController::class, 'bulkRollback'])
+            ->name('bulk');
+    });
+
     // Invoice API endpoints
     Route::prefix('invoices')->name('api.invoices.')->group(function () {
         Route::get('/{tenant}/billing-history', [EnhancedInvoiceController::class, 'billingHistory'])

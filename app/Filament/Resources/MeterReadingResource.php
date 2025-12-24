@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Enums\MeterType;
+use App\Enums\ValidationStatus;
 use App\Filament\Resources\MeterReadingResource\Pages;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Services\MeterReadingService;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -230,6 +233,18 @@ class MeterReadingResource extends Resource
                     ->badge()
                     ->placeholder('Single Zone'),
 
+                Tables\Columns\TextColumn::make('validation_status')
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn ($state): string => $state instanceof ValidationStatus ? $state->getLabel() : ucfirst(str_replace('_', ' ', (string) $state)))
+                    ->color(fn ($state): string => match ($state instanceof ValidationStatus ? $state->value : (string) $state) {
+                        'validated' => 'success',
+                        'pending' => 'warning',
+                        'requires_review' => 'info',
+                        'rejected' => 'danger',
+                        default => 'gray',
+                    }),
+
                 Tables\Columns\TextColumn::make('enteredBy.name')
                     ->label('Entered By')
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -266,6 +281,57 @@ class MeterReadingResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                
+                // Truth-but-Verify Workflow Actions (Gold Master v7.0)
+                Action::make('approve')
+                    ->label('Approve')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn (MeterReading $record): bool => 
+                        $record->validation_status === ValidationStatus::PENDING || 
+                        $record->validation_status === ValidationStatus::REQUIRES_REVIEW
+                    )
+                    ->requiresConfirmation()
+                    ->modalHeading('Approve Reading')
+                    ->modalDescription('Are you sure you want to approve this meter reading?')
+                    ->action(function (MeterReading $record): void {
+                        $record->markAsValidated(auth()->id());
+                        
+                        Notification::make()
+                            ->title('Reading Approved')
+                            ->body('The meter reading has been approved and is now available for billing.')
+                            ->success()
+                            ->send();
+                    }),
+                
+                Action::make('reject')
+                    ->label('Reject')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->visible(fn (MeterReading $record): bool => 
+                        $record->validation_status === ValidationStatus::PENDING || 
+                        $record->validation_status === ValidationStatus::REQUIRES_REVIEW
+                    )
+                    ->form([
+                        Forms\Components\Textarea::make('validation_notes')
+                            ->label('Rejection Reason')
+                            ->required()
+                            ->placeholder('Please provide a reason for rejecting this reading...')
+                            ->rows(3),
+                    ])
+                    ->modalHeading('Reject Reading')
+                    ->modalDescription('Please provide a reason for rejecting this meter reading.')
+                    ->action(function (MeterReading $record, array $data): void {
+                        $record->validation_notes = $data['validation_notes'];
+                        $record->markAsRejected(auth()->id());
+                        
+                        Notification::make()
+                            ->title('Reading Rejected')
+                            ->body('The meter reading has been rejected and marked for review.')
+                            ->warning()
+                            ->send();
+                    }),
+                
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

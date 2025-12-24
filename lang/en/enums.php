@@ -38,6 +38,7 @@ return [
         'electricity' => 'Electricity',
         'heating' => 'Heating',
         'water' => 'Water',
+        'gas' => 'Gas',
     ],
     'tariff_type' => [
         'flat' => 'Flat Rate',

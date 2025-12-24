@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenanto - Nuoma be chaoso</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        primary: '#4f46e5', // Indigo-600 (Brand)
+                        dark: '#0f172a',    // Slate-900 (Background)
+                        success: '#10b981', // Emerald-500 (Paid)
+                        danger: '#ef4444',  // Red-500 (Debt)
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Анимация "Магия Tenanto" */
+        @keyframes cardCycle {
+            0%, 10% { transform: translateY(20px); opacity: 0; } /* Появление */
+            15%, 45% { transform: translateY(0); opacity: 1; } /* Ожидание (Не оплачено) */
+            50% { transform: scale(1.02); } /* Момент сканирования */
+            55%, 90% { transform: translateY(0); opacity: 1; } /* Успех (Оплачено) */
+            100% { transform: translateY(-20px); opacity: 0; } /* Уход в архив */
+        }
+
+        @keyframes scanLine {
+            0% { top: 0; opacity: 0; }
+            30% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        @keyframes statusChange {
+            0%, 49% { background-color: #f1f5f9; color: #64748b; content: "LAUKIA APMOKĖJIMO"; border-color: #cbd5e1; } /* Slate-100 */
+            50%, 100% { background-color: #ecfdf5; color: #059669; border-color: #10b981; } /* Emerald-50 */
+        }
+        
+        /* Классы для управления состоянием внутри анимации */
+        .animate-card { animation: cardCycle 6s infinite ease-in-out; }
+        .animate-scan { animation: scanLine 1.5s ease-in-out infinite; }
+        
+        /* Трюк для смены текста и цвета бейджа без JS */
+        .status-badge {
+            animation: statusChange 6s infinite steps(1); 
+        }
+        .status-text::after {
+            content: "LAUKIA APMOKĖJIMO";
+            animation: textChange 6s infinite steps(1);
+        }
+        @keyframes textChange {
+            0%, 49% { content: "LAUKIA APMOKĖJIMO"; }
+            50%, 100% { content: "APMOKĖTA ✅"; }
+        }
+
+        /* Фоновое свечение */
+        .glow-blob {
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.4) 0%, rgba(15, 23, 42, 0) 70%);
+        }
+    </style>
+</head>
+<body class="bg-dark text-white overflow-x-hidden">
+
+    <nav class="w-full py-6 px-6 md:px-12 flex justify-between items-center max-w-7xl mx-auto">
+        <div class="text-2xl font-bold tracking-tight">Tenanto<span class="text-primary">.</span></div>
+        <div class="hidden md:flex space-x-6 text-sm font-medium text-slate-300">
+            <a href="#" class="hover:text-white transition">Kainos</a>
+            <a href="#" class="hover:text-white transition">Kaip veikia</a>
+            <a href="#" class="hover:text-white transition">VMI Gidas</a>
+        </div>
+        <a href="#" class="text-sm font-semibold text-white bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition">Prisijungti</a>
+    </nav>
+
+    <main class="relative max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        
+        <div class="z-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 mb-6">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span class="text-xs font-medium text-slate-300 tracking-wide uppercase">Bootstrap v2.0 Edition</span>
+            </div>
+
+            <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-6">
+                Nuoma be chaoso. <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Automatiškai.</span>
+            </h1>
+
+            <p class="text-lg text-slate-400 mb-8 max-w-lg leading-relaxed">
+                Pamiršk 'Excel' ir vėluojančius mokėjimus. Mes generuojame sąskaitas, sekame skolas ir paruošiame ataskaitas VMI. 
+                <br><br>
+                <span class="text-slate-200">Jūs gaunate pinigus tiesiogiai, mes tvarkome popierius.</span>
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="#" class="flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-primary rounded-xl shadow-lg shadow-indigo-500/30 hover:bg-indigo-500 transition transform hover:-translate-y-1">
+                    Išbandyti nemokamai
+                </a>
+                <a href="#" class="flex items-center justify-center px-8 py-4 text-base font-medium text-slate-300 border border-slate-700 rounded-xl hover:bg-slate-800 transition">
+                    Žiūrėti demo
+                </a>
+            </div>
+            <p class="mt-4 text-xs text-slate-500">
+                🎁 Pirmiesiems 100 vartotojų – 2 mėnesiai dovanų. Nereikia kortelės.
+            </p>
+        </div>
+
+        <div class="relative flex justify-center items-center h-[500px]">
+            <div class="absolute inset-0 glow-blob pointer-events-none"></div>
+
+            <div class="animate-card relative w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 transform rotate-[-2deg]">
+                
+                <div class="p-6 border-b border-slate-100 flex justify-between items-start">
+                    <div>
+                        <div class="text-xs text-slate-400 uppercase font-semibold">Sąskaita</div>
+                        <div class="text-lg font-bold text-slate-900">#INV-2025-001</div>
+                    </div>
+                    <div class="text-sm font-bold text-slate-800 tracking-tight">Tenanto.</div>
+                </div>
+
+                <div class="p-6 space-y-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-lg">👤</div>
+                        <div>
+                            <div class="text-xs text-slate-500">Nuomininkas</div>
+                            <div class="text-sm font-medium text-slate-900">Jonas Kazlauskas</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-xl p-4 flex justify-between items-center">
+                        <span class="text-sm text-slate-500">Mokėti viso:</span>
+                        <span class="text-2xl font-bold text-slate-900">450.00 €</span>
+                    </div>
+
+                    <div class="flex justify-between items-center mt-4">
+                        <div class="status-badge px-3 py-1 rounded-md border text-xs font-bold transition-colors duration-300">
+                            <span class="status-text"></span>
+                        </div>
+                        
+                        <div class="relative w-16 h-16 bg-white p-1 border border-slate-200 rounded-lg">
+                            <div class="w-full h-full bg-[url('https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TenantoDemo')] bg-cover opacity-80"></div>
+                            <div class="absolute inset-0 bg-green-400/20 h-1 w-full animate-scan" style="animation-play-state: running;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 text-center">
+                    <p class="text-[10px] text-slate-400">Generuota automatiškai su Tenanto.lt</p>
+                </div>
+            </div>
+
+            <div class="absolute -right-4 top-20 bg-emerald-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-bold flex items-center gap-2 animate-bounce" style="animation-duration: 3s;">
+                <span>🔔</span> Pinigai gauti!
+            </div>
+            
+             <div class="absolute left-0 bottom-10 w-16 h-16 bg-green-700/20 rounded-lg blur-sm transform rotate-12 -z-10"></div>
+
+        </div>
+    </main>
+
+</body>
+</html>

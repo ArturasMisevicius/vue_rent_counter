@@ -47,7 +47,7 @@ return [
             'finalize_heading' => 'Завершить заголовок',
             'finalize_submit' => 'Завершить Отправить',
         ],
-        'navigation' => 'Навигация',
+        'navigation' => 'Счета',
     ],
     'errors' => [
         'add_to_finalized' => 'Добавить в завершенное',

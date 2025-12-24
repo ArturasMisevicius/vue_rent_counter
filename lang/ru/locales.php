@@ -60,7 +60,7 @@ return [
             'heading' => 'Заголовок',
         ],
     ],
-    'navigation' => 'Навигация',
+    'navigation' => 'Языки',
     'notifications' => [
         'default_set' => 'Набор по умолчанию',
     ],

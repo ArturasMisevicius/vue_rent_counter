@@ -60,7 +60,7 @@ return [
             'heading' => 'Antraštė',
         ],
     ],
-    'navigation' => 'Navigacija',
+    'navigation' => 'Kalbos',
     'notifications' => [
         'default_set' => 'Numatytasis rinkinys',
     ],

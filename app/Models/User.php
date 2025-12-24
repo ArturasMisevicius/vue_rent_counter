@@ -879,6 +879,63 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Check if user can create meter readings.
+     * 
+     * All authenticated roles can create meter readings in the Truth-but-Verify workflow.
+     * 
+     * @return bool True if user can create meter readings
+     */
+    public function canCreateMeterReadings(): bool
+    {
+        return in_array($this->role, [
+            UserRole::SUPERADMIN,
+            UserRole::ADMIN,
+            UserRole::MANAGER,
+            UserRole::TENANT,
+        ], true) && $this->is_active;
+    }
+
+    /**
+     * Check if user can manage (approve/reject) meter readings.
+     * 
+     * Only managers and above can approve tenant-submitted readings.
+     * 
+     * @return bool True if user can manage meter readings
+     */
+    public function canManageMeterReadings(): bool
+    {
+        return in_array($this->role, [
+            UserRole::SUPERADMIN,
+            UserRole::ADMIN,
+            UserRole::MANAGER,
+        ], true) && $this->is_active;
+    }
+
+    /**
+     * Check if user can validate meter readings.
+     * 
+     * Alias for canManageMeterReadings for clarity in Truth-but-Verify workflow.
+     * 
+     * @return bool True if user can validate meter readings
+     */
+    public function canValidateMeterReadings(): bool
+    {
+        return $this->canManageMeterReadings();
+    }
+
+    /**
+     * Check if user submissions require validation.
+     * 
+     * Tenant submissions require manager approval in Truth-but-Verify workflow.
+     * 
+     * @return bool True if user's submissions require validation
+     */
+    public function submissionsRequireValidation(): bool
+    {
+        return $this->role === UserRole::TENANT;
+    }
+
+    /**
      * Get the current access token.
      * 
      * @return PersonalAccessToken|null

@@ -8,6 +8,10 @@ use App\Filament\Clusters\SuperAdmin;
 use App\Filament\Clusters\SuperAdmin\Widgets\TenantOverviewWidget;
 use App\Filament\Clusters\SuperAdmin\Widgets\SystemMetricsWidget;
 use App\Filament\Clusters\SuperAdmin\Widgets\RecentActivityWidget;
+use App\Filament\Tenant\Widgets\AuditOverviewWidget;
+use App\Filament\Tenant\Widgets\AuditTrendsWidget;
+use App\Filament\Tenant\Widgets\ComplianceStatusWidget;
+use App\Filament\Tenant\Widgets\AnomalyDetectionWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
 
 final class Dashboard extends BaseDashboard
@@ -32,6 +36,11 @@ final class Dashboard extends BaseDashboard
             TenantOverviewWidget::class,
             SystemMetricsWidget::class,
             RecentActivityWidget::class,
+            // System-wide audit widgets for SuperAdmin
+            AuditOverviewWidget::class,
+            AuditTrendsWidget::class,
+            ComplianceStatusWidget::class,
+            AnomalyDetectionWidget::class,
         ];
     }
 
@@ -40,7 +49,8 @@ final class Dashboard extends BaseDashboard
         return [
             'sm' => 1,
             'md' => 2,
-            'lg' => 4,
+            'lg' => 3,
+            'xl' => 4,
         ];
     }
 
