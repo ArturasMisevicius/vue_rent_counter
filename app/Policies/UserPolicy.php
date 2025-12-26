@@ -244,6 +244,35 @@ final class UserPolicy
     }
 
     /**
+     * Determine whether the user can view system settings.
+     * Only superadmins and platform admins can view system settings.
+     * 
+     * @param User $user The authenticated user
+     * @return bool True if the user can view system settings
+     */
+    public function viewSystemSettings(User $user): bool
+    {
+        return $user->isSuperadmin() || $this->isPlatformAdmin($user);
+    }
+
+    /**
+     * Determine whether the user can manage system settings.
+     * Only superadmins can manage system settings.
+     * 
+     * @param User $user The authenticated user
+     * @return bool True if the user can manage system settings
+     */
+    public function manageSystemSettings(User $user): bool
+    {
+        if ($user->isSuperadmin()) {
+            $this->logSensitiveOperation('manageSystemSettings', $user, $user);
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
      * Check if user can manage another user within their tenant.
      * Consolidates admin/manager role check with tenant boundary validation.
      * 

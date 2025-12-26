@@ -54,8 +54,12 @@ return [
             'answer' => 'landing.faq.invoices.answer',
         ],
         [
-            'question' => 'landing.faq.admin.question',
-            'answer' => 'landing.faq.admin.answer',
+            'question' => 'landing.faq.security.question',
+            'answer' => 'landing.faq.security.answer',
+        ],
+        [
+            'question' => 'landing.faq.support.question',
+            'answer' => 'landing.faq.support.answer',
         ],
     ],
 ];

@@ -5,187 +5,134 @@ declare(strict_types=1);
 return [
     /*
     |--------------------------------------------------------------------------
-    | Security Headers Configuration
+    | Security Configuration
     |--------------------------------------------------------------------------
     |
-    | Base security headers applied to all responses. CSP is handled separately
-    | by the SecurityHeaderFactory based on context.
+    | This file contains security-related configuration options for the
+    | application. These settings help protect against common vulnerabilities.
     |
     */
-    'headers' => [
-        'X-Content-Type-Options' => 'nosniff',
-        'X-Frame-Options' => 'SAMEORIGIN',
-        'Referrer-Policy' => 'strict-origin-when-cross-origin',
-    ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Performance Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Settings for monitoring and optimizing security header performance.
-    |
-    */
-    'performance' => [
-        'enabled' => env('SECURITY_PERFORMANCE_MONITORING', true),
-        'thresholds' => [
-            'warning_ms' => env('SECURITY_WARNING_THRESHOLD_MS', 15),
-            'error_ms' => env('SECURITY_ERROR_THRESHOLD_MS', 50),
-        ],
-        'log_throttle_seconds' => env('SECURITY_LOG_THROTTLE_SECONDS', 30),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | CSP Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Content Security Policy settings and reporting configuration.
-    |
-    */
-    'csp' => [
-        'nonce_enabled' => env('CSP_NONCE_ENABLED', true),
-        'report_uri' => env('CSP_REPORT_URI'),
-        'report_only' => env('CSP_REPORT_ONLY', false),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Environment-Specific Settings
-    |--------------------------------------------------------------------------
-    |
-    | Different security policies for different environments.
-    |
-    */
-    'environments' => [
-        'production' => [
-            'strict_transport_security' => true,
-            'cross_origin_policies' => true,
-            'permissions_policy' => true,
-        ],
-        'development' => [
-            'allow_localhost' => true,
-            'allow_hmr' => true,
-            'debug_headers' => true,
-        ],
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cache Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Settings for caching security headers and CSP templates.
-    |
-    */
-    'cache' => [
-        'enabled' => env('SECURITY_CACHE_ENABLED', true),
-        'ttl' => env('SECURITY_CACHE_TTL', 3600), // 1 hour
-        'max_templates' => env('SECURITY_CACHE_MAX_TEMPLATES', 10),
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | MCP Integration Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Settings for Model Context Protocol server integration.
-    | Enhanced with security controls and validation.
-    |
-    */
-    'mcp' => [
-        'analytics_enabled' => env('SECURITY_MCP_ANALYTICS_ENABLED', true),
-        'compliance_enabled' => env('SECURITY_MCP_COMPLIANCE_ENABLED', true),
-        'performance_enabled' => env('SECURITY_MCP_PERFORMANCE_ENABLED', true),
-        'incident_response_enabled' => env('SECURITY_MCP_INCIDENT_RESPONSE_ENABLED', true),
-        
-        'fallback_on_failure' => env('SECURITY_MCP_FALLBACK_ENABLED', true),
-        'timeout_seconds' => env('SECURITY_MCP_TIMEOUT', 5),
-        'retry_attempts' => env('SECURITY_MCP_RETRY_ATTEMPTS', 3),
-        
-        // Enhanced security controls
-        'require_authentication' => env('SECURITY_MCP_REQUIRE_AUTH', true),
-        'validate_tenant_access' => env('SECURITY_MCP_VALIDATE_TENANT', true),
-        'encrypt_sensitive_data' => env('SECURITY_MCP_ENCRYPT_DATA', true),
-        'audit_all_calls' => env('SECURITY_MCP_AUDIT_CALLS', true),
-        
-        // Rate limiting for MCP calls
+    'policy_registration' => [
+        /*
+        |--------------------------------------------------------------------------
+        | Policy Registration Security
+        |--------------------------------------------------------------------------
+        |
+        | Controls who can register policies and gates in the application.
+        |
+        */
+        'allowed_environments' => ['local', 'testing'],
+        'require_super_admin' => env('POLICY_REGISTRATION_REQUIRE_SUPER_ADMIN', true),
         'rate_limit' => [
-            'enabled' => env('SECURITY_MCP_RATE_LIMIT_ENABLED', true),
-            'max_calls_per_minute' => env('SECURITY_MCP_MAX_CALLS_PER_MINUTE', 100),
-            'max_calls_per_hour' => env('SECURITY_MCP_MAX_CALLS_PER_HOUR', 1000),
+            'max_attempts' => 5,
+            'decay_minutes' => 5,
         ],
-        
-        // Data retention and privacy
-        'data_retention_days' => env('SECURITY_MCP_DATA_RETENTION_DAYS', 90),
-        'anonymize_pii' => env('SECURITY_MCP_ANONYMIZE_PII', true),
-        'redact_sensitive_fields' => env('SECURITY_MCP_REDACT_SENSITIVE', true),
+        'cache_ttl' => 3600, // 1 hour
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Analytics Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Settings for security analytics and violation tracking.
-    | Enhanced with privacy and security controls.
-    |
-    */
-    'analytics' => [
-        'violation_retention_days' => env('SECURITY_VIOLATION_RETENTION_DAYS', 90),
-        'metrics_retention_days' => env('SECURITY_METRICS_RETENTION_DAYS', 365),
-        'real_time_enabled' => env('SECURITY_REAL_TIME_ENABLED', true),
-        'batch_size' => env('SECURITY_ANALYTICS_BATCH_SIZE', 1000),
-        
-        // Enhanced privacy controls
-        'anonymize_ips' => env('SECURITY_ANONYMIZE_IPS', true),
-        'hash_user_agents' => env('SECURITY_HASH_USER_AGENTS', true),
-        'encrypt_sensitive_data' => env('SECURITY_ENCRYPT_SENSITIVE_DATA', true),
-        'redact_pii' => env('SECURITY_REDACT_PII', true),
-        
-        // Rate limiting for analytics
-        'rate_limiting' => [
-            'enabled' => env('SECURITY_ANALYTICS_RATE_LIMIT_ENABLED', true),
-            'max_violations_per_ip_per_minute' => env('SECURITY_MAX_VIOLATIONS_PER_IP_PER_MINUTE', 50),
-            'max_analytics_requests_per_user_per_minute' => env('SECURITY_MAX_ANALYTICS_REQUESTS_PER_USER_PER_MINUTE', 60),
+    'logging' => [
+        /*
+        |--------------------------------------------------------------------------
+        | Security Logging
+        |--------------------------------------------------------------------------
+        |
+        | Configuration for security-related logging and monitoring.
+        |
+        */
+        'redact_sensitive_data' => env('LOG_REDACT_SENSITIVE', true),
+        'hash_pii' => env('LOG_HASH_PII', true),
+        'security_channel' => env('SECURITY_LOG_CHANNEL', 'security'),
+        'alert_on_violations' => env('ALERT_ON_SECURITY_VIOLATIONS', true),
+    ],
+
+    'headers' => [
+        /*
+        |--------------------------------------------------------------------------
+        | Security Headers
+        |--------------------------------------------------------------------------
+        |
+        | HTTP security headers to protect against common attacks.
+        |
+        */
+        'csp' => [
+            'enabled' => env('CSP_ENABLED', true),
+            'report_only' => env('CSP_REPORT_ONLY', false),
+            'report_uri' => env('CSP_REPORT_URI', '/csp-report'),
         ],
-        
-        'anomaly_detection' => [
-            'enabled' => env('SECURITY_ANOMALY_DETECTION_ENABLED', true),
-            'sensitivity' => env('SECURITY_ANOMALY_SENSITIVITY', 'medium'),
-            'window_minutes' => env('SECURITY_ANOMALY_WINDOW', 60),
-            'auto_block_threshold' => env('SECURITY_AUTO_BLOCK_THRESHOLD', 10),
-            'notification_threshold' => env('SECURITY_NOTIFICATION_THRESHOLD', 5),
+        'hsts' => [
+            'enabled' => env('HSTS_ENABLED', true),
+            'max_age' => env('HSTS_MAX_AGE', 31536000), // 1 year
+            'include_subdomains' => env('HSTS_INCLUDE_SUBDOMAINS', true),
         ],
-        
-        // Audit and compliance
-        'audit_trail' => [
-            'enabled' => env('SECURITY_AUDIT_TRAIL_ENABLED', true),
-            'log_all_access' => env('SECURITY_LOG_ALL_ACCESS', true),
-            'log_data_exports' => env('SECURITY_LOG_DATA_EXPORTS', true),
-            'retention_days' => env('SECURITY_AUDIT_RETENTION_DAYS', 2555), // 7 years
+        'x_frame_options' => env('X_FRAME_OPTIONS', 'DENY'),
+        'x_content_type_options' => env('X_CONTENT_TYPE_OPTIONS', 'nosniff'),
+        'referrer_policy' => env('REFERRER_POLICY', 'strict-origin-when-cross-origin'),
+    ],
+
+    'rate_limiting' => [
+        /*
+        |--------------------------------------------------------------------------
+        | Rate Limiting
+        |--------------------------------------------------------------------------
+        |
+        | Rate limiting configuration for various endpoints.
+        |
+        */
+        'translation_requests' => [
+            'max_attempts' => 100,
+            'decay_minutes' => 1,
+        ],
+        'policy_registration' => [
+            'max_attempts' => 5,
+            'decay_minutes' => 5,
+        ],
+        'api_requests' => [
+            'max_attempts' => 60,
+            'decay_minutes' => 1,
         ],
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Compliance Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Settings for automated compliance checking.
-    |
-    */
-    'compliance' => [
-        'frameworks' => [
-            'owasp' => env('SECURITY_OWASP_ENABLED', true),
-            'soc2' => env('SECURITY_SOC2_ENABLED', true),
-            'gdpr' => env('SECURITY_GDPR_ENABLED', true),
-            'iso27001' => env('SECURITY_ISO27001_ENABLED', false),
-            'nist' => env('SECURITY_NIST_ENABLED', false),
+    'validation' => [
+        /*
+        |--------------------------------------------------------------------------
+        | Input Validation
+        |--------------------------------------------------------------------------
+        |
+        | Validation rules and patterns for security-sensitive inputs.
+        |
+        */
+        'locale_pattern' => '/^[a-z]{2}(_[A-Z]{2})?$/',
+        'translation_key_pattern' => '/^[a-zA-Z0-9._-]+$/',
+        'max_translation_key_length' => 255,
+        'suspicious_patterns' => [
+            '/\.\.\//i',           // Path traversal
+            '/<script/i',          // XSS
+            '/javascript:/i',      // XSS
+            '/on\w+\s*=/i',       // Event handlers
+            '/union\s+select/i',   // SQL injection
+            '/drop\s+table/i',     // SQL injection
+            '/exec\s*\(/i',       // Code execution
+            '/eval\s*\(/i',       // Code execution
+            '/system\s*\(/i',     // System calls
         ],
-        
-        'check_interval_hours' => env('SECURITY_COMPLIANCE_CHECK_INTERVAL', 24),
-        'auto_remediation' => env('SECURITY_AUTO_REMEDIATION_ENABLED', false),
-        'notification_channels' => explode(',', env('SECURITY_COMPLIANCE_NOTIFICATIONS', 'email')),
+    ],
+
+    'monitoring' => [
+        /*
+        |--------------------------------------------------------------------------
+        | Security Monitoring
+        |--------------------------------------------------------------------------
+        |
+        | Configuration for security monitoring and alerting.
+        |
+        */
+        'enabled' => env('SECURITY_MONITORING_ENABLED', true),
+        'alert_channels' => ['slack', 'email'],
+        'thresholds' => [
+            'failed_logins' => 10,
+            'policy_registration_failures' => 5,
+            'suspicious_requests' => 20,
+        ],
     ],
 ];

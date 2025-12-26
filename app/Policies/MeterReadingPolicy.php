@@ -71,13 +71,8 @@ final class MeterReadingPolicy extends BasePolicy
             return true;
         }
 
-        // Admins can view meter readings across all tenants
-        if ($this->isAdmin($user)) {
-            return true;
-        }
-
-        // Managers can view readings within their tenant (Requirement 7.3)
-        if ($user->role === UserRole::MANAGER) {
+        // Admins and managers can view readings within their tenant (Requirement 7.3)
+        if ($this->isAdmin($user) || $user->role === UserRole::MANAGER) {
             return $this->belongsToUserTenant($user, $meterReading);
         }
 
@@ -159,14 +154,8 @@ final class MeterReadingPolicy extends BasePolicy
             return true;
         }
 
-        // Admins can update any meter reading
-        if ($this->isAdmin($user)) {
-            $this->logSensitiveOperation('update', $user, $meterReading);
-            return true;
-        }
-
-        // Managers can update readings within their tenant (Requirement 11.3, 7.3)
-        if ($user->role === UserRole::MANAGER) {
+        // Admins and managers can update readings within their tenant (Requirement 11.3, 7.3)
+        if ($this->isAdmin($user) || $user->role === UserRole::MANAGER) {
             $canUpdate = $this->belongsToUserTenant($user, $meterReading);
             if ($canUpdate) {
                 $this->logSensitiveOperation('update', $user, $meterReading);
@@ -250,9 +239,19 @@ final class MeterReadingPolicy extends BasePolicy
      */
     public function delete(User $user, MeterReading $meterReading): bool
     {
-        // Only admins and superadmins can delete meter readings
-        $canDelete = $this->isAdmin($user);
-        
+        // Superadmin can delete any meter reading
+        if ($this->isSuperadmin($user)) {
+            $this->logSensitiveOperation('delete', $user, $meterReading, [
+                'validation_status' => $meterReading->validation_status->value,
+                'input_method' => $meterReading->input_method->value,
+                'entered_by' => $meterReading->entered_by,
+            ]);
+            return true;
+        }
+
+        // Admins can delete meter readings within their tenant
+        $canDelete = $this->isAdmin($user) && $this->belongsToUserTenant($user, $meterReading);
+
         if ($canDelete) {
             $this->logSensitiveOperation('delete', $user, $meterReading, [
                 'validation_status' => $meterReading->validation_status->value,
@@ -260,7 +259,7 @@ final class MeterReadingPolicy extends BasePolicy
                 'entered_by' => $meterReading->entered_by,
             ]);
         }
-        
+
         return $canDelete;
     }
 
@@ -277,12 +276,19 @@ final class MeterReadingPolicy extends BasePolicy
      */
     public function restore(User $user, MeterReading $meterReading): bool
     {
-        $canRestore = $this->isAdmin($user);
-        
+        // Superadmin can restore any meter reading
+        if ($this->isSuperadmin($user)) {
+            $this->logSensitiveOperation('restore', $user, $meterReading);
+            return true;
+        }
+
+        // Admins can restore meter readings within their tenant
+        $canRestore = $this->isAdmin($user) && $this->belongsToUserTenant($user, $meterReading);
+
         if ($canRestore) {
             $this->logSensitiveOperation('restore', $user, $meterReading);
         }
-        
+
         return $canRestore;
     }
 

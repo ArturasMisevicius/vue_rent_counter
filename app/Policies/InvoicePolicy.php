@@ -69,13 +69,8 @@ class InvoicePolicy
             return true;
         }
 
-        // Admins and superadmins can view invoices across tenants
-        if ($this->isAdmin($user)) {
-            return true;
-        }
-
-        // Managers can view invoices within their tenant (Requirement 11.3, 7.3)
-        if ($user->role === UserRole::MANAGER) {
+        // Admins and managers can view invoices within their tenant (Requirement 11.3, 7.3)
+        if ($this->isAdmin($user) || $user->role === UserRole::MANAGER) {
             return $invoice->tenant_id === $user->tenant_id;
         }
 

@@ -26,7 +26,7 @@ class BuildingPolicy
      * Determine whether the user can view the building.
      * Adds tenant_id ownership checks.
      * Ensures tenant can only access their property's building.
-     * 
+     *
      * Requirements: 4.5, 9.1
      */
     public function view(User $user, Building $building): bool
@@ -36,12 +36,8 @@ class BuildingPolicy
             return true;
         }
 
-        // Admins can view buildings across tenants; managers remain tenant-scoped
-        if ($user->role === UserRole::ADMIN) {
-            return true;
-        }
-
-        if ($user->role === UserRole::MANAGER) {
+        // Admins and managers can view buildings within their tenant scope
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $building->tenant_id === $user->tenant_id;
         }
 
@@ -80,12 +76,8 @@ class BuildingPolicy
             return true;
         }
 
-        // Admins can update buildings across tenants; managers remain tenant-scoped
-        if ($user->role === UserRole::ADMIN) {
-            return true;
-        }
-
-        if ($user->role === UserRole::MANAGER) {
+        // Admins and managers can update buildings within their tenant scope
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $building->tenant_id === $user->tenant_id;
         }
 
@@ -95,7 +87,7 @@ class BuildingPolicy
     /**
      * Determine whether the user can delete the building.
      * Ensures MANAGER role has same permissions as ADMIN for delete.
-     * 
+     *
      * Requirements: 4.5, 13.3
      */
     public function delete(User $user, Building $building): bool
@@ -105,13 +97,8 @@ class BuildingPolicy
             return true;
         }
 
-        // Admins can delete buildings across tenants (Requirement 4.5, 13.3)
-        if ($user->role === UserRole::ADMIN) {
-            return true;
-        }
-
-        // Managers can delete buildings within their tenant (Requirement 4.5, 13.3)
-        if ($user->role === UserRole::MANAGER) {
+        // Admins and managers can delete buildings within their tenant scope (Requirement 4.5, 13.3)
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $building->tenant_id === $user->tenant_id;
         }
 
@@ -120,7 +107,7 @@ class BuildingPolicy
 
     /**
      * Determine whether the user can restore the building.
-     * 
+     *
      * Requirements: 4.5, 13.3
      */
     public function restore(User $user, Building $building): bool
@@ -130,12 +117,8 @@ class BuildingPolicy
             return true;
         }
 
-        // Admins can restore buildings across tenants; managers remain tenant-scoped (Requirement 4.5, 13.3)
-        if ($user->role === UserRole::ADMIN) {
-            return true;
-        }
-
-        if ($user->role === UserRole::MANAGER) {
+        // Admins and managers can restore buildings within their tenant scope (Requirement 4.5, 13.3)
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $building->tenant_id === $user->tenant_id;
         }
 

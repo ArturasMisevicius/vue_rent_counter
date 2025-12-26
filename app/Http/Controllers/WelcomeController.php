@@ -37,7 +37,7 @@ final class WelcomeController extends Controller
             ->orderBy('display_order')
             ->get();
         
-        $canSwitchLocale = Route::has('locale.set');
+        $canSwitchLocale = Route::has('language.switch');
         
         return view('welcome', compact(
             'brand',

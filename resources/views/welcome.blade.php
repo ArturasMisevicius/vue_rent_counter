@@ -27,16 +27,12 @@
         @if($canLogin)
             <div class="flex items-center gap-3">
                 @if($canSwitchLocale)
-                    <form method="POST" action="{{ route('locale.set') }}" class="hidden sm:block">
-                        @csrf
-                        <select name="locale" onchange="this.form.submit()" class="bg-white/10 border border-white/20 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-white/40">
-                            @foreach($languages as $language)
-                                <option value="{{ $language->code }}" {{ $language->code === $currentLocale ? 'selected' : '' }}>
-                                    {{ $language->native_name ?? $language->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </form>
+                    <x-language-switcher 
+                        variant="select" 
+                        class="hidden sm:block"
+                        :languages="$languages"
+                        :current-locale="$currentLocale"
+                    />
                 @endif
                 <a href="{{ route('login') }}" class="text-sm font-semibold text-slate-200 hover:text-white">{{ __('app.cta.login') }}</a>
                 @if($canRegister)

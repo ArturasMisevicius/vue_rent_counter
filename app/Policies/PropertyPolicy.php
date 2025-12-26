@@ -28,7 +28,7 @@ class PropertyPolicy
      * Determine whether the user can view the property.
      * Verifies property belongs to admin's tenant_id.
      * Allows tenant to view only their assigned property.
-     * 
+     *
      * Requirements: 4.3, 8.2
      */
     public function view(User $user, Property $property): bool
@@ -38,13 +38,8 @@ class PropertyPolicy
             return true;
         }
 
-        // Admins can view properties across tenants; managers remain tenant-scoped
-        if ($user->role === UserRole::ADMIN) {
-            return true;
-        }
-
-        if ($user->role === UserRole::MANAGER) {
-            // Verify property belongs to manager's tenant_id (Requirement 4.3)
+        // Admins and managers can view properties within their tenant scope
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $property->tenant_id === $user->tenant_id;
         }
 
@@ -79,7 +74,7 @@ class PropertyPolicy
 
     /**
      * Determine whether the user can update the property.
-     * 
+     *
      * Requirements: 4.3, 13.3
      */
     public function update(User $user, Property $property): bool
@@ -89,12 +84,8 @@ class PropertyPolicy
             return true;
         }
 
-        // Admins can update properties across tenants; managers remain tenant-scoped (Requirement 4.3, 13.3)
-        if ($user->role === UserRole::ADMIN) {
-            return true;
-        }
-
-        if ($user->role === UserRole::MANAGER) {
+        // Admins and managers can update properties within their tenant scope (Requirement 4.3, 13.3)
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $property->tenant_id === $user->tenant_id;
         }
 
@@ -103,7 +94,7 @@ class PropertyPolicy
 
     /**
      * Determine whether the user can delete the property.
-     * 
+     *
      * Requirements: 4.3, 13.3
      */
     public function delete(User $user, Property $property): bool
@@ -113,12 +104,8 @@ class PropertyPolicy
             return true;
         }
 
-        // Admins can delete properties across tenants; managers remain tenant-scoped (Requirement 4.3, 13.3)
-        if ($user->role === UserRole::ADMIN) {
-            return true;
-        }
-
-        if ($user->role === UserRole::MANAGER) {
+        // Admins and managers can delete properties within their tenant scope (Requirement 4.3, 13.3)
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $property->tenant_id === $user->tenant_id;
         }
 
@@ -127,7 +114,7 @@ class PropertyPolicy
 
     /**
      * Determine whether the user can restore the property.
-     * 
+     *
      * Requirements: 4.3, 13.3
      */
     public function restore(User $user, Property $property): bool
@@ -137,12 +124,8 @@ class PropertyPolicy
             return true;
         }
 
-        // Admins can restore properties across tenants; managers remain tenant-scoped (Requirement 4.3, 13.3)
-        if ($user->role === UserRole::ADMIN) {
-            return true;
-        }
-
-        if ($user->role === UserRole::MANAGER) {
+        // Admins and managers can restore properties within their tenant scope (Requirement 4.3, 13.3)
+        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
             return $property->tenant_id === $user->tenant_id;
         }
 

@@ -16,8 +16,8 @@ use Illuminate\Support\Facades\Cache;
  */
 final class AuditOverviewWidget extends BaseWidget
 {
-    protected static ?string $pollingInterval = '30s';
-    
+    protected ?string $pollingInterval = '30s';
+
     protected static ?int $sort = 1;
 
     public function __construct(

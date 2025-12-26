@@ -4,20 +4,18 @@ Welcome to the CFlow documentation. This documentation is organized into logical
 
 ## Documentation Structure
 
-### 📋 Core Documentation
-- **[Architecture](./architecture/)** - System architecture, patterns, and design decisions
-  - [TenantInitializationService Architecture](architecture/TenantInitializationService-Architecture.md) - Service architecture and integration patterns
-- **[Development](./development/)** - Development guides, standards, and best practices
-- **[Testing](./testing/)** - Testing strategies, patterns, and guidelines
-  - [TenantInitializationService Testing Guide](testing/TenantInitializationService-Testing-Guide.md) - Comprehensive testing patterns and strategies
-- **[Deployment](./deployment/)** - Deployment guides and infrastructure
-
 ### 🏗️ Framework & Technology
 - **[Laravel](./laravel/)** - Laravel-specific documentation and patterns
 - **[Filament](./filament/)** - Filament admin panel documentation
 - **[Frontend](./frontend/)** - Frontend development (Alpine.js, Tailwind CSS)
   - [Landing Page Localization](frontend/landing-page-localization.md) - Multi-language landing page system
 - **[Database](./database/)** - Database design, migrations, and optimization
+- **[Architecture](./architecture/)** - System architecture, patterns, and design decisions
+  - [TenantInitializationService Architecture](architecture/TenantInitializationService-Architecture.md) - Service architecture and integration patterns
+  - [PolicyRegistry Architecture](architecture/POLICY_REGISTRY_ARCHITECTURE.md) - Policy registration system architecture and design patterns
+- **[Testing](./testing/)** - Testing strategies, patterns, and guidelines
+  - [TenantInitializationService Testing Guide](testing/TenantInitializationService-Testing-Guide.md) - Comprehensive testing patterns and strategies
+  - [PolicyRegistry Testing Guide](testing/POLICY_REGISTRY_TESTING_GUIDE.md) - Testing patterns for defensive policy registration system
 
 ### 🔧 Features & Components
 - **[Authentication](./features/authentication/)** - User authentication and authorization
@@ -36,6 +34,8 @@ Welcome to the CFlow documentation. This documentation is organized into logical
 ### 📊 Operations & Maintenance
 - **[Performance](./performance/)** - Performance optimization and monitoring
 - **[Security](./security/)** - Security guidelines and best practices
+  - [PolicyRegistry Security Guide](security/POLICY_REGISTRY_SECURITY_GUIDE.md) - Comprehensive security guide for policy registration system
+  - [PolicyRegistry Quick Reference](security/POLICY_REGISTRY_QUICK_REFERENCE.md) - Quick reference for PolicyRegistry usage and troubleshooting
 - **[Monitoring](./monitoring/)** - Application monitoring and logging
 - **[Troubleshooting](./troubleshooting/)** - Common issues and solutions
 
@@ -46,6 +46,7 @@ Welcome to the CFlow documentation. This documentation is organized into logical
   - [Landing Page Translation Keys](reference/landing-translation-keys.md) - Complete landing page translation reference
 - **[Changelog](./changelog/)** - Version history and changes
   - [Landing Page Localization Update](changelog/LANDING_PAGE_LOCALIZATION_UPDATE.md) - Recent landing page improvements
+  - [PolicyRegistry Test Resilience Enhancement](changelog/POLICY_REGISTRY_TEST_RESILIENCE_ENHANCEMENT.md) - Enhanced defensive programming validation
 - **[Migration Guides](./migration/)** - Upgrade and migration guides
 
 ## Quick Start
