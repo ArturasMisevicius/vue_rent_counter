@@ -54,6 +54,18 @@ abstract class BasePolicy
     }
 
     /**
+     * Check if user has any of the specified roles.
+     * 
+     * @param User $user The user to check
+     * @param array $roles Array of UserRole enums
+     * @return bool True if user has any of the roles
+     */
+    protected function hasAnyRole(User $user, array $roles): bool
+    {
+        return in_array($user->role, $roles, true);
+    }
+
+    /**
      * Check if user is superadmin.
      * 
      * @param User $user The authenticated user

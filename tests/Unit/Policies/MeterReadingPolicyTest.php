@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Policies;
 
+use App\Contracts\WorkflowStrategyInterface;
 use App\Enums\UserRole;
 use App\Enums\ValidationStatus;
 use App\Models\MeterReading;
 use App\Models\User;
 use App\Policies\MeterReadingPolicy;
 use App\Services\TenantBoundaryService;
+use App\Services\Workflows\PermissiveWorkflowStrategy;
+use App\Services\Workflows\TruthButVerifyWorkflowStrategy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Tests\TestCase;
@@ -17,7 +20,7 @@ use Tests\TestCase;
 /**
  * MeterReadingPolicyTest
  * 
- * Tests the refactored MeterReadingPolicy with Truth-but-Verify workflow support.
+ * Tests the refactored MeterReadingPolicy with configurable workflow support.
  * 
  * @covers \App\Policies\MeterReadingPolicy
  */
@@ -27,13 +30,15 @@ final class MeterReadingPolicyTest extends TestCase
 
     private MeterReadingPolicy $policy;
     private TenantBoundaryService $tenantBoundaryService;
+    private WorkflowStrategyInterface $workflowStrategy;
 
     protected function setUp(): void
     {
         parent::setUp();
         
         $this->tenantBoundaryService = Mockery::mock(TenantBoundaryService::class);
-        $this->policy = new MeterReadingPolicy($this->tenantBoundaryService);
+        $this->workflowStrategy = Mockery::mock(WorkflowStrategyInterface::class);
+        $this->policy = new MeterReadingPolicy($this->tenantBoundaryService, $this->workflowStrategy);
     }
 
     protected function tearDown(): void
@@ -51,27 +56,14 @@ final class MeterReadingPolicyTest extends TestCase
     }
 
     /** @test */
-    public function admin_can_view_any_meter_readings(): void
+    public function all_roles_can_view_any_meter_readings(): void
     {
-        $user = User::factory()->create(['role' => UserRole::ADMIN]);
+        $roles = [UserRole::SUPERADMIN, UserRole::ADMIN, UserRole::MANAGER, UserRole::TENANT];
 
-        $this->assertTrue($this->policy->viewAny($user));
-    }
-
-    /** @test */
-    public function manager_can_view_any_meter_readings(): void
-    {
-        $user = User::factory()->create(['role' => UserRole::MANAGER]);
-
-        $this->assertTrue($this->policy->viewAny($user));
-    }
-
-    /** @test */
-    public function tenant_can_view_any_meter_readings(): void
-    {
-        $user = User::factory()->create(['role' => UserRole::TENANT]);
-
-        $this->assertTrue($this->policy->viewAny($user));
+        foreach ($roles as $role) {
+            $user = User::factory()->create(['role' => $role]);
+            $this->assertTrue($this->policy->viewAny($user), "Role {$role->value} should be able to view any meter readings");
+        }
     }
 
     /** @test */
@@ -84,19 +76,10 @@ final class MeterReadingPolicyTest extends TestCase
     }
 
     /** @test */
-    public function admin_can_view_specific_meter_reading(): void
-    {
-        $user = User::factory()->create(['role' => UserRole::ADMIN]);
-        $meterReading = MeterReading::factory()->create();
-
-        $this->assertTrue($this->policy->view($user, $meterReading));
-    }
-
-    /** @test */
-    public function manager_can_view_meter_reading_in_same_tenant(): void
+    public function admin_can_view_meter_reading_in_same_tenant(): void
     {
         $tenantId = 1;
-        $user = User::factory()->create(['role' => UserRole::MANAGER, 'tenant_id' => $tenantId]);
+        $user = User::factory()->create(['role' => UserRole::ADMIN, 'tenant_id' => $tenantId]);
         $meterReading = MeterReading::factory()->create(['tenant_id' => $tenantId]);
 
         $this->assertTrue($this->policy->view($user, $meterReading));
@@ -192,19 +175,10 @@ final class MeterReadingPolicyTest extends TestCase
     }
 
     /** @test */
-    public function admin_can_update_any_meter_reading(): void
-    {
-        $user = User::factory()->create(['role' => UserRole::ADMIN]);
-        $meterReading = MeterReading::factory()->create();
-
-        $this->assertTrue($this->policy->update($user, $meterReading));
-    }
-
-    /** @test */
-    public function manager_can_update_meter_reading_in_same_tenant(): void
+    public function admin_can_update_meter_reading_in_same_tenant(): void
     {
         $tenantId = 1;
-        $user = User::factory()->create(['role' => UserRole::MANAGER, 'tenant_id' => $tenantId]);
+        $user = User::factory()->create(['role' => UserRole::ADMIN, 'tenant_id' => $tenantId]);
         $meterReading = MeterReading::factory()->create(['tenant_id' => $tenantId]);
 
         $this->assertTrue($this->policy->update($user, $meterReading));
@@ -220,12 +194,86 @@ final class MeterReadingPolicyTest extends TestCase
     }
 
     /** @test */
-    public function tenant_cannot_update_meter_reading(): void
+    public function tenant_update_uses_workflow_strategy(): void
     {
         $user = User::factory()->create(['role' => UserRole::TENANT]);
         $meterReading = MeterReading::factory()->create();
 
+        $this->workflowStrategy
+            ->shouldReceive('canTenantUpdate')
+            ->once()
+            ->with($user, $meterReading)
+            ->andReturn(true);
+
+        $this->workflowStrategy
+            ->shouldReceive('getWorkflowName')
+            ->andReturn('test_workflow');
+
+        $this->assertTrue($this->policy->update($user, $meterReading));
+    }
+
+    /** @test */
+    public function tenant_cannot_update_when_workflow_denies(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::TENANT]);
+        $meterReading = MeterReading::factory()->create();
+
+        $this->workflowStrategy
+            ->shouldReceive('canTenantUpdate')
+            ->once()
+            ->with($user, $meterReading)
+            ->andReturn(false);
+
+        $this->workflowStrategy
+            ->shouldReceive('getWorkflowName')
+            ->andReturn('test_workflow');
+
         $this->assertFalse($this->policy->update($user, $meterReading));
+    }
+
+    /** @test */
+    public function permissive_workflow_allows_tenant_to_update_own_pending_reading(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::TENANT, 'id' => 1]);
+        $meterReading = MeterReading::factory()->create([
+            'entered_by' => 1,
+            'validation_status' => ValidationStatus::PENDING,
+        ]);
+
+        $permissiveStrategy = new PermissiveWorkflowStrategy();
+        $policy = new MeterReadingPolicy($this->tenantBoundaryService, $permissiveStrategy);
+
+        $this->assertTrue($policy->update($user, $meterReading));
+    }
+
+    /** @test */
+    public function permissive_workflow_denies_tenant_update_of_validated_reading(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::TENANT, 'id' => 1]);
+        $meterReading = MeterReading::factory()->create([
+            'entered_by' => 1,
+            'validation_status' => ValidationStatus::VALIDATED,
+        ]);
+
+        $permissiveStrategy = new PermissiveWorkflowStrategy();
+        $policy = new MeterReadingPolicy($this->tenantBoundaryService, $permissiveStrategy);
+
+        $this->assertFalse($policy->update($user, $meterReading));
+    }
+
+    /** @test */
+    public function truth_but_verify_workflow_denies_tenant_updates(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::TENANT, 'id' => 1]);
+        $meterReading = MeterReading::factory()->create([
+            'entered_by' => 1,
+            'validation_status' => ValidationStatus::PENDING,
+        ]);
+
+        $truthButVerifyStrategy = new TruthButVerifyWorkflowStrategy();
+        $policy = new MeterReadingPolicy($this->tenantBoundaryService, $truthButVerifyStrategy);
+
+        $this->assertFalse($policy->update($user, $meterReading));
     }
 
     /** @test */
@@ -281,23 +329,51 @@ final class MeterReadingPolicyTest extends TestCase
     }
 
     /** @test */
-    public function only_admins_can_delete_meter_readings(): void
+    public function superadmin_and_admin_can_delete_meter_readings(): void
     {
         $meterReading = MeterReading::factory()->create();
 
-        // Admins can delete
-        $admin = User::factory()->create(['role' => UserRole::ADMIN]);
-        $this->assertTrue($this->policy->delete($admin, $meterReading));
-
+        // Superadmin can delete
         $superadmin = User::factory()->create(['role' => UserRole::SUPERADMIN]);
         $this->assertTrue($this->policy->delete($superadmin, $meterReading));
 
-        // Others cannot delete
-        $manager = User::factory()->create(['role' => UserRole::MANAGER]);
-        $this->assertFalse($this->policy->delete($manager, $meterReading));
+        // Admin can delete
+        $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        $this->assertTrue($this->policy->delete($admin, $meterReading));
+    }
 
-        $tenant = User::factory()->create(['role' => UserRole::TENANT]);
-        $this->assertFalse($this->policy->delete($tenant, $meterReading));
+    /** @test */
+    public function tenant_delete_uses_workflow_strategy(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::TENANT]);
+        $meterReading = MeterReading::factory()->create();
+
+        $this->workflowStrategy
+            ->shouldReceive('canTenantDelete')
+            ->once()
+            ->with($user, $meterReading)
+            ->andReturn(true);
+
+        $this->workflowStrategy
+            ->shouldReceive('getWorkflowName')
+            ->andReturn('test_workflow');
+
+        $this->assertTrue($this->policy->delete($user, $meterReading));
+    }
+
+    /** @test */
+    public function permissive_workflow_allows_tenant_to_delete_own_pending_reading(): void
+    {
+        $user = User::factory()->create(['role' => UserRole::TENANT, 'id' => 1]);
+        $meterReading = MeterReading::factory()->create([
+            'entered_by' => 1,
+            'validation_status' => ValidationStatus::PENDING,
+        ]);
+
+        $permissiveStrategy = new PermissiveWorkflowStrategy();
+        $policy = new MeterReadingPolicy($this->tenantBoundaryService, $permissiveStrategy);
+
+        $this->assertTrue($policy->delete($user, $meterReading));
     }
 
     /** @test */
@@ -374,5 +450,20 @@ final class MeterReadingPolicyTest extends TestCase
         // Tenants cannot import
         $tenant = User::factory()->create(['role' => UserRole::TENANT]);
         $this->assertFalse($this->policy->import($tenant));
+    }
+
+    /** @test */
+    public function policy_uses_default_permissive_workflow_when_none_provided(): void
+    {
+        $policy = new MeterReadingPolicy($this->tenantBoundaryService);
+        
+        $user = User::factory()->create(['role' => UserRole::TENANT, 'id' => 1]);
+        $meterReading = MeterReading::factory()->create([
+            'entered_by' => 1,
+            'validation_status' => ValidationStatus::PENDING,
+        ]);
+
+        // Should use default PermissiveWorkflowStrategy
+        $this->assertTrue($policy->update($user, $meterReading));
     }
 }

@@ -186,6 +186,7 @@ class InvoicePolicy
 
     /**
      * Determine whether the user can delete the invoice.
+     * Managers can delete draft invoices (Permissive workflow).
      * 
      * Requirements: 11.1, 13.3
      */
@@ -201,8 +202,8 @@ class InvoicePolicy
             return true;
         }
 
-        // Only admins and superadmins can delete invoices within their tenant (Requirement 11.1, 13.3)
-        if ($this->isAdmin($user)) {
+        // Admins and managers can delete invoices within their tenant (Permissive workflow)
+        if ($this->isAdmin($user) || $user->role === UserRole::MANAGER) {
             return $invoice->tenant_id === $user->tenant_id;
         }
 

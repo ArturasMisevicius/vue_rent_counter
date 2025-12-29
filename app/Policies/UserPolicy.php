@@ -71,7 +71,7 @@ final class UserPolicy
 
     /**
      * Determine whether the user can create users.
-     * Allows superadmin and admins to create users.
+     * Allows superadmin, admins, and managers to create users (Permissive workflow).
      * 
      * @param User $user The authenticated user
      * @return bool True if the user can create new users
@@ -81,12 +81,14 @@ final class UserPolicy
     public function create(User $user): bool
     {
         return $user->isSuperadmin() 
-            || $user->isAdmin();
+            || $user->isAdmin()
+            || $user->role === UserRole::MANAGER;
     }
 
     /**
      * Determine whether the user can update the user.
      * Enforces tenant boundaries and ownership checks.
+     * Managers can update users within their tenant (Permissive workflow).
      * 
      * Performance: Early returns minimize role checks; logging deferred until authorization passes
      * 
@@ -115,6 +117,15 @@ final class UserPolicy
             return true;
         }
 
+        // Managers can update users within their tenant (Permissive workflow)
+        // But cannot edit Superadmins or Admins
+        if ($user->role === UserRole::MANAGER && $this->isSameTenant($user, $model)) {
+            if (!in_array($model->role, [UserRole::SUPERADMIN, UserRole::ADMIN], true)) {
+                $this->logSensitiveOperation('update', $user, $model);
+                return true;
+            }
+        }
+
         // Tenants cannot update other users
         return false;
     }
@@ -122,6 +133,7 @@ final class UserPolicy
     /**
      * Determine whether the user can delete the user.
      * Enforces tenant boundaries and prevents self-deletion.
+     * Managers can delete users within their tenant (Permissive workflow).
      * 
      * Performance: Self-deletion check first (fastest rejection path)
      * 
@@ -150,6 +162,15 @@ final class UserPolicy
             return true;
         }
 
+        // Managers can delete users within their tenant (Permissive workflow)
+        // But cannot delete Superadmins or Admins
+        if ($user->role === UserRole::MANAGER && $this->isSameTenant($user, $model)) {
+            if (!in_array($model->role, [UserRole::SUPERADMIN, UserRole::ADMIN], true)) {
+                $this->logSensitiveOperation('delete', $user, $model);
+                return true;
+            }
+        }
+
         // Tenants cannot delete users
         return false;
     }
@@ -157,6 +178,7 @@ final class UserPolicy
     /**
      * Determine whether the user can restore the user.
      * Enforces tenant boundaries for restore operations.
+     * Managers can restore users within their tenant (Permissive workflow).
      * 
      * Performance: Consolidated role check reduces redundant conditionals
      * 
@@ -178,6 +200,15 @@ final class UserPolicy
         if ($this->canManageTenantUser($user, $model)) {
             $this->logSensitiveOperation('restore', $user, $model);
             return true;
+        }
+
+        // Managers can restore users within their tenant (Permissive workflow)
+        // But cannot restore Superadmins or Admins
+        if ($user->role === UserRole::MANAGER && $this->isSameTenant($user, $model)) {
+            if (!in_array($model->role, [UserRole::SUPERADMIN, UserRole::ADMIN], true)) {
+                $this->logSensitiveOperation('restore', $user, $model);
+                return true;
+            }
         }
 
         return false;
