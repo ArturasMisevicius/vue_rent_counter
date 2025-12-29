@@ -355,7 +355,7 @@ it('has Lithuanian translations for all landing keys', function () {
 ## Related Documentation
 
 - [Translation Implementation Guide](.kiro/steering/translation-guide.md)
-- [Frontend Documentation](docs/frontend/FRONTEND.md)
+- [Frontend Documentation](FRONTEND.md)
 - [Blade Guardrails](.kiro/steering/blade-guardrails.md)
 - [Laravel Localization Documentation](https://laravel.com/docs/localization)
 

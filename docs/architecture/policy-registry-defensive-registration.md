@@ -233,7 +233,7 @@ public function validateConfiguration(): array
 
 - `app/Support/ServiceRegistration/PolicyRegistry.php` - Implementation
 - `tests/Unit/Support/ServiceRegistration/PolicyRegistryTest.php` - Test coverage
-- `docs/architecture/service-provider-refactoring-summary.md` - Overall architecture
+- [docs/architecture/service-provider-refactoring-summary.md](service-provider-refactoring-summary.md) - Overall architecture
 - `docs/security/authorization-patterns.md` - Authorization best practices
 
 ## Changelog

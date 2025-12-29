@@ -412,8 +412,8 @@ Consider using CDN for static translation assets in high-traffic scenarios.
 
 ## Related Resources
 
-- [Landing Page Localization Documentation](docs/frontend/landing-page-localization.md)
-- [Translation Keys Reference](docs/reference/landing-translation-keys.md)
+- [Landing Page Localization Documentation](../frontend/landing-page-localization.md)
+- [Translation Keys Reference](../reference/landing-translation-keys.md)
 - [Translation Implementation Guide](.kiro/steering/translation-guide.md)
 - [Laravel Localization Documentation](https://laravel.com/docs/localization)
 

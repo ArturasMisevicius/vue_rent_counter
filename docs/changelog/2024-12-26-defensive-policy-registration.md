@@ -205,12 +205,12 @@ public function test_registers_policies(): void
 ### Modified Files
 - `app/Support/ServiceRegistration/PolicyRegistry.php` - Enhanced with defensive patterns
 - `tests/Unit/Support/ServiceRegistration/PolicyRegistryTest.php` - Updated tests
-- `docs/architecture/service-provider-refactoring-summary.md` - Updated documentation
+- [docs/architecture/service-provider-refactoring-summary.md](../architecture/service-provider-refactoring-summary.md) - Updated documentation
 
 ### New Files
-- `docs/architecture/policy-registry-defensive-registration.md` - Detailed implementation guide
-- `docs/api/service-registration-api.md` - Comprehensive API documentation
-- `docs/changelog/2024-12-26-defensive-policy-registration.md` - This changelog
+- [docs/architecture/policy-registry-defensive-registration.md](../architecture/policy-registry-defensive-registration.md) - Detailed implementation guide
+- [docs/api/service-registration-api.md](../api/service-registration-api.md) - Comprehensive API documentation
+- [docs/changelog/2024-12-26-defensive-policy-registration.md](2024-12-26-defensive-policy-registration.md) - This changelog
 
 ## Testing
 

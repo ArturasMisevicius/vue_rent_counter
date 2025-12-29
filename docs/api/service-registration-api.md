@@ -366,7 +366,7 @@ All registry methods implement defensive patterns:
 
 ## Related Documentation
 
-- [Policy Registry Defensive Registration](policy-registry-defensive-registration.md)
-- [Service Provider Refactoring Summary](service-provider-refactoring-summary.md)
+- [Policy Registry Defensive Registration](../architecture/policy-registry-defensive-registration.md)
+- [Service Provider Refactoring Summary](../architecture/service-provider-refactoring-summary.md)
 - [Authorization Patterns](../security/authorization-patterns.md)
 - [Testing Service Registration](../testing/service-registration-testing.md)

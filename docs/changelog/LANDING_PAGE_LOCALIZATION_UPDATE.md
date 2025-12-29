@@ -73,19 +73,19 @@ Complete overhaul of the landing page localization system, transforming placehol
 ### 4. Documentation Created
 
 #### New Documentation Files
-1. **`docs/frontend/landing-page-localization.md`**
+1. **[docs/frontend/landing-page-localization.md](../frontend/landing-page-localization.md)**
    - Comprehensive system overview
    - Translation structure documentation
    - Usage patterns and guidelines
    - Architecture notes and integration points
 
-2. **`docs/reference/landing-translation-keys.md`**
+2. **[docs/reference/landing-translation-keys.md](../reference/landing-translation-keys.md)**
    - Complete translation key reference
    - Technical specifications for all keys
    - Usage examples and validation rules
    - Testing guidelines
 
-3. **`docs/guides/landing-page-development.md`**
+3. **[docs/guides/landing-page-development.md](../guides/landing-page-development.md)**
    - Developer workflow guide
    - Best practices and common patterns
    - Troubleshooting and debugging
@@ -226,10 +226,10 @@ php artisan optimize
 - `lang/lt/landing.php` - Complete rewrite with professional translations
 
 ### Documentation Files (New)
-- `docs/frontend/landing-page-localization.md`
-- `docs/reference/landing-translation-keys.md`
-- `docs/guides/landing-page-development.md`
-- `docs/changelog/LANDING_PAGE_LOCALIZATION_UPDATE.md`
+- [docs/frontend/landing-page-localization.md](../frontend/landing-page-localization.md)
+- [docs/reference/landing-translation-keys.md](../reference/landing-translation-keys.md)
+- [docs/guides/landing-page-development.md](../guides/landing-page-development.md)
+- [docs/changelog/LANDING_PAGE_LOCALIZATION_UPDATE.md](LANDING_PAGE_LOCALIZATION_UPDATE.md)
 
 ### Configuration Files
 - No changes to existing configuration files

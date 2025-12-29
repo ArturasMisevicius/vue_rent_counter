@@ -32,9 +32,9 @@ Enhanced the translation testing system with a new framework-agnostic script tha
 ### Enhanced Documentation
 
 #### Updated Files
-- `docs/development/translation-workflow.md` - Updated workflow examples
-- `docs/scripts/translation-testing.md` - Added comprehensive API documentation
-- `docs/testing/translation-diagnostics.md` - Dual-script approach documentation
+- [docs/development/translation-workflow.md](../development/translation-workflow.md) - Updated workflow examples
+- [docs/scripts/translation-testing.md](../scripts/translation-testing.md) - Added comprehensive API documentation
+- [docs/testing/translation-diagnostics.md](../testing/translation-diagnostics.md) - Dual-script approach documentation
 
 #### New Documentation Sections
 - **API Reference**: Complete function documentation with types

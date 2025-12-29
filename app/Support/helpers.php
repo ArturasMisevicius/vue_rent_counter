@@ -9,7 +9,17 @@ if (! function_exists('tenant')) {
      */
     function tenant(): ?Organization
     {
-        return TenantContext::get();
+        // Prevent circular reference during bootstrap
+        if (!app()->bound(TenantContext::class)) {
+            return null;
+        }
+        
+        try {
+            return TenantContext::get();
+        } catch (\Throwable $e) {
+            // Prevent errors during bootstrap
+            return null;
+        }
     }
 }
 
@@ -19,7 +29,17 @@ if (! function_exists('tenant_id')) {
      */
     function tenant_id(): ?int
     {
-        return TenantContext::id();
+        // Prevent circular reference during bootstrap
+        if (!app()->bound(TenantContext::class)) {
+            return null;
+        }
+        
+        try {
+            return TenantContext::id();
+        } catch (\Throwable $e) {
+            // Prevent errors during bootstrap
+            return null;
+        }
     }
 }
 
@@ -60,13 +80,17 @@ if (! function_exists('svgIcon')) {
      */
     function svgIcon(string $key): string
     {
-        $iconType = \App\Enums\IconType::fromLegacyKey($key);
-
         try {
+            $iconType = \App\Enums\IconType::fromLegacyKey($key);
             return svg($iconType->heroicon(), 'h-5 w-5')->toHtml();
         } catch (\Throwable $e) {
             // Fallback to default icon if specific icon not found
-            return svg(\App\Enums\IconType::DEFAULT->heroicon(), 'h-5 w-5')->toHtml();
+            try {
+                return svg(\App\Enums\IconType::DEFAULT->heroicon(), 'h-5 w-5')->toHtml();
+            } catch (\Throwable $e) {
+                // Ultimate fallback
+                return '<svg class="h-5 w-5"><rect width="20" height="20" fill="currentColor"/></svg>';
+            }
         }
     }
 }

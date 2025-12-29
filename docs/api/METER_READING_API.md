@@ -590,5 +590,5 @@ public function manager_can_approve_pending_reading(): void
 - [MeterReadingPolicy](../policies/METER_READING_POLICY.md)
 - [Truth-but-Verify Workflow](../workflows/TRUTH_BUT_VERIFY.md)
 - [MeterReading Model](../models/METER_READING.md)
-- [API Authentication](../api/AUTHENTICATION.md)
+- [API Authentication](authentication.md)
 - [Tenant Boundary Service](../services/TENANT_BOUNDARY_SERVICE.md)

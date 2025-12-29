@@ -293,9 +293,9 @@ New API endpoints for approval workflow:
 ## Documentation Updates
 
 ### New Documentation
-- [Truth-but-Verify Workflow](../workflows/TRUTH_BUT_VERIFY.md)
-- [MeterReadingPolicy Documentation](../policies/METER_READING_POLICY.md)
-- [Meter Reading API](../api/METER_READING_API.md)
+- [Truth-but-Verify Workflow](workflows/TRUTH_BUT_VERIFY.md)
+- [MeterReadingPolicy Documentation](policies/METER_READING_POLICY.md)
+- [Meter Reading API](api/METER_READING_API.md)
 
 ### Updated Documentation
 - User Model Capabilities

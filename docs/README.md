@@ -22,7 +22,7 @@ Welcome to the CFlow documentation. This documentation is organized into logical
 - **[Billing](./features/billing/)** - Subscription and billing system
 - **[Notifications](./features/notifications/)** - Notification system
 - **[Translations](./features/translations/)** - Multi-language support
-- **[Landing Page Development](./guides/landing-page-development.md)** - Landing page development guide
+- **[Landing Page Development](guides/landing-page-development.md)** - Landing page development guide
 - **[Tagging System](./traits/HASTAGS_TRAIT_DOCUMENTATION.md)** - Polymorphic tagging with HasTags trait
 - **[Services](./services/)** - Application services and business logic
   - [TenantInitializationService](services/TenantInitializationService.md) - Tenant onboarding and utility service setup

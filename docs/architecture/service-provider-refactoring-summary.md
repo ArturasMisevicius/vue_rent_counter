@@ -146,7 +146,7 @@ This document summarizes the AppServiceProvider refactoring that removed manual 
 - `app/Services/PerformanceMonitoringService.php`
 - `app/Http/Middleware/SecureTranslationMiddleware.php`
 - `resources/views/components/accessible-language-switcher.blade.php`
-- `docs/architecture/policy-registry-defensive-registration.md`
+- [docs/architecture/policy-registry-defensive-registration.md](policy-registry-defensive-registration.md)
 
 ## Conclusion
 

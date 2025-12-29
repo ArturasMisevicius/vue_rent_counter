@@ -128,7 +128,9 @@
       "Bash(find:*)",
       "Bash(php -r:*)",
       "Bash(sqlite3:*)",
-      "Bash(php -l:*)"
+      "Bash(php -l:*)",
+      "Bash(php artisan config:clear:*)",
+      "Bash(php artisan route:clear:*)"
     ],
     "deny": [],
     "ask": []
