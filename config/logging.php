@@ -159,6 +159,16 @@ return [
             'tap' => [\App\Logging\Tap\RedactSensitiveDataTap::class],
         ],
 
+        'tenant_context' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/tenant-context.log'),
+            'level' => 'info',
+            'days' => 90, // Keep tenant context logs for 90 days for audit purposes
+            'permission' => 0640, // Restricted access for security
+            'replace_placeholders' => true,
+            'tap' => [\App\Logging\Tap\RedactSensitiveDataTap::class],
+        ],
+
     ],
 
 ];

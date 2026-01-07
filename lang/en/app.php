@@ -113,6 +113,7 @@ return array (
   'navigation' =>
   array (
     'integration_health' => 'Integration Health',
+    'dashboard' => 'Dashboard',
   ),
   'nav_groups' => 
   array (
@@ -123,6 +124,8 @@ return array (
     'property_management' => 'Property Management',
     'system' => 'System',
     'system_management' => 'System Management',
+    'user_management' => 'User Management',
+    'monitoring' => 'Monitoring',
   ),
   'units' => 
   array (
@@ -143,4 +146,45 @@ return array (
 Line 2
 Line 3',
   'long_text' => 'This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. ',
+  'pages' => 
+  array (
+    'superadmin_dashboard' => 'Superadmin Dashboard',
+  ),
+  'labels' => 
+  array (
+    'system_overview' => 'System Overview',
+    'total_organizations' => 'Total Organizations',
+    'active_subscriptions' => 'Active Subscriptions',
+    'total_users' => 'Total Users',
+    'quick_actions' => 'Quick Actions',
+    'system_health' => 'System Health',
+    'database_status' => 'Database Status',
+    'cache_status' => 'Cache Status',
+    'queue_status' => 'Queue Status',
+    'system_wide_users' => 'System-wide users',
+    'currently_active' => 'Currently active',
+    'registered_organizations' => 'Registered organizations',
+    'overall_system_status' => 'Overall system status',
+    'name' => 'Name',
+    'email' => 'Email',
+    'role' => 'Role',
+    'registered' => 'Registered',
+  ),
+  'actions' => 
+  array (
+    'create_organization' => 'Create Organization',
+    'manage_subscriptions' => 'Manage Subscriptions',
+    'manage_users' => 'Manage Users',
+    'view' => 'View',
+  ),
+  'status' => 
+  array (
+    'healthy' => 'Healthy',
+    'active' => 'Active',
+    'running' => 'Running',
+  ),
+  'widgets' => 
+  array (
+    'recent_users' => 'Recent Users',
+  ),
 );

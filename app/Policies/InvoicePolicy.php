@@ -7,6 +7,7 @@ namespace App\Policies;
 use App\Enums\UserRole;
 use App\Models\Invoice;
 use App\Models\User;
+use App\Services\TenantBoundaryService;
 
 /**
  * InvoicePolicy
@@ -21,18 +22,11 @@ use App\Models\User;
  * 
  * @package App\Policies
  */
-class InvoicePolicy
+final readonly class InvoicePolicy
 {
-    /**
-     * Check if user has admin-level permissions.
-     * 
-     * @param User $user The authenticated user
-     * @return bool True if user is admin or superadmin
-     */
-    private function isAdmin(User $user): bool
-    {
-        return in_array($user->role, [UserRole::ADMIN, UserRole::SUPERADMIN], true);
-    }
+    public function __construct(
+        private TenantBoundaryService $tenantBoundaryService
+    ) {}
 
     /**
      * Determine whether the user can view any invoices.
@@ -47,7 +41,7 @@ class InvoicePolicy
     public function viewAny(User $user): bool
     {
         // All authenticated users can view invoices (filtered by tenant scope)
-        return true;
+        return $this->tenantBoundaryService->canCreateForCurrentTenant($user);
     }
 
     /**
@@ -64,14 +58,14 @@ class InvoicePolicy
      */
     public function view(User $user, Invoice $invoice): bool
     {
-        // Superadmin can view any invoice
-        if ($user->role === UserRole::SUPERADMIN) {
-            return true;
+        // Must be able to access the invoice's tenant
+        if (!$this->tenantBoundaryService->canAccessModel($user, $invoice)) {
+            return false;
         }
 
-        // Admins and managers can view invoices within their tenant (Requirement 11.3, 7.3)
-        if ($this->isAdmin($user) || $user->role === UserRole::MANAGER) {
-            return $invoice->tenant_id === $user->tenant_id;
+        // Managers and above can view all invoices in their tenant
+        if ($this->tenantBoundaryService->canPerformManagerOperations($user)) {
+            return true;
         }
 
         // Tenants can only view invoices assigned to them (Requirement 11.4)
@@ -102,13 +96,9 @@ class InvoicePolicy
      */
     public function create(User $user): bool
     {
-        // Superadmin can create invoices
-        if ($user->role === UserRole::SUPERADMIN) {
-            return true;
-        }
-
-        // Admins, superadmins, and managers can create invoices (Requirement 11.3)
-        return $this->isAdmin($user) || $user->role === UserRole::MANAGER;
+        // Must be able to access current tenant and have appropriate role
+        return $this->tenantBoundaryService->canCreateForCurrentTenant($user) &&
+               $this->tenantBoundaryService->canPerformManagerOperations($user);
     }
 
     /**
@@ -116,22 +106,18 @@ class InvoicePolicy
      */
     public function update(User $user, Invoice $invoice): bool
     {
-        // Finalized invoices cannot be updated (except by superadmin for status changes)
-        if ($invoice->isFinalized() && $user->role !== UserRole::SUPERADMIN) {
+        // Must be able to access the invoice's tenant
+        if (!$this->tenantBoundaryService->canAccessModel($user, $invoice)) {
             return false;
         }
 
-        // Superadmin can update any invoice
-        if ($user->role === UserRole::SUPERADMIN) {
-            return true;
+        // Finalized invoices cannot be updated (except by superadmin for status changes)
+        if ($invoice->isFinalized() && !$user->hasRole('superadmin')) {
+            return false;
         }
 
-        // Admins and managers can update draft invoices within their tenant
-        if ($this->isAdmin($user) || $user->role === UserRole::MANAGER) {
-            return $invoice->tenant_id === $user->tenant_id;
-        }
-
-        return false;
+        // Managers and above can update invoices in their tenant
+        return $this->tenantBoundaryService->canPerformManagerOperations($user);
     }
 
     /**
@@ -148,21 +134,18 @@ class InvoicePolicy
      */
     public function finalize(User $user, Invoice $invoice): bool
     {
+        // Must be able to access the invoice's tenant
+        if (!$this->tenantBoundaryService->canAccessModel($user, $invoice)) {
+            return false;
+        }
+
         // Only draft invoices can be finalized
         if (!$invoice->isDraft()) {
             return false;
         }
 
-        if ($user->role === UserRole::SUPERADMIN) {
-            return true;
-        }
-
-        // Admins and managers can finalize invoices (Requirement 11.3)
-        if ($this->isAdmin($user) || $user->role === UserRole::MANAGER) {
-            return $invoice->tenant_id === $user->tenant_id;
-        }
-
-        return false;
+        // Managers and above can finalize invoices
+        return $this->tenantBoundaryService->canPerformManagerOperations($user);
     }
 
     /**
@@ -173,15 +156,13 @@ class InvoicePolicy
      */
     public function processPayment(User $user, Invoice $invoice): bool
     {
-        if ($user->role === UserRole::SUPERADMIN) {
-            return true;
+        // Must be able to access the invoice's tenant
+        if (!$this->tenantBoundaryService->canAccessModel($user, $invoice)) {
+            return false;
         }
 
-        if ($this->isAdmin($user) || $user->role === UserRole::MANAGER) {
-            return $invoice->tenant_id === $user->tenant_id;
-        }
-
-        return false;
+        // Managers and above can process payments
+        return $this->tenantBoundaryService->canPerformManagerOperations($user);
     }
 
     /**
@@ -192,22 +173,18 @@ class InvoicePolicy
      */
     public function delete(User $user, Invoice $invoice): bool
     {
+        // Must be able to access the invoice's tenant
+        if (!$this->tenantBoundaryService->canAccessModel($user, $invoice)) {
+            return false;
+        }
+
         // Only draft invoices can be deleted
         if (!$invoice->isDraft()) {
             return false;
         }
 
-        // Superadmin can delete any invoice
-        if ($user->role === UserRole::SUPERADMIN) {
-            return true;
-        }
-
-        // Admins and managers can delete invoices within their tenant (Permissive workflow)
-        if ($this->isAdmin($user) || $user->role === UserRole::MANAGER) {
-            return $invoice->tenant_id === $user->tenant_id;
-        }
-
-        return false;
+        // Managers and above can delete invoices
+        return $this->tenantBoundaryService->canPerformManagerOperations($user);
     }
 
     /**
@@ -217,17 +194,13 @@ class InvoicePolicy
      */
     public function restore(User $user, Invoice $invoice): bool
     {
-        // Superadmin can restore any invoice
-        if ($user->role === UserRole::SUPERADMIN) {
-            return true;
+        // Must be able to access the invoice's tenant
+        if (!$this->tenantBoundaryService->canAccessModel($user, $invoice)) {
+            return false;
         }
 
-        // Only admins and superadmins can restore invoices within their tenant (Requirement 11.1, 13.3)
-        if ($this->isAdmin($user)) {
-            return $invoice->tenant_id === $user->tenant_id;
-        }
-
-        return false;
+        // Only admins and above can restore invoices
+        return $this->tenantBoundaryService->canPerformAdminOperations($user);
     }
 
     /**
@@ -235,7 +208,12 @@ class InvoicePolicy
      */
     public function forceDelete(User $user, Invoice $invoice): bool
     {
+        // Must be able to access the invoice's tenant
+        if (!$this->tenantBoundaryService->canAccessModel($user, $invoice)) {
+            return false;
+        }
+
         // Only superadmin can force delete invoices
-        return $user->role === UserRole::SUPERADMIN;
+        return $user->hasRole('superadmin');
     }
 }

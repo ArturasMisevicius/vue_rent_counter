@@ -1,0 +1,1 @@
+'Role enum: ' . get_class(\$user- . PHP_EOL;

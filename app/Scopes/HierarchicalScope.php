@@ -155,7 +155,7 @@ class HierarchicalScope implements Scope
                 }
 
                 // Get tenant_id from TenantContext or authenticated user
-                $tenantId = TenantContext::id() ?? $user->tenant_id;
+                $tenantId = app(\App\Services\TenantContext::class)->get() ?? $user->tenant_id;
 
                 if ($tenantId === null) {
                     // Log missing tenant context

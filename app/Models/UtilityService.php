@@ -7,7 +7,6 @@ namespace App\Models;
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
 use App\Enums\UserRole;
-use App\Services\TenantContext;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -228,7 +227,7 @@ class UtilityService extends Model
      */
     public static function getCachedOptions(bool $globalOnly = false): \Illuminate\Support\Collection
     {
-        $tenantId = TenantContext::id() ?? auth()->user()?->tenant_id;
+        $tenantId = app(\App\Services\TenantContext::class)->get() ?? auth()->user()?->tenant_id;
         $cacheKey = $globalOnly
             ? 'utility_services.global_options'
             : 'utility_services.form_options.' . ($tenantId ?? 'no-tenant');
@@ -258,7 +257,7 @@ class UtilityService extends Model
      */
     public static function clearCachedOptions(): void
     {
-        $tenantId = TenantContext::id() ?? auth()->user()?->tenant_id;
+        $tenantId = app(\App\Services\TenantContext::class)->get() ?? auth()->user()?->tenant_id;
         cache()->forget('utility_services.form_options.' . ($tenantId ?? 'no-tenant'));
         cache()->forget('utility_services.global_options');
     }
@@ -284,7 +283,7 @@ class UtilityService extends Model
                 return;
             }
 
-            $tenantId = TenantContext::id() ?? $user->tenant_id;
+            $tenantId = app(TenantContext::class)->get() ?? $user->tenant_id;
 
             $query->where(function (Builder $scoped) use ($tenantId): void {
                 if ($tenantId !== null) {
@@ -307,8 +306,8 @@ class UtilityService extends Model
                 return;
             }
 
-            if (TenantContext::id() !== null) {
-                $service->tenant_id = TenantContext::id();
+            if (app(TenantContext::class)->get() !== null) {
+                $service->tenant_id = app(TenantContext::class)->get();
                 return;
             }
 

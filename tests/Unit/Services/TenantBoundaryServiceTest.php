@@ -2,78 +2,181 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Services;
-
-use App\Models\MeterReading;
+use App\Models\Property;
 use App\Models\User;
 use App\Services\TenantBoundaryService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
-use Tests\TestCase;
+use App\Traits\BelongsToTenant;
+use Illuminate\Database\Eloquent\Model;
 
-/**
- * TenantBoundaryServiceTest
- * 
- * Tests the TenantBoundaryService for tenant scope validation and optimization.
- * 
- * @covers \App\Services\TenantBoundaryService
- */
-final class TenantBoundaryServiceTest extends TestCase
-{
-    use RefreshDatabase;
+beforeEach(function () {
+    $this->service = app(TenantBoundaryService::class);
+});
 
-    private TenantBoundaryService $service;
+describe('TenantBoundaryService', function () {
+    describe('canAccessTenant', function () {
+        it('allows superadmin to access any tenant', function () {
+            $user = User::factory()->create();
+            $user->assignRole('superadmin');
+            
+            expect($this->service->canAccessTenant($user, 123))->toBeTrue();
+        });
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->service = new TenantBoundaryService();
-    }
+        it('allows user to access their own tenant', function () {
+            $user = User::factory()->create(['tenant_id' => 100]);
+            
+            expect($this->service->canAccessTenant($user, 100))->toBeTrue();
+        });
 
-    /** @test */
-    public function can_check_tenant_access_to_meter_reading(): void
-    {
-        // This test would require setting up the full model relationships
-        // For now, we'll test the service structure and caching behavior
-        
-        $this->assertInstanceOf(TenantBoundaryService::class, $this->service);
-    }
+        it('denies user access to different tenant', function () {
+            $user = User::factory()->create(['tenant_id' => 100]);
+            
+            expect($this->service->canAccessTenant($user, 200))->toBeFalse();
+        });
+    });
 
-    /** @test */
-    public function caches_tenant_meter_access_checks(): void
-    {
-        // Test that the service uses caching for performance
-        Cache::shouldReceive('remember')
-            ->once()
-            ->andReturn(true);
+    describe('canAccessModel', function () {
+        it('allows access to model that belongs to user tenant', function () {
+            $user = User::factory()->create(['tenant_id' => 100]);
+            $property = Property::factory()->create(['tenant_id' => 100]);
+            
+            expect($this->service->canAccessModel($user, $property))->toBeTrue();
+        });
 
-        // This would be a more complete test with actual models
-        $this->assertTrue(true); // Placeholder for now
-    }
+        it('denies access to model from different tenant', function () {
+            $user = User::factory()->create(['tenant_id' => 100]);
+            $property = Property::factory()->create(['tenant_id' => 200]);
+            
+            expect($this->service->canAccessModel($user, $property))->toBeFalse();
+        });
 
-    /** @test */
-    public function can_clear_tenant_meter_cache(): void
-    {
-        Cache::shouldReceive('forget')
-            ->twice(); // Once for access, once for submit
+        it('allows superadmin to access any model', function () {
+            $user = User::factory()->create(['tenant_id' => 100]);
+            $user->assignRole('superadmin');
+            $property = Property::factory()->create(['tenant_id' => 200]);
+            
+            expect($this->service->canAccessModel($user, $property))->toBeTrue();
+        });
 
-        $this->service->clearTenantMeterCache(1, 123);
+        it('allows access to models without tenant scoping', function () {
+            $user = User::factory()->create(['tenant_id' => 100]);
+            
+            // Create a mock model that doesn't use BelongsToTenant trait
+            $model = new class extends Model {
+                protected $table = 'test_models';
+            };
+            
+            expect($this->service->canAccessModel($user, $model))->toBeTrue();
+        });
+    });
 
-        $this->assertTrue(true); // Placeholder assertion
-    }
+    describe('canCreateForCurrentTenant', function () {
+        it('allows creation when user has access to current tenant', function () {
+            $user = User::factory()->create(['tenant_id' => 100]);
+            $this->actingAs($user);
+            
+            expect($this->service->canCreateForCurrentTenant($user))->toBeTrue();
+        });
 
-    /** @test */
-    public function can_bulk_filter_accessible_meter_readings(): void
-    {
-        // Test the bulk filtering functionality
-        $meterReadingIds = [1, 2, 3, 4, 5];
-        
-        // This would require setting up test data
-        $result = $this->service->filterAccessibleMeterReadings(
-            User::factory()->create(),
-            $meterReadingIds
-        );
+        it('denies creation when no current tenant', function () {
+            $user = User::factory()->create(['tenant_id' => null]);
+            
+            expect($this->service->canCreateForCurrentTenant($user))->toBeFalse();
+        });
+    });
 
-        $this->assertIsArray($result);
-    }
-}
+    describe('hasRequiredRole', function () {
+        it('returns true when user has one of the allowed roles', function () {
+            $user = User::factory()->create();
+            $user->assignRole('admin');
+            
+            expect($this->service->hasRequiredRole($user, ['admin', 'manager']))->toBeTrue();
+        });
+
+        it('returns false when user does not have allowed roles', function () {
+            $user = User::factory()->create();
+            $user->assignRole('tenant');
+            
+            expect($this->service->hasRequiredRole($user, ['admin', 'manager']))->toBeFalse();
+        });
+    });
+
+    describe('canPerformAdminOperations', function () {
+        it('allows admin operations for admin user', function () {
+            $user = User::factory()->create();
+            $user->assignRole('admin');
+            
+            expect($this->service->canPerformAdminOperations($user))->toBeTrue();
+        });
+
+        it('allows admin operations for superadmin user', function () {
+            $user = User::factory()->create();
+            $user->assignRole('superadmin');
+            
+            expect($this->service->canPerformAdminOperations($user))->toBeTrue();
+        });
+
+        it('denies admin operations for manager user', function () {
+            $user = User::factory()->create();
+            $user->assignRole('manager');
+            
+            expect($this->service->canPerformAdminOperations($user))->toBeFalse();
+        });
+    });
+
+    describe('canPerformManagerOperations', function () {
+        it('allows manager operations for manager user', function () {
+            $user = User::factory()->create();
+            $user->assignRole('manager');
+            
+            expect($this->service->canPerformManagerOperations($user))->toBeTrue();
+        });
+
+        it('allows manager operations for admin user', function () {
+            $user = User::factory()->create();
+            $user->assignRole('admin');
+            
+            expect($this->service->canPerformManagerOperations($user))->toBeTrue();
+        });
+
+        it('denies manager operations for tenant user', function () {
+            $user = User::factory()->create();
+            $user->assignRole('tenant');
+            
+            expect($this->service->canPerformManagerOperations($user))->toBeFalse();
+        });
+    });
+
+    describe('getAccessibleTenantIds', function () {
+        it('returns all tenant IDs for superadmin', function () {
+            $user = User::factory()->create();
+            $user->assignRole('superadmin');
+            
+            // Create some users with different tenant IDs
+            User::factory()->create(['tenant_id' => 100]);
+            User::factory()->create(['tenant_id' => 200]);
+            User::factory()->create(['tenant_id' => 300]);
+            
+            $accessibleIds = $this->service->getAccessibleTenantIds($user);
+            
+            expect($accessibleIds)->toContain(100, 200, 300);
+        });
+
+        it('returns only user tenant ID for regular user', function () {
+            $user = User::factory()->create(['tenant_id' => 100]);
+            $user->assignRole('admin');
+            
+            $accessibleIds = $this->service->getAccessibleTenantIds($user);
+            
+            expect($accessibleIds)->toBe([100]);
+        });
+
+        it('returns empty array for user without tenant', function () {
+            $user = User::factory()->create(['tenant_id' => null]);
+            $user->assignRole('admin');
+            
+            $accessibleIds = $this->service->getAccessibleTenantIds($user);
+            
+            expect($accessibleIds)->toBe([]);
+        });
+    });
+});

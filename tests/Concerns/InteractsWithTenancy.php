@@ -22,7 +22,7 @@ trait InteractsWithTenancy
     protected function setupTenantContext(): void
     {
         $this->tenant = Tenant::factory()->create();
-        TenantContext::set($this->tenant);
+        app(TenantContext::class)->set($this->tenant->id);
     }
 
     /**
@@ -85,7 +85,9 @@ trait InteractsWithTenancy
         expect($found)->toBeNull();
 
         // Restore original tenant
-        TenantContext::set($originalTenant);
+        if ($originalTenant) {
+            app(TenantContext::class)->set($originalTenant->id);
+        }
     }
 
     /**
@@ -97,7 +99,7 @@ trait InteractsWithTenancy
             $this->otherTenant = Tenant::factory()->create();
         }
 
-        TenantContext::set($this->otherTenant);
+        app(TenantContext::class)->set($this->otherTenant->id);
     }
 
     /**

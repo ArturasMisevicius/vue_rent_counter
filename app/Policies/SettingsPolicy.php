@@ -1,19 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Enums\UserRole;
 use App\Models\User;
+use App\Services\TenantBoundaryService;
 
-class SettingsPolicy
+final readonly class SettingsPolicy
 {
+    public function __construct(
+        private TenantBoundaryService $tenantBoundaryService
+    ) {}
+
     /**
      * Determine whether the user can view settings.
      */
     public function viewSettings(User $user): bool
     {
-        // Only admins can view system settings
-        return $user->role === UserRole::ADMIN;
+        return $this->tenantBoundaryService->canPerformAdminOperations($user);
     }
 
     /**
@@ -21,8 +27,7 @@ class SettingsPolicy
      */
     public function updateSettings(User $user): bool
     {
-        // Only admins can update system settings
-        return $user->role === UserRole::ADMIN;
+        return $this->tenantBoundaryService->canPerformAdminOperations($user);
     }
 
     /**
@@ -30,8 +35,7 @@ class SettingsPolicy
      */
     public function runBackup(User $user): bool
     {
-        // Only admins can run backups
-        return $user->role === UserRole::ADMIN;
+        return $this->tenantBoundaryService->canPerformAdminOperations($user);
     }
 
     /**
@@ -39,7 +43,6 @@ class SettingsPolicy
      */
     public function clearCache(User $user): bool
     {
-        // Only admins can clear cache
-        return $user->role === UserRole::ADMIN;
+        return $this->tenantBoundaryService->canPerformAdminOperations($user);
     }
 }

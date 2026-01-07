@@ -59,13 +59,25 @@ Route::get('/dashboard', function () {
     $user = auth()->user();
 
     return match ($user->role->value) {
-        'superadmin' => redirect()->route('superadmin.dashboard'),
+        'superadmin' => redirect('/superadmin'),
         'admin' => redirect('/admin'), // Filament panel
         'manager' => redirect()->route('manager.dashboard'),
         'tenant' => redirect()->route('tenant.dashboard'),
         default => abort(403, 'Invalid user role'),
     };
 })->middleware('auth')->name('dashboard');
+
+// ============================================================================
+// CONVENIENCE REDIRECTS
+// ============================================================================
+// These routes handle users who navigate directly to role-specific paths
+// without the /dashboard suffix, redirecting them to the correct dashboard
+
+Route::middleware('auth')->group(function () {
+    // Remove the superadmin redirect since /superadmin is now the Filament panel
+    Route::get('/manager', fn() => redirect()->route('manager.dashboard'));
+    Route::get('/tenant', fn() => redirect()->route('tenant.dashboard'));
+});
 
 // Language switching route
 Route::get('/language/{locale}', [LanguageController::class, 'switch'])

@@ -4,18 +4,36 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Support\ServiceRegistration\CompatibilityRegistry;
-use App\Support\ServiceRegistration\EventRegistry;
-use App\Support\ServiceRegistration\ObserverRegistry;
+use App\Contracts\ServiceRegistration\ErrorHandlingStrategyInterface;
+use App\Contracts\ServiceRegistration\PolicyRegistryInterface;
+use App\Services\PolicyRegistryMonitoringService;
+use App\Services\ServiceRegistration\RegistrationErrorHandler;
+use App\Services\ServiceRegistration\ServiceRegistrationOrchestrator;
 use App\Support\ServiceRegistration\PolicyRegistry;
-use App\Support\ServiceRegistration\ServiceRegistry;
 use Illuminate\Support\ServiceProvider;
 
 /**
  * Application Service Provider
  * 
- * Refactored to use registry pattern for better organization
- * and maintainability. Follows Laravel 12 best practices.
+ * Handles core application service registration and bootstrapping with improved
+ * architecture following SOLID principles and clean code practices.
+ * 
+ * Key Responsibilities:
+ * - Core service registration with proper dependency injection
+ * - Service orchestration delegation to specialized services
+ * - Laravel 12 compatibility configuration
+ * - Translation system setup
+ * 
+ * Architecture Improvements:
+ * - Single Responsibility: Focused only on service registration
+ * - Dependency Injection: All dependencies properly injected
+ * - Strategy Pattern: Error handling delegated to specialized strategies
+ * - Configuration-driven: Externalized configuration management
+ * - Monitoring Integration: Built-in performance and health monitoring
+ * 
+ * @see \App\Services\ServiceRegistration\ServiceRegistrationOrchestrator
+ * @see \App\Services\ServiceRegistration\RegistrationErrorHandler
+ * @see \App\Services\PolicyRegistryMonitoringService
  */
 final class AppServiceProvider extends ServiceProvider
 {
@@ -24,12 +42,9 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Register lang path for Laravel 12 compatibility
-        // Ensures translation files in base_path('lang') are properly loaded
-        $this->app->instance('path.lang', base_path('lang'));
-
+        $this->registerLaravel12Compatibility();
         $this->registerCoreServices();
-        $this->registerCompatibilityServices();
+        $this->registerServiceRegistrationInfrastructure();
     }
 
     /**
@@ -37,111 +52,113 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->bootRegistries();
+        $this->bootServiceRegistration();
     }
 
     /**
-     * Register core application services using registry pattern
+     * Register Laravel 12 compatibility services
+     */
+    private function registerLaravel12Compatibility(): void
+    {
+        // Register lang path for Laravel 12 compatibility
+        $this->app->useLangPath(base_path('lang'));
+        
+        // Ensure translation loader uses the correct path
+        $this->app->singleton('translation.loader', function ($app) {
+            return new \Illuminate\Translation\FileLoader($app['files'], base_path('lang'));
+        });
+    }
+
+    /**
+     * Register core application services using configuration-driven approach
      */
     private function registerCoreServices(): void
     {
-        $serviceRegistry = new ServiceRegistry($this->app);
-        $serviceRegistry->registerCoreServices();
-    }
-
-    /**
-     * Register compatibility services for Laravel 12 and Filament v4
-     */
-    private function registerCompatibilityServices(): void
-    {
-        $serviceRegistry = new ServiceRegistry($this->app);
-        $serviceRegistry->registerCompatibilityServices();
-    }
-
-    /**
-     * Bootstrap all registries in proper order
-     */
-    private function bootRegistries(): void
-    {
-        $this->bootCompatibility();
-        $this->bootObservers();
-        $this->bootPolicies();
-        $this->bootEvents();
-    }
-
-    /**
-     * Boot compatibility registry
-     */
-    private function bootCompatibility(): void
-    {
-        $compatibilityRegistry = new CompatibilityRegistry();
-        $compatibilityRegistry->registerTranslationCompatibility();
-        $compatibilityRegistry->registerFilamentCompatibility();
-    }
-
-    /**
-     * Boot observer registry
-     */
-    private function bootObservers(): void
-    {
-        $observerRegistry = new ObserverRegistry();
-        $observerRegistry->registerModelObservers();
-        $observerRegistry->registerSuperadminObservers();
-        $observerRegistry->registerCacheInvalidationObservers();
-    }
-
-    /**
-     * Boot policy registry with performance monitoring
-     */
-    private function bootPolicies(): void
-    {
-        $policyRegistry = new PolicyRegistry();
+        $config = config('service-registration.core_services', []);
         
-        $policyResults = $policyRegistry->registerModelPolicies();
-        $gateResults = $policyRegistry->registerSettingsGates();
+        // Register singleton services
+        foreach ($config['singletons'] ?? [] as $service) {
+            if (class_exists($service)) {
+                $this->app->singleton($service);
+            }
+        }
         
-        // Log results in development and testing
-        if (app()->environment('local', 'testing')) {
-            logger()->info('Policy registration completed', [
-                'policies' => $policyResults,
-                'gates' => $gateResults,
+        // Register interface bindings
+        foreach ($config['bindings'] ?? [] as $interface => $implementation) {
+            if (interface_exists($interface) && class_exists($implementation)) {
+                $this->app->singleton($interface, $implementation);
+            }
+        }
+    }
+
+    /**
+     * Register service registration infrastructure
+     */
+    private function registerServiceRegistrationInfrastructure(): void
+    {
+        // Register error handling strategy
+        $this->app->singleton(ErrorHandlingStrategyInterface::class, RegistrationErrorHandler::class);
+        
+        // Register policy registry
+        $this->app->singleton(PolicyRegistryInterface::class, PolicyRegistry::class);
+        
+        // Register monitoring service if available
+        if (class_exists(PolicyRegistryMonitoringService::class)) {
+            $this->app->singleton(PolicyRegistryMonitoringService::class);
+        }
+        
+        // Register orchestrator with all dependencies
+        $this->app->singleton(ServiceRegistrationOrchestrator::class, function ($app) {
+            return new ServiceRegistrationOrchestrator(
+                app: $app,
+                errorHandler: $app->make(ErrorHandlingStrategyInterface::class),
+                monitoringService: $app->bound(PolicyRegistryMonitoringService::class) 
+                    ? $app->make(PolicyRegistryMonitoringService::class) 
+                    : null,
+            );
+        });
+    }
+
+    /**
+     * Bootstrap service registration using the orchestrator
+     */
+    private function bootServiceRegistration(): void
+    {
+        if (!$this->shouldBootServices()) {
+            return;
+        }
+
+        try {
+            $orchestrator = $this->app->make(ServiceRegistrationOrchestrator::class);
+            $orchestrator->registerPolicies();
+        } catch (\Throwable $e) {
+            // Log the error but don't prevent application boot
+            logger()->critical('Failed to boot service registration', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
             ]);
-        }
-        
-        // Alert on production issues
-        if (app()->environment('production')) {
-            if ($policyResults['errors'] || $gateResults['errors']) {
-                logger()->warning('Policy registration issues detected', [
-                    'policy_errors' => $policyResults['errors'],
-                    'gate_errors' => $gateResults['errors'],
-                ]);
-            }
-        }
-        
-        // Track performance metrics
-        if (class_exists(\App\Services\PerformanceMonitoringService::class)) {
-            try {
-                $performanceService = app(\App\Services\PerformanceMonitoringService::class);
-                $performanceService->monitorPolicyRegistration($policyResults, $gateResults);
-            } catch (\Throwable $e) {
-                // Silently continue if performance monitoring fails
-                logger()->debug('Performance monitoring unavailable for policy registration', [
-                    'error' => $e->getMessage(),
-                ]);
+            
+            // In development, we might want to see the error
+            if ($this->app->environment('local', 'testing')) {
+                throw $e;
             }
         }
     }
 
     /**
-     * Boot event registry
+     * Determine if services should be booted based on configuration and environment
      */
-    private function bootEvents(): void
+    private function shouldBootServices(): bool
     {
-        $eventRegistry = new EventRegistry();
-        $eventRegistry->registerSecurityEvents();
-        $eventRegistry->registerAuthenticationEvents();
-        $eventRegistry->registerViewComposers();
-        $eventRegistry->registerRateLimiters();
-        $eventRegistry->registerCollectionMacros();
+        // Don't boot during configuration caching or in maintenance mode
+        if ($this->app->configurationIsCached() || $this->app->isDownForMaintenance()) {
+            return false;
+        }
+
+        // Check if monitoring is enabled
+        $monitoringEnabled = config('service-registration.monitoring.enabled', true);
+        
+        return $monitoringEnabled;
     }
 }

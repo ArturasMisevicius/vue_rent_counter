@@ -24,123 +24,13 @@ final class AnomalyDetectionWidget extends BaseWidget
     
     protected static ?string $pollingInterval = '120s';
 
-    public function __construct(
-        private readonly UniversalServiceAuditReporter $auditReporter,
-    ) {
-        parent::__construct();
-    }
-
-    protected function getTableHeading(): ?string
-    {
-        return __('dashboard.audit.anomaly_detection');
-    }
-
-    protected function getTableDescription(): ?string
-    {
-        return __('dashboard.audit.anomaly_description');
-    }
-
-    public function table(Table $table): Table
-    {
-        return $table
-            ->query($this->getTableQuery())
-            ->columns([
-                TextColumn::make('type')
-                    ->label(__('dashboard.audit.anomaly_type'))
-                    ->formatStateUsing(fn (string $state): string => __("dashboard.audit.anomaly_types.{$state}"))
-                    ->sortable(),
-                
-                TextColumn::make('severity')
-                    ->label(__('dashboard.audit.severity'))
-                    ->formatStateUsing(fn (string $state): string => __("dashboard.audit.severities.{$state}"))
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'critical' => 'danger',
-                        'high' => 'warning',
-                        'medium' => 'info',
-                        'low' => 'gray',
-                        default => 'gray',
-                    })
-                    ->sortable(),
-                
-                TextColumn::make('description')
-                    ->label(__('dashboard.audit.description'))
-                    ->limit(50)
-                    ->tooltip(fn ($record): string => $record->description),
-                
-                TextColumn::make('detected_at')
-                    ->label(__('dashboard.audit.detected_at'))
-                    ->dateTime()
-                    ->sortable(),
-                
-                TextColumn::make('status')
-                    ->label(__('dashboard.audit.status'))
-                    ->formatStateUsing(fn (string $state): string => __("dashboard.audit.anomaly_statuses.{$state}"))
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'resolved' => 'success',
-                        'investigating' => 'warning',
-                        'new' => 'danger',
-                        'ignored' => 'gray',
-                        default => 'gray',
-                    }),
-            ])
-            ->actions([
-                Action::make('investigate')
-                    ->label(__('dashboard.audit.investigate'))
-                    ->icon('heroicon-o-magnifying-glass')
-                    ->color('info')
-                    ->action(function ($record) {
-                        // Mark as investigating and redirect to detailed view
-                        $this->markAsInvestigating($record);
-                    })
-                    ->visible(fn ($record): bool => $record->status === 'new'),
-                
-                Action::make('resolve')
-                    ->label(__('dashboard.audit.resolve'))
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->action(function ($record) {
-                        $this->markAsResolved($record);
-                    })
-                    ->visible(fn ($record): bool => in_array($record->status, ['new', 'investigating'])),
-                
-                Action::make('ignore')
-                    ->label(__('dashboard.audit.ignore'))
-                    ->icon('heroicon-o-x-circle')
-                    ->color('gray')
-                    ->requiresConfirmation()
-                    ->action(function ($record) {
-                        $this->markAsIgnored($record);
-                    })
-                    ->visible(fn ($record): bool => in_array($record->status, ['new', 'investigating'])),
-                
-                Action::make('view_details')
-                    ->label(__('dashboard.audit.view_details'))
-                    ->icon('heroicon-o-eye')
-                    ->color('gray')
-                    ->modalContent(fn ($record) => view('filament.tenant.modals.anomaly-details', [
-                        'anomaly' => $record,
-                    ]))
-                    ->modalHeading(fn ($record): string => __('dashboard.audit.anomaly_details_title', [
-                        'type' => __("dashboard.audit.anomaly_types.{$record->type}"),
-                    ]))
-                    ->modalWidth('lg'),
-            ])
-            ->defaultSort('detected_at', 'desc')
-            ->paginated([10, 25, 50]);
-    }
-
-    /**
-     * Get table query with anomaly data.
-     */
     protected function getTableQuery(): Builder
     {
         $cacheKey = 'anomaly_detection_' . auth()->user()->currentTeam->id;
         
         $anomalyData = Cache::remember($cacheKey, 120, function () {
-            $report = $this->auditReporter->generateReport(
+            $auditReporter = app(UniversalServiceAuditReporter::class);
+            $report = $auditReporter->generateReport(
                 tenantId: auth()->user()->currentTeam->id,
                 startDate: now()->subDays(7), // Last 7 days for anomalies
                 endDate: now(),

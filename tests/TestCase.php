@@ -107,7 +107,10 @@ abstract class TestCase extends BaseTestCase
      */
     protected function tearDown(): void
     {
-        TenantContext::clear();
+        // Clear tenant context using the service container
+        if (app()->bound(\App\Contracts\TenantContextInterface::class)) {
+            app(\App\Contracts\TenantContextInterface::class)->clear();
+        }
         
         parent::tearDown();
     }
@@ -136,7 +139,7 @@ abstract class TestCase extends BaseTestCase
         // Set tenant context for the test
         if ($tenantId && !$admin->isSuperadmin()) {
             $this->ensureTenantExists($tenantId);
-            TenantContext::set($tenantId);
+            app(\App\Contracts\TenantContextInterface::class)->set($tenantId);
         }
 
         return $admin;
@@ -165,7 +168,7 @@ abstract class TestCase extends BaseTestCase
         
         // Set tenant context for the test
         $this->ensureTenantExists($tenantId);
-        TenantContext::set($tenantId);
+        app(\App\Contracts\TenantContextInterface::class)->set($tenantId);
 
         return $manager;
     }
@@ -193,7 +196,7 @@ abstract class TestCase extends BaseTestCase
         
         // Set tenant context for the test
         $this->ensureTenantExists($tenantId);
-        TenantContext::set($tenantId);
+        app(\App\Contracts\TenantContextInterface::class)->set($tenantId);
 
         return $tenant;
     }
@@ -447,7 +450,19 @@ abstract class TestCase extends BaseTestCase
     {
         $this->ensureTenantExists($tenantId);
         
-        return TenantContext::within($tenantId, $callback);
+        $tenantContext = app(\App\Contracts\TenantContextInterface::class);
+        $previousTenantId = $tenantContext->get();
+        
+        try {
+            $tenantContext->set($tenantId);
+            return $callback();
+        } finally {
+            if ($previousTenantId) {
+                $tenantContext->set($previousTenantId);
+            } else {
+                $tenantContext->clear();
+            }
+        }
     }
 
     /**
@@ -458,10 +473,11 @@ abstract class TestCase extends BaseTestCase
      */
     protected function assertTenantContext(int $expectedTenantId): void
     {
+        $currentTenantId = app(\App\Contracts\TenantContextInterface::class)->get();
         $this->assertEquals(
             $expectedTenantId,
-            TenantContext::id(),
-            "Expected tenant context to be {$expectedTenantId}, but got " . TenantContext::id()
+            $currentTenantId,
+            "Expected tenant context to be {$expectedTenantId}, but got " . $currentTenantId
         );
     }
 
@@ -472,9 +488,10 @@ abstract class TestCase extends BaseTestCase
      */
     protected function assertNoTenantContext(): void
     {
-        $this->assertFalse(
-            TenantContext::has(),
-            'Expected no tenant context to be set, but tenant ' . TenantContext::id() . ' is active'
+        $currentTenantId = app(\App\Contracts\TenantContextInterface::class)->get();
+        $this->assertNull(
+            $currentTenantId,
+            'Expected no tenant context to be set, but tenant ' . $currentTenantId . ' is active'
         );
     }
 }

@@ -117,7 +117,7 @@ abstract class BaseService
         }
 
         // Add tenant context
-        if ($tenantId = TenantContext::id()) {
+        if ($tenantId = app(\App\Services\TenantContext::class)->get()) {
             $metadata['tenant_id'] = $tenantId;
         }
 
@@ -178,7 +178,7 @@ abstract class BaseService
         ], $context);
 
         // Add tenant context if available
-        if ($tenantId = TenantContext::id()) {
+        if ($tenantId = app(\App\Services\TenantContext::class)->get()) {
             $logContext['tenant_id'] = $tenantId;
         }
 
@@ -214,7 +214,7 @@ abstract class BaseService
             return true; // Model doesn't have tenant_id
         }
 
-        $currentTenantId = TenantContext::id();
+        $currentTenantId = app(\App\Services\TenantContext::class)->get();
         
         if (!$currentTenantId) {
             return true; // No tenant context (e.g., superadmin)

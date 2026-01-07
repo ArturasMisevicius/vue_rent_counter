@@ -233,7 +233,7 @@ class TestCaseHelpersTest extends TestCase
         $this->assertTenantContext(1);
         
         // Simulate tearDown
-        TenantContext::clear();
+        app(\App\Services\TenantContext::class)->clear();
         auth()->logout();
         
         $this->assertNoTenantContext();

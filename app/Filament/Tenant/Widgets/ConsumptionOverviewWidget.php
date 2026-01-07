@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Cache;
 
 final class ConsumptionOverviewWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Consumption Overview';
+    protected ?string $heading = 'Consumption Overview';
 
     protected static ?int $sort = 1;
 

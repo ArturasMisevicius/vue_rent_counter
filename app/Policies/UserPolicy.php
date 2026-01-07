@@ -275,6 +275,23 @@ final class UserPolicy
     }
 
     /**
+     * Determine whether the user can access the admin panel.
+     * Used by the access-admin-panel gate for Filament panel authorization.
+     * 
+     * @param User $user The authenticated user
+     * @return bool True if the user can access the admin panel
+     */
+    public function accessAdminPanel(User $user): bool
+    {
+        // Allow SUPERADMIN, ADMIN, and MANAGER roles to access admin panel
+        return in_array($user->role, [
+            UserRole::SUPERADMIN,
+            UserRole::ADMIN,
+            UserRole::MANAGER,
+        ], true);
+    }
+
+    /**
      * Determine whether the user can view system settings.
      * Only superadmins and platform admins can view system settings.
      * 

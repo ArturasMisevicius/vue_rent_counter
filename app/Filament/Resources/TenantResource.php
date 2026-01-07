@@ -8,6 +8,7 @@ use App\Filament\Resources\TenantResource\Pages;
 use App\Models\Property;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Support\Filters\FilterStateManager;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Forms;
@@ -111,6 +112,51 @@ final class TenantResource extends Resource
                             ->default(true)
                             ->helperText('Inactive tenants will not receive new invoices'),
                     ]),
+                    
+                Forms\Components\Section::make('Documents & Photos')
+                    ->schema([
+                        Forms\Components\FileUpload::make('tenant_photo')
+                            ->label('Tenant Photo')
+                            ->image()
+                            ->imageEditor()
+                            ->maxSize(5120) // 5MB
+                            ->directory('tenants/photos')
+                            ->visibility('private')
+                            ->helperText('Upload a photo of the tenant for identification')
+                            ->dehydrated(false),
+                            
+                        Forms\Components\FileUpload::make('lease_contract')
+                            ->label('Lease Contract')
+                            ->acceptedFileTypes(['application/pdf'])
+                            ->maxSize(10240) // 10MB
+                            ->directory('tenants/contracts')
+                            ->visibility('private')
+                            ->helperText('Upload the signed lease contract (PDF only)')
+                            ->dehydrated(false),
+                            
+                        Forms\Components\FileUpload::make('identity_documents')
+                            ->label('Identity Documents')
+                            ->multiple()
+                            ->acceptedFileTypes(['application/pdf', 'image/*'])
+                            ->maxSize(5120) // 5MB each
+                            ->maxFiles(5)
+                            ->directory('tenants/documents')
+                            ->visibility('private')
+                            ->helperText('Passport, ID card, or other identification documents')
+                            ->dehydrated(false),
+                            
+                        Forms\Components\FileUpload::make('other_documents')
+                            ->label('Other Documents')
+                            ->multiple()
+                            ->maxSize(5120)
+                            ->maxFiles(10)
+                            ->directory('tenants/documents/other')
+                            ->visibility('private')
+                            ->helperText('Any additional documents (guarantees, references, etc.)')
+                            ->dehydrated(false),
+                    ])
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 
@@ -306,7 +352,7 @@ final class TenantResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            TenantResource\RelationManagers\AttachmentsRelationManager::class,
         ];
     }
 

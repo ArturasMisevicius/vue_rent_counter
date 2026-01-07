@@ -11,6 +11,7 @@ use App\Models\Invoice;
 use App\Models\Tenant;
 use App\Notifications\InvoiceReadyNotification;
 use App\Services\InvoicePdfService;
+use App\Support\Filters\FilterStateManager;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -175,6 +176,9 @@ class InvoiceResource extends Resource
 
     public static function table(Table $table): Table
     {
+        // Initialize filter state manager for actionable widget integration
+        $filterManager = new FilterStateManager();
+        
         return $table
             ->searchable()
             ->columns([
@@ -225,23 +229,24 @@ class InvoiceResource extends Resource
                 Tables\Filters\SelectFilter::make('status')
                     ->label(__('invoices.admin.labels.status'))
                     ->options(InvoiceStatus::labels())
-                    ->native(false),
+                    ->native(false)
+                    ->default($filterManager->getFilterValue('status')),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Action::make('downloadPdf')
-                    ->label('Download PDF')
+                    ->label(__('invoices.admin.actions.download_pdf'))
                     ->icon('heroicon-o-arrow-down-tray')
                     ->action(fn (Invoice $record) => app(InvoicePdfService::class)->download($record)),
                 Action::make('sendToTenant')
-                    ->label('Send to Tenant')
+                    ->label(__('invoices.admin.actions.send_to_tenant'))
                     ->icon('heroicon-o-paper-airplane')
                     ->color('gray')
                     ->requiresConfirmation()
-                    ->modalHeading('Send Invoice to Tenant')
-                    ->modalDescription('Are you sure you want to email this invoice to the tenant?')
-                    ->modalSubmitActionLabel('Send Email')
+                    ->modalHeading(__('invoices.admin.modals.send_to_tenant.heading'))
+                    ->modalDescription(__('invoices.admin.modals.send_to_tenant.description'))
+                    ->modalSubmitActionLabel(__('invoices.admin.modals.send_to_tenant.submit'))
                     ->action(function (Invoice $record) {
                         // Check if tenant renter exists
                         if (!$record->tenantRenter) {

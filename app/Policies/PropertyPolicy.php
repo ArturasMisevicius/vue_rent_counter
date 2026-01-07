@@ -1,13 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Enums\UserRole;
 use App\Models\Property;
 use App\Models\User;
+use App\Services\TenantBoundaryService;
 
-class PropertyPolicy
+final readonly class PropertyPolicy
 {
+    public function __construct(
+        private TenantBoundaryService $tenantBoundaryService
+    ) {}
+
     /**
      * Determine whether the user can view any properties.
      * 
@@ -15,13 +22,9 @@ class PropertyPolicy
      */
     public function viewAny(User $user): bool
     {
-        // Superadmin can view all properties
-        if ($user->role === UserRole::SUPERADMIN) {
-            return true;
-        }
-
-        // Admins and managers can view properties (filtered by tenant scope) (Requirement 4.3)
-        return $user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER;
+        // Must be able to access current tenant and have appropriate role
+        return $this->tenantBoundaryService->canCreateForCurrentTenant($user) &&
+               $this->tenantBoundaryService->canPerformManagerOperations($user);
     }
 
     /**
@@ -33,14 +36,14 @@ class PropertyPolicy
      */
     public function view(User $user, Property $property): bool
     {
-        // Superadmin can view any property
-        if ($user->role === UserRole::SUPERADMIN) {
-            return true;
+        // Must be able to access the property's tenant
+        if (!$this->tenantBoundaryService->canAccessModel($user, $property)) {
+            return false;
         }
 
-        // Admins and managers can view properties within their tenant scope
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
-            return $property->tenant_id === $user->tenant_id;
+        // Managers and above can view all properties in their tenant
+        if ($this->tenantBoundaryService->canPerformManagerOperations($user)) {
+            return true;
         }
 
         // Tenants can only view their assigned property (Requirement 8.2)
@@ -63,13 +66,9 @@ class PropertyPolicy
      */
     public function create(User $user): bool
     {
-        // Superadmin can create properties
-        if ($user->role === UserRole::SUPERADMIN) {
-            return true;
-        }
-
-        // Admins and managers can create properties (Requirement 4.1, 13.2)
-        return $user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER;
+        // Must be able to access current tenant and have appropriate role
+        return $this->tenantBoundaryService->canCreateForCurrentTenant($user) &&
+               $this->tenantBoundaryService->canPerformManagerOperations($user);
     }
 
     /**
@@ -79,17 +78,13 @@ class PropertyPolicy
      */
     public function update(User $user, Property $property): bool
     {
-        // Superadmin can update any property
-        if ($user->role === UserRole::SUPERADMIN) {
-            return true;
+        // Must be able to access the property's tenant
+        if (!$this->tenantBoundaryService->canAccessModel($user, $property)) {
+            return false;
         }
 
-        // Admins and managers can update properties within their tenant scope (Requirement 4.3, 13.3)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
-            return $property->tenant_id === $user->tenant_id;
-        }
-
-        return false;
+        // Managers and above can update properties in their tenant
+        return $this->tenantBoundaryService->canPerformManagerOperations($user);
     }
 
     /**
@@ -99,17 +94,13 @@ class PropertyPolicy
      */
     public function delete(User $user, Property $property): bool
     {
-        // Superadmin can delete any property
-        if ($user->role === UserRole::SUPERADMIN) {
-            return true;
+        // Must be able to access the property's tenant
+        if (!$this->tenantBoundaryService->canAccessModel($user, $property)) {
+            return false;
         }
 
-        // Admins and managers can delete properties within their tenant scope (Requirement 4.3, 13.3)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
-            return $property->tenant_id === $user->tenant_id;
-        }
-
-        return false;
+        // Managers and above can delete properties in their tenant
+        return $this->tenantBoundaryService->canPerformManagerOperations($user);
     }
 
     /**
@@ -119,17 +110,13 @@ class PropertyPolicy
      */
     public function restore(User $user, Property $property): bool
     {
-        // Superadmin can restore any property
-        if ($user->role === UserRole::SUPERADMIN) {
-            return true;
+        // Must be able to access the property's tenant
+        if (!$this->tenantBoundaryService->canAccessModel($user, $property)) {
+            return false;
         }
 
-        // Admins and managers can restore properties within their tenant scope (Requirement 4.3, 13.3)
-        if ($user->role === UserRole::ADMIN || $user->role === UserRole::MANAGER) {
-            return $property->tenant_id === $user->tenant_id;
-        }
-
-        return false;
+        // Managers and above can restore properties in their tenant
+        return $this->tenantBoundaryService->canPerformManagerOperations($user);
     }
 
     /**
@@ -139,7 +126,12 @@ class PropertyPolicy
      */
     public function forceDelete(User $user, Property $property): bool
     {
+        // Must be able to access the property's tenant
+        if (!$this->tenantBoundaryService->canAccessModel($user, $property)) {
+            return false;
+        }
+
         // Only superadmin can force delete properties (Requirement 13.1)
-        return $user->role === UserRole::SUPERADMIN;
+        return $user->hasRole('superadmin');
     }
 }

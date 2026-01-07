@@ -145,10 +145,10 @@ class UserRoleService
         }
 
         // Fallback to enum-based role checking
-        $userRole = $user->role instanceof UserRole ? $user->role->value : (string) $user->role;
+        $userRole = $user->role instanceof UserRole ? $user->role->value : $this->normalizeRoleToString($user->role);
 
         return collect(Arr::wrap($roles))
-            ->map(fn ($role) => $role instanceof \BackedEnum ? $role->value : (string) $role)
+            ->map(fn ($role) => $this->normalizeRoleToString($role))
             ->contains($userRole);
     }
 
@@ -167,16 +167,53 @@ class UserRoleService
     }
 
     /**
+     * Safely normalize any role type to a string representation.
+     * Handles BackedEnums, Spatie Role objects, arrays, and other complex types.
+     */
+    private function normalizeRoleToString(mixed $role): string
+    {
+        if ($role instanceof \BackedEnum) {
+            return $role->value;
+        }
+        
+        if (is_object($role)) {
+            // Handle Spatie Role objects or other objects
+            if (method_exists($role, 'getName')) {
+                return $role->getName();
+            }
+            if (method_exists($role, 'name')) {
+                return $role->name;
+            }
+            if (isset($role->name)) {
+                return $role->name;
+            }
+            // Fallback to class name for objects
+            return class_basename($role);
+        }
+        
+        if (is_array($role)) {
+            // Handle nested arrays by JSON encoding and hashing for cache safety
+            return md5(json_encode($role));
+        }
+        
+        if ($role === null) {
+            return 'null';
+        }
+        
+        return (string) $role;
+    }
+
+    /**
      * Generate cache key for role checks.
      */
     private function getCacheKey(int $userId, string $operation, mixed $roles = null, ?string $guard = null): string
     {
         if (is_array($roles)) {
             $roleKey = collect($roles)
-                ->map(fn ($role) => $role instanceof \BackedEnum ? $role->value : (string) $role)
+                ->map(fn ($role) => $this->normalizeRoleToString($role))
                 ->implode(',');
         } else {
-            $roleKey = $roles instanceof \BackedEnum ? $roles->value : (string) $roles;
+            $roleKey = $this->normalizeRoleToString($roles);
         }
         
         $guardKey = $guard ?? 'default';

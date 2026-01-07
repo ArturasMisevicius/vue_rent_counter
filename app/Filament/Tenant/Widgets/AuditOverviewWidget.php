@@ -20,18 +20,13 @@ final class AuditOverviewWidget extends BaseWidget
 
     protected static ?int $sort = 1;
 
-    public function __construct(
-        private readonly UniversalServiceAuditReporter $auditReporter,
-    ) {
-        parent::__construct();
-    }
-
     protected function getStats(): array
     {
         $cacheKey = 'audit_overview_' . auth()->user()->currentTeam->id;
         
         return Cache::remember($cacheKey, 300, function () {
-            $report = $this->auditReporter->generateReport(
+            $auditReporter = app(UniversalServiceAuditReporter::class);
+            $report = $auditReporter->generateReport(
                 tenantId: auth()->user()->currentTeam->id,
                 startDate: now()->subDays(30),
                 endDate: now(),

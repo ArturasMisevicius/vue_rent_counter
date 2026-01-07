@@ -28,6 +28,8 @@ final readonly class ServiceRegistry
         $this->registerValidationServices();
         $this->registerTenantServices();
         $this->registerUtilityServices();
+        $this->registerAuditServices();
+        $this->registerIntegrationServices();
     }
 
     /**
@@ -110,6 +112,27 @@ final readonly class ServiceRegistry
      */
     private function registerTenantServices(): void
     {
+        // Tenant context services with interface bindings
+        $this->container->singleton(
+            \App\Repositories\TenantRepositoryInterface::class,
+            \App\Repositories\Eloquent\EloquentTenantRepository::class
+        );
+        
+        $this->container->singleton(
+            \App\Contracts\TenantAuditLoggerInterface::class,
+            \App\Services\TenantAuditLogger::class
+        );
+        
+        $this->container->singleton(
+            \App\Contracts\TenantAuthorizationServiceInterface::class,
+            \App\Services\TenantAuthorizationService::class
+        );
+        
+        $this->container->singleton(
+            \App\Contracts\TenantContextInterface::class,
+            \App\Services\TenantContext::class
+        );
+        
         // Tenant initialization services
         $this->container->singleton(\App\Services\TenantInitialization\ServiceDefinitionProvider::class);
         $this->container->singleton(\App\Services\TenantInitialization\MeterConfigurationProvider::class);
@@ -198,5 +221,29 @@ final readonly class ServiceRegistry
         if (! $this->container->bound('files')) {
             $this->container->singleton('files', fn () => new \Illuminate\Filesystem\Filesystem());
         }
+    }
+
+    /**
+     * Register audit and tracking services
+     */
+    private function registerAuditServices(): void
+    {
+        // Audit dependencies first
+        $this->container->singleton(\App\Services\Audit\ConfigurationChangeAuditor::class);
+        $this->container->singleton(\App\Services\Audit\PerformanceMetricsCollector::class);
+        $this->container->singleton(\App\Services\Audit\ComplianceReportGenerator::class);
+        
+        // Main audit services
+        $this->container->singleton(\App\Services\Audit\UniversalServiceAuditReporter::class);
+        $this->container->singleton(\App\Services\Audit\UniversalServiceChangeTracker::class);
+        $this->container->singleton(\App\Services\Audit\ConfigurationRollbackService::class);
+    }
+
+    /**
+     * Register integration and resilience services
+     */
+    private function registerIntegrationServices(): void
+    {
+        $this->container->singleton(\App\Services\Integration\IntegrationResilienceHandler::class);
     }
 }

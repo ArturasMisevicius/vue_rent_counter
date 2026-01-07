@@ -52,11 +52,11 @@ class PropertyResource extends Resource
 
     protected static ?string $navigationLabel = null;
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 20; // High priority for top-level navigation
 
     public static function getNavigationIcon(): ?string
     {
-        return 'heroicon-o-home';
+        return 'heroicon-o-home-modern';
     }
 
     public static function getNavigationLabel(): string
@@ -66,7 +66,8 @@ class PropertyResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('app.nav_groups.operations');
+        // Remove from group to make it top-level navigation
+        return null;
     }
 
     protected static ?string $recordTitleAttribute = 'address';

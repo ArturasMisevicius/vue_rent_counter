@@ -58,7 +58,7 @@ class EnhancedReadingValidationPropertyTest extends TestCase
         // Run property-based test with multiple iterations
         for ($i = 0; $i < 100; $i++) {
             // Clear tenant context to avoid interference between iterations
-            \App\Services\TenantContext::clear();
+            app(\App\Services\TenantContext::class)->clear();
             
             // Generate random test data
             $organization = Organization::factory()->create();
@@ -230,7 +230,7 @@ class EnhancedReadingValidationPropertyTest extends TestCase
         // Run property-based test with multiple iterations
         for ($i = 0; $i < 50; $i++) {
             // Clear tenant context to avoid interference between iterations
-            \App\Services\TenantContext::clear();
+            app(\App\Services\TenantContext::class)->clear();
             
             $organization = Organization::factory()->create();
             $user = \App\Models\User::factory()->create(['tenant_id' => $organization->id]);
@@ -281,7 +281,7 @@ class EnhancedReadingValidationPropertyTest extends TestCase
         // Run property-based test with multiple iterations
         for ($i = 0; $i < 50; $i++) {
             // Clear tenant context to avoid interference between iterations
-            \App\Services\TenantContext::clear();
+            app(\App\Services\TenantContext::class)->clear();
             
             $organization = Organization::factory()->create();
             $user = \App\Models\User::factory()->create(['tenant_id' => $organization->id]);
@@ -358,7 +358,7 @@ class EnhancedReadingValidationPropertyTest extends TestCase
         // Run property-based test with multiple iterations
         for ($i = 0; $i < 20; $i++) {
             // Clear tenant context to avoid interference between iterations
-            \App\Services\TenantContext::clear();
+            app(\App\Services\TenantContext::class)->clear();
             
             $organization = Organization::factory()->create();
             $user = \App\Models\User::factory()->create(['tenant_id' => $organization->id]);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\ServiceRegistration;
 
+use App\Contracts\ServiceRegistration\PolicyRegistryInterface;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
@@ -32,7 +33,7 @@ use Illuminate\Support\Facades\Cache;
  * @see \Tests\Unit\Support\ServiceRegistration\PolicyRegistryTest
  * @see \App\Providers\AppServiceProvider::bootPolicies()
  */
-final readonly class PolicyRegistry
+final readonly class PolicyRegistry implements \App\Contracts\ServiceRegistration\PolicyRegistryInterface
 {
     /**
      * Model to Policy mappings
@@ -65,6 +66,7 @@ final readonly class PolicyRegistry
      * @var array<string, array{class-string, string}>
      */
     private const SETTINGS_GATES = [
+        'access-admin-panel' => [\App\Policies\UserPolicy::class, 'accessAdminPanel'],
         'viewSettings' => [\App\Policies\SettingsPolicy::class, 'viewSettings'],
         'updateSettings' => [\App\Policies\SettingsPolicy::class, 'updateSettings'],
         'runBackup' => [\App\Policies\SettingsPolicy::class, 'runBackup'],
@@ -442,13 +444,23 @@ final readonly class PolicyRegistry
      */
     private function isAuthorizedForPolicyRegistration(): bool
     {
-        // Allow during application boot (when no user is authenticated)
-        if (!app()->bound('auth') || !auth()->hasUser()) {
+        // Allow during application boot (when no user is authenticated or no request context)
+        if (!app()->bound('auth')) {
             return true;
         }
         
-        // Allow for superadmin users only
-        $user = auth()->user();
-        return $user && method_exists($user, 'hasRole') && $user->hasRole('super_admin');
+        try {
+            // Check if we have a request context - if not, we're in boot phase
+            if (!request() || !auth()->check()) {
+                return true;
+            }
+            
+            // Allow for superadmin users only
+            $user = auth()->user();
+            return $user && method_exists($user, 'hasRole') && $user->hasRole('super_admin');
+        } catch (\Throwable $e) {
+            // If any auth operation fails, assume we're in boot phase
+            return true;
+        }
     }
 }

@@ -146,6 +146,20 @@ class MetersRelationManager extends RelationManager
                     }),
             ])
             ->recordActions([
+                Actions\Action::make('viewReadings')
+                    ->label(__('meters.actions.view_readings'))
+                    ->icon('heroicon-o-chart-bar')
+                    ->color('info')
+                    ->url(fn (Meter $record): string => 
+                        \App\Filament\Resources\MeterReadingResource::getUrl('index', [
+                            'tableFilters' => [
+                                'meter_id' => ['value' => $record->id]
+                            ]
+                        ])
+                    )
+                    ->visible(fn (): bool => auth()->user()->can('viewAny', \App\Models\MeterReading::class))
+                    ->openUrlInNewTab(false),
+                    
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
             ])

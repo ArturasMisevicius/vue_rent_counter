@@ -29,7 +29,7 @@ class TenantScope implements Scope
             return;
         }
 
-        $tenantId = TenantContext::id() ?? ($user?->tenant_id);
+        $tenantId = app(\App\Services\TenantContext::class)->get() ?? ($user?->tenant_id);
 
         if ($tenantId === null) {
             return;

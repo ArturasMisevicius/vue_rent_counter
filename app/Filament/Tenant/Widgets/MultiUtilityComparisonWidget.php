@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Cache;
 
 final class MultiUtilityComparisonWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Utility Cost Comparison';
+    protected ?string $heading = 'Utility Cost Comparison';
 
     protected static ?int $sort = 3;
 

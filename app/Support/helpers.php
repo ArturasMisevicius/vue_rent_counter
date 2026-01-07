@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Organization;
-use App\Services\TenantContext;
+use App\Services\TenantContext as TenantContextService;
 
 if (! function_exists('tenant')) {
     /**
@@ -10,12 +10,12 @@ if (! function_exists('tenant')) {
     function tenant(): ?Organization
     {
         // Prevent circular reference during bootstrap
-        if (!app()->bound(TenantContext::class)) {
+        if (!app()->bound(TenantContextService::class)) {
             return null;
         }
         
         try {
-            return TenantContext::get();
+            return app(TenantContextService::class)->get();
         } catch (\Throwable $e) {
             // Prevent errors during bootstrap
             return null;
@@ -30,12 +30,12 @@ if (! function_exists('tenant_id')) {
     function tenant_id(): ?int
     {
         // Prevent circular reference during bootstrap
-        if (!app()->bound(TenantContext::class)) {
+        if (!app()->bound(TenantContextService::class)) {
             return null;
         }
         
         try {
-            return TenantContext::id();
+            return app(TenantContextService::class)->id();
         } catch (\Throwable $e) {
             // Prevent errors during bootstrap
             return null;

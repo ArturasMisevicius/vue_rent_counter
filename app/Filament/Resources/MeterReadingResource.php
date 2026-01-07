@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Enums\MeterType;
+use App\Enums\UserRole;
 use App\Enums\ValidationStatus;
 use App\Filament\Resources\MeterReadingResource\Pages;
 use App\Models\Meter;
 use App\Models\MeterReading;
+use App\Models\User;
 use App\Services\MeterReadingService;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -32,6 +34,39 @@ class MeterReadingResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = 'Utilities Management';
 
     protected static ?int $navigationSort = 4;
+
+    /**
+     * Determine if navigation should be registered.
+     *
+     * Hides meter readings from Manager role in global navigation to simplify
+     * their interface. Managers can still access meter readings through:
+     * - Building context (via relation managers)
+     * - Property context (via relation managers)
+     * - Dashboard shortcuts
+     *
+     * Navigation visibility by role:
+     * - Superadmin: ✅ Visible
+     * - Admin: ✅ Visible
+     * - Manager: ❌ Hidden (access via context only)
+     * - Tenant: ❌ Hidden
+     *
+     * @return bool True if navigation should be visible, false otherwise
+     */
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        
+        if (!$user instanceof User) {
+            return false;
+        }
+        
+        // Hide from Manager role in global navigation
+        if ($user->role === UserRole::MANAGER) {
+            return false;
+        }
+        
+        return $user->can('viewAny', MeterReading::class);
+    }
 
     public static function form(Schema $schema): Schema
     {

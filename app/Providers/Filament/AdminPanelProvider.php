@@ -131,7 +131,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->authGuard('web')
+            ->authGuard('admin')
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -202,18 +202,8 @@ class AdminPanelProvider extends PanelProvider
      * Bootstrap application services for the admin panel.
      * 
      * This method registers:
-     * - Gate definitions for panel access control
      * - Role-based navigation visibility logic
      * - Authorization failure logging for security monitoring
-     * 
-     * ## Access Control Gate
-     * 
-     * The 'access-admin-panel' gate restricts panel access to:
-     * - SUPERADMIN: Full system access
-     * - ADMIN: Organization management
-     * - MANAGER: Property management (legacy role)
-     * 
-     * TENANT role is explicitly blocked from panel access.
      * 
      * ## Authorization Logging
      * 
@@ -231,15 +221,6 @@ class AdminPanelProvider extends PanelProvider
      */
     public function boot(): void
     {
-        // Define gate for admin panel access
-        \Illuminate\Support\Facades\Gate::define('access-admin-panel', function ($user) {
-            return in_array($user->role, [
-                \App\Enums\UserRole::ADMIN,
-                \App\Enums\UserRole::MANAGER,
-                \App\Enums\UserRole::SUPERADMIN,
-            ], true);
-        });
-        
         // Configure role-based navigation visibility (Requirements 1.1, 13.1)
         \Filament\Facades\Filament::serving(function () {
             $user = auth()->user();

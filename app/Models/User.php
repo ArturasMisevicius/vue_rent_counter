@@ -528,6 +528,23 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Scope: Filter users for a specific tenant (used by repository).
+     */
+    public function scopeForTenant(Builder $query, $tenantId): Builder
+    {
+        $tenantValue = $tenantId instanceof \App\ValueObjects\TenantId ? $tenantId->getValue() : $tenantId;
+        return $query->where('tenant_id', $tenantValue);
+    }
+
+    /**
+     * Get the tenant ID column name.
+     */
+    public function getTenantIdColumn(): string
+    {
+        return 'tenant_id';
+    }
+
+    /**
      * Scope: Filter admin users (admin, manager, superadmin).
      */
     public function scopeAdmins(Builder $query): Builder

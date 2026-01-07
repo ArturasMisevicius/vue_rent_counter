@@ -105,7 +105,7 @@ class BuildingResource extends Resource
 
     protected static ?string $navigationLabel = null;
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 10; // High priority for top-level navigation
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -123,7 +123,8 @@ class BuildingResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('app.nav_groups.operations');
+        // Remove from group to make it top-level navigation
+        return null;
     }
 
     /**

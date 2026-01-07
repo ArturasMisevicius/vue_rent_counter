@@ -4,277 +4,214 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Providers;
 
+use App\Contracts\ServiceRegistration\ErrorHandlingStrategyInterface;
+use App\Contracts\ServiceRegistration\PolicyRegistryInterface;
 use App\Providers\AppServiceProvider;
-use App\Support\ServiceRegistration\CompatibilityRegistry;
-use App\Support\ServiceRegistration\EventRegistry;
-use App\Support\ServiceRegistration\ObserverRegistry;
+use App\Services\PolicyRegistryMonitoringService;
+use App\Services\ServiceRegistration\RegistrationErrorHandler;
+use App\Services\ServiceRegistration\ServiceRegistrationOrchestrator;
+use App\Services\TenantBoundaryService;
+use App\Services\TenantContext;
 use App\Support\ServiceRegistration\PolicyRegistry;
-use App\Support\ServiceRegistration\ServiceRegistry;
 use Illuminate\Foundation\Application;
-use PHPUnit\Framework\TestCase;
+use Mockery;
+use Tests\TestCase;
 
 /**
- * Test suite for AppServiceProvider refactoring
+ * Test suite for refactored AppServiceProvider
  * 
- * Ensures all services are properly registered and
- * the registry pattern works correctly.
+ * Tests the improved architecture with proper separation of concerns,
+ * dependency injection, and error handling strategies.
  */
 final class AppServiceProviderTest extends TestCase
 {
-    private Application $app;
     private AppServiceProvider $provider;
 
     protected function setUp(): void
     {
         parent::setUp();
         
-        // Create a minimal Laravel application instance for testing
-        $this->app = new Application();
-        $this->app->singleton('config', function () {
-            return new \Illuminate\Config\Repository([
-                'app' => ['key' => 'test-key'],
-                'database' => ['default' => 'testing'],
-            ]);
-        });
-        
         $this->provider = new AppServiceProvider($this->app);
     }
 
-    public function test_provider_is_final_class(): void
+    public function test_provider_is_final(): void
     {
         $reflection = new \ReflectionClass(AppServiceProvider::class);
         
-        $this->assertTrue($reflection->isFinal(), 'AppServiceProvider should be final');
-    }
-
-    public function test_provider_uses_strict_types(): void
-    {
-        $content = file_get_contents(app_path('Providers/AppServiceProvider.php'));
-        
-        $this->assertStringContainsString(
-            'declare(strict_types=1);',
-            $content,
-            'AppServiceProvider should use strict types'
-        );
-    }
-
-    public function test_register_method_calls_registry_methods(): void
-    {
-        // Test that register method exists and is callable
         $this->assertTrue(
-            method_exists($this->provider, 'register'),
-            'AppServiceProvider should have register method'
+            $reflection->isFinal(),
+            'AppServiceProvider should be final'
         );
-        
-        // Test that the method can be called without errors
+    }
+
+    public function test_register_method_registers_core_services(): void
+    {
         $this->provider->register();
         
-        // Since we're in unit test mode, we can't test actual service registration
-        // but we can verify the method executes without throwing exceptions
-        $this->assertTrue(true, 'Register method executed without errors');
-    }
-
-    public function test_boot_method_calls_registry_methods(): void
-    {
-        // Test that boot method exists and is callable
+        // Test that core services are registered as singletons
         $this->assertTrue(
-            method_exists($this->provider, 'boot'),
-            'AppServiceProvider should have boot method'
+            $this->app->bound(TenantContext::class),
+            'TenantContext should be registered'
         );
         
-        // Test that the method can be called without errors
+        $this->assertTrue(
+            $this->app->bound(TenantBoundaryService::class),
+            'TenantBoundaryService should be registered'
+        );
+        
+        $this->assertTrue(
+            $this->app->bound(PolicyRegistryInterface::class),
+            'PolicyRegistryInterface should be registered'
+        );
+        
+        $this->assertTrue(
+            $this->app->bound(ErrorHandlingStrategyInterface::class),
+            'ErrorHandlingStrategyInterface should be registered'
+        );
+        
+        $this->assertTrue(
+            $this->app->bound(ServiceRegistrationOrchestrator::class),
+            'ServiceRegistrationOrchestrator should be registered'
+        );
+    }
+
+    public function test_register_method_configures_laravel12_compatibility(): void
+    {
+        $this->provider->register();
+        
+        // Test translation loader registration
+        $this->assertTrue(
+            $this->app->bound('translation.loader'),
+            'Translation loader should be registered'
+        );
+        
+        $loader = $this->app->make('translation.loader');
+        $this->assertInstanceOf(
+            \Illuminate\Translation\FileLoader::class,
+            $loader,
+            'Translation loader should be FileLoader instance'
+        );
+    }
+
+    public function test_services_are_registered_as_singletons(): void
+    {
+        $this->provider->register();
+        
+        // Test singleton behavior
+        $tenantContext1 = $this->app->make(TenantContext::class);
+        $tenantContext2 = $this->app->make(TenantContext::class);
+        
+        $this->assertSame(
+            $tenantContext1,
+            $tenantContext2,
+            'TenantContext should be registered as singleton'
+        );
+        
+        $errorHandler1 = $this->app->make(ErrorHandlingStrategyInterface::class);
+        $errorHandler2 = $this->app->make(ErrorHandlingStrategyInterface::class);
+        
+        $this->assertSame(
+            $errorHandler1,
+            $errorHandler2,
+            'ErrorHandlingStrategy should be registered as singleton'
+        );
+    }
+
+    public function test_boot_method_delegates_to_orchestrator(): void
+    {
+        // Mock the orchestrator
+        $mockOrchestrator = Mockery::mock(ServiceRegistrationOrchestrator::class);
+        $mockOrchestrator->shouldReceive('registerPolicies')
+            ->once();
+        
+        $this->app->instance(ServiceRegistrationOrchestrator::class, $mockOrchestrator);
+        
+        $this->provider->boot();
+    }
+
+    public function test_boot_method_handles_orchestrator_failure_in_development(): void
+    {
+        $mockOrchestrator = Mockery::mock(ServiceRegistrationOrchestrator::class);
+        $mockOrchestrator->shouldReceive('registerPolicies')
+            ->once()
+            ->andThrow(new \RuntimeException('Orchestrator failed'));
+        
+        $this->app->instance(ServiceRegistrationOrchestrator::class, $mockOrchestrator);
+        $this->app['env'] = 'local';
+        
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Orchestrator failed');
+        
+        $this->provider->boot();
+    }
+
+    public function test_boot_method_handles_orchestrator_failure_in_production(): void
+    {
+        $mockOrchestrator = Mockery::mock(ServiceRegistrationOrchestrator::class);
+        $mockOrchestrator->shouldReceive('registerPolicies')
+            ->once()
+            ->andThrow(new \RuntimeException('Orchestrator failed'));
+        
+        $this->app->instance(ServiceRegistrationOrchestrator::class, $mockOrchestrator);
+        $this->app['env'] = 'production';
+        
+        // Should not throw in production
         $this->provider->boot();
         
-        // Since we're in unit test mode, we can't test actual service booting
-        // but we can verify the method executes without throwing exceptions
-        $this->assertTrue(true, 'Boot method executed without errors');
+        $this->assertTrue(true); // Test passes if no exception is thrown
     }
 
-    public function test_service_registry_integration(): void
+    public function test_skips_boot_when_configuration_is_cached(): void
     {
-        // Test that ServiceRegistry can be instantiated without Laravel app
-        $serviceRegistry = new ServiceRegistry($this->app);
+        $this->app->shouldReceive('configurationIsCached')
+            ->once()
+            ->andReturn(true);
         
-        $this->assertInstanceOf(
-            ServiceRegistry::class,
-            $serviceRegistry,
-            'ServiceRegistry should be instantiable'
-        );
+        $this->app->shouldReceive('make')
+            ->never();
         
-        // Test that methods exist and are callable
-        $this->assertTrue(
-            method_exists($serviceRegistry, 'registerCoreServices'),
-            'ServiceRegistry should have registerCoreServices method'
-        );
-        
-        $this->assertTrue(
-            method_exists($serviceRegistry, 'registerInterfaceBindings'),
-            'ServiceRegistry should have registerInterfaceBindings method'
-        );
+        $this->provider->boot();
     }
 
-    public function test_policy_registry_integration(): void
+    public function test_skips_boot_when_in_maintenance_mode(): void
     {
-        $policyRegistry = new PolicyRegistry();
+        $this->app->shouldReceive('configurationIsCached')
+            ->once()
+            ->andReturn(false);
         
-        // Test that PolicyRegistry can be instantiated
-        $this->assertInstanceOf(
-            PolicyRegistry::class,
-            $policyRegistry,
-            'PolicyRegistry should be instantiable'
-        );
+        $this->app->shouldReceive('isDownForMaintenance')
+            ->once()
+            ->andReturn(true);
         
-        // Test policy mappings
-        $policies = $policyRegistry->getModelPolicies();
+        $this->app->shouldReceive('make')
+            ->never();
         
-        $this->assertArrayHasKey(
-            \App\Models\Tariff::class,
-            $policies,
-            'Tariff model should have policy mapping'
-        );
-        
-        $this->assertEquals(
-            \App\Policies\TariffPolicy::class,
-            $policies[\App\Models\Tariff::class],
-            'Tariff model should map to TariffPolicy'
-        );
-        
-        // Test settings gates
-        $gates = $policyRegistry->getSettingsGates();
-        
-        $this->assertArrayHasKey(
-            'viewSettings',
-            $gates,
-            'viewSettings gate should be defined'
-        );
+        $this->provider->boot();
     }
 
-    public function test_observer_registry_integration(): void
+    public function test_registers_services_based_on_configuration(): void
     {
-        $observerRegistry = new ObserverRegistry();
+        // Mock configuration
+        config([
+            'service-registration.core_services.singletons' => [
+                TenantContext::class,
+                TenantBoundaryService::class,
+            ],
+            'service-registration.core_services.bindings' => [
+                PolicyRegistryInterface::class => PolicyRegistry::class,
+            ],
+        ]);
         
-        // Test that ObserverRegistry can be instantiable
-        $this->assertInstanceOf(
-            ObserverRegistry::class,
-            $observerRegistry,
-            'ObserverRegistry should be instantiable'
-        );
-        
-        // Test observer mappings
-        $observers = $observerRegistry->getModelObservers();
-        
-        $this->assertArrayHasKey(
-            \App\Models\MeterReading::class,
-            $observers,
-            'MeterReading model should have observer mapping'
-        );
-        
-        $this->assertEquals(
-            \App\Observers\MeterReadingObserver::class,
-            $observers[\App\Models\MeterReading::class],
-            'MeterReading should map to MeterReadingObserver'
-        );
-    }
-
-    public function test_event_registry_integration(): void
-    {
-        $eventRegistry = new EventRegistry();
-        
-        // Test that EventRegistry can be instantiated
-        $this->assertInstanceOf(
-            EventRegistry::class,
-            $eventRegistry,
-            'EventRegistry should be instantiable'
-        );
-        
-        // Test event registration (this would be integration tested)
-        $this->assertTrue(true, 'EventRegistry instantiated successfully');
-    }
-
-    public function test_compatibility_registry_integration(): void
-    {
-        $compatibilityRegistry = new CompatibilityRegistry();
-        
-        // Test that CompatibilityRegistry can be instantiated
-        $this->assertInstanceOf(
-            CompatibilityRegistry::class,
-            $compatibilityRegistry,
-            'CompatibilityRegistry should be instantiable'
-        );
-        
-        // Test Filament aliases
-        $aliases = $compatibilityRegistry->getFilamentAliases();
-        
-        $this->assertIsArray($aliases, 'Filament aliases should be an array');
-        $this->assertNotEmpty($aliases, 'Filament aliases should not be empty');
-    }
-
-    public function test_all_critical_services_are_registered(): void
-    {
-        // Test that register method can be called
         $this->provider->register();
         
-        // Since we're in unit test mode, we can't test actual service registration
-        // but we can verify the method executes without throwing exceptions
-        $this->assertTrue(true, 'Register method executed without errors');
+        $this->assertTrue($this->app->bound(TenantContext::class));
+        $this->assertTrue($this->app->bound(TenantBoundaryService::class));
+        $this->assertTrue($this->app->bound(PolicyRegistryInterface::class));
     }
 
-    public function test_all_interface_bindings_are_registered(): void
+    protected function tearDown(): void
     {
-        // Test that register method can be called
-        $this->provider->register();
-        
-        // Since we're in unit test mode, we can't test actual interface bindings
-        // but we can verify the method executes without throwing exceptions
-        $this->assertTrue(true, 'Register method executed without errors');
-    }
-
-    public function test_provider_methods_are_private(): void
-    {
-        $reflection = new \ReflectionClass(AppServiceProvider::class);
-        
-        $privateMethods = [
-            'registerCoreServices',
-            'registerCompatibilityServices',
-            'bootRegistries',
-            'bootCompatibility',
-            'bootObservers',
-            'bootPolicies',
-            'bootEvents',
-        ];
-        
-        foreach ($privateMethods as $methodName) {
-            $method = $reflection->getMethod($methodName);
-            $this->assertTrue(
-                $method->isPrivate(),
-                "Method {$methodName} should be private"
-            );
-        }
-    }
-
-    public function test_provider_has_proper_return_types(): void
-    {
-        $reflection = new \ReflectionClass(AppServiceProvider::class);
-        
-        $methods = [
-            'register' => 'void',
-            'boot' => 'void',
-        ];
-        
-        foreach ($methods as $methodName => $expectedReturnType) {
-            $method = $reflection->getMethod($methodName);
-            $returnType = $method->getReturnType();
-            
-            $this->assertNotNull(
-                $returnType,
-                "Method {$methodName} should have return type"
-            );
-            
-            $this->assertEquals(
-                $expectedReturnType,
-                $returnType->getName(),
-                "Method {$methodName} should return {$expectedReturnType}"
-            );
-        }
+        Mockery::close();
+        parent::tearDown();
     }
 }

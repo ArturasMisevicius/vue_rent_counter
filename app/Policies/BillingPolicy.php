@@ -54,7 +54,8 @@ class BillingPolicy
         }
 
         // Verify tenant belongs to current TenantContext
-        if (TenantContext::has() && TenantContext::id() !== $tenant->tenant_id) {
+        $tenantContext = app(\App\Services\TenantContext::class);
+        if ($tenantContext->get() !== null && $tenantContext->get() !== $tenant->tenant_id) {
             return false;
         }
 
@@ -88,7 +89,8 @@ class BillingPolicy
         }
 
         // Verify invoice belongs to current TenantContext
-        if (TenantContext::has() && TenantContext::id() !== $invoice->tenant_id) {
+        $tenantContext = app(\App\Services\TenantContext::class);
+        if ($tenantContext->get() !== null && $tenantContext->get() !== $invoice->tenant_id) {
             return false;
         }
 

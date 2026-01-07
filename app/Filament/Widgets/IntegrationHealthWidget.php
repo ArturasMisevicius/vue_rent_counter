@@ -15,15 +15,10 @@ class IntegrationHealthWidget extends BaseWidget
     
     protected int | string | array $columnSpan = 'full';
 
-    public function __construct(
-        private readonly IntegrationResilienceHandler $resilienceHandler
-    ) {
-        parent::__construct();
-    }
-
     protected function getStats(): array
     {
-        $healthStatus = $this->resilienceHandler->getHealthStatus();
+        $resilienceHandler = app(IntegrationResilienceHandler::class);
+        $healthStatus = $resilienceHandler->getHealthStatus();
         
         return [
             Stat::make('Overall Health', number_format($healthStatus['overall_health'], 1) . '%')

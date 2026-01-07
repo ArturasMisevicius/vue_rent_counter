@@ -30,24 +30,12 @@ final class ConfigurationRollbackWidget extends BaseWidget
     
     protected int | string | array $columnSpan = 'full';
 
-    public function __construct(
-        private readonly ConfigurationRollbackService $rollbackService,
-        private readonly UniversalServiceChangeTracker $changeTracker,
-    ) {
-        parent::__construct();
-    }
-
-    public static function getHeading(): string
+    protected function getTableQuery(): Collection
     {
-        return __('dashboard.audit.rollback_management');
-    }
-
-    protected function getHeaderActions(): array
-    {
-        return [
-            Action::make('rollback_history')
-                ->label(__('dashboard.audit.actions.view_rollback_history'))
-                ->icon('heroicon-o-clock')
+        $tenantId = auth()->user()->currentTeam->id;
+        
+        $rollbackService = app(ConfigurationRollbackService::class);
+        return $rollbackService->getRollbackCandidates($tenantId);
                 ->modalHeading(__('dashboard.audit.rollback_history'))
                 ->modalContent(fn () => view('filament.tenant.modals.rollback-history', [
                     'rollbacks' => $this->getRollbackHistory(),
@@ -204,9 +192,10 @@ final class ConfigurationRollbackWidget extends BaseWidget
         $rollbacks = collect();
         
         // Get rollback history for UtilityService models
+        $rollbackService = app(ConfigurationRollbackService::class);
         $utilityServices = \App\Models\UtilityService::where('tenant_id', $tenantId)->get();
         foreach ($utilityServices as $service) {
-            $serviceRollbacks = $this->rollbackService->getRollbackHistory(
+            $serviceRollbacks = $rollbackService->getRollbackHistory(
                 \App\Models\UtilityService::class,
                 $service->id
             );
@@ -224,7 +213,7 @@ final class ConfigurationRollbackWidget extends BaseWidget
         })->get();
         
         foreach ($configurations as $config) {
-            $configRollbacks = $this->rollbackService->getRollbackHistory(
+            $configRollbacks = $rollbackService->getRollbackHistory(
                 \App\Models\ServiceConfiguration::class,
                 $config->id
             );
@@ -246,7 +235,8 @@ final class ConfigurationRollbackWidget extends BaseWidget
     {
         $tenantId = auth()->user()->currentTeam->id;
         
-        $changes = $this->changeTracker->getTenantChanges(
+        $changeTracker = app(UniversalServiceChangeTracker::class);
+        $changes = $changeTracker->getTenantChanges(
             tenantId: $tenantId,
             startDate: now()->subDays(7), // Last 7 days
             endDate: now(),
@@ -256,7 +246,7 @@ final class ConfigurationRollbackWidget extends BaseWidget
         
         foreach ($changes as $change) {
             if ($change->event !== 'rollback' && $change->event !== 'deleted') {
-                $rollbackData = $this->changeTracker->getConfigurationRollbackData($change->auditId);
+                $rollbackData = $changeTracker->getConfigurationRollbackData($change->auditId);
                 
                 if ($rollbackData && $rollbackData['can_rollback']) {
                     $modelType = class_basename($change->modelType);
@@ -317,8 +307,9 @@ final class ConfigurationRollbackWidget extends BaseWidget
         
         $results = [];
         
+        $rollbackService = app(ConfigurationRollbackService::class);
         foreach ($auditIds as $auditId) {
-            $result = $this->rollbackService->performRollback(
+            $result = $rollbackService->performRollback(
                 auditLogId: (int) $auditId,
                 userId: $userId,
                 reason: "Bulk rollback: {$reason}",
@@ -384,7 +375,8 @@ final class ConfigurationRollbackWidget extends BaseWidget
         }
         
         // Perform the revert by rolling back to the state before the rollback
-        $result = $this->rollbackService->performRollback(
+        $rollbackService = app(ConfigurationRollbackService::class);
+        $result = $rollbackService->performRollback(
             auditLogId: $rollbackAudit->id,
             userId: auth()->id(),
             reason: "Revert rollback: {$reason}",

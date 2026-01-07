@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
 
 class Tenant extends Model
@@ -139,6 +140,54 @@ class Tenant extends Model
             'property_id', // Local key on tenants table
             'id'           // Local key on properties table
         );
+    }
+
+    /**
+     * Get all attachments for this tenant.
+     */
+    public function attachments(): MorphMany
+    {
+        return $this->morphMany(Attachment::class, 'attachable');
+    }
+
+    /**
+     * Get the tenant's photo attachment.
+     */
+    public function photo(): ?Attachment
+    {
+        return $this->attachments()
+            ->where('metadata->category', 'photo')
+            ->latest()
+            ->first();
+    }
+
+    /**
+     * Get the tenant's lease contract attachment.
+     */
+    public function leaseContract(): ?Attachment
+    {
+        return $this->attachments()
+            ->where('metadata->category', 'contract')
+            ->latest()
+            ->first();
+    }
+
+    /**
+     * Get the tenant's identity documents.
+     */
+    public function identityDocuments()
+    {
+        return $this->attachments()
+            ->where('metadata->category', 'identity');
+    }
+
+    /**
+     * Get all document attachments (excluding photos).
+     */
+    public function documents()
+    {
+        return $this->attachments()
+            ->whereIn('metadata->category', ['contract', 'identity', 'document']);
     }
 
     /**

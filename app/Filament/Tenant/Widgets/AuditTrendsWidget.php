@@ -16,26 +16,13 @@ use Illuminate\Support\Facades\Cache;
  */
 final class AuditTrendsWidget extends ChartWidget
 {
-    protected static ?string $heading = null;
+    protected ?string $heading = 'Audit Activity Trends';
     
     protected static ?int $sort = 2;
-    
-    protected static ?string $pollingInterval = '60s';
 
-    public function __construct(
-        private readonly UniversalServiceAuditReporter $auditReporter,
-    ) {
-        parent::__construct();
-    }
-
-    protected function getHeading(): ?string
+    protected function getPollingInterval(): ?string
     {
-        return __('dashboard.audit.trends_title');
-    }
-
-    protected function getDescription(): ?string
-    {
-        return __('dashboard.audit.trends_description');
+        return '60s';
     }
 
     protected function getType(): string
@@ -48,7 +35,8 @@ final class AuditTrendsWidget extends ChartWidget
         $cacheKey = 'audit_trends_' . auth()->user()->currentTeam->id;
         
         return Cache::remember($cacheKey, 600, function () {
-            $report = $this->auditReporter->generateReport(
+            $auditReporter = app(UniversalServiceAuditReporter::class);
+            $report = $auditReporter->generateReport(
                 tenantId: auth()->user()->currentTeam->id,
                 startDate: now()->subDays(30),
                 endDate: now(),
@@ -102,7 +90,8 @@ final class AuditTrendsWidget extends ChartWidget
             $labels[] = $date->format('M j');
             
             // Get daily audit counts (simplified for demo)
-            $dailyReport = $this->auditReporter->generateReport(
+            $auditReporter = app(UniversalServiceAuditReporter::class);
+            $dailyReport = $auditReporter->generateReport(
                 tenantId: auth()->user()->currentTeam->id,
                 startDate: $date->startOfDay(),
                 endDate: $date->endOfDay(),

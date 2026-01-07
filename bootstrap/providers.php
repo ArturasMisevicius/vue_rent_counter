@@ -1,6 +1,8 @@
 <?php
 
 return [
+    // Core Laravel Service Providers (order matters!)
+    Illuminate\Foundation\Providers\FoundationServiceProvider::class,
     Illuminate\Auth\AuthServiceProvider::class,
     Illuminate\Broadcasting\BroadcastServiceProvider::class,
     Illuminate\Bus\BusServiceProvider::class,
@@ -10,7 +12,6 @@ return [
     Illuminate\Database\DatabaseServiceProvider::class,
     Illuminate\Encryption\EncryptionServiceProvider::class,
     Illuminate\Filesystem\FilesystemServiceProvider::class,
-    Illuminate\Foundation\Providers\FoundationServiceProvider::class,
     Illuminate\Hashing\HashServiceProvider::class,
     Illuminate\Mail\MailServiceProvider::class,
     Illuminate\Notifications\NotificationServiceProvider::class,
@@ -24,9 +25,30 @@ return [
     Illuminate\Validation\ValidationServiceProvider::class,
     Illuminate\View\ViewServiceProvider::class,
 
+    // Livewire (required by Filament) - must come before Filament
+    Livewire\LivewireServiceProvider::class,
+
+    // Application Service Providers (before Filament)
     App\Providers\AppServiceProvider::class,
     App\Providers\DatabaseServiceProvider::class,
     App\Providers\RepositoryServiceProvider::class,
     App\Providers\ValidationServiceProvider::class,
+
+    // Spatie Permission Service Provider
+    Spatie\Permission\PermissionServiceProvider::class,
+
+    // Filament Core Service Providers (after app providers)
+    Filament\FilamentServiceProvider::class,
+    Filament\Actions\ActionsServiceProvider::class,
+    Filament\Forms\FormsServiceProvider::class,
+    Filament\Infolists\InfolistsServiceProvider::class,
+    Filament\Notifications\NotificationsServiceProvider::class,
+    Filament\Schemas\SchemasServiceProvider::class,
+    Filament\Support\SupportServiceProvider::class,
+    Filament\Tables\TablesServiceProvider::class,
+    Filament\Widgets\WidgetsServiceProvider::class,
+
+    // Filament Panel Provider (must be last)
     App\Providers\Filament\AdminPanelProvider::class,
+    App\Providers\Filament\SuperadminPanelProvider::class,
 ];

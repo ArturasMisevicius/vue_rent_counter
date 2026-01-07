@@ -4,124 +4,144 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\MeterReading;
 use App\Models\User;
-use Illuminate\Support\Facades\Cache;
+use App\Traits\BelongsToTenant;
+use Illuminate\Database\Eloquent\Model;
 
 /**
- * TenantBoundaryService handles tenant scope validation and optimization.
- * 
- * This service centralizes tenant boundary checking logic to improve performance
- * and maintain consistency across the application.
- * 
- * Features:
- * - Optimized tenant property access checking
- * - Caching for repeated checks
- * - Performance monitoring
- * 
- * @package App\Services
+ * Centralized service for tenant boundary validation across all policies.
+ * Ensures consistent tenant access control and prevents cross-tenant data leakage.
  */
 final readonly class TenantBoundaryService
 {
     /**
-     * Check if a tenant user can access a specific meter reading.
-     * 
-     * This method optimizes the tenant property access check by using
-     * a more efficient query structure and caching.
-     * 
-     * @param User $tenantUser The tenant user
-     * @param MeterReading $meterReading The meter reading to check
-     * @return bool True if tenant can access the meter reading
+     * Check if a user can access resources for a specific tenant.
      */
-    public function canTenantAccessMeterReading(User $tenantUser, MeterReading $meterReading): bool
+    public function canAccessTenant(User $user, int $tenantId): bool
     {
-        if (!$tenantUser->tenant) {
+        // Superadmin can access any tenant
+        if ($user->hasRole('superadmin')) {
+            return true;
+        }
+
+        // User must belong to the tenant
+        return $user->tenant_id === $tenantId;
+    }
+
+    /**
+     * Check if a user can access a specific model that belongs to a tenant.
+     */
+    public function canAccessModel(User $user, Model $model): bool
+    {
+        // If model doesn't use tenant scoping, allow access
+        if (!$this->usesTenantScoping($model)) {
+            return true;
+        }
+
+        // Get tenant ID from model
+        $tenantId = $this->getTenantIdFromModel($model);
+        
+        if ($tenantId === null) {
             return false;
         }
 
-        $cacheKey = "tenant_meter_access_{$tenantUser->tenant->id}_{$meterReading->meter_id}";
-        
-        return Cache::remember($cacheKey, 300, function () use ($tenantUser, $meterReading) {
-            // Optimized query: Check if tenant is assigned to the property that owns the meter
-            return $meterReading->meter
-                ->property
-                ->tenants()
-                ->where('tenants.id', $tenantUser->tenant->id)
-                ->exists();
-        });
+        return $this->canAccessTenant($user, $tenantId);
     }
 
     /**
-     * Check if a tenant user can submit readings for a specific meter.
-     * 
-     * This includes additional validation for the Truth-but-Verify workflow.
-     * 
-     * @param User $tenantUser The tenant user
-     * @param int $meterId The meter ID
-     * @return bool True if tenant can submit readings for the meter
+     * Check if a user can create resources for the current tenant context.
      */
-    public function canTenantSubmitReadingForMeter(User $tenantUser, int $meterId): bool
+    public function canCreateForCurrentTenant(User $user): bool
     {
-        if (!$tenantUser->tenant) {
+        $currentTenantId = $this->getCurrentTenantId();
+        
+        if ($currentTenantId === null) {
             return false;
         }
 
-        $cacheKey = "tenant_meter_submit_{$tenantUser->tenant->id}_{$meterId}";
+        return $this->canAccessTenant($user, $currentTenantId);
+    }
+
+    /**
+     * Get the current tenant ID from the tenant context.
+     */
+    public function getCurrentTenantId(): ?int
+    {
+        // Get from TenantContext service if available
+        if (class_exists(\App\Services\TenantContext::class)) {
+            $tenantContext = app(\App\Services\TenantContext::class);
+            return $tenantContext->getCurrentTenantId();
+        }
+
+        // Fallback to authenticated user's tenant
+        $user = auth()->user();
+        return $user?->tenant_id;
+    }
+
+    /**
+     * Check if a model uses tenant scoping (has BelongsToTenant trait).
+     */
+    private function usesTenantScoping(Model $model): bool
+    {
+        return in_array(BelongsToTenant::class, class_uses_recursive($model));
+    }
+
+    /**
+     * Extract tenant ID from a model.
+     */
+    private function getTenantIdFromModel(Model $model): ?int
+    {
+        // Try common tenant ID field names
+        $tenantFields = ['tenant_id', 'organization_id', 'team_id'];
         
-        return Cache::remember($cacheKey, 300, function () use ($tenantUser, $meterId) {
-            // Check if tenant is assigned to a property that has this meter
-            return $tenantUser->tenant
-                ->properties()
-                ->whereHas('meters', function ($query) use ($meterId) {
-                    $query->where('id', $meterId);
-                })
-                ->exists();
-        });
+        foreach ($tenantFields as $field) {
+            if (isset($model->{$field})) {
+                return (int) $model->{$field};
+            }
+        }
+
+        return null;
     }
 
     /**
-     * Clear cache for tenant meter access.
-     * 
-     * Should be called when tenant property assignments change.
-     * 
-     * @param int $tenantId The tenant ID
-     * @param int|null $meterId Optional specific meter ID
-     * @return void
+     * Validate that a user has the required role for tenant operations.
      */
-    public function clearTenantMeterCache(int $tenantId, ?int $meterId = null): void
+    public function hasRequiredRole(User $user, array $allowedRoles): bool
     {
-        if ($meterId) {
-            Cache::forget("tenant_meter_access_{$tenantId}_{$meterId}");
-            Cache::forget("tenant_meter_submit_{$tenantId}_{$meterId}");
-        } else {
-            // Clear all meter access cache for this tenant
-            $pattern = "tenant_meter_*_{$tenantId}_*";
-            // Note: In production, consider using Redis SCAN for pattern-based deletion
-            Cache::flush(); // Simplified for now
-        }
+        return $user->hasAnyRole($allowedRoles);
     }
 
     /**
-     * Bulk check tenant access for multiple meter readings.
-     * 
-     * Optimized for scenarios where multiple readings need to be checked.
-     * 
-     * @param User $tenantUser The tenant user
-     * @param array $meterReadingIds Array of meter reading IDs
-     * @return array Array of meter reading IDs the tenant can access
+     * Check if user can perform admin-level operations (admin or superadmin).
      */
-    public function filterAccessibleMeterReadings(User $tenantUser, array $meterReadingIds): array
+    public function canPerformAdminOperations(User $user): bool
     {
-        if (!$tenantUser->tenant || empty($meterReadingIds)) {
-            return [];
+        return $this->hasRequiredRole($user, ['superadmin', 'admin']);
+    }
+
+    /**
+     * Check if user can perform manager-level operations (manager, admin, or superadmin).
+     */
+    public function canPerformManagerOperations(User $user): bool
+    {
+        return $this->hasRequiredRole($user, ['superadmin', 'admin', 'manager']);
+    }
+
+    /**
+     * Get all tenant IDs that a user can access.
+     */
+    public function getAccessibleTenantIds(User $user): array
+    {
+        // Superadmin can access all tenants
+        if ($user->hasRole('superadmin')) {
+            // Return all tenant IDs from the database
+            return \App\Models\User::distinct()
+                ->whereNotNull('tenant_id')
+                ->pluck('tenant_id')
+                ->toArray();
         }
 
-        // Optimized bulk query
-        return MeterReading::whereIn('id', $meterReadingIds)
-            ->whereHas('meter.property.tenants', function ($query) use ($tenantUser) {
-                $query->where('tenants.id', $tenantUser->tenant->id);
-            })
-            ->pluck('id')
-            ->toArray();
+        // Regular users can only access their own tenant
+        return $user->tenant_id ? [$user->tenant_id] : [];
     }
 }

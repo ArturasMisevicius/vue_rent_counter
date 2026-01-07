@@ -23,31 +23,13 @@ final class ComplianceStatusWidget extends BaseWidget
     
     protected static ?string $pollingInterval = '300s';
 
-    public function __construct(
-        private readonly UniversalServiceAuditReporter $auditReporter,
-    ) {
-        parent::__construct();
-    }
-
-    protected function getTableHeading(): ?string
+    protected function getTableQuery(): Builder
     {
-        return __('dashboard.audit.compliance_status');
-    }
-
-    protected function getTableDescription(): ?string
-    {
-        return __('dashboard.audit.compliance_description');
-    }
-
-    public function table(Table $table): Table
-    {
-        return $table
-            ->query($this->getTableQuery())
-            ->columns([
-                TextColumn::make('category')
-                    ->label(__('dashboard.audit.compliance_category'))
-                    ->formatStateUsing(fn (string $state): string => __("dashboard.audit.categories.{$state}"))
-                    ->sortable(),
+        $cacheKey = 'compliance_status_' . auth()->user()->currentTeam->id;
+        
+        $complianceData = Cache::remember($cacheKey, 300, function () {
+            $auditReporter = app(UniversalServiceAuditReporter::class);
+            $report = $auditReporter->generateReport(
                 
                 TextColumn::make('score')
                     ->label(__('dashboard.audit.compliance_score'))
@@ -94,7 +76,7 @@ final class ComplianceStatusWidget extends BaseWidget
         $cacheKey = 'compliance_status_' . auth()->user()->currentTeam->id;
         
         $complianceData = Cache::remember($cacheKey, 300, function () {
-            $report = $this->auditReporter->generateReport(
+            $report = $auditReporter->generateReport(
                 tenantId: auth()->user()->currentTeam->id,
                 startDate: now()->subDays(30),
                 endDate: now(),

@@ -108,7 +108,7 @@ abstract class BaseService implements \App\Contracts\ServiceInterface
 
         // Add tenant context if available
         if (class_exists(\App\Services\TenantContext::class)) {
-            $context['tenant_id'] = \App\Services\TenantContext::id();
+            $context['tenant_id'] = app(\App\Services\TenantContext::class)->get();
         }
 
         // Add authenticated user if available
@@ -132,7 +132,7 @@ abstract class BaseService implements \App\Contracts\ServiceInterface
             return true; // Model doesn't have tenant_id
         }
 
-        $currentTenantId = \App\Services\TenantContext::id();
+        $currentTenantId = app(\App\Services\TenantContext::class)->get();
         
         if (!$currentTenantId) {
             return true; // No tenant context (e.g., superadmin)

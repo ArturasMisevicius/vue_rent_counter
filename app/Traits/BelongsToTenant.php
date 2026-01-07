@@ -29,8 +29,8 @@ trait BelongsToTenant
                 return;
             }
 
-            if (TenantContext::id() !== null) {
-                $model->tenant_id = TenantContext::id();
+            if (app(\App\Services\TenantContext::class)->get() !== null) {
+                $model->tenant_id = app(\App\Services\TenantContext::class)->get();
                 return;
             }
 

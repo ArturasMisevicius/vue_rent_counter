@@ -15,12 +15,6 @@ final class SystemMetricsWidget extends BaseWidget
 {
     protected static ?string $pollingInterval = '60s';
 
-    public function __construct(
-        private readonly SystemMonitoringInterface $systemMonitoring,
-    ) {
-        parent::__construct();
-    }
-
     protected function getStats(): array
     {
         $metrics = Cache::remember('superadmin.system_metrics', 300, function () {

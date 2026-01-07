@@ -4,6 +4,31 @@ This directory contains documentation for utility scripts used in the Vilnius Ut
 
 ## Available Scripts
 
+### Administrative Scripts
+
+#### assign-super-admin.php
+
+Assigns super admin privileges to the latest created user in the system.
+
+**Location**: `assign-super-admin.php` (project root)
+
+**Documentation**: [assign-super-admin.md](assign-super-admin.md)
+
+**Quick Start**:
+```bash
+php assign-super-admin.php
+```
+
+**Purpose**:
+- Grant super admin access during system deployment
+- Restore admin access in emergency situations
+- Set up admin users for development/testing
+- Handle initial production setup
+
+**Security Level**: 🔴 **HIGH RISK** - Grants unrestricted system access
+
+---
+
 ### Namespace Consolidation
 
 #### count-filament-imports.php

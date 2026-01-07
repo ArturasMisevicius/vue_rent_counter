@@ -137,6 +137,51 @@ This directory contains detailed specifications for major features and initiativ
 
 **Documentation**: See `superadmin-dashboard-enhancement/README.md`
 
+---
+
+### Tenant Trust Certificate
+**Path**: `tenant-trust-certificate/`  
+**Status**: 📋 Planned  
+**Description**: Professional PDF certificates showing tenant payment reliability and rental history for rental applications.
+
+**Key Deliverables**:
+- TenantTrustCertificateService for certificate generation
+- PaymentReliabilityCalculator for scoring algorithm
+- Professional PDF templates with QR code verification
+- Premium feature integration with usage limits
+- Comprehensive property-based testing
+
+**Business Value**:
+- Revenue generation: €5 per certificate after 3 free per month
+- Tenant engagement and platform differentiation
+- Landlord verification system with QR codes
+- Leverages existing invoice data for additional value
+
+**Documentation**: See `tenant-trust-certificate/README.md`
+
+---
+
+### UI Navigation Enhancement
+**Path**: `ui-navigation-enhancement/`  
+**Status**: 🔄 In Progress  
+**Description**: Gold Master UI finalization with actionable dashboard widgets, restructured navigation hierarchy, and role-based navigation cleanup.
+
+**Key Deliverables**:
+- Actionable dashboard widgets that navigate to filtered views
+- Buildings and Real Estate as prominent top-level navigation items
+- Manager role navigation simplification (meter readings via context only)
+- Documentation synchronization with actual code state
+- Role-based navigation consistency across all user types
+
+**Business Value**:
+- Improved user experience and navigation efficiency
+- Reduced training time for new users
+- Better task completion rates for managers
+- Consistent UI patterns across the platform
+- Documentation accuracy for system maintenance
+
+**Documentation**: See `ui-navigation-enhancement/README.md`
+
 ## Specification Structure
 
 Each specification follows this structure:
