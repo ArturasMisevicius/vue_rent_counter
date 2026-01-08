@@ -51,4 +51,5 @@ return [
     // Filament Panel Provider (must be last)
     App\Providers\Filament\AdminPanelProvider::class,
     App\Providers\Filament\SuperadminPanelProvider::class,
+    App\Providers\Filament\TenantPanelProvider::class,
 ];

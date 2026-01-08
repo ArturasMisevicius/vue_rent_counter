@@ -30,7 +30,10 @@ class PlatformUserResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
-    protected static string|UnitEnum|null $navigationGroup = 'System Management';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('app.nav_groups.system_management');
+    }
 
     public static function shouldRegisterNavigation(): bool
     {

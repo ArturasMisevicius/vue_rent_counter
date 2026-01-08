@@ -4,69 +4,68 @@ declare(strict_types=1);
 
 namespace App\Filament\Superadmin\Pages;
 
-use App\Models\User;
-use App\Models\Subscription;
+use App\Filament\Superadmin\Widgets\RecentUsersWidget;
+use App\Filament\Superadmin\Widgets\SystemOverviewWidget;
+use BackedEnum;
 use Filament\Pages\Dashboard as BaseDashboard;
+use Filament\Widgets;
 
 /**
  * Superadmin Dashboard Page
  * 
- * Main dashboard for superadmin users with system-wide overview
- * and management capabilities.
- * 
- * @package App\Filament\Superadmin\Pages
+ * Main dashboard for the superadmin panel.
+ * Extends Filament's Dashboard to properly register routes.
  */
 final class Dashboard extends BaseDashboard
 {
     /**
+     * Navigation icon for the dashboard.
+     */
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-home';
+
+    /**
      * Get the page title.
-     * 
-     * @return string
      */
     public function getTitle(): string
     {
-        return __('app.pages.superadmin_dashboard');
+        return __('superadmin.dashboard.title');
     }
 
     /**
-     * Get the navigation label.
-     * 
-     * @return string
+     * Get the heading for the page.
      */
-    public static function getNavigationLabel(): string
+    public function getHeading(): string
     {
-        return __('app.navigation.dashboard');
+        return __('superadmin.dashboard.title');
     }
 
     /**
-     * Get total number of organizations.
-     * 
-     * @return int
+     * Get the subheading for the page.
      */
-    public function getTotalOrganizations(): int
+    public function getSubheading(): ?string
     {
-        // For now, return a placeholder count
-        // This will be replaced with actual organization model when implemented
-        return 0;
+        return __('superadmin.dashboard.subtitle');
     }
 
     /**
-     * Get number of active subscriptions.
+     * Get the widgets for the dashboard.
      * 
-     * @return int
+     * @return array<class-string<\Filament\Widgets\Widget>>
      */
-    public function getActiveSubscriptions(): int
+    public function getWidgets(): array
     {
-        return Subscription::where('status', 'active')->count();
+        return [
+            Widgets\AccountWidget::class,
+            SystemOverviewWidget::class,
+            RecentUsersWidget::class,
+        ];
     }
 
     /**
-     * Get total number of users.
-     * 
-     * @return int
+     * Get the number of columns for the widgets.
      */
-    public function getTotalUsers(): int
+    public function getColumns(): int | array
     {
-        return User::count();
+        return 2;
     }
 }

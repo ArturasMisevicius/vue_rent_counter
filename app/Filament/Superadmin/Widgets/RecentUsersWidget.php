@@ -115,20 +115,12 @@ final class RecentUsersWidget extends BaseWidget
     /**
      * Get the base query for the table.
      * 
-     * @return Builder
+     * @return Builder<User>
      */
     protected function getTableQuery(): Builder
     {
-        return Cache::remember(
-            'superadmin.recent_users_query',
-            300, // 5 minutes cache
-            function () {
-                return User::query()
-                    ->select(['id', 'name', 'email', 'role', 'created_at'])
-                    ->latest('created_at')
-                    ->limit(20) // Reduce limit for better performance
-                    ->get();
-            }
-        )->toQuery();
+        return User::query()
+            ->select(['id', 'name', 'email', 'role', 'created_at'])
+            ->latest('created_at');
     }
 }

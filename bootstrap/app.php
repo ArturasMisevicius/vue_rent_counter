@@ -18,11 +18,20 @@ $app = Application::configure(basePath: dirname(__DIR__))
         ]);
         
         $middleware->alias([
+            // Tenant context middleware
             'tenant.context' => \App\Http\Middleware\EnsureTenantContext::class,
             'tenant.set' => \App\Http\Middleware\SetTenantContext::class,
+            
+            // Role-based access control
             'superadmin' => \App\Http\Middleware\EnsureUserIsSuperadmin::class,
-            // Spatie Laravel Permission middleware aliases
-            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'role' => \App\Http\Middleware\EnsureUserHasRole::class,
+            
+            // Subscription and hierarchical access (CRITICAL for admin/manager/tenant routes)
+            'subscription.check' => \App\Http\Middleware\CheckSubscriptionStatus::class,
+            'hierarchical.access' => \App\Http\Middleware\EnsureHierarchicalAccess::class,
+            
+            // Spatie Laravel Permission middleware aliases (for database-based roles)
+            'spatie.role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);

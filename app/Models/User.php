@@ -88,7 +88,7 @@ class User extends Authenticatable implements FilamentUser
 {
     use HasFactory, Notifiable, HasRoles {
         HasRoles::bootHasRoles as protected bootHasRolesTrait;
-        HasRoles::hasRole as protected hasRoleTrait;
+        HasRoles::hasRole as public hasRoleTrait;
     }
 
     // Constants for magic strings

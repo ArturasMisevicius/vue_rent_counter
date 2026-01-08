@@ -1,70 +1,83 @@
 <x-filament-panels::page>
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
-        <!-- System Overview Card -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">
-                {{ __('app.labels.system_overview') }}
-            </h3>
-            <div class="space-y-3">
-                <div class="flex justify-between">
-                    <span class="text-sm text-gray-600">{{ __('app.labels.total_organizations') }}</span>
-                    <span class="text-sm font-medium">{{ $this->getTotalOrganizations() }}</span>
+    <div class="space-y-6">
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Superadmin Panel - Minimal Mode
+                </h3>
+                <div class="mt-2 max-w-xl text-sm text-gray-500">
+                    <p>The superadmin panel is running in minimal mode to prevent timeout issues.</p>
                 </div>
-                <div class="flex justify-between">
-                    <span class="text-sm text-gray-600">{{ __('app.labels.active_subscriptions') }}</span>
-                    <span class="text-sm font-medium">{{ $this->getActiveSubscriptions() }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-sm text-gray-600">{{ __('app.labels.total_users') }}</span>
-                    <span class="text-sm font-medium">{{ $this->getTotalUsers() }}</span>
+                <div class="mt-5">
+                    <div class="rounded-md bg-green-50 p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-green-800">
+                                    Panel is working!
+                                </h3>
+                                <div class="mt-2 text-sm text-green-700">
+                                    <p>Authentication is working and the panel is accessible.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Actions Card -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">
-                {{ __('app.labels.quick_actions') }}
-            </h3>
-            <div class="space-y-3">
-                <button type="button" 
-                        class="block w-full text-center bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
-                    {{ __('app.actions.create_organization') }}
-                </button>
-                <button type="button" 
-                        class="block w-full text-center bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors">
-                    {{ __('app.actions.manage_subscriptions') }}
-                </button>
-                <button type="button" 
-                        class="block w-full text-center bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition-colors">
-                    {{ __('app.actions.manage_users') }}
-                </button>
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    System Status
+                </h3>
+                <div class="mt-5">
+                    <dl class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+                        <div class="px-4 py-5 bg-gray-50 shadow rounded-lg overflow-hidden sm:p-6">
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Panel Status
+                            </dt>
+                            <dd class="mt-1 text-3xl font-semibold text-green-600">
+                                Active
+                            </dd>
+                        </div>
+                        <div class="px-4 py-5 bg-gray-50 shadow rounded-lg overflow-hidden sm:p-6">
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Authentication
+                            </dt>
+                            <dd class="mt-1 text-3xl font-semibold text-green-600">
+                                Working
+                            </dd>
+                        </div>
+                        <div class="px-4 py-5 bg-gray-50 shadow rounded-lg overflow-hidden sm:p-6">
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Mode
+                            </dt>
+                            <dd class="mt-1 text-3xl font-semibold text-blue-600">
+                                Minimal
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
             </div>
         </div>
 
-        <!-- System Health Card -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">
-                {{ __('app.labels.system_health') }}
-            </h3>
-            <div class="space-y-3">
-                <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-600">{{ __('app.labels.database_status') }}</span>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        {{ __('app.status.healthy') }}
-                    </span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-600">{{ __('app.labels.cache_status') }}</span>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        {{ __('app.status.active') }}
-                    </span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-600">{{ __('app.labels.queue_status') }}</span>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        {{ __('app.status.running') }}
-                    </span>
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Next Steps
+                </h3>
+                <div class="mt-2 text-sm text-gray-500">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Panel is now accessible without timeouts</li>
+                        <li>Gradually re-enable features in SuperadminPanelProvider</li>
+                        <li>Monitor server logs for any issues</li>
+                        <li>Test each feature as you re-enable it</li>
+                    </ul>
                 </div>
             </div>
         </div>

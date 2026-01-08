@@ -141,10 +141,10 @@ Route::middleware(['auth', 'role:superadmin,admin,manager'])->group(function () 
 // ============================================================================
 // Middleware applied:
 // - auth: Ensure user is authenticated
-// - role:superadmin: Ensure user has superadmin role
+// - superadmin: Ensure user has superadmin role (via UserRole enum)
 // Note: Superadmins bypass subscription checks and have unrestricted hierarchical access
 
-Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {
+Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {
     
     // Dashboard
     Route::get('/dashboard', [SuperadminDashboardController::class, 'index'])->name('dashboard');
@@ -230,7 +230,7 @@ Route::middleware(['auth'])
     ->name('superadmin.impersonation.end');
 
 // Filament-style resource deletes for superadmin convenience (no name prefix)
-Route::middleware(['auth', 'role:superadmin'])->group(function () {
+Route::middleware(['auth', 'superadmin'])->group(function () {
     Route::delete('superadmin/filament/buildings/{building}', [ManagerBuildingController::class, 'destroy'])->name('filament.admin.resources.buildings.destroy');
     Route::delete('superadmin/filament/properties/{property}', [ManagerPropertyController::class, 'destroy'])->name('filament.admin.resources.properties.destroy');
     Route::delete('superadmin/filament/invoices/{invoice}', [ManagerInvoiceController::class, 'destroy'])->name('filament.admin.resources.invoices.destroy');

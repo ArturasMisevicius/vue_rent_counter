@@ -72,6 +72,7 @@
     68 => 'Filament\\Widgets\\WidgetsServiceProvider',
     69 => 'App\\Providers\\Filament\\AdminPanelProvider',
     70 => 'App\\Providers\\Filament\\SuperadminPanelProvider',
+    71 => 'App\\Providers\\Filament\\TenantPanelProvider',
   ),
   'eager' => 
   array (
@@ -132,6 +133,7 @@
     54 => 'Filament\\Widgets\\WidgetsServiceProvider',
     55 => 'App\\Providers\\Filament\\AdminPanelProvider',
     56 => 'App\\Providers\\Filament\\SuperadminPanelProvider',
+    57 => 'App\\Providers\\Filament\\TenantPanelProvider',
   ),
   'deferred' => 
   array (

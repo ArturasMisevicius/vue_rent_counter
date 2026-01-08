@@ -1,14 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers\Filament;
 
-use App\Enums\UserRole;
-use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use App\Filament\Resources\OrganizationResource;
+use App\Filament\Resources\PlatformUserResource;
+use App\Filament\Resources\SubscriptionResource;
+use App\Filament\Superadmin\Pages\Dashboard;
+use App\Filament\Superadmin\Widgets\RecentUsersWidget;
+use App\Filament\Superadmin\Widgets\SystemOverviewWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\NavigationGroup;
-use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -19,7 +24,6 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /**
@@ -47,16 +51,11 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
  * - System Management: Organizations, subscriptions, system health
  * - User Management: All users across organizations
  * - Monitoring: Audit logs, performance metrics, backups
- * 
- * @package App\Providers\Filament
  */
-class SuperadminPanelProvider extends PanelProvider
+final class SuperadminPanelProvider extends PanelProvider
 {
     /**
      * Configure the Filament superadmin panel with system-wide access.
-     * 
-     * @param Panel $panel The Filament panel instance to configure
-     * @return Panel The fully configured panel instance
      */
     public function panel(Panel $panel): Panel
     {
@@ -67,20 +66,40 @@ class SuperadminPanelProvider extends PanelProvider
             ->authGuard('web')
             ->colors([
                 'primary' => Color::Red,
+                'danger' => Color::Rose,
+                'warning' => Color::Amber,
+                'success' => Color::Emerald,
+                'info' => Color::Sky,
             ])
-            ->discoverResources(in: app_path('Filament/Superadmin/Resources'), for: 'App\\Filament\\Superadmin\\Resources')
-            ->discoverPages(in: app_path('Filament/Superadmin/Pages'), for: 'App\\Filament\\Superadmin\\Pages')
+            ->brandName('Superadmin Panel')
+            ->navigationGroups([
+                NavigationGroup::make()
+                    ->label(__('app.nav_groups.system_management'))
+                    ->icon('heroicon-o-cog-6-tooth')
+                    ->collapsed(false),
+                NavigationGroup::make()
+                    ->label(__('app.nav_groups.user_management'))
+                    ->icon('heroicon-o-users')
+                    ->collapsed(false),
+                NavigationGroup::make()
+                    ->label(__('app.nav_groups.monitoring'))
+                    ->icon('heroicon-o-chart-bar')
+                    ->collapsed(true),
+            ])
             ->pages([
-                \App\Filament\Superadmin\Pages\Dashboard::class,
+                Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Superadmin/Widgets'), for: 'App\\Filament\\Superadmin\\Widgets')
+            ->resources([
+                OrganizationResource::class,
+                SubscriptionResource::class,
+                PlatformUserResource::class,
+            ])
             ->widgets([
                 Widgets\AccountWidget::class,
-                \App\Filament\Superadmin\Widgets\SystemOverviewWidget::class,
-                \App\Filament\Superadmin\Widgets\RecentUsersWidget::class,
+                SystemOverviewWidget::class,
+                RecentUsersWidget::class,
             ])
             ->middleware([
-                // Core Laravel middleware (session, CSRF, routing)
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
@@ -88,57 +107,28 @@ class SuperadminPanelProvider extends PanelProvider
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
-                
-                // Filament-specific middleware
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            // Temporarily disable Shield to fix 500 error
-            // ->plugins([
-            //     FilamentShieldPlugin::make(),
-            // ])
-            ->globalSearch(false) // Disable global search to reduce load
             ->authMiddleware([
                 Authenticate::class,
-                // Superadmin security middleware (only applied after authentication)
                 \App\Http\Middleware\EnsureUserIsSuperadmin::class,
             ])
-            // Simplify navigation groups to reduce rendering load
-            ->navigationGroups([
-                NavigationGroup::make('System')
-                    ->collapsed(false),
-                NavigationGroup::make('Users')
-                    ->collapsed(false),
-                NavigationGroup::make('Monitoring')
-                    ->collapsed(true),
-            ])
-            // Add performance optimizations
-            ->spa(false) // Disable SPA mode to reduce complexity
-            ->unsavedChangesAlerts(false); // Disable unsaved changes alerts
+            ->globalSearch(true)
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->spa(false)
+            ->unsavedChangesAlerts(true)
+            ->sidebarCollapsibleOnDesktop(true)
+            ->sidebarFullyCollapsibleOnDesktop(false)
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s');
     }
 
     /**
      * Bootstrap application services for the superadmin panel.
-     * 
-     * @return void
      */
     public function boot(): void
     {
-        // Configure superadmin-specific navigation visibility with caching
-        \Filament\Facades\Filament::serving(function () {
-            $user = auth()->user();
-            
-            if (!$user || $user->role !== UserRole::SUPERADMIN) {
-                return;
-            }
-            
-            // Cache navigation state to prevent repeated queries
-            $cacheKey = "superadmin.navigation.{$user->id}";
-            
-            Cache::remember($cacheKey, 300, function () {
-                // Superadmin sees all navigation items
-                return true;
-            });
-        });
+        // Panel-specific boot logic can be added here if needed
     }
 }

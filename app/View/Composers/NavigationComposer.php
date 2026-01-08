@@ -104,8 +104,20 @@ final class NavigationComposer
      */
     public function compose(View $view): void
     {
-        // SECURITY: Early return prevents data exposure to unauthenticated users
+        // SECURITY: Provide default values for unauthenticated users
         if (! $this->auth->check()) {
+            $view->with([
+                'userRole' => null,
+                'currentRoute' => $this->router->currentRouteName(),
+                'activeClass' => self::ACTIVE_CLASS,
+                'inactiveClass' => self::INACTIVE_CLASS,
+                'mobileActiveClass' => self::ACTIVE_CLASS,
+                'mobileInactiveClass' => self::INACTIVE_CLASS,
+                'canSwitchLocale' => false,
+                'showTopLocaleSwitcher' => false,
+                'languages' => collect(),
+                'currentLocale' => app()->getLocale(),
+            ]);
             return;
         }
 

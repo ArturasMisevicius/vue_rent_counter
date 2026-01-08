@@ -52,7 +52,51 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->bootRateLimiters();
         $this->bootServiceRegistration();
+        $this->bootViewComposers();
+    }
+
+    /**
+     * Register rate limiters for admin and API routes
+     * 
+     * This must be called during boot() after facades are initialized.
+     * Rate limiters prevent brute force attacks and DoS attempts.
+     */
+    private function bootRateLimiters(): void
+    {
+        // Rate limiting for admin routes (120 requests per minute per user)
+        \Illuminate\Support\Facades\RateLimiter::for('admin', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(120)
+                ->by($request->user()?->id ?: $request->ip())
+                ->response(function () {
+                    return response()->json([
+                        'message' => 'Too many requests. Please try again later.',
+                    ], 429);
+                });
+        });
+
+        // Rate limiting for API routes (60 requests per minute per user)
+        \Illuminate\Support\Facades\RateLimiter::for('api', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(60)
+                ->by($request->user()?->id ?: $request->ip())
+                ->response(function () {
+                    return response()->json([
+                        'message' => 'Too many requests. Please try again later.',
+                    ], 429);
+                });
+        });
+    }
+
+    /**
+     * Register view composers for shared view data
+     */
+    private function bootViewComposers(): void
+    {
+        \Illuminate\Support\Facades\View::composer(
+            'layouts.app',
+            \App\View\Composers\NavigationComposer::class
+        );
     }
 
     /**
