@@ -2,48 +2,20 @@
 
 declare(strict_types=1);
 
-use App\Contracts\TenantAuthorizationServiceInterface;
 use App\Enums\UserRole;
 use App\Models\User;
-use App\Repositories\TenantRepositoryInterface;
 use App\Services\TenantAuthorizationService;
 use App\ValueObjects\TenantId;
-use Mockery;
 
 describe('TenantAuthorizationService', function () {
     beforeEach(function () {
-        $this->tenantRepository = Mockery::mock(TenantRepositoryInterface::class);
-        $this->service = new TenantAuthorizationService($this->tenantRepository);
+        $this->service = new TenantAuthorizationService();
         $this->tenantId = TenantId::from(123);
     });
 
-    afterEach(function () {
-        Mockery::close();
-    });
-
     describe('canSwitchTo method', function () {
-        it('returns false when tenant does not exist', function () {
-            $user = User::factory()->make(['role' => UserRole::ADMIN]);
-            
-            $this->tenantRepository
-                ->shouldReceive('exists')
-                ->with($this->tenantId)
-                ->once()
-                ->andReturn(false);
-
-            $result = $this->service->canSwitchTo($this->tenantId, $user);
-
-            expect($result)->toBeFalse();
-        });
-
-        it('returns true for superadmin when tenant exists', function () {
+        it('returns true for superadmin', function () {
             $user = User::factory()->make(['role' => UserRole::SUPERADMIN]);
-            
-            $this->tenantRepository
-                ->shouldReceive('exists')
-                ->with($this->tenantId)
-                ->once()
-                ->andReturn(true);
 
             $result = $this->service->canSwitchTo($this->tenantId, $user);
 
@@ -55,12 +27,6 @@ describe('TenantAuthorizationService', function () {
                 'role' => UserRole::ADMIN,
                 'tenant_id' => 123,
             ]);
-            
-            $this->tenantRepository
-                ->shouldReceive('exists')
-                ->with($this->tenantId)
-                ->once()
-                ->andReturn(true);
 
             $result = $this->service->canSwitchTo($this->tenantId, $user);
 
@@ -72,12 +38,6 @@ describe('TenantAuthorizationService', function () {
                 'role' => UserRole::ADMIN,
                 'tenant_id' => 456,
             ]);
-            
-            $this->tenantRepository
-                ->shouldReceive('exists')
-                ->with($this->tenantId)
-                ->once()
-                ->andReturn(true);
 
             $result = $this->service->canSwitchTo($this->tenantId, $user);
 

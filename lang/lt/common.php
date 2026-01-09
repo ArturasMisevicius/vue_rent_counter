@@ -1,19 +1,18 @@
 <?php
 
-return array (
+return [
   'language_switched' => 'Kalba pakeista',
   'no' => 'Ne',
   'view' => 'Peržiūrėti',
   'edit' => 'Redaguoti',
   'delete' => 'Ištrinti',
   'confirm_delete' => 'Ar tikrai norite ištrinti šį elementą?',
-  'status' => 
-  array (
+  'status' => [
     'active' => 'Aktyvus',
     'suspended' => 'Sustabdytas',
     'trial' => 'Bandomasis',
     'unknown' => 'Nežinomas',
-  ),
+  ],
   'unknown' => 'Nežinomas',
   'yes' => 'Taip',
   'all' => 'Visi',
@@ -24,12 +23,15 @@ return array (
   'date_time' => 'Data ir laikas',
   'organization' => 'Organizacija',
   'action' => 'Veiksmas',
-  'greeting' => 'Labas',
+  'greeting' => 'Sveiki',
   'language' => 'Kalba',
   'select_language' => 'Pasirinkti kalbą',
   'change_language' => 'Keisti kalbą',
-  'no_languages_available' => 'Kalbų nėra',
+  'no_languages_available' => 'Nėra prieinamu kalbų',
+  'language_switcher_label' => 'Keisti kalbą',
+  'current_language' => 'Dabartinė kalba',
+  'language_changed_to' => 'Kalba pakeista į',
   'english' => 'Anglų',
   'lithuanian' => 'Lietuvių',
   'russian' => 'Rusų',
-);
+];

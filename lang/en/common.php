@@ -1,19 +1,18 @@
 <?php
 
-return array (
+return [
   'language_switched' => 'Language Switched',
   'no' => 'No',
   'view' => 'View',
   'edit' => 'Edit',
   'delete' => 'Delete',
   'confirm_delete' => 'Are you sure you want to delete this item?',
-  'status' => 
-  array (
+  'status' => [
     'active' => 'Active',
     'suspended' => 'Suspended',
     'trial' => 'Trial',
     'unknown' => 'Unknown',
-  ),
+  ],
   'unknown' => 'Unknown',
   'yes' => 'Yes',
   'all' => 'All',
@@ -29,7 +28,10 @@ return array (
   'select_language' => 'Select Language',
   'change_language' => 'Change Language',
   'no_languages_available' => 'No languages available',
+  'language_switcher_label' => 'Change language',
+  'current_language' => 'Current language',
+  'language_changed_to' => 'Language changed to',
   'english' => 'English',
   'lithuanian' => 'Lithuanian',
   'russian' => 'Russian',
-);
+];

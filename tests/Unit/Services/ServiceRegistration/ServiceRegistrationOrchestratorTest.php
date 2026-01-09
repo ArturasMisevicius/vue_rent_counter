@@ -16,7 +16,7 @@ use Tests\TestCase;
 final class ServiceRegistrationOrchestratorTest extends TestCase
 {
     private ServiceRegistrationOrchestrator $orchestrator;
-    private Application $app;
+    protected $app;
     private ErrorHandlingStrategyInterface $errorHandler;
     private PolicyRegistryMonitoringService $monitoringService;
 

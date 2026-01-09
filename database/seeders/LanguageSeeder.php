@@ -11,17 +11,17 @@ class LanguageSeeder extends Seeder
     {
         $languages = [
             [
-                'code' => 'en',
-                'name' => 'English',
-                'native_name' => 'English',
+                'code' => 'lt',
+                'name' => 'Lithuanian',
+                'native_name' => 'Lietuvių',
                 'is_default' => true,
                 'is_active' => true,
                 'display_order' => 1,
             ],
             [
-                'code' => 'lt',
-                'name' => 'Lithuanian',
-                'native_name' => 'Lietuvių',
+                'code' => 'en',
+                'name' => 'English',
+                'native_name' => 'English',
                 'is_default' => false,
                 'is_active' => true,
                 'display_order' => 2,

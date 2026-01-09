@@ -1,0 +1,1 @@
+\"? \$name (\$uri): EXCEPTION - \" . get_class(\$e) . \": \" . substr(\$e-, 0, 100) . \"\n\";

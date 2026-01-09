@@ -1,32 +1,37 @@
 <?php
 
-return array (
+return [
   'language_switched' => 'Язык изменен',
   'no' => 'Нет',
   'view' => 'Просмотр',
   'edit' => 'Редактировать',
   'delete' => 'Удалить',
   'confirm_delete' => 'Вы уверены, что хотите удалить этот элемент?',
-  'status' => 
-  array (
+  'status' => [
     'active' => 'Активный',
     'suspended' => 'Приостановлен',
     'trial' => 'Пробный',
     'unknown' => 'Неизвестно',
-  ),
+  ],
   'unknown' => 'Неизвестно',
   'yes' => 'Да',
   'all' => 'Все',
   'filter' => 'Фильтр',
   'clear' => 'Очистить',
   'date_from' => 'Дата с',
-  'date_to' => 'Дата по',
+  'date_to' => 'Дата до',
   'date_time' => 'Дата и время',
   'organization' => 'Организация',
   'action' => 'Действие',
   'greeting' => 'Привет',
   'language' => 'Язык',
+  'select_language' => 'Выбрать язык',
+  'change_language' => 'Изменить язык',
+  'no_languages_available' => 'Нет доступных языков',
+  'language_switcher_label' => 'Изменить язык',
+  'current_language' => 'Текущий язык',
+  'language_changed_to' => 'Язык изменен на',
   'english' => 'Английский',
   'lithuanian' => 'Литовский',
   'russian' => 'Русский',
-);
+];
