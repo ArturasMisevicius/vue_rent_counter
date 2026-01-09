@@ -82,26 +82,20 @@ function handleLanguageChange(select, form, originalState, event) {
         setLoadingState(select, form, true);
         select.dataset.submitting = 'true';
         
-        // Update form action
-        const newAction = baseUrl + selectedValue;
-        form.action = newAction;
+        // Build the redirect URL
+        const redirectUrl = baseUrl + selectedValue;
         
         // Add loading indicator
         const spinner = createLoadingSpinner();
         form.appendChild(spinner);
         
-        // Submit form after brief delay for UX
+        // Redirect after brief delay for UX
         setTimeout(() => {
-            // Final validation before submit
-            if (form.action && form.action.includes(selectedValue)) {
-                form.submit();
-            } else {
-                throw new Error('Form action validation failed');
-            }
+            window.location.href = redirectUrl;
         }, 150);
         
     } catch (error) {
-        console.error('Language switcher: Failed to submit form', error);
+        console.error('Language switcher: Failed to switch language', error);
         
         // Reset state on error
         restoreSwitcherState(select, form, originalState);

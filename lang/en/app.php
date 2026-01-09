@@ -16,6 +16,43 @@ return [
         'dashboard' => 'Dashboard',
     ],
     
+    // Navigation keys (used in layouts/navigation)
+    'nav' => [
+        'dashboard' => 'Dashboard',
+        'organizations' => 'Organizations',
+        'buildings' => 'Buildings',
+        'properties' => 'Properties',
+        'tenants' => 'Tenants',
+        'managers' => 'Managers',
+        'subscriptions' => 'Subscriptions',
+        'profile' => 'Profile',
+        'logout' => 'Logout',
+        'meters' => 'Meters',
+        'meter_readings' => 'Meter Readings',
+        'invoices' => 'Invoices',
+        'tariffs' => 'Tariffs',
+        'providers' => 'Providers',
+        'users' => 'Users',
+        'settings' => 'Settings',
+        'reports' => 'Reports',
+    ],
+    
+    // Call-to-action buttons
+    'cta' => [
+        'login' => 'Login',
+        'register' => 'Register',
+        'go_to_app' => 'Go to App',
+        'create_account' => 'Create Account',
+        'start_now' => 'Start Now',
+        'submit' => 'Submit',
+        'save' => 'Save',
+        'cancel' => 'Cancel',
+        'delete' => 'Delete',
+        'edit' => 'Edit',
+        'view' => 'View',
+        'back' => 'Back',
+    ],
+    
     'labels' => [
         'property' => 'Property',
         'properties' => 'Properties',

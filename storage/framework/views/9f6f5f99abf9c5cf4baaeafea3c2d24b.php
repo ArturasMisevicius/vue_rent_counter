@@ -189,10 +189,9 @@
 
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->guard()->check()): ?>
                         <div class="hidden md:flex md:items-center md:gap-3">
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showTopLocaleSwitcher): ?>
-                                <form method="POST" action="<?php echo e(route('locale.set')); ?>">
-                                    <?php echo csrf_field(); ?>
-                                    <select name="locale" onchange="this.form.submit()" class="bg-white/80 border border-slate-200 text-sm rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($languages->isNotEmpty()): ?>
+                                <form method="GET" action="<?php echo e(route('language.switch', ['locale' => $currentLocale])); ?>" id="locale-form">
+                                    <select name="locale" onchange="window.location.href='<?php echo e(url('language')); ?>/' + this.value" class="bg-white/80 border border-slate-200 text-sm rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $languages; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $language): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <option value="<?php echo e($language->code); ?>" <?php echo e($language->code === $currentLocale ? 'selected' : ''); ?>>
                                                 <?php echo e($language->native_name ?? $language->name); ?>
@@ -360,10 +359,9 @@
                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                     <div class="border-t border-slate-200 pt-2 mt-2">
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($showTopLocaleSwitcher): ?>
-                            <form method="POST" action="<?php echo e(route('locale.set')); ?>" class="px-3 py-2">
-                                <?php echo csrf_field(); ?>
-                                <select name="locale" onchange="this.form.submit()" class="w-full bg-white border border-slate-200 text-sm rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($languages->isNotEmpty()): ?>
+                            <div class="px-3 py-2">
+                                <select name="locale" onchange="window.location.href='<?php echo e(url('language')); ?>/' + this.value" class="w-full bg-white border border-slate-200 text-sm rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $languages; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $language): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <option value="<?php echo e($language->code); ?>" <?php echo e($language->code === $currentLocale ? 'selected' : ''); ?>>
                                             <?php echo e($language->native_name ?? $language->name); ?>
@@ -371,7 +369,7 @@
                                         </option>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 </select>
-                            </form>
+                            </div>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         <form method="POST" action="<?php echo e(route('logout')); ?>">
                             <?php echo csrf_field(); ?>

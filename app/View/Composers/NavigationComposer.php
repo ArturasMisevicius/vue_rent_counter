@@ -131,7 +131,7 @@ final class NavigationComposer
             'inactiveClass' => self::INACTIVE_CLASS,
             'mobileActiveClass' => self::ACTIVE_CLASS,
             'mobileInactiveClass' => self::INACTIVE_CLASS,
-            'canSwitchLocale' => $this->router->has('locale.set'),
+            'canSwitchLocale' => $this->router->has('language.switch'),
             'showTopLocaleSwitcher' => $this->shouldShowLocaleSwitcher($userRole),
             'languages' => $this->getActiveLanguages($userRole),
             'currentLocale' => app()->getLocale(),
@@ -150,7 +150,7 @@ final class NavigationComposer
      */
     private function shouldShowLocaleSwitcher(UserRole $userRole): bool
     {
-        return $this->router->has('locale.set')
+        return $this->router->has('language.switch')
             && ! in_array($userRole, self::ROLES_WITHOUT_LOCALE_SWITCHER, true);
     }
 
@@ -158,25 +158,18 @@ final class NavigationComposer
      * Retrieve active languages for the locale switcher.
      *
      * SECURITY FEATURES:
-     * - Returns empty collection if user not authorized (defense in depth)
      * - Uses query scope to prevent SQL injection
      * - Only returns active languages (information disclosure prevention)
      * - Ordered by display_order (prevents timing attacks via ordering)
      *
-     * Returns an empty collection if the locale switcher should not be shown
-     * for the current user role. Otherwise, returns all active languages
-     * ordered by their display_order.
+     * Returns all active languages ordered by their display_order.
+     * All authenticated users can switch languages.
      *
      * @param  UserRole  $userRole  The user's role (type-safe enum)
      * @return Collection<int, Language> Collection of active Language models
      */
     private function getActiveLanguages(UserRole $userRole): Collection
     {
-        // SECURITY: Defense in depth - don't query if user not authorized
-        if (! $this->shouldShowLocaleSwitcher($userRole)) {
-            return collect();
-        }
-
         // SECURITY: Use scope to prevent SQL injection and ensure consistent filtering
         return Language::getActiveLanguages();
     }

@@ -141,10 +141,9 @@
 
                     @auth
                         <div class="hidden md:flex md:items-center md:gap-3">
-                            @if($showTopLocaleSwitcher)
-                                <form method="POST" action="{{ route('locale.set') }}">
-                                    @csrf
-                                    <select name="locale" onchange="this.form.submit()" class="bg-white/80 border border-slate-200 text-sm rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                            @if($languages->isNotEmpty())
+                                <form method="GET" action="{{ route('language.switch', ['locale' => $currentLocale]) }}" id="locale-form">
+                                    <select name="locale" onchange="window.location.href='{{ url('language') }}/' + this.value" class="bg-white/80 border border-slate-200 text-sm rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                                         @foreach($languages as $language)
                                             <option value="{{ $language->code }}" {{ $language->code === $currentLocale ? 'selected' : '' }}>
                                                 {{ $language->native_name ?? $language->name }}
@@ -282,17 +281,16 @@
                     @endif
 
                     <div class="border-t border-slate-200 pt-2 mt-2">
-                        @if($showTopLocaleSwitcher)
-                            <form method="POST" action="{{ route('locale.set') }}" class="px-3 py-2">
-                                @csrf
-                                <select name="locale" onchange="this.form.submit()" class="w-full bg-white border border-slate-200 text-sm rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                        @if($languages->isNotEmpty())
+                            <div class="px-3 py-2">
+                                <select name="locale" onchange="window.location.href='{{ url('language') }}/' + this.value" class="w-full bg-white border border-slate-200 text-sm rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                                     @foreach($languages as $language)
                                         <option value="{{ $language->code }}" {{ $language->code === $currentLocale ? 'selected' : '' }}>
                                             {{ $language->native_name ?? $language->name }}
                                         </option>
                                     @endforeach
                                 </select>
-                            </form>
+                            </div>
                         @endif
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
