@@ -375,6 +375,24 @@ return [
         ],
     ],
 
+    // Property and Service Dashboard Keys
+    'property' => 'Turtas',
+    'service' => 'Paslauga',
+    'latest_reading' => 'Paskutinis rodmuo',
+    'no_readings' => 'Nėra rodmenų',
+    'monthly_consumption' => 'Mėnesio suvartojimas',
+    'last_reading_date' => 'Paskutinio rodmens data',
+    'status' => 'Būsena',
+    'no_data' => 'Nėra duomenų',
+    'recent' => 'Naujausi',
+    'outdated' => 'Pasenę',
+    'has_recent_readings' => 'Turi naujausius rodmenis',
+    'needs_reading' => 'Reikia rodmens',
+    'view_readings' => 'Žiūrėti rodmenis',
+    'export_readings' => 'Eksportuoti rodmenis',
+    'export_started' => 'Eksportas pradėtas',
+    'export_will_be_available_shortly' => 'Eksportas bus prieinamas netrukus',
+
     // Audit System Translations
     'audit' => [
         // Widget Headings
@@ -387,6 +405,17 @@ return [
         'change_history' => 'Pakeitimų istorija',
         'rollback_management' => 'Atkūrimo valdymas',
         'rollback_history' => 'Atkūrimo istorija',
+        
+        // Anomaly Actions
+        'anomaly_marked_investigating' => 'Anomalija pažymėta kaip tiriama',
+        'anomaly_resolved' => 'Anomalija išspręsta',
+        'anomaly_ignored' => 'Anomalija ignoruota',
+        
+        // Status
+        'status' => 'Būsena',
+        'last_check' => 'Paskutinė patikra',
+        'issues' => 'Problemos',
+        'no_issues' => 'Problemų nėra',
         
         // Stats and Metrics
         'total_changes' => 'Iš viso pakeitimų',

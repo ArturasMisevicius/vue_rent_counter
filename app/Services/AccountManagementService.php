@@ -69,7 +69,10 @@ class AccountManagementService
             ]);
 
             // Create admin user (tenant_id == organization id)
-            $admin = User::create([
+            // Note: role and tenant_id are protected from mass assignment for security,
+            // so we use forceFill() to set them in this trusted service context
+            $admin = new User();
+            $admin->forceFill([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => $hashedPassword,
@@ -78,6 +81,7 @@ class AccountManagementService
                 'organization_name' => $data['organization_name'],
                 'is_active' => true,
             ]);
+            $admin->save();
 
             $subscription = null;
 
@@ -140,7 +144,10 @@ class AccountManagementService
 
         return DB::transaction(function () use ($data, $admin, $property, $hashedPassword) {
             // Create tenant user inheriting admin's tenant_id
-            $tenant = User::create([
+            // Note: role, tenant_id, property_id, parent_user_id are protected from mass assignment
+            // for security, so we use forceFill() to set them in this trusted service context
+            $tenant = new User();
+            $tenant->forceFill([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => $hashedPassword,
@@ -150,6 +157,7 @@ class AccountManagementService
                 'parent_user_id' => $admin->id,
                 'is_active' => true,
             ]);
+            $tenant->save();
 
             // Log the action
             $this->logAccountAction($tenant, 'created', $admin, $property->id);
@@ -190,10 +198,12 @@ class AccountManagementService
         DB::transaction(function () use ($tenant, $property, $admin) {
             $previousPropertyId = $tenant->property_id;
 
-            // Update property assignment
-            $tenant->update([
+            // Update property assignment using forceFill since property_id is not fillable
+            // (protected from mass assignment for security)
+            $tenant->forceFill([
                 'property_id' => $property->id,
             ]);
+            $tenant->save();
 
             // Create audit log entry
             $this->logAccountAction(
@@ -239,10 +249,12 @@ class AccountManagementService
             $previousPropertyId = $tenant->property_id;
             $previousProperty = $tenant->property;
 
-            // Update property assignment
-            $tenant->update([
+            // Update property assignment using forceFill since property_id is not fillable
+            // (protected from mass assignment for security)
+            $tenant->forceFill([
                 'property_id' => $newProperty->id,
             ]);
+            $tenant->save();
 
             // Create audit log entry
             $this->logAccountAction(

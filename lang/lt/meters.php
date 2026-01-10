@@ -10,6 +10,7 @@ return [
         'edit' => 'Edit',
         'edit_meter' => 'Edit Meter',
         'view' => 'View',
+        'view_readings' => 'Peržiūrėti rodmenis',
     ],
     'confirmations' => [
         'delete' => 'Delete',

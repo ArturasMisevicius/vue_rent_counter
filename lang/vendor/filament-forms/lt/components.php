@@ -11,15 +11,67 @@ return [
             ],
 
             'add' => [
+
                 'label' => 'Pridėti prie :label',
+
+                'modal' => [
+
+                    'heading' => 'Pridėti prie :label',
+
+                    'actions' => [
+
+                        'add' => [
+                            'label' => 'Pridėti',
+                        ],
+
+                    ],
+
+                ],
+
             ],
 
             'add_between' => [
+
                 'label' => 'Pridėti tarp blokų',
+
+                'modal' => [
+
+                    'heading' => 'Pridėti prie :label',
+
+                    'actions' => [
+
+                        'add' => [
+                            'label' => 'Pridėti',
+                        ],
+
+                    ],
+
+                ],
+
             ],
 
             'delete' => [
                 'label' => 'Ištrinti',
+            ],
+
+            'edit' => [
+
+                'label' => 'Redaguoti',
+
+                'modal' => [
+
+                    'heading' => 'Redaguoti bloką',
+
+                    'actions' => [
+
+                        'save' => [
+                            'label' => 'Išsaugoti pakeitimus',
+                        ],
+
+                    ],
+
+                ],
+
             ],
 
             'reorder' => [
@@ -121,11 +173,11 @@ return [
                 ],
 
                 'rotate_right' => [
-                    'label' => 'Pasukti nuotrauka į dešinę',
+                    'label' => 'Pasukti nuotrauką į dešinę',
                 ],
 
                 'set_aspect_ratio' => [
-                    'label' => 'Nustatyti kraštinių santikį į :ratio',
+                    'label' => 'Nustatyti kraštinių santykį į :ratio',
                 ],
 
                 'save' => [
@@ -211,7 +263,7 @@ return [
             ],
 
             'reorder' => [
-                'label' => 'Pastumti',
+                'label' => 'Pertvarkyti eilutę',
             ],
 
         ],
@@ -230,16 +282,11 @@ return [
 
     ],
 
-    'radio' => [
-
-        'boolean' => [
-            'true' => 'Taip',
-            'false' => 'Ne',
-        ],
-
-    ],
-
     'markdown_editor' => [
+
+        'file_attachments_accepted_file_types_message' => 'Įkelti failai turi būti tipo: :values.',
+
+        'file_attachments_max_size_message' => 'Įkelti failai negali būti didesni nei :max kilobaitų.',
 
         'tools' => [
             'attach_files' => 'Pridėti failus',
@@ -255,6 +302,37 @@ return [
             'strike' => 'Perbraukti',
             'table' => 'Lentelė',
             'undo' => 'Anuliuoti',
+        ],
+
+    ],
+
+    'modal_table_select' => [
+
+        'actions' => [
+
+            'select' => [
+
+                'label' => 'Pasirinkti',
+
+                'actions' => [
+
+                    'select' => [
+                        'label' => 'Pasirinkti',
+                    ],
+
+                ],
+
+            ],
+
+        ],
+
+    ],
+
+    'radio' => [
+
+        'boolean' => [
+            'true' => 'Taip',
+            'false' => 'Ne',
         ],
 
     ],
@@ -313,40 +391,232 @@ return [
 
     'rich_editor' => [
 
-        'dialogs' => [
+        'actions' => [
+
+            'attach_files' => [
+
+                'label' => 'Įkelti failą',
+
+                'modal' => [
+
+                    'heading' => 'Įkelti failą',
+
+                    'form' => [
+
+                        'file' => [
+
+                            'label' => [
+                                'new' => 'Failas',
+                                'existing' => 'Pakeisti failą',
+                            ],
+
+                        ],
+
+                        'alt' => [
+
+                            'label' => [
+                                'new' => 'Alternatyvus tekstas',
+                                'existing' => 'Keisti alternatyvų tekstą',
+                            ],
+
+                        ],
+
+                    ],
+
+                ],
+
+            ],
+
+            'custom_block' => [
+
+                'modal' => [
+
+                    'actions' => [
+
+                        'insert' => [
+                            'label' => 'Įterpti',
+                        ],
+
+                        'save' => [
+                            'label' => 'Išsaugoti',
+                        ],
+
+                    ],
+
+                ],
+
+            ],
+
+            'grid' => [
+
+                'label' => 'Tinklelis',
+
+                'modal' => [
+
+                    'heading' => 'Tinklelis',
+
+                    'form' => [
+
+                        'preset' => [
+
+                            'label' => 'Šablonas',
+
+                            'placeholder' => 'Nėra',
+
+                            'options' => [
+                                'two' => 'Du',
+                                'three' => 'Trys',
+                                'four' => 'Keturi',
+                                'five' => 'Penki',
+                                'two_start_third' => 'Du (pradžia trečdalis)',
+                                'two_end_third' => 'Du (pabaiga trečdalis)',
+                                'two_start_fourth' => 'Du (pradžia ketvirtadalis)',
+                                'two_end_fourth' => 'Du (pabaiga ketvirtadalis)',
+                            ],
+                        ],
+
+                        'columns' => [
+                            'label' => 'Stulpeliai',
+                        ],
+
+                        'from_breakpoint' => [
+
+                            'label' => 'Nuo lūžio taško',
+
+                            'options' => [
+                                'default' => 'Visi',
+                                'sm' => 'Mažas',
+                                'md' => 'Vidutinis',
+                                'lg' => 'Didelis',
+                                'xl' => 'Labai didelis',
+                                '2xl' => 'Dvigubai didelis',
+                            ],
+
+                        ],
+
+                        'is_asymmetric' => [
+                            'label' => 'Du asimetriniai stulpeliai',
+                        ],
+
+                        'start_span' => [
+                            'label' => 'Pradžios plotis',
+                        ],
+
+                        'end_span' => [
+                            'label' => 'Pabaigos plotis',
+                        ],
+
+                    ],
+
+                ],
+
+            ],
 
             'link' => [
 
-                'actions' => [
-                    'link' => 'Pridėti saitą',
-                    'unlink' => 'Pašalinti saitą',
+                'label' => 'Nuoroda',
+
+                'modal' => [
+
+                    'heading' => 'Nuoroda',
+
+                    'form' => [
+
+                        'url' => [
+                            'label' => 'URL',
+                        ],
+
+                        'should_open_in_new_tab' => [
+                            'label' => 'Atidaryti naujame skirtuke',
+                        ],
+
+                    ],
+
                 ],
 
-                'label' => 'Svetainės adresas',
+            ],
 
-                'placeholder' => 'Įveskite svetainės adresą',
+            'text_color' => [
+
+                'label' => 'Teksto spalva',
+
+                'modal' => [
+
+                    'heading' => 'Teksto spalva',
+
+                    'form' => [
+
+                        'color' => [
+                            'label' => 'Spalva',
+                        ],
+
+                        'custom_color' => [
+                            'label' => 'Pasirinktinė spalva',
+                        ],
+
+                    ],
+
+                ],
 
             ],
 
         ],
 
+        'file_attachments_accepted_file_types_message' => 'Įkelti failai turi būti tipo: :values.',
+
+        'file_attachments_max_size_message' => 'Įkelti failai negali būti didesni nei :max kilobaitų.',
+
+        'no_merge_tag_search_results_message' => 'Sujungimo žymų nerasta.',
+
         'tools' => [
+            'align_center' => 'Lygiuoti centre',
+            'align_end' => 'Lygiuoti pabaigoje',
+            'align_justify' => 'Lygiuoti abiejose pusėse',
+            'align_start' => 'Lygiuoti pradžioje',
             'attach_files' => 'Pridėti failus',
             'blockquote' => 'Citatos blokas',
             'bold' => 'Paryškinta',
             'bullet_list' => 'Ženklų sąrašas',
+            'clear_formatting' => 'Išvalyti formatavimą',
+            'code' => 'Kodas',
             'code_block' => 'Kodo blokas',
+            'custom_blocks' => 'Blokai',
+            'details' => 'Detalės',
             'h1' => 'Pavadinimas',
             'h2' => 'Antraštė',
             'h3' => 'Paantraštė',
+            'grid' => 'Tinklelis',
+            'grid_delete' => 'Ištrinti tinklelį',
+            'highlight' => 'Paryškinti',
+            'horizontal_rule' => 'Horizontali linija',
             'italic' => 'Kursyvas',
+            'lead' => 'Pagrindinis tekstas',
             'link' => 'Nuoroda',
+            'merge_tags' => 'Sujungimo žymos',
             'ordered_list' => 'Sunumeruotas sąrašas',
             'redo' => 'Perdaryti',
+            'small' => 'Mažas tekstas',
             'strike' => 'Perbraukta',
+            'subscript' => 'Apatinis indeksas',
+            'superscript' => 'Viršutinis indeksas',
+            'table' => 'Lentelė',
+            'table_delete' => 'Ištrinti lentelę',
+            'table_add_column_before' => 'Pridėti stulpelį prieš',
+            'table_add_column_after' => 'Pridėti stulpelį po',
+            'table_delete_column' => 'Ištrinti stulpelį',
+            'table_add_row_before' => 'Pridėti eilutę virš',
+            'table_add_row_after' => 'Pridėti eilutę po',
+            'table_delete_row' => 'Ištrinti eilutę',
+            'table_merge_cells' => 'Sujungti langelius',
+            'table_split_cell' => 'Išskaidyti langelį',
+            'table_toggle_header_row' => 'Perjungti antraštės eilutę',
+            'table_toggle_header_cell' => 'Perjungti antraštės langelį',
+            'text_color' => 'Teksto spalva',
             'underline' => 'Pabraukta',
             'undo' => 'Anuliuoti',
         ],
+
+        'uploading_file_message' => 'Įkeliamas failas...',
 
     ],
 
@@ -355,6 +625,8 @@ return [
         'actions' => [
 
             'create_option' => [
+
+                'label' => 'Sukurti',
 
                 'modal' => [
 
@@ -377,6 +649,8 @@ return [
             ],
 
             'edit_option' => [
+
+                'label' => 'Redaguoti',
 
                 'modal' => [
 
@@ -403,7 +677,7 @@ return [
 
         'loading_message' => 'Kraunasi...',
 
-        'max_items_message' => 'Pažymėti gali būti tik :count .',
+        'max_items_message' => 'Pažymėti gali būti tik :count.',
 
         'no_search_results_message' => 'Nėra paieškos rezultatų.',
 
@@ -411,7 +685,7 @@ return [
 
         'searching_message' => 'Ieškoma...',
 
-        'search_prompt' => 'Pradėkite rašykite paieškai...',
+        'search_prompt' => 'Pradėkite rašyti paieškai...',
 
     ],
 
@@ -422,6 +696,11 @@ return [
     'text_input' => [
 
         'actions' => [
+
+            'copy' => [
+                'label' => 'Kopijuoti',
+                'message' => 'Nukopijuota',
+            ],
 
             'hide_password' => [
                 'label' => 'Slėpti slaptažodį',

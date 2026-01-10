@@ -108,7 +108,7 @@ final readonly class TenantBoundaryService
      */
     public function hasRequiredRole(User $user, array $allowedRoles): bool
     {
-        return $user->hasAnyRole($allowedRoles);
+        return $user->hasRole($allowedRoles);
     }
 
     /**

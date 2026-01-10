@@ -11,6 +11,10 @@ return [
         'view' => 'Žiūrėti',
     ],
     'admin' => [
+        'actions' => [
+            'download_pdf' => 'Atsisiųsti PDF',
+            'send_to_tenant' => 'Siųsti nuomininkui',
+        ],
         'bulk' => [
             'status_updated' => 'Būsena atnaujinta',
         ],
@@ -46,6 +50,11 @@ return [
             'finalize_description' => 'Baigti aprašą',
             'finalize_heading' => 'Užbaigti antraštę',
             'finalize_submit' => 'Užbaigti pateikimą',
+            'send_to_tenant' => [
+                'heading' => 'Siųsti sąskaitą nuomininkui',
+                'description' => 'Sąskaita bus išsiųsta nuomininkui el. paštu.',
+                'submit' => 'Siųsti sąskaitą',
+            ],
         ],
         'navigation' => 'Sąskaitos',
     ],

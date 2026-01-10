@@ -1,1 +1,0 @@
-'Role: ' . \$user- . PHP_EOL;

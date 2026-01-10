@@ -6,9 +6,39 @@ return [
 
         'heading' => 'Stulpeliai',
 
+        'actions' => [
+
+            'apply' => [
+                'label' => 'Taikyti stulpelius',
+            ],
+
+            'reset' => [
+                'label' => 'Atstatyti',
+            ],
+
+        ],
+
     ],
 
     'columns' => [
+
+        'actions' => [
+            'label' => 'Veiksmas|Veiksmai',
+        ],
+
+        'select' => [
+
+            'loading_message' => 'Kraunasi...',
+
+            'no_search_results_message' => 'Nėra paieškos rezultatų.',
+
+            'placeholder' => 'Pasirinkite',
+
+            'searching_message' => 'Ieškoma...',
+
+            'search_prompt' => 'Pradėkite rašyti paieškai...',
+
+        ],
 
         'text' => [
 
@@ -18,6 +48,7 @@ return [
             ],
 
             'more_list_items' => 'ir dar :count',
+
         ],
 
     ],
@@ -75,7 +106,7 @@ return [
     'actions' => [
 
         'disable_reordering' => [
-            'label' => 'Pabaik pertvarkyti įrašus',
+            'label' => 'Baigti pertvarkyti įrašus',
         ],
 
         'enable_reordering' => [
@@ -91,20 +122,20 @@ return [
         ],
 
         'open_bulk_actions' => [
-            'label' => 'Atidaryti veiksmus',
+            'label' => 'Masiniai veiksmai',
         ],
 
         'column_manager' => [
-            'label' => 'Perjungti stulpelius',
+            'label' => 'Stulpelių valdymas',
         ],
 
     ],
 
     'empty' => [
 
-        'heading' => 'Nerasta įrašų',
+        'heading' => 'Nėra :model',
 
-        'description' => 'Norėdami pradėti, sukurkite :model.',
+        'description' => 'Sukurkite :model, kad pradėtumėte.',
 
     ],
 
@@ -126,7 +157,7 @@ return [
             ],
 
             'reset' => [
-                'label' => 'Nustatyti filtrus iš naujo',
+                'label' => 'Atstatyti',
             ],
 
         ],
@@ -140,7 +171,13 @@ return [
         ],
 
         'select' => [
+
             'placeholder' => 'Visi',
+
+            'relationship' => [
+                'empty_option_label' => 'Nėra',
+            ],
+
         ],
 
         'trashed' => [
@@ -163,7 +200,6 @@ return [
 
             'group' => [
                 'label' => 'Grupuoti pagal',
-                'placeholder' => 'Grupuoti pagal',
             ],
 
             'direction' => [
@@ -223,5 +259,7 @@ return [
         ],
 
     ],
+
+    'default_model_label' => 'įrašas',
 
 ];

@@ -22,9 +22,9 @@ final readonly class PropertyPolicy
      */
     public function viewAny(User $user): bool
     {
-        // Must be able to access current tenant and have appropriate role
-        return $this->tenantBoundaryService->canCreateForCurrentTenant($user) &&
-               $this->tenantBoundaryService->canPerformManagerOperations($user);
+        // Managers and above can view properties
+        // TenantScope handles data filtering automatically
+        return $this->tenantBoundaryService->canPerformManagerOperations($user);
     }
 
     /**
@@ -66,9 +66,12 @@ final readonly class PropertyPolicy
      */
     public function create(User $user): bool
     {
-        // Must be able to access current tenant and have appropriate role
-        return $this->tenantBoundaryService->canCreateForCurrentTenant($user) &&
-               $this->tenantBoundaryService->canPerformManagerOperations($user);
+        // User must have a tenant_id and have appropriate role
+        if ($user->tenant_id === null) {
+            return false;
+        }
+
+        return $this->tenantBoundaryService->canPerformManagerOperations($user);
     }
 
     /**

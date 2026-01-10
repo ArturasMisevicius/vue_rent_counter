@@ -96,7 +96,8 @@ final class LandingPageLocalizationTest extends TestCase
         foreach ($requiredKeys as $key) {
             $translation = __($key);
             $this->assertNotEquals($key, $translation, "Missing English translation for key: {$key}");
-            $this->assertNotEmpty($translation, "Empty English translation for key: {$key}");
+            // Use strlen check instead of assertNotEmpty because '0' is a valid translation value
+            $this->assertTrue(strlen((string) $translation) > 0 || $translation === '0', "Empty English translation for key: {$key}");
         }
     }
 
@@ -178,7 +179,8 @@ final class LandingPageLocalizationTest extends TestCase
         foreach ($requiredKeys as $key) {
             $translation = __($key);
             $this->assertNotEquals($key, $translation, "Missing Lithuanian translation for key: {$key}");
-            $this->assertNotEmpty($translation, "Empty Lithuanian translation for key: {$key}");
+            // Use strlen check instead of assertNotEmpty because '0' is a valid translation value
+            $this->assertTrue(strlen((string) $translation) > 0 || $translation === '0', "Empty Lithuanian translation for key: {$key}");
         }
     }
 
@@ -350,8 +352,8 @@ final class LandingPageLocalizationTest extends TestCase
         $zero = __('landing.metric_values.zero');
         
         // Test specific formatting expectations
-        $this->assertStringContains('5', $fiveMinutes);
-        $this->assertStringContains('minute', $fiveMinutes);
+        $this->assertStringContainsString('5', $fiveMinutes);
+        $this->assertStringContainsString('minute', $fiveMinutes);
         $this->assertEquals('100%', $full);
         $this->assertEquals('0', $zero);
     }

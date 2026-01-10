@@ -17,7 +17,8 @@ final class LocalizationTest extends TestCase
         $locales = Localization::availableLocales();
 
         expect($locales)->toHaveCount(3);
-        expect($locales->pluck('code')->toArray())->toEqual(['en', 'lt', 'ru']);
+        // Lithuanian is first as the primary locale for this Vilnius-based platform
+        expect($locales->pluck('code')->toArray())->toEqual(['lt', 'en', 'ru']);
     }
 
     public function test_fallback_locale_returns_english(): void

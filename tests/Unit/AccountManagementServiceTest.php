@@ -2,6 +2,7 @@
 
 use App\Enums\SubscriptionPlanType;
 use App\Enums\SubscriptionStatus;
+use App\Enums\UserRole;
 use App\Exceptions\CannotDeleteWithDependenciesException;
 use App\Exceptions\InvalidPropertyAssignmentException;
 use App\Models\Property;
@@ -23,7 +24,7 @@ beforeEach(function () {
 });
 
 test('createAdminAccount creates admin with unique tenant_id and subscription', function () {
-    $superadmin = User::factory()->create(['role' => 'superadmin']);
+    $superadmin = User::factory()->superadmin()->create();
 
     $data = [
         'email' => 'admin@example.com',
@@ -36,8 +37,11 @@ test('createAdminAccount creates admin with unique tenant_id and subscription', 
 
     $admin = $this->accountService->createAdminAccount($data, $superadmin);
 
+    // Refresh from database to ensure all attributes are properly loaded
+    $admin->refresh();
+
     expect($admin)->toBeInstanceOf(User::class)
-        ->and($admin->role->value)->toBe('admin')
+        ->and($admin->role)->toBe(UserRole::ADMIN)
         ->and($admin->email)->toBe('admin@example.com')
         ->and($admin->organization_name)->toBe('Test Organization')
         ->and($admin->tenant_id)->not->toBeNull()
@@ -49,8 +53,8 @@ test('createAdminAccount creates admin with unique tenant_id and subscription', 
 test('createTenantAccount creates tenant inheriting admin tenant_id', function () {
     Notification::fake();
 
-    $admin = User::factory()->create(['role' => 'admin', 'tenant_id' => 1000]);
-    $subscription = $admin->subscription()->create([
+    $admin = User::factory()->admin(1000)->create();
+    $admin->subscription()->create([
         'plan_type' => SubscriptionPlanType::BASIC->value,
         'status' => SubscriptionStatus::ACTIVE->value,
         'starts_at' => now(),
@@ -69,9 +73,10 @@ test('createTenantAccount creates tenant inheriting admin tenant_id', function (
     ];
 
     $tenant = $this->accountService->createTenantAccount($data, $admin);
+    $tenant->refresh();
 
     expect($tenant)->toBeInstanceOf(User::class)
-        ->and($tenant->role->value)->toBe('tenant')
+        ->and($tenant->role)->toBe(UserRole::TENANT)
         ->and($tenant->tenant_id)->toBe($admin->tenant_id)
         ->and($tenant->property_id)->toBe($property->id)
         ->and($tenant->parent_user_id)->toBe($admin->id)
@@ -81,7 +86,7 @@ test('createTenantAccount creates tenant inheriting admin tenant_id', function (
 });
 
 test('createTenantAccount throws exception for property from different tenant', function () {
-    $admin = User::factory()->create(['role' => 'admin', 'tenant_id' => 1000]);
+    $admin = User::factory()->admin(1000)->create();
     $admin->subscription()->create([
         'plan_type' => SubscriptionPlanType::BASIC->value,
         'status' => SubscriptionStatus::ACTIVE->value,
@@ -106,16 +111,11 @@ test('createTenantAccount throws exception for property from different tenant', 
 test('reassignTenant updates property and creates audit log', function () {
     Notification::fake();
 
-    $admin = User::factory()->create(['role' => 'admin', 'tenant_id' => 1000]);
+    $admin = User::factory()->admin(1000)->create();
     $oldProperty = Property::factory()->create(['tenant_id' => 1000]);
     $newProperty = Property::factory()->create(['tenant_id' => 1000]);
     
-    $tenant = User::factory()->create([
-        'role' => 'tenant',
-        'tenant_id' => 1000,
-        'property_id' => $oldProperty->id,
-        'parent_user_id' => $admin->id,
-    ]);
+    $tenant = User::factory()->tenant(1000, $oldProperty->id, $admin->id)->create();
 
     $this->accountService->reassignTenant($tenant, $newProperty, $admin);
 

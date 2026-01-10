@@ -23,9 +23,8 @@ final readonly class MeterReadingPolicy
      */
     public function viewAny(User $user): bool
     {
-        // Must be able to access current tenant and have appropriate role
-        return $this->tenantBoundaryService->canCreateForCurrentTenant($user) &&
-               $this->tenantBoundaryService->canPerformManagerOperations($user);
+        // Managers and above can view meter readings
+        return $this->tenantBoundaryService->canPerformManagerOperations($user);
     }
 
     /**
@@ -56,8 +55,8 @@ final readonly class MeterReadingPolicy
      */
     public function create(User $user): bool
     {
-        // Must be able to access current tenant
-        if (!$this->tenantBoundaryService->canCreateForCurrentTenant($user)) {
+        // Must have a tenant_id and be manager or above
+        if ($user->tenant_id === null) {
             return false;
         }
 
@@ -75,9 +74,9 @@ final readonly class MeterReadingPolicy
             return Response::deny('You do not have access to this meter reading.');
         }
 
-        // Cannot update finalized readings
-        if ($meterReading->is_finalized) {
-            return Response::deny('Cannot update finalized meter readings.');
+        // Cannot update validated readings
+        if ($meterReading->validation_status === \App\Enums\ValidationStatus::VALIDATED) {
+            return Response::deny('Cannot update validated meter readings.');
         }
 
         // Managers and above can update readings in their tenant
@@ -98,9 +97,9 @@ final readonly class MeterReadingPolicy
             return Response::deny('You do not have access to this meter reading.');
         }
 
-        // Cannot delete finalized readings
-        if ($meterReading->is_finalized) {
-            return Response::deny('Cannot delete finalized meter readings.');
+        // Cannot delete validated readings
+        if ($meterReading->validation_status === \App\Enums\ValidationStatus::VALIDATED) {
+            return Response::deny('Cannot delete validated meter readings.');
         }
 
         // Only admins and above can delete readings
@@ -149,9 +148,9 @@ final readonly class MeterReadingPolicy
             return Response::deny('You do not have access to this meter reading.');
         }
 
-        // Cannot finalize already finalized readings
-        if ($meterReading->is_finalized) {
-            return Response::deny('Meter reading is already finalized.');
+        // Cannot finalize already validated readings
+        if ($meterReading->validation_status === \App\Enums\ValidationStatus::VALIDATED) {
+            return Response::deny('Meter reading is already validated.');
         }
 
         // Only managers and above can finalize readings
@@ -167,9 +166,12 @@ final readonly class MeterReadingPolicy
      */
     public function bulkUpdate(User $user): bool
     {
-        // Must be able to access current tenant and be manager or above
-        return $this->tenantBoundaryService->canCreateForCurrentTenant($user) &&
-               $this->tenantBoundaryService->canPerformManagerOperations($user);
+        // Must have a tenant_id and be manager or above
+        if ($user->tenant_id === null) {
+            return false;
+        }
+
+        return $this->tenantBoundaryService->canPerformManagerOperations($user);
     }
 
     /**

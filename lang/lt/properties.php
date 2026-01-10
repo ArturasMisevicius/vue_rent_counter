@@ -29,12 +29,14 @@ return [
         'large_properties' => 'Large Properties',
         'occupancy' => 'Occupancy',
         'occupied' => 'Occupied',
+        'tags' => 'Žymos',
         'type' => 'Type',
         'vacant' => 'Vacant',
     ],
     'helper_text' => [
         'address' => 'Address',
         'area' => 'Area',
+        'tags' => 'Pasirinkite žymas šiam turtui',
         'tenant_available' => 'Tenant Available',
         'tenant_reassign' => 'Tenant Reassign',
         'type' => 'Type',
@@ -49,6 +51,7 @@ return [
         'meters' => 'Meters',
         'properties' => 'Properties',
         'property' => 'Property',
+        'tags' => 'Žymos',
         'type' => 'Type',
     ],
     'manager' => [

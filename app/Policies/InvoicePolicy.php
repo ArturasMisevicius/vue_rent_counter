@@ -32,6 +32,7 @@ final readonly class InvoicePolicy
      * Determine whether the user can view any invoices.
      * 
      * All authenticated users can view invoices (filtered by tenant scope).
+     * TenantScope global scope ensures users only see their tenant's data.
      * 
      * Requirements: 11.1, 11.4
      * 
@@ -40,8 +41,9 @@ final readonly class InvoicePolicy
      */
     public function viewAny(User $user): bool
     {
-        // All authenticated users can view invoices (filtered by tenant scope)
-        return $this->tenantBoundaryService->canCreateForCurrentTenant($user);
+        // All authenticated users can view invoices
+        // TenantScope handles data filtering automatically
+        return true;
     }
 
     /**
@@ -96,9 +98,12 @@ final readonly class InvoicePolicy
      */
     public function create(User $user): bool
     {
-        // Must be able to access current tenant and have appropriate role
-        return $this->tenantBoundaryService->canCreateForCurrentTenant($user) &&
-               $this->tenantBoundaryService->canPerformManagerOperations($user);
+        // User must have a tenant_id and have appropriate role
+        if ($user->tenant_id === null) {
+            return false;
+        }
+
+        return $this->tenantBoundaryService->canPerformManagerOperations($user);
     }
 
     /**

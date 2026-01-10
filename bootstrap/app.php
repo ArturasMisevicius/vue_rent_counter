@@ -41,33 +41,4 @@ $app = Application::configure(basePath: dirname(__DIR__))
     })
     ->create();
 
-// Ensure proper Laravel bootstrap sequence for Laravel 12
-// This is critical - Laravel 12 requires manual bootstrapping in some cases
-$bootstrappers = [
-    \Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables::class,
-    \Illuminate\Foundation\Bootstrap\LoadConfiguration::class,
-    \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
-    \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
-    \Illuminate\Foundation\Bootstrap\RegisterProviders::class,
-    \Illuminate\Foundation\Bootstrap\BootProviders::class,
-];
-
-foreach ($bootstrappers as $bootstrapper) {
-    if (class_exists($bootstrapper)) {
-        try {
-            $instance = new $bootstrapper();
-            if (method_exists($instance, 'bootstrap')) {
-                $instance->bootstrap($app);
-            }
-        } catch (Exception $e) {
-            // Some bootstrappers may fail if already run, continue
-            continue;
-        }
-    }
-}
-
-// Initialize facades with the application instance
-// This is critical for Filament facades to work properly
-\Illuminate\Support\Facades\Facade::setFacadeApplication($app);
-
 return $app;
