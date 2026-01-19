@@ -175,4 +175,105 @@ class MeterReadingService extends BaseService
         // Check if meter reading functionality is enabled
         return config('app.features.meter_readings', true);
     }
+
+    /**
+     * Calculate average consumption for a meter based on historical readings.
+     * 
+     * Used for anomaly detection to identify unusually high or low consumption.
+     * Calculates the average consumption from the last N readings.
+     *
+     * @param Meter $meter The meter to calculate average consumption for
+     * @param string|null $zone Optional zone filter (day/night for electricity)
+     * @param int $readingsCount Number of readings to use for calculation (default: 6)
+     * @return float|null Average consumption or null if insufficient data
+     */
+    public function getAverageConsumption(Meter $meter, ?string $zone = null, int $readingsCount = 6): ?float
+    {
+        $query = $meter->readings()
+            ->select(['value', 'reading_date'])
+            ->orderBy('reading_date', 'desc')
+            ->limit($readingsCount + 1);
+
+        if ($zone !== null) {
+            $query->where('zone', $zone);
+        } else {
+            $query->where(function ($q) {
+                $q->whereNull('zone')->orWhere('zone', '');
+            });
+        }
+
+        $readings = $query->get();
+
+        if ($readings->count() < 2) {
+            return null;
+        }
+
+        $consumptions = [];
+        $previousValue = null;
+
+        foreach ($readings->sortBy('reading_date') as $reading) {
+            if ($previousValue !== null) {
+                $consumption = $reading->value - $previousValue;
+                // Only include positive consumption values
+                if ($consumption >= 0) {
+                    $consumptions[] = $consumption;
+                }
+            }
+            $previousValue = $reading->value;
+        }
+
+        if (empty($consumptions)) {
+            return null;
+        }
+
+        return array_sum($consumptions) / count($consumptions);
+    }
+
+    /**
+     * Check if a consumption value is anomalous compared to historical average.
+     * 
+     * @param float $consumption Current consumption value
+     * @param float $averageConsumption Historical average consumption
+     * @param float $highThreshold Multiplier for high consumption warning (default: 2.5 = 250%)
+     * @param float $lowThreshold Multiplier for low consumption warning (default: 0.1 = 10%)
+     * @return array{is_anomaly: bool, type: string|null, message: string|null}
+     */
+    public function checkConsumptionAnomaly(
+        float $consumption,
+        float $averageConsumption,
+        float $highThreshold = 2.5,
+        float $lowThreshold = 0.1
+    ): array {
+        if ($averageConsumption <= 0) {
+            return ['is_anomaly' => false, 'type' => null, 'message' => null];
+        }
+
+        if ($consumption > ($averageConsumption * $highThreshold)) {
+            return [
+                'is_anomaly' => true,
+                'type' => 'high',
+                'message' => sprintf(
+                    'Consumption %.2f is %.1f%% higher than average %.2f',
+                    $consumption,
+                    (($consumption / $averageConsumption) - 1) * 100,
+                    $averageConsumption
+                ),
+            ];
+        }
+
+        if ($consumption > 0 && $consumption < ($averageConsumption * $lowThreshold)) {
+            return [
+                'is_anomaly' => true,
+                'type' => 'low',
+                'message' => sprintf(
+                    'Consumption %.2f is %.1f%% lower than average %.2f',
+                    $consumption,
+                    (1 - ($consumption / $averageConsumption)) * 100,
+                    $averageConsumption
+                ),
+            ];
+        }
+
+        return ['is_anomaly' => false, 'type' => null, 'message' => null];
+    }
 }

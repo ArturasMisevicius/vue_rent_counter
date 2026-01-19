@@ -68,17 +68,33 @@
             </select>
         </div>
 
-        <!-- Previous Reading Display -->
-        <div x-show="previousReading !== null" class="bg-blue-50 border border-blue-200 rounded-md p-4">
-            <h3 class="text-sm font-semibold text-blue-900 mb-2">{{ __('meter_readings.form_component.previous') }}</h3>
-            <div class="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                    <span class="text-slate-600">{{ __('meter_readings.form_component.date_label') }}</span>
-                    <span class="font-medium ml-2" x-text="previousReading?.date || naText"></span>
+        <!-- Previous Reading Display - Enhanced -->
+        <div x-show="previousReading !== null" class="bg-blue-50 border-l-4 border-blue-500 rounded-md p-4">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                    </svg>
                 </div>
-                <div>
-                    <span class="text-slate-600">{{ __('meter_readings.form_component.value_label') }}</span>
-                    <span class="font-medium ml-2" x-text="previousReading?.value || naText"></span>
+                <div class="ml-3 flex-1">
+                    <h3 class="text-sm font-semibold text-blue-900">{{ __('meter_readings.form_component.previous') }}</h3>
+                    <div class="mt-2 grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-slate-600">{{ __('meter_readings.form_component.date_label') }}:</span>
+                            <span class="font-medium text-blue-900 ml-2" x-text="previousReading?.date || naText"></span>
+                        </div>
+                        <div>
+                            <span class="text-slate-600">{{ __('meter_readings.form_component.value_label') }}:</span>
+                            <span class="font-bold text-blue-900 text-lg ml-2" x-text="previousReading?.value || naText"></span>
+                            <span class="text-slate-500 text-xs ml-1" x-text="unitOfMeasurement"></span>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-xs text-blue-700">
+                        <svg class="inline h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        {{ __('meter_readings.form_component.previous_reading_info') }}
+                    </p>
                 </div>
             </div>
         </div>
@@ -165,6 +181,40 @@
             </p>
         </div>
 
+        <!-- Anomaly Warning - High Consumption -->
+        <div x-show="showHighConsumptionWarning" class="bg-amber-50 border-l-4 border-amber-500 rounded-md p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-amber-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-amber-800">{{ __('meter_readings.form_component.consumption_warning') }}</h3>
+                    <p class="mt-1 text-xs text-amber-700">
+                        Expected range: <span x-text="expectedConsumptionRange"></span> <span x-text="unitOfMeasurement"></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Anomaly Warning - Low Consumption -->
+        <div x-show="showLowConsumptionWarning" class="bg-blue-50 border-l-4 border-blue-400 rounded-md p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-blue-800">{{ __('meter_readings.form_component.consumption_low_warning') }}</h3>
+                    <p class="mt-1 text-xs text-blue-700">
+                        Expected range: <span x-text="expectedConsumptionRange"></span> <span x-text="unitOfMeasurement"></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- Charge Preview -->
         <div x-show="chargePreview !== null" class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
             <h3 class="text-sm font-semibold text-yellow-900 mb-2">{{ __('meter_readings.form_component.estimated_charge') }}</h3>
@@ -212,6 +262,7 @@ function meterReadingForm() {
             zone: null
         },
         previousReading: null,
+        averageConsumption: null,
         availableProviders: @json($providers),
         availableTariffs: [],
         selectedTariff: null,
@@ -221,6 +272,10 @@ function meterReadingForm() {
         errors: {},
         isSubmitting: false,
         maxDate: new Date().toISOString().split('T')[0],
+        
+        // Anomaly detection thresholds (configurable)
+        anomalyThresholdHigh: 2.5, // 250% of average
+        anomalyThresholdLow: 0.1,  // 10% of average
         
         get consumption() {
             if (this.previousReading === null) return null;
@@ -234,6 +289,28 @@ function meterReadingForm() {
             const current = parseFloat(this.formData.value || 0);
             const previous = parseFloat(this.previousReading.value || 0);
             return current - previous;
+        },
+        
+        get showHighConsumptionWarning() {
+            if (this.consumption === null || this.consumption <= 0 || this.averageConsumption === null) {
+                return false;
+            }
+            return this.consumption > (this.averageConsumption * this.anomalyThresholdHigh);
+        },
+        
+        get showLowConsumptionWarning() {
+            if (this.consumption === null || this.consumption < 0 || this.averageConsumption === null) {
+                return false;
+            }
+            // Only show if there's a meaningful average and consumption is suspiciously low
+            return this.averageConsumption > 0 && this.consumption < (this.averageConsumption * this.anomalyThresholdLow) && this.consumption > 0;
+        },
+        
+        get expectedConsumptionRange() {
+            if (this.averageConsumption === null) return '—';
+            const low = (this.averageConsumption * 0.5).toFixed(1);
+            const high = (this.averageConsumption * 1.5).toFixed(1);
+            return `${low} - ${high}`;
         },
         
         get currentRate() {
@@ -302,13 +379,17 @@ function meterReadingForm() {
                 });
                 
                 if (response.ok) {
-                    this.previousReading = await response.json();
+                    const data = await response.json();
+                    this.previousReading = data;
+                    this.averageConsumption = data.average_consumption || null;
                 } else {
                     this.previousReading = null;
+                    this.averageConsumption = null;
                 }
             } catch (error) {
                 console.error('Error loading previous reading:', error);
                 this.previousReading = null;
+                this.averageConsumption = null;
             }
         },
         
@@ -430,6 +511,7 @@ function meterReadingForm() {
         
         resetMeterData() {
             this.previousReading = null;
+            this.averageConsumption = null;
             this.availableTariffs = [];
             this.selectedTariff = null;
             this.supportsZones = false;

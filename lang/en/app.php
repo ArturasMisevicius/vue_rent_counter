@@ -81,6 +81,20 @@ return array (
     'due_date' => 'Due Date',
     'total_amount' => 'Total Amount',
     'services' => 'Services',
+    'days' => 'days',
+    'organization' => 'Organization',
+    'plan' => 'Plan',
+    'total_users' => 'Total Users',
+    'system_wide_users' => 'System-wide users',
+    'active_subscriptions' => 'Active Subscriptions',
+    'currently_active' => 'Currently active',
+    'total_organizations' => 'Total Organizations',
+    'registered_organizations' => 'Registered organizations',
+    'system_health' => 'System Health',
+    'overall_system_status' => 'Overall system status',
+    'email' => 'Email',
+    'role' => 'Role',
+    'registered' => 'Registered',
   ),
   'sections' => 
   array (
@@ -96,6 +110,13 @@ return array (
   array (
     'view' => 'View',
     'download_pdf' => 'Download PDF',
+    'extend' => 'Extend',
+    'extend_subscription' => 'Extend Subscription',
+    'notify' => 'Notify',
+  ),
+  'modals' => 
+  array (
+    'extend_subscription_description' => 'This will extend the subscription by one year from the current expiry date.',
   ),
   'stats' => 
   array (
@@ -111,6 +132,7 @@ return array (
   'widgets' => 
   array (
     'recent_invoices' => 'Recent Invoices',
+    'recent_users' => 'Recent Users',
   ),
   'placeholders' => 
   array (
@@ -127,6 +149,8 @@ return array (
     'no_invoices_description' => 'There are no invoices for your property yet.',
     'no_meter_readings' => 'No meter readings found',
     'no_meter_readings_description' => 'There are no meter readings for your property yet.',
+    'no_expiring_subscriptions' => 'No expiring subscriptions',
+    'no_expiring_subscriptions_description' => 'All subscriptions are healthy with more than 14 days until expiry.',
   ),
   'test' => 
   array (

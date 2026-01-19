@@ -97,6 +97,9 @@ return array (
     'registered_organizations' => 'Registruotos organizacijos',
     'system_health' => 'Sistemos būklė',
     'overall_system_status' => 'Bendra sistemos būsena',
+    'days' => 'dienos',
+    'organization' => 'Organizacija',
+    'plan' => 'Planas',
   ),
   'sections' => 
   array (
@@ -133,6 +136,9 @@ return array (
     'run_health_check' => 'Vykdyti būklės patikrą',
     'enable_maintenance' => 'Įjungti priežiūros režimą',
     'run_health_checks' => 'Vykdyti būklės patikras',
+    'extend' => 'Pratęsti',
+    'extend_subscription' => 'Pratęsti prenumeratą',
+    'notify' => 'Pranešti',
   ),
   'notifications' => 
   array (
@@ -146,6 +152,7 @@ return array (
   array (
     'run_health_check' => 'Vykdyti būklės patikrą',
     'health_check_description' => 'Tai patikrins paslaugos būklę ir atnaujins būseną.',
+    'extend_subscription_description' => 'Tai pratęs prenumeratą vieniems metams nuo dabartinės galiojimo pabaigos datos.',
   ),
   'status' => 
   array (
@@ -198,6 +205,8 @@ return array (
     'no_invoices_description' => 'Jūsų turtui dar nėra sąskaitų faktūrų.',
     'no_meter_readings' => 'Skaitiklių rodmenų nerasta',
     'no_meter_readings_description' => 'Jūsų turtui dar nėra skaitiklių rodmenų.',
+    'no_expiring_subscriptions' => 'Nėra baigiančių galioti prenumeratų',
+    'no_expiring_subscriptions_description' => 'Visos prenumeratos yra sveikos ir turi daugiau nei 14 dienų iki galiojimo pabaigos.',
   ),
   'test' => 
   array (

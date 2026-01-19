@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +15,17 @@ use Illuminate\Support\Str;
 
 class Tenant extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use HasFactory, BelongsToTenant, Auditable;
+
+    /**
+     * Attributes to exclude from audit logging.
+     *
+     * @var array<int, string>
+     */
+    protected array $auditExclude = [
+        'phone',
+        'email',
+    ];
 
     /**
      * Automatically generate a unique slug if missing.

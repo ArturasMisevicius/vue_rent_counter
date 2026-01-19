@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\UserRole;
 use App\Filament\Resources\BuildingResource;
 use App\Filament\Resources\InvoiceResource;
@@ -22,13 +24,33 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
+/*
+|--------------------------------------------------------------------------
+| Admin Role Full Resource Access Tests
+|--------------------------------------------------------------------------
+|
+| These tests verify that ADMIN users can access all Filament resources
+| within their tenant scope. Per the multi-tenancy design:
+| - SUPERADMIN = Global access (no tenant_id, can access all tenants)
+| - ADMIN = Tenant-scoped access (must have tenant_id, accesses own tenant)
+| - MANAGER = Same as Admin (legacy role)
+| - TENANT = Property-scoped access (can only see assigned property)
+|
+| Feature: filament-admin-panel, Property 22: Admin role full resource access
+| Validates: Requirements 9.3
+|
+*/
+
 // Feature: filament-admin-panel, Property 22: Admin role full resource access
 // Validates: Requirements 9.3
 test('Filament panel shows all resources to admin users in navigation', function () {
-    // Create an admin user (no tenant_id required)
+    // Create a tenant ID for the admin user
+    $tenantId = fake()->numberBetween(1, 1000);
+    
+    // Create an admin user with tenant_id (admin must belong to a tenant)
     $adminUser = User::factory()->create([
         'role' => UserRole::ADMIN,
-        'tenant_id' => null,
+        'tenant_id' => $tenantId,
     ]);
     
     // Act as the admin user
@@ -82,16 +104,19 @@ test('Filament panel shows all resources to admin users in navigation', function
 // Feature: filament-admin-panel, Property 22: Admin role full resource access
 // Validates: Requirements 9.3
 test('Filament panel allows admin users to access all operational resources', function () {
-    // Create an admin user
+    // Create a tenant ID for the admin user
+    $tenantId = fake()->numberBetween(1, 1000);
+    
+    // Create an admin user with tenant_id
     $adminUser = User::factory()->create([
         'role' => UserRole::ADMIN,
-        'tenant_id' => null,
+        'tenant_id' => $tenantId,
     ]);
     
     // Act as the admin user
     $this->actingAs($adminUser);
     
-    // Property: Admin users CAN access all operational resources
+    // Property: Admin users CAN access all operational resources within their tenant
     expect(PropertyResource::canViewAny())->toBeTrue(
         'Admin users should be able to access PropertyResource'
     );
@@ -137,10 +162,13 @@ test('Filament panel allows admin users to access all operational resources', fu
 // Feature: filament-admin-panel, Property 22: Admin role full resource access
 // Validates: Requirements 9.3
 test('Filament panel allows admin users to access all system configuration resources', function () {
-    // Create an admin user
+    // Create a tenant ID for the admin user
+    $tenantId = fake()->numberBetween(1, 1000);
+    
+    // Create an admin user with tenant_id
     $adminUser = User::factory()->create([
         'role' => UserRole::ADMIN,
-        'tenant_id' => null,
+        'tenant_id' => $tenantId,
     ]);
     
     // Act as the admin user
@@ -175,107 +203,104 @@ test('Filament panel allows admin users to access all system configuration resou
 
 // Feature: filament-admin-panel, Property 22: Admin role full resource access
 // Validates: Requirements 9.3
-test('Filament panel allows admin users to view resources across all tenants', function () {
-    // Generate random tenant IDs
-    $tenantId1 = fake()->numberBetween(1, 1000);
-    $tenantId2 = fake()->numberBetween(1001, 2000);
+test('Filament panel allows admin users to view resources within their tenant', function () {
+    // Create a tenant ID for the admin user
+    $tenantId = fake()->numberBetween(1, 1000);
     
-    // Create properties for both tenants
+    // Create properties within the admin's tenant
     $property1 = Property::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId1,
+        'tenant_id' => $tenantId,
         'address' => fake()->address(),
         'type' => fake()->randomElement(['apartment', 'house']),
         'area_sqm' => fake()->randomFloat(2, 20, 200),
     ]);
     
     $property2 = Property::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId2,
+        'tenant_id' => $tenantId,
         'address' => fake()->address(),
         'type' => fake()->randomElement(['apartment', 'house']),
         'area_sqm' => fake()->randomFloat(2, 20, 200),
     ]);
     
-    // Create an admin user
+    // Create an admin user with tenant_id
     $adminUser = User::factory()->create([
         'role' => UserRole::ADMIN,
-        'tenant_id' => null,
+        'tenant_id' => $tenantId,
     ]);
     
     // Act as admin user
     $this->actingAs($adminUser);
     
-    // Property: Admin should be able to view properties from any tenant
-    $canViewTenant1 = $adminUser->can('view', $property1);
-    expect($canViewTenant1)->toBeTrue(
-        'Admin should be able to view properties from tenant 1'
+    // Property: Admin should be able to view properties within their tenant
+    $canViewProperty1 = $adminUser->can('view', $property1);
+    expect($canViewProperty1)->toBeTrue(
+        'Admin should be able to view properties within their tenant'
     );
     
-    $canViewTenant2 = $adminUser->can('view', $property2);
-    expect($canViewTenant2)->toBeTrue(
-        'Admin should be able to view properties from tenant 2'
+    $canViewProperty2 = $adminUser->can('view', $property2);
+    expect($canViewProperty2)->toBeTrue(
+        'Admin should be able to view all properties within their tenant'
     );
 })->repeat(100);
 
 
 // Feature: filament-admin-panel, Property 22: Admin role full resource access
 // Validates: Requirements 9.3
-test('Filament panel allows admin users to edit resources across all tenants', function () {
-    // Generate random tenant IDs
-    $tenantId1 = fake()->numberBetween(1, 1000);
-    $tenantId2 = fake()->numberBetween(1001, 2000);
+test('Filament panel allows admin users to edit resources within their tenant', function () {
+    // Create a tenant ID for the admin user
+    $tenantId = fake()->numberBetween(1, 1000);
     
-    // Create buildings for both tenants
+    // Create buildings within the admin's tenant
     $building1 = Building::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId1,
+        'tenant_id' => $tenantId,
         'address' => fake()->address(),
         'total_apartments' => fake()->numberBetween(5, 100),
     ]);
     
     $building2 = Building::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId2,
+        'tenant_id' => $tenantId,
         'address' => fake()->address(),
         'total_apartments' => fake()->numberBetween(5, 100),
     ]);
     
-    // Create an admin user
+    // Create an admin user with tenant_id
     $adminUser = User::factory()->create([
         'role' => UserRole::ADMIN,
-        'tenant_id' => null,
+        'tenant_id' => $tenantId,
     ]);
     
     // Act as admin user
     $this->actingAs($adminUser);
     
-    // Property: Admin should be able to edit buildings from any tenant
-    $canEditTenant1 = $adminUser->can('update', $building1);
-    expect($canEditTenant1)->toBeTrue(
-        'Admin should be able to edit buildings from tenant 1'
+    // Property: Admin should be able to edit buildings within their tenant
+    $canEditBuilding1 = $adminUser->can('update', $building1);
+    expect($canEditBuilding1)->toBeTrue(
+        'Admin should be able to edit buildings within their tenant'
     );
     
-    $canEditTenant2 = $adminUser->can('update', $building2);
-    expect($canEditTenant2)->toBeTrue(
-        'Admin should be able to edit buildings from tenant 2'
+    $canEditBuilding2 = $adminUser->can('update', $building2);
+    expect($canEditBuilding2)->toBeTrue(
+        'Admin should be able to edit all buildings within their tenant'
     );
 })->repeat(100);
 
 
 // Feature: filament-admin-panel, Property 22: Admin role full resource access
 // Validates: Requirements 9.3
-test('Filament panel allows admin users to delete resources across all tenants', function () {
-    // Generate random tenant IDs
-    $tenantId1 = fake()->numberBetween(1, 1000);
-    $tenantId2 = fake()->numberBetween(1001, 2000);
+test('Filament panel allows admin users to delete resources within their tenant', function () {
+    // Create a tenant ID for the admin user
+    $tenantId = fake()->numberBetween(1, 1000);
     
-    // Create meters for both tenants
+    // Create meters within the admin's tenant
     $property1 = Property::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId1,
+        'tenant_id' => $tenantId,
         'address' => fake()->address(),
         'type' => fake()->randomElement(['apartment', 'house']),
         'area_sqm' => fake()->randomFloat(2, 20, 200),
     ]);
     
     $meter1 = Meter::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId1,
+        'tenant_id' => $tenantId,
         'property_id' => $property1->id,
         'serial_number' => fake()->numerify('METER-####'),
         'type' => fake()->randomElement(['electricity', 'water_cold', 'water_hot', 'heating']),
@@ -284,14 +309,14 @@ test('Filament panel allows admin users to delete resources across all tenants',
     ]);
     
     $property2 = Property::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId2,
+        'tenant_id' => $tenantId,
         'address' => fake()->address(),
         'type' => fake()->randomElement(['apartment', 'house']),
         'area_sqm' => fake()->randomFloat(2, 20, 200),
     ]);
     
     $meter2 = Meter::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId2,
+        'tenant_id' => $tenantId,
         'property_id' => $property2->id,
         'serial_number' => fake()->numerify('METER-####'),
         'type' => fake()->randomElement(['electricity', 'water_cold', 'water_hot', 'heating']),
@@ -299,42 +324,41 @@ test('Filament panel allows admin users to delete resources across all tenants',
         'supports_zones' => false,
     ]);
     
-    // Create an admin user
+    // Create an admin user with tenant_id
     $adminUser = User::factory()->create([
         'role' => UserRole::ADMIN,
-        'tenant_id' => null,
+        'tenant_id' => $tenantId,
     ]);
     
     // Act as admin user
     $this->actingAs($adminUser);
     
-    // Property: Admin should be able to delete meters from any tenant
-    $canDeleteTenant1 = $adminUser->can('delete', $meter1);
-    expect($canDeleteTenant1)->toBeTrue(
-        'Admin should be able to delete meters from tenant 1'
+    // Property: Admin should be able to delete meters within their tenant
+    $canDeleteMeter1 = $adminUser->can('delete', $meter1);
+    expect($canDeleteMeter1)->toBeTrue(
+        'Admin should be able to delete meters within their tenant'
     );
     
-    $canDeleteTenant2 = $adminUser->can('delete', $meter2);
-    expect($canDeleteTenant2)->toBeTrue(
-        'Admin should be able to delete meters from tenant 2'
+    $canDeleteMeter2 = $adminUser->can('delete', $meter2);
+    expect($canDeleteMeter2)->toBeTrue(
+        'Admin should be able to delete all meters within their tenant'
     );
 })->repeat(100);
 
 
 // Feature: filament-admin-panel, Property 22: Admin role full resource access
 // Validates: Requirements 9.3
-test('Filament panel allows admin users to view invoices across all tenants', function () {
-    // Generate random tenant IDs
-    $tenantId1 = fake()->numberBetween(1, 1000);
-    $tenantId2 = fake()->numberBetween(1001, 2000);
+test('Filament panel allows admin users to view invoices within their tenant', function () {
+    // Create a tenant ID for the admin user
+    $tenantId = fake()->numberBetween(1, 1000);
     
-    // Create renter records for both tenants
-    $tenant1 = Tenant::factory()->forTenantId($tenantId1)->create();
-    $tenant2 = Tenant::factory()->forTenantId($tenantId2)->create();
+    // Create renter records within the admin's tenant
+    $tenant1 = Tenant::factory()->forTenantId($tenantId)->create();
+    $tenant2 = Tenant::factory()->forTenantId($tenantId)->create();
     
-    // Create invoices for both tenants
+    // Create invoices within the admin's tenant
     $invoice1 = Invoice::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId1,
+        'tenant_id' => $tenantId,
         'tenant_renter_id' => $tenant1->id,
         'invoice_number' => fake()->unique()->numerify('INV-####'),
         'billing_period_start' => now()->subMonth(),
@@ -344,7 +368,7 @@ test('Filament panel allows admin users to view invoices across all tenants', fu
     ]);
     
     $invoice2 = Invoice::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId2,
+        'tenant_id' => $tenantId,
         'tenant_renter_id' => $tenant2->id,
         'invoice_number' => fake()->unique()->numerify('INV-####'),
         'billing_period_start' => now()->subMonth(),
@@ -353,45 +377,44 @@ test('Filament panel allows admin users to view invoices across all tenants', fu
         'status' => 'draft',
     ]);
     
-    // Create an admin user
+    // Create an admin user with tenant_id
     $adminUser = User::factory()->create([
         'role' => UserRole::ADMIN,
-        'tenant_id' => null,
+        'tenant_id' => $tenantId,
     ]);
     
     // Act as admin user
     $this->actingAs($adminUser);
     
-    // Property: Admin should be able to view invoices from any tenant
-    $canViewTenant1 = $adminUser->can('view', $invoice1);
-    expect($canViewTenant1)->toBeTrue(
-        'Admin should be able to view invoices from tenant 1'
+    // Property: Admin should be able to view invoices within their tenant
+    $canViewInvoice1 = $adminUser->can('view', $invoice1);
+    expect($canViewInvoice1)->toBeTrue(
+        'Admin should be able to view invoices within their tenant'
     );
     
-    $canViewTenant2 = $adminUser->can('view', $invoice2);
-    expect($canViewTenant2)->toBeTrue(
-        'Admin should be able to view invoices from tenant 2'
+    $canViewInvoice2 = $adminUser->can('view', $invoice2);
+    expect($canViewInvoice2)->toBeTrue(
+        'Admin should be able to view all invoices within their tenant'
     );
 })->repeat(100);
 
 
 // Feature: filament-admin-panel, Property 22: Admin role full resource access
 // Validates: Requirements 9.3
-test('Filament panel allows admin users to view meter readings across all tenants', function () {
-    // Generate random tenant IDs
-    $tenantId1 = fake()->numberBetween(1, 1000);
-    $tenantId2 = fake()->numberBetween(1001, 2000);
+test('Filament panel allows admin users to view meter readings within their tenant', function () {
+    // Create a tenant ID for the admin user
+    $tenantId = fake()->numberBetween(1, 1000);
     
-    // Create meter readings for both tenants
+    // Create meter readings within the admin's tenant
     $property1 = Property::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId1,
+        'tenant_id' => $tenantId,
         'address' => fake()->address(),
         'type' => fake()->randomElement(['apartment', 'house']),
         'area_sqm' => fake()->randomFloat(2, 20, 200),
     ]);
     
     $meter1 = Meter::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId1,
+        'tenant_id' => $tenantId,
         'property_id' => $property1->id,
         'serial_number' => fake()->numerify('METER-####'),
         'type' => fake()->randomElement(['electricity', 'water_cold', 'water_hot', 'heating']),
@@ -400,7 +423,7 @@ test('Filament panel allows admin users to view meter readings across all tenant
     ]);
     
     $reading1 = MeterReading::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId1,
+        'tenant_id' => $tenantId,
         'meter_id' => $meter1->id,
         'reading_date' => now()->subDays(1),
         'value' => fake()->randomFloat(2, 100, 500),
@@ -408,14 +431,14 @@ test('Filament panel allows admin users to view meter readings across all tenant
     ]);
     
     $property2 = Property::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId2,
+        'tenant_id' => $tenantId,
         'address' => fake()->address(),
         'type' => fake()->randomElement(['apartment', 'house']),
         'area_sqm' => fake()->randomFloat(2, 20, 200),
     ]);
     
     $meter2 = Meter::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId2,
+        'tenant_id' => $tenantId,
         'property_id' => $property2->id,
         'serial_number' => fake()->numerify('METER-####'),
         'type' => fake()->randomElement(['electricity', 'water_cold', 'water_hot', 'heating']),
@@ -424,38 +447,41 @@ test('Filament panel allows admin users to view meter readings across all tenant
     ]);
     
     $reading2 = MeterReading::withoutGlobalScopes()->create([
-        'tenant_id' => $tenantId2,
+        'tenant_id' => $tenantId,
         'meter_id' => $meter2->id,
         'reading_date' => now()->subDays(1),
         'value' => fake()->randomFloat(2, 100, 500),
         'entered_by' => null,
     ]);
     
-    // Create an admin user
+    // Create an admin user with tenant_id
     $adminUser = User::factory()->create([
         'role' => UserRole::ADMIN,
-        'tenant_id' => null,
+        'tenant_id' => $tenantId,
     ]);
     
     // Act as admin user
     $this->actingAs($adminUser);
     
-    // Property: Admin should be able to view meter readings from any tenant
-    $canViewTenant1 = $adminUser->can('view', $reading1);
-    expect($canViewTenant1)->toBeTrue(
-        'Admin should be able to view meter readings from tenant 1'
+    // Property: Admin should be able to view meter readings within their tenant
+    $canViewReading1 = $adminUser->can('view', $reading1);
+    expect($canViewReading1)->toBeTrue(
+        'Admin should be able to view meter readings within their tenant'
     );
     
-    $canViewTenant2 = $adminUser->can('view', $reading2);
-    expect($canViewTenant2)->toBeTrue(
-        'Admin should be able to view meter readings from tenant 2'
+    $canViewReading2 = $adminUser->can('view', $reading2);
+    expect($canViewReading2)->toBeTrue(
+        'Admin should be able to view all meter readings within their tenant'
     );
 })->repeat(100);
 
 
 // Feature: filament-admin-panel, Property 22: Admin role full resource access
 // Validates: Requirements 9.3
-test('Filament panel allows admin users to manage system-wide resources without tenant scope', function () {
+test('Filament panel allows admin users to manage system-wide resources', function () {
+    // Create a tenant ID for the admin user
+    $tenantId = fake()->numberBetween(1, 1000);
+    
     // Create providers and tariffs (system-wide resources)
     $provider = Provider::factory()->create([
         'name' => fake()->company(),
@@ -465,10 +491,10 @@ test('Filament panel allows admin users to manage system-wide resources without 
         'provider_id' => $provider->id,
     ]);
     
-    // Create an admin user
+    // Create an admin user with tenant_id
     $adminUser = User::factory()->create([
         'role' => UserRole::ADMIN,
-        'tenant_id' => null,
+        'tenant_id' => $tenantId,
     ]);
     
     // Act as admin user
@@ -509,64 +535,63 @@ test('Filament panel allows admin users to manage system-wide resources without 
 
 // Feature: filament-admin-panel, Property 22: Admin role full resource access
 // Validates: Requirements 9.3
-test('Filament panel allows admin users to manage all user accounts', function () {
-    // Generate random tenant IDs
-    $tenantId1 = fake()->numberBetween(1, 1000);
-    $tenantId2 = fake()->numberBetween(1001, 2000);
+test('Filament panel allows admin users to manage all user accounts within their tenant', function () {
+    // Create a tenant ID for the admin user
+    $tenantId = fake()->numberBetween(1, 1000);
     
-    // Create users with different roles and tenants
+    // Create users with different roles within the same tenant
     $managerUser = User::factory()->create([
         'role' => UserRole::MANAGER,
-        'tenant_id' => $tenantId1,
+        'tenant_id' => $tenantId,
     ]);
     
     $tenantUser = User::factory()->create([
         'role' => UserRole::TENANT,
-        'tenant_id' => $tenantId2,
+        'tenant_id' => $tenantId,
     ]);
     
     $anotherAdminUser = User::factory()->create([
         'role' => UserRole::ADMIN,
-        'tenant_id' => null,
+        'tenant_id' => $tenantId,
     ]);
     
-    // Create an admin user
+    // Create an admin user with tenant_id
     $adminUser = User::factory()->create([
         'role' => UserRole::ADMIN,
-        'tenant_id' => null,
+        'tenant_id' => $tenantId,
     ]);
     
     // Act as admin user
     $this->actingAs($adminUser);
     
-    // Property: Admin should be able to manage all user accounts
+    // Property: Admin should be able to manage all user accounts within their tenant
     $canViewManager = $adminUser->can('view', $managerUser);
     expect($canViewManager)->toBeTrue(
-        'Admin should be able to view manager users'
+        'Admin should be able to view manager users within their tenant'
     );
     
     $canUpdateManager = $adminUser->can('update', $managerUser);
     expect($canUpdateManager)->toBeTrue(
-        'Admin should be able to update manager users'
+        'Admin should be able to update manager users within their tenant'
     );
     
     $canViewTenant = $adminUser->can('view', $tenantUser);
     expect($canViewTenant)->toBeTrue(
-        'Admin should be able to view tenant users'
+        'Admin should be able to view tenant users within their tenant'
     );
     
     $canUpdateTenant = $adminUser->can('update', $tenantUser);
     expect($canUpdateTenant)->toBeTrue(
-        'Admin should be able to update tenant users'
+        'Admin should be able to update tenant users within their tenant'
     );
     
     $canViewAdmin = $adminUser->can('view', $anotherAdminUser);
     expect($canViewAdmin)->toBeTrue(
-        'Admin should be able to view other admin users'
+        'Admin should be able to view other admin users within their tenant'
     );
     
     $canUpdateAdmin = $adminUser->can('update', $anotherAdminUser);
     expect($canUpdateAdmin)->toBeTrue(
-        'Admin should be able to update other admin users'
+        'Admin should be able to update other admin users within their tenant'
     );
 })->repeat(100);

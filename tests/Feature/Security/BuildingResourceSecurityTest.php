@@ -279,46 +279,70 @@ describe('Mass Assignment Protection', function () {
 
 describe('Audit Logging', function () {
     test('building creation is logged', function () {
-        Log::shouldReceive('channel')
-            ->with('audit')
-            ->andReturnSelf();
-
-        Log::shouldReceive('info')
-            ->with('Building created', \Mockery::type('array'))
-            ->once();
-
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
 
         actingAs($admin);
 
-        Building::create([
+        $building = Building::create([
             'tenant_id' => $admin->tenant_id,
             'name' => 'Test Building',
             'address' => '123 Main St',
             'total_apartments' => 10,
         ]);
-    })->skip('Audit logging not yet implemented');
 
-    test('building deletion is logged', function () {
-        Log::shouldReceive('channel')
-            ->with('audit')
-            ->andReturnSelf();
+        // Verify audit log was created
+        $auditLog = \App\Models\AuditLog::where('auditable_type', Building::class)
+            ->where('auditable_id', $building->id)
+            ->where('event', 'created')
+            ->first();
 
-        Log::shouldReceive('info')
-            ->with('Building deletion initiated', \Mockery::type('array'))
-            ->once();
+        expect($auditLog)->not->toBeNull()
+            ->and($auditLog->user_id)->toBe($admin->id)
+            ->and($auditLog->new_values)->toHaveKey('name')
+            ->and($auditLog->new_values['name'])->toBe('Test Building');
+    });
 
-        Log::shouldReceive('info')
-            ->with('Building deleted successfully', \Mockery::type('array'))
-            ->once();
-
+    test('building update is logged', function () {
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
         $building = Building::factory()->create(['tenant_id' => $admin->tenant_id]);
 
         actingAs($admin);
 
+        $originalName = $building->name;
+        $building->update(['name' => 'Updated Building Name']);
+
+        // Verify audit log was created for update
+        $auditLog = \App\Models\AuditLog::where('auditable_type', Building::class)
+            ->where('auditable_id', $building->id)
+            ->where('event', 'updated')
+            ->first();
+
+        expect($auditLog)->not->toBeNull()
+            ->and($auditLog->user_id)->toBe($admin->id)
+            ->and($auditLog->old_values)->toHaveKey('name')
+            ->and($auditLog->old_values['name'])->toBe($originalName)
+            ->and($auditLog->new_values['name'])->toBe('Updated Building Name');
+    });
+
+    test('building deletion is logged', function () {
+        $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        $building = Building::factory()->create(['tenant_id' => $admin->tenant_id]);
+        $buildingId = $building->id;
+
+        actingAs($admin);
+
         $building->delete();
-    })->skip('Audit logging not yet implemented');
+
+        // Verify audit log was created for deletion
+        $auditLog = \App\Models\AuditLog::where('auditable_type', Building::class)
+            ->where('auditable_id', $buildingId)
+            ->where('event', 'deleted')
+            ->first();
+
+        expect($auditLog)->not->toBeNull()
+            ->and($auditLog->user_id)->toBe($admin->id)
+            ->and($auditLog->old_values)->toHaveKey('name');
+    });
 });
 
 describe('Session Security', function () {

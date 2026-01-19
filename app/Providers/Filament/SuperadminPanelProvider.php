@@ -8,6 +8,7 @@ use App\Filament\Resources\OrganizationResource;
 use App\Filament\Resources\PlatformUserResource;
 use App\Filament\Resources\SubscriptionResource;
 use App\Filament\Superadmin\Pages\Dashboard;
+use App\Filament\Superadmin\Widgets\ExpiringSubscriptionsWidget;
 use App\Filament\Superadmin\Widgets\RecentUsersWidget;
 use App\Filament\Superadmin\Widgets\SystemOverviewWidget;
 use Filament\Http\Middleware\Authenticate;
@@ -97,6 +98,7 @@ final class SuperadminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 SystemOverviewWidget::class,
+                ExpiringSubscriptionsWidget::class,
                 RecentUsersWidget::class,
             ])
             ->middleware([

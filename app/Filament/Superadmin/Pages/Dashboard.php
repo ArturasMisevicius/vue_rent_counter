@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Superadmin\Pages;
 
+use App\Filament\Superadmin\Widgets\ExpiringSubscriptionsWidget;
 use App\Filament\Superadmin\Widgets\RecentUsersWidget;
 use App\Filament\Superadmin\Widgets\SystemOverviewWidget;
 use BackedEnum;
@@ -57,6 +58,7 @@ final class Dashboard extends BaseDashboard
         return [
             Widgets\AccountWidget::class,
             SystemOverviewWidget::class,
+            ExpiringSubscriptionsWidget::class,
             RecentUsersWidget::class,
         ];
     }

@@ -92,11 +92,14 @@ return [
         'updated' => 'Updated',
     ],
     'subscription' => [
-        'cancelled' => 'Cancelled',
-        'renewed' => 'Renewed',
-        'suspended' => 'Suspended',
-        'updated' => 'Updated',
+        'cancelled' => 'Atšaukta',
+        'renewed' => 'Atnaujinta',
+        'suspended' => 'Sustabdyta',
+        'updated' => 'Atnaujinta',
     ],
+    'subscription_extended' => 'Prenumerata pratęsta',
+    'notification_sent' => 'Pranešimas išsiųstas',
+    'expiry_warning_sent' => 'Galiojimo pabaigos įspėjimas išsiųstas :user',
     'subscription_expiry' => [
         'action' => 'Action',
         'cta_intro' => 'Cta Intro',

@@ -97,6 +97,9 @@ return [
         'suspended' => 'Suspended',
         'updated' => 'Updated',
     ],
+    'subscription_extended' => 'Subscription Extended',
+    'notification_sent' => 'Notification Sent',
+    'expiry_warning_sent' => 'Expiry warning sent to :user',
     'subscription_expiry' => [
         'action' => 'Action',
         'cta_intro' => 'Cta Intro',

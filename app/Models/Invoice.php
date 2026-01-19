@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\InvoiceStatus;
 use App\Enums\ApprovalStatus;
 use App\Enums\AutomationLevel;
+use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,9 +16,19 @@ use Illuminate\Support\Carbon;
 
 class Invoice extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use HasFactory, BelongsToTenant, Auditable;
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
+
+    /**
+     * Attributes to exclude from audit logging.
+     *
+     * @var array<int, string>
+     */
+    protected array $auditExclude = [
+        'snapshot_data',
+        'approval_metadata',
+    ];
 
     /**
      * The "booted" method of the model.
