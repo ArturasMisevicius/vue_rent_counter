@@ -188,7 +188,19 @@ final readonly class MeterReadingPolicy
             return false;
         }
 
-        // Check if user is assigned to this property
-        return $property->tenant_id === $user->id;
+        // Primary check: tenant users may be directly assigned to a property_id.
+        if ($user->property_id !== null) {
+            return (int) $user->property_id === (int) $property->id;
+        }
+
+        // Fallback check: legacy mapping via Tenant record linked by email.
+        $tenantRecord = $user->tenant;
+
+        if (! $tenantRecord) {
+            return false;
+        }
+
+        return (int) $tenantRecord->property_id === (int) $property->id
+            && (int) $tenantRecord->tenant_id === (int) $meterReading->tenant_id;
     }
 }

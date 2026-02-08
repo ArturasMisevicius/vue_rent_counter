@@ -82,6 +82,7 @@ return [
         'bindings' => [
             \App\Contracts\ServiceRegistration\PolicyRegistryInterface::class => \App\Support\ServiceRegistration\PolicyRegistry::class,
             \App\Contracts\ServiceRegistration\ErrorHandlingStrategyInterface::class => \App\Services\ServiceRegistration\RegistrationErrorHandler::class,
+            \App\Contracts\SubscriptionCheckerInterface::class => \App\Services\SubscriptionChecker::class,
         ],
     ],
 ];

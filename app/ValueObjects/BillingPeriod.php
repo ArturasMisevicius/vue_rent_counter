@@ -81,6 +81,25 @@ final readonly class BillingPeriod
     }
 
     /**
+     * Backward-compatible constructor helper.
+     */
+    public static function create(Carbon|string $startDate, Carbon|string $endDate): self
+    {
+        return new self(
+            $startDate instanceof Carbon ? $startDate->copy() : Carbon::parse($startDate),
+            $endDate instanceof Carbon ? $endDate->copy() : Carbon::parse($endDate),
+        );
+    }
+
+    /**
+     * Create a billing period from date strings.
+     */
+    public static function fromStrings(string $startDate, string $endDate): self
+    {
+        return self::create($startDate, $endDate);
+    }
+
+    /**
      * Get the start date of this billing period.
      */
     public function getStartDate(): Carbon
@@ -108,6 +127,14 @@ final readonly class BillingPeriod
      * Get the number of days in this billing period (alias for getDays).
      */
     public function getDaysInPeriod(): int
+    {
+        return $this->getDays();
+    }
+
+    /**
+     * Legacy alias for getDays().
+     */
+    public function days(): int
     {
         return $this->getDays();
     }
@@ -151,6 +178,14 @@ final readonly class BillingPeriod
             'days' => $this->getDays(),
             'label' => $this->getLabel(),
         ];
+    }
+
+    /**
+     * Legacy string representation kept for compatibility with existing tests/services.
+     */
+    public function toString(): string
+    {
+        return $this->startDate->toDateString() . ' to ' . $this->endDate->toDateString();
     }
 
     /**
@@ -200,5 +235,19 @@ final readonly class BillingPeriod
     public function getDurationInMonths(): float
     {
         return $this->getDays() / 30.0;
+    }
+
+    /**
+     * Backward-compatible virtual properties.
+     * - $period->start maps to $period->startDate
+     * - $period->end maps to $period->endDate
+     */
+    public function __get(string $name): mixed
+    {
+        return match ($name) {
+            'start' => $this->startDate,
+            'end' => $this->endDate,
+            default => null,
+        };
     }
 }

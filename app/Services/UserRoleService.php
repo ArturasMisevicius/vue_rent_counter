@@ -139,17 +139,23 @@ class UserRoleService
      */
     private function performRoleCheck(User $user, string|UserRole|array $roles, ?string $guard): bool
     {
-        // If Spatie permission tables exist, use the trait method
+        $normalizedRoles = collect(Arr::wrap($roles))
+            ->map(fn ($role) => $this->normalizeRoleToString($role))
+            ->values();
+
+        $userRole = $user->role instanceof UserRole
+            ? $user->role->value
+            : $this->normalizeRoleToString($user->role);
+
+        // If Spatie permission tables exist, prefer the trait method.
+        // Fall back to enum/string role checks when pivots are not populated.
         if ($this->hasPermissionTables()) {
-            return $user->hasRoleTrait($roles, $guard);
+            if ($user->hasRoleTrait($roles, $guard)) {
+                return true;
+            }
         }
 
-        // Fallback to enum-based role checking
-        $userRole = $user->role instanceof UserRole ? $user->role->value : $this->normalizeRoleToString($user->role);
-
-        return collect(Arr::wrap($roles))
-            ->map(fn ($role) => $this->normalizeRoleToString($role))
-            ->contains($userRole);
+        return $normalizedRoles->contains($userRole);
     }
 
     /**

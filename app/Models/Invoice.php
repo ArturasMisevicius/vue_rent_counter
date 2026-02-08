@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Carbon;
 
 class Invoice extends Model
@@ -204,6 +205,36 @@ class Invoice extends Model
     public function items(): HasMany
     {
         return $this->hasMany(InvoiceItem::class);
+    }
+
+    /**
+     * Backward-compatible accessor for `items`.
+     *
+     * Many services/tests expect `$invoice->items` to return related invoice items.
+     * If the raw JSON `items` attribute was explicitly set and is dirty, return it.
+     * Otherwise, prefer the hasMany relation.
+     */
+    public function getItemsAttribute(mixed $value): Collection
+    {
+        if ($this->exists && ! $this->isDirty('items')) {
+            return $this->getRelationValue('items') ?? collect();
+        }
+
+        if ($value instanceof Collection) {
+            return $value;
+        }
+
+        if (is_array($value)) {
+            return collect($value);
+        }
+
+        if (is_string($value) && $value !== '') {
+            $decoded = json_decode($value, true);
+
+            return is_array($decoded) ? collect($decoded) : collect();
+        }
+
+        return collect();
     }
 
     /**

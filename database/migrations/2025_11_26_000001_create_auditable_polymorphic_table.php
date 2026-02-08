@@ -16,7 +16,9 @@ return new class extends Migration
     {
         Schema::create('audit_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tenant_id')->constrained('users')->onDelete('cascade');
+            // Tenant context can be absent for global/system events.
+            // Keep this as a nullable scalar to avoid coupling with a specific table.
+            $table->unsignedBigInteger('tenant_id')->nullable();
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
             
             // Polymorphic relationship to any auditable model

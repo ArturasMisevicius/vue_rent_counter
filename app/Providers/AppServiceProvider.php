@@ -9,6 +9,7 @@ use App\Contracts\ServiceRegistration\PolicyRegistryInterface;
 use App\Services\PolicyRegistryMonitoringService;
 use App\Services\ServiceRegistration\RegistrationErrorHandler;
 use App\Services\ServiceRegistration\ServiceRegistrationOrchestrator;
+use App\Support\ServiceRegistration\ObserverRegistry;
 use App\Support\ServiceRegistration\PolicyRegistry;
 use Illuminate\Support\ServiceProvider;
 
@@ -53,6 +54,7 @@ final class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->bootRateLimiters();
+        $this->bootObservers();
         $this->bootServiceRegistration();
         $this->bootViewComposers();
     }
@@ -97,6 +99,17 @@ final class AppServiceProvider extends ServiceProvider
             'layouts.app',
             \App\View\Composers\NavigationComposer::class
         );
+    }
+
+    /**
+     * Register model observers required for audit trails and derived updates.
+     */
+    private function bootObservers(): void
+    {
+        $observerRegistry = new ObserverRegistry();
+        $observerRegistry->registerModelObservers();
+        $observerRegistry->registerSuperadminObservers();
+        $observerRegistry->registerCacheInvalidationObservers();
     }
 
     /**

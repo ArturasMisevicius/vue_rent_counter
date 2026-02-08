@@ -239,6 +239,20 @@ Route::middleware(['auth', 'superadmin'])->group(function () {
     Route::delete('superadmin/filament/users/{user}', [AdminUserController::class, 'destroy'])->name('filament.admin.resources.users.destroy');
 });
 
+// Filament superadmin route-name compatibility aliases.
+// These names can be missing because legacy controller routes already occupy
+// the same URI patterns under /superadmin/*.
+Route::middleware(['auth', 'superadmin'])
+    ->prefix('superadmin/filament-compat')
+    ->group(function () {
+        Route::get('organizations', fn () => redirect()->route('superadmin.organizations.index'))
+            ->name('filament.superadmin.resources.organizations.index');
+        Route::get('organizations/create', fn () => redirect()->route('superadmin.organizations.create'))
+            ->name('filament.superadmin.resources.organizations.create');
+        Route::get('subscriptions', fn () => redirect()->route('superadmin.subscriptions.index'))
+            ->name('filament.superadmin.resources.subscriptions.index');
+    });
+
 // ============================================================================
 // ADMIN ROUTES
 // ============================================================================
