@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Manager;
 
-use App\Http\Controllers\Controller;
 use App\Enums\InvoiceStatus;
+use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\Property;
@@ -47,13 +47,13 @@ class DashboardController extends Controller
                     $q->where('reading_date', '>=', $currentMonthStart);
                 });
             })
-            ->with(['building', 'meters' => function ($query) use ($currentMonthStart) {
-                $query->whereDoesntHave('readings', function ($q) use ($currentMonthStart) {
-                    $q->where('reading_date', '>=', $currentMonthStart);
-                });
-            }])
-            ->limit(10)
-            ->get();
+                ->with(['building', 'meters' => function ($query) use ($currentMonthStart) {
+                    $query->whereDoesntHave('readings', function ($q) use ($currentMonthStart) {
+                        $q->where('reading_date', '>=', $currentMonthStart);
+                    });
+                }])
+                ->limit(10)
+                ->get();
         });
 
         // Cache draft invoices for 5 minutes per tenant
@@ -65,6 +65,6 @@ class DashboardController extends Controller
                 ->get();
         });
 
-        return view('pages.dashboard.manager', compact('stats', 'propertiesNeedingReadings', 'draftInvoices'));
+        return view('pages.dashboard.index', compact('stats', 'propertiesNeedingReadings', 'draftInvoices'));
     }
 }

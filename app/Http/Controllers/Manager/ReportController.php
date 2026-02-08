@@ -13,7 +13,6 @@ use App\Models\MeterReading;
 use App\Models\Property;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ReportController extends Controller
@@ -31,7 +30,7 @@ class ReportController extends Controller
             'invoices_this_month' => Invoice::whereMonth('billing_period_start', Carbon::now()->month)->count(),
         ];
 
-        return view('pages.reports.index-manager', compact('stats'));
+        return view('pages.reports.index', compact('stats'));
     }
 
     /**
@@ -46,8 +45,8 @@ class ReportController extends Controller
         $buildingId = $validated['building_id'] ?? null;
         $serviceFilter = $validated['service'] ?? null;
 
-        if (!$serviceFilter && !empty($validated['meter_type'])) {
-            $serviceFilter = 'type:' . (string) $validated['meter_type'];
+        if (! $serviceFilter && ! empty($validated['meter_type'])) {
+            $serviceFilter = 'type:'.(string) $validated['meter_type'];
         }
 
         $query = MeterReading::with([
@@ -68,6 +67,7 @@ class ReportController extends Controller
 
                 if ($kind === 'utility' && is_numeric($value)) {
                     $q->whereHas('serviceConfiguration', fn ($sq) => $sq->where('utility_service_id', (int) $value));
+
                     return;
                 }
 
@@ -96,7 +96,7 @@ class ReportController extends Controller
                 return "utility:{$utilityServiceId}";
             }
 
-            return 'type:' . (string) $reading->meter?->type?->value;
+            return 'type:'.(string) $reading->meter?->type?->value;
         })->map(function ($serviceReadings) {
             $first = $serviceReadings->first();
 
@@ -125,6 +125,7 @@ class ReportController extends Controller
         // Top consuming properties
         $topProperties = $readings->groupBy('meter.property_id')->map(function ($propertyReadings) {
             $property = $propertyReadings->first()->meter->property;
+
             return [
                 'property' => $property,
                 'total_consumption' => $propertyReadings->sum('value'),
@@ -165,7 +166,7 @@ class ReportController extends Controller
             $serviceFilterOptions["type:{$type}"] = "Legacy: {$label}";
         }
 
-        return view('pages.reports.consumption-manager', compact(
+        return view('pages.reports.consumption', compact(
             'readingsByProperty',
             'consumptionByType',
             'monthlyTrend',
@@ -191,8 +192,8 @@ class ReportController extends Controller
         $endDate = $validated['end_date'] ?? Carbon::now()->endOfMonth()->format('Y-m-d');
         $serviceFilter = $validated['service'] ?? null;
 
-        if (!$serviceFilter && !empty($validated['meter_type'])) {
-            $serviceFilter = 'type:' . (string) $validated['meter_type'];
+        if (! $serviceFilter && ! empty($validated['meter_type'])) {
+            $serviceFilter = 'type:'.(string) $validated['meter_type'];
         }
 
         $query = MeterReading::with([
@@ -207,7 +208,7 @@ class ReportController extends Controller
             });
         }
 
-        if (!empty($validated['building_id'])) {
+        if (! empty($validated['building_id'])) {
             $query->whereHas('meter.property', function ($q) use ($validated) {
                 $q->where('building_id', $validated['building_id']);
             });
@@ -219,6 +220,7 @@ class ReportController extends Controller
 
                 if ($kind === 'utility' && is_numeric($value)) {
                     $q->whereHas('serviceConfiguration', fn ($sq) => $sq->where('utility_service_id', (int) $value));
+
                     return;
                 }
 
@@ -246,7 +248,7 @@ class ReportController extends Controller
 
         return response($csv, 200, [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="consumption-report-' . $startDate . '-to-' . $endDate . '.csv"',
+            'Content-Disposition' => 'attachment; filename="consumption-report-'.$startDate.'-to-'.$endDate.'.csv"',
         ]);
     }
 
@@ -308,21 +310,21 @@ class ReportController extends Controller
 
         // Overdue invoices
         $overdueInvoices = $invoices->filter(function ($invoice) {
-            return $invoice->due_date && 
-                   $invoice->due_date->isPast() && 
-                   !in_array($invoice->status->value, ['paid']);
+            return $invoice->due_date &&
+                   $invoice->due_date->isPast() &&
+                   ! in_array($invoice->status->value, ['paid']);
         });
 
         $overdueAmount = $overdueInvoices->sum('total_amount');
 
         // Payment rate
-        $paymentRate = $invoices->count() > 0 
-            ? ($invoices->where('status.value', 'paid')->count() / $invoices->count()) * 100 
+        $paymentRate = $invoices->count() > 0
+            ? ($invoices->where('status.value', 'paid')->count() / $invoices->count()) * 100
             : 0;
 
         $buildings = Building::all();
 
-        return view('pages.reports.revenue-manager', compact(
+        return view('pages.reports.revenue', compact(
             'invoices',
             'invoiceOverdueMap',
             'totalRevenue',
@@ -373,7 +375,7 @@ class ReportController extends Controller
 
         return response($csv, 200, [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="revenue-report-' . $startDate . '-to-' . $endDate . '.csv"',
+            'Content-Disposition' => 'attachment; filename="revenue-report-'.$startDate.'-to-'.$endDate.'.csv"',
         ]);
     }
 
@@ -425,7 +427,8 @@ class ReportController extends Controller
         });
 
         $propertiesWithPartialReadings = $properties->filter(function ($property) {
-            $metersWithReadings = $property->meters->filter(fn($meter) => $meter->readings->isNotEmpty())->count();
+            $metersWithReadings = $property->meters->filter(fn ($meter) => $meter->readings->isNotEmpty())->count();
+
             return $metersWithReadings > 0 && $metersWithReadings < $property->meters->count();
         });
 
@@ -435,8 +438,8 @@ class ReportController extends Controller
             });
         });
 
-        $complianceRate = $properties->count() > 0 
-            ? ($propertiesWithReadings->count() / $properties->count()) * 100 
+        $complianceRate = $properties->count() > 0
+            ? ($propertiesWithReadings->count() / $properties->count()) * 100
             : 0;
 
         // Compliance by building
@@ -472,7 +475,7 @@ class ReportController extends Controller
 
         $buildings = Building::all();
 
-        return view('pages.reports.meter-reading-compliance-manager', compact(
+        return view('pages.reports.meter-reading-compliance', compact(
             'properties',
             'propertyCompliance',
             'propertiesWithReadings',
@@ -507,7 +510,7 @@ class ReportController extends Controller
         $csv = "Property,Building,Total Meters,Meters with Readings,Compliance Status\n";
         foreach ($properties as $property) {
             $totalMeters = $property->meters->count();
-            $metersWithReadings = $property->meters->filter(fn($meter) => $meter->readings->isNotEmpty())->count();
+            $metersWithReadings = $property->meters->filter(fn ($meter) => $meter->readings->isNotEmpty())->count();
             $status = $totalMeters > 0 && $totalMeters === $metersWithReadings ? 'Complete' : 'Incomplete';
 
             $csv .= sprintf(
@@ -522,7 +525,7 @@ class ReportController extends Controller
 
         return response($csv, 200, [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="compliance-report-' . $month . '.csv"',
+            'Content-Disposition' => 'attachment; filename="compliance-report-'.$month.'.csv"',
         ]);
     }
 }

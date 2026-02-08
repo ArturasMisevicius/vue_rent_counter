@@ -24,9 +24,9 @@ class TenantController extends Controller
     public function index()
     {
         $this->authorize('viewAny', User::class);
-        
+
         $user = auth()->user();
-        
+
         // Admin users see only their tenants
         $tenants = User::where('role', 'tenant')
             ->where('tenant_id', $user->tenant_id)
@@ -34,7 +34,7 @@ class TenantController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('pages.tenants.index-admin', compact('tenants'));
+        return view('pages.tenants.index', compact('tenants'));
     }
 
     /**
@@ -43,15 +43,15 @@ class TenantController extends Controller
     public function create()
     {
         $this->authorize('create', User::class);
-        
+
         $user = auth()->user();
-        
+
         // Get properties belonging to this admin
         $properties = Property::where('tenant_id', $user->tenant_id)
             ->orderBy('address')
             ->get();
 
-        return view('pages.tenants.create-admin', compact('properties'));
+        return view('pages.tenants.create', compact('properties'));
     }
 
     /**
@@ -60,7 +60,7 @@ class TenantController extends Controller
     public function store(AdminStoreTenantRequest $request)
     {
         $this->authorize('create', User::class);
-        
+
         $validated = $request->validated();
 
         try {
@@ -84,14 +84,14 @@ class TenantController extends Controller
     public function show(User $tenant)
     {
         $this->authorize('view', $tenant);
-        
+
         // Load relationships
         $tenant->load([
             'property',
             'parentUser',
             'meterReadings' => function ($query) {
                 $query->latest('reading_date')->take(10);
-            }
+            },
         ]);
 
         // Get assignment history from audit log
@@ -112,7 +112,7 @@ class TenantController extends Controller
             ->take(5)
             ->get();
 
-        return view('pages.tenants.show-admin', compact('tenant', 'assignmentHistory', 'recentInvoices'));
+        return view('pages.tenants.show', compact('tenant', 'assignmentHistory', 'recentInvoices'));
     }
 
     /**
@@ -121,15 +121,15 @@ class TenantController extends Controller
     public function edit(User $tenant)
     {
         $this->authorize('update', $tenant);
-        
+
         $user = auth()->user();
-        
+
         // Get properties belonging to this admin
         $properties = Property::where('tenant_id', $user->tenant_id)
             ->orderBy('address')
             ->get();
 
-        return view('pages.tenants.edit-admin', compact('tenant', 'properties'));
+        return view('pages.tenants.edit', compact('tenant', 'properties'));
     }
 
     /**
@@ -138,7 +138,7 @@ class TenantController extends Controller
     public function update(AdminUpdateTenantRequest $request, User $tenant)
     {
         $this->authorize('update', $tenant);
-        
+
         $validated = $request->validated();
 
         $tenant->update($validated);
@@ -153,7 +153,7 @@ class TenantController extends Controller
     public function toggleActive(User $tenant)
     {
         $this->authorize('update', $tenant);
-        
+
         if ($tenant->is_active) {
             $this->accountManagementService->deactivateAccount($tenant, 'Deactivated by admin');
             $message = __('notifications.admin_tenant.deactivated');
@@ -171,16 +171,16 @@ class TenantController extends Controller
     public function reassignForm(User $tenant)
     {
         $this->authorize('update', $tenant);
-        
+
         $user = auth()->user();
-        
+
         // Get properties belonging to this admin (excluding current property)
         $properties = Property::where('tenant_id', $user->tenant_id)
             ->where('id', '!=', $tenant->property_id)
             ->orderBy('address')
             ->get();
 
-        return view('pages.tenants.reassign-admin', compact('tenant', 'properties'));
+        return view('pages.tenants.reassign', compact('tenant', 'properties'));
     }
 
     /**
@@ -189,12 +189,12 @@ class TenantController extends Controller
     public function reassign(AdminReassignTenantRequest $request, User $tenant)
     {
         $this->authorize('update', $tenant);
-        
+
         $validated = $request->validated();
 
         try {
             $newProperty = Property::findOrFail($validated['property_id']);
-            
+
             $this->accountManagementService->reassignTenant(
                 $tenant,
                 $newProperty,

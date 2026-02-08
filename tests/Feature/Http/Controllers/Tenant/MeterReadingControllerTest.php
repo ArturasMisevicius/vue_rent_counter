@@ -47,7 +47,7 @@ describe('index method', function () {
             ->get(route('tenant.meter-readings.index'));
 
         $response->assertOk()
-            ->assertViewIs('pages.meter-readings.index-tenant')
+            ->assertViewIs('pages.meter-readings.index')
             ->assertViewHas('readings')
             ->assertViewHas('properties');
     });
@@ -114,7 +114,7 @@ describe('show method', function () {
             ->get(route('tenant.meter-readings.show', $reading));
 
         $response->assertOk()
-            ->assertViewIs('pages.meter-readings.show-tenant')
+            ->assertViewIs('pages.meter-readings.show')
             ->assertViewHas('meterReading');
     });
 

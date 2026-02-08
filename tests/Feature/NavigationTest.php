@@ -77,3 +77,14 @@ test('navigation includes logout button for tenant', function () {
     $response->assertOk();
     $response->assertSee('Logout');
 });
+
+test('admin dashboard stat widgets are clickable links', function () {
+    $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+
+    $response = $this->actingAs($admin)->get(route('admin.dashboard'));
+
+    $response->assertOk();
+    $response->assertSee(route('admin.tenants.index'));
+    $response->assertSee(route('invoices.index'));
+    $response->assertSee(route('invoices.drafts'));
+});

@@ -20,7 +20,7 @@ class ManagerController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        return view('pages.managers.index-superadmin', compact('managers'));
+        return view('pages.managers.index', compact('managers'));
     }
 
     public function show(User $manager)
@@ -35,6 +35,6 @@ class ManagerController extends Controller
             'invoices' => fn ($q) => $q->latest('billing_period_start')->limit(10),
         ]);
 
-        return view('pages.managers.show-superadmin', compact('manager'));
+        return view('pages.managers.show', compact('manager'));
     }
 }

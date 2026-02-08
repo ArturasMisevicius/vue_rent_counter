@@ -32,15 +32,6 @@ return [
         'properties' => 'Properties',
         'users' => 'Users',
     ],
-    'system_info' => [
-        'database' => 'Database',
-        'database_sqlite' => 'Database Sqlite',
-        'environment' => 'Environment',
-        'laravel' => 'Laravel',
-        'php' => 'Php',
-        'timezone' => 'Timezone',
-        'title' => 'Title',
-    ],
     'title' => 'Title',
     'validation' => [
         'app_name' => [

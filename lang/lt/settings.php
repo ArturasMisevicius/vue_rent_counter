@@ -32,15 +32,6 @@ return [
         'properties' => 'Nuosavybės',
         'users' => 'Vartotojai',
     ],
-    'system_info' => [
-        'database' => 'Duomenų bazė',
-        'database_sqlite' => 'Duomenų bazė SQLite',
-        'environment' => 'Aplinka',
-        'laravel' => 'Laravel',
-        'php' => 'PHP',
-        'timezone' => 'Laiko juosta',
-        'title' => 'Pavadinimas',
-    ],
     'title' => 'Pavadinimas',
     'validation' => [
         'app_name' => [

@@ -7,7 +7,6 @@ use App\Models\OrganizationActivityLog;
 use App\Models\User;
 use App\Services\ImpersonationService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ImpersonationController extends Controller
 {
@@ -17,7 +16,7 @@ class ImpersonationController extends Controller
 
     /**
      * Start impersonating a user.
-     * 
+     *
      * Requirements: 11.1, 11.2
      */
     public function start(Request $request, User $user)
@@ -38,7 +37,7 @@ class ImpersonationController extends Controller
 
     /**
      * End impersonation and restore superadmin session.
-     * 
+     *
      * Requirements: 11.4
      */
     public function end()
@@ -55,7 +54,7 @@ class ImpersonationController extends Controller
 
     /**
      * Display impersonation history.
-     * 
+     *
      * Requirements: 11.5
      */
     public function history(Request $request)
@@ -88,12 +87,12 @@ class ImpersonationController extends Controller
         $superadmins = User::where('role', 'superadmin')->get(['id', 'name']);
 
         // Get target users for filter dropdown (users who have been impersonated)
-        $targetUsers = User::whereIn('id', 
+        $targetUsers = User::whereIn('id',
             OrganizationActivityLog::whereIn('action', ['impersonation_started', 'impersonation_ended'])
                 ->distinct()
                 ->pluck('resource_id')
         )->get(['id', 'name']);
 
-        return view('pages.impersonation.history-superadmin', compact('logs', 'superadmins', 'targetUsers'));
+        return view('pages.impersonation.history', compact('logs', 'superadmins', 'targetUsers'));
     }
 }

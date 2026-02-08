@@ -14,7 +14,7 @@ class PropertyController extends Controller
     {
         $this->assertTenantAccess($property);
 
-        return response()->view('pages.properties.show-admin', [
+        return response()->view('pages.properties.show', [
             'property' => $property,
         ]);
     }
@@ -26,7 +26,7 @@ class PropertyController extends Controller
         $validated = $request->validate([
             'name' => ['nullable', 'string', 'max:255'],
             'address' => ['required', 'string', 'max:65535'],
-            'property_type' => ['required', 'string', 'in:' . implode(',', array_map(fn (PropertyType $type) => $type->value, PropertyType::cases()))],
+            'property_type' => ['required', 'string', 'in:'.implode(',', array_map(fn (PropertyType $type) => $type->value, PropertyType::cases()))],
         ]);
 
         $property->update([
@@ -64,9 +64,8 @@ class PropertyController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user || $user->tenant_id === null || $property->tenant_id !== $user->tenant_id) {
+        if (! $user || $user->tenant_id === null || $property->tenant_id !== $user->tenant_id) {
             abort(404);
         }
     }
 }
-

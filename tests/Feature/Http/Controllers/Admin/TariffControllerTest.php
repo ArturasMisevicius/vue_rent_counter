@@ -8,18 +8,16 @@ use App\Enums\UserRole;
 use App\Models\Provider;
 use App\Models\Tariff;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
-use Tests\TestCase;
-
 use PHPUnit\Framework\Attributes\Group;
+use Tests\TestCase;
 
 /**
  * TariffControllerTest
- * 
+ *
  * Feature tests for TariffController CRUD operations.
- * 
+ *
  * Coverage:
  * - Authorization (admin-only access)
  * - Index with sorting and pagination
@@ -29,14 +27,12 @@ use PHPUnit\Framework\Attributes\Group;
  * - Version creation workflow
  * - Delete operations
  * - Audit logging
- * 
+ *
  * Requirements:
  * - 2.1: Store tariff configuration as JSON
  * - 2.2: Validate time-of-use zones
  * - 11.1: Verify user's role using Laravel Policies
  * - 11.2: Admin has full CRUD operations on tariffs
- * 
- * @package Tests\Feature\Http\Controllers\Admin
  */
 #[Group('controllers')]
 #[Group('tariffs')]
@@ -46,8 +42,11 @@ class TariffControllerTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $manager;
+
     private User $tenant;
+
     private Provider $provider;
 
     protected function setUp(): void
@@ -65,7 +64,7 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Admin can view tariff index.
-     * 
+     *
      * Requirements: 11.1, 11.2
      */
     public function test_admin_can_view_tariff_index(): void
@@ -75,16 +74,16 @@ class TariffControllerTest extends TestCase
         $response = $this->get(route('admin.tariffs.index'));
 
         $response->assertOk();
-        $response->assertViewIs('pages.tariffs.index-admin');
+        $response->assertViewIs('pages.tariffs.index');
         $response->assertViewHas('tariffs');
     }
 
     /**
      * Test: Manager cannot access admin tariff routes.
-     * 
+     *
      * Admin routes are restricted to admin role only.
      * Managers can view tariffs through Filament or API endpoints.
-     * 
+     *
      * Requirements: 11.1, 11.3
      */
     public function test_manager_cannot_access_admin_tariff_routes(): void
@@ -98,10 +97,10 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Tenant cannot access admin tariff routes.
-     * 
+     *
      * Admin routes are restricted to admin role only.
      * Tenants can view tariffs through their own interface.
-     * 
+     *
      * Requirements: 11.1, 11.4
      */
     public function test_tenant_cannot_access_admin_tariff_routes(): void
@@ -115,7 +114,7 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Index supports sorting by allowed columns.
-     * 
+     *
      * Requirements: 11.1
      */
     public function test_index_supports_sorting(): void
@@ -145,7 +144,7 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Index prevents SQL injection via sort parameter.
-     * 
+     *
      * Requirements: 11.1
      */
     public function test_index_prevents_sql_injection_in_sort(): void
@@ -159,14 +158,14 @@ class TariffControllerTest extends TestCase
         $response = $this->get(route('admin.tariffs.index', ['sort' => 'id; DROP TABLE tariffs;--']));
 
         $response->assertOk(); // Should fallback to default sort
-        
+
         // Verify table still exists and has data
         $this->assertDatabaseCount('tariffs', 1);
     }
 
     /**
      * Test: Admin can view create form.
-     * 
+     *
      * Requirements: 11.1, 11.2
      */
     public function test_admin_can_view_create_form(): void
@@ -176,13 +175,13 @@ class TariffControllerTest extends TestCase
         $response = $this->get(route('admin.tariffs.create'));
 
         $response->assertOk();
-        $response->assertViewIs('pages.tariffs.create-admin');
+        $response->assertViewIs('pages.tariffs.create');
         $response->assertViewHas('providers');
     }
 
     /**
      * Test: Manager cannot view create form.
-     * 
+     *
      * Requirements: 11.1, 11.3
      */
     public function test_manager_cannot_view_create_form(): void
@@ -196,7 +195,7 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Admin can create flat rate tariff.
-     * 
+     *
      * Requirements: 2.1, 11.1, 11.2
      */
     public function test_admin_can_create_flat_rate_tariff(): void
@@ -226,7 +225,7 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Admin can create time-of-use tariff.
-     * 
+     *
      * Requirements: 2.1, 2.2, 11.1, 11.2
      */
     public function test_admin_can_create_time_of_use_tariff(): void
@@ -259,7 +258,7 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Manager cannot create tariff.
-     * 
+     *
      * Requirements: 11.1, 11.3
      */
     public function test_manager_cannot_create_tariff(): void
@@ -282,7 +281,7 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Admin can view tariff details.
-     * 
+     *
      * Requirements: 11.1, 11.2
      */
     public function test_admin_can_view_tariff_details(): void
@@ -294,14 +293,14 @@ class TariffControllerTest extends TestCase
         $response = $this->get(route('admin.tariffs.show', $tariff));
 
         $response->assertOk();
-        $response->assertViewIs('pages.tariffs.show-admin');
+        $response->assertViewIs('pages.tariffs.show');
         $response->assertViewHas('tariff');
         $response->assertViewHas('versionHistory');
     }
 
     /**
      * Test: Show displays version history.
-     * 
+     *
      * Requirements: 11.1
      */
     public function test_show_displays_version_history(): void
@@ -332,7 +331,7 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Admin can view edit form.
-     * 
+     *
      * Requirements: 11.1, 11.2
      */
     public function test_admin_can_view_edit_form(): void
@@ -344,14 +343,14 @@ class TariffControllerTest extends TestCase
         $response = $this->get(route('admin.tariffs.edit', $tariff));
 
         $response->assertOk();
-        $response->assertViewIs('pages.tariffs.edit-admin');
+        $response->assertViewIs('pages.tariffs.edit');
         $response->assertViewHas('tariff');
         $response->assertViewHas('providers');
     }
 
     /**
      * Test: Manager cannot view edit form.
-     * 
+     *
      * Requirements: 11.1, 11.3
      */
     public function test_manager_cannot_view_edit_form(): void
@@ -367,7 +366,7 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Admin can update tariff directly.
-     * 
+     *
      * Requirements: 2.1, 11.1, 11.2
      */
     public function test_admin_can_update_tariff_directly(): void
@@ -401,7 +400,7 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Admin can create new tariff version.
-     * 
+     *
      * Requirements: 2.1, 11.1, 11.2
      */
     public function test_admin_can_create_new_tariff_version(): void
@@ -436,20 +435,20 @@ class TariffControllerTest extends TestCase
 
         // New tariff should exist (check count instead of exact match due to timestamp formatting)
         $this->assertDatabaseCount('tariffs', 2);
-        
+
         // Verify new tariff has correct attributes
         $newTariff = Tariff::where('provider_id', $this->provider->id)
             ->where('name', 'Standard Rate')
             ->where('id', '!=', $oldTariff->id)
             ->first();
-            
+
         $this->assertNotNull($newTariff);
         $this->assertEquals('2025-01-01', $newTariff->active_from->format('Y-m-d'));
     }
 
     /**
      * Test: Manager cannot update tariff.
-     * 
+     *
      * Requirements: 11.1, 11.3
      */
     public function test_manager_cannot_update_tariff(): void
@@ -474,7 +473,7 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Admin can delete tariff.
-     * 
+     *
      * Requirements: 11.1, 11.2
      */
     public function test_admin_can_delete_tariff(): void
@@ -494,7 +493,7 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Manager cannot delete tariff.
-     * 
+     *
      * Requirements: 11.1, 11.3
      */
     public function test_manager_cannot_delete_tariff(): void
@@ -513,13 +512,13 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Tariff create operation is logged for audit trail.
-     * 
+     *
      * Requirements: 11.1
      */
     public function test_tariff_create_is_logged(): void
     {
         Log::spy();
-        
+
         $this->actingAs($this->admin);
 
         $this->post(route('admin.tariffs.store'), [
@@ -542,13 +541,13 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Tariff update operation is logged for audit trail.
-     * 
+     *
      * Requirements: 11.1
      */
     public function test_tariff_update_is_logged(): void
     {
         Log::spy();
-        
+
         $this->actingAs($this->admin);
 
         $tariff = Tariff::factory()->create(['provider_id' => $this->provider->id]);
@@ -574,13 +573,13 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Tariff version creation is logged for audit trail.
-     * 
+     *
      * Requirements: 11.1
      */
     public function test_tariff_version_creation_is_logged(): void
     {
         Log::spy();
-        
+
         $this->actingAs($this->admin);
 
         $oldTariff = Tariff::factory()->create([
@@ -611,13 +610,13 @@ class TariffControllerTest extends TestCase
 
     /**
      * Test: Tariff delete operation is logged for audit trail.
-     * 
+     *
      * Requirements: 11.1
      */
     public function test_tariff_delete_is_logged(): void
     {
         Log::spy();
-        
+
         $this->actingAs($this->admin);
 
         $tariff = Tariff::factory()->create(['provider_id' => $this->provider->id]);

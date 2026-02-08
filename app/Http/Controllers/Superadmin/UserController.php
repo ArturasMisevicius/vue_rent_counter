@@ -23,7 +23,7 @@ class UserController extends Controller
             ? Organization::find($user->tenant_id)
             : null;
 
-        return view('pages.users.show-superadmin', compact('user', 'organization'));
+        return view('pages.users.show', compact('user', 'organization'));
     }
 
     public function resetPassword(User $user)

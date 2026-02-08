@@ -21,7 +21,7 @@ class InvoiceController extends Controller
 
     /**
      * Display a listing of invoices with status and property filtering.
-     * 
+     *
      * Requirements:
      * - 6.1: Filter invoices by tenant_id (automatic via Global Scope)
      * - 6.5: Support property filtering for multi-property tenants
@@ -61,7 +61,7 @@ class InvoiceController extends Controller
         // Handle sorting
         $sortColumn = $request->input('sort', 'created_at');
         $sortDirection = $request->input('direction', 'desc');
-        
+
         // Validate sort column
         $allowedColumns = ['billing_period_start', 'billing_period_end', 'total_amount', 'status', 'created_at'];
         if (in_array($sortColumn, $allowedColumns)) {
@@ -75,7 +75,7 @@ class InvoiceController extends Controller
         // Get properties for filter dropdown (Requirement 6.5)
         $properties = \App\Models\Property::orderBy('address')->get();
 
-        return view('pages.invoices.index-manager', compact('invoices', 'properties'));
+        return view('pages.invoices.index', compact('invoices', 'properties'));
     }
 
     /**
@@ -87,7 +87,7 @@ class InvoiceController extends Controller
 
         $tenants = Tenant::with('property')->orderBy('name')->get();
 
-        return view('pages.invoices.create-manager', compact('tenants'));
+        return view('pages.invoices.create', compact('tenants'));
     }
 
     /**
@@ -100,11 +100,11 @@ class InvoiceController extends Controller
         $validated = $request->validated();
 
         $tenant = Tenant::findOrFail($validated['tenant_renter_id']);
-        
+
         // Convert date strings to Carbon instances
         $periodStart = \Carbon\Carbon::parse($validated['billing_period_start']);
         $periodEnd = \Carbon\Carbon::parse($validated['billing_period_end']);
-        
+
         $invoice = $this->billingService->generateInvoice(
             $tenant,
             $periodStart,
@@ -118,7 +118,7 @@ class InvoiceController extends Controller
 
     /**
      * Display the specified invoice with edit capability for drafts.
-     * 
+     *
      * Requirements:
      * - 6.2: Display itemized breakdown by utility type
      * - 6.3: Display chronologically ordered consumption history
@@ -129,37 +129,37 @@ class InvoiceController extends Controller
         $this->authorize('view', $invoice);
 
         $invoice->load(['tenant.property', 'items']);
-        
+
         // Get consumption history for the billing period (Requirement 6.3)
         $consumptionHistory = collect();
         if ($invoice->tenant && $invoice->tenant->property) {
             $consumptionHistory = \App\Models\MeterReading::whereHas('meter', function ($query) use ($invoice) {
                 $query->where('property_id', $invoice->tenant->property_id);
             })
-            ->with(['meter'])
-            ->whereBetween('reading_date', [
-                $invoice->billing_period_start,
-                $invoice->billing_period_end
-            ])
-            ->orderBy('reading_date', 'asc')
-            ->get();
-            
+                ->with(['meter'])
+                ->whereBetween('reading_date', [
+                    $invoice->billing_period_start,
+                    $invoice->billing_period_end,
+                ])
+                ->orderBy('reading_date', 'asc')
+                ->get();
+
             // Calculate consumption for each reading
             $consumptionHistory = $consumptionHistory->map(function ($reading) {
                 $previousReading = \App\Models\MeterReading::where('meter_id', $reading->meter_id)
                     ->where('reading_date', '<', $reading->reading_date)
                     ->orderBy('reading_date', 'desc')
                     ->first();
-                
-                $reading->consumption = $previousReading 
-                    ? $reading->value - $previousReading->value 
+
+                $reading->consumption = $previousReading
+                    ? $reading->value - $previousReading->value
                     : null;
-                
+
                 return $reading;
             });
         }
 
-        return view('pages.invoices.show-manager', compact('invoice', 'consumptionHistory'));
+        return view('pages.invoices.show', compact('invoice', 'consumptionHistory'));
     }
 
     /**
@@ -169,13 +169,13 @@ class InvoiceController extends Controller
     {
         $this->authorize('update', $invoice);
 
-        if (!$invoice->isDraft()) {
+        if (! $invoice->isDraft()) {
             return back()->with('error', __('invoices.errors.edit_draft_only'));
         }
 
         $tenants = Tenant::with('property')->orderBy('name')->get();
 
-        return view('pages.invoices.edit-manager', compact('invoice', 'tenants'));
+        return view('pages.invoices.edit', compact('invoice', 'tenants'));
     }
 
     /**
@@ -185,12 +185,12 @@ class InvoiceController extends Controller
     {
         $this->authorize('update', $invoice);
 
-        if (!$invoice->isDraft()) {
+        if (! $invoice->isDraft()) {
             return back()->with('error', __('invoices.errors.update_draft_only'));
         }
 
         $validated = $request->validated();
-        
+
         // If billing period or tenant changed, regenerate the invoice
         $periodChanged = $invoice->billing_period_start->format('Y-m-d') !== $validated['billing_period_start']
             || $invoice->billing_period_end->format('Y-m-d') !== $validated['billing_period_end'];
@@ -199,31 +199,31 @@ class InvoiceController extends Controller
         if ($periodChanged || $tenantChanged) {
             // Delete existing items
             $invoice->items()->delete();
-            
+
             // Update invoice with new data
             $invoice->update($validated);
-            
+
             // Regenerate items
             $tenant = Tenant::findOrFail($validated['tenant_renter_id']);
-            
+
             // Convert date strings to Carbon instances
             $periodStart = \Carbon\Carbon::parse($validated['billing_period_start']);
             $periodEnd = \Carbon\Carbon::parse($validated['billing_period_end']);
-            
+
             $newInvoice = $this->billingService->generateInvoice(
                 $tenant,
                 $periodStart,
                 $periodEnd
             );
-            
+
             // Copy items from new invoice to existing invoice
             foreach ($newInvoice->items as $item) {
                 $invoice->items()->create($item->toArray());
             }
-            
+
             // Update total
             $invoice->update(['total_amount' => $newInvoice->total_amount]);
-            
+
             // Delete the temporary invoice
             $newInvoice->items()->delete();
             $newInvoice->delete();
@@ -241,7 +241,7 @@ class InvoiceController extends Controller
      */
     public function destroy(Invoice $invoice): RedirectResponse
     {
-        if (!$invoice->isDraft()) {
+        if (! $invoice->isDraft()) {
             return back()->with('error', __('invoices.errors.delete_draft_only'));
         }
 
@@ -256,10 +256,10 @@ class InvoiceController extends Controller
 
     /**
      * Finalize an invoice with snapshotting.
-     * 
+     *
      * Note: This method is kept for backward compatibility.
      * New code should use FinalizeInvoiceController instead.
-     * 
+     *
      * @deprecated Use FinalizeInvoiceController instead
      */
     public function finalize(FinalizeInvoiceRequest $request, Invoice $invoice): RedirectResponse
@@ -268,6 +268,7 @@ class InvoiceController extends Controller
 
         try {
             $this->billingService->finalizeInvoice($invoice);
+
             return back()->with('success', __('notifications.invoice.finalized_locked'));
         } catch (\App\Exceptions\InvoiceAlreadyFinalizedException $e) {
             return back()->with('error', __('invoices.errors.already_finalized'));
@@ -288,7 +289,7 @@ class InvoiceController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('pages.invoices.drafts-manager', compact('invoices'));
+        return view('pages.invoices.drafts', compact('invoices'));
     }
 
     /**
@@ -303,7 +304,7 @@ class InvoiceController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('pages.invoices.finalized-manager', compact('invoices'));
+        return view('pages.invoices.finalized', compact('invoices'));
     }
 
     /**
@@ -320,7 +321,7 @@ class InvoiceController extends Controller
         $validated = $request->validated();
 
         $invoice->status = \App\Enums\InvoiceStatus::PAID;
-        $invoice->paid_at = !empty($validated['paid_at'])
+        $invoice->paid_at = ! empty($validated['paid_at'])
             ? \Carbon\Carbon::parse($validated['paid_at'])
             : now();
 

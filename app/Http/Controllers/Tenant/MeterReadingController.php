@@ -58,7 +58,7 @@ class MeterReadingController extends Controller
             $serviceOptions = collect();
             $legacyTypeOptions = collect();
 
-            return view('pages.meter-readings.index-tenant', compact(
+            return view('pages.meter-readings.index', compact(
                 'readings',
                 'properties',
                 'meterTypeLabels',
@@ -94,7 +94,7 @@ class MeterReadingController extends Controller
             ->sort()
             ->values();
 
-        return view('pages.meter-readings.index-tenant', compact(
+        return view('pages.meter-readings.index', compact(
             'readings',
             'properties',
             'meterTypeLabels',
@@ -115,7 +115,7 @@ class MeterReadingController extends Controller
         // Eager load relationships for display
         $meterReading->load(['meter.property', 'meter.serviceConfiguration.utilityService', 'enteredBy']);
 
-        return view('pages.meter-readings.show-tenant', compact('meterReading'));
+        return view('pages.meter-readings.show', compact('meterReading'));
     }
 
     /**

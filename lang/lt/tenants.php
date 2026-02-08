@@ -63,10 +63,10 @@ return [
                 'no_properties' => 'No Properties',
             ],
             'placeholders' => [
-                'property' => 'Property',
+                'property' => 'Pasirinkite objektą',
             ],
-            'subtitle' => 'Subtitle',
-            'title' => 'Title',
+            'subtitle' => 'Sukurkite nuomininko paskyrą ir priskirkite ją jūsų portfelio objektui.',
+            'title' => 'Sukurti nuomininką',
         ],
         'reassign' => [
             'actions' => [

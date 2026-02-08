@@ -17,7 +17,7 @@ class PropertyController extends Controller
             ->orderBy('address')
             ->get();
 
-        return view('pages.properties.index-superadmin', compact('properties'));
+        return view('pages.properties.index', compact('properties'));
     }
 
     public function show(Property $property): View
@@ -33,7 +33,7 @@ class PropertyController extends Controller
         $invoices = $tenants->flatMap->invoices->unique('id');
         $meters = $property->meters;
 
-        return view('pages.properties.show-superadmin', compact(
+        return view('pages.properties.show', compact(
             'property',
             'tenants',
             'invoices',

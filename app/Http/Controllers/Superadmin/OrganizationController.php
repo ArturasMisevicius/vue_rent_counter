@@ -27,12 +27,12 @@ class OrganizationController extends Controller
             ->orderByDesc('created_at')
             ->paginate(20);
 
-        return view('pages.organizations.index-superadmin', compact('organizations'));
+        return view('pages.organizations.index', compact('organizations'));
     }
 
     public function create()
     {
-        return view('pages.organizations.create-superadmin');
+        return view('pages.organizations.create');
     }
 
     public function store(StoreOrganizationRequest $request)
@@ -51,12 +51,12 @@ class OrganizationController extends Controller
 
     public function show(Organization $organization)
     {
-        return view('pages.organizations.show-superadmin', compact('organization'));
+        return view('pages.organizations.show', compact('organization'));
     }
 
     public function edit(Organization $organization)
     {
-        return view('pages.organizations.edit-superadmin', compact('organization'));
+        return view('pages.organizations.edit', compact('organization'));
     }
 
     public function update(UpdateOrganizationRequest $request, Organization $organization)
@@ -145,7 +145,7 @@ class OrganizationController extends Controller
         $validator->after(function ($validator) use ($request): void {
             $organizationIds = $request->input('organization_ids', []);
 
-            if (!is_array($organizationIds) || $organizationIds === []) {
+            if (! is_array($organizationIds) || $organizationIds === []) {
                 return;
             }
 
@@ -250,7 +250,7 @@ class OrganizationController extends Controller
         $includeInactive = (bool) $request->boolean('include_inactive', false);
 
         $query = Organization::query();
-        if (!$includeInactive) {
+        if (! $includeInactive) {
             $query->where('is_active', true);
         }
 
@@ -268,7 +268,7 @@ class OrganizationController extends Controller
             ]);
         }
 
-        $csv = implode("\n", $lines) . "\n";
+        $csv = implode("\n", $lines)."\n";
 
         return response($csv, 200, [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -298,8 +298,9 @@ class OrganizationController extends Controller
         foreach ($validated['organization_ids'] as $organizationId) {
             $organization = Organization::find($organizationId);
 
-            if (!$organization) {
+            if (! $organization) {
                 $failed[] = $organizationId;
+
                 continue;
             }
 
@@ -312,6 +313,7 @@ class OrganizationController extends Controller
 
             if ($hasDependencies) {
                 $failed[] = $organizationId;
+
                 continue;
             }
 
@@ -320,7 +322,7 @@ class OrganizationController extends Controller
         }
 
         $allSucceeded = count($failed) === 0;
-        $partialSuccess = !$allSucceeded && count($deleted) > 0;
+        $partialSuccess = ! $allSucceeded && count($deleted) > 0;
 
         return response()->json([
             'success' => $allSucceeded,

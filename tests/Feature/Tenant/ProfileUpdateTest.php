@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Models\User;
 use App\Enums\UserRole;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 beforeEach(function () {
@@ -18,7 +18,7 @@ test('tenant can view profile page', function () {
         ->get(route('tenant.profile.show'));
 
     $response->assertOk()
-        ->assertViewIs('pages.profile.show-tenant')
+        ->assertViewIs('pages.profile.show')
         ->assertViewHas('user', $this->tenant);
 });
 

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateSettingsRequest;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 class SettingsController extends Controller
 {
@@ -17,7 +16,7 @@ class SettingsController extends Controller
     {
         // Only admins can access settings
         $this->authorize('viewSettings');
-        
+
         // Get system statistics
         $stats = [
             'database_size' => $this->getDatabaseSize(),
@@ -27,8 +26,8 @@ class SettingsController extends Controller
             'total_meters' => \App\Models\Meter::count(),
             'total_invoices' => \App\Models\Invoice::count(),
         ];
-        
-        return view('pages.settings.index-admin', compact('stats'));
+
+        return view('pages.settings.index', compact('stats'));
     }
 
     /**
@@ -38,12 +37,12 @@ class SettingsController extends Controller
     {
         // Only admins can update settings
         $this->authorize('updateSettings');
-        
+
         $validated = $request->validated();
-        
+
         // Note: In a production environment, these would be stored in a settings table
         // or updated in the .env file. For now, we'll just show a success message.
-        
+
         return back()->with('success', __('notifications.settings.updated'));
     }
 
@@ -54,9 +53,10 @@ class SettingsController extends Controller
     {
         // Only admins can run backups
         $this->authorize('runBackup');
-        
+
         try {
             Artisan::call('backup:run');
+
             return back()->with('success', __('notifications.settings.backup_completed'));
         } catch (\Exception $e) {
             return back()->with('error', __('notifications.settings.backup_failed', ['message' => $e->getMessage()]));
@@ -70,7 +70,7 @@ class SettingsController extends Controller
     {
         // Only admins can clear cache
         $this->authorize('clearCache');
-        
+
         try {
             Cache::flush();
             Artisan::call('config:clear');
@@ -89,13 +89,14 @@ class SettingsController extends Controller
     private function getDatabaseSize(): string
     {
         $dbPath = database_path('database.sqlite');
-        
+
         if (file_exists($dbPath)) {
             $sizeInBytes = filesize($dbPath);
             $sizeInMB = round($sizeInBytes / 1024 / 1024, 2);
-            return $sizeInMB . ' MB';
+
+            return $sizeInMB.' MB';
         }
-        
+
         return 'N/A';
     }
 
@@ -105,23 +106,24 @@ class SettingsController extends Controller
     private function getCacheSize(): string
     {
         $cachePath = storage_path('framework/cache/data');
-        
-        if (!is_dir($cachePath)) {
+
+        if (! is_dir($cachePath)) {
             return 'N/A';
         }
-        
+
         $size = 0;
         $files = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($cachePath, \RecursiveDirectoryIterator::SKIP_DOTS)
         );
-        
+
         foreach ($files as $file) {
             if ($file->isFile()) {
                 $size += $file->getSize();
             }
         }
-        
+
         $sizeInMB = round($size / 1024 / 1024, 2);
-        return $sizeInMB . ' MB';
+
+        return $sizeInMB.' MB';
     }
 }

@@ -13,12 +13,12 @@ class MeterController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        
+
         // Get assigned property from hierarchical user model
         $property = $user->property;
-        
+
         // Verify property_id filtering is applied
-        $meters = $property 
+        $meters = $property
             ? $property->meters()->with(['readings' => function ($query) {
                 $query->latest('reading_date')->limit(1);
             }, 'serviceConfiguration.utilityService'])->paginate(20)
@@ -28,18 +28,18 @@ class MeterController extends Controller
         $latestReadingDate = $this->resolveLatestReadingDate($metersCollection);
         $meterStyleMap = $this->buildMeterStyleMap($metersCollection);
 
-        return view('pages.meters.index-tenant', compact('meters', 'metersCollection', 'latestReadingDate', 'meterStyleMap'));
+        return view('pages.meters.index', compact('meters', 'metersCollection', 'latestReadingDate', 'meterStyleMap'));
     }
 
     public function show(Request $request, Meter $meter)
     {
         $user = $request->user();
-        
+
         // Get assigned property from hierarchical user model
         $property = $user->property;
-        
+
         // Verify property_id filtering - tenant can only view meters for their assigned property
-        if (!$property || $meter->property_id !== $property->id) {
+        if (! $property || $meter->property_id !== $property->id) {
             abort(403, 'You do not have permission to view this meter.');
         }
 
@@ -47,8 +47,8 @@ class MeterController extends Controller
         $meter->load(['readings' => function ($query) {
             $query->latest('reading_date')->limit(12);
         }, 'property', 'serviceConfiguration.utilityService']);
-        
-        return view('pages.meters.show-tenant', compact('meter'));
+
+        return view('pages.meters.show', compact('meter'));
     }
 
     private function resolveLatestReadingDate(Collection $metersCollection): mixed

@@ -35,9 +35,8 @@ test('admin can view settings page', function () {
     $response = $this->actingAs($this->admin)->get(route('admin.settings.index'));
 
     $response->assertStatus(200);
-    $response->assertViewIs('pages.settings.index-admin');
+    $response->assertViewIs('pages.settings.index');
     $response->assertSee(__('settings.title'));
-    $response->assertSee(__('settings.system_info.title'));
     $response->assertSee(__('settings.maintenance.title'));
 });
 
@@ -58,15 +57,12 @@ test('settings page displays system statistics', function () {
     $response->assertSee(__('settings.stats.cache_size'));
 });
 
-test('settings page displays system information', function () {
+test('settings page does not display server information', function () {
     $response = $this->actingAs($this->admin)->get(route('admin.settings.index'));
 
     $response->assertStatus(200);
-    $response->assertSee(__('settings.system_info.laravel'));
-    $response->assertSee(__('settings.system_info.php'));
-    $response->assertSee(__('settings.system_info.database'));
-    $response->assertSee(__('settings.system_info.environment'));
-    $response->assertSee(__('settings.system_info.timezone'));
+    $response->assertDontSee(app()->version());
+    $response->assertDontSee(PHP_VERSION);
 });
 
 test('settings page shows maintenance tasks', function () {

@@ -24,7 +24,7 @@ class ProfileController extends Controller
             'drafts' => Invoice::draft()->count(),
         ];
 
-        return view('pages.profile.show-manager', [
+        return view('pages.profile.show', [
             'user' => $request->user(),
             'portfolioStats' => $portfolioStats,
             'languages' => Language::query()

@@ -62,7 +62,7 @@ class ProfileController extends Controller
                 ];
             }
 
-            return view('pages.profile.show-admin', compact(
+            return view('pages.profile.show', compact(
                 'user',
                 'subscription',
                 'subscriptionStatus',
@@ -74,7 +74,7 @@ class ProfileController extends Controller
             ));
         }
 
-        return view('pages.profile.show-admin', compact('user', 'languages', 'currencyOptions'));
+        return view('pages.profile.show', compact('user', 'languages', 'currencyOptions'));
     }
 
     /**

@@ -23,27 +23,27 @@ class PropertyController extends Controller
 
         $query = Property::with(['building', 'tenants', 'meters'])
             ->withCount('meters');
-        
+
         // Handle search
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where('address', 'like', "%{$search}%");
         }
-        
+
         // Handle property type filter
         if ($request->filled('property_type')) {
             $query->where('property_type', $request->input('property_type'));
         }
-        
+
         // Handle building filter
         if ($request->filled('building_id')) {
             $query->where('building_id', $request->input('building_id'));
         }
-        
+
         // Handle sorting
         $sortColumn = $request->input('sort', 'address');
         $sortDirection = $request->input('direction', 'asc');
-        
+
         // Validate sort column
         $allowedColumns = ['address', 'property_type', 'area_sqm', 'created_at'];
         if (in_array($sortColumn, $allowedColumns)) {
@@ -53,12 +53,12 @@ class PropertyController extends Controller
         }
 
         $properties = $query->paginate(20)->withQueryString();
-        
+
         // Get buildings for filter dropdown
         $buildings = Building::orderBy('address')->get();
         $propertyTypeLabels = PropertyType::labels();
 
-        return view('pages.properties.index-manager', compact('properties', 'buildings', 'propertyTypeLabels'));
+        return view('pages.properties.index', compact('properties', 'buildings', 'propertyTypeLabels'));
     }
 
     /**
@@ -71,7 +71,7 @@ class PropertyController extends Controller
         $buildings = Building::orderBy('address')->get();
         $propertyTypeOptions = PropertyType::labels();
 
-        return view('pages.properties.create-manager', compact('buildings', 'propertyTypeOptions'));
+        return view('pages.properties.create', compact('buildings', 'propertyTypeOptions'));
     }
 
     /**
@@ -99,7 +99,7 @@ class PropertyController extends Controller
             $query->latest('reading_date')->limit(1);
         }, 'meters.serviceConfiguration.utilityService']);
 
-        return view('pages.properties.show-manager', compact('property'));
+        return view('pages.properties.show', compact('property'));
     }
 
     /**
@@ -112,7 +112,7 @@ class PropertyController extends Controller
         $buildings = Building::orderBy('address')->get();
         $propertyTypeOptions = PropertyType::labels();
 
-        return view('pages.properties.edit-manager', compact('property', 'buildings', 'propertyTypeOptions'));
+        return view('pages.properties.edit', compact('property', 'buildings', 'propertyTypeOptions'));
     }
 
     /**

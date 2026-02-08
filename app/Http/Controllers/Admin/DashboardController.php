@@ -18,18 +18,18 @@ class DashboardController extends Controller
     public function index()
     {
         $this->authorize('viewAny', User::class);
-        
+
         $user = auth()->user();
-        
+
         // For admin role, show portfolio-specific statistics
         if ($user->role->value === 'admin') {
             return $this->adminDashboard($user);
         }
-        
+
         // For other roles (superadmin, manager), show system-wide statistics
         return $this->systemWideDashboard();
     }
-    
+
     /**
      * Admin-specific dashboard with portfolio statistics and subscription info.
      */
@@ -37,16 +37,16 @@ class DashboardController extends Controller
     {
         // Get subscription information
         $subscription = $admin->subscription;
-        
+
         // Calculate subscription status
         $subscriptionStatus = null;
         $daysUntilExpiry = null;
         $showExpiryWarning = false;
-        
+
         if ($subscription) {
             $daysUntilExpiry = $subscription->daysUntilExpiry();
             $showExpiryWarning = $daysUntilExpiry !== null && $daysUntilExpiry <= 14 && $daysUntilExpiry > 0;
-            
+
             if ($subscription->isExpired()) {
                 $subscriptionStatus = 'expired';
             } elseif ($showExpiryWarning) {
@@ -58,7 +58,7 @@ class DashboardController extends Controller
             // No subscription - set default status
             $subscriptionStatus = 'no_subscription';
         }
-        
+
         // Portfolio statistics (scoped to admin's tenant_id)
         $stats = [
             'total_properties' => Property::where('tenant_id', $admin->tenant_id)->count(),
@@ -83,31 +83,31 @@ class DashboardController extends Controller
                 $query->where('tenant_id', $admin->tenant_id);
             })->where('reading_date', '>=', now()->subDays(7))->count(),
         ];
-        
+
         // Usage against subscription limits
         $usageStats = null;
         if ($subscription) {
             $usageStats = [
                 'properties_used' => $stats['total_properties'],
                 'properties_max' => $subscription->max_properties,
-                'properties_percentage' => $subscription->max_properties > 0 
-                    ? round(($stats['total_properties'] / $subscription->max_properties) * 100) 
+                'properties_percentage' => $subscription->max_properties > 0
+                    ? round(($stats['total_properties'] / $subscription->max_properties) * 100)
                     : 0,
                 'tenants_used' => $stats['total_tenants'],
                 'tenants_max' => $subscription->max_tenants,
-                'tenants_percentage' => $subscription->max_tenants > 0 
-                    ? round(($stats['total_tenants'] / $subscription->max_tenants) * 100) 
+                'tenants_percentage' => $subscription->max_tenants > 0
+                    ? round(($stats['total_tenants'] / $subscription->max_tenants) * 100)
                     : 0,
             ];
         }
-        
+
         // Pending tasks
         $pendingTasks = [
             'pending_meter_readings' => $this->getPendingMeterReadingsCount($admin),
             'draft_invoices' => $stats['draft_invoices'],
             'inactive_tenants' => $stats['total_tenants'] - $stats['active_tenants'],
         ];
-        
+
         // Recent activity (scoped to admin's tenant_id)
         $recentActivity = [
             'recent_tenants' => User::where('tenant_id', $admin->tenant_id)
@@ -130,7 +130,7 @@ class DashboardController extends Controller
                 ->get(),
         ];
 
-        return view('pages.dashboard.admin', compact(
+        return view('pages.dashboard.index', compact(
             'stats',
             'subscription',
             'subscriptionStatus',
@@ -141,7 +141,7 @@ class DashboardController extends Controller
             'recentActivity'
         ));
     }
-    
+
     /**
      * System-wide dashboard for superadmin and manager roles.
      */
@@ -168,7 +168,7 @@ class DashboardController extends Controller
                 'recent_readings_count' => MeterReading::where('reading_date', '>=', now()->subDays(7))->count(),
             ];
         });
-        
+
         // Cache recent system activity for 5 minutes
         $recentActivity = Cache::remember('admin_dashboard_activity', 300, function () {
             return [
@@ -181,16 +181,16 @@ class DashboardController extends Controller
             ];
         });
 
-        return view('pages.dashboard.admin', compact('stats', 'recentActivity'));
+        return view('pages.dashboard.index', compact('stats', 'recentActivity'));
     }
-    
+
     /**
      * Get count of properties that need meter readings this month.
      */
     protected function getPendingMeterReadingsCount(User $admin): int
     {
         $startOfMonth = now()->startOfMonth();
-        
+
         return Property::where('tenant_id', $admin->tenant_id)
             ->whereHas('meters', function ($query) use ($startOfMonth) {
                 $query->whereDoesntHave('readings', function ($q) use ($startOfMonth) {

@@ -13,11 +13,11 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        
+
         // Get assigned property from hierarchical user model
         $property = $user->property;
-        
-        if (!$property) {
+
+        if (! $property) {
             $stats = [
                 'property' => null,
                 'latest_readings' => collect(),
@@ -25,11 +25,12 @@ class DashboardController extends Controller
                 'total_invoices' => 0,
                 'unpaid_invoices' => 0,
             ];
-            return view('pages.dashboard.tenant', compact('stats'));
+
+            return view('pages.dashboard.index', compact('stats'));
         }
-        
+
         $cacheKey = "tenant_dashboard_{$user->id}";
-        
+
         // Eager load property relationships
         $property->load([
             'meters.readings' => function ($query) {
@@ -38,37 +39,37 @@ class DashboardController extends Controller
             'meters.serviceConfiguration.utilityService',
             'building',
         ]);
-        
+
         // Cache statistics for 5 minutes per user
         $stats = Cache::remember($cacheKey, 300, function () use ($user, $property) {
             // Get tenant record for invoice lookup (legacy compatibility)
             $tenant = $user->tenant;
-            
+
             // Get latest meter readings for assigned property
             $latestReadings = MeterReading::whereHas('meter', function ($query) use ($property) {
                 $query->where('property_id', $property->id);
             })
-            ->with(['meter.serviceConfiguration.utilityService'])
-            ->latest('reading_date')
-            ->limit(5)
-            ->get();
-            
+                ->with(['meter.serviceConfiguration.utilityService'])
+                ->latest('reading_date')
+                ->limit(5)
+                ->get();
+
             // Calculate unpaid invoice balance
             $unpaidBalance = 0;
             $totalInvoices = 0;
             $unpaidInvoices = 0;
-            
+
             if ($tenant) {
                 $unpaidBalance = Invoice::where('tenant_renter_id', $tenant->id)
                     ->where('status', 'finalized')
                     ->sum('total_amount');
-                
+
                 $totalInvoices = Invoice::where('tenant_renter_id', $tenant->id)->count();
                 $unpaidInvoices = Invoice::where('tenant_renter_id', $tenant->id)
                     ->where('status', 'finalized')
                     ->count();
             }
-            
+
             // Build per-meter consumption comparisons using last two readings
             $consumptionTrends = $property->meters->map(function ($meter) {
                 $readings = $meter->readings->sortByDesc('reading_date')->values();
@@ -102,6 +103,6 @@ class DashboardController extends Controller
             ];
         });
 
-        return view('pages.dashboard.tenant', compact('stats'));
+        return view('pages.dashboard.index', compact('stats'));
     }
 }

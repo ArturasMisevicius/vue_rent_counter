@@ -19,7 +19,7 @@ test('manager can view properties list', function () {
     $response = $this->actingAs($manager)->get(route('manager.properties.index'));
 
     $response->assertOk();
-    $response->assertViewIs('pages.properties.index-manager');
+    $response->assertViewIs('pages.properties.index');
     $response->assertViewHas('properties');
 });
 
@@ -35,7 +35,7 @@ test('manager can view property details', function () {
     $response = $this->actingAs($manager)->get(route('manager.properties.show', $property));
 
     $response->assertOk();
-    $response->assertViewIs('pages.properties.show-manager');
+    $response->assertViewIs('pages.properties.show');
     $response->assertSee($property->address);
 });
 
@@ -49,7 +49,7 @@ test('manager can view create property form', function () {
     $response = $this->actingAs($manager)->get(route('manager.properties.create'));
 
     $response->assertOk();
-    $response->assertViewIs('pages.properties.create-manager');
+    $response->assertViewIs('pages.properties.create');
     $response->assertSee('Create Property');
 });
 
@@ -91,7 +91,7 @@ test('manager can view edit property form', function () {
     $response = $this->actingAs($manager)->get(route('manager.properties.edit', $property));
 
     $response->assertOk();
-    $response->assertViewIs('pages.properties.edit-manager');
+    $response->assertViewIs('pages.properties.edit');
     $response->assertSee($property->address);
 });
 
@@ -139,7 +139,7 @@ test('manager cannot delete property', function () {
 test('manager cannot view properties from other tenants', function () {
     $tenant1 = Tenant::factory()->create();
     $tenant2 = Tenant::factory()->create();
-    
+
     $manager = User::factory()->create([
         'role' => UserRole::MANAGER,
         'tenant_id' => $tenant1->id,

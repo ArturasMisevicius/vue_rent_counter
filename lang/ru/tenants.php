@@ -63,10 +63,10 @@ return [
                 'no_properties' => 'No Properties',
             ],
             'placeholders' => [
-                'property' => 'Property',
+                'property' => 'Выберите объект недвижимости',
             ],
-            'subtitle' => 'Subtitle',
-            'title' => 'Title',
+            'subtitle' => 'Создайте аккаунт арендатора и назначьте его объекту недвижимости в вашем портфеле.',
+            'title' => 'Создать арендатора',
         ],
         'reassign' => [
             'actions' => [

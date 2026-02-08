@@ -20,11 +20,11 @@ class BuildingController extends Controller
         $this->authorize('viewAny', Building::class);
 
         $query = Building::withCount('properties');
-        
+
         // Handle sorting
         $sortColumn = $request->input('sort', 'address');
         $sortDirection = $request->input('direction', 'asc');
-        
+
         // Validate sort column
         $allowedColumns = ['address', 'total_apartments', 'created_at'];
         if (in_array($sortColumn, $allowedColumns)) {
@@ -35,7 +35,7 @@ class BuildingController extends Controller
 
         $buildings = $query->paginate(20)->withQueryString();
 
-        return view('pages.buildings.index-manager', compact('buildings'));
+        return view('pages.buildings.index', compact('buildings'));
     }
 
     /**
@@ -45,7 +45,7 @@ class BuildingController extends Controller
     {
         $this->authorize('create', Building::class);
 
-        return view('pages.buildings.create-manager');
+        return view('pages.buildings.create');
     }
 
     /**
@@ -71,7 +71,7 @@ class BuildingController extends Controller
 
         $building->load(['properties.meters', 'properties.tenants']);
 
-        return view('pages.buildings.show-manager', compact('building'));
+        return view('pages.buildings.show', compact('building'));
     }
 
     /**
@@ -81,7 +81,7 @@ class BuildingController extends Controller
     {
         $this->authorize('update', $building);
 
-        return view('pages.buildings.edit-manager', compact('building'));
+        return view('pages.buildings.edit', compact('building'));
     }
 
     /**

@@ -74,37 +74,7 @@
         </x-stat-card>
     </div>
 
-    <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <!-- System Information -->
-        <x-card title="{{ __('settings.system_info.title') }}">
-            <dl class="divide-y divide-slate-200">
-                <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-                    <dt class="text-sm font-medium text-slate-500">{{ __('settings.system_info.laravel') }}</dt>
-                    <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">{{ app()->version() }}</dd>
-                </div>
-                <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-                    <dt class="text-sm font-medium text-slate-500">{{ __('settings.system_info.php') }}</dt>
-                    <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">{{ PHP_VERSION }}</dd>
-                </div>
-                <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-                    <dt class="text-sm font-medium text-slate-500">{{ __('settings.system_info.database') }}</dt>
-                    <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">{{ __('settings.system_info.database_sqlite') }}</dd>
-                </div>
-                <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-                    <dt class="text-sm font-medium text-slate-500">{{ __('settings.system_info.environment') }}</dt>
-                    <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">
-                        <x-status-badge :status="app()->environment()">
-                            {{ ucfirst(app()->environment()) }}
-                        </x-status-badge>
-                    </dd>
-                </div>
-                <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-                    <dt class="text-sm font-medium text-slate-500">{{ __('settings.system_info.timezone') }}</dt>
-                    <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">{{ config('app.timezone') }}</dd>
-                </div>
-            </dl>
-        </x-card>
-
+    <div class="mt-8">
         <!-- Maintenance Tasks -->
         <x-card title="{{ __('settings.maintenance.title') }}">
             <div class="space-y-4">

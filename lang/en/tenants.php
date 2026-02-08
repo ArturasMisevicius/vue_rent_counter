@@ -63,10 +63,10 @@ return [
                 'no_properties' => 'No Properties',
             ],
             'placeholders' => [
-                'property' => 'Property',
+                'property' => 'Select a property',
             ],
-            'subtitle' => 'Subtitle',
-            'title' => 'Title',
+            'subtitle' => 'Create a tenant account and assign it to a property in your portfolio.',
+            'title' => 'Create Tenant',
         ],
         'reassign' => [
             'actions' => [

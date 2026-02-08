@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Http\Controllers;
 
+use App\Enums\DistributionMethod;
 use App\Enums\InvoiceStatus;
+use App\Enums\PricingModel;
 use App\Enums\UserRole;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
@@ -16,33 +18,32 @@ use App\Models\Subscription;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Models\UtilityService;
-use App\Enums\DistributionMethod;
-use App\Enums\PricingModel;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
  * InvoiceControllerTest
- * 
+ *
  * Tests for invoice management controllers.
- * 
+ *
  * Requirements:
  * - 5.1: Snapshot current tariff rates in invoice items
  * - 5.2: Snapshot meter readings used in calculations
  * - 5.5: Invoice finalization makes invoice immutable
  * - 6.1: Filter invoices by tenant_id (automatic via Global Scope)
  * - 6.5: Support property filtering for multi-property tenants
- * 
- * @package Tests\Feature\Http\Controllers
  */
 class InvoiceControllerTest extends TestCase
 {
     use RefreshDatabase;
 
     protected User $manager;
+
     protected User $tenant;
+
     protected Property $property;
+
     protected Tenant $tenantRecord;
 
     protected function setUp(): void
@@ -77,7 +78,7 @@ class InvoiceControllerTest extends TestCase
 
     /**
      * Test manager can view invoice index.
-     * 
+     *
      * Requirement 6.1: Filter invoices by tenant_id (automatic via Global Scope)
      */
     public function test_manager_can_view_invoice_index(): void
@@ -91,13 +92,13 @@ class InvoiceControllerTest extends TestCase
             ->get(route('manager.invoices.index'));
 
         $response->assertOk();
-        $response->assertViewIs('pages.invoices.index-manager');
+        $response->assertViewIs('pages.invoices.index');
         $response->assertViewHas('invoices');
     }
 
     /**
      * Test manager can filter invoices by property.
-     * 
+     *
      * Requirement 6.5: Support property filtering for multi-property tenants
      */
     public function test_manager_can_filter_invoices_by_property(): void
@@ -132,7 +133,7 @@ class InvoiceControllerTest extends TestCase
 
     /**
      * Test manager can create invoice.
-     * 
+     *
      * Requirement 5.1, 5.2: Snapshot tariff rates and meter readings
      */
     public function test_manager_can_create_invoice(): void
@@ -141,13 +142,13 @@ class InvoiceControllerTest extends TestCase
             ->get(route('manager.invoices.create'));
 
         $response->assertOk();
-        $response->assertViewIs('pages.invoices.create-manager');
+        $response->assertViewIs('pages.invoices.create');
         $response->assertViewHas('tenants');
     }
 
     /**
      * Test manager can store invoice.
-     * 
+     *
      * Requirement 5.1, 5.2: Snapshot tariff rates and meter readings
      */
     public function test_manager_can_store_invoice(): void
@@ -224,13 +225,13 @@ class InvoiceControllerTest extends TestCase
             ->get(route('manager.invoices.show', $invoice));
 
         $response->assertOk();
-        $response->assertViewIs('pages.invoices.show-manager');
+        $response->assertViewIs('pages.invoices.show');
         $response->assertViewHas('invoice');
     }
 
     /**
      * Test manager can finalize invoice.
-     * 
+     *
      * Requirement 5.5: Invoice finalization makes invoice immutable
      */
     public function test_manager_can_finalize_invoice(): void
@@ -259,7 +260,7 @@ class InvoiceControllerTest extends TestCase
 
     /**
      * Test finalized invoice cannot be modified.
-     * 
+     *
      * Requirement 5.5: Invoice finalization makes invoice immutable
      */
     public function test_finalized_invoice_cannot_be_modified(): void
@@ -278,7 +279,7 @@ class InvoiceControllerTest extends TestCase
 
     /**
      * Test tenant can view their invoices.
-     * 
+     *
      * Requirement 6.1: Filter invoices by tenant_id
      */
     public function test_tenant_can_view_their_invoices(): void
@@ -292,12 +293,12 @@ class InvoiceControllerTest extends TestCase
             ->get(route('tenant.invoices.index'));
 
         $response->assertOk();
-        $response->assertViewIs('pages.invoices.index-tenant');
+        $response->assertViewIs('pages.invoices.index');
     }
 
     /**
      * Test tenant cannot view other tenant's invoices.
-     * 
+     *
      * Requirement 6.1: Filter invoices by tenant_id
      */
     public function test_tenant_cannot_view_other_tenant_invoices(): void
@@ -356,7 +357,7 @@ class InvoiceControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertViewHas('invoices', function ($invoices) {
-            return $invoices->every(fn($invoice) => $invoice->status === InvoiceStatus::DRAFT);
+            return $invoices->every(fn ($invoice) => $invoice->status === InvoiceStatus::DRAFT);
         });
     }
 
@@ -397,7 +398,7 @@ class InvoiceControllerTest extends TestCase
         Subscription::factory()->active()->create([
             'user_id' => $admin->id,
         ]);
-        
+
         $invoice = Invoice::factory()->create([
             'tenant_id' => 1,
             'tenant_renter_id' => $this->tenantRecord->id,
@@ -424,7 +425,7 @@ class InvoiceControllerTest extends TestCase
         Subscription::factory()->active()->create([
             'user_id' => $admin->id,
         ]);
-        
+
         $invoice = Invoice::factory()->create([
             'tenant_id' => 1,
             'tenant_renter_id' => $this->tenantRecord->id,

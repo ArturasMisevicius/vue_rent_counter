@@ -15,14 +15,14 @@ use App\Models\SystemHealthMetric;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     /**
      * Display the superadmin dashboard with system-wide statistics.
-     * 
+     *
      * Requirements: 1.1, 17.1, 17.3
      */
     public function index()
@@ -32,20 +32,20 @@ class DashboardController extends Controller
         $activeSubscriptions = Subscription::where('status', SubscriptionStatus::ACTIVE->value)->count();
         $expiredSubscriptions = Subscription::where('status', SubscriptionStatus::EXPIRED->value)->count();
         $suspendedSubscriptions = Subscription::where('status', SubscriptionStatus::SUSPENDED->value)->count();
-        
+
         // Get subscription breakdown by plan type
         $subscriptionsByPlan = Subscription::select('plan_type', DB::raw('count(*) as count'))
             ->groupBy('plan_type')
             ->get()
             ->pluck('count', 'plan_type');
-        
+
         // Get expiring subscriptions (within 14 days)
         $expiringSubscriptions = Subscription::where('status', SubscriptionStatus::ACTIVE->value)
             ->where('expires_at', '<=', now()->addDays(14))
             ->where('expires_at', '>=', now())
             ->with('user')
             ->get();
-        
+
         $organizationStats = Cache::remember(
             'superadmin_dashboard_organizations_stats',
             now()->addMinutes(10),
@@ -57,7 +57,7 @@ class DashboardController extends Controller
 
         $totalOrganizations = (int) ($organizationStats['total'] ?? 0);
         $activeOrganizations = (int) ($organizationStats['active'] ?? 0);
-        
+
         // Get system-wide usage metrics
         $totalProperties = Property::withoutGlobalScopes()->count();
         $totalBuildings = Building::withoutGlobalScopes()->count();
@@ -65,13 +65,13 @@ class DashboardController extends Controller
             ->where('role', UserRole::TENANT)
             ->count();
         $totalInvoices = Invoice::withoutGlobalScopes()->count();
-        
+
         $recentActivity = OrganizationActivityLog::query()
             ->with(['organization', 'user'])
             ->orderByDesc('created_at')
             ->take(10)
             ->get();
-        
+
         // Get top organizations by property count
         $topOrganizations = Organization::query()
             ->withCount('properties')
@@ -124,8 +124,8 @@ class DashboardController extends Controller
             ->groupBy('metric_type')
             ->map(fn ($metrics) => $metrics->first())
             ->values();
-        
-        return view('pages.dashboard.superadmin', compact(
+
+        return view('pages.dashboard.index', compact(
             'totalSubscriptions',
             'activeSubscriptions',
             'expiredSubscriptions',
@@ -156,7 +156,7 @@ class DashboardController extends Controller
         $query = trim((string) $request->query('query', ''));
 
         if ($query === '') {
-            return view('pages.search.superadmin', [
+            return view('pages.search.index', [
                 'query' => $query,
                 'organizations' => collect(),
                 'users' => collect(),
@@ -179,7 +179,7 @@ class DashboardController extends Controller
             ->limit(25)
             ->get();
 
-        return view('pages.search.superadmin', [
+        return view('pages.search.index', [
             'query' => $query,
             'organizations' => $organizations,
             'users' => $users,
@@ -194,7 +194,7 @@ class DashboardController extends Controller
         ]);
 
         // Minimal PDF response for test coverage and future enhancement.
-        $content = '%PDF-1.4' . "\n" . '% Superadmin Dashboard Export' . "\n";
+        $content = '%PDF-1.4'."\n".'% Superadmin Dashboard Export'."\n";
 
         return response($content, 200, [
             'Content-Type' => 'application/pdf',

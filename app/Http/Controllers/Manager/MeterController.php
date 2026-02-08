@@ -24,27 +24,27 @@ class MeterController extends Controller
         $query = Meter::with(['property', 'serviceConfiguration.utilityService', 'readings' => function ($query) {
             $query->latest('reading_date')->limit(1);
         }]);
-        
+
         // Handle search
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where('serial_number', 'like', "%{$search}%");
         }
-        
+
         // Handle meter type filter
         if ($request->filled('type')) {
             $query->where('type', $request->input('type'));
         }
-        
+
         // Handle property filter
         if ($request->filled('property_id')) {
             $query->where('property_id', $request->input('property_id'));
         }
-        
+
         // Handle sorting
         $sortColumn = $request->input('sort', 'serial_number');
         $sortDirection = $request->input('direction', 'asc');
-        
+
         // Validate sort column
         $allowedColumns = ['serial_number', 'type', 'installation_date', 'created_at'];
         if (in_array($sortColumn, $allowedColumns)) {
@@ -54,11 +54,11 @@ class MeterController extends Controller
         }
 
         $meters = $query->paginate(20)->withQueryString();
-        
+
         // Get properties for filter dropdown
         $properties = Property::orderBy('address')->get();
 
-        return view('pages.meters.index-manager', compact('meters', 'properties'));
+        return view('pages.meters.index', compact('meters', 'properties'));
     }
 
     /**
@@ -71,7 +71,7 @@ class MeterController extends Controller
         $properties = Property::orderBy('address')->get();
         $serviceConfigurationOptions = $this->getServiceConfigurationOptions();
 
-        return view('pages.meters.create-manager', compact('properties', 'serviceConfigurationOptions'));
+        return view('pages.meters.create', compact('properties', 'serviceConfigurationOptions'));
     }
 
     /**
@@ -107,7 +107,7 @@ class MeterController extends Controller
             ];
         })->reverse()->values();
 
-        return view('pages.meters.show-manager', compact('meter', 'readingHistory'));
+        return view('pages.meters.show', compact('meter', 'readingHistory'));
     }
 
     /**
@@ -120,7 +120,7 @@ class MeterController extends Controller
         $properties = Property::orderBy('address')->get();
         $serviceConfigurationOptions = $this->getServiceConfigurationOptions();
 
-        return view('pages.meters.edit-manager', compact('meter', 'properties', 'serviceConfigurationOptions'));
+        return view('pages.meters.edit', compact('meter', 'properties', 'serviceConfigurationOptions'));
     }
 
     /**

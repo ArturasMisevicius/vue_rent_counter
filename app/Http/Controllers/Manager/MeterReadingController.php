@@ -28,8 +28,8 @@ class MeterReadingController extends Controller
 
         $propertyFilter = request('property_id');
         $serviceFilter = request('service') ?: null;
-        if (!$serviceFilter && request()->filled('meter_type')) {
-            $serviceFilter = 'type:' . (string) request('meter_type');
+        if (! $serviceFilter && request()->filled('meter_type')) {
+            $serviceFilter = 'type:'.(string) request('meter_type');
         }
 
         $query = MeterReading::with([
@@ -52,6 +52,7 @@ class MeterReadingController extends Controller
 
                 if ($kind === 'utility' && is_numeric($value)) {
                     $q->whereHas('serviceConfiguration', fn ($sq) => $sq->where('utility_service_id', (int) $value));
+
                     return;
                 }
 
@@ -94,11 +95,12 @@ class MeterReadingController extends Controller
             $label = $meterTypeLabels[$type] ?? ucfirst(str_replace('_', ' ', (string) $type));
             $serviceFilterOptions["type:{$type}"] = "Legacy: {$label}";
         }
-        
+
         // Get readings for grouping or pagination
         if ($groupBy === 'property') {
             $readings = $query->get()->groupBy('meter.property_id');
-            return view('pages.meter-readings.index-manager', compact(
+
+            return view('pages.meter-readings.index', compact(
                 'readings',
                 'groupBy',
                 'properties',
@@ -114,10 +116,10 @@ class MeterReadingController extends Controller
                     return "utility:{$utilityServiceId}";
                 }
 
-                return 'type:' . (string) $reading->meter?->type?->value;
+                return 'type:'.(string) $reading->meter?->type?->value;
             });
 
-            return view('pages.meter-readings.index-manager', compact(
+            return view('pages.meter-readings.index', compact(
                 'readings',
                 'groupBy',
                 'properties',
@@ -127,7 +129,8 @@ class MeterReadingController extends Controller
             ));
         } else {
             $readings = $query->paginate(50);
-            return view('pages.meter-readings.index-manager', compact(
+
+            return view('pages.meter-readings.index', compact(
                 'readings',
                 'groupBy',
                 'properties',
@@ -140,12 +143,12 @@ class MeterReadingController extends Controller
 
     /**
      * Show the form for creating a new meter reading.
-     * 
+     *
      * Displays the meter reading form component with:
      * - All meters for the authenticated user's tenant
      * - All properties with their meters for filtering
      * - All providers for tariff selection
-     * 
+     *
      * The form uses the x-meter-reading-form component which provides:
      * - Dynamic meter selection with property filtering
      * - AJAX-powered provider/tariff cascading dropdowns
@@ -153,16 +156,17 @@ class MeterReadingController extends Controller
      * - Real-time validation (monotonicity, future dates)
      * - Charge preview based on selected tariff
      * - Multi-zone support for electricity meters (day/night)
-     * 
+     *
      * Requirements:
      * - 10.1: Dynamic meter selection with property filtering
      * - 10.2: Real-time validation and charge preview
      * - 10.3: Multi-zone support for electricity meters
      * - 11.2: Authorization via MeterReadingPolicy
-     * 
+     *
      * @return View Meter reading creation form
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException If user cannot create readings
-     * 
+     *
      * @see \App\View\Components\MeterReadingForm
      * @see \App\Policies\MeterReadingPolicy::create()
      */
@@ -174,7 +178,7 @@ class MeterReadingController extends Controller
         $properties = Property::with('meters')->orderBy('address')->get();
         $providers = \App\Models\Provider::all();
 
-        return view('pages.meter-readings.create-manager', compact('meters', 'properties', 'providers'));
+        return view('pages.meter-readings.create', compact('meters', 'properties', 'providers'));
     }
 
     /**
@@ -203,7 +207,7 @@ class MeterReadingController extends Controller
 
         $meterReading->load(['meter.property', 'enteredBy', 'auditTrail']);
 
-        return view('pages.meter-readings.show-manager', compact('meterReading'));
+        return view('pages.meter-readings.show', compact('meterReading'));
     }
 
     /**
@@ -215,7 +219,7 @@ class MeterReadingController extends Controller
 
         $meters = Meter::with('property')->orderBy('serial_number')->get();
 
-        return view('pages.meter-readings.edit-manager', compact('meterReading', 'meters'));
+        return view('pages.meter-readings.edit', compact('meterReading', 'meters'));
     }
 
     /**
@@ -226,10 +230,10 @@ class MeterReadingController extends Controller
         $this->authorize('update', $meterReading);
 
         $validated = $request->validated();
-        
+
         // Set change_reason for the observer to use in audit trail
         $meterReading->change_reason = $request->input('change_reason');
-        
+
         // Update the reading - observer will automatically create audit record
         $meterReading->update($validated);
 

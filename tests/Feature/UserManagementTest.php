@@ -17,7 +17,7 @@ test('admin can access user management index', function () {
     $response = $this->actingAs($admin)->get(route('admin.users.index'));
 
     $response->assertOk();
-    $response->assertViewIs('pages.users.index-admin');
+    $response->assertViewIs('pages.users.index');
     $response->assertSee('Users Management');
 });
 
@@ -34,7 +34,7 @@ test('admin can view user details', function () {
     $response = $this->actingAs($admin)->get(route('admin.users.show', $user));
 
     $response->assertOk();
-    $response->assertViewIs('pages.users.show-admin');
+    $response->assertViewIs('pages.users.show');
     $response->assertSee($user->name);
     $response->assertSee($user->email);
 });
@@ -49,7 +49,7 @@ test('admin can access user creation form', function () {
     $response = $this->actingAs($admin)->get(route('admin.users.create'));
 
     $response->assertOk();
-    $response->assertViewIs('pages.users.create-admin');
+    $response->assertViewIs('pages.users.create');
     $response->assertSee('Create User');
 });
 
@@ -73,7 +73,7 @@ test('admin can create a new user', function () {
 
     $response->assertRedirect(route('admin.users.index'));
     $response->assertSessionHas('success', 'User created successfully.');
-    
+
     $this->assertDatabaseHas('users', [
         'name' => 'Test User',
         'email' => 'test@example.com',
@@ -95,7 +95,7 @@ test('admin can access user edit form', function () {
     $response = $this->actingAs($admin)->get(route('admin.users.edit', $user));
 
     $response->assertOk();
-    $response->assertViewIs('pages.users.edit-admin');
+    $response->assertViewIs('pages.users.edit');
     $response->assertSee('Edit User');
     $response->assertSee($user->name);
 });
@@ -122,7 +122,7 @@ test('admin can update a user', function () {
 
     $response->assertRedirect(route('admin.users.index'));
     $response->assertSessionHas('success', 'User updated successfully.');
-    
+
     $this->assertDatabaseHas('users', [
         'id' => $user->id,
         'name' => 'Updated Name',
@@ -143,7 +143,7 @@ test('admin can delete a user without associated data', function () {
 
     $response->assertRedirect(route('admin.users.index'));
     $response->assertSessionHas('success', 'User deleted successfully.');
-    
+
     $this->assertDatabaseMissing('users', [
         'id' => $user->id,
     ]);
