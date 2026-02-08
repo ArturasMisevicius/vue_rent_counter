@@ -78,7 +78,7 @@ class PersonalAccessToken extends Model implements HasAbilities
     /**
      * Determine if the token has a given ability.
      */
-    public function can(string $ability): bool
+    public function can($ability): bool
     {
         return in_array('*', $this->abilities) ||
                array_key_exists($ability, array_flip($this->abilities));
@@ -87,7 +87,7 @@ class PersonalAccessToken extends Model implements HasAbilities
     /**
      * Determine if the token is missing a given ability.
      */
-    public function cant(string $ability): bool
+    public function cant($ability): bool
     {
         return !$this->can($ability);
     }
