@@ -12,49 +12,47 @@ use App\ValueObjects\UserCapabilities;
 use App\ValueObjects\UserState;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
-use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
  * User Model - Hierarchical User Management
- * 
+ *
  * Represents users in the three-tier hierarchical system:
  * - Superadmin: System owner with full access across all organizations
  * - Admin: Property owner managing their portfolio within tenant_id scope
  * - Tenant: Apartment resident with access limited to their assigned property
- * 
+ *
  * **Superadmin Role**:
  * - Purpose: Manages the entire system across all organizations
  * - Access: Full system access without restrictions (bypasses tenant scope)
  * - Permissions: Create/manage Admin accounts, manage subscriptions, view system-wide statistics
  * - tenant_id: null (no tenant isolation)
- * 
+ *
  * **Admin Role**:
  * - Purpose: Manages property portfolio and tenant accounts
  * - Access: Limited to their own tenant_id scope (data isolation)
  * - Permissions: Create/manage buildings, properties, tenants, meters, readings, invoices
  * - Subscription: Requires active subscription with limits on properties and tenants
  * - tenant_id: Unique identifier for organization
- * 
+ *
  * **Tenant Role**:
  * - Purpose: View billing information and submit meter readings for their apartment
  * - Access: Limited to their assigned property only (property_id scope)
  * - Permissions: View property details, meters, consumption, invoices; submit readings
  * - Account Creation: Created by Admin and linked to specific property
  * - tenant_id: Inherited from Admin; property_id: Assigned property
- * 
+ *
  * @property int $id
  * @property int|null $tenant_id Organization identifier for data isolation (null for Superadmin)
  * @property int|null $property_id Assigned property for Tenant role
@@ -65,10 +63,10 @@ use Spatie\Permission\Traits\HasRoles;
  * @property UserRole $role User role (superadmin, admin, manager, tenant)
  * @property bool $is_active Account activation status
  * @property string|null $organization_name Organization name (for Admin role)
+ * @property string $currency Preferred currency code
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * 
  * @property-read Property|null $property Assigned property (for Tenant role)
  * @property-read User|null $parentUser Admin who created this user
  * @property-read \Illuminate\Database\Eloquent\Collection|User[] $childUsers Tenants created by this Admin
@@ -78,7 +76,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property-read \Illuminate\Database\Eloquent\Collection|Invoice[] $invoices Invoices for this Admin's organization
  * @property-read \Illuminate\Database\Eloquent\Collection|MeterReading[] $meterReadings Meter readings entered by this user
  * @property-read \Illuminate\Database\Eloquent\Collection|PersonalAccessToken[] $tokens API tokens for this user
- * 
+ *
  * @see \App\Enums\UserRole
  * @see \App\Models\Subscription
  * @see \App\Services\AccountManagementService
@@ -86,15 +84,16 @@ use Spatie\Permission\Traits\HasRoles;
  */
 class User extends Authenticatable implements FilamentUser
 {
-    use HasFactory, Notifiable, HasRoles {
+    use HasFactory, HasRoles, Notifiable {
         HasRoles::bootHasRoles as protected bootHasRolesTrait;
         HasRoles::hasRole as public hasRoleTrait;
     }
 
     // Constants for magic strings
     public const DEFAULT_ROLE = 'tenant';
+
     public const ADMIN_PANEL_ID = 'admin';
-    
+
     // Role priorities for ordering
     public const ROLE_PRIORITIES = [
         'superadmin' => 1,
@@ -105,16 +104,22 @@ class User extends Authenticatable implements FilamentUser
 
     // Cache TTL constants
     private const CACHE_TTL_SHORT = 300; // 5 minutes
+
     private const CACHE_TTL_MEDIUM = 900; // 15 minutes
+
     private const CACHE_TTL_LONG = 3600; // 1 hour
 
     // Memoization properties
     private ?UserCapabilities $memoizedCapabilities = null;
+
     private ?UserState $memoizedState = null;
+
     private ?PanelAccessService $memoizedPanelService = null;
+
     private ?UserRoleService $memoizedRoleService = null;
+
     private ?ApiTokenManager $memoizedTokenManager = null;
-    
+
     // Current access token (set by middleware)
     public ?PersonalAccessToken $currentAccessToken = null;
 
@@ -123,7 +128,7 @@ class User extends Authenticatable implements FilamentUser
      */
     public static function bootHasRoles(): void
     {
-        if (!Schema::hasTable(config('permission.table_names.model_has_roles'))) {
+        if (! Schema::hasTable(config('permission.table_names.model_has_roles'))) {
             return;
         }
 
@@ -135,12 +140,12 @@ class User extends Authenticatable implements FilamentUser
      */
     public static function bootHasPermissions(): void
     {
-        if (!Schema::hasTable(config('permission.table_names.model_has_permissions'))) {
+        if (! Schema::hasTable(config('permission.table_names.model_has_permissions'))) {
             return;
         }
 
         static::deleting(function ($model) {
-            if (method_exists($model, 'isForceDeleting') && !$model->isForceDeleting()) {
+            if (method_exists($model, 'isForceDeleting') && ! $model->isForceDeleting()) {
                 return;
             }
 
@@ -148,7 +153,7 @@ class User extends Authenticatable implements FilamentUser
             $teams = $registrar->teams;
             $registrar->teams = false;
 
-            if (!is_a($model, \Spatie\Permission\Contracts\Permission::class)) {
+            if (! is_a($model, \Spatie\Permission\Contracts\Permission::class)) {
                 $model->permissions()->detach();
             }
 
@@ -162,7 +167,7 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * The "booted" method of the model.
-     * 
+     *
      * Note: Tenant scoping is NOT applied to User model to avoid
      * circular dependency during authentication. User filtering is
      * handled through policies and controller-level authorization.
@@ -170,7 +175,7 @@ class User extends Authenticatable implements FilamentUser
     protected static function booted(): void
     {
         // No global scope for User model
-        
+
         // Clear cache when user is updated
         static::updated(function (User $user) {
             $user->clearCache();
@@ -185,9 +190,9 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * The attributes that are mass assignable.
-     * 
+     *
      * SECURITY: Sensitive fields removed to prevent privilege escalation attacks.
-     * Use dedicated methods for: system_tenant_id, is_super_admin, tenant_id, 
+     * Use dedicated methods for: system_tenant_id, is_super_admin, tenant_id,
      * property_id, parent_user_id, role, suspended_at
      *
      * @var array<int, string>
@@ -199,6 +204,7 @@ class User extends Authenticatable implements FilamentUser
         'is_active',
         'last_login_at',
         'organization_name',
+        'currency',
     ];
 
     /**
@@ -231,19 +237,19 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Determine if the user can access the Filament admin panel.
-     * 
+     *
      * This method implements the primary authorization gate for Filament panel access.
      * It works in conjunction with EnsureUserIsAdminOrManager middleware to provide
      * defense-in-depth security.
-     * 
+     *
      * Authorization Rules:
      * - Admin Panel: ADMIN, MANAGER, SUPERADMIN roles only
      * - Other Panels: SUPERADMIN only
      * - TENANT role: Explicitly denied access to all panels
-     * 
+     *
      * Requirements: 9.1, 9.2, 9.3
-     * 
-     * @param Panel $panel The Filament panel being accessed
+     *
+     * @param  Panel  $panel  The Filament panel being accessed
      * @return bool True if user can access the panel, false otherwise
      */
     public function canAccessPanel(Panel $panel): bool
@@ -487,7 +493,7 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Scope: Order users by role priority.
-     * 
+     *
      * Orders users with superadmin first, then admin, manager, and tenant.
      */
     public function scopeOrderedByRole(Builder $query): Builder
@@ -533,6 +539,7 @@ class User extends Authenticatable implements FilamentUser
     public function scopeForTenant(Builder $query, $tenantId): Builder
     {
         $tenantValue = $tenantId instanceof \App\ValueObjects\TenantId ? $tenantId->getValue() : $tenantId;
+
         return $query->where('tenant_id', $tenantValue);
     }
 
@@ -645,8 +652,8 @@ class User extends Authenticatable implements FilamentUser
     public function scopeForListing(Builder $query): Builder
     {
         return $query->select([
-            'id', 'name', 'email', 'role', 'is_active', 
-            'tenant_id', 'property_id', 'last_login_at', 'created_at'
+            'id', 'name', 'email', 'role', 'is_active',
+            'tenant_id', 'property_id', 'last_login_at', 'created_at',
         ])->with([
             'property:id,name',
             'parentUser:id,name',
@@ -659,8 +666,8 @@ class User extends Authenticatable implements FilamentUser
     public function scopeApiEligible(Builder $query): Builder
     {
         return $query->active()
-                    ->whereNotNull('email_verified_at')
-                    ->whereNull('suspended_at');
+            ->whereNotNull('email_verified_at')
+            ->whereNull('suspended_at');
     }
 
     /**
@@ -671,7 +678,7 @@ class User extends Authenticatable implements FilamentUser
         $membership = $this->organizations()
             ->where('organization_id', $organization->id)
             ->first();
-            
+
         return $membership?->pivot->role;
     }
 
@@ -696,7 +703,7 @@ class User extends Authenticatable implements FilamentUser
         $organizationIds = Cache::remember($cacheKey, self::CACHE_TTL_MEDIUM, function () {
             return $this->organizations()->pluck('organizations.id')->toArray();
         });
-        
+
         return Project::whereIn('tenant_id', $organizationIds)
             ->orWhere('created_by', $this->id)
             ->orWhere('assigned_to', $this->id);
@@ -714,9 +721,9 @@ class User extends Authenticatable implements FilamentUser
                 'assignee:id,name',
                 'tasks' => function ($query) {
                     $query->select('id', 'project_id', 'title', 'status')
-                          ->where('status', '!=', 'completed')
-                          ->limit(5);
-                }
+                        ->where('status', '!=', 'completed')
+                        ->limit(5);
+                },
             ]);
     }
 
@@ -727,11 +734,11 @@ class User extends Authenticatable implements FilamentUser
     {
         $this->getUserRoleService()->clearRoleCache($this);
         $this->getPanelAccessService()->clearPanelAccessCache($this);
-        
+
         // Clear memoized properties
         $this->memoizedCapabilities = null;
         $this->memoizedState = null;
-        
+
         // Clear specific cache keys
         Cache::forget("user_org_ids:{$this->id}");
         Cache::forget("user_projects_count:{$this->id}");
@@ -740,20 +747,21 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Assign user to tenant (secure method).
-     * 
-     * @param int $tenantId Target tenant ID
-     * @param User $admin Admin performing the assignment
+     *
+     * @param  int  $tenantId  Target tenant ID
+     * @param  User  $admin  Admin performing the assignment
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function assignToTenant(int $tenantId, User $admin): void
     {
-        if (!$admin->hasAdministrativePrivileges()) {
+        if (! $admin->hasAdministrativePrivileges()) {
             throw new \Illuminate\Auth\Access\AuthorizationException('Insufficient privileges to assign tenant');
         }
-        
+
         $this->tenant_id = $tenantId;
         $this->save();
-        
+
         Log::info('User assigned to tenant', [
             'user_id' => $this->id,
             'tenant_id' => $tenantId,
@@ -764,21 +772,22 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Assign user to property (secure method).
-     * 
-     * @param int $propertyId Target property ID
-     * @param User $admin Admin performing the assignment
+     *
+     * @param  int  $propertyId  Target property ID
+     * @param  User  $admin  Admin performing the assignment
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function assignToProperty(int $propertyId, User $admin): void
     {
-        if (!$admin->hasAdministrativePrivileges()) {
+        if (! $admin->hasAdministrativePrivileges()) {
             throw new \Illuminate\Auth\Access\AuthorizationException('Insufficient privileges to assign property');
         }
-        
+
         $this->property_id = $propertyId;
         $this->parent_user_id = $admin->id;
         $this->save();
-        
+
         Log::info('User assigned to property', [
             'user_id' => $this->id,
             'property_id' => $propertyId,
@@ -789,21 +798,22 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Promote user to superadmin (secure method).
-     * 
-     * @param User $currentSuperAdmin Current superadmin performing the promotion
+     *
+     * @param  User  $currentSuperAdmin  Current superadmin performing the promotion
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function promoteToSuperAdmin(User $currentSuperAdmin): void
     {
-        if (!$currentSuperAdmin->isSuperadmin()) {
+        if (! $currentSuperAdmin->isSuperadmin()) {
             throw new \Illuminate\Auth\Access\AuthorizationException('Only superadmins can promote users');
         }
-        
+
         $this->is_super_admin = true;
         $this->role = UserRole::SUPERADMIN;
         $this->tenant_id = null; // Superadmins have no tenant scope
         $this->save();
-        
+
         Log::warning('User promoted to superadmin', [
             'user_id' => $this->id,
             'promoted_by' => $currentSuperAdmin->id,
@@ -813,24 +823,25 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Suspend user account (secure method).
-     * 
-     * @param string $reason Suspension reason
-     * @param User $admin Admin performing the suspension
+     *
+     * @param  string  $reason  Suspension reason
+     * @param  User  $admin  Admin performing the suspension
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function suspend(string $reason, User $admin): void
     {
-        if (!$admin->hasAdministrativePrivileges()) {
+        if (! $admin->hasAdministrativePrivileges()) {
             throw new \Illuminate\Auth\Access\AuthorizationException('Insufficient privileges to suspend user');
         }
-        
+
         $this->suspended_at = now();
         $this->suspension_reason = $reason;
         $this->save();
-        
+
         // Revoke all API tokens for security
         $this->revokeAllApiTokens();
-        
+
         Log::warning('User account suspended', [
             'user_id' => $this->id,
             'reason' => $reason,
@@ -841,14 +852,14 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Create API token with role-based abilities.
-     * 
+     *
      * Automatically assigns abilities based on user role unless custom abilities are provided.
      * Uses custom ApiTokenManager service for token management.
-     * 
-     * @param string $name Token name for identification
-     * @param array|null $abilities Custom abilities array, null for role-based defaults
+     *
+     * @param  string  $name  Token name for identification
+     * @param  array|null  $abilities  Custom abilities array, null for role-based defaults
      * @return string Plain text token for API authentication
-     * 
+     *
      * @see \App\Services\ApiTokenManager
      */
     public function createApiToken(string $name, ?array $abilities = null): string
@@ -858,10 +869,10 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Revoke all API tokens for security.
-     * 
+     *
      * Useful for security incidents, password changes, or account deactivation.
      * Immediately invalidates all active tokens for this user.
-     * 
+     *
      * @return int Number of tokens revoked
      */
     public function revokeAllApiTokens(): int
@@ -871,9 +882,9 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Get active API tokens count.
-     * 
+     *
      * Returns the number of currently active API tokens for monitoring and security purposes.
-     * 
+     *
      * @return int Number of active tokens
      */
     public function getActiveTokensCount(): int
@@ -883,11 +894,11 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Check if user has specific API ability.
-     * 
+     *
      * Validates if the current access token has the specified ability.
      * Used for runtime permission checking in API endpoints.
-     * 
-     * @param string $ability The ability to check (e.g., 'meter-reading:write')
+     *
+     * @param  string  $ability  The ability to check (e.g., 'meter-reading:write')
      * @return bool True if user has the ability, false otherwise
      */
     public function hasApiAbility(string $ability): bool
@@ -897,9 +908,9 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Check if user can create meter readings.
-     * 
+     *
      * All authenticated roles can create meter readings in the Truth-but-Verify workflow.
-     * 
+     *
      * @return bool True if user can create meter readings
      */
     public function canCreateMeterReadings(): bool
@@ -914,9 +925,9 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Check if user can manage (approve/reject) meter readings.
-     * 
+     *
      * Only managers and above can approve tenant-submitted readings.
-     * 
+     *
      * @return bool True if user can manage meter readings
      */
     public function canManageMeterReadings(): bool
@@ -930,9 +941,9 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Check if user can validate meter readings.
-     * 
+     *
      * Alias for canManageMeterReadings for clarity in Truth-but-Verify workflow.
-     * 
+     *
      * @return bool True if user can validate meter readings
      */
     public function canValidateMeterReadings(): bool
@@ -942,9 +953,9 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Check if user submissions require validation.
-     * 
+     *
      * Tenant submissions require manager approval in Truth-but-Verify workflow.
-     * 
+     *
      * @return bool True if user's submissions require validation
      */
     public function submissionsRequireValidation(): bool
@@ -954,8 +965,6 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Get the current access token.
-     * 
-     * @return PersonalAccessToken|null
      */
     public function currentAccessToken(): ?PersonalAccessToken
     {
@@ -964,16 +973,13 @@ class User extends Authenticatable implements FilamentUser
 
     /**
      * Create a token (Laravel Sanctum compatibility method).
-     * 
-     * @param string $name
-     * @param array $abilities
-     * @param \DateTimeInterface|null $expiresAt
+     *
      * @return object Object with plainTextToken property
      */
     public function createToken(string $name, array $abilities = ['*'], ?\DateTimeInterface $expiresAt = null): object
     {
         $plainTextToken = $this->getApiTokenManager()->createToken($this, $name, $abilities, $expiresAt);
-        
+
         return (object) [
             'plainTextToken' => $plainTextToken,
         ];
@@ -985,7 +991,7 @@ class User extends Authenticatable implements FilamentUser
     public function getProjectsCount(): int
     {
         $cacheKey = "user_projects_count:{$this->id}";
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL_MEDIUM, function () {
             return $this->allProjects()->count();
         });
@@ -997,7 +1003,7 @@ class User extends Authenticatable implements FilamentUser
     public function getTasksSummary(): array
     {
         $cacheKey = "user_tasks_summary:{$this->id}";
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL_SHORT, function () {
             $assignments = $this->taskAssignments()
                 ->join('tasks', 'task_assignments.task_id', '=', 'tasks.id')
@@ -1065,5 +1071,4 @@ class User extends Authenticatable implements FilamentUser
         $this->memoizedRoleService = null;
         $this->memoizedTokenManager = null;
     }
-
 }

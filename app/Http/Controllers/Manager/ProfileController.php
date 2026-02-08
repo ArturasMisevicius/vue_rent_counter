@@ -9,6 +9,7 @@ use App\Models\Language;
 use App\Models\Meter;
 use App\Models\Property;
 use App\Models\Tenant;
+use App\Support\EuropeanCurrencyOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -30,6 +31,7 @@ class ProfileController extends Controller
                 ->where('is_active', true)
                 ->orderBy('display_order')
                 ->get(),
+            'currencyOptions' => EuropeanCurrencyOptions::options(),
         ]);
     }
 
@@ -40,8 +42,9 @@ class ProfileController extends Controller
         $user = $request->user();
         $user->name = $validated['name'];
         $user->email = $validated['email'];
+        $user->currency = $validated['currency'];
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }
 

@@ -27,25 +27,25 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /**
  * Filament Tenant Panel Provider
- * 
+ *
  * Configures the Filament v4 tenant panel with property-scoped access
  * for the Vilnius Utilities Billing System.
- * 
+ *
  * ## Security Architecture
- * 
+ *
  * The tenant panel implements property-scoped security:
- * 
+ *
  * 1. **Role-Based Access** (EnsureUserIsTenant)
  *    - Restricts panel access to TENANT role only
  *    - Blocks all other roles from accessing tenant panel
- * 
+ *
  * 2. **Property Isolation**
  *    - Tenants only see their assigned property data
  *    - Automatic scoping to property_id
  *    - Read-only access to most data
- * 
+ *
  * ## Navigation Configuration
- * 
+ *
  * Navigation groups are organized by tenant needs:
  * - My Property: Property details, meters, consumption
  * - Billing: Invoices, payments, history
@@ -70,6 +70,7 @@ final class TenantPanelProvider extends PanelProvider
                 'success' => Color::Emerald,
                 'info' => Color::Sky,
             ])
+            ->viteTheme('resources/css/filament/theme.css')
             ->brandName('Tenant Portal')
             ->navigationGroups([
                 NavigationGroup::make()

@@ -8,7 +8,7 @@ use Illuminate\View\Component;
 use Illuminate\View\View;
 
 /**
- * daisyUI Button Component
+ * Shared Design System Button Component
  *
  * Provides a consistent button interface following blade-guardrails
  */
@@ -33,44 +33,51 @@ class Button extends Component
     {
         return view('components.ui.button');
     }
-    
+
     /**
      * Get the button CSS classes.
      */
     public function classes(): string
     {
-        $classes = ['btn'];
-        
+        $classes = ['ds-btn'];
+
         $variantMap = [
-            'primary' => 'btn-primary',
-            'secondary' => 'btn-secondary',
-            'accent' => 'btn-accent',
-            'ghost' => 'btn-ghost',
-            'link' => 'btn-link',
-            'info' => 'btn-info',
-            'success' => 'btn-success',
-            'warning' => 'btn-warning',
-            'error' => 'btn-error',
+            'default' => 'ds-btn--primary',
+            'primary' => 'ds-btn--primary',
+            'secondary' => 'ds-btn--secondary',
+            'danger' => 'ds-btn--danger',
+            'error' => 'ds-btn--danger',
+            'ghost' => 'ds-btn--secondary',
+            'link' => 'ds-btn--secondary',
+            'info' => 'ds-btn--secondary',
+            'success' => 'ds-btn--secondary',
+            'warning' => 'ds-btn--secondary',
+            'accent' => 'ds-btn--primary',
         ];
-        
+
         $sizeMap = [
-            'xs' => 'btn-xs',
-            'sm' => 'btn-sm',
-            'lg' => 'btn-lg',
+            'xs' => 'px-2.5 py-1.5 text-xs',
+            'sm' => 'px-3 py-2 text-xs',
+            'md' => 'px-4 py-2.5 text-sm',
+            'lg' => 'px-5 py-3 text-base',
         ];
-        
+
         if (isset($variantMap[$this->variant])) {
             $classes[] = $variantMap[$this->variant];
         }
-        
+
         if (isset($sizeMap[$this->size])) {
             $classes[] = $sizeMap[$this->size];
         }
-        
+
         if ($this->outline) {
-            $classes[] = 'btn-outline';
+            $classes[] = 'bg-transparent border-slate-300 text-slate-800';
         }
-        
+
+        if ($this->disabled || $this->loading) {
+            $classes[] = 'opacity-60 cursor-not-allowed';
+        }
+
         return implode(' ', $classes);
     }
 }

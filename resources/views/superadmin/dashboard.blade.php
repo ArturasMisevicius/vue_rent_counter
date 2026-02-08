@@ -42,6 +42,48 @@
         />
     </div>
 
+    {{-- Quick Actions --}}
+    <x-card class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">{{ __('superadmin.dashboard.quick_actions.title') }}</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <x-backoffice.quick-action
+                :href="route('superadmin.organizations.create')"
+                :title="__('superadmin.dashboard.quick_actions.create_organization')"
+                :description="__('superadmin.dashboard.quick_actions.create_organization_desc')"
+            >
+                <x-slot:icon>➕</x-slot:icon>
+            </x-backoffice.quick-action>
+            <x-backoffice.quick-action
+                :href="route('superadmin.subscriptions.index')"
+                :title="__('superadmin.dashboard.quick_actions.create_subscription')"
+                :description="__('superadmin.dashboard.quick_actions.create_subscription_desc')"
+            >
+                <x-slot:icon>🧾</x-slot:icon>
+            </x-backoffice.quick-action>
+            <x-backoffice.quick-action
+                href="#recent-activity"
+                :title="__('superadmin.dashboard.quick_actions.view_all_activity')"
+                :description="__('superadmin.dashboard.quick_actions.view_all_activity_desc')"
+            >
+                <x-slot:icon>🕒</x-slot:icon>
+            </x-backoffice.quick-action>
+            <x-backoffice.quick-action
+                :href="route('superadmin.organizations.index')"
+                :title="__('superadmin.dashboard.quick_actions.manage_organizations')"
+                :description="__('superadmin.dashboard.quick_actions.manage_organizations_desc')"
+            >
+                <x-slot:icon>🏢</x-slot:icon>
+            </x-backoffice.quick-action>
+            <x-backoffice.quick-action
+                :href="route('superadmin.subscriptions.index')"
+                :title="__('superadmin.dashboard.quick_actions.manage_subscriptions')"
+                :description="__('superadmin.dashboard.quick_actions.manage_subscriptions_desc')"
+            >
+                <x-slot:icon>📊</x-slot:icon>
+            </x-backoffice.quick-action>
+        </div>
+    </x-card>
+
     {{-- System Health --}}
     <x-card class="mb-8" id="system-health">
         <div class="flex items-center justify-between mb-4">
@@ -438,46 +480,5 @@
         <p class="text-slate-500">{{ __('superadmin.dashboard.analytics.empty') }}</p>
     </x-card>
 
-    {{-- Quick Actions --}}
-    <x-card>
-        <h2 class="text-xl font-semibold mb-4">{{ __('superadmin.dashboard.quick_actions.title') }}</h2>
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <x-backoffice.quick-action
-                :href="route('superadmin.organizations.create')"
-                :title="__('superadmin.dashboard.quick_actions.create_organization')"
-                :description="__('superadmin.dashboard.quick_actions.create_organization_desc')"
-            >
-                <x-slot:icon>➕</x-slot:icon>
-            </x-backoffice.quick-action>
-            <x-backoffice.quick-action
-                :href="route('superadmin.subscriptions.index')"
-                :title="__('superadmin.dashboard.quick_actions.create_subscription')"
-                :description="__('superadmin.dashboard.quick_actions.create_subscription_desc')"
-            >
-                <x-slot:icon>🧾</x-slot:icon>
-            </x-backoffice.quick-action>
-            <x-backoffice.quick-action
-                href="#recent-activity"
-                :title="__('superadmin.dashboard.quick_actions.view_all_activity')"
-                :description="__('superadmin.dashboard.quick_actions.view_all_activity_desc')"
-            >
-                <x-slot:icon>🕒</x-slot:icon>
-            </x-backoffice.quick-action>
-            <x-backoffice.quick-action
-                :href="route('superadmin.organizations.index')"
-                :title="__('superadmin.dashboard.quick_actions.manage_organizations')"
-                :description="__('superadmin.dashboard.quick_actions.manage_organizations_desc')"
-            >
-                <x-slot:icon>🏢</x-slot:icon>
-            </x-backoffice.quick-action>
-            <x-backoffice.quick-action
-                :href="route('superadmin.subscriptions.index')"
-                :title="__('superadmin.dashboard.quick_actions.manage_subscriptions')"
-                :description="__('superadmin.dashboard.quick_actions.manage_subscriptions_desc')"
-            >
-                <x-slot:icon>📊</x-slot:icon>
-            </x-backoffice.quick-action>
-        </div>
-    </x-card>
 </x-backoffice.page>
 @endsection

@@ -29,25 +29,25 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /**
  * Filament Superadmin Panel Provider
- * 
+ *
  * Configures the Filament v4 superadmin panel with comprehensive system-wide access
  * and organization management for the Vilnius Utilities Billing System.
- * 
+ *
  * ## Security Architecture
- * 
+ *
  * The superadmin panel implements a simplified security model:
- * 
+ *
  * 1. **Role-Based Access** (EnsureUserIsSuperadmin)
  *    - Restricts panel access to SUPERADMIN role only
  *    - Blocks all other roles from accessing superadmin panel
- * 
+ *
  * 2. **System-Wide Access**
  *    - Superadmins bypass tenant isolation
  *    - Full access to all organizations and subscriptions
  *    - System monitoring and management capabilities
- * 
+ *
  * ## Navigation Configuration
- * 
+ *
  * Navigation groups are organized by system administration areas:
  * - System Management: Organizations, subscriptions, system health
  * - User Management: All users across organizations
@@ -72,6 +72,7 @@ final class SuperadminPanelProvider extends PanelProvider
                 'success' => Color::Emerald,
                 'info' => Color::Sky,
             ])
+            ->viteTheme('resources/css/filament/theme.css')
             ->brandName('Superadmin Panel')
             ->navigationGroups([
                 NavigationGroup::make()

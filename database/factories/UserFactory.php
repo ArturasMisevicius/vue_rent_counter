@@ -38,6 +38,7 @@ class UserFactory extends Factory
             'role' => UserRole::MANAGER,
             'is_active' => true,
             'organization_name' => null,
+            'currency' => 'EUR',
         ];
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Superadmin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ManagerUpdateProfileRequest;
 use App\Models\Language;
+use App\Support\EuropeanCurrencyOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -15,6 +16,7 @@ class ProfileController extends Controller
         return view('superadmin.profile.show', [
             'user' => $request->user(),
             'languages' => Language::query()->active()->orderBy('display_order')->get(),
+            'currencyOptions' => EuropeanCurrencyOptions::options(),
         ]);
     }
 
@@ -25,8 +27,9 @@ class ProfileController extends Controller
         $user = $request->user();
         $user->name = $validated['name'];
         $user->email = $validated['email'];
+        $user->currency = $validated['currency'];
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }
 

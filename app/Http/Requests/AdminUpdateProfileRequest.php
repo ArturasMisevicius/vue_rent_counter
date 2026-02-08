@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Support\EuropeanCurrencyOptions;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class AdminUpdateProfileRequest extends FormRequest
 {
@@ -25,8 +27,9 @@ class AdminUpdateProfileRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:users,email,' . $userId],
+            'email' => ['required', 'email', 'unique:users,email,'.$userId],
             'organization_name' => ['nullable', 'string', 'max:255'],
+            'currency' => ['required', 'string', Rule::in(EuropeanCurrencyOptions::codes())],
         ];
     }
 
@@ -46,6 +49,7 @@ class AdminUpdateProfileRequest extends FormRequest
             'email.unique' => __('users.validation.email.unique'),
             'organization_name.string' => __('users.validation.organization_name.string'),
             'organization_name.max' => __('users.validation.organization_name.max'),
+            'currency.in' => __('settings.validation.currency.in'),
         ];
     }
 }
