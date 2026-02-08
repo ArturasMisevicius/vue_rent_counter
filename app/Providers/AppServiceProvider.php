@@ -9,6 +9,7 @@ use App\Contracts\ServiceRegistration\PolicyRegistryInterface;
 use App\Services\PolicyRegistryMonitoringService;
 use App\Services\ServiceRegistration\RegistrationErrorHandler;
 use App\Services\ServiceRegistration\ServiceRegistrationOrchestrator;
+use App\Support\ServiceRegistration\CompatibilityRegistry;
 use App\Support\ServiceRegistration\ObserverRegistry;
 use App\Support\ServiceRegistration\PolicyRegistry;
 use Illuminate\Support\ServiceProvider;
@@ -117,6 +118,11 @@ final class AppServiceProvider extends ServiceProvider
      */
     private function registerLaravel12Compatibility(): void
     {
+        $compatibilityRegistry = new CompatibilityRegistry();
+
+        // Register Filament v4 action class aliases for legacy resource code.
+        $compatibilityRegistry->registerFilamentCompatibility();
+
         // Register lang path for Laravel 12 compatibility
         $this->app->useLangPath(base_path('lang'));
         
