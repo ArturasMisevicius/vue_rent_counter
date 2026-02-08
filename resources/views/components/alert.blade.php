@@ -1,18 +1,34 @@
 @props(['type' => 'info', 'dismissible' => true])
 
 @php
-    $variantClasses = [
-        'success' => 'ds-alert--success',
-        'error' => 'ds-alert--error',
-        'warning' => 'ds-alert--warning',
-        'info' => 'ds-alert--info',
+    $variants = [
+        'success' => [
+            'container' => 'border-emerald-200 bg-emerald-50 text-emerald-900',
+            'icon' => 'text-emerald-600',
+            'dismiss' => 'hover:bg-emerald-100',
+        ],
+        'error' => [
+            'container' => 'border-rose-200 bg-rose-50 text-rose-900',
+            'icon' => 'text-rose-600',
+            'dismiss' => 'hover:bg-rose-100',
+        ],
+        'warning' => [
+            'container' => 'border-amber-200 bg-amber-50 text-amber-900',
+            'icon' => 'text-amber-600',
+            'dismiss' => 'hover:bg-amber-100',
+        ],
+        'info' => [
+            'container' => 'border-indigo-200 bg-indigo-50 text-indigo-900',
+            'icon' => 'text-indigo-600',
+            'dismiss' => 'hover:bg-indigo-100',
+        ],
     ];
 
-    $variant = $variantClasses[$type] ?? $variantClasses['info'];
+    $variant = $variants[$type] ?? $variants['info'];
 @endphp
 
 <div
-    {{ $attributes->merge(['class' => "ds-alert {$variant}"]) }}
+    {{ $attributes->class("rounded-xl border p-4 shadow-sm {$variant['container']}") }}
     @if($dismissible)
         x-data="{ show: true }"
         x-show="show"
@@ -21,8 +37,8 @@
     role="{{ $type === 'error' ? 'alert' : 'status' }}"
     aria-live="polite"
 >
-    <div class="ds-alert__inner">
-        <div class="ds-alert__icon">
+    <div class="flex items-start gap-3">
+        <div class="mt-0.5 shrink-0 {{ $variant['icon'] }}">
             @if($type === 'success')
                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7" />
@@ -42,12 +58,15 @@
             @endif
         </div>
 
-        <div class="ds-alert__content">
+        <div class="min-w-0 flex-1 text-sm leading-6">
             {{ $slot }}
         </div>
 
         @if($dismissible)
-            <button @click="show = false" class="ds-alert__dismiss">
+            <button
+                @click="show = false"
+                class="rounded-md p-1 text-current/70 transition hover:text-current focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current/30 {{ $variant['dismiss'] }}"
+            >
                 <span class="sr-only">{{ __('app.accessibility.dismiss') }}</span>
                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M6 18L18 6" />

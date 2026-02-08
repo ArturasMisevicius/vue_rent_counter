@@ -55,7 +55,7 @@
                             </p>
                             @if($invoice->tenant)
                                 <p class="text-slate-600 text-sm">
-                                    {{ __('invoices.public_index.tenant', ['name' => $invoice->tenant->name]) }}
+                                    {{ __('invoices.public_index.shared', ['name' => $invoice->tenant->name]) }}
                                 </p>
                                 @if($invoice->tenant->property)
                                     <p class="text-slate-600 text-sm">

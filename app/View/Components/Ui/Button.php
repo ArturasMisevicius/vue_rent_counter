@@ -39,20 +39,32 @@ class Button extends Component
      */
     public function classes(): string
     {
-        $classes = ['ds-btn'];
+        $classes = [
+            'inline-flex',
+            'items-center',
+            'justify-center',
+            'gap-2',
+            'rounded-xl',
+            'font-semibold',
+            'transition',
+            'focus-visible:outline-none',
+            'focus-visible:ring-2',
+            'focus-visible:ring-indigo-500',
+            'focus-visible:ring-offset-2',
+        ];
 
         $variantMap = [
-            'default' => 'ds-btn--primary',
-            'primary' => 'ds-btn--primary',
-            'secondary' => 'ds-btn--secondary',
-            'danger' => 'ds-btn--danger',
-            'error' => 'ds-btn--danger',
-            'ghost' => 'ds-btn--secondary',
-            'link' => 'ds-btn--secondary',
-            'info' => 'ds-btn--secondary',
-            'success' => 'ds-btn--secondary',
-            'warning' => 'ds-btn--secondary',
-            'accent' => 'ds-btn--primary',
+            'default' => 'bg-indigo-600 text-white hover:bg-indigo-500',
+            'primary' => 'bg-indigo-600 text-white hover:bg-indigo-500',
+            'secondary' => 'bg-white text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50',
+            'danger' => 'bg-rose-600 text-white hover:bg-rose-500',
+            'error' => 'bg-rose-600 text-white hover:bg-rose-500',
+            'ghost' => 'bg-transparent text-slate-700 hover:bg-slate-100',
+            'link' => 'bg-transparent text-indigo-600 hover:text-indigo-500',
+            'info' => 'bg-sky-600 text-white hover:bg-sky-500',
+            'success' => 'bg-emerald-600 text-white hover:bg-emerald-500',
+            'warning' => 'bg-amber-500 text-slate-900 hover:bg-amber-400',
+            'accent' => 'bg-violet-600 text-white hover:bg-violet-500',
         ];
 
         $sizeMap = [
@@ -71,11 +83,11 @@ class Button extends Component
         }
 
         if ($this->outline) {
-            $classes[] = 'bg-transparent border-slate-300 text-slate-800';
+            $classes[] = 'bg-transparent text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50';
         }
 
         if ($this->disabled || $this->loading) {
-            $classes[] = 'opacity-60 cursor-not-allowed';
+            $classes[] = 'cursor-not-allowed opacity-60';
         }
 
         return implode(' ', $classes);

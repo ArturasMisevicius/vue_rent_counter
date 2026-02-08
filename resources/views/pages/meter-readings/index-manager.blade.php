@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', __('meter_readings.manager.index.title'))
+@section('title', __('meter_readings.shared.index.title'))
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
 <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-slate-900">{{ __('meter_readings.manager.index.title') }}</h1>
-            <p class="mt-2 text-sm text-slate-700">{{ __('meter_readings.manager.index.description') }}</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('meter_readings.shared.index.title') }}</h1>
+            <p class="mt-2 text-sm text-slate-700">{{ __('meter_readings.shared.index.description') }}</p>
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             @can('create', App\Models\MeterReading::class)
@@ -22,18 +22,18 @@
     <x-card class="mt-6">
         <form method="GET" action="{{ route('manager.meter-readings.index') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-4">
             <div>
-                <label for="group_by" class="block text-sm font-medium text-slate-700">{{ __('meter_readings.manager.index.filters.group_by') }}</label>
+                <label for="group_by" class="block text-sm font-medium text-slate-700">{{ __('meter_readings.shared.index.filters.group_by') }}</label>
                 <select name="group_by" id="group_by" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    <option value="none" {{ $groupBy === 'none' ? 'selected' : '' }}>{{ __('meter_readings.manager.index.filters.none') }}</option>
-                    <option value="property" {{ $groupBy === 'property' ? 'selected' : '' }}>{{ __('meter_readings.manager.index.filters.property') }}</option>
-                    <option value="service" {{ $groupBy === 'service' ? 'selected' : '' }}>{{ __('meter_readings.tenant.filters.service') }}</option>
+                    <option value="none" {{ $groupBy === 'none' ? 'selected' : '' }}>{{ __('meter_readings.shared.index.filters.none') }}</option>
+                    <option value="property" {{ $groupBy === 'property' ? 'selected' : '' }}>{{ __('meter_readings.shared.index.filters.property') }}</option>
+                    <option value="service" {{ $groupBy === 'service' ? 'selected' : '' }}>{{ __('meter_readings.shared.filters.service') }}</option>
                 </select>
             </div>
 
             <div>
-                <label for="property_id" class="block text-sm font-medium text-slate-700">{{ __('meter_readings.manager.index.filters.property_label') }}</label>
+                <label for="property_id" class="block text-sm font-medium text-slate-700">{{ __('meter_readings.shared.index.filters.property_label') }}</label>
                 <select name="property_id" id="property_id" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    <option value="">{{ __('meter_readings.manager.index.filters.all_properties') }}</option>
+                    <option value="">{{ __('meter_readings.shared.index.filters.all_properties') }}</option>
                     @foreach($properties as $property)
                     <option value="{{ $property->id }}" {{ request('property_id') == $property->id ? 'selected' : '' }}>
                         {{ $property->address }}
@@ -43,9 +43,9 @@
             </div>
 
             <div>
-                <label for="service" class="block text-sm font-medium text-slate-700">{{ __('meter_readings.tenant.filters.service') }}</label>
+                <label for="service" class="block text-sm font-medium text-slate-700">{{ __('meter_readings.shared.filters.service') }}</label>
                 <select name="service" id="service" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    <option value="">{{ __('meter_readings.tenant.filters.all_services') }}</option>
+                    <option value="">{{ __('meter_readings.shared.filters.all_services') }}</option>
                     @foreach($serviceFilterOptions as $value => $label)
                         <option value="{{ $value }}" {{ $serviceFilter === $value ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
@@ -54,7 +54,7 @@
 
             <div class="flex items-end">
                 <x-button type="submit" class="w-full">
-                    {{ __('meter_readings.manager.index.filters.apply') }}
+                    {{ __('meter_readings.shared.index.filters.apply') }}
                 </x-button>
             </div>
         </form>
@@ -76,12 +76,12 @@
                     </h3>
                     
                     <div class="hidden sm:block">
-                    <x-data-table :caption="__('meter_readings.manager.index.captions.property')">
+                    <x-data-table :caption="__('meter_readings.shared.index.captions.property')">
                         <x-slot name="header">
                             <tr>
                                 <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">{{ __('meter_readings.tables.date') }}</th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.meter') }}</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tenant.filters.service') }}</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.shared.filters.service') }}</th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.value') }}</th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.zone') }}</th>
                                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.entered_by') }}</th>
@@ -161,9 +161,9 @@
                 </div>
             @empty
                 <p class="px-3 py-8 text-center text-sm text-slate-500">
-                    {{ __('meter_readings.manager.index.empty.text') }} 
+                    {{ __('meter_readings.shared.index.empty.text') }} 
                     @can('create', App\Models\MeterReading::class)
-                        <a href="{{ route('manager.meter-readings.create') }}" class="text-indigo-600 hover:text-indigo-900">{{ __('meter_readings.manager.index.empty.cta') }}</a>
+                        <a href="{{ route('manager.meter-readings.create') }}" class="text-indigo-600 hover:text-indigo-900">{{ __('meter_readings.shared.index.empty.cta') }}</a>
                     @endcan
                 </p>
             @endforelse
@@ -184,7 +184,7 @@
                     </h3>
                     
                     <div class="hidden sm:block">
-                    <x-data-table :caption="__('meter_readings.tenant.filters.services_group')">
+                    <x-data-table :caption="__('meter_readings.shared.filters.services_group')">
                         <x-slot name="header">
                             <tr>
                                 <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">{{ __('meter_readings.tables.date') }}</th>
@@ -248,9 +248,9 @@
                                 <p class="text-sm font-semibold text-slate-900">{{ $reading->reading_date->format('M d, Y') }}</p>
                                 <p class="text-xs font-semibold text-slate-500">{{ $reading->meter->property->address }}</p>
                             </div>
-                            <p class="text-xs text-slate-600">{{ __('meter_readings.manager.mobile.meter') }} {{ $reading->meter->serial_number }}</p>
-                            <p class="text-xs text-slate-600">{{ __('meter_readings.manager.mobile.value') }} <span class="font-semibold text-slate-900">{{ number_format($reading->value, 2) }}</span></p>
-                            <p class="text-xs text-slate-600">{{ __('meter_readings.manager.mobile.zone') }} {{ $reading->zone ?? '—' }}</p>
+                            <p class="text-xs text-slate-600">{{ __('meter_readings.shared.mobile.meter') }} {{ $reading->meter->serial_number }}</p>
+                            <p class="text-xs text-slate-600">{{ __('meter_readings.shared.mobile.value') }} <span class="font-semibold text-slate-900">{{ number_format($reading->value, 2) }}</span></p>
+                            <p class="text-xs text-slate-600">{{ __('meter_readings.shared.mobile.zone') }} {{ $reading->zone ?? '—' }}</p>
                             <p class="text-xs text-slate-600 mt-1">{{ __('meter_readings.tables.entered_by') }}: {{ $reading->enteredBy->name ?? __('meter_readings.na') }}</p>
                             <div class="mt-3 flex flex-wrap gap-2">
                                 @can('view', $reading)
@@ -270,9 +270,9 @@
                 </div>
             @empty
                 <p class="px-3 py-8 text-center text-sm text-slate-500">
-                    {{ __('meter_readings.manager.index.empty.text') }} 
+                    {{ __('meter_readings.shared.index.empty.text') }} 
                     @can('create', App\Models\MeterReading::class)
-                        <a href="{{ route('manager.meter-readings.create') }}" class="text-indigo-600 hover:text-indigo-900">{{ __('meter_readings.manager.index.empty.cta') }}</a>
+                        <a href="{{ route('manager.meter-readings.create') }}" class="text-indigo-600 hover:text-indigo-900">{{ __('meter_readings.shared.index.empty.cta') }}</a>
                     @endcan
                 </p>
             @endforelse
@@ -280,13 +280,13 @@
         @else
             <!-- No Grouping - Standard List -->
             <div class="hidden sm:block">
-            <x-data-table :caption="__('meter_readings.manager.captions.list')">
+            <x-data-table :caption="__('meter_readings.shared.captions.list')">
                 <x-slot name="header">
                     <tr>
                         <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">{{ __('meter_readings.tables.date') }}</th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meters.labels.property') }}</th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.meter') }}</th>
-                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tenant.filters.service') }}</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.shared.filters.service') }}</th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.value') }}</th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.zone') }}</th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.entered_by') }}</th>
@@ -342,9 +342,9 @@
                 @empty
                 <tr>
                     <td colspan="8" class="px-3 py-8 text-center text-sm text-slate-500">
-                        {{ __('meter_readings.manager.index.empty.text') }} 
+                        {{ __('meter_readings.shared.index.empty.text') }} 
                     @can('create', App\Models\MeterReading::class)
-                        <a href="{{ route('manager.meter-readings.create') }}" class="text-indigo-600 hover:text-indigo-900">{{ __('meter_readings.manager.index.empty.cta') }}</a>
+                        <a href="{{ route('manager.meter-readings.create') }}" class="text-indigo-600 hover:text-indigo-900">{{ __('meter_readings.shared.index.empty.cta') }}</a>
                     @endcan
                     </td>
                 </tr>
@@ -359,9 +359,9 @@
                         <p class="text-xs font-semibold text-slate-500">{{ $reading->meter->getServiceDisplayName() }}</p>
                     </div>
                     <p class="text-xs text-slate-600">{{ $reading->meter->property->address }}</p>
-                    <p class="text-xs text-slate-600">{{ __('meter_readings.manager.mobile.meter') }} {{ $reading->meter->serial_number }}</p>
-                    <p class="text-xs text-slate-600">{{ __('meter_readings.manager.mobile.value') }} <span class="font-semibold text-slate-900">{{ number_format($reading->value, 2) }}</span></p>
-                    <p class="text-xs text-slate-600">{{ __('meter_readings.manager.mobile.zone') }} {{ $reading->zone ?? '—' }}</p>
+                    <p class="text-xs text-slate-600">{{ __('meter_readings.shared.mobile.meter') }} {{ $reading->meter->serial_number }}</p>
+                    <p class="text-xs text-slate-600">{{ __('meter_readings.shared.mobile.value') }} <span class="font-semibold text-slate-900">{{ number_format($reading->value, 2) }}</span></p>
+                    <p class="text-xs text-slate-600">{{ __('meter_readings.shared.mobile.zone') }} {{ $reading->zone ?? '—' }}</p>
                     <p class="text-xs text-slate-600 mt-1">{{ __('meter_readings.tables.entered_by') }}: {{ $reading->enteredBy->name ?? __('meter_readings.na') }}</p>
                     <div class="mt-3 flex flex-wrap gap-2">
                         @can('view', $reading)
@@ -378,9 +378,9 @@
                 </div>
                 @empty
                 <div class="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-600 shadow-sm">
-                    {{ __('meter_readings.manager.index.empty.text') }}
+                    {{ __('meter_readings.shared.index.empty.text') }}
                     @can('create', App\Models\MeterReading::class)
-                        <a href="{{ route('manager.meter-readings.create') }}" class="text-indigo-700 font-semibold">{{ __('meter_readings.manager.index.empty.cta') }}</a>
+                        <a href="{{ route('manager.meter-readings.create') }}" class="text-indigo-700 font-semibold">{{ __('meter_readings.shared.index.empty.cta') }}</a>
                     @endcan
                 </div>
                 @endforelse

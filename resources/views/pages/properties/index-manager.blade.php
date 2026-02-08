@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', __('properties.manager.index.title'))
+@section('title', __('properties.shared.index.title'))
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
 <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-slate-900">{{ __('properties.manager.index.title') }}</h1>
-            <p class="mt-2 text-sm text-slate-700">{{ __('properties.manager.index.description') }}</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('properties.shared.index.title') }}</h1>
+            <p class="mt-2 text-sm text-slate-700">{{ __('properties.shared.index.description') }}</p>
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             @can('create', App\Models\Property::class)
@@ -22,24 +22,24 @@
     <div class="mt-6 bg-white shadow rounded-lg p-4">
         <form method="GET" action="{{ route('manager.properties.index') }}" class="space-y-4 sm:space-y-0 sm:flex sm:items-end sm:space-x-4">
             <div class="flex-1">
-                <label for="search" class="block text-sm font-medium text-slate-700">{{ __('properties.manager.index.filters.search') }}</label>
+                <label for="search" class="block text-sm font-medium text-slate-700">{{ __('properties.shared.index.filters.search') }}</label>
                 <input type="text" name="search" id="search" value="{{ request('search') }}" 
-                       placeholder="{{ __('properties.manager.index.filters.search_placeholder') }}"
+                       placeholder="{{ __('properties.shared.index.filters.search_placeholder') }}"
                        class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
             </div>
             <div class="sm:w-48">
-                <label for="property_type" class="block text-sm font-medium text-slate-700">{{ __('properties.manager.index.filters.type') }}</label>
+                <label for="property_type" class="block text-sm font-medium text-slate-700">{{ __('properties.shared.index.filters.type') }}</label>
                 <select name="property_type" id="property_type" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    <option value="">{{ __('properties.manager.index.filters.all_types') }}</option>
+                    <option value="">{{ __('properties.shared.index.filters.all_types') }}</option>
                     @foreach($propertyTypeLabels as $value => $label)
                         <option value="{{ $value }}" {{ request('property_type') === $value ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>
             </div>
             <div class="sm:w-48">
-                <label for="building_id" class="block text-sm font-medium text-slate-700">{{ __('properties.manager.index.filters.building') }}</label>
+                <label for="building_id" class="block text-sm font-medium text-slate-700">{{ __('properties.shared.index.filters.building') }}</label>
                 <select name="building_id" id="building_id" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    <option value="">{{ __('properties.manager.index.filters.all_buildings') }}</option>
+                    <option value="">{{ __('properties.shared.index.filters.all_buildings') }}</option>
                     @foreach($buildings as $building)
                         <option value="{{ $building->id }}" {{ request('building_id') == $building->id ? 'selected' : '' }}>
                             {{ $building->address }}
@@ -49,11 +49,11 @@
             </div>
             <div class="flex space-x-2">
                 <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    {{ __('properties.manager.index.filters.filter') }}
+                    {{ __('properties.shared.index.filters.filter') }}
                 </button>
                 @if(request()->hasAny(['search', 'property_type', 'building_id']))
                 <a href="{{ route('manager.properties.index') }}" class="inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    {{ __('properties.manager.index.filters.clear') }}
+                    {{ __('properties.shared.index.filters.clear') }}
                 </a>
                 @endif
             </div>
@@ -62,17 +62,17 @@
 
     <x-card class="mt-8">
         <div class="hidden sm:block">
-        <x-data-table :caption="__('properties.manager.index.caption')">
+        <x-data-table :caption="__('properties.shared.index.caption')">
             <x-slot name="header">
                 <tr>
-                    <x-sortable-header column="address" :label="__('properties.manager.index.headers.address')" class="py-3.5 pl-4 pr-3 sm:pl-0" />
-                    <x-sortable-header column="property_type" :label="__('properties.manager.index.headers.type')" />
-                    <x-sortable-header column="area_sqm" :label="__('properties.manager.index.headers.area')" />
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('properties.manager.index.headers.building') }}</th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('properties.manager.index.headers.meters') }}</th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('properties.manager.index.headers.tenants') }}</th>
+                    <x-sortable-header column="address" :label="__('properties.shared.index.headers.address')" class="py-3.5 pl-4 pr-3 sm:pl-0" />
+                    <x-sortable-header column="property_type" :label="__('properties.shared.index.headers.type')" />
+                    <x-sortable-header column="area_sqm" :label="__('properties.shared.index.headers.area')" />
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('properties.shared.index.headers.building') }}</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('properties.shared.index.headers.meters') }}</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('properties.shared.index.headers.tenants') }}</th>
                     <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
-                        <span class="sr-only">{{ __('properties.manager.index.headers.actions') }}</span>
+                        <span class="sr-only">{{ __('properties.shared.index.headers.actions') }}</span>
                     </th>
                 </tr>
             </x-slot>
@@ -171,9 +171,9 @@
             @empty
             <tr>
                 <td colspan="7" class="px-3 py-8 text-center text-sm text-slate-500">
-                    {{ __('properties.manager.index.empty.text') }} 
+                    {{ __('properties.shared.index.empty.text') }} 
                     @can('create', App\Models\Property::class)
-                        <a href="{{ route('manager.properties.create') }}" class="text-indigo-600 hover:text-indigo-900">{{ __('properties.manager.index.empty.cta') }}</a>
+                        <a href="{{ route('manager.properties.create') }}" class="text-indigo-600 hover:text-indigo-900">{{ __('properties.shared.index.empty.cta') }}</a>
                     @endcan
                 </td>
             </tr>
@@ -256,9 +256,9 @@
                 </div>
             @empty
                 <div class="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-600 shadow-sm">
-                    {{ __('properties.manager.index.empty.text') }}
+                    {{ __('properties.shared.index.empty.text') }}
                     @can('create', App\Models\Property::class)
-                        <a href="{{ route('manager.properties.create') }}" class="text-indigo-700 font-semibold">{{ __('properties.manager.index.empty.cta') }}</a>
+                        <a href="{{ route('manager.properties.create') }}" class="text-indigo-700 font-semibold">{{ __('properties.shared.index.empty.cta') }}</a>
                     @endcan
                 </div>
             @endforelse

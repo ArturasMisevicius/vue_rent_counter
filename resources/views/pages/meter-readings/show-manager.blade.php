@@ -7,7 +7,7 @@
 <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
             <h1 class="text-2xl font-semibold text-slate-900">{{ __('meter_readings.headings.show') }} #{{ $meterReading->id }}</h1>
-            <p class="mt-2 text-sm text-slate-700">{{ __('meter_readings.manager.show.description') }}</p>
+            <p class="mt-2 text-sm text-slate-700">{{ __('meter_readings.shared.show.description') }}</p>
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none space-x-2">
             @can('update', $meterReading)

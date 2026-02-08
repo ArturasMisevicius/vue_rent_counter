@@ -15,7 +15,11 @@
                 @foreach($languages as $language)
                     <a
                         href="{{ route('language.switch', $language->code) }}"
-                        class="ds-language-option {{ $language->code === app()->getLocale() ? 'ds-language-option--active' : 'ds-language-option--inactive' }}"
+                        @class([
+                            'flex items-center justify-between gap-3 rounded-xl border px-3 py-2 text-sm font-medium transition',
+                            'border-indigo-200 bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200' => $language->code === app()->getLocale(),
+                            'border-slate-200 bg-white text-slate-700 hover:border-indigo-200 hover:bg-indigo-50/40' => $language->code !== app()->getLocale(),
+                        ])
                     >
                         <span>{{ $language->native_name ?? $language->name }}</span>
                         @if($language->code === app()->getLocale())

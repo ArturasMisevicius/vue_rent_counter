@@ -1,34 +1,34 @@
 @extends('layouts.app')
 
-@section('title', __('meter_readings.manager.edit.title'))
+@section('title', __('meter_readings.shared.edit.title'))
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
 <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-slate-900">{{ __('meter_readings.manager.edit.title') }}</h1>
-            <p class="mt-2 text-sm text-slate-700">{{ __('meter_readings.manager.edit.subtitle') }}</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('meter_readings.shared.edit.title') }}</h1>
+            <p class="mt-2 text-sm text-slate-700">{{ __('meter_readings.shared.edit.subtitle') }}</p>
         </div>
     </div>
 
     <div class="mt-8 max-w-2xl">
         <!-- Current Reading Info -->
         <x-card class="mb-6">
-            <x-slot name="title">{{ __('meter_readings.manager.edit.current.title') }}</x-slot>
+            <x-slot name="title">{{ __('meter_readings.shared.edit.current.title') }}</x-slot>
             
             <dl class="divide-y divide-slate-100">
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('meter_readings.manager.edit.current.meter') }}</dt>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('meter_readings.shared.edit.current.meter') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $meterReading->meter->serial_number }}</dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('meter_readings.manager.edit.current.value') }}</dt>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('meter_readings.shared.edit.current.value') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
                         <span class="text-xl font-semibold">{{ number_format($meterReading->value, 2) }}</span>
                     </dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('meter_readings.manager.edit.current.date') }}</dt>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('meter_readings.shared.edit.current.date') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $meterReading->reading_date->format('M d, Y') }}</dd>
                 </div>
             </dl>
@@ -36,7 +36,7 @@
 
         <!-- Correction Form -->
         <x-card>
-            <x-slot name="title">{{ __('meter_readings.manager.edit.form.title') }}</x-slot>
+            <x-slot name="title">{{ __('meter_readings.shared.edit.form.title') }}</x-slot>
             
             <form action="{{ route('manager.meter-readings.update', $meterReading) }}" method="POST">
                 @csrf
@@ -45,7 +45,7 @@
                 <div class="space-y-6">
                     <x-form-input
                         name="reading_date"
-                        label="{{ __('meter_readings.manager.edit.form.reading_date') }}"
+                        label="{{ __('meter_readings.shared.edit.form.reading_date') }}"
                         type="date"
                         :value="old('reading_date', $meterReading->reading_date->format('Y-m-d'))"
                         required
@@ -53,27 +53,27 @@
 
                     <x-form-input
                         name="value"
-                        label="{{ __('meter_readings.manager.edit.form.value') }}"
+                        label="{{ __('meter_readings.shared.edit.form.value') }}"
                         type="number"
                         step="0.01"
                         :value="old('value', $meterReading->value)"
                         required
-                        placeholder="{{ __('meter_readings.manager.edit.form.placeholder') }}"
+                        placeholder="{{ __('meter_readings.shared.edit.form.placeholder') }}"
                     />
 
                     @if($meterReading->meter->supports_zones)
                     <x-form-select
                         name="zone"
-                        label="{{ __('meter_readings.manager.edit.form.zone_label') }}"
-                        :options="trans('meter_readings.manager.edit.form.zone_options')"
+                        label="{{ __('meter_readings.shared.edit.form.zone_label') }}"
+                        :options="trans('meter_readings.shared.edit.form.zone_options')"
                         :selected="old('zone', $meterReading->zone)"
-                        placeholder="{{ __('meter_readings.manager.edit.form.zone_placeholder') }}"
+                        placeholder="{{ __('meter_readings.shared.edit.form.zone_placeholder') }}"
                     />
                     @endif
 
                     <div>
                         <label for="change_reason" class="block text-sm font-medium leading-6 text-slate-900">
-                            {{ __('meter_readings.manager.edit.form.reason_label') }} 
+                            {{ __('meter_readings.shared.edit.form.reason_label') }} 
                             <span class="text-red-500">*</span>
                         </label>
                         <textarea
@@ -86,7 +86,7 @@
                                 'text-red-900 ring-red-300 placeholder:text-red-300 focus:ring-red-500' => $errors->has('change_reason'),
                                 'text-slate-900 ring-slate-300 placeholder:text-slate-400 focus:ring-indigo-600' => !$errors->has('change_reason'),
                             ])
-                            placeholder="{{ __('meter_readings.manager.edit.form.reason_placeholder') }}"
+                            placeholder="{{ __('meter_readings.shared.edit.form.reason_placeholder') }}"
                         >{{ old('change_reason') }}</textarea>
                         @error('change_reason')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -101,9 +101,9 @@
                                 </svg>
                             </div>
                             <div class="ml-3">
-                                <h3 class="text-sm font-medium text-yellow-800">{{ __('meter_readings.manager.edit.audit_notice.title') }}</h3>
+                                <h3 class="text-sm font-medium text-yellow-800">{{ __('meter_readings.shared.edit.audit_notice.title') }}</h3>
                                 <div class="mt-2 text-sm text-yellow-700">
-                                    <p>{{ __('meter_readings.manager.edit.audit_notice.body') }}</p>
+                                    <p>{{ __('meter_readings.shared.edit.audit_notice.body') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -111,10 +111,10 @@
 
                     <div class="flex items-center justify-end gap-x-4">
                         <x-button href="{{ route('manager.meter-readings.show', $meterReading) }}" variant="secondary">
-                            {{ __('meter_readings.manager.edit.actions.cancel') }}
+                            {{ __('meter_readings.shared.edit.actions.cancel') }}
                         </x-button>
                         <x-button type="submit">
-                            {{ __('meter_readings.manager.edit.actions.save') }}
+                            {{ __('meter_readings.shared.edit.actions.save') }}
                         </x-button>
                     </div>
                 </div>

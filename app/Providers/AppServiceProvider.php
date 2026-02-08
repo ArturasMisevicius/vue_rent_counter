@@ -12,27 +12,28 @@ use App\Services\ServiceRegistration\ServiceRegistrationOrchestrator;
 use App\Support\ServiceRegistration\CompatibilityRegistry;
 use App\Support\ServiceRegistration\ObserverRegistry;
 use App\Support\ServiceRegistration\PolicyRegistry;
+use App\Support\SharedTranslationKey;
 use Illuminate\Support\ServiceProvider;
 
 /**
  * Application Service Provider
- * 
+ *
  * Handles core application service registration and bootstrapping with improved
  * architecture following SOLID principles and clean code practices.
- * 
+ *
  * Key Responsibilities:
  * - Core service registration with proper dependency injection
  * - Service orchestration delegation to specialized services
  * - Laravel 12 compatibility configuration
  * - Translation system setup
- * 
+ *
  * Architecture Improvements:
  * - Single Responsibility: Focused only on service registration
  * - Dependency Injection: All dependencies properly injected
  * - Strategy Pattern: Error handling delegated to specialized strategies
  * - Configuration-driven: Externalized configuration management
  * - Monitoring Integration: Built-in performance and health monitoring
- * 
+ *
  * @see \App\Services\ServiceRegistration\ServiceRegistrationOrchestrator
  * @see \App\Services\ServiceRegistration\RegistrationErrorHandler
  * @see \App\Services\PolicyRegistryMonitoringService
@@ -54,6 +55,7 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->bootSharedTranslationFallback();
         $this->bootRateLimiters();
         $this->bootObservers();
         $this->bootServiceRegistration();
@@ -61,8 +63,38 @@ final class AppServiceProvider extends ServiceProvider
     }
 
     /**
+     * Resolve shared translation keys back to existing role-specific language lines.
+     */
+    private function bootSharedTranslationFallback(): void
+    {
+        $translator = $this->app->make('translator');
+
+        $translator->handleMissingKeysUsing(function (string $key, array $replace, ?string $locale, bool $fallback) use ($translator): string {
+            if (! SharedTranslationKey::hasSharedSegment($key)) {
+                return $key;
+            }
+
+            $preferredRole = auth()->user()?->role?->value;
+
+            foreach (SharedTranslationKey::legacyCandidates($key, $preferredRole) as $candidate) {
+                if ($candidate === $key) {
+                    continue;
+                }
+
+                if (! $translator->has($candidate, $locale, $fallback)) {
+                    continue;
+                }
+
+                return $translator->get($candidate, $replace, $locale, $fallback);
+            }
+
+            return $key;
+        });
+    }
+
+    /**
      * Register rate limiters for admin and API routes
-     * 
+     *
      * This must be called during boot() after facades are initialized.
      * Rate limiters prevent brute force attacks and DoS attempts.
      */
@@ -107,7 +139,7 @@ final class AppServiceProvider extends ServiceProvider
      */
     private function bootObservers(): void
     {
-        $observerRegistry = new ObserverRegistry();
+        $observerRegistry = new ObserverRegistry;
         $observerRegistry->registerModelObservers();
         $observerRegistry->registerSuperadminObservers();
         $observerRegistry->registerCacheInvalidationObservers();
@@ -118,14 +150,14 @@ final class AppServiceProvider extends ServiceProvider
      */
     private function registerLaravel12Compatibility(): void
     {
-        $compatibilityRegistry = new CompatibilityRegistry();
+        $compatibilityRegistry = new CompatibilityRegistry;
 
         // Register Filament v4 action class aliases for legacy resource code.
         $compatibilityRegistry->registerFilamentCompatibility();
 
         // Register lang path for Laravel 12 compatibility
         $this->app->useLangPath(base_path('lang'));
-        
+
         // Ensure translation loader uses the correct path
         $this->app->singleton('translation.loader', function ($app) {
             return new \Illuminate\Translation\FileLoader($app['files'], base_path('lang'));
@@ -138,14 +170,14 @@ final class AppServiceProvider extends ServiceProvider
     private function registerCoreServices(): void
     {
         $config = config('service-registration.core_services', []);
-        
+
         // Register singleton services
         foreach ($config['singletons'] ?? [] as $service) {
             if (class_exists($service)) {
                 $this->app->singleton($service);
             }
         }
-        
+
         // Register interface bindings
         foreach ($config['bindings'] ?? [] as $interface => $implementation) {
             if (interface_exists($interface) && class_exists($implementation)) {
@@ -161,22 +193,22 @@ final class AppServiceProvider extends ServiceProvider
     {
         // Register error handling strategy
         $this->app->singleton(ErrorHandlingStrategyInterface::class, RegistrationErrorHandler::class);
-        
+
         // Register policy registry
         $this->app->singleton(PolicyRegistryInterface::class, PolicyRegistry::class);
-        
+
         // Register monitoring service if available
         if (class_exists(PolicyRegistryMonitoringService::class)) {
             $this->app->singleton(PolicyRegistryMonitoringService::class);
         }
-        
+
         // Register orchestrator with all dependencies
         $this->app->singleton(ServiceRegistrationOrchestrator::class, function ($app) {
             return new ServiceRegistrationOrchestrator(
                 app: $app,
                 errorHandler: $app->make(ErrorHandlingStrategyInterface::class),
-                monitoringService: $app->bound(PolicyRegistryMonitoringService::class) 
-                    ? $app->make(PolicyRegistryMonitoringService::class) 
+                monitoringService: $app->bound(PolicyRegistryMonitoringService::class)
+                    ? $app->make(PolicyRegistryMonitoringService::class)
                     : null,
             );
         });
@@ -187,7 +219,7 @@ final class AppServiceProvider extends ServiceProvider
      */
     private function bootServiceRegistration(): void
     {
-        if (!$this->shouldBootServices()) {
+        if (! $this->shouldBootServices()) {
             return;
         }
 
@@ -201,7 +233,7 @@ final class AppServiceProvider extends ServiceProvider
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
-            
+
             // In development, we might want to see the error
             if ($this->app->environment('local', 'testing')) {
                 throw $e;
@@ -221,7 +253,7 @@ final class AppServiceProvider extends ServiceProvider
 
         // Check if monitoring is enabled
         $monitoringEnabled = config('service-registration.monitoring.enabled', true);
-        
+
         return $monitoringEnabled;
     }
 }

@@ -20,29 +20,29 @@
 
     <x-card>
         <div class="hidden sm:block">
-            <x-data-table :caption="__('invoices.manager.index.caption')">
+            <x-data-table :caption="__('invoices.shared.index.caption')">
                 <x-slot name="header">
                     <tr>
                         <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
-                            {{ __('invoices.manager.index.headers.number') }}
+                            {{ __('invoices.shared.index.headers.number') }}
                         </th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
-                            {{ __('invoices.manager.index.headers.property') }}
+                            {{ __('invoices.shared.index.headers.property') }}
                         </th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
-                            {{ __('invoices.manager.index.headers.billing_period') }}
+                            {{ __('invoices.shared.index.headers.billing_period') }}
                         </th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
-                            {{ __('invoices.manager.index.headers.amount') }}
+                            {{ __('invoices.shared.index.headers.amount') }}
                         </th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
-                            {{ __('invoices.manager.index.headers.status') }}
+                            {{ __('invoices.shared.index.headers.status') }}
                         </th>
                         <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">
-                            {{ __('invoices.manager.index.headers.due') }}
+                            {{ __('invoices.shared.index.headers.due') }}
                         </th>
                         <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
-                            <span class="sr-only">{{ __('invoices.manager.index.headers.actions') }}</span>
+                            <span class="sr-only">{{ __('invoices.shared.index.headers.actions') }}</span>
                         </th>
                     </tr>
                 </x-slot>
@@ -98,7 +98,7 @@
                 @empty
                 <tr>
                     <td colspan="7" class="px-3 py-8 text-center text-sm text-slate-500">
-                        {{ __('invoices.manager.index.empty.text') }}
+                        {{ __('invoices.shared.index.empty.text') }}
                     </td>
                 </tr>
                 @endforelse
@@ -129,7 +129,7 @@
                             </x-status-badge>
                             @if($invoice->due_date)
                                 <p class="text-xs text-slate-600 mt-1">
-                                    {{ __('invoices.manager.index.headers.due') }}: 
+                                    {{ __('invoices.shared.index.headers.due') }}: 
                                     @if($invoice->due_date->isPast() && !$invoice->isPaid())
                                         <span class="text-red-600 font-semibold">{{ $invoice->due_date->format('Y-m-d') }}</span>
                                     @else
@@ -149,7 +149,7 @@
                 </div>
             @empty
                 <div class="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-600 shadow-sm">
-                    {{ __('invoices.manager.index.empty.text') }}
+                    {{ __('invoices.shared.index.empty.text') }}
                 </div>
             @endforelse
         </div>

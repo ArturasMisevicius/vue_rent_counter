@@ -43,7 +43,7 @@
                         </dd>
                     </div>
                     <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
-                        <dt class="text-sm font-medium text-slate-500">{{ __('users.tables.tenant') }}</dt>
+                        <dt class="text-sm font-medium text-slate-500">{{ __('users.tables.shared') }}</dt>
                         <dd class="mt-1 text-sm text-slate-900 sm:col-span-2 sm:mt-0">{{ $user->tenant->name ?? __('providers.statuses.not_available') }}</dd>
                     </div>
                     <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4">

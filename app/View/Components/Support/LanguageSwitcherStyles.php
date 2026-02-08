@@ -6,7 +6,7 @@ namespace App\View\Components\Support;
 
 /**
  * Language Switcher Styles Configuration
- * 
+ *
  * Centralizes CSS class management for language switcher variants.
  * Follows the Single Responsibility Principle by handling only styling concerns.
  */
@@ -32,14 +32,14 @@ final readonly class LanguageSwitcherStyles
      * Container CSS classes
      */
     private const CONTAINER_CLASSES = [
-        'select' => 'language-switcher-container',
-        'dropdown' => 'relative language-switcher-container',
+        'select' => 'inline-flex',
+        'dropdown' => 'relative inline-block text-left',
     ];
 
     /**
      * Form CSS classes
      */
-    private const FORM_CLASSES = 'language-switcher-form';
+    private const FORM_CLASSES = 'inline-flex';
 
     /**
      * Get CSS classes for a specific variant
@@ -47,7 +47,7 @@ final readonly class LanguageSwitcherStyles
     public static function getVariantClasses(string $variant): string
     {
         $classes = self::VARIANT_CLASSES[$variant] ?? self::VARIANT_CLASSES['select'];
-        
+
         return implode(' ', [
             $classes['base'],
             $classes['focus'],
@@ -77,8 +77,8 @@ final readonly class LanguageSwitcherStyles
     public static function getDropdownMenuClasses(): string
     {
         return implode(' ', [
-            'absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50',
-            'ring-1 ring-black ring-opacity-5 divide-y divide-gray-100',
+            'absolute right-0 z-10 mt-2 w-48 rounded-md bg-white shadow-lg',
+            'ring-1 ring-black/5 divide-y divide-slate-100',
         ]);
     }
 
@@ -87,12 +87,12 @@ final readonly class LanguageSwitcherStyles
      */
     public static function getDropdownItemClasses(bool $isActive = false): string
     {
-        $baseClasses = 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none';
-        
+        $baseClasses = 'block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 focus:bg-slate-100 focus:outline-none';
+
         if ($isActive) {
-            $baseClasses .= ' bg-gray-50 font-medium';
+            $baseClasses .= ' bg-slate-50 font-medium';
         }
-        
+
         return $baseClasses;
     }
 
@@ -102,8 +102,7 @@ final readonly class LanguageSwitcherStyles
     public static function getSpinnerClasses(): string
     {
         return implode(' ', [
-            'language-switcher-spinner',
-            'absolute right-2 top-1/2 transform -translate-y-1/2',
+            'pointer-events-none absolute right-2 top-1/2 -translate-y-1/2',
             'animate-spin text-white/70 text-sm pointer-events-none',
         ]);
     }

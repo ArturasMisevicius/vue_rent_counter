@@ -6,14 +6,14 @@
 <div class="relative inline-block text-left" x-data="{ open: false }" @click.away="open = false">
     <div>
         <button type="button"
-                class="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                class="inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 @click="open = !open"
                 :aria-expanded="open"
                 aria-haspopup="true"
                 aria-label="{{ __('common.language_switcher_label') }}">
             @if(collect($availableLocales)->firstWhere('code', $currentLocale))
                 <span class="mr-2">{{ __(collect($availableLocales)->firstWhere('code', $currentLocale)['label']) }}</span>
-                <span class="text-xs text-gray-500">({{ collect($availableLocales)->firstWhere('code', $currentLocale)['abbreviation'] }})</span>
+                <span class="text-xs text-slate-500">({{ collect($availableLocales)->firstWhere('code', $currentLocale)['abbreviation'] }})</span>
             @else
                 <span class="mr-2">{{ __('common.language') }}</span>
             @endif
@@ -36,14 +36,14 @@
          x-transition:leave="transition ease-in duration-75"
          x-transition:leave-start="transform scale-100 opacity-100"
          x-transition:leave-end="transform scale-95 opacity-0"
-         class="absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
+         class="absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5"
          role="menu"
          aria-orientation="vertical"
          aria-labelledby="language-menu">
         <div class="py-1" role="none">
             @foreach($availableLocales as $locale)
                 <a href="{{ route('language.switch', $locale['code']) }}"
-                   class="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none"
+                   class="group flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none"
                    role="menuitem"
                    @click="$dispatch('language-changed', { locale: '{{ $locale['code'] }}', name: '{{ __($locale['label']) }}' })"
                    @if($locale['code'] === $currentLocale) aria-current="true" @endif>
@@ -57,7 +57,7 @@
 
                     <div class="flex-1">
                         <div class="font-medium">{{ __($locale['label']) }}</div>
-                        <div class="text-xs text-gray-500">{{ $locale['abbreviation'] }}</div>
+                        <div class="text-xs text-slate-500">{{ $locale['abbreviation'] }}</div>
                     </div>
                 </a>
             @endforeach

@@ -4,8 +4,8 @@
 <div class="container mx-auto px-4 py-8">
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-slate-900">{{ __('manager.pages.index.title') }}</h1>
-            <p class="text-slate-600">{{ __('manager.pages.index.subtitle') }}</p>
+            <h1 class="text-2xl font-bold text-slate-900">{{ __('shared.pages.index.title') }}</h1>
+            <p class="text-slate-600">{{ __('shared.pages.index.subtitle') }}</p>
         </div>
     </div>
 
@@ -14,13 +14,13 @@
             <table class="min-w-full divide-y divide-slate-200">
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('manager.fields.id') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('manager.fields.name') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('manager.fields.email') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('manager.fields.properties') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('manager.fields.buildings') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('manager.fields.invoices') }}</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('manager.fields.actions') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.fields.id') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.fields.name') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.fields.email') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.fields.properties') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.fields.buildings') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.fields.invoices') }}</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.fields.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-slate-200">
@@ -57,7 +57,7 @@
                     @empty
                     <tr>
                         <td colspan="7" class="px-6 py-4 text-center text-slate-500">
-                            {{ __('manager.empty') ?? 'No managers found' }}
+                            {{ __('shared.empty') ?? 'No managers found' }}
                         </td>
                     </tr>
                     @endforelse

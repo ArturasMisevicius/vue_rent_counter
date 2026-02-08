@@ -3,8 +3,8 @@
 
 @if($languageData->isNotEmpty())
     @if($variant === 'select')
-        <div class="language-switcher-container inline-flex {{ $class }}">
-            <form method="GET" action="{{ route('language.switch', ['locale' => $currentLocale]) }}" class="language-switcher-form inline-flex">
+        <div class="inline-flex {{ $class }}">
+            <form method="GET" action="{{ route('language.switch', ['locale' => $currentLocale]) }}" class="inline-flex">
                 <label for="language-select" class="sr-only">{{ __('common.select_language') }}</label>
                 <select
                     id="language-select"
@@ -32,7 +32,7 @@
         </div>
     @else
         {{-- Dropdown variant --}}
-        <div class="relative language-switcher-container inline-block text-left {{ $class }}" x-data="{ open: false }">
+        <div class="relative inline-block text-left {{ $class }}" x-data="{ open: false }">
             <button
                 @click="open = !open"
                 @keydown.escape="open = false"
@@ -66,7 +66,7 @@
                 x-transition:leave="transition ease-in duration-75"
                 x-transition:leave-start="transform opacity-100 scale-100"
                 x-transition:leave-end="transform opacity-0 scale-95"
-                class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none"
                 role="menu"
                 aria-orientation="vertical"
                 x-cloak

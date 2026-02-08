@@ -10,7 +10,7 @@
                     </svg>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm font-medium text-blue-900">{{ __('superadmin.users.fields.total_sessions') }}</p>
+                    <p class="text-sm font-medium text-blue-900">{{ __('shared.users.fields.total_sessions') }}</p>
                     <p class="text-2xl font-semibold text-blue-600">{{ $activityReport->totalSessions }}</p>
                 </div>
             </div>
@@ -24,7 +24,7 @@
                     </svg>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm font-medium text-yellow-900">{{ __('superadmin.users.fields.audit_entries') }}</p>
+                    <p class="text-sm font-medium text-yellow-900">{{ __('shared.users.fields.audit_entries') }}</p>
                     <p class="text-2xl font-semibold text-yellow-600">{{ $activityReport->auditLogEntries }}</p>
                 </div>
             </div>
@@ -38,9 +38,9 @@
                     </svg>
                 </div>
                 <div class="ml-3">
-                    <p class="text-sm font-medium text-green-900">{{ __('superadmin.users.fields.last_activity') }}</p>
+                    <p class="text-sm font-medium text-green-900">{{ __('shared.users.fields.last_activity') }}</p>
                     <p class="text-sm font-semibold text-green-600">
-                        {{ $activityReport->lastLoginAt ? $activityReport->lastLoginAt->diffForHumans() : __('superadmin.users.values.never') }}
+                        {{ $activityReport->lastLoginAt ? $activityReport->lastLoginAt->diffForHumans() : __('shared.users.values.never') }}
                     </p>
                 </div>
             </div>
@@ -50,7 +50,7 @@
     {{-- Recent Sessions Preview --}}
     @if(count($activityReport->recentSessions) > 0)
         <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <h4 class="text-sm font-medium text-gray-900 mb-3">{{ __('superadmin.users.sections.recent_sessions') }}</h4>
+            <h4 class="text-sm font-medium text-gray-900 mb-3">{{ __('shared.users.sections.recent_sessions') }}</h4>
             <div class="space-y-2">
                 @foreach(array_slice($activityReport->recentSessions, 0, 5) as $session)
                     <div class="flex items-center justify-between text-sm">
@@ -72,14 +72,14 @@
     {{-- Organization Activity Preview --}}
     @if(count($activityReport->organizationActivity) > 0)
         <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
-            <h4 class="text-sm font-medium text-purple-900 mb-3">{{ __('superadmin.users.sections.organization_activity') }}</h4>
+            <h4 class="text-sm font-medium text-purple-900 mb-3">{{ __('shared.users.sections.organization_activity') }}</h4>
             <div class="space-y-2">
                 @foreach(array_slice($activityReport->organizationActivity, 0, 3) as $activity)
                     <div class="flex items-center justify-between text-sm">
                         <div class="flex items-center space-x-2">
                             <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
                             <span class="text-purple-700">
-                                {{ $activity['description'] ?? __('superadmin.users.values.activity_logged') }}
+                                {{ $activity['description'] ?? __('shared.users.values.activity_logged') }}
                             </span>
                         </div>
                         <span class="text-purple-500 text-xs">

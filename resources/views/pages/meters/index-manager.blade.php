@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', __('meters.manager.index.title'))
+@section('title', __('meters.shared.index.title'))
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
 <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-slate-900">{{ __('meters.manager.index.title') }}</h1>
-            <p class="mt-2 text-sm text-slate-700">{{ __('meters.manager.index.description') }}</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('meters.shared.index.title') }}</h1>
+            <p class="mt-2 text-sm text-slate-700">{{ __('meters.shared.index.description') }}</p>
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             @can('create', App\Models\Meter::class)
@@ -20,17 +20,17 @@
 
     <x-card class="mt-8">
         <div class="hidden sm:block">
-        <x-data-table :caption="__('meters.manager.index.caption')">
+        <x-data-table :caption="__('meters.shared.index.caption')">
             <x-slot name="header">
                 <tr>
-                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">{{ __('meters.manager.index.headers.serial_number') }}</th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meters.manager.index.headers.type') }}</th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meters.manager.index.headers.property') }}</th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meters.manager.index.headers.installation_date') }}</th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meters.manager.index.headers.latest_reading') }}</th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meters.manager.index.headers.zones') }}</th>
+                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">{{ __('meters.shared.index.headers.serial_number') }}</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meters.shared.index.headers.type') }}</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meters.shared.index.headers.property') }}</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meters.shared.index.headers.installation_date') }}</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meters.shared.index.headers.latest_reading') }}</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meters.shared.index.headers.zones') }}</th>
                     <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
-                        <span class="sr-only">{{ __('meters.manager.index.headers.actions') }}</span>
+                        <span class="sr-only">{{ __('meters.shared.index.headers.actions') }}</span>
                     </th>
                 </tr>
             </x-slot>
@@ -64,9 +64,9 @@
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                     @if($meter->supports_zones)
-                        <x-status-badge status="active">{{ __('meters.manager.index.zones.yes') }}</x-status-badge>
+                        <x-status-badge status="active">{{ __('meters.shared.index.zones.yes') }}</x-status-badge>
                     @else
-                        <span class="text-slate-400">{{ __('meters.manager.index.zones.no') }}</span>
+                        <span class="text-slate-400">{{ __('meters.shared.index.zones.no') }}</span>
                     @endif
                 </td>
                 <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
@@ -87,9 +87,9 @@
             @empty
             <tr>
                 <td colspan="7" class="px-3 py-8 text-center text-sm text-slate-500">
-                    {{ __('meters.manager.index.empty.text') }} 
+                    {{ __('meters.shared.index.empty.text') }} 
                     @can('create', App\Models\Meter::class)
-                        <a href="{{ route('manager.meters.create') }}" class="text-indigo-600 hover:text-indigo-900">{{ __('meters.manager.index.empty.cta') }}</a>
+                        <a href="{{ route('manager.meters.create') }}" class="text-indigo-600 hover:text-indigo-900">{{ __('meters.shared.index.empty.cta') }}</a>
                     @endcan
                 </td>
             </tr>
@@ -109,12 +109,12 @@
                             <p class="text-xs text-slate-600 mt-1">{{ $meter->property->address }}</p>
                         </div>
                         <div class="text-right text-xs text-slate-600">
-                            <p>{{ __('meters.manager.index.headers.installation_date') }}: {{ $meter->installation_date->format('M d, Y') }}</p>
-                            <p class="mt-1">{{ __('meters.manager.index.headers.zones') }}: {{ $meter->supports_zones ? __('meters.manager.index.zones.yes') : __('meters.manager.index.zones.no') }}</p>
+                            <p>{{ __('meters.shared.index.headers.installation_date') }}: {{ $meter->installation_date->format('M d, Y') }}</p>
+                            <p class="mt-1">{{ __('meters.shared.index.headers.zones') }}: {{ $meter->supports_zones ? __('meters.shared.index.zones.yes') : __('meters.shared.index.zones.no') }}</p>
                         </div>
                     </div>
                     <p class="mt-2 text-xs text-slate-600">
-                        {{ __('meters.manager.index.headers.latest_reading') }}:
+                        {{ __('meters.shared.index.headers.latest_reading') }}:
                         @if($meter->readings->isNotEmpty())
                             <span class="font-semibold text-slate-900">{{ number_format($meter->readings->first()->getEffectiveValue(), 2) }}</span>
                             <span class="text-slate-400">({{ $meter->readings->first()->reading_date->format('M d') }})</span>
@@ -137,9 +137,9 @@
                 </div>
             @empty
                 <div class="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-600 shadow-sm">
-                    {{ __('meters.manager.index.empty.text') }}
+                    {{ __('meters.shared.index.empty.text') }}
                     @can('create', App\Models\Meter::class)
-                        <a href="{{ route('manager.meters.create') }}" class="text-indigo-700 font-semibold">{{ __('meters.manager.index.empty.cta') }}</a>
+                        <a href="{{ route('manager.meters.create') }}" class="text-indigo-700 font-semibold">{{ __('meters.shared.index.empty.cta') }}</a>
                     @endcan
                 </div>
             @endforelse

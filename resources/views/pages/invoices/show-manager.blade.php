@@ -1,21 +1,21 @@
 @extends('layouts.app')
 
-@section('title', __('invoices.manager.show.title', ['id' => $invoice->id]))
+@section('title', __('invoices.shared.show.title', ['id' => $invoice->id]))
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
 <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-slate-900">{{ __('invoices.manager.show.title', ['id' => $invoice->id]) }}</h1>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('invoices.shared.show.title', ['id' => $invoice->id]) }}</h1>
             <p class="mt-2 text-sm text-slate-700">
                 <x-status-badge :status="$invoice->status->value">
                     {{ enum_label($invoice->status) }}
                 </x-status-badge>
                 @if($invoice->due_date)
                     <span class="ml-2 text-sm {{ (!$invoice->isPaid() && $invoice->due_date->isPast()) ? 'text-rose-600 font-semibold' : 'text-slate-700' }}">
-                        {{ __('invoices.manager.show.due') }} {{ $invoice->due_date->format('Y-m-d') }}
+                        {{ __('invoices.shared.show.due') }} {{ $invoice->due_date->format('Y-m-d') }}
                         @if(!$invoice->isPaid() && $invoice->due_date->isPast())
-                            <span class="ml-1 inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-semibold text-rose-700">{{ __('invoices.manager.show.overdue') }}</span>
+                            <span class="ml-1 inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-semibold text-rose-700">{{ __('invoices.shared.show.overdue') }}</span>
                         @endif
                     </span>
                 @endif
@@ -25,35 +25,35 @@
             @if($invoice->isDraft())
                 @can('update', $invoice)
                 <x-button href="{{ route('manager.invoices.edit', $invoice) }}" variant="secondary">
-                    {{ __('invoices.manager.show.edit') }}
+                    {{ __('invoices.shared.show.edit') }}
                 </x-button>
-                <form action="{{ route('manager.invoices.finalize', $invoice) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('invoices.manager.show.finalize_confirm') }}');">
+                <form action="{{ route('manager.invoices.finalize', $invoice) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('invoices.shared.show.finalize_confirm') }}');">
                     @csrf
                     <x-button type="submit">
-                        {{ __('invoices.manager.show.finalize') }}
+                        {{ __('invoices.shared.show.finalize') }}
                     </x-button>
                 </form>
                 @endcan
                 @can('delete', $invoice)
-                <form action="{{ route('manager.invoices.destroy', $invoice) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('invoices.manager.show.delete_confirm') }}');">
+                <form action="{{ route('manager.invoices.destroy', $invoice) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('invoices.shared.show.delete_confirm') }}');">
                     @csrf
                     @method('DELETE')
                     <x-button type="submit" variant="danger">
-                        {{ __('invoices.manager.show.delete') }}
+                        {{ __('invoices.shared.show.delete') }}
                     </x-button>
                 </form>
                 @endcan
             @endif
             @if($invoice->isFinalized() && !$invoice->isPaid())
                 @can('update', $invoice)
-                <form action="{{ route('manager.invoices.mark-paid', $invoice) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('invoices.manager.show.mark_paid_confirm') }}');">
+                <form action="{{ route('manager.invoices.mark-paid', $invoice) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('invoices.shared.show.mark_paid_confirm') }}');">
                     @csrf
                     <div class="grid grid-cols-1 gap-2 sm:grid-cols-4 sm:items-center">
-                        <input type="text" name="payment_reference" placeholder="{{ __('invoices.manager.show.payment_reference_placeholder') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        <input type="number" step="0.01" name="paid_amount" placeholder="{{ __('invoices.manager.show.paid_amount_placeholder') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        <input type="datetime-local" name="paid_at" value="{{ now()->format('Y-m-d\\TH:i') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="{{ __('invoices.manager.show.paid_at_placeholder') }}">
+                        <input type="text" name="payment_reference" placeholder="{{ __('invoices.shared.show.payment_reference_placeholder') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <input type="number" step="0.01" name="paid_amount" placeholder="{{ __('invoices.shared.show.paid_amount_placeholder') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <input type="datetime-local" name="paid_at" value="{{ now()->format('Y-m-d\\TH:i') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="{{ __('invoices.shared.show.paid_at_placeholder') }}">
                         <x-button type="submit" variant="secondary">
-                            {{ __('invoices.manager.show.mark_paid') }}
+                            {{ __('invoices.shared.show.mark_paid') }}
                         </x-button>
                     </div>
                 </form>
@@ -62,7 +62,7 @@
             {{-- PDF generation to be implemented in future task --}}
             {{-- @if($invoice->isFinalized() || $invoice->isPaid())
                 <x-button href="{{ route('manager.invoices.pdf', $invoice) }}" class="inline-flex" variant="secondary">
-                    {{ $invoice->isPaid() ? __('invoices.manager.show.download_receipt') : __('invoices.manager.show.download_pdf') }}
+                    {{ $invoice->isPaid() ? __('invoices.shared.show.download_receipt') : __('invoices.shared.show.download_pdf') }}
                 </x-button>
             @endif --}}
         </div>
@@ -71,21 +71,21 @@
     <!-- Invoice Details -->
     <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <x-card>
-            <x-slot name="title">{{ __('invoices.manager.show.info.title') }}</x-slot>
+            <x-slot name="title">{{ __('invoices.shared.show.info.title') }}</x-slot>
             
             <dl class="divide-y divide-slate-100">
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.manager.show.info.number') }}</dt>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.shared.show.info.number') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">#{{ $invoice->id }}</dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.manager.show.info.billing_period') }}</dt>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.shared.show.info.billing_period') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
                         {{ $invoice->billing_period_start->format('M d, Y') }} - {{ $invoice->billing_period_end->format('M d, Y') }}
                     </dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.manager.show.info.status') }}</dt>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.shared.show.info.status') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
                         <x-status-badge :status="$invoice->status->value">
                             {{ enum_label($invoice->status) }}
@@ -93,32 +93,32 @@
                     </dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.manager.show.info.total_amount') }}</dt>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.shared.show.info.total_amount') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
                         <span class="text-2xl font-semibold">€{{ number_format($invoice->total_amount, 2) }}</span>
                     </dd>
                 </div>
                 @if($invoice->finalized_at)
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.manager.show.info.finalized_at') }}</dt>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.shared.show.info.finalized_at') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $invoice->finalized_at->format('M d, Y H:i') }}</dd>
                 </div>
                 @endif
                 @if($invoice->isPaid() || $invoice->paid_at || $invoice->payment_reference || $invoice->paid_amount)
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.manager.show.info.paid_at') }}</dt>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.shared.show.info.paid_at') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
                         {{ $invoice->paid_at ? $invoice->paid_at->format('M d, Y H:i') : '—' }}
                     </dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.manager.show.info.payment_reference') }}</dt>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.shared.show.info.payment_reference') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
                         {{ $invoice->payment_reference ?? '—' }}
                     </dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.manager.show.info.paid_amount') }}</dt>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.shared.show.info.paid_amount') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
                         {{ $invoice->paid_amount ? '€' . number_format($invoice->paid_amount, 2) : '—' }}
                     </dd>
@@ -129,20 +129,20 @@
 
         <!-- Tenant Information -->
         <x-card>
-            <x-slot name="title">{{ __('invoices.manager.show.tenant.title') }}</x-slot>
+            <x-slot name="title">{{ __('invoices.shared.show.shared.title') }}</x-slot>
             
             @if($invoice->tenant)
             <dl class="divide-y divide-slate-100">
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.manager.show.tenant.name') }}</dt>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.shared.show.shared.name') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $invoice->tenant->name }}</dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.manager.show.tenant.email') }}</dt>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.shared.show.shared.email') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $invoice->tenant->email }}</dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.manager.show.tenant.property') }}</dt>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('invoices.shared.show.shared.property') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
                         @if($invoice->tenant->property)
                             <a href="{{ route('manager.properties.show', $invoice->tenant->property) }}" class="text-indigo-600 hover:text-indigo-900">
@@ -155,7 +155,7 @@
                 </div>
             </dl>
             @else
-                <p class="text-sm text-slate-500">{{ __('invoices.manager.show.tenant.unavailable') }}</p>
+                <p class="text-sm text-slate-500">{{ __('invoices.shared.show.shared.unavailable') }}</p>
             @endif
         </x-card>
     </div>
@@ -177,9 +177,9 @@
                 </svg>
             </div>
             <div class="ml-3">
-                <h3 class="text-sm font-medium text-yellow-800">{{ __('invoices.manager.show.draft_alert.title') }}</h3>
+                <h3 class="text-sm font-medium text-yellow-800">{{ __('invoices.shared.show.draft_alert.title') }}</h3>
                 <div class="mt-2 text-sm text-yellow-700">
-                    <p>{{ __('invoices.manager.show.draft_alert.body') }}</p>
+                    <p>{{ __('invoices.shared.show.draft_alert.body') }}</p>
                 </div>
             </div>
         </div>

@@ -31,9 +31,9 @@
                 <label for="role" class="block text-sm font-medium text-slate-700">{{ __('users.labels.role') }}</label>
                 <select name="role" id="role" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                     <option value="">{{ __('users.actions.clear') }}</option>
-                    <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>{{ __('enums.user_role.admin') }}</option>
-                    <option value="manager" {{ request('role') === 'manager' ? 'selected' : '' }}>{{ __('enums.user_role.manager') }}</option>
-                    <option value="tenant" {{ request('role') === 'tenant' ? 'selected' : '' }}>{{ __('enums.user_role.tenant') }}</option>
+                    <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>{{ __('enums.user_role.shared') }}</option>
+                    <option value="manager" {{ request('role') === 'manager' ? 'selected' : '' }}>{{ __('enums.user_role.shared') }}</option>
+                    <option value="tenant" {{ request('role') === 'tenant' ? 'selected' : '' }}>{{ __('enums.user_role.shared') }}</option>
                 </select>
             </div>
             <div class="flex space-x-2">
@@ -57,7 +57,7 @@
                         <x-sortable-header column="name" label="{{ __('users.tables.name') }}" class="py-3.5 pl-4 pr-3 sm:pl-6" />
                         <x-sortable-header column="email" label="{{ __('users.tables.email') }}" />
                         <x-sortable-header column="role" label="{{ __('users.tables.role') }}" />
-                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('users.tables.tenant') }}</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('users.tables.shared') }}</th>
                         <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                             <span class="sr-only">{{ __('users.tables.actions') }}</span>
                         </th>
@@ -118,7 +118,7 @@
                         <p class="text-sm font-semibold text-slate-900">{{ $user->name }}</p>
                         <p class="text-xs text-slate-600">{{ $user->email }}</p>
                         <p class="text-xs text-slate-600 mt-1">{{ __('users.labels.role') }}: {{ enum_label($user->role) }}</p>
-                        <p class="text-xs text-slate-600">{{ __('users.tables.tenant') }}: {{ $user->tenant->name ?? __('providers.statuses.not_available') }}</p>
+                        <p class="text-xs text-slate-600">{{ __('users.tables.shared') }}: {{ $user->tenant->name ?? __('providers.statuses.not_available') }}</p>
                     </div>
                 </div>
                 <div class="mt-3 flex flex-wrap gap-2">

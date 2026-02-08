@@ -18,19 +18,19 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <x-stat-card label="{{ __('superadmin.properties.fields.tenants') }}" value="{{ $tenants->count() }}" />
-        <x-stat-card label="{{ __('superadmin.properties.fields.meters') }}" value="{{ $meters->count() }}" />
+        <x-stat-card label="{{ __('shared.properties.fields.tenants') }}" value="{{ $tenants->count() }}" />
+        <x-stat-card label="{{ __('shared.properties.fields.meters') }}" value="{{ $meters->count() }}" />
         <x-stat-card label="{{ __('billing.invoices.title') ?? 'Invoices' }}" value="{{ $invoices->count() }}" />
-        <x-stat-card label="{{ __('superadmin.properties.fields.area') }}" value="{{ $property->area_sqm ?? '—' }}" />
+        <x-stat-card label="{{ __('shared.properties.fields.area') }}" value="{{ $property->area_sqm ?? '—' }}" />
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <x-card>
-            <h2 class="text-lg font-semibold text-slate-900 mb-3">{{ __('superadmin.properties.singular') }} Details</h2>
+            <h2 class="text-lg font-semibold text-slate-900 mb-3">{{ __('shared.properties.singular') }} Details</h2>
             <dl class="grid grid-cols-2 gap-3 text-sm text-slate-700">
-                <dt class="font-semibold">{{ __('superadmin.properties.fields.address') }}</dt>
+                <dt class="font-semibold">{{ __('shared.properties.fields.address') }}</dt>
                 <dd>{{ $property->address }}</dd>
-                <dt class="font-semibold">{{ __('superadmin.properties.fields.building') }}</dt>
+                <dt class="font-semibold">{{ __('shared.properties.fields.building') }}</dt>
                 <dd>
                     @if($property->building)
                         <a href="{{ route('superadmin.buildings.show', $property->building) }}" class="text-indigo-600 hover:text-indigo-800">
@@ -40,15 +40,15 @@
                         —
                     @endif
                 </dd>
-                <dt class="font-semibold">{{ __('superadmin.properties.fields.type') }}</dt>
+                <dt class="font-semibold">{{ __('shared.properties.fields.type') }}</dt>
                 <dd>{{ $property->type?->label() }}</dd>
-                <dt class="font-semibold">{{ __('superadmin.properties.fields.area') }}</dt>
+                <dt class="font-semibold">{{ __('shared.properties.fields.area') }}</dt>
                 <dd>{{ $property->area_sqm ?? '—' }}</dd>
             </dl>
         </x-card>
 
         <x-card>
-            <h2 class="text-lg font-semibold text-slate-900 mb-3">{{ __('superadmin.buildings.fields.tenants') }}</h2>
+            <h2 class="text-lg font-semibold text-slate-900 mb-3">{{ __('shared.buildings.fields.tenants') }}</h2>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50">
@@ -77,7 +77,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-4 py-3 text-center text-sm text-slate-500">{{ __('superadmin.empty') }}</td>
+                                <td colspan="4" class="px-4 py-3 text-center text-sm text-slate-500">{{ __('shared.empty') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -90,7 +90,7 @@
         <x-card>
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h2 class="text-lg font-semibold text-slate-900">{{ __('superadmin.properties.fields.meters') }}</h2>
+                    <h2 class="text-lg font-semibold text-slate-900">{{ __('shared.properties.fields.meters') }}</h2>
                     <p class="text-sm text-slate-500">Meters assigned to this property</p>
                 </div>
             </div>
@@ -129,7 +129,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">{{ __('superadmin.empty') }}</td>
+                                <td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">{{ __('shared.empty') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -149,7 +149,7 @@
                     <thead class="bg-slate-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">#</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('invoices.fields.tenant') ?? 'Tenant' }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('invoices.fields.shared') ?? 'Tenant' }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('invoices.fields.total') ?? 'Total' }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('invoices.fields.status') ?? 'Status' }}</th>
                             <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('app.nav.actions') }}</th>
@@ -176,7 +176,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">{{ __('superadmin.empty') }}</td>
+                                <td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">{{ __('shared.empty') }}</td>
                             </tr>
                         @endforelse
                     </tbody>

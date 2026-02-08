@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', __('reports.manager.consumption.title'))
+@section('title', __('reports.shared.consumption.title'))
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
 <div class="sm:flex sm:items-center sm:justify-between">
         <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-slate-900">{{ __('reports.manager.consumption.title') }}</h1>
-            <p class="mt-2 text-sm text-slate-700">{{ __('reports.manager.consumption.description') }}</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{{ __('reports.shared.consumption.title') }}</h1>
+            <p class="mt-2 text-sm text-slate-700">{{ __('reports.shared.consumption.description') }}</p>
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             <form method="GET" action="{{ route('manager.reports.consumption.export') }}" class="inline">
@@ -20,7 +20,7 @@
                     <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                     </svg>
-                    {{ __('reports.manager.consumption.export') }}
+                    {{ __('reports.shared.consumption.export') }}
                 </x-button>
             </form>
         </div>
@@ -61,15 +61,15 @@
 
                 <x-form-select
                     name="service"
-                    label="{{ __('meter_readings.tenant.filters.service') }}"
+                    label="{{ __('meter_readings.shared.filters.service') }}"
                     :options="$serviceFilterOptions"
                     :selected="$serviceFilter"
-                    placeholder="{{ __('meter_readings.tenant.filters.all_services') }}"
+                    placeholder="{{ __('meter_readings.shared.filters.all_services') }}"
                 />
 
                 <div class="flex items-end">
                     <x-button type="submit" class="w-full">
-                        {{ __('reports.manager.consumption.filters.submit') }}
+                        {{ __('reports.shared.consumption.filters.submit') }}
                     </x-button>
                 </div>
             </form>
@@ -101,7 +101,7 @@
     @if($monthlyTrend->isNotEmpty())
     <div class="mt-8">
         <x-card>
-            <x-slot name="title">{{ __('reports.manager.consumption.stats.monthly_trend') }}</x-slot>
+            <x-slot name="title">{{ __('reports.shared.consumption.stats.monthly_trend') }}</x-slot>
             
             <div class="mt-4">
                 <div class="space-y-3">
@@ -123,17 +123,17 @@
     @if($topProperties->isNotEmpty())
     <div class="mt-8">
         <x-card>
-            <x-slot name="title">{{ __('reports.manager.consumption.stats.top_properties') }}</x-slot>
+            <x-slot name="title">{{ __('reports.shared.consumption.stats.top_properties') }}</x-slot>
             
             <div class="mt-4">
                 <div class="hidden sm:block">
-                <x-data-table caption="{{ __('reports.manager.consumption.stats.top_caption') }}">
+                <x-data-table caption="{{ __('reports.shared.consumption.stats.top_caption') }}">
                     <x-slot name="header">
                         <tr>
                             <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">{{ __('properties.labels.property') }}</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('buildings.labels.building') }}</th>
-                            <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-slate-900">{{ __('reports.manager.consumption.stats.total_consumption') }}</th>
-                            <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-slate-900">{{ __('reports.manager.consumption.stats.readings') }}</th>
+                            <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-slate-900">{{ __('reports.shared.consumption.stats.total_consumption') }}</th>
+                            <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-slate-900">{{ __('reports.shared.consumption.stats.readings') }}</th>
                         </tr>
                     </x-slot>
 
@@ -163,11 +163,11 @@
                         <p class="text-sm font-semibold text-slate-900">{{ $item['property']->address }}</p>
                         <p class="text-xs text-slate-600 mt-1">{{ $item['property']->building?->name ?? __('reports.common.na') }}</p>
                         <div class="mt-2 flex items-center justify-between">
-                            <p class="text-xs text-slate-600">{{ __('reports.manager.consumption.stats.consumption_label') }}</p>
+                            <p class="text-xs text-slate-600">{{ __('reports.shared.consumption.stats.consumption_label') }}</p>
                             <p class="text-sm font-semibold text-slate-900">{{ number_format($item['total_consumption'], 2) }}</p>
                         </div>
                         <div class="flex items-center justify-between">
-                            <p class="text-xs text-slate-600">{{ __('reports.manager.consumption.stats.readings_label') }}</p>
+                            <p class="text-xs text-slate-600">{{ __('reports.shared.consumption.stats.readings_label') }}</p>
                             <p class="text-xs text-slate-600">{{ $item['reading_count'] }}</p>
                         </div>
                     </div>
@@ -186,12 +186,12 @@
             
             <div class="mt-4">
                 <div class="hidden sm:block">
-                <x-data-table caption="{{ __('reports.manager.consumption.stats.property_caption', ['property' => $propertyAddress]) }}">
+                <x-data-table caption="{{ __('reports.shared.consumption.stats.property_caption', ['property' => $propertyAddress]) }}">
                     <x-slot name="header">
                         <tr>
                             <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">{{ __('meter_readings.tables.date') }}</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.meter') }}</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tenant.filters.service') }}</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.shared.filters.service') }}</th>
                             <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.value') }}</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('meter_readings.tables.zone') }}</th>
                         </tr>
@@ -240,7 +240,7 @@
     <div class="mt-8">
         <x-card>
             <p class="text-center text-sm text-slate-500 py-8">
-                {{ __('reports.manager.consumption.stats.empty') }}
+                {{ __('reports.shared.consumption.stats.empty') }}
             </p>
         </x-card>
     </div>

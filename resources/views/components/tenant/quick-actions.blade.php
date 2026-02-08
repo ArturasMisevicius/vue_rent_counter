@@ -1,4 +1,4 @@
-<x-tenant.section-card :title="__('dashboard.tenant.quick_actions.title')" :description="__('dashboard.tenant.quick_actions.description')">
+<x-tenant.section-card :title="__('dashboard.shared.quick_actions.title')" :description="__('dashboard.shared.quick_actions.description')">
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <a href="{{ route('tenant.invoices.index') }}" class="relative overflow-hidden rounded-xl border border-slate-200/80 bg-white/95 p-5 shadow-sm transition">
             <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-sky-400/5"></div>
@@ -9,8 +9,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-sm font-semibold text-slate-900">{{ __('dashboard.tenant.quick_actions.invoices_title') }}</h3>
-                    <p class="text-sm text-slate-600">{{ __('dashboard.tenant.quick_actions.invoices_desc') }}</p>
+                    <h3 class="text-sm font-semibold text-slate-900">{{ __('dashboard.shared.quick_actions.invoices_title') }}</h3>
+                    <p class="text-sm text-slate-600">{{ __('dashboard.shared.quick_actions.invoices_desc') }}</p>
                 </div>
             </div>
         </a>
@@ -24,8 +24,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-sm font-semibold text-slate-900">{{ __('dashboard.tenant.quick_actions.meters_title') }}</h3>
-                    <p class="text-sm text-slate-600">{{ __('dashboard.tenant.quick_actions.meters_desc') }}</p>
+                    <h3 class="text-sm font-semibold text-slate-900">{{ __('dashboard.shared.quick_actions.meters_title') }}</h3>
+                    <p class="text-sm text-slate-600">{{ __('dashboard.shared.quick_actions.meters_desc') }}</p>
                 </div>
             </div>
         </a>
@@ -39,8 +39,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-sm font-semibold text-slate-900">{{ __('dashboard.tenant.quick_actions.property_title') }}</h3>
-                    <p class="text-sm text-slate-600">{{ __('dashboard.tenant.quick_actions.property_desc') }}</p>
+                    <h3 class="text-sm font-semibold text-slate-900">{{ __('dashboard.shared.quick_actions.property_title') }}</h3>
+                    <p class="text-sm text-slate-600">{{ __('dashboard.shared.quick_actions.property_desc') }}</p>
                 </div>
             </div>
         </a>

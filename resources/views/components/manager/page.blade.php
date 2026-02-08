@@ -12,7 +12,7 @@
         <div class="relative px-5 py-6 sm:px-8 sm:py-8">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div class="space-y-2">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-indigo-100/90">{{ __('dashboard.manager.workspace_label') }}</p>
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-indigo-100/90">{{ __('dashboard.shared.workspace_label') }}</p>
                     <h1 class="text-2xl sm:text-3xl font-semibold leading-tight text-white">{{ $title }}</h1>
                     @if($description)
                         <p class="max-w-3xl text-sm sm:text-base text-indigo-50/90">{{ $description }}</p>

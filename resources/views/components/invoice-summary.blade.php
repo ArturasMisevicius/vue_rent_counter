@@ -1,6 +1,6 @@
-<div class="invoice-summary bg-white/90 border border-slate-200/80 shadow-lg shadow-slate-200/60 rounded-2xl p-6 backdrop-blur-sm">
+<div class="bg-white/90 border border-slate-200/80 shadow-lg shadow-slate-200/60 rounded-2xl p-6 backdrop-blur-sm">
     {{-- Invoice Header --}}
-    <div class="invoice-header mb-6">
+    <div class="mb-6">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div class="space-y-1">
                 <h3 class="text-2xl font-bold text-slate-900 font-display">Invoice #{{ $invoice->id }}</h3>
@@ -45,7 +45,7 @@
 
     {{-- Property Filter (for multi-property tenants) --}}
     @if($showPropertyFilter && count($properties) > 1)
-        <div class="property-filter mb-6" x-data="{ selectedProperty: '' }">
+        <div class="mb-6" x-data="{ selectedProperty: '' }">
             <label for="property-filter" class="block text-sm font-medium text-slate-700 mb-2">
                 Filter by Property
             </label>
@@ -65,7 +65,7 @@
     @endif
 
     {{-- Itemized Breakdown --}}
-    <div class="invoice-items mb-6">
+    <div class="mb-6">
         <h4 class="text-lg font-semibold text-slate-900 mb-4 font-display">{{ __('invoices.summary.labels.itemized') }}</h4>
         
         @if($invoice->items->isEmpty())
@@ -164,7 +164,7 @@
 
     {{-- Consumption History (if provided) --}}
     @if(isset($consumptionHistory) && $consumptionHistory->isNotEmpty())
-        <div class="consumption-history mt-8">
+        <div class="mt-8">
             <h4 class="text-lg font-semibold text-slate-900 mb-4 font-display">{{ __('invoices.summary.labels.history_title') }}</h4>
             <div class="hidden sm:block overflow-hidden rounded-2xl border border-slate-200/80 shadow-sm">
                 <table class="min-w-full divide-y divide-slate-200">
@@ -240,7 +240,7 @@
 
     {{-- Additional Notes --}}
     @if(isset($notes) && $notes)
-        <div class="invoice-notes mt-6 p-4 bg-slate-50/80 border border-slate-200 rounded-xl">
+        <div class="mt-6 rounded-xl border border-slate-200 bg-slate-50/80 p-4">
             <h5 class="text-sm font-semibold text-slate-700 mb-2">{{ __('invoices.summary.labels.notes') }}</h5>
             <p class="text-sm text-slate-600">{{ $notes }}</p>
         </div>

@@ -45,7 +45,7 @@
     <div class="sm:flex sm:items-center mb-6">
         <div class="sm:flex-auto">
             <h1 class="text-2xl font-semibold text-slate-900">{{ __('meter_readings.headings.create') }}</h1>
-            <p class="mt-2 text-sm text-slate-700">{{ __('meter_readings.manager.show.description') }}</p>
+            <p class="mt-2 text-sm text-slate-700">{{ __('meter_readings.shared.show.description') }}</p>
         </div>
     </div>
 

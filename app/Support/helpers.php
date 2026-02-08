@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\Organization;
 use App\Services\TenantContext as TenantContextService;
+use App\Support\SharedTranslationKey;
 
 if (! function_exists('tenant')) {
     /**
@@ -10,10 +13,10 @@ if (! function_exists('tenant')) {
     function tenant(): ?Organization
     {
         // Prevent circular reference during bootstrap
-        if (!app()->bound(TenantContextService::class)) {
+        if (! app()->bound(TenantContextService::class)) {
             return null;
         }
-        
+
         try {
             return app(TenantContextService::class)->get();
         } catch (\Throwable $e) {
@@ -30,10 +33,10 @@ if (! function_exists('tenant_id')) {
     function tenant_id(): ?int
     {
         // Prevent circular reference during bootstrap
-        if (!app()->bound(TenantContextService::class)) {
+        if (! app()->bound(TenantContextService::class)) {
             return null;
         }
-        
+
         try {
             return app(TenantContextService::class)->id();
         } catch (\Throwable $e) {
@@ -82,6 +85,7 @@ if (! function_exists('svgIcon')) {
     {
         try {
             $iconType = \App\Enums\IconType::fromLegacyKey($key);
+
             return svg($iconType->heroicon(), 'h-5 w-5')->toHtml();
         } catch (\Throwable $e) {
             // Fallback to default icon if specific icon not found
@@ -92,5 +96,19 @@ if (! function_exists('svgIcon')) {
                 return '<svg class="h-5 w-5"><rect width="20" height="20" fill="currentColor"/></svg>';
             }
         }
+    }
+}
+
+if (! function_exists('shared_trans')) {
+    /**
+     * Translate key using shared key normalization (role segments -> shared).
+     *
+     * Example:
+     * - invoices.manager.index.title => invoices.shared.index.title
+     * - tenant.profile.title => shared.profile.title
+     */
+    function shared_trans(string $key, array $replace = [], ?string $locale = null): string
+    {
+        return __(SharedTranslationKey::normalize($key), $replace, $locale);
     }
 }

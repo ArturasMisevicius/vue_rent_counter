@@ -7,7 +7,6 @@
     x-show="show"
     x-cloak
     class="fixed inset-0 z-50 overflow-y-auto"
-    style="display: none;"
 >
     <!-- Backdrop -->
     <div 

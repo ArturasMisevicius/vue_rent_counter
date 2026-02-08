@@ -14,7 +14,7 @@
         <form method="GET" action="{{ route('superadmin.impersonation.history') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
                 <label for="superadmin_id" class="block text-sm font-medium text-gray-700 mb-2">
-                    {{ __('app.impersonation.superadmin') }}
+                    {{ __('app.impersonation.shared') }}
                 </label>
                 <select name="superadmin_id" id="superadmin_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                     <option value="">{{ __('app.common.all') }}</option>
@@ -84,7 +84,7 @@
                                 {{ __('app.common.date_time') }}
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {{ __('app.impersonation.superadmin') }}
+                                {{ __('app.impersonation.shared') }}
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 {{ __('app.impersonation.target_user') }}

@@ -21,29 +21,29 @@
 
     <div class="space-y-6 mb-8">
         <x-card>
-            <h2 class="text-lg font-semibold mb-3">{{ __('manager.sections.details') ?? 'Details' }}</h2>
+            <h2 class="text-lg font-semibold mb-3">{{ __('shared.sections.details') ?? 'Details' }}</h2>
             <dl class="space-y-2 text-sm">
                 <div class="flex justify-between">
                     <dt class="text-slate-500">ID</dt>
                     <dd class="text-slate-900">{{ $manager->id }}</dd>
                 </div>
                 <div class="flex justify-between">
-                    <dt class="text-slate-500">{{ __('manager.fields.properties') ?? 'Properties' }}</dt>
+                    <dt class="text-slate-500">{{ __('shared.fields.properties') ?? 'Properties' }}</dt>
                     <dd class="text-slate-900">{{ $manager->properties->count() }}</dd>
                 </div>
                 <div class="flex justify-between">
-                    <dt class="text-slate-500">{{ __('manager.fields.buildings') ?? 'Buildings' }}</dt>
+                    <dt class="text-slate-500">{{ __('shared.fields.buildings') ?? 'Buildings' }}</dt>
                     <dd class="text-slate-900">{{ $manager->buildings->count() }}</dd>
                 </div>
                 <div class="flex justify-between">
-                    <dt class="text-slate-500">{{ __('manager.fields.invoices') ?? 'Invoices' }}</dt>
+                    <dt class="text-slate-500">{{ __('shared.fields.invoices') ?? 'Invoices' }}</dt>
                     <dd class="text-slate-900">{{ $manager->invoices->count() }}</dd>
                 </div>
             </dl>
         </x-card>
 
         <x-card>
-            <h2 class="text-lg font-semibold mb-3">{{ __('manager.sections.properties') ?? 'Properties' }}</h2>
+            <h2 class="text-lg font-semibold mb-3">{{ __('shared.sections.properties') ?? 'Properties' }}</h2>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50">
@@ -85,7 +85,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="px-4 py-3 text-center text-slate-500">{{ __('manager.empty_properties') ?? 'No properties found' }}</td>
+                            <td colspan="4" class="px-4 py-3 text-center text-slate-500">{{ __('shared.empty_properties') ?? 'No properties found' }}</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -96,7 +96,7 @@
 
     <x-card>
         <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold">{{ __('manager.sections.invoices') ?? 'Invoices' }}</h2>
+            <h2 class="text-lg font-semibold">{{ __('shared.sections.invoices') ?? 'Invoices' }}</h2>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200">

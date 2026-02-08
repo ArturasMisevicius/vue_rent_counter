@@ -62,13 +62,13 @@
                             class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600"
                         >
                         <label for="supports_zones" class="ml-2 block text-sm text-slate-900">
-                            {{ __('meters.manager.index.headers.zones') }} ({{ __('meters.manager.index.zones.yes') }}/{{ __('meters.manager.index.zones.no') }})
+                            {{ __('meters.shared.index.headers.zones') }} ({{ __('meters.shared.index.zones.yes') }}/{{ __('meters.shared.index.zones.no') }})
                         </label>
                     </div>
 
                     <div class="flex items-center justify-end gap-x-4">
                         <x-button href="{{ route('manager.meters.show', $meter) }}" variant="secondary">
-                            {{ __('invoices.manager.edit.cancel') }}
+                            {{ __('invoices.shared.edit.cancel') }}
                         </x-button>
                         <x-button type="submit">
                             {{ __('meters.actions.edit_meter') }}

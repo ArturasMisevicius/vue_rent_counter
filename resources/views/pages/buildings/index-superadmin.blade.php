@@ -4,8 +4,8 @@
 <div class="container mx-auto px-4 py-8">
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-slate-900">{{ __('superadmin.buildings.title') }}</h1>
-            <p class="text-slate-600">{{ __('superadmin.buildings.singular') }} overview across all organizations</p>
+            <h1 class="text-2xl font-bold text-slate-900">{{ __('shared.buildings.title') }}</h1>
+            <p class="text-slate-600">{{ __('shared.buildings.singular') }} overview across all organizations</p>
         </div>
     </div>
 
@@ -15,10 +15,10 @@
                 <thead class="bg-slate-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('superadmin.buildings.fields.name') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('superadmin.buildings.fields.address') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('superadmin.buildings.fields.total_apartments') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('superadmin.buildings.fields.properties') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('shared.buildings.fields.name') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('shared.buildings.fields.address') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('shared.buildings.fields.total_apartments') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('shared.buildings.fields.properties') }}</th>
                         <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('app.nav.actions') }}</th>
                     </tr>
                 </thead>
@@ -28,7 +28,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $building->id }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
                                 <a href="{{ route('superadmin.buildings.show', $building) }}" class="text-indigo-600 hover:text-indigo-800">
-                                    {{ $building->name ?? __('superadmin.buildings.singular') . ' #' . $building->id }}
+                                    {{ $building->name ?? __('shared.buildings.singular') . ' #' . $building->id }}
                                 </a>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $building->address }}</td>
@@ -48,7 +48,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-4 text-center text-sm text-slate-500">{{ __('superadmin.empty') }}</td>
+                            <td colspan="6" class="px-6 py-4 text-center text-sm text-slate-500">{{ __('shared.empty') }}</td>
                         </tr>
                     @endforelse
                 </tbody>

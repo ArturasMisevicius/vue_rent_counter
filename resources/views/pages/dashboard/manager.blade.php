@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', __('dashboard.manager.title'))
+@section('title', __('dashboard.shared.title'))
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
-    <x-manager.page :title="__('dashboard.manager.title')" :description="__('dashboard.manager.description')">
+    <x-manager.page :title="__('dashboard.shared.title')" :description="__('dashboard.shared.description')">
         <x-slot:meta>
             <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 shadow-sm shadow-indigo-500/10">
                 <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                {{ __('dashboard.manager.pending_section') }}: {{ $stats['meters_pending_reading'] }} · {{ __('dashboard.manager.stats.draft_invoices') }}: {{ $stats['draft_invoices'] }}
+                {{ __('dashboard.shared.pending_section') }}: {{ $stats['meters_pending_reading'] }} · {{ __('dashboard.shared.stats.draft_invoices') }}: {{ $stats['draft_invoices'] }}
             </span>
         </x-slot:meta>
 
@@ -20,7 +20,7 @@
             @endcan
             @can('create', App\Models\Invoice::class)
                 <x-button href="{{ route('manager.invoices.create') }}" class="bg-slate-900 text-white shadow-lg shadow-slate-900/20 hover:bg-slate-800">
-                    {{ __('invoices.manager.index.generate') }}
+                    {{ __('invoices.shared.index.generate') }}
                 </x-button>
             @endcan
             @can('create', App\Models\Property::class)
@@ -31,39 +31,39 @@
         </x-slot:actions>
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            <x-manager.stat-card :label="__('dashboard.manager.stats.total_properties')" :value="$stats['total_properties']" tone="indigo" :icon="<<<'SVG'
+            <x-manager.stat-card :label="__('dashboard.shared.stats.total_properties')" :value="$stats['total_properties']" tone="indigo" :icon="<<<'SVG'
 <svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='1.5'>
     <path stroke-linecap='round' stroke-linejoin='round' d='M3 9.75 12 3l9 6.75M4.5 10.5V21h5.25v-4.5A1.5 1.5 0 0 1 11.25 15h1.5A1.5 1.5 0 0 1 14.25 16.5V21H19.5V10.5' />
 </svg>
 SVG"/>
-            <x-manager.stat-card :label="__('dashboard.manager.stats.active_meters')" :value="$stats['active_meters']" tone="slate" :icon="<<<'SVG'
+            <x-manager.stat-card :label="__('dashboard.shared.stats.active_meters')" :value="$stats['active_meters']" tone="slate" :icon="<<<'SVG'
 <svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='1.5'>
     <path stroke-linecap='round' stroke-linejoin='round' d='M12 3v6m0 0 3-3m-3 3-3-3m6 6v6m0 0 3-3m-3 3-3-3M6 5.25h-.75A1.5 1.5 0 0 0 3.75 6.75v10.5a1.5 1.5 0 0 0 1.5 1.5H6M18 5.25h.75a1.5 1.5 0 0 1 1.5 1.5v10.5a1.5 1.5 0 0 1-1.5 1.5H18' />
 </svg>
 SVG"/>
-            <x-manager.stat-card :label="__('dashboard.manager.stats.meters_pending')" :value="$stats['meters_pending_reading']" tone="amber" :hint="__('dashboard.manager.hints.operations')" :icon="<<<'SVG'
+            <x-manager.stat-card :label="__('dashboard.shared.stats.meters_pending')" :value="$stats['meters_pending_reading']" tone="amber" :hint="__('dashboard.shared.hints.operations')" :icon="<<<'SVG'
 <svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='1.5'>
     <path stroke-linecap='round' stroke-linejoin='round' d='M12 9v3.75m9 .75a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-9 3.75h.008v.008H12v-.008z' />
 </svg>
 SVG"/>
-            <x-manager.stat-card :label="__('dashboard.manager.stats.draft_invoices')" :value="$stats['draft_invoices']" tone="indigo" :icon="<<<'SVG'
+            <x-manager.stat-card :label="__('dashboard.shared.stats.draft_invoices')" :value="$stats['draft_invoices']" tone="indigo" :icon="<<<'SVG'
 <svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='1.5'>
     <path stroke-linecap='round' stroke-linejoin='round' d='M9 8.25h6m-6 3h3.75M7.5 21h9A2.25 2.25 0 0 0 18.75 18.75V5.25A2.25 2.25 0 0 0 16.5 3h-9A2.25 2.25 0 0 0 5.25 5.25v13.5A2.25 2.25 0 0 0 7.5 21z' />
 </svg>
 SVG"/>
-            <x-manager.stat-card :label="__('dashboard.manager.stats.overdue_invoices')" :value="$stats['overdue_invoices']" tone="amber" :hint="__('dashboard.manager.hints.drafts')" :icon="<<<'SVG'
+            <x-manager.stat-card :label="__('dashboard.shared.stats.overdue_invoices')" :value="$stats['overdue_invoices']" tone="amber" :hint="__('dashboard.shared.hints.drafts')" :icon="<<<'SVG'
 <svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='1.5'>
     <path stroke-linecap='round' stroke-linejoin='round' d='M12 6v6l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z' />
 </svg>
 SVG"/>
-            <x-manager.stat-card :label="__('dashboard.manager.stats.active_tenants')" :value="$stats['active_tenants']" tone="emerald" :icon="<<<'SVG'
+            <x-manager.stat-card :label="__('dashboard.shared.stats.active_tenants')" :value="$stats['active_tenants']" tone="emerald" :icon="<<<'SVG'
 <svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='1.5'>
     <path stroke-linecap='round' stroke-linejoin='round' d='M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM6.75 19.5a4.5 4.5 0 0 1 10.5 0' />
 </svg>
 SVG"/>
         </div>
 
-        <x-manager.section-card :title="__('dashboard.manager.sections.operations')" :description="__('dashboard.manager.hints.operations')" class="mt-4">
+        <x-manager.section-card :title="__('dashboard.shared.sections.operations')" :description="__('dashboard.shared.hints.operations')" class="mt-4">
             @if($propertiesNeedingReadings->isNotEmpty())
                 <div class="space-y-3">
                     @foreach($propertiesNeedingReadings as $property)
@@ -90,12 +90,12 @@ SVG"/>
                     @endforeach
                 </div>
             @else
-                <p class="text-sm text-slate-600">{{ __('dashboard.manager.empty.operations') }}</p>
+                <p class="text-sm text-slate-600">{{ __('dashboard.shared.empty.operations') }}</p>
             @endif
         </x-manager.section-card>
 
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <x-manager.section-card :title="__('dashboard.manager.sections.drafts')" :description="__('dashboard.manager.hints.drafts')">
+            <x-manager.section-card :title="__('dashboard.shared.sections.drafts')" :description="__('dashboard.shared.hints.drafts')">
                 @if($draftInvoices->isNotEmpty())
                     <div class="divide-y divide-slate-100">
                         @foreach($draftInvoices as $invoice)
@@ -127,15 +127,15 @@ SVG"/>
                     </div>
                     <div class="mt-3">
                         <a href="{{ route('manager.invoices.drafts') }}" class="text-sm font-semibold text-indigo-700 hover:text-indigo-900">
-                            {{ __('dashboard.manager.sections.drafts') }}
+                            {{ __('dashboard.shared.sections.drafts') }}
                         </a>
                     </div>
                 @else
-                    <p class="text-sm text-slate-600">{{ __('dashboard.manager.empty.drafts') }}</p>
+                    <p class="text-sm text-slate-600">{{ __('dashboard.shared.empty.drafts') }}</p>
                 @endif
             </x-manager.section-card>
 
-            <x-manager.section-card :title="__('dashboard.manager.sections.recent')" :description="__('dashboard.manager.hints.recent')">
+            <x-manager.section-card :title="__('dashboard.shared.sections.recent')" :description="__('dashboard.shared.hints.recent')">
                 @if($stats['recent_invoices']->isNotEmpty())
                     <div class="space-y-3">
                         @foreach($stats['recent_invoices'] as $invoice)
@@ -159,12 +159,12 @@ SVG"/>
                         @endforeach
                     </div>
                 @else
-                    <p class="text-sm text-slate-600">{{ __('dashboard.manager.empty.recent') }}</p>
+                    <p class="text-sm text-slate-600">{{ __('dashboard.shared.empty.recent') }}</p>
                 @endif
             </x-manager.section-card>
         </div>
 
-        <x-manager.section-card :title="__('dashboard.manager.sections.shortcuts')" :description="__('dashboard.manager.hints.shortcuts')">
+        <x-manager.section-card :title="__('dashboard.shared.sections.shortcuts')" :description="__('dashboard.shared.hints.shortcuts')">
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 @can('create', App\Models\MeterReading::class)
                     <a href="{{ route('manager.meter-readings.create') }}" class="group relative overflow-hidden rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
@@ -176,7 +176,7 @@ SVG"/>
                             </div>
                             <div>
                                 <p class="text-sm font-semibold text-slate-900">{{ __('meter_readings.actions.enter_new') }}</p>
-                                <p class="text-xs text-slate-600">{{ __('dashboard.manager.quick_actions.enter_reading_desc') }}</p>
+                                <p class="text-xs text-slate-600">{{ __('dashboard.shared.quick_actions.enter_reading_desc') }}</p>
                             </div>
                         </div>
                     </a>
@@ -191,8 +191,8 @@ SVG"/>
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-sm font-semibold text-slate-900">{{ __('invoices.manager.index.generate') }}</p>
-                                <p class="text-xs text-slate-600">{{ __('dashboard.manager.quick_actions.generate_invoice_desc') }}</p>
+                                <p class="text-sm font-semibold text-slate-900">{{ __('invoices.shared.index.generate') }}</p>
+                                <p class="text-xs text-slate-600">{{ __('dashboard.shared.quick_actions.generate_invoice_desc') }}</p>
                             </div>
                         </div>
                     </a>
@@ -208,7 +208,7 @@ SVG"/>
                             </div>
                             <div>
                                 <p class="text-sm font-semibold text-slate-900">{{ __('app.nav.properties') }}</p>
-                                <p class="text-xs text-slate-600">{{ __('dashboard.manager.quick_actions.view_buildings_desc') }}</p>
+                                <p class="text-xs text-slate-600">{{ __('dashboard.shared.quick_actions.view_buildings_desc') }}</p>
                             </div>
                         </div>
                     </a>
@@ -223,8 +223,8 @@ SVG"/>
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-sm font-semibold text-slate-900">{{ __('dashboard.manager.quick_actions.view_buildings') }}</p>
-                                <p class="text-xs text-slate-600">{{ __('dashboard.manager.quick_actions.view_buildings_desc') }}</p>
+                                <p class="text-sm font-semibold text-slate-900">{{ __('dashboard.shared.quick_actions.view_buildings') }}</p>
+                                <p class="text-xs text-slate-600">{{ __('dashboard.shared.quick_actions.view_buildings_desc') }}</p>
                             </div>
                         </div>
                     </a>
@@ -240,8 +240,8 @@ SVG"/>
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-sm font-semibold text-slate-900">{{ __('dashboard.manager.quick_actions.view_meters') }}</p>
-                                <p class="text-xs text-slate-600">{{ __('dashboard.manager.quick_actions.view_meters_desc') }}</p>
+                                <p class="text-sm font-semibold text-slate-900">{{ __('dashboard.shared.quick_actions.view_meters') }}</p>
+                                <p class="text-xs text-slate-600">{{ __('dashboard.shared.quick_actions.view_meters_desc') }}</p>
                             </div>
                         </div>
                     </a>
@@ -255,8 +255,8 @@ SVG"/>
                             </svg>
                         </div>
                         <div>
-                            <p class="text-sm font-semibold text-slate-900">{{ __('dashboard.manager.quick_actions.view_reports') }}</p>
-                            <p class="text-xs text-slate-600">{{ __('dashboard.manager.quick_actions.view_reports_desc') }}</p>
+                            <p class="text-sm font-semibold text-slate-900">{{ __('dashboard.shared.quick_actions.view_reports') }}</p>
+                            <p class="text-xs text-slate-600">{{ __('dashboard.shared.quick_actions.view_reports_desc') }}</p>
                         </div>
                     </div>
                 </a>

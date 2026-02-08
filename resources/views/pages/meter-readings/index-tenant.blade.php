@@ -1,20 +1,20 @@
 @extends('layouts.tenant')
 
-@section('title', __('meter_readings.tenant.title'))
+@section('title', __('meter_readings.shared.title'))
 
 @section('tenant-content')
-<x-tenant.page :title="__('meter_readings.tenant.title')" :description="__('meter_readings.tenant.description')" x-data="consumptionHistory()">
+<x-tenant.page :title="__('meter_readings.shared.title')" :description="__('meter_readings.shared.description')" x-data="consumptionHistory()">
     <x-tenant.quick-actions />
 
-    <x-tenant.section-card :title="__('meter_readings.tenant.filters.title')" :description="__('meter_readings.tenant.filters.description')">
+    <x-tenant.section-card :title="__('meter_readings.shared.filters.title')" :description="__('meter_readings.shared.filters.description')">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
-                <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.tenant.filters.service') }}</label>
+                <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.shared.filters.service') }}</label>
                 <select x-model="filters.service" @change="applyFilters()" class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    <option value="">{{ __('meter_readings.tenant.filters.all_services') }}</option>
+                    <option value="">{{ __('meter_readings.shared.filters.all_services') }}</option>
 
                     @if($serviceOptions->isNotEmpty())
-                        <optgroup label="{{ __('meter_readings.tenant.filters.services_group') }}">
+                        <optgroup label="{{ __('meter_readings.shared.filters.services_group') }}">
                             @foreach($serviceOptions as $service)
                                 <option value="utility:{{ $service->id }}">{{ $service->name }}</option>
                             @endforeach
@@ -22,7 +22,7 @@
                     @endif
 
                     @if($legacyTypeOptions->isNotEmpty())
-                        <optgroup label="{{ __('meter_readings.tenant.filters.legacy_group') }}">
+                        <optgroup label="{{ __('meter_readings.shared.filters.legacy_group') }}">
                             @foreach($legacyTypeOptions as $type)
                                 <option value="type:{{ $type }}">{{ $meterTypeLabels[$type] ?? $type }}</option>
                             @endforeach
@@ -32,25 +32,25 @@
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.tenant.filters.date_from') }}</label>
+                <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.shared.filters.date_from') }}</label>
                 <input x-model="filters.dateFrom" @change="applyFilters()" type="date" class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.tenant.filters.date_to') }}</label>
+                <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.shared.filters.date_to') }}</label>
                 <input x-model="filters.dateTo" @change="applyFilters()" type="date" class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
         </div>
     </x-tenant.section-card>
 
-    <x-tenant.section-card :title="__('meter_readings.tenant.submit.title')" :description="__('meter_readings.tenant.submit.description')">
+    <x-tenant.section-card :title="__('meter_readings.shared.submit.title')" :description="__('meter_readings.shared.submit.description')">
         @if(($properties ?? collect())->isEmpty())
-            <p class="text-sm text-slate-600">{{ __('meter_readings.tenant.submit.no_property') }}</p>
+            <p class="text-sm text-slate-600">{{ __('meter_readings.shared.submit.no_property') }}</p>
         @else
         <form method="POST" action="{{ route('tenant.meter-readings.store') }}" class="grid grid-cols-1 gap-4 sm:grid-cols-3" x-data="{ meterSupportsZones: false }" x-init="meterSupportsZones = ($el.querySelector('select[name=meter_id]')?.selectedOptions[0]?.dataset.supportsZones === 'true')">
             @csrf
             <div>
-                <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.tenant.submit.meter') }}</label>
+                <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.shared.submit.meter') }}</label>
                 <select name="meter_id" class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required @change="meterSupportsZones = ($event.target.selectedOptions[0]?.dataset.supportsZones === 'true')">
                     @foreach(($properties ?? collect()) as $property)
                         @foreach($property->meters as $meter)
@@ -63,12 +63,12 @@
                 @error('meter_id') <p class="text-sm text-rose-600 mt-1">{{ $message }}</p> @enderror
             </div>
             <div>
-                <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.tenant.submit.reading_date') }}</label>
+                <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.shared.submit.reading_date') }}</label>
                 <input type="date" name="reading_date" value="{{ old('reading_date') }}" class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
                 @error('reading_date') <p class="text-sm text-rose-600 mt-1">{{ $message }}</p> @enderror
             </div>
             <div>
-                <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.tenant.submit.value') }}</label>
+                <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.shared.submit.value') }}</label>
                 <input type="number" step="0.01" name="value" value="{{ old('value') }}" class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
                 @error('value') <p class="text-sm text-rose-600 mt-1">{{ $message }}</p> @enderror
             </div>
@@ -79,7 +79,7 @@
             </div>
             <div class="sm:col-span-3">
                 <button type="submit" class="inline-flex w-full items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:w-auto">
-                    {{ __('meter_readings.tenant.submit.button') }}
+                    {{ __('meter_readings.shared.submit.button') }}
                 </button>
             </div>
         </form>
@@ -97,10 +97,10 @@
                     <table class="min-w-full divide-y divide-slate-200">
                         <thead class="bg-slate-50">
                             <tr>
-                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-600 sm:pl-6">{{ __('meter_readings.tenant.table.date') }}</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">{{ __('meter_readings.tenant.table.reading') }}</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">{{ __('meter_readings.tenant.table.consumption') }}</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">{{ __('meter_readings.tenant.table.zone') }}</th>
+                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-600 sm:pl-6">{{ __('meter_readings.shared.table.date') }}</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">{{ __('meter_readings.shared.table.reading') }}</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">{{ __('meter_readings.shared.table.consumption') }}</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-600">{{ __('meter_readings.shared.table.zone') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 bg-white">
@@ -129,10 +129,10 @@
                                 <p class="text-xs font-semibold text-slate-500" x-text="reading.zone || '—'"></p>
                             </div>
                             <p class="mt-1 text-sm text-slate-700">
-                                {{ __('meter_readings.tenant.table.reading') }}: <span class="font-semibold" x-text="reading.value"></span>
+                                {{ __('meter_readings.shared.table.reading') }}: <span class="font-semibold" x-text="reading.value"></span>
                             </p>
                             <p class="mt-1 text-sm text-slate-700">
-                                {{ __('meter_readings.tenant.table.consumption') }}:
+                                {{ __('meter_readings.shared.table.consumption') }}:
                                 <span x-show="index < meterReadings.length - 1" class="font-semibold" x-text="calculateConsumption(reading.value, meterReadings[index + 1].value)"></span>
                                 <span x-show="index === meterReadings.length - 1" class="text-slate-400">—</span>
                             </p>
@@ -146,8 +146,8 @@
             <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            <h3 class="mt-2 text-sm font-semibold text-slate-900">{{ __('meter_readings.tenant.empty.title') }}</h3>
-            <p class="mt-1 text-sm text-slate-600">{{ __('meter_readings.tenant.empty.description') }}</p>
+            <h3 class="mt-2 text-sm font-semibold text-slate-900">{{ __('meter_readings.shared.empty.title') }}</h3>
+            <p class="mt-1 text-sm text-slate-600">{{ __('meter_readings.shared.empty.description') }}</p>
         </div>
     </x-tenant.stack>
 </x-tenant.page>

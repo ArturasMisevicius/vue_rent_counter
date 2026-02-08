@@ -74,7 +74,7 @@
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('buildings.pages.manager_show.properties_headers.type') }}</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('buildings.pages.manager_show.properties_headers.area') }}</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('buildings.pages.manager_show.properties_headers.meters') }}</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('buildings.pages.manager_show.properties_headers.tenant') }}</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('buildings.pages.manager_show.properties_headers.shared') }}</th>
                             <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
                                 <span class="sr-only">{{ __('buildings.pages.manager_show.properties_headers.actions') }}</span>
                             </th>

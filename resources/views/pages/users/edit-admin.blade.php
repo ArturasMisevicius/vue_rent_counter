@@ -35,7 +35,7 @@
 
                     <x-form-select 
                         name="tenant_id" 
-                        label="{{ __('users.tables.tenant') }}" 
+                        label="{{ __('users.tables.shared') }}" 
                         :options="$tenants->pluck('name', 'id')" 
                         :selected="old('tenant_id', $user->tenant_id)" 
                         required 
@@ -45,9 +45,9 @@
                         name="role" 
                         label="{{ __('users.labels.role') }}" 
                         :options="[
-                            'admin' => __('enums.user_role.admin'),
-                            'manager' => __('enums.user_role.manager'),
-                            'tenant' => __('enums.user_role.tenant'),
+                            'admin' => __('enums.user_role.shared'),
+                            'manager' => __('enums.user_role.shared'),
+                            'tenant' => __('enums.user_role.shared'),
                         ]" 
                         :selected="old('role', $user->role->value)" 
                         required 

@@ -62,12 +62,12 @@
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $meter->installation_date->format('M d, Y') }}</dd>
                 </div>
                 <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('meters.manager.index.headers.zones') }}</dt>
+                    <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('meters.shared.index.headers.zones') }}</dt>
                     <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
                         @if($meter->supports_zones)
-                            <x-status-badge status="active">{{ __('meters.manager.index.zones.yes') }}</x-status-badge>
+                            <x-status-badge status="active">{{ __('meters.shared.index.zones.yes') }}</x-status-badge>
                         @else
-                            <span class="text-slate-400">{{ __('meters.manager.index.zones.no') }}</span>
+                            <span class="text-slate-400">{{ __('meters.shared.index.zones.no') }}</span>
                         @endif
                     </dd>
                 </div>
