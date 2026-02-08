@@ -38,8 +38,8 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-right space-x-2">
                                 <a href="{{ route('superadmin.buildings.show', $building) }}" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100">{{ __('common.view') }}</a>
-                                <a href="{{ route('filament.admin.resources.buildings.edit', $building) }}" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100">{{ __('common.edit') }}</a>
-                                <form action="{{ route('filament.admin.resources.buildings.destroy', $building) }}" method="POST" class="inline">
+                                <a href="{{ route('superadmin.compat.buildings.edit', $building) }}" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100">{{ __('common.edit') }}</a>
+                                <form action="{{ route('superadmin.compat.buildings.destroy', $building) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" onclick="return confirm('{{ __('common.confirm_delete') }}')" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100">{{ __('common.delete') }}</button>

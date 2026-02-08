@@ -41,10 +41,10 @@
                                 <a href="{{ route('superadmin.managers.show', $manager) }}" class="px-2 py-1 text-xs font-semibold text-white bg-slate-600 rounded hover:bg-slate-700">
                                     {{ __('common.view') }}
                                 </a>
-                                <a href="{{ route('filament.admin.resources.users.edit', $manager) }}" class="px-2 py-1 text-xs font-semibold text-white bg-indigo-600 rounded hover:bg-indigo-700">
+                                <a href="{{ route('superadmin.compat.users.edit', $manager) }}" class="px-2 py-1 text-xs font-semibold text-white bg-indigo-600 rounded hover:bg-indigo-700">
                                     {{ __('common.edit') }}
                                 </a>
-                                <form action="{{ route('filament.admin.resources.users.destroy', $manager) }}" method="POST" onsubmit="return confirm('{{ __('common.confirm_delete') }}');">
+                                <form action="{{ route('superadmin.compat.users.destroy', $manager) }}" method="POST" onsubmit="return confirm('{{ __('common.confirm_delete') }}');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="px-2 py-1 text-xs font-semibold text-white bg-red-600 rounded hover:bg-red-700">

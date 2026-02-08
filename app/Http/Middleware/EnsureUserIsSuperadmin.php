@@ -50,15 +50,9 @@ final class EnsureUserIsSuperadmin
 
         $user = Auth::user();
 
-        // Check if user has superadmin role
+        // Enforce strict role access for superadmin-only routes.
         if ($user->role !== UserRole::SUPERADMIN) {
-            // Redirect to appropriate dashboard based on role
-            return match ($user->role) {
-                UserRole::ADMIN => redirect('/admin'),
-                UserRole::MANAGER => redirect()->route('manager.dashboard'),
-                UserRole::TENANT => redirect()->route('tenant.dashboard'),
-                default => abort(403, 'Access denied'),
-            };
+            abort(403, 'Access denied');
         }
 
         return $next($request);

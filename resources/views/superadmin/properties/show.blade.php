@@ -8,8 +8,8 @@
             <p class="text-slate-600">{{ $property->building?->name ?? $property->building?->address }}</p>
         </div>
         <div class="space-x-2">
-            <a href="{{ route('filament.admin.resources.properties.edit', $property) }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700">{{ __('common.edit') }}</a>
-            <form action="{{ route('filament.admin.resources.properties.destroy', $property) }}" method="POST" class="inline">
+            <a href="{{ route('superadmin.compat.properties.edit', $property) }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700">{{ __('common.edit') }}</a>
+            <form action="{{ route('superadmin.compat.properties.destroy', $property) }}" method="POST" class="inline">
                 @csrf
                 @method('DELETE')
                 <button type="submit" onclick="return confirm('{{ __('common.confirm_delete') }}')" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700">{{ __('common.delete') }}</button>
@@ -67,8 +67,8 @@
                                 <td class="px-4 py-3 text-sm text-slate-500">{{ $tenant->email }}</td>
                                 <td class="px-4 py-3 text-sm text-right space-x-2">
                                     <a href="{{ route('superadmin.tenants.show', $tenant) }}" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100">{{ __('common.view') }}</a>
-                                    <a href="{{ route('filament.admin.resources.tenants.edit', $tenant) }}" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100">{{ __('common.edit') }}</a>
-                                    <form action="{{ route('filament.admin.resources.tenants.destroy', $tenant) }}" method="POST" class="inline">
+                                    <a href="{{ route('superadmin.compat.tenants.edit', $tenant) }}" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100">{{ __('common.edit') }}</a>
+                                    <form action="{{ route('superadmin.compat.tenants.destroy', $tenant) }}" method="POST" class="inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" onclick="return confirm('{{ __('common.confirm_delete') }}')" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100">{{ __('common.delete') }}</button>
@@ -118,9 +118,9 @@
                                     {{ optional($meter->readings->first())->reading_date?->toDateString() ?? '—' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-right space-x-2">
-                                    <a href="{{ route('filament.admin.resources.meters.edit', $meter) }}" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100">{{ __('common.view') }}</a>
-                                    <a href="{{ route('filament.admin.resources.meters.edit', $meter) }}" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100">{{ __('common.edit') }}</a>
-                                    <form action="{{ route('filament.admin.resources.meters.destroy', $meter) }}" method="POST" class="inline">
+                                    <a href="{{ route('superadmin.compat.meters.edit', $meter) }}" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100">{{ __('common.view') }}</a>
+                                    <a href="{{ route('superadmin.compat.meters.edit', $meter) }}" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100">{{ __('common.edit') }}</a>
+                                    <form action="{{ route('superadmin.compat.meters.destroy', $meter) }}" method="POST" class="inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" onclick="return confirm('{{ __('common.confirm_delete') }}')" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100">{{ __('common.delete') }}</button>
@@ -165,9 +165,9 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $invoice->total_amount }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $invoice->status->label() }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-right space-x-2">
-                                    <a href="{{ route('filament.admin.resources.invoices.edit', $invoice) }}" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100">{{ __('common.view') }}</a>
-                                    <a href="{{ route('filament.admin.resources.invoices.edit', $invoice) }}" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100">{{ __('common.edit') }}</a>
-                                    <form action="{{ route('filament.admin.resources.invoices.destroy', $invoice) }}" method="POST" class="inline">
+                                    <a href="{{ route('superadmin.compat.invoices.edit', $invoice) }}" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100">{{ __('common.view') }}</a>
+                                    <a href="{{ route('superadmin.compat.invoices.edit', $invoice) }}" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100">{{ __('common.edit') }}</a>
+                                    <form action="{{ route('superadmin.compat.invoices.destroy', $invoice) }}" method="POST" class="inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" onclick="return confirm('{{ __('common.confirm_delete') }}')" class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100">{{ __('common.delete') }}</button>

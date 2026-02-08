@@ -48,8 +48,5 @@ return [
     Filament\Tables\TablesServiceProvider::class,
     Filament\Widgets\WidgetsServiceProvider::class,
 
-    // Filament Panel Provider (must be last)
-    App\Providers\Filament\AdminPanelProvider::class,
-    App\Providers\Filament\SuperadminPanelProvider::class,
-    App\Providers\Filament\TenantPanelProvider::class,
+    // Filament panel providers are intentionally disabled for custom web UI mode.
 ];

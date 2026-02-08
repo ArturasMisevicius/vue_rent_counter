@@ -60,12 +60,16 @@ Route::get('/dashboard', function () {
 
     return match ($user->role->value) {
         'superadmin' => redirect('/superadmin'),
-        'admin' => redirect('/admin'), // Filament panel
+        'admin' => redirect('/admin'),
         'manager' => redirect()->route('manager.dashboard'),
         'tenant' => redirect()->route('tenant.dashboard'),
         default => abort(403, 'Invalid user role'),
     };
 })->middleware('auth')->name('dashboard');
+
+Route::get('/dashboard', function () {
+    return redirect()->route('dashboard');
+})->middleware('auth')->name('filament.admin.pages.dashboard');
 
 // ============================================================================
 // CONVENIENCE REDIRECTS
@@ -74,7 +78,18 @@ Route::get('/dashboard', function () {
 // without the /dashboard suffix, redirecting them to the correct dashboard
 
 Route::middleware('auth')->group(function () {
-    // Remove the superadmin redirect since /superadmin is now the Filament panel
+    Route::get('/superadmin', function () {
+        abort_unless(auth()->user()?->role?->value === 'superadmin', 403);
+
+        return redirect()->route('superadmin.dashboard');
+    });
+
+    Route::get('/admin', function () {
+        abort_unless(auth()->user()?->role?->value === 'admin', 403);
+
+        return redirect()->route('admin.dashboard');
+    });
+
     Route::get('/manager', fn() => redirect()->route('manager.dashboard'));
     Route::get('/tenant', fn() => redirect()->route('tenant.dashboard'));
 });
@@ -104,6 +119,7 @@ Route::get('/test-debug', function () {
 // Authentication routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('filament.admin.auth.login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.post');
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
@@ -229,21 +245,34 @@ Route::middleware(['auth'])
     ->post('superadmin/impersonation/end', [\App\Http\Controllers\Superadmin\ImpersonationController::class, 'end'])
     ->name('superadmin.impersonation.end');
 
-// Filament-style resource deletes for superadmin convenience (no name prefix)
-Route::middleware(['auth', 'superadmin'])->group(function () {
-    Route::delete('superadmin/filament/buildings/{building}', [ManagerBuildingController::class, 'destroy'])->name('filament.admin.resources.buildings.destroy');
-    Route::delete('superadmin/filament/properties/{property}', [ManagerPropertyController::class, 'destroy'])->name('filament.admin.resources.properties.destroy');
-    Route::delete('superadmin/filament/invoices/{invoice}', [ManagerInvoiceController::class, 'destroy'])->name('filament.admin.resources.invoices.destroy');
-    Route::delete('superadmin/filament/meters/{meter}', [ManagerMeterController::class, 'destroy'])->name('filament.admin.resources.meters.destroy');
-    Route::delete('superadmin/filament/tenants/{tenant}', [AdminTenantController::class, 'destroy'])->name('filament.admin.resources.tenants.destroy');
-    Route::delete('superadmin/filament/users/{user}', [AdminUserController::class, 'destroy'])->name('filament.admin.resources.users.destroy');
-});
-
-// Filament superadmin route-name compatibility aliases.
-// These names can be missing because legacy controller routes already occupy
-// the same URI patterns under /superadmin/*.
+// Superadmin compatibility resource actions used by custom superadmin views.
 Route::middleware(['auth', 'superadmin'])
-    ->prefix('superadmin/filament-compat')
+    ->prefix('superadmin/resources')
+    ->name('superadmin.compat.')
+    ->group(function () {
+        Route::get('buildings/{building}/edit', [ManagerBuildingController::class, 'edit'])->name('buildings.edit');
+        Route::delete('buildings/{building}', [ManagerBuildingController::class, 'destroy'])->name('buildings.destroy');
+
+        Route::get('properties/{property}/edit', [ManagerPropertyController::class, 'edit'])->name('properties.edit');
+        Route::delete('properties/{property}', [ManagerPropertyController::class, 'destroy'])->name('properties.destroy');
+
+        Route::get('meters/{meter}/edit', [ManagerMeterController::class, 'edit'])->name('meters.edit');
+        Route::delete('meters/{meter}', [ManagerMeterController::class, 'destroy'])->name('meters.destroy');
+
+        Route::get('invoices/{invoice}', [ManagerInvoiceController::class, 'show'])->name('invoices.view');
+        Route::get('invoices/{invoice}/edit', [ManagerInvoiceController::class, 'edit'])->name('invoices.edit');
+        Route::delete('invoices/{invoice}', [ManagerInvoiceController::class, 'destroy'])->name('invoices.destroy');
+
+        Route::get('users/{user}/edit', [AdminUserController::class, 'edit'])->name('users.edit');
+        Route::delete('users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+
+        Route::get('tenants/{tenant}/edit', [AdminTenantController::class, 'edit'])->name('tenants.edit');
+        Route::delete('tenants/{tenant}', [AdminTenantController::class, 'destroy'])->name('tenants.destroy');
+    });
+
+// Legacy route-name compatibility for superadmin resources without exposing Filament paths.
+Route::middleware(['auth', 'superadmin'])
+    ->prefix('superadmin/resources-compat')
     ->group(function () {
         Route::get('organizations', fn () => redirect()->route('superadmin.organizations.index'))
             ->name('filament.superadmin.resources.organizations.index');
@@ -332,7 +361,7 @@ Route::middleware(['auth', 'role:admin', 'throttle:admin', 'subscription.check',
 // Note: These routes inherit the same middleware as admin routes above
 // Performance: Middleware is already applied in the admin group, no need to duplicate
 
-Route::middleware(['auth', 'role:admin', 'subscription.check', 'hierarchical.access'])->prefix('admin/filament')->group(function () {
+Route::middleware(['auth', 'role:admin', 'subscription.check', 'hierarchical.access'])->prefix('admin/resources')->group(function () {
     Route::get('users', [AdminUserController::class, 'index'])->name('filament.admin.resources.users.index');
     Route::get('users/create', [AdminUserController::class, 'create'])->name('filament.admin.resources.users.create');
     Route::get('providers', [AdminProviderController::class, 'index'])->name('filament.admin.resources.providers.index');
@@ -361,7 +390,7 @@ Route::middleware(['auth', 'role:admin', 'subscription.check', 'hierarchical.acc
 // 
 // Performance: Middleware chain adds ~2-10ms overhead per request (optimized with caching)
 
-Route::middleware(['auth', 'role:manager,admin', 'subscription.check', 'hierarchical.access'])->prefix('manager')->name('manager.')->group(function () {
+Route::middleware(['auth', 'role:manager', 'subscription.check', 'hierarchical.access'])->prefix('manager')->name('manager.')->group(function () {
     // Dashboard - Custom manager overview
     Route::get('/dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');
 
@@ -453,6 +482,10 @@ Route::middleware(['auth', 'role:tenant', 'subscription.check', 'hierarchical.ac
     Route::get('invoices/{invoice}/pdf', [TenantInvoiceController::class, 'pdf'])->name('invoices.pdf');
     Route::get('invoices/{invoice}/receipt', [TenantInvoiceController::class, 'pdf'])->name('invoices.receipt');
 });
+
+Route::middleware(['auth', 'role:tenant', 'subscription.check', 'hierarchical.access'])
+    ->get('/tenant/dashboard', [TenantDashboardController::class, 'index'])
+    ->name('filament.tenant.pages.dashboard');
 
 // ============================================================================
 // SHARED ROUTES (ADMIN & MANAGER)
