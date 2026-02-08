@@ -40,7 +40,7 @@ class SuperadminDashboardIntegrationTest extends TestCase
             ->get('/superadmin/dashboard');
 
         $response->assertStatus(200);
-        $response->assertSee('Superadmin Dashboard');
+        $response->assertSee(__('superadmin.dashboard.title'));
     }
 
     /** @test */

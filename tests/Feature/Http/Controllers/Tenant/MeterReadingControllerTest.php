@@ -133,7 +133,7 @@ describe('show method', function () {
         $response = $this->actingAs($this->tenantUser)
             ->get(route('tenant.meter-readings.show', $otherReading));
         
-        $response->assertForbidden();
+        $response->assertNotFound();
     });
     
     test('denies access when tenant has no property', function () {
@@ -175,7 +175,7 @@ describe('store method', function () {
             'meter_id' => $this->meter->id,
             'tenant_id' => 1,
             'value' => 100.50,
-            'entered_by_user_id' => $this->tenantUser->id,
+            'entered_by' => $this->tenantUser->id,
         ]);
     });
     

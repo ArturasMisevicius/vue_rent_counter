@@ -15,6 +15,7 @@ use App\Http\Controllers\FinalizeInvoiceController;
 use App\Http\Controllers\InvitationAcceptanceController;
 use App\Http\Controllers\InvoiceController as SharedInvoiceController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Manager\BuildingController as ManagerBuildingController;
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
 use App\Http\Controllers\Manager\InvoiceController as ManagerInvoiceController;
@@ -104,6 +105,10 @@ Route::middleware('auth')->group(function () {
 Route::get('/language/{locale}', [LanguageController::class, 'switch'])
     ->middleware('web')
     ->name('language.switch');
+
+Route::post('/locale', [LocaleController::class, 'store'])
+    ->middleware(['web', 'auth'])
+    ->name('locale.set');
 
 // Notification tracking route (for read receipts)
 Route::get('/notification-track/{notification}/{organization}', [\App\Http\Controllers\NotificationTrackingController::class, 'track'])
@@ -337,9 +342,11 @@ Route::middleware(['auth', 'role:admin', 'throttle:admin', 'subscription.check',
 
     // Settings
     Route::get('settings', [AdminSettingsController::class, 'index'])->name('settings.index');
-    Route::post('settings', [AdminSettingsController::class, 'update'])->name('settings.update');
+    Route::match(['post', 'put', 'patch'], 'settings', [AdminSettingsController::class, 'update'])->name('settings.update');
     Route::post('settings/backup', [AdminSettingsController::class, 'runBackup'])->name('settings.backup');
+    Route::post('settings/run-backup', [AdminSettingsController::class, 'runBackup'])->name('settings.run-backup');
     Route::post('settings/cache', [AdminSettingsController::class, 'clearCache'])->name('settings.cache');
+    Route::post('settings/clear-cache', [AdminSettingsController::class, 'clearCache'])->name('settings.clear-cache');
 
     // Audit Log
     Route::get('audit', [AdminAuditController::class, 'index'])->name('audit.index');

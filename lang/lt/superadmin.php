@@ -1,904 +1,1155 @@
 <?php
 
-declare(strict_types=1);
-
-return [
-    'audit' => [
-        'action' => [
-            'backup_created' => 'Backup Created',
-            'backup_restored' => 'Backup Restored',
-            'billing_updated' => 'Billing Updated',
-            'bulk_operation' => 'Bulk Operation',
-            'feature_flag_changed' => 'Feature Flag Changed',
-            'impersonation_ended' => 'Impersonation Ended',
-            'notification_sent' => 'Notification Sent',
-            'resource_quota_changed' => 'Resource Quota Changed',
-            'system_config_changed' => 'System Config Changed',
-            'system_config_created' => 'System Config Created',
-            'system_config_deleted' => 'System Config Deleted',
-            'system_config_updated' => 'System Config Updated',
-            'tenant_activated' => 'Tenant Activated',
-            'tenant_created' => 'Tenant Created',
-            'tenant_deleted' => 'Tenant Deleted',
-            'tenant_suspended' => 'Tenant Suspended',
-            'tenant_updated' => 'Tenant Updated',
-            'user_force_logout' => 'User Force Logout',
-            'user_impersonated' => 'User Impersonated',
-            'user_reactivated' => 'User Reactivated',
-            'user_suspended' => 'User Suspended',
-        ],
-        'actions' => [
-            'back_to_list' => 'Back To List',
-            'cleanup' => 'Cleanup',
-            'cleanup_old' => 'Cleanup Old',
-            'export' => 'Export',
-            'export_all' => 'Export All',
-            'refresh' => 'Refresh',
-            'view' => 'View',
-            'view_admin' => 'View Admin',
-            'view_details' => 'View Details',
-            'view_target' => 'View Target',
-            'view_tenant' => 'View Tenant',
-        ],
-        'bulk_actions' => [
-            'export' => 'Export',
-        ],
-        'fields' => [
-            'action' => 'Action',
-            'admin' => 'Admin',
-            'admin_id' => 'Admin Id',
-            'basic_info' => 'Basic Info',
-            'changes' => 'Changes',
-            'cleanup_before_date' => 'Cleanup Before Date',
-            'confirm_cleanup' => 'Confirm Cleanup',
-            'created_at' => 'Created At',
-            'from_date' => 'From Date',
-            'impersonation' => 'Impersonation',
-            'impersonation_session' => 'Impersonation Session',
-            'impersonation_status' => 'Impersonation Status',
-            'ip_address' => 'Ip Address',
-            'session_id' => 'Session Id',
-            'target' => 'Target',
-            'target_id' => 'Target Id',
-            'target_info' => 'Target Info',
-            'target_type' => 'Target Type',
-            'technical_info' => 'Technical Info',
-            'tenant' => 'Tenant',
-            'tenant_id' => 'Tenant Id',
-            'timestamp' => 'Timestamp',
-            'to_date' => 'To Date',
-            'user_agent' => 'User Agent',
-        ],
-        'filters' => [
-            'action' => 'Action',
-            'admin' => 'Admin',
-            'date_range' => 'Date Range',
-            'has_changes' => 'Has Changes',
-            'impersonation' => 'Impersonation',
-            'target_type' => 'Target Type',
-            'tenant' => 'Tenant',
-        ],
-        'modals' => [
-            'cleanup' => [
-                'description' => 'Description',
-                'heading' => 'Heading',
-            ],
-            'details' => [
-                'heading' => 'Heading',
-            ],
-            'export_all' => [
-                'description' => 'Description',
-                'heading' => 'Heading',
-            ],
-        ],
-        'notifications' => [
-            'cleanup_scheduled' => 'Cleanup Scheduled',
-            'cleanup_scheduled_body' => 'Cleanup Scheduled Body',
-            'export_all_started' => 'Export All Started',
-            'export_started' => 'Export Started',
-            'export_started_body' => 'Export Started Body',
-        ],
-        'pages' => [
-            'list' => [
-                'title' => 'Title',
-            ],
-        ],
-        'plural' => 'Plural',
-        'sections' => [
-            'basic_info' => 'Basic Info',
-            'details' => 'Details',
-            'impersonation_info' => 'Impersonation Info',
-            'target_info' => 'Target Info',
-            'technical_details' => 'Technical Details',
-        ],
-        'singular' => 'Singular',
-        'target_types' => [
-            'organization' => 'Organization',
-            'system_config' => 'System Config',
-            'user' => 'User',
-        ],
-        'tooltips' => [
-            'impersonated' => 'Impersonated',
-        ],
-        'values' => [
-            'after' => 'After',
-            'before' => 'Before',
-            'direct_only' => 'Direct Only',
-            'empty' => 'Empty',
-            'impersonated' => 'Impersonated',
-            'impersonated_only' => 'Impersonated Only',
-            'no_changes' => 'No Changes',
-            'system' => 'System',
-            'unknown' => 'Unknown',
-        ],
-    ],
-    'common' => [
-        'status' => [
-            'active' => 'Active',
-            'inactive' => 'Inactive',
-        ],
-    ],
-    'config' => [
-        'actions' => [
-            'delete' => 'Delete',
-            'duplicate' => 'Duplicate',
-            'edit' => 'Edit',
-            'view' => 'View',
-        ],
-        'bulk_actions' => [
-            'update_category' => 'Update Category',
-        ],
-        'categories' => [
-            'billing' => 'Billing',
-            'features' => 'Features',
-            'integrations' => 'Integrations',
-            'maintenance' => 'Maintenance',
-            'notifications' => 'Notifications',
-            'security' => 'Security',
-            'system' => 'System',
-        ],
-        'fields' => [
-            'allowed_values' => 'Allowed Values',
-            'category' => 'Category',
-            'created_at' => 'Created At',
-            'created_by' => 'Created By',
-            'description' => 'Description',
-            'encrypted' => 'Encrypted',
-            'is_encrypted' => 'Is Encrypted',
-            'is_public' => 'Is Public',
-            'is_sensitive' => 'Is Sensitive',
-            'key' => 'Key',
-            'name' => 'Name',
-            'new_key' => 'New Key',
-            'public' => 'Public',
-            'type' => 'Type',
-            'updated_at' => 'Updated At',
-            'updated_by' => 'Updated By',
-            'validation_rules' => 'Validation Rules',
-            'value' => 'Value',
-        ],
-        'filters' => [
-            'category' => 'Category',
-            'is_encrypted' => 'Is Encrypted',
-            'is_public' => 'Is Public',
-            'type' => 'Type',
-        ],
-        'help' => [
-            'allowed_values' => 'Allowed Values',
-            'array_value' => 'Array Value',
-            'boolean_value' => 'Boolean Value',
-            'category' => 'Category',
-            'description' => 'Description',
-            'is_encrypted' => 'Is Encrypted',
-            'is_public' => 'Is Public',
-            'json_value' => 'Json Value',
-            'key' => 'Key',
-            'name' => 'Name',
-            'type' => 'Type',
-            'validation_rules' => 'Validation Rules',
-            'value' => 'Value',
-        ],
-        'modals' => [
-            'delete' => [
-                'confirm' => 'Confirm',
-                'description' => 'Description',
-                'heading' => 'Heading',
-            ],
-        ],
-        'notifications' => [
-            'bulk_updated' => 'Bulk Updated',
-            'bulk_updated_body' => 'Bulk Updated Body',
-            'created' => 'Created',
-            'created_body' => 'Created Body',
-            'deleted' => 'Deleted',
-            'duplicated' => 'Duplicated',
-            'updated' => 'Updated',
-            'updated_body' => 'Updated Body',
-        ],
-        'pages' => [
-            'create' => [
-                'title' => 'Title',
-            ],
-            'edit' => [
-                'title' => 'Title',
-            ],
-            'list' => [
-                'title' => 'Title',
-            ],
-            'view' => [
-                'title' => 'Title',
-            ],
-        ],
-        'plural' => 'Plural',
-        'sections' => [
-            'basic_info' => 'Basic Info',
-            'metadata' => 'Metadata',
-            'validation' => 'Validation',
-            'value' => 'Value',
-            'value_settings' => 'Value Settings',
-        ],
-        'singular' => 'Singular',
-        'tooltips' => [
-            'encrypted' => 'Encrypted',
-            'encrypted_value' => 'Encrypted Value',
-            'not_encrypted' => 'Not Encrypted',
-            'private' => 'Private',
-            'public' => 'Public',
-        ],
-        'types' => [
-            'array' => 'Array',
-            'boolean' => 'Boolean',
-            'float' => 'Float',
-            'integer' => 'Integer',
-            'json' => 'Json',
-            'string' => 'String',
-        ],
-        'values' => [
-            'all' => 'All',
-            'encrypted_only' => 'Encrypted Only',
-            'false' => 'False',
-            'private_only' => 'Private Only',
-            'public_only' => 'Public Only',
-            'true' => 'True',
-            'unencrypted_only' => 'Unencrypted Only',
-        ],
-    ],
-    'dashboard' => [
-        'expiring_subscriptions' => [
-            'alert' => 'Įspėjimas',
-            'expires' => 'Baigiasi',
-            'title' => 'Baigiančios prenumeratos',
-        ],
-        'organization_show' => [
-            'actions' => [
-                'back' => 'Grįžti',
-                'deactivate' => 'Išjungti',
-                'edit' => 'Redaguoti',
-                'reactivate' => 'Suaktyvinti',
-            ],
-            'confirm_deactivate' => 'Patvirtinti išjungimą',
-            'contact_name' => 'Kontakto vardas',
-            'created' => 'Sukurta',
-            'email' => 'El. paštas',
-            'expiry_date' => 'Galiojimo pabaigos data',
-            'limit_values' => 'Ribų vertės',
-            'limits' => 'Ribos',
-            'manage_subscription' => 'Valdyti prenumeratą',
-            'no_subscription' => 'Nėra prenumeratos',
-            'organization_info' => 'Organizacijos informacija',
-            'organization_name' => 'Organizacijos pavadinimas',
-            'plan_type' => 'Plano tipas',
-            'start_date' => 'Pradžios data',
-            'stats' => [
-                'active_tenants' => 'Aktyvūs nuomininkai',
-                'buildings' => 'Pastatai',
-                'invoices' => 'Sąskaitos faktūros',
-                'properties' => 'Nekilnojamasis turtas',
-                'tenants' => 'Nuomininkai',
-            ],
-            'status' => 'Būsena',
-            'subscription_details' => 'Prenumeratos detalės',
-            'subtitle' => 'Organizacijos valdymo skydelis',
-            'table' => [
-                'created' => 'Sukurta',
-                'email' => 'El. paštas',
-                'id' => 'ID',
-                'name' => 'Vardas',
-                'property' => 'Turtas',
-                'status' => 'Būsena',
-            ],
-            'tenant_id' => 'Nuomininko ID',
-            'tenants_title' => 'Nuomininkai',
-        ],
-        'organizations' => [
-            'active' => 'Aktyvios',
-            'inactive' => 'Neaktyvios',
-            'no_organizations' => 'Nėra organizacijų',
-            'properties_count' => 'Turto kiekis',
-            'title' => 'Organizacijos',
-            'top_by_properties' => 'Pagal turto kiekį',
-            'total' => 'Iš viso',
-            'view_all' => 'Žiūrėti visas',
-        ],
-        'organizations_create' => [
-            'actions' => [
-                'cancel' => 'Atšaukti',
-                'create' => 'Sukurti',
-            ],
-            'admin_contact' => 'Administratoriaus kontaktai',
-            'contact_name' => 'Kontakto vardas',
-            'email' => 'El. paštas',
-            'expiry_date' => 'Galiojimo pabaigos data',
-            'organization_info' => 'Organizacijos informacija',
-            'organization_name' => 'Organizacijos pavadinimas',
-            'password' => 'Slaptažodis',
-            'password_hint' => 'Mažiausiai 8 simboliai',
-            'plan_limits' => [
-                'basic' => 'Bazinis',
-                'enterprise' => 'Įmonės',
-                'professional' => 'Profesionalus',
-            ],
-            'plan_type' => 'Plano tipas',
-            'select_plan' => 'Pasirinkti planą',
-            'subscription_details' => 'Prenumeratos detalės',
-            'subtitle' => 'Sukurti naują organizaciją sistemoje',
-            'title' => 'Sukurti organizaciją',
-        ],
-        'organizations_index' => [
-            'create' => 'Sukurti',
-            'filters' => [
-                'all' => 'Visi',
-                'filter' => 'Filtruoti',
-                'search' => 'Ieškoti',
-                'search_placeholder' => 'Ieškoti organizacijų...',
-                'status' => 'Būsena',
-                'subscription_status' => 'Prenumeratos būsena',
-            ],
-            'subtitle' => 'Valdyti visas sistemos organizacijas',
-            'table' => [
-                'actions' => 'Veiksmai',
-                'contact' => 'Kontaktas',
-                'created' => 'Sukurta',
-                'organization' => 'Organizacija',
-                'status' => 'Būsena',
-                'subscription' => 'Prenumerata',
-                'tenant_id' => 'Nuomininko ID',
-            ],
-            'title' => 'Organizacijų sąrašas',
-        ],
-        'organizations_list' => [
-            'actions' => [
-                'edit' => 'Edit',
-                'view' => 'View',
-            ],
-            'empty' => 'Empty',
-            'expires' => 'Expires',
-            'no_subscription' => 'No Subscription',
-            'status_active' => 'Status Active',
-            'status_inactive' => 'Status Inactive',
-        ],
-        'organizations_widget' => [
-            'active' => 'Active',
-            'growth_down' => 'Growth Down',
-            'growth_up' => 'Growth Up',
-            'inactive' => 'Inactive',
-            'new_this_month' => 'New This Month',
-            'total' => 'Total',
-        ],
-        'overview' => [
-            'organizations' => [
-                'description' => 'Description',
-                'empty' => 'Empty',
-                'headers' => [
-                    'created' => 'Created',
-                    'manage' => 'Manage',
-                    'organization' => 'Organization',
-                    'status' => 'Status',
-                    'subscription' => 'Subscription',
-                ],
-                'no_subscription' => 'No Subscription',
-                'open' => 'Open',
-                'status_active' => 'Status Active',
-                'status_inactive' => 'Status Inactive',
-                'title' => 'Title',
-            ],
-            'resources' => [
-                'buildings' => [
-                    'address' => 'Address',
-                    'empty' => 'Empty',
-                    'open_owners' => 'Open Owners',
-                    'organization' => 'Organization',
-                    'title' => 'Title',
-                ],
-                'description' => 'Description',
-                'invoices' => [
-                    'amount' => 'Amount',
-                    'empty' => 'Empty',
-                    'manage' => 'Manage',
-                    'open_owners' => 'Open Owners',
-                    'organization' => 'Organization',
-                    'status' => 'Status',
-                    'title' => 'Title',
-                ],
-                'manage_orgs' => 'Manage Orgs',
-                'properties' => [
-                    'building' => 'Building',
-                    'empty' => 'Empty',
-                    'open_owners' => 'Open Owners',
-                    'organization' => 'Organization',
-                    'title' => 'Title',
-                    'unknown_org' => 'Unknown Org',
-                ],
-                'tenants' => [
-                    'empty' => 'Empty',
-                    'not_assigned' => 'Not Assigned',
-                    'open_owners' => 'Open Owners',
-                    'organization' => 'Organization',
-                    'property' => 'Property',
-                    'status_active' => 'Status Active',
-                    'status_inactive' => 'Status Inactive',
-                    'title' => 'Title',
-                ],
-                'title' => 'Title',
-            ],
-            'subscriptions' => [
-                'description' => 'Description',
-                'empty' => 'Empty',
-                'headers' => [
-                    'expires' => 'Expires',
-                    'manage' => 'Manage',
-                    'organization' => 'Organization',
-                    'plan' => 'Plan',
-                    'status' => 'Status',
-                ],
-                'open' => 'Open',
-                'title' => 'Title',
-            ],
-        ],
-        'quick_actions' => [
-            'create_organization' => 'Create Organization',
-            'manage_organizations' => 'Manage Organizations',
-            'manage_subscriptions' => 'Manage Subscriptions',
-            'title' => 'Title',
-        ],
-        'recent_activity' => [
-            'last_activity' => 'Last Activity',
-            'no_activity' => 'No Activity',
-            'title' => 'Title',
-        ],
-        'recent_activity_widget' => [
-            'columns' => [
-                'action' => 'Action',
-                'details' => 'Details',
-                'id' => 'Id',
-                'organization' => 'Organization',
-                'resource' => 'Resource',
-                'time' => 'Time',
-                'user' => 'User',
-            ],
-            'default_system' => 'Default System',
-            'description' => 'Description',
-            'empty_description' => 'Empty Description',
-            'empty_heading' => 'Empty Heading',
-            'heading' => 'Heading',
-            'modal_heading' => 'Modal Heading',
-        ],
-        'stats' => [
-            'active_subscriptions' => 'Active Subscriptions',
-            'cancelled_subscriptions' => 'Cancelled Subscriptions',
-            'expired_subscriptions' => 'Expired Subscriptions',
-            'expiring_soon' => 'Baigiasi netrukus',
-            'suspended_subscriptions' => 'Suspended Subscriptions',
-            'total_buildings' => 'Total Buildings',
-            'total_invoices' => 'Total Invoices',
-            'total_properties' => 'Total Properties',
-            'total_subscriptions' => 'Total Subscriptions',
-            'total_tenants' => 'Total Tenants',
-        ],
-        'stats_descriptions' => [
-            'active_organizations' => 'Active Organizations',
-            'active_subscriptions' => 'Active Subscriptions',
-            'cancelled_subscriptions' => 'Cancelled Subscriptions',
-            'expired_subscriptions' => 'Expired Subscriptions',
-            'expiring_soon' => 'Prenumeratos greitai baigsis',
-            'inactive_organizations' => 'Inactive Organizations',
-            'suspended_subscriptions' => 'Suspended Subscriptions',
-            'total_organizations' => 'Total Organizations',
-            'total_subscriptions' => 'Total Subscriptions',
-        ],
-        'subscription_plans' => [
-            'basic' => 'Basic',
-            'enterprise' => 'Enterprise',
-            'professional' => 'Professional',
-            'title' => 'Title',
-            'view_all' => 'View All',
-        ],
-        'subtitle' => 'Superadministratoriaus valdymo skydelis',
-        'title' => 'Superadministratoriaus skydelis',
-        'widgets' => [
-            'recent_activity' => [
-                'no_activity' => 'No Activity',
-                'title' => 'Title',
-            ],
-            'system_metrics' => [
-                'active_sessions' => 'Active Sessions',
-                'api_calls_today' => 'Api Calls Today',
-                'storage_used' => 'Storage Used',
-                'total_users' => 'Total Users',
-            ],
-            'tenant_overview' => [
-                'active_tenants' => 'Active Tenants',
-                'suspended_tenants' => 'Suspended Tenants',
-                'total_tenants' => 'Total Tenants',
-                'trial_tenants' => 'Trial Tenants',
-            ],
-        ],
-    ],
-    'health' => [
-        'critical' => 'Critical',
-        'excellent' => 'Excellent',
-        'good' => 'Good',
-        'warning' => 'Warning',
-    ],
-    'navigation' => [
-        'audit_logs' => 'Audito žurnalai',
-        'cluster' => 'Klasteris',
-        'group' => 'Grupė',
-        'system_config' => 'Sistemos konfigūracija',
+return array (
+  'audit' => 
+  array (
+    'action' => 
+    array (
+      'backup_created' => 'Backup Created',
+      'backup_restored' => 'Backup Restored',
+      'billing_updated' => 'Billing Updated',
+      'bulk_operation' => 'Bulk Operation',
+      'feature_flag_changed' => 'Feature Flag Changed',
+      'impersonation_ended' => 'Impersonation Ended',
+      'notification_sent' => 'Notification Sent',
+      'resource_quota_changed' => 'Resource Quota Changed',
+      'system_config_changed' => 'System Config Changed',
+      'system_config_created' => 'System Config Created',
+      'system_config_deleted' => 'System Config Deleted',
+      'system_config_updated' => 'System Config Updated',
+      'tenant_activated' => 'Tenant Activated',
+      'tenant_created' => 'Tenant Created',
+      'tenant_deleted' => 'Tenant Deleted',
+      'tenant_suspended' => 'Tenant Suspended',
+      'tenant_updated' => 'Tenant Updated',
+      'user_force_logout' => 'User Force Logout',
+      'user_impersonated' => 'User Impersonated',
+      'user_reactivated' => 'User Reactivated',
+      'user_suspended' => 'User Suspended',
+    ),
+    'actions' => 
+    array (
+      'back_to_list' => 'Back To List',
+      'cleanup' => 'Cleanup',
+      'cleanup_old' => 'Cleanup Old',
+      'export' => 'Export',
+      'export_all' => 'Export All',
+      'refresh' => 'Refresh',
+      'view' => 'View',
+      'view_admin' => 'View Admin',
+      'view_details' => 'View Details',
+      'view_target' => 'View Target',
+      'view_tenant' => 'View Tenant',
+    ),
+    'bulk_actions' => 
+    array (
+      'export' => 'Export',
+    ),
+    'fields' => 
+    array (
+      'action' => 'Action',
+      'admin' => 'Admin',
+      'admin_id' => 'Admin Id',
+      'basic_info' => 'Basic Info',
+      'changes' => 'Changes',
+      'cleanup_before_date' => 'Cleanup Before Date',
+      'confirm_cleanup' => 'Confirm Cleanup',
+      'created_at' => 'Created At',
+      'from_date' => 'From Date',
+      'impersonation' => 'Impersonation',
+      'impersonation_session' => 'Impersonation Session',
+      'impersonation_status' => 'Impersonation Status',
+      'ip_address' => 'Ip Address',
+      'session_id' => 'Session Id',
+      'target' => 'Target',
+      'target_id' => 'Target Id',
+      'target_info' => 'Target Info',
+      'target_type' => 'Target Type',
+      'technical_info' => 'Technical Info',
+      'tenant' => 'Tenant',
+      'tenant_id' => 'Tenant Id',
+      'timestamp' => 'Timestamp',
+      'to_date' => 'To Date',
+      'user_agent' => 'User Agent',
+    ),
+    'filters' => 
+    array (
+      'action' => 'Action',
+      'admin' => 'Admin',
+      'date_range' => 'Date Range',
+      'has_changes' => 'Has Changes',
+      'impersonation' => 'Impersonation',
+      'target_type' => 'Target Type',
+      'tenant' => 'Tenant',
+    ),
+    'modals' => 
+    array (
+      'cleanup' => 
+      array (
+        'description' => 'Description',
+        'heading' => 'Heading',
+      ),
+      'details' => 
+      array (
+        'heading' => 'Heading',
+      ),
+      'export_all' => 
+      array (
+        'description' => 'Description',
+        'heading' => 'Heading',
+      ),
+    ),
+    'notifications' => 
+    array (
+      'cleanup_scheduled' => 'Cleanup Scheduled',
+      'cleanup_scheduled_body' => 'Cleanup Scheduled Body',
+      'export_all_started' => 'Export All Started',
+      'export_started' => 'Export Started',
+      'export_started_body' => 'Export Started Body',
+    ),
+    'pages' => 
+    array (
+      'list' => 
+      array (
+        'title' => 'Title',
+      ),
+    ),
+    'plural' => 'Plural',
+    'sections' => 
+    array (
+      'basic_info' => 'Basic Info',
+      'details' => 'Details',
+      'impersonation_info' => 'Impersonation Info',
+      'target_info' => 'Target Info',
+      'technical_details' => 'Technical Details',
+    ),
+    'singular' => 'Singular',
+    'target_types' => 
+    array (
+      'organization' => 'Organization',
+      'system_config' => 'System Config',
+      'user' => 'User',
+    ),
+    'tooltips' => 
+    array (
+      'impersonated' => 'Impersonated',
+    ),
+    'values' => 
+    array (
+      'after' => 'After',
+      'before' => 'Before',
+      'direct_only' => 'Direct Only',
+      'empty' => 'Empty',
+      'impersonated' => 'Impersonated',
+      'impersonated_only' => 'Impersonated Only',
+      'no_changes' => 'No Changes',
+      'system' => 'System',
+      'unknown' => 'Unknown',
+    ),
+  ),
+  'common' => 
+  array (
+    'status' => 
+    array (
+      'active' => 'Active',
+      'inactive' => 'Inactive',
+    ),
+  ),
+  'config' => 
+  array (
+    'actions' => 
+    array (
+      'delete' => 'Delete',
+      'duplicate' => 'Duplicate',
+      'edit' => 'Edit',
+      'view' => 'View',
+    ),
+    'bulk_actions' => 
+    array (
+      'update_category' => 'Update Category',
+    ),
+    'categories' => 
+    array (
+      'billing' => 'Billing',
+      'features' => 'Features',
+      'integrations' => 'Integrations',
+      'maintenance' => 'Maintenance',
+      'notifications' => 'Notifications',
+      'security' => 'Security',
+      'system' => 'System',
+    ),
+    'fields' => 
+    array (
+      'allowed_values' => 'Allowed Values',
+      'category' => 'Category',
+      'created_at' => 'Created At',
+      'created_by' => 'Created By',
+      'description' => 'Description',
+      'encrypted' => 'Encrypted',
+      'is_encrypted' => 'Is Encrypted',
+      'is_public' => 'Is Public',
+      'is_sensitive' => 'Is Sensitive',
+      'key' => 'Key',
+      'name' => 'Name',
+      'new_key' => 'New Key',
+      'public' => 'Public',
+      'type' => 'Type',
+      'updated_at' => 'Updated At',
+      'updated_by' => 'Updated By',
+      'validation_rules' => 'Validation Rules',
+      'value' => 'Value',
+    ),
+    'filters' => 
+    array (
+      'category' => 'Category',
+      'is_encrypted' => 'Is Encrypted',
+      'is_public' => 'Is Public',
+      'type' => 'Type',
+    ),
+    'help' => 
+    array (
+      'allowed_values' => 'Allowed Values',
+      'array_value' => 'Array Value',
+      'boolean_value' => 'Boolean Value',
+      'category' => 'Category',
+      'description' => 'Description',
+      'is_encrypted' => 'Is Encrypted',
+      'is_public' => 'Is Public',
+      'json_value' => 'Json Value',
+      'key' => 'Key',
+      'name' => 'Name',
+      'type' => 'Type',
+      'validation_rules' => 'Validation Rules',
+      'value' => 'Value',
+    ),
+    'modals' => 
+    array (
+      'delete' => 
+      array (
+        'confirm' => 'Confirm',
+        'description' => 'Description',
+        'heading' => 'Heading',
+      ),
+    ),
+    'notifications' => 
+    array (
+      'bulk_updated' => 'Bulk Updated',
+      'bulk_updated_body' => 'Bulk Updated Body',
+      'created' => 'Created',
+      'created_body' => 'Created Body',
+      'deleted' => 'Deleted',
+      'duplicated' => 'Duplicated',
+      'updated' => 'Updated',
+      'updated_body' => 'Updated Body',
+    ),
+    'pages' => 
+    array (
+      'create' => 
+      array (
+        'title' => 'Title',
+      ),
+      'edit' => 
+      array (
+        'title' => 'Title',
+      ),
+      'list' => 
+      array (
+        'title' => 'Title',
+      ),
+      'view' => 
+      array (
+        'title' => 'Title',
+      ),
+    ),
+    'plural' => 'Plural',
+    'sections' => 
+    array (
+      'basic_info' => 'Basic Info',
+      'metadata' => 'Metadata',
+      'validation' => 'Validation',
+      'value' => 'Value',
+      'value_settings' => 'Value Settings',
+    ),
+    'singular' => 'Singular',
+    'tooltips' => 
+    array (
+      'encrypted' => 'Encrypted',
+      'encrypted_value' => 'Encrypted Value',
+      'not_encrypted' => 'Not Encrypted',
+      'private' => 'Private',
+      'public' => 'Public',
+    ),
+    'types' => 
+    array (
+      'array' => 'Array',
+      'boolean' => 'Boolean',
+      'float' => 'Float',
+      'integer' => 'Integer',
+      'json' => 'Json',
+      'string' => 'String',
+    ),
+    'values' => 
+    array (
+      'all' => 'All',
+      'encrypted_only' => 'Encrypted Only',
+      'false' => 'False',
+      'private_only' => 'Private Only',
+      'public_only' => 'Public Only',
+      'true' => 'True',
+      'unencrypted_only' => 'Unencrypted Only',
+    ),
+  ),
+  'dashboard' => 
+  array (
+    'expiring_subscriptions' => 
+    array (
+      'alert' => 'Įspėjimas',
+      'days' => '{1} :count diena|[2,*] :count dienos',
+      'expires' => 'Baigiasi',
+      'title' => 'Baigiančios prenumeratos',
+    ),
+    'organization_show' => 
+    array (
+      'actions' => 
+      array (
+        'back' => 'Grįžti',
+        'deactivate' => 'Išjungti',
+        'edit' => 'Redaguoti',
+        'reactivate' => 'Suaktyvinti',
+      ),
+      'confirm_deactivate' => 'Patvirtinti išjungimą',
+      'contact_name' => 'Kontakto vardas',
+      'created' => 'Sukurta',
+      'email' => 'El. paštas',
+      'expiry_date' => 'Galiojimo pabaigos data',
+      'limit_values' => 'Ribų vertės',
+      'limits' => 'Ribos',
+      'manage_subscription' => 'Valdyti prenumeratą',
+      'no_subscription' => 'Nėra prenumeratos',
+      'organization_info' => 'Organizacijos informacija',
+      'organization_name' => 'Organizacijos pavadinimas',
+      'plan_type' => 'Plano tipas',
+      'start_date' => 'Pradžios data',
+      'stats' => 
+      array (
+        'active_tenants' => 'Aktyvūs nuomininkai',
+        'buildings' => 'Pastatai',
+        'invoices' => 'Sąskaitos faktūros',
+        'properties' => 'Nekilnojamasis turtas',
         'tenants' => 'Nuomininkai',
-        'users' => 'Vartotojai',
-    ],
-    'subscription' => [
-        'plan' => [
-            'basic' => 'Basic',
-            'custom' => 'Custom',
-            'enterprise' => 'Enterprise',
-            'professional' => 'Professional',
-        ],
-    ],
-    'tenant' => [
-        'actions' => [
-            'activate' => 'Activate',
-            'create' => 'Create',
-            'impersonate' => 'Impersonate',
-            'suspend' => 'Suspend',
-        ],
-        'fields' => [
-            'api_calls_today' => 'Api Calls Today',
-            'created_at' => 'Created At',
-            'domain' => 'Domain',
-            'is_active' => 'Is Active',
-            'last_activity' => 'Last Activity',
+      ),
+      'status' => 'Būsena',
+      'subscription_details' => 'Prenumeratos detalės',
+      'subtitle' => 'Organizacijos valdymo skydelis',
+      'table' => 
+      array (
+        'created' => 'Sukurta',
+        'email' => 'El. paštas',
+        'id' => 'ID',
+        'name' => 'Vardas',
+        'property' => 'Turtas',
+        'status' => 'Būsena',
+        'actions' => 'Actions',
+      ),
+      'tenant_id' => 'Nuomininko ID',
+      'tenants_title' => 'Nuomininkai',
+      'relationship_insights' => 
+      array (
+        'title' => 'Relationship Insights',
+        'occupied' => 'Occupied Properties',
+        'vacant' => 'Vacant Properties',
+        'metered' => 'Metered Properties',
+        'draft_invoices' => 'Draft Invoices',
+        'finalized_invoices' => 'Finalized Invoices',
+        'paid_invoices' => 'Paid Invoices',
+      ),
+      'resources' => 
+      array (
+        'headline' => 'Related Resources',
+        'action_view' => 'View',
+        'buildings' => 
+        array (
+          'title' => 'Buildings',
+          'subtitle' => 'Building portfolio linked to this organization',
+          'empty' => 'No buildings found',
+          'table' => 
+          array (
             'name' => 'Name',
-            'plan' => 'Plan',
-            'primary_contact_email' => 'Primary Contact Email',
-            'properties_count' => 'Properties Count',
-            'slug' => 'Slug',
-            'storage_used' => 'Storage Used',
-            'subscription_ends_at' => 'Subscription Ends At',
-            'suspended_at' => 'Suspended At',
-            'suspension_reason' => 'Suspension Reason',
-            'trial_ends_at' => 'Trial Ends At',
-            'updated_at' => 'Updated At',
-            'users_count' => 'Users Count',
-        ],
-        'notifications' => [
-            'activated' => 'Activated',
-            'created' => 'Created',
-            'created_body' => 'Created Body',
-            'suspended' => 'Suspended',
-            'updated' => 'Updated',
-            'updated_body' => 'Updated Body',
-        ],
-        'placeholders' => [
-            'no_subscription' => 'No Subscription',
-            'no_trial' => 'No Trial',
-        ],
-        'plural' => 'Plural',
-        'sections' => [
-            'basic_info' => 'Basic Info',
-            'metrics' => 'Metrics',
-            'overview' => 'Overview',
+            'address' => 'Address',
+            'properties' => 'Properties',
+            'occupied' => 'Occupied',
+            'vacant' => 'Vacant',
+            'sample_properties' => 'Sample Properties',
+            'actions' => 'Actions',
+          ),
+        ),
+        'properties' => 
+        array (
+          'title' => 'Properties',
+          'subtitle' => 'Properties with building, tenants, and invoice links',
+          'empty' => 'No properties found',
+          'table' => 
+          array (
+            'address' => 'Address',
+            'type' => 'Type',
+            'building' => 'Building',
+            'area' => 'Area',
+            'meters' => 'Meters',
+            'tenants' => 'Current Tenants',
+            'history' => 'History',
+            'invoices' => 'Invoices',
+            'latest_invoice' => 'Latest Invoice',
+            'actions' => 'Actions',
+          ),
+          'open_admin' => 'Open in Admin',
+          'vacant' => 'Vacant',
+        ),
+        'invoices' => 
+        array (
+          'title' => 'Invoices',
+          'subtitle' => 'Invoice activity for this organization',
+          'empty' => 'No invoices found',
+          'table' => 
+          array (
+            'invoice' => 'Invoice',
+            'tenant' => 'Tenant',
+            'property' => 'Property',
+            'period' => 'Period',
             'status' => 'Status',
-            'subscription' => 'Subscription',
-            'suspension' => 'Suspension',
-            'timestamps' => 'Timestamps',
-        ],
-        'singular' => 'Singular',
-        'status' => [
-            'active' => 'Active',
-            'cancelled' => 'Cancelled',
-            'pending' => 'Pending',
-            'suspended' => 'Suspended',
-        ],
-        'tabs' => [
-            'active' => 'Active',
-            'all' => 'All',
-            'expired' => 'Expired',
-            'suspended' => 'Suspended',
-            'trial' => 'Trial',
-        ],
-    ],
-    'tenants' => [
-        'actions' => [
-            'activate' => 'Activate',
-            'bulk_activate' => 'Bulk Activate',
-            'bulk_suspend' => 'Bulk Suspend',
-            'impersonate' => 'Impersonate',
-            'suspend' => 'Suspend',
-        ],
-        'billing_cycles' => [
-            'monthly' => 'Monthly',
-            'quarterly' => 'Quarterly',
-            'yearly' => 'Yearly',
-        ],
-        'fields' => [
-            'allow_registration' => 'Allow Registration',
-            'api_access_enabled' => 'Api Access Enabled',
-            'auto_billing' => 'Auto Billing',
-            'billing_address' => 'Billing Address',
-            'billing_cycle' => 'Billing Cycle',
-            'billing_email' => 'Billing Email',
-            'billing_name' => 'Billing Name',
-            'created_at' => 'Created At',
-            'currency' => 'Currency',
-            'current_api_calls' => 'Current Api Calls',
-            'current_storage_gb' => 'Current Storage Gb',
-            'current_users' => 'Current Users',
-            'enforce_quotas' => 'Enforce Quotas',
-            'locale' => 'Locale',
-            'maintenance_mode' => 'Maintenance Mode',
-            'max_api_calls_per_month' => 'Max Api Calls Per Month',
-            'max_storage_gb' => 'Max Storage Gb',
-            'max_users' => 'Max Users',
-            'monthly_price' => 'Monthly Price',
-            'name' => 'Name',
-            'next_billing_date' => 'Next Billing Date',
-            'quota_notifications' => 'Quota Notifications',
-            'require_email_verification' => 'Require Email Verification',
-            'setup_fee' => 'Setup Fee',
-            'slug' => 'Slug',
-            'status' => 'Status',
-            'subscription_ends_at' => 'Subscription Ends At',
-            'subscription_plan' => 'Subscription Plan',
-            'suspension_reason' => 'Suspension Reason',
-            'timezone' => 'Timezone',
-            'trial_ends_at' => 'Trial Ends At',
-        ],
-        'help' => [
-            'allow_registration' => 'Allow Registration',
-            'api_access_enabled' => 'Api Access Enabled',
-            'current_api_calls' => 'Current Api Calls',
-            'current_storage' => 'Current Storage',
-            'current_users' => 'Current Users',
-            'enforce_quotas' => 'Enforce Quotas',
-            'maintenance_mode' => 'Maintenance Mode',
-            'quota_notifications' => 'Quota Notifications',
-            'require_email_verification' => 'Require Email Verification',
-        ],
-        'modals' => [
-            'activate' => [
-                'description' => 'Description',
-                'heading' => 'Heading',
-            ],
-            'bulk_suspend' => [
-                'description' => 'Description',
-                'heading' => 'Heading',
-            ],
-            'suspend' => [
-                'description' => 'Description',
-                'heading' => 'Heading',
-            ],
-        ],
-        'notifications' => [
-            'activated' => 'Activated',
-            'bulk_activated' => 'Bulk Activated',
-            'bulk_suspended' => 'Bulk Suspended',
-            'suspended' => 'Suspended',
-        ],
-        'sections' => [
-            'billing' => 'Billing',
-            'quotas' => 'Quotas',
-            'settings' => 'Settings',
-            'subscription' => 'Subscription',
-        ],
-    ],
-    'user' => [
-        'actions' => [
-            'activity_report' => 'Activity Report',
-            'create' => 'Create',
-            'impersonate' => 'Impersonate',
-            'reactivate' => 'Reactivate',
-            'suspend' => 'Suspend',
-        ],
-        'bulk_actions' => [
-            'reactivate' => 'Reactivate',
-            'suspend' => 'Suspend',
-        ],
-        'fields' => [
-            'created_at' => 'Created At',
-            'email' => 'Email',
-            'email_verified' => 'Email Verified',
-            'is_active' => 'Is Active',
-            'last_login' => 'Last Login',
-            'last_login_at' => 'Last Login At',
-            'login_count' => 'Login Count',
-            'name' => 'Name',
-            'organization' => 'Organization',
-            'phone' => 'Phone',
-            'status' => 'Status',
-            'suspended_at' => 'Suspended At',
-            'suspension_reason' => 'Suspension Reason',
-        ],
-        'filters' => [
-            'active' => 'Active',
-            'all' => 'All',
-            'email_verified' => 'Email Verified',
-            'inactive' => 'Inactive',
-            'is_active' => 'Is Active',
-            'organization' => 'Organization',
-            'recent_login' => 'Recent Login',
-            'suspended' => 'Suspended',
-            'unverified' => 'Unverified',
-            'verified' => 'Verified',
-        ],
-        'notifications' => [
-            'bulk_reactivated' => 'Bulk Reactivated',
-            'bulk_suspended' => 'Bulk Suspended',
-            'created' => 'Created',
-            'created_body' => 'Created Body',
-            'impersonation_started' => 'Impersonation Started',
-            'impersonation_started_body' => 'Impersonation Started Body',
-            'reactivated' => 'Reactivated',
-            'suspended' => 'Suspended',
-        ],
-        'placeholders' => [
-            'never_logged_in' => 'Never Logged In',
-        ],
-        'plural' => 'Plural',
-        'sections' => [
-            'activity' => 'Activity',
-            'basic_info' => 'Basic Info',
-            'status' => 'Status',
-        ],
-        'singular' => 'Singular',
-        'tabs' => [
-            'active' => 'Active',
-            'all' => 'All',
-            'recent' => 'Recent',
-            'suspended' => 'Suspended',
-            'unverified' => 'Unverified',
-        ],
-    ],
-    'users' => [
-        'actions' => [
-            'back_to_user' => 'Back To User',
-            'clear_sessions' => 'Clear Sessions',
-            'disable_2fa' => 'Disable 2fa',
-            'export_report' => 'Export Report',
-            'impersonate' => 'Impersonate',
-            'reactivate' => 'Reactivate',
-            'refresh_report' => 'Refresh Report',
-            'reset_password' => 'Reset Password',
-            'start_impersonation' => 'Start Impersonation',
-            'suspend' => 'Suspend',
-            'view_activity' => 'View Activity',
-        ],
-        'default_suspension_reason' => 'Default Suspension Reason',
-        'descriptions' => [
-            'activity_timeline' => 'Activity Timeline',
-        ],
-        'fields' => [
-            'audit_entries' => 'Audit Entries',
-            'created_at' => 'Created At',
-            'email' => 'Email',
-            'email_verified' => 'Email Verified',
-            'email_verified_at' => 'Email Verified At',
-            'force_password_reset' => 'Force Password Reset',
-            'is_active' => 'Is Active',
-            'last_activity' => 'Last Activity',
-            'last_login' => 'Last Login',
-            'name' => 'Name',
-            'organization' => 'Organization',
-            'password' => 'Password',
-            'password_confirmation' => 'Password Confirmation',
-            'report_generated' => 'Report Generated',
-            'roles' => 'Roles',
-            'status' => 'Status',
-            'suspended_at' => 'Suspended At',
-            'suspension_reason' => 'Suspension Reason',
-            'tenant_status' => 'Tenant Status',
-            'total_sessions' => 'Total Sessions',
-            'two_factor' => 'Two Factor',
-            'updated_at' => 'Updated At',
-        ],
-        'help' => [
-            'email_verified_at' => 'Email Verified At',
-            'force_password_reset' => 'Force Password Reset',
-            'is_active' => 'Is Active',
-            'organization' => 'Organization',
-            'password_leave_blank' => 'Password Leave Blank',
-            'roles' => 'Roles',
-            'suspended_at' => 'Suspended At',
-        ],
-        'messages' => [
-            'email_copied' => 'Email Copied',
-        ],
-        'modals' => [
-            'clear_sessions' => [
-                'description' => 'Description',
-                'heading' => 'Heading',
-            ],
-            'delete' => [
-                'description' => 'Description',
-                'heading' => 'Heading',
-            ],
-            'disable_2fa' => [
-                'description' => 'Description',
-                'heading' => 'Heading',
-            ],
-            'impersonate' => [
-                'description' => 'Description',
-                'heading' => 'Heading',
-            ],
-            'reactivate' => [
-                'description' => 'Description',
-                'heading' => 'Heading',
-            ],
-            'reset_password' => [
-                'description' => 'Description',
-                'heading' => 'Heading',
-            ],
-            'suspend' => [
-                'description' => 'Description',
-                'heading' => 'Heading',
-            ],
-        ],
-        'notifications' => [
-            '2fa_disabled' => '2fa Disabled',
-            '2fa_disabled_body' => '2fa Disabled Body',
-            'cannot_delete_super_admin' => 'Cannot Delete Super Admin',
-            'export_started' => 'Export Started',
-            'export_started_body' => 'Export Started Body',
-            'impersonation_failed' => 'Impersonation Failed',
-            'impersonation_started' => 'Impersonation Started',
-            'impersonation_started_body' => 'Impersonation Started Body',
-            'password_reset' => 'Password Reset',
-            'password_reset_body' => 'Password Reset Body',
-            'reactivation_failed' => 'Reactivation Failed',
-            'sessions_cleared' => 'Sessions Cleared',
-            'sessions_cleared_body' => 'Sessions Cleared Body',
-            'suspension_failed' => 'Suspension Failed',
-            'user_reactivated' => 'User Reactivated',
-            'user_reactivated_body' => 'User Reactivated Body',
-            'user_suspended' => 'User Suspended',
-            'user_suspended_body' => 'User Suspended Body',
-            'user_updated' => 'User Updated',
-            'user_updated_body' => 'User Updated Body',
-        ],
-        'pages' => [
-            'activity_report' => [
-                'breadcrumb' => 'Breadcrumb',
-                'title' => 'Title',
-            ],
-        ],
-        'sections' => [
-            'activity_overview' => 'Activity Overview',
-            'activity_summary' => 'Activity Summary',
-            'activity_timeline' => 'Activity Timeline',
-            'basic_information' => 'Basic Information',
-            'organization_activity' => 'Organization Activity',
-            'recent_activity' => 'Recent Activity',
-            'recent_sessions' => 'Recent Sessions',
-            'role_management' => 'Role Management',
-            'status_settings' => 'Status Settings',
-            'suspension_info' => 'Suspension Info',
-            'tenant_assignment' => 'Tenant Assignment',
-            'tenant_information' => 'Tenant Information',
-        ],
-        'values' => [
-            'activity_logged' => 'Activity Logged',
-            'never' => 'Never',
-        ],
-    ],
-];
+            'total' => 'Total',
+            'due' => 'Due',
+            'actions' => 'Actions',
+          ),
+        ),
+      ),
+    ),
+    'organizations' => 
+    array (
+      'active' => 'Aktyvios',
+      'inactive' => 'Neaktyvios',
+      'no_organizations' => 'Nėra organizacijų',
+      'properties_count' => 'Turto kiekis',
+      'title' => 'Organizacijos',
+      'top_by_properties' => 'Pagal turto kiekį',
+      'total' => 'Iš viso',
+      'view_all' => 'Žiūrėti visas',
+    ),
+    'organizations_create' => 
+    array (
+      'actions' => 
+      array (
+        'cancel' => 'Atšaukti',
+        'create' => 'Sukurti',
+      ),
+      'admin_contact' => 'Administratoriaus kontaktai',
+      'contact_name' => 'Kontakto vardas',
+      'email' => 'El. paštas',
+      'expiry_date' => 'Galiojimo pabaigos data',
+      'organization_info' => 'Organizacijos informacija',
+      'organization_name' => 'Organizacijos pavadinimas',
+      'password' => 'Slaptažodis',
+      'password_hint' => 'Mažiausiai 8 simboliai',
+      'plan_limits' => 
+      array (
+        'basic' => 'Bazinis',
+        'enterprise' => 'Įmonės',
+        'professional' => 'Profesionalus',
+      ),
+      'plan_type' => 'Plano tipas',
+      'select_plan' => 'Pasirinkti planą',
+      'subscription_details' => 'Prenumeratos detalės',
+      'subtitle' => 'Sukurti naują organizaciją sistemoje',
+      'title' => 'Sukurti organizaciją',
+    ),
+    'organizations_index' => 
+    array (
+      'create' => 'Sukurti',
+      'filters' => 
+      array (
+        'all' => 'Visi',
+        'filter' => 'Filtruoti',
+        'search' => 'Ieškoti',
+        'search_placeholder' => 'Ieškoti organizacijų...',
+        'status' => 'Būsena',
+        'subscription_status' => 'Prenumeratos būsena',
+      ),
+      'subtitle' => 'Valdyti visas sistemos organizacijas',
+      'table' => 
+      array (
+        'actions' => 'Veiksmai',
+        'contact' => 'Kontaktas',
+        'created' => 'Sukurta',
+        'organization' => 'Organizacija',
+        'status' => 'Būsena',
+        'subscription' => 'Prenumerata',
+        'tenant_id' => 'Nuomininko ID',
+      ),
+      'title' => 'Organizacijų sąrašas',
+    ),
+    'organizations_list' => 
+    array (
+      'actions' => 
+      array (
+        'edit' => 'Edit',
+        'view' => 'View',
+      ),
+      'empty' => 'Empty',
+      'expires' => 'Expires',
+      'no_subscription' => 'No Subscription',
+      'status_active' => 'Status Active',
+      'status_inactive' => 'Status Inactive',
+    ),
+    'organizations_widget' => 
+    array (
+      'active' => 'Active',
+      'growth_down' => 'Growth Down',
+      'growth_up' => 'Growth Up',
+      'inactive' => 'Inactive',
+      'new_this_month' => 'New This Month',
+      'total' => 'Total',
+    ),
+    'overview' => 
+    array (
+      'organizations' => 
+      array (
+        'description' => 'Description',
+        'empty' => 'Empty',
+        'headers' => 
+        array (
+          'created' => 'Created',
+          'manage' => 'Manage',
+          'organization' => 'Organization',
+          'status' => 'Status',
+          'subscription' => 'Subscription',
+        ),
+        'no_subscription' => 'No Subscription',
+        'open' => 'Open',
+        'status_active' => 'Status Active',
+        'status_inactive' => 'Status Inactive',
+        'title' => 'Title',
+      ),
+      'resources' => 
+      array (
+        'buildings' => 
+        array (
+          'address' => 'Address',
+          'empty' => 'Empty',
+          'open_owners' => 'Open Owners',
+          'organization' => 'Organization',
+          'title' => 'Title',
+        ),
+        'description' => 'Description',
+        'invoices' => 
+        array (
+          'amount' => 'Amount',
+          'empty' => 'Empty',
+          'manage' => 'Manage',
+          'open_owners' => 'Open Owners',
+          'organization' => 'Organization',
+          'status' => 'Status',
+          'title' => 'Title',
+        ),
+        'manage_orgs' => 'Manage Orgs',
+        'properties' => 
+        array (
+          'building' => 'Building',
+          'empty' => 'Empty',
+          'open_owners' => 'Open Owners',
+          'organization' => 'Organization',
+          'title' => 'Title',
+          'unknown_org' => 'Unknown Org',
+        ),
+        'tenants' => 
+        array (
+          'empty' => 'Empty',
+          'not_assigned' => 'Not Assigned',
+          'open_owners' => 'Open Owners',
+          'organization' => 'Organization',
+          'property' => 'Property',
+          'status_active' => 'Status Active',
+          'status_inactive' => 'Status Inactive',
+          'title' => 'Title',
+        ),
+        'title' => 'Title',
+      ),
+      'subscriptions' => 
+      array (
+        'description' => 'Description',
+        'empty' => 'Empty',
+        'headers' => 
+        array (
+          'expires' => 'Expires',
+          'manage' => 'Manage',
+          'organization' => 'Organization',
+          'plan' => 'Plan',
+          'status' => 'Status',
+        ),
+        'open' => 'Open',
+        'title' => 'Title',
+      ),
+    ),
+    'quick_actions' => 
+    array (
+      'create_organization' => 'Sukurti organizaciją',
+      'create_organization_desc' => 'Užregistruoti naują organizaciją ir administratorių',
+      'create_subscription' => 'Sukurti prenumeratą',
+      'create_subscription_desc' => 'Peržiūrėti ar priskirti prenumeratos planus',
+      'manage_organizations' => 'Valdyti organizacijas',
+      'manage_organizations_desc' => 'Atverti organizacijų sąrašą ir filtrus',
+      'manage_subscriptions' => 'Valdyti prenumeratas',
+      'manage_subscriptions_desc' => 'Stebėti atnaujinimus, būsenas ir galiojimą',
+      'title' => 'Greiti veiksmai',
+      'view_all_activity' => 'Peržiūrėti visą aktyvumą',
+      'view_all_activity_desc' => 'Peršokti į naujausius platformos įvykius',
+    ),
+    'recent_activity' => 
+    array (
+      'last_activity' => 'Last Activity',
+      'no_activity' => 'No Activity',
+      'title' => 'Title',
+      'occurred' => 'Occurred',
+      'system' => 'System',
+    ),
+    'recent_activity_widget' => 
+    array (
+      'columns' => 
+      array (
+        'action' => 'Action',
+        'details' => 'Details',
+        'id' => 'Id',
+        'organization' => 'Organization',
+        'resource' => 'Resource',
+        'time' => 'Time',
+        'user' => 'User',
+      ),
+      'default_system' => 'Default System',
+      'description' => 'Description',
+      'empty_description' => 'Empty Description',
+      'empty_heading' => 'Empty Heading',
+      'heading' => 'Heading',
+      'modal_heading' => 'Modal Heading',
+    ),
+    'stats' => 
+    array (
+      'active_subscriptions' => 'Active Subscriptions',
+      'cancelled_subscriptions' => 'Cancelled Subscriptions',
+      'expired_subscriptions' => 'Expired Subscriptions',
+      'expiring_soon' => 'Baigiasi netrukus',
+      'suspended_subscriptions' => 'Suspended Subscriptions',
+      'total_buildings' => 'Total Buildings',
+      'total_invoices' => 'Total Invoices',
+      'total_properties' => 'Total Properties',
+      'total_subscriptions' => 'Total Subscriptions',
+      'total_tenants' => 'Total Tenants',
+    ),
+    'stats_descriptions' => 
+    array (
+      'active_organizations' => 'Active Organizations',
+      'active_subscriptions' => 'Active Subscriptions',
+      'cancelled_subscriptions' => 'Cancelled Subscriptions',
+      'expired_subscriptions' => 'Expired Subscriptions',
+      'expiring_soon' => 'Prenumeratos greitai baigsis',
+      'inactive_organizations' => 'Inactive Organizations',
+      'suspended_subscriptions' => 'Suspended Subscriptions',
+      'total_organizations' => 'Total Organizations',
+      'total_subscriptions' => 'Total Subscriptions',
+    ),
+    'subscription_plans' => 
+    array (
+      'basic' => 'Basic',
+      'enterprise' => 'Enterprise',
+      'professional' => 'Professional',
+      'title' => 'Title',
+      'view_all' => 'View All',
+    ),
+    'badges' =>
+    array (
+      'platform' => 'Superadministratoriaus erdvė',
+    ),
+    'subtitle' => 'Superadministratoriaus valdymo skydelis',
+    'title' => 'Superadministratoriaus skydelis',
+    'widgets' => 
+    array (
+      'recent_activity' => 
+      array (
+        'no_activity' => 'No Activity',
+        'title' => 'Title',
+      ),
+      'system_metrics' => 
+      array (
+        'active_sessions' => 'Active Sessions',
+        'api_calls_today' => 'Api Calls Today',
+        'storage_used' => 'Storage Used',
+        'total_users' => 'Total Users',
+      ),
+      'tenant_overview' => 
+      array (
+        'active_tenants' => 'Active Tenants',
+        'suspended_tenants' => 'Suspended Tenants',
+        'total_tenants' => 'Total Tenants',
+        'trial_tenants' => 'Trial Tenants',
+      ),
+    ),
+    'system_health' => 
+    array (
+      'title' => 'System Health',
+      'description' => 'Latest status checks for critical services',
+      'actions' => 
+      array (
+        'run_check' => 'Run Health Check',
+      ),
+      'empty' => 'No data available',
+    ),
+    'analytics' => 
+    array (
+      'title' => 'Analytics',
+      'empty' => 'No data available',
+    ),
+  ),
+  'health' => 
+  array (
+    'critical' => 'Critical',
+    'excellent' => 'Excellent',
+    'good' => 'Good',
+    'warning' => 'Warning',
+  ),
+  'navigation' => 
+  array (
+    'audit_logs' => 'Audito žurnalai',
+    'cluster' => 'Klasteris',
+    'group' => 'Grupė',
+    'system_config' => 'Sistemos konfigūracija',
+    'tenants' => 'Nuomininkai',
+    'users' => 'Vartotojai',
+  ),
+  'subscription' => 
+  array (
+    'plan' => 
+    array (
+      'basic' => 'Basic',
+      'custom' => 'Custom',
+      'enterprise' => 'Enterprise',
+      'professional' => 'Professional',
+    ),
+  ),
+  'tenant' => 
+  array (
+    'actions' => 
+    array (
+      'activate' => 'Activate',
+      'create' => 'Create',
+      'impersonate' => 'Impersonate',
+      'suspend' => 'Suspend',
+    ),
+    'fields' => 
+    array (
+      'api_calls_today' => 'Api Calls Today',
+      'created_at' => 'Created At',
+      'domain' => 'Domain',
+      'is_active' => 'Is Active',
+      'last_activity' => 'Last Activity',
+      'name' => 'Name',
+      'plan' => 'Plan',
+      'primary_contact_email' => 'Primary Contact Email',
+      'properties_count' => 'Properties Count',
+      'slug' => 'Slug',
+      'storage_used' => 'Storage Used',
+      'subscription_ends_at' => 'Subscription Ends At',
+      'suspended_at' => 'Suspended At',
+      'suspension_reason' => 'Suspension Reason',
+      'trial_ends_at' => 'Trial Ends At',
+      'updated_at' => 'Updated At',
+      'users_count' => 'Users Count',
+    ),
+    'notifications' => 
+    array (
+      'activated' => 'Activated',
+      'created' => 'Created',
+      'created_body' => 'Created Body',
+      'suspended' => 'Suspended',
+      'updated' => 'Updated',
+      'updated_body' => 'Updated Body',
+    ),
+    'placeholders' => 
+    array (
+      'no_subscription' => 'No Subscription',
+      'no_trial' => 'No Trial',
+    ),
+    'plural' => 'Plural',
+    'sections' => 
+    array (
+      'basic_info' => 'Basic Info',
+      'metrics' => 'Metrics',
+      'overview' => 'Overview',
+      'status' => 'Status',
+      'subscription' => 'Subscription',
+      'suspension' => 'Suspension',
+      'timestamps' => 'Timestamps',
+    ),
+    'singular' => 'Singular',
+    'status' => 
+    array (
+      'active' => 'Active',
+      'cancelled' => 'Cancelled',
+      'pending' => 'Pending',
+      'suspended' => 'Suspended',
+    ),
+    'tabs' => 
+    array (
+      'active' => 'Active',
+      'all' => 'All',
+      'expired' => 'Expired',
+      'suspended' => 'Suspended',
+      'trial' => 'Trial',
+    ),
+  ),
+  'tenants' => 
+  array (
+    'actions' => 
+    array (
+      'activate' => 'Activate',
+      'bulk_activate' => 'Bulk Activate',
+      'bulk_suspend' => 'Bulk Suspend',
+      'impersonate' => 'Impersonate',
+      'suspend' => 'Suspend',
+    ),
+    'billing_cycles' => 
+    array (
+      'monthly' => 'Monthly',
+      'quarterly' => 'Quarterly',
+      'yearly' => 'Yearly',
+    ),
+    'fields' => 
+    array (
+      'allow_registration' => 'Allow Registration',
+      'api_access_enabled' => 'Api Access Enabled',
+      'auto_billing' => 'Auto Billing',
+      'billing_address' => 'Billing Address',
+      'billing_cycle' => 'Billing Cycle',
+      'billing_email' => 'Billing Email',
+      'billing_name' => 'Billing Name',
+      'created_at' => 'Created At',
+      'currency' => 'Currency',
+      'current_api_calls' => 'Current Api Calls',
+      'current_storage_gb' => 'Current Storage Gb',
+      'current_users' => 'Current Users',
+      'enforce_quotas' => 'Enforce Quotas',
+      'locale' => 'Locale',
+      'maintenance_mode' => 'Maintenance Mode',
+      'max_api_calls_per_month' => 'Max Api Calls Per Month',
+      'max_storage_gb' => 'Max Storage Gb',
+      'max_users' => 'Max Users',
+      'monthly_price' => 'Monthly Price',
+      'name' => 'Name',
+      'next_billing_date' => 'Next Billing Date',
+      'quota_notifications' => 'Quota Notifications',
+      'require_email_verification' => 'Require Email Verification',
+      'setup_fee' => 'Setup Fee',
+      'slug' => 'Slug',
+      'status' => 'Status',
+      'subscription_ends_at' => 'Subscription Ends At',
+      'subscription_plan' => 'Subscription Plan',
+      'suspension_reason' => 'Suspension Reason',
+      'timezone' => 'Timezone',
+      'trial_ends_at' => 'Trial Ends At',
+    ),
+    'help' => 
+    array (
+      'allow_registration' => 'Allow Registration',
+      'api_access_enabled' => 'Api Access Enabled',
+      'current_api_calls' => 'Current Api Calls',
+      'current_storage' => 'Current Storage',
+      'current_users' => 'Current Users',
+      'enforce_quotas' => 'Enforce Quotas',
+      'maintenance_mode' => 'Maintenance Mode',
+      'quota_notifications' => 'Quota Notifications',
+      'require_email_verification' => 'Require Email Verification',
+    ),
+    'modals' => 
+    array (
+      'activate' => 
+      array (
+        'description' => 'Description',
+        'heading' => 'Heading',
+      ),
+      'bulk_suspend' => 
+      array (
+        'description' => 'Description',
+        'heading' => 'Heading',
+      ),
+      'suspend' => 
+      array (
+        'description' => 'Description',
+        'heading' => 'Heading',
+      ),
+    ),
+    'notifications' => 
+    array (
+      'activated' => 'Activated',
+      'bulk_activated' => 'Bulk Activated',
+      'bulk_suspended' => 'Bulk Suspended',
+      'suspended' => 'Suspended',
+    ),
+    'sections' => 
+    array (
+      'billing' => 'Billing',
+      'quotas' => 'Quotas',
+      'settings' => 'Settings',
+      'subscription' => 'Subscription',
+    ),
+  ),
+  'user' => 
+  array (
+    'actions' => 
+    array (
+      'activity_report' => 'Activity Report',
+      'create' => 'Create',
+      'impersonate' => 'Impersonate',
+      'reactivate' => 'Reactivate',
+      'suspend' => 'Suspend',
+    ),
+    'bulk_actions' => 
+    array (
+      'reactivate' => 'Reactivate',
+      'suspend' => 'Suspend',
+    ),
+    'fields' => 
+    array (
+      'created_at' => 'Created At',
+      'email' => 'Email',
+      'email_verified' => 'Email Verified',
+      'is_active' => 'Is Active',
+      'last_login' => 'Last Login',
+      'last_login_at' => 'Last Login At',
+      'login_count' => 'Login Count',
+      'name' => 'Name',
+      'organization' => 'Organization',
+      'phone' => 'Phone',
+      'status' => 'Status',
+      'suspended_at' => 'Suspended At',
+      'suspension_reason' => 'Suspension Reason',
+    ),
+    'filters' => 
+    array (
+      'active' => 'Active',
+      'all' => 'All',
+      'email_verified' => 'Email Verified',
+      'inactive' => 'Inactive',
+      'is_active' => 'Is Active',
+      'organization' => 'Organization',
+      'recent_login' => 'Recent Login',
+      'suspended' => 'Suspended',
+      'unverified' => 'Unverified',
+      'verified' => 'Verified',
+    ),
+    'notifications' => 
+    array (
+      'bulk_reactivated' => 'Bulk Reactivated',
+      'bulk_suspended' => 'Bulk Suspended',
+      'created' => 'Created',
+      'created_body' => 'Created Body',
+      'impersonation_started' => 'Impersonation Started',
+      'impersonation_started_body' => 'Impersonation Started Body',
+      'reactivated' => 'Reactivated',
+      'suspended' => 'Suspended',
+    ),
+    'placeholders' => 
+    array (
+      'never_logged_in' => 'Never Logged In',
+    ),
+    'plural' => 'Plural',
+    'sections' => 
+    array (
+      'activity' => 'Activity',
+      'basic_info' => 'Basic Info',
+      'status' => 'Status',
+    ),
+    'singular' => 'Singular',
+    'tabs' => 
+    array (
+      'active' => 'Active',
+      'all' => 'All',
+      'recent' => 'Recent',
+      'suspended' => 'Suspended',
+      'unverified' => 'Unverified',
+    ),
+  ),
+  'users' => 
+  array (
+    'actions' => 
+    array (
+      'back_to_user' => 'Back To User',
+      'clear_sessions' => 'Clear Sessions',
+      'disable_2fa' => 'Disable 2fa',
+      'export_report' => 'Export Report',
+      'impersonate' => 'Impersonate',
+      'reactivate' => 'Reactivate',
+      'refresh_report' => 'Refresh Report',
+      'reset_password' => 'Reset Password',
+      'start_impersonation' => 'Start Impersonation',
+      'suspend' => 'Suspend',
+      'view_activity' => 'View Activity',
+    ),
+    'default_suspension_reason' => 'Default Suspension Reason',
+    'descriptions' => 
+    array (
+      'activity_timeline' => 'Activity Timeline',
+    ),
+    'fields' => 
+    array (
+      'audit_entries' => 'Audit Entries',
+      'created_at' => 'Created At',
+      'email' => 'Email',
+      'email_verified' => 'Email Verified',
+      'email_verified_at' => 'Email Verified At',
+      'force_password_reset' => 'Force Password Reset',
+      'is_active' => 'Is Active',
+      'last_activity' => 'Last Activity',
+      'last_login' => 'Last Login',
+      'name' => 'Name',
+      'organization' => 'Organization',
+      'password' => 'Password',
+      'password_confirmation' => 'Password Confirmation',
+      'report_generated' => 'Report Generated',
+      'roles' => 'Roles',
+      'status' => 'Status',
+      'suspended_at' => 'Suspended At',
+      'suspension_reason' => 'Suspension Reason',
+      'tenant_status' => 'Tenant Status',
+      'total_sessions' => 'Total Sessions',
+      'two_factor' => 'Two Factor',
+      'updated_at' => 'Updated At',
+    ),
+    'help' => 
+    array (
+      'email_verified_at' => 'Email Verified At',
+      'force_password_reset' => 'Force Password Reset',
+      'is_active' => 'Is Active',
+      'organization' => 'Organization',
+      'password_leave_blank' => 'Password Leave Blank',
+      'roles' => 'Roles',
+      'suspended_at' => 'Suspended At',
+    ),
+    'messages' => 
+    array (
+      'email_copied' => 'Email Copied',
+    ),
+    'modals' => 
+    array (
+      'clear_sessions' => 
+      array (
+        'description' => 'Description',
+        'heading' => 'Heading',
+      ),
+      'delete' => 
+      array (
+        'description' => 'Description',
+        'heading' => 'Heading',
+      ),
+      'disable_2fa' => 
+      array (
+        'description' => 'Description',
+        'heading' => 'Heading',
+      ),
+      'impersonate' => 
+      array (
+        'description' => 'Description',
+        'heading' => 'Heading',
+      ),
+      'reactivate' => 
+      array (
+        'description' => 'Description',
+        'heading' => 'Heading',
+      ),
+      'reset_password' => 
+      array (
+        'description' => 'Description',
+        'heading' => 'Heading',
+      ),
+      'suspend' => 
+      array (
+        'description' => 'Description',
+        'heading' => 'Heading',
+      ),
+    ),
+    'notifications' => 
+    array (
+      '2fa_disabled' => '2fa Disabled',
+      '2fa_disabled_body' => '2fa Disabled Body',
+      'cannot_delete_super_admin' => 'Cannot Delete Super Admin',
+      'export_started' => 'Export Started',
+      'export_started_body' => 'Export Started Body',
+      'impersonation_failed' => 'Impersonation Failed',
+      'impersonation_started' => 'Impersonation Started',
+      'impersonation_started_body' => 'Impersonation Started Body',
+      'password_reset' => 'Password Reset',
+      'password_reset_body' => 'Password Reset Body',
+      'reactivation_failed' => 'Reactivation Failed',
+      'sessions_cleared' => 'Sessions Cleared',
+      'sessions_cleared_body' => 'Sessions Cleared Body',
+      'suspension_failed' => 'Suspension Failed',
+      'user_reactivated' => 'User Reactivated',
+      'user_reactivated_body' => 'User Reactivated Body',
+      'user_suspended' => 'User Suspended',
+      'user_suspended_body' => 'User Suspended Body',
+      'user_updated' => 'User Updated',
+      'user_updated_body' => 'User Updated Body',
+    ),
+    'pages' => 
+    array (
+      'activity_report' => 
+      array (
+        'breadcrumb' => 'Breadcrumb',
+        'title' => 'Title',
+      ),
+    ),
+    'sections' => 
+    array (
+      'activity_overview' => 'Activity Overview',
+      'activity_summary' => 'Activity Summary',
+      'activity_timeline' => 'Activity Timeline',
+      'basic_information' => 'Basic Information',
+      'organization_activity' => 'Organization Activity',
+      'recent_activity' => 'Recent Activity',
+      'recent_sessions' => 'Recent Sessions',
+      'role_management' => 'Role Management',
+      'status_settings' => 'Status Settings',
+      'suspension_info' => 'Suspension Info',
+      'tenant_assignment' => 'Tenant Assignment',
+      'tenant_information' => 'Tenant Information',
+    ),
+    'values' => 
+    array (
+      'activity_logged' => 'Activity Logged',
+      'never' => 'Never',
+    ),
+  ),
+  'buildings' => 
+  array (
+    'title' => 'Buildings',
+    'singular' => 'Building',
+    'fields' => 
+    array (
+      'name' => 'Name',
+      'address' => 'Address',
+      'total_apartments' => 'Total Apartments',
+      'properties' => 'Properties',
+      'meters' => 'Meters',
+      'tenants' => 'Tenants',
+    ),
+  ),
+  'properties' => 
+  array (
+    'title' => 'Properties',
+    'singular' => 'Property',
+    'fields' => 
+    array (
+      'address' => 'Address',
+      'type' => 'Type',
+      'area' => 'Area (sqm)',
+      'building' => 'Building',
+      'meters' => 'Meters',
+      'tenants' => 'Tenants',
+    ),
+  ),
+);

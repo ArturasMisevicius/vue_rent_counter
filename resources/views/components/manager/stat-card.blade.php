@@ -43,6 +43,6 @@
                 @endif
             </div>
         </div>
-        <div class="rounded-full bg-slate-50 px-2 py-1 text-[11px] font-semibold text-slate-500">Manager</div>
+        <div class="rounded-full bg-slate-50 px-2 py-1 text-[11px] font-semibold text-slate-500">{{ __('dashboard.manager.badge') }}</div>
     </div>
 </div>

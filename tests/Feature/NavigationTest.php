@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use App\Enums\UserRole;
+use App\Models\Property;
 
 test('admin sees admin navigation items', function () {
     $admin = User::factory()->create(['role' => UserRole::ADMIN]);
@@ -32,7 +33,12 @@ test('manager sees manager navigation items', function () {
 });
 
 test('tenant sees tenant navigation items', function () {
-    $tenant = User::factory()->create(['role' => UserRole::TENANT]);
+    $property = Property::factory()->create(['tenant_id' => 1]);
+    $tenant = User::factory()->create([
+        'role' => UserRole::TENANT,
+        'tenant_id' => 1,
+        'property_id' => $property->id,
+    ]);
     
     $response = $this->actingAs($tenant)->get(route('tenant.dashboard'));
     

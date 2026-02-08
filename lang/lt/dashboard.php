@@ -31,6 +31,10 @@ return [
             'tenants' => 'Nuomininkai',
             'users_title' => 'Vartotojai',
         ],
+        'badges' => [
+            'admin' => 'Administratoriaus erdvė',
+            'platform' => 'Platformos operacijos',
+        ],
         'org_dashboard' => 'Organizacijos skydelis',
         'portfolio_subtitle' => 'Nekilnojamojo turto portfelio valdymas',
         'quick' => [
@@ -42,20 +46,32 @@ return [
         'quick_actions' => [
             'create_tenant_desc' => 'Pridėti naują nuomininką į sistemą',
             'create_tenant_title' => 'Sukurti nuomininką',
+            'manage_providers_desc' => 'Komunalinių paslaugų tiekėjai',
+            'manage_providers_title' => 'Valdyti tiekėjus',
             'manage_tenants_desc' => 'Peržiūrėti ir valdyti visus nuomininkus',
             'manage_tenants_title' => 'Valdyti nuomininkus',
+            'manage_tariffs_desc' => 'Konfigūruoti komunalinių paslaugų tarifus',
+            'manage_tariffs_title' => 'Valdyti tarifus',
             'manage_users_desc' => 'Valdyti vartotojus ir jų leidimus',
             'manage_users_title' => 'Valdyti vartotojus',
             'organization_profile_desc' => 'Redaguoti organizacijos profilį ir nustatymus',
             'organization_profile_title' => 'Organizacijos profilis',
             'title' => 'Greiti veiksmai',
+            'view_audit_log_desc' => 'Sistemos veiksmų istorija',
+            'view_audit_log_title' => 'Peržiūrėti audito žurnalą',
         ],
         'stats' => [
+            'active_tariffs' => 'Aktyvūs tarifai',
             'active_meters' => 'Aktyvūs skaitikliai',
             'active_tenants' => 'Aktyvūs nuomininkai',
+            'draft_invoices' => 'Sąskaitų faktūrų juodraščiai',
+            'readings_last_7_days' => 'Rodmenys (paskutinės 7 d.)',
+            'total_buildings' => 'Pastatai',
             'total_meter_readings' => 'Iš viso skaitiklių rodmenų',
             'total_properties' => 'Iš viso objektų',
+            'total_tenants' => 'Iš viso nuomininkų',
             'total_users' => 'Iš viso vartotojų',
+            'utility_providers' => 'Paslaugų teikėjai',
             'unpaid_invoices' => 'Neapmokėtos sąskaitos faktūros',
         ],
         'subscription_card' => [
@@ -70,6 +86,7 @@ return [
         'title' => 'Administratoriaus skydelis',
     ],
     'manager' => [
+        'badge' => 'Vadybininkas',
         'description' => 'Valdyti objektus, skaitiklius ir atsiskaitymo operacijas',
         'empty' => [
             'drafts' => 'Nerasta sąskaitų faktūrų juodraščių',
@@ -107,6 +124,7 @@ return [
             'overdue_invoices' => 'Pradelstos sąskaitos faktūros',
             'total_properties' => 'Iš viso objektų',
         ],
+        'workspace_label' => 'Vadybininko erdvė',
         'title' => 'Vadybininko skydelis',
     ],
     'tenant' => [
@@ -151,6 +169,7 @@ return [
             'property_title' => 'Mano objektas',
             'title' => 'Greiti veiksmai',
         ],
+        'space_label' => 'Nuomininko erdvė',
         'readings' => [
             'date' => 'Data',
             'meter_type' => 'Skaitiklio tipas',

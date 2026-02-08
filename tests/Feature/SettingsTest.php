@@ -5,12 +5,30 @@ use App\Models\User;
 use App\Models\Property;
 use App\Models\Meter;
 use App\Models\Invoice;
+use App\Models\Subscription;
 use Illuminate\Support\Facades\Cache;
 
 beforeEach(function () {
-    $this->admin = User::factory()->create(['role' => UserRole::ADMIN]);
-    $this->manager = User::factory()->create(['role' => UserRole::MANAGER]);
-    $this->tenant = User::factory()->create(['role' => UserRole::TENANT]);
+    $tenantId = 1;
+
+    $this->admin = User::factory()->create([
+        'tenant_id' => $tenantId,
+        'role' => UserRole::ADMIN,
+    ]);
+
+    Subscription::factory()->active()->create([
+        'user_id' => $this->admin->id,
+    ]);
+
+    $this->manager = User::factory()->create([
+        'tenant_id' => $tenantId,
+        'role' => UserRole::MANAGER,
+    ]);
+
+    $this->tenant = User::factory()->create([
+        'tenant_id' => $tenantId,
+        'role' => UserRole::TENANT,
+    ]);
 });
 
 test('admin can view settings page', function () {
@@ -18,9 +36,9 @@ test('admin can view settings page', function () {
     
     $response->assertStatus(200);
     $response->assertViewIs('admin.settings.index');
-    $response->assertSee('System Settings');
-    $response->assertSee('System Information');
-    $response->assertSee('Maintenance Tasks');
+    $response->assertSee(__('settings.title'));
+    $response->assertSee(__('settings.system_info.title'));
+    $response->assertSee(__('settings.maintenance.title'));
 });
 
 test('settings page displays system statistics', function () {
@@ -32,23 +50,23 @@ test('settings page displays system statistics', function () {
     $response = $this->actingAs($this->admin)->get(route('admin.settings.index'));
     
     $response->assertStatus(200);
-    $response->assertSee('Total Users');
-    $response->assertSee('Total Properties');
-    $response->assertSee('Total Meters');
-    $response->assertSee('Total Invoices');
-    $response->assertSee('Database Size');
-    $response->assertSee('Cache Size');
+    $response->assertSee(__('settings.stats.users'));
+    $response->assertSee(__('settings.stats.properties'));
+    $response->assertSee(__('settings.stats.meters'));
+    $response->assertSee(__('settings.stats.invoices'));
+    $response->assertSee(__('settings.stats.db_size'));
+    $response->assertSee(__('settings.stats.cache_size'));
 });
 
 test('settings page displays system information', function () {
     $response = $this->actingAs($this->admin)->get(route('admin.settings.index'));
     
     $response->assertStatus(200);
-    $response->assertSee('Laravel Version');
-    $response->assertSee('PHP Version');
-    $response->assertSee('Database');
-    $response->assertSee('Environment');
-    $response->assertSee('Timezone');
+    $response->assertSee(__('settings.system_info.laravel'));
+    $response->assertSee(__('settings.system_info.php'));
+    $response->assertSee(__('settings.system_info.database'));
+    $response->assertSee(__('settings.system_info.environment'));
+    $response->assertSee(__('settings.system_info.timezone'));
 });
 
 test('settings page shows maintenance tasks', function () {

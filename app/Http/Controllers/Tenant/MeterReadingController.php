@@ -9,14 +9,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMeterReadingRequest;
 use App\Models\MeterReading;
 use App\Models\Property;
-use App\Models\Tenant;
 use App\Models\User;
 use App\Notifications\MeterReadingSubmittedEmail;
 use App\Services\MeterReadingService;
-use App\Services\UniversalReadingCollector;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 /**
@@ -53,11 +52,28 @@ class MeterReadingController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
-        $tenant = $this->getTenantOrFail($user);
         $property = $user->property;
-        
+
+        if (!$property) {
+            $readings = new LengthAwarePaginator([], 0, self::READINGS_PER_PAGE);
+            $properties = collect();
+            $meterTypeLabels = MeterType::labels();
+            $serviceOptions = collect();
+            $legacyTypeOptions = collect();
+
+            return view('tenant.meter-readings.index', compact(
+                'readings',
+                'properties',
+                'meterTypeLabels',
+                'serviceOptions',
+                'legacyTypeOptions',
+            ));
+        }
+
         // Eager load meter and property relationships to prevent N+1 queries
-        $readings = $tenant->meterReadings()
+        $readings = MeterReading::query()
+            ->where('tenant_id', $user->tenant_id)
+            ->whereHas('meter', fn ($query) => $query->where('property_id', $property->id))
             ->with(['meter.property', 'meter.serviceConfiguration.utilityService'])
             ->latest('reading_date')
             ->paginate(self::READINGS_PER_PAGE);
@@ -104,7 +120,7 @@ class MeterReadingController extends Controller
         $this->authorizeReadingAccess($request->user(), $meterReading);
 
         // Eager load relationships for display
-        $meterReading->load(['meter.property', 'meter.serviceConfiguration.utilityService', 'tenant', 'enteredByUser']);
+        $meterReading->load(['meter.property', 'meter.serviceConfiguration.utilityService', 'enteredBy']);
 
         return view('tenant.meter-readings.show', compact('meterReading'));
     }
@@ -122,7 +138,6 @@ class MeterReadingController extends Controller
     {
         $user = $request->user();
         $property = $this->getPropertyOrFail($user);
-        $tenant = $this->getTenantOrFail($user);
 
         $validated = $request->validated();
 
@@ -146,21 +161,6 @@ class MeterReadingController extends Controller
         return redirect()
             ->route('tenant.meter-readings.show', $reading)
             ->with('success', __('meter_readings.messages.submitted_successfully'));
-    }
-
-    /**
-     * Get tenant or fail with 403.
-     * 
-     * @param User $user
-     * @return Tenant
-     */
-    private function getTenantOrFail(User $user): Tenant
-    {
-        if (!$user->tenant) {
-            abort(403, __('meter_readings.errors.no_tenant_assigned'));
-        }
-
-        return $user->tenant;
     }
 
     /**

@@ -2,508 +2,552 @@
 
 declare(strict_types=1);
 
-return [
-    'admin' => [
-        'activity' => [
-            'no_users' => 'No Users Found',
-            'recent_invoices' => 'Recent Invoices',
-            'recent_portfolio' => 'Recent Portfolio Activity',
-            'recent_tenants' => 'Recent Tenants',
-            'recent_users' => 'Recent Users',
-        ],
-        'banner' => [
-            'expired_body' => 'Your subscription has expired. Please renew to continue using all features.',
-            'expired_title' => 'Subscription Expired',
-            'expiring_body' => 'Your subscription is expiring soon. Renew now to avoid service interruption.',
-            'expiring_title' => 'Subscription Expiring',
-            'no_subscription_body' => 'You don\'t have an active subscription. Choose a plan to get started.',
-            'no_subscription_title' => 'No Active Subscription',
-            'renew' => 'Renew',
-            'renew_now' => 'Renew Now',
-        ],
-        'breakdown' => [
-            'administrators' => 'Administrators',
-            'draft_invoices' => 'Draft Invoices',
-            'finalized_invoices' => 'Finalized Invoices',
-            'invoice_title' => 'Invoices',
-            'managers' => 'Managers',
-            'paid_invoices' => 'Paid Invoices',
-            'tenants' => 'Tenants',
-            'users_title' => 'Users',
-        ],
-        'org_dashboard' => 'Organization Dashboard',
-        'portfolio_subtitle' => 'Property portfolio management',
-        'quick' => [
-            'create_user' => 'Create User',
-            'create_user_desc' => 'Add a new user to the system',
-            'settings' => 'Settings',
-            'settings_desc' => 'Manage system settings and configuration',
-        ],
-        'quick_actions' => [
-            'create_tenant_desc' => 'Add a new tenant to the system',
-            'create_tenant_title' => 'Create Tenant',
-            'manage_tenants_desc' => 'View and manage all tenants',
-            'manage_tenants_title' => 'Manage Tenants',
-            'manage_users_desc' => 'Manage users and their permissions',
-            'manage_users_title' => 'Manage Users',
-            'organization_profile_desc' => 'Edit organization profile and settings',
-            'organization_profile_title' => 'Organization Profile',
-            'title' => 'Quick Actions',
-        ],
-        'stats' => [
-            'active_meters' => 'Active Meters',
-            'active_tenants' => 'Active Tenants',
-            'total_meter_readings' => 'Total Meter Readings',
-            'total_properties' => 'Total Properties',
-            'total_users' => 'Total Users',
-            'unpaid_invoices' => 'Unpaid Invoices',
-        ],
-        'subscription_card' => [
-            'approaching_limit' => 'Approaching Limit',
-            'expires' => 'Expires',
-            'plan_type' => 'Plan Type',
-            'properties' => 'Properties',
-            'tenants' => 'Tenants',
-            'title' => 'Subscription',
-        ],
-        'system_subtitle' => 'System analytics and monitoring',
-        'title' => 'Admin Dashboard',
-    ],
-    'manager' => [
-        'description' => 'Manage properties, meters, and billing operations',
-        'empty' => [
-            'drafts' => 'No draft invoices found',
-            'operations' => 'No pending operations',
-            'recent' => 'No recent activity',
-        ],
-        'hints' => [
-            'drafts' => 'Invoices that need to be finalized and sent',
-            'operations' => 'Properties requiring meter readings or attention',
-            'recent' => 'Latest invoices and system activity',
-            'shortcuts' => 'Quick access to common management tasks',
-        ],
-        'pending_section' => 'Pending Actions',
-        'quick_actions' => [
-            'enter_reading_desc' => 'Record new meter readings for properties',
-            'generate_invoice_desc' => 'Create new invoices for tenants',
-            'view_buildings' => 'View Buildings',
-            'view_buildings_desc' => 'Manage buildings and their properties',
-            'view_meters' => 'View Meters',
-            'view_meters_desc' => 'Monitor all utility meters in the system',
-            'view_reports' => 'View Reports',
-            'view_reports_desc' => 'Analytics and consumption reports',
-        ],
-        'sections' => [
-            'drafts' => 'Draft Invoices',
-            'operations' => 'Pending Operations',
-            'recent' => 'Recent Activity',
-            'shortcuts' => 'Quick Actions',
-        ],
-        'stats' => [
-            'active_meters' => 'Active Meters',
-            'active_tenants' => 'Active Tenants',
-            'draft_invoices' => 'Draft Invoices',
-            'meters_pending' => 'Meters Pending Reading',
-            'overdue_invoices' => 'Overdue Invoices',
-            'total_properties' => 'Total Properties',
-        ],
-        'title' => 'Manager Dashboard',
-    ],
-    'tenant' => [
-        'alerts' => [
-            'no_property_body' => 'No property is assigned to your account. Please contact your administrator.',
-            'no_property_title' => 'No Property Assigned',
-        ],
-        'balance' => [
-            'cta' => 'Pay Now',
-            'outstanding' => 'Outstanding Balance',
-            'title' => 'Account Balance',
-        ],
-        'consumption' => [
-            'current' => 'Current',
-            'description' => 'Utility consumption analysis',
-            'missing_previous' => 'No previous data available',
-            'need_more' => 'Need more data for analysis',
-            'previous' => 'Previous',
-            'since_last' => 'Since last reading',
-            'title' => 'Consumption',
-        ],
-        'readings' => [
-            'units' => [
-                '' => '',
-            ],
-        ],
-        'description' => 'Tenant portal and account management',
-        'property' => [
-            'address' => 'Address',
-            'area' => 'Area',
-            'building' => 'Building',
-            'title' => 'Property Information',
-            'type' => 'Type',
-        ],
-        'quick_actions' => [
-            'description' => 'Quick access to essential functions',
-            'invoices_desc' => 'View invoice history and payment status',
-            'invoices_title' => 'My Invoices',
-            'meters_desc' => 'View meter readings and consumption',
-            'meters_title' => 'Meters',
-            'property_desc' => 'Information about your property',
-            'property_title' => 'My Property',
-            'title' => 'Quick Actions',
-        ],
-        'readings' => [
-            'date' => 'Date',
-            'meter_type' => 'Meter Type',
-            'reading' => 'Reading',
-            'serial' => 'Serial Number',
-            'serial_short' => 'Serial #',
-            'title' => 'Meter Readings',
-            'units' => 'Units',
-        ],
-        'stats' => [
-            'active_meters' => 'Active Meters',
-            'total_invoices' => 'Total Invoices',
-            'unpaid_invoices' => 'Unpaid Invoices',
-        ],
-        'title' => 'Tenant Dashboard',
-    ],
-    // Universal Utility Dashboard Translations
-    'utility_analytics' => 'Utility Analytics',
-    'efficiency_trends' => 'Efficiency Trends',
-    'cost_predictions' => 'Cost Predictions',
-    'usage_patterns' => 'Usage Patterns',
-    'recommendations' => 'Recommendations',
-    'real_time_costs' => 'Real-Time Costs',
-    'service_breakdown' => 'Service Breakdown',
-    'utility_services_overview' => 'Utility Services Overview',
-    'recent_activity' => 'Recent Activity',
-    
-    // Stats and Metrics
-    'stats' => [
-        'total_properties' => 'Total Properties',
-        'active_meters' => 'Active Meters',
-        'monthly_cost' => 'Monthly Cost',
-        'pending_readings' => 'Pending Readings',
-    ],
-    
-    // Filters
-    'filters' => [
-        'last_3_months' => 'Last 3 Months',
-        'last_6_months' => 'Last 6 Months',
-        'last_12_months' => 'Last 12 Months',
-        'current_year' => 'Current Year',
-        'current_month' => 'Current Month',
-        'last_month' => 'Last Month',
-    ],
-    
-    // Cost Tracking
-    'current_month_cost' => 'Current Month Cost',
-    'year_to_date_cost' => 'Year to Date Cost',
-    'average_monthly_cost' => 'Average Monthly Cost',
-    'from_last_month' => 'from last month',
-    'total_this_year' => 'total this year',
-    'last_6_months_average' => 'last 6 months average',
-    
-    // Real-Time Cost Widget
-    'today_projection' => 'Today\'s Projection',
-    'current' => 'Current',
-    'projected' => 'Projected',
-    'complete' => 'complete',
-    'monthly_estimate' => 'Monthly Estimate',
-    'month' => 'month',
-    'no_recent_readings' => 'No recent readings available',
-    'last_updated' => 'Last updated',
-    'never' => 'Never',
-    
-    // Chart Labels
-    'consumption_units' => 'Consumption (Units)',
-    'months' => 'Months',
-    'meters' => 'meters',
-    
-    // Trends and Analysis
-    'trend_increasing' => 'Increasing',
-    'trend_decreasing' => 'Decreasing',
-    'trend_stable' => 'Stable',
-    'confidence_high' => 'High Confidence',
-    'confidence_medium' => 'Medium Confidence',
-    'confidence_low' => 'Low Confidence',
-    'monthly_prediction' => 'Monthly Prediction',
-    'yearly_prediction' => 'Yearly Prediction',
-    'peak_usage' => 'Peak Usage',
-    'weekly_pattern' => 'Weekly Pattern',
-    'monthly_trend' => 'Monthly Trend',
-    
-    // Empty States
-    'no_efficiency_data' => 'No efficiency data available',
-    'no_prediction_data' => 'No prediction data available',
-    'no_pattern_data' => 'No usage pattern data available',
-    'no_recommendations' => 'No recommendations at this time',
-    
-    // Recommendations
-    'missing_readings_title' => 'Missing readings for :service',
-    'missing_readings_desc' => 'No recent readings found for :property',
-    'add_reading' => 'Add Reading',
-    'high_usage_title' => 'High :service usage detected',
-    'high_usage_desc' => 'Usage increased by :percentage% for :property',
-    'investigate_usage' => 'Investigate Usage',
-    'low_usage_title' => 'Low :service usage detected',
-    'low_usage_desc' => 'Usage decreased by :percentage% for :property',
-    'verify_readings' => 'Verify Readings',
-    'efficiency_title' => 'Energy efficiency opportunity',
-    'efficiency_desc' => 'Consider energy-saving measures for :property',
-    'consider_efficiency' => 'Consider Efficiency Measures',
-
-    'widgets' => [
-        'admin' => [
-            'active_tenants' => [
-                'description' => 'Number of active tenants in the system',
-                'label' => 'Active Tenants',
-            ],
-            'draft_invoices' => [
-                'description' => 'Invoices in draft status',
-                'label' => 'Draft Invoices',
-            ],
-            'pending_readings' => [
-                'description' => 'Meters awaiting new readings',
-                'label' => 'Pending Readings',
-            ],
-            'total_buildings' => [
-                'description' => 'Total number of buildings under management',
-                'label' => 'Total Buildings',
-            ],
-            'total_properties' => [
-                'description' => 'Total number of properties in the system',
-                'label' => 'Total Properties',
-            ],
-            'total_revenue' => [
-                'description' => 'Total revenue from utility services',
-                'label' => 'Total Revenue',
-            ],
-        ],
-        'manager' => [
-            'draft_invoices' => [
-                'description' => 'Unpaid invoices requiring attention',
-                'label' => 'Draft Invoices',
-            ],
-            'pending_readings' => [
-                'description' => 'Meters requiring reading collection',
-                'label' => 'Pending Readings',
-            ],
-            'total_buildings' => [
-                'description' => 'Buildings under your management',
-                'label' => 'My Buildings',
-            ],
-            'total_properties' => [
-                'description' => 'Properties under your management',
-                'label' => 'My Properties',
-            ],
-        ],
-        'tenant' => [
-            'invoices' => [
-                'description' => 'Your utility invoices and billing history',
-                'label' => 'My Invoices',
-            ],
-            'property' => [
-                'description' => 'Information about your property',
-                'label' => 'My Property',
-            ],
-            'unpaid' => [
-                'description' => 'Unpaid invoices requiring payment',
-                'label' => 'Outstanding',
-            ],
-        ],
-    ],
-
-    // Audit System Translations
-    'audit' => [
-        // Widget Headings
-        'overview' => 'Audit Overview',
-        'trends' => 'Audit Trends',
-        'trends_title' => 'Audit Trends',
-        'trends_description' => 'Track configuration changes and system activity over time',
-        'compliance_status' => 'Compliance Status',
-        'anomaly_detection' => 'Anomaly Detection',
-        'change_history' => 'Change History',
-        'rollback_management' => 'Rollback Management',
-        'rollback_history' => 'Rollback History',
-        
-        // Stats and Metrics
-        'total_changes' => 'Total Changes',
-        'user_changes' => 'User Changes',
-        'system_changes' => 'System Changes',
-        'compliance_score' => 'Compliance Score',
-        'anomalies_detected' => 'Anomalies Detected',
-        'performance_score' => 'Performance Score',
-        'performance_grade' => 'Performance Grade',
-        'system_performance' => 'System Performance',
-        'critical_issues' => 'Critical Issues',
-        'requires_attention' => 'Requires Attention',
-        'last_24_hours' => 'Last 24 Hours',
-        'last_7_days' => 'Last 7 Days',
-        'last_30_days' => 'Last 30 Days',
-        'date' => 'Date',
-        'number_of_changes' => 'Number of Changes',
-        
-        // Status Messages
-        'view_details' => 'View Details',
-        'no_anomalies' => 'No anomalies detected',
-        'no_data_available' => 'No audit data available',
-        'no_rollbacks' => 'No Rollbacks Found',
-        'no_rollbacks_description' => 'No configuration rollbacks have been performed yet.',
-        'excellent_compliance' => 'Excellent compliance',
-        'good_compliance' => 'Good compliance',
-        'needs_attention' => 'Needs attention',
-        'critical_issues' => 'Critical issues',
-        'fully_compliant' => 'Fully Compliant',
-        'non_compliant' => 'Non-Compliant',
-        'unknown_status' => 'Unknown Status',
-        
-        // Modal Titles
-        'change_details' => 'Change Details',
-        'rollback_details' => 'Rollback Details',
-        'rollback_confirmation' => 'Confirm Rollback',
-        'rollback_warning' => 'This action will revert the configuration to its previous state. This cannot be undone.',
-        'bulk_rollback_confirmation' => 'Confirm Bulk Rollback',
-        'bulk_rollback_warning' => 'This will rollback multiple configurations. Please ensure this is intended.',
-        'revert_rollback_confirmation' => 'Confirm Rollback Revert',
-        'revert_rollback_warning' => 'This will undo the rollback operation. Use with caution.',
-        
-        // Labels
-        'labels' => [
-            'severity' => 'Severity',
-            'details' => 'Details',
-            'average' => 'Average',
-            'peak' => 'Peak',
-            'threshold' => 'Threshold',
-            'anomalous' => 'Anomalous',
-            'yes' => 'Yes',
-            'no' => 'No',
-            'recommended_actions' => 'Recommended Actions',
-            'changed_at' => 'Changed At',
-            'model_type' => 'Model Type',
-            'event' => 'Event',
-            'user' => 'User',
-            'system' => 'System',
-            'unknown_user' => 'Unknown User',
-            'changed_fields' => 'Changed Fields',
-            'notes' => 'Notes',
-            'period' => 'Period',
-            'performed_at' => 'Performed At',
-            'performed_by' => 'Performed By',
-            'configuration' => 'Configuration',
-            'reason' => 'Reason',
-            'fields_rolled_back' => 'Fields Rolled Back',
-            'original_change' => 'Original Change',
-            'not_available' => 'Not Available',
-            'rollback_reason' => 'Rollback Reason',
-            'revert_reason' => 'Revert Reason',
-            'select_changes' => 'Select Changes',
-        ],
-        
-        // Events
-        'events' => [
-            'created' => 'Created',
-            'updated' => 'Updated',
-            'deleted' => 'Deleted',
-            'rollback' => 'Rollback',
-        ],
-        
-        // Models
-        'models' => [
-            'utility_service' => 'Utility Service',
-            'service_configuration' => 'Service Configuration',
-        ],
-        
-        // Time Periods
-        'periods' => [
-            'today' => 'Today',
-            'this_week' => 'This Week',
-            'this_month' => 'This Month',
-            'this_quarter' => 'This Quarter',
-            'this_year' => 'This Year',
-        ],
-        
-        // Actions
-        'actions' => [
-            'export_details' => 'Export Details',
-            'mark_reviewed' => 'Mark as Reviewed',
-            'refresh' => 'Refresh',
-            'view_details' => 'View Details',
-            'rollback' => 'Rollback',
-            'view_rollback_history' => 'View Rollback History',
-            'bulk_rollback' => 'Bulk Rollback',
-            'revert_rollback' => 'Revert Rollback',
-        ],
-        
-        // Placeholders
-        'placeholders' => [
-            'rollback_reason' => 'Explain why this configuration should be rolled back...',
-            'bulk_rollback_reason' => 'Explain why these configurations should be rolled back...',
-            'revert_reason' => 'Explain why this rollback should be reverted...',
-        ],
-        
-        // Notifications
-        'notifications' => [
-            'rollback_success' => 'Configuration successfully rolled back',
-            'rollback_failed' => 'Rollback operation failed',
-            'bulk_rollback_success' => 'Successfully rolled back :count configurations',
-            'bulk_rollback_partial' => 'Rolled back :success configurations, :failed failed',
-            'revert_success' => 'Rollback successfully reverted',
-            'revert_failed' => 'Failed to revert rollback',
-            'original_change_not_found' => 'Original change record not found',
-            'rollback_audit_not_found' => 'Rollback audit record not found',
-            'anomaly_detected' => [
-                'subject' => ':Severity Audit Anomaly: :type',
-                'greeting' => 'Audit Alert',
-                'title' => 'Audit Anomaly Detected',
-                'intro' => 'A :severity severity :type anomaly has been detected for tenant :tenant_id.',
-                'detected_at' => 'Detected at: :time',
-                'details_header' => 'Anomaly Details:',
-                'action' => 'View Audit Dashboard',
-            ],
-            'compliance_issue' => [
-                'subject' => 'Compliance Score Alert: :score%',
-                'greeting' => 'Compliance Alert',
-                'title' => 'Compliance Issue Detected',
-                'intro' => 'The compliance score for tenant :tenant_id has dropped to :score%.',
-                'summary' => 'Compliance score: :score%',
-                'failing_categories' => 'Failing Categories:',
-                'recommendations' => 'Recommendations:',
-                'action' => 'View Compliance Dashboard',
-            ],
-        ],
-        
-        // Anomaly Types
-        'anomaly_types' => [
-            'high_change_frequency' => 'High Change Frequency',
-            'bulk_changes' => 'Bulk Changes',
-            'configuration_rollbacks' => 'Configuration Rollbacks',
-            'unauthorized_access' => 'Unauthorized Access',
-            'data_integrity_issue' => 'Data Integrity Issue',
-            'performance_degradation' => 'Performance Degradation',
-        ],
-        
-        // Compliance Categories
-        'compliance_categories' => [
-            'audit_trail' => 'Audit Trail',
-            'data_retention' => 'Data Retention',
-            'regulatory' => 'Regulatory Compliance',
-            'security' => 'Security Compliance',
-            'data_quality' => 'Data Quality',
-        ],
-        
-        // Recommendations
-        'recommendations' => [
-            'investigate_changes' => 'Investigate Recent Changes',
-            'investigate_changes_desc' => 'Review the recent configuration changes to identify patterns or unauthorized modifications.',
-            'review_permissions' => 'Review User Permissions',
-            'review_permissions_desc' => 'Ensure users have appropriate access levels and consider implementing additional approval workflows.',
-            'verify_user_actions' => 'Verify User Actions',
-            'verify_user_actions_desc' => 'Contact the user to confirm these bulk changes were intentional and authorized.',
-            'analyze_rollbacks' => 'Analyze Rollback Patterns',
-            'analyze_rollbacks_desc' => 'Investigate why configurations are being rolled back to identify underlying issues.',
-            'review_logs' => 'Review System Logs',
-            'review_logs_desc' => 'Examine detailed system logs to understand the context of this anomaly.',
-        ],
-    ],
-];
+return array (
+  'admin' => 
+  array (
+    'activity' => 
+    array (
+      'no_users' => 'No Users Found',
+      'recent_invoices' => 'Recent Invoices',
+      'recent_portfolio' => 'Recent Portfolio Activity',
+      'recent_tenants' => 'Recent Tenants',
+      'recent_users' => 'Recent Users',
+    ),
+    'banner' => 
+    array (
+      'expired_body' => 'Your subscription has expired. Please renew to continue using all features.',
+      'expired_title' => 'Subscription Expired',
+      'expiring_body' => 'Your subscription is expiring soon. Renew now to avoid service interruption.',
+      'expiring_title' => 'Subscription Expiring',
+      'no_subscription_body' => 'You don\'t have an active subscription. Choose a plan to get started.',
+      'no_subscription_title' => 'No Active Subscription',
+      'renew' => 'Renew',
+      'renew_now' => 'Renew Now',
+    ),
+    'breakdown' => 
+    array (
+      'administrators' => 'Administrators',
+      'draft_invoices' => 'Draft Invoices',
+      'finalized_invoices' => 'Finalized Invoices',
+      'invoice_title' => 'Invoices',
+      'managers' => 'Managers',
+      'paid_invoices' => 'Paid Invoices',
+      'tenants' => 'Tenants',
+      'users_title' => 'Users',
+    ),
+    'badges' =>
+    array (
+      'admin' => 'Admin Workspace',
+      'platform' => 'Platform Operations',
+    ),
+    'org_dashboard' => 'Organization Dashboard',
+    'portfolio_subtitle' => 'Property portfolio management',
+    'quick' => 
+    array (
+      'create_user' => 'Create User',
+      'create_user_desc' => 'Add a new user to the system',
+      'settings' => 'Settings',
+      'settings_desc' => 'Manage system settings and configuration',
+    ),
+    'quick_actions' => 
+    array (
+      'create_tenant_desc' => 'Add a new tenant to the system',
+      'create_tenant_title' => 'Create Tenant',
+      'manage_providers_desc' => 'Utility service providers',
+      'manage_providers_title' => 'Manage Providers',
+      'manage_tenants_desc' => 'View and manage all tenants',
+      'manage_tenants_title' => 'Manage Tenants',
+      'manage_tariffs_desc' => 'Configure utility pricing',
+      'manage_tariffs_title' => 'Manage Tariffs',
+      'manage_users_desc' => 'Manage users and their permissions',
+      'manage_users_title' => 'Manage Users',
+      'organization_profile_desc' => 'Edit organization profile and settings',
+      'organization_profile_title' => 'Organization Profile',
+      'title' => 'Quick Actions',
+      'view_audit_log_desc' => 'System activity history',
+      'view_audit_log_title' => 'View Audit Log',
+    ),
+    'stats' => 
+    array (
+      'active_tariffs' => 'Active Tariffs',
+      'active_meters' => 'Active Meters',
+      'active_tenants' => 'Active Tenants',
+      'draft_invoices' => 'Draft Invoices',
+      'readings_last_7_days' => 'Readings (Last 7 Days)',
+      'total_buildings' => 'Buildings',
+      'total_meter_readings' => 'Total Meter Readings',
+      'total_properties' => 'Total Properties',
+      'total_tenants' => 'Total Tenants',
+      'total_users' => 'Total Users',
+      'utility_providers' => 'Utility Providers',
+      'unpaid_invoices' => 'Unpaid Invoices',
+    ),
+    'subscription_card' => 
+    array (
+      'approaching_limit' => 'Approaching Limit',
+      'expires' => 'Expires',
+      'plan_type' => 'Plan Type',
+      'properties' => 'Properties',
+      'tenants' => 'Tenants',
+      'title' => 'Subscription',
+    ),
+    'system_subtitle' => 'System analytics and monitoring',
+    'title' => 'Admin Dashboard',
+  ),
+  'manager' => 
+  array (
+    'badge' => 'Manager',
+    'description' => 'Manage properties, meters, and billing operations',
+    'empty' => 
+    array (
+      'drafts' => 'No draft invoices found',
+      'operations' => 'No pending operations',
+      'recent' => 'No recent activity',
+    ),
+    'hints' => 
+    array (
+      'drafts' => 'Invoices that need to be finalized and sent',
+      'operations' => 'Properties requiring meter readings or attention',
+      'recent' => 'Latest invoices and system activity',
+      'shortcuts' => 'Quick access to common management tasks',
+    ),
+    'pending_section' => 'Pending Actions',
+    'quick_actions' => 
+    array (
+      'enter_reading_desc' => 'Record new meter readings for properties',
+      'generate_invoice_desc' => 'Create new invoices for tenants',
+      'view_buildings' => 'View Buildings',
+      'view_buildings_desc' => 'Manage buildings and their properties',
+      'view_meters' => 'View Meters',
+      'view_meters_desc' => 'Monitor all utility meters in the system',
+      'view_reports' => 'View Reports',
+      'view_reports_desc' => 'Analytics and consumption reports',
+    ),
+    'sections' => 
+    array (
+      'drafts' => 'Draft Invoices',
+      'operations' => 'Pending Operations',
+      'recent' => 'Recent Activity',
+      'shortcuts' => 'Quick Actions',
+    ),
+    'stats' => 
+    array (
+      'active_meters' => 'Active Meters',
+      'active_tenants' => 'Active Tenants',
+      'draft_invoices' => 'Draft Invoices',
+      'meters_pending' => 'Meters Pending Reading',
+      'overdue_invoices' => 'Overdue Invoices',
+      'total_properties' => 'Total Properties',
+    ),
+    'workspace_label' => 'Manager Workspace',
+    'title' => 'Manager Dashboard',
+  ),
+  'tenant' => 
+  array (
+    'alerts' => 
+    array (
+      'no_property_body' => 'No property is assigned to your account. Please contact your administrator.',
+      'no_property_title' => 'No Property Assigned',
+    ),
+    'balance' => 
+    array (
+      'cta' => 'Pay Now',
+      'outstanding' => 'Outstanding Balance',
+      'title' => 'Account Balance',
+    ),
+    'consumption' => 
+    array (
+      'current' => 'Current',
+      'description' => 'Utility consumption analysis',
+      'missing_previous' => 'No previous data available',
+      'need_more' => 'Need more data for analysis',
+      'previous' => 'Previous',
+      'since_last' => 'Since last reading',
+      'title' => 'Consumption',
+    ),
+    'readings' => 
+    array (
+      'date' => 'Date',
+      'meter_type' => 'Meter Type',
+      'reading' => 'Reading',
+      'serial' => 'Serial Number',
+      'serial_short' => 'Serial #',
+      'title' => 'Meter Readings',
+      'units' => 'Units',
+    ),
+    'description' => 'Tenant portal and account management',
+    'property' => 
+    array (
+      'address' => 'Address',
+      'area' => 'Area',
+      'building' => 'Building',
+      'title' => 'Property Information',
+      'type' => 'Type',
+    ),
+    'quick_actions' => 
+    array (
+      'description' => 'Quick access to essential functions',
+      'invoices_desc' => 'View invoice history and payment status',
+      'invoices_title' => 'My Invoices',
+      'meters_desc' => 'View meter readings and consumption',
+      'meters_title' => 'Meters',
+      'property_desc' => 'Information about your property',
+      'property_title' => 'My Property',
+      'title' => 'Quick Actions',
+    ),
+    'space_label' => 'Tenant Space',
+    'stats' => 
+    array (
+      'active_meters' => 'Active Meters',
+      'total_invoices' => 'Total Invoices',
+      'unpaid_invoices' => 'Unpaid Invoices',
+    ),
+    'title' => 'Tenant Dashboard',
+  ),
+  'utility_analytics' => 'Utility Analytics',
+  'efficiency_trends' => 'Efficiency Trends',
+  'cost_predictions' => 'Cost Predictions',
+  'usage_patterns' => 'Usage Patterns',
+  'recommendations' => 'Recommendations',
+  'real_time_costs' => 'Real-Time Costs',
+  'service_breakdown' => 'Service Breakdown',
+  'utility_services_overview' => 'Utility Services Overview',
+  'recent_activity' => 'Recent Activity',
+  'stats' => 
+  array (
+    'total_properties' => 'Total Properties',
+    'active_meters' => 'Active Meters',
+    'monthly_cost' => 'Monthly Cost',
+    'pending_readings' => 'Pending Readings',
+  ),
+  'filters' => 
+  array (
+    'last_3_months' => 'Last 3 Months',
+    'last_6_months' => 'Last 6 Months',
+    'last_12_months' => 'Last 12 Months',
+    'current_year' => 'Current Year',
+    'current_month' => 'Current Month',
+    'last_month' => 'Last Month',
+  ),
+  'current_month_cost' => 'Current Month Cost',
+  'year_to_date_cost' => 'Year to Date Cost',
+  'average_monthly_cost' => 'Average Monthly Cost',
+  'from_last_month' => 'from last month',
+  'total_this_year' => 'total this year',
+  'last_6_months_average' => 'last 6 months average',
+  'today_projection' => 'Today\'s Projection',
+  'current' => 'Current',
+  'projected' => 'Projected',
+  'complete' => 'complete',
+  'monthly_estimate' => 'Monthly Estimate',
+  'month' => 'month',
+  'no_recent_readings' => 'No recent readings available',
+  'last_updated' => 'Last updated',
+  'never' => 'Never',
+  'consumption_units' => 'Consumption (Units)',
+  'months' => 'Months',
+  'meters' => 'meters',
+  'trend_increasing' => 'Increasing',
+  'trend_decreasing' => 'Decreasing',
+  'trend_stable' => 'Stable',
+  'confidence_high' => 'High Confidence',
+  'confidence_medium' => 'Medium Confidence',
+  'confidence_low' => 'Low Confidence',
+  'monthly_prediction' => 'Monthly Prediction',
+  'yearly_prediction' => 'Yearly Prediction',
+  'peak_usage' => 'Peak Usage',
+  'weekly_pattern' => 'Weekly Pattern',
+  'monthly_trend' => 'Monthly Trend',
+  'no_efficiency_data' => 'No efficiency data available',
+  'no_prediction_data' => 'No prediction data available',
+  'no_pattern_data' => 'No usage pattern data available',
+  'no_recommendations' => 'No recommendations at this time',
+  'missing_readings_title' => 'Missing readings for :service',
+  'missing_readings_desc' => 'No recent readings found for :property',
+  'add_reading' => 'Add Reading',
+  'high_usage_title' => 'High :service usage detected',
+  'high_usage_desc' => 'Usage increased by :percentage% for :property',
+  'investigate_usage' => 'Investigate Usage',
+  'low_usage_title' => 'Low :service usage detected',
+  'low_usage_desc' => 'Usage decreased by :percentage% for :property',
+  'verify_readings' => 'Verify Readings',
+  'efficiency_title' => 'Energy efficiency opportunity',
+  'efficiency_desc' => 'Consider energy-saving measures for :property',
+  'consider_efficiency' => 'Consider Efficiency Measures',
+  'widgets' => 
+  array (
+    'admin' => 
+    array (
+      'active_tenants' => 
+      array (
+        'description' => 'Number of active tenants in the system',
+        'label' => 'Active Tenants',
+      ),
+      'draft_invoices' => 
+      array (
+        'description' => 'Invoices in draft status',
+        'label' => 'Draft Invoices',
+      ),
+      'pending_readings' => 
+      array (
+        'description' => 'Meters awaiting new readings',
+        'label' => 'Pending Readings',
+      ),
+      'total_buildings' => 
+      array (
+        'description' => 'Total number of buildings under management',
+        'label' => 'Total Buildings',
+      ),
+      'total_properties' => 
+      array (
+        'description' => 'Total number of properties in the system',
+        'label' => 'Total Properties',
+      ),
+      'total_revenue' => 
+      array (
+        'description' => 'Total revenue from utility services',
+        'label' => 'Total Revenue',
+      ),
+    ),
+    'manager' => 
+    array (
+      'draft_invoices' => 
+      array (
+        'description' => 'Unpaid invoices requiring attention',
+        'label' => 'Draft Invoices',
+      ),
+      'pending_readings' => 
+      array (
+        'description' => 'Meters requiring reading collection',
+        'label' => 'Pending Readings',
+      ),
+      'total_buildings' => 
+      array (
+        'description' => 'Buildings under your management',
+        'label' => 'My Buildings',
+      ),
+      'total_properties' => 
+      array (
+        'description' => 'Properties under your management',
+        'label' => 'My Properties',
+      ),
+    ),
+    'tenant' => 
+    array (
+      'invoices' => 
+      array (
+        'description' => 'Your utility invoices and billing history',
+        'label' => 'My Invoices',
+      ),
+      'property' => 
+      array (
+        'description' => 'Information about your property',
+        'label' => 'My Property',
+      ),
+      'unpaid' => 
+      array (
+        'description' => 'Unpaid invoices requiring payment',
+        'label' => 'Outstanding',
+      ),
+    ),
+  ),
+  'audit' => 
+  array (
+    'overview' => 'Audit Overview',
+    'trends' => 'Audit Trends',
+    'trends_title' => 'Audit Trends',
+    'trends_description' => 'Track configuration changes and system activity over time',
+    'compliance_status' => 'Compliance Status',
+    'anomaly_detection' => 'Anomaly Detection',
+    'change_history' => 'Change History',
+    'rollback_management' => 'Rollback Management',
+    'rollback_history' => 'Rollback History',
+    'total_changes' => 'Total Changes',
+    'user_changes' => 'User Changes',
+    'system_changes' => 'System Changes',
+    'compliance_score' => 'Compliance Score',
+    'anomalies_detected' => 'Anomalies Detected',
+    'performance_score' => 'Performance Score',
+    'performance_grade' => 'Performance Grade',
+    'system_performance' => 'System Performance',
+    'critical_issues' => 'Critical issues',
+    'requires_attention' => 'Requires Attention',
+    'last_24_hours' => 'Last 24 Hours',
+    'last_7_days' => 'Last 7 Days',
+    'last_30_days' => 'Last 30 Days',
+    'date' => 'Date',
+    'number_of_changes' => 'Number of Changes',
+    'view_details' => 'View Details',
+    'no_anomalies' => 'No anomalies detected',
+    'no_data_available' => 'No audit data available',
+    'no_rollbacks' => 'No Rollbacks Found',
+    'no_rollbacks_description' => 'No configuration rollbacks have been performed yet.',
+    'excellent_compliance' => 'Excellent compliance',
+    'good_compliance' => 'Good compliance',
+    'needs_attention' => 'Needs attention',
+    'fully_compliant' => 'Fully Compliant',
+    'non_compliant' => 'Non-Compliant',
+    'unknown_status' => 'Unknown Status',
+    'change_details' => 'Change Details',
+    'rollback_details' => 'Rollback Details',
+    'rollback_confirmation' => 'Confirm Rollback',
+    'rollback_warning' => 'This action will revert the configuration to its previous state. This cannot be undone.',
+    'bulk_rollback_confirmation' => 'Confirm Bulk Rollback',
+    'bulk_rollback_warning' => 'This will rollback multiple configurations. Please ensure this is intended.',
+    'revert_rollback_confirmation' => 'Confirm Rollback Revert',
+    'revert_rollback_warning' => 'This will undo the rollback operation. Use with caution.',
+    'labels' => 
+    array (
+      'severity' => 'Severity',
+      'details' => 'Details',
+      'average' => 'Average',
+      'peak' => 'Peak',
+      'threshold' => 'Threshold',
+      'anomalous' => 'Anomalous',
+      'yes' => 'Yes',
+      'no' => 'No',
+      'recommended_actions' => 'Recommended Actions',
+      'changed_at' => 'Changed At',
+      'model_type' => 'Model Type',
+      'event' => 'Event',
+      'user' => 'User',
+      'system' => 'System',
+      'unknown_user' => 'Unknown User',
+      'changed_fields' => 'Changed Fields',
+      'notes' => 'Notes',
+      'period' => 'Period',
+      'performed_at' => 'Performed At',
+      'performed_by' => 'Performed By',
+      'configuration' => 'Configuration',
+      'reason' => 'Reason',
+      'fields_rolled_back' => 'Fields Rolled Back',
+      'original_change' => 'Original Change',
+      'not_available' => 'Not Available',
+      'rollback_reason' => 'Rollback Reason',
+      'revert_reason' => 'Revert Reason',
+      'select_changes' => 'Select Changes',
+    ),
+    'events' => 
+    array (
+      'created' => 'Created',
+      'updated' => 'Updated',
+      'deleted' => 'Deleted',
+      'rollback' => 'Rollback',
+    ),
+    'models' => 
+    array (
+      'utility_service' => 'Utility Service',
+      'service_configuration' => 'Service Configuration',
+    ),
+    'periods' => 
+    array (
+      'today' => 'Today',
+      'this_week' => 'This Week',
+      'this_month' => 'This Month',
+      'this_quarter' => 'This Quarter',
+      'this_year' => 'This Year',
+    ),
+    'actions' => 
+    array (
+      'export_details' => 'Export Details',
+      'mark_reviewed' => 'Mark as Reviewed',
+      'refresh' => 'Refresh',
+      'view_details' => 'View Details',
+      'rollback' => 'Rollback',
+      'view_rollback_history' => 'View Rollback History',
+      'bulk_rollback' => 'Bulk Rollback',
+      'revert_rollback' => 'Revert Rollback',
+    ),
+    'placeholders' => 
+    array (
+      'rollback_reason' => 'Explain why this configuration should be rolled back...',
+      'bulk_rollback_reason' => 'Explain why these configurations should be rolled back...',
+      'revert_reason' => 'Explain why this rollback should be reverted...',
+    ),
+    'notifications' => 
+    array (
+      'rollback_success' => 'Configuration successfully rolled back',
+      'rollback_failed' => 'Rollback operation failed',
+      'bulk_rollback_success' => 'Successfully rolled back :count configurations',
+      'bulk_rollback_partial' => 'Rolled back :success configurations, :failed failed',
+      'revert_success' => 'Rollback successfully reverted',
+      'revert_failed' => 'Failed to revert rollback',
+      'original_change_not_found' => 'Original change record not found',
+      'rollback_audit_not_found' => 'Rollback audit record not found',
+      'anomaly_detected' => 
+      array (
+        'subject' => ':Severity Audit Anomaly: :type',
+        'greeting' => 'Audit Alert',
+        'title' => 'Audit Anomaly Detected',
+        'intro' => 'A :severity severity :type anomaly has been detected for tenant :tenant_id.',
+        'detected_at' => 'Detected at: :time',
+        'details_header' => 'Anomaly Details:',
+        'action' => 'View Audit Dashboard',
+      ),
+      'compliance_issue' => 
+      array (
+        'subject' => 'Compliance Score Alert: :score%',
+        'greeting' => 'Compliance Alert',
+        'title' => 'Compliance Issue Detected',
+        'intro' => 'The compliance score for tenant :tenant_id has dropped to :score%.',
+        'summary' => 'Compliance score: :score%',
+        'failing_categories' => 'Failing Categories:',
+        'recommendations' => 'Recommendations:',
+        'action' => 'View Compliance Dashboard',
+      ),
+    ),
+    'anomaly_types' => 
+    array (
+      'high_change_frequency' => 'High Change Frequency',
+      'bulk_changes' => 'Bulk Changes',
+      'configuration_rollbacks' => 'Configuration Rollbacks',
+      'unauthorized_access' => 'Unauthorized Access',
+      'data_integrity_issue' => 'Data Integrity Issue',
+      'performance_degradation' => 'Performance Degradation',
+    ),
+    'compliance_categories' => 
+    array (
+      'audit_trail' => 'Audit Trail',
+      'data_retention' => 'Data Retention',
+      'regulatory' => 'Regulatory Compliance',
+      'security' => 'Security Compliance',
+      'data_quality' => 'Data Quality',
+    ),
+    'recommendations' => 
+    array (
+      'investigate_changes' => 'Investigate Recent Changes',
+      'investigate_changes_desc' => 'Review the recent configuration changes to identify patterns or unauthorized modifications.',
+      'review_permissions' => 'Review User Permissions',
+      'review_permissions_desc' => 'Ensure users have appropriate access levels and consider implementing additional approval workflows.',
+      'verify_user_actions' => 'Verify User Actions',
+      'verify_user_actions_desc' => 'Contact the user to confirm these bulk changes were intentional and authorized.',
+      'analyze_rollbacks' => 'Analyze Rollback Patterns',
+      'analyze_rollbacks_desc' => 'Investigate why configurations are being rolled back to identify underlying issues.',
+      'review_logs' => 'Review System Logs',
+      'review_logs_desc' => 'Examine detailed system logs to understand the context of this anomaly.',
+    ),
+    'anomaly_marked_investigating' => 'Anomalija pažymėta kaip tiriama',
+    'anomaly_resolved' => 'Anomalija išspręsta',
+    'anomaly_ignored' => 'Anomalija ignoruota',
+    'status' => 'Būsena',
+    'last_check' => 'Paskutinė patikra',
+    'issues' => 'Problemos',
+    'no_issues' => 'Problemų nėra',
+  ),
+  'property' => 'Turtas',
+  'service' => 'Paslauga',
+  'latest_reading' => 'Paskutinis rodmuo',
+  'no_readings' => 'Nėra rodmenų',
+  'monthly_consumption' => 'Mėnesio suvartojimas',
+  'last_reading_date' => 'Paskutinio rodmens data',
+  'status' => 'Būsena',
+  'no_data' => 'Nėra duomenų',
+  'recent' => 'Naujausi',
+  'outdated' => 'Pasenę',
+  'has_recent_readings' => 'Turi naujausius rodmenis',
+  'needs_reading' => 'Reikia rodmens',
+  'view_readings' => 'Žiūrėti rodmenis',
+  'export_readings' => 'Eksportuoti rodmenis',
+  'export_started' => 'Eksportas pradėtas',
+  'export_will_be_available_shortly' => 'Eksportas bus prieinamas netrukus',
+);

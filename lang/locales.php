@@ -2,18 +2,10 @@
 
 declare(strict_types=1);
 
-$settingsPath = lang_path('locales.php');
-
-if (is_file($settingsPath)) {
-    /** @var array<string, mixed> $settings */
-    $settings = require $settingsPath;
-
-    return $settings;
-}
-
 return [
     'default' => 'lt',
     'fallback' => 'en',
+
     'available' => [
         'lt' => [
             'label' => 'common.lithuanian',

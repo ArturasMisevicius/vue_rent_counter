@@ -1,11 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 return array (
   'nav_groups' => 
   array (
     'my_property' => 'My Property',
     'billing' => 'Billing',
     'account' => 'Account',
+    'system' => 'Sistema',
+    'system_management' => 'Sistemos valdymas',
+    'operations' => 'Operacijos',
+    'localization' => 'Lokalizacija',
+    'property_management' => 'Turto valdymas',
+    'administration' => 'Администрирование',
+    'user_management' => 'Управление пользователями',
+    'monitoring' => 'Мониторинг',
   ),
   'navigation' => 
   array (
@@ -14,6 +24,7 @@ return array (
     'invoices' => 'Invoices',
     'profile' => 'Profile',
     'dashboard' => 'Dashboard',
+    'integration_health' => 'Integracijos būklė',
   ),
   'nav' => 
   array (
@@ -34,6 +45,9 @@ return array (
     'users' => 'Users',
     'settings' => 'Settings',
     'reports' => 'Reports',
+    'audit' => 'Аудит',
+    'readings' => 'Показания',
+    'actions' => 'Действия',
   ),
   'cta' => 
   array (
@@ -50,9 +64,9 @@ return array (
     'view' => 'View',
     'back' => 'Back',
   ),
-  'auth' =>
+  'auth' => 
   array (
-    'login_page' =>
+    'login_page' => 
     array (
       'click_hint' => 'Click a row to autofill credentials',
       'no_users' => 'No users available',
@@ -60,8 +74,11 @@ return array (
       'status_inactive' => 'Inactive',
       'total_users' => 'Total users:',
     ),
+    'authentication_required' => 'Требуется аутентификация',
+    'no_permission_admin_panel' => 'Нет разрешения на панель администратора',
+    'too_many_attempts' => 'Слишком много попыток',
   ),
-  'meta' =>
+  'meta' => 
   array (
     'default_title' => 'Vilnius Utilities Management Platform',
   ),
@@ -110,6 +127,23 @@ return array (
     'email' => 'Email',
     'role' => 'Role',
     'registered' => 'Registered',
+    'integration_health_check' => 'Integracijos būklės patikra',
+    'integration_health_checks' => 'Integracijos būklės patikros',
+    'service_name' => 'Paslaugos pavadinimas',
+    'endpoint' => 'Galinis taškas',
+    'response_time_ms' => 'Atsakymo laikas (ms)',
+    'error_message' => 'Klaidos pranešimas',
+    'checked_at' => 'Patikrinta',
+    'response_time' => 'Atsakymo laikas',
+    'last_check' => 'Paskutinė patikra',
+    'error' => 'Klaida',
+    'duration_minutes' => 'Trukmė (minutėmis)',
+    'reason' => 'Priežastis',
+    'system_overview' => 'Обзор системы',
+    'quick_actions' => 'Быстрые действия',
+    'database_status' => 'Статус базы данных',
+    'cache_status' => 'Статус кэша',
+    'queue_status' => 'Статус очереди',
   ),
   'sections' => 
   array (
@@ -120,6 +154,8 @@ return array (
     'invoice_details' => 'Invoice Details',
     'billing_period' => 'Billing Period',
     'invoice_items' => 'Invoice Items',
+    'service_details' => 'Paslaugos detalės',
+    'health_metrics' => 'Būklės metrikos',
   ),
   'actions' => 
   array (
@@ -128,10 +164,18 @@ return array (
     'extend' => 'Extend',
     'extend_subscription' => 'Extend Subscription',
     'notify' => 'Notify',
+    'run_health_check' => 'Vykdyti būklės patikrą',
+    'enable_maintenance' => 'Įjungti priežiūros režimą',
+    'run_health_checks' => 'Vykdyti būklės patikras',
+    'create_organization' => 'Создать организацию',
+    'manage_subscriptions' => 'Управление подписками',
+    'manage_users' => 'Управление пользователями',
   ),
   'modals' => 
   array (
     'extend_subscription_description' => 'This will extend the subscription by one year from the current expiry date.',
+    'run_health_check' => 'Vykdyti būklės patikrą',
+    'health_check_description' => 'Tai patikrins paslaugos būklę ir atnaujins būseną.',
   ),
   'stats' => 
   array (
@@ -148,10 +192,35 @@ return array (
   array (
     'recent_invoices' => 'Recent Invoices',
     'recent_users' => 'Recent Users',
+    'policy_registry' => 
+    array (
+      'critical_issues' => 'Kritinės problemos',
+      'configuration_issues' => 'Konfigūracijos problemos',
+      'health_status' => 'Būklės būsena',
+      'warnings' => 'Įspėjimai',
+      'all_systems_operational' => 'Visos sistemos veikia',
+      'last_24h' => 'Paskutinės 24 val.',
+      'total_policies' => 'Iš viso politikų',
+      'registered_policies' => 'Registruotos politikos',
+      'total_gates' => 'Iš viso vartų',
+      'registered_gates' => 'Registruoti vartai',
+      'cache_hit_rate' => 'Talpyklos pataikymo rodiklis',
+      'cache_performance' => 'Talpyklos našumas',
+      'avg_registration_time' => 'Vid. registracijos laikas',
+      'performance_metric' => 'Našumo metrika',
+      'error_rate' => 'Klaidų rodiklis',
+      'data_unavailable' => 'Duomenys nepasiekiami',
+    ),
   ),
   'placeholders' => 
   array (
     'calculated_automatically' => 'Calculated automatically',
+    'service_name' => 'Įveskite paslaugos pavadinimą',
+    'endpoint_url' => 'Įveskite galinio taško URL',
+    'response_time' => 'Atsakymo laikas milisekundėmis',
+    'error_message' => 'Klaidos pranešimas, jei yra',
+    'no_errors' => 'Klaidų nėra',
+    'maintenance_reason' => 'Įveskite priežiūros priežastį',
   ),
   'brand' => 
   array (
@@ -173,4 +242,98 @@ return array (
   ),
   'welcome' => 'Welcome',
   'goodbye' => 'Goodbye',
+  'common' => 
+  array (
+    'na' => 'N/A',
+    'dash' => '—',
+    'none' => 'Nėra',
+    'metadata' => 'Metaduomenys',
+    'created_at' => 'Sukurta',
+    'updated_at' => 'Atnaujinta',
+  ),
+  'units' => 
+  array (
+    'square_meter' => 'm²',
+    'square_meter_spaced' => 'm²',
+    'euro' => '€',
+  ),
+  'errors' => 
+  array (
+    'access_denied' => 'Prieiga uždrausta',
+    'forbidden_action' => 'Šis veiksmas draudžiamas',
+    'error_title' => 'Klaida',
+    'generic' => 'Įvyko klaida',
+  ),
+  'filters' => 
+  array (
+    'recent_checks' => 'Naujausios patikros',
+    'unhealthy_only' => 'Tik nesveiki',
+    'slow_response' => 'Lėtas atsakymas',
+  ),
+  'notifications' => 
+  array (
+    'health_check_completed' => 'Būklės patikra baigta',
+    'health_check_failed' => 'Būklės patikra nepavyko',
+    'maintenance_enabled' => 'Priežiūros režimas įjungtas',
+    'bulk_health_check_completed' => 'Masinė būklės patikra baigta',
+    'health_check_results' => 'Būklės patikros rezultatai',
+  ),
+  'status' => 
+  array (
+    'unhealthy' => 'Nesveika',
+    'healthy' => 'Sveika',
+    'active' => 'Активно',
+    'running' => 'Работает',
+  ),
+  'End Impersonation' => 'Завершить имперсонацию',
+  'Impersonation Mode Active' => 'Режим имперсонации активен',
+  'Impersonation session has timed out after 30 minutes.' => 'Сессия имперсонации истекла через 30 минут.',
+  'Reason' => 'Причина',
+  'Started at' => 'Начато в',
+  'Too many requests. Please try again in :seconds seconds.' => 'Слишком много запросов. Попробуйте снова через :seconds секунд.',
+  'You are impersonating' => 'Вы имперсонируете',
+  'by' => 'от',
+  'impersonation' => 
+  array (
+    'mode_active' => 'Режим имперсонации активен',
+    'you_are_impersonating' => 'Вы имперсонируете',
+    'reason' => 'Причина',
+    'started_at' => 'Начато в',
+    'by' => 'от',
+    'end' => 'Завершить имперсонацию',
+    'timeout' => 'Сессия имперсонации истекла через 30 минут.',
+    'history' => 'История имперсонации',
+    'history_description' => 'Просмотр всех прошлых сессий имперсонации с продолжительностью и выполненными действиями.',
+    'superadmin' => 'Суперадминистратор',
+    'target_user' => 'Целевой пользователь',
+    'duration' => 'Продолжительность',
+    'sessions' => 'Сессии имперсонации',
+    'started' => 'Начато',
+    'ended' => 'Завершено',
+    'no_sessions' => 'Сессии имперсонации не найдены',
+    'no_sessions_description' => 'Нет сессий имперсонации, соответствующих вашим текущим фильтрам.',
+    'started_successfully' => 'Успешно начата имперсонация :user',
+    'ended_successfully' => 'Сессия имперсонации успешно завершена',
+  ),
+  'rate_limit' => 
+  array (
+    'seconds' => 'Слишком много запросов. Попробуйте снова через :seconds секунд.',
+  ),
+  'accessibility' => 
+  array (
+    'dismiss' => 'Отклонить',
+    'open_menu' => 'Открыть меню',
+    'skip_to_content' => 'Перейти к содержимому',
+  ),
+  'welcome_updated' => 'Добро пожаловать (обновлено)',
+  'special_chars' => 'Привет! @#$%^&*()_+-=[]{}|;:\'",.<>?/',
+  'html_content' => '<strong>Жирный</strong> и <em>курсивный</em> текст',
+  'multiline' => 'Строка 1
+Строка 2
+Строка 3',
+  'long_text' => 'Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода.',
+  'pages' => 
+  array (
+    'superadmin_dashboard' => 'Панель суперадминистратора',
+  ),
 );

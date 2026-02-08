@@ -8,7 +8,7 @@
     <div class="relative p-6 sm:p-8">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-500">Tenant Space</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-500">{{ __('dashboard.tenant.space_label') }}</p>
                 <h1 class="text-2xl font-bold text-slate-900 sm:text-3xl">{{ $title }}</h1>
                 @if($description)
                     <p class="mt-2 max-w-2xl text-sm text-slate-600">{{ $description }}</p>

@@ -291,6 +291,7 @@ return [
         'expiring_subscriptions' => [
             'title' => 'Expiring Subscriptions',
             'alert' => ':count subscriptions are expiring soon.',
+            'days' => '{1} :count day|[2,*] :count days',
             'expires' => 'Expires',
         ],
         'system_health' => [
@@ -555,10 +556,15 @@ return [
         ],
         'quick_actions' => [
             'create_organization' => 'Create Organization',
+            'create_organization_desc' => 'Register a new organization and owner account',
             'create_subscription' => 'Create Subscription',
+            'create_subscription_desc' => 'Review or assign subscription plans',
             'view_all_activity' => 'View All Activity',
+            'view_all_activity_desc' => 'Jump to the latest platform events',
             'manage_organizations' => 'Manage Organizations',
+            'manage_organizations_desc' => 'Open organization directory and filters',
             'manage_subscriptions' => 'Manage Subscriptions',
+            'manage_subscriptions_desc' => 'Audit renewals, statuses, and expirations',
             'title' => 'Quick Actions',
         ],
         'recent_activity' => [
@@ -614,6 +620,9 @@ return [
             'professional' => 'Professional',
             'title' => 'Subscriptions by Plan',
             'view_all' => 'View All',
+        ],
+        'badges' => [
+            'platform' => 'Superadmin Workspace',
         ],
         'title' => 'System Administration',
         'subtitle' => 'Manage organizations, subscriptions, and system health',

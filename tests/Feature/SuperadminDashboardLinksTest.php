@@ -34,10 +34,10 @@ test('superadmin dashboard widgets link to CRUD management', function () {
     $response->assertSee(route('superadmin.subscriptions.index', ['status' => SubscriptionStatus::ACTIVE->value]), false);
     $response->assertSee(route('superadmin.subscriptions.index', ['status' => SubscriptionStatus::EXPIRED->value]), false);
     $response->assertSee(route('superadmin.subscriptions.index', ['status' => SubscriptionStatus::SUSPENDED->value]), false);
-    $response->assertSee('#resource-properties', false);
-    $response->assertSee('#resource-buildings', false);
-    $response->assertSee('#resource-tenants', false);
-    $response->assertSee('#resource-invoices', false);
+    $response->assertSee('id="resource-properties"', false);
+    $response->assertSee('id="resource-buildings"', false);
+    $response->assertSee('id="resource-tenants"', false);
+    $response->assertSee('id="resource-invoices"', false);
 });
 
 test('superadmin dashboard shows drill-down data with manage links', function () {
@@ -66,7 +66,7 @@ test('superadmin dashboard shows drill-down data with manage links', function ()
     $response->assertOk();
     $response->assertSee($admin->organization_name, false);
     $response->assertSee(route('superadmin.subscriptions.show', $subscription), false);
-    $response->assertSee(route('superadmin.organizations.show', $admin), false);
+    $response->assertSee(route('superadmin.organizations.show', $admin->tenant_id), false);
     $response->assertSee($property->address, false);
     $response->assertSee($building->display_name, false);
     $response->assertSee($tenantUser->email, false);

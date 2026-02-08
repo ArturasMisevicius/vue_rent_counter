@@ -11,7 +11,7 @@
                 <p class="mt-1 text-xs text-slate-500">{{ $description }}</p>
             @endif
         </div>
-        <span class="rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-semibold text-indigo-700">Manager</span>
+        <span class="rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-semibold text-indigo-700">{{ __('dashboard.manager.badge') }}</span>
     </div>
     <div class="px-5 py-4">
         {{ $slot }}

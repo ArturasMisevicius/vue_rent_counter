@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return array (
   'nav_groups' => 
   array (
@@ -11,6 +13,9 @@ return array (
     'operations' => 'Operacijos',
     'localization' => 'Lokalizacija',
     'property_management' => 'Turto valdymas',
+    'administration' => 'Администрирование',
+    'user_management' => 'Управление пользователями',
+    'monitoring' => 'Мониторинг',
   ),
   'navigation' => 
   array (
@@ -43,9 +48,9 @@ return array (
     'error_title' => 'Klaida',
     'generic' => 'Įvyko klaida',
   ),
-  'auth' =>
+  'auth' => 
   array (
-    'login_page' =>
+    'login_page' => 
     array (
       'click_hint' => 'Spustelėkite eilutę, kad automatiškai užpildytumėte prisijungimo duomenis',
       'no_users' => 'Vartotojų nėra',
@@ -53,8 +58,11 @@ return array (
       'status_inactive' => 'Neaktyvus',
       'total_users' => 'Iš viso vartotojų:',
     ),
+    'authentication_required' => 'Требуется аутентификация',
+    'no_permission_admin_panel' => 'Нет разрешения на панель администратора',
+    'too_many_attempts' => 'Слишком много попыток',
   ),
-  'meta' =>
+  'meta' => 
   array (
     'default_title' => 'Vilniaus komunalinių paslaugų valdymo platforma',
   ),
@@ -115,6 +123,11 @@ return array (
     'days' => 'dienos',
     'organization' => 'Organizacija',
     'plan' => 'Planas',
+    'system_overview' => 'Обзор системы',
+    'quick_actions' => 'Быстрые действия',
+    'database_status' => 'Статус базы данных',
+    'cache_status' => 'Статус кэша',
+    'queue_status' => 'Статус очереди',
   ),
   'sections' => 
   array (
@@ -154,6 +167,9 @@ return array (
     'extend' => 'Pratęsti',
     'extend_subscription' => 'Pratęsti prenumeratą',
     'notify' => 'Pranešti',
+    'create_organization' => 'Создать организацию',
+    'manage_subscriptions' => 'Управление подписками',
+    'manage_users' => 'Управление пользователями',
   ),
   'notifications' => 
   array (
@@ -173,6 +189,8 @@ return array (
   array (
     'unhealthy' => 'Nesveika',
     'healthy' => 'Sveika',
+    'active' => 'Активно',
+    'running' => 'Работает',
   ),
   'stats' => 
   array (
@@ -228,4 +246,94 @@ return array (
     'message' => 'Bandomasis pranešimas',
   ),
   'welcome' => 'Sveiki',
+  'nav' => 
+  array (
+    'dashboard' => 'Dashboard',
+    'organizations' => 'Organizations',
+    'buildings' => 'Buildings',
+    'properties' => 'Properties',
+    'tenants' => 'Tenants',
+    'managers' => 'Managers',
+    'subscriptions' => 'Subscriptions',
+    'profile' => 'Profile',
+    'logout' => 'Logout',
+    'meters' => 'Meters',
+    'meter_readings' => 'Meter Readings',
+    'invoices' => 'Invoices',
+    'tariffs' => 'Tariffs',
+    'providers' => 'Providers',
+    'users' => 'Users',
+    'settings' => 'Settings',
+    'reports' => 'Reports',
+    'audit' => 'Аудит',
+    'readings' => 'Показания',
+    'actions' => 'Действия',
+  ),
+  'cta' => 
+  array (
+    'login' => 'Login',
+    'register' => 'Register',
+    'go_to_app' => 'Go to App',
+    'create_account' => 'Create Account',
+    'start_now' => 'Start Now',
+    'submit' => 'Submit',
+    'save' => 'Save',
+    'cancel' => 'Cancel',
+    'delete' => 'Delete',
+    'edit' => 'Edit',
+    'view' => 'View',
+    'back' => 'Back',
+  ),
+  'goodbye' => 'Goodbye',
+  'End Impersonation' => 'Завершить имперсонацию',
+  'Impersonation Mode Active' => 'Режим имперсонации активен',
+  'Impersonation session has timed out after 30 minutes.' => 'Сессия имперсонации истекла через 30 минут.',
+  'Reason' => 'Причина',
+  'Started at' => 'Начато в',
+  'Too many requests. Please try again in :seconds seconds.' => 'Слишком много запросов. Попробуйте снова через :seconds секунд.',
+  'You are impersonating' => 'Вы имперсонируете',
+  'by' => 'от',
+  'impersonation' => 
+  array (
+    'mode_active' => 'Режим имперсонации активен',
+    'you_are_impersonating' => 'Вы имперсонируете',
+    'reason' => 'Причина',
+    'started_at' => 'Начато в',
+    'by' => 'от',
+    'end' => 'Завершить имперсонацию',
+    'timeout' => 'Сессия имперсонации истекла через 30 минут.',
+    'history' => 'История имперсонации',
+    'history_description' => 'Просмотр всех прошлых сессий имперсонации с продолжительностью и выполненными действиями.',
+    'superadmin' => 'Суперадминистратор',
+    'target_user' => 'Целевой пользователь',
+    'duration' => 'Продолжительность',
+    'sessions' => 'Сессии имперсонации',
+    'started' => 'Начато',
+    'ended' => 'Завершено',
+    'no_sessions' => 'Сессии имперсонации не найдены',
+    'no_sessions_description' => 'Нет сессий имперсонации, соответствующих вашим текущим фильтрам.',
+    'started_successfully' => 'Успешно начата имперсонация :user',
+    'ended_successfully' => 'Сессия имперсонации успешно завершена',
+  ),
+  'rate_limit' => 
+  array (
+    'seconds' => 'Слишком много запросов. Попробуйте снова через :seconds секунд.',
+  ),
+  'accessibility' => 
+  array (
+    'dismiss' => 'Отклонить',
+    'open_menu' => 'Открыть меню',
+    'skip_to_content' => 'Перейти к содержимому',
+  ),
+  'welcome_updated' => 'Добро пожаловать (обновлено)',
+  'special_chars' => 'Привет! @#$%^&*()_+-=[]{}|;:\'",.<>?/',
+  'html_content' => '<strong>Жирный</strong> и <em>курсивный</em> текст',
+  'multiline' => 'Строка 1
+Строка 2
+Строка 3',
+  'long_text' => 'Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода.',
+  'pages' => 
+  array (
+    'superadmin_dashboard' => 'Панель суперадминистратора',
+  ),
 );

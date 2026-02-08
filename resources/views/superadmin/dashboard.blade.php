@@ -1,11 +1,15 @@
 @extends('layouts.app')
 
+@section('title', __('superadmin.dashboard.title'))
+
 @section('content')
-<div class="container mx-auto px-4 py-8" wire:poll.60s>
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-slate-900">{{ __('superadmin.dashboard.title') }}</h1>
-        <p class="text-slate-600 mt-2">{{ __('superadmin.dashboard.subtitle') }}</p>
-    </div>
+<x-backoffice.page
+    class="container mx-auto px-4 py-8"
+    wire:poll.60s
+    :title="__('superadmin.dashboard.title')"
+    :description="__('superadmin.dashboard.subtitle')"
+    :eyebrow="__('superadmin.dashboard.badges.platform')"
+>
 
     {{-- Subscription Statistics --}}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
@@ -173,7 +177,9 @@
                         <div class="text-right">
                             <span class="text-sm text-slate-600">{{ __('superadmin.dashboard.expiring_subscriptions.expires') }}</span>
                             <span class="font-medium text-yellow-700">{{ $subscription->expires_at->format('M d, Y') }}</span>
-                            <span class="text-sm text-slate-600 ml-2">({{ now()->startOfDay()->diffInDays($subscription->expires_at->startOfDay()) }} days)</span>
+                            <span class="text-sm text-slate-600 ml-2">
+                                ({{ trans_choice('superadmin.dashboard.expiring_subscriptions.days', now()->startOfDay()->diffInDays($subscription->expires_at->startOfDay()), ['count' => now()->startOfDay()->diffInDays($subscription->expires_at->startOfDay())]) }})
+                            </span>
                         </div>
                     </div>
                     @endforeach
@@ -435,28 +441,43 @@
     {{-- Quick Actions --}}
     <x-card>
         <h2 class="text-xl font-semibold mb-4">{{ __('superadmin.dashboard.quick_actions.title') }}</h2>
-        <div class="flex flex-wrap gap-4">
-            <a href="{{ route('superadmin.organizations.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                <span class="mr-2">➕</span>
-                {{ __('superadmin.dashboard.quick_actions.create_organization') }}
-            </a>
-            <a href="{{ route('superadmin.subscriptions.index') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                <span class="mr-2">🧾</span>
-                {{ __('superadmin.dashboard.quick_actions.create_subscription') }}
-            </a>
-            <a href="#recent-activity" class="inline-flex items-center px-4 py-2 bg-slate-600 text-white rounded hover:bg-slate-700">
-                <span class="mr-2">🕒</span>
-                {{ __('superadmin.dashboard.quick_actions.view_all_activity') }}
-            </a>
-            <a href="{{ route('superadmin.organizations.index') }}" class="inline-flex items-center px-4 py-2 bg-slate-600 text-white rounded hover:bg-slate-700">
-                <span class="mr-2">🏢</span>
-                {{ __('superadmin.dashboard.quick_actions.manage_organizations') }}
-            </a>
-            <a href="{{ route('superadmin.subscriptions.index') }}" class="inline-flex items-center px-4 py-2 bg-slate-600 text-white rounded hover:bg-slate-700">
-                <span class="mr-2">📊</span>
-                {{ __('superadmin.dashboard.quick_actions.manage_subscriptions') }}
-            </a>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <x-backoffice.quick-action
+                :href="route('superadmin.organizations.create')"
+                :title="__('superadmin.dashboard.quick_actions.create_organization')"
+                :description="__('superadmin.dashboard.quick_actions.create_organization_desc')"
+            >
+                <x-slot:icon>➕</x-slot:icon>
+            </x-backoffice.quick-action>
+            <x-backoffice.quick-action
+                :href="route('superadmin.subscriptions.index')"
+                :title="__('superadmin.dashboard.quick_actions.create_subscription')"
+                :description="__('superadmin.dashboard.quick_actions.create_subscription_desc')"
+            >
+                <x-slot:icon>🧾</x-slot:icon>
+            </x-backoffice.quick-action>
+            <x-backoffice.quick-action
+                href="#recent-activity"
+                :title="__('superadmin.dashboard.quick_actions.view_all_activity')"
+                :description="__('superadmin.dashboard.quick_actions.view_all_activity_desc')"
+            >
+                <x-slot:icon>🕒</x-slot:icon>
+            </x-backoffice.quick-action>
+            <x-backoffice.quick-action
+                :href="route('superadmin.organizations.index')"
+                :title="__('superadmin.dashboard.quick_actions.manage_organizations')"
+                :description="__('superadmin.dashboard.quick_actions.manage_organizations_desc')"
+            >
+                <x-slot:icon>🏢</x-slot:icon>
+            </x-backoffice.quick-action>
+            <x-backoffice.quick-action
+                :href="route('superadmin.subscriptions.index')"
+                :title="__('superadmin.dashboard.quick_actions.manage_subscriptions')"
+                :description="__('superadmin.dashboard.quick_actions.manage_subscriptions_desc')"
+            >
+                <x-slot:icon>📊</x-slot:icon>
+            </x-backoffice.quick-action>
         </div>
     </x-card>
-</div>
+</x-backoffice.page>
 @endsection

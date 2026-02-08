@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return array (
   'End Impersonation' => 'Завершить имперсонацию',
   'Impersonation Mode Active' => 'Режим имперсонации активен',
@@ -76,6 +78,13 @@ return array (
     'login' => 'Войти',
     'register' => 'Регистрация',
     'start_now' => 'Начать',
+    'submit' => 'Submit',
+    'save' => 'Save',
+    'cancel' => 'Cancel',
+    'delete' => 'Delete',
+    'edit' => 'Edit',
+    'view' => 'View',
+    'back' => 'Back',
   ),
   'errors' => 
   array (
@@ -109,11 +118,16 @@ return array (
     'managers' => 'Менеджеры',
     'users' => 'Пользователи',
     'actions' => 'Действия',
+    'meter_readings' => 'Meter Readings',
   ),
   'navigation' => 
   array (
     'integration_health' => 'Состояние интеграции',
     'dashboard' => 'Панель управления',
+    'my_property' => 'My Property',
+    'meter_readings' => 'Meter Readings',
+    'invoices' => 'Invoices',
+    'profile' => 'Profile',
   ),
   'nav_groups' => 
   array (
@@ -126,6 +140,8 @@ return array (
     'system_management' => 'Управление системой',
     'user_management' => 'Управление пользователями',
     'monitoring' => 'Мониторинг',
+    'my_property' => 'My Property',
+    'account' => 'Account',
   ),
   'units' => 
   array (
@@ -169,6 +185,49 @@ return array (
     'email' => 'Email',
     'role' => 'Роль',
     'registered' => 'Зарегистрирован',
+    'property' => 'Property',
+    'properties' => 'Properties',
+    'invoice' => 'Invoice',
+    'invoices' => 'Invoices',
+    'meter_reading' => 'Meter Reading',
+    'meter_readings' => 'Meter Readings',
+    'address' => 'Address',
+    'building' => 'Building',
+    'floor' => 'Floor',
+    'apartment_number' => 'Apartment Number',
+    'area' => 'Area',
+    'total_meters' => 'Total Meters',
+    'active_services' => 'Active Services',
+    'meter' => 'Meter',
+    'reading_value' => 'Reading Value',
+    'reading_date' => 'Reading Date',
+    'consumption' => 'Consumption',
+    'service' => 'Service',
+    'billing_period_start' => 'Billing Period Start',
+    'billing_period_end' => 'Billing Period End',
+    'recorded_at' => 'Recorded At',
+    'billing_period' => 'Billing Period',
+    'invoice_number' => 'Invoice Number',
+    'status' => 'Status',
+    'issue_date' => 'Issue Date',
+    'due_date' => 'Due Date',
+    'total_amount' => 'Total Amount',
+    'services' => 'Services',
+    'days' => 'days',
+    'organization' => 'Organization',
+    'plan' => 'Plan',
+    'integration_health_check' => 'Integracijos būklės patikra',
+    'integration_health_checks' => 'Integracijos būklės patikros',
+    'service_name' => 'Paslaugos pavadinimas',
+    'endpoint' => 'Galinis taškas',
+    'response_time_ms' => 'Atsakymo laikas (ms)',
+    'error_message' => 'Klaidos pranešimas',
+    'checked_at' => 'Patikrinta',
+    'response_time' => 'Atsakymo laikas',
+    'last_check' => 'Paskutinė patikra',
+    'error' => 'Klaida',
+    'duration_minutes' => 'Trukmė (minutėmis)',
+    'reason' => 'Priežastis',
   ),
   'actions' => 
   array (
@@ -176,15 +235,105 @@ return array (
     'manage_subscriptions' => 'Управление подписками',
     'manage_users' => 'Управление пользователями',
     'view' => 'Просмотр',
+    'download_pdf' => 'Download PDF',
+    'extend' => 'Extend',
+    'extend_subscription' => 'Extend Subscription',
+    'notify' => 'Notify',
+    'run_health_check' => 'Vykdyti būklės patikrą',
+    'enable_maintenance' => 'Įjungti priežiūros režimą',
+    'run_health_checks' => 'Vykdyti būklės patikras',
   ),
   'status' => 
   array (
     'healthy' => 'Исправно',
     'active' => 'Активно',
     'running' => 'Работает',
+    'unhealthy' => 'Nesveika',
   ),
   'widgets' => 
   array (
     'recent_users' => 'Недавние пользователи',
+    'recent_invoices' => 'Recent Invoices',
+    'policy_registry' => 
+    array (
+      'critical_issues' => 'Kritinės problemos',
+      'configuration_issues' => 'Konfigūracijos problemos',
+      'health_status' => 'Būklės būsena',
+      'warnings' => 'Įspėjimai',
+      'all_systems_operational' => 'Visos sistemos veikia',
+      'last_24h' => 'Paskutinės 24 val.',
+      'total_policies' => 'Iš viso politikų',
+      'registered_policies' => 'Registruotos politikos',
+      'total_gates' => 'Iš viso vartų',
+      'registered_gates' => 'Registruoti vartai',
+      'cache_hit_rate' => 'Talpyklos pataikymo rodiklis',
+      'cache_performance' => 'Talpyklos našumas',
+      'avg_registration_time' => 'Vid. registracijos laikas',
+      'performance_metric' => 'Našumo metrika',
+      'error_rate' => 'Klaidų rodiklis',
+      'data_unavailable' => 'Duomenys nepasiekiami',
+    ),
+  ),
+  'sections' => 
+  array (
+    'property_details' => 'Property Details',
+    'utility_services' => 'Utility Services',
+    'reading_details' => 'Reading Details',
+    'billing_information' => 'Billing Information',
+    'invoice_details' => 'Invoice Details',
+    'billing_period' => 'Billing Period',
+    'invoice_items' => 'Invoice Items',
+    'service_details' => 'Paslaugos detalės',
+    'health_metrics' => 'Būklės metrikos',
+  ),
+  'modals' => 
+  array (
+    'extend_subscription_description' => 'This will extend the subscription by one year from the current expiry date.',
+    'run_health_check' => 'Vykdyti būklės patikrą',
+    'health_check_description' => 'Tai patikrins paslaugos būklę ir atnaujins būseną.',
+  ),
+  'stats' => 
+  array (
+    'total_meters' => 'Total Meters',
+    'installed_meters' => 'Installed meters',
+    'recent_readings' => 'Recent Readings',
+    'meters_with_data' => 'Meters with data',
+    'unpaid_invoices' => 'Unpaid Invoices',
+    'pending_payment' => 'Pending payment',
+    'current_month_readings' => 'Current Month Readings',
+    'this_month' => 'This month',
+  ),
+  'placeholders' => 
+  array (
+    'calculated_automatically' => 'Calculated automatically',
+    'service_name' => 'Įveskite paslaugos pavadinimą',
+    'endpoint_url' => 'Įveskite galinio taško URL',
+    'response_time' => 'Atsakymo laikas milisekundėmis',
+    'error_message' => 'Klaidos pranešimas, jei yra',
+    'no_errors' => 'Klaidų nėra',
+    'maintenance_reason' => 'Įveskite priežiūros priežastį',
+  ),
+  'empty_states' => 
+  array (
+    'no_invoices' => 'No invoices found',
+    'no_invoices_description' => 'There are no invoices for your property yet.',
+    'no_meter_readings' => 'No meter readings found',
+    'no_meter_readings_description' => 'There are no meter readings for your property yet.',
+    'no_expiring_subscriptions' => 'No expiring subscriptions',
+    'no_expiring_subscriptions_description' => 'All subscriptions are healthy with more than 14 days until expiry.',
+  ),
+  'filters' => 
+  array (
+    'recent_checks' => 'Naujausios patikros',
+    'unhealthy_only' => 'Tik nesveiki',
+    'slow_response' => 'Lėtas atsakymas',
+  ),
+  'notifications' => 
+  array (
+    'health_check_completed' => 'Būklės patikra baigta',
+    'health_check_failed' => 'Būklės patikra nepavyko',
+    'maintenance_enabled' => 'Priežiūros režimas įjungtas',
+    'bulk_health_check_completed' => 'Masinė būklės patikra baigta',
+    'health_check_results' => 'Būklės patikros rezultatai',
   ),
 );

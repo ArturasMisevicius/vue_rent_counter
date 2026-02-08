@@ -31,9 +31,11 @@
 
                 <div class="hidden items-center gap-1 md:flex">
                     <a href="{{ route('tenant.dashboard') }}" class="{{ request()->routeIs('tenant.dashboard') ? 'bg-sky-500 text-white' : 'text-slate-700' }} rounded-lg px-3 py-2 text-sm font-semibold">{{ __('app.nav.dashboard') }}</a>
-                    <a href="{{ route('tenant.property.show') }}" class="{{ request()->routeIs('tenant.property.*') ? 'bg-sky-500 text-white' : 'text-slate-700' }} rounded-lg px-3 py-2 text-sm font-semibold">{{ __('app.nav.properties') }}</a>
-                    <a href="{{ route('tenant.meters.index') }}" class="{{ request()->routeIs('tenant.meters.*') ? 'bg-sky-500 text-white' : 'text-slate-700' }} rounded-lg px-3 py-2 text-sm font-semibold">{{ __('app.nav.meters') }}</a>
-                    <a href="{{ route('tenant.meter-readings.index') }}" class="{{ request()->routeIs('tenant.meter-readings.*') ? 'bg-sky-500 text-white' : 'text-slate-700' }} rounded-lg px-3 py-2 text-sm font-semibold">{{ __('app.nav.readings') }}</a>
+                    @if(auth()->user()?->property_id)
+                        <a href="{{ route('tenant.property.show') }}" class="{{ request()->routeIs('tenant.property.*') ? 'bg-sky-500 text-white' : 'text-slate-700' }} rounded-lg px-3 py-2 text-sm font-semibold">{{ __('app.nav.properties') }}</a>
+                        <a href="{{ route('tenant.meters.index') }}" class="{{ request()->routeIs('tenant.meters.*') ? 'bg-sky-500 text-white' : 'text-slate-700' }} rounded-lg px-3 py-2 text-sm font-semibold">{{ __('app.nav.meters') }}</a>
+                        <a href="{{ route('tenant.meter-readings.index') }}" class="{{ request()->routeIs('tenant.meter-readings.*') ? 'bg-sky-500 text-white' : 'text-slate-700' }} rounded-lg px-3 py-2 text-sm font-semibold">{{ __('app.nav.readings') }}</a>
+                    @endif
                     <a href="{{ route('tenant.invoices.index') }}" class="{{ request()->routeIs('tenant.invoices.*') ? 'bg-sky-500 text-white' : 'text-slate-700' }} rounded-lg px-3 py-2 text-sm font-semibold">{{ __('app.nav.invoices') }}</a>
                     <a href="{{ route('tenant.profile.show') }}" class="{{ request()->routeIs('tenant.profile.*') ? 'bg-sky-500 text-white' : 'text-slate-700' }} rounded-lg px-3 py-2 text-sm font-semibold">{{ __('app.nav.profile') }}</a>
                 </div>
@@ -58,9 +60,11 @@
             <div x-show="mobileMenuOpen" x-transition class="border-t border-slate-200 bg-white md:hidden">
                 <div class="space-y-1 px-4 py-3">
                     <a href="{{ route('tenant.dashboard') }}" class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700">{{ __('app.nav.dashboard') }}</a>
-                    <a href="{{ route('tenant.property.show') }}" class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700">{{ __('app.nav.properties') }}</a>
-                    <a href="{{ route('tenant.meters.index') }}" class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700">{{ __('app.nav.meters') }}</a>
-                    <a href="{{ route('tenant.meter-readings.index') }}" class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700">{{ __('app.nav.readings') }}</a>
+                    @if(auth()->user()?->property_id)
+                        <a href="{{ route('tenant.property.show') }}" class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700">{{ __('app.nav.properties') }}</a>
+                        <a href="{{ route('tenant.meters.index') }}" class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700">{{ __('app.nav.meters') }}</a>
+                        <a href="{{ route('tenant.meter-readings.index') }}" class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700">{{ __('app.nav.readings') }}</a>
+                    @endif
                     <a href="{{ route('tenant.invoices.index') }}" class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700">{{ __('app.nav.invoices') }}</a>
                     <a href="{{ route('tenant.profile.show') }}" class="block rounded-lg px-3 py-2 text-sm font-semibold text-slate-700">{{ __('app.nav.profile') }}</a>
                     <form method="POST" action="{{ route('logout') }}">
