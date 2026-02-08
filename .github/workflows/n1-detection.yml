@@ -1,0 +1,53 @@
+name: N+1 Query Detection
+
+on:
+  pull_request:
+    paths:
+      - 'app/Filament/Resources/**'
+      - 'app/Models/**'
+      - 'tests/Performance/**'
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  detect-n1-queries:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: sqlite3, pdo_sqlite
+          coverage: none
+      
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-progress
+      
+      - name: Setup Database
+        run: |
+          touch database/database.sqlite
+          php artisan migrate --force
+      
+      - name: Run N+1 Detection Tests
+        run: php artisan test --filter=n+1 --stop-on-failure
+      
+      - name: Run Performance Tests
+        run: php artisan test --testsuite=Performance --stop-on-failure
+      
+      - name: Check Query Count Threshold
+        run: |
+          # Run tests and capture output
+          php artisan test --filter=FaqResourcePerformance > test-output.txt 2>&1
+          
+          # Check if any test failed due to excessive queries
+          if grep -q "Query count exceeded" test-output.txt; then
+            echo "❌ N+1 queries detected!"
+            exit 1
+          fi
+          
+          echo "✅ No N+1 queries detected"
