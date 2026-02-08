@@ -2,9 +2,10 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
+@extends($role === 'tenant' ? 'layouts.tenant' : 'layouts.app')
+
 @switch($role)
 @case('superadmin')
-@extends('layouts.app')
 
 @section('title', __('profile.shared.title'))
 
@@ -108,7 +109,6 @@
 @break
 
 @case('admin')
-@extends('layouts.app')
 
 @section('title', __('profile.shared.title'))
 
@@ -279,7 +279,6 @@
 @break
 
 @case('manager')
-@extends('layouts.app')
 
 @section('title', __('shared.profile.title'))
 
@@ -346,7 +345,6 @@
 @break
 
 @case('tenant')
-@extends('layouts.tenant')
 
 @section('title', __('shared.profile.title'))
 
@@ -505,7 +503,6 @@
 @break
 
 @default
-@extends('layouts.app')
 
 @section('title', __('profile.shared.title'))
 

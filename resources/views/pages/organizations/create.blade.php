@@ -2,10 +2,10 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@switch($role)
-@case('superadmin')
 @extends('layouts.app')
 
+@switch($role)
+@case('superadmin')
 @section('content')
 @php
     $timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::EUROPE);
@@ -132,8 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
 @break
 
 @default
-@extends('layouts.app')
-
 @section('content')
 @php
     $timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::EUROPE);

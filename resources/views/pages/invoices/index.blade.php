@@ -2,10 +2,10 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
+@extends(auth()->user()?->role?->value === 'tenant' ? 'layouts.tenant' : 'layouts.app')
+
 @switch($role)
 @case('manager')
-@extends('layouts.app')
-
 @section('title', __('invoices.shared.index.title'))
 
 @section('content')
@@ -32,8 +32,6 @@
 @break
 
 @case('tenant')
-@extends('layouts.tenant')
-
 @section('tenant-content')
 <x-tenant.page :title="__('invoices.shared.title')" :description="__('invoices.shared.description')">
     <x-tenant.quick-actions />
@@ -152,8 +150,6 @@
 @break
 
 @default
-@extends('layouts.app')
-
 @section('title', __('invoices.shared.index.title'))
 
 @section('content')

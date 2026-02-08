@@ -2,10 +2,10 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
+@extends(auth()->user()?->role?->value === 'tenant' ? 'layouts.tenant' : 'layouts.app')
+
 @switch($role)
 @case('tenant')
-@extends('layouts.tenant')
-
 @section('title', __('invoices.shared.receipt.title', ['id' => $invoice->id]))
 
 @section('tenant-content')
@@ -113,8 +113,6 @@
 @break
 
 @default
-@extends('layouts.tenant')
-
 @section('title', __('invoices.shared.receipt.title', ['id' => $invoice->id]))
 
 @section('tenant-content')

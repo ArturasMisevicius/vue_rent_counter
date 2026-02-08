@@ -2,10 +2,10 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
+@extends(auth()->user()?->role?->value === 'tenant' ? 'layouts.tenant' : 'layouts.app')
+
 @switch($role)
 @case('manager')
-@extends('layouts.app')
-
 @section('title', __('meters.headings.show', ['serial' => $meter->serial_number]))
 
 @section('content')
@@ -216,8 +216,6 @@
 @break
 
 @case('tenant')
-@extends('layouts.tenant')
-
 @section('title', __('shared.meters.show_title', ['serial' => $meter->serial_number]))
 
 @section('tenant-content')
@@ -242,8 +240,6 @@
 @break
 
 @default
-@extends('layouts.app')
-
 @section('title', __('meters.headings.show', ['serial' => $meter->serial_number]))
 
 @section('content')

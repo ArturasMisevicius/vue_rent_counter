@@ -2,10 +2,10 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
+@extends(auth()->user()?->role?->value === 'tenant' ? 'layouts.tenant' : 'layouts.app')
+
 @switch($role)
 @case('manager')
-@extends('layouts.app')
-
 @section('title', __('meter_readings.shared.index.title'))
 
 @section('content')
@@ -404,8 +404,6 @@
 @break
 
 @case('tenant')
-@extends('layouts.tenant')
-
 @section('title', __('meter_readings.shared.title'))
 
 @section('tenant-content')
@@ -667,8 +665,6 @@ function consumptionHistory() {
 @break
 
 @default
-@extends('layouts.app')
-
 @section('title', __('meter_readings.shared.index.title'))
 
 @section('content')

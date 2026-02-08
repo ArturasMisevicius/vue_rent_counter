@@ -2,10 +2,10 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@switch($role)
-@case('manager')
 @extends('layouts.app')
 
+@switch($role)
+@case('manager')
 @section('title', __('buildings.pages.manager_form.edit_title'))
 
 @section('content')
@@ -69,8 +69,6 @@
 @break
 
 @default
-@extends('layouts.app')
-
 @section('title', __('buildings.pages.manager_form.edit_title'))
 
 @section('content')

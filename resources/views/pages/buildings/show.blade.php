@@ -2,10 +2,10 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@switch($role)
-@case('superadmin')
 @extends('layouts.app')
 
+@switch($role)
+@case('superadmin')
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <div class="flex items-center justify-between mb-6">
@@ -135,8 +135,6 @@
 @break
 
 @case('manager')
-@extends('layouts.app')
-
 @section('title', __('buildings.pages.manager_show.title'))
 
 @section('content')
@@ -260,8 +258,6 @@
 @break
 
 @default
-@extends('layouts.app')
-
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <div class="flex items-center justify-between mb-6">

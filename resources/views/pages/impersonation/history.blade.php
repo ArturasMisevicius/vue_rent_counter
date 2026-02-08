@@ -2,10 +2,10 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@switch($role)
-@case('superadmin')
 @extends('layouts.app')
 
+@switch($role)
+@case('superadmin')
 @section('title', __('app.impersonation.history'))
 
 @section('content')
@@ -173,8 +173,6 @@
 @break
 
 @default
-@extends('layouts.app')
-
 @section('title', __('app.impersonation.history'))
 
 @section('content')

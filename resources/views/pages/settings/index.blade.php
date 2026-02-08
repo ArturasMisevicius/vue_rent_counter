@@ -2,9 +2,10 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
+@extends('layouts.app')
+
 @switch($role)
 @case('admin')
-@extends('layouts.app')
 
 @section('title', __('settings.title'))
 
@@ -197,7 +198,6 @@
 @break
 
 @default
-@extends('layouts.app')
 
 @section('title', __('settings.title'))
 

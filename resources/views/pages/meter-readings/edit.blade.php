@@ -2,10 +2,10 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@switch($role)
-@case('manager')
 @extends('layouts.app')
 
+@switch($role)
+@case('manager')
 @section('title', __('meter_readings.shared.edit.title'))
 
 @section('content')
@@ -132,8 +132,6 @@
 @break
 
 @default
-@extends('layouts.app')
-
 @section('title', __('meter_readings.shared.edit.title'))
 
 @section('content')

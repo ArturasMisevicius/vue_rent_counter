@@ -2,10 +2,10 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@switch($role)
-@case('admin')
 @extends('layouts.app')
 
+@switch($role)
+@case('admin')
 @section('content')
 <div class="container mx-auto px-4 py-8">
     {{-- Header --}}
@@ -174,8 +174,6 @@
 @break
 
 @default
-@extends('layouts.app')
-
 @section('content')
 <div class="container mx-auto px-4 py-8">
     {{-- Header --}}

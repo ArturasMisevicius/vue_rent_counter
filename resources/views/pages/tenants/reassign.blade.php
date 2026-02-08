@@ -2,10 +2,10 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@switch($role)
-@case('admin')
 @extends('layouts.app')
 
+@switch($role)
+@case('admin')
 @section('title', __('tenants.pages.reassign.title'))
 
 @section('content')
@@ -134,8 +134,6 @@
 @break
 
 @default
-@extends('layouts.app')
-
 @section('title', __('tenants.pages.reassign.title'))
 
 @section('content')

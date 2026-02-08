@@ -2,6 +2,8 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
+@extends('layouts.app')
+
 @switch($role)
 @case('manager')
 {{--
@@ -42,8 +44,6 @@
     @var \Illuminate\Database\Eloquent\Collection<\App\Models\Meter> $meters
     @var \Illuminate\Database\Eloquent\Collection<\App\Models\Provider> $providers
 --}}
-@extends('layouts.app')
-
 @section('title', __('meter_readings.headings.create'))
 
 @section('content')
@@ -110,8 +110,6 @@
     @var \Illuminate\Database\Eloquent\Collection<\App\Models\Meter> $meters
     @var \Illuminate\Database\Eloquent\Collection<\App\Models\Provider> $providers
 --}}
-@extends('layouts.app')
-
 @section('title', __('meter_readings.headings.create'))
 
 @section('content')
