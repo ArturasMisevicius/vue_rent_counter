@@ -1,28 +1,20 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AuditController as AdminAuditController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Admin\PropertyController as AdminPropertyController;
+use App\Http\Controllers\Admin\ProviderController as AdminProviderController;
+use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
+use App\Http\Controllers\Admin\TariffController as AdminTariffController;
+use App\Http\Controllers\Admin\TenantController as AdminTenantController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-use App\Http\Controllers\Admin\PropertyController as AdminPropertyController;
-use App\Http\Controllers\Admin\UserController as AdminUserController;
-use App\Http\Controllers\Admin\ProviderController as AdminProviderController;
-use App\Http\Controllers\Admin\TariffController as AdminTariffController;
-use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
-use App\Http\Controllers\Admin\AuditController as AdminAuditController;
-use App\Http\Controllers\Admin\TenantController as AdminTenantController;
-use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
-use App\Http\Controllers\Superadmin\DashboardController as SuperadminDashboardController;
-use App\Http\Controllers\Superadmin\OrganizationController as SuperadminOrganizationController;
-use App\Http\Controllers\Superadmin\TenantController as SuperadminTenantController;
-use App\Http\Controllers\Superadmin\ManagerController as SuperadminManagerController;
-use App\Http\Controllers\Superadmin\SubscriptionController as SuperadminSubscriptionController;
-use App\Http\Controllers\Superadmin\InvitationController as SuperadminInvitationController;
-use App\Http\Controllers\Superadmin\UserController as SuperadminUserController;
-use App\Http\Controllers\Superadmin\ProfileController as SuperadminProfileController;
-use App\Http\Controllers\Superadmin\BuildingController as SuperadminBuildingController;
-use App\Http\Controllers\Superadmin\PropertyController as SuperadminPropertyController;
+use App\Http\Controllers\FinalizeInvoiceController;
 use App\Http\Controllers\InvitationAcceptanceController;
+use App\Http\Controllers\InvoiceController as SharedInvoiceController;
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\Manager\BuildingController as ManagerBuildingController;
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
 use App\Http\Controllers\Manager\InvoiceController as ManagerInvoiceController;
@@ -31,28 +23,37 @@ use App\Http\Controllers\Manager\MeterReadingController as ManagerMeterReadingCo
 use App\Http\Controllers\Manager\ProfileController as ManagerProfileController;
 use App\Http\Controllers\Manager\PropertyController as ManagerPropertyController;
 use App\Http\Controllers\Manager\ReportController as ManagerReportController;
+use App\Http\Controllers\MeterReadingUpdateController;
+use App\Http\Controllers\Superadmin\BuildingController as SuperadminBuildingController;
+use App\Http\Controllers\Superadmin\DashboardController as SuperadminDashboardController;
+use App\Http\Controllers\Superadmin\InvitationController as SuperadminInvitationController;
+use App\Http\Controllers\Superadmin\ManagerController as SuperadminManagerController;
+use App\Http\Controllers\Superadmin\OrganizationController as SuperadminOrganizationController;
+use App\Http\Controllers\Superadmin\ProfileController as SuperadminProfileController;
+use App\Http\Controllers\Superadmin\PropertyController as SuperadminPropertyController;
+use App\Http\Controllers\Superadmin\SubscriptionController as SuperadminSubscriptionController;
+use App\Http\Controllers\Superadmin\TenantController as SuperadminTenantController;
+use App\Http\Controllers\Superadmin\UserController as SuperadminUserController;
 use App\Http\Controllers\Tenant\DashboardController as TenantDashboardController;
-use App\Http\Controllers\Tenant\ProfileController as TenantProfileController;
 use App\Http\Controllers\Tenant\InvoiceController as TenantInvoiceController;
-use App\Http\Controllers\Tenant\PropertyController as TenantPropertyController;
 use App\Http\Controllers\Tenant\MeterController as TenantMeterController;
 use App\Http\Controllers\Tenant\MeterReadingController as TenantMeterReadingController;
-use App\Http\Controllers\MeterReadingUpdateController;
-use App\Http\Controllers\FinalizeInvoiceController;
-use App\Http\Controllers\InvoiceController as SharedInvoiceController;
-use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\Tenant\ProfileController as TenantProfileController;
+use App\Http\Controllers\Tenant\PropertyController as TenantPropertyController;
+use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('dashboard');
     }
+
     return app(\App\Http\Controllers\WelcomeController::class)();
 });
 
 // Unified dashboard route - redirects based on user role
 Route::get('/dashboard', function () {
-    if (!auth()->check()) {
+    if (! auth()->check()) {
         return redirect()->route('login');
     }
 
@@ -86,8 +87,17 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('admin.dashboard');
     });
 
-    Route::get('/manager', fn() => redirect()->route('manager.dashboard'));
-    Route::get('/tenant', fn() => redirect()->route('tenant.dashboard'));
+    Route::get('/manager', function () {
+        abort_unless(auth()->user()?->role?->value === 'manager', 403);
+
+        return redirect()->route('manager.dashboard');
+    });
+
+    Route::get('/tenant', function () {
+        abort_unless(auth()->user()?->role?->value === 'tenant', 403);
+
+        return redirect()->route('tenant.dashboard');
+    });
 });
 
 // Language switching route
@@ -121,13 +131,6 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
-
-Route::get('/compat/admin/dashboard', fn () => redirect()->route('dashboard'))
-    ->middleware('auth')
-    ->name('filament.admin.pages.dashboard');
-
-Route::get('/compat/admin/login', fn () => redirect()->route('login'))
-    ->name('filament.admin.auth.login');
 
 // ============================================================================
 // SHARED INVOICE ROUTES (ADMIN/MANAGER/SUPERADMIN)
@@ -163,17 +166,17 @@ Route::middleware(['auth', 'role:superadmin,admin,manager'])->group(function () 
 // Note: Superadmins bypass subscription checks and have unrestricted hierarchical access
 
 Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {
-    
+
     // Dashboard
     Route::get('/dashboard', [SuperadminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/search', [SuperadminDashboardController::class, 'search'])->name('search');
     Route::post('/dashboard/export', [SuperadminDashboardController::class, 'export'])->name('dashboard.export');
     Route::post('/dashboard/health-check', [SuperadminDashboardController::class, 'healthCheck'])->name('dashboard.health-check');
-    
+
     // Profile
     Route::get('profile', [SuperadminProfileController::class, 'show'])->name('profile.show');
     Route::match(['put', 'patch'], 'profile', [SuperadminProfileController::class, 'update'])->name('profile.update');
-    
+
     // Organization Management
     Route::get('organizations', [SuperadminOrganizationController::class, 'index'])->name('organizations.index');
     Route::get('organizations/create', [SuperadminOrganizationController::class, 'create'])->name('organizations.create');
@@ -272,25 +275,11 @@ Route::middleware(['auth', 'superadmin'])
         Route::delete('tenants/{tenant}', [AdminTenantController::class, 'destroy'])->name('tenants.destroy');
     });
 
-// Legacy route-name compatibility for superadmin resources without exposing Filament paths.
-Route::middleware(['auth', 'superadmin'])
-    ->prefix('superadmin/resources-compat')
-    ->group(function () {
-        Route::get('organizations', fn () => redirect()->route('superadmin.organizations.index'))
-            ->name('filament.superadmin.resources.organizations.index');
-        Route::get('organizations/create', fn () => redirect()->route('superadmin.organizations.create'))
-            ->name('filament.superadmin.resources.organizations.create');
-        Route::get('subscriptions', fn () => redirect()->route('superadmin.subscriptions.index'))
-            ->name('filament.superadmin.resources.subscriptions.index');
-    });
-
 // ============================================================================
 // ADMIN ROUTES
 // ============================================================================
-// Admin routes for custom admin interface (non-Filament)
-// Filament Resources are also available at /admin for Properties, Buildings, 
-// Meters, MeterReadings, Invoices, and Subscriptions management.
-// 
+// Admin routes for custom admin interface.
+//
 // Middleware applied:
 // - auth: Ensure user is authenticated
 // - role:admin: Ensure user has admin role
@@ -299,14 +288,14 @@ Route::middleware(['auth', 'superadmin'])
 //   Enforces active subscription for admin users, implements read-only mode for expired
 // - hierarchical.access: Validate hierarchical access (Requirements 12.5, 13.3)
 //   Ensures admins only access resources within their tenant_id scope
-// 
+//
 // Middleware execution order:
 // 1. auth - Verify authentication
 // 2. role:admin - Verify role authorization
 // 3. throttle:admin - Rate limiting (120 req/min)
 // 4. subscription.check - Validate subscription and enforce read-only mode if expired
 // 5. hierarchical.access - Validate tenant_id relationships for all resources
-// 
+//
 // Performance: Middleware chain adds ~2-10ms overhead per request (optimized with caching)
 // Security: Multi-layered authorization provides defense in depth
 //   - CSRF protection via 'web' middleware group (VerifyCsrfToken)
@@ -317,25 +306,25 @@ Route::middleware(['auth', 'superadmin'])
 Route::middleware(['auth', 'role:admin', 'throttle:admin', 'subscription.check', 'hierarchical.access'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-    
+
     // Profile
     Route::get('profile', [AdminProfileController::class, 'show'])->name('profile.show');
     Route::match(['put', 'patch'], 'profile', [AdminProfileController::class, 'update'])->name('profile.update');
     Route::match(['put', 'patch'], 'profile/password', [AdminProfileController::class, 'updatePassword'])->name('profile.update-password');
-    
+
     // User Management
     Route::resource('users', AdminUserController::class);
 
     // Property (minimal admin UI endpoints used by impersonation workflows)
     Route::get('properties/{property}', [AdminPropertyController::class, 'show'])->name('properties.show');
     Route::match(['put', 'patch'], 'properties/{property}', [AdminPropertyController::class, 'update'])->name('properties.update');
-    
+
     // Provider Management
     Route::resource('providers', AdminProviderController::class);
-    
+
     // Tariff Management
     Route::resource('tariffs', AdminTariffController::class);
-    
+
     // Tenant Management (Admin-specific tenant views)
     Route::get('tenants', [AdminTenantController::class, 'index'])->name('tenants.index');
     Route::get('tenants/create', [AdminTenantController::class, 'create'])->name('tenants.create');
@@ -345,33 +334,15 @@ Route::middleware(['auth', 'role:admin', 'throttle:admin', 'subscription.check',
     Route::patch('tenants/{tenant}/reassign', [AdminTenantController::class, 'reassign'])->name('tenants.reassign');
     Route::patch('tenants/{tenant}/toggle-active', [AdminTenantController::class, 'toggleActive'])->name('tenants.toggle-active');
     Route::delete('tenants/{tenant}', [AdminTenantController::class, 'destroy'])->name('tenants.destroy');
-    
+
     // Settings
     Route::get('settings', [AdminSettingsController::class, 'index'])->name('settings.index');
     Route::post('settings', [AdminSettingsController::class, 'update'])->name('settings.update');
     Route::post('settings/backup', [AdminSettingsController::class, 'runBackup'])->name('settings.backup');
     Route::post('settings/cache', [AdminSettingsController::class, 'clearCache'])->name('settings.cache');
-    
+
     // Audit Log
     Route::get('audit', [AdminAuditController::class, 'index'])->name('audit.index');
-});
-
-// ============================================================================
-// FILAMENT ROUTE ALIASES
-// ============================================================================
-// Filament route aliases pointing to existing admin user screens to satisfy navigation links
-// Note: These routes inherit the same middleware as admin routes above
-// Performance: Middleware is already applied in the admin group, no need to duplicate
-
-Route::middleware(['auth', 'role:admin', 'subscription.check', 'hierarchical.access'])->prefix('admin/resources')->group(function () {
-    Route::get('users', [AdminUserController::class, 'index'])->name('filament.admin.resources.users.index');
-    Route::get('users/create', [AdminUserController::class, 'create'])->name('filament.admin.resources.users.create');
-    Route::get('providers', [AdminProviderController::class, 'index'])->name('filament.admin.resources.providers.index');
-    Route::get('providers/create', [AdminProviderController::class, 'create'])->name('filament.admin.resources.providers.create');
-    Route::get('tariffs', [AdminTariffController::class, 'index'])->name('filament.admin.resources.tariffs.index');
-    Route::get('tariffs/create', [AdminTariffController::class, 'create'])->name('filament.admin.resources.tariffs.create');
-    Route::get('tenants', [AdminTenantController::class, 'index'])->name('filament.admin.resources.tenants.index');
-    Route::get('tenants/create', [AdminTenantController::class, 'create'])->name('filament.admin.resources.tenants.create');
 });
 
 // ============================================================================
@@ -383,13 +354,13 @@ Route::middleware(['auth', 'role:admin', 'subscription.check', 'hierarchical.acc
 // - subscription.check: Validate subscription status (Requirements 3.4, 3.5)
 //   Note: Managers work under admin's subscription, but validation ensures access control
 // - hierarchical.access: Validate hierarchical access (Requirements 12.5, 13.3)
-// 
+//
 // Middleware execution order:
 // 1. auth - Verify authentication
 // 2. role:manager - Verify role authorization
 // 3. subscription.check - Validate subscription (bypassed for non-admin roles)
 // 4. hierarchical.access - Validate tenant/property relationships
-// 
+//
 // Performance: Middleware chain adds ~2-10ms overhead per request (optimized with caching)
 
 Route::middleware(['auth', 'role:manager', 'subscription.check', 'hierarchical.access'])->prefix('manager')->name('manager.')->group(function () {
@@ -399,7 +370,7 @@ Route::middleware(['auth', 'role:manager', 'subscription.check', 'hierarchical.a
     // Profile & preferences
     Route::get('profile', [ManagerProfileController::class, 'show'])->name('profile.show');
     Route::match(['put', 'patch'], 'profile', [ManagerProfileController::class, 'update'])->name('profile.update');
-    
+
     // Reports - Manager-specific reporting (not in Filament)
     Route::get('reports', [ManagerReportController::class, 'index'])->name('reports.index');
     Route::get('reports/consumption', [ManagerReportController::class, 'consumption'])->name('reports.consumption');
@@ -416,7 +387,7 @@ Route::middleware(['auth', 'role:manager', 'subscription.check', 'hierarchical.a
 
     // Meter readings (manager-facing UI)
     Route::resource('meter-readings', ManagerMeterReadingController::class);
-    
+
     // Meter reading corrections (single-action controller for updates)
     // Requirements: 1.1, 1.2, 1.3, 1.4, 8.1, 8.2, 8.3
     Route::put('meter-readings/{meterReading}/correct', MeterReadingUpdateController::class)
@@ -425,16 +396,15 @@ Route::middleware(['auth', 'role:manager', 'subscription.check', 'hierarchical.a
     // Invoices (manager-facing UI)
     Route::get('invoices/drafts', [ManagerInvoiceController::class, 'drafts'])->name('invoices.drafts');
     Route::get('invoices/finalized', [ManagerInvoiceController::class, 'finalized'])->name('invoices.finalized');
-    
+
     // Invoice finalization (single-action controller)
     // Requirements: 5.5, 11.1, 11.3
     Route::post('invoices/{invoice}/finalize', FinalizeInvoiceController::class)->name('invoices.finalize');
-    
+
     Route::post('invoices/{invoice}/mark-paid', [ManagerInvoiceController::class, 'markPaid'])->name('invoices.mark-paid');
     Route::resource('invoices', ManagerInvoiceController::class);
-    
-    // Note: Properties, Buildings, Meters, MeterReadings, Invoices, Tariffs, 
-    // and Providers are managed through Filament at /admin
+
+    // Note: manager-facing resources are served through custom controller routes.
 });
 
 // ============================================================================
@@ -447,51 +417,40 @@ Route::middleware(['auth', 'role:manager', 'subscription.check', 'hierarchical.a
 //   Note: Tenants work under admin's subscription, validation is bypassed for tenant role
 // - hierarchical.access: Validate hierarchical access (Requirements 12.5, 13.3)
 //   Ensures tenants only access their assigned property and related resources
-// 
+//
 // Middleware execution order:
 // 1. auth - Verify authentication
 // 2. role:tenant - Verify role authorization
 // 3. subscription.check - Validate subscription (bypassed for tenant role)
 // 4. hierarchical.access - Validate property assignment and tenant_id relationships
-// 
+//
 // Performance: Middleware chain adds ~2-10ms overhead per request (optimized with caching)
 
 Route::middleware(['auth', 'role:tenant', 'subscription.check', 'hierarchical.access'])->prefix('tenant')->name('tenant.')->group(function () {
-    
+
     // Dashboard
     Route::get('/dashboard', [TenantDashboardController::class, 'index'])->name('dashboard');
-    
+
     // Profile
     Route::get('profile', [TenantProfileController::class, 'show'])->name('profile.show');
     Route::put('profile', [TenantProfileController::class, 'update'])->name('profile.update');
-    
+
     // Property (Own)
     Route::get('property', [TenantPropertyController::class, 'show'])->name('property.show');
     Route::get('property/meters', [TenantPropertyController::class, 'meters'])->name('property.meters');
-    
+
     // Meters (Own)
     Route::get('meters', [TenantMeterController::class, 'index'])->name('meters.index');
     Route::get('meters/{meter}', [TenantMeterController::class, 'show'])->name('meters.show');
-    
+
     // Meter Readings (Own)
     Route::get('meter-readings', [TenantMeterReadingController::class, 'index'])->name('meter-readings.index');
     Route::get('meter-readings/{meterReading}', [TenantMeterReadingController::class, 'show'])->name('meter-readings.show');
     Route::post('meter-readings', [TenantMeterReadingController::class, 'store'])->name('meter-readings.store');
-    
+
     // Invoices (Own)
     Route::get('invoices', [TenantInvoiceController::class, 'index'])->name('invoices.index');
     Route::get('invoices/{invoice}', [TenantInvoiceController::class, 'show'])->name('invoices.show');
     Route::get('invoices/{invoice}/pdf', [TenantInvoiceController::class, 'pdf'])->name('invoices.pdf');
     Route::get('invoices/{invoice}/receipt', [TenantInvoiceController::class, 'pdf'])->name('invoices.receipt');
 });
-
-Route::middleware(['auth', 'role:tenant', 'subscription.check', 'hierarchical.access'])
-    ->get('/compat/tenant/dashboard', fn () => redirect()->route('tenant.dashboard'))
-    ->name('filament.tenant.pages.dashboard');
-
-// ============================================================================
-// SHARED ROUTES (ADMIN & MANAGER)
-// ============================================================================
-// Note: Most admin/manager functionality is now handled through Filament at /admin
-// This includes: Buildings, Properties, Meters, MeterReadings, Invoices, 
-// Tariffs, Providers, and Users management

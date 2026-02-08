@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 use App\Enums\UserRole;
 use App\Models\Building;
-use App\Models\Invoice;
 use App\Models\Meter;
-use App\Models\MeterReading;
 use App\Models\Property;
 use App\Models\Subscription;
 use App\Models\User;
@@ -39,7 +37,7 @@ test('superadmin has unrestricted access to all resources', function () {
     ]);
 
     $this->actingAs($superadmin)
-        ->get(route('manager.properties.show', $otherTenantProperty))
+        ->get(route('superadmin.properties.show', $otherTenantProperty))
         ->assertOk();
 });
 
@@ -121,7 +119,7 @@ test('manager has same access as admin', function () {
         ->assertOk();
 });
 
-test('admin can access buildings from their tenant', function () {
+test('admin cannot access manager-only building routes', function () {
     $admin = createAdminWithActiveSubscription(1);
 
     $building = Building::factory()->create([
@@ -130,10 +128,10 @@ test('admin can access buildings from their tenant', function () {
 
     $this->actingAs($admin)
         ->get(route('manager.buildings.show', $building))
-        ->assertOk();
+        ->assertForbidden();
 });
 
-test('admin cannot access buildings from other tenants', function () {
+test('admin remains forbidden from manager routes regardless of tenant', function () {
     $admin = createAdminWithActiveSubscription(1);
 
     $building = Building::factory()->create([
@@ -207,10 +205,10 @@ test('middleware uses select to minimize data transfer', function () {
         ->assertOk();
 
     $queries = DB::getQueryLog();
-    
+
     // Find the query that selects from properties table
     $propertyQuery = collect($queries)->first(function ($query) {
-        return str_contains($query['query'], 'select') 
+        return str_contains($query['query'], 'select')
             && str_contains($query['query'], 'properties');
     });
 
@@ -239,5 +237,5 @@ test('unauthenticated users are redirected to login', function () {
     $property = Property::factory()->create();
 
     $this->get(route('admin.properties.show', $property))
-        ->assertRedirect(route('filament.admin.auth.login'));
+        ->assertRedirect(route('login'));
 });

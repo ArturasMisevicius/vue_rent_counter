@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notification;
 
 /**
  * Compliance Issue Notification
- * 
+ *
  * Notifies administrators when compliance scores drop below acceptable thresholds.
  */
 final class ComplianceIssueNotification extends Notification implements ShouldQueue
@@ -49,9 +49,9 @@ final class ComplianceIssueNotification extends Notification implements ShouldQu
             ]));
 
         // Add failing categories
-        if (!empty($this->failingCategories)) {
+        if (! empty($this->failingCategories)) {
             $message->line(__('audit.notifications.compliance_issue.failing_categories'));
-            
+
             foreach ($this->failingCategories as $category) {
                 $categoryName = $this->getCategoryLabel($category['category']);
                 $score = number_format($category['score'], 1);
@@ -60,9 +60,9 @@ final class ComplianceIssueNotification extends Notification implements ShouldQu
         }
 
         // Add recommendations
-        if (!empty($this->recommendations)) {
+        if (! empty($this->recommendations)) {
             $message->line(__('audit.notifications.compliance_issue.recommendations'));
-            
+
             foreach (array_slice($this->recommendations, 0, 5) as $recommendation) {
                 $message->line("• {$recommendation}");
             }
@@ -70,7 +70,7 @@ final class ComplianceIssueNotification extends Notification implements ShouldQu
 
         $message->action(
             __('audit.notifications.compliance_issue.action'),
-            route('filament.tenant.pages.dashboard')
+            route('tenant.dashboard')
         );
 
         return $message;

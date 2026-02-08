@@ -43,7 +43,7 @@
                 @auth
                     <div>
                         @if(auth()->user()->role->value === 'admin')
-                            <a href="{{ route('filament.admin.pages.dashboard') }}" class="text-indigo-600 hover:text-indigo-500">
+                            <a href="{{ route('dashboard') }}" class="text-indigo-600 hover:text-indigo-500">
                                 {{ __('error_pages.common.dashboard') }}
                             </a>
                         @elseif(auth()->user()->role->value === 'manager')

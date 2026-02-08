@@ -5,20 +5,25 @@ declare(strict_types=1);
 namespace App\Livewire;
 
 use App\Services\DashboardCustomizationService;
-use Livewire\Component;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
+use Livewire\Component;
 
 class DashboardCustomization extends Component implements HasForms
 {
     use InteractsWithForms;
 
     public bool $customizationMode = false;
+
     public array $availableWidgets = [];
+
     public array $currentConfiguration = [];
+
     public array $widgetLibrary = [];
+
     public ?string $selectedWidget = null;
+
     public array $widgetConfig = [];
 
     protected DashboardCustomizationService $customizationService;
@@ -48,9 +53,9 @@ class DashboardCustomization extends Component implements HasForms
 
     public function toggleCustomizationMode(): void
     {
-        $this->customizationMode = !$this->customizationMode;
-        
-        if (!$this->customizationMode) {
+        $this->customizationMode = ! $this->customizationMode;
+
+        if (! $this->customizationMode) {
             // Refresh configuration when exiting customization mode
             $this->loadConfiguration();
             $this->dispatch('dashboard-updated');
@@ -60,11 +65,11 @@ class DashboardCustomization extends Component implements HasForms
     public function addWidget(string $widgetClass): void
     {
         $user = auth()->user();
-        
+
         if ($this->customizationService->addWidget($user, $widgetClass)) {
             $this->loadConfiguration();
             $this->dispatch('dashboard-updated');
-            
+
             Notification::make()
                 ->title('Widget Added')
                 ->body('The widget has been added to your dashboard.')
@@ -82,11 +87,11 @@ class DashboardCustomization extends Component implements HasForms
     public function removeWidget(string $widgetClass): void
     {
         $user = auth()->user();
-        
+
         if ($this->customizationService->removeWidget($user, $widgetClass)) {
             $this->loadConfiguration();
             $this->dispatch('dashboard-updated');
-            
+
             Notification::make()
                 ->title('Widget Removed')
                 ->body('The widget has been removed from your dashboard.')
@@ -104,11 +109,11 @@ class DashboardCustomization extends Component implements HasForms
     public function updateWidgetPositions(array $positions): void
     {
         $user = auth()->user();
-        
+
         if ($this->customizationService->rearrangeWidgets($user, $positions)) {
             $this->loadConfiguration();
             $this->dispatch('dashboard-updated');
-            
+
             Notification::make()
                 ->title('Layout Updated')
                 ->body('Widget positions have been saved.')
@@ -120,11 +125,11 @@ class DashboardCustomization extends Component implements HasForms
     public function updateWidgetSize(string $widgetClass, string $size): void
     {
         $user = auth()->user();
-        
+
         if ($this->customizationService->updateWidgetSize($user, $widgetClass, $size)) {
             $this->loadConfiguration();
             $this->dispatch('dashboard-updated');
-            
+
             Notification::make()
                 ->title('Widget Size Updated')
                 ->body('The widget size has been changed.')
@@ -136,11 +141,11 @@ class DashboardCustomization extends Component implements HasForms
     public function updateWidgetRefreshInterval(string $widgetClass, int $interval): void
     {
         $user = auth()->user();
-        
+
         if ($this->customizationService->updateWidgetRefreshInterval($user, $widgetClass, $interval)) {
             $this->loadConfiguration();
             $this->dispatch('dashboard-updated');
-            
+
             Notification::make()
                 ->title('Refresh Interval Updated')
                 ->body('The widget refresh interval has been changed.')
@@ -152,11 +157,11 @@ class DashboardCustomization extends Component implements HasForms
     public function toggleWidget(string $widgetClass): void
     {
         $user = auth()->user();
-        
+
         if ($this->customizationService->toggleWidget($user, $widgetClass)) {
             $this->loadConfiguration();
             $this->dispatch('dashboard-updated');
-            
+
             Notification::make()
                 ->title('Widget Toggled')
                 ->body('The widget visibility has been changed.')
@@ -168,11 +173,11 @@ class DashboardCustomization extends Component implements HasForms
     public function resetToDefault(): void
     {
         $user = auth()->user();
-        
+
         if ($this->customizationService->resetToDefault($user)) {
             $this->loadConfiguration();
             $this->dispatch('dashboard-updated');
-            
+
             Notification::make()
                 ->title('Dashboard Reset')
                 ->body('Your dashboard has been reset to the default layout.')
@@ -196,26 +201,26 @@ class DashboardCustomization extends Component implements HasForms
 
     public function saveWidgetConfig(): void
     {
-        if (!$this->selectedWidget) {
+        if (! $this->selectedWidget) {
             return;
         }
 
         $user = auth()->user();
-        
+
         // Update size if changed
         if (isset($this->widgetConfig['size'])) {
             $this->customizationService->updateWidgetSize($user, $this->selectedWidget, $this->widgetConfig['size']);
         }
-        
+
         // Update refresh interval if changed
         if (isset($this->widgetConfig['refresh_interval'])) {
             $this->customizationService->updateWidgetRefreshInterval($user, $this->selectedWidget, (int) $this->widgetConfig['refresh_interval']);
         }
-        
+
         $this->loadConfiguration();
         $this->dispatch('dashboard-updated');
         $this->closeWidgetConfig();
-        
+
         Notification::make()
             ->title('Widget Configuration Saved')
             ->body('The widget settings have been updated.')
@@ -227,10 +232,10 @@ class DashboardCustomization extends Component implements HasForms
     {
         $user = auth()->user();
         $configuration = $this->customizationService->exportConfiguration($user);
-        
+
         $this->dispatch('download-layout', [
-            'filename' => 'dashboard-layout-' . date('Y-m-d-H-i-s') . '.json',
-            'content' => json_encode($configuration, JSON_PRETTY_PRINT)
+            'filename' => 'dashboard-layout-'.date('Y-m-d-H-i-s').'.json',
+            'content' => json_encode($configuration, JSON_PRETTY_PRINT),
         ]);
     }
 
@@ -238,17 +243,17 @@ class DashboardCustomization extends Component implements HasForms
     {
         $user = auth()->user();
         $configuration = $this->customizationService->exportConfiguration($user);
-        
+
         // Create a shareable URL with base64 encoded configuration
         $encodedConfig = base64_encode(json_encode($configuration));
-        
-        return route('filament.admin.pages.dashboard') . '?import=' . $encodedConfig;
+
+        return route('dashboard').'?import='.$encodedConfig;
     }
 
     public function getEnabledWidgets(): array
     {
         return collect($this->currentConfiguration['widgets'] ?? [])
-            ->filter(fn($widget) => $widget['enabled'])
+            ->filter(fn ($widget) => $widget['enabled'])
             ->sortBy('position')
             ->toArray();
     }
@@ -256,7 +261,7 @@ class DashboardCustomization extends Component implements HasForms
     public function getDisabledWidgets(): array
     {
         return collect($this->currentConfiguration['widgets'] ?? [])
-            ->filter(fn($widget) => !$widget['enabled'])
+            ->filter(fn ($widget) => ! $widget['enabled'])
             ->sortBy('position')
             ->toArray();
     }
@@ -264,13 +269,13 @@ class DashboardCustomization extends Component implements HasForms
     public function isWidgetEnabled(string $widgetClass): bool
     {
         $widgets = $this->currentConfiguration['widgets'] ?? [];
-        
+
         foreach ($widgets as $widget) {
             if ($widget['class'] === $widgetClass) {
                 return $widget['enabled'] ?? false;
             }
         }
-        
+
         return false;
     }
 

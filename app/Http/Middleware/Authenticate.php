@@ -6,7 +6,6 @@ namespace App\Http\Middleware;
 
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 
 class Authenticate extends Middleware
 {
@@ -17,10 +16,6 @@ class Authenticate extends Middleware
     {
         if ($request->expectsJson()) {
             return null;
-        }
-
-        if ($request->is('admin*') && Route::has('filament.admin.auth.login')) {
-            return route('filament.admin.auth.login');
         }
 
         return route('login');

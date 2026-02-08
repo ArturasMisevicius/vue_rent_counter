@@ -27,7 +27,7 @@
             <div class="mt-8 space-y-4">
                 @auth
                     @if(auth()->user()->role->value === 'admin')
-                        <a href="{{ route('filament.admin.pages.dashboard') }}" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                        <a href="{{ route('dashboard') }}" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
                             {{ __('error_pages.common.dashboard') }}
                         </a>
                     @elseif(auth()->user()->role->value === 'manager')

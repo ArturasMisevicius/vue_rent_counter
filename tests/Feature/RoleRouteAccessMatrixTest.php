@@ -59,3 +59,38 @@ test('role route access matrix is enforced for primary route groups', function (
         }
     }
 });
+
+test('role-only convenience redirects enforce strict role access', function (): void {
+    $routes = [
+        '/superadmin' => ['role' => UserRole::SUPERADMIN, 'redirect' => route('superadmin.dashboard')],
+        '/admin' => ['role' => UserRole::ADMIN, 'redirect' => route('admin.dashboard')],
+        '/manager' => ['role' => UserRole::MANAGER, 'redirect' => route('manager.dashboard')],
+        '/tenant' => ['role' => UserRole::TENANT, 'redirect' => route('tenant.dashboard')],
+    ];
+
+    $usersByRole = [
+        UserRole::SUPERADMIN->value => $this->superadmin,
+        UserRole::ADMIN->value => $this->admin,
+        UserRole::MANAGER->value => $this->manager,
+        UserRole::TENANT->value => $this->tenant,
+    ];
+
+    foreach (array_keys($routes) as $uri) {
+        auth()->logout();
+        $this->app['auth']->forgetGuards();
+
+        $this->get($uri)->assertRedirect(route('login'));
+    }
+
+    foreach ($routes as $uri => $expectations) {
+        foreach ($usersByRole as $role => $user) {
+            $response = $this->actingAs($user)->get($uri);
+
+            if ($role === $expectations['role']->value) {
+                $response->assertRedirect($expectations['redirect']);
+            } else {
+                $response->assertForbidden();
+            }
+        }
+    }
+});

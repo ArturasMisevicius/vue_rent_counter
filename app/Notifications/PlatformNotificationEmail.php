@@ -47,10 +47,10 @@ class PlatformNotificationEmail extends Notification implements ShouldQueue
             ->greeting("Hello {$this->organization->name},")
             ->line($this->platformNotification->message)
             ->line('This is an important notification from the Vilnius Utilities Billing Platform.')
-            ->action('View in Dashboard', route('filament.admin.pages.dashboard'))
+            ->action('View in Dashboard', route('dashboard'))
             ->line('If you have any questions, please contact our support team.')
             ->line("Best regards,\nThe Platform Team")
-            ->line('<img src="' . $trackingUrl . '" width="1" height="1" style="display:none;" alt="" />');
+            ->line('<img src="'.$trackingUrl.'" width="1" height="1" style="display:none;" alt="" />');
     }
 
     /**

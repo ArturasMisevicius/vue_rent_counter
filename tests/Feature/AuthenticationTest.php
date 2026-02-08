@@ -1,19 +1,18 @@
 <?php
 
-use App\Enums\UserRole;
 use App\Enums\SubscriptionStatus;
+use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 /**
  * Authentication Tests
- * 
+ *
  * Tests login functionality for each role, invalid credentials handling,
  * and logout functionality.
- * 
+ *
  * Requirements: 2.1, 2.2, 2.3, 2.4, 2.5
  */
-
 test('admin can login with valid credentials and redirects to admin dashboard', function () {
     // Create admin user
     $admin = User::factory()->create([
@@ -30,7 +29,7 @@ test('admin can login with valid credentials and redirects to admin dashboard', 
 
     // Assert redirected to admin dashboard
     $response->assertRedirect('/admin/dashboard');
-    
+
     // Assert user is authenticated
     $this->assertAuthenticatedAs($admin);
 });
@@ -51,7 +50,7 @@ test('manager can login with valid credentials and redirects to manager dashboar
 
     // Assert redirected to manager dashboard
     $response->assertRedirect('/manager/dashboard');
-    
+
     // Assert user is authenticated
     $this->assertAuthenticatedAs($manager);
 });
@@ -72,7 +71,7 @@ test('tenant can login with valid credentials and redirects to tenant dashboard'
 
     // Assert redirected to tenant dashboard
     $response->assertRedirect('/tenant/dashboard');
-    
+
     // Assert user is authenticated
     $this->assertAuthenticatedAs($tenant);
 });
@@ -94,7 +93,7 @@ test('login fails with invalid email', function () {
     // Assert redirected back with error
     $response->assertRedirect();
     $response->assertSessionHasErrors('email');
-    
+
     // Assert user is not authenticated
     $this->assertGuest();
 });
@@ -116,7 +115,7 @@ test('login fails with invalid password', function () {
     // Assert redirected back with error
     $response->assertRedirect();
     $response->assertSessionHasErrors('email');
-    
+
     // Assert user is not authenticated
     $this->assertGuest();
 });
@@ -130,7 +129,7 @@ test('login fails with missing credentials', function () {
 
     // Assert validation errors
     $response->assertSessionHasErrors(['email', 'password']);
-    
+
     // Assert user is not authenticated
     $this->assertGuest();
 });
@@ -160,9 +159,9 @@ test('logout clears session and redirects to home', function () {
     $user = User::factory()->create([
         'role' => UserRole::MANAGER,
     ]);
-    
+
     $this->actingAs($user);
-    
+
     // Assert user is authenticated
     $this->assertAuthenticated();
 
@@ -171,7 +170,7 @@ test('logout clears session and redirects to home', function () {
 
     // Assert redirected to home
     $response->assertRedirect('/');
-    
+
     // Assert user is no longer authenticated
     $this->assertGuest();
 });
@@ -181,15 +180,15 @@ test('logout invalidates session', function () {
     $user = User::factory()->create([
         'role' => UserRole::MANAGER,
     ]);
-    
+
     $this->actingAs($user);
-    
+
     // Store session ID
     $sessionId = session()->getId();
-    
+
     // Logout
     $this->post('/logout');
-    
+
     // Assert session ID has changed (regenerated)
     expect(session()->getId())->not->toBe($sessionId);
 });
@@ -199,7 +198,7 @@ test('authenticated admin can access admin dashboard', function () {
     $admin = User::factory()->create([
         'role' => UserRole::ADMIN,
     ]);
-    
+
     // Create active subscription for admin
     \App\Models\Subscription::factory()->create([
         'user_id' => $admin->id,
@@ -207,11 +206,11 @@ test('authenticated admin can access admin dashboard', function () {
         'starts_at' => now(),
         'expires_at' => now()->addYear(),
     ]);
-    
+
     $this->actingAs($admin);
 
     // Access admin dashboard
-    $response = $this->get(route('filament.admin.pages.dashboard'));
+    $response = $this->get(route('admin.dashboard'));
 
     // Assert successful access
     $response->assertOk();
@@ -222,7 +221,7 @@ test('authenticated manager can access manager dashboard', function () {
     $manager = User::factory()->create([
         'role' => UserRole::MANAGER,
     ]);
-    
+
     $this->actingAs($manager);
 
     // Access manager dashboard
@@ -237,7 +236,7 @@ test('authenticated tenant can access tenant dashboard', function () {
     $tenant = User::factory()->create([
         'role' => UserRole::TENANT,
     ]);
-    
+
     $this->actingAs($tenant);
 
     // Access tenant dashboard
@@ -249,10 +248,10 @@ test('authenticated tenant can access tenant dashboard', function () {
 
 test('unauthenticated user cannot access admin dashboard', function () {
     // Attempt to access admin dashboard without authentication
-    $response = $this->get(route('filament.admin.pages.dashboard'));
+    $response = $this->get(route('admin.dashboard'));
 
     // Assert redirected to login
-    $response->assertRedirect(route('filament.admin.auth.login'));
+    $response->assertRedirect(route('login'));
 });
 
 test('unauthenticated user cannot access manager dashboard', function () {
@@ -288,10 +287,10 @@ test('login with remember me sets remember token', function () {
 
     // Assert redirected
     $response->assertRedirect('/manager/dashboard');
-    
+
     // Assert user is authenticated
     $this->assertAuthenticatedAs($user);
-    
+
     // Assert remember token is set
     expect($user->fresh()->remember_token)->not->toBeNull();
 });
@@ -303,7 +302,7 @@ test('session is regenerated on successful login', function () {
         'password' => Hash::make('password'),
         'role' => UserRole::MANAGER,
     ]);
-    
+
     // Start a session
     $this->get('/login');
     $oldSessionId = session()->getId();

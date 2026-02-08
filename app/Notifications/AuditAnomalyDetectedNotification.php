@@ -12,7 +12,7 @@ use Illuminate\Notifications\Notification;
 
 /**
  * Audit Anomaly Detected Notification
- * 
+ *
  * Notifies administrators when audit anomalies are detected in the system.
  */
 final class AuditAnomalyDetectedNotification extends Notification implements ShouldQueue
@@ -64,9 +64,9 @@ final class AuditAnomalyDetectedNotification extends Notification implements Sho
             ]));
 
         // Add details if available
-        if (!empty($this->details)) {
+        if (! empty($this->details)) {
             $message->line(__('audit.notifications.anomaly_detected.details_header'));
-            
+
             foreach ($this->getFormattedDetails() as $detail) {
                 $message->line("• {$detail}");
             }
@@ -74,7 +74,7 @@ final class AuditAnomalyDetectedNotification extends Notification implements Sho
 
         $message->action(
             __('audit.notifications.anomaly_detected.action'),
-            route('filament.tenant.pages.dashboard')
+            route('tenant.dashboard')
         );
 
         return $message;
@@ -124,9 +124,9 @@ final class AuditAnomalyDetectedNotification extends Notification implements Sho
 
         foreach ($this->details as $key => $value) {
             if (is_array($value)) {
-                $formatted[] = ucfirst(str_replace('_', ' ', $key)) . ': ' . json_encode($value);
+                $formatted[] = ucfirst(str_replace('_', ' ', $key)).': '.json_encode($value);
             } else {
-                $formatted[] = ucfirst(str_replace('_', ' ', $key)) . ': ' . $value;
+                $formatted[] = ucfirst(str_replace('_', ' ', $key)).': '.$value;
             }
         }
 
