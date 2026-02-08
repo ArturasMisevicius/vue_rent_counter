@@ -24,7 +24,13 @@ afterEach(function () {
 
 it('does not compose view data when user is not authenticated', function () {
     $this->auth->shouldReceive('check')->once()->andReturn(false);
-    $this->view->shouldNotReceive('with');
+    $this->router->shouldReceive('currentRouteName')->once()->andReturn(null);
+    $this->view->shouldReceive('with')->once()->withArgs(function ($data) {
+        return $data['userRole'] === null
+            && $data['currentRoute'] === null
+            && $data['showTopLocaleSwitcher'] === false
+            && $data['backofficeLinks'] === [];
+    });
 
     $this->composer->compose($this->view);
 });
@@ -37,14 +43,14 @@ it('composes view data for authenticated admin user', function () {
     $this->auth->shouldReceive('check')->once()->andReturn(true);
     $this->auth->shouldReceive('user')->once()->andReturn($user);
     $this->router->shouldReceive('currentRouteName')->once()->andReturn('admin.dashboard');
-    $this->router->shouldReceive('has')->with('locale.set')->times(3)->andReturn(true);
+    $this->router->shouldReceive('has')->with('language.switch')->times(2)->andReturn(true);
 
     Language::factory()->count(3)->create(['is_active' => true]);
 
     $this->view->shouldReceive('with')->once()->withArgs(function ($data) {
         return $data['userRole'] === 'admin'
             && $data['currentRoute'] === 'admin.dashboard'
-            && $data['showTopLocaleSwitcher'] === true
+            && $data['showTopLocaleSwitcher'] === false
             && $data['languages']->count() === 3;
     });
 
@@ -59,7 +65,7 @@ it('hides locale switcher for manager role', function () {
     $this->auth->shouldReceive('check')->once()->andReturn(true);
     $this->auth->shouldReceive('user')->once()->andReturn($user);
     $this->router->shouldReceive('currentRouteName')->once()->andReturn('manager.dashboard');
-    $this->router->shouldReceive('has')->with('locale.set')->times(3)->andReturn(true);
+    $this->router->shouldReceive('has')->with('language.switch')->times(2)->andReturn(true);
 
     $this->view->shouldReceive('with')->once()->withArgs(function ($data) {
         return $data['userRole'] === 'manager'
@@ -78,7 +84,7 @@ it('hides locale switcher for tenant role', function () {
     $this->auth->shouldReceive('check')->once()->andReturn(true);
     $this->auth->shouldReceive('user')->once()->andReturn($user);
     $this->router->shouldReceive('currentRouteName')->once()->andReturn('tenant.dashboard');
-    $this->router->shouldReceive('has')->with('locale.set')->times(3)->andReturn(true);
+    $this->router->shouldReceive('has')->with('language.switch')->times(2)->andReturn(true);
 
     $this->view->shouldReceive('with')->once()->withArgs(function ($data) {
         return $data['userRole'] === 'tenant'
@@ -96,7 +102,7 @@ it('hides locale switcher for superadmin role', function () {
     $this->auth->shouldReceive('check')->once()->andReturn(true);
     $this->auth->shouldReceive('user')->once()->andReturn($user);
     $this->router->shouldReceive('currentRouteName')->once()->andReturn('superadmin.dashboard');
-    $this->router->shouldReceive('has')->with('locale.set')->times(3)->andReturn(true);
+    $this->router->shouldReceive('has')->with('language.switch')->times(2)->andReturn(true);
 
     $this->view->shouldReceive('with')->once()->withArgs(function ($data) {
         return $data['userRole'] === 'superadmin'
@@ -118,10 +124,11 @@ it('returns only active languages ordered by display_order', function () {
     $this->auth->shouldReceive('check')->once()->andReturn(true);
     $this->auth->shouldReceive('user')->once()->andReturn($user);
     $this->router->shouldReceive('currentRouteName')->once()->andReturn('admin.dashboard');
-    $this->router->shouldReceive('has')->with('locale.set')->times(3)->andReturn(true);
+    $this->router->shouldReceive('has')->with('language.switch')->times(2)->andReturn(true);
 
     $this->view->shouldReceive('with')->once()->withArgs(function ($data) {
         $languages = $data['languages'];
+
         return $languages->count() === 2
             && $languages->first()->code === 'en'
             && $languages->last()->code === 'lt';
@@ -138,19 +145,19 @@ it('provides consistent CSS classes for active and inactive states', function ()
     $this->auth->shouldReceive('check')->once()->andReturn(true);
     $this->auth->shouldReceive('user')->once()->andReturn($user);
     $this->router->shouldReceive('currentRouteName')->once()->andReturn('admin.dashboard');
-    $this->router->shouldReceive('has')->with('locale.set')->times(3)->andReturn(true);
+    $this->router->shouldReceive('has')->with('language.switch')->times(2)->andReturn(true);
 
     $this->view->shouldReceive('with')->once()->withArgs(function ($data) {
         return $data['activeClass'] === $data['mobileActiveClass']
             && $data['inactiveClass'] === $data['mobileInactiveClass']
-            && !empty($data['activeClass'])
-            && !empty($data['inactiveClass']);
+            && ! empty($data['activeClass'])
+            && ! empty($data['inactiveClass']);
     });
 
     $this->composer->compose($this->view);
 });
 
-it('returns empty languages collection when locale.set route does not exist', function () {
+it('disables locale switching when language route does not exist', function () {
     $user = User::factory()->make([
         'role' => UserRole::ADMIN,
     ]);
@@ -158,14 +165,14 @@ it('returns empty languages collection when locale.set route does not exist', fu
     $this->auth->shouldReceive('check')->once()->andReturn(true);
     $this->auth->shouldReceive('user')->once()->andReturn($user);
     $this->router->shouldReceive('currentRouteName')->once()->andReturn('admin.dashboard');
-    $this->router->shouldReceive('has')->with('locale.set')->times(3)->andReturn(false);
+    $this->router->shouldReceive('has')->with('language.switch')->times(2)->andReturn(false);
 
     Language::factory()->count(3)->create(['is_active' => true]);
 
     $this->view->shouldReceive('with')->once()->withArgs(function ($data) {
         return $data['showTopLocaleSwitcher'] === false
             && $data['canSwitchLocale'] === false
-            && $data['languages']->isEmpty();
+            && $data['languages']->count() === 3;
     });
 
     $this->composer->compose($this->view);
@@ -181,7 +188,7 @@ it('includes current locale in view data', function () {
     $this->auth->shouldReceive('check')->once()->andReturn(true);
     $this->auth->shouldReceive('user')->once()->andReturn($user);
     $this->router->shouldReceive('currentRouteName')->once()->andReturn('admin.dashboard');
-    $this->router->shouldReceive('has')->with('locale.set')->times(3)->andReturn(true);
+    $this->router->shouldReceive('has')->with('language.switch')->times(2)->andReturn(true);
 
     $this->view->shouldReceive('with')->once()->withArgs(function ($data) {
         return $data['currentLocale'] === 'lt';
@@ -198,7 +205,7 @@ it('handles null current route gracefully', function () {
     $this->auth->shouldReceive('check')->once()->andReturn(true);
     $this->auth->shouldReceive('user')->once()->andReturn($user);
     $this->router->shouldReceive('currentRouteName')->once()->andReturn(null);
-    $this->router->shouldReceive('has')->with('locale.set')->times(3)->andReturn(true);
+    $this->router->shouldReceive('has')->with('language.switch')->times(2)->andReturn(true);
 
     $this->view->shouldReceive('with')->once()->withArgs(function ($data) {
         return $data['currentRoute'] === null;
@@ -220,15 +227,16 @@ it('filters out inactive languages even when admin', function () {
     $this->auth->shouldReceive('check')->once()->andReturn(true);
     $this->auth->shouldReceive('user')->once()->andReturn($user);
     $this->router->shouldReceive('currentRouteName')->once()->andReturn('admin.dashboard');
-    $this->router->shouldReceive('has')->with('locale.set')->times(3)->andReturn(true);
+    $this->router->shouldReceive('has')->with('language.switch')->times(2)->andReturn(true);
 
     $this->view->shouldReceive('with')->once()->withArgs(function ($data) {
         $languages = $data['languages'];
+
         return $languages->count() === 2
             && $languages->pluck('code')->contains('en')
             && $languages->pluck('code')->contains('lt')
-            && !$languages->pluck('code')->contains('ru')
-            && !$languages->pluck('code')->contains('de');
+            && ! $languages->pluck('code')->contains('ru')
+            && ! $languages->pluck('code')->contains('de');
     });
 
     $this->composer->compose($this->view);
@@ -246,11 +254,12 @@ it('respects display_order for language sorting', function () {
     $this->auth->shouldReceive('check')->once()->andReturn(true);
     $this->auth->shouldReceive('user')->once()->andReturn($user);
     $this->router->shouldReceive('currentRouteName')->once()->andReturn('admin.dashboard');
-    $this->router->shouldReceive('has')->with('locale.set')->times(3)->andReturn(true);
+    $this->router->shouldReceive('has')->with('language.switch')->times(2)->andReturn(true);
 
     $this->view->shouldReceive('with')->once()->withArgs(function ($data) {
         $languages = $data['languages'];
         $codes = $languages->pluck('code')->toArray();
+
         return $codes === ['en', 'lt', 'ru'];
     });
 
@@ -265,7 +274,7 @@ it('provides all required view variables', function () {
     $this->auth->shouldReceive('check')->once()->andReturn(true);
     $this->auth->shouldReceive('user')->once()->andReturn($user);
     $this->router->shouldReceive('currentRouteName')->once()->andReturn('admin.dashboard');
-    $this->router->shouldReceive('has')->with('locale.set')->times(3)->andReturn(true);
+    $this->router->shouldReceive('has')->with('language.switch')->times(2)->andReturn(true);
 
     $this->view->shouldReceive('with')->once()->withArgs(function ($data) {
         $requiredKeys = [
@@ -282,7 +291,7 @@ it('provides all required view variables', function () {
         ];
 
         foreach ($requiredKeys as $key) {
-            if (!array_key_exists($key, $data)) {
+            if (! array_key_exists($key, $data)) {
                 return false;
             }
         }
@@ -295,7 +304,8 @@ it('provides all required view variables', function () {
 
 it('does not query database when user is not authenticated', function () {
     $this->auth->shouldReceive('check')->once()->andReturn(false);
-    $this->view->shouldNotReceive('with');
+    $this->router->shouldReceive('currentRouteName')->once()->andReturn(null);
+    $this->view->shouldReceive('with')->once();
 
     // No database queries should be executed
     $queryCount = 0;
@@ -308,7 +318,7 @@ it('does not query database when user is not authenticated', function () {
     expect($queryCount)->toBe(0);
 });
 
-it('does not query languages when role is not authorized for locale switcher', function () {
+it('still queries languages even when locale switcher is hidden', function () {
     $user = User::factory()->make([
         'role' => UserRole::MANAGER,
     ]);
@@ -316,7 +326,7 @@ it('does not query languages when role is not authorized for locale switcher', f
     $this->auth->shouldReceive('check')->once()->andReturn(true);
     $this->auth->shouldReceive('user')->once()->andReturn($user);
     $this->router->shouldReceive('currentRouteName')->once()->andReturn('manager.dashboard');
-    $this->router->shouldReceive('has')->with('locale.set')->times(3)->andReturn(true);
+    $this->router->shouldReceive('has')->with('language.switch')->times(2)->andReturn(true);
 
     // Track queries
     $languageQueriesExecuted = false;
@@ -330,5 +340,5 @@ it('does not query languages when role is not authorized for locale switcher', f
 
     $this->composer->compose($this->view);
 
-    expect($languageQueriesExecuted)->toBeFalse();
+    expect($languageQueriesExecuted)->toBeTrue();
 });

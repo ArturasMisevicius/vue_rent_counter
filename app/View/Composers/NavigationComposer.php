@@ -73,7 +73,7 @@ final class NavigationComposer
 
     /**
      * CSS classes for active navigation items (desktop and mobile).
-     * 
+     *
      * SECURITY: Centralized constants prevent XSS via inconsistent styling
      * and ensure all navigation items use vetted CSS classes.
      */
@@ -81,7 +81,7 @@ final class NavigationComposer
 
     /**
      * CSS classes for inactive navigation items (desktop and mobile).
-     * 
+     *
      * SECURITY: Centralized constants prevent XSS via inconsistent styling
      * and ensure all navigation items use vetted CSS classes.
      */
@@ -90,11 +90,12 @@ final class NavigationComposer
     /**
      * User roles that should NOT see the locale switcher.
      * Managers, tenants, and superadmins have fixed locales per their organization.
-     * 
+     *
      * SECURITY: Using enum constants prevents string-based security bypasses.
      * A typo in a string comparison could allow unauthorized locale changes.
      */
     private const ROLES_WITHOUT_LOCALE_SWITCHER = [
+        UserRole::ADMIN,
         UserRole::MANAGER,
         UserRole::TENANT,
         UserRole::SUPERADMIN,
@@ -156,6 +157,7 @@ final class NavigationComposer
                 'languages' => collect(),
                 'currentLocale' => app()->getLocale(),
             ]);
+
             return;
         }
 

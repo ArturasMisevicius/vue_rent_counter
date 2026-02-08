@@ -25,19 +25,19 @@ it('renders shared profile design primitives across all roles', function (callab
 })->with([
     'superadmin profile' => [
         fn (): User => User::factory()->superadmin()->create(),
-        'pages.profile.show-superadmin',
+        'superadmin.profile.show',
     ],
     'admin profile' => [
         fn (): User => User::factory()->admin()->create(),
-        'pages.profile.show-admin',
+        'admin.profile.show',
     ],
     'manager profile' => [
         fn (): User => User::factory()->manager()->create(),
-        'pages.profile.show-manager',
+        'manager.profile.show',
     ],
     'tenant profile' => [
         fn (): User => User::factory()->tenant()->create(),
-        'pages.profile.show-tenant',
+        'tenant.profile.show',
     ],
 ]);
 
@@ -63,7 +63,7 @@ it('renders profile language blocks and descriptive copy for each role', functio
 })->with([
     'superadmin profile copy' => [
         fn (): User => User::factory()->superadmin()->create(),
-        'pages.profile.show-superadmin',
+        'superadmin.profile.show',
         [
             'profile.superadmin.language_form.title',
             'profile.superadmin.language_form.description',
@@ -72,7 +72,7 @@ it('renders profile language blocks and descriptive copy for each role', functio
     ],
     'admin profile copy' => [
         fn (): User => User::factory()->admin()->create(),
-        'pages.profile.show-admin',
+        'admin.profile.show',
         [
             'profile.admin.language_form.title',
             'profile.admin.language_form.description',
@@ -82,7 +82,7 @@ it('renders profile language blocks and descriptive copy for each role', functio
     ],
     'manager profile copy' => [
         fn (): User => User::factory()->manager()->create(),
-        'pages.profile.show-manager',
+        'manager.profile.show',
         [
             'manager.profile.language_preference',
             'manager.profile.language_description',
@@ -92,7 +92,7 @@ it('renders profile language blocks and descriptive copy for each role', functio
     ],
     'tenant profile copy' => [
         fn (): User => User::factory()->tenant()->create(),
-        'pages.profile.show-tenant',
+        'tenant.profile.show',
         [
             'tenant.profile.language_preference',
             'tenant.profile.language.description',
