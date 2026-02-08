@@ -37,7 +37,7 @@ final readonly class ExternalServiceHealthMonitor
      * 
      * @var array<string, array<string, mixed>>
      */
-    private array $serviceEndpoints = [
+    private const SERVICE_ENDPOINTS = [
         'meter_reading_api' => [
             'url' => 'https://api.meter-provider.com/health',
             'method' => 'GET',
@@ -125,7 +125,7 @@ final readonly class ExternalServiceHealthMonitor
         $startTime = microtime(true);
         
         try {
-            $config = $this->serviceEndpoints[$serviceName] ?? null;
+            $config = self::SERVICE_ENDPOINTS[$serviceName] ?? null;
             
             if (!$config) {
                 return [
@@ -176,7 +176,7 @@ final readonly class ExternalServiceHealthMonitor
     {
         $services = [];
         
-        foreach (array_keys($this->serviceEndpoints) as $serviceName) {
+        foreach (array_keys(self::SERVICE_ENDPOINTS) as $serviceName) {
             $services[$serviceName] = $this->getServiceStatus($serviceName);
         }
         
@@ -282,7 +282,7 @@ final readonly class ExternalServiceHealthMonitor
         try {
             DB::table('integration_health_checks')->insert([
                 'service_name' => $serviceName,
-                'endpoint' => $this->serviceEndpoints[$serviceName]['url'] ?? 'unknown',
+                'endpoint' => self::SERVICE_ENDPOINTS[$serviceName]['url'] ?? 'unknown',
                 'status' => $status->value,
                 'response_time_ms' => $responseTimeMs,
                 'error_message' => $errorMessage,

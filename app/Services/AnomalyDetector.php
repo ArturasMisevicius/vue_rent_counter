@@ -225,6 +225,8 @@ final readonly class AnomalyDetector
             if ($changePercent >= 0.5) { // 50% change threshold
                 $severity = $changePercent >= 1.0 ? 'severe' : 'mild';
                 
+                $changePercentValue = $changePercent * 100;
+
                 $anomalies[] = [
                     'id' => $current['record']->id ?? uniqid(),
                     'date' => $current['record']->reading_date ?? $current['record']->created_at,
@@ -235,8 +237,8 @@ final readonly class AnomalyDetector
                     ],
                     'severity' => $severity,
                     'type' => 'trend_anomaly',
-                    'change_percent' => $changePercent * 100,
-                    'description' => "Sudden change in consumption trend ({$changePercent * 100}% change)",
+                    'change_percent' => $changePercentValue,
+                    'description' => sprintf('Sudden change in consumption trend (%.2f%% change)', $changePercentValue),
                 ];
             }
         }

@@ -136,7 +136,7 @@ class ApiAuthenticationService
     /**
      * Refresh token (revoke old, create new).
      */
-    public function refreshToken(User $user, string $oldTokenName, string $newTokenName = null): string
+    public function refreshToken(User $user, string $oldTokenName, ?string $newTokenName = null): string
     {
         // Revoke old token
         $this->revokeTokens($user, $oldTokenName);
