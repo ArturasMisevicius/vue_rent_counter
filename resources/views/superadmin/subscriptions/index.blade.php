@@ -7,11 +7,6 @@
         <p class="text-slate-600 mt-2">Manage all organization subscriptions</p>
     </div>
 
-    @php
-        $statusOptions = \App\Enums\SubscriptionStatus::cases();
-        $planOptions = \App\Enums\SubscriptionPlanType::cases();
-    @endphp
-
     {{-- Filters --}}
     <x-card class="mb-6">
         <form method="GET" action="{{ route('superadmin.subscriptions.index') }}" class="grid grid-cols-1 md:grid-cols-5 gap-4">

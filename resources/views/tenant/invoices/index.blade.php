@@ -86,10 +86,9 @@
                             </span>
                             <p class="text-3xl font-semibold text-slate-900">€{{ number_format($invoice->total_amount, 2) }}</p>
                             @if($invoice->due_date)
-                                @php($isOverdue = !$invoice->isPaid() && $invoice->due_date->isPast())
-                                <p class="text-sm {{ $isOverdue ? 'text-rose-600' : 'text-slate-600' }}">
+                                <p class="text-sm {{ (!$invoice->isPaid() && $invoice->due_date->isPast()) ? 'text-rose-600' : 'text-slate-600' }}">
                                     {{ __('invoices.tenant.list.due') }} {{ $invoice->due_date->format('Y-m-d') }}
-                                    @if($isOverdue)
+                                    @if(!$invoice->isPaid() && $invoice->due_date->isPast())
                                         <span class="ml-1 inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-semibold text-rose-700">{{ __('invoices.tenant.list.overdue') }}</span>
                                     @endif
                                 </p>

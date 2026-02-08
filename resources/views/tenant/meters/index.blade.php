@@ -4,35 +4,6 @@
 
 @section('tenant-content')
 <x-tenant.page :title="__('tenant.meters.index_title')" :description="__('tenant.meters.index_description')">
-    @php 
-        $unitFor = fn($meter) => $meter->getUnitOfMeasurement();
-        $metersCollection = $meters instanceof \Illuminate\Pagination\LengthAwarePaginator ? $meters->getCollection() : $meters;
-        $latestReadingDate = $metersCollection
-            ->flatMap(fn($meter) => $meter->readings)
-            ->filter()
-            ->pluck('reading_date')
-            ->filter()
-            ->sortDesc()
-            ->first();
-
-        $stylePalettes = [
-            ['chip' => 'bg-indigo-100 text-indigo-800', 'halo' => 'from-indigo-200/70 via-white to-white'],
-            ['chip' => 'bg-sky-100 text-sky-800', 'halo' => 'from-sky-200/80 via-white to-white'],
-            ['chip' => 'bg-emerald-100 text-emerald-800', 'halo' => 'from-emerald-200/75 via-white to-white'],
-            ['chip' => 'bg-amber-100 text-amber-800', 'halo' => 'from-amber-200/70 via-white to-white'],
-            ['chip' => 'bg-rose-100 text-rose-800', 'halo' => 'from-rose-200/80 via-white to-white'],
-            ['chip' => 'bg-violet-100 text-violet-800', 'halo' => 'from-violet-200/75 via-white to-white'],
-        ];
-
-        $styleForMeter = function ($meter) use ($stylePalettes) {
-            $serviceId = $meter->serviceConfiguration?->utilityService?->id;
-            $seed = is_int($serviceId) ? $serviceId : crc32((string) $meter->serial_number);
-            $index = abs((int) $seed) % count($stylePalettes);
-
-            return $stylePalettes[$index];
-        };
-    @endphp
-
     @if($metersCollection->isEmpty())
         <x-tenant.alert type="info" :title="__('tenant.meters.empty_title')">
             {{ __('tenant.meters.empty_body') }}
@@ -74,17 +45,13 @@
 
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 @foreach($meters as $meter)
-                    @php 
-                        $latest = $meter->readings->first(); 
-                        $style = $styleForMeter($meter);
-                    @endphp
                     <div class="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/95 shadow-md shadow-slate-200/60 transition hover:border-indigo-200">
-                        <div class="absolute inset-0 bg-gradient-to-br {{ $style['halo'] }}"></div>
+                        <div class="absolute inset-0 bg-gradient-to-br {{ ($meterStyleMap[$meter->id]['halo'] ?? 'from-indigo-200/70 via-white to-white') }}"></div>
                         <div class="absolute right-4 top-4 h-16 w-16 rounded-full bg-slate-200/40 blur-3xl"></div>
                         <div class="relative flex flex-col gap-4 p-5">
                             <div class="flex items-start justify-between gap-2">
                                 <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold {{ $style['chip'] }}">
+                                    <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold {{ ($meterStyleMap[$meter->id]['chip'] ?? 'bg-indigo-100 text-indigo-800') }}">
                                         <span class="text-base">&bull;</span>
                                         {{ $meter->getServiceDisplayName() }}
                                     </span>
@@ -104,11 +71,11 @@
                                 <div class="rounded-xl border border-slate-100 bg-white px-3 py-2 shadow-sm">
                                     <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('tenant.meters.labels.latest') }}</p>
                                     <div class="mt-1 flex items-baseline gap-2">
-                                        @if($latest)
+                                        @if($meter->readings->first())
                                             <p class="text-xl font-semibold text-slate-900">
-                                                {{ number_format($latest->getEffectiveValue(), 2) }}
+                                                {{ number_format($meter->readings->first()->getEffectiveValue(), 2) }}
                                             </p>
-                                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $unitFor($meter) }}</p>
+                                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ $meter->getUnitOfMeasurement() }}</p>
                                         @else
                                             <span class="text-sm text-slate-500">{{ __('tenant.meters.labels.not_recorded') }}</span>
                                         @endif
@@ -117,7 +84,7 @@
                                 <div class="rounded-xl border border-slate-100 bg-white px-3 py-2 shadow-sm">
                                     <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('tenant.meters.labels.updated') }}</p>
                                     <p class="mt-1 text-sm font-semibold text-slate-900">
-                                        {{ $latest ? $latest->reading_date->format('Y-m-d') : '—' }}
+                                        {{ $meter->readings->first() ? $meter->readings->first()->reading_date->format('Y-m-d') : '—' }}
                                     </p>
                                     <p class="text-xs text-slate-500">{{ __('tenant.meters.overview.latest_update') }}</p>
                                 </div>

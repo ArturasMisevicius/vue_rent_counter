@@ -1,5 +1,3 @@
-@props(['invoice', 'showPropertyFilter' => false, 'properties' => []])
-
 <div class="invoice-summary bg-white/90 border border-slate-200/80 shadow-lg shadow-slate-200/60 rounded-2xl p-6 backdrop-blur-sm">
     {{-- Invoice Header --}}
     <div class="invoice-header mb-6">
@@ -23,12 +21,9 @@
             <div class="text-left sm:text-right space-y-2">
                 <x-status-badge :status="$invoice->status->value" class="justify-start sm:justify-end" />
                 @if($invoice->due_date)
-                    @php
-                        $isOverdue = method_exists($invoice, 'isOverdue') ? $invoice->isOverdue() : (!$invoice->isPaid() && $invoice->due_date->isPast());
-                    @endphp
-                    <p class="text-sm font-semibold {{ $isOverdue ? 'text-rose-600' : 'text-slate-700' }}">
+                    <p class="text-sm font-semibold {{ $isOverdue($invoice) ? 'text-rose-600' : 'text-slate-700' }}">
                         Due: {{ $invoice->due_date->format('Y-m-d') }}
-                        @if($isOverdue)
+                        @if($isOverdue($invoice))
                             <span class="ml-2 inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">Overdue</span>
                         @endif
                     </p>
@@ -101,53 +96,8 @@
                                     <div class="text-sm font-semibold text-slate-900">
                                         {{ $item->description }}
                                     </div>
-                                    @php
-                                        $snapshot = $item->meter_reading_snapshot;
-                                        $readingSummary = null;
-
-                                        if (is_array($snapshot)) {
-                                            if (isset($snapshot['meters']) && is_array($snapshot['meters']) && count($snapshot['meters']) > 0) {
-                                                $firstMeter = $snapshot['meters'][0];
-                                                $meterCount = count($snapshot['meters']);
-
-                                                $start = $firstMeter['start_value'] ?? $firstMeter['previous_reading'] ?? null;
-                                                $end = $firstMeter['end_value'] ?? $firstMeter['current_reading'] ?? null;
-                                                $serial = $firstMeter['meter_serial'] ?? null;
-                                                $zone = $snapshot['zone'] ?? ($firstMeter['zone'] ?? null);
-
-                                                if ($start !== null && $end !== null) {
-                                                    $startFormatted = is_numeric($start) ? number_format((float) $start, 2) : (string) $start;
-                                                    $endFormatted = is_numeric($end) ? number_format((float) $end, 2) : (string) $end;
-
-                                                    $meterLabel = $serial ? "{$serial}: " : '';
-                                                    $zoneLabel = $zone ? " ({$zone})" : '';
-                                                    $moreLabel = $meterCount > 1 ? ' +' . ($meterCount - 1) . ' more' : '';
-
-                                                    $readingSummary =
-                                                        $meterLabel .
-                                                        __('invoices.summary.labels.previous') . ': ' . $startFormatted .
-                                                        ' -> ' .
-                                                        __('invoices.summary.labels.current') . ': ' . $endFormatted .
-                                                        $zoneLabel .
-                                                        $moreLabel;
-                                                }
-                                            } elseif (isset($snapshot['previous_reading'], $snapshot['current_reading'])) {
-                                                $startFormatted = is_numeric($snapshot['previous_reading'])
-                                                    ? number_format((float) $snapshot['previous_reading'], 2)
-                                                    : (string) $snapshot['previous_reading'];
-                                                $endFormatted = is_numeric($snapshot['current_reading'])
-                                                    ? number_format((float) $snapshot['current_reading'], 2)
-                                                    : (string) $snapshot['current_reading'];
-
-                                                $readingSummary =
-                                                    __('invoices.summary.labels.previous') . ': ' . $startFormatted .
-                                                    ' -> ' .
-                                                    __('invoices.summary.labels.current') . ': ' . $endFormatted;
-                                            }
-                                        }
-                                    @endphp
-                                    @if($readingSummary)
-                                        <div class="text-xs text-slate-500 mt-1">{{ $readingSummary }}</div>
+                                    @if($readingSummary($item->meter_reading_snapshot))
+                                        <div class="text-xs text-slate-500 mt-1">{{ $readingSummary($item->meter_reading_snapshot) }}</div>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right">
@@ -188,42 +138,8 @@
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex-1">
                             <p class="text-sm font-semibold text-slate-900">{{ $item->description }}</p>
-                            @php
-                                $snapshot = $item->meter_reading_snapshot;
-                                $readingSummary = null;
-
-                                if (is_array($snapshot)) {
-                                    if (isset($snapshot['meters']) && is_array($snapshot['meters']) && count($snapshot['meters']) > 0) {
-                                        $firstMeter = $snapshot['meters'][0];
-                                        $start = $firstMeter['start_value'] ?? $firstMeter['previous_reading'] ?? null;
-                                        $end = $firstMeter['end_value'] ?? $firstMeter['current_reading'] ?? null;
-
-                                        if ($start !== null && $end !== null) {
-                                            $startFormatted = is_numeric($start) ? number_format((float) $start, 2) : (string) $start;
-                                            $endFormatted = is_numeric($end) ? number_format((float) $end, 2) : (string) $end;
-
-                                            $readingSummary =
-                                                __('invoices.summary.labels.prev_short') . ': ' . $startFormatted .
-                                                ' -> ' .
-                                                __('invoices.summary.labels.curr_short') . ': ' . $endFormatted;
-                                        }
-                                    } elseif (isset($snapshot['previous_reading'], $snapshot['current_reading'])) {
-                                        $startFormatted = is_numeric($snapshot['previous_reading'])
-                                            ? number_format((float) $snapshot['previous_reading'], 2)
-                                            : (string) $snapshot['previous_reading'];
-                                        $endFormatted = is_numeric($snapshot['current_reading'])
-                                            ? number_format((float) $snapshot['current_reading'], 2)
-                                            : (string) $snapshot['current_reading'];
-
-                                        $readingSummary =
-                                            __('invoices.summary.labels.prev_short') . ': ' . $startFormatted .
-                                            ' -> ' .
-                                            __('invoices.summary.labels.curr_short') . ': ' . $endFormatted;
-                                    }
-                                }
-                            @endphp
-                            @if($readingSummary)
-                                <p class="text-xs text-slate-500 mt-1">{{ $readingSummary }}</p>
+                            @if($readingSummary($item->meter_reading_snapshot, true))
+                                <p class="text-xs text-slate-500 mt-1">{{ $readingSummary($item->meter_reading_snapshot, true) }}</p>
                             @endif
                         </div>
                         <div class="text-right">

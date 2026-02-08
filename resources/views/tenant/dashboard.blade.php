@@ -78,8 +78,7 @@
                                 {{ $reading->meter->serial_number }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                                @php($unit = $reading->meter->getUnitOfMeasurement())
-                                {{ number_format($reading->value, 2) }} {{ $unit }}
+                                {{ number_format($reading->value, 2) }} {{ $reading->meter->getUnitOfMeasurement() }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                                 {{ $reading->reading_date->format('Y-m-d') }}
@@ -98,8 +97,7 @@
                         </div>
                         <p class="mt-1 text-sm text-slate-600">{{ __('dashboard.tenant.readings.serial_short') }} {{ $reading->meter->serial_number }}</p>
                         <p class="mt-1 text-sm font-semibold text-slate-900">
-                            @php($unit = $reading->meter->getUnitOfMeasurement())
-                            {{ number_format($reading->value, 2) }} {{ $unit }}
+                            {{ number_format($reading->value, 2) }} {{ $reading->meter->getUnitOfMeasurement() }}
                         </p>
                     </div>
                 @endforeach

@@ -276,6 +276,9 @@ class ReportController extends Controller
         }
 
         $invoices = $query->get();
+        $invoiceOverdueMap = $invoices->mapWithKeys(fn (Invoice $invoice): array => [
+            $invoice->id => (bool) ($invoice->due_date && $invoice->due_date->isPast() && ! $invoice->isPaid()),
+        ]);
 
         $totalRevenue = $invoices->sum('total_amount');
         $paidRevenue = $invoices->where('status.value', 'paid')->sum('total_amount');
@@ -321,6 +324,7 @@ class ReportController extends Controller
 
         return view('manager.reports.revenue', compact(
             'invoices',
+            'invoiceOverdueMap',
             'totalRevenue',
             'paidRevenue',
             'finalizedRevenue',
@@ -397,6 +401,21 @@ class ReportController extends Controller
         }
 
         $properties = $query->get();
+        $propertyCompliance = $properties->mapWithKeys(function (Property $property): array {
+            $totalMeters = $property->meters->count();
+            $metersWithReadings = $property->meters->filter(fn (Meter $meter) => $meter->readings->isNotEmpty())->count();
+            $isComplete = $totalMeters > 0 && $totalMeters === $metersWithReadings;
+            $isPartial = $metersWithReadings > 0 && $metersWithReadings < $totalMeters;
+
+            return [
+                $property->id => [
+                    'total_meters' => $totalMeters,
+                    'meters_with_readings' => $metersWithReadings,
+                    'is_complete' => $isComplete,
+                    'is_partial' => $isPartial,
+                ],
+            ];
+        });
 
         // Calculate compliance
         $propertiesWithReadings = $properties->filter(function ($property) {
@@ -455,6 +474,7 @@ class ReportController extends Controller
 
         return view('manager.reports.meter-reading-compliance', compact(
             'properties',
+            'propertyCompliance',
             'propertiesWithReadings',
             'propertiesWithPartialReadings',
             'propertiesWithNoReadings',

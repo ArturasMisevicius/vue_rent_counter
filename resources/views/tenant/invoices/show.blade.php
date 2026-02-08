@@ -24,8 +24,7 @@
     />
 
     @if($invoice->due_date && !$invoice->isPaid())
-        @php($isOverdue = $invoice->due_date->isPast())
-        <x-tenant.alert :type="$isOverdue ? 'error' : 'info'" :title="$isOverdue ? __('invoices.tenant.show.payment_overdue') : __('invoices.tenant.show.payment_due')" class="mt-4">
+        <x-tenant.alert :type="$invoice->due_date->isPast() ? 'error' : 'info'" :title="$invoice->due_date->isPast() ? __('invoices.tenant.show.payment_overdue') : __('invoices.tenant.show.payment_due')" class="mt-4">
             <p class="text-sm">
                 {{ __('invoices.tenant.show.due_date') }} <span class="font-semibold">{{ $invoice->due_date->format('Y-m-d') }}</span>
             </p>
@@ -35,7 +34,7 @@
             @if($invoice->paid_amount)
                 <p class="text-sm">{{ __('invoices.tenant.show.paid_amount') }} <span class="font-semibold">€{{ number_format($invoice->paid_amount, 2) }}</span></p>
             @endif
-            @if($isOverdue)
+            @if($invoice->due_date->isPast())
                 <p class="text-sm">{{ __('invoices.tenant.show.overdue_notice') }}</p>
             @endif
         </x-tenant.alert>

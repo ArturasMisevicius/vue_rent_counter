@@ -13,6 +13,8 @@ use Illuminate\View\Component;
 
 final class MeterDetails extends Component
 {
+    public readonly string $trendChartId;
+    public readonly string $usageChartId;
     public readonly string $unit;
     public readonly ?MeterReading $latestReading;
     public readonly ?MeterReading $previousReading;
@@ -28,9 +30,12 @@ final class MeterDetails extends Component
     public readonly array $usageValues;
     public readonly float $maxMonthly;
     public readonly float $totalUsage;
+    public readonly Collection $readingTimeline;
 
     public function __construct(public readonly Meter $meter)
     {
+        $this->trendChartId = 'meter-trend-' . $meter->id;
+        $this->usageChartId = 'meter-usage-' . $meter->id;
         $this->unit = $meter->getUnitOfMeasurement();
         $this->latestReading = $meter->readings->first();
         $this->previousReading = $meter->readings->skip(1)->first();
@@ -78,6 +83,7 @@ final class MeterDetails extends Component
 
         $this->maxMonthly = empty($this->usageValues) ? 0.0 : (float) max($this->usageValues);
         $this->totalUsage = array_sum($this->usageValues);
+        $this->readingTimeline = $this->buildReadingTimeline($meter->readings);
     }
 
     private function calculateMonthlyDeltas(Collection $readings): array
@@ -96,6 +102,22 @@ final class MeterDetails extends Component
         }
 
         return $monthlyDeltas;
+    }
+
+    private function buildReadingTimeline(Collection $readings): Collection
+    {
+        $previousValue = null;
+
+        return $readings->map(function (MeterReading $reading) use (&$previousValue): array {
+            $currentValue = $reading->getEffectiveValue();
+            $delta = $previousValue !== null ? max($previousValue - $currentValue, 0) : null;
+            $previousValue = $currentValue;
+
+            return [
+                'reading' => $reading,
+                'delta' => $delta,
+            ];
+        })->values();
     }
 
     public function render(): View

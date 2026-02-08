@@ -35,6 +35,42 @@ use Illuminate\View\View;
 final class NavigationComposer
 {
     /**
+     * Backoffice navigation links grouped by role value.
+     *
+     * @var array<string, array<int, array{route: string, prefix: string, label: string}>>
+     */
+    private const BACKOFFICE_LINKS = [
+        'superadmin' => [
+            ['route' => 'superadmin.dashboard', 'prefix' => 'superadmin.dashboard', 'label' => 'app.nav.dashboard'],
+            ['route' => 'superadmin.organizations.index', 'prefix' => 'superadmin.organizations', 'label' => 'app.nav.organizations'],
+            ['route' => 'superadmin.buildings.index', 'prefix' => 'superadmin.buildings', 'label' => 'app.nav.buildings'],
+            ['route' => 'superadmin.properties.index', 'prefix' => 'superadmin.properties', 'label' => 'app.nav.properties'],
+            ['route' => 'superadmin.tenants.index', 'prefix' => 'superadmin.tenants', 'label' => 'app.nav.tenants'],
+            ['route' => 'superadmin.managers.index', 'prefix' => 'superadmin.managers', 'label' => 'app.nav.managers'],
+            ['route' => 'superadmin.subscriptions.index', 'prefix' => 'superadmin.subscriptions', 'label' => 'app.nav.subscriptions'],
+            ['route' => 'superadmin.profile.show', 'prefix' => 'superadmin.profile', 'label' => 'app.nav.profile'],
+        ],
+        'admin' => [
+            ['route' => 'admin.dashboard', 'prefix' => 'admin.dashboard', 'label' => 'app.nav.dashboard'],
+            ['route' => 'admin.users.index', 'prefix' => 'admin.users', 'label' => 'app.nav.users'],
+            ['route' => 'admin.providers.index', 'prefix' => 'admin.providers', 'label' => 'app.nav.providers'],
+            ['route' => 'admin.tariffs.index', 'prefix' => 'admin.tariffs', 'label' => 'app.nav.tariffs'],
+            ['route' => 'admin.settings.index', 'prefix' => 'admin.settings', 'label' => 'app.nav.settings'],
+            ['route' => 'admin.audit.index', 'prefix' => 'admin.audit', 'label' => 'app.nav.audit'],
+        ],
+        'manager' => [
+            ['route' => 'manager.dashboard', 'prefix' => 'manager.dashboard', 'label' => 'app.nav.dashboard'],
+            ['route' => 'manager.properties.index', 'prefix' => 'manager.properties', 'label' => 'app.nav.properties'],
+            ['route' => 'manager.buildings.index', 'prefix' => 'manager.buildings', 'label' => 'app.nav.buildings'],
+            ['route' => 'manager.meters.index', 'prefix' => 'manager.meters', 'label' => 'app.nav.meters'],
+            ['route' => 'manager.meter-readings.index', 'prefix' => 'manager.meter-readings', 'label' => 'app.nav.readings'],
+            ['route' => 'manager.invoices.index', 'prefix' => 'manager.invoices', 'label' => 'app.nav.invoices'],
+            ['route' => 'manager.reports.index', 'prefix' => 'manager.reports', 'label' => 'app.nav.reports'],
+            ['route' => 'manager.profile.show', 'prefix' => 'manager.profile', 'label' => 'app.nav.profile'],
+        ],
+    ];
+
+    /**
      * CSS classes for active navigation items (desktop and mobile).
      * 
      * SECURITY: Centralized constants prevent XSS via inconsistent styling
@@ -115,6 +151,7 @@ final class NavigationComposer
                 'mobileInactiveClass' => self::INACTIVE_CLASS,
                 'canSwitchLocale' => false,
                 'showTopLocaleSwitcher' => false,
+                'backofficeLinks' => [],
                 'languages' => collect(),
                 'currentLocale' => app()->getLocale(),
             ]);
@@ -133,6 +170,7 @@ final class NavigationComposer
             'mobileInactiveClass' => self::INACTIVE_CLASS,
             'canSwitchLocale' => $this->router->has('language.switch'),
             'showTopLocaleSwitcher' => $this->shouldShowLocaleSwitcher($userRole),
+            'backofficeLinks' => $this->getBackofficeLinks($userRole),
             'languages' => $this->getActiveLanguages($userRole),
             'currentLocale' => app()->getLocale(),
         ]);
@@ -172,5 +210,21 @@ final class NavigationComposer
     {
         // SECURITY: Use scope to prevent SQL injection and ensure consistent filtering
         return Language::getActiveLanguages();
+    }
+
+    /**
+     * Resolve translated backoffice links for the current role.
+     *
+     * @return array<int, array{route: string, prefix: string, label: string}>
+     */
+    private function getBackofficeLinks(UserRole $userRole): array
+    {
+        $links = self::BACKOFFICE_LINKS[$userRole->value] ?? [];
+
+        return array_map(static fn (array $link): array => [
+            'route' => $link['route'],
+            'prefix' => $link['prefix'],
+            'label' => __($link['label']),
+        ], $links);
     }
 }

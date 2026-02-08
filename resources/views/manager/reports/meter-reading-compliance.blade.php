@@ -183,12 +183,6 @@
                     </x-slot>
 
                     @foreach($properties as $property)
-                    @php
-                        $totalMeters = $property->meters->count();
-                        $metersWithReadings = $property->meters->filter(fn($meter) => $meter->readings->isNotEmpty())->count();
-                        $isComplete = $totalMeters > 0 && $totalMeters === $metersWithReadings;
-                        $isPartial = $metersWithReadings > 0 && $metersWithReadings < $totalMeters;
-                    @endphp
                     <tr>
                         <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 sm:pl-0">
                             <a href="{{ route('manager.properties.show', $property) }}" class="text-indigo-600 hover:text-indigo-900">
@@ -199,22 +193,22 @@
                             {{ $property->building?->name ?? __('reports.common.na') }}
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                            {{ $totalMeters }}
+                            {{ $propertyCompliance[$property->id]['total_meters'] ?? 0 }}
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                            {{ $metersWithReadings }}
+                            {{ $propertyCompliance[$property->id]['meters_with_readings'] ?? 0 }}
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm">
-                            @if($isComplete)
+                            @if($propertyCompliance[$property->id]['is_complete'] ?? false)
                                 <x-status-badge status="active">{{ __('reports.manager.compliance.summary.complete.label') }}</x-status-badge>
-                            @elseif($isPartial)
+                            @elseif($propertyCompliance[$property->id]['is_partial'] ?? false)
                                 <x-status-badge status="inactive">{{ __('reports.manager.compliance.summary.partial.label') }}</x-status-badge>
                             @else
                                 <x-status-badge status="inactive">{{ __('reports.manager.compliance.summary.none.label') }}</x-status-badge>
                             @endif
                         </td>
                         <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                            @if(!$isComplete)
+                            @if(!($propertyCompliance[$property->id]['is_complete'] ?? false))
                                 <a href="{{ route('manager.meter-readings.create', ['property_id' => $property->id]) }}" class="text-indigo-600 hover:text-indigo-900">
                                     {{ __('reports.manager.compliance.details.add_readings') }}
                                 </a>
@@ -226,30 +220,24 @@
                 </div>
                 <div class="sm:hidden space-y-3">
                     @foreach($properties as $property)
-                    @php
-                        $totalMeters = $property->meters->count();
-                        $metersWithReadings = $property->meters->filter(fn($meter) => $meter->readings->isNotEmpty())->count();
-                        $isComplete = $totalMeters > 0 && $totalMeters === $metersWithReadings;
-                        $isPartial = $metersWithReadings > 0 && $metersWithReadings < $totalMeters;
-                    @endphp
                     <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                         <div class="flex items-start justify-between">
                             <div>
                                 <p class="text-sm font-semibold text-slate-900">{{ $property->address }}</p>
                                 <p class="text-xs text-slate-600 mt-1">{{ $property->building?->name ?? __('reports.common.na') }}</p>
-                                <p class="text-xs text-slate-600 mt-1">{{ __('reports.manager.compliance.details.mobile.meters') }} {{ $totalMeters }} | {{ __('reports.manager.compliance.details.mobile.readings') }} {{ $metersWithReadings }}</p>
+                                <p class="text-xs text-slate-600 mt-1">{{ __('reports.manager.compliance.details.mobile.meters') }} {{ $propertyCompliance[$property->id]['total_meters'] ?? 0 }} | {{ __('reports.manager.compliance.details.mobile.readings') }} {{ $propertyCompliance[$property->id]['meters_with_readings'] ?? 0 }}</p>
                             </div>
                             <div>
-                                @if($isComplete)
+                                @if($propertyCompliance[$property->id]['is_complete'] ?? false)
                                     <x-status-badge status="active">{{ __('reports.manager.compliance.summary.complete.label') }}</x-status-badge>
-                                @elseif($isPartial)
+                                @elseif($propertyCompliance[$property->id]['is_partial'] ?? false)
                                     <x-status-badge status="inactive">{{ __('reports.manager.compliance.summary.partial.label') }}</x-status-badge>
                                 @else
                                     <x-status-badge status="inactive">{{ __('reports.manager.compliance.summary.none.label') }}</x-status-badge>
                                 @endif
                             </div>
                         </div>
-                        @if(!$isComplete)
+                        @if(!($propertyCompliance[$property->id]['is_complete'] ?? false))
                         <div class="mt-3">
                             <a href="{{ route('manager.meter-readings.create', ['property_id' => $property->id]) }}" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                 {{ __('reports.manager.compliance.details.add_readings') }}

@@ -3,7 +3,6 @@
 @section('title', __('properties.pages.manager_form.edit_title'))
 
 @section('content')
-@php($propertyTypeOptions = \App\Enums\PropertyType::labels())
 <div class="px-4 sm:px-6 lg:px-8">
 <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">

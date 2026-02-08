@@ -180,15 +180,14 @@
                 <td>{{ $subscription->expires_at?->format('Y-m-d') ?? 'N/A' }}</td>
                 <td>
                     @if($subscription->expires_at)
-                        @php $days = $subscription->daysUntilExpiry(); @endphp
-                        @if($days < 0)
+                        @if($subscription->daysUntilExpiry() < 0)
                             <span class="expiry-critical">Expired</span>
-                        @elseif($days <= 7)
-                            <span class="expiry-critical">{{ $days }}</span>
-                        @elseif($days <= 14)
-                            <span class="expiry-warning">{{ $days }}</span>
+                        @elseif($subscription->daysUntilExpiry() <= 7)
+                            <span class="expiry-critical">{{ $subscription->daysUntilExpiry() }}</span>
+                        @elseif($subscription->daysUntilExpiry() <= 14)
+                            <span class="expiry-warning">{{ $subscription->daysUntilExpiry() }}</span>
                         @else
-                            <span class="expiry-normal">{{ $days }}</span>
+                            <span class="expiry-normal">{{ $subscription->daysUntilExpiry() }}</span>
                         @endif
                     @else
                         N/A

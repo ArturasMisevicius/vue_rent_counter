@@ -10,7 +10,7 @@
 
     @stack('styles')
 </head>
-<body class="text-slate-900 antialiased">
+<body class="text-slate-900 antialiased" data-layout="backoffice">
     <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:top-4 focus:left-4 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
         {{ __('app.accessibility.skip_to_content') }}
     </a>

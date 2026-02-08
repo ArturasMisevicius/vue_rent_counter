@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Enums\MeterType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMeterReadingRequest;
 use App\Models\MeterReading;
@@ -63,8 +64,30 @@ class MeterReadingController extends Controller
 
         // For submission form, load meters for the assigned property
         $properties = $this->getPropertiesForSubmission($property);
+        $meterTypeLabels = MeterType::labels();
+        $serviceOptions = $properties
+            ->flatMap(fn (Property $item) => $item->meters ?? collect())
+            ->map(fn ($meter) => $meter->serviceConfiguration?->utilityService)
+            ->filter()
+            ->unique('id')
+            ->sortBy('name')
+            ->values();
+        $legacyTypeOptions = $properties
+            ->flatMap(fn (Property $item) => $item->meters ?? collect())
+            ->filter(fn ($meter) => $meter->serviceConfiguration === null)
+            ->map(fn ($meter) => $meter->type?->value)
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
 
-        return view('tenant.meter-readings.index', compact('readings', 'properties'));
+        return view('tenant.meter-readings.index', compact(
+            'readings',
+            'properties',
+            'meterTypeLabels',
+            'serviceOptions',
+            'legacyTypeOptions',
+        ));
     }
 
     /**

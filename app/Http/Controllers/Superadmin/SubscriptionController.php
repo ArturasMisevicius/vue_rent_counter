@@ -61,8 +61,10 @@ class SubscriptionController extends Controller
         $query->orderBy($sortBy, $sortDirection);
         
         $subscriptions = $query->paginate(20);
+        $statusOptions = SubscriptionStatus::cases();
+        $planOptions = SubscriptionPlanType::cases();
         
-        return view('superadmin.subscriptions.index', compact('subscriptions'));
+        return view('superadmin.subscriptions.index', compact('subscriptions', 'statusOptions', 'planOptions'));
     }
 
     public function store(Request $request)

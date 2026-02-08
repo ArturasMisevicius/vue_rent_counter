@@ -7,12 +7,11 @@
     @if($meters->count() > 0)
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             @foreach($meters as $meter)
-                @php($serviceName = $meter->getServiceDisplayName())
                 <div class="rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-sm shadow-slate-200/60">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('tenant.meters.labels.type') }}</p>
-                            <p class="text-base font-semibold text-slate-900">{{ $serviceName }}</p>
+                            <p class="text-base font-semibold text-slate-900">{{ $meter->getServiceDisplayName() }}</p>
                         </div>
                         <x-status-badge status="active">{{ __('tenant.property.meter_status') }}</x-status-badge>
                     </div>

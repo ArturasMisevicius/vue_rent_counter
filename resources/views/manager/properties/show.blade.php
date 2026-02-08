@@ -67,19 +67,18 @@
             <x-slot name="title">{{ __('properties.pages.manager_show.current_tenant_title') }}</x-slot>
             
             @if($property->tenants->isNotEmpty())
-                @php $currentTenant = $property->tenants->first(); @endphp
                 <dl class="divide-y divide-slate-100">
                     <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                         <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('properties.pages.manager_show.tenant_labels.name') }}</dt>
-                        <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $currentTenant->name }}</dd>
+                        <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $property->tenants->first()?->name }}</dd>
                     </div>
                     <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                         <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('properties.pages.manager_show.tenant_labels.email') }}</dt>
-                        <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $currentTenant->email }}</dd>
+                        <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $property->tenants->first()?->email }}</dd>
                     </div>
                     <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                         <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('properties.pages.manager_show.tenant_labels.phone') }}</dt>
-                        <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $currentTenant->phone ?? __('properties.pages.manager_show.tenant_na') }}</dd>
+                        <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $property->tenants->first()?->phone ?? __('properties.pages.manager_show.tenant_na') }}</dd>
                     </div>
                 </dl>
             @else

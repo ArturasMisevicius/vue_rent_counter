@@ -3,25 +3,6 @@
 @section('title', __('meter_readings.tenant.title'))
 
 @section('tenant-content')
-@php($meterTypeLabels = \App\Enums\MeterType::labels())
-@php
-    $serviceOptions = collect($properties ?? collect())
-        ->flatMap(fn ($property) => $property->meters ?? [])
-        ->map(fn ($meter) => $meter->serviceConfiguration?->utilityService)
-        ->filter()
-        ->unique('id')
-        ->sortBy('name')
-        ->values();
-
-    $legacyTypeOptions = collect($properties ?? collect())
-        ->flatMap(fn ($property) => $property->meters ?? [])
-        ->filter(fn ($meter) => $meter->serviceConfiguration === null)
-        ->map(fn ($meter) => $meter->type?->value)
-        ->filter()
-        ->unique()
-        ->sort()
-        ->values();
-@endphp
 <x-tenant.page :title="__('meter_readings.tenant.title')" :description="__('meter_readings.tenant.description')" x-data="consumptionHistory()">
     <x-tenant.quick-actions />
 

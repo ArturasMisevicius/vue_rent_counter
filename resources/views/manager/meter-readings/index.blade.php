@@ -171,19 +171,14 @@
         @elseif($groupBy === 'service')
             <!-- Grouped by Service -->
             @forelse($readings as $serviceKey => $typeReadings)
-                @php
-                    $firstReading = $typeReadings->first();
-                    $serviceLabel = $firstReading?->meter?->getServiceDisplayName() ?? $serviceKey;
-                    $serviceUnit = $firstReading?->meter?->getUnitOfMeasurement();
-                @endphp
                 <div class="mb-8 last:mb-0">
                     <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center">
                         <svg class="h-5 w-5 text-slate-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
-                        <span class="capitalize">{{ $serviceLabel }}</span>
-                        @if(!empty($serviceUnit))
-                            <span class="ml-2 text-xs font-semibold text-slate-500">({{ $serviceUnit }})</span>
+                        <span class="capitalize">{{ $typeReadings->first()?->meter?->getServiceDisplayName() ?? $serviceKey }}</span>
+                        @if(!empty($typeReadings->first()?->meter?->getUnitOfMeasurement()))
+                            <span class="ml-2 text-xs font-semibold text-slate-500">({{ $typeReadings->first()?->meter?->getUnitOfMeasurement() }})</span>
                         @endif
                         <span class="ml-2 text-sm font-normal text-slate-500">({{ trans_choice('meter_readings.manager.index.count', $typeReadings->count(), ['count' => $typeReadings->count()]) }})</span>
                     </h3>

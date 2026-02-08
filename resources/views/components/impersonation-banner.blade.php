@@ -1,13 +1,6 @@
 @props(['impersonationService'])
 
-@php
-    $isImpersonating = $impersonationService->isImpersonating();
-    $impersonationData = $impersonationService->getImpersonationData();
-    $superadmin = $isImpersonating ? $impersonationService->getSuperadmin() : null;
-    $targetUser = $isImpersonating ? $impersonationService->getTargetUser() : null;
-@endphp
-
-@if($isImpersonating)
+@if($impersonationService->isImpersonating())
 <div id="impersonation-banner" class="impersonation-banner bg-yellow-500 text-white px-4 py-3 shadow-lg sticky top-0 z-50" role="alert">
     <span class="sr-only">You are currently impersonating</span>
     <div class="container mx-auto flex items-center justify-between">
@@ -20,14 +13,14 @@
                     {{ __('app.impersonation.mode_active') }}
                 </p>
                 <p class="text-sm">
-                    {{ __('app.impersonation.you_are_impersonating') }} <strong>{{ $targetUser?->name }}</strong> ({{ $targetUser?->email }})
-                    @if($impersonationData['reason'])
-                        - {{ __('app.impersonation.reason') }}: {{ $impersonationData['reason'] }}
+                    {{ __('app.impersonation.you_are_impersonating') }} <strong>{{ $impersonationService->getTargetUser()?->name }}</strong> ({{ $impersonationService->getTargetUser()?->email }})
+                    @if(($impersonationService->getImpersonationData()['reason'] ?? null))
+                        - {{ __('app.impersonation.reason') }}: {{ $impersonationService->getImpersonationData()['reason'] }}
                     @endif
                 </p>
                 <p class="text-xs mt-1">
-                    {{ __('app.impersonation.started_at') }}: {{ \Carbon\Carbon::parse($impersonationData['started_at'])->format('Y-m-d H:i:s') }}
-                    {{ __('app.impersonation.by') }} {{ $superadmin?->name }}
+                    {{ __('app.impersonation.started_at') }}: {{ \Carbon\Carbon::parse($impersonationService->getImpersonationData()['started_at'] ?? now())->format('Y-m-d H:i:s') }}
+                    {{ __('app.impersonation.by') }} {{ $impersonationService->getSuperadmin()?->name }}
                 </p>
             </div>
         </div>

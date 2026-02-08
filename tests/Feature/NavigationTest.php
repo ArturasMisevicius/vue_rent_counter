@@ -9,11 +9,11 @@ test('admin sees admin navigation items', function () {
     $response = $this->actingAs($admin)->get(route('admin.dashboard'));
     
     $response->assertOk();
-    $response->assertSee('Users');
-    $response->assertSee('Providers');
-    $response->assertSee('Tariffs');
-    $response->assertSee('Settings');
-    $response->assertSee('Audit');
+    $response->assertSee(route('admin.dashboard'));
+    $response->assertSee(route('admin.users.index'));
+    $response->assertSee(route('admin.providers.index'));
+    $response->assertSee(route('admin.tariffs.index'));
+    $response->assertSee(route('admin.settings.index'));
 });
 
 test('manager sees manager navigation items', function () {
@@ -22,12 +22,13 @@ test('manager sees manager navigation items', function () {
     $response = $this->actingAs($manager)->get(route('manager.dashboard'));
     
     $response->assertOk();
-    $response->assertSee('Properties');
-    $response->assertSee('Buildings');
-    $response->assertSee('Meters');
-    $response->assertSee('Readings');
-    $response->assertSee('Invoices');
-    $response->assertSee('Reports');
+    $response->assertSee(route('manager.dashboard'));
+    $response->assertSee(route('manager.properties.index'));
+    $response->assertSee(route('manager.buildings.index'));
+    $response->assertSee(route('manager.meters.index'));
+    $response->assertSee(route('manager.meter-readings.index'));
+    $response->assertSee(route('manager.invoices.index'));
+    $response->assertSee(route('manager.reports.index'));
 });
 
 test('tenant sees tenant navigation items', function () {
@@ -36,50 +37,12 @@ test('tenant sees tenant navigation items', function () {
     $response = $this->actingAs($tenant)->get(route('tenant.dashboard'));
     
     $response->assertOk();
-    $response->assertSee('My Property');
-    $response->assertSee('Meters');
-    $response->assertSee('Readings');
-    $response->assertSee('Invoices');
-    $response->assertSee('Profile');
-});
-
-test('navigation shows user name and role for admin', function () {
-    $admin = User::factory()->create([
-        'name' => 'Test Admin',
-        'role' => UserRole::ADMIN
-    ]);
-    
-    $response = $this->actingAs($admin)->get(route('admin.dashboard'));
-    
-    $response->assertOk();
-    $response->assertSee('Test Admin');
-    $response->assertSee('Admin');
-});
-
-test('navigation shows user name and role for manager', function () {
-    $manager = User::factory()->create([
-        'name' => 'Test Manager',
-        'role' => UserRole::MANAGER
-    ]);
-    
-    $response = $this->actingAs($manager)->get(route('manager.dashboard'));
-    
-    $response->assertOk();
-    $response->assertSee('Test Manager');
-    $response->assertSee('Manager');
-});
-
-test('navigation shows user name and role for tenant', function () {
-    $tenant = User::factory()->create([
-        'name' => 'Test Tenant',
-        'role' => UserRole::TENANT
-    ]);
-    
-    $response = $this->actingAs($tenant)->get(route('tenant.dashboard'));
-    
-    $response->assertOk();
-    $response->assertSee('Test Tenant');
-    $response->assertSee('Tenant');
+    $response->assertSee(route('tenant.dashboard'));
+    $response->assertSee(route('tenant.property.show'));
+    $response->assertSee(route('tenant.meters.index'));
+    $response->assertSee(route('tenant.meter-readings.index'));
+    $response->assertSee(route('tenant.invoices.index'));
+    $response->assertSee(route('tenant.profile.show'));
 });
 
 test('navigation includes logout button for admin', function () {

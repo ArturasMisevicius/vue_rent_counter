@@ -346,15 +346,14 @@
                     <a href="{{ route('superadmin.organizations.index') }}" class="text-sm text-blue-600 hover:text-blue-800">{{ __('superadmin.dashboard.overview.resources.properties.open_owners') }}</a>
                 </div>
                 @forelse($latestProperties as $property)
-                    @php $org = $organizationLookup[$property->tenant_id] ?? null; @endphp
                     <div class="flex items-start justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
                         <div>
                             <div class="font-medium text-slate-900">{{ $property->address }}</div>
                             <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.properties.building') }}: {{ $property->building?->display_name ?? '—' }}</div>
-                            <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.properties.organization') }}: {{ $org->name ?? __('superadmin.dashboard.overview.resources.properties.unknown_org') }}</div>
+                            <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.properties.organization') }}: {{ ($organizationLookup[$property->tenant_id] ?? null)?->name ?? __('superadmin.dashboard.overview.resources.properties.unknown_org') }}</div>
                         </div>
-                        @if($org)
-                            <a href="{{ route('superadmin.organizations.show', $org->id) }}" class="text-xs font-semibold text-blue-600 hover:text-blue-800">{{ __('superadmin.dashboard.overview.organizations.headers.manage') }}</a>
+                        @if($organizationLookup[$property->tenant_id] ?? null)
+                            <a href="{{ route('superadmin.organizations.show', ($organizationLookup[$property->tenant_id] ?? null)->id) }}" class="text-xs font-semibold text-blue-600 hover:text-blue-800">{{ __('superadmin.dashboard.overview.organizations.headers.manage') }}</a>
                         @endif
                     </div>
                 @empty
@@ -368,15 +367,14 @@
                     <a href="{{ route('superadmin.organizations.index') }}" class="text-sm text-blue-600 hover:text-blue-800">{{ __('superadmin.dashboard.overview.resources.buildings.open_owners') }}</a>
                 </div>
                 @forelse($latestBuildings as $building)
-                    @php $org = $organizationLookup[$building->tenant_id] ?? null; @endphp
                     <div class="flex items-start justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
                         <div>
                             <div class="font-medium text-slate-900">{{ $building->display_name }}</div>
                             <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.buildings.address') }}: {{ $building->address }}</div>
-                            <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.buildings.organization') }}: {{ $org->name ?? __('superadmin.dashboard.overview.resources.properties.unknown_org') }}</div>
+                            <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.buildings.organization') }}: {{ ($organizationLookup[$building->tenant_id] ?? null)?->name ?? __('superadmin.dashboard.overview.resources.properties.unknown_org') }}</div>
                         </div>
-                        @if($org)
-                            <a href="{{ route('superadmin.organizations.show', $org->id) }}" class="text-xs font-semibold text-blue-600 hover:text-blue-800">{{ __('superadmin.dashboard.overview.organizations.headers.manage') }}</a>
+                        @if($organizationLookup[$building->tenant_id] ?? null)
+                            <a href="{{ route('superadmin.organizations.show', ($organizationLookup[$building->tenant_id] ?? null)->id) }}" class="text-xs font-semibold text-blue-600 hover:text-blue-800">{{ __('superadmin.dashboard.overview.organizations.headers.manage') }}</a>
                         @endif
                     </div>
                 @empty
@@ -390,13 +388,12 @@
                     <a href="{{ route('superadmin.organizations.index') }}" class="text-sm text-blue-600 hover:text-blue-800">{{ __('superadmin.dashboard.overview.resources.tenants.open_owners') }}</a>
                 </div>
                 @forelse($latestTenants as $tenant)
-                    @php $org = $organizationLookup[$tenant->tenant_id] ?? null; @endphp
                     <div class="flex items-start justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
                         <div>
                             <div class="font-medium text-slate-900">{{ $tenant->name }}</div>
                             <div class="text-xs text-slate-500">{{ $tenant->email }}</div>
                             <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.tenants.property') }}: {{ $tenant->property?->address ?? __('superadmin.dashboard.overview.resources.tenants.not_assigned') }}</div>
-                            <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.tenants.organization') }}: {{ $org->name ?? __('superadmin.dashboard.overview.resources.properties.unknown_org') }}</div>
+                            <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.tenants.organization') }}: {{ ($organizationLookup[$tenant->tenant_id] ?? null)?->name ?? __('superadmin.dashboard.overview.resources.properties.unknown_org') }}</div>
                         </div>
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $tenant->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">{{ $tenant->is_active ? __('superadmin.dashboard.overview.resources.tenants.status_active') : __('superadmin.dashboard.overview.resources.tenants.status_inactive') }}</span>
                     </div>
@@ -411,16 +408,15 @@
                     <a href="{{ route('superadmin.organizations.index') }}" class="text-sm text-blue-600 hover:text-blue-800">{{ __('superadmin.dashboard.overview.resources.invoices.open_owners') }}</a>
                 </div>
                 @forelse($latestInvoices as $invoice)
-                    @php $org = $organizationLookup[$invoice->tenant_id] ?? null; @endphp
                     <div class="flex items-start justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
                         <div>
                             <div class="font-medium text-slate-900">{{ $invoice->tenant?->name ?? __('tenants.labels.name') }}</div>
                             <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.invoices.amount') }}: {{ number_format($invoice->total_amount, 2) }}</div>
                             <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.invoices.status') }}: {{ enum_label($invoice->status, \App\Enums\InvoiceStatus::class) }}</div>
-                            <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.invoices.organization') }}: {{ $org->name ?? __('superadmin.dashboard.overview.resources.properties.unknown_org') }}</div>
+                            <div class="text-xs text-slate-500">{{ __('superadmin.dashboard.overview.resources.invoices.organization') }}: {{ ($organizationLookup[$invoice->tenant_id] ?? null)?->name ?? __('superadmin.dashboard.overview.resources.properties.unknown_org') }}</div>
                         </div>
-                        @if($org)
-                            <a href="{{ route('superadmin.organizations.show', $org->id) }}" class="text-xs font-semibold text-blue-600 hover:text-blue-800">{{ __('superadmin.dashboard.overview.resources.invoices.manage') }}</a>
+                        @if($organizationLookup[$invoice->tenant_id] ?? null)
+                            <a href="{{ route('superadmin.organizations.show', ($organizationLookup[$invoice->tenant_id] ?? null)->id) }}" class="text-xs font-semibold text-blue-600 hover:text-blue-800">{{ __('superadmin.dashboard.overview.resources.invoices.manage') }}</a>
                         @endif
                     </div>
                 @empty

@@ -155,15 +155,14 @@
                 <td>{{ $org->subscription_ends_at?->format('Y-m-d') ?? 'N/A' }}</td>
                 <td>
                     @if($org->subscription_ends_at)
-                        @php $days = $org->daysUntilExpiry(); @endphp
-                        @if($days < 0)
+                        @if($org->daysUntilExpiry() < 0)
                             <span style="color: #dc2626;">Expired</span>
-                        @elseif($days <= 7)
-                            <span style="color: #dc2626;">{{ $days }}</span>
-                        @elseif($days <= 14)
-                            <span style="color: #d97706;">{{ $days }}</span>
+                        @elseif($org->daysUntilExpiry() <= 7)
+                            <span style="color: #dc2626;">{{ $org->daysUntilExpiry() }}</span>
+                        @elseif($org->daysUntilExpiry() <= 14)
+                            <span style="color: #d97706;">{{ $org->daysUntilExpiry() }}</span>
                         @else
-                            {{ $days }}
+                            {{ $org->daysUntilExpiry() }}
                         @endif
                     @else
                         N/A

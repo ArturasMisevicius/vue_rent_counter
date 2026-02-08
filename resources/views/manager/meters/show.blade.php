@@ -79,22 +79,21 @@
             <x-slot name="title">{{ __('meter_readings.headings.show') }}</x-slot>
             
             @if($meter->readings->isNotEmpty())
-                @php $latestReading = $meter->readings->first(); @endphp
                 <dl class="divide-y divide-slate-100">
                     <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                         <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('meter_readings.labels.value') }}</dt>
                         <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">
-                            <span class="text-2xl font-semibold">{{ number_format($latestReading->getEffectiveValue(), 2) }}</span>
+                            <span class="text-2xl font-semibold">{{ number_format($meter->readings->first()->getEffectiveValue(), 2) }}</span>
                         </dd>
                     </div>
                     <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                         <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('meter_readings.labels.reading_date') }}</dt>
-                        <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $latestReading->reading_date->format('M d, Y') }}</dd>
+                        <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $meter->readings->first()->reading_date->format('M d, Y') }}</dd>
                     </div>
-                    @if($latestReading->zone)
+                    @if($meter->readings->first()->zone)
                     <div class="px-4 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                         <dt class="text-sm font-medium leading-6 text-slate-900">{{ __('meter_readings.labels.zone') }}</dt>
-                        <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $latestReading->zone }}</dd>
+                        <dd class="mt-1 text-sm leading-6 text-slate-700 sm:col-span-2 sm:mt-0">{{ $meter->readings->first()->zone }}</dd>
                     </div>
                     @endif
                 </dl>

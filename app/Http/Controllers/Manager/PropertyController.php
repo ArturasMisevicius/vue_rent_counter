@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Manager;
 
+use App\Enums\PropertyType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
@@ -55,8 +56,9 @@ class PropertyController extends Controller
         
         // Get buildings for filter dropdown
         $buildings = Building::orderBy('address')->get();
+        $propertyTypeLabels = PropertyType::labels();
 
-        return view('manager.properties.index', compact('properties', 'buildings'));
+        return view('manager.properties.index', compact('properties', 'buildings', 'propertyTypeLabels'));
     }
 
     /**
@@ -67,8 +69,9 @@ class PropertyController extends Controller
         $this->authorize('create', Property::class);
 
         $buildings = Building::orderBy('address')->get();
+        $propertyTypeOptions = PropertyType::labels();
 
-        return view('manager.properties.create', compact('buildings'));
+        return view('manager.properties.create', compact('buildings', 'propertyTypeOptions'));
     }
 
     /**
@@ -107,8 +110,9 @@ class PropertyController extends Controller
         $this->authorize('update', $property);
 
         $buildings = Building::orderBy('address')->get();
+        $propertyTypeOptions = PropertyType::labels();
 
-        return view('manager.properties.edit', compact('property', 'buildings'));
+        return view('manager.properties.edit', compact('property', 'buildings', 'propertyTypeOptions'));
     }
 
     /**

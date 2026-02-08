@@ -67,10 +67,6 @@ Route::get('/dashboard', function () {
     };
 })->middleware('auth')->name('dashboard');
 
-Route::get('/dashboard', function () {
-    return redirect()->route('dashboard');
-})->middleware('auth')->name('filament.admin.pages.dashboard');
-
 // ============================================================================
 // CONVENIENCE REDIRECTS
 // ============================================================================
@@ -119,13 +115,19 @@ Route::get('/test-debug', function () {
 // Authentication routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('filament.admin.auth.login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.post');
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
 });
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+
+Route::get('/compat/admin/dashboard', fn () => redirect()->route('dashboard'))
+    ->middleware('auth')
+    ->name('filament.admin.pages.dashboard');
+
+Route::get('/compat/admin/login', fn () => redirect()->route('login'))
+    ->name('filament.admin.auth.login');
 
 // ============================================================================
 // SHARED INVOICE ROUTES (ADMIN/MANAGER/SUPERADMIN)
@@ -484,7 +486,7 @@ Route::middleware(['auth', 'role:tenant', 'subscription.check', 'hierarchical.ac
 });
 
 Route::middleware(['auth', 'role:tenant', 'subscription.check', 'hierarchical.access'])
-    ->get('/tenant/dashboard', [TenantDashboardController::class, 'index'])
+    ->get('/compat/tenant/dashboard', fn () => redirect()->route('tenant.dashboard'))
     ->name('filament.tenant.pages.dashboard');
 
 // ============================================================================

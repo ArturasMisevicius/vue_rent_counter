@@ -232,8 +232,7 @@
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                             @if($invoice->due_date)
-                                @php($isOverdue = !$invoice->isPaid() && $invoice->due_date->isPast())
-                                <span class="{{ $isOverdue ? 'text-rose-600 font-semibold' : '' }}">
+                                <span class="{{ ($invoiceOverdueMap[$invoice->id] ?? false) ? 'text-rose-600 font-semibold' : '' }}">
                                     {{ $invoice->due_date->format('Y-m-d') }}
                                 </span>
                             @else

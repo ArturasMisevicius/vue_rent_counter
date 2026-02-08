@@ -5,11 +5,6 @@
         <x-tenant.stat-card label="Last Updated" :value="$latestReading ? $latestReading->reading_date->format('Y-m-d') : '-'" />
     </div>
 
-    @php
-        $trendChartId = 'meter-trend-' . $meter->id;
-        $usageChartId = 'meter-usage-' . $meter->id;
-    @endphp
-
     <x-tenant.section-card title="Usage trend" description="Interactive view of your most recent readings.">
         @if($chartReadings->isEmpty())
             <p class="text-sm text-slate-600">Add readings to see your consumption trend.</p>
@@ -176,42 +171,38 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200 bg-white">
-                        @php $previousValue = null; @endphp
-                        @foreach($meter->readings as $reading)
+                        @foreach($readingTimeline as $row)
                             <tr>
                                 <td class="px-4 py-3 text-sm font-semibold text-slate-900">
-                                    {{ $reading->reading_date->format('Y-m-d') }}
+                                    {{ $row['reading']->reading_date->format('Y-m-d') }}
                                 </td>
                                 <td class="px-4 py-3 text-sm text-slate-700">
-                                    {{ number_format($reading->getEffectiveValue(), 2) }} {{ $unit }}
+                                    {{ number_format($row['reading']->getEffectiveValue(), 2) }} {{ $unit }}
                                 </td>
                                 <td class="px-4 py-3 text-sm text-slate-700">
-                                    {{ $previousValue !== null ? '+' . number_format(max($previousValue - $reading->getEffectiveValue(), 0), 2) . ' ' . $unit : '—' }}
+                                    {{ $row['delta'] !== null ? '+' . number_format($row['delta'], 2) . ' ' . $unit : '—' }}
                                 </td>
                                 <td class="px-4 py-3 text-sm text-slate-600">
-                                    {{ $reading->zone ?? '—' }}
+                                    {{ $row['reading']->zone ?? '—' }}
                                 </td>
                             </tr>
-                            @php $previousValue = $reading->getEffectiveValue(); @endphp
                         @endforeach
                     </tbody>
                 </table>
             </div>
             <x-tenant.stack gap="3" class="sm:hidden">
-                @php $previousValue = null; @endphp
-                @foreach($meter->readings as $reading)
+                @foreach($readingTimeline as $row)
                     <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-slate-900">{{ $reading->reading_date->format('Y-m-d') }}</p>
-                            <p class="text-xs font-semibold text-slate-500">{{ $reading->zone ?? '—' }}</p>
+                            <p class="text-sm font-semibold text-slate-900">{{ $row['reading']->reading_date->format('Y-m-d') }}</p>
+                            <p class="text-xs font-semibold text-slate-500">{{ $row['reading']->zone ?? '—' }}</p>
                         </div>
-                        <p class="mt-1 text-sm text-slate-700">{{ __('tenant.meter_details.mobile.value') }} <span class="font-semibold">{{ number_format($reading->getEffectiveValue(), 2) }} {{ $unit }}</span></p>
+                        <p class="mt-1 text-sm text-slate-700">{{ __('tenant.meter_details.mobile.value') }} <span class="font-semibold">{{ number_format($row['reading']->getEffectiveValue(), 2) }} {{ $unit }}</span></p>
                         <p class="mt-1 text-sm text-slate-700">
                             {{ __('tenant.meter_details.mobile.change') }}
-                            <span class="font-semibold">{{ $previousValue !== null ? '+' . number_format(max($previousValue - $reading->getEffectiveValue(), 0), 2) . ' ' . $unit : '—' }}</span>
+                            <span class="font-semibold">{{ $row['delta'] !== null ? '+' . number_format($row['delta'], 2) . ' ' . $unit : '—' }}</span>
                         </p>
                     </div>
-                    @php $previousValue = $reading->getEffectiveValue(); @endphp
                 @endforeach
             </x-tenant.stack>
         @endif

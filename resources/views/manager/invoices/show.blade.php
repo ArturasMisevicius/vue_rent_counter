@@ -12,10 +12,9 @@
                     {{ enum_label($invoice->status) }}
                 </x-status-badge>
                 @if($invoice->due_date)
-                    @php($isOverdue = !$invoice->isPaid() && $invoice->due_date->isPast())
-                    <span class="ml-2 text-sm {{ $isOverdue ? 'text-rose-600 font-semibold' : 'text-slate-700' }}">
+                    <span class="ml-2 text-sm {{ (!$invoice->isPaid() && $invoice->due_date->isPast()) ? 'text-rose-600 font-semibold' : 'text-slate-700' }}">
                         {{ __('invoices.manager.show.due') }} {{ $invoice->due_date->format('Y-m-d') }}
-                        @if($isOverdue)
+                        @if(!$invoice->isPaid() && $invoice->due_date->isPast())
                             <span class="ml-1 inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-semibold text-rose-700">{{ __('invoices.manager.show.overdue') }}</span>
                         @endif
                     </span>

@@ -89,8 +89,7 @@
                     <div class="ml-3 flex-1">
                         <h3 class="text-sm font-medium text-yellow-800">{{ __('profile.admin.alerts.expiring_title') }}</h3>
                         <div class="mt-2 text-sm text-yellow-700">
-                            @php($daysText = trans_choice('profile.admin.days', $daysUntilExpiry, ['count' => $daysUntilExpiry]))
-                            <p>{{ __('profile.admin.alerts.expiring_body', ['days' => $daysText, 'date' => $subscription->expires_at->format('M d, Y')]) }}</p>
+                            <p>{{ __('profile.admin.alerts.expiring_body', ['days' => trans_choice('profile.admin.days', $daysUntilExpiry, ['count' => $daysUntilExpiry]), 'date' => $subscription->expires_at->format('M d, Y')]) }}</p>
                         </div>
                     </div>
                 </div>
