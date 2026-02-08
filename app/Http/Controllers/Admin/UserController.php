@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -16,7 +19,13 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
 
-        $query = User::with('tenant');
+        $allowedRoles = [
+            UserRole::MANAGER->value,
+            UserRole::TENANT->value,
+        ];
+
+        $query = User::with('tenant')
+            ->whereIn('role', $allowedRoles);
 
         // Handle search
         if ($request->filled('search')) {
@@ -29,7 +38,11 @@ class UserController extends Controller
 
         // Handle role filter
         if ($request->filled('role')) {
-            $query->where('role', $request->input('role'));
+            $role = (string) $request->input('role');
+
+            if (in_array($role, $allowedRoles, true)) {
+                $query->where('role', $role);
+            }
         }
 
         // Handle sorting
@@ -38,7 +51,7 @@ class UserController extends Controller
 
         // Validate sort column to prevent SQL injection
         $allowedColumns = ['name', 'email', 'role', 'created_at'];
-        if (in_array($sortColumn, $allowedColumns)) {
+        if (in_array($sortColumn, $allowedColumns, true)) {
             $query->orderBy($sortColumn, $sortDirection);
         } else {
             $query->latest();
