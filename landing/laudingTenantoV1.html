@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenanto - Nuomos apskaita be streso</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .bg-indigo-brand { background-color: #4f46e5; } /* Primary Indigo */
+        .text-slate-brand { color: #334155; } /* Slate Professional */
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <header class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <div class="text-2xl font-bold text-indigo-600">Tenanto</div>
+        <nav class="hidden md:flex space-x-6 text-sm font-medium">
+            <a href="#features" class="hover:text-indigo-600">Funkcijos</a>
+            <a href="#pricing" class="hover:text-indigo-600">Kaina</a>
+            <a href="https://tenanto.eu/register" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">Pradėti nemokamai</a>
+        </nav>
+    </header>
+
+    <section class="container mx-auto px-6 py-16 text-center md:text-left flex flex-col md:flex-row items-center">
+        <div class="md:w-1/2">
+            <h1 class="text-4xl md:text-6xl font-extrabold leading-tight mb-6">
+                Nuomok butą, <span class="text-indigo-600">o ne nervus.</span>
+            </h1>
+            <p class="text-lg text-slate-600 mb-8">
+                Automatizuoti PDF sąskaitos, QR kodai apmokėjimui ir tvarka jūsų nuomos versle. 
+                Sutaupykite 3-4 valandas „Excel“ darbo kas mėnesį.
+            </p>
+            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <a href="#" class="bg-indigo-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-indigo-700 shadow-lg transition">
+                    Išbandyti 2 mėn. nemokamai
+                </a>
+            </div>
+            <p class="mt-4 text-sm text-slate-500 font-medium italic">
+                * Pirmiesiems 100 klientų – pilna prieiga nemokamai.
+            </p>
+        </div>
+        <div class="md:w-1/2 mt-12 md:mt-0 relative">
+            <div class="bg-white p-4 rounded-2xl shadow-2xl border border-slate-200 max-w-sm mx-auto transform rotate-2">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Sąskaita #2025-001</span>
+                    <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded">Apmokėta</span>
+                </div>
+                <div class="space-y-2 mb-6">
+                    <div class="h-4 bg-slate-100 rounded w-3/4"></div>
+                    <div class="h-4 bg-slate-100 rounded w-1/2"></div>
+                </div>
+                <div class="border-t pt-4 flex justify-center">
+                    <div class="w-32 h-32 bg-slate-900 rounded flex items-center justify-center text-white text-[10px] text-center p-2">
+                        EPC QR CODE <br> (Banko programėlei)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="bg-white py-20">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-16 italic">„Tenanto“ – jūsų nuomos arbitras</h2>
+            <div class="grid md:grid-cols-3 gap-12 text-center">
+                <div>
+                    <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">📋</div>
+                    <h3 class="text-xl font-bold mb-4">Tvarka dokumentuose</h3>
+                    <p class="text-slate-600 italic">Visi mokėjimai, skaitiklių parodymai ir sutartys vienoje vietoje. Jokių pamirštų skolų.</p>
+                </div>
+                <div>
+                    <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">📱</div>
+                    <h3 class="text-xl font-bold mb-4">QR Apmokėjimas</h3>
+                    <p class="text-slate-600 italic">Nuomininkas apmoka sąskaitą per 10 sekundžių. Pinigai keliauja tiesiai į jūsų kortelę.</p>
+                </div>
+                <div>
+                    <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">⚖️</div>
+                    <h3 class="text-xl font-bold mb-4">VMI Ataskaitos</h3>
+                    <p class="text-slate-600 italic">Sugeneruojame duomenis FR0572 formai per vieną paspaudimą. Tik jei jūs to norite.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="py-20 bg-slate-50">
+        <div class="container mx-auto px-6 max-w-4xl">
+            <div class="bg-white border-2 border-indigo-600 rounded-3xl p-10 shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-indigo-600 text-white px-6 py-2 rounded-bl-3xl text-sm font-bold uppercase">
+                    Populiariausias
+                </div>
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold mb-4 italic">Kainuoja kaip puodelis kavos</h2>
+                    <div class="text-6xl font-black mb-6">~3€ <span class="text-xl text-slate-400 font-normal">/ mėn.</span></div>
+                    <ul class="text-left space-y-4 mb-10 max-w-md mx-auto">
+                        <li class="flex items-center">✅ Automatiniai PDF sąskaitų siuntimai</li>
+                        <li class="flex items-center">✅ Neribota mokėjimų istorija</li>
+                        <li class="flex items-center">✅ Skaitiklių fiksavimas (Magic Link)</li>
+                        <li class="flex items-center text-indigo-600 font-bold">✅ Pirmieji 2 mėnesiai nemokamai!</li>
+                    </ul>
+                    <a href="#" class="block w-full bg-indigo-600 text-white py-4 rounded-xl text-xl font-bold hover:bg-indigo-700 transition">
+                        Pradėti dabar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-slate-900 text-slate-400 py-12">
+        <div class="container mx-auto px-6 text-center">
+            <div class="text-2xl font-bold text-white mb-4">Tenanto</div>
+            <p class="mb-8 italic italic">Sukurta Vilniuje, skirta Lietuvos nuomos rinkai.</p>
+            <div class="text-sm">
+                &copy; 2025 Tenanto.eu. Visos teisės saugomos.
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Filament\Pages;
+
+use BackedEnum;
+use Filament\Pages\Page;
+use UnitEnum;
+
+class GDPRCompliance extends Page
+{
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-lock-closed';
+
+    protected static ?string $navigationLabel = null;
+
+    protected static ?string $title = null;
+
+    protected string $view = 'filament.pages.gdpr-compliance';
+
+    protected static string|UnitEnum|null $navigationGroup = null;
+
+    protected static ?int $navigationSort = 92;
+
+    protected static bool $shouldRegisterNavigation = true;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('pages.gdpr_compliance');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('app.nav_groups.system');
+    }
+
+    public function getTitle(): string
+    {
+        return __('pages.gdpr_compliance');
+    }
+}

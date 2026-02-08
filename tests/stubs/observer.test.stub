@@ -1,0 +1,115 @@
+<?php
+
+use App\Models\{{ modelName }};
+use App\Observers\{{ observerName }};
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->actingAsAdmin();
+});
+
+describe('{{ observerName }}', function () {
+    it('handles creating event', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->make();
+
+        ${{ resourceName }}->save();
+
+        // Assert observer actions
+        expect(${{ resourceName }}->tenant_id)->toBe(auth()->user()->tenant_id);
+    });
+
+    it('handles created event', function () {
+        \Illuminate\Support\Facades\Event::fake();
+
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+
+        // Assert events dispatched
+        \Illuminate\Support\Facades\Event::assertDispatched({{ eventClass }}::class);
+    });
+
+    it('handles updating event', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+        $originalValue = ${{ resourceName }}->name;
+
+        ${{ resourceName }}->update(['name' => 'Updated Name']);
+
+        // Assert observer actions
+        expect(${{ resourceName }}->name)->toBe('Updated Name');
+    });
+
+    it('handles updated event', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+        
+        \Illuminate\Support\Facades\Event::fake();
+
+        ${{ resourceName }}->update(['name' => 'Updated Name']);
+
+        // Assert events dispatched
+        \Illuminate\Support\Facades\Event::assertDispatched({{ eventClass }}::class);
+    });
+
+    it('handles deleting event', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+
+        ${{ resourceName }}->delete();
+
+        // Assert observer actions
+        $this->assertSoftDeleted('{{ tableName }}', ['id' => ${{ resourceName }}->id]);
+    });
+
+    it('handles deleted event', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+        
+        \Illuminate\Support\Facades\Event::fake();
+
+        ${{ resourceName }}->delete();
+
+        // Assert events dispatched
+        \Illuminate\Support\Facades\Event::assertDispatched({{ eventClass }}::class);
+    });
+
+    it('handles restoring event', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+        ${{ resourceName }}->delete();
+
+        ${{ resourceName }}->restore();
+
+        // Assert observer actions
+        expect(${{ resourceName }}->trashed())->toBeFalse();
+    });
+
+    it('handles restored event', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+        ${{ resourceName }}->delete();
+        
+        \Illuminate\Support\Facades\Event::fake();
+
+        ${{ resourceName }}->restore();
+
+        // Assert events dispatched
+        \Illuminate\Support\Facades\Event::assertDispatched({{ eventClass }}::class);
+    });
+
+    it('maintains audit trail', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+
+        ${{ resourceName }}->update(['name' => 'Updated Name']);
+
+        // Assert audit records created
+        $this->assertDatabaseHas('{{ auditTableName }}', [
+            '{{ foreignKey }}' => ${{ resourceName }}->id,
+            'action' => 'updated',
+        ]);
+    });
+
+    it('respects tenant isolation in observer', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+        $originalTenantId = ${{ resourceName }}->tenant_id;
+
+        ${{ resourceName }}->update(['name' => 'Updated Name']);
+
+        expect(${{ resourceName }}->fresh()->tenant_id)->toBe($originalTenantId);
+    });
+});

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenanto - Profesionalus Požiūris</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Space Mono', 'monospace'] // Для цифр и чеков
+                    },
+                    colors: {
+                        indigo: { 600: '#4f46e5', 900: '#312e81' },
+                        slate: { 850: '#1e293b' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Сцена трансформации */
+        .scene-container {
+            perspective: 1000px;
+        }
+
+        /* Анимация исчезновения SMS */
+        @keyframes chatFadeOut {
+            0%, 20% { opacity: 1; transform: scale(1) translateY(0); }
+            25% { transform: scale(0.9) translateY(20px); opacity: 0; }
+            90% { opacity: 0; }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Анимация появления PDF (Раскрытие листа) */
+        @keyframes pdfUnfold {
+            0%, 20% { opacity: 0; transform: rotateX(90deg) translateY(-50px); }
+            25% { opacity: 1; transform: rotateX(0deg) translateY(0); } /* Бамс! Упал на стол */
+            80% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 0; transform: translateY(-20px); } /* Улетел в архив */
+            100% { opacity: 0; }
+        }
+
+        /* Эффект печати текста (Typewriter) */
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        .animate-chat { animation: chatFadeOut 8s infinite ease-in-out; }
+        .animate-pdf { animation: pdfUnfold 8s infinite cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
+        /* Фон в клетку для ощущения "Чертежа/Системы" */
+        .grid-pattern {
+            background-size: 40px 40px;
+            background-image:
+                linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-slate-900 font-sans overflow-x-hidden">
+
+    <nav class="w-full py-5 px-6 max-w-7xl mx-auto flex justify-between items-center z-10 relative">
+        <div class="font-mono font-bold text-xl tracking-tighter">TENANTO_v2</div>
+        <div class="hidden md:flex gap-6 text-sm font-medium text-slate-500">
+            <a href="#" class="hover:text-indigo-600">Funkcijos</a>
+            <a href="#" class="hover:text-indigo-600">Kainos (3€/mėn)</a>
+            <a href="#" class="hover:text-indigo-600">Saugumas</a>
+        </div>
+        <button class="bg-slate-900 text-white px-5 py-2 rounded text-sm font-bold hover:bg-slate-700 transition">
+            Prisijungti
+        </button>
+    </nav>
+
+    <main class="relative max-w-7xl mx-auto px-6 pt-10 pb-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[600px]">
+        
+        <div class="z-10 order-2 lg:order-1">
+            <div class="inline-block bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-1 mb-4 border border-indigo-200 uppercase tracking-wide">
+                Guerrilla Marketing Edition
+            </div>
+            
+            <h1 class="text-4xl lg:text-5xl font-extrabold text-slate-900 leading-[1.15] mb-6">
+                Nustokite rašyti SMS <br>
+                <span class="text-indigo-600 relative inline-block">
+                    dėl pinigų.
+                    <svg class="absolute w-full h-3 -bottom-1 left-0 text-indigo-200 -z-10" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="8" fill="none" /></svg>
+                </span>
+            </h1>
+
+            <p class="text-lg text-slate-600 mb-8 max-w-md leading-relaxed">
+                "Tenanto" paverčia jūsų nuomos verslą profesionaliu. Mes generuojame oficialias sąskaitas (PDF), kurias nuomininkai apmoka greičiau ir be klausimų.
+            </p>
+
+            <div class="flex flex-col gap-3">
+                <div class="flex items-center gap-4 text-sm font-medium text-slate-700">
+                    <span class="flex items-center justify-center w-6 h-6 rounded bg-green-100 text-green-600">✓</span>
+                    Atrodo rimtai – lyg valdytų agentūra.
+                </div>
+                <div class="flex items-center gap-4 text-sm font-medium text-slate-700">
+                    <span class="flex items-center justify-center w-6 h-6 rounded bg-green-100 text-green-600">✓</span>
+                    Tinka VMI deklaravimui (FR0572).
+                </div>
+                <div class="flex items-center gap-4 text-sm font-medium text-slate-700">
+                    <span class="flex items-center justify-center w-6 h-6 rounded bg-green-100 text-green-600">✓</span>
+                    QR kodas apmokėjimui vienu paspaudimu.
+                </div>
+            </div>
+
+            <div class="mt-8 flex gap-4">
+                <button class="bg-indigo-600 text-white px-8 py-4 rounded-lg font-bold shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition transform hover:-translate-y-0.5">
+                    Generuoti pirmą sąskaitą
+                </button>
+            </div>
+            <p class="mt-3 text-xs text-slate-400">Nemokamai. Be registracijos kortelės.</p>
+        </div>
+
+        <div class="relative h-[500px] flex items-center justify-center scene-container order-1 lg:order-2">
+            
+            <div class="absolute inset-0 grid-pattern opacity-100 mask-image-gradient"></div>
+            
+            <div class="animate-chat absolute max-w-[280px]">
+                <div class="flex flex-col gap-4">
+                    <div class="self-end bg-blue-500 text-white p-3 rounded-2xl rounded-tr-sm shadow-md text-sm">
+                        Labas, jau 10 diena. Kada pervesi už nuomą? 🤔
+                    </div>
+                    <div class="text-[10px] text-slate-400 text-right pr-1">Perskaityta 10:42</div>
+                    
+                    <div class="self-start bg-gray-200 text-slate-800 p-3 rounded-2xl rounded-tl-sm shadow-sm text-sm opacity-70">
+                        Oi, pamiršau visai... Pervessiu vakare gal.
+                    </div>
+                </div>
+                <div class="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-slate-300">
+                    ⬇️
+                </div>
+            </div>
+
+            <div class="animate-pdf absolute w-[320px] h-[440px] bg-white shadow-2xl border border-slate-200 p-6 flex flex-col justify-between transform rotate-1">
+                <div class="border-b-2 border-slate-900 pb-4 flex justify-between items-end">
+                    <div>
+                        <div class="text-[10px] text-slate-400 uppercase tracking-widest">SĄSKAITA FAKTŪRA</div>
+                        <div class="font-mono text-xl font-bold text-slate-900">SERIJA NUO</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[10px] text-slate-400">DATA</div>
+                        <div class="font-mono text-sm">2025-01-20</div>
+                    </div>
+                </div>
+
+                <div class="space-y-6 mt-6">
+                    <div>
+                        <div class="text-[10px] text-slate-400 uppercase">GAVĖJAS</div>
+                        <div class="font-bold text-slate-800">Nuomininkas Vardenis</div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center bg-slate-50 p-3 border border-slate-100">
+                        <span class="text-sm text-slate-600">Nuoma (Sausis)</span>
+                        <span class="font-mono font-bold">450.00 €</span>
+                    </div>
+
+                    <div class="relative border-2 border-slate-900 p-2 text-center mt-4">
+                        <div class="text-[10px] font-bold uppercase tracking-widest">Mokėjimo QR Kodas</div>
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=PayNow" class="w-20 h-20 mx-auto mt-2 opacity-90 mix-blend-multiply">
+                        
+                        <div class="absolute top-0 bottom-0 left-0 w-[2px] bg-red-500 animate-pulse"></div>
+                    </div>
+                </div>
+
+                <div class="text-center pt-4 border-t border-slate-100">
+                    <p class="text-[9px] text-slate-400 font-mono">Generuota per Tenanto.lt • Dokumentas galioja be parašo</p>
+                </div>
+
+                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-slate-200/50 rounded-full blur-sm"></div>
+            </div>
+
+        </div>
+    </main>
+    
+    <div class="bg-slate-900 text-slate-400 py-3 text-center text-xs">
+        <span class="opacity-70">Sukurta Lietuvoje 🇱🇹 • Pritaikyta VMI reikalavimams</span>
+    </div>
+
+</body>
+</html>

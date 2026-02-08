@@ -1,0 +1,90 @@
+<?php
+
+use App\Services\{{ serviceName }};
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->actingAsAdmin();
+    $this->service = app({{ serviceName }}::class);
+});
+
+describe('{{ serviceName }}', function () {
+    it('can be instantiated', function () {
+        expect($this->service)->toBeInstanceOf({{ serviceName }}::class);
+    });
+
+    it('respects tenant context', function () {
+        $tenant = auth()->user()->tenant;
+        
+        // Service operations should only affect current tenant
+        $result = $this->service->{{ primaryMethod }}();
+
+        expect($result)->not->toBeNull();
+        // Add tenant-specific assertions
+    });
+
+    it('handles errors gracefully', function () {
+        // Test error handling
+        expect(fn() => $this->service->{{ primaryMethod }}(null))
+            ->toThrow(\InvalidArgumentException::class);
+    });
+
+    it('validates input parameters', function () {
+        $invalidData = [];
+
+        expect(fn() => $this->service->{{ primaryMethod }}($invalidData))
+            ->toThrow(\Illuminate\Validation\ValidationException::class);
+    });
+
+    it('returns expected data structure', function () {
+        $result = $this->service->{{ primaryMethod }}();
+
+        expect($result)->toHaveKeys(['success', 'data', 'message']);
+    });
+
+    it('logs important operations', function () {
+        \Illuminate\Support\Facades\Log::spy();
+
+        $this->service->{{ primaryMethod }}();
+
+        \Illuminate\Support\Facades\Log::shouldHaveReceived('info')
+            ->once();
+    });
+
+    it('uses database transactions for data modifications', function () {
+        \Illuminate\Support\Facades\DB::spy();
+
+        $this->service->{{ primaryMethod }}();
+
+        \Illuminate\Support\Facades\DB::shouldHaveReceived('transaction')
+            ->once();
+    });
+
+    it('caches expensive operations', function () {
+        \Illuminate\Support\Facades\Cache::spy();
+
+        $this->service->{{ cacheableMethod }}();
+        $this->service->{{ cacheableMethod }}();
+
+        \Illuminate\Support\Facades\Cache::shouldHaveReceived('remember')
+            ->once();
+    });
+
+    it('dispatches events for important actions', function () {
+        \Illuminate\Support\Facades\Event::fake();
+
+        $this->service->{{ primaryMethod }}();
+
+        \Illuminate\Support\Facades\Event::assertDispatched({{ eventClass }}::class);
+    });
+
+    it('queues long-running operations', function () {
+        \Illuminate\Support\Facades\Queue::fake();
+
+        $this->service->{{ queueableMethod }}();
+
+        \Illuminate\Support\Facades\Queue::assertPushed({{ jobClass }}::class);
+    });
+});

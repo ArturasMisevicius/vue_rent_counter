@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Advanced Eloquent Relationships Helper",
+  "description": "Provides complete implementation guidance for complex Eloquent relationships including polymorphic relations, many-to-many with pivot data, self-referencing relationships, has-many-through, morph-to-many, and advanced querying techniques with migrations, models, pivot classes, and testing examples",
+  "version": "1.0",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "app/Models/*.php",
+      "database/migrations/*.php"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "I need help with advanced Eloquent relationships for this scenario:\n\n- use MCP servers, use mcp services\n\nSCENARIO:\n[Describe your complex relationship scenario]\n\nEXAMPLE ENTITIES:\n- Users\n- Organizations\n- Projects\n- Tasks\n- Tags\n- Comments\n- Files\n- Permissions\n\nCOMPLEX RELATIONSHIPS NEEDED:\n1. [Relationship description, e.g., \"Users belong to multiple Organizations with different roles\"]\n2. [e.g., \"Projects can be personal or organizational\"]\n3. [e.g., \"Tasks can be assigned to multiple users with different responsibilities\"]\n4. [e.g., \"Tags are polymorphic across multiple models\"]\n5. [e.g., \"Comments can be nested infinitely\"]\n6. [e.g., \"Files can be attached to anything\"]\n\nPROVIDE COMPLETE IMPLEMENTATION:\n\n1. Database Migrations:\n   - All tables with proper structure\n   - Pivot tables with additional data\n   - Polymorphic relation tables\n   - Self-referencing tables for nested data\n\n2. Model Definitions:\n   - All relationship methods\n   - Inverse relationships\n   - Many-to-many with pivot data\n   - Polymorphic relationships\n   - Has-many-through relationships\n   - Has-one-through relationships\n   - Morph-to-many relationships\n\n3. Pivot Model Classes:\n```php\n// When to create pivot models\n// Additional methods on pivot\n// Pivot events and observers\n```\n\n4. Querying Examples:\n```php\n// Get all projects for a user across all organizations\n// Get tasks with assignees and their roles\n// Fetch all comments in a thread\n// Load tags for multiple model types\n// Complex whereHas and doesntHave queries\n```\n\n5. Relationship Constraints:\n```php\n// Scoped relationships\n// Conditional relationships\n// Relationship existence queries\n```\n\n6. Polymorphic Relationship Best Practices:\n   - Naming conventions\n   - Querying efficiently\n   - Type enforcement\n   - Morph map setup\n\n7. Self-Referencing Relationships:\n   - Parent-child relationships\n   - Nested categories\n   - Infinite nested comments\n   - Recursive queries\n   - Closure table pattern\n\n8. Advanced Techniques:\n```php\n// Custom relationship types\n// Relationship macros\n// Dynamic relationships\n// Lazy loading prevention\n```\n\n9. Performance Optimization:\n   - Eager loading strategies for complex relationships\n   - Avoiding circular eager loading\n   - Subquery relationships\n   - Count/aggregate relationships\n\n10. Testing:\n    - Factory relationships\n    - Testing relationship integrity\n    - Testing cascade deletes\n\nSPECIAL CASES:\n- Handling soft deletes in relationships\n- Versioning related data\n- Audit trail for relationships\n- Relationship permissions\n\nProvide complete, working code for everything based on the current file being edited and the existing project structure."
+  },
+  "workspaceFolderName": "laravel",
+  "shortName": "eloquent-relationships-guide"
+}

@@ -1,0 +1,75 @@
+{
+  "version": "1.0",
+  "description": "Kiro IDE Steering File Loader Configuration",
+  "windows_compatibility": true,
+  "scripts": {
+    "python": ".kiro/scripts/get_steering_files.py",
+    "powershell": ".kiro/scripts/Get-SteeringFiles.ps1",
+    "batch": ".kiro/scripts/Get-SteeringFiles.bat",
+    "mapping": ".kiro/system/task-steering-mapping.json"
+  },
+  "usage": {
+    "python_recommended": "python .kiro\\scripts\\get_steering_files.py universal-utility-management",
+    "kiro_command": "kiro steering load <task-or-spec>",
+    "powershell_direct": ".\\.kiro\\scripts\\Get-SteeringFiles.ps1 -TaskInput 'authentication'",
+    "batch_direct": ".kiro\\scripts\\Get-SteeringFiles.bat authentication",
+    "list_files_only": "python .kiro\\scripts\\get_steering_files.py authentication --list",
+    "show_all_categories": "python .kiro\\scripts\\get_steering_files.py --all"
+  },
+  "integration": {
+    "ide_hooks": [
+      {
+        "trigger": "task_start",
+        "action": "load_steering_files",
+        "script": "Get-SteeringFiles.ps1"
+      },
+      {
+        "trigger": "spec_open",
+        "action": "determine_categories",
+        "script": "Get-SteeringFiles.ps1"
+      }
+    ],
+    "file_watchers": [
+      {
+        "path": ".kiro/system/task-steering-mapping.json",
+        "action": "reload_mapping"
+      },
+      {
+        "path": ".kiro/steering/*.md",
+        "action": "validate_mapping"
+      }
+    ]
+  },
+  "examples": {
+    "authentication_task": {
+      "input": "authentication",
+      "expected_files": [
+        "goals.md",
+        "product.md", 
+        "operating-principles.md",
+        "filament-auth-tenancy.md",
+        "filament-shield.md",
+        "laravel.md",
+        "ILO-LARAVEL12.md",
+        "testing-standards.md"
+      ]
+    },
+    "utility_management_spec": {
+      "input": "universal-utility-management",
+      "expected_files": [
+        "goals.md",
+        "product.md",
+        "operating-principles.md",
+        "structure.md",
+        "laravel-architecture-patterns.md",
+        "translation-guide.md",
+        "filament-conventions.md",
+        "filament-forms-inputs.md",
+        "filament-navigation.md",
+        "laravel.md",
+        "ILO-LARAVEL12.md",
+        "blade-guardrails.md"
+      ]
+    }
+  }
+}

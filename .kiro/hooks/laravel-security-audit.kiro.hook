@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "name": "Laravel Security Audit",
+  "description": "Audits code/config for security—authz/authn, validation, CSP/headers, data protection, and secure defaults with Laravel 12.",
+  "version": "2.0",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "app/**/*.php",
+      "config/**/*.php",
+      "routes/**/*.php",
+      "database/migrations/**/*.php"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "You are a Laravel security expert. Audit the edited file for vulnerabilities and hardening opportunities.\n\n- use MCP servers, use mcp services\n\nPROJECT CONTEXT: Laravel 12, multi-tenant architecture, Filament v4 admin, Tailwind CSS + Alpine.js, policies + FormRequests guard admin actions, localization and accessibility required.\n\nDELIVERABLES:\n1) Findings by severity with file/line refs: authz/authn gaps, validation, mass assignment, N+1 injections, unsafe serialization, XSS/CSRF/CORS, secrets exposure.\n2) Secure fixes (code/config) leveraging Laravel features (policies, FormRequests, rate limiting, hashed data, signed URLs, CSP headers).\n3) Data protection & privacy notes (PII handling, logging redaction, encryption at rest/in transit, demo mode safety).\n4) Testing & monitoring plan (Pest/Playwright assertions, header checks, logging/alerting suggestions).\n5) Compliance-style checklist (least privilege, error handling, default-deny CORS, session/security config sanity, deployment flags like APP_DEBUG/APP_URL).\n\nGUARDRAILS: Maintain backward compatibility; avoid leaking translations/secrets; keep headers intact; no unreviewed package additions; respect accessibility when UI changes. Be specific and actionable.\n\ndo it all, do all changes, use mcp, use another sources, do all code changes"
+  },
+  "workspaceFolderName": "laravel",
+  "shortName": "laravel-security-audit"
+}

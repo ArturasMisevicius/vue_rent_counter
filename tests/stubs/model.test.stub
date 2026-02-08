@@ -1,0 +1,110 @@
+<?php
+
+use App\Models\{{ modelName }};
+use App\Services\TenantContext;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->actingAsAdmin();
+});
+
+describe('{{ modelName }} Model', function () {
+    it('can be created with factory', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+
+        expect(${{ resourceName }})->toBeInstanceOf({{ modelName }}::class);
+        expect(${{ resourceName }}->tenant_id)->toBe(auth()->user()->tenant_id);
+    });
+
+    it('automatically scopes to current tenant', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+        
+        $otherTenant = \App\Models\Tenant::factory()->create();
+        $other{{ modelName }} = {{ modelName }}::factory()->for($otherTenant)->create();
+
+        $results = {{ modelName }}::all();
+
+        expect($results)->toHaveCount(1);
+        expect($results->first()->id)->toBe(${{ resourceName }}->id);
+    });
+
+    it('applies hierarchical scope for managers', function () {
+        $this->actingAsManager();
+        
+        $building = \App\Models\Building::factory()->create([
+            'manager_id' => auth()->id(),
+        ]);
+        
+        ${{ resourceName }} = {{ modelName }}::factory()->create([
+            'building_id' => $building->id,
+        ]);
+        
+        $otherBuilding = \App\Models\Building::factory()->create();
+        $other{{ modelName }} = {{ modelName }}::factory()->create([
+            'building_id' => $otherBuilding->id,
+        ]);
+
+        $results = {{ modelName }}::all();
+
+        expect($results)->toHaveCount(1);
+        expect($results->first()->id)->toBe(${{ resourceName }}->id);
+    });
+
+    it('has required relationships', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+
+        // Test relationships exist
+        expect(${{ resourceName }}->tenant)->toBeInstanceOf(\App\Models\Tenant::class);
+        {{ relationships }}
+    });
+
+    it('casts attributes correctly', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+
+        {{ attributeCasts }}
+    });
+
+    it('validates required fields', function () {
+        expect(fn() => {{ modelName }}::create([]))
+            ->toThrow(\Illuminate\Database\QueryException::class);
+    });
+
+    it('uses BelongsToTenant trait', function () {
+        $traits = class_uses_recursive({{ modelName }}::class);
+        
+        expect($traits)->toContain(\App\Traits\BelongsToTenant::class);
+    });
+
+    it('has fillable attributes defined', function () {
+        ${{ resourceName }} = new {{ modelName }}();
+        
+        expect(${{ resourceName }}->getFillable())->not->toBeEmpty();
+    });
+
+    it('has hidden attributes for sensitive data', function () {
+        ${{ resourceName }} = new {{ modelName }}();
+        
+        // Verify sensitive fields are hidden
+        expect(${{ resourceName }}->getHidden())->toBeArray();
+    });
+
+    it('can be soft deleted', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+        
+        ${{ resourceName }}->delete();
+
+        $this->assertSoftDeleted('{{ tableName }}', ['id' => ${{ resourceName }}->id]);
+        expect({{ modelName }}::withTrashed()->find(${{ resourceName }}->id))->not->toBeNull();
+    });
+
+    it('maintains tenant_id on update', function () {
+        ${{ resourceName }} = {{ modelName }}::factory()->create();
+        $originalTenantId = ${{ resourceName }}->tenant_id;
+
+        ${{ resourceName }}->update(['name' => 'Updated Name']);
+
+        expect(${{ resourceName }}->fresh()->tenant_id)->toBe($originalTenantId);
+    });
+});

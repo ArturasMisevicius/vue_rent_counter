@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Http\Controllers\Tenant;
+
+use App\Http\Controllers\Controller;
+use App\Models\Meter;
+use Illuminate\Http\Request;
+
+class MeterController extends Controller
+{
+    public function index(Request $request)
+    {
+        $user = $request->user();
+        
+        // Get assigned property from hierarchical user model
+        $property = $user->property;
+        
+        // Verify property_id filtering is applied
+        $meters = $property 
+            ? $property->meters()->with(['readings' => function ($query) {
+                $query->latest('reading_date')->limit(1);
+            }, 'serviceConfiguration.utilityService'])->paginate(20)
+            : collect();
+
+        return view('tenant.meters.index', compact('meters'));
+    }
+
+    public function show(Request $request, Meter $meter)
+    {
+        $user = $request->user();
+        
+        // Get assigned property from hierarchical user model
+        $property = $user->property;
+        
+        // Verify property_id filtering - tenant can only view meters for their assigned property
+        if (!$property || $meter->property_id !== $property->id) {
+            abort(403, 'You do not have permission to view this meter.');
+        }
+
+        // Eager load readings and property for the meter
+        $meter->load(['readings' => function ($query) {
+            $query->latest('reading_date')->limit(12);
+        }, 'property', 'serviceConfiguration.utilityService']);
+        
+        return view('tenant.meters.show', compact('meter'));
+    }
+}

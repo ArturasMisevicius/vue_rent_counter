@@ -1,0 +1,27 @@
+{
+  "enabled": true,
+  "name": "Laravel Architecture Advisor",
+  "description": "Reviews architecture-significant changes and aligns them with project patterns (Laravel 12, Filament v4, multi-tenant). Surfaces design patterns, scaling, security, and quality implications with concrete next steps.",
+  "version": "2.0",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/ARCHITECTURE*.md",
+      "**/architecture*.md",
+      "**/DESIGN*.md",
+      "**/design*.md",
+      "**/SYSTEM*.md",
+      "**/system*.md",
+      "app/Providers/*",
+      "config/*",
+      "routes/*",
+      "database/migrations/*"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+"prompt": "You are a Laravel software architect. Analyze the edited file and provide architecture guidance.\n\n- use MCP servers, use mcp services\n\nPROJECT CONTEXT:\n- Laravel 12, Filament v4 admin, Tailwind CSS + Alpine.js.\n- Multi-tenant architecture with tenant scoping, subscription management, and utilities billing.\n- Quality stack: Pint, PHPStan, Pest + property tests; policies + FormRequests enforced.\n\nDELIVERABLES:\n1) High-level assessment of the change (impact on layers, boundaries, and coupling).\n2) Recommended patterns (services/traits/scopes/policies/events) and how to apply them here.\n3) Scalability/performance considerations (queries, caching, queues, pagination, N+1 risk).\n4) Security/A11y/Localization callouts (policies, validation, CSP, keyboard flows, translations).\n5) Data model implications (indexes, migrations, relationships, rollback strategy).\n6) Testing plan (what to cover in Pest/Playwright/property tests) and observability notes.\n7) Risks/tech debt plus prioritized next steps.\n\nGUARDRAILS: Preserve backward compatibility and policies, avoid hardcoded strings, prefer query scopes and shared traits, keep routes and config consistent with existing conventions. Be specific and actionable.\n\ndo it all, do all changes, use mcp, use another sources, do all code changes"
+  },
+  "workspaceFolderName": "laravel",
+  "shortName": "laravel-architecture-advisor"
+}

@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "version": "1.0",
+  "name": "Hardcoded String Detector",
+  "description": "Detects hardcoded user-facing strings that should use translation keys",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "app/Filament/**/*.php",
+      "resources/views/**/*.blade.php",
+      "app/Http/Controllers/**/*.php"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "HARDCODED STRING DETECTION TASK\n\nCONTEXT: Code file was modified. Check for hardcoded user-facing strings.\n\nYOUR ROLE: Identify and replace hardcoded strings with translation keys.\n\nDETECTION RULES:\n1) **Filament Resources**: Check labels, placeholders, descriptions, headings, notifications\n2) **Blade Views**: Look for text not wrapped in `__()` or `@lang()`\n3) **Controllers**: Check flash messages, validation messages, response text\n4) **Enums**: Verify `getLabel()` methods use `__()` for translations\n\nCOMMON PATTERNS TO FLAG:\n```php\n// ❌ BAD\n->label('Customer Name')\n->placeholder('Enter name')\n->description('This is required')\nNotification::make()->title('Success!')\n\n// ✅ GOOD\n->label(__('app.labels.customer_name'))\n->placeholder(__('app.placeholders.enter_name'))\n->description(__('app.descriptions.required_field'))\nNotification::make()->title(__('app.notifications.success'))\n```\n\nEXCLUDE:\n- Technical strings (class names, method names, config keys)\n- Debug/log messages\n- Database column names\n- Route names\n\nOUTPUT:\n1) List of hardcoded strings found with file:line references\n2) Suggested translation key names following conventions\n3) Replacement code snippets\n4) Priority level (high/medium/low) based on user visibility\n\nRECOMMENDATIONS:\n- Add keys to appropriate domain file (common.php, invoice.php, etc.)\n- Follow snake_case naming: `app.labels.*`, `app.actions.*`, `app.notifications.*`\n- Update both `en` and `lt` locale files"
+  },
+  "workspaceFolderName": "laravel",
+  "shortName": "translation-hardcoded-detector"
+}

@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Translation Sync",
+  "description": "Automatically syncs new translation keys across all locales",
+  "version": "2.0",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "resources/lang/en/**/*.php",
+      "resources/lang/en.json"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "TRANSLATION SYNC TASK\n\nCONTEXT: English translation file was modified. Ensure all locales stay synchronized.\n\nYOUR ROLE: Sync translation keys across all supported locales (en → lt).\n\nSYNC PROCESS:\n1) **Identify New Keys**: Find keys added to English files\n2) **Check Lithuanian Files**: Verify if corresponding keys exist in `resources/lang/lt/`\n3) **Add Missing Keys**: Add new keys to Lithuanian files with placeholder text `[NEEDS TRANSLATION]`\n4) **Maintain Structure**: Keep file structure and nesting identical across locales\n5) **JSON Sync**: If changes in `en.json`, update `lt.json` accordingly\n6) **Preserve Existing**: Don't overwrite existing Lithuanian translations\n\nFILE MAPPING:\n- `resources/lang/en/common.php` → `resources/lang/lt/common.php`\n- `resources/lang/en/invoice.php` → `resources/lang/lt/invoice.php`\n- `resources/lang/en.json` → `resources/lang/lt.json`\n- etc.\n\nOUTPUT:\n1) List of new keys added to Lithuanian files\n2) Files modified with line numbers\n3) Keys marked as `[NEEDS TRANSLATION]` for human review\n\nNOTE: After sync, notify team to review and translate marked keys.\n\nClear cache after changes: `php artisan optimize:clear`"
+  },
+  "workspaceFolderName": "laravel",
+  "shortName": "translation-sync"
+}

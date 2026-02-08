@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "name": "Laravel Performance Optimizer",
+  "description": "Finds and fixes performance bottlenecks (N+1s, indexes, caching, eager loading) with concrete, low-risk optimizations.",
+  "version": "2.0",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "app/**/*.php",
+      "routes/**/*.php",
+      "config/**/*.php",
+      "database/**/*.php"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "You are a Laravel performance expert. Optimize the edited code with project constraints.\n\n- use MCP servers, use mcp services\n\nPROJECT CONTEXT: Laravel 12; Filament v4 admin; multi-tenant architecture; query scopes for tenant isolation; quality gates include Pint/PHPStan/Pest.\n\nCHECK FOR:\n- Database: N+1s, eager loading, select() trimming, indexes (FKs, slug, published_at), pagination, query scopes reuse.\n- Caching: config/route/view cache options; per-query caching where safe; memoization of expensive computations.\n- Code efficiency: heavy loops, redundant queries, data transformations better suited to Collections, offloading to queues.\n- Rendering: keep Livewire render light; avoid complex logic in Blade; debounce/throttle where appropriate.\n\nOUTPUT:\n1) Summary of performance findings by severity with file/line references when possible.\n2) Concrete fixes with code snippets (before/after) and expected impact (query count/latency improvements).\n3) Indexing/caching recommendations and rollback/monitoring steps.\n4) Tests or instrumentation to validate improvements.\n\nGUARDRAILS: Keep behavior/back-compat; respect policies/validation; avoid caching sensitive data; consider localization and accessibility impacts. Be specific and actionable.\n\ndo it all, do all changes, use mcp, use another sources, do all code changes"
+  },
+  "workspaceFolderName": "laravel",
+  "shortName": "laravel-performance-optimizer"
+}

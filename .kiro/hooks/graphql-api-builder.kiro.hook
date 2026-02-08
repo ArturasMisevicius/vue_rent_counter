@@ -1,0 +1,20 @@
+{
+  "enabled": true,
+  "name": "GraphQL API Builder",
+  "description": "Automatically generates a complete GraphQL API implementation for Laravel including Lighthouse setup, schema definitions, type definitions, queries, mutations, subscriptions, custom resolvers, authentication, authorization, and all necessary configuration files",
+  "version": "1.0",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "graphql/schema.graphql",
+      "config/lighthouse.php",
+      "*.graphql"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "The user is building a GraphQL API for their Laravel application. Based on the current schema file and application structure, provide a COMPLETE implementation including:\n\n- use MCP servers, use mcp services\n\n1. INSTALLATION & SETUP:\n   - Lighthouse package installation commands\n   - Configuration file setup\n   - IDE helper setup for GraphQL\n\n2. COMPLETE SCHEMA DEFINITION (schema.graphql):\n   - All type definitions for existing models (User, Building, Property, Meter, MeterReading, Invoice, InvoiceItem, Tariff, Provider, Tenant, Subscription)\n   - All queries with pagination, filtering, and ordering\n   - All mutations (create, update, delete) with proper input types\n   - Subscriptions if real-time features are needed\n   - Custom scalars (DateTime, JSON, etc.)\n   - Proper directive usage (@paginate, @find, @create, @update, @delete, @can, @guard, @rules, @hash, @hasMany, @belongsTo)\n\n3. TYPE DEFINITIONS:\n   - Complete GraphQL types for all models with relationships\n   - Proper field types and nullability\n   - Relationship directives (@hasMany, @belongsTo, @belongsToMany)\n\n4. QUERIES:\n   - List queries with pagination (@paginate)\n   - Single item queries (@find)\n   - Filtering with WhereConditions\n   - Ordering with OrderByClause\n   - Tenant-scoped queries\n\n5. MUTATIONS:\n   - Create mutations with validation\n   - Update mutations with authorization\n   - Delete mutations with cascade handling\n   - Complex business logic mutations (invoice generation, meter reading submission)\n\n6. INPUT TYPES:\n   - Create input types with validation rules\n   - Update input types\n   - Nested input types for relationships\n\n7. CUSTOM RESOLVERS (PHP):\n   - When to use custom resolvers vs directives\n   - Resolver class structure\n   - Complex business logic implementation\n   - Integration with existing services (BillingService, TariffResolver, HeatingCalculator)\n\n8. AUTHENTICATION:\n   - Sanctum integration for API tokens\n   - Login/logout mutations\n   - @guard directive usage\n   - Context-based authentication\n\n9. AUTHORIZATION:\n   - Policy integration with @can directive\n   - Field-level authorization\n   - Tenant-scoped authorization\n   - Custom authorization directives\n\n10. SUBSCRIPTIONS (if needed):\n    - WebSocket setup\n    - Real-time invoice updates\n    - Meter reading notifications\n\n11. BATCHING/DATALOADER:\n    - N+1 query optimization\n    - Batch loading configuration\n\n12. TESTING:\n    - GraphQL query testing with Pest\n    - Mutation testing\n    - Authorization testing\n    - Integration with existing test suite\n\nProvide complete, production-ready code that integrates with the existing Laravel application structure, respects multi-tenancy, uses existing policies and services, and follows the project's conventions."
+  },
+  "workspaceFolderName": "laravel",
+  "shortName": "graphql-api-builder"
+}

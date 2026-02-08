@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "version": "1.0",
+  "name": "Translation Test Runner",
+  "description": "Automatically runs translation tests after translation file changes",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "resources/lang/**/*.php",
+      "resources/lang/**/*.json",
+      "config/locales.php"
+    ]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "php artisan test --filter=LocalizationTest --filter=FilamentTranslationTest",
+    "workingDirectory": "."
+  },
+  "workspaceFolderName": "laravel",
+  "shortName": "translation-test-runner"
+}

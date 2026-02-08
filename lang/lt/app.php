@@ -1,0 +1,216 @@
+<?php
+
+return array (
+  'nav_groups' => 
+  array (
+    'my_property' => 'Mano turtas',
+    'billing' => 'Atsiskaitymas',
+    'account' => 'Paskyra',
+    'system' => 'Sistema',
+    'system_management' => 'Sistemos valdymas',
+    'operations' => 'Operacijos',
+    'localization' => 'Lokalizacija',
+    'property_management' => 'Turto valdymas',
+  ),
+  'navigation' => 
+  array (
+    'my_property' => 'Mano turtas',
+    'meter_readings' => 'Skaitiklių rodmenys',
+    'invoices' => 'Sąskaitos faktūros',
+    'profile' => 'Profilis',
+    'dashboard' => 'Prietaisų skydelis',
+    'integration_health' => 'Integracijos būklė',
+  ),
+  'common' => 
+  array (
+    'na' => 'N/A',
+    'dash' => '—',
+    'none' => 'Nėra',
+    'metadata' => 'Metaduomenys',
+    'created_at' => 'Sukurta',
+    'updated_at' => 'Atnaujinta',
+  ),
+  'units' => 
+  array (
+    'square_meter' => 'm²',
+    'square_meter_spaced' => 'm²',
+    'euro' => '€',
+  ),
+  'errors' => 
+  array (
+    'access_denied' => 'Prieiga uždrausta',
+    'forbidden_action' => 'Šis veiksmas draudžiamas',
+    'error_title' => 'Klaida',
+    'generic' => 'Įvyko klaida',
+  ),
+  'labels' => 
+  array (
+    'property' => 'Turtas',
+    'properties' => 'Turtai',
+    'invoice' => 'Sąskaita faktūra',
+    'invoices' => 'Sąskaitos faktūros',
+    'meter_reading' => 'Skaitiklio rodmuo',
+    'meter_readings' => 'Skaitiklių rodmenys',
+    'name' => 'Pavadinimas',
+    'address' => 'Adresas',
+    'building' => 'Pastatas',
+    'floor' => 'Aukštas',
+    'apartment_number' => 'Buto numeris',
+    'area' => 'Plotas',
+    'total_meters' => 'Iš viso skaitiklių',
+    'active_services' => 'Aktyvios paslaugos',
+    'meter' => 'Skaitiklis',
+    'reading_value' => 'Rodmens vertė',
+    'reading_date' => 'Rodmens data',
+    'consumption' => 'Suvartojimas',
+    'service' => 'Paslauga',
+    'billing_period_start' => 'Atsiskaitymo periodo pradžia',
+    'billing_period_end' => 'Atsiskaitymo periodo pabaiga',
+    'recorded_at' => 'Įrašyta',
+    'billing_period' => 'Atsiskaitymo periodas',
+    'invoice_number' => 'Sąskaitos faktūros numeris',
+    'status' => 'Būsena',
+    'issue_date' => 'Išdavimo data',
+    'due_date' => 'Mokėjimo terminas',
+    'total_amount' => 'Bendra suma',
+    'services' => 'Paslaugos',
+    'integration_health_check' => 'Integracijos būklės patikra',
+    'integration_health_checks' => 'Integracijos būklės patikros',
+    'service_name' => 'Paslaugos pavadinimas',
+    'endpoint' => 'Galinis taškas',
+    'response_time_ms' => 'Atsakymo laikas (ms)',
+    'error_message' => 'Klaidos pranešimas',
+    'checked_at' => 'Patikrinta',
+    'response_time' => 'Atsakymo laikas',
+    'last_check' => 'Paskutinė patikra',
+    'error' => 'Klaida',
+    'duration_minutes' => 'Trukmė (minutėmis)',
+    'reason' => 'Priežastis',
+    'email' => 'El. paštas',
+    'role' => 'Rolė',
+    'registered' => 'Registruotas',
+    'total_users' => 'Iš viso vartotojų',
+    'system_wide_users' => 'Visos sistemos vartotojai',
+    'active_subscriptions' => 'Aktyvios prenumeratos',
+    'currently_active' => 'Šiuo metu aktyvios',
+    'total_organizations' => 'Iš viso organizacijų',
+    'registered_organizations' => 'Registruotos organizacijos',
+    'system_health' => 'Sistemos būklė',
+    'overall_system_status' => 'Bendra sistemos būsena',
+    'days' => 'dienos',
+    'organization' => 'Organizacija',
+    'plan' => 'Planas',
+  ),
+  'sections' => 
+  array (
+    'property_details' => 'Turto duomenys',
+    'utility_services' => 'Komunalinės paslaugos',
+    'reading_details' => 'Rodmens duomenys',
+    'billing_information' => 'Atsiskaitymo informacija',
+    'invoice_details' => 'Sąskaitos faktūros duomenys',
+    'billing_period' => 'Atsiskaitymo periodas',
+    'invoice_items' => 'Sąskaitos faktūros eilutės',
+    'service_details' => 'Paslaugos detalės',
+    'health_metrics' => 'Būklės metrikos',
+  ),
+  'placeholders' => 
+  array (
+    'calculated_automatically' => 'Apskaičiuojama automatiškai',
+    'service_name' => 'Įveskite paslaugos pavadinimą',
+    'endpoint_url' => 'Įveskite galinio taško URL',
+    'response_time' => 'Atsakymo laikas milisekundėmis',
+    'error_message' => 'Klaidos pranešimas, jei yra',
+    'no_errors' => 'Klaidų nėra',
+    'maintenance_reason' => 'Įveskite priežiūros priežastį',
+  ),
+  'filters' => 
+  array (
+    'recent_checks' => 'Naujausios patikros',
+    'unhealthy_only' => 'Tik nesveiki',
+    'slow_response' => 'Lėtas atsakymas',
+  ),
+  'actions' => 
+  array (
+    'view' => 'Peržiūrėti',
+    'download_pdf' => 'Atsisiųsti PDF',
+    'run_health_check' => 'Vykdyti būklės patikrą',
+    'enable_maintenance' => 'Įjungti priežiūros režimą',
+    'run_health_checks' => 'Vykdyti būklės patikras',
+    'extend' => 'Pratęsti',
+    'extend_subscription' => 'Pratęsti prenumeratą',
+    'notify' => 'Pranešti',
+  ),
+  'notifications' => 
+  array (
+    'health_check_completed' => 'Būklės patikra baigta',
+    'health_check_failed' => 'Būklės patikra nepavyko',
+    'maintenance_enabled' => 'Priežiūros režimas įjungtas',
+    'bulk_health_check_completed' => 'Masinė būklės patikra baigta',
+    'health_check_results' => 'Būklės patikros rezultatai',
+  ),
+  'modals' => 
+  array (
+    'run_health_check' => 'Vykdyti būklės patikrą',
+    'health_check_description' => 'Tai patikrins paslaugos būklę ir atnaujins būseną.',
+    'extend_subscription_description' => 'Tai pratęs prenumeratą vieniems metams nuo dabartinės galiojimo pabaigos datos.',
+  ),
+  'status' => 
+  array (
+    'unhealthy' => 'Nesveika',
+    'healthy' => 'Sveika',
+  ),
+  'stats' => 
+  array (
+    'total_meters' => 'Iš viso skaitiklių',
+    'installed_meters' => 'Įrengti skaitikliai',
+    'recent_readings' => 'Paskutiniai rodmenys',
+    'meters_with_data' => 'Skaitikliai su duomenimis',
+    'unpaid_invoices' => 'Neapmokėtos sąskaitos',
+    'pending_payment' => 'Laukia apmokėjimo',
+    'current_month_readings' => 'Šio mėnesio rodmenys',
+    'this_month' => 'Šį mėnesį',
+  ),
+  'widgets' => 
+  array (
+    'recent_invoices' => 'Paskutinės sąskaitos faktūros',
+    'recent_users' => 'Naujausi vartotojai',
+    'policy_registry' => 
+    array (
+      'critical_issues' => 'Kritinės problemos',
+      'configuration_issues' => 'Konfigūracijos problemos',
+      'health_status' => 'Būklės būsena',
+      'warnings' => 'Įspėjimai',
+      'all_systems_operational' => 'Visos sistemos veikia',
+      'last_24h' => 'Paskutinės 24 val.',
+      'total_policies' => 'Iš viso politikų',
+      'registered_policies' => 'Registruotos politikos',
+      'total_gates' => 'Iš viso vartų',
+      'registered_gates' => 'Registruoti vartai',
+      'cache_hit_rate' => 'Talpyklos pataikymo rodiklis',
+      'cache_performance' => 'Talpyklos našumas',
+      'avg_registration_time' => 'Vid. registracijos laikas',
+      'performance_metric' => 'Našumo metrika',
+      'error_rate' => 'Klaidų rodiklis',
+      'data_unavailable' => 'Duomenys nepasiekiami',
+    ),
+  ),
+  'brand' => 
+  array (
+    'name' => 'Vilniaus komunalinės paslaugos',
+    'product' => 'Komunalinių paslaugų valdymo platforma',
+  ),
+  'empty_states' => 
+  array (
+    'no_invoices' => 'Sąskaitų faktūrų nerasta',
+    'no_invoices_description' => 'Jūsų turtui dar nėra sąskaitų faktūrų.',
+    'no_meter_readings' => 'Skaitiklių rodmenų nerasta',
+    'no_meter_readings_description' => 'Jūsų turtui dar nėra skaitiklių rodmenų.',
+    'no_expiring_subscriptions' => 'Nėra baigiančių galioti prenumeratų',
+    'no_expiring_subscriptions_description' => 'Visos prenumeratos yra sveikos ir turi daugiau nei 14 dienų iki galiojimo pabaigos.',
+  ),
+  'test' => 
+  array (
+    'message' => 'Bandomasis pranešimas',
+  ),
+  'welcome' => 'Sveiki',
+);

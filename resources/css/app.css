@@ -1,0 +1,78 @@
+@import "@fontsource/manrope/400.css";
+@import "@fontsource/manrope/500.css";
+@import "@fontsource/manrope/600.css";
+@import "@fontsource/manrope/700.css";
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/space-grotesk/600.css";
+@import "@fontsource/space-grotesk/700.css";
+
+@import "tailwindcss";
+
+@theme {
+    /* Custom colors */
+    --color-midnight: #0f172a;
+    --color-skyline: #38bdf8;
+    --color-indigo-ink: #6366f1;
+    
+    /* Custom font families */
+    --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
+    --font-display: 'Space Grotesk', 'Manrope', system-ui, -apple-system, sans-serif;
+    
+    /* Custom box shadows */
+    --shadow-glow: 0 15px 45px rgba(99, 102, 241, 0.25);
+}
+
+:root {
+    color-scheme: light;
+}
+
+body {
+    font-family: var(--font-sans);
+    background:
+        radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.12), transparent 25%),
+        radial-gradient(circle at 90% 10%, rgba(56, 189, 248, 0.12), transparent 22%),
+        radial-gradient(circle at 40% 80%, rgba(56, 189, 248, 0.08), transparent 30%),
+        linear-gradient(135deg, #f8fafc 0%, #eef2ff 35%, #f8fafc 100%);
+    min-height: 100vh;
+}
+
+/* Cursor pointer for interactive elements */
+a,
+button,
+[role="button"],
+[type="button"],
+[type="submit"],
+[type="reset"],
+.cursor-pointer,
+[class*="fi-btn"],
+[class*="fi-link"],
+[class*="fi-ta-actions"],
+[class*="fi-ac-action"],
+.filament-button,
+.filament-link,
+label[for],
+select,
+input[type="checkbox"],
+input[type="radio"] {
+    cursor: pointer !important;
+}
+
+/* Cursor default for disabled elements */
+:disabled,
+[disabled],
+[aria-disabled="true"],
+.pointer-events-none {
+    cursor: not-allowed !important;
+}
+
+/* Cursor text for text inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+input[type="number"],
+textarea {
+    cursor: text !important;
+}
