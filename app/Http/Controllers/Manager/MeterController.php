@@ -58,7 +58,7 @@ class MeterController extends Controller
         // Get properties for filter dropdown
         $properties = Property::orderBy('address')->get();
 
-        return view('manager.meters.index', compact('meters', 'properties'));
+        return view('pages.meters.index-manager', compact('meters', 'properties'));
     }
 
     /**
@@ -71,7 +71,7 @@ class MeterController extends Controller
         $properties = Property::orderBy('address')->get();
         $serviceConfigurationOptions = $this->getServiceConfigurationOptions();
 
-        return view('manager.meters.create', compact('properties', 'serviceConfigurationOptions'));
+        return view('pages.meters.create-manager', compact('properties', 'serviceConfigurationOptions'));
     }
 
     /**
@@ -107,7 +107,7 @@ class MeterController extends Controller
             ];
         })->reverse()->values();
 
-        return view('manager.meters.show', compact('meter', 'readingHistory'));
+        return view('pages.meters.show-manager', compact('meter', 'readingHistory'));
     }
 
     /**
@@ -120,7 +120,7 @@ class MeterController extends Controller
         $properties = Property::orderBy('address')->get();
         $serviceConfigurationOptions = $this->getServiceConfigurationOptions();
 
-        return view('manager.meters.edit', compact('meter', 'properties', 'serviceConfigurationOptions'));
+        return view('pages.meters.edit-manager', compact('meter', 'properties', 'serviceConfigurationOptions'));
     }
 
     /**

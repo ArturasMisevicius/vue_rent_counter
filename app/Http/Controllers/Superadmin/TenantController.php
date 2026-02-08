@@ -22,7 +22,7 @@ class TenantController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        return view('superadmin.tenants.index', compact('tenants'));
+        return view('pages.tenants.index-superadmin', compact('tenants'));
     }
 
     public function show(Tenant $tenant)
@@ -33,6 +33,6 @@ class TenantController extends Controller
             'meterReadings' => fn ($q) => $q->latest('reading_date')->limit(10),
         ]);
 
-        return view('superadmin.tenants.show', compact('tenant'));
+        return view('pages.tenants.show-superadmin', compact('tenant'));
     }
 }

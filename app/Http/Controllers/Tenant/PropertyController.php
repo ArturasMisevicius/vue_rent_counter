@@ -26,7 +26,7 @@ class PropertyController extends Controller
             ]);
         }
 
-        return view('tenant.property.show', compact('property'));
+        return view('pages.property.show-tenant', compact('property'));
     }
 
     public function meters(Request $request)
@@ -39,6 +39,6 @@ class PropertyController extends Controller
             ? $property->meters()->with('serviceConfiguration.utilityService')->get()
             : collect();
 
-        return view('tenant.property.meters', compact('meters', 'property'));
+        return view('pages.property.meters-tenant', compact('meters', 'property'));
     }
 }

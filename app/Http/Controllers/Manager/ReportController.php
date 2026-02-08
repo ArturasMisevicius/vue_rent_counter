@@ -31,7 +31,7 @@ class ReportController extends Controller
             'invoices_this_month' => Invoice::whereMonth('billing_period_start', Carbon::now()->month)->count(),
         ];
 
-        return view('manager.reports.index', compact('stats'));
+        return view('pages.reports.index-manager', compact('stats'));
     }
 
     /**
@@ -165,7 +165,7 @@ class ReportController extends Controller
             $serviceFilterOptions["type:{$type}"] = "Legacy: {$label}";
         }
 
-        return view('manager.reports.consumption', compact(
+        return view('pages.reports.consumption-manager', compact(
             'readingsByProperty',
             'consumptionByType',
             'monthlyTrend',
@@ -322,7 +322,7 @@ class ReportController extends Controller
 
         $buildings = Building::all();
 
-        return view('manager.reports.revenue', compact(
+        return view('pages.reports.revenue-manager', compact(
             'invoices',
             'invoiceOverdueMap',
             'totalRevenue',
@@ -472,7 +472,7 @@ class ReportController extends Controller
 
         $buildings = Building::all();
 
-        return view('manager.reports.meter-reading-compliance', compact(
+        return view('pages.reports.meter-reading-compliance-manager', compact(
             'properties',
             'propertyCompliance',
             'propertiesWithReadings',

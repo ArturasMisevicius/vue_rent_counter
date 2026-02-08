@@ -28,14 +28,14 @@ class ProviderController extends Controller
         }
         
         $providers = $query->paginate(20)->withQueryString();
-        return view('admin.providers.index', compact('providers'));
+        return view('pages.providers.index-admin', compact('providers'));
     }
 
     public function create()
     {
         $this->authorize('create', Provider::class);
         
-        return view('admin.providers.create');
+        return view('pages.providers.create-admin');
     }
 
     public function store(ProviderRequest $request)
@@ -62,14 +62,14 @@ class ProviderController extends Controller
         $provider->load(['tariffs' => function ($query) {
             $query->orderBy('active_from', 'desc');
         }]);
-        return view('admin.providers.show', compact('provider'));
+        return view('pages.providers.show-admin', compact('provider'));
     }
 
     public function edit(Provider $provider)
     {
         $this->authorize('update', $provider);
         
-        return view('admin.providers.edit', compact('provider'));
+        return view('pages.providers.edit-admin', compact('provider'));
     }
 
     public function update(ProviderRequest $request, Provider $provider)

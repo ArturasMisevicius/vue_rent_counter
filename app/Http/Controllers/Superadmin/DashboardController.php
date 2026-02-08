@@ -125,7 +125,7 @@ class DashboardController extends Controller
             ->map(fn ($metrics) => $metrics->first())
             ->values();
         
-        return view('superadmin.dashboard', compact(
+        return view('pages.dashboard.superadmin', compact(
             'totalSubscriptions',
             'activeSubscriptions',
             'expiredSubscriptions',
@@ -156,7 +156,7 @@ class DashboardController extends Controller
         $query = trim((string) $request->query('query', ''));
 
         if ($query === '') {
-            return view('superadmin.search', [
+            return view('pages.search.superadmin', [
                 'query' => $query,
                 'organizations' => collect(),
                 'users' => collect(),
@@ -179,7 +179,7 @@ class DashboardController extends Controller
             ->limit(25)
             ->get();
 
-        return view('superadmin.search', [
+        return view('pages.search.superadmin', [
             'query' => $query,
             'organizations' => $organizations,
             'users' => $users,

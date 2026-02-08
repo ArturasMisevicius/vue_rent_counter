@@ -45,7 +45,7 @@ class InvitationController extends Controller
 
     public function show(OrganizationInvitation $invitation)
     {
-        return view('superadmin.invitations.show', compact('invitation'));
+        return view('pages.invitations.show-superadmin', compact('invitation'));
     }
 
     public function resend(OrganizationInvitation $invitation)

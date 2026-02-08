@@ -130,7 +130,7 @@ class DashboardController extends Controller
                 ->get(),
         ];
 
-        return view('admin.dashboard', compact(
+        return view('pages.dashboard.admin', compact(
             'stats',
             'subscription',
             'subscriptionStatus',
@@ -181,7 +181,7 @@ class DashboardController extends Controller
             ];
         });
 
-        return view('admin.dashboard', compact('stats', 'recentActivity'));
+        return view('pages.dashboard.admin', compact('stats', 'recentActivity'));
     }
     
     /**

@@ -17,7 +17,7 @@ test('admin can access user management index', function () {
     $response = $this->actingAs($admin)->get(route('admin.users.index'));
 
     $response->assertOk();
-    $response->assertViewIs('admin.users.index');
+    $response->assertViewIs('pages.users.index-admin');
     $response->assertSee('Users Management');
 });
 
@@ -34,7 +34,7 @@ test('admin can view user details', function () {
     $response = $this->actingAs($admin)->get(route('admin.users.show', $user));
 
     $response->assertOk();
-    $response->assertViewIs('admin.users.show');
+    $response->assertViewIs('pages.users.show-admin');
     $response->assertSee($user->name);
     $response->assertSee($user->email);
 });
@@ -49,7 +49,7 @@ test('admin can access user creation form', function () {
     $response = $this->actingAs($admin)->get(route('admin.users.create'));
 
     $response->assertOk();
-    $response->assertViewIs('admin.users.create');
+    $response->assertViewIs('pages.users.create-admin');
     $response->assertSee('Create User');
 });
 
@@ -95,7 +95,7 @@ test('admin can access user edit form', function () {
     $response = $this->actingAs($admin)->get(route('admin.users.edit', $user));
 
     $response->assertOk();
-    $response->assertViewIs('admin.users.edit');
+    $response->assertViewIs('pages.users.edit-admin');
     $response->assertSee('Edit User');
     $response->assertSee($user->name);
 });

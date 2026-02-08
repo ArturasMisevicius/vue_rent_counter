@@ -45,7 +45,7 @@ class UserController extends Controller
         }
         
         $users = $query->paginate(20)->withQueryString();
-        return view('admin.users.index', compact('users'));
+        return view('pages.users.index-admin', compact('users'));
     }
 
     public function create()
@@ -53,7 +53,7 @@ class UserController extends Controller
         $this->authorize('create', User::class);
         
         $tenants = Tenant::with('property')->orderBy('name')->get();
-        return view('admin.users.create', compact('tenants'));
+        return view('pages.users.create-admin', compact('tenants'));
     }
 
     public function store(StoreUserRequest $request)
@@ -72,7 +72,7 @@ class UserController extends Controller
         $this->authorize('view', $user);
         
         $user->load(['tenant']);
-        return view('admin.users.show', compact('user'));
+        return view('pages.users.show-admin', compact('user'));
     }
 
     public function edit(User $user)
@@ -80,7 +80,7 @@ class UserController extends Controller
         $this->authorize('update', $user);
         
         $tenants = Tenant::with('property')->orderBy('name')->get();
-        return view('admin.users.edit', compact('user', 'tenants'));
+        return view('pages.users.edit-admin', compact('user', 'tenants'));
     }
 
     public function update(UpdateUserRequest $request, User $user)

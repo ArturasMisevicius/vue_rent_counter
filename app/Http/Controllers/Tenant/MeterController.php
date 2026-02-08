@@ -28,7 +28,7 @@ class MeterController extends Controller
         $latestReadingDate = $this->resolveLatestReadingDate($metersCollection);
         $meterStyleMap = $this->buildMeterStyleMap($metersCollection);
 
-        return view('tenant.meters.index', compact('meters', 'metersCollection', 'latestReadingDate', 'meterStyleMap'));
+        return view('pages.meters.index-tenant', compact('meters', 'metersCollection', 'latestReadingDate', 'meterStyleMap'));
     }
 
     public function show(Request $request, Meter $meter)
@@ -48,7 +48,7 @@ class MeterController extends Controller
             $query->latest('reading_date')->limit(12);
         }, 'property', 'serviceConfiguration.utilityService']);
         
-        return view('tenant.meters.show', compact('meter'));
+        return view('pages.meters.show-tenant', compact('meter'));
     }
 
     private function resolveLatestReadingDate(Collection $metersCollection): mixed

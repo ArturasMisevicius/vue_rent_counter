@@ -34,6 +34,6 @@ class AuditController extends Controller
         
         $audits = $query->latest()->paginate(50);
         
-        return view('admin.audit.index', compact('audits'));
+        return view('pages.audit.index-admin', compact('audits'));
     }
 }

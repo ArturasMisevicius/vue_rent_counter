@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
+use App\Support\EuropeanCurrencyOptions;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class StoreOrganizationRequest extends FormRequest
 {
@@ -24,6 +28,12 @@ class StoreOrganizationRequest extends FormRequest
      */
     public function rules(): array
     {
+        $availableLocales = array_keys((array) config('locales.available', [
+            'en' => [],
+            'lt' => [],
+            'ru' => [],
+        ]));
+
         return [
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255', 'alpha_dash', 'unique:organizations,slug'],
@@ -34,9 +44,9 @@ class StoreOrganizationRequest extends FormRequest
             'max_properties' => ['required', 'integer', 'min:1'],
             'max_users' => ['required', 'integer', 'min:1'],
             'subscription_ends_at' => ['nullable', 'date'],
-            'timezone' => ['nullable', 'string', 'max:100'],
-            'locale' => ['nullable', 'string', 'max:10'],
-            'currency' => ['nullable', 'string', 'max:10'],
+            'timezone' => ['nullable', 'timezone'],
+            'locale' => ['nullable', 'string', Rule::in($availableLocales)],
+            'currency' => ['nullable', 'string', 'size:3', Rule::in(EuropeanCurrencyOptions::codes())],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }
@@ -49,6 +59,18 @@ class StoreOrganizationRequest extends FormRequest
     public function messages(): array
     {
         return [];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $slug = (string) $this->input('slug', '');
+        $name = (string) $this->input('name', '');
+
+        if ($slug === '' && $name !== '') {
+            $this->merge([
+                'slug' => Str::slug($name),
+            ]);
+        }
     }
 
     protected function failedValidation(Validator $validator): void

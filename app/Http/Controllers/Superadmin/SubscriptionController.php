@@ -64,7 +64,7 @@ class SubscriptionController extends Controller
         $statusOptions = SubscriptionStatus::cases();
         $planOptions = SubscriptionPlanType::cases();
         
-        return view('superadmin.subscriptions.index', compact('subscriptions', 'statusOptions', 'planOptions'));
+        return view('pages.subscriptions.index-superadmin', compact('subscriptions', 'statusOptions', 'planOptions'));
     }
 
     public function store(Request $request)
@@ -105,7 +105,7 @@ class SubscriptionController extends Controller
             'tenants_limit' => $subscription->max_tenants,
         ];
         
-        return view('superadmin.subscriptions.show', compact('subscription', 'usage'));
+        return view('pages.subscriptions.show-superadmin', compact('subscription', 'usage'));
     }
 
     /**
@@ -115,7 +115,7 @@ class SubscriptionController extends Controller
     {
         $subscription->load('user');
         
-        return view('superadmin.subscriptions.edit', compact('subscription'));
+        return view('pages.subscriptions.edit-superadmin', compact('subscription'));
     }
 
     /**

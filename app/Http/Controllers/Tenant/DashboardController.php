@@ -25,7 +25,7 @@ class DashboardController extends Controller
                 'total_invoices' => 0,
                 'unpaid_invoices' => 0,
             ];
-            return view('tenant.dashboard', compact('stats'));
+            return view('pages.dashboard.tenant', compact('stats'));
         }
         
         $cacheKey = "tenant_dashboard_{$user->id}";
@@ -102,6 +102,6 @@ class DashboardController extends Controller
             ];
         });
 
-        return view('tenant.dashboard', compact('stats'));
+        return view('pages.dashboard.tenant', compact('stats'));
     }
 }

@@ -35,7 +35,7 @@ class BuildingController extends Controller
 
         $buildings = $query->paginate(20)->withQueryString();
 
-        return view('manager.buildings.index', compact('buildings'));
+        return view('pages.buildings.index-manager', compact('buildings'));
     }
 
     /**
@@ -45,7 +45,7 @@ class BuildingController extends Controller
     {
         $this->authorize('create', Building::class);
 
-        return view('manager.buildings.create');
+        return view('pages.buildings.create-manager');
     }
 
     /**
@@ -71,7 +71,7 @@ class BuildingController extends Controller
 
         $building->load(['properties.meters', 'properties.tenants']);
 
-        return view('manager.buildings.show', compact('building'));
+        return view('pages.buildings.show-manager', compact('building'));
     }
 
     /**
@@ -81,7 +81,7 @@ class BuildingController extends Controller
     {
         $this->authorize('update', $building);
 
-        return view('manager.buildings.edit', compact('building'));
+        return view('pages.buildings.edit-manager', compact('building'));
     }
 
     /**

@@ -65,6 +65,6 @@ class DashboardController extends Controller
                 ->get();
         });
 
-        return view('manager.dashboard', compact('stats', 'propertiesNeedingReadings', 'draftInvoices'));
+        return view('pages.dashboard.manager', compact('stats', 'propertiesNeedingReadings', 'draftInvoices'));
     }
 }

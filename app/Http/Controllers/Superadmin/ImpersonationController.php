@@ -94,6 +94,6 @@ class ImpersonationController extends Controller
                 ->pluck('resource_id')
         )->get(['id', 'name']);
 
-        return view('superadmin.impersonation.history', compact('logs', 'superadmins', 'targetUsers'));
+        return view('pages.impersonation.history-superadmin', compact('logs', 'superadmins', 'targetUsers'));
     }
 }

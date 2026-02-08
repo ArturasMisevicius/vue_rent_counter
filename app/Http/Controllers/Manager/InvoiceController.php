@@ -75,7 +75,7 @@ class InvoiceController extends Controller
         // Get properties for filter dropdown (Requirement 6.5)
         $properties = \App\Models\Property::orderBy('address')->get();
 
-        return view('manager.invoices.index', compact('invoices', 'properties'));
+        return view('pages.invoices.index-manager', compact('invoices', 'properties'));
     }
 
     /**
@@ -87,7 +87,7 @@ class InvoiceController extends Controller
 
         $tenants = Tenant::with('property')->orderBy('name')->get();
 
-        return view('manager.invoices.create', compact('tenants'));
+        return view('pages.invoices.create-manager', compact('tenants'));
     }
 
     /**
@@ -159,7 +159,7 @@ class InvoiceController extends Controller
             });
         }
 
-        return view('manager.invoices.show', compact('invoice', 'consumptionHistory'));
+        return view('pages.invoices.show-manager', compact('invoice', 'consumptionHistory'));
     }
 
     /**
@@ -175,7 +175,7 @@ class InvoiceController extends Controller
 
         $tenants = Tenant::with('property')->orderBy('name')->get();
 
-        return view('manager.invoices.edit', compact('invoice', 'tenants'));
+        return view('pages.invoices.edit-manager', compact('invoice', 'tenants'));
     }
 
     /**
@@ -288,7 +288,7 @@ class InvoiceController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('manager.invoices.drafts', compact('invoices'));
+        return view('pages.invoices.drafts-manager', compact('invoices'));
     }
 
     /**
@@ -303,7 +303,7 @@ class InvoiceController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('manager.invoices.finalized', compact('invoices'));
+        return view('pages.invoices.finalized-manager', compact('invoices'));
     }
 
     /**

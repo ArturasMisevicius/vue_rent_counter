@@ -57,6 +57,7 @@ final class NavigationComposer
             ['route' => 'admin.tariffs.index', 'prefix' => 'admin.tariffs', 'label' => 'app.nav.tariffs'],
             ['route' => 'admin.settings.index', 'prefix' => 'admin.settings', 'label' => 'app.nav.settings'],
             ['route' => 'admin.audit.index', 'prefix' => 'admin.audit', 'label' => 'app.nav.audit'],
+            ['route' => 'admin.profile.show', 'prefix' => 'admin.profile', 'label' => 'app.nav.profile'],
         ],
         'manager' => [
             ['route' => 'manager.dashboard', 'prefix' => 'manager.dashboard', 'label' => 'app.nav.dashboard'],

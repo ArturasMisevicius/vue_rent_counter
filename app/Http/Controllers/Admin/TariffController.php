@@ -95,7 +95,7 @@ final class TariffController extends Controller
         // Performance: Use pagination with query string preservation
         $tariffs = $query->paginate(20)->withQueryString();
         
-        return view('admin.tariffs.index', compact('tariffs'));
+        return view('pages.tariffs.index-admin', compact('tariffs'));
     }
 
     /**
@@ -122,7 +122,7 @@ final class TariffController extends Controller
             ->orderBy('name')
             ->get();
         
-        return view('admin.tariffs.create', compact('providers'));
+        return view('pages.tariffs.create-admin', compact('providers'));
     }
 
     /**
@@ -204,7 +204,7 @@ final class TariffController extends Controller
             ->limit(10)
             ->get();
         
-        return view('admin.tariffs.show', compact('tariff', 'versionHistory'));
+        return view('pages.tariffs.show-admin', compact('tariff', 'versionHistory'));
     }
 
     /**
@@ -232,7 +232,7 @@ final class TariffController extends Controller
             ->orderBy('name')
             ->get();
         
-        return view('admin.tariffs.edit', compact('tariff', 'providers'));
+        return view('pages.tariffs.edit-admin', compact('tariff', 'providers'));
     }
 
     /**

@@ -27,12 +27,12 @@ class OrganizationController extends Controller
             ->orderByDesc('created_at')
             ->paginate(20);
 
-        return view('superadmin.organizations.index', compact('organizations'));
+        return view('pages.organizations.index-superadmin', compact('organizations'));
     }
 
     public function create()
     {
-        return view('superadmin.organizations.create');
+        return view('pages.organizations.create-superadmin');
     }
 
     public function store(StoreOrganizationRequest $request)
@@ -51,12 +51,12 @@ class OrganizationController extends Controller
 
     public function show(Organization $organization)
     {
-        return view('superadmin.organizations.show', compact('organization'));
+        return view('pages.organizations.show-superadmin', compact('organization'));
     }
 
     public function edit(Organization $organization)
     {
-        return view('superadmin.organizations.edit', compact('organization'));
+        return view('pages.organizations.edit-superadmin', compact('organization'));
     }
 
     public function update(UpdateOrganizationRequest $request, Organization $organization)

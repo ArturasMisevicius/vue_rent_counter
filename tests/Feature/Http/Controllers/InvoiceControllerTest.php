@@ -91,7 +91,7 @@ class InvoiceControllerTest extends TestCase
             ->get(route('manager.invoices.index'));
 
         $response->assertOk();
-        $response->assertViewIs('manager.invoices.index');
+        $response->assertViewIs('pages.invoices.index-manager');
         $response->assertViewHas('invoices');
     }
 
@@ -141,7 +141,7 @@ class InvoiceControllerTest extends TestCase
             ->get(route('manager.invoices.create'));
 
         $response->assertOk();
-        $response->assertViewIs('manager.invoices.create');
+        $response->assertViewIs('pages.invoices.create-manager');
         $response->assertViewHas('tenants');
     }
 
@@ -224,7 +224,7 @@ class InvoiceControllerTest extends TestCase
             ->get(route('manager.invoices.show', $invoice));
 
         $response->assertOk();
-        $response->assertViewIs('manager.invoices.show');
+        $response->assertViewIs('pages.invoices.show-manager');
         $response->assertViewHas('invoice');
     }
 
@@ -292,7 +292,7 @@ class InvoiceControllerTest extends TestCase
             ->get(route('tenant.invoices.index'));
 
         $response->assertOk();
-        $response->assertViewIs('tenant.invoices.index');
+        $response->assertViewIs('pages.invoices.index-tenant');
     }
 
     /**

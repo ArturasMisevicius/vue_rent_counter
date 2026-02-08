@@ -75,7 +75,7 @@ class TariffControllerTest extends TestCase
         $response = $this->get(route('admin.tariffs.index'));
 
         $response->assertOk();
-        $response->assertViewIs('admin.tariffs.index');
+        $response->assertViewIs('pages.tariffs.index-admin');
         $response->assertViewHas('tariffs');
     }
 
@@ -176,7 +176,7 @@ class TariffControllerTest extends TestCase
         $response = $this->get(route('admin.tariffs.create'));
 
         $response->assertOk();
-        $response->assertViewIs('admin.tariffs.create');
+        $response->assertViewIs('pages.tariffs.create-admin');
         $response->assertViewHas('providers');
     }
 
@@ -294,7 +294,7 @@ class TariffControllerTest extends TestCase
         $response = $this->get(route('admin.tariffs.show', $tariff));
 
         $response->assertOk();
-        $response->assertViewIs('admin.tariffs.show');
+        $response->assertViewIs('pages.tariffs.show-admin');
         $response->assertViewHas('tariff');
         $response->assertViewHas('versionHistory');
     }
@@ -344,7 +344,7 @@ class TariffControllerTest extends TestCase
         $response = $this->get(route('admin.tariffs.edit', $tariff));
 
         $response->assertOk();
-        $response->assertViewIs('admin.tariffs.edit');
+        $response->assertViewIs('pages.tariffs.edit-admin');
         $response->assertViewHas('tariff');
         $response->assertViewHas('providers');
     }

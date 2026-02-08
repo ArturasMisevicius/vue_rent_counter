@@ -30,7 +30,7 @@
 }
 
 .ds-shell__inner {
-    max-width: 64rem;
+    max-width: 80rem;
     margin-inline: auto;
     display: grid;
     gap: 1.5rem;

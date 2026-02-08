@@ -13,7 +13,7 @@ class ProfileController extends Controller
 {
     public function show(Request $request)
     {
-        return view('superadmin.profile.show', [
+        return view('pages.profile.show-superadmin', [
             'user' => $request->user(),
             'languages' => Language::query()->active()->orderBy('display_order')->get(),
             'currencyOptions' => EuropeanCurrencyOptions::options(),

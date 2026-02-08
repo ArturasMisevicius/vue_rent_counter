@@ -28,7 +28,7 @@ class SettingsController extends Controller
             'total_invoices' => \App\Models\Invoice::count(),
         ];
         
-        return view('admin.settings.index', compact('stats'));
+        return view('pages.settings.index-admin', compact('stats'));
     }
 
     /**

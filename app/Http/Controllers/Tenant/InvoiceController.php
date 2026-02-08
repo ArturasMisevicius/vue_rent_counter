@@ -25,7 +25,7 @@ class InvoiceController extends Controller
                 'finalized' => 'bg-sky-100 text-sky-800 ring-1 ring-sky-600/30',
                 'paid' => 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-600/30',
             ];
-            return view('tenant.invoices.index', compact('invoices', 'properties', 'invoiceStatusLabels', 'statusStyles'));
+            return view('pages.invoices.index-tenant', compact('invoices', 'properties', 'invoiceStatusLabels', 'statusStyles'));
         }
         
         // Get tenant record for invoice lookup (legacy compatibility)
@@ -40,7 +40,7 @@ class InvoiceController extends Controller
                 'finalized' => 'bg-sky-100 text-sky-800 ring-1 ring-sky-600/30',
                 'paid' => 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-600/30',
             ];
-            return view('tenant.invoices.index', compact('invoices', 'properties', 'invoiceStatusLabels', 'statusStyles'));
+            return view('pages.invoices.index-tenant', compact('invoices', 'properties', 'invoiceStatusLabels', 'statusStyles'));
         }
         
         // Build invoice query filtered to assigned property
@@ -84,7 +84,7 @@ class InvoiceController extends Controller
             'paid' => 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-600/30',
         ];
 
-        return view('tenant.invoices.index', compact('invoices', 'properties', 'invoiceStatusLabels', 'statusStyles'));
+        return view('pages.invoices.index-tenant', compact('invoices', 'properties', 'invoiceStatusLabels', 'statusStyles'));
     }
 
     public function show(Request $request, Invoice $invoice)
@@ -135,7 +135,7 @@ class InvoiceController extends Controller
             return $reading;
         });
 
-        return view('tenant.invoices.show', compact('invoice', 'consumptionHistory'));
+        return view('pages.invoices.show-tenant', compact('invoice', 'consumptionHistory'));
     }
 
     public function pdf(Request $request, Invoice $invoice)
@@ -160,6 +160,6 @@ class InvoiceController extends Controller
 
         // Render receipt view; for now, return HTML until PDF generation is wired
         $invoice->load(['items', 'tenant.property']);
-        return view('tenant.invoices.receipt', compact('invoice'));
+        return view('pages.invoices.receipt-tenant', compact('invoice'));
     }
 }

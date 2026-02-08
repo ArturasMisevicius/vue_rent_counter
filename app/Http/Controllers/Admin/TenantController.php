@@ -34,7 +34,7 @@ class TenantController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('admin.tenants.index', compact('tenants'));
+        return view('pages.tenants.index-admin', compact('tenants'));
     }
 
     /**
@@ -51,7 +51,7 @@ class TenantController extends Controller
             ->orderBy('address')
             ->get();
 
-        return view('admin.tenants.create', compact('properties'));
+        return view('pages.tenants.create-admin', compact('properties'));
     }
 
     /**
@@ -112,7 +112,7 @@ class TenantController extends Controller
             ->take(5)
             ->get();
 
-        return view('admin.tenants.show', compact('tenant', 'assignmentHistory', 'recentInvoices'));
+        return view('pages.tenants.show-admin', compact('tenant', 'assignmentHistory', 'recentInvoices'));
     }
 
     /**
@@ -129,7 +129,7 @@ class TenantController extends Controller
             ->orderBy('address')
             ->get();
 
-        return view('admin.tenants.edit', compact('tenant', 'properties'));
+        return view('pages.tenants.edit-admin', compact('tenant', 'properties'));
     }
 
     /**
@@ -180,7 +180,7 @@ class TenantController extends Controller
             ->orderBy('address')
             ->get();
 
-        return view('admin.tenants.reassign', compact('tenant', 'properties'));
+        return view('pages.tenants.reassign-admin', compact('tenant', 'properties'));
     }
 
     /**

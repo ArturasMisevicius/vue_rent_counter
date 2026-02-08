@@ -35,7 +35,7 @@ test('admin can view settings page', function () {
     $response = $this->actingAs($this->admin)->get(route('admin.settings.index'));
 
     $response->assertStatus(200);
-    $response->assertViewIs('admin.settings.index');
+    $response->assertViewIs('pages.settings.index-admin');
     $response->assertSee(__('settings.title'));
     $response->assertSee(__('settings.system_info.title'));
     $response->assertSee(__('settings.maintenance.title'));

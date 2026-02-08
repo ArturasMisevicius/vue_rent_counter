@@ -58,7 +58,7 @@ class PropertyController extends Controller
         $buildings = Building::orderBy('address')->get();
         $propertyTypeLabels = PropertyType::labels();
 
-        return view('manager.properties.index', compact('properties', 'buildings', 'propertyTypeLabels'));
+        return view('pages.properties.index-manager', compact('properties', 'buildings', 'propertyTypeLabels'));
     }
 
     /**
@@ -71,7 +71,7 @@ class PropertyController extends Controller
         $buildings = Building::orderBy('address')->get();
         $propertyTypeOptions = PropertyType::labels();
 
-        return view('manager.properties.create', compact('buildings', 'propertyTypeOptions'));
+        return view('pages.properties.create-manager', compact('buildings', 'propertyTypeOptions'));
     }
 
     /**
@@ -99,7 +99,7 @@ class PropertyController extends Controller
             $query->latest('reading_date')->limit(1);
         }, 'meters.serviceConfiguration.utilityService']);
 
-        return view('manager.properties.show', compact('property'));
+        return view('pages.properties.show-manager', compact('property'));
     }
 
     /**
@@ -112,7 +112,7 @@ class PropertyController extends Controller
         $buildings = Building::orderBy('address')->get();
         $propertyTypeOptions = PropertyType::labels();
 
-        return view('manager.properties.edit', compact('property', 'buildings', 'propertyTypeOptions'));
+        return view('pages.properties.edit-manager', compact('property', 'buildings', 'propertyTypeOptions'));
     }
 
     /**

@@ -98,7 +98,7 @@ class MeterReadingController extends Controller
         // Get readings for grouping or pagination
         if ($groupBy === 'property') {
             $readings = $query->get()->groupBy('meter.property_id');
-            return view('manager.meter-readings.index', compact(
+            return view('pages.meter-readings.index-manager', compact(
                 'readings',
                 'groupBy',
                 'properties',
@@ -117,7 +117,7 @@ class MeterReadingController extends Controller
                 return 'type:' . (string) $reading->meter?->type?->value;
             });
 
-            return view('manager.meter-readings.index', compact(
+            return view('pages.meter-readings.index-manager', compact(
                 'readings',
                 'groupBy',
                 'properties',
@@ -127,7 +127,7 @@ class MeterReadingController extends Controller
             ));
         } else {
             $readings = $query->paginate(50);
-            return view('manager.meter-readings.index', compact(
+            return view('pages.meter-readings.index-manager', compact(
                 'readings',
                 'groupBy',
                 'properties',
@@ -174,7 +174,7 @@ class MeterReadingController extends Controller
         $properties = Property::with('meters')->orderBy('address')->get();
         $providers = \App\Models\Provider::all();
 
-        return view('manager.meter-readings.create', compact('meters', 'properties', 'providers'));
+        return view('pages.meter-readings.create-manager', compact('meters', 'properties', 'providers'));
     }
 
     /**
@@ -203,7 +203,7 @@ class MeterReadingController extends Controller
 
         $meterReading->load(['meter.property', 'enteredBy', 'auditTrail']);
 
-        return view('manager.meter-readings.show', compact('meterReading'));
+        return view('pages.meter-readings.show-manager', compact('meterReading'));
     }
 
     /**
@@ -215,7 +215,7 @@ class MeterReadingController extends Controller
 
         $meters = Meter::with('property')->orderBy('serial_number')->get();
 
-        return view('manager.meter-readings.edit', compact('meterReading', 'meters'));
+        return view('pages.meter-readings.edit-manager', compact('meterReading', 'meters'));
     }
 
     /**

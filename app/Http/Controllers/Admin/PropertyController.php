@@ -14,7 +14,7 @@ class PropertyController extends Controller
     {
         $this->assertTenantAccess($property);
 
-        return response()->view('admin.properties.show', [
+        return response()->view('pages.properties.show-admin', [
             'property' => $property,
         ]);
     }

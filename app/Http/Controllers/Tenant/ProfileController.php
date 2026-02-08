@@ -48,7 +48,7 @@ class ProfileController extends Controller
         // - parentUser: Admin/manager who created this tenant account
         $user->load(['property.building', 'parentUser']);
 
-        return view('tenant.profile.show', [
+        return view('pages.profile.show-tenant', [
             'languages' => Language::query()->active()->orderBy('display_order')->get(),
             'user' => $user,
         ]);

@@ -18,7 +18,7 @@ test('tenant can view profile page', function () {
         ->get(route('tenant.profile.show'));
 
     $response->assertOk()
-        ->assertViewIs('tenant.profile.show')
+        ->assertViewIs('pages.profile.show-tenant')
         ->assertViewHas('user', $this->tenant);
 });
 

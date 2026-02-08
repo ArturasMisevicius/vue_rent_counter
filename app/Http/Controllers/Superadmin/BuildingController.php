@@ -17,7 +17,7 @@ class BuildingController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('superadmin.buildings.index', compact('buildings'));
+        return view('pages.buildings.index-superadmin', compact('buildings'));
     }
 
     public function show(Building $building): View
@@ -38,7 +38,7 @@ class BuildingController extends Controller
         $tenants = $properties->flatMap->tenants->unique('id');
         $invoices = $tenants->flatMap->invoices->unique('id');
 
-        return view('superadmin.buildings.show', compact(
+        return view('pages.buildings.show-superadmin', compact(
             'building',
             'properties',
             'meters',

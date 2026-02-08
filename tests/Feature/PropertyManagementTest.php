@@ -19,7 +19,7 @@ test('manager can view properties list', function () {
     $response = $this->actingAs($manager)->get(route('manager.properties.index'));
 
     $response->assertOk();
-    $response->assertViewIs('manager.properties.index');
+    $response->assertViewIs('pages.properties.index-manager');
     $response->assertViewHas('properties');
 });
 
@@ -35,7 +35,7 @@ test('manager can view property details', function () {
     $response = $this->actingAs($manager)->get(route('manager.properties.show', $property));
 
     $response->assertOk();
-    $response->assertViewIs('manager.properties.show');
+    $response->assertViewIs('pages.properties.show-manager');
     $response->assertSee($property->address);
 });
 
@@ -49,7 +49,7 @@ test('manager can view create property form', function () {
     $response = $this->actingAs($manager)->get(route('manager.properties.create'));
 
     $response->assertOk();
-    $response->assertViewIs('manager.properties.create');
+    $response->assertViewIs('pages.properties.create-manager');
     $response->assertSee('Create Property');
 });
 
@@ -91,7 +91,7 @@ test('manager can view edit property form', function () {
     $response = $this->actingAs($manager)->get(route('manager.properties.edit', $property));
 
     $response->assertOk();
-    $response->assertViewIs('manager.properties.edit');
+    $response->assertViewIs('pages.properties.edit-manager');
     $response->assertSee($property->address);
 });
 
