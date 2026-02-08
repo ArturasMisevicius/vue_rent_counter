@@ -259,7 +259,7 @@ class OrganizationActivityLogResource extends Resource
                 ]),
             ])
             ->defaultSort('created_at', 'desc')
-            ->poll('30s');
+            ->poll('60s');
     }
 
     public static function getRelations(): array

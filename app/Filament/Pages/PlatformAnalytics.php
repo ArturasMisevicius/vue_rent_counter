@@ -322,15 +322,14 @@ class PlatformAnalytics extends Page
     {
         return Cache::remember('analytics_subscription_plan_changes', 3600, function () {
             try {
+                $monthExpression = $this->getPeriodExpression('monthly');
+
                 // Get plan changes from activity logs
                 $changes = DB::table('organization_activity_logs')
                     ->where('action', 'plan_changed')
                     ->where('created_at', '>=', now()->subMonths(6))
-                    ->select(
-                        DB::raw("strftime('%Y-%m', created_at) as month"),
-                        DB::raw('COUNT(*) as count')
-                    )
-                    ->groupBy('month')
+                    ->selectRaw("{$monthExpression} as month, COUNT(*) as count")
+                    ->groupByRaw($monthExpression)
                     ->orderBy('month')
                     ->get();
                 
@@ -477,11 +476,7 @@ class PlatformAnalytics extends Page
             $growth = [];
 
             foreach ($periods as $period) {
-                $dateFormat = match($period) {
-                    'daily' => '%Y-%m-%d',
-                    'weekly' => '%Y-W%W',
-                    'monthly' => '%Y-%m',
-                };
+                $periodExpression = $this->getPeriodExpression($period);
 
                 $days = match($period) {
                     'daily' => 30,
@@ -489,14 +484,10 @@ class PlatformAnalytics extends Page
                     'monthly' => 365, // 12 months
                 };
 
-                // Use strftime for SQLite compatibility
                 $properties = DB::table('properties')
-                    ->select(
-                        DB::raw("strftime('{$dateFormat}', created_at) as period"),
-                        DB::raw('COUNT(*) as count')
-                    )
+                    ->selectRaw("{$periodExpression} as period, COUNT(*) as count")
                     ->where('created_at', '>=', now()->subDays($days))
-                    ->groupBy('period')
+                    ->groupByRaw($periodExpression)
                     ->orderBy('period')
                     ->get();
 
@@ -547,13 +538,12 @@ class PlatformAnalytics extends Page
     {
         return Cache::remember('analytics_peak_activity', 3600, function () {
             try {
+                $hourExpression = $this->getHourExpression();
+
                 $hourly = DB::table('organization_activity_logs')
-                    ->select(
-                        DB::raw("CAST(strftime('%H', created_at) AS INTEGER) as hour"),
-                        DB::raw('COUNT(*) as count')
-                    )
+                    ->selectRaw("{$hourExpression} as hour, COUNT(*) as count")
                     ->where('created_at', '>=', now()->subDays(30))
-                    ->groupBy('hour')
+                    ->groupByRaw($hourExpression)
                     ->orderBy('hour')
                     ->get();
 
@@ -582,6 +572,38 @@ class PlatformAnalytics extends Page
                 ];
             }
         });
+    }
+
+    private function getPeriodExpression(string $period): string
+    {
+        $driver = DB::connection()->getDriverName();
+
+        return match ($driver) {
+            'sqlite' => match ($period) {
+                'daily' => "strftime('%Y-%m-%d', created_at)",
+                'weekly' => "strftime('%Y-W%W', created_at)",
+                default => "strftime('%Y-%m', created_at)",
+            },
+            'pgsql' => match ($period) {
+                'daily' => "to_char(created_at, 'YYYY-MM-DD')",
+                'weekly' => "to_char(created_at, 'IYYY-\"W\"IW')",
+                default => "to_char(created_at, 'YYYY-MM')",
+            },
+            default => match ($period) {
+                'daily' => "DATE_FORMAT(created_at, '%Y-%m-%d')",
+                'weekly' => "DATE_FORMAT(created_at, '%x-W%v')",
+                default => "DATE_FORMAT(created_at, '%Y-%m')",
+            },
+        };
+    }
+
+    private function getHourExpression(): string
+    {
+        return match (DB::connection()->getDriverName()) {
+            'sqlite' => "CAST(strftime('%H', created_at) AS INTEGER)",
+            'pgsql' => 'EXTRACT(HOUR FROM created_at)::int',
+            default => 'HOUR(created_at)',
+        };
     }
 
     /**

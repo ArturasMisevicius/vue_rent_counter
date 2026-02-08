@@ -215,7 +215,7 @@ class NotificationHistory extends Page implements HasTable
                 ]),
             ])
             ->defaultSort('created_at', 'desc')
-            ->poll('30s'); // Auto-refresh every 30 seconds
+            ->poll('60s'); // Auto-refresh every 60 seconds
     }
 
     protected function getHeaderWidgets(): array

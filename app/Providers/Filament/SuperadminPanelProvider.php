@@ -123,7 +123,7 @@ final class SuperadminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop(true)
             ->sidebarFullyCollapsibleOnDesktop(false)
             ->databaseNotifications()
-            ->databaseNotificationsPolling('30s');
+            ->databaseNotificationsPolling('60s');
     }
 
     /**

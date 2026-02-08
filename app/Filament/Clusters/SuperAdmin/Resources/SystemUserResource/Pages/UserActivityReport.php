@@ -263,7 +263,7 @@ final class UserActivityReport extends Page implements HasTable
                     ->modalWidth('2xl'),
             ])
             ->defaultSort('created_at', 'desc')
-            ->poll('30s')
+            ->poll('60s')
             ->striped();
     }
 

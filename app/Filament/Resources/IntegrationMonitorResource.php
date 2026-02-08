@@ -136,7 +136,7 @@ class IntegrationMonitorResource extends Resource
                             ->send();
                     }),
             ])
-            ->poll('30s');
+            ->poll('60s');
     }
     
     protected static function getIntegrationStatusQuery()

@@ -303,7 +303,7 @@ final class IntegrationHealthResource extends Resource
                 ]),
             ])
             ->defaultSort('checked_at', 'desc')
-            ->poll('30s')
+            ->poll('60s')
             ->deferLoading()
             ->striped();
     }
