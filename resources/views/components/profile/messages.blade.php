@@ -2,12 +2,6 @@
     'errorTitle',
 ])
 
-@if(session('success'))
-    <x-alert type="success" :dismissible="false">
-        {{ session('success') }}
-    </x-alert>
-@endif
-
 @if($errors->any())
     <x-alert type="error" :dismissible="false">
         <p class="text-sm font-semibold text-rose-800">{{ $errorTitle }}</p>
