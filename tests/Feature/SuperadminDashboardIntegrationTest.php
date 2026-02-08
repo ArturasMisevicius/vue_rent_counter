@@ -24,12 +24,12 @@ class SuperadminDashboardIntegrationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->superadmin = User::factory()->create([
             'role' => UserRole::SUPERADMIN,
             'tenant_id' => null,
         ]);
-        
+
         Cache::flush();
     }
 
@@ -68,7 +68,7 @@ class SuperadminDashboardIntegrationTest extends TestCase
             ->get('/superadmin/dashboard');
 
         $response->assertStatus(200);
-        
+
         // Check that subscription stats are displayed
         $response->assertSee('Total Subscriptions');
         $response->assertSee('10'); // Total count
@@ -89,7 +89,7 @@ class SuperadminDashboardIntegrationTest extends TestCase
             ->get('/superadmin/dashboard');
 
         $response->assertStatus(200);
-        
+
         // Check that organization stats are displayed
         $response->assertSee('Total Organizations');
         $response->assertSee('10'); // Total count
@@ -119,7 +119,7 @@ class SuperadminDashboardIntegrationTest extends TestCase
             ->get('/superadmin/dashboard');
 
         $response->assertStatus(200);
-        
+
         // Check that system health is displayed
         $response->assertSee('System Health');
         $response->assertSee('Database');
@@ -130,7 +130,7 @@ class SuperadminDashboardIntegrationTest extends TestCase
     public function dashboard_displays_expiring_subscriptions(): void
     {
         $user = User::factory()->create();
-        
+
         // Create subscription expiring in 10 days
         Subscription::factory()->create([
             'user_id' => $user->id,
@@ -149,7 +149,7 @@ class SuperadminDashboardIntegrationTest extends TestCase
             ->get('/superadmin/dashboard');
 
         $response->assertStatus(200);
-        
+
         // Check that expiring subscriptions widget is displayed
         $response->assertSee('Expiring Subscriptions');
         $response->assertSee('10 days'); // Should show the subscription expiring in 10 days
@@ -174,7 +174,7 @@ class SuperadminDashboardIntegrationTest extends TestCase
             ->get('/superadmin/dashboard');
 
         $response->assertStatus(200);
-        
+
         // Check that recent activity is displayed
         $response->assertSee('Recent Activity');
         $response->assertSee('property_created');
@@ -194,7 +194,7 @@ class SuperadminDashboardIntegrationTest extends TestCase
             ->get('/superadmin/dashboard');
 
         $response->assertStatus(200);
-        
+
         // Check that top organizations chart is displayed
         $response->assertSee('Top Organizations');
         $response->assertSee('Top Organization');
@@ -207,7 +207,7 @@ class SuperadminDashboardIntegrationTest extends TestCase
             ->get('/superadmin/dashboard');
 
         $response->assertStatus(200);
-        
+
         // Check that quick action buttons are present
         $response->assertSee('Create Organization');
         $response->assertSee('Create Subscription');
@@ -236,20 +236,20 @@ class SuperadminDashboardIntegrationTest extends TestCase
     {
         // Create test data
         Organization::factory()->count(5)->create();
-        
+
         // First request should cache the data
         $response1 = $this->actingAs($this->superadmin)
             ->get('/superadmin/dashboard');
-        
+
         $response1->assertStatus(200);
-        
+
         // Verify cache keys exist
         $this->assertTrue(Cache::has('superadmin_dashboard_organizations_stats'));
-        
+
         // Second request should use cached data
         $response2 = $this->actingAs($this->superadmin)
             ->get('/superadmin/dashboard');
-        
+
         $response2->assertStatus(200);
     }
 
@@ -257,12 +257,12 @@ class SuperadminDashboardIntegrationTest extends TestCase
     public function dashboard_handles_empty_data_gracefully(): void
     {
         // No test data created - dashboard should handle empty state
-        
+
         $response = $this->actingAs($this->superadmin)
             ->get('/superadmin/dashboard');
 
         $response->assertStatus(200);
-        
+
         // Should show zero counts
         $response->assertSee('0'); // Should appear in various stat widgets
         $response->assertSee('No data available'); // Empty state message
@@ -275,7 +275,7 @@ class SuperadminDashboardIntegrationTest extends TestCase
             ->get('/superadmin/dashboard');
 
         $response->assertStatus(200);
-        
+
         // Check that Livewire polling is set up for widgets
         $response->assertSee('wire:poll');
     }
@@ -287,7 +287,7 @@ class SuperadminDashboardIntegrationTest extends TestCase
             ->get('/superadmin/dashboard');
 
         $response->assertStatus(200);
-        
+
         // Check for responsive grid classes
         $response->assertSee('grid');
         $response->assertSee('md:grid-cols-2');
@@ -302,7 +302,7 @@ class SuperadminDashboardIntegrationTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson(['status' => 'success']);
-        
+
         // Verify health metrics were created/updated
         $this->assertDatabaseHas('system_health_metrics', [
             'metric_type' => 'database',
@@ -316,7 +316,7 @@ class SuperadminDashboardIntegrationTest extends TestCase
             ->get('/superadmin/dashboard');
 
         $response->assertStatus(200);
-        
+
         // Check navigation links to other superadmin pages
         $response->assertSee('Organizations');
         $response->assertSee('Subscriptions');

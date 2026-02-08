@@ -20,15 +20,15 @@ use Illuminate\Support\Collection;
 
 /**
  * Tenant Meter Reading Controller
- * 
+ *
  * Handles meter reading operations for tenant users:
  * - Viewing meter reading history
  * - Submitting new meter readings
  * - Viewing individual meter reading details
- * 
+ *
  * Authorization: All actions require authenticated tenant user with assigned property
  * Multi-tenancy: Enforced via TenantScope and property ownership validation
- * 
+ *
  * @see MeterReadingService For business logic
  * @see StoreMeterReadingRequest For validation rules
  */
@@ -42,19 +42,16 @@ class MeterReadingController extends Controller
 
     /**
      * Display paginated list of meter readings for the authenticated tenant.
-     * 
+     *
      * Performance: Eager loads meter relationship to prevent N+1 queries
      * Authorization: Only shows readings for tenant's assigned property
-     * 
-     * @param Request $request
-     * @return View
      */
     public function index(Request $request): View
     {
         $user = $request->user();
         $property = $user->property;
 
-        if (!$property) {
+        if (! $property) {
             $readings = new LengthAwarePaginator([], 0, self::READINGS_PER_PAGE);
             $properties = collect();
             $meterTypeLabels = MeterType::labels();
@@ -108,12 +105,8 @@ class MeterReadingController extends Controller
 
     /**
      * Display a specific meter reading.
-     * 
+     *
      * Authorization: Verifies reading belongs to tenant's assigned property
-     * 
-     * @param Request $request
-     * @param MeterReading $meterReading
-     * @return View
      */
     public function show(Request $request, MeterReading $meterReading): View
     {
@@ -127,12 +120,9 @@ class MeterReadingController extends Controller
 
     /**
      * Store a new meter reading submitted by tenant.
-     * 
+     *
      * Validation: Handled by StoreMeterReadingRequest (monotonicity, zone support)
      * Notification: Sends email to parent user (admin) upon successful submission
-     * 
-     * @param StoreMeterReadingRequest $request
-     * @return RedirectResponse
      */
     public function store(StoreMeterReadingRequest $request): RedirectResponse
     {
@@ -165,13 +155,10 @@ class MeterReadingController extends Controller
 
     /**
      * Get property or fail with 403.
-     * 
-     * @param User $user
-     * @return Property
      */
     private function getPropertyOrFail(User $user): Property
     {
-        if (!$user->property) {
+        if (! $user->property) {
             abort(403, __('meter_readings.errors.no_property_assigned'));
         }
 
@@ -180,13 +167,10 @@ class MeterReadingController extends Controller
 
     /**
      * Get properties collection for meter reading submission form.
-     * 
-     * @param Property|null $property
-     * @return Collection
      */
     private function getPropertiesForSubmission(?Property $property): Collection
     {
-        if (!$property) {
+        if (! $property) {
             return collect();
         }
 
@@ -196,26 +180,18 @@ class MeterReadingController extends Controller
 
     /**
      * Authorize tenant access to meter reading.
-     * 
-     * @param User $user
-     * @param MeterReading $meterReading
-     * @return void
      */
     private function authorizeReadingAccess(User $user, MeterReading $meterReading): void
     {
         $property = $user->property;
 
-        if (!$property || $meterReading->meter->property_id !== $property->id) {
+        if (! $property || $meterReading->meter->property_id !== $property->id) {
             abort(403, __('meter_readings.errors.unauthorized_access'));
         }
     }
 
     /**
      * Notify parent user about meter reading submission.
-     * 
-     * @param User $user
-     * @param MeterReading $reading
-     * @return void
      */
     private function notifyParentUser(User $user, MeterReading $reading): void
     {

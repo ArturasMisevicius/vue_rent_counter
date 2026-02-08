@@ -246,7 +246,7 @@ return [
             ],
         ],
     ],
-    
+
     // Universal Utility Dashboard Translations
     'utility_analytics' => 'Komunalinių paslaugų analitika',
     'efficiency_trends' => 'Efektyvumo tendencijos',
@@ -257,7 +257,7 @@ return [
     'service_breakdown' => 'Paslaugų paskirstymas',
     'utility_services_overview' => 'Komunalinių paslaugų apžvalga',
     'recent_activity' => 'Naujausios veiklos',
-    
+
     // Stats and Metrics
     'stats' => [
         'total_properties' => 'Iš viso objektų',
@@ -265,7 +265,7 @@ return [
         'monthly_cost' => 'Mėnesio išlaidos',
         'pending_readings' => 'Laukiantys rodmenys',
     ],
-    
+
     // Filters
     'filters' => [
         'last_3_months' => 'Paskutinius 3 mėnesius',
@@ -275,7 +275,7 @@ return [
         'current_month' => 'Dabartinis mėnuo',
         'last_month' => 'Praėjęs mėnuo',
     ],
-    
+
     // Cost Tracking
     'current_month_cost' => 'Dabartinio mėnesio išlaidos',
     'year_to_date_cost' => 'Metų išlaidos iki šiol',
@@ -283,7 +283,7 @@ return [
     'from_last_month' => 'nuo praėjusio mėnesio',
     'total_this_year' => 'iš viso šiais metais',
     'last_6_months_average' => 'paskutinių 6 mėnesių vidurkis',
-    
+
     // Real-Time Cost Widget
     'today_projection' => 'Šiandienos prognozė',
     'current' => 'Dabartinis',
@@ -294,12 +294,12 @@ return [
     'no_recent_readings' => 'Nėra naujausių rodmenų',
     'last_updated' => 'Paskutinį kartą atnaujinta',
     'never' => 'Niekada',
-    
+
     // Chart Labels
     'consumption_units' => 'Suvartojimas (vienetai)',
     'months' => 'Mėnesiai',
     'meters' => 'skaitikliai',
-    
+
     // Trends and Analysis
     'trend_increasing' => 'Didėja',
     'trend_decreasing' => 'Mažėja',
@@ -312,13 +312,13 @@ return [
     'peak_usage' => 'Didžiausias naudojimas',
     'weekly_pattern' => 'Savaitės šablonas',
     'monthly_trend' => 'Mėnesio tendencija',
-    
+
     // Empty States
     'no_efficiency_data' => 'Nėra efektyvumo duomenų',
     'no_prediction_data' => 'Nėra prognozės duomenų',
     'no_pattern_data' => 'Nėra naudojimo šablono duomenų',
     'no_recommendations' => 'Šiuo metu nėra rekomendacijų',
-    
+
     // Recommendations
     'missing_readings_title' => 'Trūksta :service rodmenų',
     'missing_readings_desc' => 'Nerasta naujausių rodmenų :property',
@@ -424,18 +424,18 @@ return [
         'change_history' => 'Pakeitimų istorija',
         'rollback_management' => 'Atkūrimo valdymas',
         'rollback_history' => 'Atkūrimo istorija',
-        
+
         // Anomaly Actions
         'anomaly_marked_investigating' => 'Anomalija pažymėta kaip tiriama',
         'anomaly_resolved' => 'Anomalija išspręsta',
         'anomaly_ignored' => 'Anomalija ignoruota',
-        
+
         // Status
         'status' => 'Būsena',
         'last_check' => 'Paskutinė patikra',
         'issues' => 'Problemos',
         'no_issues' => 'Problemų nėra',
-        
+
         // Stats and Metrics
         'total_changes' => 'Iš viso pakeitimų',
         'user_changes' => 'Vartotojų pakeitimai',
@@ -452,7 +452,7 @@ return [
         'last_30_days' => 'Paskutinės 30 dienų',
         'date' => 'Data',
         'number_of_changes' => 'Pakeitimų skaičius',
-        
+
         // Status Messages
         'view_details' => 'Žiūrėti detales',
         'no_anomalies' => 'Anomalijų neaptikta',
@@ -466,7 +466,7 @@ return [
         'fully_compliant' => 'Visiškai atitinka',
         'non_compliant' => 'Neatitinka',
         'unknown_status' => 'Nežinoma būsena',
-        
+
         // Modal Titles
         'change_details' => 'Pakeitimo detalės',
         'rollback_details' => 'Atkūrimo detalės',
@@ -476,7 +476,7 @@ return [
         'bulk_rollback_warning' => 'Tai atkurs kelias konfigūracijas. Įsitikinkite, kad tai yra numatyta.',
         'revert_rollback_confirmation' => 'Patvirtinti atkūrimo atšaukimą',
         'revert_rollback_warning' => 'Tai atšauks atkūrimo operaciją. Naudokite atsargiai.',
-        
+
         // Labels
         'labels' => [
             'severity' => 'Sunkumas',
@@ -508,7 +508,7 @@ return [
             'revert_reason' => 'Atšaukimo priežastis',
             'select_changes' => 'Pasirinkti pakeitimus',
         ],
-        
+
         // Events
         'events' => [
             'created' => 'Sukurta',
@@ -516,13 +516,13 @@ return [
             'deleted' => 'Ištrinta',
             'rollback' => 'Atkūrimas',
         ],
-        
+
         // Models
         'models' => [
             'utility_service' => 'Komunalinė paslauga',
             'service_configuration' => 'Paslaugos konfigūracija',
         ],
-        
+
         // Time Periods
         'periods' => [
             'today' => 'Šiandien',
@@ -531,7 +531,7 @@ return [
             'this_quarter' => 'Šį ketvirtį',
             'this_year' => 'Šiais metais',
         ],
-        
+
         // Actions
         'actions' => [
             'export_details' => 'Eksportuoti detales',
@@ -543,14 +543,14 @@ return [
             'bulk_rollback' => 'Masinis atkūrimas',
             'revert_rollback' => 'Atšaukti atkūrimą',
         ],
-        
+
         // Placeholders
         'placeholders' => [
             'rollback_reason' => 'Paaiškinkite, kodėl ši konfigūracija turėtų būti atkurta...',
             'bulk_rollback_reason' => 'Paaiškinkite, kodėl šios konfigūracijos turėtų būti atkurtos...',
             'revert_reason' => 'Paaiškinkite, kodėl šis atkūrimas turėtų būti atšauktas...',
         ],
-        
+
         // Notifications
         'notifications' => [
             'rollback_success' => 'Konfigūracija sėkmingai atkurta',
@@ -581,7 +581,7 @@ return [
                 'action' => 'Žiūrėti atitikties skydelį',
             ],
         ],
-        
+
         // Anomaly Types
         'anomaly_types' => [
             'high_change_frequency' => 'Didelis pakeitimų dažnis',
@@ -591,7 +591,7 @@ return [
             'data_integrity_issue' => 'Duomenų vientisumo problema',
             'performance_degradation' => 'Našumo pablogėjimas',
         ],
-        
+
         // Compliance Categories
         'compliance_categories' => [
             'audit_trail' => 'Audito pėdsakas',
@@ -600,7 +600,7 @@ return [
             'security' => 'Saugumo atitikimas',
             'data_quality' => 'Duomenų kokybė',
         ],
-        
+
         // Recommendations
         'recommendations' => [
             'investigate_changes' => 'Tirti naujausius pakeitimus',

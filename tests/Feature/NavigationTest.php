@@ -1,14 +1,14 @@
 <?php
 
-use App\Models\User;
 use App\Enums\UserRole;
 use App\Models\Property;
+use App\Models\User;
 
 test('admin sees admin navigation items', function () {
     $admin = User::factory()->create(['role' => UserRole::ADMIN]);
-    
+
     $response = $this->actingAs($admin)->get(route('admin.dashboard'));
-    
+
     $response->assertOk();
     $response->assertSee(route('admin.dashboard'));
     $response->assertSee(route('admin.users.index'));
@@ -19,9 +19,9 @@ test('admin sees admin navigation items', function () {
 
 test('manager sees manager navigation items', function () {
     $manager = User::factory()->create(['role' => UserRole::MANAGER]);
-    
+
     $response = $this->actingAs($manager)->get(route('manager.dashboard'));
-    
+
     $response->assertOk();
     $response->assertSee(route('manager.dashboard'));
     $response->assertSee(route('manager.properties.index'));
@@ -39,9 +39,9 @@ test('tenant sees tenant navigation items', function () {
         'tenant_id' => 1,
         'property_id' => $property->id,
     ]);
-    
+
     $response = $this->actingAs($tenant)->get(route('tenant.dashboard'));
-    
+
     $response->assertOk();
     $response->assertSee(route('tenant.dashboard'));
     $response->assertSee(route('tenant.property.show'));
@@ -53,27 +53,27 @@ test('tenant sees tenant navigation items', function () {
 
 test('navigation includes logout button for admin', function () {
     $admin = User::factory()->create(['role' => UserRole::ADMIN]);
-    
+
     $response = $this->actingAs($admin)->get(route('admin.dashboard'));
-    
+
     $response->assertOk();
     $response->assertSee('Logout');
 });
 
 test('navigation includes logout button for manager', function () {
     $manager = User::factory()->create(['role' => UserRole::MANAGER]);
-    
+
     $response = $this->actingAs($manager)->get(route('manager.dashboard'));
-    
+
     $response->assertOk();
     $response->assertSee('Logout');
 });
 
 test('navigation includes logout button for tenant', function () {
     $tenant = User::factory()->create(['role' => UserRole::TENANT]);
-    
+
     $response = $this->actingAs($tenant)->get(route('tenant.dashboard'));
-    
+
     $response->assertOk();
     $response->assertSee('Logout');
 });
