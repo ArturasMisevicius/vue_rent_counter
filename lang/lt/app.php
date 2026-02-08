@@ -43,6 +43,21 @@ return array (
     'error_title' => 'Klaida',
     'generic' => 'Įvyko klaida',
   ),
+  'auth' =>
+  array (
+    'login_page' =>
+    array (
+      'click_hint' => 'Spustelėkite eilutę, kad automatiškai užpildytumėte prisijungimo duomenis',
+      'no_users' => 'Vartotojų nėra',
+      'status_active' => 'Aktyvus',
+      'status_inactive' => 'Neaktyvus',
+      'total_users' => 'Iš viso vartotojų:',
+    ),
+  ),
+  'meta' =>
+  array (
+    'default_title' => 'Vilniaus komunalinių paslaugų valdymo platforma',
+  ),
   'labels' => 
   array (
     'property' => 'Turtas',

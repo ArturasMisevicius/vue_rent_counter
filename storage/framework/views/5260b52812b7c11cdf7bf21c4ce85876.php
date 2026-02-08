@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <title>Login - Vilnius Utilities · Rent Counter</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
 </head>
 <body class="bg-slate-950 text-slate-50 antialiased">
 
@@ -17,7 +17,7 @@
     </div>
 
     <header class="relative max-w-6xl mx-auto px-6 pt-10 flex items-center justify-between">
-        <a href="{{ url('/') }}" class="flex items-center gap-3">
+        <a href="<?php echo e(url('/')); ?>" class="flex items-center gap-3">
             <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-400 text-white font-display text-xl shadow-glow">V</span>
             <div class="leading-tight">
                 <p class="text-[11px] uppercase tracking-[0.22em] text-slate-300">Vilnius Utilities</p>
@@ -25,7 +25,7 @@
             </div>
         </a>
 
-        <a href="{{ url('/') }}" class="text-sm font-semibold text-slate-200 hover:text-white">
+        <a href="<?php echo e(url('/')); ?>" class="text-sm font-semibold text-slate-200 hover:text-white">
             ← Back to Home
         </a>
     </header>
@@ -50,28 +50,29 @@
                 <div class="absolute inset-0 rounded-3xl bg-gradient-to-r from-indigo-500/10 via-transparent to-sky-500/10 opacity-50"></div>
                 
                 <div class="relative">
-                    @if ($errors->any())
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($errors->any()): ?>
                         <div class="mb-6 rounded-2xl border border-red-500/30 bg-red-500/10 backdrop-blur px-4 py-3 text-sm text-red-200 shadow-lg">
-                            @foreach ($errors->all() as $error)
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <p class="flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    {{ $error }}
-                                </p>
-                            @endforeach
-                        </div>
-                    @endif
+                                    <?php echo e($error); ?>
 
-                    <form method="POST" action="{{ route('login.post') }}" class="space-y-6">
-                        @csrf
+                                </p>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        </div>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                    <form method="POST" action="<?php echo e(route('login.post')); ?>" class="space-y-6">
+                        <?php echo csrf_field(); ?>
                         <div>
                             <label for="email" class="block text-sm font-semibold text-white mb-2.5">Email Address</label>
                             <input 
                                 type="email" 
                                 id="email" 
                                 name="email" 
-                                value="{{ old('email') }}" 
+                                value="<?php echo e(old('email')); ?>" 
                                 required 
                                 autofocus
                                 class="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-200 hover:bg-white/15"
@@ -169,60 +170,66 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-white/5">
-                                @forelse($users as $user)
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                     <tr 
                                         class="transition-all duration-200 cursor-pointer"
-                                        onclick="document.getElementById('email').value = '{{ $user->email }}'; document.getElementById('password').value = 'password'; document.getElementById('email').focus();"
+                                        onclick="document.getElementById('email').value = '<?php echo e($user->email); ?>'; document.getElementById('password').value = 'password'; document.getElementById('email').focus();"
                                     >
                                         <td class="px-5 py-4 text-white font-medium">
                                             <div class="flex items-center gap-3">
                                                 <div class="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-400 to-sky-400 flex items-center justify-center text-white font-semibold text-xs">
-                                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                                    <?php echo e(strtoupper(substr($user->name, 0, 1))); ?>
+
                                                 </div>
-                                                {{ $user->name }}
+                                                <?php echo e($user->name); ?>
+
                                             </div>
                                         </td>
                                         <td class="px-5 py-4 text-slate-300 font-mono text-xs">
-                                            {{ $user->email }}
+                                            <?php echo e($user->email); ?>
+
                                         </td>
                                         <td class="px-5 py-4 text-slate-300 font-mono text-xs">
                                             password
                                         </td>
                                         <td class="px-5 py-4">
                                             <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold
-                                                @if($user->role->value === 'superadmin') bg-purple-500/20 text-purple-200 ring-1 ring-purple-500/40
-                                                @elseif($user->role->value === 'admin') bg-indigo-500/20 text-indigo-200 ring-1 ring-indigo-500/40
-                                                @elseif($user->role->value === 'manager') bg-sky-500/20 text-sky-200 ring-1 ring-sky-500/40
-                                                @else bg-slate-500/20 text-slate-200 ring-1 ring-slate-500/40
-                                                @endif
+                                                <?php if($user->role->value === 'superadmin'): ?> bg-purple-500/20 text-purple-200 ring-1 ring-purple-500/40
+                                                <?php elseif($user->role->value === 'admin'): ?> bg-indigo-500/20 text-indigo-200 ring-1 ring-indigo-500/40
+                                                <?php elseif($user->role->value === 'manager'): ?> bg-sky-500/20 text-sky-200 ring-1 ring-sky-500/40
+                                                <?php else: ?> bg-slate-500/20 text-slate-200 ring-1 ring-slate-500/40
+                                                <?php endif; ?>
                                             ">
-                                                {{ ucfirst($user->role->value) }}
+                                                <?php echo e(ucfirst($user->role->value)); ?>
+
                                             </span>
                                         </td>
                                         <td class="px-5 py-4 text-center">
-                                            @if($user->is_active)
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($user->is_active): ?>
                                                 <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-200 ring-1 ring-emerald-500/40">
                                                     <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                                    {{ __('app.auth.login_page.status_active') }}
+                                                    <?php echo e(__('app.auth.login_page.status_active')); ?>
+
                                                 </span>
-                                            @else
+                                            <?php else: ?>
                                                 <span class="inline-flex items-center gap-1.5 rounded-full bg-red-500/20 px-3 py-1.5 text-xs font-semibold text-red-200 ring-1 ring-red-500/40">
                                                     <span class="h-1.5 w-1.5 rounded-full bg-red-400"></span>
-                                                    {{ __('app.auth.login_page.status_inactive') }}
+                                                    <?php echo e(__('app.auth.login_page.status_inactive')); ?>
+
                                                 </span>
-                                            @endif
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                         </td>
                                     </tr>
-                                @empty
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                     <tr>
                                         <td colspan="5" class="px-5 py-12 text-center text-slate-400">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                             </svg>
-                                            <p>{{ __('app.auth.login_page.no_users') }}</p>
+                                            <p><?php echo e(__('app.auth.login_page.no_users')); ?></p>
                                         </td>
                                     </tr>
-                                @endforelse
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -230,10 +237,11 @@
                     <div class="border-t border-white/10 bg-slate-900/50 backdrop-blur px-5 py-4">
                         <div class="flex items-center justify-between">
                             <p class="text-xs text-slate-400">
-                                {{ __('app.auth.login_page.total_users') }} <span class="font-semibold text-white">{{ $users->count() }}</span>
+                                <?php echo e(__('app.auth.login_page.total_users')); ?> <span class="font-semibold text-white"><?php echo e($users->count()); ?></span>
                             </p>
                             <p class="text-xs text-slate-400">
-                                {{ __('app.auth.login_page.click_hint') }}
+                                <?php echo e(__('app.auth.login_page.click_hint')); ?>
+
                             </p>
                         </div>
                     </div>
@@ -245,3 +253,4 @@
 
 </body>
 </html>
+<?php /**PATH /Users/andrejprus/Library/CloudStorage/Dropbox/projects/rentcounter/resources/views/auth/login.blade.php ENDPATH**/ ?>

@@ -54,6 +54,7 @@ final class InvoiceTest extends TestCase
         $expectedFillable = [
             'tenant_id',
             'tenant_renter_id',
+            'billing_record_id',
             'invoice_number',
             'billing_period_start',
             'billing_period_end',
@@ -65,6 +66,21 @@ final class InvoiceTest extends TestCase
             'payment_reference',
             'paid_amount',
             'overdue_notified_at',
+            'generated_at',
+            'generated_by',
+            'items',
+            'snapshot_data',
+            'snapshot_created_at',
+            'approval_status',
+            'automation_level',
+            'approval_deadline',
+            'approval_metadata',
+            'approved_by',
+            'approved_at',
+            'currency_id',
+            'original_currency_id',
+            'exchange_rate',
+            'conversion_date',
         ];
 
         $this->assertEquals($expectedFillable, $invoice->getFillable());
@@ -153,16 +169,18 @@ final class InvoiceTest extends TestCase
     {
         $invoice = Invoice::factory()->create([
             'tenant_id' => 1,
+            'items' => null, // Ensure JSON items column is null
         ]);
 
         InvoiceItem::factory()->count(3)->create([
             'invoice_id' => $invoice->id,
         ]);
 
-        $invoice->load('items');
+        // Access relationship via method to avoid conflict with 'items' column
+        $relatedItems = $invoice->items()->get();
 
-        $this->assertCount(3, $invoice->items);
-        $this->assertInstanceOf(InvoiceItem::class, $invoice->items->first());
+        $this->assertCount(3, $relatedItems);
+        $this->assertInstanceOf(InvoiceItem::class, $relatedItems->first());
     }
 
     /** @test */

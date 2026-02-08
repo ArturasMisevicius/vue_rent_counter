@@ -50,6 +50,21 @@ return array (
     'view' => 'View',
     'back' => 'Back',
   ),
+  'auth' =>
+  array (
+    'login_page' =>
+    array (
+      'click_hint' => 'Click a row to autofill credentials',
+      'no_users' => 'No users available',
+      'status_active' => 'Active',
+      'status_inactive' => 'Inactive',
+      'total_users' => 'Total users:',
+    ),
+  ),
+  'meta' =>
+  array (
+    'default_title' => 'Vilnius Utilities Management Platform',
+  ),
   'labels' => 
   array (
     'property' => 'Property',
