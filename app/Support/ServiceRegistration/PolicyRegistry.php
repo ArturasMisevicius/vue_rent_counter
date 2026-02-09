@@ -246,6 +246,29 @@ final readonly class PolicyRegistry implements \App\Contracts\ServiceRegistratio
                     'method' => $method,
                 ]);
             } catch (\Throwable $e) {
+                if (app()->runningInConsole()) dump("Policy class {$policy} does not exist");
+                $errors[$gate] = "Policy class {$policy} does not exist";
+                $skipped++;
+                continue;
+            }
+            
+            if (!method_exists($policy, $method)) {
+                if (app()->runningInConsole()) dump("Method {$method} does not exist on {$policy}");
+                $errors[$gate] = "Method {$method} does not exist on {$policy}";
+                $skipped++;
+                continue;
+            }
+            
+            try {
+                Gate::define($gate, [$policy, $method]);
+                $registered++;
+                
+                Log::debug("Registered gate", [
+                    'gate' => $gate,
+                    'policy' => $policy,
+                    'method' => $method,
+                ]);
+            } catch (\Throwable $e) {
                 $errors[$gate] = "Failed to register gate: {$e->getMessage()}";
                 $skipped++;
                 

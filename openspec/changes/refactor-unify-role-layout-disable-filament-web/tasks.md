@@ -20,4 +20,4 @@
 ## 5. Validation and Quality Gates
 - [x] 5.1 Run `php artisan route:list` checks to confirm role route map and absence of Filament panel routes.
 - [x] 5.2 Run targeted feature tests for role route access and dashboard/page rendering.
-- [ ] 5.3 Run full test suite and formatting checks; fix regressions before completion. (Formatting completed via `vendor/bin/pint --dirty`; targeted suites pass, but full `php artisan test --compact` currently reports a large set of existing failures in this worktree and was interrupted.)
+- [ ] 5.3 Run full test suite and formatting checks; fix regressions before completion. (Formatting completed via `vendor/bin/pint --dirty`; targeted suites pass. Full `php artisan test --compact` was re-run and produced a large set of existing failures across the suite, so this item remains blocked until those regressions are addressed.)

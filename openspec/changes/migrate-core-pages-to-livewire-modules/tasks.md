@@ -1,6 +1,6 @@
 ## 1. Baseline and Safety Tests
-- [ ] 1.1 Add feature tests for role-based access and successful rendering of `profile`, `dashboard`, and `settings` routes.
-- [ ] 1.2 Add regression tests that assert each migrated route renders exactly one canonical page shell (no duplicate full-page blocks).
+- [x] 1.1 Add feature tests for role-based access and successful rendering of `profile`, `dashboard`, and `settings` routes.
+- [x] 1.2 Add regression tests that assert each migrated route renders exactly one canonical page shell (no duplicate full-page blocks).
 - [ ] 1.3 Add/adjust tests for profile and settings update validation/messages to preserve current behavior.
 
 ## 2. Profile Module Migration

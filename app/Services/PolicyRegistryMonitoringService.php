@@ -166,22 +166,26 @@ final readonly class PolicyRegistryMonitoringService
      */
     public function recordRegistrationMetrics(float $duration, int $errors): void
     {
-        // Record registration time
-        $times = Cache::get(self::CACHE_PREFIX . '.registration_times', []);
-        $times[] = $duration * 1000; // Convert to milliseconds
-        
-        // Keep only last 100 measurements
-        if (count($times) > 100) {
-            $times = array_slice($times, -100);
+        try {
+            // Record registration time
+            $times = Cache::get(self::CACHE_PREFIX . '.registration_times', []);
+            $times[] = $duration * 1000; // Convert to milliseconds
+            
+            // Keep only last 100 measurements
+            if (count($times) > 100) {
+                $times = array_slice($times, -100);
+            }
+            
+            Cache::put(self::CACHE_PREFIX . '.registration_times', $times, self::METRICS_TTL);
+            
+            // Record error metrics
+            if ($errors > 0) {
+                Cache::increment(self::CACHE_PREFIX . '.errors_24h');
+            }
+            Cache::increment(self::CACHE_PREFIX . '.operations_24h');
+        } catch (\Throwable $e) {
+            // Silently fail if cache is not available (e.g. during early test boot)
         }
-        
-        Cache::put(self::CACHE_PREFIX . '.registration_times', $times, self::METRICS_TTL);
-        
-        // Record error metrics
-        if ($errors > 0) {
-            Cache::increment(self::CACHE_PREFIX . '.errors_24h');
-        }
-        Cache::increment(self::CACHE_PREFIX . '.operations_24h');
     }
 
     /**

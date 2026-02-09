@@ -14,10 +14,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            LanguageSeeder::class,
-            ProvidersSeeder::class,
-            TariffsSeeder::class,
-            GoldMasterSeeder::class, // Gold Master hierarchy for testing Truth-but-Verify workflow
+            ComprehensiveTenantSeeder::class,
             FaqSeeder::class,
         ]);
     }

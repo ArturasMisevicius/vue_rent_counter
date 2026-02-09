@@ -5,15 +5,16 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Traits\BelongsToTenant;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * AuditLog
- * 
+ *
  * Polymorphic audit trail for tracking changes to any model.
- * 
+ *
  * @property int $id
  * @property int $tenant_id
  * @property int|null $user_id
@@ -30,7 +31,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 class AuditLog extends Model
 {
-    use BelongsToTenant;
+    use BelongsToTenant, HasFactory;
 
     protected $fillable = [
         'tenant_id',
@@ -93,11 +94,11 @@ class AuditLog extends Model
     public function getChanges(): array
     {
         $changes = [];
-        
+
         if ($this->old_values && $this->new_values) {
             foreach ($this->new_values as $key => $newValue) {
                 $oldValue = $this->old_values[$key] ?? null;
-                
+
                 if ($oldValue !== $newValue) {
                     $changes[$key] = [
                         'old' => $this->redactPII($key, $oldValue),
@@ -106,15 +107,15 @@ class AuditLog extends Model
                 }
             }
         }
-        
+
         return $changes;
     }
 
     /**
      * Redact PII from audit values.
-     * 
-     * @param string $key Field name
-     * @param mixed $value Field value
+     *
+     * @param  string  $key  Field name
+     * @param  mixed  $value  Field value
      * @return mixed Redacted value
      */
     private function redactPII(string $key, mixed $value): mixed
@@ -132,24 +133,24 @@ class AuditLog extends Model
             'api_secret',
             'token',
         ];
-        
+
         if (in_array(strtolower($key), $piiFields)) {
             return '[REDACTED]';
         }
-        
+
         // Redact email-like values
         if (is_string($value) && filter_var($value, FILTER_VALIDATE_EMAIL)) {
             return '[REDACTED_EMAIL]';
         }
-        
+
         return $value;
     }
 
     /**
      * Scope to exclude old audit logs (retention policy).
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $days Number of days to retain (default: 90)
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  int  $days  Number of days to retain (default: 90)
      */
     public function scopeWithinRetention($query, int $days = 90)
     {

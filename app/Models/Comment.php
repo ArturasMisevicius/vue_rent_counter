@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Comment extends Model
 {
-    use HasFactory, SoftDeletes, BelongsToTenant;
+    use BelongsToTenant, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'tenant_id',
@@ -22,6 +22,7 @@ final class Comment extends Model
         'commentable_id',
         'user_id',
         'parent_id',
+        'body',
         'content',
         'type',
         'is_internal',
@@ -37,6 +38,19 @@ final class Comment extends Model
         'is_pinned' => 'boolean',
         'metadata' => 'array',
     ];
+
+    public function getContentAttribute(): ?string
+    {
+        /** @var string|null $body */
+        $body = $this->attributes['body'] ?? null;
+
+        return $body;
+    }
+
+    public function setContentAttribute(?string $value): void
+    {
+        $this->attributes['body'] = $value;
+    }
 
     // ==================== RELATIONSHIPS ====================
 
@@ -65,24 +79,24 @@ final class Comment extends Model
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id')
-                    ->orderBy('lft');
+            ->orderBy('lft');
     }
 
     // Recursive relationship for all descendants (nested set model)
     public function descendants(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id')
-                    ->with('descendants')
-                    ->orderBy('lft');
+            ->with('descendants')
+            ->orderBy('lft');
     }
 
     // Get all ancestors (path to root)
     public function ancestors(): HasMany
     {
         return $this->hasMany(self::class)
-                    ->where('lft', '<', $this->lft)
-                    ->where('rgt', '>', $this->rgt)
-                    ->orderBy('lft');
+            ->where('lft', '<', $this->lft)
+            ->where('rgt', '>', $this->rgt)
+            ->orderBy('lft');
     }
 
     // ==================== NESTED SET METHODS ====================
@@ -94,7 +108,7 @@ final class Comment extends Model
         $this->depth = 0;
         $this->parent_id = null;
         $this->save();
-        
+
         return $this;
     }
 
@@ -103,20 +117,20 @@ final class Comment extends Model
         // Update nested set values for new child
         $this->parent_id = $parent->id;
         $this->depth = $parent->depth + 1;
-        
+
         // Make space for new node
         self::where('rgt', '>=', $parent->rgt)
             ->increment('rgt', 2);
         self::where('lft', '>', $parent->rgt)
             ->increment('lft', 2);
-        
+
         $this->lft = $parent->rgt;
         $this->rgt = $parent->rgt + 1;
         $this->save();
-        
+
         // Update parent's rgt value
         $parent->increment('rgt', 2);
-        
+
         return $this;
     }
 
@@ -180,13 +194,13 @@ final class Comment extends Model
     {
         // Get root comment and all its descendants
         $root = $this->isRoot ? $this : $this->ancestors()->roots()->first();
-        
+
         return self::where('lft', '>=', $root->lft)
-                   ->where('rgt', '<=', $root->rgt)
-                   ->where('commentable_type', $this->commentable_type)
-                   ->where('commentable_id', $this->commentable_id)
-                   ->orderBy('lft')
-                   ->get();
+            ->where('rgt', '<=', $root->rgt)
+            ->where('commentable_type', $this->commentable_type)
+            ->where('commentable_id', $this->commentable_id)
+            ->orderBy('lft')
+            ->get();
     }
 
     public function canBeEditedBy(User $user): bool
@@ -195,7 +209,7 @@ final class Comment extends Model
         if ($this->user_id === $user->id) {
             return $this->created_at->diffInMinutes(now()) <= 15;
         }
-        
+
         // Admins and managers can edit any comment
         return in_array($user->role, ['admin', 'manager']);
     }
@@ -203,15 +217,15 @@ final class Comment extends Model
     public function canBeDeletedBy(User $user): bool
     {
         // Can't delete if has children
-        if (!$this->isLeaf) {
+        if (! $this->isLeaf) {
             return false;
         }
-        
+
         // User can delete their own comments
         if ($this->user_id === $user->id) {
             return true;
         }
-        
+
         // Admins can delete any comment
         return $user->role === 'admin';
     }

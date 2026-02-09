@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Enums\SecuritySeverity;
-use App\Enums\ThreatClassification;
 use App\Models\SecurityViolation;
-use App\Models\Tenant;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,13 +22,13 @@ final class SecurityViolationFactory extends Factory
         $classifications = ['unknown', 'suspicious', 'malicious', 'false_positive'];
 
         return [
-            'tenant_id' => Tenant::factory(),
+            'tenant_id' => User::factory()->manager(1),
             'violation_type' => 'csp',
             'policy_directive' => $this->faker->randomElement($directives),
             'blocked_uri' => $this->faker->url(),
             'document_uri' => $this->faker->url(),
             'referrer' => $this->faker->optional()->url(),
-            'user_agent' => hash('sha256', $this->faker->userAgent() . config('app.key')),
+            'user_agent' => hash('sha256', $this->faker->userAgent().config('app.key')),
             'source_file' => $this->faker->optional()->url(),
             'line_number' => $this->faker->optional()->numberBetween(1, 1000),
             'column_number' => $this->faker->optional()->numberBetween(1, 100),
@@ -39,7 +37,7 @@ final class SecurityViolationFactory extends Factory
             'resolved_at' => $this->faker->optional()->dateTimeBetween('-1 week', 'now'),
             'resolution_notes' => $this->faker->optional()->sentence(),
             'metadata' => [
-                'ip_hash' => hash('sha256', $this->faker->ipv4() . config('app.key')),
+                'ip_hash' => hash('sha256', $this->faker->ipv4().config('app.key')),
                 'request_id' => $this->faker->uuid(),
                 'processed_at' => now()->toISOString(),
                 'mcp_tracked' => $this->faker->boolean(),
@@ -74,7 +72,7 @@ final class SecurityViolationFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'resolved_at' => $this->faker->dateTimeBetween('-1 week', 'now'),
-            'resolution_notes' => 'Resolved: ' . $this->faker->sentence(),
+            'resolution_notes' => 'Resolved: '.$this->faker->sentence(),
         ]);
     }
 
@@ -94,7 +92,7 @@ final class SecurityViolationFactory extends Factory
         ]);
     }
 
-    public function withTenant(Tenant $tenant): static
+    public function withTenant(User $tenant): static
     {
         return $this->state(fn (array $attributes) => [
             'tenant_id' => $tenant->id,

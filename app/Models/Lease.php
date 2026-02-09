@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Lease Model - Represents rental agreements between tenants and properties
- * 
+ *
  * @property int $id
  * @property int $property_id
  * @property int $tenant_id (renter record ID)
@@ -23,18 +23,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property bool $is_active
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
- * 
  * @property-read Property $property
  * @property-read Tenant $tenant
  */
 class Lease extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use BelongsToTenant, HasFactory;
 
     /**
      * The attributes that are mass assignable.
      */
     protected $fillable = [
+        'tenant_id',
         'property_id',
         'renter_id',
         'start_date',
@@ -79,8 +79,8 @@ class Lease extends Model
      */
     public function isCurrentlyActive(): bool
     {
-        return $this->is_active && 
-               $this->start_date <= now() && 
+        return $this->is_active &&
+               $this->start_date <= now() &&
                $this->end_date >= now();
     }
 
@@ -98,6 +98,6 @@ class Lease extends Model
     public function scopeCurrent($query)
     {
         return $query->where('start_date', '<=', now())
-                    ->where('end_date', '>=', now());
+            ->where('end_date', '>=', now());
     }
 }
