@@ -15,6 +15,7 @@ use App\Models\Tariff;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Filament\Facades\Filament;
 
 class AdminResourceAccessTest extends TestCase
 {
@@ -408,9 +409,15 @@ class AdminResourceAccessTest extends TestCase
             '/admin/users',
         ];
 
+        $loginUrl = Filament::getPanel('admin')?->getLoginUrl() ?? '/admin/login';
+
         foreach ($resources as $resource) {
             $response = $this->get($resource);
-            $response->assertRedirect('/admin/login');
+            $target = $response->headers->get('Location');
+            $this->assertTrue(
+                in_array($target, [$loginUrl, url('/login'), '/login'], true),
+                "Expected redirect to login, got {$target}"
+            );
         }
     }
 

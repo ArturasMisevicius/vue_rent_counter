@@ -69,12 +69,12 @@ test('tenant account creation queues welcome email notification', function () {
         Notification::assertSentTo(
             $tenant,
             WelcomeEmail::class,
-            function ($notification, $channels, $notifiable) use ($property, $tenantData) {
+            function ($notification, $channels) use ($property, $tenantData, $tenant) {
                 // The notification should be sent via mail channel
                 expect($channels)->toContain('mail');
                 
                 // Verify the notification contains the correct property information via toArray
-                $notificationData = $notification->toArray($notifiable);
+                $notificationData = $notification->toArray($tenant);
                 expect($notificationData['property_id'])->toBe($property->id);
                 expect($notificationData['property_address'])->toBe($property->address);
                 
@@ -154,12 +154,12 @@ test('tenant reassignment queues reassignment email notification', function () {
     Notification::assertSentTo(
         $tenant,
         TenantReassignedEmail::class,
-        function ($notification, $channels, $notifiable) use ($newProperty, $oldProperty) {
+        function ($notification, $channels) use ($newProperty, $oldProperty, $tenant) {
             // The notification should be sent via mail channel
             expect($channels)->toContain('mail');
             
             // Verify the notification contains the correct property information via toArray
-            $notificationData = $notification->toArray($notifiable);
+            $notificationData = $notification->toArray($tenant);
             expect($notificationData['new_property_id'])->toBe($newProperty->id);
             expect($notificationData['previous_property_id'])->toBe($oldProperty->id);
             

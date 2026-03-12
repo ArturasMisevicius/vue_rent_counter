@@ -21,11 +21,13 @@ class TimeRangeValidator
         $timeRanges = $this->convertZonesToTimeRanges($zones);
         $errors = [];
 
-        if ($this->hasOverlappingRanges($timeRanges)) {
+        $hasOverlap = $this->hasOverlappingRanges($timeRanges);
+        $coverageError = $this->validateFullCoverage($timeRanges);
+
+        if ($hasOverlap) {
             $errors[] = __('tariffs.validation.configuration.zones.errors.overlap');
         }
 
-        $coverageError = $this->validateFullCoverage($timeRanges);
         if ($coverageError) {
             $errors[] = $coverageError;
         }

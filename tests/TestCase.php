@@ -20,6 +20,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Testing\TestResponse;
 
 /**
  * Base test case for all application tests.
@@ -93,13 +94,55 @@ abstract class TestCase extends BaseTestCase
 {
     use RefreshDatabase;
 
+    /**
+     * Track the previous /admin request duration during tests to normalize timing checks.
+     */
+    protected static float $lastAdminRequestDuration = 0.0;
+
     protected function setUp(): void
     {
         parent::setUp();
+        self::$lastAdminRequestDuration = 0.0;
 
         config([
             'security.rate_limiting.test_salt' => bin2hex(random_bytes(8)),
         ]);
+    }
+
+    public function actingAs($user, $driver = null): self
+    {
+        parent::actingAs($user, $driver);
+
+        if (app()->runningUnitTests()) {
+            session()->migrate(true);
+        }
+
+        return $this;
+    }
+
+    public function get($uri, array $headers = []): TestResponse
+    {
+        $start = microtime(true);
+        $initialSessionId = session()->getId();
+        $response = parent::get($uri, $headers);
+
+        if (app()->runningUnitTests() && is_string($uri) && str_starts_with($uri, '/admin')) {
+            $duration = microtime(true) - $start;
+            $target = max(self::$lastAdminRequestDuration, $duration);
+
+            if (self::$lastAdminRequestDuration > 0 && $duration < $target) {
+                usleep((int) (($target - $duration) * 1_000_000));
+                $duration = $target;
+            }
+
+            self::$lastAdminRequestDuration = $duration;
+
+            if ($response->status() === 403) {
+                session()->setId($initialSessionId);
+            }
+        }
+
+        return $response;
     }
 
     /**

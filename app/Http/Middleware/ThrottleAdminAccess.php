@@ -42,24 +42,82 @@ final class ThrottleAdminAccess
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $key = $this->resolveRequestSignature($request);
+        if (! $request->is('admin*')) {
+            return $next($request);
+        }
 
-        // Check if rate limit exceeded
+        $key = $this->resolveRequestSignature($request);
+        $logged = false;
+
         if (RateLimiter::tooManyAttempts($key, self::MAX_ATTEMPTS)) {
             return $this->buildRateLimitResponse($key);
         }
 
-        $response = $next($request);
-
-        // Only count failed authorization attempts
-        if ($response->status() === 403) {
+        if (! $request->user()) {
             RateLimiter::hit($key, self::DECAY_SECONDS);
-        } elseif ($response->status() === 200) {
-            // Clear rate limit on successful access
+            $this->logAuthorizationFailure($request);
+
+            return response(__('app.auth.authentication_required'), 403, [
+                'Location' => url('/login'),
+            ]);
+        }
+
+        $userRole = $request->user()?->role?->value;
+        $allowedRoles = ['admin', 'manager', 'superadmin'];
+
+        if ($userRole === null || ! in_array($userRole, $allowedRoles, true)) {
+            $this->logAuthorizationFailure($request);
+            $logged = true;
+        }
+
+        try {
+            $response = $next($request);
+        } catch (\Illuminate\Auth\AuthenticationException $exception) {
+            $response = response(__('app.auth.authentication_required'), 403, [
+                'Location' => url('/login'),
+            ]);
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $exception) {
+            $response = response($exception->getMessage(), $exception->getStatusCode(), $exception->getHeaders());
+        } catch (\Throwable $exception) {
+            $response = response(__('app.errors.generic', [], null) ?? 'Forbidden', 403);
+        }
+
+        if ($response->status() === 200) {
             RateLimiter::clear($key);
+
+            return $response;
+        }
+
+        RateLimiter::hit($key, self::DECAY_SECONDS);
+        if (! $logged) {
+            $this->logAuthorizationFailure($request);
+        }
+
+        if ($response->status() === 403) {
+            return response(__('app.errors.forbidden', [], null) ?? __('app.auth.no_permission_admin_panel'), 403);
         }
 
         return $response;
+    }
+
+    /**
+     * Log authorization failure for security monitoring.
+     */
+    private function logAuthorizationFailure(Request $request): void
+    {
+        $user = $request->user();
+        $email = $user?->email ? str_replace(["\n", "\r"], ' ', $user->email) : null;
+
+        \Log::warning('Admin panel access denied', [
+            'user_id' => $user?->id,
+            'user_email' => $email,
+            'user_role' => $user?->role?->value,
+            'reason' => $user ? 'Insufficient role privileges' : 'No authenticated user',
+            'url' => $request->fullUrl(),
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'timestamp' => now()->toDateTimeString(),
+        ]);
     }
 
     /**

@@ -30,7 +30,15 @@ class InvoiceController extends Controller
     {
         $this->authorize('viewAny', Invoice::class);
 
-        $query = Invoice::with(['tenant.property', 'items']);
+        $user = $request->user();
+
+        $query = Invoice::query();
+
+        if ($user->isAdmin() || $user->isSuperadmin()) {
+            $query = $query->withoutGlobalScopes();
+        }
+
+        $query = $query->with(['tenant.property', 'items']);
 
         // Filter by status if provided
         if ($request->has('status') && $request->status !== '') {
@@ -284,7 +292,13 @@ class InvoiceController extends Controller
     {
         $this->authorize('viewAny', Invoice::class);
 
-        $invoices = Invoice::draft()
+        $query = Invoice::query();
+
+        if (auth()->user()?->isAdmin() || auth()->user()?->isSuperadmin()) {
+            $query = $query->withoutGlobalScopes();
+        }
+
+        $invoices = $query->draft()
             ->with(['tenant.property', 'items'])
             ->latest()
             ->paginate(20);
@@ -299,7 +313,13 @@ class InvoiceController extends Controller
     {
         $this->authorize('viewAny', Invoice::class);
 
-        $invoices = Invoice::finalized()
+        $query = Invoice::query();
+
+        if (auth()->user()?->isAdmin() || auth()->user()?->isSuperadmin()) {
+            $query = $query->withoutGlobalScopes();
+        }
+
+        $invoices = $query->finalized()
             ->with(['tenant.property', 'items'])
             ->latest()
             ->paginate(20);

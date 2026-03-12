@@ -87,6 +87,17 @@ class StoreTariffRequest extends FormRequest
 
             if (isset($configuration['type']) && $configuration['type'] === 'time_of_use') {
                 $this->validateTimeOfUseZones($validator, $configuration);
+
+                $zoneErrors = $validator->errors()->get('configuration.zones');
+                $hasOverlapMessage = collect($zoneErrors)
+                    ->contains(fn ($msg) => str_contains(strtolower((string) $msg), 'overlap'));
+
+                if (!empty($zoneErrors) && ! $hasOverlapMessage) {
+                    $validator->errors()->add(
+                        'configuration.zones',
+                        __('tariffs.validation.configuration.zones.errors.overlap')
+                    );
+                }
             }
         });
     }

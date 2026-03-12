@@ -738,7 +738,10 @@ class PlatformAnalytics extends Page
                 ->get();
 
             return [
-                'labels' => $users->pluck('role')->map(fn ($role) => $this->getRoleLabel($role))->toArray(),
+                'labels' => $users
+                    ->pluck('role')
+                    ->map(fn ($role) => $this->getRoleLabel($role))
+                    ->toArray(),
                 'data' => $users->pluck('count')->toArray(),
             ];
         });
@@ -816,8 +819,9 @@ class PlatformAnalytics extends Page
         });
     }
 
-    private function getPlanLabel(string $plan): string
+    private function getPlanLabel(string|BackedEnum $plan): string
     {
+        $plan = $plan instanceof BackedEnum ? (string) $plan->value : $plan;
         $key = "shared.superadmin.subscription.plan.{$plan}";
         $label = __($key);
 
@@ -828,15 +832,15 @@ class PlatformAnalytics extends Page
         return $label;
     }
 
-    private function getRoleLabel(string $role): string
+    private function getRoleLabel(string|BackedEnum $role): string
     {
+        $role = $role instanceof BackedEnum ? (string) $role->value : $role;
         $key = "filament.resources.platform_users.roles.{$role}";
         $label = __($key);
 
         if ($label === $key) {
             return ucfirst($role);
         }
-
         return $label;
     }
 }

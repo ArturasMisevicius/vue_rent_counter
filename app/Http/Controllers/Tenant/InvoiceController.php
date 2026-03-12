@@ -14,7 +14,7 @@ class InvoiceController extends Controller
         $user = $request->user();
 
         // Get assigned property from hierarchical user model
-        $property = $user->property;
+        $property = $user->property ?? $user->tenant?->property;
 
         if (! $property) {
             $invoices = collect();
@@ -94,8 +94,7 @@ class InvoiceController extends Controller
         $user = $request->user();
 
         // Get assigned property from hierarchical user model
-        $property = $user->property;
-
+        $property = $user->property ?? $user->tenant?->property;
         // Get tenant record for invoice lookup (legacy compatibility)
         $tenant = $user->tenant;
 
@@ -105,6 +104,10 @@ class InvoiceController extends Controller
         }
 
         // Additional check: ensure invoice is for the assigned property
+        if ($invoice->property_id !== null && $property && $invoice->property_id !== $property->id) {
+            abort(404);
+        }
+
         if ($invoice->tenant && $invoice->tenant->property_id !== $property?->id) {
             abort(404);
         }
@@ -145,8 +148,7 @@ class InvoiceController extends Controller
         $user = $request->user();
 
         // Get assigned property from hierarchical user model
-        $property = $user->property;
-
+        $property = $user->property ?? $user->tenant?->property;
         // Get tenant record for invoice lookup (legacy compatibility)
         $tenant = $user->tenant;
 
@@ -156,6 +158,10 @@ class InvoiceController extends Controller
         }
 
         // Additional check: ensure invoice is for the assigned property
+        if ($invoice->property_id !== null && $property && $invoice->property_id !== $property->id) {
+            abort(404);
+        }
+
         if ($invoice->tenant && $invoice->tenant->property_id !== $property?->id) {
             abort(404);
         }

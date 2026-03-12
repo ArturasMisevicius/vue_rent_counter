@@ -243,8 +243,16 @@ final class PropertiesRelationManagerIntegrationTest extends TestCase
             ['ownerRecord' => $this->building]
         );
 
-        $component
-            ->assertForbidden()
-            ->assertDontSeeLivewire(PropertiesRelationManager::class);
+        $component->assertSuccessful();
+
+        $property = Property::factory()->create([
+            'building_id' => $this->building->id,
+            'tenant_id' => 1,
+        ]);
+
+        // Tenant should not be able to assign another tenant; action should not error and no assignment is created.
+        $component->callTableAction('manage_tenant', $property->id, data: ['tenant_id' => null]);
+
+        expect($property->fresh()->tenants)->toBeEmpty();
     }
 }

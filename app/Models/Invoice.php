@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Carbon;
 
@@ -39,6 +38,22 @@ class Invoice extends Model
         static::creating(function (Invoice $invoice): void {
             if (empty($invoice->tenant_renter_id) && !empty($invoice->tenant_id)) {
                 $invoice->tenant_renter_id = $invoice->tenant_id;
+            }
+
+            $tenant = null;
+
+            if (!empty($invoice->tenant_renter_id)) {
+                $tenant = Tenant::withoutGlobalScopes()->find($invoice->tenant_renter_id);
+            }
+
+            if ($tenant) {
+                if (empty($invoice->tenant_id)) {
+                    $invoice->tenant_id = $tenant->tenant_id;
+                }
+
+                if (empty($invoice->property_id) && $tenant->property_id) {
+                    $invoice->property_id = $tenant->property_id;
+                }
             }
         });
 
@@ -93,6 +108,7 @@ class Invoice extends Model
     protected $fillable = [
         'tenant_id',
         'tenant_renter_id',
+        'property_id',
         'billing_record_id',
         'invoice_number',
         'billing_period_start',
@@ -185,18 +201,11 @@ class Invoice extends Model
     }
 
     /**
-     * Get the property through the tenant.
+     * Get the property for this invoice.
      */
-    public function property(): HasOneThrough
+    public function property(): BelongsTo
     {
-        return $this->hasOneThrough(
-            Property::class,
-            Tenant::class,
-            'id',              // Foreign key on tenants table
-            'id',              // Foreign key on properties table
-            'tenant_renter_id', // Local key on invoices table
-            'property_id'      // Local key on tenants table
-        );
+        return $this->belongsTo(Property::class);
     }
 
     /**
@@ -606,5 +615,19 @@ class Invoice extends Model
     public function scopeByAutomationLevel($query, AutomationLevel $level)
     {
         return $query->where('automation_level', $level->value);
+    }
+
+    /**
+     * Allow admins and superadmins to bypass tenant scoping when binding routes.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $user = auth()->user();
+
+        $query = ($user && ($user->isAdmin() || $user->isSuperadmin()))
+            ? $this->newQueryWithoutScopes()
+            : $this->newQuery();
+
+        return $query->where($field ?? $this->getRouteKeyName(), $value)->firstOrFail();
     }
 }

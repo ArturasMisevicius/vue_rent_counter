@@ -90,6 +90,11 @@
             @endauth
         </nav>
 
+        <!-- Impersonation Banner -->
+        @auth
+            <x-impersonation-banner :impersonationService="app(\App\Services\ImpersonationService::class)" />
+        @endauth
+
         <!-- Flash Messages -->
         @if(session('success'))
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)">

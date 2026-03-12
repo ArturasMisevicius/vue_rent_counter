@@ -64,6 +64,10 @@ return new class extends Migration
             if (!$this->indexExists('buildings', 'buildings_created_at_index')) {
                 $table->index('created_at', 'buildings_created_at_index');
             }
+
+            if (! $this->indexExists('buildings', 'buildings_gyvatukas_index') && Schema::hasColumn('buildings', 'gyvatukas_last_calculated')) {
+                $table->index('gyvatukas_last_calculated', 'buildings_gyvatukas_index');
+            }
         });
 
         // Properties table indexes (some already exist from previous migration)

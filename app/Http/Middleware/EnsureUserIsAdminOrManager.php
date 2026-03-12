@@ -44,8 +44,8 @@ final class EnsureUserIsAdminOrManager
             abort(403, __('app.auth.authentication_required'));
         }
 
-        // Check if user has admin, manager, or superadmin role using model helpers
-        if ($user->isAdmin() || $user->isManager() || $user->isSuperadmin()) {
+        // Check if user has admin or manager role using model helpers
+        if ($user->isAdmin() || $user->isManager()) {
             return $next($request);
         }
 

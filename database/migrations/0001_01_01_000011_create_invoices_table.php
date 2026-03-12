@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('tenant_id')->index();
             $table->foreignId('tenant_renter_id')->constrained('tenants')->onDelete('restrict');
+            $table->foreignId('property_id')->constrained('properties')->onDelete('cascade');
             $table->date('billing_period_start');
             $table->date('billing_period_end');
             $table->decimal('total_amount', 10, 2);

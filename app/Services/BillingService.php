@@ -75,6 +75,10 @@ class BillingService extends BaseService
                 'period_end' => $periodEnd->toDateString(),
             ]);
 
+            if (empty($tenant->property_id)) {
+                throw new \RuntimeException('Cannot generate invoice without an assigned property for the tenant.');
+            }
+
             $billingPeriod = new BillingPeriod($periodStart, $periodEnd);
             $existingDraftInvoice = $this->findExistingDraftInvoice($tenant, $periodStart, $periodEnd);
 
@@ -94,6 +98,7 @@ class BillingService extends BaseService
             $invoice = Invoice::create([
                 'tenant_id' => $tenant->tenant_id,
                 'tenant_renter_id' => $tenant->id,
+                'property_id' => $tenant->property_id,
                 'billing_period_start' => $periodStart->toDateString(),
                 'billing_period_end' => $periodEnd->toDateString(),
                 'due_date' => $periodEnd->copy()->addDays((int) config('billing.invoice.default_due_days', 14)),

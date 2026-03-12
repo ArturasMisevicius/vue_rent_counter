@@ -24,6 +24,7 @@ use Filament\Tables;
 use Filament\Actions;
 use Filament\Tables\Table;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -90,6 +91,28 @@ final class PropertiesRelationManager extends RelationManager
     protected static ?string $title = 'Properties';
 
     protected static string|BackedEnum|null $icon = 'heroicon-o-home';
+
+    /**
+     * Initialize the relation manager and enforce tenant access rules.
+     */
+    public function mount(): void
+    {
+        parent::mount();
+
+        $user = auth()->user();
+
+        // Superadmins and admins bypass tenant scoping.
+        if ($user?->isSuperadmin() || $user?->role === \App\Enums\UserRole::ADMIN) {
+            return;
+        }
+
+        // Managers must remain within their tenant.
+        if ($user?->role === \App\Enums\UserRole::MANAGER
+            && $this->ownerRecord instanceof Model
+            && $this->ownerRecord->tenant_id !== $user->tenant_id) {
+            throw new ModelNotFoundException();
+        }
+    }
 
     /**
      * Cached property configuration to avoid repeated config() calls.
@@ -171,6 +194,11 @@ final class PropertiesRelationManager extends RelationManager
         }
     }
 
+    /**
+     * Execute the currently mounted table action while capturing debug logs during tests.
+     *
+     * @param  array<string, mixed>  $arguments
+     */
     public function callMountedAction(array $arguments = []): mixed
     {
         return parent::callMountedAction($arguments);
@@ -642,6 +670,7 @@ final class PropertiesRelationManager extends RelationManager
                         ->deselectRecordsAfterCompletion(),
                 ]),
             ])
+            ->paginated(false)
             ->defaultSort('address', 'asc')
             ->emptyStateHeading(__('properties.empty_state.heading'))
             ->emptyStateDescription(__('properties.empty_state.description'))
@@ -788,13 +817,11 @@ final class PropertiesRelationManager extends RelationManager
         return [
             Forms\Components\Select::make('tenant_id')
                 ->label($hasTenant ? __('properties.actions.reassign_tenant') : __('properties.actions.assign_tenant'))
-                ->options(function () {
+                ->options(function () use ($record) {
                     return Tenant::select('id', 'name')
                         ->where('tenant_id', auth()->user()->tenant_id)
-                        ->whereNotExists(function ($query) {
-                            $query->selectRaw(1)
-                                ->from('property_tenant')
-                                ->whereColumn('property_tenant.tenant_id', 'tenants.id')
+                        ->whereDoesntHave('properties', function ($q) use ($record) {
+                            $q->where('property_tenant.property_id', $record->id)
                                 ->whereNull('property_tenant.vacated_at');
                         })
                         ->orderBy('name')
@@ -860,6 +887,14 @@ final class PropertiesRelationManager extends RelationManager
                 $newTenantId = null;
             } else {
                 $tenantId = (int) $tenantId;
+
+                // Vacate any active assignments for this tenant before reassigning.
+                DB::table('property_tenant')
+                    ->where('tenant_id', $tenantId)
+                    ->whereNull('vacated_at')
+                    ->update([
+                        'vacated_at' => now(),
+                    ]);
 
                 // Mark existing tenant as vacated before reassigning
                 if ($previousTenant && $previousTenant->id !== $tenantId) {

@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
+use App\Models\Property;
 use App\Models\Tenant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -23,6 +24,7 @@ class InvoiceFactory extends Factory
         return [
             'tenant_id' => null,
             'tenant_renter_id' => null,
+            'property_id' => null,
             'billing_period_start' => $start,
             'billing_period_end' => $end,
             'total_amount' => fake()->randomFloat(2, 50, 500),
@@ -71,7 +73,7 @@ class InvoiceFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (Invoice $invoice) {
-            $tenant = $invoice->tenant ?? ($invoice->tenant_renter_id ? Tenant::find($invoice->tenant_renter_id) : null);
+            $tenant = $invoice->tenant ?? ($invoice->tenant_renter_id ? Tenant::withoutGlobalScopes()->find($invoice->tenant_renter_id) : null);
 
             if (! $tenant) {
                 $tenant = Tenant::factory()
@@ -84,8 +86,12 @@ class InvoiceFactory extends Factory
             if ($invoice->tenant_id !== $tenant->tenant_id) {
                 $invoice->tenant_id = $tenant->tenant_id;
             }
+
+            if (!$invoice->property_id && $tenant->property_id) {
+                $invoice->property_id = $tenant->property_id;
+            }
         })->afterCreating(function (Invoice $invoice) {
-            $tenant = $invoice->tenant ?? ($invoice->tenant_renter_id ? Tenant::find($invoice->tenant_renter_id) : null);
+            $tenant = $invoice->tenant ?? ($invoice->tenant_renter_id ? Tenant::withoutGlobalScopes()->find($invoice->tenant_renter_id) : null);
 
             if (! $tenant) {
                 $tenant = Tenant::factory()
@@ -97,6 +103,16 @@ class InvoiceFactory extends Factory
 
             if ($tenant && $invoice->tenant_id !== $tenant->tenant_id) {
                 $invoice->update(['tenant_id' => $tenant->tenant_id]);
+            }
+
+            if (!$invoice->property_id && $tenant?->property_id) {
+                $invoice->update(['property_id' => $tenant->property_id]);
+            } elseif (!$invoice->property_id) {
+                $property = Property::factory()->create([
+                    'tenant_id' => $invoice->tenant_id ?? 1,
+                ]);
+
+                $invoice->update(['property_id' => $property->id]);
             }
         });
     }

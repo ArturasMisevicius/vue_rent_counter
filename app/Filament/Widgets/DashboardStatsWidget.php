@@ -250,4 +250,13 @@ class DashboardStatsWidget extends CachedStatsWidget
 
         return $stats;
     }
+    /**
+     * Format revenue amount in euros
+     */
+    protected function formatRevenue(int|float $amountInCents): string
+    {
+        $cents = (float) $amountInCents;
+
+        return '€' . number_format($cents / 100, 2);
+    }
 }
