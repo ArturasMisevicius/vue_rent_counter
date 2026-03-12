@@ -120,7 +120,7 @@ Constructs stat objects from validated health data.
 Creates the main health status indicator stat.
 
 **Parameters:**
-- `$healthy` (`bool`) - Overall system health status
+- `$healthy` (`bool`) - Overall policy registry health status
 - `$issues` (`array`) - Array of critical and warning issues
 
 **Returns:**

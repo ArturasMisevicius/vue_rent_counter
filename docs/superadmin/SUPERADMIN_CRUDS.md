@@ -15,7 +15,7 @@ This document provides a summary of the comprehensive superadmin dashboard enhan
 ### Core Features
 
 1. **Enhanced Dashboard**
-   - 7 real-time widgets (subscriptions, organizations, system health, expiring subscriptions, recent activity, top organizations, platform usage)
+   - 6 real-time widgets (subscriptions, organizations, expiring subscriptions, recent activity, top organizations, platform usage)
    - Customizable layout with drag-and-drop
    - Quick actions and export capabilities
 
@@ -48,28 +48,21 @@ This document provides a summary of the comprehensive superadmin dashboard enhan
    - Token-based secure registration
    - Resend, cancel, and bulk operations
 
-7. **System Health Monitoring**
-   - Database health (connections, slow queries, table sizes)
-   - Backup status (last backup, size, success/failure)
-   - Queue status (pending, failed, processing time)
-   - Storage metrics (disk usage, growth trends)
-   - Cache status (hit rate, memory usage)
-
-8. **Platform Analytics**
+7. **Platform Analytics**
    - Organization analytics (growth, plan distribution, top organizations)
    - Subscription analytics (renewal rate, expiry forecast, lifecycle)
    - Usage analytics (properties, buildings, meters, invoices trends)
    - User analytics (active users, login frequency, growth)
    - Export to PDF/CSV
 
-9. **System Settings**
+8. **System Settings**
    - Email configuration (SMTP, sender, templates)
    - Backup configuration (schedule, retention, location)
    - Queue configuration (connection, priorities, timeouts)
    - Feature flags (global and per-organization)
    - Platform settings (timezone, locale, currency, session, password policy)
 
-10. **Advanced Features**
+9. **Advanced Features**
     - Impersonation system with audit trail
     - Platform-wide notifications
     - Global search across all resources
@@ -114,17 +107,16 @@ This document provides a summary of the comprehensive superadmin dashboard enhan
 2. **Phase 2 - Dashboard** (Tasks 2-3): Create widgets and dashboard page
 3. **Phase 3 - Core Resources** (Tasks 4-6): Enhance Organization, Subscription, ActivityLog resources
 4. **Phase 4 - Additional Resources** (Tasks 7-8): Add PlatformUser and OrganizationInvitation resources
-5. **Phase 5 - Monitoring** (Task 9): Create SystemHealth page
-6. **Phase 6 - Analytics** (Task 10): Create PlatformAnalytics page
-7. **Phase 7 - Configuration** (Task 11): Create SystemSettings page
-8. **Phase 8 - Advanced Features** (Tasks 12-15): Impersonation, notifications, search, customization
-9. **Phase 9 - Data Export** (Task 16): Implement export system
-10. **Phase 10 - Automation** (Task 17): Subscription automation
-11. **Phase 11 - Optimization** (Task 18): Caching and performance
-12. **Phase 12 - Security** (Task 19): Authorization and audit logging
-13. **Phase 13 - Testing** (Task 20): Comprehensive test suite (optional)
-14. **Phase 14 - Documentation** (Task 22): Update translations and docs
-15. **Phase 15 - Polish** (Task 23): Final integration and accessibility
+5. **Phase 5 - Analytics** (Task 10): Create PlatformAnalytics page
+6. **Phase 6 - Configuration** (Task 11): Create SystemSettings page
+7. **Phase 7 - Advanced Features** (Tasks 12-15): Impersonation, notifications, search, customization
+8. **Phase 8 - Data Export** (Task 16): Implement export system
+9. **Phase 9 - Automation** (Task 17): Subscription automation
+10. **Phase 10 - Optimization** (Task 18): Caching and performance
+11. **Phase 11 - Security** (Task 19): Authorization and audit logging
+12. **Phase 12 - Testing** (Task 20): Comprehensive test suite (optional)
+13. **Phase 13 - Documentation** (Task 22): Update translations and docs
+14. **Phase 14 - Polish** (Task 23): Final integration and accessibility
 
 ### Testing Strategy
 

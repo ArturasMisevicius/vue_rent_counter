@@ -72,7 +72,7 @@ The Platform Analytics page provides comprehensive analytics and reporting for t
 ### Navigation
 
 - Appears in "System" navigation group
-- Sort order: 3 (after System Health)
+- Sort order: 3 (after Dashboard)
 - Icon: `heroicon-o-chart-bar`
 
 ### Testing

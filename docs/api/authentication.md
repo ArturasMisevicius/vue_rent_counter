@@ -265,7 +265,6 @@ The system provides comprehensive monitoring through the `ApiTokenMonitoringServ
 
 - Token creation rate monitoring
 - Usage pattern analysis
-- System health checks
 - Suspicious activity alerts
 
 ### Configuration

@@ -35,7 +35,7 @@ All landing page translations use the `landing` namespace to avoid conflicts wit
 | `landing.dashboard.draft_invoices_hint` | "Invoices pending finalization" | "Sąskaitos faktūros, laukiančios patvirtinimo" | Dashboard metric description |
 | `landing.dashboard.electricity` | "Electricity" | "Elektra" | Utility type label |
 | `landing.dashboard.electricity_status` | "Electricity System Status" | "Elektros sistemos būsena" | System status label |
-| `landing.dashboard.healthy` | "Healthy" | "Sveika" | System health indicator |
+| `landing.dashboard.healthy` | "Healthy" | "Sveika" | Dashboard health indicator |
 | `landing.dashboard.heating` | "Heating" | "Šildymas" | Utility type label |
 | `landing.dashboard.heating_status` | "Heating System Status" | "Šildymo sistemos būsena" | System status label |
 | `landing.dashboard.live_overview` | "Live System Overview" | "Tiesioginė sistemos apžvalga" | Dashboard section title |

@@ -2,11 +2,11 @@
 
 ## Overview
 
-The `PolicyRegistryHealthWidget` is a Filament v4 StatsOverviewWidget that provides real-time monitoring of the policy registry system health. It displays comprehensive metrics about policy registration performance, cache efficiency, error rates, and overall system status.
+The `PolicyRegistryHealthWidget` is a Filament v4 StatsOverviewWidget that provides real-time monitoring of the policy registry health. It displays comprehensive metrics about policy registration performance, cache efficiency, error rates, and overall registry status.
 
 ## Key Features
 
-- **Real-time Health Monitoring**: Displays system health status with color-coded indicators
+- **Real-time Health Monitoring**: Displays policy registry health status with color-coded indicators
 - **Performance Metrics**: Tracks policy registration times and cache hit rates
 - **Error Rate Monitoring**: Shows 24-hour error rates with threshold-based alerts
 - **Policy & Gate Counts**: Displays total registered policies and gates

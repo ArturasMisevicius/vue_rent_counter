@@ -146,7 +146,6 @@ The Vilnius Utilities Billing Platform uses a multi-tenant architecture with SQL
 34. **2025_12_02_000001** - Add comprehensive database indexes (round 2)
 35. **2025_12_02_000002** - Add `due_date`, `paid_at` to invoices
 36. **2025_12_02_000003** - Add `overdue_notified_at` to invoices
-37. **2025_12_03_000001** - `system_health_metrics`
 38. **2025_12_04_000001** - `platform_organization_invitations`
 
 ### Foreign Key Constraints & Cascade Rules

@@ -669,7 +669,7 @@ return [
                 'platform' => 'Superadmin Workspace',
             ],
             'title' => 'System Administration',
-            'subtitle' => 'Manage organizations, subscriptions, and system health',
+            'subtitle' => 'Manage organizations and subscriptions',
             'widgets' => [
                 'recent_activity' => [
                     'no_activity' => 'No Activity',

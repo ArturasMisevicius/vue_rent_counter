@@ -144,7 +144,7 @@ The engine integrates with `config/service_validation.php`:
 ### Monitoring
 - All validation operations logged for audit trail
 - Performance metrics tracked in batch operations
-- Error rates monitored for system health
+- Error rates monitored for platform health
 
 ## Future Enhancements
 

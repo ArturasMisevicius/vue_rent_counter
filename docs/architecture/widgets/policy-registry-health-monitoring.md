@@ -133,7 +133,7 @@ sequenceDiagram
 
 ### Metric Categories
 
-1. **System Health**
+1. **Policy Registry Health**
    - Overall health status (boolean)
    - Critical issues count
    - Warning issues count
@@ -159,19 +159,19 @@ sequenceDiagram
 // Metrics collection architecture
 interface MetricsCollector
 {
-    public function collectSystemMetrics(): array;
+    public function collectRegistryMetrics(): array;
     public function collectPerformanceMetrics(): array;
     public function collectErrorMetrics(): array;
 }
 
 class PolicyRegistryMetricsCollector implements MetricsCollector
 {
-    public function collectSystemMetrics(): array
+    public function collectRegistryMetrics(): array
     {
         return [
             'total_policies' => $this->countPolicies(),
             'total_gates' => $this->countGates(),
-            'health_status' => $this->checkSystemHealth(),
+            'health_status' => $this->healthCheck()['healthy'] ?? false,
         ];
     }
 }
@@ -281,7 +281,6 @@ class PolicyRegistryHealthWidget
     {
         return auth()->check() 
             && auth()->user()->hasRole('super_admin')
-            && Gate::allows('view-system-health');
     }
 }
 ```
@@ -371,4 +370,3 @@ class HealthMonitoringObserver
 - [Service Registration Architecture](../service-registration-architecture.md)
 - [Filament Widget Development Guide](../../filament/development/widget-development.md)
 - [Multi-tenant Dashboard Architecture](../multi-tenant-dashboard-architecture.md)
-- [System Health Monitoring Strategy](../monitoring/system-health-strategy.md)

@@ -30,8 +30,6 @@ The Filament v4.3+ superadmin panel has been successfully configured for the Vil
   - Total users count across all organizations
   - Active subscriptions monitoring
   - Organization count (placeholder for future implementation)
-  - System health score with real-time checks
-  - Database, cache, and storage health monitoring
   - Performance-optimized with 5-minute caching
 
 ### 4. Recent Users Widget
@@ -48,7 +46,6 @@ The Filament v4.3+ superadmin panel has been successfully configured for the Vil
 - **Features**:
   - System overview cards
   - Quick action buttons (placeholder for future routes)
-  - System health status indicators
   - Responsive grid layout
   - Follows Blade guardrails (no @php blocks)
 
@@ -108,9 +105,8 @@ The following superadmin routes are now available:
 ## 🎨 UI Features
 
 ### Dashboard Layout
-- **System Overview Card**: Displays key metrics (users, subscriptions, organizations, health)
+- **System Overview Card**: Displays key metrics (users, subscriptions, organizations)
 - **Quick Actions Card**: Placeholder buttons for future management actions
-- **System Health Card**: Real-time status indicators for database, cache, and queue
 
 ### Widgets
 - **SystemOverviewWidget**: 4 stat cards with icons, colors, and descriptions
@@ -138,7 +134,6 @@ The following superadmin routes are now available:
 
 ### Caching
 - Widget data cached for 5 minutes (300 seconds)
-- System health checks cached for 1 minute (60 seconds)
 - Efficient query patterns
 
 ### Database

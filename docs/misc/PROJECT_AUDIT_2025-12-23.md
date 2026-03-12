@@ -438,7 +438,6 @@ Schema::create('users', function (Blueprint $table) {
 **Основные Filament Pages:**
 - PlatformAnalytics.php
 - SystemSettingsPage.php
-- SystemHealthPage.php
 
 **СТАТУС БЛОКА 5:** ✅ ПОЛНОСТЬЮ РЕАЛИЗОВАНО (23 основных ресурса + дополнительные страницы)
 

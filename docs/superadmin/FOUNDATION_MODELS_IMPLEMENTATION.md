@@ -6,35 +6,7 @@ This document describes the implementation of the foundation data models for the
 
 ## Implemented Components
 
-### 1. Database Migrations
-
-#### System Health Metrics Table
-- **File**: `database/migrations/2025_12_03_000001_create_system_health_metrics_table.php`
-- **Purpose**: Store system health monitoring data for database, backup, queue, storage, and cache metrics
-- **Fields**:
-  - `metric_type`: Type of metric (database, backup, queue, storage, cache)
-  - `metric_name`: Specific metric name
-  - `value`: JSON field storing metric data
-  - `status`: Health status (healthy, warning, danger)
-  - `checked_at`: Timestamp of when the metric was checked
-- **Indexes**:
-  - Composite index on `metric_type` and `checked_at`
-  - Index on `status`
-
-### 2. Models
-
-#### SystemHealthMetric Model
-- **File**: `app/Models/SystemHealthMetric.php`
-- **Methods**:
-  - `isHealthy()`: Check if metric is healthy
-  - `isWarning()`: Check if metric has warning status
-  - `isDanger()`: Check if metric is in danger status
-  - `getStatusColor()`: Get color for status indicator (green/yellow/red)
-  - `getStatusIcon()`: Get Heroicon for status display
-- **Scopes**:
-  - `latestByType()`: Get latest metrics by type
-  - `withinTimeRange()`: Get metrics within time range
-  - `unhealthy()`: Get metrics with warning or danger status
+### 1. Models
 
 #### Organization Model Enhancements
 - **File**: `app/Models/Organization.php`
@@ -66,17 +38,8 @@ This document describes the implementation of the foundation data models for the
   - `isAccepted()`: Check if invitation accepted ✓
   - `accept()`: Accept the invitation ✓
 
-### 3. Factories
 
-#### SystemHealthMetricFactory
-- **File**: `database/factories/SystemHealthMetricFactory.php`
-- **Features**:
-  - Generates realistic metric data based on type
-  - State methods for status: `healthy()`, `warning()`, `danger()`
-  - State methods for types: `database()`, `backup()`, `queue()`, `storage()`, `cache()`
-  - Intelligent value generation based on metric type
-
-### 4. Tests
+### 2. Tests
 
 #### Unit Tests
 - **File**: `tests/Unit/SuperadminFoundationModelsTest.php`
@@ -88,30 +51,8 @@ This document describes the implementation of the foundation data models for the
   - Subscription `isSuspended()` method
   - OrganizationInvitation `isPending()` method
   - OrganizationInvitation resend functionality
-  - SystemHealthMetric status checking methods
-  - SystemHealthMetric status color mapping
-  - SystemHealthMetric scopes
 
-**Test Results**: All 10 tests passing with 33 assertions
-
-## Database Schema
-
-### system_health_metrics Table
-
-```sql
-CREATE TABLE system_health_metrics (
-    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    metric_type VARCHAR(255) NOT NULL,
-    metric_name VARCHAR(255) NOT NULL,
-    value JSON NOT NULL,
-    status VARCHAR(255) NOT NULL,
-    checked_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP NULL,
-    updated_at TIMESTAMP NULL,
-    INDEX health_metrics_type_checked_index (metric_type, checked_at),
-    INDEX health_metrics_status_index (status)
-);
-```
+**Test Results**: All tests passing
 
 ## Usage Examples
 
@@ -172,29 +113,6 @@ $invitation->resend(); // Generates new token and extends expiry
 $invitation->cancel(); // Deletes the invitation
 ```
 
-### System Health Metrics
-
-```php
-// Create health metric
-$metric = SystemHealthMetric::create([
-    'metric_type' => 'database',
-    'metric_name' => 'connection_status',
-    'value' => ['connections' => 50, 'slow_queries' => 2],
-    'status' => 'healthy',
-    'checked_at' => now(),
-]);
-
-// Check status
-if ($metric->isHealthy()) {
-    $color = $metric->getStatusColor(); // 'green'
-    $icon = $metric->getStatusIcon(); // 'heroicon-o-check-circle'
-}
-
-// Query metrics
-$latestDatabase = SystemHealthMetric::latestByType('database')->first();
-$unhealthyMetrics = SystemHealthMetric::unhealthy()->get();
-```
-
 ## Requirements Validation
 
 This implementation satisfies the following requirements from the specification:
@@ -202,13 +120,12 @@ This implementation satisfies the following requirements from the specification:
 - **Requirement 2.1**: Organization management with suspension capabilities ✓
 - **Requirement 3.1**: Subscription management with renewal and status control ✓
 - **Requirement 13.1**: Organization invitation system with token management ✓
-- **Requirement 6.1-6.5**: System health monitoring infrastructure ✓
 
 ## Next Steps
 
 The foundation models are now in place. The next tasks in the implementation plan are:
 
-1. **Task 2**: Create dashboard widgets (SubscriptionStatsWidget, OrganizationStatsWidget, SystemHealthWidget, etc.)
+1. **Task 2**: Create dashboard widgets (SubscriptionStatsWidget, OrganizationStatsWidget, etc.)
 2. **Task 3**: Create SuperadminDashboard page
 3. **Task 4**: Enhance OrganizationResource with new fields and actions
 
@@ -220,7 +137,7 @@ To run the foundation models tests:
 php artisan test --filter=SuperadminFoundationModelsTest
 ```
 
-All tests should pass with 10 tests and 33 assertions.
+All tests should pass.
 
 ## Migration
 
@@ -230,8 +147,3 @@ To apply the new migration:
 php artisan migrate
 ```
 
-Or to run only the system health metrics migration:
-
-```bash
-php artisan migrate --path=database/migrations/2025_12_03_000001_create_system_health_metrics_table.php
-```

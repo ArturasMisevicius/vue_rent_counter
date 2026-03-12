@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Manager;
 
+use App\Enums\MeterType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ManagerConsumptionReportRequest;
 use App\Http\Requests\ManagerMeterComplianceRequest;
@@ -162,7 +165,7 @@ class ReportController extends Controller
             $serviceFilterOptions["utility:{$service->id}"] = "{$service->name}{$unit}";
         }
         foreach ($legacyMeterTypes as $type) {
-            $label = \App\Enums\MeterType::tryFrom((string) $type)?->label() ?? ucfirst(str_replace('_', ' ', (string) $type));
+            $label = MeterType::tryFrom((string) $type)?->label() ?? ucfirst(str_replace('_', ' ', (string) $type));
             $serviceFilterOptions["type:{$type}"] = "Legacy: {$label}";
         }
 
@@ -353,10 +356,23 @@ class ReportController extends Controller
 
         $startDate = $validated['start_date'] ?? Carbon::now()->startOfMonth()->format('Y-m-d');
         $endDate = $validated['end_date'] ?? Carbon::now()->endOfMonth()->format('Y-m-d');
+        $status = $validated['status'] ?? null;
+        $buildingId = $validated['building_id'] ?? null;
 
-        $invoices = Invoice::whereBetween('billing_period_start', [$startDate, $endDate])
-            ->with('tenant.property')
-            ->get();
+        $query = Invoice::whereBetween('billing_period_start', [$startDate, $endDate])
+            ->with('tenant.property');
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($buildingId) {
+            $query->whereHas('tenant.property', function ($q) use ($buildingId) {
+                $q->where('building_id', $buildingId);
+            });
+        }
+
+        $invoices = $query->get();
 
         $csv = "Invoice ID,Property,Period Start,Period End,Amount,Status,Due Date,Paid Date\n";
         foreach ($invoices as $invoice) {
@@ -498,6 +514,7 @@ class ReportController extends Controller
         $validated = $request->validated();
 
         $month = $validated['month'] ?? Carbon::now()->format('Y-m');
+        $buildingId = $validated['building_id'] ?? null;
         $startDate = Carbon::parse($month)->startOfMonth();
         $endDate = Carbon::parse($month)->endOfMonth();
 
@@ -505,7 +522,9 @@ class ReportController extends Controller
             $query->with(['readings' => function ($q) use ($startDate, $endDate) {
                 $q->whereBetween('reading_date', [$startDate, $endDate]);
             }]);
-        }])->get();
+        }])
+            ->when($buildingId, fn ($query) => $query->where('building_id', $buildingId))
+            ->get();
 
         $csv = "Property,Building,Total Meters,Meters with Readings,Compliance Status\n";
         foreach ($properties as $property) {

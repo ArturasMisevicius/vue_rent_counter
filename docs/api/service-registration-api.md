@@ -155,7 +155,7 @@ $registry->registerCoreServices();
 - Security services (InputSanitizer, SecurityHeaderService, etc.)
 - Validation services (TimeRangeValidator, ServiceValidationEngine)
 - Tenant services (TenantInitializationService, TenantManagementService)
-- Utility services (SystemHealthService, QueryOptimizationService)
+- Utility services (QueryOptimizationService)
 - Localization services (TranslationCacheService, TenantTranslationService)
 
 ##### `registerCompatibilityServices(): void`

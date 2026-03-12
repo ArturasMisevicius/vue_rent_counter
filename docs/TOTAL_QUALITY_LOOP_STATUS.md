@@ -56,7 +56,6 @@ Need to create tests for:
 12. PlatformOrganizationInvitation.php
 13. PropertyTenantPivot.php
 14. Provider.php
-15. SystemHealthMetric.php
 16. Tag.php
 17. Tenant.php
 18. User.php (verify existing test)

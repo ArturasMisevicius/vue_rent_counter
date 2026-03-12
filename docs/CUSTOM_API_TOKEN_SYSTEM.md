@@ -27,8 +27,6 @@ This document describes the custom API token management system that replaces Lar
 4. **Monitoring Service** (`app/Services/ApiTokenMonitoringService.php`)
    - Usage pattern analysis
    - Suspicious activity detection
-   - System health monitoring
-
 ## Key Features
 
 ### Performance Optimizations
@@ -43,7 +41,6 @@ This document describes the custom API token management system that replaces Lar
 
 ### Monitoring & Analytics
 - **Usage Statistics**: Token creation and usage metrics
-- **Health Checks**: System health monitoring
 - **Alerting**: Suspicious activity notifications
 
 ## Usage Examples
@@ -182,14 +179,6 @@ php artisan test tests/Feature/UserApiTokenIntegrationTest.php
 
 ## Monitoring & Alerting
 
-### Health Checks
-
-```bash
-# Check token system health
-php artisan tinker
->>> app(ApiTokenMonitoringService::class)->checkSystemHealth()
-```
-
 ### Metrics Collection
 
 The system automatically collects:
@@ -204,7 +193,6 @@ Alerts are triggered for:
 - High token creation rates (>10/hour per user)
 - Multiple IP usage patterns
 - Rapid token usage (>5 uses in 10 minutes)
-- System health degradation
 
 ## Troubleshooting
 
