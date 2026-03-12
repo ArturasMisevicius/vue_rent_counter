@@ -2,7 +2,7 @@
 
 ## Database Architecture
 
-CFlow uses a robust database architecture designed for multi-tenancy, performance, and data integrity.
+Tenanto uses a robust database architecture designed for multi-tenancy, performance, and data integrity.
 
 ### Database Systems
 - **Development**: SQLite with WAL mode

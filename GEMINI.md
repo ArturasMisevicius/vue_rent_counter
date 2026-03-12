@@ -11,10 +11,10 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - php - 8.4.16
 - filament/filament (FILAMENT) - v4
 - laravel/framework (LARAVEL) - v12
-- laravel/mcp (MCP) - v0
 - laravel/prompts (PROMPTS) - v0
 - laravel/sanctum (SANCTUM) - v4
 - livewire/livewire (LIVEWIRE) - v3
+- laravel/mcp (MCP) - v0
 - laravel/pint (PINT) - v1
 - laravel/sail (SAIL) - v1
 - pestphp/pest (PEST) - v3
@@ -389,3 +389,83 @@ it('has emails', function (string $email) {
 | decoration-slice | box-decoration-slice |
 | decoration-clone | box-decoration-clone |
 </laravel-boost-guidelines>
+
+<project-skills>
+=== project skill routing ===
+
+# Tenanto Skill Matrix (Maximum Practical Coverage)
+
+This repository already includes workspace-local skills in `.agent/skills`. For this project, use the broadest relevant set of skills below to maximize output quality while keeping routing task-specific.
+
+## Skill Resolution Order
+- Prefer workspace skills in `.agent/skills` first.
+- Fall back to global Codex skills in `$CODEX_HOME/skills` when a matching workspace skill is unavailable.
+- Combine multiple skills when a task crosses domains (for example security + performance + testing).
+- OpenAI curated skills are fully mirrored locally in `.agent/skills` for this project (`86` workspace skills total).
+
+## Core Skills (Default for Most Tasks)
+- `architecture`
+- `clean-code`
+- `code-review-checklist`
+- `database-design`
+- `testing-patterns`
+- `tdd-workflow`
+- `vulnerability-scanner`
+- `performance-profiling`
+- `systematic-debugging`
+- `i18n-localization`
+
+## Backend / Laravel / API
+- `api-patterns` for API contracts, validation, responses, versioning.
+- `database-design` for schema, indexing, and migration strategy.
+- `architecture` for service boundaries and refactors.
+- `mcp-builder` for MCP server/tool integrations.
+- `vulnerability-scanner`, `security-best-practices`, `security-threat-model`, `security-ownership-map`, and `red-team-tactics` for auth, tenant isolation, and security hardening.
+- `sentry` for error monitoring, alerting, and incident triage workflows.
+
+## Filament / Livewire / Frontend
+- `frontend-design` for UI/UX decisions in Blade/Livewire/Filament.
+- `tailwind-patterns` for Tailwind CSS v4 usage and token structure.
+- `web-design-guidelines` for accessibility/usability audits.
+- `webapp-testing` for browser-level regression checks.
+
+## Quality / Testing / Debugging
+- `testing-patterns` and `tdd-workflow` for new behavior and regression protection.
+- `code-review-checklist` for review requests and risk-focused assessments.
+- `lint-and-validate` for project checks before finalizing.
+- `systematic-debugging` for production-like incident triage.
+- `playwright`, `playwright-interactive`, and `screenshot` for deterministic browser automation and visual evidence capture.
+
+## Planning / Communication / Documentation
+- `brainstorming` for ambiguous or complex requests.
+- `plan-writing` for decomposition and execution plans.
+- `doc-coauthoring` for proposals/specs/technical docs.
+- `internal-comms` for status updates, incident reports, stakeholder summaries.
+- `brand-guidelines` when visual outputs must follow a strict brand system.
+
+## Reporting / File Artifacts
+- `pdf` for PDF generation, extraction, and manipulation.
+- `xlsx` for spreadsheet/report export workflows.
+- `docx` for Word documents and templates.
+- `pptx` for presentation decks.
+- `theme-factory` for consistent visual/theming outputs when requested.
+
+## Tooling / Automation / Skill Maintenance
+- `antigravity-cli` for `.agent` kit management.
+- `skill-installer` for installing/updating Codex skills.
+- `skill-creator` for adding custom project skills.
+- `web-artifacts-builder` for complex, multi-component web artifacts.
+- `confluence-deep-reader` when ingesting Confluence parent/child documentation.
+
+## Extended Curated Skills (Use On Demand)
+- `gh-address-comments`, `gh-fix-ci`, and `linear` for engineering workflow automation.
+- `netlify-deploy`, `render-deploy`, `vercel-deploy`, and `cloudflare-deploy` for deployment workflows when needed.
+- `figma` and `figma-implement-design` for design-to-implementation handoffs.
+- `openai-docs` for OpenAI platform/product documentation lookups.
+
+## Optional Visual-Media Skills (Use Only on Explicit Request)
+- `canvas-design`
+- `algorithmic-art`
+- `slack-gif-creator`
+
+</project-skills>

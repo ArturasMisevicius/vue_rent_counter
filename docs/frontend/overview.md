@@ -2,7 +2,7 @@
 
 ## Technology Stack
 
-CFlow uses a modern frontend stack focused on performance and developer experience.
+Tenanto uses a modern frontend stack focused on performance and developer experience.
 
 ### Core Technologies
 - **Alpine.js** - Minimal JavaScript framework for interactivity

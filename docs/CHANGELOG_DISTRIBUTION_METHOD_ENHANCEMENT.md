@@ -222,7 +222,7 @@ php artisan test --filter=DistributionMethodTest --coverage
 
 ## Author
 
-CFlow Development Team
+Tenanto Development Team
 
 ## Reviewed By
 
@@ -230,3 +230,4 @@ CFlow Development Team
 - Test Coverage: ✅ 100%
 - Documentation: ✅ Complete
 - Backward Compatibility: ✅ Verified
+

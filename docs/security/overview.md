@@ -2,7 +2,7 @@
 
 ## Security Philosophy
 
-CFlow implements defense-in-depth security with multiple layers of protection. Security is integrated into every aspect of the application, from development to deployment.
+Tenanto implements defense-in-depth security with multiple layers of protection. Security is integrated into every aspect of the application, from development to deployment.
 
 ## Security Principles
 

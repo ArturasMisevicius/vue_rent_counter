@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains documentation for all enums used in the CFlow application. Enums provide type-safe, validated values for various domain concepts.
+This directory contains documentation for all enums used in the Tenanto application. Enums provide type-safe, validated values for various domain concepts.
 
 ## Available Enums
 
@@ -169,3 +169,4 @@ When adding new enums:
 4. Write comprehensive unit tests
 5. Create documentation in this directory
 6. Update this README with the new enum
+

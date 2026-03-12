@@ -224,7 +224,7 @@ docs/
 
 ## Author
 
-CFlow Development Team
+Tenanto Development Team
 
 ## Reviewed By
 
@@ -232,3 +232,4 @@ CFlow Development Team
 - Code Quality: ✅ Enhanced
 - Test Coverage: ✅ 100%
 - Integration: ✅ Documented
+

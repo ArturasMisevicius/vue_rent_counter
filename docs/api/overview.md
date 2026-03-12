@@ -2,7 +2,7 @@
 
 ## API Architecture
 
-CFlow provides a comprehensive REST API for external integrations and mobile applications, built with Laravel Sanctum for authentication and following RESTful conventions.
+Tenanto provides a comprehensive REST API for external integrations and mobile applications, built with Laravel Sanctum for authentication and following RESTful conventions.
 
 ### Core Principles
 - **RESTful Design** - Standard HTTP methods and status codes
@@ -14,8 +14,8 @@ CFlow provides a comprehensive REST API for external integrations and mobile app
 
 ### Base URL Structure
 ```
-Production:  https://api.cflow.app/v1/
-Staging:     https://staging-api.cflow.app/v1/
+Production:  https://api.Tenanto.app/v1/
+Staging:     https://staging-api.Tenanto.app/v1/
 Development: http://localhost:8000/api/v1/
 ```
 
@@ -44,7 +44,7 @@ POST /api/auth/tokens
 # Include token in Authorization header
 curl -H "Authorization: Bearer 1|abc123..." \
      -H "Accept: application/json" \
-     https://api.cflow.app/v1/invoices
+     https://api.Tenanto.app/v1/invoices
 ```
 
 ### Token Abilities
@@ -541,8 +541,8 @@ Route::prefix('v2')->group(function () {
 
 ### Version Headers
 ```http
-Accept: application/vnd.cflow.v1+json
-Content-Type: application/vnd.cflow.v1+json
+Accept: application/vnd.Tenanto.v1+json
+Content-Type: application/vnd.Tenanto.v1+json
 ```
 
 ## Testing API Endpoints
@@ -650,17 +650,17 @@ final class InvoiceApiTest extends TestCase
 # api-docs.yaml
 openapi: 3.0.0
 info:
-  title: CFlow API
-  description: CFlow accounting and invoicing API
+  title: Tenanto API
+  description: Tenanto accounting and invoicing API
   version: 1.0.0
   contact:
-    name: CFlow Support
-    email: support@cflow.app
+    name: Tenanto Support
+    email: support@Tenanto.app
 
 servers:
-  - url: https://api.cflow.app/v1
+  - url: https://api.Tenanto.app/v1
     description: Production server
-  - url: https://staging-api.cflow.app/v1
+  - url: https://staging-api.Tenanto.app/v1
     description: Staging server
 
 security:

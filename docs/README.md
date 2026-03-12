@@ -1,6 +1,6 @@
-# CFlow Documentation
+# Tenanto Documentation
 
-Welcome to the CFlow documentation. This documentation is organized into logical groups for easy navigation and maintenance.
+Welcome to the Tenanto documentation. This documentation is organized into logical groups for easy navigation and maintenance.
 
 ## Documentation Structure
 

@@ -2,7 +2,7 @@
 
 ## Performance Philosophy
 
-CFlow prioritizes performance through proactive optimization, monitoring, and continuous improvement. All performance optimizations must be measured and validated.
+Tenanto prioritizes performance through proactive optimization, monitoring, and continuous improvement. All performance optimizations must be measured and validated.
 
 ## Performance Targets
 

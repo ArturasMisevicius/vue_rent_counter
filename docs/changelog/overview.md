@@ -2,7 +2,7 @@
 
 ## Version History
 
-This directory contains the complete version history and change documentation for CFlow.
+This directory contains the complete version history and change documentation for Tenanto.
 
 ## Structure
 

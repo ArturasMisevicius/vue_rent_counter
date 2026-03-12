@@ -2,7 +2,7 @@
 
 ## Testing Philosophy
 
-CFlow follows a comprehensive testing strategy with 100% test coverage requirement using Pest PHP as the primary testing framework.
+Tenanto follows a comprehensive testing strategy with 100% test coverage requirement using Pest PHP as the primary testing framework.
 
 ## Testing Pyramid
 

@@ -13,7 +13,7 @@
 ### 1. Clone Repository
 ```bash
 git clone <repository-url>
-cd cflow
+cd Tenanto
 ```
 
 ### 2. Install Dependencies

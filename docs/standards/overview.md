@@ -2,7 +2,7 @@
 
 ## Philosophy
 
-CFlow maintains strict code quality standards to ensure maintainability, security, and performance. All code must pass automated quality checks before merging.
+Tenanto maintains strict code quality standards to ensure maintainability, security, and performance. All code must pass automated quality checks before merging.
 
 ## Quality Tools Stack
 

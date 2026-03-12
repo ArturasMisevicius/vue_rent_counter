@@ -2,7 +2,7 @@
 
 ## Architecture Principles
 
-CFlow follows Clean Architecture principles with a focus on maintainability, testability, and scalability.
+Tenanto follows Clean Architecture principles with a focus on maintainability, testability, and scalability.
 
 ### Core Layers
 
@@ -41,7 +41,7 @@ CFlow follows Clean Architecture principles with a focus on maintainability, tes
 
 ## Multi-Tenancy
 
-CFlow uses team-based multi-tenancy:
+Tenanto uses team-based multi-tenancy:
 - Each user belongs to one or more teams
 - Data is automatically scoped to the current team
 - Filament v4 handles automatic tenant scoping

@@ -2,7 +2,7 @@
 
 ## Overview
 
-CFlow uses Filament v4.3+ for the admin panel with dual-panel architecture (admin + user panels) and comprehensive RBAC using Filament Shield.
+Tenanto uses Filament v4.3+ for the admin panel with dual-panel architecture (admin + user panels) and comprehensive RBAC using Filament Shield.
 
 ## Core Architecture Changes in v4
 

@@ -2,7 +2,7 @@
 
 ## Laravel 12 Standards
 
-CFlow uses Laravel 12 with strict adherence to modern PHP and Laravel best practices.
+Tenanto uses Laravel 12 with strict adherence to modern PHP and Laravel best practices.
 
 ## Core Principles
 

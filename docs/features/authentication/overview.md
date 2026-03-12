@@ -2,7 +2,7 @@
 
 ## Overview
 
-CFlow implements a comprehensive authentication system with multi-factor authentication (MFA), role-based access control (RBAC), and team-based multi-tenancy.
+Tenanto implements a comprehensive authentication system with multi-factor authentication (MFA), role-based access control (RBAC), and team-based multi-tenancy.
 
 ## Authentication Flow
 
@@ -54,7 +54,7 @@ public function panel(Panel $panel): Panel
 ## Role-Based Access Control (RBAC)
 
 ### Filament Shield Integration
-CFlow uses Filament Shield for comprehensive RBAC:
+Tenanto uses Filament Shield for comprehensive RBAC:
 
 ```php
 // Check permissions
@@ -121,7 +121,7 @@ Permissions follow the pattern: `{action}::{Resource}`
 ## Multi-Tenancy
 
 ### Team-Based Tenancy
-CFlow uses team-based multi-tenancy where:
+Tenanto uses team-based multi-tenancy where:
 - Users belong to one or more teams
 - Data is automatically scoped to current team
 - Permissions are team-specific
@@ -165,7 +165,7 @@ $user->belongsToTeam($team);
 'table' => 'sessions',
 'store' => env('SESSION_STORE'),
 'lottery' => [2, 100],
-'cookie' => env('SESSION_COOKIE', 'cflow_session'),
+'cookie' => env('SESSION_COOKIE', 'Tenanto_session'),
 'path' => '/',
 'domain' => env('SESSION_DOMAIN'),
 'secure' => env('SESSION_SECURE_COOKIE', true),
