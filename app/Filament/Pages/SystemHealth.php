@@ -19,11 +19,11 @@ class SystemHealth extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-heart';
 
-    protected static string|UnitEnum|null $navigationGroup = 'System';
+    protected static string|UnitEnum|null $navigationGroup = null;
 
     protected static ?int $navigationSort = 2;
 
-    protected static ?string $title = 'System Health';
+    protected static ?string $title = null;
 
     protected string $view = 'filament.pages.system-health';
 
@@ -37,11 +37,26 @@ class SystemHealth extends Page
         return auth()->user()?->isSuperadmin() ?? false;
     }
 
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('system_health.navigation.group');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('system_health.navigation.label');
+    }
+
+    public function getTitle(): string
+    {
+        return __('system_health.title');
+    }
+
     protected function getHeaderActions(): array
     {
         return [
             Action::make('runHealthCheck')
-                ->label('Run Health Check')
+                ->label(__('system_health.actions.run_health_check'))
                 ->icon('heroicon-o-arrow-path')
                 ->color('primary')
                 ->action(function () {
@@ -52,13 +67,13 @@ class SystemHealth extends Page
                     Cache::forget('system_health_cache');
 
                     Notification::make()
-                        ->title('Health check completed')
+                        ->title(__('system_health.notifications.health_check_completed'))
                         ->success()
                         ->send();
                 }),
 
             Action::make('triggerBackup')
-                ->label('Trigger Manual Backup')
+                ->label(__('system_health.actions.trigger_manual_backup'))
                 ->icon('heroicon-o-archive-box')
                 ->color('warning')
                 ->requiresConfirmation()
@@ -67,13 +82,13 @@ class SystemHealth extends Page
                         Artisan::call('backup:run');
                         
                         Notification::make()
-                            ->title('Backup started')
-                            ->body('The backup process has been initiated.')
+                            ->title(__('system_health.notifications.backup_started'))
+                            ->body(__('system_health.messages.backup_started_body'))
                             ->success()
                             ->send();
                     } catch (\Exception $e) {
                         Notification::make()
-                            ->title('Backup failed')
+                            ->title(__('system_health.notifications.backup_failed'))
                             ->body($e->getMessage())
                             ->danger()
                             ->send();
@@ -81,7 +96,7 @@ class SystemHealth extends Page
                 }),
 
             Action::make('clearCache')
-                ->label('Clear Cache')
+                ->label(__('system_health.actions.clear_cache'))
                 ->icon('heroicon-o-trash')
                 ->color('danger')
                 ->requiresConfirmation()
@@ -89,13 +104,13 @@ class SystemHealth extends Page
                     Cache::flush();
                     
                     Notification::make()
-                        ->title('Cache cleared')
+                        ->title(__('system_health.notifications.cache_cleared'))
                         ->success()
                         ->send();
                 }),
 
             Action::make('downloadDiagnostic')
-                ->label('Download Diagnostic Report')
+                ->label(__('system_health.actions.download_diagnostic_report'))
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('gray')
                 ->action(function () {
@@ -116,7 +131,7 @@ class SystemHealth extends Page
                 $pdo = $connection->getPdo();
                 
                 // Get connection status
-                $status = 'Connected';
+                $status = 'connected';
                 $color = 'success';
                 
                 // Get table count
@@ -146,16 +161,16 @@ class SystemHealth extends Page
                 return [
                     'status' => $status,
                     'color' => $color,
-                    'connection' => 'Active',
+                    'connection' => 'active',
                     'tableCount' => $tableCount,
                     'dbSize' => $dbSizeMB,
                     'tableSizes' => $tableSizes,
                 ];
             } catch (\Exception $e) {
                 return [
-                    'status' => 'Error',
+                    'status' => 'error',
                     'color' => 'danger',
-                    'connection' => 'Failed',
+                    'connection' => 'failed',
                     'error' => $e->getMessage(),
                 ];
             }
@@ -170,7 +185,7 @@ class SystemHealth extends Page
                 
                 if (!is_dir($backupPath)) {
                     return [
-                        'status' => 'Not Configured',
+                        'status' => 'not_configured',
                         'color' => 'warning',
                         'lastBackup' => null,
                         'backupSize' => 0,
@@ -182,7 +197,7 @@ class SystemHealth extends Page
                 
                 if (empty($files)) {
                     return [
-                        'status' => 'No Backups',
+                        'status' => 'no_backups',
                         'color' => 'warning',
                         'lastBackup' => null,
                         'backupSize' => 0,
@@ -201,10 +216,10 @@ class SystemHealth extends Page
                 $hoursSinceBackup = (time() - $lastBackupTime) / 3600;
                 
                 if ($hoursSinceBackup > 24) {
-                    $status = 'Outdated';
+                    $status = 'outdated';
                     $color = 'warning';
                 } else {
-                    $status = 'Healthy';
+                    $status = 'healthy';
                     $color = 'success';
                 }
                 
@@ -218,7 +233,7 @@ class SystemHealth extends Page
                 ];
             } catch (\Exception $e) {
                 return [
-                    'status' => 'Error',
+                    'status' => 'error',
                     'color' => 'danger',
                     'error' => $e->getMessage(),
                 ];
@@ -238,13 +253,13 @@ class SystemHealth extends Page
                 
                 // Determine status
                 if ($failedJobs > 10) {
-                    $status = 'Critical';
+                    $status = 'critical';
                     $color = 'danger';
                 } elseif ($failedJobs > 0) {
-                    $status = 'Warning';
+                    $status = 'warning';
                     $color = 'warning';
                 } else {
-                    $status = 'Healthy';
+                    $status = 'healthy';
                     $color = 'success';
                 }
                 
@@ -256,7 +271,7 @@ class SystemHealth extends Page
                 ];
             } catch (\Exception $e) {
                 return [
-                    'status' => 'Error',
+                    'status' => 'error',
                     'color' => 'danger',
                     'error' => $e->getMessage(),
                 ];
@@ -298,13 +313,13 @@ class SystemHealth extends Page
                 
                 // Determine status
                 if ($diskUsagePercent > 90) {
-                    $status = 'Critical';
+                    $status = 'critical';
                     $color = 'danger';
                 } elseif ($diskUsagePercent > 80) {
-                    $status = 'Warning';
+                    $status = 'warning';
                     $color = 'warning';
                 } else {
-                    $status = 'Healthy';
+                    $status = 'healthy';
                     $color = 'success';
                 }
                 
@@ -320,7 +335,7 @@ class SystemHealth extends Page
                 ];
             } catch (\Exception $e) {
                 return [
-                    'status' => 'Error',
+                    'status' => 'error',
                     'color' => 'danger',
                     'error' => $e->getMessage(),
                 ];
@@ -340,21 +355,21 @@ class SystemHealth extends Page
                 
                 if (!$working) {
                     return [
-                        'status' => 'Not Working',
+                        'status' => 'not_working',
                         'color' => 'danger',
-                        'connection' => 'Failed',
+                        'connection' => 'failed',
                     ];
                 }
                 
                 return [
-                    'status' => 'Operational',
+                    'status' => 'operational',
                     'color' => 'success',
-                    'connection' => 'Active',
+                    'connection' => 'active',
                     'driver' => config('cache.default'),
                 ];
             } catch (\Exception $e) {
                 return [
-                    'status' => 'Error',
+                    'status' => 'error',
                     'color' => 'danger',
                     'error' => $e->getMessage(),
                 ];
@@ -364,66 +379,68 @@ class SystemHealth extends Page
 
     protected function generateDiagnosticReport(): string
     {
-        $report = "System Health Diagnostic Report\n";
-        $report .= "Generated: " . now()->format('Y-m-d H:i:s') . "\n";
+        $report = __('system_health.report.title') . "\n";
+        $report .= __('system_health.report.generated', [
+            'timestamp' => now()->format('Y-m-d H:i:s'),
+        ]) . "\n";
         $report .= str_repeat('=', 80) . "\n\n";
         
         // Database Health
-        $report .= "DATABASE HEALTH\n";
+        $report .= __('system_health.report.sections.database') . "\n";
         $report .= str_repeat('-', 80) . "\n";
         $db = $this->getDatabaseHealth();
-        $report .= "Status: " . $db['status'] . "\n";
-        $report .= "Connection: " . ($db['connection'] ?? 'Unknown') . "\n";
+        $report .= __('system_health.report.labels.status') . ": " . __('system_health.status.' . $db['status']) . "\n";
+        $report .= __('system_health.report.labels.connection') . ": " . __('system_health.status.' . ($db['connection'] ?? 'unknown')) . "\n";
         if (isset($db['tableCount'])) {
-            $report .= "Tables: " . $db['tableCount'] . "\n";
-            $report .= "Database Size: " . $db['dbSize'] . " MB\n";
+            $report .= __('system_health.report.labels.tables') . ": " . $db['tableCount'] . "\n";
+            $report .= __('system_health.report.labels.database_size') . ": " . $db['dbSize'] . " MB\n";
         }
         $report .= "\n";
         
         // Backup Status
-        $report .= "BACKUP STATUS\n";
+        $report .= __('system_health.report.sections.backup') . "\n";
         $report .= str_repeat('-', 80) . "\n";
         $backup = $this->getBackupStatus();
-        $report .= "Status: " . $backup['status'] . "\n";
+        $report .= __('system_health.report.labels.status') . ": " . __('system_health.status.' . $backup['status']) . "\n";
         if (isset($backup['lastBackup'])) {
-            $report .= "Last Backup: " . $backup['lastBackup'] . "\n";
-            $report .= "Backup Size: " . $backup['backupSize'] . " MB\n";
+            $report .= __('system_health.report.labels.last_backup') . ": " . $backup['lastBackup'] . "\n";
+            $report .= __('system_health.report.labels.backup_size') . ": " . $backup['backupSize'] . " MB\n";
         }
         $report .= "\n";
         
         // Queue Status
-        $report .= "QUEUE STATUS\n";
+        $report .= __('system_health.report.sections.queue') . "\n";
         $report .= str_repeat('-', 80) . "\n";
         $queue = $this->getQueueStatus();
-        $report .= "Status: " . $queue['status'] . "\n";
+        $report .= __('system_health.report.labels.status') . ": " . __('system_health.status.' . $queue['status']) . "\n";
         if (isset($queue['pendingJobs'])) {
-            $report .= "Pending Jobs: " . $queue['pendingJobs'] . "\n";
-            $report .= "Failed Jobs: " . $queue['failedJobs'] . "\n";
+            $report .= __('system_health.report.labels.pending_jobs') . ": " . $queue['pendingJobs'] . "\n";
+            $report .= __('system_health.report.labels.failed_jobs') . ": " . $queue['failedJobs'] . "\n";
         }
         $report .= "\n";
         
         // Storage Metrics
-        $report .= "STORAGE METRICS\n";
+        $report .= __('system_health.report.sections.storage') . "\n";
         $report .= str_repeat('-', 80) . "\n";
         $storage = $this->getStorageMetrics();
-        $report .= "Status: " . $storage['status'] . "\n";
+        $report .= __('system_health.report.labels.status') . ": " . __('system_health.status.' . $storage['status']) . "\n";
         if (isset($storage['diskTotal'])) {
-            $report .= "Disk Total: " . $storage['diskTotal'] . " GB\n";
-            $report .= "Disk Used: " . $storage['diskUsed'] . " GB\n";
-            $report .= "Disk Free: " . $storage['diskFree'] . " GB\n";
-            $report .= "Usage: " . $storage['diskUsagePercent'] . "%\n";
-            $report .= "Database Size: " . $storage['dbSize'] . " MB\n";
-            $report .= "Log Size: " . $storage['logSize'] . " MB\n";
+            $report .= __('system_health.report.labels.disk_total') . ": " . $storage['diskTotal'] . " GB\n";
+            $report .= __('system_health.report.labels.disk_used') . ": " . $storage['diskUsed'] . " GB\n";
+            $report .= __('system_health.report.labels.disk_free') . ": " . $storage['diskFree'] . " GB\n";
+            $report .= __('system_health.report.labels.usage') . ": " . $storage['diskUsagePercent'] . "%\n";
+            $report .= __('system_health.report.labels.database_size') . ": " . $storage['dbSize'] . " MB\n";
+            $report .= __('system_health.report.labels.log_size') . ": " . $storage['logSize'] . " MB\n";
         }
         $report .= "\n";
         
         // Cache Status
-        $report .= "CACHE STATUS\n";
+        $report .= __('system_health.report.sections.cache') . "\n";
         $report .= str_repeat('-', 80) . "\n";
         $cache = $this->getCacheStatus();
-        $report .= "Status: " . $cache['status'] . "\n";
+        $report .= __('system_health.report.labels.status') . ": " . __('system_health.status.' . $cache['status']) . "\n";
         if (isset($cache['driver'])) {
-            $report .= "Driver: " . $cache['driver'] . "\n";
+            $report .= __('system_health.report.labels.driver') . ": " . $cache['driver'] . "\n";
         }
         $report .= "\n";
         
