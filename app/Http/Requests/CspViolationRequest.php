@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Support\Facades\RateLimiter;
 
 /**
  * CSP Violation Request Validation
- * 
+ *
  * Validates and sanitizes CSP violation reports from browsers
  * with enhanced security measures and rate limiting.
  */
@@ -50,11 +51,11 @@ final class CspViolationRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'csp-report.required' => 'CSP report data is required',
-            'csp-report.violated-directive.required' => 'Violated directive is required',
-            'csp-report.document-uri.required' => 'Document URI is required',
-            '*.max' => 'The :attribute field is too long',
-            '*.integer' => 'The :attribute must be a valid integer',
+            'csp-report.required' => __('validation.custom_requests.csp_violation.report_required'),
+            'csp-report.violated-directive.required' => __('validation.custom_requests.csp_violation.violated_directive_required'),
+            'csp-report.document-uri.required' => __('validation.custom_requests.csp_violation.document_uri_required'),
+            '*.max' => __('validation.custom_requests.csp_violation.max'),
+            '*.integer' => __('validation.custom_requests.csp_violation.integer'),
         ];
     }
 
@@ -64,17 +65,17 @@ final class CspViolationRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         // Validate content type and size
-        if (!$this->isJson()) {
-            abort(400, 'Invalid content type');
+        if (! $this->isJson()) {
+            abort(400, __('validation.custom_requests.csp_violation.invalid_content_type'));
         }
 
         if ($this->header('Content-Length', 0) > 10240) { // Max 10KB
-            abort(413, 'Request too large');
+            abort(413, __('validation.custom_requests.csp_violation.request_too_large'));
         }
 
         // Sanitize input data
         $data = $this->json()->all();
-        
+
         if (isset($data['csp-report']) && is_array($data['csp-report'])) {
             $data['csp-report'] = $this->sanitizeCspReport($data['csp-report']);
             $this->replace($data);
@@ -84,13 +85,13 @@ final class CspViolationRequest extends FormRequest
     /**
      * Handle a failed validation attempt.
      */
-    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator): void
+    protected function failedValidation(Validator $validator): void
     {
         // Log invalid CSP reports for security monitoring
         logger()->warning('Invalid CSP violation report', [
             'errors' => $validator->errors()->toArray(),
-            'ip_hash' => hash('sha256', $this->ip() . config('app.key')),
-            'user_agent_hash' => hash('sha256', $this->userAgent() . config('app.key')),
+            'ip_hash' => hash('sha256', $this->ip().config('app.key')),
+            'user_agent_hash' => hash('sha256', $this->userAgent().config('app.key')),
             'timestamp' => now()->toISOString(),
         ]);
 
@@ -102,18 +103,19 @@ final class CspViolationRequest extends FormRequest
      */
     private function checkRateLimit(): bool
     {
-        $key = 'csp_reports:' . $this->ip();
-        
+        $key = 'csp_reports:'.$this->ip();
+
         if (RateLimiter::tooManyAttempts($key, 50)) { // 50 per minute per IP
             logger()->warning('CSP report rate limit exceeded', [
-                'ip_hash' => hash('sha256', $this->ip() . config('app.key')),
+                'ip_hash' => hash('sha256', $this->ip().config('app.key')),
                 'timestamp' => now()->toISOString(),
             ]);
-            
-            throw new ThrottleRequestsException('Too many CSP reports');
+
+            throw new ThrottleRequestsException(__('validation.custom_requests.csp_violation.too_many_reports'));
         }
 
         RateLimiter::hit($key, 60); // 1 minute window
+
         return true;
     }
 
@@ -123,7 +125,7 @@ final class CspViolationRequest extends FormRequest
     private function sanitizeCspReport(array $report): array
     {
         $sanitized = [];
-        
+
         // Define allowed fields and their sanitization rules
         $fieldRules = [
             'violated-directive' => 'directive',
@@ -183,10 +185,10 @@ final class CspViolationRequest extends FormRequest
         $uri = preg_replace('/javascript:/i', '', $uri);
         $uri = preg_replace('/data:text\/html/i', '', $uri);
         $uri = preg_replace('/vbscript:/i', '', $uri);
-        
+
         // Basic URL validation
-        if (filter_var($uri, FILTER_VALIDATE_URL) === false && 
-            !preg_match('/^(https?:\/\/|\/)/i', $uri)) {
+        if (filter_var($uri, FILTER_VALIDATE_URL) === false &&
+            ! preg_match('/^(https?:\/\/|\/)/i', $uri)) {
             return null;
         }
 
@@ -202,11 +204,11 @@ final class CspViolationRequest extends FormRequest
             'default-src', 'script-src', 'style-src', 'img-src', 'font-src',
             'connect-src', 'frame-src', 'object-src', 'media-src', 'child-src',
             'frame-ancestors', 'base-uri', 'form-action', 'plugin-types',
-            'sandbox', 'report-uri', 'report-to'
+            'sandbox', 'report-uri', 'report-to',
         ];
 
         $directive = strtolower(trim($directive));
-        
+
         return in_array($directive, $validDirectives) ? $directive : 'unknown';
     }
 
@@ -217,7 +219,7 @@ final class CspViolationRequest extends FormRequest
     {
         // Remove potential injection vectors
         $policy = preg_replace('/[<>"\']/', '', $policy);
-        
+
         return substr($policy, 0, 4096);
     }
 
@@ -227,7 +229,7 @@ final class CspViolationRequest extends FormRequest
     private function sanitizeInteger($value): ?int
     {
         $int = filter_var($value, FILTER_VALIDATE_INT);
-        
+
         return ($int !== false && $int >= 0 && $int <= 999999) ? $int : null;
     }
 }

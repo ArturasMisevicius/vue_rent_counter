@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use App\Enums\PropertyType;
-use App\Models\Property;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -12,6 +13,7 @@ class UpdatePropertyRequest extends FormRequest
     public function authorize(): bool
     {
         $property = $this->route('property');
+
         return $this->user()->can('update', $property);
     }
 
@@ -34,7 +36,7 @@ class UpdatePropertyRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'building_id.exists' => 'The selected building must belong to your organization.',
+            'building_id.exists' => __('validation.custom_requests.properties.building_must_belong'),
         ];
     }
 }

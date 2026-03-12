@@ -3,16 +3,21 @@
         "claude_code",
         "codex",
         "cursor",
-        "gemini",
-        "opencode"
+        "gemini"
     ],
-    "editors": [
-        "claude_code",
-        "codex",
-        "cursor",
-        "gemini",
-        "opencode",
-        "vscode"
+    "guidelines": true,
+    "herd_mcp": true,
+    "mcp": true,
+    "nightwatch_mcp": false,
+    "packages": [
+        "filament/filament"
     ],
-    "guidelines": []
+    "sail": false,
+    "skills": [
+        "laravel-development",
+        "filament-development",
+        "laravel-mcp",
+        "pest-testing",
+        "tailwindcss-development"
+    ]
 }

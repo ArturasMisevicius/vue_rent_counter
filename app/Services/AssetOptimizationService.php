@@ -9,13 +9,14 @@ use Illuminate\Support\Facades\File;
 
 /**
  * AssetOptimizationService handles frontend asset optimization
- * 
+ *
  * Provides methods for optimizing CSS, JavaScript, and other assets
  * to improve page load times and overall performance
  */
 class AssetOptimizationService
 {
     private const CACHE_PREFIX = 'asset_optimization';
+
     private const CACHE_TTL = 3600; // 1 hour
 
     /**
@@ -24,7 +25,7 @@ class AssetOptimizationService
     public function getOptimizedChartConfig(): array
     {
         return Cache::remember(
-            self::CACHE_PREFIX . '.chart_config',
+            self::CACHE_PREFIX.'.chart_config',
             self::CACHE_TTL,
             function () {
                 return [
@@ -58,7 +59,7 @@ class AssetOptimizationService
                         'parsing' => false,
                         'normalized' => true,
                     ],
-                    
+
                     // Color palette for consistent theming
                     'colors' => [
                         'primary' => 'rgb(59, 130, 246)',
@@ -72,7 +73,7 @@ class AssetOptimizationService
                         'orange' => 'rgb(251, 146, 60)',
                         'violet' => 'rgb(168, 85, 247)',
                     ],
-                    
+
                     // Responsive breakpoints
                     'breakpoints' => [
                         'sm' => 640,
@@ -97,14 +98,14 @@ class AssetOptimizationService
                 'background_interval' => '60s',
                 'visible_interval' => '15s',
             ],
-            
+
             // Lazy loading configuration
             'lazy_loading' => [
                 'enabled' => true,
                 'threshold' => '100px',
                 'placeholder' => 'Loading...',
             ],
-            
+
             // Debounce configuration for form inputs
             'debounce' => [
                 'default' => '300ms',
@@ -120,11 +121,11 @@ class AssetOptimizationService
     public function generateCriticalCSS(): string
     {
         return Cache::remember(
-            self::CACHE_PREFIX . '.critical_css',
+            self::CACHE_PREFIX.'.critical_css',
             self::CACHE_TTL,
             function () {
                 // Critical CSS for dashboard layout
-                return "
+                return '
                     /* Critical CSS for dashboard */
                     .fi-main {
                         min-height: 100vh;
@@ -167,7 +168,7 @@ class AssetOptimizationService
                         text-overflow: ellipsis;
                         white-space: nowrap;
                     }
-                ";
+                ';
             }
         );
     }
@@ -184,7 +185,7 @@ class AssetOptimizationService
                 'modals' => true,
                 'tooltips' => true,
             ],
-            
+
             // Preload critical resources
             'preload' => [
                 'fonts' => [
@@ -194,13 +195,13 @@ class AssetOptimizationService
                     '/js/app.js',
                 ],
             ],
-            
+
             // Resource hints
             'dns_prefetch' => [
                 '//fonts.googleapis.com',
                 '//cdn.jsdelivr.net',
             ],
-            
+
             // Service worker configuration
             'service_worker' => [
                 'enabled' => true,
@@ -221,13 +222,13 @@ class AssetOptimizationService
                 'webp' => true,
                 'avif' => false, // Not widely supported yet
             ],
-            
+
             // Responsive images
             'responsive' => [
                 'breakpoints' => [320, 640, 768, 1024, 1280],
                 'quality' => 85,
             ],
-            
+
             // Lazy loading
             'lazy_loading' => [
                 'enabled' => true,
@@ -249,7 +250,7 @@ class AssetOptimizationService
                 'fid' => 100, // First Input Delay (milliseconds)
                 'cls' => 0.1, // Cumulative Layout Shift
             ],
-            
+
             // Performance budget
             'budget' => [
                 'javascript' => 200, // KB
@@ -257,11 +258,11 @@ class AssetOptimizationService
                 'images' => 500, // KB
                 'fonts' => 100, // KB
             ],
-            
+
             // Monitoring endpoints
             'endpoints' => [
-                'vitals' => '/api/performance/vitals',
-                'errors' => '/api/performance/errors',
+                'vitals' => '/performance/vitals',
+                'errors' => '/performance/errors',
             ],
         ];
     }
@@ -272,7 +273,7 @@ class AssetOptimizationService
     public function generateOptimizationScript(): string
     {
         return Cache::remember(
-            self::CACHE_PREFIX . '.optimization_script',
+            self::CACHE_PREFIX.'.optimization_script',
             self::CACHE_TTL,
             function () {
                 return "
@@ -348,11 +349,11 @@ class AssetOptimizationService
     public function clearCache(): void
     {
         $keys = [
-            self::CACHE_PREFIX . '.chart_config',
-            self::CACHE_PREFIX . '.critical_css',
-            self::CACHE_PREFIX . '.optimization_script',
+            self::CACHE_PREFIX.'.chart_config',
+            self::CACHE_PREFIX.'.critical_css',
+            self::CACHE_PREFIX.'.optimization_script',
         ];
-        
+
         foreach ($keys as $key) {
             Cache::forget($key);
         }
@@ -365,9 +366,9 @@ class AssetOptimizationService
     {
         return [
             'cache_status' => [
-                'chart_config' => Cache::has(self::CACHE_PREFIX . '.chart_config'),
-                'critical_css' => Cache::has(self::CACHE_PREFIX . '.critical_css'),
-                'optimization_script' => Cache::has(self::CACHE_PREFIX . '.optimization_script'),
+                'chart_config' => Cache::has(self::CACHE_PREFIX.'.chart_config'),
+                'critical_css' => Cache::has(self::CACHE_PREFIX.'.critical_css'),
+                'optimization_script' => Cache::has(self::CACHE_PREFIX.'.optimization_script'),
             ],
             'asset_sizes' => $this->getAssetSizes(),
             'performance_score' => $this->calculatePerformanceScore(),
@@ -380,12 +381,12 @@ class AssetOptimizationService
     private function getAssetSizes(): array
     {
         $publicPath = public_path();
-        
+
         return [
-            'css' => $this->getDirectorySize($publicPath . '/css'),
-            'js' => $this->getDirectorySize($publicPath . '/js'),
-            'images' => $this->getDirectorySize($publicPath . '/images'),
-            'fonts' => $this->getDirectorySize($publicPath . '/fonts'),
+            'css' => $this->getDirectorySize($publicPath.'/css'),
+            'js' => $this->getDirectorySize($publicPath.'/js'),
+            'images' => $this->getDirectorySize($publicPath.'/images'),
+            'fonts' => $this->getDirectorySize($publicPath.'/fonts'),
         ];
     }
 
@@ -394,17 +395,17 @@ class AssetOptimizationService
      */
     private function getDirectorySize(string $path): int
     {
-        if (!File::exists($path)) {
+        if (! File::exists($path)) {
             return 0;
         }
-        
+
         $size = 0;
         $files = File::allFiles($path);
-        
+
         foreach ($files as $file) {
             $size += $file->getSize();
         }
-        
+
         return round($size / 1024); // Convert to KB
     }
 
@@ -416,23 +417,23 @@ class AssetOptimizationService
         // This is a simplified calculation
         // In production, you'd use real performance metrics
         $score = 100;
-        
+
         $assetSizes = $this->getAssetSizes();
         $budget = $this->getPerformanceMonitoring()['budget'];
-        
+
         // Deduct points for exceeding budget
         if ($assetSizes['js'] > $budget['javascript']) {
             $score -= 10;
         }
-        
+
         if ($assetSizes['css'] > $budget['css']) {
             $score -= 10;
         }
-        
+
         if ($assetSizes['images'] > $budget['images']) {
             $score -= 15;
         }
-        
+
         return max(0, $score);
     }
 }

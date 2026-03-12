@@ -4,23 +4,24 @@ declare(strict_types=1);
 
 namespace App\Services\Security;
 
-use App\Services\Security\SecurityPerformanceMonitor;
 use App\ValueObjects\SecurityHeaderSet;
 use App\ValueObjects\SecurityNonce;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 
 /**
  * Security Header Factory
- * 
+ *
  * Creates different sets of security headers based on context
  * with performance optimizations and caching.
  */
 final class SecurityHeaderFactory
 {
     private static ?SecurityHeaderSet $cachedBaseHeaders = null;
+
     private static array $cachedHeaderTemplates = [];
+
     private static array $cachedCspTemplates = [];
-    
+
     public function __construct(
         private readonly ConfigRepository $config,
         private readonly CspHeaderBuilder $cspBuilder,
@@ -33,7 +34,7 @@ final class SecurityHeaderFactory
     public function createProductionHeaders(SecurityNonce $nonce): SecurityHeaderSet
     {
         $headers = $this->getBaseHeaders();
-        
+
         // Add production-specific headers
         $productionHeaders = [
             'Strict-Transport-Security' => 'max-age=31536000; includeSubDomains; preload',
@@ -138,22 +139,22 @@ final class SecurityHeaderFactory
     {
         if (self::$cachedBaseHeaders === null) {
             $configHeaders = $this->config->get('security.headers', []);
-            
+
             // Filter out CSP as it's handled separately
             unset($configHeaders['Content-Security-Policy']);
-            
+
             self::$cachedBaseHeaders = SecurityHeaderSet::create($configHeaders);
         }
-        
+
         return self::$cachedBaseHeaders;
     }
-    
+
     /**
      * Create API headers with caching (no CSP needed).
      */
     private function createApiHeadersCached(): SecurityHeaderSet
     {
-        if (!isset(self::$cachedHeaderTemplates['api'])) {
+        if (! isset(self::$cachedHeaderTemplates['api'])) {
             $this->monitor->recordCacheMiss();
             self::$cachedHeaderTemplates['api'] = SecurityHeaderSet::create([
                 'X-Content-Type-Options' => 'nosniff',
@@ -165,10 +166,10 @@ final class SecurityHeaderFactory
         } else {
             $this->monitor->recordCacheHit();
         }
-        
+
         return self::$cachedHeaderTemplates['api'];
     }
-    
+
     /**
      * Create headers with CSP template and nonce injection.
      */
@@ -176,22 +177,22 @@ final class SecurityHeaderFactory
     {
         // Get cached CSP template for context
         $cspTemplate = $this->getCspTemplate($context);
-        
+
         // Inject nonce into template
         $csp = str_replace('{{NONCE}}', $nonce->base64Encoded, $cspTemplate);
-        
+
         // Get cached base headers for context
         $headers = $this->getHeadersTemplateForContext($context);
-        
+
         return $headers->withHeader('Content-Security-Policy', $csp);
     }
-    
+
     /**
      * Get cached CSP template for context.
      */
     private function getCspTemplate(string $context): string
     {
-        if (!isset(self::$cachedCspTemplates[$context])) {
+        if (! isset(self::$cachedCspTemplates[$context])) {
             // Build CSP template once with placeholder
             $builder = match ($context) {
                 'production' => $this->cspBuilder::strict(),
@@ -199,7 +200,7 @@ final class SecurityHeaderFactory
                 'tenant', 'development' => $this->cspBuilder::development(),
                 default => $this->cspBuilder::development(),
             };
-            
+
             // Build CSP with placeholder nonce
             $tempNonce = SecurityNonce::generate();
             $csp = $builder
@@ -207,7 +208,7 @@ final class SecurityHeaderFactory
                 ->addNonceToScripts()
                 ->addNonceToStyles()
                 ->build();
-            
+
             // Replace actual nonce with placeholder
             self::$cachedCspTemplates[$context] = str_replace(
                 $tempNonce->base64Encoded,
@@ -215,18 +216,18 @@ final class SecurityHeaderFactory
                 $csp
             );
         }
-        
+
         return self::$cachedCspTemplates[$context];
     }
-    
+
     /**
      * Get cached header template for context (without CSP).
      */
     private function getHeadersTemplateForContext(string $context): SecurityHeaderSet
     {
-        if (!isset(self::$cachedHeaderTemplates[$context])) {
+        if (! isset(self::$cachedHeaderTemplates[$context])) {
             $baseHeaders = $this->getBaseHeaders();
-            
+
             self::$cachedHeaderTemplates[$context] = match ($context) {
                 'production' => $baseHeaders->merge(SecurityHeaderSet::create([
                     'Strict-Transport-Security' => 'max-age=31536000; includeSubDomains; preload',
@@ -241,7 +242,7 @@ final class SecurityHeaderFactory
                 default => $baseHeaders,
             };
         }
-        
+
         return self::$cachedHeaderTemplates[$context];
     }
 
@@ -250,10 +251,6 @@ final class SecurityHeaderFactory
      */
     public function determineContext(string $path): string
     {
-        if (str_starts_with($path, '/api/')) {
-            return 'api';
-        }
-
         if (str_starts_with($path, '/admin/')) {
             return 'admin';
         }
@@ -279,7 +276,7 @@ final class SecurityHeaderFactory
             default => $this->createDevelopmentHeaders($nonce ?? SecurityNonce::generate()),
         };
     }
-    
+
     /**
      * Optimized version of createForContext with template caching.
      */
@@ -289,7 +286,7 @@ final class SecurityHeaderFactory
         if ($context === 'api') {
             return $this->createApiHeadersCached();
         }
-        
+
         // For contexts requiring CSP, use template + nonce injection
         return $this->createHeadersWithCspTemplate($context, $nonce);
     }

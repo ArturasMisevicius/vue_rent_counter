@@ -1,7 +1,7 @@
 <?php return array (
   'heroicons' => 
   array (
-    'C:\\Dropbox\\projects\\vue_rent_counter\\vendor\\blade-ui-kit\\blade-heroicons\\src/../resources/svg' => 
+    'C:\\Dropbox\\projects\\tenanto\\vendor\\blade-ui-kit\\blade-heroicons\\src/../resources/svg' => 
     array (
       0 => 'c-academic-cap',
       1 => 'c-adjustments-horizontal',
@@ -1295,7 +1295,7 @@
   ),
   'filament' => 
   array (
-    'C:\\Dropbox\\projects\\vue_rent_counter\\vendor\\filament\\support\\src/../resources/svg' => 
+    'C:\\Dropbox\\projects\\tenanto\\vendor\\filament\\support\\src/../resources/svg' => 
     array (
       0 => 'm-pencil-slash',
       1 => 'o-align-center',

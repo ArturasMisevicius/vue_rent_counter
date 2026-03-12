@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Register - Vilnius Utilities · Rent Counter</title>
+    <title>{{ __('app.auth.register_page.meta_title', ['brand' => __('app.brand.name'), 'product' => __('app.brand.product')]) }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-slate-950 text-slate-50 antialiased">
@@ -19,13 +19,13 @@
         <a href="{{ url('/') }}" class="flex items-center gap-3">
             <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-400 text-white font-display text-xl shadow-glow">V</span>
             <div class="leading-tight">
-                <p class="text-[11px] uppercase tracking-[0.22em] text-slate-300">Vilnius Utilities</p>
-                <p class="font-display text-lg text-white">Rent Counter</p>
+                <p class="text-[11px] uppercase tracking-[0.22em] text-slate-300">{{ __('app.brand.name') }}</p>
+                <p class="font-display text-lg text-white">{{ __('app.brand.product') }}</p>
             </div>
         </a>
 
         <a href="{{ url('/') }}" class="text-sm font-semibold text-slate-200 hover:text-white">
-            ← Back to Home
+            {{ __('app.auth.login_page.back_home') }}
         </a>
     </header>
 
@@ -34,13 +34,13 @@
             <!-- Welcome Section -->
             <div class="text-center">
                 <p class="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-sky-200 ring-1 ring-white/10">
-                    Create Account
+                    {{ __('app.auth.register_page.badge') }}
                 </p>
                 <h1 class="mt-4 font-display text-4xl sm:text-5xl font-bold text-white leading-tight">
-                    Get Started
+                    {{ __('app.auth.register_page.heading') }}
                 </h1>
                 <p class="mt-3 text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto">
-                    Create a new tenant account to access your utilities dashboard and manage your properties.
+                    {{ __('app.auth.register_page.subtitle') }}
                 </p>
             </div>
 
@@ -65,7 +65,7 @@
                     <form method="POST" action="{{ route('register') }}" class="space-y-6">
                         @csrf
                         <div>
-                            <label for="name" class="block text-sm font-semibold text-white mb-2.5">Full Name</label>
+                            <label for="name" class="block text-sm font-semibold text-white mb-2.5">{{ __('app.auth.register_page.full_name_label') }}</label>
                             <input 
                                 type="text" 
                                 id="name" 
@@ -74,12 +74,12 @@
                                 required 
                                 autofocus
                                 class="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-200 hover:bg-white/15"
-                                placeholder="John Doe"
+                                placeholder="{{ __('app.auth.register_page.full_name_placeholder') }}"
                             >
                         </div>
 
                         <div>
-                            <label for="email" class="block text-sm font-semibold text-white mb-2.5">Email Address</label>
+                            <label for="email" class="block text-sm font-semibold text-white mb-2.5">{{ __('app.auth.register_page.email_label') }}</label>
                             <input 
                                 type="email" 
                                 id="email" 
@@ -87,13 +87,13 @@
                                 value="{{ old('email') }}" 
                                 required
                                 class="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-200 hover:bg-white/15"
-                                placeholder="your@email.com"
+                                placeholder="{{ __('app.auth.register_page.email_placeholder') }}"
                             >
                         </div>
 
                         <div class="grid md:grid-cols-2 gap-6">
                             <div>
-                                <label for="password" class="block text-sm font-semibold text-white mb-2.5">Password</label>
+                                <label for="password" class="block text-sm font-semibold text-white mb-2.5">{{ __('app.auth.register_page.password_label') }}</label>
                                 <input 
                                     type="password" 
                                     id="password" 
@@ -102,11 +102,11 @@
                                     class="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-200 hover:bg-white/15"
                                     placeholder="••••••••"
                                 >
-                                <p class="mt-1.5 text-xs text-slate-400">Minimum 8 characters</p>
+                                <p class="mt-1.5 text-xs text-slate-400">{{ __('app.auth.register_page.password_minimum') }}</p>
                             </div>
 
                             <div>
-                                <label for="password_confirmation" class="block text-sm font-semibold text-white mb-2.5">Confirm Password</label>
+                                <label for="password_confirmation" class="block text-sm font-semibold text-white mb-2.5">{{ __('app.auth.register_page.password_confirmation_label') }}</label>
                                 <input 
                                     type="password" 
                                     id="password_confirmation" 
@@ -119,7 +119,7 @@
                         </div>
 
                         <div>
-                            <label for="tenant_id" class="block text-sm font-semibold text-white mb-2.5">Tenant ID</label>
+                            <label for="tenant_id" class="block text-sm font-semibold text-white mb-2.5">{{ __('app.auth.register_page.tenant_id_label') }}</label>
                             <input 
                                 type="number" 
                                 id="tenant_id" 
@@ -127,16 +127,16 @@
                                 value="{{ old('tenant_id') }}" 
                                 required
                                 class="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-200 hover:bg-white/15"
-                                placeholder="1"
+                                placeholder="{{ __('app.auth.register_page.tenant_id_placeholder') }}"
                             >
-                            <p class="mt-1.5 text-xs text-slate-400">Enter your organization's tenant ID</p>
+                            <p class="mt-1.5 text-xs text-slate-400">{{ __('app.auth.register_page.tenant_id_help') }}</p>
                         </div>
 
                         <button 
                             type="submit"
                             class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 via-indigo-600 to-sky-500 px-6 py-3.5 text-sm font-semibold text-white shadow-glow transition-all duration-200 active:translate-y-0"
                         >
-                            Create Account
+                            {{ __('app.auth.register_page.submit') }}
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5 21 12l-7.5 7.5M21 12H3" />
                             </svg>
@@ -148,7 +148,7 @@
             <!-- Login Link -->
             <div class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur text-center">
                 <p class="text-sm text-slate-300 mb-4">
-                    Already have an account?
+                    {{ __('app.auth.register_page.already_have_account') }}
                 </p>
                 <a 
                     href="{{ route('login') }}"
@@ -157,7 +157,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                     </svg>
-                    Sign In Instead
+                    {{ __('app.auth.register_page.sign_in_instead') }}
                 </a>
             </div>
         </div>

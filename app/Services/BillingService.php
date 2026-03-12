@@ -10,18 +10,22 @@ use App\Exceptions\BillingException;
 use App\Exceptions\InvoiceAlreadyFinalizedException;
 use App\Exceptions\MissingMeterReadingException;
 use App\Models\Invoice;
+use App\Models\InvoiceGenerationAudit;
 use App\Models\InvoiceItem;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\ServiceConfiguration;
 use App\Models\Tenant;
+use App\Models\User;
 use App\ValueObjects\BillingPeriod;
 use App\ValueObjects\UniversalCalculationResult;
 use App\ValueObjects\UniversalConsumptionData;
 use Carbon\Carbon;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 /**
  * BillingService
@@ -32,33 +36,39 @@ class BillingService extends BaseService
 {
     public function __construct(
         private readonly UniversalBillingCalculator $billingCalculator,
-    ) {
-    }
+    ) {}
 
     /**
      * Generate an invoice for a tenant for a specific billing period.
      *
      * @throws BillingException
      * @throws MissingMeterReadingException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function generateInvoice(Tenant $tenant, Carbon $periodStart, Carbon $periodEnd): Invoice
     {
-        if (auth()->check() && !auth()->user()->can('create', [Invoice::class, $tenant])) {
-            $this->log('warning', 'Unauthorized invoice generation attempt', [
-                'user_id' => auth()->id(),
-                'tenant_id' => $tenant->id,
-                'ip' => request()->ip(),
-            ]);
+        if (auth()->check()) {
+            $actor = auth()->user();
+            $canCreateInvoice = $actor->can('create', Invoice::class);
+            $canAccessTenant = $actor->isSuperadmin() || $actor->tenant_id === $tenant->tenant_id;
 
-            throw new \Illuminate\Auth\Access\AuthorizationException(
-                'Unauthorized to generate invoice for this tenant'
-            );
+            if (! $canCreateInvoice || ! $canAccessTenant) {
+                $this->log('warning', 'Unauthorized invoice generation attempt', [
+                    'user_id' => auth()->id(),
+                    'tenant_id' => $tenant->id,
+                    'ip' => request()->ip(),
+                ]);
+
+                throw new AuthorizationException(
+                    'Unauthorized to generate invoice for this tenant'
+                );
+            }
         }
 
+        $generationStartedAt = microtime(true);
         $this->checkRateLimit('invoice-generation', auth()->id() ?? 0);
 
-        return $this->executeInTransaction(function () use ($tenant, $periodStart, $periodEnd) {
+        return $this->executeInTransaction(function () use ($tenant, $periodStart, $periodEnd, $generationStartedAt) {
             $this->log('info', 'Starting invoice generation', [
                 'tenant_id' => '[REDACTED]',
                 'period_start' => $periodStart->toDateString(),
@@ -66,6 +76,20 @@ class BillingService extends BaseService
             ]);
 
             $billingPeriod = new BillingPeriod($periodStart, $periodEnd);
+            $existingDraftInvoice = $this->findExistingDraftInvoice($tenant, $periodStart, $periodEnd);
+
+            if ($existingDraftInvoice !== null) {
+                $this->recordInvoiceGenerationAudit(
+                    tenant: $tenant,
+                    invoice: $existingDraftInvoice,
+                    periodStart: $periodStart,
+                    periodEnd: $periodEnd,
+                    wasReused: true,
+                    startedAt: $generationStartedAt,
+                );
+
+                return $existingDraftInvoice;
+            }
 
             $invoice = Invoice::create([
                 'tenant_id' => $tenant->tenant_id,
@@ -87,6 +111,15 @@ class BillingService extends BaseService
             }
 
             $invoice->update(['total_amount' => round($totalAmount, 2)]);
+            $invoice->load('items');
+            $this->recordInvoiceGenerationAudit(
+                tenant: $tenant,
+                invoice: $invoice,
+                periodStart: $periodStart,
+                periodEnd: $periodEnd,
+                wasReused: false,
+                startedAt: $generationStartedAt,
+            );
 
             $this->log('info', 'Invoice generation completed', [
                 'invoice_id' => $invoice->id,
@@ -126,13 +159,13 @@ class BillingService extends BaseService
      */
     public function recalculateDraftInvoice(Invoice $invoice): Invoice
     {
-        if (!$invoice->isDraft()) {
+        if (! $invoice->isDraft()) {
             return $invoice;
         }
 
         $tenant = $invoice->tenant;
 
-        if (!$tenant) {
+        if (! $tenant) {
             throw new BillingException("Invoice {$invoice->id} has no tenant");
         }
 
@@ -192,7 +225,7 @@ class BillingService extends BaseService
             },
         ])->property;
 
-        if (!$property) {
+        if (! $property) {
             throw new BillingException("Tenant {$tenant->id} has no associated property");
         }
 
@@ -221,7 +254,7 @@ class BillingService extends BaseService
     ): Collection {
         $service = $serviceConfiguration->utilityService;
 
-        if (!$service) {
+        if (! $service) {
             throw new BillingException("Service configuration {$serviceConfiguration->id} is missing utility service");
         }
 
@@ -366,11 +399,11 @@ class BillingService extends BaseService
                     $startReading = $this->getReadingAtOrBefore($meter, $zone, $period->start);
                     $endReading = $this->getReadingAtOrAfter($meter, $zone, $period->end);
 
-                    if (!$startReading) {
+                    if (! $startReading) {
                         throw new MissingMeterReadingException($meter->id, $period->start, $zone);
                     }
 
-                    if (!$endReading) {
+                    if (! $endReading) {
                         throw new MissingMeterReadingException($meter->id, $period->end, $zone);
                     }
 
@@ -387,11 +420,11 @@ class BillingService extends BaseService
             $startReading = $this->getReadingAtOrBefore($meter, null, $period->start);
             $endReading = $this->getReadingAtOrAfter($meter, null, $period->end);
 
-            if (!$startReading) {
+            if (! $startReading) {
                 throw new MissingMeterReadingException($meter->id, $period->start, null);
             }
 
-            if (!$endReading) {
+            if (! $endReading) {
                 throw new MissingMeterReadingException($meter->id, $period->end, null);
             }
 
@@ -401,7 +434,7 @@ class BillingService extends BaseService
             $meterSnapshots[] = $this->buildMeterSnapshot($meter, null, $startReading, $endReading, $consumption);
         }
 
-        $consumptionData = !empty($zoneConsumption)
+        $consumptionData = ! empty($zoneConsumption)
             ? UniversalConsumptionData::fromZones(array_map(fn ($v) => round((float) $v, 3), $zoneConsumption))
             : UniversalConsumptionData::fromTotal(round($totalConsumption, 3));
 
@@ -433,7 +466,7 @@ class BillingService extends BaseService
     }
 
     /**
-     * @param array<string, mixed> $extra
+     * @param  array<string, mixed>  $extra
      * @return array<string, mixed>
      */
     private function buildSnapshot(
@@ -457,7 +490,7 @@ class BillingService extends BaseService
     }
 
     /**
-     * @param array<string, mixed> $snapshot
+     * @param  array<string, mixed>  $snapshot
      * @return array<string, mixed>
      */
     private function toInvoiceItemData(
@@ -522,6 +555,86 @@ class BillingService extends BaseService
             ->toArray();
     }
 
+    private function findExistingDraftInvoice(Tenant $tenant, Carbon $periodStart, Carbon $periodEnd): ?Invoice
+    {
+        return Invoice::query()
+            ->where('tenant_id', $tenant->tenant_id)
+            ->where('tenant_renter_id', $tenant->id)
+            ->whereDate('billing_period_start', $periodStart->toDateString())
+            ->whereDate('billing_period_end', $periodEnd->toDateString())
+            ->where('status', InvoiceStatus::DRAFT->value)
+            ->with('items')
+            ->lockForUpdate()
+            ->first();
+    }
+
+    private function recordInvoiceGenerationAudit(
+        Tenant $tenant,
+        Invoice $invoice,
+        Carbon $periodStart,
+        Carbon $periodEnd,
+        bool $wasReused,
+        float $startedAt
+    ): void {
+        $actorId = $this->resolveAuditActorId($tenant);
+
+        if ($actorId === null) {
+            $this->log('warning', 'Skipping invoice generation audit because no actor could be resolved', [
+                'invoice_id' => $invoice->id,
+                'tenant_id' => $tenant->tenant_id,
+            ]);
+
+            return;
+        }
+
+        $itemsCount = $invoice->relationLoaded('items')
+            ? $invoice->items->count()
+            : $invoice->items()->count();
+
+        InvoiceGenerationAudit::create([
+            'invoice_id' => $invoice->id,
+            'tenant_id' => $tenant->tenant_id,
+            'user_id' => $actorId,
+            'period_start' => $periodStart->toDateString(),
+            'period_end' => $periodEnd->toDateString(),
+            'total_amount' => (float) $invoice->total_amount,
+            'items_count' => $itemsCount,
+            'metadata' => [
+                'was_reused' => $wasReused,
+                'billing_period' => [
+                    'start' => $periodStart->toDateString(),
+                    'end' => $periodEnd->toDateString(),
+                ],
+            ],
+            'execution_time_ms' => round((microtime(true) - $startedAt) * 1000, 2),
+            'query_count' => null,
+        ]);
+    }
+
+    private function resolveAuditActorId(Tenant $tenant): ?int
+    {
+        $authenticatedUserId = auth()->id();
+
+        if ($authenticatedUserId !== null) {
+            return (int) $authenticatedUserId;
+        }
+
+        $actorId = User::query()
+            ->withoutGlobalScopes()
+            ->where('tenant_id', $tenant->tenant_id)
+            ->orderByRaw("
+                CASE role
+                    WHEN 'admin' THEN 1
+                    WHEN 'manager' THEN 2
+                    WHEN 'tenant' THEN 3
+                    ELSE 4
+                END
+            ")
+            ->value('id');
+
+        return $actorId === null ? null : (int) $actorId;
+    }
+
     private function checkRateLimit(string $key, int $userId): void
     {
         if (app()->runningInConsole() || app()->runningUnitTests()) {
@@ -540,7 +653,7 @@ class BillingService extends BaseService
                 'attempts' => $attempts,
             ]);
 
-            throw new \Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException(
+            throw new TooManyRequestsHttpException(
                 60,
                 'Too many invoice generation attempts. Please try again later.'
             );

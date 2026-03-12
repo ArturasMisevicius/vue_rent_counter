@@ -112,6 +112,11 @@ When user's prompt is NOT in English:
 - **Performance**: Measure first. Adhere to 2025 standards (Core Web Vitals).
 - **Infra/Safety**: 5-Phase Deployment. Verify secrets security.
 
+### 🌍 Localization and Translation (Global Mandatory)
+
+- Make every user-facing string multilingual: never leave hardcoded labels, placeholders, helper text, button text, notifications, or validation messages in code.
+- Do not duplicate translation values: reuse existing translation keys when text has the same meaning/value, and prefer shared keys for cross-module text.
+
 ### 📁 File Dependency Awareness
 
 **Before modifying ANY file:**

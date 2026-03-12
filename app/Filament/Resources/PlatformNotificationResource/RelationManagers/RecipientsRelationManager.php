@@ -6,11 +6,10 @@ namespace App\Filament\Resources\PlatformNotificationResource\RelationManagers;
 
 use App\Models\PlatformNotificationRecipient;
 use Filament\Forms;
-use Filament\Schemas\Schema;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
 class RecipientsRelationManager extends RelationManager
 {
@@ -34,7 +33,7 @@ class RecipientsRelationManager extends RelationManager
             ->recordTitleAttribute('email')
             ->columns([
                 Tables\Columns\TextColumn::make('organization.name')
-                    ->label('Organization')
+                    ->label(__('common.organization'))
                     ->searchable()
                     ->sortable(),
 
@@ -43,7 +42,7 @@ class RecipientsRelationManager extends RelationManager
                     ->sortable(),
 
                 Tables\Columns\BadgeColumn::make('delivery_status')
-                    ->label('Status')
+                    ->label(__('platform_notifications.labels.status'))
                     ->colors([
                         'secondary' => 'pending',
                         'success' => 'sent',
@@ -53,19 +52,19 @@ class RecipientsRelationManager extends RelationManager
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('sent_at')
-                    ->label('Sent At')
+                    ->label(__('platform_notifications.labels.sent_at'))
                     ->dateTime()
                     ->sortable()
-                    ->placeholder('Not sent'),
+                    ->placeholder(__('platform_notifications.placeholders.not_sent')),
 
                 Tables\Columns\TextColumn::make('read_at')
-                    ->label('Read At')
+                    ->label(__('platform_notifications.labels.read_at'))
                     ->dateTime()
                     ->sortable()
-                    ->placeholder('Not read'),
+                    ->placeholder(__('platform_notifications.placeholders.not_read')),
 
                 Tables\Columns\TextColumn::make('failure_reason')
-                    ->label('Failure Reason')
+                    ->label(__('platform_notifications.labels.failure_reason'))
                     ->limit(50)
                     ->tooltip(function (PlatformNotificationRecipient $record): ?string {
                         return $record->failure_reason;
@@ -75,10 +74,10 @@ class RecipientsRelationManager extends RelationManager
             ->filters([
                 Tables\Filters\SelectFilter::make('delivery_status')
                     ->options([
-                        'pending' => 'Pending',
-                        'sent' => 'Sent',
-                        'failed' => 'Failed',
-                        'read' => 'Read',
+                        'pending' => __('platform_notifications.values.delivery_status.pending'),
+                        'sent' => __('platform_notifications.values.delivery_status.sent'),
+                        'failed' => __('platform_notifications.values.delivery_status.failed'),
+                        'read' => __('platform_notifications.values.delivery_status.read'),
                     ]),
 
                 Tables\Filters\SelectFilter::make('organization')

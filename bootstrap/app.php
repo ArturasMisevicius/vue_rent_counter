@@ -1,39 +1,48 @@
 <?php
 
+use App\Http\Middleware\CheckSubscriptionStatus;
+use App\Http\Middleware\EnsureHierarchicalAccess;
+use App\Http\Middleware\EnsureTenantContext;
+use App\Http\Middleware\EnsureUserHasRole;
+use App\Http\Middleware\EnsureUserIsSuperadmin;
+use App\Http\Middleware\SetLocale;
+use App\Http\Middleware\SetTenantContext;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middleware\RoleMiddleware;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 
 // Create the application with proper bootstrap sequence
 $app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__."/../routes/web.php",
-        api: __DIR__."/../routes/api.php",
-        commands: __DIR__."/../routes/console.php",
-        health: "/up",
+        web: __DIR__.'/../routes/web.php',
+        commands: __DIR__.'/../routes/console.php',
+        health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
-            \App\Http\Middleware\SetLocale::class,
+            SetLocale::class,
         ]);
-        
+
         $middleware->alias([
             // Tenant context middleware
-            'tenant.context' => \App\Http\Middleware\EnsureTenantContext::class,
-            'tenant.set' => \App\Http\Middleware\SetTenantContext::class,
-            
+            'tenant.context' => EnsureTenantContext::class,
+            'tenant.set' => SetTenantContext::class,
+
             // Role-based access control
-            'superadmin' => \App\Http\Middleware\EnsureUserIsSuperadmin::class,
-            'role' => \App\Http\Middleware\EnsureUserHasRole::class,
-            
+            'superadmin' => EnsureUserIsSuperadmin::class,
+            'role' => EnsureUserHasRole::class,
+
             // Subscription and hierarchical access (CRITICAL for admin/manager/tenant routes)
-            'subscription.check' => \App\Http\Middleware\CheckSubscriptionStatus::class,
-            'hierarchical.access' => \App\Http\Middleware\EnsureHierarchicalAccess::class,
-            
+            'subscription.check' => CheckSubscriptionStatus::class,
+            'hierarchical.access' => EnsureHierarchicalAccess::class,
+
             // Spatie Laravel Permission middleware aliases (for database-based roles)
-            'spatie.role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
-            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'spatie.role' => RoleMiddleware::class,
+            'permission' => PermissionMiddleware::class,
+            'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

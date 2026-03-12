@@ -19,9 +19,10 @@
 
     <div @class([
         'grid grid-cols-1 gap-5',
+        'sm:grid-cols-1' => (int) $columns === 1,
         'sm:grid-cols-3' => (int) $columns === 3,
         'sm:grid-cols-2' => (int) $columns === 2,
-        'sm:grid-cols-2 lg:grid-cols-4' => ! in_array((int) $columns, [2, 3], true),
+        'sm:grid-cols-2 lg:grid-cols-4' => ! in_array((int) $columns, [1, 2, 3], true),
     ])>
         {{ $slot }}
     </div>

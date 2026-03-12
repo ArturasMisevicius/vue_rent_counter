@@ -8,7 +8,8 @@ use App\Enums\UserRole;
 use App\Filament\Resources\FaqResource\Pages;
 use App\Models\Faq;
 use App\Models\User;
-use Filament\Forms;
+use App\Observers\FaqObserver;
+use App\Policies\FaqPolicy;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
@@ -17,7 +18,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * Filament resource for managing FAQ entries.
@@ -34,8 +34,8 @@ use Illuminate\Database\Eloquent\Model;
  * - Automated cache invalidation via FaqObserver
  * - Indexed category column for filter performance
  *
- * @see \App\Models\Faq
- * @see \App\Observers\FaqObserver
+ * @see Faq
+ * @see FaqObserver
  */
 class FaqResource extends Resource
 {
@@ -71,17 +71,20 @@ class FaqResource extends Resource
      * Only admins and superadmins can access FAQ management.
      * Authorization is handled by FaqPolicy.
      *
-     * @see \App\Policies\FaqPolicy
+     * @see FaqPolicy
      */
     public static function shouldRegisterNavigation(): bool
     {
         $user = auth()->user();
-        
-        if (!$user instanceof User) {
+
+        if (! $user instanceof User) {
             return false;
         }
 
-        return $user->role === UserRole::SUPERADMIN;
+        return in_array($user->role, [
+            UserRole::SUPERADMIN,
+            UserRole::ADMIN,
+        ], true);
     }
 
     /**
@@ -89,12 +92,12 @@ class FaqResource extends Resource
      *
      * Reduces translation overhead by caching lookups for the request lifecycle.
      *
-     * @param string $key Translation key
+     * @param  string  $key  Translation key
      * @return string Translated string
      */
     private static function trans(string $key): string
     {
-        if (!isset(self::$translationCache[$key])) {
+        if (! isset(self::$translationCache[$key])) {
             self::$translationCache[$key] = __($key);
         }
 
@@ -116,7 +119,7 @@ class FaqResource extends Resource
     {
         $cacheKey = 'faq:categories:v1';
         $ttl = now()->addMinutes(15);
-        
+
         $categories = cache()->remember(
             $cacheKey,
             $ttl,
@@ -129,13 +132,14 @@ class FaqResource extends Resource
                 ->pluck('category', 'category')
                 ->toArray()
         );
-        
+
         // Validate cached data structure
-        if (!is_array($categories)) {
+        if (! is_array($categories)) {
             cache()->forget($cacheKey);
+
             return [];
         }
-        
+
         // Sanitize category values
         return array_map(
             fn ($category) => htmlspecialchars((string) $category, ENT_QUOTES, 'UTF-8'),

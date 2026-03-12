@@ -8,10 +8,12 @@ use App\Enums\UserRole;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;
-use App\Models\MeterReadingAudit;
 use App\Models\MeterReading;
+use App\Models\MeterReadingAudit;
 use App\Models\Property;
+use App\Models\Subscription;
 use App\Models\User;
+use Database\Seeders\TestDatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -19,20 +21,33 @@ class AdminDashboardTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function actingAsSubscribedAdmin(array $attributes = []): User
+    {
+        $tenantId = (int) ($attributes['tenant_id'] ?? 1);
+        $admin = $this->actingAsAdmin($tenantId, $attributes);
+
+        Subscription::factory()
+            ->for($admin)
+            ->active()
+            ->create();
+
+        return $admin;
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(\Database\Seeders\TestDatabaseSeeder::class);
+        $this->seed(TestDatabaseSeeder::class);
     }
 
     public function test_admin_can_access_dashboard(): void
     {
-        $admin = $this->actingAsAdmin();
+        $admin = $this->actingAsSubscribedAdmin();
 
         $response = $this->get('/admin');
 
         $response->assertStatus(200);
-        $response->assertSee('Welcome back');
+        $response->assertSee('Dashboard');
         $response->assertSee($admin->name);
     }
 
@@ -43,8 +58,18 @@ class AdminDashboardTest extends TestCase
         $response = $this->get('/admin');
 
         $response->assertStatus(200);
-        $response->assertSee('Welcome back');
+        $response->assertSee('Dashboard');
         $response->assertSee($manager->name);
+    }
+
+    public function test_admin_dashboard_blocks_are_full_width(): void
+    {
+        $this->actingAsSubscribedAdmin();
+
+        $response = $this->get('/admin');
+
+        $response->assertStatus(200);
+        $response->assertSee('fi-dashboard', false);
     }
 
     public function test_tenant_cannot_access_admin_dashboard(): void
@@ -65,7 +90,7 @@ class AdminDashboardTest extends TestCase
 
     public function test_dashboard_shows_correct_stats_for_admin(): void
     {
-        $admin = $this->actingAsAdmin();
+        $admin = $this->actingAsSubscribedAdmin();
 
         // Track baseline counts, then create one of each
         $basePropertyCount = Property::where('tenant_id', $admin->tenant_id)->count();
@@ -86,7 +111,7 @@ class AdminDashboardTest extends TestCase
         $response = $this->get('/admin');
 
         $response->assertStatus(200);
-        
+
         // Verify the widget is registered and data is correct
         $this->assertEquals(
             $basePropertyCount + 1,
@@ -107,7 +132,7 @@ class AdminDashboardTest extends TestCase
 
     public function test_dashboard_shows_quick_actions_for_admin(): void
     {
-        $this->actingAsAdmin();
+        $this->actingAsSubscribedAdmin();
 
         $response = $this->get('/admin');
 
@@ -121,28 +146,28 @@ class AdminDashboardTest extends TestCase
 
     public function test_dashboard_stats_are_tenant_scoped(): void
     {
-        $admin1 = $this->actingAsAdmin();
-        
+        $admin1 = $this->actingAsSubscribedAdmin();
+
         $admin1BasePropertyCount = Property::where('tenant_id', $admin1->tenant_id)->count();
         $admin2TenantId = 9999;
         $admin2BasePropertyCount = Property::where('tenant_id', $admin2TenantId)->count();
 
         // Create data for admin1's tenant
         $property1 = $this->createTestProperty(['tenant_id' => $admin1->tenant_id]);
-        
+
         // Create another admin with different tenant
         $admin2 = User::factory()->create([
             'role' => UserRole::ADMIN,
             'tenant_id' => $admin2TenantId,
         ]);
-        
+
         // Create data for admin2's tenant
         $property2 = Property::factory()->create(['tenant_id' => $admin2->tenant_id]);
 
         $response = $this->get('/admin');
 
         $response->assertStatus(200);
-        
+
         // Should see counts relative to each tenant's base state
         $this->assertEquals(
             $admin1BasePropertyCount + 1,
@@ -156,7 +181,7 @@ class AdminDashboardTest extends TestCase
 
     public function test_dashboard_shows_draft_invoices_count(): void
     {
-        $admin = $this->actingAsAdmin();
+        $admin = $this->actingAsSubscribedAdmin();
 
         $baseDraftCount = Invoice::where('tenant_id', $admin->tenant_id)
             ->whereNull('finalized_at')
@@ -177,7 +202,7 @@ class AdminDashboardTest extends TestCase
         $response = $this->get('/admin');
 
         $response->assertStatus(200);
-        
+
         $draftCount = Invoice::where('tenant_id', $admin->tenant_id)
             ->whereNull('finalized_at')
             ->count();
@@ -186,9 +211,9 @@ class AdminDashboardTest extends TestCase
 
     public function test_dashboard_shows_pending_meter_readings(): void
     {
-        $admin = $this->actingAsAdmin();
+        $admin = $this->actingAsSubscribedAdmin();
         $property = $this->createTestProperty(['tenant_id' => $admin->tenant_id]);
-        $meter = \App\Models\Meter::factory()->forProperty($property)->create([
+        $meter = Meter::factory()->forProperty($property)->create([
             'tenant_id' => $admin->tenant_id,
         ]);
 
@@ -224,17 +249,17 @@ class AdminDashboardTest extends TestCase
         $response = $this->get('/admin');
 
         $response->assertStatus(200);
-        
+
         $pendingCount = MeterReading::whereHas('meter', function ($query) use ($admin) {
             $query->where('tenant_id', $admin->tenant_id);
         })->whereDoesntHave('auditTrail')->count();
-        
+
         $this->assertEquals($basePendingCount + 2, $pendingCount);
     }
 
     public function test_dashboard_calculates_monthly_revenue(): void
     {
-        $admin = $this->actingAsAdmin();
+        $admin = $this->actingAsSubscribedAdmin();
         $baseMonthlyRevenue = Invoice::where('tenant_id', $admin->tenant_id)
             ->whereNotNull('finalized_at')
             ->whereMonth('created_at', now()->month)
@@ -266,12 +291,12 @@ class AdminDashboardTest extends TestCase
         $response = $this->get('/admin');
 
         $response->assertStatus(200);
-        
+
         $monthlyRevenue = Invoice::where('tenant_id', $admin->tenant_id)
             ->whereNotNull('finalized_at')
             ->whereMonth('created_at', now()->month)
             ->sum('total_amount');
-        
+
         $this->assertEquals($baseMonthlyRevenue + 25000, $monthlyRevenue); // €250.00 above baseline
     }
 
@@ -282,10 +307,10 @@ class AdminDashboardTest extends TestCase
         $response = $this->get('/admin');
 
         $response->assertStatus(200);
-        
+
         // Manager dashboard loads successfully
         // Widget stats are rendered via Livewire, so we verify the page loads
-        $response->assertSee('Welcome back');
+        $response->assertSee('Dashboard');
     }
 
     public function test_tenant_sees_own_property_stats(): void
@@ -309,19 +334,15 @@ class AdminDashboardTest extends TestCase
 
     public function test_dashboard_handles_no_data_gracefully(): void
     {
-        // Create admin with no associated data
-        $admin = User::factory()->create([
-            'role' => UserRole::ADMIN,
-            'tenant_id' => 'tenant_empty_' . uniqid(),
+        $admin = $this->actingAsSubscribedAdmin([
+            'tenant_id' => 7777,
         ]);
-
-        $this->actingAs($admin);
 
         $response = $this->get('/admin');
 
         $response->assertStatus(200);
-        $response->assertSee('Welcome back');
-        
+        $response->assertSee('Dashboard');
+
         // Should show zero counts
         $this->assertEquals(0, Property::where('tenant_id', $admin->tenant_id)->count());
         $this->assertEquals(0, Building::where('tenant_id', $admin->tenant_id)->count());
@@ -329,7 +350,7 @@ class AdminDashboardTest extends TestCase
 
     public function test_dashboard_links_work_correctly(): void
     {
-        $this->actingAsAdmin();
+        $this->actingAsSubscribedAdmin();
 
         $response = $this->get('/admin');
 

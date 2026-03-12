@@ -13,7 +13,7 @@ use Carbon\Carbon;
 test('UniversalBillingCalculator applies localized fixed charges surcharges minimum charge and tax', function () {
     $calculator = app(UniversalBillingCalculator::class);
 
-    $serviceConfiguration = new ServiceConfiguration();
+    $serviceConfiguration = new ServiceConfiguration;
     $serviceConfiguration->pricing_model = PricingModel::CONSUMPTION_BASED;
     $serviceConfiguration->distribution_method = DistributionMethod::EQUAL;
     $serviceConfiguration->rate_schedule = [
@@ -73,14 +73,14 @@ test('UniversalBillingCalculator applies localized rounding mode', function () {
         ],
     ];
 
-    $down = new ServiceConfiguration();
+    $down = new ServiceConfiguration;
     $down->pricing_model = PricingModel::CONSUMPTION_BASED;
     $down->distribution_method = DistributionMethod::EQUAL;
     $down->rate_schedule = array_replace_recursive($baseSchedule, [
         'localization' => ['rounding_mode' => 'down'],
     ]);
 
-    $halfUp = new ServiceConfiguration();
+    $halfUp = new ServiceConfiguration;
     $halfUp->pricing_model = PricingModel::CONSUMPTION_BASED;
     $halfUp->distribution_method = DistributionMethod::EQUAL;
     $halfUp->rate_schedule = array_replace_recursive($baseSchedule, [
@@ -97,7 +97,7 @@ test('UniversalBillingCalculator applies localized rounding mode', function () {
 test('UniversalBillingCalculator resolves time-of-use rates from time windows', function () {
     $calculator = app(UniversalBillingCalculator::class);
 
-    $serviceConfiguration = new ServiceConfiguration();
+    $serviceConfiguration = new ServiceConfiguration;
     $serviceConfiguration->pricing_model = PricingModel::TIME_OF_USE;
     $serviceConfiguration->distribution_method = DistributionMethod::EQUAL;
     $serviceConfiguration->rate_schedule = [

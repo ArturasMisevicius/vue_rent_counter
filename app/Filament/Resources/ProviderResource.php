@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\ProviderResource\Pages;
 use App\Models\Provider;
+use App\Models\User;
 use BackedEnum;
-use UnitEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -15,16 +16,38 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class ProviderResource extends Resource
 {
     protected static ?string $model = Provider::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-building-office';
-    
+
     protected static string|UnitEnum|null $navigationGroup = 'Configuration';
-    
+
     protected static ?int $navigationSort = 2;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+
+        if (! $user instanceof User) {
+            return false;
+        }
+
+        return in_array($user->role, [UserRole::SUPERADMIN, UserRole::ADMIN], true);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return static::shouldRegisterNavigation();
+    }
+
+    public static function canCreate(): bool
+    {
+        return static::shouldRegisterNavigation();
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -35,14 +58,14 @@ class ProviderResource extends Resource
                         Forms\Components\TextInput::make('name')
                             ->required()
                             ->maxLength(255),
-                            
+
                         Forms\Components\TextInput::make('code')
                             ->label('Provider Code')
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->maxLength(20)
                             ->placeholder('e.g., VS, VV'),
-                            
+
                         Forms\Components\Select::make('type')
                             ->label('Service Type')
                             ->options([
@@ -55,29 +78,29 @@ class ProviderResource extends Resource
                             ->required(),
                     ])
                     ->columns(2),
-                    
+
                 Forms\Components\Section::make('Contact Information')
                     ->schema([
                         Forms\Components\TextInput::make('contact_email')
                             ->email()
                             ->maxLength(255),
-                            
+
                         Forms\Components\TextInput::make('contact_phone')
                             ->tel()
                             ->maxLength(50),
-                            
+
                         Forms\Components\Textarea::make('address')
                             ->maxLength(500)
                             ->columnSpanFull(),
                     ])
                     ->columns(2),
-                    
+
                 Forms\Components\Section::make('Additional Information')
                     ->schema([
                         Forms\Components\Textarea::make('description')
                             ->maxLength(1000)
                             ->columnSpanFull(),
-                            
+
                         Forms\Components\Toggle::make('is_active')
                             ->default(true),
                     ]),
@@ -91,13 +114,13 @@ class ProviderResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('code')
                     ->label('Code')
                     ->searchable()
                     ->sortable()
                     ->badge(),
-                    
+
                 Tables\Columns\TextColumn::make('type')
                     ->label('Service Type')
                     ->badge()
@@ -109,24 +132,24 @@ class ProviderResource extends Resource
                         'sewage' => 'gray',
                         default => 'secondary',
                     }),
-                    
+
                 Tables\Columns\TextColumn::make('contact_email')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                    
+
                 Tables\Columns\TextColumn::make('contact_phone')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                    
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->boolean(),
-                    
+
                 Tables\Columns\TextColumn::make('tariffs_count')
                     ->label('Tariffs')
                     ->counts('tariffs')
                     ->badge()
                     ->color('info'),
-                    
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -142,7 +165,7 @@ class ProviderResource extends Resource
                         'heat' => 'Heat',
                         'sewage' => 'Sewage',
                     ]),
-                    
+
                 Tables\Filters\TernaryFilter::make('is_active'),
             ])
             ->actions([
@@ -156,15 +179,13 @@ class ProviderResource extends Resource
                     Tables\Actions\BulkAction::make('activate')
                         ->label('Activate')
                         ->icon('heroicon-o-check')
-                        ->action(fn ($records) => 
-                            $records->each(fn ($record) => $record->update(['is_active' => true]))
+                        ->action(fn ($records) => $records->each(fn ($record) => $record->update(['is_active' => true]))
                         )
                         ->deselectRecordsAfterCompletion(),
                     Tables\Actions\BulkAction::make('deactivate')
                         ->label('Deactivate')
                         ->icon('heroicon-o-x-mark')
-                        ->action(fn ($records) => 
-                            $records->each(fn ($record) => $record->update(['is_active' => false]))
+                        ->action(fn ($records) => $records->each(fn ($record) => $record->update(['is_active' => false]))
                         )
                         ->deselectRecordsAfterCompletion(),
                 ]),
@@ -181,12 +202,13 @@ class ProviderResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProviders::route('/'),
-            'create' => Pages\CreateProvider::route('/create'),
-            'edit' => Pages\EditProvider::route('/{record}/edit'),
+            // Avoid collisions with legacy `/admin/providers*` web routes.
+            'index' => Pages\ListProviders::route('/filament'),
+            'create' => Pages\CreateProvider::route('/filament/create'),
+            'edit' => Pages\EditProvider::route('/filament/{record}/edit'),
         ];
     }
-    
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()

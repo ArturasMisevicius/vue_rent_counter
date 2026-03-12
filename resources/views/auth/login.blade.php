@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Login - Vilnius Utilities · Rent Counter</title>
+    <title>{{ __('app.auth.login_page.meta_title', ['brand' => __('app.brand.name'), 'product' => __('app.brand.product')]) }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-slate-950 text-slate-50 antialiased">
@@ -20,13 +20,13 @@
         <a href="{{ url('/') }}" class="flex items-center gap-3">
             <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-400 text-white font-display text-xl shadow-glow">V</span>
             <div class="leading-tight">
-                <p class="text-[11px] uppercase tracking-[0.22em] text-slate-300">Vilnius Utilities</p>
-                <p class="font-display text-lg text-white">Rent Counter</p>
+                <p class="text-[11px] uppercase tracking-[0.22em] text-slate-300">{{ __('app.brand.name') }}</p>
+                <p class="font-display text-lg text-white">{{ __('app.brand.product') }}</p>
             </div>
         </a>
 
         <a href="{{ url('/') }}" class="text-sm font-semibold text-slate-200 hover:text-white">
-            ← Back to Home
+            {{ __('app.auth.login_page.back_home') }}
         </a>
     </header>
 
@@ -35,13 +35,13 @@
             <!-- Welcome Section -->
             <div class="text-center">
                 <p class="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-sky-200 ring-1 ring-white/10">
-                    Authentication
+                    {{ __('app.auth.login_page.badge') }}
                 </p>
                 <h1 class="mt-4 font-display text-4xl sm:text-5xl font-bold text-white leading-tight">
-                    Welcome Back
+                    {{ __('app.auth.login_page.heading') }}
                 </h1>
                 <p class="mt-3 text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto">
-                    Sign in to access your utilities dashboard and manage your properties.
+                    {{ __('app.auth.login_page.subtitle') }}
                 </p>
             </div>
 
@@ -66,7 +66,7 @@
                     <form method="POST" action="{{ route('login.post') }}" class="space-y-6">
                         @csrf
                         <div>
-                            <label for="email" class="block text-sm font-semibold text-white mb-2.5">Email Address</label>
+                            <label for="email" class="block text-sm font-semibold text-white mb-2.5">{{ __('app.auth.login_page.email_label') }}</label>
                             <input 
                                 type="email" 
                                 id="email" 
@@ -75,12 +75,12 @@
                                 required 
                                 autofocus
                                 class="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3.5 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-200 hover:bg-white/15"
-                                placeholder="your@email.com"
+                                placeholder="{{ __('app.auth.login_page.email_placeholder') }}"
                             >
                         </div>
 
                         <div>
-                            <label for="password" class="block text-sm font-semibold text-white mb-2.5">Password</label>
+                            <label for="password" class="block text-sm font-semibold text-white mb-2.5">{{ __('app.auth.login_page.password_label') }}</label>
                             <input 
                                 type="password" 
                                 id="password" 
@@ -99,7 +99,7 @@
                                     name="remember"
                                     class="h-4 w-4 rounded border-white/20 bg-white/10 text-indigo-500 focus:ring-2 focus:ring-indigo-500/50 cursor-pointer"
                                 >
-                                <label for="remember" class="ml-2.5 text-sm text-slate-300 cursor-pointer">Remember me</label>
+                                <label for="remember" class="ml-2.5 text-sm text-slate-300 cursor-pointer">{{ __('app.auth.login_page.remember_me') }}</label>
                             </div>
                         </div>
 
@@ -107,7 +107,7 @@
                             type="submit"
                             class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 via-indigo-600 to-sky-500 px-6 py-3.5 text-sm font-semibold text-white shadow-glow transition-all duration-200 active:translate-y-0"
                         >
-                            Sign In
+                            {{ __('app.auth.login_page.sign_in') }}
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5 21 12l-7.5 7.5M21 12H3" />
                             </svg>
@@ -118,12 +118,12 @@
 
             <!-- Quick Access Info -->
             <div class="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur text-center">
-                <p class="text-xs uppercase tracking-[0.2em] text-slate-400 mb-2">Quick Access</p>
+                <p class="text-xs uppercase tracking-[0.2em] text-slate-400 mb-2">{{ __('app.auth.login_page.quick_access') }}</p>
                 <p class="text-sm text-slate-300">
-                    <strong class="text-white">Default password:</strong> password
+                    <strong class="text-white">{{ __('app.auth.login_page.default_password') }}</strong> password
                 </p>
                 <p class="text-xs text-slate-400 mt-2">
-                    Click any email in the table below to auto-fill the login form
+                    {{ __('app.auth.login_page.click_hint') }}
                 </p>
             </div>
 
@@ -131,14 +131,14 @@
             <div class="space-y-4" x-data="{ showTable: true }">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Available Accounts</p>
-                        <h2 class="mt-1 text-2xl font-display font-bold text-white">Test Users</h2>
+                        <p class="text-xs uppercase tracking-[0.2em] text-slate-400">{{ __('app.auth.login_page.available_accounts') }}</p>
+                        <h2 class="mt-1 text-2xl font-display font-bold text-white">{{ __('app.auth.login_page.test_users') }}</h2>
                     </div>
                     <button 
                         @click="showTable = !showTable"
                         class="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-white/90 transition-all duration-200"
                     >
-                        <span x-text="showTable ? 'Hide' : 'Show'"></span>
+                        <span x-text="showTable ? @js(__('app.auth.login_page.toggle_hide')) : @js(__('app.auth.login_page.toggle_show'))"></span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-200" :class="showTable ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
@@ -161,11 +161,11 @@
                         <table class="w-full text-sm">
                             <thead class="sticky top-0 bg-slate-900/95 backdrop-blur-md border-b border-white/10 z-10">
                                 <tr>
-                                    <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-300">Name</th>
-                                    <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-300">Email</th>
-                                    <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-300">Password</th>
-                                    <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-300">Role</th>
-                                    <th class="px-5 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-300">Status</th>
+                                    <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-300">{{ __('app.labels.name') }}</th>
+                                    <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-300">{{ __('app.labels.email') }}</th>
+                                    <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-300">{{ __('app.auth.login_page.password_column') }}</th>
+                                    <th class="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-300">{{ __('app.labels.role') }}</th>
+                                    <th class="px-5 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-300">{{ __('app.labels.status') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-white/5">

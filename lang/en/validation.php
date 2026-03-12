@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
     'errors_occurred' => 'Errors Occurred',
     'exists' => 'Exists',
-    
+
     // Service Validation Engine messages
     'unauthorized_rate_change' => 'Unauthorized to validate rate changes for this service',
     'rate_schedule_empty' => 'Rate schedule cannot be empty',
@@ -48,4 +48,37 @@ return [
     'water_seasonal_variance_high' => 'Water consumption :consumption :unit varies by :variance% from average :average :unit.',
     'consumption_above_seasonal_expectation' => 'Consumption :consumption :unit exceeds expected seasonal maximum :expected_max :unit.',
     'seasonal_variance_detected' => 'Seasonal variance detected: :consumption :unit vs average :average :unit (:variance%).',
+
+    'custom_requests' => [
+        'api_login' => [
+            'email' => [
+                'required' => 'Email address is required',
+                'email' => 'Please provide a valid email address',
+            ],
+            'password' => [
+                'required' => 'Password is required',
+                'min' => 'Password must be at least 8 characters',
+            ],
+        ],
+        'csp_violation' => [
+            'report_required' => 'CSP report data is required',
+            'violated_directive_required' => 'Violated directive is required',
+            'document_uri_required' => 'Document URI is required',
+            'max' => 'The :attribute field is too long.',
+            'integer' => 'The :attribute must be a valid integer.',
+            'invalid_content_type' => 'Invalid content type',
+            'request_too_large' => 'Request too large',
+            'too_many_reports' => 'Too many CSP reports',
+        ],
+        'organizations' => [
+            'invalid_data' => 'The given data was invalid.',
+        ],
+        'properties' => [
+            'building_must_belong' => 'The selected building must belong to your organization.',
+            'attributes' => [
+                'area_sqm' => 'area (m²)',
+                'unit_number' => 'unit number',
+            ],
+        ],
+    ],
 ];

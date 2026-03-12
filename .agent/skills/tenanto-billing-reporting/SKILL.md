@@ -26,14 +26,17 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 - Enums/value objects: `app/Enums/*`, `app/ValueObjects/*`.
 - Reports and exports: `app/Console/Commands/Export*`, `app/Services/ExportService.php`, `app/Services/PdfReportService.php`.
 - Views/resources: invoice/report blade and Filament resources.
+- Audit trail: `app/Models/InvoiceGenerationAudit.php` and `invoice_generation_audits` table.
 
 ## Implementation Checklist
 
 1. Define business rule change with explicit input/output behavior.
 2. Confirm period boundaries, statuses, and rounding behavior.
 3. Apply change in service/domain layer first, then resource/controller wiring.
-4. Add regression tests for happy path + edge/failure paths.
-5. Validate report/export impact (PDF/XLSX generation paths if touched).
+4. Preserve invoice-generation idempotency for tenant + period draft runs.
+5. Keep generation audits complete (actor, period, totals, metadata).
+6. Add regression tests for happy path + edge/failure paths.
+7. Validate report/export impact (PDF/XLSX generation paths if touched).
 
 ## Test Scenarios To Cover
 
@@ -49,4 +52,3 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 - [ ] Edge cases covered.
 - [ ] Invoice/report/export paths validated.
 - [ ] No tenant boundary regression introduced.
-

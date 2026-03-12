@@ -1,8 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
+use App\Enums\UserRole;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Collection;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Exists;
 
 class GenerateBulkInvoicesRequest extends FormRequest
 {
@@ -17,7 +24,7 @@ class GenerateBulkInvoicesRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -25,7 +32,7 @@ class GenerateBulkInvoicesRequest extends FormRequest
             'billing_period_start' => ['required', 'date'],
             'billing_period_end' => ['required', 'date', 'after:billing_period_start'],
             'tenant_ids' => ['nullable', 'array'],
-            'tenant_ids.*' => ['integer', 'exists:tenants,id'],
+            'tenant_ids.*' => ['integer', $this->scopedTenantExistsRule()],
         ];
     }
 
@@ -46,5 +53,38 @@ class GenerateBulkInvoicesRequest extends FormRequest
             'tenant_ids.*.integer' => __('invoices.validation.tenant_ids.integer'),
             'tenant_ids.*.exists' => __('invoices.validation.tenant_ids.exists'),
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        /** @var Collection<int, mixed> $normalizedTenantIds */
+        $normalizedTenantIds = collect($this->input('tenant_ids', []))
+            ->filter(fn ($tenantId) => $tenantId !== null && $tenantId !== '')
+            ->map(fn ($tenantId) => (int) $tenantId)
+            ->unique()
+            ->values();
+
+        $this->merge([
+            'tenant_ids' => $normalizedTenantIds->isEmpty() ? null : $normalizedTenantIds->all(),
+        ]);
+    }
+
+    private function scopedTenantExistsRule(): Exists
+    {
+        return Rule::exists('tenants', 'id')->where(function ($query): void {
+            $user = $this->user();
+
+            if ($user === null) {
+                $query->whereRaw('1 = 0');
+
+                return;
+            }
+
+            if ($user->role === UserRole::SUPERADMIN) {
+                return;
+            }
+
+            $query->where('tenant_id', $user->tenant_id);
+        });
     }
 }

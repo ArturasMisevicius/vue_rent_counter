@@ -2,13 +2,15 @@
     <div class="space-y-6">
         <div class="prose max-w-none dark:prose-invert">
             @php($gdpr = trans('filament.pages.gdpr'))
+            @php($gdprTitle = is_array($gdpr) ? ($gdpr['title'] ?? __('filament.pages.gdpr.title')) : __('filament.pages.gdpr.title'))
+            @php($gdprSections = is_array($gdpr['sections'] ?? null) ? $gdpr['sections'] : [])
 
-            <h1>{{ $gdpr['title'] }}</h1>
+            <h1>{{ $gdprTitle }}</h1>
             <p class="text-sm text-slate-600 dark:text-slate-400">
                 {{ __('filament.pages.gdpr.last_updated', ['date' => now()->format('F j, Y')]) }}
             </p>
 
-            @foreach($gdpr['sections'] as $section)
+            @foreach($gdprSections as $section)
                 <section>
                     <h2>{{ $section['title'] }}</h2>
 

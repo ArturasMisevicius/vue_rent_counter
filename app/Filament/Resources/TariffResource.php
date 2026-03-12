@@ -8,6 +8,7 @@ use App\Enums\UserRole;
 use App\Filament\Resources\Concerns\CachesAuthUser;
 use App\Filament\Resources\TariffResource\Concerns\BuildsTariffFormFields;
 use App\Filament\Resources\TariffResource\Pages;
+use App\Models\Tariff;
 use BackedEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
@@ -16,13 +17,10 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
-use App\Models\Tariff;
-
 
 class TariffResource extends Resource
 {
     use BuildsTariffFormFields;
-
     use CachesAuthUser {
         clearCachedUser as protected clearAuthUserCache;
     }
@@ -30,9 +28,9 @@ class TariffResource extends Resource
     protected static ?string $model = Tariff::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-currency-euro';
-    
+
     protected static string|UnitEnum|null $navigationGroup = 'Configuration';
-    
+
     protected static ?int $navigationSort = 1;
 
     protected static ?bool $navigationVisible = null;
@@ -120,7 +118,7 @@ class TariffResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('provider.name')
                     ->sortable()
                     ->searchable(),
@@ -167,8 +165,8 @@ class TariffResource extends Resource
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                    Tables\Actions\BulkActionGroup::make([
-                        Tables\Actions\DeleteBulkAction::make(),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -183,10 +181,10 @@ class TariffResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTariffs::route('/'),
-            'create' => Pages\CreateTariff::route('/create'),
-            // Avoid collision with legacy/custom admin routes at `/admin/tariffs/{tariff}/edit`.
-            'edit' => Pages\EditTariff::route('/{record}/edit-filament'),
+            // Avoid collisions with legacy `/admin/tariffs*` web routes.
+            'index' => Pages\ListTariffs::route('/filament'),
+            'create' => Pages\CreateTariff::route('/filament/create'),
+            'edit' => Pages\EditTariff::route('/filament/{record}/edit'),
         ];
     }
 }

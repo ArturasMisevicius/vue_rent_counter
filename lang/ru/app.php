@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'End Impersonation' => 'Завершить имперсонацию',
     'Impersonation Mode Active' => 'Режим имперсонации активен',
@@ -43,11 +41,47 @@ return [
     'auth' => [
         'authentication_required' => 'Требуется аутентификация',
         'login_page' => [
+            'meta_title' => 'Вход - :brand · :product',
+            'back_home' => 'Назад на главную',
+            'badge' => 'Аутентификация',
+            'heading' => 'С возвращением',
+            'subtitle' => 'Войдите, чтобы открыть панель управления коммунальными услугами и управлять своими объектами.',
+            'email_label' => 'Адрес электронной почты',
+            'email_placeholder' => 'you@email.com',
+            'password_label' => 'Пароль',
+            'remember_me' => 'Запомнить меня',
+            'sign_in' => 'Войти',
+            'quick_access' => 'Быстрый доступ',
+            'default_password' => 'Пароль по умолчанию:',
+            'available_accounts' => 'Доступные аккаунты',
+            'test_users' => 'Тестовые пользователи',
+            'toggle_hide' => 'Скрыть',
+            'toggle_show' => 'Показать',
+            'password_column' => 'Пароль',
             'click_hint' => 'Подсказка клика',
             'no_users' => 'Нет пользователей',
             'status_active' => 'Статус активен',
             'status_inactive' => 'Статус неактивен',
             'total_users' => 'Всего пользователей',
+        ],
+        'register_page' => [
+            'meta_title' => 'Регистрация - :brand · :product',
+            'badge' => 'Создать аккаунт',
+            'heading' => 'Начните работу',
+            'subtitle' => 'Создайте новый аккаунт арендатора для доступа к панели коммунальных услуг и управления объектами.',
+            'full_name_label' => 'Полное имя',
+            'full_name_placeholder' => 'Иван Иванов',
+            'email_label' => 'Адрес электронной почты',
+            'email_placeholder' => 'you@email.com',
+            'password_label' => 'Пароль',
+            'password_minimum' => 'Минимум 8 символов',
+            'password_confirmation_label' => 'Подтвердите пароль',
+            'tenant_id_label' => 'ID арендатора',
+            'tenant_id_placeholder' => '1',
+            'tenant_id_help' => 'Введите ID арендатора вашей организации',
+            'submit' => 'Создать аккаунт',
+            'already_have_account' => 'Уже есть аккаунт?',
+            'sign_in_instead' => 'Войти вместо регистрации',
         ],
         'no_permission_admin_panel' => 'Нет разрешения на панель администратора',
         'too_many_attempts' => 'Слишком много попыток',
@@ -139,14 +173,12 @@ return [
     'test' => [
         'message' => 'Тестовое сообщение',
     ],
-    'welcome_updated' => 'Добро пожаловать (обновлено)',
+    'welcome_updated' => 'Добро пожаловать Обновлено',
     'goodbye' => 'До свидания',
-    'special_chars' => 'Привет! @#$%^&*()_+-=[]{}|;:\'",.<>?/',
-    'html_content' => '<strong>Жирный</strong> и <em>курсивный</em> текст',
-    'multiline' => 'Строка 1
-Строка 2
-Строка 3',
-    'long_text' => 'Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода.',
+    'special_chars' => 'Привет! абвгдеёжзийклмнопрстуфхцчшщъыьэюя',
+    'html_content' => 'Добро пожаловать',
+    'multiline' => 'Добро пожаловать',
+    'long_text' => 'Добро пожаловать',
     'pages' => [
         'superadmin_dashboard' => 'Панель суперадминистратора',
     ],

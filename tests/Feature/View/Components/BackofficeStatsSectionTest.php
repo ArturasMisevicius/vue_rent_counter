@@ -38,3 +38,14 @@ it('renders description and two-column layout when configured', function (): voi
         ->toContain('text-sm text-slate-500')
         ->toContain('sm:grid-cols-2');
 });
+
+it('renders single-column layout when configured', function (): void {
+    $html = Blade::render(
+        '<x-backoffice.stats-section :columns="1"><div>Widget</div></x-backoffice.stats-section>'
+    );
+
+    expect($html)
+        ->toContain('grid grid-cols-1 gap-5')
+        ->toContain('sm:grid-cols-1')
+        ->not->toContain('sm:grid-cols-2 lg:grid-cols-4');
+});

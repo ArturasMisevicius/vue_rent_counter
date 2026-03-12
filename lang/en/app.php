@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'nav_groups' => [
         'my_property' => 'My Property',
@@ -62,11 +60,47 @@ return [
     ],
     'auth' => [
         'login_page' => [
+            'meta_title' => 'Login - :brand · :product',
+            'back_home' => 'Back to Home',
+            'badge' => 'Authentication',
+            'heading' => 'Welcome Back',
+            'subtitle' => 'Sign in to access your utilities dashboard and manage your properties.',
+            'email_label' => 'Email Address',
+            'email_placeholder' => 'your@email.com',
+            'password_label' => 'Password',
+            'remember_me' => 'Remember me',
+            'sign_in' => 'Sign In',
+            'quick_access' => 'Quick Access',
+            'default_password' => 'Default password:',
+            'available_accounts' => 'Available Accounts',
+            'test_users' => 'Test Users',
+            'toggle_hide' => 'Hide',
+            'toggle_show' => 'Show',
+            'password_column' => 'Password',
             'click_hint' => 'Click a row to autofill credentials',
             'no_users' => 'No users available',
             'status_active' => 'Active',
             'status_inactive' => 'Inactive',
             'total_users' => 'Total users:',
+        ],
+        'register_page' => [
+            'meta_title' => 'Register - :brand · :product',
+            'badge' => 'Create Account',
+            'heading' => 'Get Started',
+            'subtitle' => 'Create a new tenant account to access your utilities dashboard and manage your properties.',
+            'full_name_label' => 'Full Name',
+            'full_name_placeholder' => 'John Doe',
+            'email_label' => 'Email Address',
+            'email_placeholder' => 'your@email.com',
+            'password_label' => 'Password',
+            'password_minimum' => 'Minimum 8 characters',
+            'password_confirmation_label' => 'Confirm Password',
+            'tenant_id_label' => 'Tenant ID',
+            'tenant_id_placeholder' => '1',
+            'tenant_id_help' => 'Enter your organization\'s tenant ID',
+            'submit' => 'Create Account',
+            'already_have_account' => 'Already have an account?',
+            'sign_in_instead' => 'Sign In Instead',
         ],
         'authentication_required' => 'Требуется аутентификация',
         'no_permission_admin_panel' => 'Нет разрешения на панель администратора',
@@ -298,13 +332,13 @@ return [
         'open_menu' => 'Открыть меню',
         'skip_to_content' => 'Перейти к содержимому',
     ],
-    'welcome_updated' => 'Добро пожаловать (обновлено)',
-    'special_chars' => 'Привет! @#$%^&*()_+-=[]{}|;:\'",.<>?/',
-    'html_content' => '<strong>Жирный</strong> и <em>курсивный</em> текст',
-    'multiline' => 'Строка 1
-Строка 2
-Строка 3',
-    'long_text' => 'Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода.',
+    'welcome_updated' => 'Welcome Updated',
+    'special_chars' => 'Hello! @#$%^&*()_+-=[]{}|;:\'",.<>?/',
+    'html_content' => '<strong>Bold</strong> and <em>italic</em> text',
+    'multiline' => 'Line 1
+Line 2
+Line 3',
+    'long_text' => 'This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. ',
     'pages' => [
         'superadmin_dashboard' => 'Панель суперадминистратора',
     ],

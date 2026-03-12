@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services\Validation\Validators;
 
+use App\Enums\PricingModel;
 use App\Models\ServiceConfiguration;
+use App\Services\TimeRangeValidator;
 use App\Services\Validation\ValidationContext;
 use App\Services\Validation\ValidationResult;
-use App\Services\TimeRangeValidator;
 use Carbon\Carbon;
+use Illuminate\Contracts\Cache\Repository;
+use Psr\Log\LoggerInterface;
 
 /**
  * Validates rate change restrictions using existing tariff active date functionality.
@@ -18,9 +21,9 @@ final class RateChangeValidator extends AbstractValidator
     private const DEFAULT_RATE_CHANGE_FREQUENCY_DAYS = 30;
 
     public function __construct(
-        \Illuminate\Contracts\Cache\Repository $cache,
+        Repository $cache,
         \Illuminate\Contracts\Config\Repository $config,
-        \Psr\Log\LoggerInterface $logger,
+        LoggerInterface $logger,
         private readonly TimeRangeValidator $timeRangeValidator,
     ) {
         parent::__construct($cache, $config, $logger);
@@ -92,7 +95,7 @@ final class RateChangeValidator extends AbstractValidator
                 'error' => $e->getMessage(),
             ]);
 
-            return ValidationResult::withError('Rate change validation system error: ' . $e->getMessage());
+            return ValidationResult::withError('Rate change validation system error: '.$e->getMessage());
         }
     }
 
@@ -121,18 +124,18 @@ final class RateChangeValidator extends AbstractValidator
         $warnings = [];
 
         $effectiveFrom = $newRateSchedule['effective_from'] ?? null;
-        
+
         if ($effectiveFrom) {
             $effectiveDate = Carbon::parse($effectiveFrom);
-            
+
             // Effective date should not be in the past (with some tolerance)
             if ($effectiveDate->isPast() && $effectiveDate->diffInDays(now()) > 1) {
                 $warnings[] = "Effective date is in the past: {$effectiveDate->toDateString()}";
             }
-            
+
             // Effective date should not be too far in the future
             if ($effectiveDate->isFuture() && $effectiveDate->diffInDays(now()) > 365) {
-                $warnings[] = "Effective date is more than one year in the future";
+                $warnings[] = 'Effective date is more than one year in the future';
             }
         }
 
@@ -144,21 +147,51 @@ final class RateChangeValidator extends AbstractValidator
         $errors = [];
 
         $pricingModel = $serviceConfig->pricing_model;
-        
+
         // Validate structure based on pricing model
         switch ($pricingModel) {
-            case \App\Enums\PricingModel::TIERED_RATES:
+            case PricingModel::TIERED_RATES:
                 if (empty($rateSchedule['tiers'])) {
-                    $errors[] = "Tiered pricing model requires tier definitions";
+                    $errors[] = 'Tiered pricing model requires tier definitions';
                 }
                 break;
-                
-            case \App\Enums\PricingModel::TIME_OF_USE:
-                if (empty($rateSchedule['time_slots'])) {
-                    $errors[] = "Time-of-use pricing model requires time slot definitions";
-                } else {
-                    // Validate time slots using existing TimeRangeValidator
-                    $timeValidationErrors = $this->timeRangeValidator->validate($rateSchedule['time_slots']);
+
+            case PricingModel::TIME_OF_USE:
+                $hasZoneRates = ! empty($rateSchedule['zone_rates']) && is_array($rateSchedule['zone_rates']);
+                $hasTimeWindows = ! empty($rateSchedule['time_windows']) && is_array($rateSchedule['time_windows']);
+                $hasTimeSlots = ! empty($rateSchedule['time_slots']) && is_array($rateSchedule['time_slots']);
+
+                if (! $hasZoneRates && ! $hasTimeWindows && ! $hasTimeSlots) {
+                    $errors[] = 'Time-of-use pricing model requires zone_rates, time_windows, or time_slots';
+                    break;
+                }
+
+                if ($hasTimeSlots) {
+                    $normalizedSlots = array_map(function (mixed $slot): array {
+                        if (! is_array($slot)) {
+                            return [];
+                        }
+
+                        if (isset($slot['start'], $slot['end'])) {
+                            return $slot;
+                        }
+
+                        $startHour = $slot['start_hour'] ?? null;
+                        $endHour = $slot['end_hour'] ?? null;
+
+                        if (! is_numeric($startHour) || ! is_numeric($endHour)) {
+                            return [];
+                        }
+
+                        return [
+                            'start' => sprintf('%02d:00', (int) $startHour),
+                            'end' => sprintf('%02d:00', (int) $endHour),
+                        ];
+                    }, $rateSchedule['time_slots']);
+
+                    $normalizedSlots = array_values(array_filter($normalizedSlots, static fn (array $slot): bool => $slot !== []));
+
+                    $timeValidationErrors = $this->timeRangeValidator->validate($normalizedSlots);
                     $errors = array_merge($errors, $timeValidationErrors);
                 }
                 break;
@@ -179,7 +212,7 @@ final class RateChangeValidator extends AbstractValidator
             ->get();
 
         if ($overlappingConfigs->isNotEmpty()) {
-            $warnings[] = "Multiple active configurations found for the same utility service on this property";
+            $warnings[] = 'Multiple active configurations found for the same utility service on this property';
         }
 
         return ['warnings' => $warnings];

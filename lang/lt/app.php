@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'nav_groups' => [
         'my_property' => 'Mano turtas',
@@ -45,11 +43,47 @@ return [
     ],
     'auth' => [
         'login_page' => [
+            'meta_title' => 'Prisijungimas - :brand · :product',
+            'back_home' => 'Grįžti į pradžią',
+            'badge' => 'Autentifikacija',
+            'heading' => 'Sveiki sugrįžę',
+            'subtitle' => 'Prisijunkite, kad pasiektumėte komunalinių paslaugų valdymo skydelį ir valdytumėte savo turtą.',
+            'email_label' => 'El. pašto adresas',
+            'email_placeholder' => 'jusu@pastas.lt',
+            'password_label' => 'Slaptažodis',
+            'remember_me' => 'Prisiminti mane',
+            'sign_in' => 'Prisijungti',
+            'quick_access' => 'Greita prieiga',
+            'default_password' => 'Numatytasis slaptažodis:',
+            'available_accounts' => 'Galimos paskyros',
+            'test_users' => 'Bandomieji vartotojai',
+            'toggle_hide' => 'Slėpti',
+            'toggle_show' => 'Rodyti',
+            'password_column' => 'Slaptažodis',
             'click_hint' => 'Spustelėkite eilutę, kad automatiškai užpildytumėte prisijungimo duomenis',
             'no_users' => 'Vartotojų nėra',
             'status_active' => 'Aktyvus',
             'status_inactive' => 'Neaktyvus',
             'total_users' => 'Iš viso vartotojų:',
+        ],
+        'register_page' => [
+            'meta_title' => 'Registracija - :brand · :product',
+            'badge' => 'Sukurti paskyrą',
+            'heading' => 'Pradėkite',
+            'subtitle' => 'Sukurkite naują nuomininko paskyrą ir valdykite komunalines paslaugas bei savo turtą.',
+            'full_name_label' => 'Pilnas vardas',
+            'full_name_placeholder' => 'Jonas Jonaitis',
+            'email_label' => 'El. pašto adresas',
+            'email_placeholder' => 'jusu@pastas.lt',
+            'password_label' => 'Slaptažodis',
+            'password_minimum' => 'Mažiausiai 8 simboliai',
+            'password_confirmation_label' => 'Patvirtinkite slaptažodį',
+            'tenant_id_label' => 'Nuomininko ID',
+            'tenant_id_placeholder' => '1',
+            'tenant_id_help' => 'Įveskite savo organizacijos nuomininko ID',
+            'submit' => 'Sukurti paskyrą',
+            'already_have_account' => 'Jau turite paskyrą?',
+            'sign_in_instead' => 'Prisijungti vietoje registracijos',
         ],
         'authentication_required' => 'Требуется аутентификация',
         'no_permission_admin_panel' => 'Нет разрешения на панель администратора',
@@ -298,13 +332,11 @@ return [
         'open_menu' => 'Открыть меню',
         'skip_to_content' => 'Перейти к содержимому',
     ],
-    'welcome_updated' => 'Добро пожаловать (обновлено)',
-    'special_chars' => 'Привет! @#$%^&*()_+-=[]{}|;:\'",.<>?/',
-    'html_content' => '<strong>Жирный</strong> и <em>курсивный</em> текст',
-    'multiline' => 'Строка 1
-Строка 2
-Строка 3',
-    'long_text' => 'Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода. Это очень длинный текст перевода.',
+    'welcome_updated' => 'Sveiki Atnaujinta',
+    'special_chars' => 'Labas! ąčęėįšųūž',
+    'html_content' => '<a href="#">Nuoroda</a>',
+    'multiline' => 'Sveiki',
+    'long_text' => 'Sveiki',
     'pages' => [
         'superadmin_dashboard' => 'Панель суперадминистратора',
     ],

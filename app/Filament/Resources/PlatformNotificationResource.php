@@ -6,10 +6,11 @@ namespace App\Filament\Resources;
 
 use App\Filament\Actions\SendPlatformNotificationAction;
 use App\Filament\Resources\PlatformNotificationResource\Pages;
+use App\Models\Organization;
 use App\Models\PlatformNotification;
 use Filament\Forms;
-use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,12 +18,6 @@ use Illuminate\Database\Eloquent\Builder;
 class PlatformNotificationResource extends Resource
 {
     protected static ?string $model = PlatformNotification::class;
-
-    protected static ?string $navigationLabel = 'Platform Notifications';
-
-    protected static ?string $modelLabel = 'Platform Notification';
-
-    protected static ?string $pluralModelLabel = 'Platform Notifications';
 
     protected static ?int $navigationSort = 5;
 
@@ -36,6 +31,21 @@ class PlatformNotificationResource extends Resource
         return __('app.nav_groups.system_management');
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return __('platform_notifications.navigation.label');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('platform_notifications.models.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('platform_notifications.models.plural');
+    }
+
     public static function shouldRegisterNavigation(): bool
     {
         return auth()->user()?->isSuperadmin() ?? false;
@@ -45,7 +55,7 @@ class PlatformNotificationResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\Section::make('Notification Details')
+                Forms\Components\Section::make(__('platform_notifications.headings.notification_details'))
                     ->schema([
                         Forms\Components\TextInput::make('title')
                             ->required()
@@ -67,33 +77,33 @@ class PlatformNotificationResource extends Resource
                             ]),
                     ]),
 
-                Forms\Components\Section::make('Targeting')
+                Forms\Components\Section::make(__('platform_notifications.headings.targeting'))
                     ->schema([
                         Forms\Components\Select::make('target_type')
-                            ->label('Target Audience')
+                            ->label(__('platform_notifications.labels.target_audience'))
                             ->required()
                             ->options([
-                                'all' => 'All Organizations',
-                                'plan' => 'Specific Plans',
-                                'organization' => 'Individual Organizations',
+                                'all' => __('platform_notifications.values.target_type.all'),
+                                'plan' => __('platform_notifications.values.target_type.plan'),
+                                'organization' => __('platform_notifications.values.target_type.organization'),
                             ])
                             ->live()
                             ->afterStateUpdated(fn (callable $set) => $set('target_criteria', null)),
 
                         Forms\Components\Select::make('target_criteria')
-                            ->label('Target Selection')
+                            ->label(__('platform_notifications.labels.target_selection'))
                             ->multiple()
                             ->searchable()
                             ->options(function (callable $get) {
                                 $targetType = $get('target_type');
-                                
+
                                 return match ($targetType) {
                                     'plan' => [
-                                        'basic' => 'Basic Plan',
-                                        'professional' => 'Professional Plan',
-                                        'enterprise' => 'Enterprise Plan',
+                                        'basic' => __('platform_notifications.values.plan.basic'),
+                                        'professional' => __('platform_notifications.values.plan.professional'),
+                                        'enterprise' => __('platform_notifications.values.plan.enterprise'),
                                     ],
-                                    'organization' => \App\Models\Organization::active()
+                                    'organization' => Organization::active()
                                         ->pluck('name', 'id')
                                         ->toArray(),
                                     default => [],
@@ -104,21 +114,21 @@ class PlatformNotificationResource extends Resource
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make('Scheduling')
+                Forms\Components\Section::make(__('platform_notifications.headings.scheduling'))
                     ->schema([
                         Forms\Components\Select::make('status')
                             ->required()
                             ->options([
-                                'draft' => 'Draft',
-                                'scheduled' => 'Scheduled',
-                                'sent' => 'Sent',
-                                'failed' => 'Failed',
+                                'draft' => __('platform_notifications.values.status.draft'),
+                                'scheduled' => __('platform_notifications.values.status.scheduled'),
+                                'sent' => __('platform_notifications.values.status.sent'),
+                                'failed' => __('platform_notifications.values.status.failed'),
                             ])
                             ->default('draft')
                             ->live(),
 
                         Forms\Components\DateTimePicker::make('scheduled_at')
-                            ->label('Schedule Date & Time')
+                            ->label(__('platform_notifications.labels.schedule_date_time'))
                             ->visible(fn (callable $get) => $get('status') === 'scheduled')
                             ->required(fn (callable $get) => $get('status') === 'scheduled')
                             ->minDate(now())
@@ -147,45 +157,46 @@ class PlatformNotificationResource extends Resource
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('target_type')
-                    ->label('Target')
+                    ->label(__('platform_notifications.labels.target'))
                     ->formatStateUsing(function (string $state, PlatformNotification $record) {
                         return match ($state) {
-                            'all' => 'All Organizations',
-                            'plan' => 'Plans: ' . implode(', ', $record->target_criteria ?? []),
-                            'organization' => count($record->target_criteria ?? []) . ' Organizations',
+                            'all' => __('platform_notifications.values.target_type.all'),
+                            'plan' => __('platform_notifications.messages.plans', ['plans' => implode(', ', $record->target_criteria ?? [])]),
+                            'organization' => __('platform_notifications.messages.organizations_count', ['count' => count($record->target_criteria ?? [])]),
                             default => $state,
                         };
                     })
                     ->wrap(),
 
                 Tables\Columns\TextColumn::make('recipients_count')
-                    ->label('Recipients')
+                    ->label(__('platform_notifications.labels.recipients'))
                     ->getStateUsing(fn (PlatformNotification $record) => $record->getTotalRecipients())
                     ->sortable(false),
 
                 Tables\Columns\TextColumn::make('delivery_rate')
-                    ->label('Delivery Rate')
+                    ->label(__('platform_notifications.labels.delivery_rate'))
                     ->getStateUsing(function (PlatformNotification $record) {
                         if ($record->status !== 'sent') {
-                            return '-';
+                            return __('platform_notifications.placeholders.empty_rate');
                         }
-                        return number_format($record->getDeliveryRate(), 1) . '%';
+
+                        return number_format($record->getDeliveryRate(), 1).'%';
                     })
                     ->sortable(false),
 
                 Tables\Columns\TextColumn::make('creator.name')
-                    ->label('Created By')
+                    ->label(__('platform_notifications.labels.created_by'))
                     ->sortable()
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('scheduled_at')
-                    ->label('Scheduled')
+                    ->label(__('platform_notifications.labels.scheduled'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('sent_at')
-                    ->label('Sent')
+                    ->label(__('platform_notifications.labels.sent'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(),
@@ -198,18 +209,18 @@ class PlatformNotificationResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
-                        'draft' => 'Draft',
-                        'scheduled' => 'Scheduled',
-                        'sent' => 'Sent',
-                        'failed' => 'Failed',
+                        'draft' => __('platform_notifications.values.status.draft'),
+                        'scheduled' => __('platform_notifications.values.status.scheduled'),
+                        'sent' => __('platform_notifications.values.status.sent'),
+                        'failed' => __('platform_notifications.values.status.failed'),
                     ]),
 
                 Tables\Filters\SelectFilter::make('target_type')
-                    ->label('Target Type')
+                    ->label(__('platform_notifications.labels.target_type'))
                     ->options([
-                        'all' => 'All Organizations',
-                        'plan' => 'Specific Plans',
-                        'organization' => 'Individual Organizations',
+                        'all' => __('platform_notifications.values.target_type.all'),
+                        'plan' => __('platform_notifications.values.target_type.plan'),
+                        'organization' => __('platform_notifications.values.target_type.organization'),
                     ]),
 
                 Tables\Filters\Filter::make('created_at')

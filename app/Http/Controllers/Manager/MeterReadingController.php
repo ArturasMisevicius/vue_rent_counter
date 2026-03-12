@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Manager;
 
 use App\Enums\MeterType;
@@ -143,42 +145,12 @@ class MeterReadingController extends Controller
 
     /**
      * Show the form for creating a new meter reading.
-     *
-     * Displays the meter reading form component with:
-     * - All meters for the authenticated user's tenant
-     * - All properties with their meters for filtering
-     * - All providers for tariff selection
-     *
-     * The form uses the x-meter-reading-form component which provides:
-     * - Dynamic meter selection with property filtering
-     * - AJAX-powered provider/tariff cascading dropdowns
-     * - Previous reading display with consumption calculation
-     * - Real-time validation (monotonicity, future dates)
-     * - Charge preview based on selected tariff
-     * - Multi-zone support for electricity meters (day/night)
-     *
-     * Requirements:
-     * - 10.1: Dynamic meter selection with property filtering
-     * - 10.2: Real-time validation and charge preview
-     * - 10.3: Multi-zone support for electricity meters
-     * - 11.2: Authorization via MeterReadingPolicy
-     *
-     * @return View Meter reading creation form
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException If user cannot create readings
-     *
-     * @see \App\View\Components\MeterReadingForm
-     * @see \App\Policies\MeterReadingPolicy::create()
      */
     public function create(): View
     {
         $this->authorize('create', MeterReading::class);
 
-        $meters = Meter::with('property')->orderBy('serial_number')->get();
-        $properties = Property::with('meters')->orderBy('address')->get();
-        $providers = \App\Models\Provider::all();
-
-        return view('pages.meter-readings.create', compact('meters', 'properties', 'providers'));
+        return view('pages.meter-readings.create');
     }
 
     /**

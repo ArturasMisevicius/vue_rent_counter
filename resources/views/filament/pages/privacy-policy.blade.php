@@ -2,13 +2,15 @@
     <div class="space-y-6">
         <div class="prose max-w-none dark:prose-invert">
             @php($privacy = trans('filament.pages.privacy'))
+            @php($privacyTitle = is_array($privacy) ? ($privacy['title'] ?? __('filament.pages.privacy.title')) : __('filament.pages.privacy.title'))
+            @php($privacySections = is_array($privacy['sections'] ?? null) ? $privacy['sections'] : [])
 
-            <h1>{{ $privacy['title'] }}</h1>
+            <h1>{{ $privacyTitle }}</h1>
             <p class="text-sm text-slate-600 dark:text-slate-400">
                 {{ __('filament.pages.privacy.last_updated', ['date' => now()->format('F j, Y')]) }}
             </p>
 
-            @foreach($privacy['sections'] as $section)
+            @foreach($privacySections as $section)
                 <section>
                     <h2>{{ $section['title'] }}</h2>
 

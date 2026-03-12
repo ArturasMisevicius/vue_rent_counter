@@ -23,7 +23,7 @@ Tenanto follows Clean Architecture principles with a focus on maintainability, t
 ### Backend
 - **Laravel 12** - PHP framework
 - **PHP 8.4** - Latest PHP with strict types
-- **Filament v4** - Admin panel framework
+- **Filament v5** - Admin panel framework
 - **PostgreSQL** - Primary database
 - **Redis** - Caching and sessions
 
@@ -41,10 +41,47 @@ Tenanto follows Clean Architecture principles with a focus on maintainability, t
 
 ## Multi-Tenancy
 
-Tenanto uses team-based multi-tenancy:
-- Each user belongs to one or more teams
-- Data is automatically scoped to the current team
-- Filament v4 handles automatic tenant scoping
+Tenanto uses hierarchical tenant scoping:
+- Organization isolation is enforced with `tenant_id` plus `HierarchicalScope`.
+- Tenant users get additional `property_id` filtering.
+- Superadmin flows bypass tenant filtering by design for platform-level oversight.
+
+## Canonical Role Dashboard Resolution
+
+- Role-based dashboard routing is centralized in `App\Services\RoleDashboardResolver`.
+- `/dashboard` always resolves to one canonical route:
+  - `superadmin.dashboard`
+  - `admin.dashboard`
+  - `manager.dashboard`
+  - `tenant.dashboard`
+- Login redirection (`AuthenticationService`) and route-level resolution now share the same source of truth.
+
+## Utility Billing Calculation Core
+
+The canonical billing flow runs through `ServiceConfiguration` -> `BillingService` -> `UniversalBillingCalculator`.
+
+- `rate_schedule.zone_rates` remains the fastest path for time-of-use (TOU) billing.
+- `rate_schedule.time_windows` is supported for business-grade TOU design:
+  - `zone`, `start`, `end`, `rate`
+  - optional `day_types` (`weekday`/`weekend`)
+  - optional `months` (`1..12`)
+- Legacy `rate_schedule.time_slots` remains supported for backward compatibility.
+- TOU schedule resolution rejects overlapping or ambiguous windows to keep billing deterministic.
+- Optional localized calculation profile lives under `rate_schedule.localization`:
+  - `locale`
+  - `minimum_charge`
+  - `tax_rate`
+  - `money_precision`
+  - `rounding_mode` (`half_up`, `half_down`, `bankers`, `up`, `down`)
+  - `fixed_charges[]` and `surcharges[]`
+
+Localization is applied as a post-calculation adjustment layer so existing pricing model behavior remains backward-compatible when no localization profile is configured.
+
+### Billing Safety Guarantees
+
+- `BillingService::generateInvoice()` is idempotent for draft invoices by tenant + billing period.
+- Existing draft invoices are reused to prevent duplicate draft generation during repeated requests.
+- Invoice generation attempts are audited in `invoice_generation_audits` with actor, period, totals, and reuse metadata.
 
 ## Security
 

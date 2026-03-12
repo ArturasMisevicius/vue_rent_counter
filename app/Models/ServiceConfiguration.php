@@ -7,11 +7,11 @@ namespace App\Models;
 use App\Enums\DistributionMethod;
 use App\Enums\PricingModel;
 use App\Traits\BelongsToTenant;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Carbon\Carbon;
 
 /**
  * Property-specific utility service configuration.
@@ -19,7 +19,7 @@ use Carbon\Carbon;
  */
 class ServiceConfiguration extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use BelongsToTenant, HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -114,14 +114,14 @@ class ServiceConfiguration extends Model
     /**
      * Scope a query to configurations effective on a given date.
      */
-    public function scopeEffectiveOn($query, Carbon $date = null)
+    public function scopeEffectiveOn($query, ?Carbon $date = null)
     {
         $date = $date ?? now();
-        
+
         return $query->where('effective_from', '<=', $date)
             ->where(function ($q) use ($date) {
                 $q->whereNull('effective_until')
-                  ->orWhere('effective_until', '>=', $date);
+                    ->orWhere('effective_until', '>=', $date);
             });
     }
 
@@ -160,10 +160,10 @@ class ServiceConfiguration extends Model
     /**
      * Check if this configuration is currently effective.
      */
-    public function isEffectiveOn(Carbon $date = null): bool
+    public function isEffectiveOn(?Carbon $date = null): bool
     {
         $date = $date ?? now();
-        
+
         return $this->effective_from <= $date
             && (is_null($this->effective_until) || $this->effective_until >= $date);
     }
@@ -181,7 +181,7 @@ class ServiceConfiguration extends Model
      */
     public function requiresConsumptionData(): bool
     {
-        return $this->pricing_model->requiresConsumptionData() 
+        return $this->pricing_model->requiresConsumptionData()
             || $this->distribution_method->requiresConsumptionData();
     }
 
@@ -190,12 +190,12 @@ class ServiceConfiguration extends Model
      */
     /**
      * Get the effective rate for a given date/time and zone.
-     * 
-     * @param Carbon|null $dateTime The date/time to get rate for (defaults to now)
-     * @param string|null $zone The zone (e.g., 'day', 'night') for time-of-use rates
+     *
+     * @param  Carbon|null  $dateTime  The date/time to get rate for (defaults to now)
+     * @param  string|null  $zone  The zone (e.g., 'day', 'night') for time-of-use rates
      * @return float|null The effective rate or null if not found
      */
-    public function getEffectiveRate(Carbon $dateTime = null, ?string $zone = null): ?float
+    public function getEffectiveRate(?Carbon $dateTime = null, ?string $zone = null): ?float
     {
         $dateTime = $dateTime ?? now();
         $schedule = $this->rate_schedule ?? [];
@@ -219,27 +219,192 @@ class ServiceConfiguration extends Model
     {
         $zoneRates = $schedule['zone_rates'] ?? [];
 
-        if (!empty($zoneRates)) {
+        if (! empty($zoneRates)) {
             $key = $zone ?? 'default';
+
             return $zoneRates[$key] ?? $zoneRates['default'] ?? null;
+        }
+
+        $timeWindows = $schedule['time_windows'] ?? [];
+
+        if (is_array($timeWindows) && $timeWindows !== []) {
+            $rate = $this->resolveRateFromTimeWindows($timeWindows, $dateTime, $zone);
+
+            if ($rate !== null) {
+                return $rate;
+            }
         }
 
         $timeSlots = $schedule['time_slots'] ?? [];
         $hour = $dateTime->hour;
-        $dayType = $dateTime->isWeekend() ? 'weekend' : 'weekday';
+        $dayType = $this->resolveDayType($dateTime);
 
         foreach ($timeSlots as $slot) {
+            if (! is_array($slot) || ! is_numeric($slot['rate'] ?? null)) {
+                continue;
+            }
+
+            $slotDayType = $slot['day_type'] ?? 'all';
+            if (! is_string($slotDayType) || ! in_array($slotDayType, ['weekday', 'weekend', 'all'], true)) {
+                continue;
+            }
+
+            $startHour = $slot['start_hour'] ?? null;
+            $endHour = $slot['end_hour'] ?? null;
+
+            if (! is_numeric($startHour) || ! is_numeric($endHour)) {
+                continue;
+            }
+
+            $startHourValue = (int) $startHour;
+            $endHourValue = (int) $endHour;
+
+            if ($startHourValue < 0 || $startHourValue > 23 || $endHourValue < 0 || $endHourValue > 23) {
+                continue;
+            }
+
             if (
-                $slot['day_type'] === $dayType &&
-                $hour >= $slot['start_hour'] &&
-                $hour < $slot['end_hour'] &&
-                ($zone === null || $slot['zone'] === $zone)
+                ($slotDayType === 'all' || $slotDayType === $dayType) &&
+                $this->matchesHourWindow($hour, $startHourValue, $endHourValue) &&
+                ($zone === null || (($slot['zone'] ?? null) === $zone))
             ) {
-                return $slot['rate'];
+                return (float) $slot['rate'];
             }
         }
 
-        return $schedule['default_rate'] ?? null;
+        return isset($schedule['default_rate']) && is_numeric($schedule['default_rate'])
+            ? (float) $schedule['default_rate']
+            : null;
+    }
+
+    /**
+     * @param  array<int, mixed>  $timeWindows
+     */
+    protected function resolveRateFromTimeWindows(array $timeWindows, Carbon $dateTime, ?string $zone): ?float
+    {
+        $targetZone = $zone ?? 'default';
+        $dayType = $this->resolveDayType($dateTime);
+        $month = (int) $dateTime->month;
+        $minuteOfDay = ((int) $dateTime->hour * 60) + (int) $dateTime->minute;
+
+        foreach ($timeWindows as $window) {
+            if (! is_array($window)) {
+                continue;
+            }
+
+            if (($window['zone'] ?? null) !== $targetZone) {
+                continue;
+            }
+
+            if (! $this->windowMatchesContext($window, $dayType, $month, $minuteOfDay)) {
+                continue;
+            }
+
+            if (! is_numeric($window['rate'] ?? null)) {
+                continue;
+            }
+
+            return (float) $window['rate'];
+        }
+
+        return null;
+    }
+
+    protected function windowMatchesContext(array $window, string $dayType, int $month, int $minuteOfDay): bool
+    {
+        $start = $window['start'] ?? null;
+        $end = $window['end'] ?? null;
+
+        if (! is_string($start) || ! is_string($end) || ! $this->isValidTimeString($start) || ! $this->isValidTimeString($end)) {
+            return false;
+        }
+
+        $allowedDayTypes = $window['day_types'] ?? ['weekday', 'weekend'];
+        $allowedMonths = $window['months'] ?? range(1, 12);
+
+        if (is_string($allowedDayTypes)) {
+            $allowedDayTypes = [$allowedDayTypes];
+        }
+
+        if (! is_array($allowedDayTypes) || ! is_array($allowedMonths)) {
+            return false;
+        }
+
+        $normalizedDayTypes = [];
+        foreach ($allowedDayTypes as $value) {
+            if (! is_string($value)) {
+                continue;
+            }
+
+            if ($value === 'all') {
+                $normalizedDayTypes[] = 'weekday';
+                $normalizedDayTypes[] = 'weekend';
+
+                continue;
+            }
+
+            $normalizedDayTypes[] = $value;
+        }
+
+        if (! in_array($dayType, $normalizedDayTypes, true)) {
+            return false;
+        }
+
+        $normalizedMonths = [];
+        foreach ($allowedMonths as $value) {
+            if (! is_numeric($value)) {
+                continue;
+            }
+
+            $normalizedMonths[] = (int) $value;
+        }
+
+        if (! in_array($month, $normalizedMonths, true)) {
+            return false;
+        }
+
+        $startMinutes = $this->timeToMinutes($start);
+        $endMinutes = $this->timeToMinutes($end);
+
+        if ($startMinutes === $endMinutes) {
+            return false;
+        }
+
+        if ($startMinutes < $endMinutes) {
+            return $minuteOfDay >= $startMinutes && $minuteOfDay < $endMinutes;
+        }
+
+        return $minuteOfDay >= $startMinutes || $minuteOfDay < $endMinutes;
+    }
+
+    protected function matchesHourWindow(int $hour, int $startHour, int $endHour): bool
+    {
+        if ($startHour === $endHour) {
+            return false;
+        }
+
+        if ($startHour < $endHour) {
+            return $hour >= $startHour && $hour < $endHour;
+        }
+
+        return $hour >= $startHour || $hour < $endHour;
+    }
+
+    protected function resolveDayType(Carbon $dateTime): string
+    {
+        return $dateTime->isWeekend() ? 'weekend' : 'weekday';
+    }
+
+    protected function isValidTimeString(string $value): bool
+    {
+        return (bool) preg_match('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/', $value);
+    }
+
+    protected function timeToMinutes(string $value): int
+    {
+        [$hour, $minute] = explode(':', $value);
+
+        return ((int) $hour * 60) + (int) $minute;
     }
 
     /**
@@ -258,7 +423,7 @@ class ServiceConfiguration extends Model
         foreach ($tiers as $tier) {
             $tierLimit = $tier['limit'] ?? PHP_FLOAT_MAX;
             $tierRate = $tier['rate'] ?? 0;
-            
+
             if ($remainingConsumption <= 0) {
                 break;
             }

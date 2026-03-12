@@ -2,13 +2,15 @@
     <div class="space-y-6">
         <div class="prose max-w-none dark:prose-invert">
             @php($terms = trans('filament.pages.terms'))
+            @php($termsTitle = is_array($terms) ? ($terms['title'] ?? __('filament.pages.terms.title')) : __('filament.pages.terms.title'))
+            @php($termsSections = is_array($terms['sections'] ?? null) ? $terms['sections'] : [])
 
-            <h1>{{ $terms['title'] }}</h1>
+            <h1>{{ $termsTitle }}</h1>
             <p class="text-sm text-slate-600 dark:text-slate-400">
                 {{ __('filament.pages.terms.last_updated', ['date' => now()->format('F j, Y')]) }}
             </p>
 
-            @foreach($terms['sections'] as $section)
+            @foreach($termsSections as $section)
                 <section>
                     <h2>{{ $section['title'] }}</h2>
 

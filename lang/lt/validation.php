@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
     'errors_occurred' => 'Errors Occurred',
     'exists' => 'Exists',
-    
+
     // Service Validation Engine messages
     'unauthorized_rate_change' => 'Unauthorized to validate rate changes for this service',
     'rate_schedule_empty' => 'Rate schedule cannot be empty',
@@ -48,4 +48,37 @@ return [
     'water_seasonal_variance_high' => 'Water consumption :consumption :unit varies by :variance% from average :average :unit.',
     'consumption_above_seasonal_expectation' => 'Consumption :consumption :unit exceeds expected seasonal maximum :expected_max :unit.',
     'seasonal_variance_detected' => 'Seasonal variance detected: :consumption :unit vs average :average :unit (:variance%).',
+
+    'custom_requests' => [
+        'api_login' => [
+            'email' => [
+                'required' => 'El. pašto adresas yra privalomas',
+                'email' => 'Įveskite galiojantį el. pašto adresą',
+            ],
+            'password' => [
+                'required' => 'Slaptažodis yra privalomas',
+                'min' => 'Slaptažodis turi būti bent 8 simbolių',
+            ],
+        ],
+        'csp_violation' => [
+            'report_required' => 'CSP ataskaitos duomenys yra privalomi',
+            'violated_directive_required' => 'Pažeista direktyva yra privaloma',
+            'document_uri_required' => 'Dokumento URI yra privalomas',
+            'max' => ':attribute laukas yra per ilgas.',
+            'integer' => ':attribute turi būti sveikasis skaičius.',
+            'invalid_content_type' => 'Neteisingas turinio tipas',
+            'request_too_large' => 'Užklausa per didelė',
+            'too_many_reports' => 'Per daug CSP ataskaitų',
+        ],
+        'organizations' => [
+            'invalid_data' => 'Pateikti duomenys yra neteisingi.',
+        ],
+        'properties' => [
+            'building_must_belong' => 'Pasirinktas pastatas turi priklausyti jūsų organizacijai.',
+            'attributes' => [
+                'area_sqm' => 'plotas (m²)',
+                'unit_number' => 'patalpos numeris',
+            ],
+        ],
+    ],
 ];

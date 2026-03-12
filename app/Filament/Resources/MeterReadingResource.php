@@ -35,37 +35,25 @@ class MeterReadingResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
-    /**
-     * Determine if navigation should be registered.
-     *
-     * Hides meter readings from Manager role in global navigation to simplify
-     * their interface. Managers can still access meter readings through:
-     * - Building context (via relation managers)
-     * - Property context (via relation managers)
-     * - Dashboard shortcuts
-     *
-     * Navigation visibility by role:
-     * - Superadmin: ✅ Visible
-     * - Admin: ✅ Visible
-     * - Manager: ❌ Hidden (access via context only)
-     * - Tenant: ❌ Hidden
-     *
-     * @return bool True if navigation should be visible, false otherwise
-     */
     public static function shouldRegisterNavigation(): bool
     {
         $user = auth()->user();
-        
-        if (!$user instanceof User) {
+
+        if (! $user instanceof User) {
             return false;
         }
-        
-        // Hide from Manager role in global navigation
-        if ($user->role === UserRole::MANAGER) {
-            return false;
-        }
-        
-        return $user->can('viewAny', MeterReading::class);
+
+        return in_array($user->role, [
+            UserRole::SUPERADMIN,
+            UserRole::ADMIN,
+            UserRole::MANAGER,
+            UserRole::TENANT,
+        ], true);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return static::shouldRegisterNavigation();
     }
 
     public static function form(Schema $schema): Schema
@@ -133,7 +121,7 @@ class MeterReadingResource extends Resource
                                     $zone = is_string($zone) && $zone !== '' ? $zone : null;
 
                                     if ($record instanceof MeterReading && $record->exists) {
-                                        $candidate = new MeterReading();
+                                        $candidate = new MeterReading;
                                         $candidate->id = $record->id;
                                         $candidate->setRelation('meter', $meter);
                                         $candidate->reading_date = $readingDateString ? Carbon::parse($readingDateString) : $record->reading_date;
@@ -262,7 +250,7 @@ class MeterReadingResource extends Resource
                     ->label('Reading')
                     ->numeric()
                     ->sortable()
-                    ->suffix(fn (MeterReading $record) => $record->meter ? (' ' . $record->meter->getUnitOfMeasurement()) : ''),
+                    ->suffix(fn (MeterReading $record) => $record->meter ? (' '.$record->meter->getUnitOfMeasurement()) : ''),
 
                 Tables\Columns\TextColumn::make('zone')
                     ->badge()
@@ -316,14 +304,13 @@ class MeterReadingResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                
+
                 // Truth-but-Verify Workflow Actions (Gold Master v7.0)
                 Action::make('approve')
                     ->label('Approve')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->visible(fn (MeterReading $record): bool => 
-                        $record->validation_status === ValidationStatus::PENDING || 
+                    ->visible(fn (MeterReading $record): bool => $record->validation_status === ValidationStatus::PENDING ||
                         $record->validation_status === ValidationStatus::REQUIRES_REVIEW
                     )
                     ->requiresConfirmation()
@@ -331,20 +318,19 @@ class MeterReadingResource extends Resource
                     ->modalDescription('Are you sure you want to approve this meter reading?')
                     ->action(function (MeterReading $record): void {
                         $record->markAsValidated(auth()->id());
-                        
+
                         Notification::make()
                             ->title('Reading Approved')
                             ->body('The meter reading has been approved and is now available for billing.')
                             ->success()
                             ->send();
                     }),
-                
+
                 Action::make('reject')
                     ->label('Reject')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
-                    ->visible(fn (MeterReading $record): bool => 
-                        $record->validation_status === ValidationStatus::PENDING || 
+                    ->visible(fn (MeterReading $record): bool => $record->validation_status === ValidationStatus::PENDING ||
                         $record->validation_status === ValidationStatus::REQUIRES_REVIEW
                     )
                     ->form([
@@ -359,14 +345,14 @@ class MeterReadingResource extends Resource
                     ->action(function (MeterReading $record, array $data): void {
                         $record->validation_notes = $data['validation_notes'];
                         $record->markAsRejected(auth()->id());
-                        
+
                         Notification::make()
                             ->title('Reading Rejected')
                             ->body('The meter reading has been rejected and marked for review.')
                             ->warning()
                             ->send();
                     }),
-                
+
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

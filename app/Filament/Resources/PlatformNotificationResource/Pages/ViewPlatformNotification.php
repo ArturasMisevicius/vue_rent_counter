@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Filament\Resources\PlatformNotificationResource\Pages;
 
 use App\Filament\Resources\PlatformNotificationResource;
+use App\Models\Organization;
 use App\Models\PlatformNotification;
-use App\Services\PlatformNotificationService;
 use Filament\Actions;
 use Filament\Infolists;
-use Filament\Schemas\Schema;
+use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use Filament\Resources\Pages\ViewRecord;
+use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontWeight;
 
 class ViewPlatformNotification extends ViewRecord
@@ -33,16 +33,16 @@ class ViewPlatformNotification extends ViewRecord
     {
         return $schema
             ->schema([
-                Section::make('Notification Details')
+                Section::make(__('platform_notifications.headings.notification_details'))
                     ->schema([
                         Infolists\Components\TextEntry::make('title')
                             ->weight(FontWeight::Bold)
                             ->size('lg'),
-                        
+
                         Infolists\Components\TextEntry::make('message')
                             ->html()
                             ->columnSpanFull(),
-                        
+
                         Grid::make(2)
                             ->schema([
                                 Infolists\Components\TextEntry::make('status')
@@ -54,115 +54,108 @@ class ViewPlatformNotification extends ViewRecord
                                         'failed' => 'danger',
                                         default => 'gray',
                                     }),
-                                
+
                                 Infolists\Components\TextEntry::make('creator.name')
-                                    ->label('Created By'),
+                                    ->label(__('platform_notifications.labels.created_by')),
                             ]),
                     ]),
 
-                Section::make('Targeting')
+                Section::make(__('platform_notifications.headings.targeting'))
                     ->schema([
                         Infolists\Components\TextEntry::make('target_type')
-                            ->label('Target Audience')
+                            ->label(__('platform_notifications.labels.target_audience'))
                             ->formatStateUsing(fn (string $state): string => match ($state) {
-                                'all' => 'All Organizations',
-                                'plan' => 'Specific Plans',
-                                'organization' => 'Individual Organizations',
+                                'all' => __('platform_notifications.values.target_type.all'),
+                                'plan' => __('platform_notifications.values.target_type.plan'),
+                                'organization' => __('platform_notifications.values.target_type.organization'),
                                 default => $state,
                             }),
-                        
+
                         Infolists\Components\TextEntry::make('target_criteria')
-                            ->label('Target Selection')
+                            ->label(__('platform_notifications.labels.target_selection'))
                             ->formatStateUsing(function (?array $state, PlatformNotification $record): string {
-                                if (!$state) {
-                                    return 'N/A';
+                                if (! $state) {
+                                    return __('platform_notifications.placeholders.not_available');
                                 }
-                                
+
                                 return match ($record->target_type) {
                                     'plan' => implode(', ', $state),
-                                    'organization' => \App\Models\Organization::whereIn('id', $state)
+                                    'organization' => Organization::whereIn('id', $state)
                                         ->pluck('name')
                                         ->implode(', '),
-                                    default => 'N/A',
+                                    default => __('platform_notifications.placeholders.not_available'),
                                 };
                             })
-                            ->visible(fn (PlatformNotification $record) => 
-                                in_array($record->target_type, ['plan', 'organization'])),
+                            ->visible(fn (PlatformNotification $record) => in_array($record->target_type, ['plan', 'organization'])),
                     ])
                     ->columns(2),
 
-                Section::make('Scheduling & Delivery')
+                Section::make(__('platform_notifications.headings.scheduling_and_delivery'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 Infolists\Components\TextEntry::make('scheduled_at')
-                                    ->label('Scheduled At')
+                                    ->label(__('platform_notifications.labels.scheduled_at'))
                                     ->dateTime()
-                                    ->placeholder('Not scheduled'),
-                                
+                                    ->placeholder(__('platform_notifications.placeholders.not_scheduled')),
+
                                 Infolists\Components\TextEntry::make('sent_at')
-                                    ->label('Sent At')
+                                    ->label(__('platform_notifications.labels.sent_at'))
                                     ->dateTime()
-                                    ->placeholder('Not sent yet'),
+                                    ->placeholder(__('platform_notifications.placeholders.not_sent_yet')),
                             ]),
-                        
+
                         Infolists\Components\TextEntry::make('failure_reason')
-                            ->label('Failure Reason')
+                            ->label(__('platform_notifications.labels.failure_reason'))
                             ->color('danger')
                             ->visible(fn (PlatformNotification $record) => $record->isFailed())
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Delivery Statistics')
+                Section::make(__('platform_notifications.headings.delivery_statistics'))
                     ->schema([
                         Grid::make(4)
                             ->schema([
                                 Infolists\Components\TextEntry::make('total_recipients')
-                                    ->label('Total Recipients')
-                                    ->state(fn (PlatformNotification $record) => 
-                                        $record->getTotalRecipients()),
-                                
+                                    ->label(__('platform_notifications.labels.total_recipients'))
+                                    ->state(fn (PlatformNotification $record) => $record->getTotalRecipients()),
+
                                 Infolists\Components\TextEntry::make('sent_count')
-                                    ->label('Sent')
-                                    ->state(fn (PlatformNotification $record) => 
-                                        $record->getSentCount())
+                                    ->label(__('platform_notifications.labels.sent'))
+                                    ->state(fn (PlatformNotification $record) => $record->getSentCount())
                                     ->color('success'),
-                                
+
                                 Infolists\Components\TextEntry::make('failed_count')
-                                    ->label('Failed')
-                                    ->state(fn (PlatformNotification $record) => 
-                                        $record->getFailedCount())
+                                    ->label(__('platform_notifications.labels.failed'))
+                                    ->state(fn (PlatformNotification $record) => $record->getFailedCount())
                                     ->color('danger'),
-                                
+
                                 Infolists\Components\TextEntry::make('read_count')
-                                    ->label('Read')
-                                    ->state(fn (PlatformNotification $record) => 
-                                        $record->getReadCount())
+                                    ->label(__('platform_notifications.labels.read'))
+                                    ->state(fn (PlatformNotification $record) => $record->getReadCount())
                                     ->color('info'),
                             ]),
-                        
+
                         Grid::make(2)
                             ->schema([
                                 Infolists\Components\TextEntry::make('delivery_rate')
-                                    ->label('Delivery Rate')
-                                    ->state(fn (PlatformNotification $record) => 
-                                        number_format($record->getDeliveryRate(), 1) . '%'),
-                                
+                                    ->label(__('platform_notifications.labels.delivery_rate'))
+                                    ->state(fn (PlatformNotification $record) => number_format($record->getDeliveryRate(), 1).'%'),
+
                                 Infolists\Components\TextEntry::make('read_rate')
-                                    ->label('Read Rate')
-                                    ->state(fn (PlatformNotification $record) => 
-                                        number_format($record->getReadRate(), 1) . '%'),
+                                    ->label(__('platform_notifications.labels.read_percent'))
+                                    ->state(fn (PlatformNotification $record) => number_format($record->getReadRate(), 1).'%'),
                             ]),
                     ])
                     ->visible(fn (PlatformNotification $record) => $record->isSent()),
 
-                Section::make('Timestamps')
+                Section::make(__('platform_notifications.headings.timestamps'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 Infolists\Components\TextEntry::make('created_at')
                                     ->dateTime(),
-                                
+
                                 Infolists\Components\TextEntry::make('updated_at')
                                     ->dateTime(),
                             ]),

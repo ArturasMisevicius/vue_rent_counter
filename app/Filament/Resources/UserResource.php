@@ -8,10 +8,11 @@ use App\Enums\UserRole;
 use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
+use App\Policies\UserPolicy;
 use Filament\Forms;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -30,9 +31,9 @@ use Illuminate\Support\Facades\Hash;
  *
  * Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6
  *
- * @see \App\Models\User
- * @see \App\Policies\UserPolicy
- * @see \App\Filament\Concerns\HasTranslatedValidation
+ * @see User
+ * @see UserPolicy
+ * @see HasTranslatedValidation
  */
 class UserResource extends Resource
 {
@@ -54,19 +55,20 @@ class UserResource extends Resource
 
     /**
      * Cache TTL for navigation badge count (in seconds).
-     * 
+     *
      * @var int
      */
     private const NAVIGATION_BADGE_CACHE_TTL = 300;
 
     /**
      * Roles allowed to access user management.
-     * 
+     *
      * @var array<UserRole>
      */
     private const ALLOWED_ROLES = [
         UserRole::SUPERADMIN,
         UserRole::ADMIN,
+        UserRole::MANAGER,
     ];
 
     public static function getNavigationIcon(): ?string
@@ -101,7 +103,7 @@ class UserResource extends Resource
      *
      * @return bool True if the user can access the user management interface
      *
-     * @see \App\Policies\UserPolicy::viewAny()
+     * @see UserPolicy::viewAny()
      *
      * Requirements: 6.1, 9.3
      */
@@ -119,7 +121,7 @@ class UserResource extends Resource
      *
      * @return bool True if the user can create new users
      *
-     * @see \App\Policies\UserPolicy::create()
+     * @see UserPolicy::create()
      *
      * Requirements: 6.2, 13.2
      */
@@ -137,10 +139,10 @@ class UserResource extends Resource
      * - Superadmins can edit any user
      * - Admins/Managers can edit users within their tenant
      *
-     * @param Model $record The user record being edited
+     * @param  Model  $record  The user record being edited
      * @return bool True if the user can edit the record
      *
-     * @see \App\Policies\UserPolicy::update()
+     * @see UserPolicy::update()
      *
      * Requirements: 6.3, 13.3, 13.4
      */
@@ -159,10 +161,10 @@ class UserResource extends Resource
      * - Admins/Managers can delete users within their tenant
      * - All deletions are audit logged
      *
-     * @param Model $record The user record being deleted
+     * @param  Model  $record  The user record being deleted
      * @return bool True if the user can delete the record
      *
-     * @see \App\Policies\UserPolicy::delete()
+     * @see UserPolicy::delete()
      *
      * Requirements: 6.4, 13.4
      */
@@ -193,8 +195,8 @@ class UserResource extends Resource
     protected static function userCanManageUsers(): bool
     {
         $user = auth()->user();
-        
-        if (!$user instanceof User) {
+
+        if (! $user instanceof User) {
             return false;
         }
 
@@ -299,13 +301,13 @@ class UserResource extends Resource
 
     /**
      * Scope query to authenticated user's tenant.
-     * 
+     *
      * Filters the query to only include records within the authenticated user's tenant.
      * Superadmins bypass this scope and see all records.
-     * 
-     * @param Builder $query The Eloquent query builder
+     *
+     * @param  Builder  $query  The Eloquent query builder
      * @return Builder The scoped query builder
-     * 
+     *
      * Requirements: 6.5, 6.6
      */
     protected static function scopeToUserTenant(Builder $query): Builder
@@ -319,18 +321,18 @@ class UserResource extends Resource
 
         return $query;
     }
-    
+
     /**
      * Modify the Eloquent query to apply tenant scoping and eager loading.
-     * 
+     *
      * This method is called by Filament to scope the table query.
      * Superadmins see all users, while admins/managers see only users
      * within their tenant scope.
-     * 
+     *
      * Performance optimizations:
      * - Eager loads parentUser relationship to prevent N+1 queries
      * - Only selects necessary columns from parentUser
-     * 
+     *
      * @return Builder The scoped query builder
      */
     public static function getEloquentQuery(): Builder
@@ -356,9 +358,8 @@ class UserResource extends Resource
 
     /**
      * Determine if tenant field should be required based on role.
-     * 
-     * @param string|null $role The user role value
-     * @return bool
+     *
+     * @param  string|null  $role  The user role value
      */
     protected static function isTenantRequired(UserRole|string|null $role): bool
     {
@@ -372,9 +373,8 @@ class UserResource extends Resource
 
     /**
      * Determine if tenant field should be visible based on role.
-     * 
-     * @param string|null $role The user role value
-     * @return bool
+     *
+     * @param  string|null  $role  The user role value
      */
     protected static function isTenantVisible(UserRole|string|null $role): bool
     {
@@ -476,11 +476,11 @@ class UserResource extends Resource
 
     /**
      * Get the navigation badge for the resource.
-     * 
+     *
      * Performance optimization: Caches the count for 5 minutes to avoid
      * running a COUNT query on every page load. Cache key is shared across
      * users with the same role/tenant combination for better cache hit ratio.
-     * 
+     *
      * Optimization improvements:
      * - Shared cache key reduces redundant queries
      * - Early return for unauthorized users
@@ -489,7 +489,7 @@ class UserResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         // Early return if user cannot manage users (no badge needed)
-        if (!static::userCanManageUsers()) {
+        if (! static::userCanManageUsers()) {
             return null;
         }
 
@@ -530,8 +530,9 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListUsers::route('/'),
-            'create' => Pages\CreateUser::route('/create'),
+            // Avoid collisions with legacy `/admin/users*` web routes.
+            'index' => Pages\ListUsers::route('/filament'),
+            'create' => Pages\CreateUser::route('/filament/create'),
             'view' => Pages\ViewUser::route('/filament/{record}'),
             'edit' => Pages\EditUser::route('/filament/{record}/edit'),
         ];

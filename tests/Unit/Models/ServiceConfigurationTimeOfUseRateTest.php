@@ -7,7 +7,7 @@ use App\Models\ServiceConfiguration;
 use Carbon\Carbon;
 
 test('ServiceConfiguration resolves legacy time slots that cross midnight', function () {
-    $configuration = new ServiceConfiguration();
+    $configuration = new ServiceConfiguration;
     $configuration->pricing_model = PricingModel::TIME_OF_USE;
     $configuration->rate_schedule = [
         'time_slots' => [
@@ -35,7 +35,7 @@ test('ServiceConfiguration resolves legacy time slots that cross midnight', func
 });
 
 test('ServiceConfiguration resolves time windows by day type and month', function () {
-    $configuration = new ServiceConfiguration();
+    $configuration = new ServiceConfiguration;
     $configuration->pricing_model = PricingModel::TIME_OF_USE;
     $configuration->rate_schedule = [
         'time_windows' => [

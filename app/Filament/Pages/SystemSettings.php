@@ -6,16 +6,16 @@ namespace App\Filament\Pages;
 
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Select;
-use Filament\Schemas\Components\Textarea;
-use Filament\Schemas\Components\TextInput;
-use Filament\Schemas\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
@@ -28,11 +28,11 @@ class SystemSettings extends Page implements HasForms
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
 
-    protected static string|UnitEnum|null $navigationGroup = 'System';
+    protected static string|UnitEnum|null $navigationGroup = null;
 
     protected static ?int $navigationSort = 3;
 
-    protected static ?string $title = 'System Settings';
+    protected static ?string $title = null;
 
     protected string $view = 'filament.pages.system-settings';
 
@@ -41,7 +41,7 @@ class SystemSettings extends Page implements HasForms
     public function mount(): void
     {
         abort_unless(auth()->user()?->isSuperadmin(), 403);
-        
+
         $this->form->fill($this->getDefaultData());
     }
 
@@ -50,187 +50,202 @@ class SystemSettings extends Page implements HasForms
         return auth()->user()?->isSuperadmin() ?? false;
     }
 
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('filament.pages.system_settings.navigation_group');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('filament.pages.system_settings.navigation_label');
+    }
+
+    public function getTitle(): string|Htmlable
+    {
+        return __('filament.pages.system_settings.title');
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 // Email Configuration Section
-                Section::make('Email Configuration')
-                    ->description('Configure SMTP settings and email notifications')
+                Section::make(__('filament.pages.system_settings.sections.email.title'))
+                    ->description(__('filament.pages.system_settings.sections.email.description'))
                     ->schema([
                         Select::make('mail_mailer')
-                            ->label('Mail Driver')
+                            ->label(__('filament.pages.system_settings.fields.mail_mailer'))
                             ->options([
                                 'smtp' => 'SMTP',
-                                'sendmail' => 'Sendmail',
-                                'mailgun' => 'Mailgun',
-                                'ses' => 'Amazon SES',
-                                'log' => 'Log (Development)',
+                                'sendmail' => __('filament.pages.system_settings.options.mailers.sendmail'),
+                                'mailgun' => __('filament.pages.system_settings.options.mailers.mailgun'),
+                                'ses' => __('filament.pages.system_settings.options.mailers.ses'),
+                                'log' => __('filament.pages.system_settings.options.mailers.log'),
                             ])
                             ->default('smtp')
                             ->required()
                             ->live(),
 
                         TextInput::make('mail_host')
-                            ->label('SMTP Host')
+                            ->label(__('filament.pages.system_settings.fields.mail_host'))
                             ->default('smtp.mailtrap.io')
                             ->required()
                             ->visible(fn ($get) => $get('mail_mailer') === 'smtp'),
 
                         TextInput::make('mail_port')
-                            ->label('SMTP Port')
+                            ->label(__('filament.pages.system_settings.fields.mail_port'))
                             ->numeric()
                             ->default(2525)
                             ->required()
                             ->visible(fn ($get) => $get('mail_mailer') === 'smtp'),
 
                         TextInput::make('mail_username')
-                            ->label('SMTP Username')
+                            ->label(__('filament.pages.system_settings.fields.mail_username'))
                             ->visible(fn ($get) => $get('mail_mailer') === 'smtp'),
 
                         TextInput::make('mail_password')
-                            ->label('SMTP Password')
+                            ->label(__('filament.pages.system_settings.fields.mail_password'))
                             ->password()
                             ->visible(fn ($get) => $get('mail_mailer') === 'smtp'),
 
                         Select::make('mail_encryption')
-                            ->label('Encryption')
+                            ->label(__('filament.pages.system_settings.fields.mail_encryption'))
                             ->options([
                                 'tls' => 'TLS',
                                 'ssl' => 'SSL',
-                                '' => 'None',
+                                '' => __('filament.pages.system_settings.options.none'),
                             ])
                             ->default('tls')
                             ->visible(fn ($get) => $get('mail_mailer') === 'smtp'),
 
                         TextInput::make('mail_from_address')
-                            ->label('From Email Address')
+                            ->label(__('filament.pages.system_settings.fields.mail_from_address'))
                             ->email()
                             ->default('noreply@example.com')
                             ->required(),
 
                         TextInput::make('mail_from_name')
-                            ->label('From Name')
-                            ->default('Vilnius Utilities')
+                            ->label(__('filament.pages.system_settings.fields.mail_from_name'))
+                            ->default(__('app.brand.name'))
                             ->required(),
                     ])
                     ->columns(2),
 
                 // Backup Configuration Section
-                Section::make('Backup Configuration')
-                    ->description('Configure automated backup settings')
+                Section::make(__('filament.pages.system_settings.sections.backup.title'))
+                    ->description(__('filament.pages.system_settings.sections.backup.description'))
                     ->schema([
                         TextInput::make('backup_schedule')
-                            ->label('Backup Schedule (Cron Expression)')
+                            ->label(__('filament.pages.system_settings.fields.backup_schedule'))
                             ->default('0 2 * * *')
-                            ->helperText('Default: Daily at 2:00 AM (0 2 * * *)')
+                            ->helperText(__('filament.pages.system_settings.helpers.backup_schedule'))
                             ->required(),
 
                         TextInput::make('backup_retention_days')
-                            ->label('Retention Period (Days)')
+                            ->label(__('filament.pages.system_settings.fields.backup_retention_days'))
                             ->numeric()
                             ->default(30)
                             ->minValue(1)
                             ->maxValue(365)
                             ->required()
-                            ->helperText('Number of days to keep backups'),
+                            ->helperText(__('filament.pages.system_settings.helpers.backup_retention_days')),
 
                         TextInput::make('backup_storage_location')
-                            ->label('Storage Location')
+                            ->label(__('filament.pages.system_settings.fields.backup_storage_location'))
                             ->default('local')
-                            ->helperText('Storage disk name (local, s3, etc.)')
+                            ->helperText(__('filament.pages.system_settings.helpers.backup_storage_location'))
                             ->required(),
 
                         Toggle::make('backup_notifications_enabled')
-                            ->label('Enable Backup Notifications')
+                            ->label(__('filament.pages.system_settings.fields.backup_notifications_enabled'))
                             ->default(true)
-                            ->helperText('Send email notifications on backup success/failure'),
+                            ->helperText(__('filament.pages.system_settings.helpers.backup_notifications_enabled')),
                     ])
                     ->columns(2),
 
                 // Queue Configuration Section
-                Section::make('Queue Configuration')
-                    ->description('Configure queue and job processing settings')
+                Section::make(__('filament.pages.system_settings.sections.queue.title'))
+                    ->description(__('filament.pages.system_settings.sections.queue.description'))
                     ->schema([
                         Select::make('queue_default_connection')
-                            ->label('Default Queue Connection')
+                            ->label(__('filament.pages.system_settings.fields.queue_default_connection'))
                             ->options([
-                                'sync' => 'Sync (No Queue)',
-                                'database' => 'Database',
+                                'sync' => __('filament.pages.system_settings.options.queue_connections.sync'),
+                                'database' => __('filament.pages.system_settings.options.queue_connections.database'),
                                 'redis' => 'Redis',
-                                'sqs' => 'Amazon SQS',
+                                'sqs' => __('filament.pages.system_settings.options.queue_connections.sqs'),
                             ])
                             ->default('database')
                             ->required(),
 
                         TextInput::make('queue_priorities')
-                            ->label('Queue Priorities')
+                            ->label(__('filament.pages.system_settings.fields.queue_priorities'))
                             ->default('high,default,low')
-                            ->helperText('Comma-separated list of queue names in priority order')
+                            ->helperText(__('filament.pages.system_settings.helpers.queue_priorities'))
                             ->required(),
 
                         TextInput::make('queue_retry_attempts')
-                            ->label('Retry Attempts')
+                            ->label(__('filament.pages.system_settings.fields.queue_retry_attempts'))
                             ->numeric()
                             ->default(3)
                             ->minValue(0)
                             ->maxValue(10)
                             ->required()
-                            ->helperText('Number of times to retry failed jobs'),
+                            ->helperText(__('filament.pages.system_settings.helpers.queue_retry_attempts')),
 
                         TextInput::make('queue_timeout')
-                            ->label('Job Timeout (Seconds)')
+                            ->label(__('filament.pages.system_settings.fields.queue_timeout'))
                             ->numeric()
                             ->default(60)
                             ->minValue(10)
                             ->maxValue(3600)
                             ->required()
-                            ->helperText('Maximum execution time for jobs'),
+                            ->helperText(__('filament.pages.system_settings.helpers.queue_timeout')),
                     ])
                     ->columns(2),
 
                 // Feature Flags Section
-                Section::make('Feature Flags')
-                    ->description('Enable or disable platform features')
+                Section::make(__('filament.pages.system_settings.sections.features.title'))
+                    ->description(__('filament.pages.system_settings.sections.features.description'))
                     ->schema([
                         Toggle::make('feature_maintenance_mode')
-                            ->label('Maintenance Mode')
+                            ->label(__('filament.pages.system_settings.fields.feature_maintenance_mode'))
                             ->default(false)
-                            ->helperText('Put the entire platform in maintenance mode'),
+                            ->helperText(__('filament.pages.system_settings.helpers.feature_maintenance_mode')),
 
                         Toggle::make('feature_user_registration')
-                            ->label('User Registration')
+                            ->label(__('filament.pages.system_settings.fields.feature_user_registration'))
                             ->default(true)
-                            ->helperText('Allow new user registrations'),
+                            ->helperText(__('filament.pages.system_settings.helpers.feature_user_registration')),
 
                         Toggle::make('feature_api_access')
-                            ->label('API Access')
+                            ->label(__('filament.pages.system_settings.fields.feature_api_access'))
                             ->default(true)
-                            ->helperText('Enable API endpoints'),
+                            ->helperText(__('filament.pages.system_settings.helpers.feature_api_access')),
 
                         Toggle::make('feature_debug_mode')
-                            ->label('Debug Mode')
+                            ->label(__('filament.pages.system_settings.fields.feature_debug_mode'))
                             ->default(false)
-                            ->helperText('Enable detailed error messages (development only)'),
+                            ->helperText(__('filament.pages.system_settings.helpers.feature_debug_mode')),
 
                         Toggle::make('feature_beta_features')
-                            ->label('Beta Features')
+                            ->label(__('filament.pages.system_settings.fields.feature_beta_features'))
                             ->default(false)
-                            ->helperText('Enable experimental features for all organizations'),
+                            ->helperText(__('filament.pages.system_settings.helpers.feature_beta_features')),
 
                         Toggle::make('feature_analytics')
-                            ->label('Analytics Tracking')
+                            ->label(__('filament.pages.system_settings.fields.feature_analytics'))
                             ->default(true)
-                            ->helperText('Enable platform analytics and usage tracking'),
+                            ->helperText(__('filament.pages.system_settings.helpers.feature_analytics')),
                     ])
                     ->columns(2),
 
                 // Platform Settings Section
-                Section::make('Platform Settings')
-                    ->description('Configure default platform-wide settings')
+                Section::make(__('filament.pages.system_settings.sections.platform.title'))
+                    ->description(__('filament.pages.system_settings.sections.platform.description'))
                     ->schema([
                         Select::make('platform_default_timezone')
-                            ->label('Default Timezone')
+                            ->label(__('filament.pages.system_settings.fields.platform_default_timezone'))
                             ->options([
                                 'Europe/Vilnius' => 'Europe/Vilnius',
                                 'UTC' => 'UTC',
@@ -243,36 +258,36 @@ class SystemSettings extends Page implements HasForms
                             ->required(),
 
                         Select::make('platform_default_locale')
-                            ->label('Default Locale')
+                            ->label(__('filament.pages.system_settings.fields.platform_default_locale'))
                             ->options([
-                                'lt' => 'Lithuanian',
-                                'en' => 'English',
-                                'ru' => 'Russian',
+                                'lt' => __('filament.pages.system_settings.options.locales.lt'),
+                                'en' => __('filament.pages.system_settings.options.locales.en'),
+                                'ru' => __('filament.pages.system_settings.options.locales.ru'),
                             ])
                             ->default('lt')
                             ->required(),
 
                         Select::make('platform_default_currency')
-                            ->label('Default Currency')
+                            ->label(__('filament.pages.system_settings.fields.platform_default_currency'))
                             ->options([
-                                'EUR' => 'Euro (EUR)',
-                                'USD' => 'US Dollar (USD)',
-                                'GBP' => 'British Pound (GBP)',
+                                'EUR' => __('filament.pages.system_settings.options.currencies.eur'),
+                                'USD' => __('filament.pages.system_settings.options.currencies.usd'),
+                                'GBP' => __('filament.pages.system_settings.options.currencies.gbp'),
                             ])
                             ->default('EUR')
                             ->required(),
 
                         TextInput::make('platform_session_timeout')
-                            ->label('Session Timeout (Minutes)')
+                            ->label(__('filament.pages.system_settings.fields.platform_session_timeout'))
                             ->numeric()
                             ->default(120)
                             ->minValue(5)
                             ->maxValue(1440)
                             ->required()
-                            ->helperText('User session lifetime in minutes'),
+                            ->helperText(__('filament.pages.system_settings.helpers.platform_session_timeout')),
 
                         TextInput::make('platform_password_min_length')
-                            ->label('Minimum Password Length')
+                            ->label(__('filament.pages.system_settings.fields.platform_password_min_length'))
                             ->numeric()
                             ->default(8)
                             ->minValue(6)
@@ -280,15 +295,15 @@ class SystemSettings extends Page implements HasForms
                             ->required(),
 
                         Toggle::make('platform_password_require_uppercase')
-                            ->label('Require Uppercase Letters')
+                            ->label(__('filament.pages.system_settings.fields.platform_password_require_uppercase'))
                             ->default(true),
 
                         Toggle::make('platform_password_require_numbers')
-                            ->label('Require Numbers')
+                            ->label(__('filament.pages.system_settings.fields.platform_password_require_numbers'))
                             ->default(true),
 
                         Toggle::make('platform_password_require_symbols')
-                            ->label('Require Special Characters')
+                            ->label(__('filament.pages.system_settings.fields.platform_password_require_symbols'))
                             ->default(false),
                     ])
                     ->columns(2),
@@ -300,27 +315,29 @@ class SystemSettings extends Page implements HasForms
     {
         return [
             Action::make('testEmail')
-                ->label('Send Test Email')
+                ->label(__('filament.pages.system_settings.actions.test_email'))
                 ->icon('heroicon-o-envelope')
                 ->color('gray')
                 ->requiresConfirmation()
-                ->modalHeading('Send Test Email')
-                ->modalDescription('This will send a test email to verify your SMTP configuration.')
+                ->modalHeading(__('filament.pages.system_settings.modals.test_email.heading'))
+                ->modalDescription(__('filament.pages.system_settings.modals.test_email.description'))
                 ->action(function () {
                     try {
-                        Mail::raw('This is a test email from Vilnius Utilities Platform.', function ($message) {
+                        Mail::raw(__('filament.pages.system_settings.mail.test_email_body'), function ($message) {
                             $message->to(auth()->user()->email)
-                                ->subject('Test Email - System Settings');
+                                ->subject(__('filament.pages.system_settings.mail.test_email_subject'));
                         });
 
                         Notification::make()
-                            ->title('Test email sent')
-                            ->body('Check your inbox at ' . auth()->user()->email)
+                            ->title(__('filament.pages.system_settings.notifications.test_email_sent_title'))
+                            ->body(__('filament.pages.system_settings.notifications.test_email_sent_body', [
+                                'email' => auth()->user()->email,
+                            ]))
                             ->success()
                             ->send();
                     } catch (\Exception $e) {
                         Notification::make()
-                            ->title('Failed to send test email')
+                            ->title(__('filament.pages.system_settings.notifications.test_email_failed_title'))
                             ->body($e->getMessage())
                             ->danger()
                             ->send();
@@ -328,26 +345,26 @@ class SystemSettings extends Page implements HasForms
                 }),
 
             Action::make('save')
-                ->label('Save Configuration')
+                ->label(__('filament.pages.system_settings.actions.save'))
                 ->icon('heroicon-o-check')
                 ->color('primary')
                 ->action('saveConfiguration'),
 
             Action::make('reset')
-                ->label('Reset to Defaults')
+                ->label(__('filament.pages.system_settings.actions.reset'))
                 ->icon('heroicon-o-arrow-path')
                 ->color('warning')
                 ->requiresConfirmation()
                 ->action('resetToDefaults'),
 
             Action::make('export')
-                ->label('Export Configuration')
+                ->label(__('filament.pages.system_settings.actions.export'))
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('gray')
                 ->action('exportConfiguration'),
 
             Action::make('import')
-                ->label('Import Configuration')
+                ->label(__('filament.pages.system_settings.actions.import'))
                 ->icon('heroicon-o-arrow-up-tray')
                 ->color('gray')
                 ->requiresConfirmation()
@@ -358,22 +375,22 @@ class SystemSettings extends Page implements HasForms
     public function saveConfiguration(): void
     {
         $data = $this->form->getState();
-        
+
         try {
             // Save to config file or database
             $this->saveToEnvFile($data);
-            
+
             // Clear config cache
             Artisan::call('config:clear');
-            
+
             Notification::make()
-                ->title('Configuration saved')
-                ->body('System settings have been updated successfully.')
+                ->title(__('filament.pages.system_settings.notifications.configuration_saved_title'))
+                ->body(__('filament.pages.system_settings.notifications.configuration_saved_body'))
                 ->success()
                 ->send();
         } catch (\Exception $e) {
             Notification::make()
-                ->title('Failed to save configuration')
+                ->title(__('filament.pages.system_settings.notifications.configuration_save_failed_title'))
                 ->body($e->getMessage())
                 ->danger()
                 ->send();
@@ -383,10 +400,10 @@ class SystemSettings extends Page implements HasForms
     public function resetToDefaults(): void
     {
         $this->form->fill($this->getDefaultData());
-        
+
         Notification::make()
-            ->title('Configuration reset')
-            ->body('All settings have been reset to default values.')
+            ->title(__('filament.pages.system_settings.notifications.configuration_reset_title'))
+            ->body(__('filament.pages.system_settings.notifications.configuration_reset_body'))
             ->success()
             ->send();
     }
@@ -395,18 +412,18 @@ class SystemSettings extends Page implements HasForms
     {
         $data = $this->form->getState();
         $json = json_encode($data, JSON_PRETTY_PRINT);
-        
+
         return response()->streamDownload(function () use ($json) {
             echo $json;
-        }, 'system-settings-' . now()->format('Y-m-d-His') . '.json');
+        }, 'system-settings-'.now()->format('Y-m-d-His').'.json');
     }
 
     public function importConfiguration(): void
     {
         // This would handle file upload and import
         Notification::make()
-            ->title('Import not yet implemented')
-            ->body('Configuration import functionality will be available soon.')
+            ->title(__('filament.pages.system_settings.notifications.import_not_implemented_title'))
+            ->body(__('filament.pages.system_settings.notifications.import_not_implemented_body'))
             ->warning()
             ->send();
     }
@@ -422,7 +439,7 @@ class SystemSettings extends Page implements HasForms
             'mail_password' => config('mail.mailers.smtp.password', ''),
             'mail_encryption' => config('mail.mailers.smtp.encryption', 'tls'),
             'mail_from_address' => config('mail.from.address', 'noreply@example.com'),
-            'mail_from_name' => config('mail.from.name', 'Vilnius Utilities'),
+            'mail_from_name' => config('mail.from.name', __('app.brand.name')),
 
             // Backup Configuration
             'backup_schedule' => '0 2 * * *',
@@ -461,28 +478,28 @@ class SystemSettings extends Page implements HasForms
         // This is a simplified version - in production, you'd want to use
         // a more robust method to update .env file or store in database
         $envPath = base_path('.env');
-        
-        if (!File::exists($envPath)) {
-            throw new \Exception('.env file not found');
+
+        if (! File::exists($envPath)) {
+            throw new \Exception(__('filament.pages.system_settings.errors.env_file_not_found'));
         }
 
         $envContent = File::get($envPath);
-        
+
         // Update mail settings
         $envContent = $this->updateEnvValue($envContent, 'MAIL_MAILER', $data['mail_mailer']);
         $envContent = $this->updateEnvValue($envContent, 'MAIL_HOST', $data['mail_host']);
         $envContent = $this->updateEnvValue($envContent, 'MAIL_PORT', $data['mail_port']);
         $envContent = $this->updateEnvValue($envContent, 'MAIL_FROM_ADDRESS', $data['mail_from_address']);
         $envContent = $this->updateEnvValue($envContent, 'MAIL_FROM_NAME', $data['mail_from_name']);
-        
+
         // Update queue settings
         $envContent = $this->updateEnvValue($envContent, 'QUEUE_CONNECTION', $data['queue_default_connection']);
-        
+
         // Update app settings
         $envContent = $this->updateEnvValue($envContent, 'APP_TIMEZONE', $data['platform_default_timezone']);
         $envContent = $this->updateEnvValue($envContent, 'APP_LOCALE', $data['platform_default_locale']);
         $envContent = $this->updateEnvValue($envContent, 'SESSION_LIFETIME', $data['platform_session_timeout']);
-        
+
         File::put($envPath, $envContent);
     }
 
@@ -490,11 +507,11 @@ class SystemSettings extends Page implements HasForms
     {
         $oldValue = env($key);
         $pattern = "/^{$key}=.*/m";
-        
+
         if (preg_match($pattern, $envContent)) {
             return preg_replace($pattern, "{$key}={$value}", $envContent);
         }
-        
-        return $envContent . "\n{$key}={$value}";
+
+        return $envContent."\n{$key}={$value}";
     }
 }

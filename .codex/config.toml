@@ -1,0 +1,12 @@
+[mcp_servers.laravel-mcp]
+command = "php"
+args = ["artisan", "mcp:start", "tenanto"]
+cwd = "C:\\Dropbox\\projects\\tenanto"
+
+[mcp_servers.herd]
+command = "php"
+args = ["C:/Users/andre/.config/herd/bin/herd-mcp.phar"]
+cwd = "C:\\Dropbox\\projects\\tenanto"
+
+[mcp_servers.herd.env]
+SITE_PATH = "C:\\Dropbox\\projects\\tenanto"

@@ -10,7 +10,7 @@ use Illuminate\Http\RedirectResponse;
 
 /**
  * Authentication Service
- * 
+ *
  * Handles authentication-related business logic including
  * user listing, account validation, and role-based redirects.
  */
@@ -26,22 +26,16 @@ final class AuthenticationService
         'tenant' => 4,
     ];
 
-    /**
-     * Role-to-dashboard route mapping.
-     */
-    private const DASHBOARD_ROUTES = [
-        'superadmin' => '/superadmin/dashboard',
-        'admin' => '/admin/dashboard',
-        'manager' => '/manager/dashboard',
-        'tenant' => '/tenant/dashboard',
-    ];
+    public function __construct(
+        private ?RoleDashboardResolver $dashboardResolver = null,
+    ) {}
 
     /**
      * Get active users for login display.
-     * 
+     *
      * Loads users without global scopes for pre-authentication display.
      * Optimized to only load necessary data and relationships.
-     * 
+     *
      * @return Collection<int, User>
      */
     public function getActiveUsersForLoginDisplay(): Collection
@@ -67,13 +61,20 @@ final class AuthenticationService
 
     /**
      * Redirect user to role-appropriate dashboard.
-     * 
+     *
      * Requirements: 1.1, 8.1
      */
     public function redirectToDashboard(User $user): RedirectResponse
     {
-        $route = self::DASHBOARD_ROUTES[$user->role->value] ?? '/';
+        return $this->getDashboardResolver()->redirectToDashboard($user);
+    }
 
-        return redirect($route);
+    private function getDashboardResolver(): RoleDashboardResolver
+    {
+        if ($this->dashboardResolver instanceof RoleDashboardResolver) {
+            return $this->dashboardResolver;
+        }
+
+        return $this->dashboardResolver = app(RoleDashboardResolver::class);
     }
 }

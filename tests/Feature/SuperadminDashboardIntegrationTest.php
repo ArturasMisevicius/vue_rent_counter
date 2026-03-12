@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use App\Models\Organization;
+use App\Models\OrganizationActivityLog;
 use App\Models\Property;
 use App\Models\Subscription;
 use App\Models\SystemHealthMetric;
@@ -162,7 +163,7 @@ class SuperadminDashboardIntegrationTest extends TestCase
         $user = User::factory()->create(['tenant_id' => $organization->id]);
 
         // Create some recent activity
-        \App\Models\OrganizationActivityLog::factory()->create([
+        OrganizationActivityLog::factory()->create([
             'organization_id' => $organization->id,
             'user_id' => $user->id,
             'action' => 'property_created',
@@ -288,10 +289,11 @@ class SuperadminDashboardIntegrationTest extends TestCase
 
         $response->assertStatus(200);
 
-        // Check for responsive grid classes
-        $response->assertSee('grid');
-        $response->assertSee('md:grid-cols-2');
-        $response->assertSee('lg:grid-cols-3');
+        // Dashboard blocks should render as full-width single-column stacks.
+        $response->assertSee('grid grid-cols-1', false);
+        $response->assertDontSee('md:grid-cols-2');
+        $response->assertDontSee('lg:grid-cols-3');
+        $response->assertDontSee('xl:grid-cols-4');
     }
 
     /** @test */

@@ -6,14 +6,13 @@ namespace App\Filament\Resources\PropertyResource\RelationManagers;
 
 use App\Enums\DistributionMethod;
 use App\Enums\PricingModel;
-use App\Models\ServiceConfiguration;
 use App\Models\UtilityService;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -38,7 +37,7 @@ class ServiceConfigurationsRelationManager extends RelationManager
                             ->native(false)
                             ->live()
                             ->afterStateUpdated(function ($state, Set $set): void {
-                                if (!$state) {
+                                if (! $state) {
                                     return;
                                 }
 
@@ -121,7 +120,61 @@ class ServiceConfigurationsRelationManager extends RelationManager
                             ->valueLabel('Rate (€)')
                             ->addButtonLabel('Add Zone')
                             ->reorderable()
-                            ->required(fn (Get $get): bool => $get('pricing_model') === PricingModel::TIME_OF_USE->value)
+                            ->required(function (Get $get): bool {
+                                if ($get('pricing_model') !== PricingModel::TIME_OF_USE->value) {
+                                    return false;
+                                }
+
+                                $timeWindows = $get('rate_schedule.time_windows');
+
+                                return ! is_array($timeWindows) || $timeWindows === [];
+                            })
+                            ->visible(fn (Get $get): bool => $get('pricing_model') === PricingModel::TIME_OF_USE->value),
+
+                        Forms\Components\Repeater::make('rate_schedule.time_windows')
+                            ->label('Time Windows')
+                            ->required(function (Get $get): bool {
+                                if ($get('pricing_model') !== PricingModel::TIME_OF_USE->value) {
+                                    return false;
+                                }
+
+                                $zoneRates = $get('rate_schedule.zone_rates');
+
+                                return ! is_array($zoneRates) || $zoneRates === [];
+                            })
+                            ->minItems(1)
+                            ->schema([
+                                Forms\Components\TextInput::make('zone')
+                                    ->required()
+                                    ->maxLength(50),
+                                Forms\Components\TextInput::make('start')
+                                    ->required()
+                                    ->placeholder('07:00')
+                                    ->rule('regex:/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/'),
+                                Forms\Components\TextInput::make('end')
+                                    ->required()
+                                    ->placeholder('23:00')
+                                    ->rule('regex:/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/'),
+                                Forms\Components\TextInput::make('rate')
+                                    ->numeric()
+                                    ->required()
+                                    ->minValue(0)
+                                    ->prefix('€'),
+                                Forms\Components\CheckboxList::make('day_types')
+                                    ->options([
+                                        'weekday' => 'Weekday',
+                                        'weekend' => 'Weekend',
+                                    ])
+                                    ->columns(2),
+                                Forms\Components\Select::make('months')
+                                    ->multiple()
+                                    ->options([
+                                        1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
+                                        5 => 'May', 6 => 'Jun', 7 => 'Jul', 8 => 'Aug',
+                                        9 => 'Sep', 10 => 'Oct', 11 => 'Nov', 12 => 'Dec',
+                                    ]),
+                            ])
+                            ->columns(3)
                             ->visible(fn (Get $get): bool => $get('pricing_model') === PricingModel::TIME_OF_USE->value),
 
                         Forms\Components\Repeater::make('rate_schedule.tiers')
@@ -166,6 +219,68 @@ class ServiceConfigurationsRelationManager extends RelationManager
                             ->reorderable()
                             ->helperText('Variables must be numeric (boolean values are treated as 1/0).')
                             ->visible(fn (Get $get): bool => $get('pricing_model') === PricingModel::CUSTOM_FORMULA->value),
+
+                        Forms\Components\TextInput::make('rate_schedule.localization.locale')
+                            ->label('Locale Profile')
+                            ->maxLength(20),
+
+                        Forms\Components\TextInput::make('rate_schedule.localization.minimum_charge')
+                            ->label('Minimum Charge')
+                            ->numeric()
+                            ->minValue(0)
+                            ->prefix('€'),
+
+                        Forms\Components\TextInput::make('rate_schedule.localization.tax_rate')
+                            ->label('Tax Rate (%)')
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(100),
+
+                        Forms\Components\Select::make('rate_schedule.localization.rounding_mode')
+                            ->label('Rounding Mode')
+                            ->options([
+                                'half_up' => 'Half Up',
+                                'half_down' => 'Half Down',
+                                'bankers' => 'Bankers',
+                                'up' => 'Up',
+                                'down' => 'Down',
+                            ])
+                            ->native(false),
+
+                        Forms\Components\TextInput::make('rate_schedule.localization.money_precision')
+                            ->label('Money Precision')
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(6),
+
+                        Forms\Components\Repeater::make('rate_schedule.localization.fixed_charges')
+                            ->label('Localized Fixed Charges')
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->required()
+                                    ->maxLength(100),
+                                Forms\Components\TextInput::make('amount')
+                                    ->numeric()
+                                    ->required()
+                                    ->minValue(0)
+                                    ->prefix('€'),
+                            ])
+                            ->columns(2),
+
+                        Forms\Components\Repeater::make('rate_schedule.localization.surcharges')
+                            ->label('Localized Surcharges')
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->required()
+                                    ->maxLength(100),
+                                Forms\Components\TextInput::make('percentage')
+                                    ->numeric()
+                                    ->required()
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->suffix('%'),
+                            ])
+                            ->columns(2),
                     ])
                     ->columns(2),
             ]);

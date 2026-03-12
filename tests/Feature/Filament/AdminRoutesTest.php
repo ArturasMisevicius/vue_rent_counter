@@ -6,10 +6,8 @@ use App\Enums\UserRole;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;
-use App\Models\MeterReading;
 use App\Models\Property;
-use App\Models\Provider;
-use App\Models\Tariff;
+use App\Models\Subscription;
 use App\Models\User;
 
 beforeEach(function () {
@@ -18,6 +16,11 @@ beforeEach(function () {
         'tenant_id' => 1,
         'is_active' => true,
     ]);
+
+    Subscription::factory()
+        ->for($this->admin)
+        ->active()
+        ->create();
 });
 
 test('admin can access dashboard', function () {
@@ -226,7 +229,7 @@ test('admin can edit meter', function () {
     $property = Property::factory()->create([
         'tenant_id' => $this->admin->tenant_id,
     ]);
-    
+
     $meter = Meter::factory()->create([
         'property_id' => $property->id,
         'tenant_id' => $this->admin->tenant_id,

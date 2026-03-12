@@ -25,8 +25,10 @@ use App\Http\Controllers\Manager\ProfileController as ManagerProfileController;
 use App\Http\Controllers\Manager\PropertyController as ManagerPropertyController;
 use App\Http\Controllers\Manager\ReportController as ManagerReportController;
 use App\Http\Controllers\MeterReadingUpdateController;
+use App\Http\Controllers\NotificationTrackingController;
 use App\Http\Controllers\Superadmin\BuildingController as SuperadminBuildingController;
 use App\Http\Controllers\Superadmin\DashboardController as SuperadminDashboardController;
+use App\Http\Controllers\Superadmin\ImpersonationController;
 use App\Http\Controllers\Superadmin\InvitationController as SuperadminInvitationController;
 use App\Http\Controllers\Superadmin\ManagerController as SuperadminManagerController;
 use App\Http\Controllers\Superadmin\OrganizationController as SuperadminOrganizationController;
@@ -41,6 +43,8 @@ use App\Http\Controllers\Tenant\MeterController as TenantMeterController;
 use App\Http\Controllers\Tenant\MeterReadingController as TenantMeterReadingController;
 use App\Http\Controllers\Tenant\ProfileController as TenantProfileController;
 use App\Http\Controllers\Tenant\PropertyController as TenantPropertyController;
+use App\Http\Controllers\WelcomeController;
+use App\Services\RoleDashboardResolver;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -49,57 +53,16 @@ Route::get('/', function () {
         return redirect()->route('dashboard');
     }
 
-    return app(\App\Http\Controllers\WelcomeController::class)();
+    return app(WelcomeController::class)();
 });
 
 // Unified dashboard route - redirects based on user role
-Route::get('/dashboard', function () {
-    if (! auth()->check()) {
-        return redirect()->route('login');
-    }
-
-    $user = auth()->user();
-
-    return match ($user->role->value) {
-        'superadmin' => redirect('/superadmin'),
-        'admin' => redirect('/admin'),
-        'manager' => redirect()->route('manager.dashboard'),
-        'tenant' => redirect()->route('tenant.dashboard'),
-        default => abort(403, 'Invalid user role'),
-    };
+Route::get('/dashboard', function (RoleDashboardResolver $dashboardResolver) {
+    return $dashboardResolver->redirectToDashboard(auth()->user());
 })->middleware('auth')->name('dashboard');
 
-// ============================================================================
-// CONVENIENCE REDIRECTS
-// ============================================================================
-// These routes handle users who navigate directly to role-specific paths
-// without the /dashboard suffix, redirecting them to the correct dashboard
-
-Route::middleware('auth')->group(function () {
-    Route::get('/superadmin', function () {
-        abort_unless(auth()->user()?->role?->value === 'superadmin', 403);
-
-        return redirect()->route('superadmin.dashboard');
-    });
-
-    Route::get('/admin', function () {
-        abort_unless(auth()->user()?->role?->value === 'admin', 403);
-
-        return redirect()->route('admin.dashboard');
-    });
-
-    Route::get('/manager', function () {
-        abort_unless(auth()->user()?->role?->value === 'manager', 403);
-
-        return redirect()->route('manager.dashboard');
-    });
-
-    Route::get('/tenant', function () {
-        abort_unless(auth()->user()?->role?->value === 'tenant', 403);
-
-        return redirect()->route('tenant.dashboard');
-    });
-});
+// Note: Panel roots (`/admin`, `/superadmin`, `/tenant`) are served by Filament.
+// Keep this file free of root path collisions so panel routes remain discoverable.
 
 // Language switching route
 Route::get('/language/{locale}', [LanguageController::class, 'switch'])
@@ -111,7 +74,7 @@ Route::post('/locale', [LocaleController::class, 'store'])
     ->name('locale.set');
 
 // Notification tracking route (for read receipts)
-Route::get('/notification-track/{notification}/{organization}', [\App\Http\Controllers\NotificationTrackingController::class, 'track'])
+Route::get('/notification-track/{notification}/{organization}', [NotificationTrackingController::class, 'track'])
     ->name('platform-notification.track');
 
 // Invitation acceptance (public)
@@ -246,13 +209,13 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::delete('subscriptions/{subscription}', [SuperadminSubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
 
     // Impersonation Management
-    Route::post('impersonation/start/{user}', [\App\Http\Controllers\Superadmin\ImpersonationController::class, 'start'])->name('impersonation.start');
-    Route::get('impersonation/history', [\App\Http\Controllers\Superadmin\ImpersonationController::class, 'history'])->name('impersonation.history');
+    Route::post('impersonation/start/{user}', [ImpersonationController::class, 'start'])->name('impersonation.start');
+    Route::get('impersonation/history', [ImpersonationController::class, 'history'])->name('impersonation.history');
 });
 
 // Impersonation end must remain accessible while impersonating (current user is not a superadmin).
 Route::middleware(['auth'])
-    ->post('superadmin/impersonation/end', [\App\Http\Controllers\Superadmin\ImpersonationController::class, 'end'])
+    ->post('superadmin/impersonation/end', [ImpersonationController::class, 'end'])
     ->name('superadmin.impersonation.end');
 
 // Superadmin compatibility resource actions used by custom superadmin views.

@@ -10,11 +10,11 @@
   array (
     'aliases' => 
     array (
-      'Debugbar' => 'Barryvdh\\Debugbar\\Facades\\Debugbar',
+      'Debugbar' => 'Fruitcake\\LaravelDebugbar\\Facades\\Debugbar',
     ),
     'providers' => 
     array (
-      0 => 'Barryvdh\\Debugbar\\ServiceProvider',
+      0 => 'Fruitcake\\LaravelDebugbar\\ServiceProvider',
     ),
   ),
   'barryvdh/laravel-dompdf' => 
@@ -131,25 +131,11 @@
       0 => 'Filament\\Widgets\\WidgetsServiceProvider',
     ),
   ),
-  'gsferro/generate-tests-easy' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Gsferro\\GenerateTestsEasy\\Providers\\GenerateTestsEasyServiceProvider',
-    ),
-  ),
   'kirschbaum-development/eloquent-power-joins' => 
   array (
     'providers' => 
     array (
       0 => 'Kirschbaum\\PowerJoins\\PowerJoinsServiceProvider',
-    ),
-  ),
-  'laravel/boost' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Laravel\\Boost\\BoostServiceProvider',
     ),
   ),
   'laravel/mcp' => 
@@ -161,13 +147,6 @@
     'providers' => 
     array (
       0 => 'Laravel\\Mcp\\Server\\McpServiceProvider',
-    ),
-  ),
-  'laravel/roster' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Laravel\\Roster\\RosterServiceProvider',
     ),
   ),
   'laravel/sail' => 

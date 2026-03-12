@@ -19,7 +19,7 @@
 >
 
     {{-- Subscription Statistics --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 gap-6 mb-8">
         <x-stat-card 
             :title="__('shared.dashboard.stats.total_subscriptions')" 
             :value="$totalSubscriptions" 
@@ -53,7 +53,7 @@
     <x-card class="mb-8">
         <h2 class="text-xl font-semibold">{{ __('shared.dashboard.quick_actions.title') }}</h2>
         <p class="mb-4 text-sm text-slate-500">{{ __('shared.dashboard.quick_actions.description') }}</p>
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-4">
             <x-backoffice.quick-action
                 :href="route('superadmin.organizations.create')"
                 :title="__('shared.dashboard.quick_actions.create_organization')"
@@ -107,7 +107,7 @@
             </form>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 gap-4">
             @forelse($systemHealthMetrics as $metric)
                 <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
                     <div class="flex items-center justify-between">
@@ -125,7 +125,7 @@
     </x-card>
 
     {{-- Organization Statistics --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 gap-6 mb-8">
         <a href="{{ route('superadmin.organizations.index') }}" class="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-100 rounded-2xl">
             <x-card class="h-full group-hover:-translate-y-0.5 group-hover:shadow-xl transition duration-200">
                 <h2 class="text-xl font-semibold">{{ __('shared.dashboard.organizations.title') }}</h2>
@@ -182,7 +182,7 @@
     </div>
 
     {{-- System-wide Usage Metrics --}}
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 gap-6 mb-8">
         <x-stat-card 
             :title="__('shared.dashboard.stats.total_properties')" 
             :value="$totalProperties" 
@@ -242,7 +242,7 @@
     @endif
 
     {{-- Top Organizations & Activity --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 gap-6 mb-8">
         <x-card>
             <h2 class="text-xl font-semibold">{{ __('shared.dashboard.organizations.top_by_properties') }}</h2>
             <p class="mb-4 text-sm text-slate-500">{{ __('shared.dashboard.organizations.top_by_properties_description') }}</p>
@@ -287,7 +287,7 @@
     </div>
 
     {{-- Overview tables mapped to widget logic --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 gap-6 mb-8">
         <x-card id="subscriptions-overview">
             <div class="flex items-center justify-between mb-4">
                 <div>
@@ -399,7 +399,7 @@
             </div>
             <a href="{{ route('superadmin.organizations.index') }}" class="text-blue-600 hover:text-blue-800 text-sm font-semibold">{{ __('shared.dashboard.overview.resources.manage_orgs') }}</a>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 gap-6">
             <div id="resource-properties" class="space-y-3">
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-semibold">{{ __('shared.dashboard.overview.resources.properties.title') }}</h3>
@@ -634,7 +634,7 @@
     <!-- Primary Stats Grid -->
     @if(auth()->user()->role->value === 'admin')
         <!-- Admin Portfolio Stats -->
-        <x-backoffice.stats-section class="mt-8">
+        <x-backoffice.stats-section class="mt-8" :columns="1">
             <x-stat-card label="{{ __('dashboard.shared.stats.total_properties') }}" :value="$stats['total_properties']" :href="route('admin.tenants.index')">
                 <x-slot:icon>
                     <svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -670,7 +670,7 @@
 
         <!-- Pending Tasks -->
         @if(isset($pendingTasks))
-        <x-backoffice.stats-section class="mt-6" :title="__('settings.maintenance.title')" :columns="3">
+        <x-backoffice.stats-section class="mt-6" :title="__('settings.maintenance.title')" :columns="1">
                 <x-stat-card label="{{ __('meter_readings.actions.enter_new') }}" :value="$pendingTasks['pending_meter_readings']" :href="route('admin.tenants.index')" />
                 <x-stat-card label="{{ __('invoices.actions.finalize') }}" :value="$pendingTasks['draft_invoices']" :href="route('invoices.drafts')" />
                 <x-stat-card label="{{ __('app.nav.tenants') }}" :value="$pendingTasks['inactive_tenants']" :href="route('admin.tenants.index')" />
@@ -678,7 +678,7 @@
         @endif
     @else
         <!-- System-wide Stats for Superadmin/Manager -->
-        <x-backoffice.stats-section class="mt-8">
+        <x-backoffice.stats-section class="mt-8" :columns="1">
             <x-stat-card label="{{ __('dashboard.shared.stats.total_users') }}" :value="$stats['total_users']" :href="route('admin.users.index')">
                 <x-slot:icon>
                     <svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -715,7 +715,7 @@
 
     @if(auth()->user()->role->value === 'admin')
         <!-- Admin Secondary Stats -->
-        <x-backoffice.stats-section class="mt-6">
+        <x-backoffice.stats-section class="mt-6" :columns="1">
             <x-stat-card :label="__('dashboard.shared.stats.total_buildings')" :value="$stats['total_buildings']" :href="route('admin.tenants.index')">
                 <x-slot:icon>
                     <svg class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -750,7 +750,7 @@
         </x-backoffice.stats-section>
     @else
         <!-- System-wide Secondary Stats -->
-        <x-backoffice.stats-section class="mt-6">
+        <x-backoffice.stats-section class="mt-6" :columns="1">
             <x-stat-card :label="__('dashboard.shared.stats.total_buildings')" :value="$stats['total_buildings']" :href="route('admin.tenants.index')">
                 <x-slot:icon>
                     <svg class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -785,14 +785,14 @@
         </x-backoffice.stats-section>
 
         <!-- User Role Breakdown -->
-        <x-backoffice.stats-section class="mt-8" :title="__('dashboard.shared.breakdown.users_title')" :columns="3">
+        <x-backoffice.stats-section class="mt-8" :title="__('dashboard.shared.breakdown.users_title')" :columns="1">
             <x-stat-card :label="__('dashboard.shared.breakdown.administrators')" :value="$stats['admin_count']" :href="route('admin.users.index', ['role' => 'admin'])" />
             <x-stat-card :label="__('dashboard.shared.breakdown.managers')" :value="$stats['manager_count']" :href="route('admin.users.index', ['role' => 'manager'])" />
             <x-stat-card :label="__('dashboard.shared.breakdown.tenants')" :value="$stats['tenant_count']" :href="route('admin.tenants.index')" />
         </x-backoffice.stats-section>
 
         <!-- Invoice Status Breakdown -->
-        <x-backoffice.stats-section class="mt-8" :title="__('dashboard.shared.breakdown.invoice_title')" :columns="3">
+        <x-backoffice.stats-section class="mt-8" :title="__('dashboard.shared.breakdown.invoice_title')" :columns="1">
             <x-stat-card :label="__('dashboard.shared.breakdown.draft_invoices')" :value="$stats['draft_invoices']" :href="route('invoices.drafts')" />
             <x-stat-card :label="__('dashboard.shared.breakdown.finalized_invoices')" :value="$stats['finalized_invoices']" :href="route('invoices.finalized')" />
             <x-stat-card :label="__('dashboard.shared.breakdown.paid_invoices')" :value="$stats['paid_invoices']" :href="route('invoices.paid')" />
@@ -802,7 +802,7 @@
     <!-- Quick Actions -->
     <div class="mt-8">
         <h2 class="text-lg font-medium text-slate-900 mb-4">{{ __('dashboard.shared.quick_actions.title') }}</h2>
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-4">
             @if(auth()->user()->role->value === 'admin')
                 <x-backoffice.quick-action
                     :href="route('admin.tenants.index')"
@@ -931,7 +931,7 @@
         <h2 class="text-lg font-medium text-slate-900 mb-4">
             {{ __('dashboard.shared.activity.recent_portfolio') }}
         </h2>
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-6">
             @if(auth()->user()->role->value === 'admin')
                 <!-- Recent Tenants -->
                 <x-card title="{{ __('dashboard.shared.activity.recent_tenants') }}">

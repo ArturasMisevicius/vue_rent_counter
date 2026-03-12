@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
     'errors_occurred' => 'Errors Occurred',
     'exists' => 'Exists',
-    
+
     // Service Validation Engine messages
     'unauthorized_rate_change' => 'Unauthorized to validate rate changes for this service',
     'rate_schedule_empty' => 'Rate schedule cannot be empty',
@@ -48,4 +48,37 @@ return [
     'water_seasonal_variance_high' => 'Water consumption :consumption :unit varies by :variance% from average :average :unit.',
     'consumption_above_seasonal_expectation' => 'Consumption :consumption :unit exceeds expected seasonal maximum :expected_max :unit.',
     'seasonal_variance_detected' => 'Seasonal variance detected: :consumption :unit vs average :average :unit (:variance%).',
+
+    'custom_requests' => [
+        'api_login' => [
+            'email' => [
+                'required' => 'Адрес электронной почты обязателен',
+                'email' => 'Введите корректный адрес электронной почты',
+            ],
+            'password' => [
+                'required' => 'Пароль обязателен',
+                'min' => 'Пароль должен содержать не менее 8 символов',
+            ],
+        ],
+        'csp_violation' => [
+            'report_required' => 'Данные CSP-отчета обязательны',
+            'violated_directive_required' => 'Нарушенная директива обязательна',
+            'document_uri_required' => 'URI документа обязателен',
+            'max' => 'Поле :attribute слишком длинное.',
+            'integer' => 'Поле :attribute должно быть целым числом.',
+            'invalid_content_type' => 'Неверный тип содержимого',
+            'request_too_large' => 'Слишком большой запрос',
+            'too_many_reports' => 'Слишком много CSP-отчетов',
+        ],
+        'organizations' => [
+            'invalid_data' => 'Переданные данные недействительны.',
+        ],
+        'properties' => [
+            'building_must_belong' => 'Выбранное здание должно принадлежать вашей организации.',
+            'attributes' => [
+                'area_sqm' => 'площадь (м²)',
+                'unit_number' => 'номер помещения',
+            ],
+        ],
+    ],
 ];

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests;
 
 use App\Enums\PropertyType;
@@ -32,15 +34,15 @@ class StorePropertyRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'building_id.exists' => 'The selected building must belong to your organization.',
+            'building_id.exists' => __('validation.custom_requests.properties.building_must_belong'),
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'area_sqm' => 'area (m²)',
-            'unit_number' => 'unit number',
+            'area_sqm' => __('validation.custom_requests.properties.attributes.area_sqm'),
+            'unit_number' => __('validation.custom_requests.properties.attributes.unit_number'),
         ];
     }
 }

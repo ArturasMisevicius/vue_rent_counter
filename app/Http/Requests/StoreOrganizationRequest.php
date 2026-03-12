@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Enums\SubscriptionPlan;
 use App\Support\EuropeanCurrencyOptions;
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class StoreOrganizationRequest extends FormRequest
 {
@@ -24,7 +26,7 @@ class StoreOrganizationRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -40,7 +42,7 @@ class StoreOrganizationRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255', 'unique:organizations,email'],
             'phone' => ['nullable', 'string', 'max:50'],
             'domain' => ['nullable', 'string', 'max:255', 'unique:organizations,domain'],
-            'plan' => ['required', Rule::enum(\App\Enums\SubscriptionPlan::class)],
+            'plan' => ['required', Rule::enum(SubscriptionPlan::class)],
             'max_properties' => ['required', 'integer', 'min:1'],
             'max_users' => ['required', 'integer', 'min:1'],
             'subscription_ends_at' => ['nullable', 'date'],
@@ -77,7 +79,7 @@ class StoreOrganizationRequest extends FormRequest
     {
         if ($this->is('superadmin/*')) {
             throw new HttpResponseException(response()->json([
-                'message' => 'The given data was invalid.',
+                'message' => __('validation.custom_requests.organizations.invalid_data'),
                 'errors' => $validator->errors(),
             ], 422));
         }

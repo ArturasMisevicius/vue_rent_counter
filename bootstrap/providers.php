@@ -1,52 +1,94 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use App\Providers\Filament\AdminPanelProvider;
+use App\Providers\Filament\SuperadminPanelProvider;
+use App\Providers\Filament\TenantPanelProvider;
+use App\Providers\RepositoryServiceProvider;
+use Filament\Actions\ActionsServiceProvider;
+use Filament\FilamentServiceProvider;
+use Filament\Forms\FormsServiceProvider;
+use Filament\Infolists\InfolistsServiceProvider;
+use Filament\Notifications\NotificationsServiceProvider;
+use Filament\Schemas\SchemasServiceProvider;
+use Filament\Support\SupportServiceProvider;
+use Filament\Tables\TablesServiceProvider;
+use Filament\Widgets\WidgetsServiceProvider;
+use Illuminate\Auth\AuthServiceProvider;
+use Illuminate\Auth\Passwords\PasswordResetServiceProvider;
+use Illuminate\Broadcasting\BroadcastServiceProvider;
+use Illuminate\Bus\BusServiceProvider;
+use Illuminate\Cache\CacheServiceProvider;
+use Illuminate\Cookie\CookieServiceProvider;
+use Illuminate\Database\DatabaseServiceProvider;
+use Illuminate\Encryption\EncryptionServiceProvider;
+use Illuminate\Filesystem\FilesystemServiceProvider;
+use Illuminate\Foundation\Providers\ConsoleSupportServiceProvider;
+use Illuminate\Foundation\Providers\FoundationServiceProvider;
+use Illuminate\Hashing\HashServiceProvider;
+use Illuminate\Mail\MailServiceProvider;
+use Illuminate\Notifications\NotificationServiceProvider;
+use Illuminate\Pagination\PaginationServiceProvider;
+use Illuminate\Pipeline\PipelineServiceProvider;
+use Illuminate\Queue\QueueServiceProvider;
+use Illuminate\Redis\RedisServiceProvider;
+use Illuminate\Session\SessionServiceProvider;
+use Illuminate\Translation\TranslationServiceProvider;
+use Illuminate\Validation\ValidationServiceProvider;
+use Illuminate\View\ViewServiceProvider;
+use Livewire\LivewireServiceProvider;
+use Spatie\Permission\PermissionServiceProvider;
+
 return [
     // Core Laravel Service Providers (order matters!)
-    Illuminate\Foundation\Providers\FoundationServiceProvider::class,
-    Illuminate\Auth\AuthServiceProvider::class,
-    Illuminate\Broadcasting\BroadcastServiceProvider::class,
-    Illuminate\Bus\BusServiceProvider::class,
-    Illuminate\Cache\CacheServiceProvider::class,
-    Illuminate\Foundation\Providers\ConsoleSupportServiceProvider::class,
-    Illuminate\Cookie\CookieServiceProvider::class,
-    Illuminate\Database\DatabaseServiceProvider::class,
-    Illuminate\Encryption\EncryptionServiceProvider::class,
-    Illuminate\Filesystem\FilesystemServiceProvider::class,
-    Illuminate\Hashing\HashServiceProvider::class,
-    Illuminate\Mail\MailServiceProvider::class,
-    Illuminate\Notifications\NotificationServiceProvider::class,
-    Illuminate\Pagination\PaginationServiceProvider::class,
-    Illuminate\Pipeline\PipelineServiceProvider::class,
-    Illuminate\Queue\QueueServiceProvider::class,
-    Illuminate\Redis\RedisServiceProvider::class,
-    Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
-    Illuminate\Session\SessionServiceProvider::class,
-    Illuminate\Translation\TranslationServiceProvider::class,
-    Illuminate\Validation\ValidationServiceProvider::class,
-    Illuminate\View\ViewServiceProvider::class,
+    FoundationServiceProvider::class,
+    AuthServiceProvider::class,
+    BroadcastServiceProvider::class,
+    BusServiceProvider::class,
+    CacheServiceProvider::class,
+    ConsoleSupportServiceProvider::class,
+    CookieServiceProvider::class,
+    DatabaseServiceProvider::class,
+    EncryptionServiceProvider::class,
+    FilesystemServiceProvider::class,
+    HashServiceProvider::class,
+    MailServiceProvider::class,
+    NotificationServiceProvider::class,
+    PaginationServiceProvider::class,
+    PipelineServiceProvider::class,
+    QueueServiceProvider::class,
+    RedisServiceProvider::class,
+    PasswordResetServiceProvider::class,
+    SessionServiceProvider::class,
+    TranslationServiceProvider::class,
+    ValidationServiceProvider::class,
+    ViewServiceProvider::class,
 
     // Livewire (required by Filament) - must come before Filament
-    Livewire\LivewireServiceProvider::class,
+    LivewireServiceProvider::class,
 
     // Application Service Providers (before Filament)
-    App\Providers\AppServiceProvider::class,
+    AppServiceProvider::class,
     App\Providers\DatabaseServiceProvider::class,
-    App\Providers\RepositoryServiceProvider::class,
+    RepositoryServiceProvider::class,
     App\Providers\ValidationServiceProvider::class,
 
     // Spatie Permission Service Provider
-    Spatie\Permission\PermissionServiceProvider::class,
+    PermissionServiceProvider::class,
 
     // Filament Core Service Providers (after app providers)
-    Filament\FilamentServiceProvider::class,
-    Filament\Actions\ActionsServiceProvider::class,
-    Filament\Forms\FormsServiceProvider::class,
-    Filament\Infolists\InfolistsServiceProvider::class,
-    Filament\Notifications\NotificationsServiceProvider::class,
-    Filament\Schemas\SchemasServiceProvider::class,
-    Filament\Support\SupportServiceProvider::class,
-    Filament\Tables\TablesServiceProvider::class,
-    Filament\Widgets\WidgetsServiceProvider::class,
+    FilamentServiceProvider::class,
+    ActionsServiceProvider::class,
+    FormsServiceProvider::class,
+    InfolistsServiceProvider::class,
+    NotificationsServiceProvider::class,
+    SchemasServiceProvider::class,
+    SupportServiceProvider::class,
+    TablesServiceProvider::class,
+    WidgetsServiceProvider::class,
 
-    // Filament panel providers are intentionally disabled for custom web UI mode.
+    // Filament panel providers
+    AdminPanelProvider::class,
+    SuperadminPanelProvider::class,
+    TenantPanelProvider::class,
 ];

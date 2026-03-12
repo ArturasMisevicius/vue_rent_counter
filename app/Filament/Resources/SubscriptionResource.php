@@ -2,21 +2,25 @@
 
 namespace App\Filament\Resources;
 
-
-use BackedEnum;
 use App\Enums\SubscriptionPlanType;
 use App\Enums\SubscriptionStatus;
+use App\Enums\UserRole;
 use App\Filament\Resources\SubscriptionResource\Pages;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Notifications\SubscriptionExpiryWarningEmail;
+use BackedEnum;
 use Filament\Actions;
 use Filament\Forms;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Utilities\Set;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class SubscriptionResource extends Resource
 {
@@ -49,9 +53,9 @@ class SubscriptionResource extends Resource
     {
         $user = auth()->user();
 
-        return $user instanceof \App\Models\User && in_array($user->role, [
-            \App\Enums\UserRole::SUPERADMIN,
-            \App\Enums\UserRole::ADMIN,
+        return $user instanceof User && in_array($user->role, [
+            UserRole::SUPERADMIN,
+            UserRole::ADMIN,
         ], true);
     }
 
@@ -104,7 +108,7 @@ class SubscriptionResource extends Resource
                             ->preload()
                             ->required()
                             ->helperText(__('subscriptions.helper_text.select_organization')),
-                        
+
                         Forms\Components\Select::make('plan_type')
                             ->label(__('subscriptions.labels.plan_type'))
                             ->options(SubscriptionPlanType::labels())
@@ -124,7 +128,7 @@ class SubscriptionResource extends Resource
                                 $set('max_properties', $planLimits['properties']);
                                 $set('max_tenants', $planLimits['tenants']);
                             }),
-                        
+
                         Forms\Components\Select::make('status')
                             ->label(__('subscriptions.labels.status'))
                             ->options(SubscriptionStatus::labels())
@@ -138,7 +142,7 @@ class SubscriptionResource extends Resource
                             ->label(__('subscriptions.labels.starts_at'))
                             ->required()
                             ->default(now()),
-                        
+
                         Forms\Components\DateTimePicker::make('expires_at')
                             ->label(__('subscriptions.labels.expires_at'))
                             ->required()
@@ -155,7 +159,7 @@ class SubscriptionResource extends Resource
                             ->default(100)
                             ->minValue(1)
                             ->helperText(__('subscriptions.helper_text.max_properties')),
-                        
+
                         Forms\Components\TextInput::make('max_tenants')
                             ->label(__('subscriptions.labels.max_tenants'))
                             ->numeric()
@@ -176,12 +180,12 @@ class SubscriptionResource extends Resource
                     ->label(__('subscriptions.labels.organization'))
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('user.email')
                     ->label(__('subscriptions.labels.email'))
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                
+
                 Tables\Columns\TextColumn::make('plan_type')
                     ->badge()
                     ->formatStateUsing(fn ($state) => enum_label($state, SubscriptionPlanType::class))
@@ -192,7 +196,7 @@ class SubscriptionResource extends Resource
                         default => 'gray',
                     })
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn ($state) => enum_label($state, SubscriptionStatus::class))
@@ -204,32 +208,31 @@ class SubscriptionResource extends Resource
                         default => 'gray',
                     })
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('starts_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                
+
                 Tables\Columns\TextColumn::make('expires_at')
                     ->dateTime()
                     ->sortable()
                     ->color(fn ($record) => $record->expires_at->isPast() ? 'danger' : ($record->daysUntilExpiry() <= 14 ? 'warning' : 'success')),
-                
+
                 Tables\Columns\TextColumn::make('days_until_expiry')
                     ->label(__('subscriptions.labels.days_left'))
                     ->state(fn (Subscription $record) => $record->daysUntilExpiry())
                     ->color(fn ($state) => $state < 0 ? 'danger' : ($state <= 14 ? 'warning' : 'success'))
-                    ->sortable(query: fn (Builder $query, string $direction): Builder => 
-                        $query->orderBy('expires_at', $direction)),
-                
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy('expires_at', $direction)),
+
                 Tables\Columns\TextColumn::make('max_properties')
                     ->label(__('subscriptions.labels.properties_limit'))
                     ->toggleable(isToggledHiddenByDefault: true),
-                
+
                 Tables\Columns\TextColumn::make('max_tenants')
                     ->label(__('subscriptions.labels.tenants_limit'))
                     ->toggleable(isToggledHiddenByDefault: true),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('subscriptions.labels.created_at'))
                     ->dateTime()
@@ -240,18 +243,18 @@ class SubscriptionResource extends Resource
                 Tables\Filters\SelectFilter::make('plan_type')
                     ->label(__('subscriptions.filters.plan_type'))
                     ->options(SubscriptionPlanType::labels()),
-                
+
                 Tables\Filters\SelectFilter::make('status')
                     ->label(__('subscriptions.filters.status'))
                     ->options(SubscriptionStatus::labels()),
-                
+
                 Tables\Filters\Filter::make('expiring_soon')
                     ->query(fn (Builder $query): Builder => $query
                         ->where('status', SubscriptionStatus::ACTIVE->value)
                         ->where('expires_at', '>=', now())
                         ->where('expires_at', '<=', now()->addDays(14)))
                     ->label(__('subscriptions.filters.expiring_soon')),
-                
+
                 Tables\Filters\Filter::make('expired')
                     ->query(fn (Builder $query): Builder => $query->where('expires_at', '<', now()))
                     ->label(__('subscriptions.filters.expired')),
@@ -259,7 +262,7 @@ class SubscriptionResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                
+
                 Actions\Action::make('renew')
                     ->label(__('subscriptions.actions.renew'))
                     ->icon('heroicon-o-arrow-path')
@@ -283,7 +286,7 @@ class SubscriptionResource extends Resource
                     ], true))
                     ->requiresConfirmation()
                     ->successNotificationTitle(__('subscriptions.notifications.renewed')),
-                
+
                 Actions\Action::make('suspend')
                     ->label(__('subscriptions.actions.suspend'))
                     ->icon('heroicon-o-pause-circle')
@@ -292,7 +295,7 @@ class SubscriptionResource extends Resource
                     ->action(fn (Subscription $record) => $record->update(['status' => SubscriptionStatus::SUSPENDED->value]))
                     ->visible(fn (Subscription $record) => $record->status === SubscriptionStatus::ACTIVE)
                     ->successNotificationTitle(__('subscriptions.notifications.suspended')),
-                
+
                 Actions\Action::make('activate')
                     ->label(__('subscriptions.actions.activate'))
                     ->icon('heroicon-o-play-circle')
@@ -301,19 +304,19 @@ class SubscriptionResource extends Resource
                     ->action(fn (Subscription $record) => $record->update(['status' => SubscriptionStatus::ACTIVE->value]))
                     ->visible(fn (Subscription $record) => $record->status !== SubscriptionStatus::ACTIVE)
                     ->successNotificationTitle(__('subscriptions.notifications.activated')),
-                
+
                 Actions\Action::make('view_usage')
                     ->label(__('subscriptions.actions.view_usage'))
                     ->icon('heroicon-o-chart-bar-square')
                     ->color('gray')
                     ->modalHeading(__('subscriptions.actions.subscription_usage'))
-                    ->modalContent(fn (Subscription $record): \Illuminate\Contracts\View\View => view(
+                    ->modalContent(fn (Subscription $record): View => view(
                         'filament.resources.subscription-usage',
                         ['record' => $record]
                     ))
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel(__('subscriptions.actions.close')),
-                
+
                 Actions\Action::make('send_renewal_reminder')
                     ->label(__('subscriptions.actions.send_reminder'))
                     ->icon('heroicon-o-envelope')
@@ -321,9 +324,9 @@ class SubscriptionResource extends Resource
                     ->requiresConfirmation()
                     ->action(function (Subscription $record) {
                         // Send renewal reminder email
-                        $record->user->notify(new \App\Notifications\SubscriptionExpiryWarningEmail($record));
-                        
-                        \Filament\Notifications\Notification::make()
+                        $record->user->notify(new SubscriptionExpiryWarningEmail($record));
+
+                        Notification::make()
                             ->title(__('subscriptions.notifications.reminder_sent'))
                             ->success()
                             ->send();
@@ -332,7 +335,7 @@ class SubscriptionResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                Actions\BulkAction::make('bulk_renew')
+                    Actions\BulkAction::make('bulk_renew')
                         ->label(__('subscriptions.actions.renew_selected'))
                         ->icon('heroicon-o-arrow-path')
                         ->color('success')
@@ -349,25 +352,25 @@ class SubscriptionResource extends Resource
                                 ->required()
                                 ->default('1_year'),
                         ])
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data) {
+                        ->action(function (Collection $records, array $data) {
                             $renewed = 0;
                             $failed = 0;
-                            
+
                             $durations = [
                                 '1_month' => 1,
                                 '3_months' => 3,
                                 '6_months' => 6,
                                 '1_year' => 12,
                             ];
-                            
+
                             $months = $durations[$data['duration']];
-                            
+
                             foreach ($records as $record) {
                                 try {
-                                    $newExpiry = $record->expires_at->isPast() 
+                                    $newExpiry = $record->expires_at->isPast()
                                         ? now()->addMonths($months)
                                         : $record->expires_at->addMonths($months);
-                                    
+
                                     $record->update([
                                         'expires_at' => $newExpiry,
                                         'status' => SubscriptionStatus::ACTIVE->value,
@@ -377,33 +380,33 @@ class SubscriptionResource extends Resource
                                     $failed++;
                                 }
                             }
-                            
-                            \Filament\Notifications\Notification::make()
+
+                            Notification::make()
                                 ->title(
                                     __('subscriptions.notifications.bulk_renewed', ['count' => $renewed])
-                                    . ($failed > 0 ? __('subscriptions.notifications.bulk_failed_suffix', ['count' => $failed]) : '')
+                                    .($failed > 0 ? __('subscriptions.notifications.bulk_failed_suffix', ['count' => $failed]) : '')
                                 )
                                 ->success()
                                 ->send();
                         })
                         ->deselectRecordsAfterCompletion(),
-                    
-                Actions\BulkAction::make('bulk_suspend')
+
+                    Actions\BulkAction::make('bulk_suspend')
                         ->label(__('subscriptions.actions.suspend_selected'))
                         ->icon('heroicon-o-pause-circle')
                         ->color('warning')
                         ->requiresConfirmation()
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                        ->action(function (Collection $records) {
                             $suspended = 0;
-                            
+
                             foreach ($records as $record) {
                                 if ($record->status === SubscriptionStatus::ACTIVE) {
                                     $record->update(['status' => SubscriptionStatus::SUSPENDED->value]);
                                     $suspended++;
                                 }
                             }
-                            
-                            \Filament\Notifications\Notification::make()
+
+                            Notification::make()
                                 ->title(
                                     __('subscriptions.notifications.bulk_suspended', ['count' => $suspended])
                                 )
@@ -411,23 +414,23 @@ class SubscriptionResource extends Resource
                                 ->send();
                         })
                         ->deselectRecordsAfterCompletion(),
-                    
-                Actions\BulkAction::make('bulk_activate')
+
+                    Actions\BulkAction::make('bulk_activate')
                         ->label(__('subscriptions.actions.activate_selected'))
                         ->icon('heroicon-o-play-circle')
                         ->color('success')
                         ->requiresConfirmation()
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                        ->action(function (Collection $records) {
                             $activated = 0;
-                            
+
                             foreach ($records as $record) {
                                 if ($record->status !== SubscriptionStatus::ACTIVE) {
                                     $record->update(['status' => SubscriptionStatus::ACTIVE->value]);
                                     $activated++;
                                 }
                             }
-                            
-                            \Filament\Notifications\Notification::make()
+
+                            Notification::make()
                                 ->title(
                                     __('subscriptions.notifications.bulk_activated', ['count' => $activated])
                                 )
@@ -435,7 +438,7 @@ class SubscriptionResource extends Resource
                                 ->send();
                         })
                         ->deselectRecordsAfterCompletion(),
-                    
+
                     Actions\ExportBulkAction::make()
                         ->label(__('subscriptions.actions.export_selected'))
                         ->icon('heroicon-o-arrow-down-tray'),
@@ -454,10 +457,11 @@ class SubscriptionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListSubscriptions::route('/'),
-            'create' => Pages\CreateSubscription::route('/create'),
-            'view' => Pages\ViewSubscription::route('/{record}'),
-            'edit' => Pages\EditSubscription::route('/{record}/edit'),
+            // Avoid collisions with legacy `/superadmin/subscriptions*` web routes.
+            'index' => Pages\ListSubscriptions::route('/filament'),
+            'create' => Pages\CreateSubscription::route('/filament/create'),
+            'view' => Pages\ViewSubscription::route('/filament/{record}'),
+            'edit' => Pages\EditSubscription::route('/filament/{record}/edit'),
         ];
     }
 

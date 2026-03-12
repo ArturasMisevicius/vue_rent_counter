@@ -1,6 +1,6 @@
 ---
 name: tenanto-laravel-stack
-description: Tenanto-specific Laravel 12 + Filament 4 + Livewire 3 implementation playbook. Use when changing backend/frontend app code in this repository.
+description: Tenanto-specific Laravel 12 + Filament 5 + Livewire 3 implementation playbook. Use when changing backend/frontend app code in this repository.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
@@ -14,9 +14,10 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 
 ## Project Facts
 
-- PHP `8.4.x`, Laravel `12`, Filament `4`, Livewire `3`, Sanctum `4`.
+- PHP `8.4.x`, Laravel `12`, Filament `5`, Livewire `3`, Sanctum `4`.
 - This project keeps the Laravel 10-style structure (no migration to new streamlined layout unless explicitly requested).
 - Tests are Pest-based and are required for behavior changes.
+- Canonical role dashboard resolution lives in `App\Services\RoleDashboardResolver` and must be reused by auth/route logic.
 
 ## Required Implementation Rules
 
@@ -51,4 +52,3 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 - [ ] Tenant/authorization implications reviewed.
 - [ ] Pest tests added/updated and executed.
 - [ ] Formatting/linting run for touched files.
-

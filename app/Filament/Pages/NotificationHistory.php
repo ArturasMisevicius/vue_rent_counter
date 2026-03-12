@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use App\Models\PlatformNotification;
-use App\Models\PlatformNotificationRecipient;
 use Filament\Forms;
 use Filament\Pages\Page;
 use Filament\Tables;
@@ -13,7 +12,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Contracts\View\View;
+use Illuminate\Support\Str;
 
 class NotificationHistory extends Page implements HasTable
 {
@@ -24,8 +23,6 @@ class NotificationHistory extends Page implements HasTable
         return 'heroicon-o-clock';
     }
 
-    protected static ?string $navigationLabel = 'Notification History';
-
     protected string $view = 'filament.pages.notification-history';
 
     protected static ?int $navigationSort = 6;
@@ -33,6 +30,11 @@ class NotificationHistory extends Page implements HasTable
     public static function getNavigationGroup(): ?string
     {
         return __('app.nav_groups.system_management');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('platform_notifications.navigation.history');
     }
 
     public static function shouldRegisterNavigation(): bool
@@ -54,8 +56,7 @@ class NotificationHistory extends Page implements HasTable
                     ->searchable()
                     ->sortable()
                     ->weight('medium')
-                    ->description(fn (PlatformNotification $record): string => 
-                        \Illuminate\Support\Str::limit(strip_tags($record->message), 100)),
+                    ->description(fn (PlatformNotification $record): string => Str::limit(strip_tags($record->message), 100)),
 
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
@@ -67,67 +68,69 @@ class NotificationHistory extends Page implements HasTable
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('target_type')
-                    ->label('Target')
+                    ->label(__('platform_notifications.labels.target'))
                     ->formatStateUsing(function (string $state, PlatformNotification $record) {
                         return match ($state) {
-                            'all' => 'All Organizations',
-                            'plan' => 'Plans: ' . implode(', ', $record->target_criteria ?? []),
-                            'organization' => count($record->target_criteria ?? []) . ' Organizations',
+                            'all' => __('platform_notifications.values.target_type.all'),
+                            'plan' => __('platform_notifications.messages.plans', ['plans' => implode(', ', $record->target_criteria ?? [])]),
+                            'organization' => __('platform_notifications.messages.organizations_count', ['count' => count($record->target_criteria ?? [])]),
                             default => $state,
                         };
                     })
                     ->wrap(),
 
                 Tables\Columns\TextColumn::make('recipients_count')
-                    ->label('Recipients')
+                    ->label(__('platform_notifications.labels.recipients'))
                     ->getStateUsing(fn (PlatformNotification $record) => $record->getTotalRecipients())
                     ->sortable(false),
 
                 Tables\Columns\TextColumn::make('sent_count')
-                    ->label('Sent')
+                    ->label(__('platform_notifications.labels.sent'))
                     ->getStateUsing(fn (PlatformNotification $record) => $record->getSentCount())
                     ->color('success')
                     ->sortable(false),
 
                 Tables\Columns\TextColumn::make('failed_count')
-                    ->label('Failed')
+                    ->label(__('platform_notifications.labels.failed'))
                     ->getStateUsing(fn (PlatformNotification $record) => $record->getFailedCount())
                     ->color('danger')
                     ->sortable(false),
 
                 Tables\Columns\TextColumn::make('read_count')
-                    ->label('Read')
+                    ->label(__('platform_notifications.labels.read'))
                     ->getStateUsing(fn (PlatformNotification $record) => $record->getReadCount())
                     ->color('info')
                     ->sortable(false),
 
                 Tables\Columns\TextColumn::make('delivery_rate')
-                    ->label('Delivery %')
+                    ->label(__('platform_notifications.labels.delivery_percent'))
                     ->getStateUsing(function (PlatformNotification $record) {
                         if ($record->status !== 'sent') {
-                            return '-';
+                            return __('platform_notifications.placeholders.empty_rate');
                         }
-                        return number_format($record->getDeliveryRate(), 1) . '%';
+
+                        return number_format($record->getDeliveryRate(), 1).'%';
                     })
                     ->sortable(false),
 
                 Tables\Columns\TextColumn::make('read_rate')
-                    ->label('Read %')
+                    ->label(__('platform_notifications.labels.read_percent'))
                     ->getStateUsing(function (PlatformNotification $record) {
                         if ($record->status !== 'sent') {
-                            return '-';
+                            return __('platform_notifications.placeholders.empty_rate');
                         }
-                        return number_format($record->getReadRate(), 1) . '%';
+
+                        return number_format($record->getReadRate(), 1).'%';
                     })
                     ->sortable(false),
 
                 Tables\Columns\TextColumn::make('creator.name')
-                    ->label('Created By')
+                    ->label(__('platform_notifications.labels.created_by'))
                     ->sortable()
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('sent_at')
-                    ->label('Sent')
+                    ->label(__('platform_notifications.labels.sent'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(),
@@ -140,18 +143,18 @@ class NotificationHistory extends Page implements HasTable
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
-                        'draft' => 'Draft',
-                        'scheduled' => 'Scheduled',
-                        'sent' => 'Sent',
-                        'failed' => 'Failed',
+                        'draft' => __('platform_notifications.values.status.draft'),
+                        'scheduled' => __('platform_notifications.values.status.scheduled'),
+                        'sent' => __('platform_notifications.values.status.sent'),
+                        'failed' => __('platform_notifications.values.status.failed'),
                     ]),
 
                 Tables\Filters\SelectFilter::make('target_type')
-                    ->label('Target Type')
+                    ->label(__('platform_notifications.labels.target_type'))
                     ->options([
-                        'all' => 'All Organizations',
-                        'plan' => 'Specific Plans',
-                        'organization' => 'Individual Organizations',
+                        'all' => __('platform_notifications.values.target_type.all'),
+                        'plan' => __('platform_notifications.values.target_type.plan'),
+                        'organization' => __('platform_notifications.values.target_type.organization'),
                     ]),
 
                 Tables\Filters\SelectFilter::make('creator')
@@ -162,9 +165,9 @@ class NotificationHistory extends Page implements HasTable
                 Tables\Filters\Filter::make('sent_at')
                     ->form([
                         Forms\Components\DatePicker::make('sent_from')
-                            ->label('Sent From'),
+                            ->label(__('platform_notifications.labels.sent_from')),
                         Forms\Components\DatePicker::make('sent_until')
-                            ->label('Sent Until'),
+                            ->label(__('platform_notifications.labels.sent_until')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -181,9 +184,9 @@ class NotificationHistory extends Page implements HasTable
                 Tables\Filters\Filter::make('created_at')
                     ->form([
                         Forms\Components\DatePicker::make('created_from')
-                            ->label('Created From'),
+                            ->label(__('platform_notifications.labels.created_from')),
                         Forms\Components\DatePicker::make('created_until')
-                            ->label('Created Until'),
+                            ->label(__('platform_notifications.labels.created_until')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -199,8 +202,7 @@ class NotificationHistory extends Page implements HasTable
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
-                    ->url(fn (PlatformNotification $record): string => 
-                        route('filament.admin.resources.platform-notifications.view', $record)),
+                    ->url(fn (PlatformNotification $record): string => route('filament.admin.resources.platform-notifications.view', $record)),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -227,16 +229,16 @@ class NotificationHistory extends Page implements HasTable
 
     public function getTitle(): string
     {
-        return 'Notification History';
+        return __('platform_notifications.navigation.history');
     }
 
     public function getHeading(): string
     {
-        return 'Platform Notification History';
+        return __('platform_notifications.headings.history');
     }
 
     public function getSubheading(): ?string
     {
-        return 'View all sent notifications with delivery status and read receipts';
+        return __('platform_notifications.descriptions.history');
     }
 }

@@ -26,6 +26,8 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 - Authorization rules: `app/Policies/*`.
 - Tenant context/services/scopes: `app/Services/Tenant*`, `app/Scopes/*`, `app/Traits/BelongsToTenant.php`.
 - Security services and monitoring: `app/Services/Security/*`, related commands/events.
+- Role dashboard resolution: `app/Services/RoleDashboardResolver.php`.
+- Invoice request scope validation: `app/Http/Requests/StoreInvoiceRequest.php`, `app/Http/Requests/GenerateBulkInvoicesRequest.php`.
 
 ## Threat Review Checklist
 
@@ -34,6 +36,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 3. Are policy checks enforced on all entry points (HTTP, Filament, jobs, commands)?
 4. Are logs/audit trails preserved for sensitive actions?
 5. Are failure states explicit (`403`, `404`, `401`) and non-leaky?
+6. Are request-level `exists` rules scoped to actor tenant when IDs reference tenant-owned models?
 
 ## Testing Expectations
 
@@ -47,4 +50,3 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 - [ ] Authorization checks explicit and complete.
 - [ ] Cross-tenant negative tests pass.
 - [ ] Security regressions reviewed for related entry points.
-

@@ -8,7 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * API Login Request
- * 
+ *
  * Validates API authentication requests.
  */
 class LoginRequest extends FormRequest
@@ -39,10 +39,10 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.required' => 'Email address is required',
-            'email.email' => 'Please provide a valid email address',
-            'password.required' => 'Password is required',
-            'password.min' => 'Password must be at least 8 characters',
+            'email.required' => __('validation.custom_requests.api_login.email.required'),
+            'email.email' => __('validation.custom_requests.api_login.email.email'),
+            'password.required' => __('validation.custom_requests.api_login.password.required'),
+            'password.min' => __('validation.custom_requests.api_login.password.min'),
         ];
     }
 }
