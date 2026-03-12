@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Filament\Clusters\SuperAdmin\Widgets;
 
 use App\Models\User;
-use App\Contracts\SystemMonitoringInterface;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Cache;
@@ -84,6 +83,7 @@ final class SystemMetricsWidget extends BaseWidget
             if (is_dir($storagePath)) {
                 return $this->getDirectorySize($storagePath);
             }
+
             return 0;
         } catch (\Exception) {
             return 0;
@@ -115,6 +115,7 @@ final class SystemMetricsWidget extends BaseWidget
                 $count = User::where('created_at', '<=', $date->endOfDay())->count();
                 $data[] = $count;
             }
+
             return $data;
         });
     }
@@ -128,7 +129,7 @@ final class SystemMetricsWidget extends BaseWidget
 
         $bytes /= (1 << (10 * $pow));
 
-        return round($bytes, 2) . ' ' . $units[$pow];
+        return round($bytes, 2).' '.$units[$pow];
     }
 
     public static function canView(): bool

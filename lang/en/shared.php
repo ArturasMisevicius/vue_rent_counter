@@ -340,14 +340,6 @@ return [
                 'days' => '{1} :count day|[2,*] :count days',
                 'expires' => 'Expires',
             ],
-            'system_health' => [
-                'title' => 'System Health',
-                'description' => 'Latest status checks for critical services',
-                'actions' => [
-                    'run_check' => 'Run Health Check',
-                ],
-                'empty' => 'No data available',
-            ],
             'analytics' => [
                 'title' => 'Analytics',
                 'description' => 'Platform-wide trend and performance analytics.',

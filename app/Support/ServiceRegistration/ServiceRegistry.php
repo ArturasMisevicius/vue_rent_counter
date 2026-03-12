@@ -4,11 +4,80 @@ declare(strict_types=1);
 
 namespace App\Support\ServiceRegistration;
 
+use App\Contracts\CircuitBreakerInterface;
+use App\Contracts\InputSanitizerInterface;
+use App\Contracts\SharedServiceCostDistributor;
+use App\Contracts\SubscriptionCheckerInterface;
+use App\Contracts\SuperAdminUserInterface;
+use App\Contracts\TenantAuditLoggerInterface;
+use App\Contracts\TenantAuthorizationServiceInterface;
+use App\Contracts\TenantContextInterface;
+use App\Contracts\TenantManagementInterface;
+use App\Repositories\Eloquent\EloquentTenantRepository;
+use App\Repositories\MeterReadingRepository;
+use App\Repositories\TenantRepositoryInterface;
+use App\Services\ApiAuthenticationService;
+use App\Services\ApiTokenManager;
+use App\Services\AssetOptimizationService;
+use App\Services\Audit\ComplianceReportGenerator;
+use App\Services\Audit\ConfigurationChangeAuditor;
+use App\Services\Audit\ConfigurationRollbackService;
+use App\Services\Audit\PerformanceMetricsCollector;
+use App\Services\Audit\UniversalServiceAuditReporter;
+use App\Services\Audit\UniversalServiceChangeTracker;
+use App\Services\AutomatedBillingEngine;
+use App\Services\BackgroundJobService;
+use App\Services\Billing\HeatingChargeProcessor;
+use App\Services\Billing\PropertyBillingProcessor;
+use App\Services\Billing\TenantBillingProcessor;
+use App\Services\Billing\UniversalServiceProcessor;
+use App\Services\BillingService;
+use App\Services\DashboardCacheService;
+use App\Services\FormulaEvaluator;
+use App\Services\HeatingCalculatorService;
+use App\Services\InputSanitizer;
+use App\Services\Integration\CircuitBreakerService;
+use App\Services\Integration\IntegrationResilienceHandler;
+use App\Services\InvoiceSnapshotService;
+use App\Services\MeterReadingService;
+use App\Services\PanelAccessService;
+use App\Services\QueryOptimizationService;
+use App\Services\Security\CspHeaderBuilder;
+use App\Services\Security\NonceGeneratorService;
+use App\Services\Security\SecurityHeaderFactory;
+use App\Services\Security\SecurityHeaderService;
+use App\Services\Security\ViteCSPIntegration;
+use App\Services\ServiceValidationEngine;
+use App\Services\SharedServiceCostDistributorService;
+use App\Services\SubscriptionChecker;
+use App\Services\SuperAdminUserService;
+use App\Services\TariffCalculation\FlatRateStrategy;
+use App\Services\TariffCalculation\TimeOfUseStrategy;
+use App\Services\TariffResolver;
+use App\Services\TenantAuditLogger;
+use App\Services\TenantAuthorizationService;
+use App\Services\TenantContext;
+use App\Services\TenantInitialization\MeterConfigurationProvider;
+use App\Services\TenantInitialization\PropertyServiceAssigner;
+use App\Services\TenantInitialization\ServiceDefinitionProvider;
+use App\Services\TenantInitialization\SlugGeneratorService;
+use App\Services\TenantInitialization\TenantValidator;
+use App\Services\TenantInitializationService;
+use App\Services\TenantManagementService;
+use App\Services\TenantTranslationService;
+use App\Services\TimeRangeValidator;
+use App\Services\TranslationCacheService;
+use App\Services\UniversalBillingCalculator;
+use App\Services\UniversalReadingCollector;
+use App\Services\UserRoleService;
+use App\Services\Validation\ValidationRuleFactory;
+use App\Support\Localization;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Filesystem\Filesystem;
 
 /**
  * Service Registry for organized service registration
- * 
+ *
  * Provides a centralized way to register services with proper
  * lifecycle management and dependency injection patterns.
  */
@@ -38,37 +107,37 @@ final readonly class ServiceRegistry
     private function registerBillingServices(): void
     {
         // Core billing services
-        $this->container->singleton(\App\Services\MeterReadingService::class);
-        $this->container->singleton(\App\Services\BillingService::class);
-        $this->container->singleton(\App\Services\InvoiceSnapshotService::class);
-        
+        $this->container->singleton(MeterReadingService::class);
+        $this->container->singleton(BillingService::class);
+        $this->container->singleton(InvoiceSnapshotService::class);
+
         // Billing processors
-        $this->container->singleton(\App\Services\Billing\TenantBillingProcessor::class);
-        $this->container->singleton(\App\Services\Billing\PropertyBillingProcessor::class);
-        $this->container->singleton(\App\Services\Billing\UniversalServiceProcessor::class);
-        $this->container->singleton(\App\Services\Billing\HeatingChargeProcessor::class);
-        
+        $this->container->singleton(TenantBillingProcessor::class);
+        $this->container->singleton(PropertyBillingProcessor::class);
+        $this->container->singleton(UniversalServiceProcessor::class);
+        $this->container->singleton(HeatingChargeProcessor::class);
+
         // Billing calculators
-        $this->container->singleton(\App\Services\AutomatedBillingEngine::class);
-        $this->container->singleton(\App\Services\UniversalBillingCalculator::class);
-        $this->container->singleton(\App\Services\UniversalReadingCollector::class);
-        $this->container->singleton(\App\Services\HeatingCalculatorService::class);
-        
+        $this->container->singleton(AutomatedBillingEngine::class);
+        $this->container->singleton(UniversalBillingCalculator::class);
+        $this->container->singleton(UniversalReadingCollector::class);
+        $this->container->singleton(HeatingCalculatorService::class);
+
         // Tariff services with strategy pattern
-        $this->container->singleton(\App\Services\TariffResolver::class, function ($app) {
-            return new \App\Services\TariffResolver([
-                $app->make(\App\Services\TariffCalculation\FlatRateStrategy::class),
-                $app->make(\App\Services\TariffCalculation\TimeOfUseStrategy::class),
+        $this->container->singleton(TariffResolver::class, function ($app) {
+            return new TariffResolver([
+                $app->make(FlatRateStrategy::class),
+                $app->make(TimeOfUseStrategy::class),
             ]);
         });
-        
+
         // Formula evaluator
-        $this->container->singleton(\App\Services\FormulaEvaluator::class);
-        
+        $this->container->singleton(FormulaEvaluator::class);
+
         // Shared service cost distributor with interface binding
         $this->container->singleton(
-            \App\Contracts\SharedServiceCostDistributor::class,
-            \App\Services\SharedServiceCostDistributorService::class
+            SharedServiceCostDistributor::class,
+            SharedServiceCostDistributorService::class
         );
     }
 
@@ -79,21 +148,21 @@ final readonly class ServiceRegistry
     {
         // Input sanitization with interface binding
         $this->container->singleton(
-            \App\Contracts\InputSanitizerInterface::class,
-            \App\Services\InputSanitizer::class
+            InputSanitizerInterface::class,
+            InputSanitizer::class
         );
-        
+
         // Security header services
-        $this->container->singleton(\App\Services\Security\NonceGeneratorService::class);
-        $this->container->singleton(\App\Services\Security\CspHeaderBuilder::class);
-        $this->container->singleton(\App\Services\Security\SecurityHeaderFactory::class);
-        $this->container->singleton(\App\Services\Security\SecurityHeaderService::class);
-        $this->container->singleton(\App\Services\Security\ViteCSPIntegration::class);
-        
+        $this->container->singleton(NonceGeneratorService::class);
+        $this->container->singleton(CspHeaderBuilder::class);
+        $this->container->singleton(SecurityHeaderFactory::class);
+        $this->container->singleton(SecurityHeaderService::class);
+        $this->container->singleton(ViteCSPIntegration::class);
+
         // Circuit breaker with interface binding
         $this->container->singleton(
-            \App\Contracts\CircuitBreakerInterface::class,
-            \App\Services\Integration\CircuitBreakerService::class
+            CircuitBreakerInterface::class,
+            CircuitBreakerService::class
         );
     }
 
@@ -102,9 +171,9 @@ final readonly class ServiceRegistry
      */
     private function registerValidationServices(): void
     {
-        $this->container->singleton(\App\Services\TimeRangeValidator::class);
-        $this->container->singleton(\App\Services\Validation\ValidationRuleFactory::class);
-        $this->container->singleton(\App\Services\ServiceValidationEngine::class);
+        $this->container->singleton(TimeRangeValidator::class);
+        $this->container->singleton(ValidationRuleFactory::class);
+        $this->container->singleton(ServiceValidationEngine::class);
     }
 
     /**
@@ -114,37 +183,37 @@ final readonly class ServiceRegistry
     {
         // Tenant context services with interface bindings
         $this->container->singleton(
-            \App\Repositories\TenantRepositoryInterface::class,
-            \App\Repositories\Eloquent\EloquentTenantRepository::class
+            TenantRepositoryInterface::class,
+            EloquentTenantRepository::class
         );
-        
+
         $this->container->singleton(
-            \App\Contracts\TenantAuditLoggerInterface::class,
-            \App\Services\TenantAuditLogger::class
+            TenantAuditLoggerInterface::class,
+            TenantAuditLogger::class
         );
-        
+
         $this->container->singleton(
-            \App\Contracts\TenantAuthorizationServiceInterface::class,
-            \App\Services\TenantAuthorizationService::class
+            TenantAuthorizationServiceInterface::class,
+            TenantAuthorizationService::class
         );
-        
+
         $this->container->singleton(
-            \App\Contracts\TenantContextInterface::class,
-            \App\Services\TenantContext::class
+            TenantContextInterface::class,
+            TenantContext::class
         );
-        
+
         // Tenant initialization services
-        $this->container->singleton(\App\Services\TenantInitialization\ServiceDefinitionProvider::class);
-        $this->container->singleton(\App\Services\TenantInitialization\MeterConfigurationProvider::class);
-        $this->container->singleton(\App\Services\TenantInitialization\PropertyServiceAssigner::class);
-        $this->container->singleton(\App\Services\TenantInitialization\TenantValidator::class);
-        $this->container->singleton(\App\Services\TenantInitialization\SlugGeneratorService::class);
-        $this->container->singleton(\App\Services\TenantInitializationService::class);
-        
+        $this->container->singleton(ServiceDefinitionProvider::class);
+        $this->container->singleton(MeterConfigurationProvider::class);
+        $this->container->singleton(PropertyServiceAssigner::class);
+        $this->container->singleton(TenantValidator::class);
+        $this->container->singleton(SlugGeneratorService::class);
+        $this->container->singleton(TenantInitializationService::class);
+
         // Tenant management with interface bindings
         $this->container->singleton(
-            \App\Contracts\TenantManagementInterface::class,
-            \App\Services\TenantManagementService::class
+            TenantManagementInterface::class,
+            TenantManagementService::class
         );
     }
 
@@ -154,62 +223,55 @@ final readonly class ServiceRegistry
     private function registerUtilityServices(): void
     {
         // Performance services
-        $this->container->singleton(\App\Services\DashboardCacheService::class);
-        $this->container->singleton(\App\Services\QueryOptimizationService::class);
-        $this->container->singleton(\App\Services\BackgroundJobService::class);
-        $this->container->singleton(\App\Services\AssetOptimizationService::class);
-        
-        // System monitoring services
-        $this->container->singleton(\App\Services\SystemHealthService::class);
-        $this->container->singleton(
-            \App\Contracts\SystemMonitoringInterface::class,
-            \App\Services\SystemMonitoringService::class
-        );
-        
+        $this->container->singleton(DashboardCacheService::class);
+        $this->container->singleton(QueryOptimizationService::class);
+        $this->container->singleton(BackgroundJobService::class);
+        $this->container->singleton(AssetOptimizationService::class);
+
         // User management services
-        $this->container->singleton(\App\Services\UserRoleService::class);
-        $this->container->singleton(\App\Services\PanelAccessService::class);
-        $this->container->singleton(\App\Services\ApiAuthenticationService::class);
-        $this->container->singleton(\App\Services\ApiTokenManager::class);
-        
+        $this->container->singleton(UserRoleService::class);
+        $this->container->singleton(PanelAccessService::class);
+        $this->container->singleton(ApiAuthenticationService::class);
+        $this->container->singleton(ApiTokenManager::class);
+
         // Super admin services
         $this->container->singleton(
-            \App\Contracts\SuperAdminUserInterface::class,
-            \App\Services\SuperAdminUserService::class
+            SuperAdminUserInterface::class,
+            SuperAdminUserService::class
         );
-        
+
         // Subscription services
         $this->container->singleton(
-            \App\Contracts\SubscriptionCheckerInterface::class,
-            \App\Services\SubscriptionChecker::class
+            SubscriptionCheckerInterface::class,
+            SubscriptionChecker::class
         );
-        
+
         // Repository services
-        $this->container->singleton(\App\Repositories\MeterReadingRepository::class);
-        
+        $this->container->singleton(MeterReadingRepository::class);
+
         // Localization services
         $this->registerLocalizationServices();
     }
-    
+
     /**
      * Register localization and translation services
      */
     private function registerLocalizationServices(): void
     {
         // Localization helper service
-        $this->container->singleton(\App\Support\Localization::class);
-        
+        $this->container->singleton(Localization::class);
+
         // Translation cache service for performance
-        $this->container->singleton(\App\Services\TranslationCacheService::class, function ($app) {
-            return new \App\Services\TranslationCacheService(
+        $this->container->singleton(TranslationCacheService::class, function ($app) {
+            return new TranslationCacheService(
                 $app['cache.store'],
                 config('app.locale'),
                 config('locales.available', [])
             );
         });
-        
+
         // Multi-tenant translation service
-        $this->container->singleton(\App\Services\TenantTranslationService::class);
+        $this->container->singleton(TenantTranslationService::class);
     }
 
     /**
@@ -219,7 +281,7 @@ final readonly class ServiceRegistry
     {
         // Laravel 12 no longer binds the legacy 'files' service alias; add it for packages (Debugbar)
         if (! $this->container->bound('files')) {
-            $this->container->singleton('files', fn () => new \Illuminate\Filesystem\Filesystem());
+            $this->container->singleton('files', fn () => new Filesystem);
         }
     }
 
@@ -229,14 +291,14 @@ final readonly class ServiceRegistry
     private function registerAuditServices(): void
     {
         // Audit dependencies first
-        $this->container->singleton(\App\Services\Audit\ConfigurationChangeAuditor::class);
-        $this->container->singleton(\App\Services\Audit\PerformanceMetricsCollector::class);
-        $this->container->singleton(\App\Services\Audit\ComplianceReportGenerator::class);
-        
+        $this->container->singleton(ConfigurationChangeAuditor::class);
+        $this->container->singleton(PerformanceMetricsCollector::class);
+        $this->container->singleton(ComplianceReportGenerator::class);
+
         // Main audit services
-        $this->container->singleton(\App\Services\Audit\UniversalServiceAuditReporter::class);
-        $this->container->singleton(\App\Services\Audit\UniversalServiceChangeTracker::class);
-        $this->container->singleton(\App\Services\Audit\ConfigurationRollbackService::class);
+        $this->container->singleton(UniversalServiceAuditReporter::class);
+        $this->container->singleton(UniversalServiceChangeTracker::class);
+        $this->container->singleton(ConfigurationRollbackService::class);
     }
 
     /**
@@ -244,6 +306,6 @@ final readonly class ServiceRegistry
      */
     private function registerIntegrationServices(): void
     {
-        $this->container->singleton(\App\Services\Integration\IntegrationResilienceHandler::class);
+        $this->container->singleton(IntegrationResilienceHandler::class);
     }
 }

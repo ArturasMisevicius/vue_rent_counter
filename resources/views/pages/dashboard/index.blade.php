@@ -92,38 +92,6 @@
         </div>
     </x-card>
 
-    {{-- System Health --}}
-    <x-card class="mb-8" id="system-health">
-        <div class="flex items-center justify-between mb-4">
-            <div>
-                <h2 class="text-xl font-semibold">{{ __('shared.dashboard.system_health.title') }}</h2>
-                <p class="text-slate-500 text-sm">{{ __('shared.dashboard.system_health.description') }}</p>
-            </div>
-            <form method="POST" action="{{ route('superadmin.dashboard.health-check') }}">
-                @csrf
-                <button type="submit" class="inline-flex items-center px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm font-semibold">
-                    {{ __('shared.dashboard.system_health.actions.run_check') }}
-                </button>
-            </form>
-        </div>
-
-        <div class="grid grid-cols-1 gap-4">
-            @forelse($systemHealthMetrics as $metric)
-                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                    <div class="flex items-center justify-between">
-                        <div class="font-semibold text-slate-900">{{ ucfirst($metric->metric_type) }}</div>
-                        <span class="text-xs font-semibold px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-700">
-                            {{ ucfirst($metric->status) }}
-                        </span>
-                    </div>
-                    <div class="text-xs text-slate-500 mt-2">{{ $metric->checked_at?->diffForHumans() }}</div>
-                </div>
-            @empty
-                <p class="text-slate-500">{{ __('shared.dashboard.system_health.empty') }}</p>
-            @endforelse
-        </div>
-    </x-card>
-
     {{-- Organization Statistics --}}
     <div class="grid grid-cols-1 gap-6 mb-8">
         <a href="{{ route('superadmin.organizations.index') }}" class="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-100 rounded-2xl">
@@ -1567,38 +1535,6 @@ SVG"/>
             >
                 <x-slot:icon>📊</x-slot:icon>
             </x-backoffice.quick-action>
-        </div>
-    </x-card>
-
-    {{-- System Health --}}
-    <x-card class="mb-8" id="system-health">
-        <div class="flex items-center justify-between mb-4">
-            <div>
-                <h2 class="text-xl font-semibold">{{ __('shared.dashboard.system_health.title') }}</h2>
-                <p class="text-slate-500 text-sm">{{ __('shared.dashboard.system_health.description') }}</p>
-            </div>
-            <form method="POST" action="{{ route('superadmin.dashboard.health-check') }}">
-                @csrf
-                <button type="submit" class="inline-flex items-center px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 text-sm font-semibold">
-                    {{ __('shared.dashboard.system_health.actions.run_check') }}
-                </button>
-            </form>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            @forelse($systemHealthMetrics as $metric)
-                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                    <div class="flex items-center justify-between">
-                        <div class="font-semibold text-slate-900">{{ ucfirst($metric->metric_type) }}</div>
-                        <span class="text-xs font-semibold px-2 py-1 rounded-full bg-white border border-slate-200 text-slate-700">
-                            {{ ucfirst($metric->status) }}
-                        </span>
-                    </div>
-                    <div class="text-xs text-slate-500 mt-2">{{ $metric->checked_at?->diffForHumans() }}</div>
-                </div>
-            @empty
-                <p class="text-slate-500">{{ __('shared.dashboard.system_health.empty') }}</p>
-            @endforelse
         </div>
     </x-card>
 

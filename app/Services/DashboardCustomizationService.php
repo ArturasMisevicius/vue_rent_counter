@@ -6,7 +6,6 @@ namespace App\Services;
 
 use App\Models\DashboardCustomization;
 use App\Models\User;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class DashboardCustomizationService
@@ -17,14 +16,14 @@ class DashboardCustomizationService
     public function getUserConfiguration(User $user): array
     {
         $cacheKey = "dashboard_config_{$user->id}";
-        
+
         return Cache::remember($cacheKey, 300, function () use ($user) {
             $customization = DashboardCustomization::where('user_id', $user->id)->first();
-            
-            if (!$customization) {
+
+            if (! $customization) {
                 return DashboardCustomization::getDefaultConfiguration();
             }
-            
+
             return [
                 'widgets' => $customization->widget_configuration ?? DashboardCustomization::getDefaultConfiguration()['widgets'],
                 'layout' => $customization->layout_configuration ?? DashboardCustomization::getDefaultConfiguration()['layout'],
@@ -49,14 +48,14 @@ class DashboardCustomizationService
 
             // Clear cache
             Cache::forget("dashboard_config_{$user->id}");
-            
+
             return true;
         } catch (\Exception $e) {
             \Log::error('Failed to save dashboard configuration', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
             ]);
-            
+
             return false;
         }
     }
@@ -68,14 +67,14 @@ class DashboardCustomizationService
     {
         $configuration = $this->getUserConfiguration($user);
         $availableWidgets = DashboardCustomization::getAvailableWidgets();
-        
-        if (!isset($availableWidgets[$widgetClass])) {
+
+        if (! isset($availableWidgets[$widgetClass])) {
             return false;
         }
-        
+
         $widget = $availableWidgets[$widgetClass];
         $nextPosition = $this->getNextPosition($configuration['widgets']);
-        
+
         $newWidget = [
             'class' => $widgetClass,
             'position' => $options['position'] ?? $nextPosition,
@@ -83,18 +82,18 @@ class DashboardCustomizationService
             'refresh_interval' => $options['refresh_interval'] ?? $widget['default_refresh'],
             'enabled' => $options['enabled'] ?? true,
         ];
-        
+
         // Check if widget already exists
         $existingIndex = $this->findWidgetIndex($configuration['widgets'], $widgetClass);
         if ($existingIndex !== false) {
             return false; // Widget already exists
         }
-        
+
         $configuration['widgets'][] = $newWidget;
-        
+
         // Re-sort by position
-        usort($configuration['widgets'], fn($a, $b) => $a['position'] <=> $b['position']);
-        
+        usort($configuration['widgets'], fn ($a, $b) => $a['position'] <=> $b['position']);
+
         return $this->saveUserConfiguration($user, $configuration);
     }
 
@@ -104,15 +103,15 @@ class DashboardCustomizationService
     public function removeWidget(User $user, string $widgetClass): bool
     {
         $configuration = $this->getUserConfiguration($user);
-        
+
         $widgetIndex = $this->findWidgetIndex($configuration['widgets'], $widgetClass);
         if ($widgetIndex === false) {
             return false;
         }
-        
+
         unset($configuration['widgets'][$widgetIndex]);
         $configuration['widgets'] = array_values($configuration['widgets']); // Re-index
-        
+
         return $this->saveUserConfiguration($user, $configuration);
     }
 
@@ -122,16 +121,16 @@ class DashboardCustomizationService
     public function rearrangeWidgets(User $user, array $widgetPositions): bool
     {
         $configuration = $this->getUserConfiguration($user);
-        
+
         foreach ($configuration['widgets'] as &$widget) {
             if (isset($widgetPositions[$widget['class']])) {
                 $widget['position'] = $widgetPositions[$widget['class']];
             }
         }
-        
+
         // Sort by position
-        usort($configuration['widgets'], fn($a, $b) => $a['position'] <=> $b['position']);
-        
+        usort($configuration['widgets'], fn ($a, $b) => $a['position'] <=> $b['position']);
+
         return $this->saveUserConfiguration($user, $configuration);
     }
 
@@ -140,19 +139,19 @@ class DashboardCustomizationService
      */
     public function updateWidgetSize(User $user, string $widgetClass, string $size): bool
     {
-        if (!in_array($size, ['small', 'medium', 'large'])) {
+        if (! in_array($size, ['small', 'medium', 'large'])) {
             return false;
         }
-        
+
         $configuration = $this->getUserConfiguration($user);
         $widgetIndex = $this->findWidgetIndex($configuration['widgets'], $widgetClass);
-        
+
         if ($widgetIndex === false) {
             return false;
         }
-        
+
         $configuration['widgets'][$widgetIndex]['size'] = $size;
-        
+
         return $this->saveUserConfiguration($user, $configuration);
     }
 
@@ -164,16 +163,16 @@ class DashboardCustomizationService
         if ($interval < 10 || $interval > 3600) { // Between 10 seconds and 1 hour
             return false;
         }
-        
+
         $configuration = $this->getUserConfiguration($user);
         $widgetIndex = $this->findWidgetIndex($configuration['widgets'], $widgetClass);
-        
+
         if ($widgetIndex === false) {
             return false;
         }
-        
+
         $configuration['widgets'][$widgetIndex]['refresh_interval'] = $interval;
-        
+
         return $this->saveUserConfiguration($user, $configuration);
     }
 
@@ -184,13 +183,13 @@ class DashboardCustomizationService
     {
         $configuration = $this->getUserConfiguration($user);
         $widgetIndex = $this->findWidgetIndex($configuration['widgets'], $widgetClass);
-        
+
         if ($widgetIndex === false) {
             return false;
         }
-        
-        $configuration['widgets'][$widgetIndex]['enabled'] = !$configuration['widgets'][$widgetIndex]['enabled'];
-        
+
+        $configuration['widgets'][$widgetIndex]['enabled'] = ! $configuration['widgets'][$widgetIndex]['enabled'];
+
         return $this->saveUserConfiguration($user, $configuration);
     }
 
@@ -202,14 +201,14 @@ class DashboardCustomizationService
         try {
             DashboardCustomization::where('user_id', $user->id)->delete();
             Cache::forget("dashboard_config_{$user->id}");
-            
+
             return true;
         } catch (\Exception $e) {
             \Log::error('Failed to reset dashboard configuration', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
             ]);
-            
+
             return false;
         }
     }
@@ -228,10 +227,10 @@ class DashboardCustomizationService
     public function importConfiguration(User $user, array $configuration): bool
     {
         // Validate configuration structure
-        if (!$this->validateConfiguration($configuration)) {
+        if (! $this->validateConfiguration($configuration)) {
             return false;
         }
-        
+
         return $this->saveUserConfiguration($user, $configuration);
     }
 
@@ -250,15 +249,15 @@ class DashboardCustomizationService
     {
         $widgets = $this->getAvailableWidgets();
         $grouped = [];
-        
+
         foreach ($widgets as $class => $widget) {
             $category = $widget['category'];
-            if (!isset($grouped[$category])) {
+            if (! isset($grouped[$category])) {
                 $grouped[$category] = [];
             }
             $grouped[$category][$class] = $widget;
         }
-        
+
         return $grouped;
     }
 
@@ -268,11 +267,16 @@ class DashboardCustomizationService
     public function getEnabledWidgets(User $user): array
     {
         $configuration = $this->getUserConfiguration($user);
-        
+
+        $availableWidgets = array_keys($this->getAvailableWidgets());
+
         return collect($configuration['widgets'])
-            ->filter(fn($widget) => $widget['enabled'])
+            ->filter(fn ($widget) => $widget['enabled'])
+            ->filter(fn ($widget) => in_array($widget['class'], $availableWidgets, true))
+            ->filter(fn ($widget) => class_exists($widget['class']))
             ->sortBy('position')
             ->pluck('class')
+            ->values()
             ->toArray();
     }
 
@@ -283,7 +287,7 @@ class DashboardCustomizationService
     {
         $configuration = $this->getUserConfiguration($user);
         $widgetIndex = $this->findWidgetIndex($configuration['widgets'], $widgetClass);
-        
+
         return $widgetIndex !== false ? $configuration['widgets'][$widgetIndex] : null;
     }
 
@@ -297,7 +301,7 @@ class DashboardCustomizationService
                 return $index;
             }
         }
-        
+
         return false;
     }
 
@@ -306,8 +310,9 @@ class DashboardCustomizationService
         if (empty($widgets)) {
             return 1;
         }
-        
+
         $maxPosition = max(array_column($widgets, 'position'));
+
         return $maxPosition + 1;
     }
 
@@ -317,32 +322,32 @@ class DashboardCustomizationService
         foreach ($widgets as $widget) {
             $intervals[$widget['class']] = $widget['refresh_interval'] ?? 60;
         }
-        
+
         return $intervals;
     }
 
     private function validateConfiguration(array $configuration): bool
     {
         // Check required keys
-        if (!isset($configuration['widgets']) || !isset($configuration['layout'])) {
+        if (! isset($configuration['widgets']) || ! isset($configuration['layout'])) {
             return false;
         }
-        
+
         // Validate widgets structure
-        if (!is_array($configuration['widgets'])) {
+        if (! is_array($configuration['widgets'])) {
             return false;
         }
-        
+
         $availableWidgets = array_keys($this->getAvailableWidgets());
-        
+
         foreach ($configuration['widgets'] as $widget) {
-            if (!is_array($widget) || 
-                !isset($widget['class']) || 
-                !in_array($widget['class'], $availableWidgets)) {
+            if (! is_array($widget) ||
+                ! isset($widget['class']) ||
+                ! in_array($widget['class'], $availableWidgets)) {
                 return false;
             }
         }
-        
+
         return true;
     }
 }

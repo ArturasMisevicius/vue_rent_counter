@@ -11,9 +11,7 @@ use App\Models\Organization;
 use App\Models\OrganizationActivityLog;
 use App\Models\Property;
 use App\Models\Subscription;
-use App\Models\SystemHealthMetric;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -118,13 +116,6 @@ class DashboardController extends Controller
             ->take(10)
             ->get();
 
-        $systemHealthMetrics = SystemHealthMetric::query()
-            ->orderByDesc('checked_at')
-            ->get()
-            ->groupBy('metric_type')
-            ->map(fn ($metrics) => $metrics->first())
-            ->values();
-
         return view('pages.dashboard.index', compact(
             'totalSubscriptions',
             'activeSubscriptions',
@@ -147,7 +138,6 @@ class DashboardController extends Controller
             'latestBuildings',
             'latestTenants',
             'latestInvoices',
-            'systemHealthMetrics',
         ));
     }
 
@@ -199,40 +189,5 @@ class DashboardController extends Controller
         return response($content, 200, [
             'Content-Type' => 'application/pdf',
         ]);
-    }
-
-    public function healthCheck(): JsonResponse
-    {
-        $now = now();
-
-        SystemHealthMetric::updateOrCreate(
-            [
-                'metric_type' => 'database',
-                'metric_name' => 'connection_status',
-            ],
-            [
-                'status' => 'healthy',
-                'checked_at' => $now,
-                'value' => [
-                    'checked_at' => $now->toIso8601String(),
-                ],
-            ],
-        );
-
-        SystemHealthMetric::updateOrCreate(
-            [
-                'metric_type' => 'storage',
-                'metric_name' => 'disk_usage',
-            ],
-            [
-                'status' => 'healthy',
-                'checked_at' => $now,
-                'value' => [
-                    'checked_at' => $now->toIso8601String(),
-                ],
-            ],
-        );
-
-        return response()->json(['status' => 'success']);
     }
 }

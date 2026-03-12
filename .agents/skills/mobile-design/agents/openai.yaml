@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mobile Design"
+  short_description: "Mobile-first UX patterns for iOS and Android"
+  default_prompt: "Use $mobile-design to design a touch-first mobile screen flow."

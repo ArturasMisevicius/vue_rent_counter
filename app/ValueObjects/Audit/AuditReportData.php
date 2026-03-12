@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Audit Report Data Value Object
- * 
+ *
  * Comprehensive audit report containing all audit information
  * for universal services including summary, changes, metrics, and compliance.
  */
@@ -49,7 +49,7 @@ final readonly class AuditReportData
             $this->performanceMetrics->getOverallScore(),
             $this->getAnomalyScore(),
         ];
-        
+
         return round(array_sum($scores) / count($scores), 2);
     }
 
@@ -59,24 +59,24 @@ final readonly class AuditReportData
     private function getAnomalyScore(): float
     {
         $anomalyCount = count($this->anomalies);
-        $criticalAnomalies = count(array_filter($this->anomalies, fn($a) => $a['severity'] === 'critical'));
-        $highAnomalies = count(array_filter($this->anomalies, fn($a) => $a['severity'] === 'high'));
-        
+        $criticalAnomalies = count(array_filter($this->anomalies, fn ($a) => $a['severity'] === 'critical'));
+        $highAnomalies = count(array_filter($this->anomalies, fn ($a) => $a['severity'] === 'high'));
+
         // Start with 100 and deduct points for anomalies
         $score = 100;
         $score -= $criticalAnomalies * 20; // Critical anomalies cost 20 points each
         $score -= $highAnomalies * 10; // High anomalies cost 10 points each
         $score -= ($anomalyCount - $criticalAnomalies - $highAnomalies) * 5; // Other anomalies cost 5 points each
-        
+
         return max(0, $score);
     }
 
     /**
-     * Check if report indicates system health issues.
+     * Check if report indicates health issues.
      */
     public function hasHealthIssues(): bool
     {
-        return $this->getOverallHealthScore() < 80 || 
+        return $this->getOverallHealthScore() < 80 ||
                $this->complianceStatus->overallScore < 85 ||
                count($this->getCriticalAnomalies()) > 0;
     }
@@ -86,7 +86,7 @@ final readonly class AuditReportData
      */
     public function getCriticalAnomalies(): array
     {
-        return array_filter($this->anomalies, fn($a) => $a['severity'] === 'critical');
+        return array_filter($this->anomalies, fn ($a) => $a['severity'] === 'critical');
     }
 
     /**
@@ -95,10 +95,10 @@ final readonly class AuditReportData
     public function getRecommendations(): array
     {
         $recommendations = [];
-        
+
         // Add compliance recommendations
         $recommendations = array_merge($recommendations, $this->complianceStatus->recommendations);
-        
+
         // Add performance recommendations
         if ($this->performanceMetrics->getOverallScore() < 80) {
             $recommendations[] = [
@@ -113,7 +113,7 @@ final readonly class AuditReportData
                 ],
             ];
         }
-        
+
         // Add anomaly-based recommendations
         if (count($this->anomalies) > 5) {
             $recommendations[] = [
@@ -128,7 +128,7 @@ final readonly class AuditReportData
                 ],
             ];
         }
-        
+
         return $recommendations;
     }
 }

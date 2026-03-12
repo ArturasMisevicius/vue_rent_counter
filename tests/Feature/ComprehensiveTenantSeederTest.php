@@ -21,7 +21,6 @@ use App\Models\Provider;
 use App\Models\SecurityViolation;
 use App\Models\Subscription;
 use App\Models\SystemConfiguration;
-use App\Models\SystemHealthMetric;
 use App\Models\Tag;
 use App\Models\Tariff;
 use App\Models\Tenant;
@@ -62,7 +61,6 @@ test('comprehensive tenant seeder creates auxiliary graph coverage', function ()
     expect(AuditLog::query()->where('tenant_id', 1)->count())->toBeGreaterThan(0)
         ->and(Activity::query()->count())->toBeGreaterThan(0)
         ->and(SystemConfiguration::query()->where('key', 'billing.default_currency')->exists())->toBeTrue()
-        ->and(SystemHealthMetric::query()->count())->toBeGreaterThan(0)
         ->and(IntegrationHealthCheck::query()->where('service_name', 'billing-api')->exists())->toBeTrue()
         ->and(SecurityViolation::query()->count())->toBeGreaterThan(0)
         ->and(PlatformNotification::query()->count())->toBeGreaterThan(0)

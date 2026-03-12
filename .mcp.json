@@ -16,6 +16,13 @@
             "env": {
                 "SITE_PATH": "C:\\Dropbox\\projects\\tenanto"
             }
+        },
+        "laravel-boost": {
+            "command": "php",
+            "args": [
+                "artisan",
+                "boost:mcp"
+            ]
         }
     }
 }

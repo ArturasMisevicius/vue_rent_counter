@@ -10,14 +10,14 @@
     "mcp": true,
     "nightwatch_mcp": false,
     "packages": [
-        "filament/filament"
+        "filament/filament",
+        "spatie/laravel-backup"
     ],
     "sail": false,
     "skills": [
-        "laravel-development",
-        "filament-development",
-        "laravel-mcp",
+        "mcp-development",
         "pest-testing",
-        "tailwindcss-development"
+        "tailwindcss-development",
+        "laravel-backup"
     ]
 }

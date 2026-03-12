@@ -31,7 +31,6 @@ use App\Models\SecurityViolation;
 use App\Models\Subscription;
 use App\Models\SubscriptionRenewal;
 use App\Models\SystemConfiguration;
-use App\Models\SystemHealthMetric;
 use App\Models\Tag;
 use App\Models\Tariff;
 use App\Models\Tenant;
@@ -707,16 +706,6 @@ class ComprehensiveTenantSeeder extends Seeder
                 'is_tenant_configurable' => true,
                 'requires_restart' => false,
                 'updated_by_admin_id' => $superadmin->id,
-            ])->getAttributes(),
-        );
-
-        SystemHealthMetric::query()->updateOrCreate(
-            ['metric_type' => 'database', 'metric_name' => 'connection_status'],
-            SystemHealthMetric::factory()->healthy()->database()->make([
-                'metric_type' => 'database',
-                'metric_name' => 'connection_status',
-                'status' => 'healthy',
-                'checked_at' => now(),
             ])->getAttributes(),
         );
 

@@ -11,6 +11,7 @@ use App\Filament\Superadmin\Pages\Dashboard;
 use App\Filament\Superadmin\Widgets\ExpiringSubscriptionsWidget;
 use App\Filament\Superadmin\Widgets\RecentUsersWidget;
 use App\Filament\Superadmin\Widgets\SystemOverviewWidget;
+use App\Http\Middleware\EnsureUserIsSuperadmin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -49,7 +50,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
  * ## Navigation Configuration
  *
  * Navigation groups are organized by system administration areas:
- * - System Management: Organizations, subscriptions, system health
+ * - System Management: Organizations, subscriptions, system overview
  * - User Management: All users across organizations
  * - Monitoring: Audit logs, performance metrics, backups
  */
@@ -115,7 +116,7 @@ final class SuperadminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                \App\Http\Middleware\EnsureUserIsSuperadmin::class,
+                EnsureUserIsSuperadmin::class,
             ])
             ->globalSearch(true)
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])

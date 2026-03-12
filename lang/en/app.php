@@ -148,8 +148,6 @@ return [
         'currently_active' => 'Currently active',
         'total_organizations' => 'Total Organizations',
         'registered_organizations' => 'Registered organizations',
-        'system_health' => 'System Health',
-        'overall_system_status' => 'Overall system status',
         'email' => 'Email',
         'role' => 'Role',
         'registered' => 'Registered',

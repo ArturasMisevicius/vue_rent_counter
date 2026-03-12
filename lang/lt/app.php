@@ -143,8 +143,6 @@ return [
         'currently_active' => 'Šiuo metu aktyvios',
         'total_organizations' => 'Iš viso organizacijų',
         'registered_organizations' => 'Registruotos organizacijos',
-        'system_health' => 'Sistemos būklė',
-        'overall_system_status' => 'Bendra sistemos būsena',
         'days' => 'dienos',
         'organization' => 'Organizacija',
         'plan' => 'Planas',

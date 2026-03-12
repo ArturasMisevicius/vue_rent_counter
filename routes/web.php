@@ -139,7 +139,6 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::get('/dashboard', [SuperadminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/search', [SuperadminDashboardController::class, 'search'])->name('search');
     Route::post('/dashboard/export', [SuperadminDashboardController::class, 'export'])->name('dashboard.export');
-    Route::post('/dashboard/health-check', [SuperadminDashboardController::class, 'healthCheck'])->name('dashboard.health-check');
 
     // Profile
     Route::get('profile', [SuperadminProfileController::class, 'show'])->name('profile.show');

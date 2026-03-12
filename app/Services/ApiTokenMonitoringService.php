@@ -11,12 +11,13 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * API Token Monitoring Service
- * 
+ *
  * Provides monitoring and alerting for API token usage patterns.
  */
 class ApiTokenMonitoringService
 {
     private const CACHE_TTL = 3600; // 1 hour
+
     private const SUSPICIOUS_THRESHOLD = 10; // tokens per hour
 
     /**
@@ -24,9 +25,9 @@ class ApiTokenMonitoringService
      */
     public function monitorTokenCreation(User $user): void
     {
-        $cacheKey = "token_creation_rate:{$user->id}:" . now()->format('Y-m-d-H');
+        $cacheKey = "token_creation_rate:{$user->id}:".now()->format('Y-m-d-H');
         $count = Cache::increment($cacheKey, 1);
-        
+
         if ($count === 1) {
             Cache::put($cacheKey, 1, self::CACHE_TTL);
         }
@@ -78,9 +79,9 @@ class ApiTokenMonitoringService
     }
 
     /**
-     * Check system health related to tokens.
+     * Check token health related to usage patterns.
      */
-    public function checkSystemHealth(): array
+    public function checkTokenHealth(): array
     {
         $totalTokens = PersonalAccessToken::count();
         $expiredTokens = PersonalAccessToken::expired()->count();
@@ -169,14 +170,14 @@ class ApiTokenMonitoringService
     {
         return PersonalAccessToken::join('users', function ($join) {
             $join->on('personal_access_tokens.tokenable_id', '=', 'users.id')
-                 ->where('personal_access_tokens.tokenable_type', '=', User::class);
+                ->where('personal_access_tokens.tokenable_type', '=', User::class);
         })
-        ->selectRaw('users.id, users.name, users.email, COUNT(*) as token_count')
-        ->groupBy('users.id', 'users.name', 'users.email')
-        ->orderBy('token_count', 'desc')
-        ->limit($limit)
-        ->get()
-        ->toArray();
+            ->selectRaw('users.id, users.name, users.email, COUNT(*) as token_count')
+            ->groupBy('users.id', 'users.name', 'users.email')
+            ->orderBy('token_count', 'desc')
+            ->limit($limit)
+            ->get()
+            ->toArray();
     }
 
     /**

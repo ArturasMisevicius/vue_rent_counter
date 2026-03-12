@@ -14,10 +14,7 @@ use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\OrganizationActivityLog;
 use App\Models\Property;
-use App\Models\Provider;
 use App\Models\Subscription;
-use App\Models\SystemHealthMetric;
-use App\Models\Tariff;
 use App\Models\Tenant;
 use App\Models\User;
 use Carbon\Carbon;
@@ -138,13 +135,6 @@ final class DashboardPage extends Component
             ->take(10)
             ->get();
 
-        $systemHealthMetrics = SystemHealthMetric::query()
-            ->orderByDesc('checked_at')
-            ->get()
-            ->groupBy('metric_type')
-            ->map(fn ($metrics) => $metrics->first())
-            ->values();
-
         return compact(
             'totalSubscriptions',
             'activeSubscriptions',
@@ -167,7 +157,6 @@ final class DashboardPage extends Component
             'latestBuildings',
             'latestTenants',
             'latestInvoices',
-            'systemHealthMetrics',
         );
     }
 

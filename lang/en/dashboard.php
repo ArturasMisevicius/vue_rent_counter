@@ -336,7 +336,10 @@ return [
         'number_of_changes' => 'Number of Changes',
         'view_details' => 'View Details',
         'no_anomalies' => 'No anomalies detected',
+        'no_changes' => 'No changes recorded',
+        'no_changes_description' => 'There are no recent changes to display.',
         'no_data_available' => 'No audit data available',
+        'no_data' => 'No data available',
         'no_rollbacks' => 'No Rollbacks Found',
         'no_rollbacks_description' => 'No configuration rollbacks have been performed yet.',
         'excellent_compliance' => 'Excellent compliance',
@@ -354,6 +357,7 @@ return [
         'revert_rollback_confirmation' => 'Confirm Rollback Revert',
         'revert_rollback_warning' => 'This will undo the rollback operation. Use with caution.',
         'labels' => [
+            'category' => 'Category',
             'severity' => 'Severity',
             'details' => 'Details',
             'average' => 'Average',
@@ -362,6 +366,7 @@ return [
             'anomalous' => 'Anomalous',
             'yes' => 'Yes',
             'no' => 'No',
+            'none' => 'None',
             'recommended_actions' => 'Recommended Actions',
             'changed_at' => 'Changed At',
             'model_type' => 'Model Type',
@@ -402,6 +407,7 @@ return [
         ],
         'actions' => [
             'export_details' => 'Export Details',
+            'export_csv' => 'Export CSV',
             'mark_reviewed' => 'Mark as Reviewed',
             'refresh' => 'Refresh',
             'view_details' => 'View Details',
@@ -495,4 +501,41 @@ return [
     'export_readings' => 'Eksportuoti rodmenis',
     'export_started' => 'Eksportas pradėtas',
     'export_will_be_available_shortly' => 'Eksportas bus prieinamas netrukus',
+    'navigation' => [
+        'title' => 'Dashboard',
+    ],
+    'layout' => [
+        'actions' => [
+            'export' => 'Export Layout',
+            'import' => 'Import Layout',
+            'reset' => 'Reset Dashboard',
+        ],
+        'fields' => [
+            'layout_file' => 'Layout File',
+            'layout_file_help' => 'Upload a JSON file exported from another dashboard.',
+        ],
+        'modals' => [
+            'reset_heading' => 'Reset Dashboard to Default',
+            'reset_description' => 'This will reset your dashboard to the default layout and remove all customizations. This action cannot be undone.',
+            'reset_submit' => 'Reset Dashboard',
+        ],
+        'notifications' => [
+            'imported_title' => 'Layout Imported',
+            'imported_body' => 'Dashboard layout has been imported from the shared URL.',
+            'imported_body_file' => 'Dashboard layout has been successfully imported.',
+            'import_failed_title' => 'Import Failed',
+            'import_failed_body' => 'Failed to import layout from URL: :error',
+            'import_failed_body_file' => 'Failed to import layout: :error',
+            'reset_title' => 'Dashboard Reset',
+            'reset_body' => 'Your dashboard has been reset to the default layout.',
+            'reset_failed_title' => 'Reset Failed',
+            'reset_failed_body' => 'Failed to reset dashboard. Please try again.',
+        ],
+        'errors' => [
+            'invalid_config_format' => 'Invalid configuration format',
+            'invalid_config_structure' => 'Invalid configuration structure',
+            'file_not_found' => 'File not found',
+            'invalid_json' => 'Invalid JSON format',
+        ],
+    ],
 ];

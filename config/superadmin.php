@@ -96,7 +96,6 @@ return [
     'performance' => [
         'widget_cache_ttl_seconds' => env('SUPERADMIN_WIDGET_CACHE_TTL', 60),
         'dashboard_metrics_cache_ttl_seconds' => env('SUPERADMIN_METRICS_CACHE_TTL', 300),
-        'system_health_cache_ttl_seconds' => env('SUPERADMIN_HEALTH_CACHE_TTL', 30),
         'max_bulk_operation_size' => env('SUPERADMIN_MAX_BULK_SIZE', 100),
     ],
 ];

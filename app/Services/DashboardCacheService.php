@@ -5,103 +5,87 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Organization;
-use App\Models\Subscription;
 use App\Models\OrganizationActivityLog;
-use App\Models\SystemHealthMetric;
+use App\Models\Subscription;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 /**
  * DashboardCacheService handles caching for superadmin dashboard metrics
- * 
+ *
  * Implements the caching strategy defined in requirements:
  * - Subscription stats: 60s TTL
- * - Organization stats: 5min TTL  
- * - System health metrics: 30s TTL
+ * - Organization stats: 5min TTL
  * - Cache warming for improved performance
  */
 class DashboardCacheService
 {
     // Cache TTL constants (in seconds)
     private const SUBSCRIPTION_STATS_TTL = 60;
+
     private const ORGANIZATION_STATS_TTL = 300; // 5 minutes
-    private const SYSTEM_HEALTH_TTL = 30;
+
     private const ACTIVITY_STATS_TTL = 120; // 2 minutes
-    
+
     // Cache key prefixes
     private const CACHE_PREFIX = 'superadmin.dashboard';
-    
+
     /**
      * Get subscription statistics with caching
      */
     public function getSubscriptionStats(): array
     {
         return Cache::remember(
-            self::CACHE_PREFIX . '.subscription_stats',
+            self::CACHE_PREFIX.'.subscription_stats',
             self::SUBSCRIPTION_STATS_TTL,
             function () {
                 return $this->calculateSubscriptionStats();
             }
         );
     }
-    
+
     /**
      * Get organization statistics with caching
      */
     public function getOrganizationStats(): array
     {
         return Cache::remember(
-            self::CACHE_PREFIX . '.organization_stats',
+            self::CACHE_PREFIX.'.organization_stats',
             self::ORGANIZATION_STATS_TTL,
             function () {
                 return $this->calculateOrganizationStats();
             }
         );
     }
-    
-    /**
-     * Get system health metrics with caching
-     */
-    public function getSystemHealthStats(): array
-    {
-        return Cache::remember(
-            self::CACHE_PREFIX . '.system_health',
-            self::SYSTEM_HEALTH_TTL,
-            function () {
-                return $this->calculateSystemHealthStats();
-            }
-        );
-    }
-    
+
     /**
      * Get activity statistics with caching
      */
     public function getActivityStats(): array
     {
         return Cache::remember(
-            self::CACHE_PREFIX . '.activity_stats',
+            self::CACHE_PREFIX.'.activity_stats',
             self::ACTIVITY_STATS_TTL,
             function () {
                 return $this->calculateActivityStats();
             }
         );
     }
-    
+
     /**
      * Get platform usage statistics with caching
      */
     public function getPlatformUsageStats(): array
     {
         return Cache::remember(
-            self::CACHE_PREFIX . '.platform_usage',
+            self::CACHE_PREFIX.'.platform_usage',
             self::ORGANIZATION_STATS_TTL, // Same as org stats
             function () {
                 return $this->calculatePlatformUsageStats();
             }
         );
     }
-    
+
     /**
      * Warm all dashboard caches
      * This method can be called periodically to ensure fresh data
@@ -111,45 +95,43 @@ class DashboardCacheService
         // Warm caches in parallel using cache tags for better performance
         $this->getSubscriptionStats();
         $this->getOrganizationStats();
-        $this->getSystemHealthStats();
         $this->getActivityStats();
         $this->getPlatformUsageStats();
     }
-    
+
     /**
      * Invalidate all dashboard caches
      */
     public function invalidateAll(): void
     {
         $keys = [
-            self::CACHE_PREFIX . '.subscription_stats',
-            self::CACHE_PREFIX . '.organization_stats',
-            self::CACHE_PREFIX . '.system_health',
-            self::CACHE_PREFIX . '.activity_stats',
-            self::CACHE_PREFIX . '.platform_usage',
+            self::CACHE_PREFIX.'.subscription_stats',
+            self::CACHE_PREFIX.'.organization_stats',
+            self::CACHE_PREFIX.'.activity_stats',
+            self::CACHE_PREFIX.'.platform_usage',
         ];
-        
+
         Cache::forget($keys);
     }
-    
+
     /**
      * Invalidate subscription-related caches
      */
     public function invalidateSubscriptionCaches(): void
     {
-        Cache::forget(self::CACHE_PREFIX . '.subscription_stats');
-        Cache::forget(self::CACHE_PREFIX . '.platform_usage');
+        Cache::forget(self::CACHE_PREFIX.'.subscription_stats');
+        Cache::forget(self::CACHE_PREFIX.'.platform_usage');
     }
-    
+
     /**
      * Invalidate organization-related caches
      */
     public function invalidateOrganizationCaches(): void
     {
-        Cache::forget(self::CACHE_PREFIX . '.organization_stats');
-        Cache::forget(self::CACHE_PREFIX . '.platform_usage');
+        Cache::forget(self::CACHE_PREFIX.'.organization_stats');
+        Cache::forget(self::CACHE_PREFIX.'.platform_usage');
     }
-    
+
     /**
      * Calculate subscription statistics
      */
@@ -166,10 +148,10 @@ class DashboardCacheService
                 SUM(CASE WHEN expires_at BETWEEN ? AND ? THEN 1 ELSE 0 END) as expiring_soon
             ', [
                 now()->toDateString(),
-                now()->addDays(14)->toDateString()
+                now()->addDays(14)->toDateString(),
             ])
             ->first();
-            
+
         return [
             'total' => (int) $stats->total,
             'active' => (int) $stats->active,
@@ -180,7 +162,7 @@ class DashboardCacheService
             'cached_at' => now()->toISOString(),
         ];
     }
-    
+
     /**
      * Calculate organization statistics
      */
@@ -197,15 +179,15 @@ class DashboardCacheService
             ', [
                 now()->subDays(30)->toDateString(),
                 now()->subDays(60)->toDateString(),
-                now()->subDays(30)->toDateString()
+                now()->subDays(30)->toDateString(),
             ])
             ->first();
-            
+
         // Calculate growth rate
-        $growthRate = $stats->new_last_month > 0 
+        $growthRate = $stats->new_last_month > 0
             ? round((($stats->new_this_month - $stats->new_last_month) / $stats->new_last_month) * 100, 1)
             : 0;
-            
+
         return [
             'total' => (int) $stats->total,
             'active' => (int) $stats->active,
@@ -216,21 +198,7 @@ class DashboardCacheService
             'cached_at' => now()->toISOString(),
         ];
     }
-    
-    /**
-     * Calculate system health statistics
-     */
-    private function calculateSystemHealthStats(): array
-    {
-        return [
-            'database' => $this->checkDatabaseHealth(),
-            'cache' => $this->checkCacheHealth(),
-            'queue' => $this->checkQueueHealth(),
-            'storage' => $this->checkStorageHealth(),
-            'cached_at' => now()->toISOString(),
-        ];
-    }
-    
+
     /**
      * Calculate activity statistics
      */
@@ -244,7 +212,7 @@ class DashboardCacheService
             ')
             ->where('created_at', '>=', now()->startOfDay())
             ->first();
-            
+
         $recentActivities = OrganizationActivityLog::with(['organization', 'user'])
             ->orderBy('created_at', 'desc')
             ->limit(10)
@@ -258,7 +226,7 @@ class DashboardCacheService
                     'created_at' => $activity->created_at->diffForHumans(),
                 ];
             });
-            
+
         return [
             'total_today' => (int) $stats->total_today,
             'active_orgs_today' => (int) $stats->active_orgs_today,
@@ -267,7 +235,7 @@ class DashboardCacheService
             'cached_at' => now()->toISOString(),
         ];
     }
-    
+
     /**
      * Calculate platform usage statistics
      */
@@ -288,9 +256,9 @@ class DashboardCacheService
         ', [
             now()->subDays(30)->toDateString(),
             now()->subDays(30)->toDateString(),
-            now()->subDays(30)->toDateString()
+            now()->subDays(30)->toDateString(),
         ])[0];
-        
+
         // Get top organizations by property count
         $topOrganizations = DB::table('organizations')
             ->leftJoin('properties', 'organizations.id', '=', 'properties.tenant_id')
@@ -300,7 +268,7 @@ class DashboardCacheService
             ->limit(10)
             ->get()
             ->toArray();
-            
+
         return [
             'totals' => [
                 'organizations' => (int) $stats->total_orgs,
@@ -319,190 +287,19 @@ class DashboardCacheService
             'cached_at' => now()->toISOString(),
         ];
     }
-    
-    /**
-     * Check database health
-     */
-    private function checkDatabaseHealth(): array
-    {
-        try {
-            DB::connection()->getPdo();
-            
-            // Get table count and connection info
-            $tableCount = count(DB::select('SELECT name FROM sqlite_master WHERE type="table"'));
-            $connectionCount = 1; // SQLite doesn't have multiple connections like MySQL
-            
-            return [
-                'status' => 'healthy',
-                'message' => "{$tableCount} tables, {$connectionCount} connection",
-                'icon' => 'heroicon-o-check-circle',
-                'color' => 'success',
-                'details' => [
-                    'table_count' => $tableCount,
-                    'connection_count' => $connectionCount,
-                ]
-            ];
-        } catch (\Exception $e) {
-            return [
-                'status' => 'error',
-                'message' => 'Database connection failed',
-                'icon' => 'heroicon-o-x-circle',
-                'color' => 'danger',
-                'details' => [
-                    'error' => $e->getMessage(),
-                ]
-            ];
-        }
-    }
-    
-    /**
-     * Check cache health
-     */
-    private function checkCacheHealth(): array
-    {
-        try {
-            $testKey = 'health_check_' . time();
-            Cache::put($testKey, true, 10);
-            $working = Cache::get($testKey);
-            Cache::forget($testKey);
-            
-            return [
-                'status' => $working ? 'healthy' : 'warning',
-                'message' => $working ? 'Cache operational' : 'Cache not responding',
-                'icon' => $working ? 'heroicon-o-check-circle' : 'heroicon-o-exclamation-triangle',
-                'color' => $working ? 'success' : 'warning',
-                'details' => [
-                    'driver' => config('cache.default'),
-                    'working' => $working,
-                ]
-            ];
-        } catch (\Exception $e) {
-            return [
-                'status' => 'error',
-                'message' => 'Cache unavailable',
-                'icon' => 'heroicon-o-x-circle',
-                'color' => 'danger',
-                'details' => [
-                    'error' => $e->getMessage(),
-                ]
-            ];
-        }
-    }
-    
-    /**
-     * Check queue health
-     */
-    private function checkQueueHealth(): array
-    {
-        try {
-            $failedJobs = DB::table('failed_jobs')->count();
-            
-            if ($failedJobs === 0) {
-                return [
-                    'status' => 'healthy',
-                    'message' => 'No failed jobs',
-                    'icon' => 'heroicon-o-check-circle',
-                    'color' => 'success',
-                    'details' => [
-                        'failed_jobs' => $failedJobs,
-                    ]
-                ];
-            } elseif ($failedJobs < 10) {
-                return [
-                    'status' => 'warning',
-                    'message' => "{$failedJobs} failed jobs",
-                    'icon' => 'heroicon-o-exclamation-triangle',
-                    'color' => 'warning',
-                    'details' => [
-                        'failed_jobs' => $failedJobs,
-                    ]
-                ];
-            } else {
-                return [
-                    'status' => 'critical',
-                    'message' => "{$failedJobs} failed jobs",
-                    'icon' => 'heroicon-o-x-circle',
-                    'color' => 'danger',
-                    'details' => [
-                        'failed_jobs' => $failedJobs,
-                    ]
-                ];
-            }
-        } catch (\Exception $e) {
-            return [
-                'status' => 'error',
-                'message' => 'Cannot check queue status',
-                'icon' => 'heroicon-o-question-mark-circle',
-                'color' => 'gray',
-                'details' => [
-                    'error' => $e->getMessage(),
-                ]
-            ];
-        }
-    }
-    
-    /**
-     * Check storage health
-     */
-    private function checkStorageHealth(): array
-    {
-        try {
-            $dbPath = database_path('database.sqlite');
-            $dbSize = file_exists($dbPath) ? filesize($dbPath) : 0;
-            $dbSizeMB = round($dbSize / 1024 / 1024, 2);
-            
-            $diskFree = disk_free_space(database_path());
-            $diskFreeMB = round($diskFree / 1024 / 1024, 2);
-            
-            if ($diskFreeMB < 100) {
-                return [
-                    'status' => 'warning',
-                    'message' => "Low disk space: {$diskFreeMB} MB free",
-                    'icon' => 'heroicon-o-exclamation-triangle',
-                    'color' => 'warning',
-                    'details' => [
-                        'db_size_mb' => $dbSizeMB,
-                        'disk_free_mb' => $diskFreeMB,
-                    ]
-                ];
-            }
-            
-            return [
-                'status' => 'healthy',
-                'message' => "DB: {$dbSizeMB} MB, Free: {$diskFreeMB} MB",
-                'icon' => 'heroicon-o-check-circle',
-                'color' => 'success',
-                'details' => [
-                    'db_size_mb' => $dbSizeMB,
-                    'disk_free_mb' => $diskFreeMB,
-                ]
-            ];
-        } catch (\Exception $e) {
-            return [
-                'status' => 'error',
-                'message' => 'Cannot check storage',
-                'icon' => 'heroicon-o-question-mark-circle',
-                'color' => 'gray',
-                'details' => [
-                    'error' => $e->getMessage(),
-                ]
-            ];
-        }
-    }
-    
+
     /**
      * Get cache statistics for monitoring
      */
     public function getCacheStats(): array
     {
         $keys = [
-            'subscription_stats' => self::CACHE_PREFIX . '.subscription_stats',
-            'organization_stats' => self::CACHE_PREFIX . '.organization_stats',
-            'system_health' => self::CACHE_PREFIX . '.system_health',
-            'activity_stats' => self::CACHE_PREFIX . '.activity_stats',
-            'platform_usage' => self::CACHE_PREFIX . '.platform_usage',
+            'subscription_stats' => self::CACHE_PREFIX.'.subscription_stats',
+            'organization_stats' => self::CACHE_PREFIX.'.organization_stats',
+            'activity_stats' => self::CACHE_PREFIX.'.activity_stats',
+            'platform_usage' => self::CACHE_PREFIX.'.platform_usage',
         ];
-        
+
         $stats = [];
         foreach ($keys as $name => $key) {
             $stats[$name] = [
@@ -510,10 +307,10 @@ class DashboardCacheService
                 'ttl' => $this->getCacheTTL($name),
             ];
         }
-        
+
         return $stats;
     }
-    
+
     /**
      * Get TTL for cache type
      */
@@ -522,7 +319,6 @@ class DashboardCacheService
         return match ($type) {
             'subscription_stats' => self::SUBSCRIPTION_STATS_TTL,
             'organization_stats' => self::ORGANIZATION_STATS_TTL,
-            'system_health' => self::SYSTEM_HEALTH_TTL,
             'activity_stats' => self::ACTIVITY_STATS_TTL,
             'platform_usage' => self::ORGANIZATION_STATS_TTL,
             default => 60,

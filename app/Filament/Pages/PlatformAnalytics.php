@@ -22,11 +22,11 @@ class PlatformAnalytics extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chart-bar';
 
-    protected static string|UnitEnum|null $navigationGroup = 'System';
+    protected static string|UnitEnum|null $navigationGroup = null;
 
     protected static ?int $navigationSort = 3;
 
-    protected static ?string $title = 'Platform Analytics';
+    protected static ?string $title = null;
 
     protected string $view = 'filament.pages.platform-analytics';
 
@@ -40,56 +40,72 @@ class PlatformAnalytics extends Page
         return auth()->user()?->isSuperadmin() ?? false;
     }
 
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('platform_analytics.navigation.group');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('platform_analytics.navigation.label');
+    }
+
+    public function getTitle(): string
+    {
+        return __('platform_analytics.title');
+    }
+
     protected function getHeaderActions(): array
     {
         return [
             Action::make('exportPdf')
-                ->label('Export to PDF')
+                ->label(__('platform_analytics.actions.export_pdf'))
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('primary')
                 ->action(function () {
                     // TODO: Implement PDF export in task 10.5
                     return response()->streamDownload(function () {
                         echo $this->generateExecutiveSummary();
-                    }, 'platform-analytics-' . now()->format('Y-m-d-His') . '.txt');
+                    }, 'platform-analytics-'.now()->format('Y-m-d-His').'.txt');
                 }),
 
             Action::make('exportCsv')
-                ->label('Export to CSV')
+                ->label(__('platform_analytics.actions.export_csv'))
                 ->icon('heroicon-o-table-cells')
                 ->color('gray')
                 ->action(function () {
                     // TODO: Implement CSV export in task 10.5
                     return response()->streamDownload(function () {
                         echo $this->generateCsvData();
-                    }, 'platform-analytics-' . now()->format('Y-m-d-His') . '.csv');
+                    }, 'platform-analytics-'.now()->format('Y-m-d-His').'.csv');
                 }),
 
             Action::make('refresh')
-                ->label('Refresh Data')
+                ->label(__('platform_analytics.actions.refresh'))
                 ->icon('heroicon-o-arrow-path')
                 ->color('gray')
                 ->action(function () {
                     // Clear all analytics caches
+                    $locale = app()->getLocale();
                     $cacheKeys = [
                         'analytics_organization_growth',
-                        'analytics_organization_plan_distribution',
+                        "analytics_organization_plan_distribution_{$locale}",
                         'analytics_organization_active_inactive',
                         'analytics_top_organizations',
                         'analytics_subscription_renewal_rate',
-                        'analytics_subscription_expiry_forecast',
+                        "analytics_subscription_expiry_forecast_{$locale}",
                         'analytics_subscription_plan_changes',
-                        'analytics_subscription_lifecycle',
+                        "analytics_subscription_lifecycle_{$locale}",
                         'analytics_usage_totals',
                         'analytics_usage_growth',
                         'analytics_feature_usage',
                         'analytics_peak_activity',
-                        'analytics_users_by_role',
+                        "analytics_users_by_role_{$locale}",
                         'analytics_active_users',
-                        'analytics_login_frequency',
+                        "analytics_login_frequency_{$locale}",
                         'analytics_user_growth',
                     ];
-                    
+
                     foreach ($cacheKeys as $key) {
                         Cache::forget($key);
                     }
@@ -161,10 +177,10 @@ class PlatformAnalytics extends Page
             for ($i = 11; $i >= 0; $i--) {
                 $date = now()->subMonths($i);
                 $months[] = $date->format('M Y');
-                
+
                 $count = Organization::where('created_at', '<=', $date->endOfMonth())
                     ->count();
-                
+
                 $data[] = $count;
             }
 
@@ -180,16 +196,25 @@ class PlatformAnalytics extends Page
      */
     protected function getPlanDistribution(): array
     {
-        return Cache::remember('analytics_organization_plan_distribution', 3600, function () {
+        $locale = app()->getLocale();
+
+        return Cache::remember("analytics_organization_plan_distribution_{$locale}", 3600, function () {
             $distribution = Organization::select('plan', DB::raw('count(*) as count'))
                 ->groupBy('plan')
                 ->get()
                 ->pluck('count', 'plan')
                 ->toArray();
 
+            $labels = [];
+            $data = [];
+            foreach ($distribution as $plan => $count) {
+                $labels[] = $this->getPlanLabel($plan);
+                $data[] = $count;
+            }
+
             return [
-                'labels' => array_keys($distribution),
-                'data' => array_values($distribution),
+                'labels' => $labels,
+                'data' => $data,
             ];
         });
     }
@@ -203,7 +228,7 @@ class PlatformAnalytics extends Page
             $active = Organization::where('is_active', true)
                 ->whereNull('suspended_at')
                 ->count();
-            
+
             $inactive = Organization::where('is_active', false)
                 ->orWhereNotNull('suspended_at')
                 ->count();
@@ -226,7 +251,7 @@ class PlatformAnalytics extends Page
                 ->orderBy('properties_count', 'desc')
                 ->limit(10)
                 ->get()
-                ->map(fn($org) => [
+                ->map(fn ($org) => [
                     'name' => $org->name,
                     'count' => $org->properties_count,
                 ])
@@ -237,7 +262,7 @@ class PlatformAnalytics extends Page
                 ->orderBy('users_count', 'desc')
                 ->limit(10)
                 ->get()
-                ->map(fn($org) => [
+                ->map(fn ($org) => [
                     'name' => $org->name,
                     'count' => $org->users_count,
                 ])
@@ -248,7 +273,7 @@ class PlatformAnalytics extends Page
                 ->orderBy('invoices_count', 'desc')
                 ->limit(10)
                 ->get()
-                ->map(fn($org) => [
+                ->map(fn ($org) => [
                     'name' => $org->name,
                     'count' => $org->invoices_count,
                 ])
@@ -269,19 +294,19 @@ class PlatformAnalytics extends Page
     {
         return Cache::remember('analytics_subscription_renewal_rate', 3600, function () {
             $ninetyDaysAgo = now()->subDays(90);
-            
+
             // Count organizations that had subscriptions expiring in the last 90 days
             $expiring = Organization::where('subscription_ends_at', '>=', $ninetyDaysAgo)
                 ->where('subscription_ends_at', '<=', now())
                 ->count();
-            
+
             // Count those that were renewed (subscription_ends_at is now in the future)
             $renewed = Organization::where('subscription_ends_at', '>', now())
                 ->where('updated_at', '>=', $ninetyDaysAgo)
                 ->count();
-            
+
             $rate = $expiring > 0 ? round(($renewed / $expiring) * 100, 2) : 0;
-            
+
             return [
                 'rate' => $rate,
                 'renewed' => $renewed,
@@ -295,22 +320,25 @@ class PlatformAnalytics extends Page
      */
     protected function getExpiryForecast(): array
     {
-        return Cache::remember('analytics_subscription_expiry_forecast', 3600, function () {
+        $locale = app()->getLocale();
+
+        return Cache::remember("analytics_subscription_expiry_forecast_{$locale}", 3600, function () {
             $forecast = [];
-            
+
             for ($i = 0; $i < 90; $i += 7) {
                 $startDate = now()->addDays($i);
                 $endDate = now()->addDays($i + 7);
-                
+
                 $count = Organization::whereBetween('subscription_ends_at', [$startDate, $endDate])
                     ->count();
-                
+
+                $weekNumber = (int) (($i / 7) + 1);
                 $forecast[] = [
-                    'week' => 'Week ' . (($i / 7) + 1),
+                    'week' => __('platform_analytics.week', ['number' => $weekNumber]),
                     'count' => $count,
                 ];
             }
-            
+
             return $forecast;
         });
     }
@@ -332,7 +360,7 @@ class PlatformAnalytics extends Page
                     ->groupByRaw($monthExpression)
                     ->orderBy('month')
                     ->get();
-                
+
                 return [
                     'labels' => $changes->pluck('month')->toArray(),
                     'data' => $changes->pluck('count')->toArray(),
@@ -352,16 +380,23 @@ class PlatformAnalytics extends Page
      */
     protected function getSubscriptionLifecycle(): array
     {
-        return Cache::remember('analytics_subscription_lifecycle', 3600, function () {
+        $locale = app()->getLocale();
+
+        return Cache::remember("analytics_subscription_lifecycle_{$locale}", 3600, function () {
             $active = Organization::where('subscription_ends_at', '>', now())->count();
             $expiringSoon = Organization::whereBetween('subscription_ends_at', [now(), now()->addDays(14)])->count();
             $expired = Organization::where('subscription_ends_at', '<=', now())->count();
             $onTrial = Organization::whereNotNull('trial_ends_at')
                 ->where('trial_ends_at', '>', now())
                 ->count();
-            
+
             return [
-                'labels' => ['Active', 'Expiring Soon', 'Expired', 'On Trial'],
+                'labels' => [
+                    __('platform_analytics.lifecycle.active'),
+                    __('platform_analytics.lifecycle.expiring_soon'),
+                    __('platform_analytics.lifecycle.expired'),
+                    __('platform_analytics.lifecycle.on_trial'),
+                ],
                 'data' => [$active, $expiringSoon, $expired, $onTrial],
             ];
         });
@@ -372,19 +407,21 @@ class PlatformAnalytics extends Page
      */
     protected function generateExecutiveSummary(): string
     {
-        $summary = "Platform Analytics Executive Summary\n";
-        $summary .= "Generated: " . now()->format('Y-m-d H:i:s') . "\n";
-        $summary .= str_repeat('=', 80) . "\n\n";
+        $summary = __('platform_analytics.report.title')."\n";
+        $summary .= __('platform_analytics.report.generated', [
+            'timestamp' => now()->format('Y-m-d H:i:s'),
+        ])."\n";
+        $summary .= str_repeat('=', 80)."\n\n";
 
         // Organization Analytics
-        $summary .= "ORGANIZATION ANALYTICS\n";
-        $summary .= str_repeat('-', 80) . "\n";
+        $summary .= __('platform_analytics.report.sections.organization')."\n";
+        $summary .= str_repeat('-', 80)."\n";
         $orgAnalytics = $this->getOrganizationAnalytics();
-        $summary .= "Total Organizations: " . Organization::count() . "\n";
-        $summary .= "Active: " . $orgAnalytics['activeInactive']['active'] . "\n";
-        $summary .= "Inactive: " . $orgAnalytics['activeInactive']['inactive'] . "\n\n";
+        $summary .= __('platform_analytics.report.labels.total_organizations').': '.Organization::count()."\n";
+        $summary .= __('platform_analytics.report.labels.active').': '.$orgAnalytics['activeInactive']['active']."\n";
+        $summary .= __('platform_analytics.report.labels.inactive').': '.$orgAnalytics['activeInactive']['inactive']."\n\n";
 
-        $summary .= "Plan Distribution:\n";
+        $summary .= __('platform_analytics.report.labels.plan_distribution')."\n";
         foreach ($orgAnalytics['planDistribution']['labels'] as $index => $plan) {
             $count = $orgAnalytics['planDistribution']['data'][$index];
             $summary .= "  {$plan}: {$count}\n";
@@ -392,32 +429,32 @@ class PlatformAnalytics extends Page
         $summary .= "\n";
 
         // Subscription Analytics
-        $summary .= "SUBSCRIPTION ANALYTICS\n";
-        $summary .= str_repeat('-', 80) . "\n";
+        $summary .= __('platform_analytics.report.sections.subscription')."\n";
+        $summary .= str_repeat('-', 80)."\n";
         $subAnalytics = $this->getSubscriptionAnalytics();
-        $summary .= "Renewal Rate: " . $subAnalytics['renewalRate']['rate'] . "%\n";
-        $summary .= "Renewed: " . $subAnalytics['renewalRate']['renewed'] . "\n";
-        $summary .= "Expired: " . $subAnalytics['renewalRate']['expired'] . "\n\n";
+        $summary .= __('platform_analytics.report.labels.renewal_rate').': '.$subAnalytics['renewalRate']['rate']."%\n";
+        $summary .= __('platform_analytics.report.labels.renewed').': '.$subAnalytics['renewalRate']['renewed']."\n";
+        $summary .= __('platform_analytics.report.labels.expired').': '.$subAnalytics['renewalRate']['expired']."\n\n";
 
         // Usage Analytics
-        $summary .= "USAGE ANALYTICS\n";
-        $summary .= str_repeat('-', 80) . "\n";
+        $summary .= __('platform_analytics.report.sections.usage')."\n";
+        $summary .= str_repeat('-', 80)."\n";
         $usageAnalytics = $this->getUsageAnalytics();
-        $summary .= "Total Properties: " . number_format($usageAnalytics['totals']['properties']) . "\n";
-        $summary .= "Total Buildings: " . number_format($usageAnalytics['totals']['buildings']) . "\n";
-        $summary .= "Total Meters: " . number_format($usageAnalytics['totals']['meters']) . "\n";
-        $summary .= "Total Invoices: " . number_format($usageAnalytics['totals']['invoices']) . "\n\n";
+        $summary .= __('platform_analytics.report.labels.total_properties').': '.number_format($usageAnalytics['totals']['properties'])."\n";
+        $summary .= __('platform_analytics.report.labels.total_buildings').': '.number_format($usageAnalytics['totals']['buildings'])."\n";
+        $summary .= __('platform_analytics.report.labels.total_meters').': '.number_format($usageAnalytics['totals']['meters'])."\n";
+        $summary .= __('platform_analytics.report.labels.total_invoices').': '.number_format($usageAnalytics['totals']['invoices'])."\n\n";
 
         // User Analytics
-        $summary .= "USER ANALYTICS\n";
-        $summary .= str_repeat('-', 80) . "\n";
+        $summary .= __('platform_analytics.report.sections.user')."\n";
+        $summary .= str_repeat('-', 80)."\n";
         $userAnalytics = $this->getUserAnalytics();
-        $summary .= "Total Users: " . User::count() . "\n";
-        $summary .= "Active (Last 7 Days): " . $userAnalytics['activeUsers']['last7Days'] . "\n";
-        $summary .= "Active (Last 30 Days): " . $userAnalytics['activeUsers']['last30Days'] . "\n";
-        $summary .= "Active (Last 90 Days): " . $userAnalytics['activeUsers']['last90Days'] . "\n\n";
+        $summary .= __('platform_analytics.report.labels.total_users').': '.User::count()."\n";
+        $summary .= __('platform_analytics.report.labels.active_last_7_days').': '.$userAnalytics['activeUsers']['last7Days']."\n";
+        $summary .= __('platform_analytics.report.labels.active_last_30_days').': '.$userAnalytics['activeUsers']['last30Days']."\n";
+        $summary .= __('platform_analytics.report.labels.active_last_90_days').': '.$userAnalytics['activeUsers']['last90Days']."\n\n";
 
-        $summary .= "Users by Role:\n";
+        $summary .= __('platform_analytics.report.labels.users_by_role')."\n";
         foreach ($userAnalytics['byRole']['labels'] as $index => $role) {
             $count = $userAnalytics['byRole']['data'][$index];
             $summary .= "  {$role}: {$count}\n";
@@ -425,28 +462,28 @@ class PlatformAnalytics extends Page
         $summary .= "\n";
 
         // Top Organizations
-        $summary .= "TOP ORGANIZATIONS\n";
-        $summary .= str_repeat('-', 80) . "\n";
-        $summary .= "By Properties:\n";
+        $summary .= __('platform_analytics.report.sections.top_organizations')."\n";
+        $summary .= str_repeat('-', 80)."\n";
+        $summary .= __('platform_analytics.report.labels.by_properties')."\n";
         foreach (array_slice($orgAnalytics['topOrganizations']['byProperties'], 0, 5) as $org) {
             $summary .= "  {$org['name']}: {$org['count']}\n";
         }
         $summary .= "\n";
 
-        $summary .= "By Users:\n";
+        $summary .= __('platform_analytics.report.labels.by_users')."\n";
         foreach (array_slice($orgAnalytics['topOrganizations']['byUsers'], 0, 5) as $org) {
             $summary .= "  {$org['name']}: {$org['count']}\n";
         }
         $summary .= "\n";
 
-        $summary .= "By Invoices:\n";
+        $summary .= __('platform_analytics.report.labels.by_invoices')."\n";
         foreach (array_slice($orgAnalytics['topOrganizations']['byInvoices'], 0, 5) as $org) {
             $summary .= "  {$org['name']}: {$org['count']}\n";
         }
         $summary .= "\n";
 
-        $summary .= str_repeat('=', 80) . "\n";
-        $summary .= "End of Report\n";
+        $summary .= str_repeat('=', 80)."\n";
+        $summary .= __('platform_analytics.report.labels.end_of_report')."\n";
 
         return $summary;
     }
@@ -478,7 +515,7 @@ class PlatformAnalytics extends Page
             foreach ($periods as $period) {
                 $periodExpression = $this->getPeriodExpression($period);
 
-                $days = match($period) {
+                $days = match ($period) {
                     'daily' => 30,
                     'weekly' => 84, // 12 weeks
                     'monthly' => 365, // 12 months
@@ -549,7 +586,7 @@ class PlatformAnalytics extends Page
 
                 $hours = [];
                 $counts = [];
-                
+
                 for ($i = 0; $i < 24; $i++) {
                     $hours[] = sprintf('%02d:00', $i);
                     $hourData = $hourly->firstWhere('hour', $i);
@@ -566,6 +603,7 @@ class PlatformAnalytics extends Page
                 for ($i = 0; $i < 24; $i++) {
                     $hours[] = sprintf('%02d:00', $i);
                 }
+
                 return [
                     'labels' => $hours,
                     'data' => array_fill(0, 24, 0),
@@ -611,61 +649,77 @@ class PlatformAnalytics extends Page
      */
     protected function generateCsvData(): string
     {
-        $csv = "Category,Metric,Value\n";
-        
+        $csv = implode(',', [
+            __('platform_analytics.csv.headers.category'),
+            __('platform_analytics.csv.headers.metric'),
+            __('platform_analytics.csv.headers.value'),
+        ])."\n";
+
         // Organization Analytics
         $orgAnalytics = $this->getOrganizationAnalytics();
-        $csv .= "Organizations,Total," . Organization::count() . "\n";
-        $csv .= "Organizations,Active," . $orgAnalytics['activeInactive']['active'] . "\n";
-        $csv .= "Organizations,Inactive," . $orgAnalytics['activeInactive']['inactive'] . "\n";
-        
+        $csv .= __('platform_analytics.csv.categories.organizations').','.__('platform_analytics.csv.metrics.total').','.Organization::count()."\n";
+        $csv .= __('platform_analytics.csv.categories.organizations').','.__('platform_analytics.csv.metrics.active').','.$orgAnalytics['activeInactive']['active']."\n";
+        $csv .= __('platform_analytics.csv.categories.organizations').','.__('platform_analytics.csv.metrics.inactive').','.$orgAnalytics['activeInactive']['inactive']."\n";
+
         foreach ($orgAnalytics['planDistribution']['labels'] as $index => $plan) {
             $count = $orgAnalytics['planDistribution']['data'][$index];
-            $csv .= "Organizations,Plan - {$plan},{$count}\n";
+            $csv .= __('platform_analytics.csv.categories.organizations').','.__('platform_analytics.csv.metrics.plan', ['plan' => $plan]).",{$count}\n";
         }
 
         // Subscription Analytics
         $subAnalytics = $this->getSubscriptionAnalytics();
-        $csv .= "Subscriptions,Renewal Rate," . $subAnalytics['renewalRate']['rate'] . "%\n";
-        $csv .= "Subscriptions,Renewed," . $subAnalytics['renewalRate']['renewed'] . "\n";
-        $csv .= "Subscriptions,Expired," . $subAnalytics['renewalRate']['expired'] . "\n";
+        $csv .= __('platform_analytics.csv.categories.subscriptions').','.__('platform_analytics.csv.metrics.renewal_rate').','.$subAnalytics['renewalRate']['rate']."%\n";
+        $csv .= __('platform_analytics.csv.categories.subscriptions').','.__('platform_analytics.csv.metrics.renewed').','.$subAnalytics['renewalRate']['renewed']."\n";
+        $csv .= __('platform_analytics.csv.categories.subscriptions').','.__('platform_analytics.csv.metrics.expired').','.$subAnalytics['renewalRate']['expired']."\n";
 
         // Usage Analytics
         $usageAnalytics = $this->getUsageAnalytics();
-        $csv .= "Usage,Total Properties," . $usageAnalytics['totals']['properties'] . "\n";
-        $csv .= "Usage,Total Buildings," . $usageAnalytics['totals']['buildings'] . "\n";
-        $csv .= "Usage,Total Meters," . $usageAnalytics['totals']['meters'] . "\n";
-        $csv .= "Usage,Total Invoices," . $usageAnalytics['totals']['invoices'] . "\n";
+        $csv .= __('platform_analytics.csv.categories.usage').','.__('platform_analytics.csv.metrics.total_properties').','.$usageAnalytics['totals']['properties']."\n";
+        $csv .= __('platform_analytics.csv.categories.usage').','.__('platform_analytics.csv.metrics.total_buildings').','.$usageAnalytics['totals']['buildings']."\n";
+        $csv .= __('platform_analytics.csv.categories.usage').','.__('platform_analytics.csv.metrics.total_meters').','.$usageAnalytics['totals']['meters']."\n";
+        $csv .= __('platform_analytics.csv.categories.usage').','.__('platform_analytics.csv.metrics.total_invoices').','.$usageAnalytics['totals']['invoices']."\n";
 
         // User Analytics
         $userAnalytics = $this->getUserAnalytics();
-        $csv .= "Users,Total," . User::count() . "\n";
-        $csv .= "Users,Active (7 Days)," . $userAnalytics['activeUsers']['last7Days'] . "\n";
-        $csv .= "Users,Active (30 Days)," . $userAnalytics['activeUsers']['last30Days'] . "\n";
-        $csv .= "Users,Active (90 Days)," . $userAnalytics['activeUsers']['last90Days'] . "\n";
-        
+        $csv .= __('platform_analytics.csv.categories.users').','.__('platform_analytics.csv.metrics.total').','.User::count()."\n";
+        $csv .= __('platform_analytics.csv.categories.users').','.__('platform_analytics.csv.metrics.active_last_7_days').','.$userAnalytics['activeUsers']['last7Days']."\n";
+        $csv .= __('platform_analytics.csv.categories.users').','.__('platform_analytics.csv.metrics.active_last_30_days').','.$userAnalytics['activeUsers']['last30Days']."\n";
+        $csv .= __('platform_analytics.csv.categories.users').','.__('platform_analytics.csv.metrics.active_last_90_days').','.$userAnalytics['activeUsers']['last90Days']."\n";
+
         foreach ($userAnalytics['byRole']['labels'] as $index => $role) {
             $count = $userAnalytics['byRole']['data'][$index];
-            $csv .= "Users,Role - {$role},{$count}\n";
+            $csv .= __('platform_analytics.csv.categories.users').','.__('platform_analytics.csv.metrics.role', ['role' => $role]).",{$count}\n";
         }
 
         // Top Organizations
-        $csv .= "\nTop Organizations by Properties\n";
-        $csv .= "Rank,Organization,Count\n";
+        $csv .= "\n".__('platform_analytics.csv.sections.top_by_properties')."\n";
+        $csv .= implode(',', [
+            __('platform_analytics.csv.headers.rank'),
+            __('platform_analytics.csv.headers.organization'),
+            __('platform_analytics.csv.headers.count'),
+        ])."\n";
         foreach (array_slice($orgAnalytics['topOrganizations']['byProperties'], 0, 10) as $index => $org) {
-            $csv .= ($index + 1) . ",\"{$org['name']}\",{$org['count']}\n";
+            $csv .= ($index + 1).",\"{$org['name']}\",{$org['count']}\n";
         }
 
-        $csv .= "\nTop Organizations by Users\n";
-        $csv .= "Rank,Organization,Count\n";
+        $csv .= "\n".__('platform_analytics.csv.sections.top_by_users')."\n";
+        $csv .= implode(',', [
+            __('platform_analytics.csv.headers.rank'),
+            __('platform_analytics.csv.headers.organization'),
+            __('platform_analytics.csv.headers.count'),
+        ])."\n";
         foreach (array_slice($orgAnalytics['topOrganizations']['byUsers'], 0, 10) as $index => $org) {
-            $csv .= ($index + 1) . ",\"{$org['name']}\",{$org['count']}\n";
+            $csv .= ($index + 1).",\"{$org['name']}\",{$org['count']}\n";
         }
 
-        $csv .= "\nTop Organizations by Invoices\n";
-        $csv .= "Rank,Organization,Count\n";
+        $csv .= "\n".__('platform_analytics.csv.sections.top_by_invoices')."\n";
+        $csv .= implode(',', [
+            __('platform_analytics.csv.headers.rank'),
+            __('platform_analytics.csv.headers.organization'),
+            __('platform_analytics.csv.headers.count'),
+        ])."\n";
         foreach (array_slice($orgAnalytics['topOrganizations']['byInvoices'], 0, 10) as $index => $org) {
-            $csv .= ($index + 1) . ",\"{$org['name']}\",{$org['count']}\n";
+            $csv .= ($index + 1).",\"{$org['name']}\",{$org['count']}\n";
         }
 
         return $csv;
@@ -676,13 +730,15 @@ class PlatformAnalytics extends Page
      */
     protected function getUsersByRole(): array
     {
-        return Cache::remember('analytics_users_by_role', 3600, function () {
+        $locale = app()->getLocale();
+
+        return Cache::remember("analytics_users_by_role_{$locale}", 3600, function () {
             $users = User::select('role', DB::raw('COUNT(*) as count'))
                 ->groupBy('role')
                 ->get();
 
             return [
-                'labels' => $users->pluck('role')->map(fn($role) => ucfirst($role))->toArray(),
+                'labels' => $users->pluck('role')->map(fn ($role) => $this->getRoleLabel($role))->toArray(),
                 'data' => $users->pluck('count')->toArray(),
             ];
         });
@@ -711,7 +767,9 @@ class PlatformAnalytics extends Page
      */
     protected function getLoginFrequency(): array
     {
-        return Cache::remember('analytics_login_frequency', 3600, function () {
+        $locale = app()->getLocale();
+
+        return Cache::remember("analytics_login_frequency_{$locale}", 3600, function () {
             // Count users by login frequency in last 30 days
             $daily = User::where('last_login_at', '>=', now()->subDays(1))->count();
             $weekly = User::whereBetween('last_login_at', [now()->subDays(7), now()->subDays(1)])->count();
@@ -721,7 +779,12 @@ class PlatformAnalytics extends Page
                 ->count();
 
             return [
-                'labels' => ['Daily', 'Weekly', 'Monthly', 'Inactive'],
+                'labels' => [
+                    __('platform_analytics.login_frequency.daily'),
+                    __('platform_analytics.login_frequency.weekly'),
+                    __('platform_analytics.login_frequency.monthly'),
+                    __('platform_analytics.login_frequency.inactive'),
+                ],
                 'data' => [$daily, $weekly, $monthly, $inactive],
             ];
         });
@@ -739,10 +802,10 @@ class PlatformAnalytics extends Page
             for ($i = 11; $i >= 0; $i--) {
                 $date = now()->subMonths($i);
                 $months[] = $date->format('M Y');
-                
+
                 $count = User::where('created_at', '<=', $date->endOfMonth())
                     ->count();
-                
+
                 $data[] = $count;
             }
 
@@ -751,5 +814,29 @@ class PlatformAnalytics extends Page
                 'data' => $data,
             ];
         });
+    }
+
+    private function getPlanLabel(string $plan): string
+    {
+        $key = "shared.superadmin.subscription.plan.{$plan}";
+        $label = __($key);
+
+        if ($label === $key) {
+            return ucfirst($plan);
+        }
+
+        return $label;
+    }
+
+    private function getRoleLabel(string $role): string
+    {
+        $key = "filament.resources.platform_users.roles.{$role}";
+        $label = __($key);
+
+        if ($label === $key) {
+            return ucfirst($role);
+        }
+
+        return $label;
     }
 }

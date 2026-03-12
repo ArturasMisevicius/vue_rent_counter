@@ -659,14 +659,6 @@ return [
                     'trial_tenants' => 'Trial Tenants',
                 ],
             ],
-            'system_health' => [
-                'title' => 'Sistemos būklė',
-                'description' => 'Naujausi kritinių paslaugų būklės patikrinimai',
-                'actions' => [
-                    'run_check' => 'Vykdyti patikrinimą',
-                ],
-                'empty' => 'Duomenų nėra',
-            ],
             'analytics' => [
                 'title' => 'Analitika',
                 'description' => 'Platformos tendencijų ir našumo suvestinė.',

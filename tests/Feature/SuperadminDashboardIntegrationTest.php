@@ -10,7 +10,6 @@ use App\Models\Organization;
 use App\Models\OrganizationActivityLog;
 use App\Models\Property;
 use App\Models\Subscription;
-use App\Models\SystemHealthMetric;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
@@ -96,35 +95,6 @@ class SuperadminDashboardIntegrationTest extends TestCase
         $response->assertSee('10'); // Total count
         $response->assertSee('Active Organizations');
         $response->assertSee('8'); // Active count
-    }
-
-    /** @test */
-    public function dashboard_displays_system_health_indicators(): void
-    {
-        // Create system health metrics
-        SystemHealthMetric::factory()->create([
-            'metric_type' => 'database',
-            'metric_name' => 'connection_status',
-            'status' => 'healthy',
-            'checked_at' => now(),
-        ]);
-
-        SystemHealthMetric::factory()->create([
-            'metric_type' => 'storage',
-            'metric_name' => 'disk_usage',
-            'status' => 'warning',
-            'checked_at' => now(),
-        ]);
-
-        $response = $this->actingAs($this->superadmin)
-            ->get('/superadmin/dashboard');
-
-        $response->assertStatus(200);
-
-        // Check that system health is displayed
-        $response->assertSee('System Health');
-        $response->assertSee('Database');
-        $response->assertSee('Storage');
     }
 
     /** @test */
@@ -297,21 +267,6 @@ class SuperadminDashboardIntegrationTest extends TestCase
     }
 
     /** @test */
-    public function dashboard_system_health_check_action_works(): void
-    {
-        $response = $this->actingAs($this->superadmin)
-            ->post('/superadmin/dashboard/health-check');
-
-        $response->assertStatus(200);
-        $response->assertJson(['status' => 'success']);
-
-        // Verify health metrics were created/updated
-        $this->assertDatabaseHas('system_health_metrics', [
-            'metric_type' => 'database',
-        ]);
-    }
-
-    /** @test */
     public function dashboard_navigation_links_work(): void
     {
         $response = $this->actingAs($this->superadmin)
@@ -322,7 +277,6 @@ class SuperadminDashboardIntegrationTest extends TestCase
         // Check navigation links to other superadmin pages
         $response->assertSee('Organizations');
         $response->assertSee('Subscriptions');
-        $response->assertSee('System Health');
         $response->assertSee('Analytics');
     }
 }

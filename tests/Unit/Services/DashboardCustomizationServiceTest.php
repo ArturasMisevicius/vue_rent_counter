@@ -42,9 +42,9 @@ class DashboardCustomizationServiceTest extends TestCase
         $user = User::factory()->create();
         $customConfig = [
             'widgets' => [
-                ['class' => 'TestWidget', 'position' => 1, 'size' => 'large']
+                ['class' => 'TestWidget', 'position' => 1, 'size' => 'large'],
             ],
-            'layout' => ['columns' => 2]
+            'layout' => ['columns' => 2],
         ];
 
         DashboardCustomization::create([
@@ -65,9 +65,9 @@ class DashboardCustomizationServiceTest extends TestCase
         $user = User::factory()->create();
         $configuration = [
             'widgets' => [
-                ['class' => 'TestWidget', 'position' => 1, 'size' => 'medium']
+                ['class' => 'TestWidget', 'position' => 1, 'size' => 'medium'],
             ],
-            'layout' => ['columns' => 3]
+            'layout' => ['columns' => 3],
         ];
 
         $result = $this->service->saveUserConfiguration($user, $configuration);
@@ -82,7 +82,7 @@ class DashboardCustomizationServiceTest extends TestCase
     public function save_user_configuration_updates_existing_record(): void
     {
         $user = User::factory()->create();
-        
+
         // Create initial customization
         DashboardCustomization::create([
             'user_id' => $user->id,
@@ -91,15 +91,15 @@ class DashboardCustomizationServiceTest extends TestCase
 
         $newConfiguration = [
             'widgets' => [
-                ['class' => 'NewWidget', 'position' => 1, 'size' => 'large']
+                ['class' => 'NewWidget', 'position' => 1, 'size' => 'large'],
             ],
-            'layout' => ['columns' => 2]
+            'layout' => ['columns' => 2],
         ];
 
         $result = $this->service->saveUserConfiguration($user, $newConfiguration);
 
         $this->assertTrue($result);
-        
+
         $customization = DashboardCustomization::where('user_id', $user->id)->first();
         $this->assertEquals($newConfiguration['widgets'], $customization->widget_configuration);
         $this->assertEquals($newConfiguration['layout'], $customization->layout_configuration);
@@ -120,11 +120,11 @@ class DashboardCustomizationServiceTest extends TestCase
 
         $result = $this->service->addWidget($user, $widgetClass, [
             'size' => 'large',
-            'refresh_interval' => 120
+            'refresh_interval' => 120,
         ]);
 
         $this->assertTrue($result);
-        
+
         $configuration = $this->service->getUserConfiguration($user);
         $this->assertCount(1, $configuration['widgets']);
         $this->assertEquals($widgetClass, $configuration['widgets'][0]['class']);
@@ -156,7 +156,7 @@ class DashboardCustomizationServiceTest extends TestCase
 
         // Add widget first time
         $this->service->addWidget($user, $widgetClass);
-        
+
         // Try to add same widget again
         $result = $this->service->addWidget($user, $widgetClass);
 
@@ -167,21 +167,21 @@ class DashboardCustomizationServiceTest extends TestCase
     public function remove_widget_removes_existing_widget(): void
     {
         $user = User::factory()->create();
-        
+
         $configuration = [
             'widgets' => [
                 ['class' => 'Widget1', 'position' => 1],
                 ['class' => 'Widget2', 'position' => 2],
             ],
-            'layout' => []
+            'layout' => [],
         ];
-        
+
         $this->service->saveUserConfiguration($user, $configuration);
 
         $result = $this->service->removeWidget($user, 'Widget1');
 
         $this->assertTrue($result);
-        
+
         $updatedConfiguration = $this->service->getUserConfiguration($user);
         $this->assertCount(1, $updatedConfiguration['widgets']);
         $this->assertEquals('Widget2', $updatedConfiguration['widgets'][0]['class']);
@@ -201,16 +201,16 @@ class DashboardCustomizationServiceTest extends TestCase
     public function rearrange_widgets_updates_positions(): void
     {
         $user = User::factory()->create();
-        
+
         $configuration = [
             'widgets' => [
                 ['class' => 'Widget1', 'position' => 1],
                 ['class' => 'Widget2', 'position' => 2],
                 ['class' => 'Widget3', 'position' => 3],
             ],
-            'layout' => []
+            'layout' => [],
         ];
-        
+
         $this->service->saveUserConfiguration($user, $configuration);
 
         $newPositions = [
@@ -222,10 +222,10 @@ class DashboardCustomizationServiceTest extends TestCase
         $result = $this->service->rearrangeWidgets($user, $newPositions);
 
         $this->assertTrue($result);
-        
+
         $updatedConfiguration = $this->service->getUserConfiguration($user);
         $widgets = $updatedConfiguration['widgets'];
-        
+
         // Should be sorted by position
         $this->assertEquals('Widget2', $widgets[0]['class']);
         $this->assertEquals(1, $widgets[0]['position']);
@@ -239,20 +239,20 @@ class DashboardCustomizationServiceTest extends TestCase
     public function update_widget_size_updates_size_successfully(): void
     {
         $user = User::factory()->create();
-        
+
         $configuration = [
             'widgets' => [
                 ['class' => 'TestWidget', 'position' => 1, 'size' => 'small'],
             ],
-            'layout' => []
+            'layout' => [],
         ];
-        
+
         $this->service->saveUserConfiguration($user, $configuration);
 
         $result = $this->service->updateWidgetSize($user, 'TestWidget', 'large');
 
         $this->assertTrue($result);
-        
+
         $updatedConfiguration = $this->service->getUserConfiguration($user);
         $this->assertEquals('large', $updatedConfiguration['widgets'][0]['size']);
     }
@@ -271,20 +271,20 @@ class DashboardCustomizationServiceTest extends TestCase
     public function update_widget_refresh_interval_updates_interval(): void
     {
         $user = User::factory()->create();
-        
+
         $configuration = [
             'widgets' => [
                 ['class' => 'TestWidget', 'position' => 1, 'refresh_interval' => 60],
             ],
-            'layout' => []
+            'layout' => [],
         ];
-        
+
         $this->service->saveUserConfiguration($user, $configuration);
 
         $result = $this->service->updateWidgetRefreshInterval($user, 'TestWidget', 120);
 
         $this->assertTrue($result);
-        
+
         $updatedConfiguration = $this->service->getUserConfiguration($user);
         $this->assertEquals(120, $updatedConfiguration['widgets'][0]['refresh_interval']);
     }
@@ -305,20 +305,20 @@ class DashboardCustomizationServiceTest extends TestCase
     public function toggle_widget_changes_enabled_state(): void
     {
         $user = User::factory()->create();
-        
+
         $configuration = [
             'widgets' => [
                 ['class' => 'TestWidget', 'position' => 1, 'enabled' => true],
             ],
-            'layout' => []
+            'layout' => [],
         ];
-        
+
         $this->service->saveUserConfiguration($user, $configuration);
 
         $result = $this->service->toggleWidget($user, 'TestWidget');
 
         $this->assertTrue($result);
-        
+
         $updatedConfiguration = $this->service->getUserConfiguration($user);
         $this->assertFalse($updatedConfiguration['widgets'][0]['enabled']);
 
@@ -332,7 +332,7 @@ class DashboardCustomizationServiceTest extends TestCase
     public function reset_to_default_removes_customization(): void
     {
         $user = User::factory()->create();
-        
+
         // Create customization
         DashboardCustomization::create([
             'user_id' => $user->id,
@@ -351,12 +351,12 @@ class DashboardCustomizationServiceTest extends TestCase
     public function export_configuration_returns_current_configuration(): void
     {
         $user = User::factory()->create();
-        
+
         $configuration = [
             'widgets' => [['class' => 'TestWidget']],
-            'layout' => ['columns' => 2]
+            'layout' => ['columns' => 2],
         ];
-        
+
         $this->service->saveUserConfiguration($user, $configuration);
 
         $exported = $this->service->exportConfiguration($user);
@@ -369,20 +369,24 @@ class DashboardCustomizationServiceTest extends TestCase
     public function get_enabled_widgets_returns_only_enabled_widgets_in_order(): void
     {
         $user = User::factory()->create();
-        
+
         $configuration = [
             'widgets' => [
-                ['class' => 'Widget1', 'position' => 3, 'enabled' => true],
-                ['class' => 'Widget2', 'position' => 1, 'enabled' => false],
-                ['class' => 'Widget3', 'position' => 2, 'enabled' => true],
+                ['class' => 'App\\Filament\\Widgets\\SubscriptionStatsWidget', 'position' => 3, 'enabled' => true],
+                ['class' => 'NonExistentWidget', 'position' => 1, 'enabled' => true],
+                ['class' => 'App\\Filament\\Widgets\\OrganizationStatsWidget', 'position' => 2, 'enabled' => true],
+                ['class' => 'App\\Filament\\Widgets\\ExpiringSubscriptionsWidget', 'position' => 4, 'enabled' => false],
             ],
-            'layout' => []
+            'layout' => [],
         ];
-        
+
         $this->service->saveUserConfiguration($user, $configuration);
 
         $enabledWidgets = $this->service->getEnabledWidgets($user);
 
-        $this->assertEquals(['Widget3', 'Widget1'], $enabledWidgets);
+        $this->assertEquals([
+            'App\\Filament\\Widgets\\OrganizationStatsWidget',
+            'App\\Filament\\Widgets\\SubscriptionStatsWidget',
+        ], $enabledWidgets);
     }
 }
