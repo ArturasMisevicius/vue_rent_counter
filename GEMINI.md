@@ -401,7 +401,7 @@ This repository already includes workspace-local skills in `.agent/skills`. For 
 - Prefer workspace skills in `.agent/skills` first.
 - Fall back to global Codex skills in `$CODEX_HOME/skills` when a matching workspace skill is unavailable.
 - Combine multiple skills when a task crosses domains (for example security + performance + testing).
-- OpenAI curated skills are fully mirrored locally in `.agent/skills` for this project (`86` workspace skills total).
+- OpenAI curated and system skills are mirrored locally in `.agent/skills` for this project (`87` workspace skills total).
 
 ## Core Skills (Default for Most Tasks)
 - `architecture`
