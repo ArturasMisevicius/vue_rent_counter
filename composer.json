@@ -19,7 +19,6 @@
     "require-dev": {
         "barryvdh/laravel-debugbar": "^4.1",
         "fakerphp/faker": "^1.23",
-        "gsferro/generate-tests-easy": "^1.0",
         "laravel/boost": "^2.3",
         "laravel/pint": "^1.28",
         "laravel/sail": "^1.53",
@@ -27,7 +26,7 @@
         "nunomaduro/collision": "^8.9",
         "pestphp/pest": "^4.4",
         "pestphp/pest-plugin-laravel": "^4.1",
-        "phpunit/phpunit": "^13.0",
+        "phpunit/phpunit": "^12.5",
         "spatie/laravel-ignition": "^2.11"
     },
     "autoload": {
