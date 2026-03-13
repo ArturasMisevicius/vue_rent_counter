@@ -4,32 +4,33 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\BuildingResource\RelationManagers;
 
-use Closure;
 use App\Enums\PropertyType;
-use BackedEnum;
-use UnitEnum;
+use App\Enums\UserRole;
 use App\Filament\Resources\BuildingResource\Pages\EditBuilding;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
 use App\Models\Building;
 use App\Models\Property;
 use App\Models\Tenant;
-use Filament\Forms;
+use App\Policies\PropertyPolicy;
+use App\Traits\BelongsToTenant;
+use BackedEnum;
+use Filament\Actions;
 use Filament\Actions\Exceptions\ActionNotResolvableException;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Schema;
+use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -74,11 +75,11 @@ use Illuminate\Validation\ValidationException;
  *
  * @property-read string $relationship The relationship name ('properties')
  *
- * @see \App\Models\Property
- * @see \App\Models\Building
- * @see \App\Http\Requests\StorePropertyRequest
- * @see \App\Http\Requests\UpdatePropertyRequest
- * @see \App\Policies\PropertyPolicy
+ * @see Property
+ * @see Building
+ * @see StorePropertyRequest
+ * @see UpdatePropertyRequest
+ * @see PropertyPolicy
  */
 final class PropertiesRelationManager extends RelationManager
 {
@@ -109,15 +110,15 @@ final class PropertiesRelationManager extends RelationManager
         $user = auth()->user();
 
         // Superadmins and admins bypass tenant scoping.
-        if ($user?->isSuperadmin() || $user?->role === \App\Enums\UserRole::ADMIN) {
+        if ($user?->isSuperadmin() || $user?->role === UserRole::ADMIN) {
             return;
         }
 
         // Managers must remain within their tenant.
-        if ($user?->role === \App\Enums\UserRole::MANAGER
+        if ($user?->role === UserRole::MANAGER
             && $this->ownerRecord instanceof Model
             && $this->ownerRecord->tenant_id !== $user->tenant_id) {
-            throw new ModelNotFoundException();
+            throw new ModelNotFoundException;
         }
     }
 
@@ -137,8 +138,6 @@ final class PropertiesRelationManager extends RelationManager
 
     /**
      * Provide a schema instance for form rendering in tests.
-     *
-     * @return Schema
      */
     public function makeForm(): Schema
     {
@@ -302,8 +301,8 @@ final class PropertiesRelationManager extends RelationManager
      *
      * @return Schemas\Components\TextInput Configured address input field
      *
-     * @see \App\Http\Requests\StorePropertyRequest::rules()
-     * @see \App\Http\Requests\StorePropertyRequest::messages()
+     * @see StorePropertyRequest::rules()
+     * @see StorePropertyRequest::messages()
      */
     protected function getAddressField(): Forms\Components\TextInput
     {
@@ -327,7 +326,7 @@ final class PropertiesRelationManager extends RelationManager
                     if ($value !== strip_tags($value)) {
                         $fail(__('properties.validation.address.invalid_characters'));
                     }
-                    
+
                     // Check for script tags and JavaScript
                     if (preg_match('/<script|javascript:|on\w+=/i', $value)) {
                         $fail(__('properties.validation.address.prohibited_content'));
@@ -355,7 +354,7 @@ final class PropertiesRelationManager extends RelationManager
      *
      * @return Schemas\Components\Select Configured type select field with live updates
      *
-     * @see \App\Enums\PropertyType
+     * @see PropertyType
      * @see setDefaultArea()
      */
     protected function getTypeField(): Forms\Components\Select
@@ -406,7 +405,7 @@ final class PropertiesRelationManager extends RelationManager
             ->numeric()
             ->minValue($config['min_area'])
             ->maxValue($config['max_area'])
-                    ->suffix(__('app.units.square_meter'))
+            ->suffix(__('app.units.square_meter'))
             ->step(0.01)
             ->validationAttribute('area_sqm')
             ->rules([
@@ -416,7 +415,7 @@ final class PropertiesRelationManager extends RelationManager
                     if (preg_match('/[eE]/', (string) $value)) {
                         $fail(__('properties.validation.area_sqm.format'));
                     }
-                    
+
                     // Prevent negative zero
                     if ($value == 0 && strpos((string) $value, '-') !== false) {
                         $fail(__('properties.validation.area_sqm.negative'));
@@ -459,7 +458,6 @@ final class PropertiesRelationManager extends RelationManager
      *
      * @param  string|null  $state  The selected property type value
      * @param  callable  $set  Filament form state setter
-     * @return void
      *
      * @see getTypeField()
      * @see getPropertyConfig()
@@ -524,7 +522,7 @@ final class PropertiesRelationManager extends RelationManager
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
                 ->with([
                     'tenants:id,name',
-                    'tenants' => fn ($q) => $q->wherePivotNull('vacated_at')->limit(1)
+                    'tenants' => fn ($q) => $q->wherePivotNull('vacated_at')->limit(1),
                 ])
                 ->withCount('meters')
             )
@@ -558,19 +556,16 @@ final class PropertiesRelationManager extends RelationManager
 
                 Tables\Columns\TextColumn::make('current_tenant_name')
                     ->label(__('properties.labels.current_tenant'))
-                    ->getStateUsing(fn (Property $record): ?string => 
-                        $record->tenants->first()?->name
+                    ->getStateUsing(fn (Property $record): ?string => $record->tenants->first()?->name
                     )
                     ->badge()
                     ->color(fn (?string $state): string => $state ? 'warning' : 'gray')
                     ->default(__('properties.badges.vacant'))
                     ->icon(fn (?string $state): string => $state ? 'heroicon-o-user' : 'heroicon-o-home-modern')
                     ->searchable(
-                        query: fn (Builder $query, string $search): Builder => 
-                            $query->whereHas('tenants', fn ($q) => 
-                                $q->where('name', 'like', "%{$search}%")
-                                  ->wherePivotNull('vacated_at')
-                            )
+                        query: fn (Builder $query, string $search): Builder => $query->whereHas('tenants', fn ($q) => $q->where('name', 'like', "%{$search}%")
+                            ->wherePivotNull('vacated_at')
+                        )
                     )
                     ->tooltip(fn (?string $state): string => $state
                         ? __('properties.tooltips.occupied_by', ['name' => $state])
@@ -698,7 +693,7 @@ final class PropertiesRelationManager extends RelationManager
      * @param  array<string, mixed>  $data  Form data from user input
      * @return array<string, mixed> Data with tenant_id and building_id injected
      *
-     * @see table() (CreateAction and EditAction configuration)
+     * @see Table() (CreateAction and EditAction configuration)
      */
     protected function preparePropertyData(array $data): array
     {
@@ -778,11 +773,11 @@ final class PropertiesRelationManager extends RelationManager
         if (isset($sanitizedData['address'])) {
             $sanitizedData['address'] = strip_tags(trim((string) $sanitizedData['address']));
         }
-        
+
         // Inject system-assigned fields
         $sanitizedData['tenant_id'] = auth()->user()->tenant_id;
         $sanitizedData['building_id'] = $this->getOwnerRecord()->id;
-        
+
         // Log warning if extra fields were attempted
         $extraFields = array_diff_key($rawInput, array_flip($allowedFields));
         if (! empty($extraFields)) {
@@ -794,7 +789,7 @@ final class PropertiesRelationManager extends RelationManager
                 'timestamp' => now()->toIso8601String(),
             ]);
         }
-        
+
         return $sanitizedData;
     }
 
@@ -855,9 +850,8 @@ final class PropertiesRelationManager extends RelationManager
      *
      * @param  Property  $record  The property being managed
      * @param  array<string, mixed>  $data  Form data with tenant_id
-     * @return void
      *
-     * @see \App\Policies\PropertyPolicy::update()
+     * @see PropertyPolicy::update()
      * @see getTenantManagementForm()
      */
     protected function handleTenantManagement(Property $record, array $data): void
@@ -865,7 +859,7 @@ final class PropertiesRelationManager extends RelationManager
         // Verify authorization
         if (! auth()->user()->can('update', $record)) {
             $this->logUnauthorizedAccess($record);
-            
+
             Notification::make()
                 ->danger()
                 ->title(__('app.errors.access_denied'))
@@ -877,9 +871,9 @@ final class PropertiesRelationManager extends RelationManager
 
         // Capture state before change for audit trail
         $previousTenant = $record->tenantAssignments()->wherePivotNull('vacated_at')->first();
-        
+
         DB::beginTransaction();
-        
+
         try {
             $tenantAssignments = $record->tenantAssignments();
             $tenantId = $data['tenant_id'] ?? null;
@@ -925,21 +919,21 @@ final class PropertiesRelationManager extends RelationManager
                 $action = 'tenant_assigned';
                 $newTenantId = $tenantId;
             }
-            
+
             // Log the change for audit trail
             $this->logTenantManagement($record, $action, $previousTenant, $newTenantId);
-            
+
             DB::commit();
-            
+
             Notification::make()
                 ->success()
                 ->title(__("properties.notifications.{$action}.title"))
                 ->body(__("properties.notifications.{$action}.body"))
                 ->send();
-                
+
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Tenant management operation failed', [
                 'property_id' => $record->id,
                 'user_id' => auth()->id(),
@@ -947,7 +941,7 @@ final class PropertiesRelationManager extends RelationManager
                 'error_code' => $e->getCode(),
                 'timestamp' => now()->toIso8601String(),
             ]);
-            
+
             Notification::make()
                 ->danger()
                 ->title(__('app.errors.error_title'))
@@ -966,7 +960,6 @@ final class PropertiesRelationManager extends RelationManager
      * @param  string  $action  The action performed (tenant_assigned|tenant_removed)
      * @param  Tenant|null  $previousTenant  The previous tenant (if any)
      * @param  int|null  $newTenantId  The new tenant ID (if assigning)
-     * @return void
      */
     protected function logTenantManagement(
         Property $record,
@@ -995,7 +988,6 @@ final class PropertiesRelationManager extends RelationManager
      * Log unauthorized access attempts for security monitoring.
      *
      * @param  Property  $record  The property that was accessed
-     * @return void
      */
     protected function logUnauthorizedAccess(Property $record): void
     {
@@ -1020,8 +1012,9 @@ final class PropertiesRelationManager extends RelationManager
     protected function maskEmail(string $email): string
     {
         [$local, $domain] = explode('@', $email);
-        $maskedLocal = substr($local, 0, 2) . str_repeat('*', max(0, strlen($local) - 2));
-        return $maskedLocal . '@' . $domain;
+        $maskedLocal = substr($local, 0, 2).str_repeat('*', max(0, strlen($local) - 2));
+
+        return $maskedLocal.'@'.$domain;
     }
 
     /**
@@ -1035,16 +1028,18 @@ final class PropertiesRelationManager extends RelationManager
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             $parts = explode('.', $ip);
             $parts[3] = 'xxx';
+
             return implode('.', $parts);
         }
-        
+
         // For IPv6, mask last segment
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
             $parts = explode(':', $ip);
             $parts[count($parts) - 1] = 'xxxx';
+
             return implode(':', $parts);
         }
-        
+
         return 'xxx.xxx.xxx.xxx';
     }
 
@@ -1055,7 +1050,6 @@ final class PropertiesRelationManager extends RelationManager
      * an info notification. Future implementation could integrate with
      * Laravel Excel or similar package to export selected properties.
      *
-     * @return void
      *
      * @todo Implement actual export logic with Laravel Excel
      */
@@ -1080,8 +1074,8 @@ final class PropertiesRelationManager extends RelationManager
      * @param  Builder  $query  The Eloquent query builder
      * @return Builder The unmodified query (scoping via building)
      *
-     * @see \App\Models\Building (tenant scope applied)
-     * @see \App\Traits\BelongsToTenant
+     * @see Building (tenant scope applied)
+     * @see BelongsToTenant
      */
     protected function applyTenantScoping(Builder $query): Builder
     {
@@ -1098,11 +1092,11 @@ final class PropertiesRelationManager extends RelationManager
         $record = parent::resolveTableRecord($key);
 
         if ($record === null) {
-            throw new AuthorizationException();
+            throw new AuthorizationException;
         }
 
         if ($record instanceof Model && $record->tenant_id !== auth()->user()?->tenant_id) {
-            throw new AuthorizationException();
+            throw new AuthorizationException;
         }
 
         return $record;
@@ -1119,7 +1113,7 @@ final class PropertiesRelationManager extends RelationManager
      * @param  string  $pageClass  The Filament page class
      * @return bool True if user can view properties, false otherwise
      *
-     * @see \App\Policies\PropertyPolicy::viewAny()
+     * @see PropertyPolicy::viewAny()
      */
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {

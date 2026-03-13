@@ -9,8 +9,9 @@ use App\Models\ExchangeRate;
 use App\Services\CurrencyConversionService;
 use App\Services\ExchangeRateProviderService;
 use App\ValueObjects\ConversionResult;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 final class CurrencyConversionServiceTest extends TestCase
@@ -18,18 +19,24 @@ final class CurrencyConversionServiceTest extends TestCase
     use RefreshDatabase;
 
     private CurrencyConversionService $service;
+
     private Currency $usd;
+
     private Currency $eur;
+
     private Currency $gbp;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
-        // Create mock exchange rate provider
-        $mockProvider = $this->createMock(ExchangeRateProviderService::class);
-        $this->service = new CurrencyConversionService($mockProvider);
-        
+
+        Http::fake([
+            '*' => Http::response([], 500),
+        ]);
+
+        $this->service = new CurrencyConversionService(new ExchangeRateProviderService);
+        Cache::flush();
+
         // Create test currencies
         $this->usd = Currency::factory()->usd()->create();
         $this->eur = Currency::factory()->eur()->create();
@@ -51,7 +58,7 @@ final class CurrencyConversionServiceTest extends TestCase
     public function test_converts_using_database_rate(): void
     {
         // Create exchange rate in database
-        ExchangeRate::factory()
+        ExchangeRate::factory()->active()
             ->forCurrencyPair($this->usd, $this->eur)
             ->withRate(0.85)
             ->effectiveOn(now())
@@ -71,9 +78,9 @@ final class CurrencyConversionServiceTest extends TestCase
     public function test_converts_using_historical_rate(): void
     {
         $historicalDate = now()->subDays(30);
-        
+
         // Create historical exchange rate
-        ExchangeRate::factory()
+        ExchangeRate::factory()->active()
             ->forCurrencyPair($this->usd, $this->eur)
             ->withRate(0.82)
             ->effectiveOn($historicalDate)
@@ -89,7 +96,7 @@ final class CurrencyConversionServiceTest extends TestCase
     public function test_converts_using_reverse_rate(): void
     {
         // Create only EUR to USD rate (reverse of what we need)
-        ExchangeRate::factory()
+        ExchangeRate::factory()->active()
             ->forCurrencyPair($this->eur, $this->usd)
             ->withRate(1.18)
             ->effectiveOn(now())
@@ -112,7 +119,7 @@ final class CurrencyConversionServiceTest extends TestCase
 
     public function test_converts_batch_amounts(): void
     {
-        ExchangeRate::factory()
+        ExchangeRate::factory()->active()
             ->forCurrencyPair($this->usd, $this->eur)
             ->withRate(0.85)
             ->create();
@@ -139,7 +146,7 @@ final class CurrencyConversionServiceTest extends TestCase
             'invalid' => 200.0, // This will fail due to no exchange rate
         ];
 
-        ExchangeRate::factory()
+        ExchangeRate::factory()->active()
             ->forCurrencyPair($this->usd, $this->eur)
             ->withRate(0.85)
             ->create();
@@ -157,21 +164,21 @@ final class CurrencyConversionServiceTest extends TestCase
     {
         $startDate = now()->subDays(10);
         $endDate = now()->subDays(5);
-        
+
         // Create multiple historical rates
-        ExchangeRate::factory()
+        ExchangeRate::factory()->active()
             ->forCurrencyPair($this->usd, $this->eur)
             ->withRate(0.83)
             ->effectiveOn($startDate)
             ->create();
-            
-        ExchangeRate::factory()
+
+        ExchangeRate::factory()->active()
             ->forCurrencyPair($this->usd, $this->eur)
             ->withRate(0.84)
             ->effectiveOn($startDate->copy()->addDays(2))
             ->create();
-            
-        ExchangeRate::factory()
+
+        ExchangeRate::factory()->active()
             ->forCurrencyPair($this->usd, $this->eur)
             ->withRate(0.85)
             ->effectiveOn($endDate)
@@ -186,7 +193,7 @@ final class CurrencyConversionServiceTest extends TestCase
 
     public function test_converts_invoice_amounts(): void
     {
-        ExchangeRate::factory()
+        ExchangeRate::factory()->active()
             ->forCurrencyPair($this->usd, $this->eur)
             ->withRate(0.85)
             ->create();
@@ -212,23 +219,23 @@ final class CurrencyConversionServiceTest extends TestCase
         $this->assertEquals(102.0, $converted['total_amount']);
         $this->assertEquals(42.5, $converted['paid_amount']);
         $this->assertEquals(59.5, $converted['balance']);
-        
+
         // Check original amounts are preserved
         $this->assertEquals(100.0, $converted['subtotal_original']);
         $this->assertEquals(0.85, $converted['subtotal_exchange_rate']);
-        
+
         // Check line items
         $this->assertEquals(51.0, $converted['line_items'][0]['amount']);
         $this->assertEquals(60.0, $converted['line_items'][0]['amount_original']);
         $this->assertEquals(34.0, $converted['line_items'][1]['amount']);
         $this->assertEquals(40.0, $converted['line_items'][1]['amount_original']);
-        
+
         $this->assertArrayHasKey('conversion_date', $converted);
     }
 
     public function test_conversion_result_methods(): void
     {
-        ExchangeRate::factory()
+        ExchangeRate::factory()->active()
             ->forCurrencyPair($this->usd, $this->eur)
             ->withRate(0.85)
             ->create();
@@ -237,9 +244,9 @@ final class CurrencyConversionServiceTest extends TestCase
 
         $this->assertEquals('$ 100.00', $result->getFormattedOriginalAmount());
         $this->assertEquals('€ 85.00', $result->getFormattedConvertedAmount());
-        $this->assertStringContains('$ 100.00 → € 85.00', $result->getConversionSummary());
+        $this->assertStringContainsString('$ 100.00 → € 85.00', $result->getConversionSummary());
         $this->assertEquals(0.85, $result->getConversionFactor());
-        
+
         $array = $result->toArray();
         $this->assertArrayHasKey('original_amount', $array);
         $this->assertArrayHasKey('converted_amount', $array);
@@ -252,16 +259,16 @@ final class CurrencyConversionServiceTest extends TestCase
     public function test_uses_most_recent_rate_for_date(): void
     {
         $date = now()->subDays(5);
-        
+
         // Create older rate
-        ExchangeRate::factory()
+        ExchangeRate::factory()->active()
             ->forCurrencyPair($this->usd, $this->eur)
             ->withRate(0.80)
             ->effectiveOn($date->copy()->subDays(2))
             ->create();
-            
+
         // Create more recent rate for the same date
-        ExchangeRate::factory()
+        ExchangeRate::factory()->active()
             ->forCurrencyPair($this->usd, $this->eur)
             ->withRate(0.85)
             ->effectiveOn($date)
@@ -277,14 +284,14 @@ final class CurrencyConversionServiceTest extends TestCase
     public function test_handles_inactive_rates(): void
     {
         // Create inactive rate
-        ExchangeRate::factory()
+        ExchangeRate::factory()->active()
             ->forCurrencyPair($this->usd, $this->eur)
             ->withRate(0.80)
             ->inactive()
             ->create();
-            
+
         // Create active rate
-        ExchangeRate::factory()
+        ExchangeRate::factory()->active()
             ->forCurrencyPair($this->usd, $this->eur)
             ->withRate(0.85)
             ->create();
@@ -298,7 +305,7 @@ final class CurrencyConversionServiceTest extends TestCase
 
     public function test_conversion_with_zero_amount(): void
     {
-        ExchangeRate::factory()
+        ExchangeRate::factory()->active()
             ->forCurrencyPair($this->usd, $this->eur)
             ->withRate(0.85)
             ->create();
@@ -307,12 +314,12 @@ final class CurrencyConversionServiceTest extends TestCase
 
         $this->assertEquals(0.0, $result->getOriginalAmount());
         $this->assertEquals(0.0, $result->getConvertedAmount());
-        $this->assertEquals(0.0, $result->getConversionFactor());
+        $this->assertEquals(0.85, $result->getConversionFactor());
     }
 
     public function test_conversion_with_negative_amount(): void
     {
-        ExchangeRate::factory()
+        ExchangeRate::factory()->active()
             ->forCurrencyPair($this->usd, $this->eur)
             ->withRate(0.85)
             ->create();

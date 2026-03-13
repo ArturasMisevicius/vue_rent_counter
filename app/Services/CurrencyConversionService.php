@@ -8,6 +8,7 @@ use App\Models\Currency;
 use App\Models\ExchangeRate;
 use App\ValueObjects\ConversionResult;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -52,7 +53,7 @@ final readonly class CurrencyConversionService
                 convertedAmount: $convertedAmount,
                 fromCurrency: $fromCurrency,
                 toCurrency: $toCurrency,
-                exchangeRate: $exchangeRate->rate,
+                exchangeRate: (float) $exchangeRate->rate,
                 conversionDate: $date,
                 source: 'database'
             );
@@ -60,7 +61,7 @@ final readonly class CurrencyConversionService
 
         // Try reverse rate calculation
         $reverseRate = $this->getExchangeRate($toCurrency->id, $fromCurrency->id, $date);
-        
+
         if ($reverseRate) {
             $rate = $reverseRate->getInverseRate();
             $convertedAmount = $amount * $rate;
@@ -78,10 +79,10 @@ final readonly class CurrencyConversionService
 
         // Try to fetch from external provider
         $rate = $this->fetchExchangeRateFromProvider($fromCurrency, $toCurrency, $date);
-        
+
         if ($rate !== null) {
             $convertedAmount = $amount * $rate;
-            
+
             return new ConversionResult(
                 originalAmount: $amount,
                 convertedAmount: $convertedAmount,
@@ -111,7 +112,7 @@ final readonly class CurrencyConversionService
         $fromCurrency = Currency::where('code', $fromCurrencyCode)->first();
         $toCurrency = Currency::where('code', $toCurrencyCode)->first();
 
-        if (!$fromCurrency || !$toCurrency) {
+        if (! $fromCurrency || ! $toCurrency) {
             return new ConversionResult(
                 originalAmount: $amount,
                 convertedAmount: $amount,
@@ -133,8 +134,8 @@ final readonly class CurrencyConversionService
     public function getLatestRate(Currency $fromCurrency, Currency $toCurrency): ?float
     {
         $exchangeRate = ExchangeRate::getLatestRate($fromCurrency->id, $toCurrency->id);
-        
-        return $exchangeRate?->rate;
+
+        return $exchangeRate ? (float) $exchangeRate->rate : null;
     }
 
     /**
@@ -145,13 +146,14 @@ final readonly class CurrencyConversionService
         Currency $toCurrency,
         Carbon $startDate,
         Carbon $endDate
-    ): \Illuminate\Support\Collection {
+    ): Collection {
         return ExchangeRate::active()
             ->betweenCurrencies($fromCurrency->id, $toCurrency->id)
-            ->whereBetween('effective_date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->whereDate('effective_date', '>=', $startDate->toDateString())
+            ->whereDate('effective_date', '<=', $endDate->toDateString())
             ->orderBy('effective_date')
             ->get()
-            ->map(fn($rate) => [
+            ->map(fn ($rate) => [
                 'date' => $rate->effective_date,
                 'rate' => $rate->rate,
                 'source' => $rate->source,
@@ -168,7 +170,7 @@ final readonly class CurrencyConversionService
         ?Carbon $date = null
     ): array {
         $results = [];
-        
+
         foreach ($amounts as $key => $amount) {
             try {
                 $results[$key] = $this->convert($amount, $fromCurrency, $toCurrency, $date);
@@ -179,7 +181,7 @@ final readonly class CurrencyConversionService
                 ];
             }
         }
-        
+
         return $results;
     }
 
@@ -189,8 +191,8 @@ final readonly class CurrencyConversionService
     public function convertInvoiceAmounts(array $invoiceData, Currency $targetCurrency): array
     {
         $fromCurrency = Currency::find($invoiceData['currency_id']);
-        
-        if (!$fromCurrency) {
+
+        if (! $fromCurrency) {
             throw new \InvalidArgumentException('Invalid source currency');
         }
 
@@ -200,13 +202,13 @@ final readonly class CurrencyConversionService
 
         // Convert main amounts
         $amountFields = ['subtotal', 'tax_amount', 'total_amount', 'paid_amount', 'balance'];
-        
+
         foreach ($amountFields as $field) {
             if (isset($invoiceData[$field])) {
                 $result = $this->convert($invoiceData[$field], $fromCurrency, $targetCurrency);
                 $converted[$field] = $result->convertedAmount;
-                $converted[$field . '_original'] = $invoiceData[$field];
-                $converted[$field . '_exchange_rate'] = $result->exchangeRate;
+                $converted[$field.'_original'] = $invoiceData[$field];
+                $converted[$field.'_exchange_rate'] = $result->exchangeRate;
             }
         }
 
@@ -231,8 +233,8 @@ final readonly class CurrencyConversionService
     public function updateExchangeRates(array $currencyCodes = []): array
     {
         $results = [];
-        $currencies = empty($currencyCodes) 
-            ? Currency::active()->get() 
+        $currencies = empty($currencyCodes)
+            ? Currency::active()->get()
             : Currency::active()->whereIn('code', $currencyCodes)->get();
 
         foreach ($currencies as $fromCurrency) {
@@ -242,7 +244,7 @@ final readonly class CurrencyConversionService
                 }
 
                 $rate = $this->fetchExchangeRateFromProvider($fromCurrency, $toCurrency);
-                
+
                 if ($rate !== null) {
                     ExchangeRate::updateOrCreate(
                         [
@@ -283,7 +285,7 @@ final readonly class CurrencyConversionService
     private function getExchangeRate(int $fromCurrencyId, int $toCurrencyId, Carbon $date): ?ExchangeRate
     {
         $cacheKey = "exchange_rate_{$fromCurrencyId}_{$toCurrencyId}_{$date->toDateString()}";
-        
+
         return Cache::remember($cacheKey, 3600, function () use ($fromCurrencyId, $toCurrencyId, $date) {
             return ExchangeRate::getLatestRate($fromCurrencyId, $toCurrencyId, $date);
         });

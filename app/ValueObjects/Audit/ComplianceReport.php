@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 /**
  * Compliance Report Value Object
- * 
+ *
  * Represents a comprehensive compliance report for utility services
  * with regulatory assessment, data quality metrics, and recommendations.
  */
@@ -59,9 +59,9 @@ final readonly class ComplianceReport
      */
     public function getHighPriorityGaps(): array
     {
-        return array_filter($this->complianceGaps, function ($gap) {
+        return array_values(array_filter($this->complianceGaps, function ($gap) {
             return ($gap['severity'] ?? '') === 'high';
-        });
+        }));
     }
 
     /**
@@ -69,9 +69,9 @@ final readonly class ComplianceReport
      */
     public function getCriticalGaps(): array
     {
-        return array_filter($this->complianceGaps, function ($gap) {
+        return array_values(array_filter($this->complianceGaps, function ($gap) {
             return ($gap['severity'] ?? '') === 'critical';
-        });
+        }));
     }
 
     /**
@@ -79,9 +79,9 @@ final readonly class ComplianceReport
      */
     public function getHighPriorityRecommendations(): array
     {
-        return array_filter($this->recommendations, function ($recommendation) {
+        return array_values(array_filter($this->recommendations, function ($recommendation) {
             return ($recommendation['priority'] ?? '') === 'high';
-        });
+        }));
     }
 
     /**
@@ -106,7 +106,8 @@ final readonly class ComplianceReport
     public function getReportPeriodString(): string
     {
         [$startDate, $endDate] = $this->reportPeriod;
-        return $startDate->format('M j, Y') . ' - ' . $endDate->format('M j, Y');
+
+        return $startDate->format('M j, Y').' - '.$endDate->format('M j, Y');
     }
 
     /**
@@ -146,6 +147,7 @@ final readonly class ComplianceReport
                 ];
             }
         }
+
         return $breakdown;
     }
 

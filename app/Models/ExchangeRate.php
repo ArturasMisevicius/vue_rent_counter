@@ -57,7 +57,7 @@ final class ExchangeRate extends Model
      */
     public function scopeForDate($query, Carbon $date)
     {
-        return $query->where('effective_date', '<=', $date->toDateString())
+        return $query->whereDate('effective_date', '<=', $date->toDateString())
                     ->orderBy('effective_date', 'desc');
     }
 

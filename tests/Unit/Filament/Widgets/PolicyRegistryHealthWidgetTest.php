@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Filament\Widgets;
 
+use App\Contracts\ServiceRegistration\PolicyRegistryInterface;
 use App\Filament\Widgets\PolicyRegistryHealthWidget;
+use App\Models\User;
 use App\Services\PolicyRegistryMonitoringService;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Mockery;
 use Tests\TestCase;
@@ -16,17 +19,22 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
 {
     use RefreshDatabase;
 
-    private PolicyRegistryMonitoringService $mockMonitoringService;
+    private PolicyRegistryInterface $policyRegistry;
+
+    private PolicyRegistryMonitoringService $monitoringService;
+
     private PolicyRegistryHealthWidget $widget;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->mockMonitoringService = Mockery::mock(PolicyRegistryMonitoringService::class);
-        $this->app->instance(PolicyRegistryMonitoringService::class, $this->mockMonitoringService);
-        
-        $this->widget = new PolicyRegistryHealthWidget();
+
+        $this->policyRegistry = Mockery::mock(PolicyRegistryInterface::class);
+        $this->monitoringService = new PolicyRegistryMonitoringService($this->policyRegistry);
+        $this->monitoringService->clearMetrics();
+        $this->app->instance(PolicyRegistryMonitoringService::class, $this->monitoringService);
+
+        $this->widget = new PolicyRegistryHealthWidget($this->monitoringService);
     }
 
     public function test_widget_displays_healthy_status_with_valid_metrics(): void
@@ -47,10 +55,7 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
             ],
         ];
 
-        $this->mockMonitoringService
-            ->shouldReceive('getLastHealthCheck')
-            ->once()
-            ->andReturn($healthCheckData);
+        Cache::put('policy_registry_monitoring.last_health_check', $healthCheckData, 3600);
 
         // Act
         $stats = $this->widget->getStats();
@@ -58,11 +63,11 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
         // Assert
         $this->assertCount(6, $stats);
         $this->assertContainsOnlyInstancesOf(Stat::class, $stats);
-        
+
         // Check health status stat
         $healthStat = $stats[0];
         $this->assertEquals('success', $this->getStatColor($healthStat));
-        
+
         // Check metrics are properly formatted
         $this->assertStringContains('95.0%', $this->getStatValue($stats[3])); // Cache hit rate
         $this->assertStringContains('45ms', $this->getStatValue($stats[4])); // Performance
@@ -87,10 +92,7 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
             ],
         ];
 
-        $this->mockMonitoringService
-            ->shouldReceive('getLastHealthCheck')
-            ->once()
-            ->andReturn($healthCheckData);
+        Cache::put('policy_registry_monitoring.last_health_check', $healthCheckData, 3600);
 
         // Act
         $stats = $this->widget->getStats();
@@ -98,7 +100,7 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
         // Assert
         $healthStat = $stats[0];
         $this->assertEquals('danger', $this->getStatColor($healthStat));
-        
+
         // Check performance colors based on thresholds
         $this->assertEquals('danger', $this->getStatColor($stats[3])); // Cache hit rate < 0.8
         $this->assertEquals('danger', $this->getStatColor($stats[4])); // Performance > 100ms
@@ -120,15 +122,30 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
             'issues' => ['critical' => [], 'warnings' => []],
         ];
 
-        $this->mockMonitoringService
-            ->shouldReceive('getLastHealthCheck')
+        $this->policyRegistry
+            ->shouldReceive('validateConfiguration')
             ->once()
-            ->andReturn(null);
-            
-        $this->mockMonitoringService
-            ->shouldReceive('healthCheck')
+            ->andReturn([
+                'valid' => true,
+                'policies' => ['errors' => [], 'invalid' => 0],
+                'gates' => ['errors' => [], 'invalid' => 0],
+            ]);
+
+        $this->policyRegistry
+            ->shouldReceive('getModelPolicies')
             ->once()
-            ->andReturn($healthCheckData);
+            ->andReturn(array_fill(0, 12, 'policy'));
+
+        $this->policyRegistry
+            ->shouldReceive('getSettingsGates')
+            ->once()
+            ->andReturn(array_fill(0, 6, 'gate'));
+
+        Cache::put('policy_registry_monitoring.cache_hits', 85, 3600);
+        Cache::put('policy_registry_monitoring.cache_misses', 15, 3600);
+        Cache::put('policy_registry_monitoring.registration_times', [75.0], 3600);
+        Cache::put('policy_registry_monitoring.errors_24h', 2, 3600);
+        Cache::put('policy_registry_monitoring.operations_24h', 100, 3600);
 
         // Act
         $stats = $this->widget->getStats();
@@ -147,8 +164,8 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
             ->once()
             ->with('PolicyRegistryHealthWidget: Failed to load health data', Mockery::type('array'));
 
-        $this->mockMonitoringService
-            ->shouldReceive('getLastHealthCheck')
+        $this->policyRegistry
+            ->shouldReceive('validateConfiguration')
             ->once()
             ->andThrow(new \RuntimeException('Service unavailable'));
 
@@ -164,10 +181,7 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
     public function test_widget_handles_invalid_health_check_data(): void
     {
         // Arrange
-        $this->mockMonitoringService
-            ->shouldReceive('getLastHealthCheck')
-            ->once()
-            ->andReturn(['invalid' => 'data']); // Missing required keys
+        Cache::put('policy_registry_monitoring.last_health_check', ['invalid' => 'data'], 3600);
 
         // Act
         $stats = $this->widget->getStats();
@@ -187,17 +201,14 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
             'issues' => ['critical' => [], 'warnings' => []],
         ];
 
-        $this->mockMonitoringService
-            ->shouldReceive('getLastHealthCheck')
-            ->once()
-            ->andReturn($healthCheckData);
+        Cache::put('policy_registry_monitoring.last_health_check', $healthCheckData, 3600);
 
         // Act
         $stats = $this->widget->getStats();
 
         // Assert
         $this->assertCount(6, $stats);
-        
+
         // Check default values are used
         $this->assertEquals('0', $this->getStatValue($stats[1])); // Policies count
         $this->assertEquals('0', $this->getStatValue($stats[2])); // Gates count
@@ -234,7 +245,7 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
     public function test_can_view_returns_true_for_super_admin(): void
     {
         // Arrange
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $user->assignRole('super_admin');
         $this->actingAs($user);
 
@@ -245,7 +256,7 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
     public function test_can_view_returns_false_for_non_super_admin(): void
     {
         // Arrange
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $user->assignRole('admin');
         $this->actingAs($user);
 
@@ -275,7 +286,7 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
         $reflection = new \ReflectionClass($stat);
         $property = $reflection->getProperty('color');
         $property->setAccessible(true);
-        
+
         return $property->getValue($stat);
     }
 
@@ -287,7 +298,7 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
         $reflection = new \ReflectionClass($stat);
         $property = $reflection->getProperty('value');
         $property->setAccessible(true);
-        
+
         return $property->getValue($stat);
     }
 

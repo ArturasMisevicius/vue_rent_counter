@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -12,26 +13,28 @@ use Laravel\Sanctum\Contracts\HasAbilities;
 
 /**
  * Personal Access Token Model
- * 
+ *
  * Custom implementation that replaces Laravel Sanctum's HasApiTokens trait
  * while maintaining the same interface and functionality.
- * 
+ *
  * @property int $id
  * @property string $tokenable_type
  * @property int $tokenable_id
  * @property string $name
  * @property string $token
  * @property array $abilities
- * @property \Carbon\Carbon|null $last_used_at
- * @property \Carbon\Carbon|null $expires_at
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon|null $last_used_at
+ * @property Carbon|null $expires_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class PersonalAccessToken extends Model implements HasAbilities
 {
     use HasFactory;
 
     protected $fillable = [
+        'tokenable_type',
+        'tokenable_id',
         'name',
         'token',
         'abilities',
@@ -89,7 +92,7 @@ class PersonalAccessToken extends Model implements HasAbilities
      */
     public function cant($ability): bool
     {
-        return !$this->can($ability);
+        return ! $this->can($ability);
     }
 
     /**
@@ -134,7 +137,7 @@ class PersonalAccessToken extends Model implements HasAbilities
         ?\DateTimeInterface $expiresAt = null
     ): array {
         $plainTextToken = Str::random(40);
-        
+
         $token = static::create([
             'tokenable_type' => get_class($tokenable),
             'tokenable_id' => $tokenable->getKey(),
@@ -146,7 +149,7 @@ class PersonalAccessToken extends Model implements HasAbilities
 
         return [
             'accessToken' => $token,
-            'plainTextToken' => $token->getKey() . '|' . $plainTextToken,
+            'plainTextToken' => $token->getKey().'|'.$plainTextToken,
         ];
     }
 
@@ -157,7 +160,7 @@ class PersonalAccessToken extends Model implements HasAbilities
     {
         return $query->where(function ($q) {
             $q->whereNull('expires_at')
-              ->orWhere('expires_at', '>', now());
+                ->orWhere('expires_at', '>', now());
         });
     }
 
@@ -167,7 +170,7 @@ class PersonalAccessToken extends Model implements HasAbilities
     public function scopeExpired($query)
     {
         return $query->whereNotNull('expires_at')
-                    ->where('expires_at', '<=', now());
+            ->where('expires_at', '<=', now());
     }
 
     /**

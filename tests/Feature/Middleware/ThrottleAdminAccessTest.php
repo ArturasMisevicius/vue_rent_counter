@@ -59,9 +59,10 @@ class ThrottleAdminAccessTest extends TestCase
 
         // 11th attempt should be rate limited
         $response = $this->handleAdminRequest($tenant, 403);
-        
+        $payload = $this->decodeJsonResponse($response);
+
         expect($response->status())->toBe(429)
-            ->and($response->json('message'))->toBe(__('app.auth.too_many_attempts'))
+            ->and($payload['message'] ?? null)->toBe(__('app.auth.too_many_attempts'))
             ->and($response->headers->has('Retry-After'))->toBeTrue();
     }
 
@@ -116,10 +117,11 @@ class ThrottleAdminAccessTest extends TestCase
         }
 
         $response = $this->handleAdminRequest($tenant, 403);
-        
+        $payload = $this->decodeJsonResponse($response);
+
         expect($response->status())->toBe(429)
             ->and($response->headers->has('Retry-After'))->toBeTrue()
-            ->and($response->json('retry_after'))->toBeGreaterThan(0);
+            ->and($payload['retry_after'] ?? 0)->toBeGreaterThan(0);
     }
 
     public function test_only_counts_failed_authorization_attempts(): void
@@ -178,10 +180,11 @@ class ThrottleAdminAccessTest extends TestCase
         }
 
         $response = $this->handleAdminRequest($tenant, 403);
-        
+        $payload = $this->decodeJsonResponse($response);
+
         expect($response->status())->toBe(429)
             ->and($response->headers->get('Content-Type'))->toContain('application/json')
-            ->and($response->json())->toHaveKeys(['message', 'retry_after']);
+            ->and($payload)->toHaveKeys(['message', 'retry_after']);
     }
 
     public function test_rate_limit_key_uses_ip_address(): void
@@ -206,5 +209,15 @@ class ThrottleAdminAccessTest extends TestCase
         $request->setUserResolver(static fn () => $user);
 
         return $this->middleware->handle($request, static fn () => response('OK', $nextStatus));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function decodeJsonResponse(Response $response): array
+    {
+        $decoded = json_decode((string) $response->getContent(), true);
+
+        return is_array($decoded) ? $decoded : [];
     }
 }

@@ -14,7 +14,7 @@ use Tests\TestCase;
 
 /**
  * API Token Manager Unit Tests
- * 
+ *
  * Tests the custom API token management system to ensure
  * it maintains the same functionality as HasApiTokens trait.
  */
@@ -38,7 +38,7 @@ class ApiTokenManagerTest extends TestCase
 
         $this->assertIsString($token);
         $this->assertStringContainsString('|', $token);
-        
+
         // Verify token can be found
         $foundToken = PersonalAccessToken::findToken($token);
         $this->assertNotNull($foundToken);
@@ -76,10 +76,10 @@ class ApiTokenManagerTest extends TestCase
     public function test_get_user_tokens_returns_active_tokens(): void
     {
         $user = User::factory()->create();
-        
+
         // Create active token
         $this->tokenManager->createToken($user, 'active-token');
-        
+
         // Create expired token
         PersonalAccessToken::create([
             'tokenable_type' => User::class,
@@ -99,7 +99,7 @@ class ApiTokenManagerTest extends TestCase
     public function test_get_active_token_count_returns_correct_count(): void
     {
         $user = User::factory()->create();
-        
+
         $this->tokenManager->createToken($user, 'token-1');
         $this->tokenManager->createToken($user, 'token-2');
 
@@ -111,7 +111,7 @@ class ApiTokenManagerTest extends TestCase
     public function test_revoke_all_tokens_removes_all_user_tokens(): void
     {
         $user = User::factory()->create();
-        
+
         $this->tokenManager->createToken($user, 'token-1');
         $this->tokenManager->createToken($user, 'token-2');
 
@@ -124,7 +124,7 @@ class ApiTokenManagerTest extends TestCase
     public function test_revoke_token_removes_specific_token(): void
     {
         $user = User::factory()->create();
-        
+
         $token1 = $this->tokenManager->createToken($user, 'token-1');
         $token2 = $this->tokenManager->createToken($user, 'token-2');
 
@@ -160,7 +160,7 @@ class ApiTokenManagerTest extends TestCase
     {
         $user = User::factory()->create(['role' => UserRole::ADMIN]);
         $token = $this->tokenManager->createToken($user, 'test-token');
-        
+
         $tokenModel = PersonalAccessToken::findToken($token);
         $user->currentAccessToken = $tokenModel;
 
@@ -171,17 +171,23 @@ class ApiTokenManagerTest extends TestCase
     public function test_prune_expired_tokens_removes_old_tokens(): void
     {
         $user = User::factory()->create();
-        
+
         // Create expired token
-        PersonalAccessToken::create([
+        $expiredToken = PersonalAccessToken::create([
             'tokenable_type' => User::class,
             'tokenable_id' => $user->id,
             'name' => 'expired-token',
             'token' => 'hash',
             'abilities' => ['*'],
             'expires_at' => now()->subDays(2),
-            'created_at' => now()->subDays(3),
         ]);
+        PersonalAccessToken::withoutTimestamps(function () use ($expiredToken): void {
+            $expiredToken->newQuery()
+                ->whereKey($expiredToken->id)
+                ->update([
+                    'created_at' => now()->subDays(3),
+                ]);
+        });
 
         // Create active token
         $this->tokenManager->createToken($user, 'active-token');
@@ -196,7 +202,7 @@ class ApiTokenManagerTest extends TestCase
     {
         $user1 = User::factory()->create(['role' => UserRole::ADMIN]);
         $user2 = User::factory()->create(['role' => UserRole::TENANT]);
-        
+
         $this->tokenManager->createToken($user1, 'admin-token');
         $this->tokenManager->createToken($user2, 'tenant-token');
 
@@ -211,29 +217,29 @@ class ApiTokenManagerTest extends TestCase
     public function test_caching_works_correctly(): void
     {
         $user = User::factory()->create();
-        
+
         Cache::flush();
-        
+
         // First call should cache
         $count1 = $this->tokenManager->getActiveTokenCount($user);
-        
+
         // Second call should use cache
         $count2 = $this->tokenManager->getActiveTokenCount($user);
-        
+
         $this->assertEquals($count1, $count2);
-        $this->assertTrue(Cache::has('api_tokens:token_count:' . $user->id));
+        $this->assertTrue(Cache::has('api_tokens:token_count:'.$user->id));
     }
 
     public function test_cache_is_cleared_on_token_operations(): void
     {
         $user = User::factory()->create();
-        
+
         // Cache some data
         $this->tokenManager->getActiveTokenCount($user);
-        $this->assertTrue(Cache::has('api_tokens:token_count:' . $user->id));
-        
+        $this->assertTrue(Cache::has('api_tokens:token_count:'.$user->id));
+
         // Create token should clear cache
         $this->tokenManager->createToken($user, 'test-token');
-        $this->assertFalse(Cache::has('api_tokens:token_count:' . $user->id));
+        $this->assertFalse(Cache::has('api_tokens:token_count:'.$user->id));
     }
 }

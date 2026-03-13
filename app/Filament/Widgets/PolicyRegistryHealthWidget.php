@@ -40,9 +40,7 @@ final class PolicyRegistryHealthWidget extends BaseWidget
 
     public function __construct(
         private readonly PolicyRegistryMonitoringService $monitoringService
-    ) {
-        parent::__construct();
-    }
+    ) {}
 
     /**
      * Determine if the widget can be viewed by the current user

@@ -34,9 +34,10 @@ class MeterReadingTest extends TestCase
             'validated_by',
             'validated_at',
             'validation_notes',
+            'notes',
         ];
 
-        $meterReading = new MeterReading();
+        $meterReading = new MeterReading;
 
         $this->assertSame($fillable, $meterReading->getFillable());
     }
