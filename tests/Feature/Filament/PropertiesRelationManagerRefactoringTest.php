@@ -165,7 +165,7 @@ final class PropertiesRelationManagerRefactoringTest extends TestCase
 
         expect($content)
             ->toContain('new StorePropertyRequest')
-            ->toContain('$request->messages()');
+            ->toContain('->messages()');
     }
 
     /**
@@ -178,7 +178,9 @@ final class PropertiesRelationManagerRefactoringTest extends TestCase
 
         expect($content)
             ->toContain('modifyQueryUsing')
-            ->toContain("->with(['tenants', 'meters'])");
+            ->toContain('->with([')
+            ->toContain("'tenants'")
+            ->toContain("'meters'");
     }
 
     /**

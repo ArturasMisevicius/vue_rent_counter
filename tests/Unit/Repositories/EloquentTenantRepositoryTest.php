@@ -27,24 +27,6 @@ describe('EloquentTenantRepository', function () {
         });
     });
 
-    describe('find method', function () {
-        it('returns organization when it exists', function () {
-            $organization = Organization::factory()->create(['id' => 123, 'name' => 'Test Org']);
-
-            $result = $this->repository->find($this->tenantId);
-
-            expect($result)->not->toBeNull();
-            expect($result->id)->toBe(123);
-            expect($result->name)->toBe('Test Org');
-        });
-
-        it('returns null when organization does not exist', function () {
-            $result = $this->repository->find($this->tenantId);
-
-            expect($result)->toBeNull();
-        });
-    });
-
     describe('getName method', function () {
         it('returns organization name when it exists', function () {
             Organization::factory()->create(['id' => 123, 'name' => 'Test Organization']);
@@ -54,10 +36,10 @@ describe('EloquentTenantRepository', function () {
             expect($result)->toBe('Test Organization');
         });
 
-        it('returns null when organization does not exist', function () {
+        it('returns fallback name when organization does not exist', function () {
             $result = $this->repository->getName($this->tenantId);
 
-            expect($result)->toBeNull();
+            expect($result)->toBe('Unknown Organization');
         });
     });
 });

@@ -39,6 +39,16 @@ beforeEach(function () {
         ->with('circuit-breaker.logging.enabled', true)
         ->andReturn(true)
         ->byDefault();
+
+    $this->config->shouldReceive('get')
+        ->withArgs(fn (string $key, mixed $default = null): bool => str_starts_with($key, 'circuit-breaker.services.') && $default === [])
+        ->andReturn([])
+        ->byDefault();
+
+    $this->config->shouldReceive('get')
+        ->with('circuit-breaker.default.registry_ttl', 30)
+        ->andReturn(30)
+        ->byDefault();
 });
 
 afterEach(function () {

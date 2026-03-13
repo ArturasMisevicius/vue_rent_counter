@@ -85,6 +85,7 @@ return [
         'bindings' => [
             \App\Contracts\ServiceRegistration\PolicyRegistryInterface::class => \App\Support\ServiceRegistration\PolicyRegistry::class,
             \App\Contracts\ServiceRegistration\ErrorHandlingStrategyInterface::class => \App\Services\ServiceRegistration\RegistrationErrorHandler::class,
+            \App\Contracts\CircuitBreakerInterface::class => \App\Services\Integration\CircuitBreakerService::class,
             \App\Contracts\SubscriptionCheckerInterface::class => \App\Services\SubscriptionChecker::class,
             \App\Repositories\TenantRepositoryInterface::class => \App\Repositories\Eloquent\EloquentTenantRepository::class,
             \App\Contracts\TenantAuditLoggerInterface::class => \App\Services\TenantAuditLogger::class,

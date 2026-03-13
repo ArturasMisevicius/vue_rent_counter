@@ -67,7 +67,7 @@ class UserModelSecurityTest extends TestCase
     /** @test */
     public function it_allows_admin_to_assign_tenant(): void
     {
-        Log::fake();
+        Log::spy();
         
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
         $tenant = User::factory()->create(['role' => UserRole::TENANT, 'tenant_id' => 1]);
@@ -76,12 +76,13 @@ class UserModelSecurityTest extends TestCase
 
         $this->assertEquals(2, $tenant->fresh()->tenant_id);
         
-        Log::assertLogged('info', function ($message, $context) use ($tenant, $admin) {
-            return $message === 'User assigned to tenant' &&
-                   $context['user_id'] === $tenant->id &&
-                   $context['tenant_id'] === 2 &&
-                   $context['admin_id'] === $admin->id;
-        });
+        Log::shouldHaveReceived('info')
+            ->once()
+            ->with('User assigned to tenant', \Mockery::on(function (array $context) use ($tenant, $admin): bool {
+                return $context['user_id'] === $tenant->id &&
+                       $context['tenant_id'] === 2 &&
+                       $context['admin_id'] === $admin->id;
+            }));
     }
 
     /** @test */
@@ -99,9 +100,9 @@ class UserModelSecurityTest extends TestCase
     /** @test */
     public function it_allows_superadmin_to_promote_users(): void
     {
-        Log::fake();
+        Log::spy();
         
-        $superadmin = User::factory()->create(['role' => UserRole::SUPERADMIN]);
+        $superadmin = User::factory()->superadmin()->create();
         $user = User::factory()->create(['role' => UserRole::ADMIN]);
 
         $user->promoteToSuperAdmin($superadmin);
@@ -111,17 +112,18 @@ class UserModelSecurityTest extends TestCase
         $this->assertTrue($fresh->is_super_admin);
         $this->assertNull($fresh->tenant_id);
         
-        Log::assertLogged('warning', function ($message, $context) use ($user, $superadmin) {
-            return $message === 'User promoted to superadmin' &&
-                   $context['user_id'] === $user->id &&
-                   $context['promoted_by'] === $superadmin->id;
-        });
+        Log::shouldHaveReceived('warning')
+            ->once()
+            ->with('User promoted to superadmin', \Mockery::on(function (array $context) use ($user, $superadmin): bool {
+                return $context['user_id'] === $user->id &&
+                       $context['promoted_by'] === $superadmin->id;
+            }));
     }
 
     /** @test */
     public function it_revokes_tokens_when_suspending_user(): void
     {
-        Log::fake();
+        Log::spy();
         
         $admin = User::factory()->create(['role' => UserRole::ADMIN]);
         $user = User::factory()->create(['role' => UserRole::TENANT]);
@@ -139,12 +141,13 @@ class UserModelSecurityTest extends TestCase
         $this->assertEquals('Policy violation', $fresh->suspension_reason);
         $this->assertEquals(0, $fresh->getActiveTokensCount());
         
-        Log::assertLogged('warning', function ($message, $context) use ($user, $admin) {
-            return $message === 'User account suspended' &&
-                   $context['user_id'] === $user->id &&
-                   $context['reason'] === 'Policy violation' &&
-                   $context['suspended_by'] === $admin->id;
-        });
+        Log::shouldHaveReceived('warning')
+            ->once()
+            ->with('User account suspended', \Mockery::on(function (array $context) use ($user, $admin): bool {
+                return $context['user_id'] === $user->id &&
+                       $context['reason'] === 'Policy violation' &&
+                       $context['suspended_by'] === $admin->id;
+            }));
     }
 
     /** @test */
@@ -212,16 +215,17 @@ class UserModelSecurityTest extends TestCase
     /** @test */
     public function it_logs_invalid_token_attempts(): void
     {
-        Log::fake();
+        Log::spy();
         
         $this->withToken('invalid-token')->getJson('/api/user');
         
-        Log::assertLogged('warning', function ($message, $context) {
-            return $message === 'Invalid token validation attempt' &&
-                   isset($context['ip']) &&
-                   isset($context['token_prefix']) &&
-                   $context['token_prefix'] === 'invalid-..';
-        });
+        Log::shouldHaveReceived('warning')
+            ->once()
+            ->with('Invalid token validation attempt', \Mockery::on(function (array $context): bool {
+                return isset($context['ip']) &&
+                       isset($context['token_prefix']) &&
+                       $context['token_prefix'] === 'invalid-..';
+            }));
     }
 
     /** @test */

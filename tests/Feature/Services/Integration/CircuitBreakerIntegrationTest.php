@@ -6,13 +6,20 @@ use App\Contracts\CircuitBreakerInterface;
 use App\Exceptions\CircuitBreakerOpenException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
+use Psr\Log\LoggerInterface;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
+    $this->logger = \Mockery::spy(LoggerInterface::class);
+    app()->instance(LoggerInterface::class, $this->logger);
+    app()->forgetInstance(CircuitBreakerInterface::class);
     $this->circuitBreaker = app(CircuitBreakerInterface::class);
     Cache::flush();
+});
+
+afterEach(function () {
+    \Mockery::close();
 });
 
 describe('Circuit Breaker Integration', function () {
@@ -48,15 +55,27 @@ describe('Circuit Breaker Integration', function () {
 
     it('recovers after timeout period', function () {
         $serviceName = 'recovery-test';
-        
-        // Force circuit to open state
-        Cache::put("circuit_breaker:{$serviceName}:state", 'open', now()->addMinutes(60));
-        Cache::put("circuit_breaker:{$serviceName}:open_time", now()->subSeconds(61), now()->addMinutes(60));
+
+        config([
+            'circuit-breaker.default.recovery_timeout' => 1,
+            'circuit-breaker.default.success_threshold' => 1,
+        ]);
+
+        for ($i = 0; $i < 5; $i++) {
+            try {
+                $this->circuitBreaker->call($serviceName, fn () => throw new Exception('Failure'));
+            } catch (Exception $e) {
+                // Expected while opening the circuit.
+            }
+        }
+
+        $this->travel(2)->seconds();
         
         // Should attempt reset and succeed
-        $result = $this->circuitBreaker->call($serviceName, fn() => 'recovered');
+        $result = $this->circuitBreaker->call($serviceName, fn () => 'recovered');
         
         expect($result)->toBe('recovered');
+        expect($this->circuitBreaker->getStatus($serviceName)['state'])->toBe('closed');
     });
 
     it('provides accurate status information', function () {
@@ -104,8 +123,6 @@ describe('Circuit Breaker Integration', function () {
     });
 
     it('logs circuit breaker events when logging is enabled', function () {
-        Log::fake();
-        
         $serviceName = 'logging-test';
         
         // Cause a failure
@@ -115,10 +132,11 @@ describe('Circuit Breaker Integration', function () {
             // Expected
         }
         
-        Log::assertLogged('warning', function ($message, $context) use ($serviceName) {
-            return $message === 'Circuit breaker recorded failure' &&
-                   $context['service'] === $serviceName;
-        });
+        $this->logger->shouldHaveReceived('warning')
+            ->once()
+            ->with('Circuit breaker recorded failure', \Mockery::on(function (array $context) use ($serviceName): bool {
+                return $context['service'] === $serviceName;
+            }));
     });
 
     it('can get status for all monitored services', function () {

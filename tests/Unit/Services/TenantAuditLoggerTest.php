@@ -2,30 +2,18 @@
 
 declare(strict_types=1);
 
-use App\Contracts\TenantAuditLoggerInterface;
 use App\Enums\UserRole;
 use App\Models\User;
 use App\Services\TenantAuditLogger;
 use App\ValueObjects\TenantId;
-use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\Log;
 
 describe('TenantAuditLogger', function () {
     beforeEach(function () {
-        $this->session = \Mockery::mock(Session::class);
-        $this->logger = new TenantAuditLogger($this->session);
+        $this->logger = new TenantAuditLogger();
         $this->tenantId = TenantId::from(123);
-        
-        // Use Log::spy() instead of Log::fake() for Laravel 12 compatibility
-        Log::spy();
-        
-        $this->session
-            ->shouldReceive('getId')
-            ->andReturn('test-session-id');
-    });
 
-    afterEach(function () {
-        \Mockery::close();
+        Log::spy();
     });
 
     describe('logContextSet method', function () {
@@ -34,54 +22,49 @@ describe('TenantAuditLogger', function () {
 
             Log::shouldHaveReceived('info')
                 ->once()
-                ->with('Tenant context set', \Mockery::on(function ($context) {
+                ->with('Tenant context set', \Mockery::on(function (array $context): bool {
                     return $context['tenant_id'] === 123 &&
-                           $context['session_id'] === 'test-session-id' &&
-                           isset($context['timestamp']);
+                           array_key_exists('user_id', $context);
                 }));
         });
     });
 
     describe('logContextSwitch method', function () {
-        it('logs tenant context switch with full data', function () {
+        it('logs tenant context switch with the provided metadata', function () {
             $user = User::factory()->make([
                 'id' => 456,
-                'email' => 'test@example.com',
                 'role' => UserRole::ADMIN,
             ]);
-            
-            $previousTenantId = TenantId::from(789);
-            $tenantName = 'Test Organization';
 
-            $this->logger->logContextSwitch($user, $this->tenantId, $previousTenantId, $tenantName);
+            $previousTenantId = TenantId::from(789);
+            $organizationName = 'Test Organization';
+
+            $this->logger->logContextSwitch($user, $this->tenantId, $previousTenantId, $organizationName);
 
             Log::shouldHaveReceived('info')
                 ->once()
-                ->with('Tenant context switched', \Mockery::on(function ($context) {
+                ->with('Tenant context switched', \Mockery::on(function (array $context): bool {
                     return $context['user_id'] === 456 &&
-                           $context['user_email'] === 'test@example.com' &&
-                           $context['user_role'] === 'admin' &&
                            $context['previous_tenant_id'] === 789 &&
                            $context['new_tenant_id'] === 123 &&
-                           $context['tenant_name'] === 'Test Organization' &&
-                           $context['session_id'] === 'test-session-id';
+                           $context['organization_name'] === 'Test Organization';
                 }));
         });
 
-        it('logs tenant context switch without previous tenant', function () {
+        it('logs tenant context switch without a previous tenant', function () {
             $user = User::factory()->make([
                 'id' => 456,
-                'email' => 'test@example.com',
                 'role' => UserRole::ADMIN,
             ]);
 
-            $this->logger->logContextSwitch($user, $this->tenantId);
+            $this->logger->logContextSwitch($user, $this->tenantId, null, 'Test Organization');
 
             Log::shouldHaveReceived('info')
                 ->once()
-                ->with('Tenant context switched', \Mockery::on(function ($context) {
+                ->with('Tenant context switched', \Mockery::on(function (array $context): bool {
                     return $context['previous_tenant_id'] === null &&
-                           $context['new_tenant_id'] === 123;
+                           $context['new_tenant_id'] === 123 &&
+                           $context['organization_name'] === 'Test Organization';
                 }));
         });
     });
@@ -92,16 +75,21 @@ describe('TenantAuditLogger', function () {
 
             Log::shouldHaveReceived('info')
                 ->once()
-                ->with('Tenant context cleared', \Mockery::on(function ($context) {
+                ->with('Tenant context cleared', \Mockery::on(function (array $context): bool {
                     return $context['previous_tenant_id'] === 123 &&
-                           $context['session_id'] === 'test-session-id';
+                           array_key_exists('user_id', $context);
                 }));
         });
 
-        it('does not log when no previous tenant', function () {
-            $this->logger->logContextCleared();
+        it('logs context cleared even when there is no previous tenant', function () {
+            $this->logger->logContextCleared(null);
 
-            Log::shouldNotHaveReceived('info');
+            Log::shouldHaveReceived('info')
+                ->once()
+                ->with('Tenant context cleared', \Mockery::on(function (array $context): bool {
+                    return $context['previous_tenant_id'] === null &&
+                           array_key_exists('user_id', $context);
+                }));
         });
     });
 
@@ -109,37 +97,35 @@ describe('TenantAuditLogger', function () {
         it('logs invalid context reset with reset tenant', function () {
             $user = User::factory()->make([
                 'id' => 456,
-                'email' => 'test@example.com',
             ]);
-            
-            $invalidTenantId = TenantId::from(999);
-            $resetToTenantId = TenantId::from(123);
 
-            $this->logger->logInvalidContextReset($user, $invalidTenantId, $resetToTenantId);
+            $invalidTenantId = TenantId::from(999);
+            $newTenantId = TenantId::from(123);
+
+            $this->logger->logInvalidContextReset($user, $invalidTenantId, $newTenantId);
 
             Log::shouldHaveReceived('warning')
                 ->once()
-                ->with('Invalid tenant context reset', \Mockery::on(function ($context) {
+                ->with('Invalid tenant context reset', \Mockery::on(function (array $context): bool {
                     return $context['user_id'] === 456 &&
                            $context['invalid_tenant_id'] === 999 &&
-                           $context['reset_to_tenant_id'] === 123;
+                           $context['new_tenant_id'] === 123;
                 }));
         });
 
         it('logs invalid context reset without reset tenant', function () {
             $user = User::factory()->make([
                 'id' => 456,
-                'email' => 'test@example.com',
             ]);
-            
+
             $invalidTenantId = TenantId::from(999);
 
-            $this->logger->logInvalidContextReset($user, $invalidTenantId);
+            $this->logger->logInvalidContextReset($user, $invalidTenantId, null);
 
             Log::shouldHaveReceived('warning')
                 ->once()
-                ->with('Invalid tenant context reset', \Mockery::on(function ($context) {
-                    return $context['reset_to_tenant_id'] === null;
+                ->with('Invalid tenant context reset', \Mockery::on(function (array $context): bool {
+                    return $context['new_tenant_id'] === null;
                 }));
         });
     });

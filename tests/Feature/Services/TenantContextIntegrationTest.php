@@ -2,20 +2,27 @@
 
 declare(strict_types=1);
 
+use App\Contracts\TenantAuditLoggerInterface;
 use App\Contracts\TenantContextInterface;
 use App\Enums\UserRole;
 use App\Exceptions\UnauthorizedTenantSwitchException;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
+use App\ValueObjects\TenantId;
 
 uses(RefreshDatabase::class);
 
 describe('TenantContext Integration Tests', function () {
     beforeEach(function () {
+        $this->auditLogger = \Mockery::spy(TenantAuditLoggerInterface::class);
+        app()->instance(TenantAuditLoggerInterface::class, $this->auditLogger);
+        app()->forgetInstance(TenantContextInterface::class);
         $this->tenantContext = app(TenantContextInterface::class);
-        Log::fake();
+    });
+
+    afterEach(function () {
+        \Mockery::close();
     });
 
     describe('tenant context lifecycle', function () {
@@ -41,9 +48,15 @@ describe('TenantContext Integration Tests', function () {
             $this->tenantContext->clear();
             expect($this->tenantContext->get())->toBeNull();
 
-            // Verify audit logs
-            Log::assertLogged('info', fn ($message) => $message === 'Tenant context set');
-            Log::assertLogged('info', fn ($message) => $message === 'Tenant context cleared');
+            $this->auditLogger
+                ->shouldHaveReceived('logContextSet')
+                ->withArgs(fn (TenantId $tenantId): bool => $tenantId->getValue() === $organization->id)
+                ->once();
+
+            $this->auditLogger
+                ->shouldHaveReceived('logContextCleared')
+                ->withArgs(fn (?TenantId $tenantId): bool => $tenantId?->getValue() === $organization->id)
+                ->once();
         });
 
         it('initializes context for user without existing context', function () {
@@ -80,8 +93,12 @@ describe('TenantContext Integration Tests', function () {
             $this->tenantContext->initialize($user);
             expect($this->tenantContext->get())->toBe($organization1->id);
 
-            // Verify warning log
-            Log::assertLogged('warning', fn ($message) => $message === 'Invalid tenant context reset');
+            $this->auditLogger
+                ->shouldHaveReceived('logInvalidContextReset')
+                ->withArgs(fn (User $contextUser, TenantId $invalidTenantId, ?TenantId $newTenantId): bool => $contextUser->is($user)
+                    && $invalidTenantId->getValue() === $organization2->id
+                    && $newTenantId?->getValue() === $organization1->id)
+                ->once();
         });
     });
 
@@ -96,7 +113,13 @@ describe('TenantContext Integration Tests', function () {
             $this->tenantContext->switch($organization->id, $superadmin);
 
             expect($this->tenantContext->get())->toBe($organization->id);
-            Log::assertLogged('info', fn ($message) => $message === 'Tenant context switched');
+            $this->auditLogger
+                ->shouldHaveReceived('logContextSwitch')
+                ->withArgs(fn (User $contextUser, TenantId $tenantId, ?TenantId $previousTenantId, string $organizationName): bool => $contextUser->is($superadmin)
+                    && $tenantId->getValue() === $organization->id
+                    && $previousTenantId === null
+                    && $organizationName === $organization->name)
+                ->once();
         });
 
         it('allows admin to switch to their own tenant', function () {
@@ -125,10 +148,10 @@ describe('TenantContext Integration Tests', function () {
         });
 
         it('prevents switching to non-existent tenant', function () {
-            $user = User::factory()->create(['role' => UserRole::SUPERADMIN]);
+            $user = User::factory()->superadmin()->create();
 
             expect(fn () => $this->tenantContext->switch(99999, $user))
-                ->toThrow(UnauthorizedTenantSwitchException::class);
+                ->toThrow(InvalidArgumentException::class);
         });
     });
 

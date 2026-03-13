@@ -15,7 +15,7 @@ describe('TenantAuthorizationService', function () {
 
     describe('canSwitchTo method', function () {
         it('returns true for superadmin', function () {
-            $user = User::factory()->make(['role' => UserRole::SUPERADMIN]);
+            $user = User::factory()->superadmin()->make();
 
             $result = $this->service->canSwitchTo($this->tenantId, $user);
 
@@ -47,7 +47,7 @@ describe('TenantAuthorizationService', function () {
 
     describe('canAccessTenant method', function () {
         it('returns true for superadmin', function () {
-            $user = User::factory()->make(['role' => UserRole::SUPERADMIN]);
+            $user = User::factory()->superadmin()->make();
 
             $result = $this->service->canAccessTenant($this->tenantId, $user);
 
@@ -79,7 +79,7 @@ describe('TenantAuthorizationService', function () {
 
     describe('getDefaultTenant method', function () {
         it('returns null for superadmin', function () {
-            $user = User::factory()->make(['role' => UserRole::SUPERADMIN]);
+            $user = User::factory()->superadmin()->make();
 
             $result = $this->service->getDefaultTenant($user);
 

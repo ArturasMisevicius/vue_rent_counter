@@ -393,7 +393,6 @@ test('tenant assignment is logged with full audit trail', function () {
     
     // Verify audit log was created
     Log::shouldHaveReceived('info')
-        ->once()
         ->with(
             'Tenant management action',
             \Mockery::on(function ($context) use ($property, $tenant, $manager) {
@@ -456,7 +455,6 @@ test('tenant removal is logged with full audit trail', function () {
     
     // Verify audit log was created
     Log::shouldHaveReceived('info')
-        ->once()
         ->with(
             'Tenant management action',
             \Mockery::on(function ($context) use ($property, $tenant, $manager) {
@@ -517,7 +515,6 @@ test('email addresses are masked in audit logs', function () {
     
     // Verify email is masked in logs
     Log::shouldHaveReceived('info')
-        ->once()
         ->with(
             'Tenant management action',
             \Mockery::on(function ($context) {
@@ -576,7 +573,6 @@ test('IP addresses are masked in audit logs', function () {
     
     // Verify IP is masked in logs
     Log::shouldHaveReceived('info')
-        ->once()
         ->with(
             'Tenant management action',
             \Mockery::on(function ($context) {

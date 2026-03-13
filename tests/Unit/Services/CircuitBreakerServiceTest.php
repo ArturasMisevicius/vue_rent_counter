@@ -6,7 +6,10 @@ namespace Tests\Unit\Services;
 
 use App\Exceptions\CircuitBreakerOpenException;
 use App\Services\Integration\CircuitBreakerService;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Support\Facades\Cache;
+use Psr\Log\LoggerInterface;
 use Tests\TestCase;
 
 class CircuitBreakerServiceTest extends TestCase
@@ -16,13 +19,22 @@ class CircuitBreakerServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
+        config([
+            'circuit-breaker.default.failure_threshold' => 2,
+            'circuit-breaker.default.recovery_timeout' => 30,
+            'circuit-breaker.default.success_threshold' => 1,
+            'circuit-breaker.default.cache_ttl' => 60,
+            'circuit-breaker.default.registry_ttl' => 30,
+            'circuit-breaker.logging.enabled' => true,
+        ]);
+
         $this->circuitBreaker = new CircuitBreakerService(
-            failureThreshold: 2,
-            recoveryTimeout: 30,
-            successThreshold: 1
+            cache: app(CacheRepository::class),
+            config: app(ConfigRepository::class),
+            logger: app(LoggerInterface::class),
         );
-        
+
         Cache::flush();
     }
 

@@ -83,7 +83,7 @@ final class ThrottleAdminAccess
             $response = response(__('app.errors.generic', [], null) ?? 'Forbidden', 403);
         }
 
-        if ($response->status() === 200) {
+        if ($response->isSuccessful() || $response->isRedirection()) {
             RateLimiter::clear($key);
 
             return $response;
@@ -126,7 +126,13 @@ final class ThrottleAdminAccess
      */
     private function resolveRequestSignature(Request $request): string
     {
-        return 'admin-access:' . $request->ip();
+        $ip = (string) $request->ip();
+
+        if ($ip === '::1' || $ip === '0:0:0:0:0:0:0:1') {
+            $ip = '127.0.0.1';
+        }
+
+        return 'admin-access:' . $ip;
     }
 
     /**

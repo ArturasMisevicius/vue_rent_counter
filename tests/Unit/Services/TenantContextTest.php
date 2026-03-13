@@ -382,6 +382,12 @@ describe('TenantContext Service', function () {
         it('delegates to authorization service', function () {
             $user = User::factory()->make();
 
+            $this->tenantRepository
+                ->shouldReceive('exists')
+                ->with(Mockery::on(fn ($arg) => $arg->getValue() === 123))
+                ->once()
+                ->andReturn(true);
+
             $this->authorizationService
                 ->shouldReceive('canSwitchTo')
                 ->with(Mockery::on(fn ($arg) => $arg->getValue() === 123), $user)
@@ -391,6 +397,23 @@ describe('TenantContext Service', function () {
             $result = $this->tenantContext->canSwitchTo(123, $user);
 
             expect($result)->toBeTrue();
+        });
+
+        it('returns false when tenant does not exist', function () {
+            $user = User::factory()->make();
+
+            $this->tenantRepository
+                ->shouldReceive('exists')
+                ->with(Mockery::on(fn ($arg) => $arg->getValue() === 123))
+                ->once()
+                ->andReturn(false);
+
+            $this->authorizationService
+                ->shouldNotReceive('canSwitchTo');
+
+            $result = $this->tenantContext->canSwitchTo(123, $user);
+
+            expect($result)->toBeFalse();
         });
 
         it('returns false for invalid tenant ID', function () {

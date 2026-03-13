@@ -6,6 +6,7 @@ namespace App\Services\Integration;
 
 use App\Contracts\CircuitBreakerInterface;
 use App\Exceptions\CircuitBreakerOpenException;
+use Carbon\Carbon;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Support\Facades\Log;
@@ -153,14 +154,17 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
     private function shouldAttemptReset(string $serviceName): bool
     {
         $openTime = $this->cache->get($this->getOpenTimeKey($serviceName));
-        
-        if (!$openTime) {
+
+        if (! $openTime) {
             return true;
         }
-        
+
         $recoveryTimeout = $this->getServiceConfig($serviceName)['recovery_timeout'] ?? 60;
-        
-        return now()->diffInSeconds($openTime) >= $recoveryTimeout;
+        $openedAt = $openTime instanceof \DateTimeInterface
+            ? Carbon::instance($openTime)
+            : Carbon::parse((string) $openTime);
+
+        return now()->diffInSeconds($openedAt, true) >= $recoveryTimeout;
     }
     
     /**

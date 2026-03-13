@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Contracts\TenantAuditLoggerInterface;
 use App\Contracts\TenantContextInterface;
 use App\Enums\UserRole;
 use App\Exceptions\UnauthorizedTenantSwitchException;
 use App\Models\Organization;
 use App\Models\User;
 use App\Services\TenantContext;
+use App\ValueObjects\TenantId;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use InvalidArgumentException;
+use Mockery;
 use Tests\TestCase;
 
 /**
@@ -26,13 +28,25 @@ final class TenantContextIntegrationTest extends TestCase
 {
     use RefreshDatabase;
 
+    private \Mockery\MockInterface $auditLogger;
+
     private TenantContextInterface $tenantContext;
 
     protected function setUp(): void
     {
         parent::setUp();
 
+        $this->auditLogger = Mockery::spy(TenantAuditLoggerInterface::class);
+        $this->app->instance(TenantAuditLoggerInterface::class, $this->auditLogger);
+        $this->app->forgetInstance(TenantContextInterface::class);
         $this->tenantContext = app(TenantContextInterface::class);
+    }
+
+    protected function tearDown(): void
+    {
+        Mockery::close();
+
+        parent::tearDown();
     }
 
     public function test_service_is_bound_in_container(): void
@@ -60,9 +74,7 @@ final class TenantContextIntegrationTest extends TestCase
     {
         $organization1 = Organization::factory()->create(['name' => 'Organization 1']);
         $organization2 = Organization::factory()->create(['name' => 'Organization 2']);
-        $superadmin = User::factory()->create(['role' => UserRole::SUPERADMIN]);
-
-        Log::fake();
+        $superadmin = User::factory()->superadmin()->create();
 
         // Switch to first organization
         $this->tenantContext->switch($organization1->id, $superadmin);
@@ -72,18 +84,21 @@ final class TenantContextIntegrationTest extends TestCase
         $this->tenantContext->switch($organization2->id, $superadmin);
         $this->assertEquals($organization2->id, $this->tenantContext->get());
 
-        // Verify audit logging
-        Log::assertLogged('info', function ($message, $context) use ($organization1) {
-            return $message === 'Tenant context switched' &&
-                   $context['new_tenant_id'] === $organization1->id &&
-                   $context['organization_name'] === $organization1->name;
-        });
+        $this->auditLogger
+            ->shouldHaveReceived('logContextSwitch')
+            ->withArgs(fn (User $user, TenantId $tenantId, ?TenantId $previousTenantId, string $organizationName): bool => $user->is($superadmin)
+                && $tenantId->getValue() === $organization1->id
+                && $previousTenantId === null
+                && $organizationName === $organization1->name)
+            ->once();
 
-        Log::assertLogged('info', function ($message, $context) use ($organization2) {
-            return $message === 'Tenant context switched' &&
-                   $context['new_tenant_id'] === $organization2->id &&
-                   $context['organization_name'] === $organization2->name;
-        });
+        $this->auditLogger
+            ->shouldHaveReceived('logContextSwitch')
+            ->withArgs(fn (User $user, TenantId $tenantId, ?TenantId $previousTenantId, string $organizationName): bool => $user->is($superadmin)
+                && $tenantId->getValue() === $organization2->id
+                && $previousTenantId?->getValue() === $organization1->id
+                && $organizationName === $organization2->name)
+            ->once();
     }
 
     public function test_validation_prevents_unauthorized_access(): void
@@ -131,19 +146,16 @@ final class TenantContextIntegrationTest extends TestCase
             'tenant_id' => $organization->id,
         ]);
 
-        Log::fake();
-
         // Initialize context for admin
         $this->tenantContext->initialize($admin);
 
         // Should set to admin's default tenant
         $this->assertEquals($organization->id, $this->tenantContext->get());
 
-        // Verify logging
-        Log::assertLogged('info', function ($message, $context) use ($organization) {
-            return $message === 'Tenant context set' &&
-                   $context['tenant_id'] === $organization->id;
-        });
+        $this->auditLogger
+            ->shouldHaveReceived('logContextSet')
+            ->withArgs(fn (TenantId $tenantId): bool => $tenantId->getValue() === $organization->id)
+            ->once();
     }
 
     public function test_initialization_resets_invalid_context(): void
@@ -154,8 +166,6 @@ final class TenantContextIntegrationTest extends TestCase
             'tenant_id' => $validOrganization->id,
         ]);
 
-        Log::fake();
-
         // Set invalid context manually
         Session::put('tenant_context', 999);
 
@@ -165,16 +175,17 @@ final class TenantContextIntegrationTest extends TestCase
         // Should reset to admin's valid tenant
         $this->assertEquals($validOrganization->id, $this->tenantContext->get());
 
-        // Verify warning was logged
-        Log::assertLogged('warning', function ($message, $context) {
-            return $message === 'Invalid tenant context reset' &&
-                   $context['invalid_tenant_id'] === 999;
-        });
+        $this->auditLogger
+            ->shouldHaveReceived('logInvalidContextReset')
+            ->withArgs(fn (User $user, TenantId $invalidTenantId, ?TenantId $newTenantId): bool => $user->is($admin)
+                && $invalidTenantId->getValue() === 999
+                && $newTenantId?->getValue() === $validOrganization->id)
+            ->once();
     }
 
     public function test_superadmin_has_no_default_tenant(): void
     {
-        $superadmin = User::factory()->create(['role' => UserRole::SUPERADMIN]);
+        $superadmin = User::factory()->superadmin()->create();
 
         $defaultTenant = $this->tenantContext->getDefaultTenant($superadmin);
 
@@ -185,8 +196,6 @@ final class TenantContextIntegrationTest extends TestCase
     {
         $organization = Organization::factory()->create();
 
-        Log::fake();
-
         // Set context
         $this->tenantContext->set($organization->id);
         $this->assertEquals($organization->id, $this->tenantContext->get());
@@ -195,17 +204,16 @@ final class TenantContextIntegrationTest extends TestCase
         $this->tenantContext->clear();
         $this->assertNull($this->tenantContext->get());
 
-        // Verify logging
-        Log::assertLogged('info', function ($message, $context) use ($organization) {
-            return $message === 'Tenant context cleared' &&
-                   $context['previous_tenant_id'] === $organization->id;
-        });
+        $this->auditLogger
+            ->shouldHaveReceived('logContextCleared')
+            ->withArgs(fn (?TenantId $tenantId): bool => $tenantId?->getValue() === $organization->id)
+            ->once();
     }
 
     public function test_can_switch_to_validates_organization_existence(): void
     {
         $organization = Organization::factory()->create();
-        $superadmin = User::factory()->create(['role' => UserRole::SUPERADMIN]);
+        $superadmin = User::factory()->superadmin()->create();
         $admin = User::factory()->create([
             'role' => UserRole::ADMIN,
             'tenant_id' => $organization->id,
@@ -254,15 +262,12 @@ final class TenantContextIntegrationTest extends TestCase
         $this->assertEquals($organization->id, $this->tenantContext->get());
     }
 
-    public function test_audit_logging_captures_request_context(): void
+    public function test_audit_logging_captures_switch_metadata(): void
     {
         $organization = Organization::factory()->create(['name' => 'Test Org']);
-        $superadmin = User::factory()->create([
-            'role' => UserRole::SUPERADMIN,
+        $superadmin = User::factory()->superadmin()->create([
             'email' => 'admin@example.com',
         ]);
-
-        Log::fake();
 
         // Simulate request context
         $this->withHeaders([
@@ -273,19 +278,13 @@ final class TenantContextIntegrationTest extends TestCase
 
         $this->tenantContext->switch($organization->id, $superadmin);
 
-        // Verify audit log includes request context
-        Log::assertLogged('info', function ($message, $context) use ($superadmin, $organization) {
-            return $message === 'Tenant context switched' &&
-                   $context['user_id'] === $superadmin->id &&
-                   $context['user_email'] === $superadmin->email &&
-                   $context['user_role'] === $superadmin->role->value &&
-                   $context['new_tenant_id'] === $organization->id &&
-                   $context['organization_name'] === $organization->name &&
-                   isset($context['ip_address']) &&
-                   isset($context['user_agent']) &&
-                   isset($context['session_id']) &&
-                   isset($context['timestamp']);
-        });
+        $this->auditLogger
+            ->shouldHaveReceived('logContextSwitch')
+            ->withArgs(fn (User $user, TenantId $tenantId, ?TenantId $previousTenantId, string $organizationName): bool => $user->is($superadmin)
+                && $tenantId->getValue() === $organization->id
+                && $previousTenantId === null
+                && $organizationName === $organization->name)
+            ->once();
     }
 
     public function test_error_handling_for_invalid_operations(): void

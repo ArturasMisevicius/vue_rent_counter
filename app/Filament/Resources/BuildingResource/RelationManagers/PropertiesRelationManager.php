@@ -286,6 +286,14 @@ final class PropertiesRelationManager extends RelationManager
     }
 
     /**
+     * Resolve a FormRequest message key with a translation fallback.
+     */
+    private static function getRequestMessage(array $messages, string $key, string $fallback): string
+    {
+        return $messages[$key] ?? $fallback;
+    }
+
+    /**
      * Get the address field configuration.
      *
      * Pulls validation rules and messages from StorePropertyRequest to ensure
@@ -327,8 +335,8 @@ final class PropertiesRelationManager extends RelationManager
                 },
             ])
             ->validationMessages([
-                'required' => $messages['address.required'],
-                'max' => $messages['address.max'],
+                'required' => self::getRequestMessage($messages, 'address.required', __('properties.validation.address.required')),
+                'max' => self::getRequestMessage($messages, 'address.max', __('properties.validation.address.max')),
                 'regex' => __('properties.validation.address.format'),
             ])
             ->helperText(__('properties.helper_text.address'))
@@ -362,8 +370,8 @@ final class PropertiesRelationManager extends RelationManager
             ->validationAttribute('type')
             ->rules([Rule::enum(PropertyType::class)])
             ->validationMessages([
-                'required' => $messages['type.required'],
-                'enum' => $messages['type.enum'],
+                'required' => self::getRequestMessage($messages, 'type.required', __('properties.validation.type.required')),
+                'enum' => self::getRequestMessage($messages, 'type.enum', __('properties.validation.type.enum')),
             ])
             ->helperText(__('properties.helper_text.type'))
             ->live()
@@ -416,10 +424,10 @@ final class PropertiesRelationManager extends RelationManager
                 },
             ])
             ->validationMessages([
-                'required' => $messages['area_sqm.required'],
-                'numeric' => $messages['area_sqm.numeric'],
-                'min' => $messages['area_sqm.min'],
-                'max' => $messages['area_sqm.max'],
+                'required' => self::getRequestMessage($messages, 'area_sqm.required', __('properties.validation.area_sqm.required')),
+                'numeric' => self::getRequestMessage($messages, 'area_sqm.numeric', __('properties.validation.area_sqm.numeric')),
+                'min' => self::getRequestMessage($messages, 'area_sqm.min', __('properties.validation.area_sqm.min')),
+                'max' => self::getRequestMessage($messages, 'area_sqm.max', __('properties.validation.area_sqm.max')),
                 'regex' => __('properties.validation.area_sqm.precision'),
             ])
             ->helperText(__('properties.helper_text.area'));
@@ -695,10 +703,16 @@ final class PropertiesRelationManager extends RelationManager
     protected function preparePropertyData(array $data): array
     {
         $requestMessages = self::getCachedRequestMessages();
+        $rawInput = $this->getMountedTableActionDataProperty();
+        $dataToValidate = [
+            'address' => $rawInput['address'] ?? ($data['address'] ?? null),
+            'type' => $rawInput['type'] ?? ($data['type'] ?? null),
+            'area_sqm' => $rawInput['area_sqm'] ?? ($data['area_sqm'] ?? null),
+        ];
 
         try {
             Validator::make(
-                $data,
+                $dataToValidate,
                 [
                     'address' => [
                         'required',
@@ -738,16 +752,16 @@ final class PropertiesRelationManager extends RelationManager
                     ],
                 ],
                 [
-                    'address.required' => $requestMessages['address.required'],
-                    'address.max' => $requestMessages['address.max'],
-                    'address.string' => $requestMessages['address.string'],
+                    'address.required' => self::getRequestMessage($requestMessages, 'address.required', __('properties.validation.address.required')),
+                    'address.max' => self::getRequestMessage($requestMessages, 'address.max', __('properties.validation.address.max')),
+                    'address.string' => self::getRequestMessage($requestMessages, 'address.string', __('properties.validation.address.string')),
                     'address.regex' => __('properties.validation.address.format'),
-                    'type.required' => $requestMessages['type.required'],
-                    'type.enum' => $requestMessages['type.enum'],
-                    'area_sqm.required' => $requestMessages['area_sqm.required'],
-                    'area_sqm.numeric' => $requestMessages['area_sqm.numeric'],
-                    'area_sqm.min' => $requestMessages['area_sqm.min'],
-                    'area_sqm.max' => $requestMessages['area_sqm.max'],
+                    'type.required' => self::getRequestMessage($requestMessages, 'type.required', __('properties.validation.type.required')),
+                    'type.enum' => self::getRequestMessage($requestMessages, 'type.enum', __('properties.validation.type.enum')),
+                    'area_sqm.required' => self::getRequestMessage($requestMessages, 'area_sqm.required', __('properties.validation.area_sqm.required')),
+                    'area_sqm.numeric' => self::getRequestMessage($requestMessages, 'area_sqm.numeric', __('properties.validation.area_sqm.numeric')),
+                    'area_sqm.min' => self::getRequestMessage($requestMessages, 'area_sqm.min', __('properties.validation.area_sqm.min')),
+                    'area_sqm.max' => self::getRequestMessage($requestMessages, 'area_sqm.max', __('properties.validation.area_sqm.max')),
                     'area_sqm.regex' => __('properties.validation.area_sqm.precision'),
                 ]
             )->validate();
@@ -759,8 +773,7 @@ final class PropertiesRelationManager extends RelationManager
 
         // Whitelist only allowed fields to prevent mass assignment
         $allowedFields = ['address', 'type', 'area_sqm'];
-        $sanitizedData = array_intersect_key($data, array_flip($allowedFields));
-        $rawInput = $this->getMountedTableActionDataProperty();
+        $sanitizedData = array_intersect_key($dataToValidate, array_flip($allowedFields));
 
         if (isset($sanitizedData['address'])) {
             $sanitizedData['address'] = strip_tags(trim((string) $sanitizedData['address']));
