@@ -15,6 +15,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Actions\ActionGroup;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
@@ -86,7 +87,9 @@ final class ViewInvoice extends ViewRecord
             return;
         }
 
-        parent::authorizeAccess();
+        if (! static::getResource()::canView($this->getRecord())) {
+            throw new AuthorizationException();
+        }
     }
 
     /**

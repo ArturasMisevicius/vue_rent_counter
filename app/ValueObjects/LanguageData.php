@@ -32,7 +32,7 @@ final readonly class LanguageData
         return new self(
             code: $language->code,
             name: $language->name,
-            nativeName: $language->native_name,
+            nativeName: $language->native_name ?: $language->name,
             isActive: $language->is_active,
             isDefault: $language->is_default,
             displayOrder: $language->display_order,

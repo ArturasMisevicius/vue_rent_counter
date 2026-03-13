@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
 use App\Enums\UserRole;
+use App\Services\TenantContext;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;

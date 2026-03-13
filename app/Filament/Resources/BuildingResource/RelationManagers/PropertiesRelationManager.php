@@ -99,6 +99,13 @@ final class PropertiesRelationManager extends RelationManager
     {
         parent::mount();
 
+        // Defense-in-depth: re-fetch the building through tenant-scoped queries.
+        // This prevents callers (including tests) from passing an owner record
+        // instance belonging to a different tenant.
+        if ($this->ownerRecord instanceof Building) {
+            $this->ownerRecord = Building::query()->findOrFail($this->ownerRecord->getKey());
+        }
+
         $user = auth()->user();
 
         // Superadmins and admins bypass tenant scoping.
@@ -127,18 +134,6 @@ final class PropertiesRelationManager extends RelationManager
      * @var array<string, string>|null
      */
     private static ?array $cachedRequestMessages = null;
-
-    public function mount(): void
-    {
-        parent::mount();
-
-        // Defense-in-depth: re-fetch the building through tenant-scoped queries.
-        // This prevents callers (including tests) from passing an owner record
-        // instance belonging to a different tenant.
-        if ($this->ownerRecord instanceof Building) {
-            $this->ownerRecord = Building::query()->findOrFail($this->ownerRecord->getKey());
-        }
-    }
 
     /**
      * Provide a schema instance for form rendering in tests.

@@ -117,6 +117,17 @@ abstract class TestCase extends BaseTestCase
             session()->migrate(true);
         }
 
+        if (app()->bound(\App\Contracts\TenantContextInterface::class)) {
+            $tenantContext = app(\App\Contracts\TenantContextInterface::class);
+
+            if ($user?->tenant_id) {
+                $this->ensureTenantExists((int) $user->tenant_id);
+                $tenantContext->set((int) $user->tenant_id);
+            } else {
+                $tenantContext->clear();
+            }
+        }
+
         return $this;
     }
 

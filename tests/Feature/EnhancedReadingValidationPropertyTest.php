@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Tests\Feature;
+
 use App\Enums\InputMethod;
 use App\Enums\MeterType;
 use App\Enums\ValidationStatus;

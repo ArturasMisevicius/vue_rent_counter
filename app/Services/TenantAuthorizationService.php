@@ -17,13 +17,21 @@ final readonly class TenantAuthorizationService implements TenantAuthorizationSe
             return true;
         }
 
-        // Regular users can only access their own tenant
+        if ($user->role === \App\Enums\UserRole::TENANT) {
+            return false;
+        }
+
+        // Admins and managers can only switch to their own organization.
         return $user->tenant_id === $tenantId->getValue();
     }
 
     public function canAccessTenant(TenantId $tenantId, User $user): bool
     {
-        return $this->canSwitchTo($tenantId, $user);
+        if ($user->isSuperadmin()) {
+            return true;
+        }
+
+        return $user->tenant_id === $tenantId->getValue();
     }
 
     public function getDefaultTenant(User $user): ?TenantId

@@ -14,7 +14,7 @@
         "laravel/mcp": "^0.6.2",
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^2.11",
-        "maatwebsite/excel": "^3.1",
+        "maatwebsite/excel": "4.x-dev",
         "spatie/laravel-backup": "^10.0"
     },
     "require-dev": {

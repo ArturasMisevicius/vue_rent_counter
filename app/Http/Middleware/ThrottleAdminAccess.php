@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -108,7 +109,7 @@ final class ThrottleAdminAccess
         $user = $request->user();
         $email = $user?->email ? str_replace(["\n", "\r"], ' ', $user->email) : null;
 
-        \Log::warning('Admin panel access denied', [
+        Log::warning('Admin panel access denied', [
             'user_id' => $user?->id,
             'user_email' => $email,
             'user_role' => $user?->role?->value,

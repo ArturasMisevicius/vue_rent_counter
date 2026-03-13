@@ -32,14 +32,14 @@ final readonly class LanguageSwitcherStyles
      * Container CSS classes
      */
     private const CONTAINER_CLASSES = [
-        'select' => 'inline-flex',
-        'dropdown' => 'relative inline-block text-left',
+        'select' => 'language-switcher-container inline-flex',
+        'dropdown' => 'language-switcher-container relative inline-block text-left',
     ];
 
     /**
      * Form CSS classes
      */
-    private const FORM_CLASSES = 'inline-flex';
+    private const FORM_CLASSES = 'language-switcher-form inline-flex';
 
     /**
      * Get CSS classes for a specific variant

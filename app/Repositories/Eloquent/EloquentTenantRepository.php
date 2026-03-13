@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories\Eloquent;
 
-use App\Models\Tenant;
+use App\Models\Organization;
 use App\Repositories\TenantRepositoryInterface;
 use App\ValueObjects\TenantId;
 
@@ -12,12 +12,15 @@ final readonly class EloquentTenantRepository implements TenantRepositoryInterfa
 {
     public function exists(TenantId $tenantId): bool
     {
-        return Tenant::where('id', $tenantId->getValue())->exists();
+        return Organization::query()
+            ->whereKey($tenantId->getValue())
+            ->exists();
     }
 
     public function getName(TenantId $tenantId): string
     {
-        $tenant = Tenant::find($tenantId->getValue());
-        return $tenant?->name ?? 'Unknown Organization';
+        $organization = Organization::query()->find($tenantId->getValue());
+
+        return $organization?->name ?? 'Unknown Organization';
     }
 }

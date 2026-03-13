@@ -77,12 +77,18 @@ return [
         'singletons' => [
             \App\Services\TenantContext::class,
             \App\Services\TenantBoundaryService::class,
+            \App\Repositories\Eloquent\EloquentTenantRepository::class,
+            \App\Services\TenantAuditLogger::class,
+            \App\Services\TenantAuthorizationService::class,
         ],
         
         'bindings' => [
             \App\Contracts\ServiceRegistration\PolicyRegistryInterface::class => \App\Support\ServiceRegistration\PolicyRegistry::class,
             \App\Contracts\ServiceRegistration\ErrorHandlingStrategyInterface::class => \App\Services\ServiceRegistration\RegistrationErrorHandler::class,
             \App\Contracts\SubscriptionCheckerInterface::class => \App\Services\SubscriptionChecker::class,
+            \App\Repositories\TenantRepositoryInterface::class => \App\Repositories\Eloquent\EloquentTenantRepository::class,
+            \App\Contracts\TenantAuditLoggerInterface::class => \App\Services\TenantAuditLogger::class,
+            \App\Contracts\TenantAuthorizationServiceInterface::class => \App\Services\TenantAuthorizationService::class,
             \App\Contracts\TenantContextInterface::class => \App\Services\TenantContext::class,
         ],
     ],

@@ -61,8 +61,8 @@ final class LanguageSwitcherTest extends TestCase
         $view->assertSee('English');
         $view->assertSee('Lietuvių');
         $view->assertSee('language-switcher-form');
-        $view->assertSeeInOrder(['<select', 'id="language-select"']);
-        $view->assertSee('data-language-switcher="true"');
+        $view->assertSeeInOrder(['<select', 'id="language-select"'], false);
+        $view->assertSee('data-language-switcher="true"', false);
         $view->assertSee('data-base-url');
     }
 
@@ -85,7 +85,7 @@ final class LanguageSwitcherTest extends TestCase
             ['languages' => $this->testLanguages]
         );
 
-        $view->assertSee('value="lt" selected');
+        $view->assertSeeInOrder(['value="lt"', 'selected'], false);
     }
 
     public function test_language_switcher_includes_noscript_fallback(): void
@@ -95,7 +95,7 @@ final class LanguageSwitcherTest extends TestCase
             ['languages' => $this->testLanguages]
         );
 
-        $view->assertSee('<noscript>');
+        $view->assertSee('<noscript>', false);
         $view->assertSee('Change Language');
     }
 
@@ -109,9 +109,9 @@ final class LanguageSwitcherTest extends TestCase
         $view->assertSee('x-data');
         $view->assertSee('aria-expanded');
         $view->assertSee('aria-haspopup');
-        $view->assertSee('role="menu"');
-        $view->assertSee('role="menuitem"');
-        $view->assertSee('aria-current="true"'); // Current language indicator
+        $view->assertSee('role="menu"', false);
+        $view->assertSee('role="menuitem"', false);
+        $view->assertSee('aria-current="true"', false); // Current language indicator
     }
 
     public function test_language_switcher_component_class_methods(): void
@@ -148,8 +148,8 @@ final class LanguageSwitcherTest extends TestCase
         );
 
         $view->assertSee('No languages available');
-        $view->assertSee('role="status"');
-        $view->assertSee('aria-live="polite"');
+        $view->assertSee('role="status"', false);
+        $view->assertSee('aria-live="polite"', false);
     }
 
     public function test_language_switcher_shows_codes_when_labels_disabled(): void
@@ -174,8 +174,8 @@ final class LanguageSwitcherTest extends TestCase
         );
 
         // Should show checkmark SVG for current language
-        $view->assertSee('fill-rule="evenodd"'); // Part of checkmark SVG
-        $view->assertSee('aria-current="true"');
+        $view->assertSee('fill-rule="evenodd"', false); // Part of checkmark SVG
+        $view->assertSee('aria-current="true"', false);
     }
 
     public function test_language_switcher_handles_missing_native_names(): void
@@ -258,8 +258,8 @@ final class LanguageSwitcherTest extends TestCase
             ['languages' => $this->testLanguages]
         );
 
-        $view->assertSee('@keydown.escape="open = false"');
-        $view->assertSee('@click.away="open = false"');
+        $view->assertSee('@keydown.escape="open = false"', false);
+        $view->assertSee('@click.away="open = false"', false);
     }
 
     public function test_welcome_page_uses_language_switcher_component(): void
