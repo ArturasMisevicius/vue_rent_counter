@@ -1,0 +1,202 @@
+<?php
+
+use App\Models\{{ modelName }};
+use App\Models\User;
+use App\Policies\{{ policyName }};
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->policy = new {{ policyName }}();
+});
+
+describe('{{ policyName }}', function () {
+    describe('viewAny', function () {
+        it('allows superadmin to view any', function () {
+            $user = User::factory()->superadmin()->create();
+
+            expect($this->policy->viewAny($user))->toBeTrue();
+        });
+
+        it('allows admin to view any', function () {
+            $user = User::factory()->admin()->create();
+
+            expect($this->policy->viewAny($user))->toBeTrue();
+        });
+
+        it('allows manager to view any', function () {
+            $user = User::factory()->manager()->create();
+
+            expect($this->policy->viewAny($user))->toBeTrue();
+        });
+
+        it('denies tenant to view any', function () {
+            $user = User::factory()->tenant()->create();
+
+            expect($this->policy->viewAny($user))->toBeFalse();
+        });
+    });
+
+    describe('view', function () {
+        it('allows viewing own tenant record', function () {
+            $user = User::factory()->admin()->create();
+            $record = {{ modelName }}::factory()->for($user->tenant)->create();
+
+            expect($this->policy->view($user, $record))->toBeTrue();
+        });
+
+        it('denies viewing other tenant record', function () {
+            $user = User::factory()->admin()->create();
+            $otherTenant = \App\Models\Tenant::factory()->create();
+            $record = {{ modelName }}::factory()->for($otherTenant)->create();
+
+            expect($this->policy->view($user, $record))->toBeFalse();
+        });
+
+        it('allows superadmin to view any tenant record', function () {
+            $user = User::factory()->superadmin()->create();
+            $otherTenant = \App\Models\Tenant::factory()->create();
+            $record = {{ modelName }}::factory()->for($otherTenant)->create();
+
+            expect($this->policy->view($user, $record))->toBeTrue();
+        });
+
+        it('allows manager to view records in their buildings', function () {
+            $user = User::factory()->manager()->create();
+            $building = \App\Models\Building::factory()->create([
+                'manager_id' => $user->id,
+                'tenant_id' => $user->tenant_id,
+            ]);
+            $record = {{ modelName }}::factory()->create([
+                'building_id' => $building->id,
+                'tenant_id' => $user->tenant_id,
+            ]);
+
+            expect($this->policy->view($user, $record))->toBeTrue();
+        });
+
+        it('denies manager to view records outside their buildings', function () {
+            $user = User::factory()->manager()->create();
+            $otherBuilding = \App\Models\Building::factory()->create([
+                'tenant_id' => $user->tenant_id,
+            ]);
+            $record = {{ modelName }}::factory()->create([
+                'building_id' => $otherBuilding->id,
+                'tenant_id' => $user->tenant_id,
+            ]);
+
+            expect($this->policy->view($user, $record))->toBeFalse();
+        });
+    });
+
+    describe('create', function () {
+        it('allows admin to create', function () {
+            $user = User::factory()->admin()->create();
+
+            expect($this->policy->create($user))->toBeTrue();
+        });
+
+        it('allows manager to create', function () {
+            $user = User::factory()->manager()->create();
+
+            expect($this->policy->create($user))->toBeTrue();
+        });
+
+        it('denies tenant to create', function () {
+            $user = User::factory()->tenant()->create();
+
+            expect($this->policy->create($user))->toBeFalse();
+        });
+    });
+
+    describe('update', function () {
+        it('allows updating own tenant record', function () {
+            $user = User::factory()->admin()->create();
+            $record = {{ modelName }}::factory()->for($user->tenant)->create();
+
+            expect($this->policy->update($user, $record))->toBeTrue();
+        });
+
+        it('denies updating other tenant record', function () {
+            $user = User::factory()->admin()->create();
+            $otherTenant = \App\Models\Tenant::factory()->create();
+            $record = {{ modelName }}::factory()->for($otherTenant)->create();
+
+            expect($this->policy->update($user, $record))->toBeFalse();
+        });
+
+        it('allows manager to update records in their buildings', function () {
+            $user = User::factory()->manager()->create();
+            $building = \App\Models\Building::factory()->create([
+                'manager_id' => $user->id,
+                'tenant_id' => $user->tenant_id,
+            ]);
+            $record = {{ modelName }}::factory()->create([
+                'building_id' => $building->id,
+                'tenant_id' => $user->tenant_id,
+            ]);
+
+            expect($this->policy->update($user, $record))->toBeTrue();
+        });
+    });
+
+    describe('delete', function () {
+        it('allows deleting own tenant record', function () {
+            $user = User::factory()->admin()->create();
+            $record = {{ modelName }}::factory()->for($user->tenant)->create();
+
+            expect($this->policy->delete($user, $record))->toBeTrue();
+        });
+
+        it('denies deleting other tenant record', function () {
+            $user = User::factory()->admin()->create();
+            $otherTenant = \App\Models\Tenant::factory()->create();
+            $record = {{ modelName }}::factory()->for($otherTenant)->create();
+
+            expect($this->policy->delete($user, $record))->toBeFalse();
+        });
+
+        it('denies tenant from deleting', function () {
+            $user = User::factory()->tenant()->create();
+            $record = {{ modelName }}::factory()->for($user->tenant)->create();
+
+            expect($this->policy->delete($user, $record))->toBeFalse();
+        });
+    });
+
+    describe('restore', function () {
+        it('allows admin to restore', function () {
+            $user = User::factory()->admin()->create();
+            $record = {{ modelName }}::factory()->for($user->tenant)->create();
+            $record->delete();
+
+            expect($this->policy->restore($user, $record))->toBeTrue();
+        });
+
+        it('denies restoring other tenant record', function () {
+            $user = User::factory()->admin()->create();
+            $otherTenant = \App\Models\Tenant::factory()->create();
+            $record = {{ modelName }}::factory()->for($otherTenant)->create();
+            $record->delete();
+
+            expect($this->policy->restore($user, $record))->toBeFalse();
+        });
+    });
+
+    describe('forceDelete', function () {
+        it('allows superadmin to force delete', function () {
+            $user = User::factory()->superadmin()->create();
+            $record = {{ modelName }}::factory()->create();
+
+            expect($this->policy->forceDelete($user, $record))->toBeTrue();
+        });
+
+        it('denies admin to force delete', function () {
+            $user = User::factory()->admin()->create();
+            $record = {{ modelName }}::factory()->for($user->tenant)->create();
+
+            expect($this->policy->forceDelete($user, $record))->toBeFalse();
+        });
+    });
+});

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="lt" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenanto | Nuomos apskaita be streso</title>
+    <meta name="description" content="Automatizuokite nuomos verslą: sąskaitos, VMI ataskaitos ir tvarka. Išbandykite nemokamai.">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom Colors from Design System */
+        .bg-indigo-brand { background-color: #4f46e5; }
+        .text-slate-brand { color: #334155; }
+        .blob { position: absolute; filter: blur(40px); z-index: -1; opacity: 0.4; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased selection:bg-indigo-200 selection:text-indigo-900">
+
+    <nav class="fixed w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-200" x-data="{ open: false }">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-black tracking-tighter text-indigo-600">Tenanto.</a>
+            
+            <div class="hidden md:flex space-x-8 text-sm font-semibold text-slate-600">
+                <a href="#features" class="hover:text-indigo-600 transition">Galimybės</a>
+                <a href="#how-it-works" class="hover:text-indigo-600 transition">Kaip veikia</a>
+                <a href="#pricing" class="hover:text-indigo-600 transition">Kaina</a>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="#" class="text-slate-900 font-semibold text-sm hover:underline">Prisijungti</a>
+                <a href="#register" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition shadow-lg shadow-indigo-500/30">
+                    Išbandyti nemokamai
+                </a>
+            </div>
+
+            <button @click="open = !open" class="md:hidden text-slate-900 focus:outline-none">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </div>
+
+        <div x-show="open" @click.away="open = false" class="md:hidden bg-white border-b border-slate-200 p-4 space-y-4 shadow-xl">
+            <a href="#features" class="block text-slate-600 font-semibold">Galimybės</a>
+            <a href="#pricing" class="block text-slate-600 font-semibold">Kaina</a>
+            <a href="#register" class="block w-full text-center bg-indigo-600 text-white py-3 rounded-lg font-bold">Pradėti dabar</a>
+        </div>
+    </nav>
+
+    <section class="pt-32 pb-20 overflow-hidden relative">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row items-center">
+            
+            <div class="md:w-1/2 relative z-10">
+                <div class="inline-block bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide mb-6 uppercase">
+                    🚀 Bootstrap Edition: V2.0
+                </div>
+                <h1 class="text-5xl md:text-6xl font-black leading-tight mb-6 text-slate-900">
+                    Nuomok butą, <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-indigo-400">o ne nervus.</span>
+                </h1>
+                <p class="text-lg text-slate-600 mb-8 leading-relaxed max-w-lg">
+                    Pamirškite „Excel“ ir skolininkų gaudymą. Profesionalios sąskaitos, automatiniai priminimai ir paruoštos VMI ataskaitos.
+                    <br><span class="font-bold text-indigo-600">Sutaupykite 3-4 val. per mėnesį.</span>
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="#register" class="flex justify-center items-center bg-indigo-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:bg-indigo-700 transition shadow-xl hover:shadow-2xl transform hover:-translate-y-1">
+                        Išbandyti nemokamai
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                    </a>
+                    <a href="#demo" class="flex justify-center items-center px-8 py-4 rounded-xl text-lg font-bold text-slate-700 border border-slate-300 hover:bg-slate-50 transition">
+                        Kaip tai veikia?
+                    </a>
+                </div>
+                <p class="mt-4 text-xs text-slate-500 font-medium">* Pirmiesiems 100 klientų – 2 mėnesiai nemokamai.</p>
+            </div>
+
+            <div class="md:w-1/2 mt-16 md:mt-0 relative">
+                <div class="blob bg-indigo-300 w-96 h-96 rounded-full top-0 right-0 mix-blend-multiply filter blur-3xl animate-blob"></div>
+                <div class="blob bg-purple-300 w-96 h-96 rounded-full bottom-0 left-10 mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
+
+                <div class="relative mx-auto border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] h-[600px] w-[300px] shadow-2xl flex flex-col overflow-hidden">
+                    <div class="h-[32px] w-[3px] bg-gray-800 absolute -left-[17px] top-[72px] rounded-l-lg"></div>
+                    <div class="h-[46px] w-[3px] bg-gray-800 absolute -left-[17px] top-[124px] rounded-l-lg"></div>
+                    <div class="h-[64px] w-[3px] bg-gray-800 absolute -right-[17px] top-[142px] rounded-r-lg"></div>
+                    <div class="rounded-[2rem] overflow-hidden w-[272px] h-[572px] bg-white text-slate-900 overflow-y-auto">
+                        <div class="p-6 bg-slate-50 min-h-full">
+                            <div class="flex justify-between items-center mb-6">
+                                <span class="font-bold text-indigo-600">Tenanto</span>
+                                <div class="w-8 h-8 bg-slate-200 rounded-full"></div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-4">
+                                <p class="text-xs text-slate-400 uppercase font-bold">Būsena</p>
+                                <div class="text-emerald-500 font-bold text-lg flex items-center gap-2">
+                                    ● Apmokėta
+                                </div>
+                                <div class="mt-2 text-2xl font-black text-slate-900">450.00 €</div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-4">
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-sm font-bold text-slate-700">Sąskaita #2025-01</span>
+                                </div>
+                                <div class="h-20 bg-slate-50 border border-slate-200 rounded flex items-center justify-center mb-2">
+                                    <div class="bg-white p-1">
+                                        <div class="w-12 h-12 bg-slate-900"></div> 
+                                    </div>
+                                </div>
+                                <p class="text-xs text-center text-slate-400">EPC QR kodas bankui</p>
+                            </div>
+
+                            <button class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold text-sm shadow-lg">
+                                Siųsti priminimą
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-10 border-y border-slate-100 bg-white">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-sm text-slate-500 font-semibold mb-6 uppercase tracking-widest">Suderinama su visais Lietuvos bankais</p>
+            <div class="flex flex-wrap justify-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition duration-500">
+                <span class="text-xl font-bold text-slate-700">Swedbank</span>
+                <span class="text-xl font-bold text-slate-700">SEB</span>
+                <span class="text-xl font-bold text-slate-700">Revolut</span>
+                <span class="text-xl font-bold text-slate-700">Luminor</span>
+                <span class="text-xl font-bold text-slate-700">Šiaulių Bankas</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="py-20 bg-slate-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-slate-900">Kodėl <span class="text-indigo-600">Tenanto</span>?</h2>
+                <p class="text-slate-600">Dauguma nuomotojų naudoja Excel arba užrašų knygutę. Štai kodėl tai bloga idėja.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-red-100 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-2 h-full bg-red-500"></div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-6 flex items-center">
+                        <span class="text-red-500 text-2xl mr-3">✕</span> Kaip įprasta
+                    </h3>
+                    <ul class="space-y-4 text-slate-600">
+                        <li class="flex items-start">
+                            <span class="mr-3 text-red-400 mt-1">•</span>
+                            Nepatogu prašyti pinigų per SMS/Viber („Ar jau pervedei?“).
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-3 text-red-400 mt-1">•</span>
+                            Pamirštami skaitiklių parodymai ir skolos.
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-3 text-red-400 mt-1">•</span>
+                            Stresas pildant VMI deklaracijas (FR0572).
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-3 text-red-400 mt-1">•</span>
+                            Jokio profesionalumo, tik chaosas.
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-xl border border-indigo-100 relative overflow-hidden transform md:-translate-y-4">
+                    <div class="absolute top-0 left-0 w-2 h-full bg-emerald-500"></div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-6 flex items-center">
+                        <span class="text-emerald-500 text-2xl mr-3">✓</span> Su Tenanto
+                    </h3>
+                    <ul class="space-y-4 text-slate-700 font-medium">
+                        <li class="flex items-start">
+                            <span class="mr-3 text-emerald-500 mt-1">✓</span>
+                            Automatinės sąskaitos el. paštu kiekvieną mėnesį.
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-3 text-emerald-500 mt-1">✓</span>
+                            <span class="font-bold text-slate-900">QR mokėjimai:</span> Žmogus sumoka per 10 sekundžių.
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-3 text-emerald-500 mt-1">✓</span>
+                            „VMI mygtukas“ – ataskaita sugeneruojama automatiškai.
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-3 text-emerald-500 mt-1">✓</span>
+                            <span class="bg-indigo-100 text-indigo-700 px-2 rounded text-sm">Trust Score</span> – istorija kaupiama, vertė auga.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-indigo-900 text-white" x-data="{ apartments: 1, rate: 20 }">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold mb-8">Kiek laiko prarandate tvarkydami „popierius“?</h2>
+            
+            <div class="max-w-xl mx-auto bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20">
+                <div class="mb-8">
+                    <label class="block text-sm font-bold mb-2 text-indigo-200">Kiek butų nuomojate?</label>
+                    <input type="range" min="1" max="10" x-model="apartments" class="w-full h-2 bg-indigo-500 rounded-lg appearance-none cursor-pointer">
+                    <div class="text-4xl font-black mt-2" x-text="apartments"></div>
+                </div>
+
+                <div class="border-t border-white/10 pt-6">
+                    <p class="text-indigo-200 text-sm mb-2">Su Tenanto sutaupysite maždaug:</p>
+                    <div class="text-5xl font-black text-emerald-400 mb-2">
+                        <span x-text="apartments * 3"></span> val.
+                    </div>
+                    <p class="text-sm text-indigo-300">laisvo laiko per mėnesį</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="py-24 bg-white">
+        <div class="container mx-auto px-6 max-w-lg text-center">
+            <h2 class="text-3xl font-bold mb-4 text-slate-900">Kaina kaip puodelis kavos</h2>
+            <p class="text-slate-600 mb-12">Jokių paslėptų mokesčių. Mokate tik už patogumą.</p>
+            
+            <div class="bg-white rounded-3xl p-8 shadow-2xl border-2 border-indigo-600 relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-yellow-400 text-slate-900 text-xs font-bold px-3 py-1 uppercase tracking-wider rounded-bl-lg">
+                    Populiariausias
+                </div>
+                
+                <div class="text-5xl font-black text-slate-900 mb-2">2.99€</div>
+                <div class="text-slate-500 text-sm mb-8">/ už butą / mėn.</div>
+                
+                <ul class="text-left space-y-4 mb-8 text-slate-600">
+                    <li class="flex items-center"><svg class="w-5 h-5 text-emerald-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Neriboti mokėjimai</li>
+                    <li class="flex items-center"><svg class="w-5 h-5 text-emerald-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> PDF sąskaitos + QR</li>
+                    <li class="flex items-center"><svg class="w-5 h-5 text-emerald-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> VMI ataskaitos</li>
+                    <li class="flex items-center text-indigo-600 font-bold"><svg class="w-5 h-5 text-indigo-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> 2 mėnesiai NEMOKAMAI</li>
+                </ul>
+
+                <a href="#register" class="block w-full bg-indigo-600 text-white py-4 rounded-xl text-lg font-bold hover:bg-indigo-700 transition shadow-lg">
+                    Pradėti dabar
+                </a>
+                <p class="mt-4 text-xs text-slate-400">Atšaukite bet kada. Jokių įsipareigojimų.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 bg-slate-100 border-t border-slate-200">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between">
+            <div class="md:w-2/3 mb-8 md:mb-0">
+                <h3 class="text-2xl font-bold text-slate-900 mb-2">Dar nepasiruošę registruotis?</h3>
+                <p class="text-slate-600">Atsiųsime jums <span class="font-bold text-indigo-600">„Idealaus nuomos sutarties šabloną (2025)“</span> ir 3 patarimus, kaip išvengti nemokių nuomininkų. Nemokamai.</p>
+            </div>
+            <div class="md:w-1/3 w-full">
+                <form class="flex flex-col gap-3" onsubmit="event.preventDefault(); alert('Ačiū! Šablonas išsiųstas.');">
+                    <input type="email" placeholder="Jūsų el. paštas" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition">
+                    <button type="submit" class="w-full bg-slate-800 text-white px-4 py-3 rounded-lg font-bold hover:bg-slate-900 transition">
+                        Gauti šabloną
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-slate-900 text-slate-400 py-12">
+        <div class="container mx-auto px-6 text-center md:text-left">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="text-2xl font-bold text-white mb-4">Tenanto.</div>
+                    <p class="text-sm">Jūsų nuomos ramybė. Sukurti įrankiai, kurie padeda, o ne trukdo.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4">Produktas</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white">Funkcijos</a></li>
+                        <li><a href="#" class="hover:text-white">Kaina</a></li>
+                        <li><a href="#" class="hover:text-white">D.U.K</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4">Teisinė info</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white">Privatumo politika</a></li>
+                        <li><a href="#" class="hover:text-white">Naudojimo taisyklės</a></li>
+                        <li><a href="#" class="hover:text-white">BDAR (GDPR)</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4">Kontaktai</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li>info@tenanto.eu</li>
+                        <li>Vilnius, Lietuva</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-slate-800 pt-8 text-center text-xs">
+                &copy; 2025 Tenanto.eu. Visos teisės saugomos.
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

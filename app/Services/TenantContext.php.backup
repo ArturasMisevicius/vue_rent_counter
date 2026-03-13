@@ -1,0 +1,166 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services;
+
+use App\Contracts\TenantAuditLoggerInterface;
+use App\Contracts\TenantAuthorizationServiceInterface;
+use App\Contracts\TenantContextInterface;
+use App\Exceptions\UnauthorizedTenantSwitchException;
+use App\Models\User;
+use App\Repositories\TenantRepositoryInterface;
+use App\ValueObjects\TenantId;
+use Illuminate\Contracts\Session\Session;
+use InvalidArgumentException;
+
+/**
+ * Service for managing tenant context in multi-tenant applications.
+ * 
+ * Provides session-based tenant context management with support for
+ * superadmin tenant switching, security validation, and audit logging.
+ * 
+ * This service follows the Single Responsibility Principle by delegating
+ * specific concerns to dedicated services:
+ * - TenantRepositoryInterface: Data access
+ * - TenantAuthorizationService: Authorization logic
+ * - TenantAuditLogger: Audit logging
+ */
+final readonly class TenantContext implements TenantContextInterface
+{
+    private const SESSION_KEY = 'tenant_context';
+
+    public function __construct(
+        private Session $session,
+        private TenantRepositoryInterface $tenantRepository,
+        private TenantAuthorizationServiceInterface $authorizationService,
+        private TenantAuditLoggerInterface $auditLogger
+    ) {}
+
+    public function set(int $tenantId): void
+    {
+        $tenantIdVO = TenantId::from($tenantId);
+
+        // Verify tenant exists
+        if (!$this->tenantRepository->exists($tenantIdVO)) {
+            throw new InvalidArgumentException("Organization with ID {$tenantId} does not exist");
+        }
+
+        $this->session->put(self::SESSION_KEY, $tenantId);
+        $this->auditLogger->logContextSet($tenantIdVO);
+    }
+
+    public function get(): ?int
+    {
+        $tenantId = $this->session->get(self::SESSION_KEY);
+        
+        return is_int($tenantId) && $tenantId > 0 ? $tenantId : null;
+    }
+
+    /**
+     * Alias for get() method to maintain compatibility with existing code.
+     * 
+     * @return int|null The current tenant ID or null if no context is set
+     */
+    public function id(): ?int
+    {
+        return $this->get();
+    }
+
+    public function switch(int $tenantId, User $user): void
+    {
+        $tenantIdVO = TenantId::from($tenantId);
+
+        // Verify organization exists and user can switch to it
+        if (!$this->authorizationService->canSwitchTo($tenantIdVO, $user)) {
+            if (!$user->isSuperadmin()) {
+                throw UnauthorizedTenantSwitchException::superadminRequired($tenantId, $user->id);
+            }
+            
+            throw UnauthorizedTenantSwitchException::accessDenied($tenantId, $user->id);
+        }
+
+        $previousTenantId = $this->get();
+        $this->set($tenantId);
+
+        // Get organization name for audit logging
+        $organizationName = $this->tenantRepository->getName($tenantIdVO);
+
+        // Audit log the tenant switch
+        $this->auditLogger->logContextSwitch(
+            $user,
+            $tenantIdVO,
+            $previousTenantId ? TenantId::from($previousTenantId) : null,
+            $organizationName
+        );
+    }
+
+    public function validate(User $user): bool
+    {
+        $currentTenantId = $this->get();
+        
+        // No tenant context set
+        if (!$currentTenantId) {
+            return false;
+        }
+
+        $tenantIdVO = TenantId::from($currentTenantId);
+        return $this->authorizationService->canAccessTenant($tenantIdVO, $user);
+    }
+
+    public function clear(): void
+    {
+        $previousTenantId = $this->get();
+        $this->session->forget(self::SESSION_KEY);
+
+        $this->auditLogger->logContextCleared(
+            $previousTenantId ? TenantId::from($previousTenantId) : null
+        );
+    }
+
+    public function getDefaultTenant(User $user): ?int
+    {
+        $defaultTenantVO = $this->authorizationService->getDefaultTenant($user);
+        return $defaultTenantVO?->getValue();
+    }
+
+    public function initialize(User $user): void
+    {
+        $currentTenantId = $this->get();
+
+        // If no tenant context is set, set to user's default
+        if (!$currentTenantId) {
+            $defaultTenantId = $this->getDefaultTenant($user);
+            if ($defaultTenantId) {
+                $this->set($defaultTenantId);
+                return;
+            }
+        }
+
+        // If tenant context is set, validate user can access it
+        if ($currentTenantId && !$this->validate($user)) {
+            // Clear invalid context and set to user's default
+            $this->clear();
+            $defaultTenantId = $this->getDefaultTenant($user);
+            if ($defaultTenantId) {
+                $this->set($defaultTenantId);
+            }
+
+            $this->auditLogger->logInvalidContextReset(
+                $user,
+                TenantId::from($currentTenantId),
+                $defaultTenantId ? TenantId::from($defaultTenantId) : null
+            );
+        }
+    }
+
+    public function canSwitchTo(int $tenantId, User $user): bool
+    {
+        try {
+            $tenantIdVO = TenantId::from($tenantId);
+            return $this->authorizationService->canSwitchTo($tenantIdVO, $user);
+        } catch (InvalidArgumentException) {
+            return false;
+        }
+    }
+}
