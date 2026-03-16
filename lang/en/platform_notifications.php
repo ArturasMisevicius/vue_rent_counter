@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'navigation' => [
         'label' => 'Platform Notifications',
@@ -75,8 +73,8 @@ return [
     'messages' => [
         'plans' => 'Plans: :plans',
         'organizations_count' => ':count Organizations',
-        'notification_scheduled_body' => "Notification ':title' has been scheduled for :scheduled_at",
-        'notification_sent_body' => "Notification ':title' has been sent to :recipients recipients",
+        'notification_scheduled_body' => 'Notification \':title\' has been scheduled for :scheduled_at',
+        'notification_sent_body' => 'Notification \':title\' has been sent to :recipients recipients',
         'failed_to_send' => 'Failed to send notification: :error',
     ],
     'notifications' => [

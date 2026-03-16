@@ -1,12 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'health' => [
-        'check_completed' => 'Būklės patikra baigta',
+        'check_completed' => 'Проверка статуса завершена',
     ],
     'maintenance' => [
-        'enabled' => 'Priežiūros režimas įjungtas',
+        'enabled' => 'Режим обслуживания включен',
     ],
 ];

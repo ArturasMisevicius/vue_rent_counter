@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'actions' => [
         'confirm_finalize' => 'Patvirtinkite užbaigimą',
@@ -232,7 +230,7 @@ return [
             ],
             'history_headers' => [
                 'consumption' => 'Vartojimas',
-                'date' => 'Data',
+                'date' => 'Duomenys',
                 'meter' => 'Metras',
                 'reading' => 'Skaitymas',
             ],
@@ -256,7 +254,7 @@ return [
         'filters' => [
             'all_properties' => 'Visos ypatybės',
             'all_statuses' => 'Visos būsenos',
-            'apply' => 'Apply',
+            'apply' => 'Taikyti',
             'clear' => 'Aišku',
             'description' => 'Aprašymas',
             'from_date' => 'Nuo datos',
@@ -313,11 +311,11 @@ return [
     'validation' => [
         'billing_period_end' => [
             'after' => 'Po to',
-            'date' => 'Data',
+            'date' => 'Duomenys',
             'required' => 'Privaloma',
         ],
         'billing_period_start' => [
-            'date' => 'Data',
+            'date' => 'Duomenys',
             'required' => 'Privaloma',
         ],
         'finalize' => [
@@ -356,7 +354,7 @@ return [
             'numeric' => 'Skaitinis',
         ],
         'paid_at' => [
-            'date' => 'Data',
+            'date' => 'Duomenys',
         ],
         'payment_reference' => [
             'max' => 'Maks',

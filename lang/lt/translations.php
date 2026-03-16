@@ -1,43 +1,41 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'empty' => [
-        'action' => 'Action',
-        'description' => 'Description',
-        'heading' => 'Heading',
+        'action' => 'Veiksmas',
+        'description' => 'Aprašymas',
+        'heading' => 'Antraštė',
     ],
     'helper_text' => [
-        'default_language' => 'Default Language',
-        'group' => 'Group',
-        'key' => 'Key',
-        'key_full' => 'Key Full',
-        'values' => 'Values',
+        'default_language' => 'Numatytoji kalba',
+        'group' => 'Grupė',
+        'key' => 'Raktas',
+        'key_full' => 'Pilnas raktas',
+        'values' => 'Vertybės',
     ],
     'labels' => [
-        'group' => 'Group',
-        'key' => 'Key',
-        'last_updated' => 'Last Updated',
+        'group' => 'Grupė',
+        'key' => 'Raktas',
+        'last_updated' => 'Paskutinį kartą atnaujinta',
     ],
     'modals' => [
         'delete' => [
-            'description' => 'Description',
-            'heading' => 'Heading',
+            'description' => 'Aprašymas',
+            'heading' => 'Antraštė',
         ],
     ],
     'navigation' => 'Vertimai',
     'placeholders' => [
-        'group' => 'Group',
-        'key' => 'Key',
-        'value' => 'Value',
+        'group' => 'Grupė',
+        'key' => 'Raktas',
+        'value' => 'Vertė',
     ],
     'sections' => [
-        'key' => 'Key',
-        'values' => 'Values',
+        'key' => 'Raktas',
+        'values' => 'Vertybės',
     ],
     'table' => [
-        'language_label' => 'Language Label',
-        'value_label' => 'Value Label',
+        'language_label' => 'Kalbos etiketė',
+        'value_label' => 'Vertės etiketė',
     ],
 ];

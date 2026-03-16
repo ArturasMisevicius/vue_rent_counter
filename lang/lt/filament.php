@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'pages' => [
         'gdpr' => [
@@ -327,7 +325,7 @@ return [
             'before' => 'Prieš',
             'changes' => 'Pakeitimai',
             'ip_address' => 'IP adresas',
-            'not_available' => 'Not Available',
+            'not_available' => 'Nėra',
             'organization' => 'Organizacija',
             'resource' => 'Išteklius',
             'system' => 'Sistema',

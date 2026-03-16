@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'actions' => [
         'add' => 'Add',
@@ -31,7 +29,7 @@ return [
         'occupied' => 'Occupied',
         'type' => 'Type',
         'vacant' => 'Vacant',
-        'tags' => 'Žymos',
+        'tags' => 'Tags',
     ],
     'helper_text' => [
         'address' => 'Address',
@@ -39,7 +37,7 @@ return [
         'tenant_available' => 'Tenant Available',
         'tenant_reassign' => 'Tenant Reassign',
         'type' => 'Type',
-        'tags' => 'Pasirinkite žymas šiam turtui',
+        'tags' => 'Select tags for this asset',
     ],
     'labels' => [
         'address' => 'Address',
@@ -52,7 +50,7 @@ return [
         'properties' => 'Properties',
         'property' => 'Property',
         'type' => 'Type',
-        'tags' => 'Žymos',
+        'tags' => 'Tags',
     ],
     'manager' => [
         'index' => [

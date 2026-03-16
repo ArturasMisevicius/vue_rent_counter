@@ -1,23 +1,15 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'pages' => [
         'gdpr' => [
-            'title' => 'GDPR Compliance',
-            'last_updated' => 'Last updated: :date',
-            'sections' => [],
+            'last_updated' => 'Last Updated',
         ],
         'privacy' => [
-            'title' => 'Privacy Policy',
-            'last_updated' => 'Last updated: :date',
-            'sections' => [],
+            'last_updated' => 'Last Updated',
         ],
         'terms' => [
-            'title' => 'Terms of Service',
-            'last_updated' => 'Last updated: :date',
-            'sections' => [],
+            'last_updated' => 'Last Updated',
         ],
         'dashboard' => [
             'admin_description' => 'Admin Description',
@@ -122,7 +114,7 @@ return [
                     'ru' => 'Russian',
                 ],
                 'currencies' => [
-                    'eur' => 'Euro (EUR)',
+                    'eur' => 'Euros (EUR)',
                     'usd' => 'US Dollar (USD)',
                     'gbp' => 'British Pound (GBP)',
                 ],
@@ -177,15 +169,6 @@ return [
                 'env_file_not_found' => '.env file not found',
             ],
         ],
-        'gdpr' => [
-            'last_updated' => 'Last Updated',
-        ],
-        'privacy' => [
-            'last_updated' => 'Last Updated',
-        ],
-        'terms' => [
-            'last_updated' => 'Last Updated',
-        ],
     ],
     'resources' => [
         'subscription_usage' => [
@@ -233,7 +216,7 @@ return [
                 'email_verified_at' => 'When the user verified their email address',
             ],
             'roles' => [
-                'superadmin' => 'Superadmin',
+                'superadmin' => 'Super admin',
                 'admin' => 'Admin',
                 'manager' => 'Manager',
                 'tenant' => 'Tenant',

@@ -67,7 +67,7 @@ return [
         'suspended' => 'Sustabdytas',
     ],
     'user_role' => [
-        'superadmin' => 'Super Admin',
+        'superadmin' => 'Super administratorius',
         'admin' => 'Admin',
         'manager' => 'Vadovas',
         'tenant' => 'Nuomininkas',
@@ -79,12 +79,12 @@ return [
         'validated_description' => 'Patvirtintas aprašymas',
     ],
     'tariff_type' => [
-        'flat' => 'Flat Rate',
-        'time_of_use' => 'Time of Use',
+        'flat' => 'Vienodas tarifas',
+        'time_of_use' => 'Naudojimo laikas',
     ],
     'tariff_zone' => [
-        'day' => 'Day Rate',
-        'night' => 'Night Rate',
-        'weekend' => 'Weekend Rate',
+        'day' => 'Dienos norma',
+        'night' => 'Naktinis tarifas',
+        'weekend' => 'Savaitgalio tarifas',
     ],
 ];

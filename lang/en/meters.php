@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'actions' => [
         'add' => 'Add',
@@ -10,7 +8,7 @@ return [
         'edit' => 'Edit',
         'edit_meter' => 'Edit Meter',
         'view' => 'View',
-        'view_readings' => 'Peržiūrėti rodmenis',
+        'view_readings' => 'View readings',
     ],
     'confirmations' => [
         'delete' => 'Delete',

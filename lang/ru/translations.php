@@ -1,43 +1,41 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'empty' => [
-        'action' => 'Action',
-        'description' => 'Description',
-        'heading' => 'Heading',
+        'action' => 'Действие',
+        'description' => 'Описание',
+        'heading' => 'Заголовок',
     ],
     'helper_text' => [
-        'default_language' => 'Default Language',
-        'group' => 'Group',
-        'key' => 'Key',
-        'key_full' => 'Key Full',
-        'values' => 'Values',
+        'default_language' => 'Язык по умолчанию',
+        'group' => 'Группа',
+        'key' => 'Ключ',
+        'key_full' => 'Ключ полный',
+        'values' => 'Ценности',
     ],
     'labels' => [
-        'group' => 'Group',
-        'key' => 'Key',
-        'last_updated' => 'Last Updated',
+        'group' => 'Группа',
+        'key' => 'Ключ',
+        'last_updated' => 'Последнее обновление',
     ],
     'modals' => [
         'delete' => [
-            'description' => 'Description',
-            'heading' => 'Heading',
+            'description' => 'Описание',
+            'heading' => 'Заголовок',
         ],
     ],
     'navigation' => 'Переводы',
     'placeholders' => [
-        'group' => 'Group',
-        'key' => 'Key',
-        'value' => 'Value',
+        'group' => 'Группа',
+        'key' => 'Ключ',
+        'value' => 'Ценить',
     ],
     'sections' => [
-        'key' => 'Key',
-        'values' => 'Values',
+        'key' => 'Ключ',
+        'values' => 'Ценности',
     ],
     'table' => [
-        'language_label' => 'Language Label',
-        'value_label' => 'Value Label',
+        'language_label' => 'Языковая метка',
+        'value_label' => 'Метка значения',
     ],
 ];

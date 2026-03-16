@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'admin' => [
         'activity' => [
@@ -147,9 +145,13 @@ return [
             'title' => 'Suvartojimas',
         ],
         'readings' => [
-            'units' => [
-                '' => '',
-            ],
+            'date' => 'Duomenys',
+            'meter_type' => 'Skaitiklio tipas',
+            'reading' => 'Rodmuo',
+            'serial' => 'Serijinis numeris',
+            'serial_short' => 'Ser. Nr.',
+            'title' => 'Skaitiklių rodmenys',
+            'units' => 'Vienetai',
         ],
         'description' => 'Nuomininko portalas ir paskyrų valdymas',
         'property' => [
@@ -170,15 +172,6 @@ return [
             'title' => 'Greiti veiksmai',
         ],
         'space_label' => 'Nuomininko erdvė',
-        'readings' => [
-            'date' => 'Data',
-            'meter_type' => 'Skaitiklio tipas',
-            'reading' => 'Rodmuo',
-            'serial' => 'Serijinis numeris',
-            'serial_short' => 'Ser. Nr.',
-            'title' => 'Skaitiklių rodmenys',
-            'units' => 'Vienetai',
-        ],
         'stats' => [
             'active_meters' => 'Aktyvūs skaitikliai',
             'total_invoices' => 'Iš viso sąskaitų faktūrų',
@@ -246,8 +239,6 @@ return [
             ],
         ],
     ],
-
-    // Universal Utility Dashboard Translations
     'utility_analytics' => 'Komunalinių paslaugų analitika',
     'efficiency_trends' => 'Efektyvumo tendencijos',
     'cost_predictions' => 'Išlaidų prognozės',
@@ -257,16 +248,12 @@ return [
     'service_breakdown' => 'Paslaugų paskirstymas',
     'utility_services_overview' => 'Komunalinių paslaugų apžvalga',
     'recent_activity' => 'Naujausios veiklos',
-
-    // Stats and Metrics
     'stats' => [
         'total_properties' => 'Iš viso objektų',
         'active_meters' => 'Aktyvūs skaitikliai',
         'monthly_cost' => 'Mėnesio išlaidos',
         'pending_readings' => 'Laukiantys rodmenys',
     ],
-
-    // Filters
     'filters' => [
         'last_3_months' => 'Paskutinius 3 mėnesius',
         'last_6_months' => 'Paskutinius 6 mėnesius',
@@ -275,16 +262,12 @@ return [
         'current_month' => 'Dabartinis mėnuo',
         'last_month' => 'Praėjęs mėnuo',
     ],
-
-    // Cost Tracking
     'current_month_cost' => 'Dabartinio mėnesio išlaidos',
     'year_to_date_cost' => 'Metų išlaidos iki šiol',
     'average_monthly_cost' => 'Vidutinės mėnesio išlaidos',
     'from_last_month' => 'nuo praėjusio mėnesio',
     'total_this_year' => 'iš viso šiais metais',
     'last_6_months_average' => 'paskutinių 6 mėnesių vidurkis',
-
-    // Real-Time Cost Widget
     'today_projection' => 'Šiandienos prognozė',
     'current' => 'Dabartinis',
     'projected' => 'Prognozuojamas',
@@ -294,13 +277,9 @@ return [
     'no_recent_readings' => 'Nėra naujausių rodmenų',
     'last_updated' => 'Paskutinį kartą atnaujinta',
     'never' => 'Niekada',
-
-    // Chart Labels
     'consumption_units' => 'Suvartojimas (vienetai)',
     'months' => 'Mėnesiai',
     'meters' => 'skaitikliai',
-
-    // Trends and Analysis
     'trend_increasing' => 'Didėja',
     'trend_decreasing' => 'Mažėja',
     'trend_stable' => 'Stabilus',
@@ -312,14 +291,10 @@ return [
     'peak_usage' => 'Didžiausias naudojimas',
     'weekly_pattern' => 'Savaitės šablonas',
     'monthly_trend' => 'Mėnesio tendencija',
-
-    // Empty States
     'no_efficiency_data' => 'Nėra efektyvumo duomenų',
     'no_prediction_data' => 'Nėra prognozės duomenų',
     'no_pattern_data' => 'Nėra naudojimo šablono duomenų',
     'no_recommendations' => 'Šiuo metu nėra rekomendacijų',
-
-    // Recommendations
     'missing_readings_title' => 'Trūksta :service rodmenų',
     'missing_readings_desc' => 'Nerasta naujausių rodmenų :property',
     'add_reading' => 'Pridėti rodmenį',
@@ -332,69 +307,6 @@ return [
     'efficiency_title' => 'Energijos efektyvumo galimybė',
     'efficiency_desc' => 'Apsvarstykite energijos taupymo priemones :property',
     'consider_efficiency' => 'Apsvarstykite efektyvumo priemones',
-
-    'widgets' => [
-        'admin' => [
-            'active_tenants' => [
-                'description' => 'Aktyvių nuomininkų skaičius sistemoje',
-                'label' => 'Aktyvūs nuomininkai',
-            ],
-            'draft_invoices' => [
-                'description' => 'Sąskaitos faktūros juodraščio būsenoje',
-                'label' => 'Sąskaitų faktūrų juodraščiai',
-            ],
-            'pending_readings' => [
-                'description' => 'Skaitikliai, laukiantys naujų rodmenų',
-                'label' => 'Laukiantys rodmenys',
-            ],
-            'total_buildings' => [
-                'description' => 'Bendras valdomų pastatų skaičius',
-                'label' => 'Iš viso pastatų',
-            ],
-            'total_properties' => [
-                'description' => 'Bendras objektų skaičius sistemoje',
-                'label' => 'Iš viso objektų',
-            ],
-            'total_revenue' => [
-                'description' => 'Bendros pajamos iš komunalinių paslaugų',
-                'label' => 'Bendros pajamos',
-            ],
-        ],
-        'manager' => [
-            'draft_invoices' => [
-                'description' => 'Neapmokėtos sąskaitos faktūros, reikalaujančios dėmesio',
-                'label' => 'Sąskaitų faktūrų juodraščiai',
-            ],
-            'pending_readings' => [
-                'description' => 'Skaitikliai, kuriems reikia surinkti rodmenis',
-                'label' => 'Laukiantys rodmenys',
-            ],
-            'total_buildings' => [
-                'description' => 'Pastatai, kuriuos valdote',
-                'label' => 'Mano pastatai',
-            ],
-            'total_properties' => [
-                'description' => 'Objektai, kuriuos valdote',
-                'label' => 'Mano objektai',
-            ],
-        ],
-        'tenant' => [
-            'invoices' => [
-                'description' => 'Jūsų komunalinių paslaugų sąskaitos faktūros ir atsiskaitymo istorija',
-                'label' => 'Mano sąskaitos faktūros',
-            ],
-            'property' => [
-                'description' => 'Informacija apie jūsų objektą',
-                'label' => 'Mano objektas',
-            ],
-            'unpaid' => [
-                'description' => 'Neapmokėtos sąskaitos faktūros, reikalaujančios mokėjimo',
-                'label' => 'Neapmokėtos',
-            ],
-        ],
-    ],
-
-    // Property and Service Dashboard Keys
     'property' => 'Turtas',
     'service' => 'Paslauga',
     'latest_reading' => 'Paskutinis rodmuo',
@@ -411,10 +323,7 @@ return [
     'export_readings' => 'Eksportuoti rodmenis',
     'export_started' => 'Eksportas pradėtas',
     'export_will_be_available_shortly' => 'Eksportas bus prieinamas netrukus',
-
-    // Audit System Translations
     'audit' => [
-        // Widget Headings
         'overview' => 'Audito apžvalga',
         'trends' => 'Audito tendencijos',
         'trends_title' => 'Audito tendencijos',
@@ -424,19 +333,13 @@ return [
         'change_history' => 'Pakeitimų istorija',
         'rollback_management' => 'Atkūrimo valdymas',
         'rollback_history' => 'Atkūrimo istorija',
-
-        // Anomaly Actions
         'anomaly_marked_investigating' => 'Anomalija pažymėta kaip tiriama',
         'anomaly_resolved' => 'Anomalija išspręsta',
         'anomaly_ignored' => 'Anomalija ignoruota',
-
-        // Status
         'status' => 'Būsena',
         'last_check' => 'Paskutinė patikra',
         'issues' => 'Problemos',
         'no_issues' => 'Problemų nėra',
-
-        // Stats and Metrics
         'total_changes' => 'Iš viso pakeitimų',
         'user_changes' => 'Vartotojų pakeitimai',
         'system_changes' => 'Sistemos pakeitimai',
@@ -450,10 +353,8 @@ return [
         'last_24_hours' => 'Paskutinės 24 valandos',
         'last_7_days' => 'Paskutinės 7 dienos',
         'last_30_days' => 'Paskutinės 30 dienų',
-        'date' => 'Data',
+        'date' => 'Duomenys',
         'number_of_changes' => 'Pakeitimų skaičius',
-
-        // Status Messages
         'view_details' => 'Žiūrėti detales',
         'no_anomalies' => 'Anomalijų neaptikta',
         'no_changes' => 'Nėra užregistruotų pakeitimų',
@@ -465,12 +366,9 @@ return [
         'excellent_compliance' => 'Puikus atitikimas',
         'good_compliance' => 'Geras atitikimas',
         'needs_attention' => 'Reikia dėmesio',
-        'critical_issues' => 'Kritinės problemos',
         'fully_compliant' => 'Visiškai atitinka',
         'non_compliant' => 'Neatitinka',
         'unknown_status' => 'Nežinoma būsena',
-
-        // Modal Titles
         'change_details' => 'Pakeitimo detalės',
         'rollback_details' => 'Atkūrimo detalės',
         'rollback_confirmation' => 'Patvirtinti atkūrimą',
@@ -479,8 +377,6 @@ return [
         'bulk_rollback_warning' => 'Tai atkurs kelias konfigūracijas. Įsitikinkite, kad tai yra numatyta.',
         'revert_rollback_confirmation' => 'Patvirtinti atkūrimo atšaukimą',
         'revert_rollback_warning' => 'Tai atšauks atkūrimo operaciją. Naudokite atsargiai.',
-
-        // Labels
         'labels' => [
             'category' => 'Kategorija',
             'severity' => 'Sunkumas',
@@ -513,22 +409,16 @@ return [
             'revert_reason' => 'Atšaukimo priežastis',
             'select_changes' => 'Pasirinkti pakeitimus',
         ],
-
-        // Events
         'events' => [
             'created' => 'Sukurta',
             'updated' => 'Atnaujinta',
             'deleted' => 'Ištrinta',
             'rollback' => 'Atkūrimas',
         ],
-
-        // Models
         'models' => [
             'utility_service' => 'Komunalinė paslauga',
             'service_configuration' => 'Paslaugos konfigūracija',
         ],
-
-        // Time Periods
         'periods' => [
             'today' => 'Šiandien',
             'this_week' => 'Šią savaitę',
@@ -536,8 +426,6 @@ return [
             'this_quarter' => 'Šį ketvirtį',
             'this_year' => 'Šiais metais',
         ],
-
-        // Actions
         'actions' => [
             'export_details' => 'Eksportuoti detales',
             'export_csv' => 'Eksportuoti CSV',
@@ -549,15 +437,11 @@ return [
             'bulk_rollback' => 'Masinis atkūrimas',
             'revert_rollback' => 'Atšaukti atkūrimą',
         ],
-
-        // Placeholders
         'placeholders' => [
             'rollback_reason' => 'Paaiškinkite, kodėl ši konfigūracija turėtų būti atkurta...',
             'bulk_rollback_reason' => 'Paaiškinkite, kodėl šios konfigūracijos turėtų būti atkurtos...',
             'revert_reason' => 'Paaiškinkite, kodėl šis atkūrimas turėtų būti atšauktas...',
         ],
-
-        // Notifications
         'notifications' => [
             'rollback_success' => 'Konfigūracija sėkmingai atkurta',
             'rollback_failed' => 'Atkūrimo operacija nepavyko',
@@ -587,8 +471,6 @@ return [
                 'action' => 'Žiūrėti atitikties skydelį',
             ],
         ],
-
-        // Anomaly Types
         'anomaly_types' => [
             'high_change_frequency' => 'Didelis pakeitimų dažnis',
             'bulk_changes' => 'Masiniai pakeitimai',
@@ -597,8 +479,6 @@ return [
             'data_integrity_issue' => 'Duomenų vientisumo problema',
             'performance_degradation' => 'Našumo pablogėjimas',
         ],
-
-        // Compliance Categories
         'compliance_categories' => [
             'audit_trail' => 'Audito pėdsakas',
             'data_retention' => 'Duomenų saugojimas',
@@ -606,8 +486,6 @@ return [
             'security' => 'Saugumo atitikimas',
             'data_quality' => 'Duomenų kokybė',
         ],
-
-        // Recommendations
         'recommendations' => [
             'investigate_changes' => 'Tirti naujausius pakeitimus',
             'investigate_changes_desc' => 'Peržiūrėkite naujausius konfigūracijos pakeitimus, kad nustatytumėte šablonus ar neleistinus modifikacijas.',
@@ -622,40 +500,40 @@ return [
         ],
     ],
     'navigation' => [
-        'title' => 'Dashboard',
+        'title' => 'Prietaisų skydelis',
     ],
     'layout' => [
         'actions' => [
-            'export' => 'Export Layout',
-            'import' => 'Import Layout',
-            'reset' => 'Reset Dashboard',
+            'export' => 'Eksportuoti išdėstymą',
+            'import' => 'Importuoti išdėstymą',
+            'reset' => 'Iš naujo nustatyti prietaisų skydelį',
         ],
         'fields' => [
-            'layout_file' => 'Layout File',
-            'layout_file_help' => 'Upload a JSON file exported from another dashboard.',
+            'layout_file' => 'Maketo failas',
+            'layout_file_help' => 'Įkelkite JSON failą, eksportuotą iš kitos informacijos suvestinės.',
         ],
         'modals' => [
-            'reset_heading' => 'Reset Dashboard to Default',
-            'reset_description' => 'This will reset your dashboard to the default layout and remove all customizations. This action cannot be undone.',
-            'reset_submit' => 'Reset Dashboard',
+            'reset_heading' => 'Iš naujo nustatykite prietaisų skydelį į numatytąjį',
+            'reset_description' => 'Taip iš naujo nustatysite numatytąjį prietaisų skydelio išdėstymą ir pašalinsite visus tinkinimus. Šio veiksmo anuliuoti negalima.',
+            'reset_submit' => 'Iš naujo nustatyti prietaisų skydelį',
         ],
         'notifications' => [
-            'imported_title' => 'Layout Imported',
-            'imported_body' => 'Dashboard layout has been imported from the shared URL.',
-            'imported_body_file' => 'Dashboard layout has been successfully imported.',
-            'import_failed_title' => 'Import Failed',
-            'import_failed_body' => 'Failed to import layout from URL: :error',
-            'import_failed_body_file' => 'Failed to import layout: :error',
-            'reset_title' => 'Dashboard Reset',
-            'reset_body' => 'Your dashboard has been reset to the default layout.',
-            'reset_failed_title' => 'Reset Failed',
-            'reset_failed_body' => 'Failed to reset dashboard. Please try again.',
+            'imported_title' => 'Išdėstymas importuotas',
+            'imported_body' => 'Informacijos suvestinės išdėstymas buvo importuotas iš bendrinamo URL.',
+            'imported_body_file' => 'Informacijos suvestinės išdėstymas sėkmingai importuotas.',
+            'import_failed_title' => 'Importuoti nepavyko',
+            'import_failed_body' => 'Nepavyko importuoti maketo iš URL: :error',
+            'import_failed_body_file' => 'Nepavyko importuoti išdėstymo: :error',
+            'reset_title' => 'Prietaisų skydelio nustatymas iš naujo',
+            'reset_body' => 'Jūsų prietaisų skydelyje buvo iš naujo nustatytas numatytasis išdėstymas.',
+            'reset_failed_title' => 'Iš naujo nustatyti nepavyko',
+            'reset_failed_body' => 'Nepavyko iš naujo nustatyti prietaisų skydelio. Bandykite dar kartą.',
         ],
         'errors' => [
-            'invalid_config_format' => 'Invalid configuration format',
-            'invalid_config_structure' => 'Invalid configuration structure',
-            'file_not_found' => 'File not found',
-            'invalid_json' => 'Invalid JSON format',
+            'invalid_config_format' => 'Netinkamas konfigūracijos formatas',
+            'invalid_config_structure' => 'Netinkama konfigūracijos struktūra',
+            'file_not_found' => 'Failas nerastas',
+            'invalid_json' => 'Netinkamas JSON formatas',
         ],
     ],
 ];

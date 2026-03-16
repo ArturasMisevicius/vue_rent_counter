@@ -1,13 +1,11 @@
 <?php
 
 return [
-    // Tenant Panel Translations
     'nav_groups' => [
         'my_property' => 'My Property',
         'billing' => 'Billing',
         'account' => 'Account',
     ],
-    
     'navigation' => [
         'my_property' => 'My Property',
         'meter_readings' => 'Meter Readings',
@@ -15,7 +13,6 @@ return [
         'profile' => 'Profile',
         'dashboard' => 'Dashboard',
     ],
-    
     'labels' => [
         'property' => 'Property',
         'properties' => 'Properties',
@@ -47,7 +44,6 @@ return [
         'total_amount' => 'Total Amount',
         'services' => 'Services',
     ],
-    
     'sections' => [
         'property_details' => 'Property Details',
         'utility_services' => 'Utility Services',
@@ -57,12 +53,10 @@ return [
         'billing_period' => 'Billing Period',
         'invoice_items' => 'Invoice Items',
     ],
-    
     'actions' => [
         'view' => 'View',
         'download_pdf' => 'Download PDF',
     ],
-    
     'stats' => [
         'total_meters' => 'Total Meters',
         'installed_meters' => 'Installed meters',
@@ -73,15 +67,12 @@ return [
         'current_month_readings' => 'Current Month Readings',
         'this_month' => 'This month',
     ],
-    
     'widgets' => [
         'recent_invoices' => 'Recent Invoices',
     ],
-    
     'placeholders' => [
         'calculated_automatically' => 'Calculated automatically',
     ],
-    
     'brand' => [
         'name' => 'Vilnius Utilities',
         'product' => 'Utilities Management Platform',

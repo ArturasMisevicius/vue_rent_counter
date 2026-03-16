@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'common' => [
         'all_buildings' => 'All Buildings',
@@ -157,7 +155,7 @@ return [
                 'status_options' => [
                     'draft' => 'Draft',
                     'finalized' => 'Finalized',
-                    'paid' => 'Paid',
+                    'paid' => 'Add',
                 ],
                 'submit' => 'Submit',
             ],
@@ -175,13 +173,13 @@ return [
                 'title' => 'Title',
             ],
             'monthly' => [
-                'paid' => 'Paid',
+                'paid' => 'Add',
                 'title' => 'Title',
             ],
             'stats' => [
                 'finalized' => 'Finalized',
                 'overdue' => 'Overdue',
-                'paid' => 'Paid',
+                'paid' => 'Add',
                 'payment_rate' => 'Payment Rate',
                 'total' => 'Total',
             ],

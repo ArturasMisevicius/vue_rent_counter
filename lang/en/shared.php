@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'manager' => [
         'pages' => [
@@ -636,7 +634,7 @@ return [
             ],
             'stats' => [
                 'active_subscriptions' => 'Active Subscriptions',
-                'cancelled_subscriptions' => 'Cancelled Subscriptions',
+                'cancelled_subscriptions' => 'Canceled Subscriptions',
                 'expired_subscriptions' => 'Expired Subscriptions',
                 'expiring_soon' => 'Expiring Soon',
                 'suspended_subscriptions' => 'Suspended Subscriptions',
@@ -649,7 +647,7 @@ return [
             'stats_descriptions' => [
                 'active_organizations' => 'Active Organizations',
                 'active_subscriptions' => 'Active Subscriptions',
-                'cancelled_subscriptions' => 'Cancelled Subscriptions',
+                'cancelled_subscriptions' => 'Canceled Subscriptions',
                 'expired_subscriptions' => 'Expired Subscriptions',
                 'expiring_soon' => 'Subscriptions expiring soon',
                 'inactive_organizations' => 'Inactive Organizations',
@@ -1033,7 +1031,7 @@ return [
             ],
             'pages' => [
                 'activity_report' => [
-                    'breadcrumb' => 'Breadcrumb',
+                    'breadcrumb' => 'Breadcrumbs',
                     'title' => 'Title',
                 ],
             ],

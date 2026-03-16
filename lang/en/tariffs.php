@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'actions' => [
         'back' => 'Back',
@@ -120,7 +118,9 @@ return [
         'active' => 'Active',
         'inactive' => 'Inactive',
     ],
-    'types' => 'Types',
+    'types' => [
+        '' => '',
+    ],
     'validation' => [
         'active_from' => [
             'date' => 'Date',
@@ -209,8 +209,5 @@ return [
             'format' => 'Format',
             'max' => 'Max',
         ],
-    ],
-    'types' => [
-        '' => '',
     ],
 ];

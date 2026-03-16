@@ -1,42 +1,40 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'resource' => [
-        'label' => 'Žyma',
-        'plural_label' => 'Žymos',
-        'navigation_label' => 'Žymos',
+        'label' => 'Tag',
+        'plural_label' => 'Tags',
+        'navigation_label' => 'Tags',
     ],
     'fields' => [
-        'name' => 'Pavadinimas',
-        'slug' => 'Nuoroda',
-        'color' => 'Spalva',
-        'description' => 'Aprašymas',
-        'type' => 'Tipas',
-        'order' => 'Eilė',
+        'name' => 'Title',
+        'slug' => 'Link',
+        'color' => 'Color',
+        'description' => 'Description',
+        'type' => 'Type',
+        'order' => 'Queue',
     ],
     'types' => [
-        'general' => 'Bendras',
-        'property' => 'Turtas',
-        'tenant' => 'Nuomininkas',
-        'invoice' => 'Sąskaita faktūra',
+        'general' => 'Common',
+        'property' => 'Property',
+        'tenant' => 'Tenant',
+        'invoice' => 'Invoice',
     ],
     'actions' => [
-        'create' => 'Sukurti žymą',
-        'edit' => 'Redaguoti žymą',
-        'delete' => 'Ištrinti žymą',
-        'view' => 'Peržiūrėti žymą',
+        'create' => 'Create a tag',
+        'edit' => 'Edit tag',
+        'delete' => 'Delete tag',
+        'view' => 'View tag',
     ],
     'messages' => [
-        'created' => 'Žyma sukurta sėkmingai.',
-        'updated' => 'Žyma atnaujinta sėkmingai.',
-        'deleted' => 'Žyma ištrinta sėkmingai.',
+        'created' => 'Tag created successfully.',
+        'updated' => 'Tag updated successfully.',
+        'deleted' => 'Tag deleted successfully.',
     ],
     'labels' => [
-        'description' => 'Aprašymas',
-        'name' => 'Pavadinimas',
-        'color' => 'Spalva',
-        'type' => 'Tipas',
+        'description' => 'Description',
+        'name' => 'Title',
+        'color' => 'Color',
+        'type' => 'Type',
     ],
 ];

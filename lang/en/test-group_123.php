@@ -1,8 +1,7 @@
 <?php
 
-return array (
-  'test' => 
-  array (
-    'key' => 'Test Value',
-  ),
-);
+return [
+    'test' => [
+        'key' => 'Test Value',
+    ],
+];

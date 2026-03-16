@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'actions' => [
         'confirm_finalize' => 'Confirm Finalize',
@@ -47,15 +45,15 @@ return [
             'finalize_heading' => 'Finalize Heading',
             'finalize_submit' => 'Finalize Submit',
             'send_to_tenant' => [
-                'heading' => 'Siųsti sąskaitą nuomininkui',
-                'description' => 'Sąskaita bus išsiųsta nuomininkui el. paštu.',
-                'submit' => 'Siųsti sąskaitą',
+                'heading' => 'Send an invoice to the tenant',
+                'description' => 'The invoice will be sent to the tenant by e-mail. by post',
+                'submit' => 'Send an invoice',
             ],
         ],
         'navigation' => 'Invoices',
         'actions' => [
-            'download_pdf' => 'Atsisiųsti PDF',
-            'send_to_tenant' => 'Siųsti nuomininkui',
+            'download_pdf' => 'Download the PDF',
+            'send_to_tenant' => 'Send to tenant',
         ],
     ],
     'errors' => [
@@ -211,7 +209,7 @@ return [
             'all' => 'All',
             'drafts' => 'Drafts',
             'finalized' => 'Finalized',
-            'paid' => 'Paid',
+            'paid' => 'Add',
         ],
         'tenant' => 'Tenant',
         'title' => 'Title',
@@ -279,7 +277,7 @@ return [
             'due_date' => 'Due Date',
             'invoice' => 'Invoice',
             'line_items' => 'Line Items',
-            'paid' => 'Paid',
+            'paid' => 'Add',
             'paid_amount' => 'Paid Amount',
             'paid_at' => 'Paid At',
             'payment_reference' => 'Payment Reference',

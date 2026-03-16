@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'actions' => [
         'confirm_finalize' => 'Подтвердить Завершить',
@@ -47,15 +45,15 @@ return [
             'finalize_heading' => 'Завершить заголовок',
             'finalize_submit' => 'Завершить Отправить',
             'send_to_tenant' => [
-                'heading' => 'Siųsti sąskaitą nuomininkui',
-                'description' => 'Sąskaita bus išsiųsta nuomininkui el. paštu.',
-                'submit' => 'Siųsti sąskaitą',
+                'heading' => 'Отправьте счет арендатору',
+                'description' => 'Счет будет отправлен арендатору по электронной почте. по почте',
+                'submit' => 'Отправить счет',
             ],
         ],
         'navigation' => 'Счета',
         'actions' => [
-            'download_pdf' => 'Atsisiųsti PDF',
-            'send_to_tenant' => 'Siųsti nuomininkui',
+            'download_pdf' => 'Скачать PDF-файл',
+            'send_to_tenant' => 'Отправить арендатору',
         ],
     ],
     'errors' => [

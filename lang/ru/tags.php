@@ -1,42 +1,40 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'resource' => [
-        'label' => 'Žyma',
-        'plural_label' => 'Žymos',
-        'navigation_label' => 'Žymos',
+        'label' => 'Ярлык',
+        'plural_label' => 'Теги',
+        'navigation_label' => 'Теги',
     ],
     'fields' => [
-        'name' => 'Pavadinimas',
-        'slug' => 'Nuoroda',
-        'color' => 'Spalva',
-        'description' => 'Aprašymas',
-        'type' => 'Tipas',
-        'order' => 'Eilė',
+        'name' => 'Заголовок',
+        'slug' => 'Связь',
+        'color' => 'Цвет',
+        'description' => 'Описание',
+        'type' => 'Тип',
+        'order' => 'Очередь',
     ],
     'types' => [
-        'general' => 'Bendras',
-        'property' => 'Turtas',
-        'tenant' => 'Nuomininkas',
-        'invoice' => 'Sąskaita faktūra',
+        'general' => 'Общий',
+        'property' => 'Свойство',
+        'tenant' => 'Жилец',
+        'invoice' => 'Счет',
     ],
     'actions' => [
-        'create' => 'Sukurti žymą',
-        'edit' => 'Redaguoti žymą',
-        'delete' => 'Ištrinti žymą',
-        'view' => 'Peržiūrėti žymą',
+        'create' => 'Создать тег',
+        'edit' => 'Изменить тег',
+        'delete' => 'Удалить тег',
+        'view' => 'Посмотреть тег',
     ],
     'messages' => [
-        'created' => 'Žyma sukurta sėkmingai.',
-        'updated' => 'Žyma atnaujinta sėkmingai.',
-        'deleted' => 'Žyma ištrinta sėkmingai.',
+        'created' => 'Тег успешно создан.',
+        'updated' => 'Тег успешно обновлен.',
+        'deleted' => 'Тег успешно удален.',
     ],
     'labels' => [
-        'description' => 'Aprašymas',
-        'name' => 'Pavadinimas',
-        'color' => 'Spalva',
-        'type' => 'Tipas',
+        'description' => 'Описание',
+        'name' => 'Заголовок',
+        'color' => 'Цвет',
+        'type' => 'Тип',
     ],
 ];

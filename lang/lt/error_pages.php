@@ -1,30 +1,28 @@
 <?php
 
-declare(strict_types=1);
-
 return [
-    401 => [
+    '401' => [
         'description' => 'Aprašymas',
         'headline' => 'Antraštė',
         'title' => 'Pavadinimas',
     ],
-    403 => [
+    '403' => [
         'description' => 'Aprašymas',
         'headline' => 'Antraštė',
         'title' => 'Pavadinimas',
     ],
-    404 => [
+    '404' => [
         'description' => 'Aprašymas',
         'headline' => 'Antraštė',
         'title' => 'Pavadinimas',
     ],
-    422 => [
+    '422' => [
         'description' => 'Aprašymas',
         'errors_title' => 'Klaidos Pavadinimas',
         'headline' => 'Antraštė',
         'title' => 'Pavadinimas',
     ],
-    500 => [
+    '500' => [
         'description' => 'Aprašymas',
         'headline' => 'Antraštė',
         'title' => 'Pavadinimas',

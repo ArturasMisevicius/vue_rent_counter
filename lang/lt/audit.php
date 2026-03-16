@@ -1,13 +1,11 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'filters' => [
         'create' => 'Sukurti',
         'delete' => 'Ištrinti',
         'from' => 'Nuo',
-        'until' => 'Until',
+        'until' => 'Iki',
         'update' => 'Atnaujinti',
         'view' => 'Žiūrėti',
     ],
@@ -16,7 +14,7 @@ return [
         'action_type' => 'Veiksmo tipas',
         'ip_address' => 'IP adresas',
         'organization' => 'Organizacija',
-        'resource_id' => 'Resource Id',
+        'resource_id' => 'Ištekliaus ID',
         'resource_type' => 'Ištekliaus tipas',
         'timestamp' => 'Laiko žyma',
         'user' => 'Vartotojas',
@@ -27,7 +25,7 @@ return [
         'index' => [
             'description' => 'Aprašymas',
             'filters' => [
-                'apply' => 'Apply',
+                'apply' => 'Taikyti',
                 'clear' => 'Aišku',
                 'from_date' => 'Nuo datos',
                 'meter_placeholder' => 'Metras Vietos rezervuaras',
@@ -39,7 +37,7 @@ return [
                 'clear_filters' => 'Išvalyti filtrus',
                 'empty' => 'Tuščia',
                 'new_short' => 'Naujas trumpas',
-                'not_available' => 'Not Available',
+                'not_available' => 'Nėra',
                 'old_short' => 'Senas Trumpas',
                 'see_all' => 'Žiūrėti viską',
                 'system' => 'Sistema',

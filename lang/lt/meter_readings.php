@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'actions' => [
         'back' => 'Atgal',
@@ -32,7 +30,7 @@ return [
         'consumption' => 'Apskaičiuotas suvartojimas',
         'consumption_warning' => 'Aptiktas neįprastai didelis suvartojimas. Prašome patikrinti rodmenį.',
         'consumption_low_warning' => 'Aptiktas neįprastai mažas suvartojimas. Prašome patikrinti rodmenį.',
-        'date_label' => 'Data',
+        'date_label' => 'Duomenys',
         'day_zone' => 'Dienos zonos rodmuo (kWh)',
         'estimated_charge' => 'Numatomas mokestis',
         'meter_placeholder' => '-- Pasirinkite skaitiklį --',
@@ -97,7 +95,7 @@ return [
                 'title' => 'Pavadinimas',
             ],
             'current' => [
-                'date' => 'Data',
+                'date' => 'Duomenys',
                 'meter' => 'Metras',
                 'title' => 'Pavadinimas',
                 'value' => 'Vertė',
@@ -129,7 +127,7 @@ return [
             'filters' => [
                 'all_properties' => 'Visos ypatybės',
                 'all_types' => 'Visi tipai',
-                'apply' => 'Apply',
+                'apply' => 'Taikyti',
                 'group_by' => 'Grupuoti pagal',
                 'meter_type' => 'Skaitiklio tipas',
                 'meter_type_label' => 'Skaitiklio tipo etiketė',
@@ -156,7 +154,7 @@ return [
     'recent_empty' => 'Neseniai tuščias',
     'tables' => [
         'actions' => 'Veiksmai',
-        'date' => 'Data',
+        'date' => 'Duomenys',
         'entered_by' => 'Įėjo',
         'meter' => 'Metras',
         'value' => 'Vertė',
@@ -191,7 +189,7 @@ return [
         ],
         'table' => [
             'consumption' => 'Vartojimas',
-            'date' => 'Data',
+            'date' => 'Duomenys',
             'reading' => 'Skaitymas',
             'zone' => 'Zona',
         ],
@@ -226,7 +224,7 @@ return [
         ],
         'reading_date' => [
             'before_or_equal' => 'Prieš arba lygus',
-            'date' => 'Data',
+            'date' => 'Duomenys',
             'required' => 'Privaloma',
         ],
         'value' => [

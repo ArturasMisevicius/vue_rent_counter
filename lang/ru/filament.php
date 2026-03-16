@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'pages' => [
         'gdpr' => [
@@ -100,15 +98,15 @@ return [
             ],
             'options' => [
                 'mailers' => [
-                    'sendmail' => 'Sendmail',
-                    'mailgun' => 'Mailgun',
-                    'ses' => 'Amazon SES',
+                    'sendmail' => 'Отправить почту',
+                    'mailgun' => 'Мейлган',
+                    'ses' => 'Амазон СЭС',
                     'log' => 'Лог (разработка)',
                 ],
                 'queue_connections' => [
                     'sync' => 'Синхронно (без очереди)',
                     'database' => 'База данных',
-                    'sqs' => 'Amazon SQS',
+                    'sqs' => 'Амазонка SQS',
                 ],
                 'locales' => [
                     'lt' => 'Литовский',
@@ -197,7 +195,7 @@ return [
             ],
             'fields' => [
                 'name' => 'Имя',
-                'email' => 'Email',
+                'email' => 'Электронная почта',
                 'role' => 'Роль',
                 'organization' => 'Организация',
                 'organization_name' => 'Название организации',
@@ -295,7 +293,7 @@ return [
             'export' => [
                 'headers' => [
                     'name' => 'Имя',
-                    'email' => 'Email',
+                    'email' => 'Электронная почта',
                     'role' => 'Роль',
                     'organization' => 'Организация',
                     'status' => 'Статус',
@@ -311,7 +309,7 @@ return [
                 ],
             ],
             'global_search' => [
-                'email' => 'Email',
+                'email' => 'Электронная почта',
                 'role' => 'Роль',
                 'organization' => 'Организация',
             ],

@@ -1,19 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 return [
     'errors_occurred' => 'Errors Occurred',
     'exists' => 'Exists',
-
-    // Service Validation Engine messages
     'unauthorized_rate_change' => 'Unauthorized to validate rate changes for this service',
     'rate_schedule_empty' => 'Rate schedule cannot be empty',
     'validator_unavailable' => 'Rate change validator not available',
     'unauthorized_meter_reading' => 'Unauthorized to validate this meter reading',
     'system_error' => 'Validation system error: :error',
-
-    // Consumption validation
     'consumption_below_minimum' => 'Consumption :consumption :unit is below minimum limit of :minimum :unit.',
     'consumption_exceeds_maximum' => 'Consumption :consumption :unit exceeds maximum limit of :maximum :unit.',
     'insufficient_historical_data' => 'Insufficient historical data to validate consumption patterns.',
@@ -29,8 +23,6 @@ return [
     'water_consumption_very_low' => 'Water consumption is very low.',
     'heating_consumption_high_in_summer' => 'Heating consumption is high during summer period.',
     'heating_consumption_low_in_winter' => 'Heating consumption is low during winter period.',
-
-    // Seasonal validation
     'heating_consumption_high_summer' => 'Heating consumption :consumption :unit is above summer threshold :threshold :unit.',
     'check_heating_system_summer' => 'Check the heating system settings for the summer period.',
     'heating_consumption_low_winter' => 'Heating consumption :consumption :unit is below winter threshold :threshold :unit.',
@@ -48,7 +40,6 @@ return [
     'water_seasonal_variance_high' => 'Water consumption :consumption :unit varies by :variance% from average :average :unit.',
     'consumption_above_seasonal_expectation' => 'Consumption :consumption :unit exceeds expected seasonal maximum :expected_max :unit.',
     'seasonal_variance_detected' => 'Seasonal variance detected: :consumption :unit vs average :average :unit (:variance%).',
-
     'custom_requests' => [
         'api_login' => [
             'email' => [
