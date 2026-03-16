@@ -11,10 +11,10 @@
         "herd": {
             "command": "php",
             "args": [
-                "C:/Users/andre/.config/herd/bin/herd-mcp.phar"
+                "/Applications/Herd.app/Contents/Resources/herd-mcp.phar"
             ],
             "env": {
-                "SITE_PATH": "C:\\Dropbox\\projects\\tenanto"
+                "SITE_PATH": "/Users/andrejprus/Herd/tenanto"
             }
         },
         "laravel-boost": {
@@ -23,6 +23,87 @@
                 "artisan",
                 "boost:mcp"
             ]
+        },
+        "gptr-mcp": {
+            "command": "bash",
+            "args": [
+                "scripts/gptr-mcp.sh"
+            ],
+            "cwd": "/Users/andrejprus/Herd/tenanto"
+        },
+        "context7": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@upstash/context7-mcp"
+            ]
+        },
+        "everything": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-everything"
+            ]
+        },
+        "playwright": {
+            "command": "npx",
+            "args": [
+                "@playwright/mcp@latest"
+            ]
+        },
+        "snyk": {
+            "command": "npx -y snyk@latest mcp -t stdio",
+            "env": {},
+            "args": []
+        },
+        "Browser Use": {
+            "url": "https://docs.browser-use.com/mcp",
+            "headers": {}
+        },
+        "Render": {
+            "url": "https://mcp.render.com/mcp",
+            "headers": {
+                "Authorization": "Bearer <YOUR_API_KEY>"
+            }
+        },
+        "Select Star": {
+            "command": "npx -y mcp-remote@latest https://mcp.production.selectstar.com/mcp --header Authorization:${SELECT_STAR_TOKEN}",
+            "env": {
+                "SELECT_STAR_TOKEN": ""
+            },
+            "args": []
+        },
+        "Chrome DevTools": {
+            "command": "npx chrome-devtools-mcp@latest",
+            "env": {},
+            "args": []
+        },
+        "Socket": {
+            "url": "https://mcp.socket.dev/",
+            "headers": {}
+        },
+        "MS Learn Docs": {
+            "url": "https://learn.microsoft.com/api/mcp",
+            "headers": {}
+        },
+        "opencontext": {
+            "command": "oc",
+            "args": [
+                "mcp"
+            ]
+        },
+        "task-master-ai": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "task-master-ai@0.43.0"
+            ],
+            "env": {
+                "TASK_MASTER_TOOLS": "standard"
+            }
+        },
+        "mindsdb": {
+            "url": "http://127.0.0.1:47334/mcp/sse"
         }
     }
 }

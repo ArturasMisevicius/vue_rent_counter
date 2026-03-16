@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "19f6f1aaf29328c4601933dbfa7d0e16",
+    "content-hash": "31433bac9e84b30df898b330a1bc89d2",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -2580,6 +2580,71 @@
                 }
             ],
             "time": "2025-08-22T14:27:06+00:00"
+        },
+        {
+            "name": "itpathsolutions/dbstan",
+            "version": "1.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dhanikk/dbstan.git",
+                "reference": "fbe8af4040b490411f71655355e3dfcae7846642"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dhanikk/dbstan/zipball/fbe8af4040b490411f71655355e3dfcae7846642",
+                "reference": "fbe8af4040b490411f71655355e3dfcae7846642",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "^9.0|^10.0|^11.0|^12.0",
+                "illuminate/database": "^9.0|^10.0|^11.0|^12.0",
+                "illuminate/support": "^9.0|^10.0|^11.0|^12.0",
+                "php": "^8.1|^8.2|^8.3|^8.4"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Itpathsolutions\\DBStan\\DBStanServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Itpathsolutions\\DBStan\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dhanik Keraliya",
+                    "email": "dhanikk@itpathsolutions.com"
+                },
+                {
+                    "name": "Archana Soni",
+                    "email": "archanau@itpathsolutions.com",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "Database Standardization and Analysis Tool for Laravel",
+            "keywords": [
+                "analysis",
+                "database",
+                "dbstan",
+                "itpathsolutions",
+                "laravel",
+                "performance",
+                "php",
+                "schema"
+            ],
+            "support": {
+                "issues": "https://github.com/dhanikk/dbstan/issues",
+                "source": "https://github.com/dhanikk/dbstan/tree/v1.0.5"
+            },
+            "time": "2026-03-13T08:32:50+00:00"
         },
         {
             "name": "kirschbaum-development/eloquent-power-joins",
@@ -13917,7 +13982,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.2"
+        "php": "^8.5"
     },
     "platform-dev": {},
     "plugin-api-version": "2.9.0"

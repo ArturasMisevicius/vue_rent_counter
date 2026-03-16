@@ -1,0 +1,21 @@
+{
+    "mcpServers": {
+        "gptr-mcp": {
+            "command": "bash",
+            "args": [
+                "scripts/gptr-mcp.sh"
+            ],
+            "cwd": "/Users/andrejprus/Herd/tenanto"
+        },
+        "context7": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@upstash/context7-mcp"
+            ]
+        },
+        "mindsdb": {
+            "url": "http://127.0.0.1:47334/mcp/sse"
+        }
+    }
+}

@@ -134,5 +134,10 @@
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enabledMcpjsonServers": [
+    "laravel-mcp",
+    "herd",
+    "laravel-boost"
+  ]
 }

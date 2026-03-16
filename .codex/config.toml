@@ -1,16 +1,38 @@
 [mcp_servers.laravel-mcp]
 command = "php"
 args = ["artisan", "mcp:start", "tenanto"]
-cwd = "C:\\Dropbox\\projects\\tenanto"
+cwd = "/Users/andrejprus/Herd/tenanto"
+
 [mcp_servers.laravel-boost]
 command = "php"
 args = ["artisan", "boost:mcp"]
-cwd = "C:\\Dropbox\\projects\\tenanto"
+cwd = "/Users/andrejprus/Herd/tenanto"
 
 [mcp_servers.herd]
 command = "php"
-args = ["C:/Users/andre/.config/herd/bin/herd-mcp.phar"]
-cwd = "C:\\Dropbox\\projects\\tenanto"
+args = ["/Applications/Herd.app/Contents/Resources/herd-mcp.phar"]
+cwd = "/Users/andrejprus/Herd/tenanto"
 
 [mcp_servers.herd.env]
-SITE_PATH = "C:\\Dropbox\\projects\\tenanto"
+SITE_PATH = "/Users/andrejprus/Herd/tenanto"
+
+[mcp_servers.gptr-mcp]
+command = "bash"
+args = ["scripts/gptr-mcp.sh"]
+cwd = "/Users/andrejprus/Herd/tenanto"
+startup_timeout_ms = 20_000
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+startup_timeout_ms = 20_000
+
+[mcp_servers.mindsdb]
+command = "npx"
+args = ["-y", "mcp-remote", "http://127.0.0.1:47334/mcp/sse"]
+startup_timeout_ms = 20_000
+
+[mcp_servers.serena]
+command = "uvx"
+args = ["--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "codex", "--project-from-cwd"]
+startup_timeout_ms = 120_000

@@ -131,6 +131,13 @@
       0 => 'Filament\\Widgets\\WidgetsServiceProvider',
     ),
   ),
+  'itpathsolutions/dbstan' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Itpathsolutions\\DBStan\\DBStanServiceProvider',
+    ),
+  ),
   'kirschbaum-development/eloquent-power-joins' => 
   array (
     'providers' => 
