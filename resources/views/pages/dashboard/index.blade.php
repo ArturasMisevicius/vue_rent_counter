@@ -264,41 +264,69 @@
                 </div>
                 <a href="{{ route('superadmin.subscriptions.index') }}" class="text-blue-600 hover:text-blue-800 text-sm font-semibold">{{ __('shared.dashboard.overview.subscriptions.open') }}</a>
             </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50">
+            <div class="hidden md:block">
+                <x-data-table :caption="__('shared.dashboard.overview.subscriptions.title')">
+                    <x-slot name="header">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.subscriptions.headers.organization') }}</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.subscriptions.headers.plan') }}</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.subscriptions.headers.status') }}</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.subscriptions.headers.expires') }}</th>
-                            <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.subscriptions.headers.manage') }}</th>
+                            <th scope="col">{{ __('shared.dashboard.overview.subscriptions.headers.organization') }}</th>
+                            <th scope="col">{{ __('shared.dashboard.overview.subscriptions.headers.plan') }}</th>
+                            <th scope="col">{{ __('shared.dashboard.overview.subscriptions.headers.status') }}</th>
+                            <th scope="col">{{ __('shared.dashboard.overview.subscriptions.headers.expires') }}</th>
+                            <th scope="col" class="text-right">{{ __('shared.dashboard.overview.subscriptions.headers.manage') }}</th>
                         </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-slate-200">
-                        @forelse($subscriptionList as $subscription)
-                            <tr class="hover:bg-slate-50">
-                                <td class="px-4 py-3">
-                                    <div class="font-medium text-slate-900">{{ $subscription->user->organization_name }}</div>
-                                    <div class="text-sm text-slate-500">{{ $subscription->user->email }}</div>
-                                </td>
-                                <td class="px-4 py-3 text-sm text-slate-700">{{ enum_label($subscription->plan_type, \App\Enums\SubscriptionPlanType::class) }}</td>
-                                <td class="px-4 py-3"><x-status-badge :status="$subscription->status" /></td>
-                                <td class="px-4 py-3 text-sm text-slate-700">
-                                    <div>{{ $subscription->expires_at->format('M d, Y') }}</div>
-                                    <div class="text-xs text-slate-500">{{ $subscription->expires_at->diffForHumans() }}</div>
-                                </td>
-                                <td class="px-4 py-3 text-right text-sm font-medium">
-                                    <a href="{{ route('superadmin.subscriptions.show', $subscription) }}" class="text-blue-600 hover:text-blue-800">{{ __('shared.dashboard.overview.subscriptions.headers.manage') }}</a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-4 py-4 text-center text-slate-500">{{ __('shared.dashboard.overview.subscriptions.empty') }}</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                    </x-slot>
+
+                    @forelse($subscriptionList as $subscription)
+                        <tr>
+                            <td>
+                                <div class="font-medium text-slate-900">{{ $subscription->user->organization_name }}</div>
+                                <div class="text-sm text-slate-500">{{ $subscription->user->email }}</div>
+                            </td>
+                            <td>{{ enum_label($subscription->plan_type, \App\Enums\SubscriptionPlanType::class) }}</td>
+                            <td><x-status-badge :status="$subscription->status" /></td>
+                            <td>
+                                <div class="font-medium text-slate-900">{{ $subscription->expires_at->format('M d, Y') }}</div>
+                                <div class="text-xs text-slate-500">{{ $subscription->expires_at->diffForHumans() }}</div>
+                            </td>
+                            <td class="text-right">
+                                <a href="{{ route('superadmin.subscriptions.show', $subscription) }}" class="text-sm font-semibold text-indigo-600 transition hover:text-indigo-800">{{ __('shared.dashboard.overview.subscriptions.headers.manage') }}</a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="text-center text-sm text-slate-500">{{ __('shared.dashboard.overview.subscriptions.empty') }}</td>
+                        </tr>
+                    @endforelse
+                </x-data-table>
+            </div>
+            <div class="space-y-3 md:hidden">
+                @forelse($subscriptionList as $subscription)
+                    <x-ui.list-record :title="$subscription->user->organization_name" :subtitle="$subscription->user->email">
+                        <x-slot name="aside">
+                            <x-status-badge :status="$subscription->status" />
+                        </x-slot>
+
+                        <x-slot name="meta">
+                            <x-ui.list-meta :label="__('shared.dashboard.overview.subscriptions.headers.plan')">
+                                {{ enum_label($subscription->plan_type, \App\Enums\SubscriptionPlanType::class) }}
+                            </x-ui.list-meta>
+                            <x-ui.list-meta :label="__('shared.dashboard.overview.subscriptions.headers.expires')">
+                                <div class="font-medium text-slate-900">{{ $subscription->expires_at->format('M d, Y') }}</div>
+                                <div class="text-xs text-slate-500">{{ $subscription->expires_at->diffForHumans() }}</div>
+                            </x-ui.list-meta>
+                        </x-slot>
+
+                        <x-slot name="actions">
+                            <a href="{{ route('superadmin.subscriptions.show', $subscription) }}" class="inline-flex w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-indigo-700 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                {{ __('shared.dashboard.overview.subscriptions.headers.manage') }}
+                            </a>
+                        </x-slot>
+                    </x-ui.list-record>
+                @empty
+                    <div class="rounded-3xl border border-dashed border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-600 shadow-sm">
+                        {{ __('shared.dashboard.overview.subscriptions.empty') }}
+                    </div>
+                @endforelse
             </div>
         </x-card>
 
@@ -310,50 +338,81 @@
                 </div>
                 <a href="{{ route('superadmin.organizations.index') }}" class="text-blue-600 hover:text-blue-800 text-sm font-semibold">{{ __('shared.dashboard.overview.organizations.open') }}</a>
             </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50">
+            <div class="hidden md:block">
+                <x-data-table :caption="__('shared.dashboard.overview.organizations.title')">
+                    <x-slot name="header">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.organizations.headers.organization') }}</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.organizations.headers.subscription') }}</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.organizations.headers.status') }}</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.organizations.headers.created') }}</th>
-                            <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.organizations.headers.manage') }}</th>
+                            <th scope="col">{{ __('shared.dashboard.overview.organizations.headers.organization') }}</th>
+                            <th scope="col">{{ __('shared.dashboard.overview.organizations.headers.subscription') }}</th>
+                            <th scope="col">{{ __('shared.dashboard.overview.organizations.headers.status') }}</th>
+                            <th scope="col">{{ __('shared.dashboard.overview.organizations.headers.created') }}</th>
+                            <th scope="col" class="text-right">{{ __('shared.dashboard.overview.organizations.headers.manage') }}</th>
                         </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-slate-200">
-                        @forelse($organizationList as $organization)
-                            <tr class="hover:bg-slate-50">
-                                <td class="px-4 py-3">
-                                    <div class="font-medium text-slate-900">{{ $organization->name }}</div>
-                                    <div class="text-sm text-slate-500">{{ $organization->email }}</div>
-                                </td>
-                                <td class="px-4 py-3 text-sm text-slate-700">
-                                    @if($organization->plan)
-                                        {{ enum_label($organization->plan, \App\Enums\SubscriptionPlan::class) }}
-                                    @else
-                                        <span class="text-slate-400">{{ __('shared.dashboard.overview.organizations.no_subscription') }}</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3">
-                                    @if($organization->is_active)
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{{ __('shared.dashboard.overview.organizations.status_active') }}</span>
-                                    @else
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">{{ __('shared.dashboard.overview.organizations.status_inactive') }}</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3 text-sm text-slate-700">{{ $organization->created_at->format('M d, Y') }}</td>
-                                <td class="px-4 py-3 text-right text-sm font-medium">
-                                    <a href="{{ route('superadmin.organizations.show', $organization) }}" class="text-blue-600 hover:text-blue-800">{{ __('shared.dashboard.overview.organizations.headers.manage') }}</a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-4 py-4 text-center text-slate-500">{{ __('shared.dashboard.overview.organizations.empty') }}</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                    </x-slot>
+
+                    @forelse($organizationList as $organization)
+                        <tr>
+                            <td>
+                                <div class="font-medium text-slate-900">{{ $organization->name }}</div>
+                                <div class="text-sm text-slate-500">{{ $organization->email }}</div>
+                            </td>
+                            <td>
+                                @if($organization->plan)
+                                    {{ enum_label($organization->plan, \App\Enums\SubscriptionPlan::class) }}
+                                @else
+                                    <span class="text-slate-400">{{ __('shared.dashboard.overview.organizations.no_subscription') }}</span>
+                                @endif
+                            </td>
+                            <td>
+                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold {{ $organization->is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }}">
+                                    {{ $organization->is_active ? __('shared.dashboard.overview.organizations.status_active') : __('shared.dashboard.overview.organizations.status_inactive') }}
+                                </span>
+                            </td>
+                            <td>{{ $organization->created_at->format('M d, Y') }}</td>
+                            <td class="text-right">
+                                <a href="{{ route('superadmin.organizations.show', $organization) }}" class="text-sm font-semibold text-indigo-600 transition hover:text-indigo-800">{{ __('shared.dashboard.overview.organizations.headers.manage') }}</a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="text-center text-sm text-slate-500">{{ __('shared.dashboard.overview.organizations.empty') }}</td>
+                        </tr>
+                    @endforelse
+                </x-data-table>
+            </div>
+            <div class="space-y-3 md:hidden">
+                @forelse($organizationList as $organization)
+                    <x-ui.list-record :title="$organization->name" :subtitle="$organization->email">
+                        <x-slot name="aside">
+                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold {{ $organization->is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }}">
+                                {{ $organization->is_active ? __('shared.dashboard.overview.organizations.status_active') : __('shared.dashboard.overview.organizations.status_inactive') }}
+                            </span>
+                        </x-slot>
+
+                        <x-slot name="meta">
+                            <x-ui.list-meta :label="__('shared.dashboard.overview.organizations.headers.subscription')">
+                                @if($organization->plan)
+                                    {{ enum_label($organization->plan, \App\Enums\SubscriptionPlan::class) }}
+                                @else
+                                    <span class="text-slate-400">{{ __('shared.dashboard.overview.organizations.no_subscription') }}</span>
+                                @endif
+                            </x-ui.list-meta>
+                            <x-ui.list-meta :label="__('shared.dashboard.overview.organizations.headers.created')">
+                                {{ $organization->created_at->format('M d, Y') }}
+                            </x-ui.list-meta>
+                        </x-slot>
+
+                        <x-slot name="actions">
+                            <a href="{{ route('superadmin.organizations.show', $organization) }}" class="inline-flex w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-indigo-700 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                {{ __('shared.dashboard.overview.organizations.headers.manage') }}
+                            </a>
+                        </x-slot>
+                    </x-ui.list-record>
+                @empty
+                    <div class="rounded-3xl border border-dashed border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-600 shadow-sm">
+                        {{ __('shared.dashboard.overview.organizations.empty') }}
+                    </div>
+                @endforelse
             </div>
         </x-card>
     </div>
@@ -1363,35 +1422,30 @@ SVG"/>
 
         @if($stats['latest_readings']->isNotEmpty())
         <x-ui.section-card :title="__('dashboard.shared.readings.title')">
-            <div class="hidden sm:block overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50">
+            <div class="hidden sm:block">
+                <x-data-table :caption="__('dashboard.shared.readings.title')">
+                    <x-slot name="header">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('dashboard.shared.readings.meter_type') }}</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('dashboard.shared.readings.serial') }}</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('dashboard.shared.readings.reading') }}</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('dashboard.shared.readings.date') }}</th>
+                            <th scope="col">{{ __('dashboard.shared.readings.meter_type') }}</th>
+                            <th scope="col">{{ __('dashboard.shared.readings.serial') }}</th>
+                            <th scope="col">{{ __('dashboard.shared.readings.reading') }}</th>
+                            <th scope="col">{{ __('dashboard.shared.readings.date') }}</th>
                         </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-slate-200">
-                        @foreach($stats['latest_readings'] as $reading)
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
-                                {{ $reading->meter->getServiceDisplayName() }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                {{ $reading->meter->serial_number }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                                {{ number_format($reading->value, 2) }} {{ $reading->meter->getUnitOfMeasurement() }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                {{ $reading->reading_date->format('Y-m-d') }}
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                    </x-slot>
+
+                    @foreach($stats['latest_readings'] as $reading)
+                    <tr>
+                        <td class="font-medium text-slate-900">
+                            {{ $reading->meter->getServiceDisplayName() }}
+                        </td>
+                        <td>{{ $reading->meter->serial_number }}</td>
+                        <td class="font-medium text-slate-900">
+                            {{ number_format($reading->value, 2) }} {{ $reading->meter->getUnitOfMeasurement() }}
+                        </td>
+                        <td>{{ $reading->reading_date->format('Y-m-d') }}</td>
+                    </tr>
+                    @endforeach
+                </x-data-table>
             </div>
             <x-ui.stack gap="3" class="sm:hidden">
                 @foreach($stats['latest_readings'] as $reading)
@@ -1710,41 +1764,69 @@ SVG"/>
                 </div>
                 <a href="{{ route('superadmin.subscriptions.index') }}" class="text-blue-600 hover:text-blue-800 text-sm font-semibold">{{ __('shared.dashboard.overview.subscriptions.open') }}</a>
             </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50">
+            <div class="hidden md:block">
+                <x-data-table :caption="__('shared.dashboard.overview.subscriptions.title')">
+                    <x-slot name="header">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.subscriptions.headers.organization') }}</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.subscriptions.headers.plan') }}</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.subscriptions.headers.status') }}</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.subscriptions.headers.expires') }}</th>
-                            <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.subscriptions.headers.manage') }}</th>
+                            <th scope="col">{{ __('shared.dashboard.overview.subscriptions.headers.organization') }}</th>
+                            <th scope="col">{{ __('shared.dashboard.overview.subscriptions.headers.plan') }}</th>
+                            <th scope="col">{{ __('shared.dashboard.overview.subscriptions.headers.status') }}</th>
+                            <th scope="col">{{ __('shared.dashboard.overview.subscriptions.headers.expires') }}</th>
+                            <th scope="col" class="text-right">{{ __('shared.dashboard.overview.subscriptions.headers.manage') }}</th>
                         </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-slate-200">
-                        @forelse($subscriptionList as $subscription)
-                            <tr class="hover:bg-slate-50">
-                                <td class="px-4 py-3">
-                                    <div class="font-medium text-slate-900">{{ $subscription->user->organization_name }}</div>
-                                    <div class="text-sm text-slate-500">{{ $subscription->user->email }}</div>
-                                </td>
-                                <td class="px-4 py-3 text-sm text-slate-700">{{ enum_label($subscription->plan_type, \App\Enums\SubscriptionPlanType::class) }}</td>
-                                <td class="px-4 py-3"><x-status-badge :status="$subscription->status" /></td>
-                                <td class="px-4 py-3 text-sm text-slate-700">
-                                    <div>{{ $subscription->expires_at->format('M d, Y') }}</div>
-                                    <div class="text-xs text-slate-500">{{ $subscription->expires_at->diffForHumans() }}</div>
-                                </td>
-                                <td class="px-4 py-3 text-right text-sm font-medium">
-                                    <a href="{{ route('superadmin.subscriptions.show', $subscription) }}" class="text-blue-600 hover:text-blue-800">{{ __('shared.dashboard.overview.subscriptions.headers.manage') }}</a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-4 py-4 text-center text-slate-500">{{ __('shared.dashboard.overview.subscriptions.empty') }}</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                    </x-slot>
+
+                    @forelse($subscriptionList as $subscription)
+                        <tr>
+                            <td>
+                                <div class="font-medium text-slate-900">{{ $subscription->user->organization_name }}</div>
+                                <div class="text-sm text-slate-500">{{ $subscription->user->email }}</div>
+                            </td>
+                            <td>{{ enum_label($subscription->plan_type, \App\Enums\SubscriptionPlanType::class) }}</td>
+                            <td><x-status-badge :status="$subscription->status" /></td>
+                            <td>
+                                <div class="font-medium text-slate-900">{{ $subscription->expires_at->format('M d, Y') }}</div>
+                                <div class="text-xs text-slate-500">{{ $subscription->expires_at->diffForHumans() }}</div>
+                            </td>
+                            <td class="text-right">
+                                <a href="{{ route('superadmin.subscriptions.show', $subscription) }}" class="text-sm font-semibold text-indigo-600 transition hover:text-indigo-800">{{ __('shared.dashboard.overview.subscriptions.headers.manage') }}</a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="text-center text-sm text-slate-500">{{ __('shared.dashboard.overview.subscriptions.empty') }}</td>
+                        </tr>
+                    @endforelse
+                </x-data-table>
+            </div>
+            <div class="space-y-3 md:hidden">
+                @forelse($subscriptionList as $subscription)
+                    <x-ui.list-record :title="$subscription->user->organization_name" :subtitle="$subscription->user->email">
+                        <x-slot name="aside">
+                            <x-status-badge :status="$subscription->status" />
+                        </x-slot>
+
+                        <x-slot name="meta">
+                            <x-ui.list-meta :label="__('shared.dashboard.overview.subscriptions.headers.plan')">
+                                {{ enum_label($subscription->plan_type, \App\Enums\SubscriptionPlanType::class) }}
+                            </x-ui.list-meta>
+                            <x-ui.list-meta :label="__('shared.dashboard.overview.subscriptions.headers.expires')">
+                                <div class="font-medium text-slate-900">{{ $subscription->expires_at->format('M d, Y') }}</div>
+                                <div class="text-xs text-slate-500">{{ $subscription->expires_at->diffForHumans() }}</div>
+                            </x-ui.list-meta>
+                        </x-slot>
+
+                        <x-slot name="actions">
+                            <a href="{{ route('superadmin.subscriptions.show', $subscription) }}" class="inline-flex w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-indigo-700 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                {{ __('shared.dashboard.overview.subscriptions.headers.manage') }}
+                            </a>
+                        </x-slot>
+                    </x-ui.list-record>
+                @empty
+                    <div class="rounded-3xl border border-dashed border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-600 shadow-sm">
+                        {{ __('shared.dashboard.overview.subscriptions.empty') }}
+                    </div>
+                @endforelse
             </div>
         </x-card>
 
@@ -1756,50 +1838,81 @@ SVG"/>
                 </div>
                 <a href="{{ route('superadmin.organizations.index') }}" class="text-blue-600 hover:text-blue-800 text-sm font-semibold">{{ __('shared.dashboard.overview.organizations.open') }}</a>
             </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50">
+            <div class="hidden md:block">
+                <x-data-table :caption="__('shared.dashboard.overview.organizations.title')">
+                    <x-slot name="header">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.organizations.headers.organization') }}</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.organizations.headers.subscription') }}</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.organizations.headers.status') }}</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.organizations.headers.created') }}</th>
-                            <th class="px-4 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ __('shared.dashboard.overview.organizations.headers.manage') }}</th>
+                            <th scope="col">{{ __('shared.dashboard.overview.organizations.headers.organization') }}</th>
+                            <th scope="col">{{ __('shared.dashboard.overview.organizations.headers.subscription') }}</th>
+                            <th scope="col">{{ __('shared.dashboard.overview.organizations.headers.status') }}</th>
+                            <th scope="col">{{ __('shared.dashboard.overview.organizations.headers.created') }}</th>
+                            <th scope="col" class="text-right">{{ __('shared.dashboard.overview.organizations.headers.manage') }}</th>
                         </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-slate-200">
-                        @forelse($organizationList as $organization)
-                            <tr class="hover:bg-slate-50">
-                                <td class="px-4 py-3">
-                                    <div class="font-medium text-slate-900">{{ $organization->name }}</div>
-                                    <div class="text-sm text-slate-500">{{ $organization->email }}</div>
-                                </td>
-                                <td class="px-4 py-3 text-sm text-slate-700">
-                                    @if($organization->plan)
-                                        {{ enum_label($organization->plan, \App\Enums\SubscriptionPlan::class) }}
-                                    @else
-                                        <span class="text-slate-400">{{ __('shared.dashboard.overview.organizations.no_subscription') }}</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3">
-                                    @if($organization->is_active)
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{{ __('shared.dashboard.overview.organizations.status_active') }}</span>
-                                    @else
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">{{ __('shared.dashboard.overview.organizations.status_inactive') }}</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3 text-sm text-slate-700">{{ $organization->created_at->format('M d, Y') }}</td>
-                                <td class="px-4 py-3 text-right text-sm font-medium">
-                                    <a href="{{ route('superadmin.organizations.show', $organization) }}" class="text-blue-600 hover:text-blue-800">{{ __('shared.dashboard.overview.organizations.headers.manage') }}</a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-4 py-4 text-center text-slate-500">{{ __('shared.dashboard.overview.organizations.empty') }}</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                    </x-slot>
+
+                    @forelse($organizationList as $organization)
+                        <tr>
+                            <td>
+                                <div class="font-medium text-slate-900">{{ $organization->name }}</div>
+                                <div class="text-sm text-slate-500">{{ $organization->email }}</div>
+                            </td>
+                            <td>
+                                @if($organization->plan)
+                                    {{ enum_label($organization->plan, \App\Enums\SubscriptionPlan::class) }}
+                                @else
+                                    <span class="text-slate-400">{{ __('shared.dashboard.overview.organizations.no_subscription') }}</span>
+                                @endif
+                            </td>
+                            <td>
+                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold {{ $organization->is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }}">
+                                    {{ $organization->is_active ? __('shared.dashboard.overview.organizations.status_active') : __('shared.dashboard.overview.organizations.status_inactive') }}
+                                </span>
+                            </td>
+                            <td>{{ $organization->created_at->format('M d, Y') }}</td>
+                            <td class="text-right">
+                                <a href="{{ route('superadmin.organizations.show', $organization) }}" class="text-sm font-semibold text-indigo-600 transition hover:text-indigo-800">{{ __('shared.dashboard.overview.organizations.headers.manage') }}</a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="text-center text-sm text-slate-500">{{ __('shared.dashboard.overview.organizations.empty') }}</td>
+                        </tr>
+                    @endforelse
+                </x-data-table>
+            </div>
+            <div class="space-y-3 md:hidden">
+                @forelse($organizationList as $organization)
+                    <x-ui.list-record :title="$organization->name" :subtitle="$organization->email">
+                        <x-slot name="aside">
+                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold {{ $organization->is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }}">
+                                {{ $organization->is_active ? __('shared.dashboard.overview.organizations.status_active') : __('shared.dashboard.overview.organizations.status_inactive') }}
+                            </span>
+                        </x-slot>
+
+                        <x-slot name="meta">
+                            <x-ui.list-meta :label="__('shared.dashboard.overview.organizations.headers.subscription')">
+                                @if($organization->plan)
+                                    {{ enum_label($organization->plan, \App\Enums\SubscriptionPlan::class) }}
+                                @else
+                                    <span class="text-slate-400">{{ __('shared.dashboard.overview.organizations.no_subscription') }}</span>
+                                @endif
+                            </x-ui.list-meta>
+                            <x-ui.list-meta :label="__('shared.dashboard.overview.organizations.headers.created')">
+                                {{ $organization->created_at->format('M d, Y') }}
+                            </x-ui.list-meta>
+                        </x-slot>
+
+                        <x-slot name="actions">
+                            <a href="{{ route('superadmin.organizations.show', $organization) }}" class="inline-flex w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-indigo-700 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                {{ __('shared.dashboard.overview.organizations.headers.manage') }}
+                            </a>
+                        </x-slot>
+                    </x-ui.list-record>
+                @empty
+                    <div class="rounded-3xl border border-dashed border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-600 shadow-sm">
+                        {{ __('shared.dashboard.overview.organizations.empty') }}
+                    </div>
+                @endforelse
             </div>
         </x-card>
     </div>
