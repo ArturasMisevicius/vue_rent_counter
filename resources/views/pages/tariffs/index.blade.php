@@ -1,100 +1,56 @@
-@php
-    $role = auth()->user()?->role?->value;
-@endphp
-
 @extends('layouts.app')
 
-@switch($role)
-@case('admin')
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    {{-- Header --}}
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">
-            {{ __('tariffs.index.title') }}
-        </h1>
-        
-        @can('create', App\Models\Tariff::class)
-            <a href="{{ route('admin.tariffs.create') }}" 
-               class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+<x-ui.page class="px-4 sm:px-6 lg:px-8" :title="__('tariffs.index.title')">
+    @can('create', App\Models\Tariff::class)
+        <x-slot name="actions">
+            <a href="{{ route('admin.tariffs.create') }}" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
                 {{ __('tariffs.index.create_button') }}
             </a>
-        @endcan
-    </div>
+        </x-slot>
+    @endcan
 
-    {{-- Tariffs Table --}}
     @if($tariffs->count() > 0)
-        <div class="bg-white shadow-md rounded-lg overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left">
-                            <a href="{{ route('admin.tariffs.index', ['sort' => 'name', 'direction' => request('sort') === 'name' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" 
-                               class="group inline-flex items-center text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
-                                {{ __('tariffs.index.table.name') }}
-                                @if(request('sort') === 'name')
-                                    <svg class="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                        @if(request('direction') === 'asc')
-                                            <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/>
-                                        @else
-                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                                        @endif
-                                    </svg>
-                                @endif
-                            </a>
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {{ __('tariffs.index.table.provider') }}
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {{ __('tariffs.index.table.type') }}
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left">
-                            <a href="{{ route('admin.tariffs.index', ['sort' => 'active_from', 'direction' => request('sort') === 'active_from' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" 
-                               class="group inline-flex items-center text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
-                                {{ __('tariffs.index.table.active_period') }}
-                                @if(request('sort') === 'active_from')
-                                    <svg class="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                        @if(request('direction') === 'asc')
-                                            <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/>
-                                        @else
-                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                                        @endif
-                                    </svg>
-                                @endif
-                            </a>
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {{ __('tariffs.index.table.actions') }}
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+        <x-card>
+            <div class="hidden md:block">
+                <x-data-table :caption="__('tariffs.index.title')">
+                    <x-slot name="header">
+                        <tr>
+                            <th scope="col">
+                                <a href="{{ route('admin.tariffs.index', ['sort' => 'name', 'direction' => request('sort') === 'name' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition hover:text-slate-700">
+                                    {{ __('tariffs.index.table.name') }}
+                                    @if(request('sort') === 'name')
+                                        <span aria-hidden="true">{{ request('direction') === 'asc' ? '↑' : '↓' }}</span>
+                                    @endif
+                                </a>
+                            </th>
+                            <th scope="col">{{ __('tariffs.index.table.provider') }}</th>
+                            <th scope="col">{{ __('tariffs.index.table.type') }}</th>
+                            <th scope="col">
+                                <a href="{{ route('admin.tariffs.index', ['sort' => 'active_from', 'direction' => request('sort') === 'active_from' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" class="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition hover:text-slate-700">
+                                    {{ __('tariffs.index.table.active_period') }}
+                                    @if(request('sort') === 'active_from')
+                                        <span aria-hidden="true">{{ request('direction') === 'asc' ? '↑' : '↓' }}</span>
+                                    @endif
+                                </a>
+                            </th>
+                            <th scope="col" class="text-right">{{ __('tariffs.index.table.actions') }}</th>
+                        </tr>
+                    </x-slot>
+
                     @foreach($tariffs as $tariff)
-                        <tr @class([
-                            'hover:bg-gray-50 transition-colors',
-                            'bg-green-50' => $tariff->is_currently_active,
-                        ])>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">
-                                    {{ $tariff->name }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">
-                                    {{ $tariff->provider->name }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    {{ $tariff->configuration['type'] === 'flat' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' }}">
+                        <tr>
+                            <td class="font-medium text-slate-900">{{ $tariff->name }}</td>
+                            <td>{{ $tariff->provider->name }}</td>
+                            <td>
+                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold {{ $tariff->configuration['type'] === 'flat' ? 'bg-sky-100 text-sky-700' : 'bg-violet-100 text-violet-700' }}">
                                     {{ __('tariffs.types.' . $tariff->configuration['type']) }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td class="text-sm text-slate-600">
                                 {{ $tariff->active_from->format('Y-m-d') }}
                                 @if($tariff->active_until)
                                     → {{ $tariff->active_until->format('Y-m-d') }}
@@ -102,217 +58,108 @@
                                     → {{ __('tariffs.index.table.ongoing') }}
                                 @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="{{ route('admin.tariffs.show', $tariff) }}" 
-                                   class="text-blue-600 hover:text-blue-900 mr-3">
-                                    {{ __('tariffs.index.table.view') }}
-                                </a>
-                                @can('update', $tariff)
-                                    <a href="{{ route('admin.tariffs.edit', $tariff) }}" 
-                                       class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                        {{ __('tariffs.index.table.edit') }}
+                            <td class="text-right">
+                                <div class="flex justify-end gap-3">
+                                    <a href="{{ route('admin.tariffs.show', $tariff) }}" class="text-sm font-semibold text-indigo-600 transition hover:text-indigo-800">
+                                        {{ __('tariffs.index.table.view') }}
                                     </a>
-                                @endcan
-                                @can('delete', $tariff)
-                                    <form action="{{ route('admin.tariffs.destroy', $tariff) }}" 
-                                          method="POST" 
-                                          class="inline"
-                                          onsubmit="return confirm('{{ __('tariffs.index.table.delete_confirm') }}')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900">
-                                            {{ __('tariffs.index.table.delete') }}
-                                        </button>
-                                    </form>
-                                @endcan
+                                    @can('update', $tariff)
+                                        <a href="{{ route('admin.tariffs.edit', $tariff) }}" class="text-sm font-semibold text-slate-700 transition hover:text-slate-900">
+                                            {{ __('tariffs.index.table.edit') }}
+                                        </a>
+                                    @endcan
+                                    @can('delete', $tariff)
+                                        <form action="{{ route('admin.tariffs.destroy', $tariff) }}" method="POST" onsubmit="return confirm('{{ __('tariffs.index.table.delete_confirm') }}')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-sm font-semibold text-rose-700 transition hover:text-rose-900">
+                                                {{ __('tariffs.index.table.delete') }}
+                                            </button>
+                                        </form>
+                                    @endcan
+                                </div>
                             </td>
                         </tr>
                     @endforeach
-                </tbody>
-            </table>
-        </div>
+                </x-data-table>
+            </div>
 
-        {{-- Pagination --}}
-        <div class="mt-6">
-            {{ $tariffs->links() }}
-        </div>
-    @else
-        {{-- Empty State --}}
-        <div class="bg-white shadow-md rounded-lg p-12 text-center">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">{{ __('tariffs.index.empty.title') }}</h3>
-            <p class="mt-1 text-sm text-gray-500">{{ __('tariffs.index.empty.description') }}</p>
-            @can('create', App\Models\Tariff::class)
-                <div class="mt-6">
-                    <a href="{{ route('admin.tariffs.create') }}" 
-                       class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
-                        {{ __('tariffs.index.empty.create_button') }}
-                    </a>
-                </div>
-            @endcan
-        </div>
-    @endif
-</div>
-@endsection
-@break
+            <div class="space-y-3 md:hidden">
+                @foreach($tariffs as $tariff)
+                    <x-ui.list-record :title="$tariff->name" :subtitle="$tariff->provider->name">
+                        <x-slot name="aside">
+                            @if($tariff->is_currently_active)
+                                <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                                    {{ __('tariffs.index.table.ongoing') }}
+                                </span>
+                            @endif
+                        </x-slot>
 
-@default
-@section('content')
-<div class="container mx-auto px-4 py-8">
-    {{-- Header --}}
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">
-            {{ __('tariffs.index.title') }}
-        </h1>
-        
-        @can('create', App\Models\Tariff::class)
-            <a href="{{ route('admin.tariffs.create') }}" 
-               class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                {{ __('tariffs.index.create_button') }}
-            </a>
-        @endcan
-    </div>
-
-    {{-- Tariffs Table --}}
-    @if($tariffs->count() > 0)
-        <div class="bg-white shadow-md rounded-lg overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left">
-                            <a href="{{ route('admin.tariffs.index', ['sort' => 'name', 'direction' => request('sort') === 'name' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" 
-                               class="group inline-flex items-center text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
-                                {{ __('tariffs.index.table.name') }}
-                                @if(request('sort') === 'name')
-                                    <svg class="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                        @if(request('direction') === 'asc')
-                                            <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/>
-                                        @else
-                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                                        @endif
-                                    </svg>
-                                @endif
-                            </a>
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {{ __('tariffs.index.table.provider') }}
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {{ __('tariffs.index.table.type') }}
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left">
-                            <a href="{{ route('admin.tariffs.index', ['sort' => 'active_from', 'direction' => request('sort') === 'active_from' && request('direction') === 'asc' ? 'desc' : 'asc']) }}" 
-                               class="group inline-flex items-center text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700">
-                                {{ __('tariffs.index.table.active_period') }}
-                                @if(request('sort') === 'active_from')
-                                    <svg class="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                        @if(request('direction') === 'asc')
-                                            <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/>
-                                        @else
-                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                                        @endif
-                                    </svg>
-                                @endif
-                            </a>
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {{ __('tariffs.index.table.actions') }}
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach($tariffs as $tariff)
-                        <tr @class([
-                            'hover:bg-gray-50 transition-colors',
-                            'bg-green-50' => $tariff->is_currently_active,
-                        ])>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">
-                                    {{ $tariff->name }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">
-                                    {{ $tariff->provider->name }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    {{ $tariff->configuration['type'] === 'flat' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' }}">
+                        <x-slot name="meta">
+                            <x-ui.list-meta :label="__('tariffs.index.table.type')">
+                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold {{ $tariff->configuration['type'] === 'flat' ? 'bg-sky-100 text-sky-700' : 'bg-violet-100 text-violet-700' }}">
                                     {{ __('tariffs.types.' . $tariff->configuration['type']) }}
                                 </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            </x-ui.list-meta>
+
+                            <x-ui.list-meta :label="__('tariffs.index.table.active_period')">
                                 {{ $tariff->active_from->format('Y-m-d') }}
                                 @if($tariff->active_until)
                                     → {{ $tariff->active_until->format('Y-m-d') }}
                                 @else
                                     → {{ __('tariffs.index.table.ongoing') }}
                                 @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="{{ route('admin.tariffs.show', $tariff) }}" 
-                                   class="text-blue-600 hover:text-blue-900 mr-3">
-                                    {{ __('tariffs.index.table.view') }}
-                                </a>
-                                @can('update', $tariff)
-                                    <a href="{{ route('admin.tariffs.edit', $tariff) }}" 
-                                       class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                        {{ __('tariffs.index.table.edit') }}
-                                    </a>
-                                @endcan
-                                @can('delete', $tariff)
-                                    <form action="{{ route('admin.tariffs.destroy', $tariff) }}" 
-                                          method="POST" 
-                                          class="inline"
-                                          onsubmit="return confirm('{{ __('tariffs.index.table.delete_confirm') }}')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900">
-                                            {{ __('tariffs.index.table.delete') }}
-                                        </button>
-                                    </form>
-                                @endcan
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+                            </x-ui.list-meta>
+                        </x-slot>
 
-        {{-- Pagination --}}
-        <div class="mt-6">
-            {{ $tariffs->links() }}
-        </div>
+                        <x-slot name="actions">
+                            <a href="{{ route('admin.tariffs.show', $tariff) }}" class="inline-flex w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2">
+                                {{ __('tariffs.index.table.view') }}
+                            </a>
+                            @can('update', $tariff)
+                                <a href="{{ route('admin.tariffs.edit', $tariff) }}" class="inline-flex w-full items-center justify-center rounded-2xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    {{ __('tariffs.index.table.edit') }}
+                                </a>
+                            @endcan
+                            @can('delete', $tariff)
+                                <form action="{{ route('admin.tariffs.destroy', $tariff) }}" method="POST" onsubmit="return confirm('{{ __('tariffs.index.table.delete_confirm') }}')" class="w-full">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="inline-flex w-full items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 shadow-sm transition hover:bg-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2">
+                                        {{ __('tariffs.index.table.delete') }}
+                                    </button>
+                                </form>
+                            @endcan
+                        </x-slot>
+                    </x-ui.list-record>
+                @endforeach
+            </div>
+
+            <div class="mt-6">
+                {{ $tariffs->links() }}
+            </div>
+        </x-card>
     @else
-        {{-- Empty State --}}
-        <div class="bg-white shadow-md rounded-lg p-12 text-center">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">{{ __('tariffs.index.empty.title') }}</h3>
-            <p class="mt-1 text-sm text-gray-500">{{ __('tariffs.index.empty.description') }}</p>
+        <x-ui.section-card class="text-center">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+            </div>
+            <h3 class="mt-4 text-base font-semibold text-slate-900">{{ __('tariffs.index.empty.title') }}</h3>
+            <p class="mt-2 text-sm text-slate-600">{{ __('tariffs.index.empty.description') }}</p>
+
             @can('create', App\Models\Tariff::class)
                 <div class="mt-6">
-                    <a href="{{ route('admin.tariffs.create') }}" 
-                       class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    <a href="{{ route('admin.tariffs.create') }}" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
                         {{ __('tariffs.index.empty.create_button') }}
                     </a>
                 </div>
             @endcan
-        </div>
+        </x-ui.section-card>
     @endif
-</div>
+</x-ui.page>
 @endsection
-@endswitch
