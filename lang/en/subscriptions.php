@@ -67,6 +67,26 @@ return [
             '6_months' => '6 Months',
         ],
     ],
+    'pages' => [
+        'index' => [
+            'description' => 'Manage all organization subscriptions',
+            'filters' => [
+                'expiring_soon' => 'Expiring Soon',
+                'plan_type' => 'Plan Type',
+                'search' => 'Search',
+                'search_placeholder' => 'Organization name',
+                'status' => 'Status',
+                'within_days' => 'Within :count days',
+            ],
+            'table' => [
+                'limits' => 'Limits',
+                'manage' => 'Manage',
+                'properties' => '{1} :count property|[2,*] :count properties',
+                'tenants' => '{1} :count tenant|[2,*] :count tenants',
+            ],
+            'title' => 'Subscriptions',
+        ],
+    ],
     'sections' => [
         'details' => 'Details',
         'limits' => 'Limits',

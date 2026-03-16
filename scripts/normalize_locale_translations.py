@@ -19,6 +19,7 @@ from deep_translator import GoogleTranslator
 ROOT = Path(__file__).resolve().parents[1]
 LANG_PATH = ROOT / "lang"
 TRANSLATION_SCRIPT = ROOT / ".ai" / "skills" / "translate" / "scripts" / "translate.py"
+CANONICAL_SOURCE_LOCALE = "en"
 
 LOCALE_TO_LANGUAGE = {
     "en": "en",
@@ -131,6 +132,129 @@ POST_TRANSLATION_REPLACEMENTS = {
         "There is none": "None",
         "Too many tries": "Too many attempts",
         "Works": "Running",
+    },
+}
+GLOSSARY_OVERRIDES = {
+    "ru": {
+        "Account": "Аккаунт",
+        "Active": "Активен",
+        "Add": "Добавить",
+        "Add First Property": "Добавить первый объект",
+        "Additional Info": "Дополнительная информация",
+        "Additional Info Description": "Дополнительная информация",
+        "All Properties": "Все объекты",
+        "Apartment Number": "Номер квартиры",
+        "Area": "Площадь",
+        "Assign Tenant": "Назначить арендатора",
+        "Back": "Назад",
+        "Billing": "Биллинг",
+        "Building": "Здание",
+        "Buildings": "Здания",
+        "Cancel": "Отмена",
+        "Caption": "Подпись",
+        "Clear": "Сбросить",
+        "Confirm": "Подтвердить",
+        "Created": "Создано",
+        "Create Account": "Создать аккаунт",
+        "Create an organization": "Создать организацию",
+        "Current Tenant": "Текущий арендатор",
+        "Dashboard": "Панель управления",
+        "Delete": "Удалить",
+        "Delete Confirmation": "Подтверждение удаления",
+        "Delete Property": "Удалить объект",
+        "Description": "Описание",
+        "Download PDF": "Скачать PDF",
+        "Edit": "Редактировать",
+        "Edit Property": "Редактировать объект",
+        "Email": "Эл. почта",
+        "Export Selected": "Экспортировать выбранное",
+        "Floor": "Этаж",
+        "Go to App": "Перейти в приложение",
+        "Inactive": "Неактивен",
+        "Integration status": "Статус интеграции",
+        "Invoice": "Счет",
+        "Invoices": "Счета",
+        "Large Properties": "Крупные объекты",
+        "Manage subscriptions": "Управление подписками",
+        "Manage Tenant": "Управление арендатором",
+        "Meter": "Счетчик",
+        "Meters": "Счетчики",
+        "Meter Reading": "Показание счетчика",
+        "Meter Readings": "Показания счетчиков",
+        "My Property": "Мой объект",
+        "No Tenant": "Нет арендатора",
+        "Occupied": "Заселен",
+        "Occupancy": "Заселенность",
+        "Pending payment": "Ожидает оплаты",
+        "Properties": "Объекты",
+        "Property": "Объект",
+        "Property Address": "Адрес объекта",
+        "Property Details": "Данные объекта",
+        "Queue status": "Статус очереди",
+        "Reading Date": "Дата показания",
+        "Reading Details": "Данные показания",
+        "Reading Value": "Значение показания",
+        "Recorded At": "Зафиксировано",
+        "Register": "Регистрация",
+        "Registered": "Зарегистрирован",
+        "Role": "Роль",
+        "Save": "Сохранить",
+        "Save Create": "Сохранить и создать",
+        "Save Edit": "Сохранить изменения",
+        "Service": "Услуга",
+        "Settings": "Настройки",
+        "Start Now": "Начать",
+        "String": "Строка",
+        "Submit": "Отправить",
+        "System": "Система",
+        "Tags": "Теги",
+        "Tenant Available": "Доступен арендатор",
+        "Tenant Reassign": "Переназначение арендатора",
+        "Title": "Заголовок",
+        "Total Amount": "Общая сумма",
+        "Type": "Тип",
+        "Vacant": "Свободен",
+        "View": "Просмотреть",
+    },
+    "lt": {
+        "Active": "Aktyvus",
+        "Add": "Pridėti",
+        "Add First Property": "Pridėti pirmą turtą",
+        "All Properties": "Visi turtai",
+        "Area": "Plotas",
+        "Clear": "Išvalyti",
+        "Confirm": "Patvirtinti",
+        "Floor": "Aukštas",
+        "Manage subscriptions": "Prenumeratų valdymas",
+        "Meter": "Skaitiklis",
+        "Meters": "Skaitikliai",
+        "Meter Reading": "Skaitiklio rodmuo",
+        "Meter Readings": "Skaitiklių rodmenys",
+        "My Property": "Mano turtas",
+        "Occupied": "Užimtas",
+        "Occupancy": "Užimtumas",
+        "Pending payment": "Laukiama apmokėjimo",
+        "Properties": "Turtai",
+        "Property": "Turtas",
+        "Reading Date": "Rodmens data",
+        "Reading Value": "Rodmens reikšmė",
+        "Save": "Išsaugoti",
+        "Submit": "Pateikti",
+        "Vacant": "Laisvas",
+        "View": "Peržiūrėti",
+    },
+    "es": {
+        "Meter": "Medidor",
+        "Meters": "Medidores",
+        "Meter Reading": "Lectura del medidor",
+        "Meter Readings": "Lecturas del medidor",
+        "My Property": "Mi propiedad",
+        "Properties": "Propiedades",
+        "Property": "Propiedad",
+        "Reading Date": "Fecha de lectura",
+        "Reading Value": "Valor de lectura",
+        "Submit": "Enviar",
+        "View": "Ver",
     },
 }
 
@@ -280,6 +404,11 @@ def apply_post_translation_replacements(text: str, target_locale: str) -> str:
     return replacements.get(text, text)
 
 
+def glossary_override(text: str, target_locale: str) -> str | None:
+    overrides = GLOSSARY_OVERRIDES.get(target_locale, {})
+    return overrides.get(text)
+
+
 def load_english_words() -> set[str]:
     path = Path("/usr/share/dict/words")
     if not path.exists():
@@ -400,21 +529,44 @@ def infer_source_locale(text: str, target_locale: str, english_words: set[str], 
     return "auto"
 
 
-def translate_one(text: str, target_locale: str, english_words: set[str], lithuanian_words: set[str]) -> tuple[str, str]:
+def translate_one(
+    text: str,
+    target_locale: str,
+    english_words: set[str],
+    lithuanian_words: set[str],
+    source_locale: str | None = None,
+) -> tuple[str, str]:
+    override = glossary_override(text, target_locale)
+    if override is not None:
+        return text, override
+
     protected, token_map = protect_placeholders(text)
-    source_locale = infer_source_locale(text, target_locale, english_words, lithuanian_words)
-    translator = GoogleTranslator(source=source_locale, target=LOCALE_TO_LANGUAGE[target_locale])
+    detected_source_locale = source_locale or infer_source_locale(text, target_locale, english_words, lithuanian_words)
+    translator = GoogleTranslator(source=detected_source_locale, target=LOCALE_TO_LANGUAGE[target_locale])
     result = translator.translate(protected)
     restored = restore_placeholders(result, token_map)
     return text, apply_post_translation_replacements(restored, target_locale)
 
 
-def translate_batch(strings: list[str], target_locale: str, english_words: set[str], lithuanian_words: set[str]) -> dict[str, str]:
+def translate_batch(
+    strings: list[str],
+    target_locale: str,
+    english_words: set[str],
+    lithuanian_words: set[str],
+    source_locale: str | None = None,
+) -> dict[str, str]:
     translated: dict[str, str] = {}
 
     with ThreadPoolExecutor(max_workers=8) as executor:
         futures = [
-            executor.submit(translate_one, text, target_locale, english_words, lithuanian_words)
+            executor.submit(
+                translate_one,
+                text,
+                target_locale,
+                english_words,
+                lithuanian_words,
+                source_locale,
+            )
             for text in strings
         ]
 
@@ -452,6 +604,17 @@ def apply_translations(data: Any, translations: dict[str, str]) -> Any:
         return translations[data]
 
     return data
+
+
+def canonical_source_file_for(file_path: Path, locale: str) -> Path:
+    if locale == CANONICAL_SOURCE_LOCALE:
+        return file_path
+
+    canonical_file = LANG_PATH / CANONICAL_SOURCE_LOCALE / file_path.name
+    if canonical_file.exists():
+        return canonical_file
+
+    return file_path
 
 
 def locale_files(locales: list[str], files: list[str] | None) -> list[Path]:
@@ -506,22 +669,27 @@ def main() -> int:
 
         file_payloads: dict[Path, Any] = {}
         all_strings: list[str] = []
+        source_locale = None if locale == CANONICAL_SOURCE_LOCALE else CANONICAL_SOURCE_LOCALE
 
         for file_path in locale_file_paths:
-            payload = run_php_json_loader(file_path, args.from_head)
+            source_file_path = canonical_source_file_for(file_path, locale)
+            payload = run_php_json_loader(source_file_path, args.from_head if locale == CANONICAL_SOURCE_LOCALE else False)
             file_payloads[file_path] = payload
-            all_strings.extend(
-                [
-                    value
-                    for value in walk_scalars(payload)
-                    if should_translate_for_locale(value, locale, english_words, lithuanian_words)
-                ]
-            )
+            if locale == CANONICAL_SOURCE_LOCALE:
+                all_strings.extend(
+                    [
+                        value
+                        for value in walk_scalars(payload)
+                        if should_translate_for_locale(value, locale, english_words, lithuanian_words)
+                    ]
+                )
+            else:
+                all_strings.extend(walk_scalars(payload))
 
         unique_strings = list(dict.fromkeys(all_strings))
         print(f"  Translating {len(unique_strings)} unique strings")
 
-        translations = translate_batch(unique_strings, locale, english_words, lithuanian_words)
+        translations = translate_batch(unique_strings, locale, english_words, lithuanian_words, source_locale)
 
         for file_path, payload in file_payloads.items():
             translated_payload = apply_translations(payload, translations)

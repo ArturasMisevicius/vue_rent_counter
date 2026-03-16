@@ -327,6 +327,7 @@ return [
     ],
     'accessibility' => [
         'dismiss' => 'Reject',
+        'main_content' => 'Main content',
         'open_menu' => 'Open menu',
         'skip_to_content' => 'Skip to content',
     ],

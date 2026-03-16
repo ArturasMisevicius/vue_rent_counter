@@ -40,7 +40,7 @@ x-on:hide-results-delayed.window="hideResultsDelayed()"
                 wire:blur="blurSearch"
                 x-on:focus="isActive = true; cancelHide()"
                 x-on:blur="hideResultsDelayed()"
-                placeholder="Search organizations, users, properties..."
+                placeholder="{{ __('shared.global_search.placeholder') }}"
                 class="block w-full pl-10 pr-10 py-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 autocomplete="off"
                 spellcheck="false"
@@ -90,7 +90,7 @@ x-on:hide-results-delayed.window="hideResultsDelayed()"
             <div class="p-2">
                 {{-- Results Header --}}
                 <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600 dark:text-gray-400">
-                    {{ $this->getTotalResultsCount() }} {{ Str::plural('result', $this->getTotalResultsCount()) }} found
+                    {{ trans_choice('shared.global_search.results_found', $this->getTotalResultsCount(), ['count' => $this->getTotalResultsCount()]) }}
                 </div>
 
                 {{-- Grouped Results --}}
@@ -121,7 +121,7 @@ x-on:hide-results-delayed.window="hideResultsDelayed()"
                                                 <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                     @foreach($result['details'] as $key => $value)
                                                         <span class="inline-block mr-3">
-                                                            <span class="font-medium">{{ ucfirst(str_replace('_', ' ', $key)) }}:</span>
+                                                            <span class="font-medium">{{ __('shared.global_search.detail_labels.' . \Illuminate\Support\Str::of($key)->snake()) }}:</span>
                                                             {{ $value }}
                                                         </span>
                                                     @endforeach
@@ -154,7 +154,7 @@ x-on:hide-results-delayed.window="hideResultsDelayed()"
         @if(!empty($suggestions) && empty($results))
             <div class="p-2">
                 <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600 dark:text-gray-400">
-                    Suggestions
+                    {{ __('shared.global_search.suggestions') }}
                 </div>
                 <div class="mt-2">
                     @foreach($suggestions as $suggestion)
@@ -181,9 +181,9 @@ x-on:hide-results-delayed.window="hideResultsDelayed()"
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
-                <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No results found</h3>
+                <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">{{ __('shared.global_search.no_results_title') }}</h3>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Try searching for organizations, users, properties, buildings, meters, or invoices.
+                    {{ __('shared.global_search.no_results_description') }}
                 </p>
                 <div class="mt-3">
                     <button
@@ -191,7 +191,7 @@ x-on:hide-results-delayed.window="hideResultsDelayed()"
                         wire:click="clearSearch"
                         class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:text-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700"
                     >
-                        Clear search
+                        {{ __('shared.global_search.clear_search') }}
                     </button>
                 </div>
             </div>
@@ -213,14 +213,14 @@ x-on:hide-results-delayed.window="hideResultsDelayed()"
         >
             <div class="p-4">
                 <div class="text-sm text-gray-600 dark:text-gray-300">
-                    <div class="font-medium mb-2">Search across:</div>
+                    <div class="font-medium mb-2">{{ __('shared.global_search.search_across_title') }}</div>
                     <ul class="space-y-1 text-xs">
-                        <li>• Organizations (name, email, domain)</li>
-                        <li>• Users (name, email, organization)</li>
-                        <li>• Properties (address, unit number)</li>
-                        <li>• Buildings (name, address)</li>
-                        <li>• Meters (serial number)</li>
-                        <li>• Invoices (invoice number, reference)</li>
+                        <li>• {{ __('shared.global_search.scopes.organizations') }}</li>
+                        <li>• {{ __('shared.global_search.scopes.users') }}</li>
+                        <li>• {{ __('shared.global_search.scopes.properties') }}</li>
+                        <li>• {{ __('shared.global_search.scopes.buildings') }}</li>
+                        <li>• {{ __('shared.global_search.scopes.meters') }}</li>
+                        <li>• {{ __('shared.global_search.scopes.invoices') }}</li>
                     </ul>
                 </div>
             </div>

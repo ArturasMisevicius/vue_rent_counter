@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subscriptions Report</title>
+    <title>{{ __('reports.exports.subscriptions.title') }}</title>
     <style>
         body {
             font-family: 'DejaVu Sans', sans-serif;
@@ -122,28 +122,28 @@
 </head>
 <body>
     <div class="header">
-        <h1>Subscriptions Report</h1>
-        <div>Generated on {{ $generated_at->format('F j, Y \a\t g:i A') }}</div>
-        <div>Total Subscriptions: {{ number_format($total_count) }}</div>
+        <h1>{{ __('reports.exports.subscriptions.title') }}</h1>
+        <div>{{ __('reports.exports.generated_on', ['date' => $generated_at->locale(app()->getLocale())->translatedFormat('F j, Y H:i')]) }}</div>
+        <div>{{ __('reports.exports.subscriptions.total_subscriptions_line', ['count' => number_format($total_count)]) }}</div>
     </div>
 
     <!-- Summary Statistics -->
     <div class="summary-stats">
         <div class="stat-item">
             <div class="stat-value">{{ number_format($total_count) }}</div>
-            <div class="stat-label">Total Subscriptions</div>
+            <div class="stat-label">{{ __('reports.exports.subscriptions.total_subscriptions') }}</div>
         </div>
         <div class="stat-item">
             <div class="stat-value">{{ number_format($expiring_count) }}</div>
-            <div class="stat-label">Expiring Soon (14 days)</div>
+            <div class="stat-label">{{ __('reports.exports.subscriptions.expiring_soon_days', ['count' => 14]) }}</div>
         </div>
         <div class="stat-item">
             <div class="stat-value">{{ number_format($summary_stats['total_max_properties']) }}</div>
-            <div class="stat-label">Total Property Capacity</div>
+            <div class="stat-label">{{ __('reports.exports.subscriptions.total_property_capacity') }}</div>
         </div>
         <div class="stat-item">
             <div class="stat-value">{{ number_format($summary_stats['avg_days_until_expiry'], 0) }}</div>
-            <div class="stat-label">Avg Days Until Expiry</div>
+            <div class="stat-label">{{ __('reports.exports.subscriptions.avg_days_until_expiry') }}</div>
         </div>
     </div>
 
@@ -151,37 +151,37 @@
     <table class="subscriptions-table">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Organization</th>
-                <th>User</th>
-                <th>Plan</th>
-                <th>Status</th>
-                <th>Starts</th>
-                <th>Expires</th>
-                <th>Days Left</th>
-                <th>Max Properties</th>
-                <th>Max Tenants</th>
-                <th>Active</th>
+                <th>{{ __('reports.exports.common.id') }}</th>
+                <th>{{ __('reports.exports.common.organization') }}</th>
+                <th>{{ __('reports.exports.common.user') }}</th>
+                <th>{{ __('reports.exports.common.plan') }}</th>
+                <th>{{ __('reports.exports.common.status') }}</th>
+                <th>{{ __('reports.exports.common.starts') }}</th>
+                <th>{{ __('reports.exports.common.expires') }}</th>
+                <th>{{ __('reports.exports.common.days_left') }}</th>
+                <th>{{ __('reports.exports.subscriptions.max_properties') }}</th>
+                <th>{{ __('reports.exports.subscriptions.max_tenants') }}</th>
+                <th>{{ __('reports.exports.subscriptions.active') }}</th>
             </tr>
         </thead>
         <tbody>
             @foreach($subscriptions as $subscription)
             <tr>
                 <td>{{ $subscription->id }}</td>
-                <td>{{ $subscription->user?->organization?->name ?? 'N/A' }}</td>
-                <td>{{ $subscription->user?->name ?? 'N/A' }}</td>
+                <td>{{ $subscription->user?->organization?->name ?? __('reports.exports.common.not_available') }}</td>
+                <td>{{ $subscription->user?->name ?? __('reports.exports.common.not_available') }}</td>
                 <td class="plan-{{ strtolower($subscription->plan_type) }}">
-                    {{ ucfirst($subscription->plan_type) }}
+                    {{ enum_label($subscription->plan_type, \App\Enums\SubscriptionPlanType::class) }}
                 </td>
                 <td class="status-{{ strtolower($subscription->status?->value ?? 'unknown') }}">
-                    {{ ucfirst($subscription->status?->value ?? 'Unknown') }}
+                    {{ enum_label($subscription->status?->value ?? 'unknown', \App\Enums\SubscriptionStatus::class) }}
                 </td>
-                <td>{{ $subscription->starts_at?->format('Y-m-d') ?? 'N/A' }}</td>
-                <td>{{ $subscription->expires_at?->format('Y-m-d') ?? 'N/A' }}</td>
+                <td>{{ $subscription->starts_at?->format('Y-m-d') ?? __('reports.exports.common.not_available') }}</td>
+                <td>{{ $subscription->expires_at?->format('Y-m-d') ?? __('reports.exports.common.not_available') }}</td>
                 <td>
                     @if($subscription->expires_at)
                         @if($subscription->daysUntilExpiry() < 0)
-                            <span class="expiry-critical">Expired</span>
+                            <span class="expiry-critical">{{ __('reports.exports.common.expired') }}</span>
                         @elseif($subscription->daysUntilExpiry() <= 7)
                             <span class="expiry-critical">{{ $subscription->daysUntilExpiry() }}</span>
                         @elseif($subscription->daysUntilExpiry() <= 14)
@@ -190,12 +190,12 @@
                             <span class="expiry-normal">{{ $subscription->daysUntilExpiry() }}</span>
                         @endif
                     @else
-                        N/A
+                        {{ __('reports.exports.common.not_available') }}
                     @endif
                 </td>
                 <td>{{ number_format($subscription->max_properties) }}</td>
                 <td>{{ number_format($subscription->max_tenants) }}</td>
-                <td>{{ $subscription->isActive() ? 'Yes' : 'No' }}</td>
+                <td>{{ $subscription->isActive() ? __('common.yes') : __('common.no') }}</td>
             </tr>
             @endforeach
         </tbody>
@@ -203,19 +203,19 @@
 
     <!-- Distribution Charts -->
     <div class="distribution-section">
-        <h3 style="color: #1e40af; font-size: 14px; margin-bottom: 10px;">Status Distribution</h3>
+        <h3 style="color: #1e40af; font-size: 14px; margin-bottom: 10px;">{{ __('reports.exports.subscriptions.status_distribution') }}</h3>
         <table class="distribution-table">
             <thead>
                 <tr>
-                    <th>Status</th>
-                    <th>Count</th>
-                    <th>Percentage</th>
+                    <th>{{ __('reports.exports.common.status') }}</th>
+                    <th>{{ __('reports.exports.common.count') }}</th>
+                    <th>{{ __('reports.exports.common.percentage') }}</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($status_distribution as $status => $count)
                 <tr>
-                    <td>{{ ucfirst($status) }}</td>
+                    <td>{{ enum_label($status, \App\Enums\SubscriptionStatus::class) }}</td>
                     <td>{{ number_format($count) }}</td>
                     <td>{{ number_format(($count / $total_count) * 100, 1) }}%</td>
                 </tr>
@@ -225,19 +225,19 @@
     </div>
 
     <div class="distribution-section">
-        <h3 style="color: #1e40af; font-size: 14px; margin-bottom: 10px;">Plan Distribution</h3>
+        <h3 style="color: #1e40af; font-size: 14px; margin-bottom: 10px;">{{ __('reports.exports.subscriptions.plan_distribution') }}</h3>
         <table class="distribution-table">
             <thead>
                 <tr>
-                    <th>Plan Type</th>
-                    <th>Count</th>
-                    <th>Percentage</th>
+                    <th>{{ __('reports.exports.common.plan_type') }}</th>
+                    <th>{{ __('reports.exports.common.count') }}</th>
+                    <th>{{ __('reports.exports.common.percentage') }}</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($plan_distribution as $plan => $count)
                 <tr>
-                    <td>{{ ucfirst($plan) }}</td>
+                    <td>{{ enum_label($plan, \App\Enums\SubscriptionPlanType::class) }}</td>
                     <td>{{ number_format($count) }}</td>
                     <td>{{ number_format(($count / $total_count) * 100, 1) }}%</td>
                 </tr>
@@ -247,8 +247,8 @@
     </div>
 
     <div class="footer">
-        <div>Vilnius Utilities Billing Platform - Subscriptions Report</div>
-        <div>This report contains confidential information. Distribution is restricted.</div>
+        <div>{{ __('reports.exports.subscriptions.footer_title') }}</div>
+        <div>{{ __('reports.exports.common.confidential_notice') }}</div>
     </div>
 </body>
 </html>

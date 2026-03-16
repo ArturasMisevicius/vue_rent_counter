@@ -43,20 +43,20 @@
                         
                         <!-- Tab Navigation -->
                         <div class="mt-2 border-b border-slate-200">
-                            <nav class="-mb-px flex space-x-4" aria-label="Tabs">
+                            <nav class="-mb-px flex space-x-4" aria-label="{{ __('tariffs.pages.admin_form.editor.tabs_aria') }}">
                                 <button 
                                     type="button"
                                     @click="activeTab = 'visual'" 
                                     :class="activeTab === 'visual' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'"
                                     class="whitespace-nowrap border-b-2 px-1 py-2 text-sm font-medium transition">
-                                    Visual Editor
+                                    {{ __('tariffs.pages.admin_form.editor.visual_editor') }}
                                 </button>
                                 <button 
                                     type="button"
                                     @click="activeTab = 'json'" 
                                     :class="activeTab === 'json' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'"
                                     class="whitespace-nowrap border-b-2 px-1 py-2 text-sm font-medium transition">
-                                    JSON Editor
+                                    {{ __('tariffs.pages.admin_form.editor.json_editor') }}
                                 </button>
                             </nav>
                         </div>
@@ -64,28 +64,28 @@
                         <!-- Visual Editor -->
                         <div x-show="activeTab === 'visual'" class="mt-4 space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-slate-700">Tariff Type</label>
+                                <label class="block text-sm font-medium text-slate-700">{{ __('tariffs.pages.admin_form.editor.tariff_type') }}</label>
                                 <select x-model="config.type" @change="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                    <option value="flat">Flat Rate</option>
-                                    <option value="time_of_use">Time of Use</option>
+                                    <option value="flat">{{ __('tariffs.pages.admin_form.editor.flat_rate') }}</option>
+                                    <option value="time_of_use">{{ __('tariffs.pages.admin_form.editor.time_of_use') }}</option>
                                 </select>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-slate-700">Currency</label>
+                                <label class="block text-sm font-medium text-slate-700">{{ __('tariffs.pages.admin_form.editor.currency') }}</label>
                                 <input type="text" x-model="config.currency" @input="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                             </div>
 
                             <!-- Flat Rate Fields -->
                             <template x-if="config.type === 'flat'">
                                 <div class="space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                                    <h4 class="text-sm font-semibold text-slate-900">Flat Rate Configuration</h4>
+                                    <h4 class="text-sm font-semibold text-slate-900">{{ __('tariffs.pages.admin_form.editor.flat_rate_configuration') }}</h4>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700">Rate (per unit)</label>
+                                        <label class="block text-sm font-medium text-slate-700">{{ __('tariffs.pages.admin_form.editor.rate_per_unit') }}</label>
                                         <input type="number" step="0.0001" x-model.number="config.rate" @input="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700">Fixed Fee (optional)</label>
+                                        <label class="block text-sm font-medium text-slate-700">{{ __('tariffs.pages.admin_form.editor.fixed_fee_optional') }}</label>
                                         <input type="number" step="0.01" x-model.number="config.fixed_fee" @input="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                     </div>
                                 </div>
@@ -95,47 +95,47 @@
                             <template x-if="config.type === 'time_of_use'">
                                 <div class="space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
                                     <div class="flex items-center justify-between">
-                                        <h4 class="text-sm font-semibold text-slate-900">Time of Use Zones</h4>
+                                        <h4 class="text-sm font-semibold text-slate-900">{{ __('tariffs.pages.admin_form.editor.time_of_use_zones') }}</h4>
                                         <button type="button" @click="addZone()" class="inline-flex items-center rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500">
-                                            Add Zone
+                                            {{ __('tariffs.pages.admin_form.editor.add_zone') }}
                                         </button>
                                     </div>
                                     <template x-for="(zone, index) in config.zones" :key="index">
                                         <div class="rounded-md border border-slate-300 bg-white p-3 space-y-2">
                                             <div class="flex items-center justify-between">
-                                                <span class="text-sm font-medium text-slate-700">Zone <span x-text="index + 1"></span></span>
-                                                <button type="button" @click="removeZone(index)" class="text-red-600 hover:text-red-800 text-sm">Remove</button>
+                                                <span class="text-sm font-medium text-slate-700">{{ __('tariffs.pages.admin_form.editor.zone') }} <span x-text="index + 1"></span></span>
+                                                <button type="button" @click="removeZone(index)" class="text-red-600 hover:text-red-800 text-sm">{{ __('tariffs.pages.admin_form.editor.remove') }}</button>
                                             </div>
                                             <div class="grid grid-cols-2 gap-2">
                                                 <div>
-                                                    <label class="block text-xs font-medium text-slate-600">ID</label>
+                                                    <label class="block text-xs font-medium text-slate-600">{{ __('tariffs.pages.admin_form.editor.id') }}</label>
                                                     <input type="text" x-model="zone.id" @input="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" />
                                                 </div>
                                                 <div>
-                                                    <label class="block text-xs font-medium text-slate-600">Rate</label>
+                                                    <label class="block text-xs font-medium text-slate-600">{{ __('tariffs.pages.admin_form.editor.rate') }}</label>
                                                     <input type="number" step="0.0001" x-model.number="zone.rate" @input="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" />
                                                 </div>
                                                 <div>
-                                                    <label class="block text-xs font-medium text-slate-600">Start Time</label>
+                                                    <label class="block text-xs font-medium text-slate-600">{{ __('tariffs.pages.admin_form.editor.start_time') }}</label>
                                                     <input type="time" x-model="zone.start" @input="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" />
                                                 </div>
                                                 <div>
-                                                    <label class="block text-xs font-medium text-slate-600">End Time</label>
+                                                    <label class="block text-xs font-medium text-slate-600">{{ __('tariffs.pages.admin_form.editor.end_time') }}</label>
                                                     <input type="time" x-model="zone.end" @input="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" />
                                                 </div>
                                             </div>
                                         </div>
                                     </template>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700">Weekend Logic</label>
+                                        <label class="block text-sm font-medium text-slate-700">{{ __('tariffs.pages.admin_form.editor.weekend_logic') }}</label>
                                         <select x-model="config.weekend_logic" @change="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                            <option value="apply_night_rate">Apply Night Rate</option>
-                                            <option value="apply_day_rate">Apply Day Rate</option>
-                                            <option value="separate_rate">Separate Rate</option>
+                                            <option value="apply_night_rate">{{ __('tariffs.pages.admin_form.editor.apply_night_rate') }}</option>
+                                            <option value="apply_day_rate">{{ __('tariffs.pages.admin_form.editor.apply_day_rate') }}</option>
+                                            <option value="separate_rate">{{ __('tariffs.pages.admin_form.editor.separate_rate') }}</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700">Fixed Fee (optional)</label>
+                                        <label class="block text-sm font-medium text-slate-700">{{ __('tariffs.pages.admin_form.editor.fixed_fee_optional') }}</label>
                                         <input type="number" step="0.01" x-model.number="config.fixed_fee" @input="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                     </div>
                                 </div>
@@ -209,7 +209,7 @@
                                         this.config = typeof initialConfig === 'string' ? JSON.parse(initialConfig) : initialConfig;
                                         this.jsonText = JSON.stringify(this.config, null, 2);
                                     } catch (e) {
-                                        this.jsonError = 'Failed to parse initial configuration';
+                                        this.jsonError = @js(__('tariffs.pages.admin_form.editor.parse_failed'));
                                         this.config = { type: 'flat', currency: 'EUR', rate: 0.15 };
                                         this.jsonText = JSON.stringify(this.config, null, 2);
                                     }
@@ -221,7 +221,7 @@
                                         this.jsonText = JSON.stringify(this.config, null, 2);
                                         this.jsonError = '';
                                     } catch (e) {
-                                        this.jsonError = 'Failed to generate JSON: ' + e.message;
+                                        this.jsonError = @js(__('tariffs.pages.admin_form.editor.generate_failed')) + ': ' + e.message;
                                     }
                                 },
                                 
@@ -230,7 +230,7 @@
                                     try {
                                         this.config = JSON.parse(this.jsonText);
                                     } catch (e) {
-                                        this.jsonError = 'Invalid JSON: ' + e.message;
+                                        this.jsonError = @js(__('tariffs.pages.admin_form.editor.invalid_json')) + ': ' + e.message;
                                     }
                                 },
                                 
@@ -327,20 +327,20 @@
                         
                         <!-- Tab Navigation -->
                         <div class="mt-2 border-b border-slate-200">
-                            <nav class="-mb-px flex space-x-4" aria-label="Tabs">
+                            <nav class="-mb-px flex space-x-4" aria-label="{{ __('tariffs.pages.admin_form.editor.tabs_aria') }}">
                                 <button 
                                     type="button"
                                     @click="activeTab = 'visual'" 
                                     :class="activeTab === 'visual' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'"
                                     class="whitespace-nowrap border-b-2 px-1 py-2 text-sm font-medium transition">
-                                    Visual Editor
+                                    {{ __('tariffs.pages.admin_form.editor.visual_editor') }}
                                 </button>
                                 <button 
                                     type="button"
                                     @click="activeTab = 'json'" 
                                     :class="activeTab === 'json' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'"
                                     class="whitespace-nowrap border-b-2 px-1 py-2 text-sm font-medium transition">
-                                    JSON Editor
+                                    {{ __('tariffs.pages.admin_form.editor.json_editor') }}
                                 </button>
                             </nav>
                         </div>
@@ -348,28 +348,28 @@
                         <!-- Visual Editor -->
                         <div x-show="activeTab === 'visual'" class="mt-4 space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-slate-700">Tariff Type</label>
+                                <label class="block text-sm font-medium text-slate-700">{{ __('tariffs.pages.admin_form.editor.tariff_type') }}</label>
                                 <select x-model="config.type" @change="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                    <option value="flat">Flat Rate</option>
-                                    <option value="time_of_use">Time of Use</option>
+                                    <option value="flat">{{ __('tariffs.pages.admin_form.editor.flat_rate') }}</option>
+                                    <option value="time_of_use">{{ __('tariffs.pages.admin_form.editor.time_of_use') }}</option>
                                 </select>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-slate-700">Currency</label>
+                                <label class="block text-sm font-medium text-slate-700">{{ __('tariffs.pages.admin_form.editor.currency') }}</label>
                                 <input type="text" x-model="config.currency" @input="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                             </div>
 
                             <!-- Flat Rate Fields -->
                             <template x-if="config.type === 'flat'">
                                 <div class="space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                                    <h4 class="text-sm font-semibold text-slate-900">Flat Rate Configuration</h4>
+                                    <h4 class="text-sm font-semibold text-slate-900">{{ __('tariffs.pages.admin_form.editor.flat_rate_configuration') }}</h4>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700">Rate (per unit)</label>
+                                        <label class="block text-sm font-medium text-slate-700">{{ __('tariffs.pages.admin_form.editor.rate_per_unit') }}</label>
                                         <input type="number" step="0.0001" x-model.number="config.rate" @input="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700">Fixed Fee (optional)</label>
+                                        <label class="block text-sm font-medium text-slate-700">{{ __('tariffs.pages.admin_form.editor.fixed_fee_optional') }}</label>
                                         <input type="number" step="0.01" x-model.number="config.fixed_fee" @input="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                     </div>
                                 </div>
@@ -379,47 +379,47 @@
                             <template x-if="config.type === 'time_of_use'">
                                 <div class="space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
                                     <div class="flex items-center justify-between">
-                                        <h4 class="text-sm font-semibold text-slate-900">Time of Use Zones</h4>
+                                        <h4 class="text-sm font-semibold text-slate-900">{{ __('tariffs.pages.admin_form.editor.time_of_use_zones') }}</h4>
                                         <button type="button" @click="addZone()" class="inline-flex items-center rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-indigo-500">
-                                            Add Zone
+                                            {{ __('tariffs.pages.admin_form.editor.add_zone') }}
                                         </button>
                                     </div>
                                     <template x-for="(zone, index) in config.zones" :key="index">
                                         <div class="rounded-md border border-slate-300 bg-white p-3 space-y-2">
                                             <div class="flex items-center justify-between">
-                                                <span class="text-sm font-medium text-slate-700">Zone <span x-text="index + 1"></span></span>
-                                                <button type="button" @click="removeZone(index)" class="text-red-600 hover:text-red-800 text-sm">Remove</button>
+                                                <span class="text-sm font-medium text-slate-700">{{ __('tariffs.pages.admin_form.editor.zone') }} <span x-text="index + 1"></span></span>
+                                                <button type="button" @click="removeZone(index)" class="text-red-600 hover:text-red-800 text-sm">{{ __('tariffs.pages.admin_form.editor.remove') }}</button>
                                             </div>
                                             <div class="grid grid-cols-2 gap-2">
                                                 <div>
-                                                    <label class="block text-xs font-medium text-slate-600">ID</label>
+                                                    <label class="block text-xs font-medium text-slate-600">{{ __('tariffs.pages.admin_form.editor.id') }}</label>
                                                     <input type="text" x-model="zone.id" @input="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" />
                                                 </div>
                                                 <div>
-                                                    <label class="block text-xs font-medium text-slate-600">Rate</label>
+                                                    <label class="block text-xs font-medium text-slate-600">{{ __('tariffs.pages.admin_form.editor.rate') }}</label>
                                                     <input type="number" step="0.0001" x-model.number="zone.rate" @input="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" />
                                                 </div>
                                                 <div>
-                                                    <label class="block text-xs font-medium text-slate-600">Start Time</label>
+                                                    <label class="block text-xs font-medium text-slate-600">{{ __('tariffs.pages.admin_form.editor.start_time') }}</label>
                                                     <input type="time" x-model="zone.start" @input="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" />
                                                 </div>
                                                 <div>
-                                                    <label class="block text-xs font-medium text-slate-600">End Time</label>
+                                                    <label class="block text-xs font-medium text-slate-600">{{ __('tariffs.pages.admin_form.editor.end_time') }}</label>
                                                     <input type="time" x-model="zone.end" @input="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm" />
                                                 </div>
                                             </div>
                                         </div>
                                     </template>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700">Weekend Logic</label>
+                                        <label class="block text-sm font-medium text-slate-700">{{ __('tariffs.pages.admin_form.editor.weekend_logic') }}</label>
                                         <select x-model="config.weekend_logic" @change="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                            <option value="apply_night_rate">Apply Night Rate</option>
-                                            <option value="apply_day_rate">Apply Day Rate</option>
-                                            <option value="separate_rate">Separate Rate</option>
+                                            <option value="apply_night_rate">{{ __('tariffs.pages.admin_form.editor.apply_night_rate') }}</option>
+                                            <option value="apply_day_rate">{{ __('tariffs.pages.admin_form.editor.apply_day_rate') }}</option>
+                                            <option value="separate_rate">{{ __('tariffs.pages.admin_form.editor.separate_rate') }}</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-700">Fixed Fee (optional)</label>
+                                        <label class="block text-sm font-medium text-slate-700">{{ __('tariffs.pages.admin_form.editor.fixed_fee_optional') }}</label>
                                         <input type="number" step="0.01" x-model.number="config.fixed_fee" @input="updateJson()" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                     </div>
                                 </div>
@@ -493,7 +493,7 @@
                                         this.config = typeof initialConfig === 'string' ? JSON.parse(initialConfig) : initialConfig;
                                         this.jsonText = JSON.stringify(this.config, null, 2);
                                     } catch (e) {
-                                        this.jsonError = 'Failed to parse initial configuration';
+                                        this.jsonError = @js(__('tariffs.pages.admin_form.editor.parse_failed'));
                                         this.config = { type: 'flat', currency: 'EUR', rate: 0.15 };
                                         this.jsonText = JSON.stringify(this.config, null, 2);
                                     }
@@ -505,7 +505,7 @@
                                         this.jsonText = JSON.stringify(this.config, null, 2);
                                         this.jsonError = '';
                                     } catch (e) {
-                                        this.jsonError = 'Failed to generate JSON: ' + e.message;
+                                        this.jsonError = @js(__('tariffs.pages.admin_form.editor.generate_failed')) + ': ' + e.message;
                                     }
                                 },
                                 
@@ -514,7 +514,7 @@
                                     try {
                                         this.config = JSON.parse(this.jsonText);
                                     } catch (e) {
-                                        this.jsonError = 'Invalid JSON: ' + e.message;
+                                        this.jsonError = @js(__('tariffs.pages.admin_form.editor.invalid_json')) + ': ' + e.message;
                                     }
                                 },
                                 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -108,12 +108,12 @@
 <body>
     <div class="email-container">
         <div class="header">
-            <h1>Scheduled Export Report</h1>
-            <div class="subtitle">{{ now()->format('F j, Y \a\t g:i A') }}</div>
+            <h1>{{ __('shared.scheduled_export_email.title') }}</h1>
+            <div class="subtitle">{{ now()->locale(app()->getLocale())->translatedFormat('F j, Y H:i') }}</div>
         </div>
 
         <div class="greeting">
-            Hello {{ $user->name }},
+            {{ __('shared.scheduled_export_email.greeting', ['name' => $user->name]) }}
         </div>
 
         <div class="content">
@@ -121,34 +121,31 @@
         </div>
 
         <div class="attachments-info">
-            <h3>📎 Attached Files</h3>
-            <p>This email contains the following export files:</p>
+            <h3>{{ __('shared.scheduled_export_email.attached_files_title') }}</h3>
+            <p>{{ __('shared.scheduled_export_email.attached_files_intro') }}</p>
             <ul>
-                <li>CSV/Excel files for data analysis</li>
-                <li>PDF reports for executive review</li>
-                <li>JSON files for system integration (if applicable)</li>
+                <li>{{ __('shared.scheduled_export_email.items.csv_excel') }}</li>
+                <li>{{ __('shared.scheduled_export_email.items.pdf_reports') }}</li>
+                <li>{{ __('shared.scheduled_export_email.items.json_files') }}</li>
             </ul>
         </div>
 
         <div class="security-notice">
-            <strong>⚠️ Security Notice:</strong> These files contain confidential platform data. 
-            Please handle them according to your organization's data security policies. 
-            Do not forward these files to unauthorized personnel.
+            <strong>{{ __('shared.scheduled_export_email.security_notice_title') }}</strong>
+            {{ __('shared.scheduled_export_email.security_notice_body') }}
         </div>
 
         <div class="content">
-            <p>If you have any questions about these reports or need additional data exports, 
-            please contact the platform administrator or access the superadmin dashboard directly.</p>
+            <p>{{ __('shared.scheduled_export_email.questions_paragraph') }}</p>
             
-            <p>You can also configure your export preferences and schedules through the 
-            System Settings page in the superadmin dashboard.</p>
+            <p>{{ __('shared.scheduled_export_email.settings_paragraph') }}</p>
         </div>
 
         <div class="footer">
-            <div class="platform-name">Vilnius Utilities Billing Platform</div>
-            <div>Superadmin Dashboard - Automated Export System</div>
+            <div class="platform-name">{{ __('shared.scheduled_export_email.footer_platform') }}</div>
+            <div>{{ __('shared.scheduled_export_email.footer_system') }}</div>
             <div style="margin-top: 10px;">
-                This is an automated message. Please do not reply to this email.
+                {{ __('shared.scheduled_export_email.auto_reply_notice') }}
             </div>
         </div>
     </div>

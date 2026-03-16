@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Executive Summary Report</title>
+    <title>{{ __('reports.exports.executive_summary.title') }}</title>
     <style>
         body {
             font-family: 'DejaVu Sans', sans-serif;
@@ -140,62 +140,62 @@
 </head>
 <body>
     <div class="header">
-        <h1>Executive Summary Report</h1>
+        <h1>{{ __('reports.exports.executive_summary.title') }}</h1>
         <div class="subtitle">
-            Generated on {{ $generated_at->format('F j, Y \a\t g:i A') }} | Period: {{ $period }}
+            {{ __('reports.exports.executive_summary.subtitle', ['date' => $generated_at->locale(app()->getLocale())->translatedFormat('F j, Y H:i'), 'period' => $period]) }}
         </div>
     </div>
 
     <!-- Key Metrics -->
     <div class="metrics-grid">
         <div class="metric-card">
-            <h3>Organizations</h3>
+            <h3>{{ __('reports.exports.common.organizations') }}</h3>
             <div class="metric-value">{{ number_format($metrics['organizations']['total']) }}</div>
-            <div class="metric-label">Total Organizations</div>
+            <div class="metric-label">{{ __('reports.exports.executive_summary.total_organizations') }}</div>
             <div style="margin-top: 10px; font-size: 11px;">
-                <div>Active: {{ number_format($metrics['organizations']['active']) }}</div>
-                <div>Suspended: {{ number_format($metrics['organizations']['suspended']) }}</div>
-                <div>Growth (30d): +{{ number_format($metrics['organizations']['growth']) }}</div>
+                <div>{{ __('reports.exports.executive_summary.active') }}: {{ number_format($metrics['organizations']['active']) }}</div>
+                <div>{{ __('reports.exports.executive_summary.suspended') }}: {{ number_format($metrics['organizations']['suspended']) }}</div>
+                <div>{{ __('reports.exports.executive_summary.growth_30d') }}: +{{ number_format($metrics['organizations']['growth']) }}</div>
             </div>
         </div>
         
         <div class="metric-card">
-            <h3>Subscriptions</h3>
+            <h3>{{ __('reports.exports.common.subscriptions') }}</h3>
             <div class="metric-value">{{ number_format($metrics['subscriptions']['total']) }}</div>
-            <div class="metric-label">Total Subscriptions</div>
+            <div class="metric-label">{{ __('reports.exports.executive_summary.total_subscriptions') }}</div>
             <div style="margin-top: 10px; font-size: 11px;">
-                <div>Active: {{ number_format($metrics['subscriptions']['active']) }}</div>
-                <div>Expiring Soon: {{ number_format($metrics['subscriptions']['expiring']) }}</div>
-                <div>Growth (30d): +{{ number_format($metrics['subscriptions']['growth']) }}</div>
+                <div>{{ __('reports.exports.executive_summary.active') }}: {{ number_format($metrics['subscriptions']['active']) }}</div>
+                <div>{{ __('reports.exports.executive_summary.expiring_soon') }}: {{ number_format($metrics['subscriptions']['expiring']) }}</div>
+                <div>{{ __('reports.exports.executive_summary.growth_30d') }}: +{{ number_format($metrics['subscriptions']['growth']) }}</div>
             </div>
         </div>
         
         <div class="metric-card">
-            <h3>Platform Usage</h3>
+            <h3>{{ __('reports.exports.executive_summary.platform_usage') }}</h3>
             <div class="metric-value">{{ number_format($metrics['platform']['users']) }}</div>
-            <div class="metric-label">Total Users</div>
+            <div class="metric-label">{{ __('reports.exports.executive_summary.total_users') }}</div>
             <div style="margin-top: 10px; font-size: 11px;">
-                <div>Properties: {{ number_format($metrics['platform']['properties']) }}</div>
-                <div>Invoices: {{ number_format($metrics['platform']['invoices']) }}</div>
+                <div>{{ __('reports.exports.common.properties') }}: {{ number_format($metrics['platform']['properties']) }}</div>
+                <div>{{ __('reports.exports.common.invoices') }}: {{ number_format($metrics['platform']['invoices']) }}</div>
             </div>
         </div>
     </div>
 
     <!-- Plan Distribution -->
     <div class="section">
-        <h2>Subscription Plan Distribution</h2>
+        <h2>{{ __('reports.exports.executive_summary.subscription_plan_distribution') }}</h2>
         <table class="distribution-table">
             <thead>
                 <tr>
-                    <th>Plan Type</th>
-                    <th>Organizations</th>
-                    <th>Percentage</th>
+                    <th>{{ __('reports.exports.common.plan_type') }}</th>
+                    <th>{{ __('reports.exports.common.organizations') }}</th>
+                    <th>{{ __('reports.exports.common.percentage') }}</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($plan_distribution as $plan => $count)
                 <tr>
-                    <td>{{ ucfirst($plan) }}</td>
+                    <td>{{ enum_label($plan, \App\Enums\SubscriptionPlanType::class) }}</td>
                     <td>{{ number_format($count) }}</td>
                     <td>{{ number_format(($count / $metrics['organizations']['total']) * 100, 1) }}%</td>
                 </tr>
@@ -206,15 +206,15 @@
 
     <!-- Recent Activity -->
     <div class="section">
-        <h2>Recent Platform Activity</h2>
+        <h2>{{ __('reports.exports.executive_summary.recent_platform_activity') }}</h2>
         @foreach($recent_activity as $activity)
         <div class="activity-item">
-            <div class="activity-time">{{ $activity->created_at->format('M j, Y g:i A') }}</div>
+            <div class="activity-time">{{ $activity->created_at->locale(app()->getLocale())->translatedFormat('M j, Y H:i') }}</div>
             <div class="activity-action">{{ $activity->action }}</div>
             <div>
-                <span class="activity-user">{{ $activity->user?->name ?? 'System' }}</span>
+                <span class="activity-user">{{ $activity->user?->name ?? __('reports.exports.common.system') }}</span>
                 @if($activity->organization)
-                    in <strong>{{ $activity->organization->name }}</strong>
+                    {{ __('reports.exports.executive_summary.in') }} <strong>{{ $activity->organization->name }}</strong>
                 @endif
                 @if($activity->resource_type)
                     - {{ $activity->resource_type }}
@@ -228,8 +228,8 @@
     </div>
 
     <div class="footer">
-        <div>Vilnius Utilities Billing Platform - Superadmin Dashboard</div>
-        <div>This report contains confidential information. Distribution is restricted.</div>
+        <div>{{ __('reports.exports.executive_summary.footer_title') }}</div>
+        <div>{{ __('reports.exports.common.confidential_notice') }}</div>
     </div>
 </body>
 </html>

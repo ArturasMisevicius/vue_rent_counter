@@ -1,20 +1,20 @@
 <x-tenant.stack>
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <x-tenant.stat-card label="Service" :value="$meter->getServiceDisplayName()" />
-        <x-tenant.stat-card label="Latest Reading" :value="$latestReading ? number_format($latestReading->getEffectiveValue(), 2) . ' ' . $unit : 'Not recorded yet'" :value-color="$latestReading ? 'text-indigo-700' : 'text-slate-500'" />
-        <x-tenant.stat-card label="Last Updated" :value="$latestReading ? $latestReading->reading_date->format('Y-m-d') : '-'" />
+        <x-tenant.stat-card :label="__('shared.tenant.meter_details.stat.service')" :value="$meter->getServiceDisplayName()" />
+        <x-tenant.stat-card :label="__('shared.tenant.meter_details.stat.latest_reading')" :value="$latestReading ? number_format($latestReading->getEffectiveValue(), 2) . ' ' . $unit : __('shared.tenant.meter_details.not_recorded_yet')" :value-color="$latestReading ? 'text-indigo-700' : 'text-slate-500'" />
+        <x-tenant.stat-card :label="__('shared.tenant.meter_details.stat.last_updated')" :value="$latestReading ? $latestReading->reading_date->format('Y-m-d') : '-'" />
     </div>
 
-    <x-tenant.section-card title="Usage trend" description="Interactive view of your most recent readings.">
+    <x-tenant.section-card :title="__('shared.tenant.meter_details.trend.title')" :description="__('shared.tenant.meter_details.trend.description')">
         @if($chartReadings->isEmpty())
-            <p class="text-sm text-slate-600">Add readings to see your consumption trend.</p>
+            <p class="text-sm text-slate-600">{{ __('shared.tenant.meter_details.trend.empty') }}</p>
         @else
             <div class="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
                 <div class="relative overflow-hidden rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-sky-50 p-4 shadow-sm">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-600">Last {{ $chartReadings->count() }} readings</p>
-                            <p class="text-sm text-slate-600">Hover the chart to inspect exact values.</p>
+                            <p class="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-600">{{ trans_choice('shared.tenant.meter_details.trend.last_readings', $chartReadings->count(), ['count' => $chartReadings->count()]) }}</p>
+                            <p class="text-sm text-slate-600">{{ __('shared.tenant.meter_details.trend.hover_hint') }}</p>
                         </div>
                         <div class="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-100">
                             <span class="h-2 w-2 rounded-full bg-indigo-500"></span>
@@ -22,103 +22,103 @@
                         </div>
                     </div>
                     <div class="mt-4 h-64">
-                        <canvas id="{{ $trendChartId }}" role="img" aria-label="Meter reading line chart"></canvas>
+                        <canvas id="{{ $trendChartId }}" role="img" aria-label="{{ __('shared.tenant.meter_details.trend.chart_aria') }}"></canvas>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Latest</p>
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.tenant.meter_details.trend.latest') }}</p>
                         <p class="mt-1 text-2xl font-bold text-slate-900">{{ number_format($latestReading->getEffectiveValue(), 2) }} {{ $unit }}</p>
-                        <p class="text-xs text-slate-500">on {{ $latestReading->reading_date->format('Y-m-d') }}</p>
+                        <p class="text-xs text-slate-500">{{ __('shared.tenant.meter_details.trend.on_date', ['date' => $latestReading->reading_date->format('Y-m-d')]) }}</p>
                     </div>
                     <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Average</p>
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.tenant.meter_details.trend.average') }}</p>
                         <p class="mt-1 text-2xl font-bold text-slate-900">{{ number_format($averageValue, 2) }} {{ $unit }}</p>
-                        <p class="text-xs text-slate-500">Across {{ $chartReadings->count() }} readings</p>
+                        <p class="text-xs text-slate-500">{{ trans_choice('shared.tenant.meter_details.trend.across_readings', $chartReadings->count(), ['count' => $chartReadings->count()]) }}</p>
                     </div>
                     <div class="rounded-xl border border-indigo-100 bg-indigo-50/80 p-4 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-600">Change vs previous</p>
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-600">{{ __('shared.tenant.meter_details.trend.change_vs_previous') }}</p>
                         <p class="mt-1 text-2xl font-bold text-indigo-700">
                             {{ !is_null($delta) ? '+' . number_format($delta, 2) : '—' }} {{ $unit }}
                         </p>
-                        <p class="text-xs text-indigo-600">Positive differences only</p>
+                        <p class="text-xs text-indigo-600">{{ __('shared.tenant.meter_details.trend.positive_only') }}</p>
                     </div>
                     <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Range</p>
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.tenant.meter_details.trend.range') }}</p>
                         <p class="mt-1 text-2xl font-bold text-slate-900">{{ number_format($maxValue - $minValue, 2) }} {{ $unit }}</p>
-                        <p class="text-xs text-slate-500">Min {{ number_format($minValue, 2) }} / Max {{ number_format($maxValue, 2) }}</p>
+                        <p class="text-xs text-slate-500">{{ __('shared.tenant.meter_details.trend.min_max', ['min' => number_format($minValue, 2), 'max' => number_format($maxValue, 2)]) }}</p>
                     </div>
                 </div>
             </div>
         @endif
     </x-tenant.section-card>
 
-    <x-tenant.section-card title="Monthly usage (last 12 months)" description="Computed from differences between consecutive readings.">
+    <x-tenant.section-card :title="__('shared.tenant.meter_details.monthly.title')" :description="__('shared.tenant.meter_details.monthly.description')">
         @if($monthlyChart->isEmpty())
-            <p class="text-sm text-slate-600">Need at least two readings to calculate monthly usage.</p>
+            <p class="text-sm text-slate-600">{{ __('shared.tenant.meter_details.monthly.empty') }}</p>
         @else
             <div class="grid gap-6 lg:grid-cols-[1.5fr_auto]">
                 <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div class="flex items-center justify-between">
-                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Consumption</p>
-                        <p class="text-xs text-slate-500">Max: {{ number_format($maxMonthly, 2) }} {{ $unit }}</p>
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.tenant.meter_details.monthly.consumption') }}</p>
+                        <p class="text-xs text-slate-500">{{ __('shared.tenant.meter_details.monthly.max', ['value' => number_format($maxMonthly, 2), 'unit' => $unit]) }}</p>
                     </div>
                     <div class="mt-3 h-64">
-                        <canvas id="{{ $usageChartId }}" role="img" aria-label="Monthly consumption bar chart"></canvas>
+                        <canvas id="{{ $usageChartId }}" role="img" aria-label="{{ __('shared.tenant.meter_details.monthly.chart_aria') }}"></canvas>
                     </div>
                 </div>
                 <div class="grid w-full max-w-xs gap-3">
                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Total (12m)</p>
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.tenant.meter_details.monthly.total_12m') }}</p>
                         <p class="mt-1 text-2xl font-bold text-slate-900">{{ number_format($totalUsage, 2) }} {{ $unit }}</p>
-                        <p class="text-xs text-slate-500">Average {{ number_format($totalUsage / max(count($usageValues), 1), 2) }} {{ $unit }}</p>
+                        <p class="text-xs text-slate-500">{{ __('shared.tenant.meter_details.monthly.average', ['value' => number_format($totalUsage / max(count($usageValues), 1), 2), 'unit' => $unit]) }}</p>
                     </div>
                     <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Latest month</p>
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.tenant.meter_details.monthly.latest_month') }}</p>
                         <p class="mt-1 text-2xl font-bold text-slate-900">{{ number_format($monthlyChart->last(), 2) }} {{ $unit }}</p>
-                        <p class="text-xs text-slate-500">{{ \Carbon\Carbon::createFromFormat('Y-m', $monthlyChart->keys()->last())->format('M Y') }}</p>
+                        <p class="text-xs text-slate-500">{{ \Carbon\Carbon::createFromFormat('Y-m', $monthlyChart->keys()->last())->locale(app()->getLocale())->translatedFormat('M Y') }}</p>
                     </div>
                 </div>
             </div>
         @endif
     </x-tenant.section-card>
 
-    <x-tenant.section-card title="{{ __('shared.meter_details.overview_title') }}" description="{{ __('shared.meter_details.overview_description') }}">
+    <x-tenant.section-card :title="__('shared.tenant.meter_details.overview_title')" :description="__('shared.tenant.meter_details.overview_description')">
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <x-tenant.stack gap="4">
                 <div class="rounded-xl border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.meter_details.serial_number') }}</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.tenant.meter_details.serial_number') }}</p>
                     <p class="mt-1 text-lg font-semibold text-slate-900">{{ $meter->serial_number }}</p>
                 </div>
 
                 <div class="rounded-xl border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.meter_details.property') }}</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.tenant.meter_details.property') }}</p>
                     <p class="mt-1 text-sm text-slate-900">
                         @if($meter->property)
                             <a href="{{ route('tenant.property.show') }}" class="text-indigo-600 hover:text-indigo-800">
                                 {{ $meter->property->address }}
                             </a>
                         @else
-                            <span class="text-slate-500">{{ __('shared.meter_details.not_assigned') }}</span>
+                            <span class="text-slate-500">{{ __('shared.tenant.meter_details.not_assigned') }}</span>
                         @endif
                     </p>
                 </div>
 
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div class="rounded-xl border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.meter_details.installed') }}</p>
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.tenant.meter_details.installed') }}</p>
                         <p class="mt-1 text-sm text-slate-900">
-                            {{ $meter->installation_date ? $meter->installation_date->format('Y-m-d') : __('shared.meter_details.not_specified') }}
+                            {{ $meter->installation_date ? $meter->installation_date->format('Y-m-d') : __('shared.tenant.meter_details.not_specified') }}
                         </p>
                     </div>
                     <div class="rounded-xl border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
-                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.meter_details.zones') }}</p>
+                        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.tenant.meter_details.zones') }}</p>
                         <div class="mt-2">
                             @if($meter->supports_zones)
-                                <x-status-badge status="active">{{ __('shared.meter_details.supports_zones') }}</x-status-badge>
+                                <x-status-badge status="active">{{ __('shared.tenant.meter_details.supports_zones') }}</x-status-badge>
                             @else
-                                <x-status-badge status="inactive">{{ __('shared.meter_details.single_zone') }}</x-status-badge>
+                                <x-status-badge status="inactive">{{ __('shared.tenant.meter_details.single_zone') }}</x-status-badge>
                             @endif
                         </div>
                     </div>
@@ -128,46 +128,46 @@
             <div class="relative overflow-hidden rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-sky-50 p-6 shadow-lg shadow-indigo-100">
                 <div class="absolute right-4 top-4 h-20 w-20 rounded-full bg-indigo-500/10 blur-3xl"></div>
                 <div class="relative">
-                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">Latest reading</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">{{ __('shared.tenant.meter_details.latest_reading') }}</p>
                     @if($latestReading)
                         <div class="mt-3 flex items-baseline gap-3">
                             <span class="text-4xl font-bold text-slate-900">{{ number_format($latestReading->getEffectiveValue(), 2) }}</span>
                             <span class="text-sm font-semibold text-slate-500">{{ $unit }}</span>
                         </div>
-                        <p class="mt-2 text-sm text-slate-600">{{ __('shared.meter_details.recorded_on', ['date' => $latestReading->reading_date->format('Y-m-d')]) }}</p>
+                        <p class="mt-2 text-sm text-slate-600">{{ __('shared.tenant.meter_details.recorded_on', ['date' => $latestReading->reading_date->format('Y-m-d')]) }}</p>
                         <div class="mt-3 flex flex-wrap gap-2">
                             @if($latestReading->zone)
                                 <span class="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
-                                    {{ __('shared.meter_details.zone') }}: {{ $latestReading->zone }}
+                                    {{ __('shared.tenant.meter_details.zone') }}: {{ $latestReading->zone }}
                                 </span>
                             @endif
                             @if(!is_null($delta))
                                 <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
-                                    {{ __('shared.meter_details.delta', ['value' => number_format($delta, 2), 'unit' => $unit]) }}
+                                    {{ __('shared.tenant.meter_details.delta', ['value' => number_format($delta, 2), 'unit' => $unit]) }}
                                 </span>
                             @endif
                         </div>
                     @else
-                        <p class="mt-2 text-sm text-slate-700">{{ __('shared.meter_details.empty_primary') }}</p>
-                        <p class="mt-1 text-sm text-slate-600">{{ __('shared.meter_details.empty_secondary') }}</p>
+                        <p class="mt-2 text-sm text-slate-700">{{ __('shared.tenant.meter_details.empty_primary') }}</p>
+                        <p class="mt-1 text-sm text-slate-600">{{ __('shared.tenant.meter_details.empty_secondary') }}</p>
                     @endif
                 </div>
             </div>
         </div>
     </x-tenant.section-card>
 
-    <x-tenant.section-card title="{{ __('shared.meter_details.recent_title') }}" description="{{ __('shared.meter_details.recent_description') }}">
+    <x-tenant.section-card :title="__('shared.tenant.meter_details.recent_title')" :description="__('shared.tenant.meter_details.recent_description')">
         @if($meter->readings->isEmpty())
-            <p class="text-sm text-slate-600">{{ __('shared.meter_details.empty_primary') }}</p>
+            <p class="text-sm text-slate-600">{{ __('shared.tenant.meter_details.empty_primary') }}</p>
         @else
             <div class="hidden sm:block overflow-hidden rounded-xl border border-slate-200">
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50">
                         <tr>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.meter_details.table.date') }}</th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.meter_details.table.value') }}</th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.meter_details.table.change') }}</th>
-                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.meter_details.table.zone') }}</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.tenant.meter_details.table.date') }}</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.tenant.meter_details.table.value') }}</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.tenant.meter_details.table.change') }}</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ __('shared.tenant.meter_details.table.zone') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200 bg-white">
@@ -197,9 +197,9 @@
                             <p class="text-sm font-semibold text-slate-900">{{ $row['reading']->reading_date->format('Y-m-d') }}</p>
                             <p class="text-xs font-semibold text-slate-500">{{ $row['reading']->zone ?? '—' }}</p>
                         </div>
-                        <p class="mt-1 text-sm text-slate-700">{{ __('shared.meter_details.mobile.value') }} <span class="font-semibold">{{ number_format($row['reading']->getEffectiveValue(), 2) }} {{ $unit }}</span></p>
+                        <p class="mt-1 text-sm text-slate-700">{{ __('shared.tenant.meter_details.mobile.value') }} <span class="font-semibold">{{ number_format($row['reading']->getEffectiveValue(), 2) }} {{ $unit }}</span></p>
                         <p class="mt-1 text-sm text-slate-700">
-                            {{ __('shared.meter_details.mobile.change') }}
+                            {{ __('shared.tenant.meter_details.mobile.change') }}
                             <span class="font-semibold">{{ $row['delta'] !== null ? '+' . number_format($row['delta'], 2) . ' ' . $unit : '—' }}</span>
                         </p>
                     </div>
@@ -227,7 +227,7 @@
                             data: {
                                 labels: @json($trendLabels),
                                 datasets: [{
-                                    label: '{{ __('shared.meter_details.chart_label', ['unit' => $unit]) }}',
+                                    label: '{{ __('shared.tenant.meter_details.chart_label', ['unit' => $unit]) }}',
                                     data: @json($trendValues),
                                     borderColor: 'rgb(79, 70, 229)',
                                     backgroundColor: gradient,

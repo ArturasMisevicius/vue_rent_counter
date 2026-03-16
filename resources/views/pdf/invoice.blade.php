@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice {{ $invoice->invoice_number }}</title>
+    <title>{{ __('invoices.pdf.document_title', ['number' => $invoice->invoice_number]) }}</title>
     <style>
         * {
             margin: 0;
@@ -192,12 +192,12 @@
     <div class="container">
         {{-- Header --}}
         <div class="header">
-            <h1>INVOICE</h1>
+            <h1>{{ __('invoices.pdf.heading') }}</h1>
             <div class="invoice-number">
                 {{ $invoice->invoice_number ?? 'INV-' . $invoice->id }}
                 @if($invoice->status)
                     <span class="status-badge status-{{ strtolower($invoice->status->value) }}">
-                        {{ $invoice->status->value }}
+                        {{ enum_label($invoice->status) }}
                     </span>
                 @endif
             </div>
@@ -207,23 +207,23 @@
         <div class="info-section">
             <div class="info-column">
                 <div class="info-block">
-                    <h3>Tenant Information</h3>
+                    <h3>{{ __('invoices.pdf.tenant_information') }}</h3>
                     @if($invoice->tenantRenter)
-                        <p><span class="label">Name:</span> {{ $invoice->tenantRenter->name }}</p>
-                        <p><span class="label">Email:</span> {{ $invoice->tenantRenter->email }}</p>
+                        <p><span class="label">{{ __('invoices.pdf.labels.name') }}:</span> {{ $invoice->tenantRenter->name }}</p>
+                        <p><span class="label">{{ __('invoices.pdf.labels.email') }}:</span> {{ $invoice->tenantRenter->email }}</p>
                         @if($invoice->tenantRenter->phone)
-                            <p><span class="label">Phone:</span> {{ $invoice->tenantRenter->phone }}</p>
+                            <p><span class="label">{{ __('invoices.pdf.labels.phone') }}:</span> {{ $invoice->tenantRenter->phone }}</p>
                         @endif
                     @endif
 
                     @if($invoice->tenant && $invoice->tenant->property)
-                        <p><span class="label">Property:</span>
+                        <p><span class="label">{{ __('invoices.pdf.labels.property') }}:</span>
                             {{ $invoice->tenant->property->unit_number
-                                ? 'Unit ' . $invoice->tenant->property->unit_number
-                                : 'Property #' . $invoice->tenant->property->id }}
+                                ? __('invoices.pdf.property_unit', ['unit' => $invoice->tenant->property->unit_number])
+                                : __('invoices.pdf.property_id', ['id' => $invoice->tenant->property->id]) }}
                         </p>
                         @if($invoice->tenant->property->address)
-                            <p><span class="label">Address:</span> {{ $invoice->tenant->property->address }}</p>
+                            <p><span class="label">{{ __('invoices.pdf.labels.address') }}:</span> {{ $invoice->tenant->property->address }}</p>
                         @endif
                     @endif
                 </div>
@@ -231,14 +231,14 @@
 
             <div class="info-column">
                 <div class="info-block">
-                    <h3>Invoice Details</h3>
-                    <p><span class="label">Issue Date:</span> {{ $invoice->created_at->format('Y-m-d') }}</p>
-                    <p><span class="label">Billing Period:</span> {{ $invoice->billing_period_start->format('Y-m-d') }} to {{ $invoice->billing_period_end->format('Y-m-d') }}</p>
+                    <h3>{{ __('invoices.pdf.invoice_details') }}</h3>
+                    <p><span class="label">{{ __('invoices.pdf.labels.issue_date') }}:</span> {{ $invoice->created_at->format('Y-m-d') }}</p>
+                    <p><span class="label">{{ __('invoices.pdf.labels.billing_period') }}:</span> {{ $invoice->billing_period_start->format('Y-m-d') }} {{ __('invoices.pdf.to') }} {{ $invoice->billing_period_end->format('Y-m-d') }}</p>
                     @if($invoice->due_date)
-                        <p><span class="label">Due Date:</span> {{ $invoice->due_date->format('Y-m-d') }}</p>
+                        <p><span class="label">{{ __('invoices.pdf.labels.due_date') }}:</span> {{ $invoice->due_date->format('Y-m-d') }}</p>
                     @endif
                     @if($invoice->finalized_at)
-                        <p><span class="label">Finalized:</span> {{ $invoice->finalized_at->format('Y-m-d H:i') }}</p>
+                        <p><span class="label">{{ __('invoices.pdf.labels.finalized') }}:</span> {{ $invoice->finalized_at->format('Y-m-d H:i') }}</p>
                     @endif
                 </div>
             </div>
@@ -248,11 +248,11 @@
         <table>
             <thead>
                 <tr>
-                    <th>Description</th>
-                    <th class="text-right">Quantity</th>
-                    <th>Unit</th>
-                    <th class="text-right">Unit Price</th>
-                    <th class="text-right">Total</th>
+                    <th>{{ __('invoices.pdf.table.description') }}</th>
+                    <th class="text-right">{{ __('invoices.pdf.table.quantity') }}</th>
+                    <th>{{ __('invoices.pdf.table.unit') }}</th>
+                    <th class="text-right">{{ __('invoices.pdf.table.unit_price') }}</th>
+                    <th class="text-right">{{ __('invoices.pdf.table.total') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -260,13 +260,13 @@
                     <tr>
                         <td>{{ $item->description }}</td>
                         <td class="text-right">{{ number_format($item->quantity, 2) }}</td>
-                        <td>{{ $item->unit ?? '-' }}</td>
+                        <td>{{ $item->unit ?? __('invoices.pdf.table.empty_unit') }}</td>
                         <td class="text-right">€{{ number_format($item->unit_price, 4) }}</td>
                         <td class="text-right">€{{ number_format($item->total, 2) }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" style="text-align: center; color: #9ca3af;">No items</td>
+                        <td colspan="5" style="text-align: center; color: #9ca3af;">{{ __('invoices.pdf.table.no_items') }}</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -275,15 +275,15 @@
         {{-- Totals --}}
         <div class="totals">
             <div class="totals-row total">
-                <div class="totals-label">TOTAL</div>
+                <div class="totals-label">{{ __('invoices.pdf.total') }}</div>
                 <div class="totals-value">€{{ number_format($invoice->total_amount, 2) }}</div>
             </div>
         </div>
 
         {{-- Footer --}}
         <div class="footer">
-            <p>Generated on {{ now()->format('Y-m-d H:i:s') }}</p>
-            <p>This is an automatically generated invoice document.</p>
+            <p>{{ __('invoices.pdf.generated_on', ['date' => now()->locale(app()->getLocale())->translatedFormat('Y-m-d H:i:s')]) }}</p>
+            <p>{{ __('invoices.pdf.auto_generated_notice') }}</p>
         </div>
     </div>
 </body>

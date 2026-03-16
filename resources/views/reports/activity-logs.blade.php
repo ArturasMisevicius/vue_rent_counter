@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activity Logs Report</title>
+    <title>{{ __('reports.exports.activity_logs.title') }}</title>
     <style>
         body {
             font-family: 'DejaVu Sans', sans-serif;
@@ -143,16 +143,16 @@
 </head>
 <body>
     <div class="header">
-        <h1>Activity Logs Report</h1>
-        <div>Generated on {{ $generated_at->format('F j, Y \a\t g:i A') }}</div>
+        <h1>{{ __('reports.exports.activity_logs.title') }}</h1>
+        <div>{{ __('reports.exports.generated_on', ['date' => $generated_at->locale(app()->getLocale())->translatedFormat('F j, Y H:i')]) }}</div>
     </div>
 
     <div class="period-info">
-        <strong>Report Period:</strong> {{ $period['start'] }} to {{ $period['end'] }}
+        <strong>{{ __('reports.exports.activity_logs.report_period') }}:</strong> {{ $period['start'] }} {{ __('reports.exports.common.to') }} {{ $period['end'] }}
         <br>
-        <strong>Total Activities:</strong> {{ number_format($total_count) }}
+        <strong>{{ __('reports.exports.activity_logs.total_activities') }}:</strong> {{ number_format($total_count) }}
         @if($total_count >= 1000)
-            (Showing first 1,000 records)
+            ({{ __('reports.exports.activity_logs.showing_first_records', ['count' => number_format(1000)]) }})
         @endif
     </div>
 
@@ -160,19 +160,19 @@
     <div class="summary-stats">
         <div class="stat-item">
             <div class="stat-value">{{ number_format($total_count) }}</div>
-            <div class="stat-label">Total Activities</div>
+            <div class="stat-label">{{ __('reports.exports.activity_logs.total_activities') }}</div>
         </div>
         <div class="stat-item">
             <div class="stat-value">{{ count($action_distribution) }}</div>
-            <div class="stat-label">Unique Actions</div>
+            <div class="stat-label">{{ __('reports.exports.activity_logs.unique_actions') }}</div>
         </div>
         <div class="stat-item">
             <div class="stat-value">{{ count($top_users) }}</div>
-            <div class="stat-label">Active Users</div>
+            <div class="stat-label">{{ __('reports.exports.activity_logs.active_users') }}</div>
         </div>
         <div class="stat-item">
             <div class="stat-value">{{ count($top_organizations) }}</div>
-            <div class="stat-label">Organizations</div>
+            <div class="stat-label">{{ __('reports.exports.common.organizations') }}</div>
         </div>
     </div>
 
@@ -180,21 +180,21 @@
     <table class="logs-table">
         <thead>
             <tr>
-                <th>Timestamp</th>
-                <th>Organization</th>
-                <th>User</th>
-                <th>Action</th>
-                <th>Resource</th>
-                <th>IP Address</th>
-                <th>Metadata</th>
+                <th>{{ __('reports.exports.common.timestamp') }}</th>
+                <th>{{ __('reports.exports.common.organization') }}</th>
+                <th>{{ __('reports.exports.common.user') }}</th>
+                <th>{{ __('reports.exports.common.action') }}</th>
+                <th>{{ __('reports.exports.common.resource') }}</th>
+                <th>{{ __('reports.exports.common.ip_address') }}</th>
+                <th>{{ __('reports.exports.common.metadata') }}</th>
             </tr>
         </thead>
         <tbody>
             @foreach($logs as $log)
             <tr>
                 <td>{{ $log->created_at->format('m/d H:i') }}</td>
-                <td>{{ $log->organization?->name ?? 'N/A' }}</td>
-                <td>{{ $log->user?->name ?? 'System' }}</td>
+                <td>{{ $log->organization?->name ?? __('reports.exports.common.not_available') }}</td>
+                <td>{{ $log->user?->name ?? __('reports.exports.common.system') }}</td>
                 <td class="action-{{ strtolower(explode('_', $log->action)[0] ?? 'other') }}">
                     {{ $log->action }}
                 </td>
@@ -219,12 +219,12 @@
     <div class="two-column">
         <div class="column">
             <div class="distribution-section">
-                <h3 style="color: #1e40af; font-size: 12px; margin-bottom: 8px;">Top Actions</h3>
+                <h3 style="color: #1e40af; font-size: 12px; margin-bottom: 8px;">{{ __('reports.exports.activity_logs.top_actions') }}</h3>
                 <table class="distribution-table">
                     <thead>
                         <tr>
-                            <th>Action</th>
-                            <th>Count</th>
+                            <th>{{ __('reports.exports.common.action') }}</th>
+                            <th>{{ __('reports.exports.common.count') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -239,18 +239,18 @@
             </div>
 
             <div class="distribution-section">
-                <h3 style="color: #1e40af; font-size: 12px; margin-bottom: 8px;">Top Users</h3>
+                <h3 style="color: #1e40af; font-size: 12px; margin-bottom: 8px;">{{ __('reports.exports.activity_logs.top_users') }}</h3>
                 <table class="distribution-table">
                     <thead>
                         <tr>
-                            <th>User</th>
-                            <th>Activities</th>
+                            <th>{{ __('reports.exports.common.user') }}</th>
+                            <th>{{ __('reports.exports.activity_logs.activities') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($top_users->take(8) as $user => $count)
                         <tr>
-                            <td>{{ $user ?: 'System' }}</td>
+                            <td>{{ $user ?: __('reports.exports.common.system') }}</td>
                             <td>{{ number_format($count) }}</td>
                         </tr>
                         @endforeach
@@ -261,18 +261,18 @@
 
         <div class="column">
             <div class="distribution-section">
-                <h3 style="color: #1e40af; font-size: 12px; margin-bottom: 8px;">Top Organizations</h3>
+                <h3 style="color: #1e40af; font-size: 12px; margin-bottom: 8px;">{{ __('reports.exports.activity_logs.top_organizations') }}</h3>
                 <table class="distribution-table">
                     <thead>
                         <tr>
-                            <th>Organization</th>
-                            <th>Activities</th>
+                            <th>{{ __('reports.exports.common.organization') }}</th>
+                            <th>{{ __('reports.exports.activity_logs.activities') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($top_organizations->take(8) as $org => $count)
                         <tr>
-                            <td>{{ $org ?: 'System' }}</td>
+                            <td>{{ $org ?: __('reports.exports.common.system') }}</td>
                             <td>{{ number_format($count) }}</td>
                         </tr>
                         @endforeach
@@ -282,18 +282,18 @@
 
             @if(count($daily_activity) > 0)
             <div class="distribution-section">
-                <h3 style="color: #1e40af; font-size: 12px; margin-bottom: 8px;">Daily Activity (Last 7 Days)</h3>
+                <h3 style="color: #1e40af; font-size: 12px; margin-bottom: 8px;">{{ __('reports.exports.activity_logs.daily_activity_last_days', ['count' => 7]) }}</h3>
                 <table class="distribution-table">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Activities</th>
+                            <th>{{ __('reports.exports.common.date') }}</th>
+                            <th>{{ __('reports.exports.activity_logs.activities') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach(array_slice($daily_activity, -7, 7, true) as $date => $count)
                         <tr>
-                            <td>{{ \Carbon\Carbon::parse($date)->format('M j') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($date)->locale(app()->getLocale())->translatedFormat('M j') }}</td>
                             <td>{{ number_format($count) }}</td>
                         </tr>
                         @endforeach
@@ -305,8 +305,8 @@
     </div>
 
     <div class="footer">
-        <div>Vilnius Utilities Billing Platform - Activity Logs Report</div>
-        <div>This report contains confidential information. Distribution is restricted.</div>
+        <div>{{ __('reports.exports.activity_logs.footer_title') }}</div>
+        <div>{{ __('reports.exports.common.confidential_notice') }}</div>
     </div>
 </body>
 </html>
