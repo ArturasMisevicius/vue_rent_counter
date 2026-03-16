@@ -44,11 +44,11 @@ return [
         'quick_actions' => [
             'create_tenant_desc' => 'Добавляем нового арендатора в систему',
             'create_tenant_title' => 'Создать арендатора',
-            'manage_providers_desc' => 'Поставщики коммунальных услуг',
+            'manage_providers_desc' => 'Поставщики услуг и коммунальных сервисов',
             'manage_providers_title' => 'Управление поставщиками',
             'manage_tenants_desc' => 'Просмотр и управление всеми арендаторами',
             'manage_tenants_title' => 'Управление арендаторами',
-            'manage_tariffs_desc' => 'Настройка цен на коммунальные услуги',
+            'manage_tariffs_desc' => 'Настройте тарифы биллинга и стоимость услуг',
             'manage_tariffs_title' => 'Управление тарифами',
             'manage_users_desc' => 'Управление пользователями и их разрешениями',
             'manage_users_title' => 'Управление пользователями',
@@ -69,7 +69,7 @@ return [
             'total_properties' => 'Всего свойств',
             'total_tenants' => 'Всего арендаторов',
             'total_users' => 'Всего пользователей',
-            'utility_providers' => 'Поставщики коммунальных услуг',
+            'utility_providers' => 'Поставщики услуг',
             'unpaid_invoices' => 'Неоплаченные счета',
         ],
         'subscription_card' => [
@@ -85,7 +85,7 @@ return [
     ],
     'manager' => [
         'badge' => 'Менеджер',
-        'description' => 'Управляйте недвижимостью, счетчиками и операциями по выставлению счетов',
+        'description' => 'Управляйте арендной недвижимостью, помещениями, счетчиками и операциями по выставлению счетов',
         'empty' => [
             'drafts' => 'Черновики счетов-фактур не найдены',
             'operations' => 'Нет ожидающих операций',
@@ -104,7 +104,7 @@ return [
             'view_buildings' => 'Посмотреть здания',
             'view_buildings_desc' => 'Управляйте зданиями и их свойствами',
             'view_meters' => 'Просмотр счетчиков',
-            'view_meters_desc' => 'Мониторинг всех счетчиков коммунальных услуг в системе',
+            'view_meters_desc' => 'Отслеживайте все счетчики и подключенные услуги в системе',
             'view_reports' => 'Просмотр отчетов',
             'view_reports_desc' => 'Аналитика и отчеты о потреблении',
         ],
@@ -179,14 +179,14 @@ return [
         ],
         'title' => 'Панель управления арендатора',
     ],
-    'utility_analytics' => 'Коммунальная аналитика',
+    'utility_analytics' => 'Аналитика по объектам и биллингу',
     'efficiency_trends' => 'Тенденции эффективности',
     'cost_predictions' => 'Прогнозы стоимости',
     'usage_patterns' => 'Шаблоны использования',
     'recommendations' => 'Рекомендации',
     'real_time_costs' => 'Затраты в реальном времени',
     'service_breakdown' => 'Сбой в обслуживании',
-    'utility_services_overview' => 'Обзор коммунальных услуг',
+    'utility_services_overview' => 'Обзор услуг и биллинга',
     'recent_activity' => 'Недавняя активность',
     'stats' => [
         'total_properties' => 'Всего свойств',
@@ -270,7 +270,7 @@ return [
                 'label' => 'Всего свойств',
             ],
             'total_revenue' => [
-                'description' => 'Общий доход от коммунальных услуг',
+                'description' => 'Общий доход от аренды и сервисного биллинга',
                 'label' => 'Общий доход',
             ],
         ],
@@ -294,7 +294,7 @@ return [
         ],
         'tenant' => [
             'invoices' => [
-                'description' => 'Ваши счета за коммунальные услуги и история платежей',
+                'description' => 'Ваша аренда, сервисные начисления и история оплат',
                 'label' => 'Мои счета',
             ],
             'property' => [
@@ -399,7 +399,7 @@ return [
             'medium' => 'Medium',
         ],
         'models' => [
-            'utility_service' => 'Коммунальные услуги',
+            'utility_service' => 'Услуга',
             'service_configuration' => 'Конфигурация службы',
         ],
         'periods' => [

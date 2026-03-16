@@ -235,12 +235,11 @@ test('can clear language value', function () {
 });
 
 test('can add new language value', function () {
-    $spanish = Language::factory()->create([
-        'code' => 'es',
-        'name' => 'Spanish',
-        'is_active' => true,
-        'is_default' => false,
-        'display_order' => 4,
+    $this->translation->update([
+        'values' => [
+            'en' => 'Welcome',
+            'ru' => 'Добро пожаловать',
+        ],
     ]);
 
     Livewire::actingAs($this->superadmin)
@@ -252,14 +251,13 @@ test('can add new language value', function () {
                 'en' => 'Welcome',
                 'lt' => 'Sveiki',
                 'ru' => 'Добро пожаловать',
-                'es' => 'Bienvenido',
             ],
         ])
         ->call('save')
         ->assertHasNoFormErrors();
 
     $this->translation->refresh();
-    expect($this->translation->values['es'])->toBe('Bienvenido');
+    expect($this->translation->values['lt'])->toBe('Sveiki');
 });
 
 // Database Persistence Tests

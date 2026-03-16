@@ -32,6 +32,15 @@ return [
         'tiered_rates_description' => 'Progressive rates that increase with higher consumption levels',
         'time_of_use_description' => 'Different rates based on time of day, day of week, or season',
     ],
+    'property_type' => [
+        'apartment' => 'Flat',
+        'house' => 'House',
+        'studio' => 'Studio / Room',
+        'office' => 'Office',
+        'retail' => 'Retail Unit',
+        'warehouse' => 'Warehouse',
+        'commercial' => 'Commercial Unit',
+    ],
     'service_type' => [
         'electricity' => 'Electricity',
         'heating' => 'Heating',

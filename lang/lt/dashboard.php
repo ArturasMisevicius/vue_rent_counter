@@ -44,11 +44,11 @@ return [
         'quick_actions' => [
             'create_tenant_desc' => 'Pridėkite naują nuomininką prie sistemos',
             'create_tenant_title' => 'Sukurti nuomininką',
-            'manage_providers_desc' => 'Komunalinių paslaugų teikėjai',
+            'manage_providers_desc' => 'Paslaugų ir komunalinių paslaugų teikėjai',
             'manage_providers_title' => 'Tvarkyti teikėjus',
             'manage_tenants_desc' => 'Peržiūrėkite ir valdykite visus nuomininkus',
             'manage_tenants_title' => 'Tvarkyti nuomininkus',
-            'manage_tariffs_desc' => 'Konfigūruokite komunalinių paslaugų kainodarą',
+            'manage_tariffs_desc' => 'Konfigūruokite atsiskaitymo tarifus ir paslaugų kainodarą',
             'manage_tariffs_title' => 'Tvarkyti tarifus',
             'manage_users_desc' => 'Tvarkykite vartotojus ir jų leidimus',
             'manage_users_title' => 'Tvarkyti vartotojus',
@@ -69,7 +69,7 @@ return [
             'total_properties' => 'Bendros savybės',
             'total_tenants' => 'Iš viso nuomininkų',
             'total_users' => 'Iš viso vartotojų',
-            'utility_providers' => 'Komunalinių paslaugų teikėjai',
+            'utility_providers' => 'Paslaugų teikėjai',
             'unpaid_invoices' => 'Neapmokėtos sąskaitos faktūros',
         ],
         'subscription_card' => [
@@ -85,7 +85,7 @@ return [
     ],
     'manager' => [
         'badge' => 'Vadovas',
-        'description' => 'Tvarkykite nuosavybes, skaitiklius ir atsiskaitymo operacijas',
+        'description' => 'Valdykite nuomojamą turtą, vienetus, skaitiklius ir atsiskaitymo operacijas',
         'empty' => [
             'drafts' => 'Nerasta sąskaitų faktūrų juodraščių',
             'operations' => 'Nėra laukiančių operacijų',
@@ -104,7 +104,7 @@ return [
             'view_buildings' => 'Žiūrėti pastatus',
             'view_buildings_desc' => 'Tvarkyti pastatus ir jų turtą',
             'view_meters' => 'Žiūrėti matuoklius',
-            'view_meters_desc' => 'Stebėkite visus sistemos skaitiklius',
+            'view_meters_desc' => 'Stebėkite visus sistemos skaitiklius ir sekamas paslaugas',
             'view_reports' => 'Peržiūrėti ataskaitas',
             'view_reports_desc' => 'Analitikos ir vartojimo ataskaitos',
         ],
@@ -179,14 +179,14 @@ return [
         ],
         'title' => 'Nuomininko prietaisų skydelis',
     ],
-    'utility_analytics' => 'Naudingumo analizė',
+    'utility_analytics' => 'Turto ir atsiskaitymų analitika',
     'efficiency_trends' => 'Efektyvumo tendencijos',
     'cost_predictions' => 'Išlaidų prognozės',
     'usage_patterns' => 'Naudojimo modeliai',
     'recommendations' => 'Rekomendacijos',
     'real_time_costs' => 'Realaus laiko sąnaudos',
     'service_breakdown' => 'Paslaugos gedimas',
-    'utility_services_overview' => 'Komunalinių paslaugų apžvalga',
+    'utility_services_overview' => 'Paslaugų ir atsiskaitymų apžvalga',
     'recent_activity' => 'Naujausia veikla',
     'stats' => [
         'total_properties' => 'Bendros savybės',
@@ -270,7 +270,7 @@ return [
                 'label' => 'Bendros savybės',
             ],
             'total_revenue' => [
-                'description' => 'Bendros pajamos iš komunalinių paslaugų',
+                'description' => 'Bendros pajamos iš nuomos ir paslaugų sąskaitų',
                 'label' => 'Bendros pajamos',
             ],
         ],
@@ -294,7 +294,7 @@ return [
         ],
         'tenant' => [
             'invoices' => [
-                'description' => 'Jūsų komunalinių paslaugų sąskaitos faktūros ir atsiskaitymo istorija',
+                'description' => 'Jūsų nuoma, paslaugų mokesčiai ir atsiskaitymų istorija',
                 'label' => 'Mano sąskaitos faktūros',
             ],
             'property' => [
@@ -399,7 +399,7 @@ return [
             'medium' => 'Medium',
         ],
         'models' => [
-            'utility_service' => 'Komunalinės paslaugos',
+            'utility_service' => 'Paslauga',
             'service_configuration' => 'Paslaugos konfigūracija',
         ],
         'periods' => [

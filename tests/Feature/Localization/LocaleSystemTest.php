@@ -435,7 +435,7 @@ final class LocaleSystemTest extends TestCase
             $response->assertRedirect(); // Should succeed
         }
         
-        foreach (['fr', 'de', 'es', 'invalid'] as $invalidLocale) {
+        foreach (['fr', 'de', 'it', 'invalid'] as $invalidLocale) {
             $response = $this->get("/language/{$invalidLocale}");
             $response->assertNotFound(); // Should fail
         }

@@ -32,6 +32,15 @@ return [
         'tiered_rates_description' => 'Progresyvūs tarifai, kurie didėja didėjant vartojimo lygiui',
         'time_of_use_description' => 'Skirtingi tarifai pagal paros laiką, savaitės dieną ar sezoną',
     ],
+    'property_type' => [
+        'apartment' => 'Butas',
+        'house' => 'Namas',
+        'studio' => 'Studija / kambarys',
+        'office' => 'Biuras',
+        'retail' => 'Prekybos patalpa',
+        'warehouse' => 'Sandėlis',
+        'commercial' => 'Komercinės patalpos',
+    ],
     'service_type' => [
         'electricity' => 'Elektra',
         'heating' => 'Šildymas',

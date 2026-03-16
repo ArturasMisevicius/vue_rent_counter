@@ -2,7 +2,7 @@
 
 return [
     'cta_bar' => [
-        'eyebrow' => 'Utilities Management',
+        'eyebrow' => 'Rent & Property Management',
         'title' => 'Streamline Your Property Operations',
     ],
     'dashboard' => [
@@ -22,18 +22,18 @@ return [
         'water' => 'Water',
         'water_status' => 'Water System Status',
     ],
-    'faq_intro' => 'Frequently asked questions about our utilities management platform',
+    'faq_intro' => 'Frequently asked questions about our rent and property management platform',
     'faq_section' => [
         'category_prefix' => 'Category:',
         'eyebrow' => 'Support',
         'title' => 'Frequently Asked Questions',
     ],
-    'features_subtitle' => 'Everything you need to manage utilities efficiently',
-    'features_title' => 'Comprehensive Utilities Management',
+    'features_subtitle' => 'Everything you need to manage rental properties, units, billing, and tenants',
+    'features_title' => 'Comprehensive Rent & Property Management',
     'hero' => [
-        'badge' => 'Vilnius Utilities Platform',
-        'tagline' => 'Manage properties, meters, and invoices with confidence',
-        'title' => 'Modern Utilities Management for Lithuanian Properties',
+        'badge' => 'RentCounter Platform',
+        'tagline' => 'Manage houses, flats, rooms, offices, meters, and invoices with confidence',
+        'title' => 'Modern Rent and Property Management for Every Portfolio',
     ],
     'metric_values' => [
         'five_minutes' => '< 5 minutes',
@@ -51,8 +51,8 @@ return [
             'description' => 'Manage all electricity, water, and heating meters in one place with automated reading validation.',
         ],
         'accurate_invoicing' => [
-            'title' => 'Accurate Invoice Calculations',
-            'description' => 'Automatically generate invoices based on validated meter readings with tariff snapshots.',
+            'title' => 'Accurate Rent & Billing Calculations',
+            'description' => 'Automatically generate rent and service invoices using validated meter readings and tariff snapshots.',
         ],
         'role_access' => [
             'title' => 'Role-Based Access Control',
@@ -60,7 +60,7 @@ return [
         ],
         'reporting' => [
             'title' => 'Comprehensive Reporting',
-            'description' => 'Generate detailed reports on consumption, revenue, and portfolio performance.',
+            'description' => 'Generate detailed reports on occupancy, consumption, revenue, and portfolio performance.',
         ],
         'performance' => [
             'title' => 'High Performance',
@@ -68,7 +68,7 @@ return [
         ],
         'tenant_clarity' => [
             'title' => 'Tenant Transparency',
-            'description' => 'Tenants can view their meter readings, invoices, and download PDF statements.',
+            'description' => 'Tenants can view their unit information, meter readings, invoices, and download PDF statements.',
         ],
     ],
     'faq' => [
@@ -78,7 +78,7 @@ return [
         ],
         'tenants' => [
             'question' => 'What can tenants see?',
-            'answer' => 'Tenants can view their property information, meter readings, invoice history, and download PDF statements. They cannot see other tenants\' data.',
+            'answer' => 'Tenants can view their unit information, meter readings, invoice history, and download PDF statements. They cannot see other tenants\' data.',
         ],
         'invoices' => [
             'question' => 'How does invoice generation work?',

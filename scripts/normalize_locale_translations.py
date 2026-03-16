@@ -23,7 +23,6 @@ CANONICAL_SOURCE_LOCALE = "en"
 
 LOCALE_TO_LANGUAGE = {
     "en": "en",
-    "es": "es",
     "lt": "lt",
     "ru": "ru",
 }
@@ -37,7 +36,6 @@ PLACEHOLDER_PATTERNS = [
 WORD_PATTERN = re.compile(r"[A-Za-zÀ-ÿĀ-žА-Яа-яЁё]+")
 CYRILLIC_PATTERN = re.compile(r"[А-Яа-яЁё]")
 LITHUANIAN_DIACRITICS_PATTERN = re.compile(r"[ĄČĘĖĮŠŲŪŽąčęėįšųūž]")
-SPANISH_DIACRITICS_PATTERN = re.compile(r"[ÁÉÍÓÚÜÑáéíóúüñ¿¡]")
 ENGLISH_HINTS = {
     "actions",
     "activity",
@@ -242,19 +240,6 @@ GLOSSARY_OVERRIDES = {
         "Submit": "Pateikti",
         "Vacant": "Laisvas",
         "View": "Peržiūrėti",
-    },
-    "es": {
-        "Meter": "Medidor",
-        "Meters": "Medidores",
-        "Meter Reading": "Lectura del medidor",
-        "Meter Readings": "Lecturas del medidor",
-        "My Property": "Mi propiedad",
-        "Properties": "Propiedades",
-        "Property": "Propiedad",
-        "Reading Date": "Fecha de lectura",
-        "Reading Value": "Valor de lectura",
-        "Submit": "Enviar",
-        "View": "Ver",
     },
 }
 
@@ -508,9 +493,6 @@ def should_translate_for_locale(text: str, target_locale: str, english_words: se
     if target_locale == "ru":
         return CYRILLIC_PATTERN.search(text) is None
 
-    if target_locale == "es":
-        return SPANISH_DIACRITICS_PATTERN.search(text) is None
-
     return True
 
 
@@ -523,9 +505,6 @@ def infer_source_locale(text: str, target_locale: str, english_words: set[str], 
 
     if looks_lithuanian(text, lithuanian_words, english_words):
         return "lt"
-
-    if SPANISH_DIACRITICS_PATTERN.search(text):
-        return "es"
 
     return "auto"
 

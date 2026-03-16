@@ -2,7 +2,7 @@
 
 return [
     'cta_bar' => [
-        'eyebrow' => 'Komunalinių paslaugų valdymas',
+        'eyebrow' => 'Nuomos ir turto valdymas',
         'title' => 'Supaprastinkite savo nekilnojamojo turto operacijas',
     ],
     'dashboard' => [
@@ -22,18 +22,18 @@ return [
         'water' => 'Vanduo',
         'water_status' => 'Vandens sistemos būsena',
     ],
-    'faq_intro' => 'Dažnai užduodami klausimai apie mūsų komunalinių paslaugų valdymo platformą',
+    'faq_intro' => 'Dažniausiai užduodami klausimai apie mūsų nuomos ir turto valdymo platformą',
     'faq_section' => [
         'category_prefix' => 'Kategorija:',
         'eyebrow' => 'Palaikymas',
         'title' => 'Dažnai užduodami klausimai',
     ],
-    'features_subtitle' => 'Viskas, ko reikia norint efektyviai valdyti komunalines paslaugas',
-    'features_title' => 'Išsamus komunalinių paslaugų valdymas',
+    'features_subtitle' => 'Viskas, ko reikia nuomojamam turtui, vienetams, atsiskaitymams ir nuomininkams valdyti',
+    'features_title' => 'Išsamus nuomos ir turto valdymas',
     'hero' => [
-        'badge' => 'Vilniaus komunalinių paslaugų platforma',
-        'tagline' => 'Tvarkykite nuosavybę, skaitiklius ir sąskaitas faktūras užtikrintai',
-        'title' => 'Modernus komunalinių paslaugų valdymas Lietuvos turtui',
+        'badge' => 'RentCounter platforma',
+        'tagline' => 'Užtikrintai valdykite namus, butus, kambarius, biurus, skaitiklius ir sąskaitas',
+        'title' => 'Modernus nuomos ir turto valdymas bet kokiam portfeliui',
     ],
     'metric_values' => [
         'five_minutes' => '< 5 minutes',
@@ -51,8 +51,8 @@ return [
             'description' => 'Tvarkykite visus elektros, vandens ir šildymo skaitiklius vienoje vietoje naudodami automatinį skaitymo patvirtinimą.',
         ],
         'accurate_invoicing' => [
-            'title' => 'Tikslūs sąskaitų faktūrų apskaičiavimai',
-            'description' => 'Automatiškai generuokite sąskaitas faktūras pagal patvirtintus skaitiklių rodmenis su momentinėmis tarifų nuotraukomis.',
+            'title' => 'Tikslūs nuomos ir atsiskaitymų skaičiavimai',
+            'description' => 'Automatiškai generuokite nuomos ir paslaugų sąskaitas pagal patvirtintus skaitiklių rodmenis ir tarifų momentines nuotraukas.',
         ],
         'role_access' => [
             'title' => 'Vaidmenimis pagrįsta prieigos kontrolė',
@@ -60,7 +60,7 @@ return [
         ],
         'reporting' => [
             'title' => 'Išsamios ataskaitos',
-            'description' => 'Kurkite išsamias vartojimo, pajamų ir portfelio veiklos ataskaitas.',
+            'description' => 'Kurkite išsamias užimtumo, vartojimo, pajamų ir portfelio veiklos ataskaitas.',
         ],
         'performance' => [
             'title' => 'Didelis našumas',
@@ -68,7 +68,7 @@ return [
         ],
         'tenant_clarity' => [
             'title' => 'Nuomininko skaidrumas',
-            'description' => 'Nuomininkai gali peržiūrėti savo skaitiklių rodmenis, sąskaitas faktūras ir atsisiųsti PDF ataskaitas.',
+            'description' => 'Nuomininkai gali peržiūrėti savo vieneto informaciją, skaitiklių rodmenis, sąskaitas ir atsisiųsti PDF ataskaitas.',
         ],
     ],
     'faq' => [
@@ -78,7 +78,7 @@ return [
         ],
         'tenants' => [
             'question' => 'Ką gali pamatyti nuomininkai?',
-            'answer' => 'Nuomininkai gali peržiūrėti savo nuosavybės informaciją, skaitiklių rodmenis, sąskaitų faktūrų istoriją ir atsisiųsti PDF ataskaitas. Jie negali matyti kitų nuomininkų duomenų.',
+            'answer' => 'Nuomininkai gali peržiūrėti savo vieneto informaciją, skaitiklių rodmenis, sąskaitų istoriją ir atsisiųsti PDF ataskaitas. Jie nemato kitų nuomininkų duomenų.',
         ],
         'invoices' => [
             'question' => 'Kaip veikia sąskaitų faktūrų generavimas?',

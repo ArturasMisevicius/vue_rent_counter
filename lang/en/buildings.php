@@ -4,7 +4,7 @@ return [
     'labels' => [
         'name' => 'Name',
         'address' => 'Address',
-        'total_apartments' => 'Total Apartments',
+        'total_apartments' => 'Total Units',
         'property_count' => 'Properties',
         'created_at' => 'Created',
         'building' => 'Building',
@@ -39,10 +39,10 @@ return [
             'size' => 'Country code must be exactly 2 characters.',
         ],
         'total_apartments' => [
-            'required' => 'Total number of apartments is required.',
-            'integer' => 'Total apartments must be a number.',
-            'min' => 'Building must have at least 1 apartment.',
-            'max' => 'Building cannot have more than 1000 apartments.',
+            'required' => 'Total number of units is required.',
+            'integer' => 'Total units must be a number.',
+            'min' => 'Building must have at least 1 unit.',
+            'max' => 'Building cannot have more than 1000 units.',
         ],
         'built_year' => [
             'min' => 'Built year cannot be earlier than 1800.',
@@ -57,7 +57,7 @@ return [
         'notes' => [
             'max' => 'Notes may not be greater than 2000 characters.',
         ],
-        'apartments_per_floor_excessive' => 'The number of apartments per floor seems excessive. Please verify.',
+        'apartments_per_floor_excessive' => 'The number of units per floor seems excessive. Please verify.',
         'central_heating_anachronistic' => 'Central heating was not common in buildings built before 1900.',
     ],
     'attributes' => [
@@ -67,7 +67,7 @@ return [
         'city' => 'city',
         'postal_code' => 'postal code',
         'country' => 'country',
-        'total_apartments' => 'total apartments',
+        'total_apartments' => 'total units',
         'floors' => 'floors',
         'built_year' => 'year built',
         'heating_type' => 'heating type',
@@ -101,12 +101,12 @@ return [
             'labels' => [
                 'address' => 'Address',
                 'name' => 'Name',
-                'total_apartments' => 'Total apartments',
+                'total_apartments' => 'Total units',
             ],
             'placeholders' => [
                 'address' => 'Address',
                 'name' => 'Name',
-                'total_apartments' => 'Total apartments',
+                'total_apartments' => 'Total units',
             ],
         ],
         'manager_index' => [
@@ -119,10 +119,10 @@ return [
                 'building' => 'Building',
                 'last_calculated' => 'Last calculation',
                 'properties' => 'Characteristics',
-                'total_apartments' => 'Total apartments',
+                'total_apartments' => 'Total units',
             ],
             'mobile' => [
-                'apartments' => 'Apartments',
+                'apartments' => 'Units',
                 'edit' => 'Edit',
                 'last' => 'Last',
                 'properties' => 'Characteristics',
@@ -151,7 +151,7 @@ return [
                 'address' => 'Address',
                 'name' => 'Name',
                 'properties_registered' => 'The property is registered',
-                'total_apartments' => 'Total apartments',
+                'total_apartments' => 'Total units',
             ],
             'last_calculated' => 'Last calculation',
             'never' => 'Never',

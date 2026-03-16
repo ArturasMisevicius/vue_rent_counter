@@ -4,7 +4,7 @@ return [
     'labels' => [
         'name' => 'Vardas',
         'address' => 'Adresas',
-        'total_apartments' => 'Iš viso butų',
+        'total_apartments' => 'Iš viso vienetų',
         'property_count' => 'Turtai',
         'created_at' => 'Sukurta',
         'building' => 'Pastatas',
@@ -39,10 +39,10 @@ return [
             'size' => 'Šalies kodą turi sudaryti tiksliai 2 simboliai.',
         ],
         'total_apartments' => [
-            'required' => 'Reikalingas bendras butų skaičius.',
-            'integer' => 'Bendras butų skaičius turi būti skaičius.',
-            'min' => 'Pastate turi būti bent 1 butas.',
-            'max' => 'Pastate negali būti daugiau nei 1000 butų.',
+            'required' => 'Reikalingas bendras vienetų skaičius.',
+            'integer' => 'Bendras vienetų skaičius turi būti skaičius.',
+            'min' => 'Pastate turi būti bent 1 vienetas.',
+            'max' => 'Pastate negali būti daugiau nei 1000 vienetų.',
         ],
         'built_year' => [
             'min' => 'Pastatymo metai negali būti anksčiau nei 1800 m.',
@@ -57,7 +57,7 @@ return [
         'notes' => [
             'max' => 'Pastabos negali būti ilgesnės nei 2000 simbolių.',
         ],
-        'apartments_per_floor_excessive' => 'Butų skaičius viename aukšte atrodo per didelis. Prašome patikrinti.',
+        'apartments_per_floor_excessive' => 'Vienetų skaičius viename aukšte atrodo per didelis. Prašome patikrinti.',
         'central_heating_anachronistic' => 'Centrinis šildymas nebuvo įprastas pastatuose, pastatytuose iki 1900 m.',
     ],
     'attributes' => [
@@ -67,7 +67,7 @@ return [
         'city' => 'miestas',
         'postal_code' => 'pašto kodas',
         'country' => 'šalis',
-        'total_apartments' => 'viso butų',
+        'total_apartments' => 'viso vienetų',
         'floors' => 'grindys',
         'built_year' => 'metais pastatytas',
         'heating_type' => 'šildymo tipas',
@@ -101,12 +101,12 @@ return [
             'labels' => [
                 'address' => 'Adresas',
                 'name' => 'Vardas',
-                'total_apartments' => 'Iš viso butų',
+                'total_apartments' => 'Iš viso vienetų',
             ],
             'placeholders' => [
                 'address' => 'Adresas',
                 'name' => 'Vardas',
-                'total_apartments' => 'Iš viso butų',
+                'total_apartments' => 'Iš viso vienetų',
             ],
         ],
         'manager_index' => [
@@ -119,10 +119,10 @@ return [
                 'building' => 'Pastatas',
                 'last_calculated' => 'Paskutinis skaičiavimas',
                 'properties' => 'Charakteristikos',
-                'total_apartments' => 'Iš viso butų',
+                'total_apartments' => 'Iš viso vienetų',
             ],
             'mobile' => [
-                'apartments' => 'Butai',
+                'apartments' => 'Vienetai',
                 'edit' => 'Redaguoti',
                 'last' => 'Paskutinis',
                 'properties' => 'Charakteristikos',
@@ -151,7 +151,7 @@ return [
                 'address' => 'Adresas',
                 'name' => 'Vardas',
                 'properties_registered' => 'Turtas įregistruotas',
-                'total_apartments' => 'Iš viso butų',
+                'total_apartments' => 'Iš viso vienetų',
             ],
             'last_calculated' => 'Paskutinis skaičiavimas',
             'never' => 'Niekada',

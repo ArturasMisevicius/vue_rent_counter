@@ -140,7 +140,7 @@ class FiltersEmptyLanguageValuesTest extends TestCase
                 'en' => 'Welcome',
                 'lt' => '   ',
                 'ru' => '     ',
-                'es' => '  ',
+                'de' => '  ',
             ],
         ];
 
@@ -151,7 +151,7 @@ class FiltersEmptyLanguageValuesTest extends TestCase
         $this->assertArrayHasKey('en', $result['values']);
         $this->assertArrayNotHasKey('lt', $result['values']);
         $this->assertArrayNotHasKey('ru', $result['values']);
-        $this->assertArrayNotHasKey('es', $result['values']);
+        $this->assertArrayNotHasKey('de', $result['values']);
     }
 
     /**
@@ -171,9 +171,9 @@ class FiltersEmptyLanguageValuesTest extends TestCase
                 'en' => 'Welcome',
                 'lt' => null,
                 'ru' => '',
-                'es' => '   ',
+                'de' => '   ',
                 'fr' => 'Bienvenue',
-                'de' => "\t",
+                'it' => "\t",
             ],
         ];
 
@@ -355,7 +355,7 @@ class FiltersEmptyLanguageValuesTest extends TestCase
                 'en' => '<html>',
                 'lt' => 'Test & Co.',
                 'ru' => 'Тест "кавычки"',
-                'es' => '¡Hola!',
+                'de' => 'Guten Tag!',
             ],
         ];
 
@@ -366,7 +366,7 @@ class FiltersEmptyLanguageValuesTest extends TestCase
         $this->assertSame('<html>', $result['values']['en']);
         $this->assertSame('Test & Co.', $result['values']['lt']);
         $this->assertSame('Тест "кавычки"', $result['values']['ru']);
-        $this->assertSame('¡Hola!', $result['values']['es']);
+        $this->assertSame('Guten Tag!', $result['values']['de']);
     }
 
     /**

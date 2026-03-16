@@ -150,7 +150,7 @@ return [
                 ],
             ],
             'mail' => [
-                'test_email_body' => 'Это тестовое письмо от Vilnius Utilities Platform.',
+                'test_email_body' => 'Это тестовое письмо от платформы RentCounter.',
                 'test_email_subject' => 'Тестовое письмо – Системные настройки',
             ],
             'notifications' => [

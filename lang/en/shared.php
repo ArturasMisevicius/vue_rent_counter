@@ -188,7 +188,7 @@ return [
             'fields' => [
                 'name' => 'Name',
                 'address' => 'Address',
-                'total_apartments' => 'Total Apartments',
+                'total_apartments' => 'Total Units',
                 'properties' => 'Properties',
                 'meters' => 'Meters',
                 'tenants' => 'Tenants',
@@ -1244,7 +1244,7 @@ return [
             'status' => 'Status',
             'subscription_ends' => 'Subscription ends',
             'total_amount' => 'Total amount',
-            'total_apartments' => 'Total apartments',
+            'total_apartments' => 'Total units',
             'type' => 'Type',
             'unit_number' => 'Unit number',
         ],
@@ -1319,7 +1319,7 @@ return [
         'attached_files_intro' => 'This email contains the following export files:',
         'attached_files_title' => 'Attached Files',
         'auto_reply_notice' => 'This is an automated message. Please do not reply to this email.',
-        'footer_platform' => 'Vilnius Utilities Billing Platform',
+        'footer_platform' => 'RentCounter Rent & Property Platform',
         'footer_system' => 'Superadmin Dashboard - Automated Export System',
         'greeting' => 'Hello :name,',
         'items' => [

@@ -150,7 +150,7 @@ return [
                 ],
             ],
             'mail' => [
-                'test_email_body' => 'Tai bandomasis el. laiškas iš Vilniaus komunalinių paslaugų platformos.',
+                'test_email_body' => 'Tai bandomasis el. laiškas iš RentCounter platformos.',
                 'test_email_subject' => 'Bandomasis el. paštas – sistemos nustatymai',
             ],
             'notifications' => [

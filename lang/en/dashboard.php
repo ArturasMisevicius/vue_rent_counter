@@ -44,11 +44,11 @@ return [
         'quick_actions' => [
             'create_tenant_desc' => 'Add a new tenant to the system',
             'create_tenant_title' => 'Create Tenant',
-            'manage_providers_desc' => 'Utility service providers',
+            'manage_providers_desc' => 'Service and utility providers',
             'manage_providers_title' => 'Manage Providers',
             'manage_tenants_desc' => 'View and manage all tenants',
             'manage_tenants_title' => 'Manage Tenants',
-            'manage_tariffs_desc' => 'Configure utility pricing',
+            'manage_tariffs_desc' => 'Configure billing rates and service pricing',
             'manage_tariffs_title' => 'Manage Tariffs',
             'manage_users_desc' => 'Manage users and their permissions',
             'manage_users_title' => 'Manage Users',
@@ -69,7 +69,7 @@ return [
             'total_properties' => 'Total Properties',
             'total_tenants' => 'Total Tenants',
             'total_users' => 'Total Users',
-            'utility_providers' => 'Utility Providers',
+            'utility_providers' => 'Service Providers',
             'unpaid_invoices' => 'Unpaid Invoices',
         ],
         'subscription_card' => [
@@ -85,7 +85,7 @@ return [
     ],
     'manager' => [
         'badge' => 'Manager',
-        'description' => 'Manage properties, meters, and billing operations',
+        'description' => 'Manage rental properties, units, meters, and billing operations',
         'empty' => [
             'drafts' => 'No draft invoices found',
             'operations' => 'No pending operations',
@@ -104,7 +104,7 @@ return [
             'view_buildings' => 'View Buildings',
             'view_buildings_desc' => 'Manage buildings and their properties',
             'view_meters' => 'View Meters',
-            'view_meters_desc' => 'Monitor all utility meters in the system',
+            'view_meters_desc' => 'Monitor all meters and tracked services in the system',
             'view_reports' => 'View Reports',
             'view_reports_desc' => 'Analytics and consumption reports',
         ],
@@ -179,14 +179,14 @@ return [
         ],
         'title' => 'Tenant Dashboard',
     ],
-    'utility_analytics' => 'Utility Analytics',
+    'utility_analytics' => 'Property & Billing Analytics',
     'efficiency_trends' => 'Efficiency Trends',
     'cost_predictions' => 'Cost Predictions',
     'usage_patterns' => 'Usage Patterns',
     'recommendations' => 'Recommendations',
     'real_time_costs' => 'Real-Time Costs',
     'service_breakdown' => 'Service Breakdown',
-    'utility_services_overview' => 'Utility Services Overview',
+    'utility_services_overview' => 'Services & Billing Overview',
     'recent_activity' => 'Recent Activity',
     'stats' => [
         'total_properties' => 'Total Properties',
@@ -270,7 +270,7 @@ return [
                 'label' => 'Total Properties',
             ],
             'total_revenue' => [
-                'description' => 'Total revenue from utility services',
+                'description' => 'Total revenue from rent and service billing',
                 'label' => 'Total Revenue',
             ],
         ],
@@ -294,7 +294,7 @@ return [
         ],
         'tenant' => [
             'invoices' => [
-                'description' => 'Your utility invoices and billing history',
+                'description' => 'Your rent, service charges, and billing history',
                 'label' => 'My Invoices',
             ],
             'property' => [
@@ -399,7 +399,7 @@ return [
             'medium' => 'Medium',
         ],
         'models' => [
-            'utility_service' => 'Utility Service',
+            'utility_service' => 'Service',
             'service_configuration' => 'Service Configuration',
         ],
         'periods' => [

@@ -24,7 +24,7 @@ return [
         'address' => 'Adresas',
         'building' => 'Pastatas',
         'floor' => 'Aukštas',
-        'apartment_number' => 'Buto numeris',
+        'apartment_number' => 'Vieneto numeris',
         'area' => 'Plotas',
         'total_meters' => 'Iš viso Metrai',
         'active_services' => 'Aktyvios paslaugos',
@@ -46,7 +46,7 @@ return [
     ],
     'sections' => [
         'property_details' => 'Informacija apie nuosavybę',
-        'utility_services' => 'Komunalinės paslaugos',
+        'utility_services' => 'Paslaugos ir atsiskaitymai',
         'reading_details' => 'Skaitymo detalės',
         'billing_information' => 'Atsiskaitymo informacija',
         'invoice_details' => 'Išsami informacija apie sąskaitą faktūrą',
@@ -74,7 +74,7 @@ return [
         'calculated_automatically' => 'Skaičiuojama automatiškai',
     ],
     'brand' => [
-        'name' => 'Vilniaus komunalinės paslaugos',
-        'product' => 'Komunalinių paslaugų valdymo platforma',
+        'name' => 'RentCounter',
+        'product' => 'Nuomos ir turto valdymo platforma',
     ],
 ];

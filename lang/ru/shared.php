@@ -188,7 +188,7 @@ return [
             'fields' => [
                 'name' => 'Имя',
                 'address' => 'Адрес',
-                'total_apartments' => 'Всего квартир',
+                'total_apartments' => 'Всего помещений',
                 'properties' => 'Объекты',
                 'meters' => 'Счетчики',
                 'tenants' => 'Арендаторы',
@@ -1244,7 +1244,7 @@ return [
             'status' => 'Статус',
             'subscription_ends' => 'Подписка заканчивается',
             'total_amount' => 'Общая сумма',
-            'total_apartments' => 'Всего квартир',
+            'total_apartments' => 'Всего помещений',
             'type' => 'Тип',
             'unit_number' => 'Номер устройства',
         ],
@@ -1319,7 +1319,7 @@ return [
         'attached_files_intro' => 'Это письмо содержит следующие файлы экспорта:',
         'attached_files_title' => 'Прикрепленные файлы',
         'auto_reply_notice' => 'Это автоматическое сообщение. Пожалуйста, не отвечайте на это письмо.',
-        'footer_platform' => 'Платформа выставления счетов за коммунальные услуги Вильнюса',
+        'footer_platform' => 'RentCounter — платформа управления арендой и недвижимостью',
         'footer_system' => 'Панель управления Superadmin — автоматизированная система экспорта',
         'greeting' => 'Здравствуйте, :name!',
         'items' => [

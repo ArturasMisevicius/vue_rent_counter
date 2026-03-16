@@ -24,7 +24,7 @@ return [
         'address' => 'Address',
         'building' => 'Building',
         'floor' => 'Floor',
-        'apartment_number' => 'Apartment Number',
+        'apartment_number' => 'Unit Number',
         'area' => 'Area',
         'total_meters' => 'Total Meters',
         'active_services' => 'Active Services',
@@ -46,7 +46,7 @@ return [
     ],
     'sections' => [
         'property_details' => 'Property Details',
-        'utility_services' => 'Utility Services',
+        'utility_services' => 'Services & Billing',
         'reading_details' => 'Reading Details',
         'billing_information' => 'Billing Information',
         'invoice_details' => 'Invoice Details',
@@ -74,7 +74,7 @@ return [
         'calculated_automatically' => 'Calculated automatically',
     ],
     'brand' => [
-        'name' => 'Vilnius Utilities',
-        'product' => 'Utilities Management Platform',
+        'name' => 'RentCounter',
+        'product' => 'Rent & Property Management Platform',
     ],
 ];

@@ -86,7 +86,7 @@ class EditTranslation extends EditRecord
      *         'en' => 'Welcome',
      *         'lt' => '',           // Empty - will be removed
      *         'ru' => 'Добро пожаловать',
-     *         'es' => null,         // Null - will be removed
+     *         'de' => null,         // Null - will be removed
      *     ]
      * ]
      *

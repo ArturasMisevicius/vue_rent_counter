@@ -188,7 +188,7 @@ return [
             'fields' => [
                 'name' => 'Vardas',
                 'address' => 'Adresas',
-                'total_apartments' => 'Iš viso butų',
+                'total_apartments' => 'Iš viso vienetų',
                 'properties' => 'Turtai',
                 'meters' => 'Skaitikliai',
                 'tenants' => 'Nuomininkai',
@@ -1244,7 +1244,7 @@ return [
             'status' => 'Būsena',
             'subscription_ends' => 'Prenumerata baigiasi',
             'total_amount' => 'Bendra suma',
-            'total_apartments' => 'Iš viso butų',
+            'total_apartments' => 'Iš viso vienetų',
             'type' => 'Tipas',
             'unit_number' => 'Vieneto numeris',
         ],
@@ -1319,7 +1319,7 @@ return [
         'attached_files_intro' => 'Šiame el. laiške yra šie eksporto failai:',
         'attached_files_title' => 'Prisegti failai',
         'auto_reply_notice' => 'Tai automatizuotas pranešimas. Prašome neatsakyti į šį el. laišką.',
-        'footer_platform' => 'Vilniaus komunalinių paslaugų atsiskaitymo platforma',
+        'footer_platform' => 'RentCounter nuomos ir turto valdymo platforma',
         'footer_system' => '„Superadmin“ prietaisų skydelis – automatizuota eksportavimo sistema',
         'greeting' => 'Sveiki, :name',
         'items' => [

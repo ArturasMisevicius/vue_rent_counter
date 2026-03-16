@@ -24,7 +24,7 @@ return [
         'address' => 'Адрес',
         'building' => 'Здание',
         'floor' => 'Этаж',
-        'apartment_number' => 'Номер квартиры',
+        'apartment_number' => 'Номер помещения',
         'area' => 'Площадь',
         'total_meters' => 'Всего метров',
         'active_services' => 'Активные услуги',
@@ -46,7 +46,7 @@ return [
     ],
     'sections' => [
         'property_details' => 'Данные объекта',
-        'utility_services' => 'Коммунальные услуги',
+        'utility_services' => 'Услуги и биллинг',
         'reading_details' => 'Данные показания',
         'billing_information' => 'Платежная информация',
         'invoice_details' => 'Детали счета',
@@ -74,7 +74,7 @@ return [
         'calculated_automatically' => 'Рассчитывается автоматически',
     ],
     'brand' => [
-        'name' => 'Вильнюсские коммунальные предприятия',
-        'product' => 'Платформа управления коммунальными услугами',
+        'name' => 'RentCounter',
+        'product' => 'Платформа управления арендой и недвижимостью',
     ],
 ];

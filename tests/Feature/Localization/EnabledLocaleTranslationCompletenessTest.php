@@ -42,6 +42,16 @@ function translationGroupFilesForLocale(string $locale): array
         ->all();
 }
 
+function localeDirectoriesOnDisk(): array
+{
+    return collect(glob(projectRoot() . '/lang/*', GLOB_ONLYDIR) ?: [])
+        ->map(fn (string $path): string => basename($path))
+        ->reject(fn (string $directory): bool => str_contains($directory, '::'))
+        ->sort()
+        ->values()
+        ->all();
+}
+
 function flattenedTranslationKeysFor(string $locale, string $group): array
 {
     $path = projectRoot() . "/lang/{$locale}/{$group}.php";
@@ -64,6 +74,11 @@ it('has a lang directory for every enabled locale', function (): void {
         expect(is_dir(projectRoot() . "/lang/{$locale}"))
             ->toBeTrue();
     }
+});
+
+it('does not keep extra locale directories beyond the enabled locale set', function (): void {
+    expect(localeDirectoriesOnDisk())
+        ->toBe(collect(enabledLocaleCodes())->sort()->values()->all());
 });
 
 it('keeps the same translation file set for every enabled locale as the fallback locale', function (string $locale): void {
