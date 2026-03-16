@@ -10,8 +10,8 @@
 <div class="container mx-auto px-4 py-8">
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-slate-900">{{ __('tenants.pages.index.title') ?? 'Tenants' }}</h1>
-            <p class="text-slate-600">{{ __('tenants.pages.index.subtitle') ?? 'All tenants across all organizations' }}</p>
+            <h1 class="text-2xl font-bold text-slate-900">{{ __('tenants.pages.index.title') }}</h1>
+            <p class="text-slate-600">{{ __('tenants.pages.index.subtitle') }}</p>
         </div>
     </div>
 
@@ -20,12 +20,12 @@
             <table class="min-w-full divide-y divide-slate-200">
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.fields.name') ?? 'Name' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.fields.email') ?? 'Email' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.fields.property') ?? 'Property' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.fields.invoices') ?? 'Invoices' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.fields.readings') ?? 'Readings' }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.fields.id') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.labels.name') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.labels.email') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.labels.property') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.fields.invoices') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('app.navigation.meter_readings') }}</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('app.nav.actions') ?? 'Actions' }}</th>
                     </tr>
                 </thead>
@@ -71,7 +71,7 @@
                     @empty
                     <tr>
                         <td colspan="7" class="px-6 py-4 text-center text-slate-500">
-                            {{ __('tenants.empty') ?? 'No tenants found' }}
+                            {{ __('tenants.empty.list') }}
                         </td>
                     </tr>
                     @endforelse
@@ -207,8 +207,8 @@
 <div class="container mx-auto px-4 py-8">
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-slate-900">{{ __('tenants.pages.index.title') ?? 'Tenants' }}</h1>
-            <p class="text-slate-600">{{ __('tenants.pages.index.subtitle') ?? 'All tenants across all organizations' }}</p>
+            <h1 class="text-2xl font-bold text-slate-900">{{ __('tenants.pages.index.title') }}</h1>
+            <p class="text-slate-600">{{ __('tenants.pages.index.subtitle') }}</p>
         </div>
     </div>
 
@@ -217,12 +217,12 @@
             <table class="min-w-full divide-y divide-slate-200">
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.fields.name') ?? 'Name' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.fields.email') ?? 'Email' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.fields.property') ?? 'Property' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.fields.invoices') ?? 'Invoices' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.fields.readings') ?? 'Readings' }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.fields.id') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.labels.name') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.labels.email') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.labels.property') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.fields.invoices') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('app.navigation.meter_readings') }}</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('app.nav.actions') ?? 'Actions' }}</th>
                     </tr>
                 </thead>
@@ -268,7 +268,7 @@
                     @empty
                     <tr>
                         <td colspan="7" class="px-6 py-4 text-center text-slate-500">
-                            {{ __('tenants.empty') ?? 'No tenants found' }}
+                            {{ __('tenants.empty.list') }}
                         </td>
                     </tr>
                     @endforelse

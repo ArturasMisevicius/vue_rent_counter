@@ -146,14 +146,14 @@
 
 @case('tenant')
 <!DOCTYPE html>
-<html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <title>Meter Reading</title>
+    <title>{{ __('meter_readings.headings.show') }}</title>
 </head>
 <body>
-    <h1>Meter Reading</h1>
-    <p>Date: {{ $meterReading->reading_date }}</p>
-    <p>Value: {{ $meterReading->value }}</p>
+    <h1>{{ __('meter_readings.headings.show') }}</h1>
+    <p>{{ __('meter_readings.tables.date') }}: {{ $meterReading->reading_date->locale(app()->getLocale())->translatedFormat('Y-m-d') }}</p>
+    <p>{{ __('meter_readings.labels.value') }}: {{ number_format($meterReading->value, 2) }}</p>
 </body>
 </html>
 @break

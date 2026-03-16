@@ -12,7 +12,7 @@ return [
         'subscription_usage' => 'Prenumeratos naudojimas',
         'suspend' => 'Sustabdyti',
         'suspend_selected' => 'Sustabdyti pasirinktus',
-        'view' => 'Žiūrėti',
+        'view' => 'Peržiūrėti',
         'view_usage' => 'Žiūrėti naudojimą',
     ],
     'filters' => [
@@ -67,41 +67,103 @@ return [
             '6_months' => '6 mėnesiai',
         ],
     ],
+    'pages' => [
+        'edit' => [
+            'labels' => [
+                'expiry_date' => 'Galiojimo pabaigos data',
+            ],
+            'submit' => 'Atnaujinti prenumeratą',
+            'title' => 'Redaguoti prenumeratą',
+        ],
+        'index' => [
+            'description' => 'Tvarkykite visas organizacijos prenumeratas',
+            'filters' => [
+                'expiring_soon' => 'Greitai baigs galioti',
+                'plan_type' => 'Plano tipas',
+                'search' => 'Ieškoti',
+                'search_placeholder' => 'Organizacijos pavadinimas',
+                'status' => 'Būsena',
+                'within_days' => 'Per :count d',
+            ],
+            'table' => [
+                'limits' => 'Ribos',
+                'manage' => 'Tvarkyti',
+                'properties' => '{1} :count nuosavybė|[2,*] :count ypatybės',
+                'tenants' => '{1} :count nuomininkas|[2,*] :count nuomininkai',
+            ],
+            'title' => 'Prenumeratos',
+        ],
+        'show' => [
+            'actions' => [
+                'cancel' => [
+                    'confirm' => 'Ar tikrai norite atšaukti šią prenumeratą? Šio veiksmo anuliuoti negalima.',
+                    'description' => 'Atšaukti prenumeratą visam laikui',
+                    'title' => 'Atšaukti prenumeratą',
+                ],
+                'renew' => [
+                    'description' => 'Pratęskite prenumeratos galiojimo datą',
+                    'title' => 'Atnaujinti prenumeratą',
+                ],
+                'suspend' => [
+                    'description' => 'Laikinai sustabdyti prieigą',
+                    'reason' => 'Sustabdymo priežastis',
+                    'title' => 'Sustabdyti prenumeratą',
+                ],
+                'view_organization' => 'Žiūrėti organizaciją →',
+            ],
+            'days_remaining' => '{1} :count d.|[2,*] :count d',
+            'labels' => [
+                'expiry_date' => 'Galiojimo pabaigos data',
+                'start_date' => 'Pradžios data',
+            ],
+            'limit_reached' => 'Pasiektas limitas',
+            'organization' => [
+                'organization_name' => 'Organizacijos pavadinimas',
+                'tenant_id' => 'Nuomininko ID',
+            ],
+            'sections' => [
+                'actions' => 'Veiksmai',
+                'subscription_information' => 'Prenumeratos informacija',
+                'usage_statistics' => 'Naudojimo statistika',
+            ],
+            'title' => 'Išsami prenumeratos informacija',
+        ],
+    ],
     'sections' => [
         'details' => 'Detalės',
         'limits' => 'Ribos',
         'period' => 'Laikotarpis',
-        'timestamps' => 'Timestamps',
+        'timestamps' => 'Laiko žymos',
         'usage' => 'Naudojimas',
     ],
     'validation' => [
         'expires_at' => [
             'after' => 'Po to',
             'date' => 'Data',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
         'max_properties' => [
             'integer' => 'Sveikasis skaičius',
             'min' => 'Min',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
         'max_tenants' => [
             'integer' => 'Sveikasis skaičius',
             'min' => 'Min',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
         'plan_type' => [
             'in' => 'Į',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
         'reason' => [
             'max' => 'Maks',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
             'string' => 'Styga',
         ],
         'status' => [
             'in' => 'Į',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
     ],
     'widgets' => [

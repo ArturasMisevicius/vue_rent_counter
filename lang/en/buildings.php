@@ -79,6 +79,15 @@ return [
         'has_properties' => 'Has properties',
     ],
     'pages' => [
+        'superadmin_index' => [
+            'description' => 'Building overview across all organizations',
+        ],
+        'superadmin_show' => [
+            'sections' => [
+                'meters_description' => 'Meters across all properties in this building',
+                'properties_description' => 'All properties linked to this building',
+            ],
+        ],
         'manager_form' => [
             'actions' => [
                 'cancel' => 'Cancel',

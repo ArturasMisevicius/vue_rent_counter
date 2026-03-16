@@ -9,6 +9,7 @@ return [
     'confirm_delete' => 'Are you sure you want to delete this item?',
     'status' => [
         'active' => 'Active',
+        'inactive' => 'Inactive',
         'suspended' => 'Suspended',
         'trial' => 'Trial',
         'unknown' => 'Unknown',

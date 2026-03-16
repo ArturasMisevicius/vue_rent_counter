@@ -11,7 +11,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-2xl font-bold text-slate-900">{{ __('shared.buildings.title') }}</h1>
-            <p class="text-slate-600">{{ __('shared.buildings.singular') }} overview across all organizations</p>
+            <p class="text-slate-600">{{ __('buildings.pages.superadmin_index.description') }}</p>
         </div>
     </div>
 
@@ -20,7 +20,7 @@
             <table class="min-w-full divide-y divide-slate-200">
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('shared.manager.fields.id') }}</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('shared.buildings.fields.name') }}</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('shared.buildings.fields.address') }}</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('shared.buildings.fields.total_apartments') }}</th>
@@ -190,7 +190,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-2xl font-bold text-slate-900">{{ __('shared.buildings.title') }}</h1>
-            <p class="text-slate-600">{{ __('shared.buildings.singular') }} overview across all organizations</p>
+            <p class="text-slate-600">{{ __('buildings.pages.superadmin_index.description') }}</p>
         </div>
     </div>
 
@@ -199,7 +199,7 @@
             <table class="min-w-full divide-y divide-slate-200">
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('shared.manager.fields.id') }}</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('shared.buildings.fields.name') }}</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('shared.buildings.fields.address') }}</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('shared.buildings.fields.total_apartments') }}</th>

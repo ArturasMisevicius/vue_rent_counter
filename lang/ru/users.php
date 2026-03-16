@@ -2,15 +2,15 @@
 
 return [
     'actions' => [
-        'add' => 'Добавлять',
+        'add' => 'Добавить',
         'back' => 'Назад',
-        'clear' => 'Прозрачный',
+        'clear' => 'Сбросить',
         'create' => 'Создавать',
         'delete' => 'Удалить',
         'edit' => 'Редактировать',
         'filter' => 'Фильтр',
         'update' => 'Обновлять',
-        'view' => 'Вид',
+        'view' => 'Просмотреть',
     ],
     'descriptions' => [
         'index' => 'Индекс',
@@ -49,9 +49,9 @@ return [
     'labels' => [
         'activity_hint' => 'Подсказка по активности',
         'activity_history' => 'История активности',
-        'created' => 'Созданный',
+        'created' => 'Создано',
         'created_at' => 'Создано в',
-        'email' => 'Электронная почта',
+        'email' => 'Эл. почта',
         'is_active' => 'Активен',
         'last_login_at' => 'Последний вход в систему',
         'meter_readings_entered' => 'Введены показания счетчика',
@@ -66,7 +66,7 @@ return [
         'users' => 'Пользователи',
     ],
     'placeholders' => [
-        'email' => 'Электронная почта',
+        'email' => 'Эл. почта',
         'name' => 'Имя',
         'password' => 'Пароль',
         'password_confirmation' => 'Подтверждение пароля',
@@ -79,7 +79,7 @@ return [
     ],
     'tables' => [
         'actions' => 'Действия',
-        'email' => 'Электронная почта',
+        'email' => 'Эл. почта',
         'name' => 'Имя',
         'role' => 'Роль',
         'tenant' => 'Жилец',
@@ -92,29 +92,29 @@ return [
             'current_password' => 'Текущий пароль',
             'required' => 'Необходимый',
             'required_with' => 'Требуется с',
-            'string' => 'Нить',
+            'string' => 'Строка',
         ],
         'email' => [
-            'email' => 'Электронная почта',
+            'email' => 'Эл. почта',
             'max' => 'Макс',
             'required' => 'Необходимый',
-            'string' => 'Нить',
+            'string' => 'Строка',
             'unique' => 'Уникальный',
         ],
         'name' => [
             'max' => 'Макс',
             'required' => 'Необходимый',
-            'string' => 'Нить',
+            'string' => 'Строка',
         ],
         'organization_name' => [
             'max' => 'Макс',
-            'string' => 'Нить',
+            'string' => 'Строка',
         ],
         'password' => [
             'confirmed' => 'Подтвержденный',
             'min' => 'Мин',
             'required' => 'Необходимый',
-            'string' => 'Нить',
+            'string' => 'Строка',
         ],
         'role' => [
             'enum' => 'Перечисление',

@@ -18,7 +18,7 @@ return [
         'change_plan' => 'Изменить план',
         'domain' => 'Домен',
         'impersonation_reason' => 'Причина выдачи себя за другое лицо',
-        'inactive' => 'Неактивный',
+        'inactive' => 'Неактивен',
         'slug' => 'Слизень',
         'suspended_at' => 'Приостановлено в',
         'suspension_reason' => 'Причина приостановки',
@@ -32,27 +32,27 @@ return [
         'created_at' => 'Создано в',
         'currency' => 'Валюта',
         'domain' => 'Домен',
-        'email' => 'Электронная почта',
+        'email' => 'Эл. почта',
         'expired_subscriptions' => 'Подписки с истекшим сроком действия',
         'expiring_soon' => 'Срок действия скоро истекает',
         'invitation_count' => 'Количество приглашений',
         'invitations' => 'Приглашения',
         'invoice_count' => 'Количество счетов',
-        'invoices' => 'Счета-фактуры',
+        'invoices' => 'Счета',
         'is_active' => 'Активен',
         'locale' => 'Языковой стандарт',
         'log_count' => 'Количество журналов',
         'max_properties' => 'Макс. свойства',
         'max_users' => 'Максимальное количество пользователей',
         'meter_count' => 'счетчик метров',
-        'meters' => 'Метры',
+        'meters' => 'Счетчики',
         'name' => 'Имя',
         'new_plan' => 'Новый план',
         'not_on_trial' => 'Не на суде',
         'not_suspended' => 'Не приостановлено',
         'phone' => 'Телефон',
         'plan' => 'План',
-        'properties' => 'Характеристики',
+        'properties' => 'Объекты',
         'remaining_properties' => 'Остальные свойства',
         'remaining_users' => 'Остальные пользователи',
         'slug' => 'Слизень',
@@ -79,6 +79,38 @@ return [
         'no_admin' => 'Нет администратора',
     ],
     'navigation' => 'Организации',
+    'pages' => [
+        'create' => [
+            'title' => 'Создать организацию',
+        ],
+        'edit' => [
+            'title' => 'Изменить организацию',
+        ],
+        'index' => [
+            'actions' => [
+                'create' => 'Создавать',
+            ],
+            'empty' => 'Организации не найдены.',
+            'title' => 'Организации',
+        ],
+        'invitation_show' => [
+            'labels' => [
+                'expires' => 'Срок действия истекает',
+                'plan' => 'План',
+                'status' => 'Статус',
+                'token' => 'Токен',
+            ],
+            'statuses' => [
+                'accepted' => 'Принял',
+                'inactive' => 'Неактивен',
+                'pending' => 'В ожидании',
+            ],
+            'title_fallback' => 'Приглашение',
+        ],
+        'show' => [
+            'heading' => 'Детали организации',
+        ],
+    ],
     'notifications' => [
         'bulk_failed_suffix' => 'Массовый неудачный суффикс',
         'bulk_reactivated' => 'Массовая реактивация',
@@ -91,7 +123,7 @@ return [
     'relations' => [
         'activity_logs' => [
             'actions' => [
-                'created' => 'Созданный',
+                'created' => 'Создано',
                 'deleted' => 'Удалено',
                 'impersonation_ended' => 'Олицетворение завершено',
                 'impersonation_started' => 'Выдача себя за другое лицо началась',
@@ -111,11 +143,11 @@ return [
             'user' => 'Пользователь',
         ],
         'properties' => [
-            'area' => 'Область',
+            'area' => 'Площадь',
             'building' => 'Здание',
             'empty_description' => 'Пустое описание',
             'empty_heading' => 'Пустой заголовок',
-            'meters' => 'Метры',
+            'meters' => 'Счетчики',
             'tenants' => 'Арендаторы',
             'title' => 'Заголовок',
         ],
@@ -130,7 +162,7 @@ return [
             'title' => 'Заголовок',
         ],
         'users' => [
-            'active' => 'Активный',
+            'active' => 'Активен',
             'empty_description' => 'Пустое описание',
             'empty_heading' => 'Пустой заголовок',
             'title' => 'Заголовок',
@@ -147,10 +179,10 @@ return [
     ],
     'validation' => [
         'email' => [
-            'email' => 'Электронная почта',
+            'email' => 'Эл. почта',
             'max' => 'Макс',
             'required' => 'Необходимый',
-            'string' => 'Нить',
+            'string' => 'Строка',
             'unique' => 'Уникальный',
         ],
         'expires_at' => [
@@ -164,17 +196,17 @@ return [
         'name' => [
             'max' => 'Макс',
             'required' => 'Необходимый',
-            'string' => 'Нить',
+            'string' => 'Строка',
         ],
         'organization_name' => [
             'max' => 'Макс',
             'required' => 'Необходимый',
-            'string' => 'Нить',
+            'string' => 'Строка',
         ],
         'password' => [
             'min' => 'Мин',
             'required' => 'Необходимый',
-            'string' => 'Нить',
+            'string' => 'Строка',
         ],
         'plan_type' => [
             'in' => 'В',

@@ -1,6 +1,6 @@
 <?php
 
 return [
-    'account_deactivated' => 'Paskyra deaktyvinta',
+    'account_deactivated' => 'Jūsų paskyra išjungta. Dėl pagalbos kreipkitės į administratorių.',
     'failed' => 'Nepavyko',
 ];

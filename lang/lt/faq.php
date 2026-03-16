@@ -39,7 +39,7 @@ return [
         'order' => 'Užsakyti',
         'published' => 'Paskelbta',
         'question' => 'Klausimas',
-        'resource' => 'Išteklius',
+        'resource' => 'FAQ',
     ],
     'modals' => [
         'delete' => [

@@ -192,37 +192,37 @@
                         <div class="sm:flex sm:items-start">
                             <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
                                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
-                                    Configure Widget: {{ $availableWidgets[$selectedWidget]['name'] ?? 'Unknown Widget' }}
+                                    {{ __('shared.dashboard_customization.configure_widget', ['widget' => $availableWidgets[$selectedWidget]['name'] ?? __('shared.dashboard_customization.unknown_widget')]) }}
                                 </h3>
                                 
                                 <div class="mt-4 space-y-4">
                                     <!-- Widget Size -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                            Size
+                                            {{ __('shared.dashboard_customization.size') }}
                                         </label>
                                         <select wire:model="widgetConfig.size" 
                                                 class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white">
-                                            <option value="small">Small</option>
-                                            <option value="medium">Medium</option>
-                                            <option value="large">Large</option>
+                                            <option value="small">{{ __('shared.dashboard_customization.sizes.small') }}</option>
+                                            <option value="medium">{{ __('shared.dashboard_customization.sizes.medium') }}</option>
+                                            <option value="large">{{ __('shared.dashboard_customization.sizes.large') }}</option>
                                         </select>
                                     </div>
                                     
                                     <!-- Refresh Interval -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                            Refresh Interval (seconds)
+                                            {{ __('shared.dashboard_customization.refresh_interval') }}
                                         </label>
                                         <select wire:model="widgetConfig.refresh_interval"
                                                 class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white">
-                                            <option value="10">10 seconds</option>
-                                            <option value="30">30 seconds</option>
-                                            <option value="60">1 minute</option>
-                                            <option value="300">5 minutes</option>
-                                            <option value="600">10 minutes</option>
-                                            <option value="1800">30 minutes</option>
-                                            <option value="3600">1 hour</option>
+                                            <option value="10">{{ __('shared.dashboard_customization.intervals.seconds', ['count' => 10]) }}</option>
+                                            <option value="30">{{ __('shared.dashboard_customization.intervals.seconds', ['count' => 30]) }}</option>
+                                            <option value="60">{{ __('shared.dashboard_customization.intervals.minute', ['count' => 1]) }}</option>
+                                            <option value="300">{{ __('shared.dashboard_customization.intervals.minutes', ['count' => 5]) }}</option>
+                                            <option value="600">{{ __('shared.dashboard_customization.intervals.minutes', ['count' => 10]) }}</option>
+                                            <option value="1800">{{ __('shared.dashboard_customization.intervals.minutes', ['count' => 30]) }}</option>
+                                            <option value="3600">{{ __('shared.dashboard_customization.intervals.hour', ['count' => 1]) }}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -236,7 +236,7 @@
                             color="primary"
                             size="sm"
                         >
-                            Save Changes
+                            {{ __('shared.profile.save_changes') }}
                         </x-filament::button>
                         
                         <x-filament::button
@@ -245,7 +245,7 @@
                             size="sm"
                             class="mr-2"
                         >
-                            Cancel
+                            {{ __('app.cta.cancel') }}
                         </x-filament::button>
                     </div>
                 </div>

@@ -79,6 +79,38 @@ return [
         'no_admin' => 'No Admin',
     ],
     'navigation' => 'Organizations',
+    'pages' => [
+        'create' => [
+            'title' => 'Create Organization',
+        ],
+        'edit' => [
+            'title' => 'Edit Organization',
+        ],
+        'index' => [
+            'actions' => [
+                'create' => 'Create',
+            ],
+            'empty' => 'No organizations found.',
+            'title' => 'Organizations',
+        ],
+        'invitation_show' => [
+            'labels' => [
+                'expires' => 'Expires',
+                'plan' => 'Plan',
+                'status' => 'Status',
+                'token' => 'Token',
+            ],
+            'statuses' => [
+                'accepted' => 'Accepted',
+                'inactive' => 'Inactive',
+                'pending' => 'Pending',
+            ],
+            'title_fallback' => 'Invitation',
+        ],
+        'show' => [
+            'heading' => 'Organization Details',
+        ],
+    ],
     'notifications' => [
         'bulk_failed_suffix' => 'Bulk Failed Suffix',
         'bulk_reactivated' => 'Bulk Reactivated',

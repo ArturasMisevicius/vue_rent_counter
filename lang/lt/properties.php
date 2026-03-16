@@ -3,41 +3,41 @@
 return [
     'actions' => [
         'add' => 'Pridėti',
-        'add_first_property' => 'Pridėti pirmąją nuosavybę',
+        'add_first_property' => 'Pridėti pirmą turtą',
         'assign_tenant' => 'Priskirti nuomininką',
         'edit' => 'Redaguoti',
         'export_selected' => 'Eksportuoti pasirinktus',
         'manage_tenant' => 'Tvarkyti nuomininką',
         'reassign_tenant' => 'Perskirti nuomininką',
-        'view' => 'Žiūrėti',
+        'view' => 'Peržiūrėti',
     ],
     'badges' => [
-        'vacant' => 'Laisva',
+        'vacant' => 'Laisvas',
     ],
     'empty_state' => [
         'description' => 'Aprašymas',
         'heading' => 'Antraštė',
     ],
     'errors' => [
-        'has_relations' => 'Has Relations',
+        'has_relations' => 'Turi santykių',
     ],
     'filters' => [
-        'all_properties' => 'Visos ypatybės',
+        'all_properties' => 'Visi turtai',
         'building' => 'Pastatas',
         'large_properties' => 'Didelės Savybės',
         'occupancy' => 'Užimtumas',
-        'occupied' => 'Occupied',
-        'tags' => 'Žymos',
+        'occupied' => 'Užimtas',
         'type' => 'Tipas',
-        'vacant' => 'Laisva',
+        'vacant' => 'Laisvas',
+        'tags' => 'Žymos',
     ],
     'helper_text' => [
         'address' => 'Adresas',
         'area' => 'Plotas',
-        'tags' => 'Pasirinkite žymas šiam turtui',
         'tenant_available' => 'Yra nuomininkas',
         'tenant_reassign' => 'Perskirti nuomininkui',
         'type' => 'Tipas',
+        'tags' => 'Pasirinkite šio ištekliaus žymas',
     ],
     'labels' => [
         'address' => 'Adresas',
@@ -46,11 +46,11 @@ return [
         'created' => 'Sukurta',
         'current_tenant' => 'Dabartinis nuomininkas',
         'installed_meters' => 'Sumontuoti skaitikliai',
-        'meters' => 'Metrai',
-        'properties' => 'Savybės',
+        'meters' => 'Skaitikliai',
+        'properties' => 'Turtai',
         'property' => 'Turtas',
-        'tags' => 'Žymos',
         'type' => 'Tipas',
+        'tags' => 'Žymos',
     ],
     'manager' => [
         'index' => [
@@ -64,10 +64,10 @@ return [
                 'all_buildings' => 'Visi pastatai',
                 'all_types' => 'Visi tipai',
                 'building' => 'Pastatas',
-                'clear' => 'Aišku',
+                'clear' => 'Išvalyti',
                 'filter' => 'Filtruoti',
                 'search' => 'Ieškoti',
-                'search_placeholder' => 'Paieškos rezervuota vieta',
+                'search_placeholder' => 'Ieškoti vietos rezervavimo',
                 'type' => 'Tipas',
             ],
             'headers' => [
@@ -75,7 +75,7 @@ return [
                 'address' => 'Adresas',
                 'area' => 'Plotas',
                 'building' => 'Pastatas',
-                'meters' => 'Metrai',
+                'meters' => 'Skaitikliai',
                 'tenants' => 'Nuomininkai',
                 'type' => 'Tipas',
             ],
@@ -117,6 +117,16 @@ return [
         ],
     ],
     'pages' => [
+        'superadmin_index' => [
+            'description' => 'Visos nuosavybės visose organizacijose',
+        ],
+        'superadmin_show' => [
+            'sections' => [
+                'invoices_description' => 'Sąskaitos faktūros šio turto nuomininkams',
+                'meters_description' => 'Šiam turtui priskirti skaitikliai',
+                'property_details' => 'Informacija apie nuosavybę',
+            ],
+        ],
         'manager_form' => [
             'actions' => [
                 'cancel' => 'Atšaukti',
@@ -147,7 +157,7 @@ return [
             'delete_property' => 'Ištrinti nuosavybę',
             'description' => 'Aprašymas',
             'edit_property' => 'Redaguoti nuosavybę',
-            'info_title' => 'Info Title',
+            'info_title' => 'Informacijos pavadinimas',
             'labels' => [
                 'address' => 'Adresas',
                 'area' => 'Plotas',
@@ -172,7 +182,7 @@ return [
             ],
             'tenant_na' => 'Nuomininkas Na',
             'title' => 'Pavadinimas',
-            'view' => 'Žiūrėti',
+            'view' => 'Peržiūrėti',
         ],
     ],
     'placeholders' => [
@@ -180,7 +190,7 @@ return [
         'area' => 'Plotas',
     ],
     'sections' => [
-        'additional_info' => 'Additional Info',
+        'additional_info' => 'Papildoma informacija',
         'additional_info_description' => 'Papildomos informacijos aprašymas',
         'property_details' => 'Informacija apie nuosavybę',
         'property_details_description' => 'Išsamios nuosavybės aprašymas',
@@ -189,7 +199,7 @@ return [
         'copy_address' => 'Kopijuoti adresą',
         'meters_count' => 'Metrų skaičius',
         'no_tenant' => 'Nėra nuomininko',
-        'occupied_by' => 'Occupied By',
+        'occupied_by' => 'Užimtas',
     ],
     'validation' => [
         'address' => [
@@ -197,7 +207,7 @@ return [
             'invalid_characters' => 'Netinkami simboliai',
             'max' => 'Maks',
             'prohibited_content' => 'Draudžiamas turinys',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
             'string' => 'Styga',
         ],
         'area_sqm' => [
@@ -205,24 +215,24 @@ return [
             'max' => 'Maks',
             'min' => 'Min',
             'negative' => 'Neigiamas',
-            'numeric' => 'Numeric',
+            'numeric' => 'Skaitinis',
             'precision' => 'Tikslumas',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
         'building_id' => [
             'exists' => 'Egzistuoja',
         ],
         'property_id' => [
             'exists' => 'Egzistuoja',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
         'tenant_id' => [
             'integer' => 'Sveikasis skaičius',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
         'type' => [
             'enum' => 'Enum',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
     ],
 ];

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Superadmin Dashboard')</title>
+    <title>@yield('title', __('app.pages.superadmin_dashboard'))</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
@@ -21,28 +21,28 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <a href="{{ route('superadmin.dashboard') }}" class="text-xl font-bold text-gray-900">
-                        Superadmin Dashboard
+                        {{ __('app.pages.superadmin_dashboard') }}
                     </a>
                 </div>
 
                 <div class="flex items-center space-x-4">
                     <a href="{{ route('superadmin.dashboard') }}" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                        Dashboard
+                        {{ __('app.nav.dashboard') }}
                     </a>
                     <a href="{{ route('superadmin.organizations.index') }}" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                        Organizations
+                        {{ __('app.nav.organizations') }}
                     </a>
                     <a href="{{ route('superadmin.subscriptions.index') }}" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                        Subscriptions
+                        {{ __('app.nav.subscriptions') }}
                     </a>
                     <a href="{{ route('superadmin.impersonation.history') }}" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                        Impersonation History
+                        {{ __('app.impersonation.history') }}
                     </a>
                     
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
                         <button type="submit" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                            Logout
+                            {{ __('app.nav.logout') }}
                         </button>
                     </form>
                 </div>

@@ -27,22 +27,22 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <x-card>
-            <h2 class="text-lg font-semibold mb-3">{{ __('tenants.sections.details') ?? 'Details' }}</h2>
+            <h2 class="text-lg font-semibold mb-3">{{ __('tenants.sections.details') }}</h2>
             <dl class="space-y-3 text-sm">
                 <div class="flex justify-between">
-                    <dt class="text-slate-500">ID</dt>
+                    <dt class="text-slate-500">{{ __('shared.manager.fields.id') }}</dt>
                     <dd class="text-slate-900">{{ $tenant->id }}</dd>
                 </div>
                 <div class="flex justify-between">
-                    <dt class="text-slate-500">{{ __('tenants.fields.email') ?? 'Email' }}</dt>
+                    <dt class="text-slate-500">{{ __('tenants.labels.email') }}</dt>
                     <dd class="text-slate-900">{{ $tenant->email }}</dd>
                 </div>
                 <div class="flex justify-between">
-                    <dt class="text-slate-500">{{ __('tenants.fields.phone') ?? 'Phone' }}</dt>
+                    <dt class="text-slate-500">{{ __('tenants.labels.phone') }}</dt>
                     <dd class="text-slate-900">{{ $tenant->phone ?? '—' }}</dd>
                 </div>
                 <div class="flex justify-between">
-                    <dt class="text-slate-500">{{ __('tenants.fields.property') ?? 'Property' }}</dt>
+                    <dt class="text-slate-500">{{ __('tenants.labels.property') }}</dt>
                     <dd class="text-slate-900">
                         @if($tenant->property)
                             <a href="{{ route('superadmin.compat.properties.edit', $tenant->property) }}" class="text-indigo-600 hover:text-indigo-800">
@@ -54,7 +54,7 @@
                     </dd>
                 </div>
                 <div class="flex justify-between">
-                    <dt class="text-slate-500">{{ __('tenants.fields.building') ?? 'Building' }}</dt>
+                    <dt class="text-slate-500">{{ __('tenants.labels.building') }}</dt>
                     <dd class="text-slate-900">
                         @if($tenant->property?->building)
                             <a href="{{ route('superadmin.compat.buildings.edit', $tenant->property->building) }}" class="text-indigo-600 hover:text-indigo-800">
@@ -69,14 +69,14 @@
         </x-card>
 
         <x-card>
-            <h2 class="text-lg font-semibold mb-3">{{ __('tenants.sections.stats') ?? 'Stats' }}</h2>
+            <h2 class="text-lg font-semibold mb-3">{{ __('tenants.sections.stats') }}</h2>
             <div class="grid grid-cols-2 gap-3 text-sm">
                 <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                    <p class="text-xs uppercase text-slate-500">{{ __('tenants.fields.invoices') ?? 'Invoices' }}</p>
+                    <p class="text-xs uppercase text-slate-500">{{ __('shared.manager.fields.invoices') }}</p>
                     <p class="text-lg font-semibold text-slate-900">{{ $tenant->invoices->count() }}</p>
                 </div>
                 <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                    <p class="text-xs uppercase text-slate-500">{{ __('tenants.fields.readings') ?? 'Readings' }}</p>
+                    <p class="text-xs uppercase text-slate-500">{{ __('app.navigation.meter_readings') }}</p>
                     <p class="text-lg font-semibold text-slate-900">{{ $tenant->meterReadings->count() }}</p>
                 </div>
             </div>
@@ -85,16 +85,16 @@
 
     <x-card class="mb-8">
         <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold">{{ __('tenants.sections.invoices') ?? 'Invoices' }}</h2>
+            <h2 class="text-lg font-semibold">{{ __('tenants.sections.invoices') }}</h2>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200">
                 <thead class="bg-slate-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">#</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('invoices.fields.period') ?? 'Period' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('invoices.fields.status') ?? 'Status' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('invoices.fields.total') ?? 'Total' }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.invoices.period') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('subscriptions.labels.status') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.invoices.total') }}</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('app.nav.actions') ?? 'Actions' }}</th>
                     </tr>
                 </thead>
@@ -129,7 +129,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-slate-500">{{ __('invoices.empty') ?? 'No invoices found' }}</td>
+                        <td colspan="5" class="px-6 py-4 text-center text-slate-500">{{ __('shared.manager.empty_invoices') }}</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -139,16 +139,16 @@
 
     <x-card>
         <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold">{{ __('meter_readings.sections.recent') ?? 'Recent Meter Readings' }}</h2>
+            <h2 class="text-lg font-semibold">{{ __('tenants.headings.recent_readings') }}</h2>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200">
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('meters.fields.meter') ?? 'Meter' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('meter_readings.fields.value') ?? 'Value' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('meter_readings.fields.date') ?? 'Date' }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.fields.id') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('meters.labels.meter') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('meter_readings.labels.value') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('meter_readings.tables.date') }}</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-slate-200">
@@ -161,7 +161,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="px-6 py-4 text-center text-slate-500">{{ __('meter_readings.empty') ?? 'No readings found' }}</td>
+                        <td colspan="4" class="px-6 py-4 text-center text-slate-500">{{ __('meter_readings.empty.readings') }}</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -398,22 +398,22 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <x-card>
-            <h2 class="text-lg font-semibold mb-3">{{ __('tenants.sections.details') ?? 'Details' }}</h2>
+            <h2 class="text-lg font-semibold mb-3">{{ __('tenants.sections.details') }}</h2>
             <dl class="space-y-3 text-sm">
                 <div class="flex justify-between">
-                    <dt class="text-slate-500">ID</dt>
+                    <dt class="text-slate-500">{{ __('shared.manager.fields.id') }}</dt>
                     <dd class="text-slate-900">{{ $tenant->id }}</dd>
                 </div>
                 <div class="flex justify-between">
-                    <dt class="text-slate-500">{{ __('tenants.fields.email') ?? 'Email' }}</dt>
+                    <dt class="text-slate-500">{{ __('tenants.labels.email') }}</dt>
                     <dd class="text-slate-900">{{ $tenant->email }}</dd>
                 </div>
                 <div class="flex justify-between">
-                    <dt class="text-slate-500">{{ __('tenants.fields.phone') ?? 'Phone' }}</dt>
+                    <dt class="text-slate-500">{{ __('tenants.labels.phone') }}</dt>
                     <dd class="text-slate-900">{{ $tenant->phone ?? '—' }}</dd>
                 </div>
                 <div class="flex justify-between">
-                    <dt class="text-slate-500">{{ __('tenants.fields.property') ?? 'Property' }}</dt>
+                    <dt class="text-slate-500">{{ __('tenants.labels.property') }}</dt>
                     <dd class="text-slate-900">
                         @if($tenant->property)
                             <a href="{{ route('superadmin.compat.properties.edit', $tenant->property) }}" class="text-indigo-600 hover:text-indigo-800">
@@ -425,7 +425,7 @@
                     </dd>
                 </div>
                 <div class="flex justify-between">
-                    <dt class="text-slate-500">{{ __('tenants.fields.building') ?? 'Building' }}</dt>
+                    <dt class="text-slate-500">{{ __('tenants.labels.building') }}</dt>
                     <dd class="text-slate-900">
                         @if($tenant->property?->building)
                             <a href="{{ route('superadmin.compat.buildings.edit', $tenant->property->building) }}" class="text-indigo-600 hover:text-indigo-800">
@@ -440,14 +440,14 @@
         </x-card>
 
         <x-card>
-            <h2 class="text-lg font-semibold mb-3">{{ __('tenants.sections.stats') ?? 'Stats' }}</h2>
+            <h2 class="text-lg font-semibold mb-3">{{ __('tenants.sections.stats') }}</h2>
             <div class="grid grid-cols-2 gap-3 text-sm">
                 <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                    <p class="text-xs uppercase text-slate-500">{{ __('tenants.fields.invoices') ?? 'Invoices' }}</p>
+                    <p class="text-xs uppercase text-slate-500">{{ __('shared.manager.fields.invoices') }}</p>
                     <p class="text-lg font-semibold text-slate-900">{{ $tenant->invoices->count() }}</p>
                 </div>
                 <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                    <p class="text-xs uppercase text-slate-500">{{ __('tenants.fields.readings') ?? 'Readings' }}</p>
+                    <p class="text-xs uppercase text-slate-500">{{ __('app.navigation.meter_readings') }}</p>
                     <p class="text-lg font-semibold text-slate-900">{{ $tenant->meterReadings->count() }}</p>
                 </div>
             </div>
@@ -456,16 +456,16 @@
 
     <x-card class="mb-8">
         <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold">{{ __('tenants.sections.invoices') ?? 'Invoices' }}</h2>
+            <h2 class="text-lg font-semibold">{{ __('tenants.sections.invoices') }}</h2>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200">
                 <thead class="bg-slate-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">#</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('invoices.fields.period') ?? 'Period' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('invoices.fields.status') ?? 'Status' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('invoices.fields.total') ?? 'Total' }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.invoices.period') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('subscriptions.labels.status') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.invoices.total') }}</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('app.nav.actions') ?? 'Actions' }}</th>
                     </tr>
                 </thead>
@@ -500,7 +500,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-slate-500">{{ __('invoices.empty') ?? 'No invoices found' }}</td>
+                        <td colspan="5" class="px-6 py-4 text-center text-slate-500">{{ __('shared.manager.empty_invoices') }}</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -510,16 +510,16 @@
 
     <x-card>
         <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold">{{ __('meter_readings.sections.recent') ?? 'Recent Meter Readings' }}</h2>
+            <h2 class="text-lg font-semibold">{{ __('tenants.headings.recent_readings') }}</h2>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200">
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('meters.fields.meter') ?? 'Meter' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('meter_readings.fields.value') ?? 'Value' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('meter_readings.fields.date') ?? 'Date' }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.fields.id') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('meters.labels.meter') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('meter_readings.labels.value') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('meter_readings.tables.date') }}</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-slate-200">
@@ -532,7 +532,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="px-6 py-4 text-center text-slate-500">{{ __('meter_readings.empty') ?? 'No readings found' }}</td>
+                        <td colspan="4" class="px-6 py-4 text-center text-slate-500">{{ __('meter_readings.empty.readings') }}</td>
                     </tr>
                     @endforelse
                 </tbody>

@@ -31,11 +31,13 @@ return [
         'actions' => 'Actions',
         'address' => 'Address',
         'area' => 'Area',
+        'building' => 'Building',
         'created' => 'Created',
         'created_by' => 'Created By',
         'email' => 'Email',
         'invoice' => 'Invoice',
         'name' => 'Name',
+        'phone' => 'Phone',
         'property' => 'Property',
         'reading' => 'Reading',
         'reason' => 'Reason',
@@ -43,6 +45,10 @@ return [
         'type' => 'Type',
     ],
     'pages' => [
+        'index' => [
+            'subtitle' => 'All tenants across all organizations',
+            'title' => 'Tenants',
+        ],
         'admin_form' => [
             'actions' => [
                 'cancel' => 'Cancel',
@@ -101,6 +107,11 @@ return [
     'statuses' => [
         'active' => 'Active',
         'inactive' => 'Inactive',
+    ],
+    'sections' => [
+        'details' => 'Details',
+        'invoices' => 'Invoices',
+        'stats' => 'Stats',
     ],
     'validation' => [
         'email' => [

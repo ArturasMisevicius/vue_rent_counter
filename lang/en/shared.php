@@ -2,6 +2,8 @@
 
 return [
     'manager' => [
+        'empty_invoices' => 'No invoices found',
+        'empty_properties' => 'No properties found',
         'pages' => [
             'index' => [
                 'title' => 'Managers',
@@ -16,6 +18,10 @@ return [
             'buildings' => 'Buildings',
             'invoices' => 'Invoices',
             'actions' => 'Actions',
+        ],
+        'invoices' => [
+            'period' => 'Period',
+            'total' => 'Total',
         ],
         'profile' => [
             'title' => 'Manager Profile',
@@ -1267,6 +1273,23 @@ return [
         'submit' => 'Search',
         'title' => 'Search',
         'users' => 'Users',
+    ],
+    'dashboard_customization' => [
+        'configure_widget' => 'Configure Widget: :widget',
+        'intervals' => [
+            'hour' => ':count hour',
+            'minute' => ':count minute',
+            'minutes' => ':count minutes',
+            'seconds' => ':count seconds',
+        ],
+        'refresh_interval' => 'Refresh Interval (seconds)',
+        'size' => 'Size',
+        'sizes' => [
+            'large' => 'Large',
+            'medium' => 'Medium',
+            'small' => 'Small',
+        ],
+        'unknown_widget' => 'Unknown Widget',
     ],
     'scheduled_export_email' => [
         'attached_files_intro' => 'This email contains the following export files:',

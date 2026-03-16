@@ -43,32 +43,32 @@ return [
     'custom_requests' => [
         'api_login' => [
             'email' => [
-                'required' => 'Адрес электронной почты обязателен',
-                'email' => 'Введите корректный адрес электронной почты',
+                'required' => 'Требуется адрес электронной почты',
+                'email' => 'Пожалуйста, укажите действительный адрес электронной почты',
             ],
             'password' => [
-                'required' => 'Пароль обязателен',
-                'min' => 'Пароль должен содержать не менее 8 символов',
+                'required' => 'Требуется пароль',
+                'min' => 'Пароль должен быть не менее 8 символов',
             ],
         ],
         'csp_violation' => [
-            'report_required' => 'Данные CSP-отчета обязательны',
-            'violated_directive_required' => 'Нарушенная директива обязательна',
-            'document_uri_required' => 'URI документа обязателен',
+            'report_required' => 'Требуются данные отчета CSP.',
+            'violated_directive_required' => 'Требуется нарушение директивы',
+            'document_uri_required' => 'Укажите URI документа.',
             'max' => 'Поле :attribute слишком длинное.',
-            'integer' => 'Поле :attribute должно быть целым числом.',
-            'invalid_content_type' => 'Неверный тип содержимого',
-            'request_too_large' => 'Слишком большой запрос',
-            'too_many_reports' => 'Слишком много CSP-отчетов',
+            'integer' => ':attribute должен быть допустимым целым числом.',
+            'invalid_content_type' => 'Неверный тип контента',
+            'request_too_large' => 'Запрос слишком большой',
+            'too_many_reports' => 'Слишком много отчетов CSP',
         ],
         'organizations' => [
-            'invalid_data' => 'Переданные данные недействительны.',
+            'invalid_data' => 'Указанные данные недействительны.',
         ],
         'properties' => [
             'building_must_belong' => 'Выбранное здание должно принадлежать вашей организации.',
             'attributes' => [
                 'area_sqm' => 'площадь (м²)',
-                'unit_number' => 'номер помещения',
+                'unit_number' => 'номер устройства',
             ],
         ],
     ],

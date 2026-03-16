@@ -10,7 +10,7 @@ return [
         'delete' => 'Ištrinti',
         'edit' => 'Redaguoti',
         'update' => 'Atnaujinti',
-        'view' => 'Žiūrėti',
+        'view' => 'Peržiūrėti',
     ],
     'confirmations' => [
         'delete' => 'Ištrinti',
@@ -35,7 +35,7 @@ return [
         'show' => 'Rodyti',
     ],
     'labels' => [
-        'contact_info' => 'Contact Info',
+        'contact_info' => 'Kontaktinė informacija',
         'created' => 'Sukurta',
         'name' => 'Vardas',
         'service_type' => 'Paslaugos tipas',
@@ -56,7 +56,7 @@ return [
         'actions' => 'Veiksmai',
         'active_from' => 'Aktyvus nuo',
         'active_until' => 'Aktyvus iki',
-        'contact_info' => 'Contact Info',
+        'contact_info' => 'Kontaktinė informacija',
         'name' => 'Vardas',
         'service_type' => 'Paslaugos tipas',
         'status' => 'Būsena',
@@ -68,12 +68,12 @@ return [
         ],
         'name' => [
             'max' => 'Maks',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
             'string' => 'Styga',
         ],
         'service_type' => [
             'in' => 'Į',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
     ],
 ];

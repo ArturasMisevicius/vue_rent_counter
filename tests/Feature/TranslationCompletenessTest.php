@@ -24,11 +24,6 @@ final class TranslationCompletenessTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Supported locales for the platform
-     */
-    private const SUPPORTED_LOCALES = ['en', 'lt', 'ru'];
-    
-    /**
      * Critical translation keys that must exist in all locales
      * These keys are essential for core platform functionality
      */
@@ -79,7 +74,7 @@ final class TranslationCompletenessTest extends TestCase
     {
         $missingTranslations = [];
         
-        foreach (self::SUPPORTED_LOCALES as $locale) {
+        foreach ($this->supportedLocales() as $locale) {
             app()->setLocale($locale);
             
             foreach (self::CRITICAL_KEYS as $key) {
@@ -152,7 +147,7 @@ final class TranslationCompletenessTest extends TestCase
     {
         $baseKeys = collect(\Illuminate\Support\Arr::dot(Lang::get('dashboard', [], 'en')));
         
-        foreach (['lt', 'ru'] as $locale) {
+        foreach (array_values(array_filter($this->supportedLocales(), static fn (string $locale): bool => $locale !== 'en')) as $locale) {
             $localeKeys = collect(\Illuminate\Support\Arr::dot(Lang::get('dashboard', [], $locale)));
             
             $this->assertEquals(
@@ -175,7 +170,7 @@ final class TranslationCompletenessTest extends TestCase
             'dashboard.tenant.title',
         ];
         
-        foreach (self::SUPPORTED_LOCALES as $locale) {
+        foreach ($this->supportedLocales() as $locale) {
             app()->setLocale($locale);
             
             foreach ($dashboardKeys as $key) {
@@ -197,7 +192,7 @@ final class TranslationCompletenessTest extends TestCase
             'superadmin.navigation.audit_logs',
         ];
         
-        foreach (self::SUPPORTED_LOCALES as $locale) {
+        foreach ($this->supportedLocales() as $locale) {
             app()->setLocale($locale);
             
             foreach ($superadminKeys as $key) {
@@ -221,7 +216,7 @@ final class TranslationCompletenessTest extends TestCase
             'common.language',
         ];
         
-        foreach (self::SUPPORTED_LOCALES as $locale) {
+        foreach ($this->supportedLocales() as $locale) {
             app()->setLocale($locale);
             
             foreach ($commonKeys as $key) {
@@ -241,7 +236,7 @@ final class TranslationCompletenessTest extends TestCase
             'app.brand.product',
         ];
         
-        foreach (self::SUPPORTED_LOCALES as $locale) {
+        foreach ($this->supportedLocales() as $locale) {
             app()->setLocale($locale);
             
             foreach ($brandingKeys as $key) {
@@ -266,7 +261,7 @@ final class TranslationCompletenessTest extends TestCase
             'app.nav.users',
         ];
         
-        foreach (self::SUPPORTED_LOCALES as $locale) {
+        foreach ($this->supportedLocales() as $locale) {
             app()->setLocale($locale);
             
             foreach ($navKeys as $key) {
@@ -287,7 +282,7 @@ final class TranslationCompletenessTest extends TestCase
             'app.errors.forbidden_action',
         ];
         
-        foreach (self::SUPPORTED_LOCALES as $locale) {
+        foreach ($this->supportedLocales() as $locale) {
             app()->setLocale($locale);
             
             foreach ($errorKeys as $key) {
@@ -311,7 +306,7 @@ final class TranslationCompletenessTest extends TestCase
             'FIXME',
         ];
         
-        foreach (self::SUPPORTED_LOCALES as $locale) {
+        foreach ($this->supportedLocales() as $locale) {
             app()->setLocale($locale);
             
             foreach (self::CRITICAL_KEYS as $key) {
@@ -335,7 +330,7 @@ final class TranslationCompletenessTest extends TestCase
     {
         $minimumCoverage = 95.0; // 95% minimum coverage required
         
-        foreach (self::SUPPORTED_LOCALES as $locale) {
+        foreach ($this->supportedLocales() as $locale) {
             app()->setLocale($locale);
             
             $totalKeys = count(self::CRITICAL_KEYS);
@@ -356,5 +351,13 @@ final class TranslationCompletenessTest extends TestCase
                 "Translation coverage for {$locale} is {$coverage}%, below minimum {$minimumCoverage}%"
             );
         }
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function supportedLocales(): array
+    {
+        return array_keys((array) config('locales.available', []));
     }
 }

@@ -30,7 +30,7 @@
             <h2 class="text-lg font-semibold mb-3">{{ __('shared.sections.details') ?? 'Details' }}</h2>
             <dl class="space-y-2 text-sm">
                 <div class="flex justify-between">
-                    <dt class="text-slate-500">ID</dt>
+                    <dt class="text-slate-500">{{ __('shared.manager.fields.id') }}</dt>
                     <dd class="text-slate-900">{{ $manager->id }}</dd>
                 </div>
                 <div class="flex justify-between">
@@ -54,9 +54,9 @@
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50">
                         <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Address</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Building</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Tenants</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">{{ __('shared.superadmin.properties.fields.address') }}</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">{{ __('shared.superadmin.properties.fields.building') }}</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">{{ __('shared.superadmin.properties.fields.tenants') }}</th>
                             <th class="px-4 py-2 text-right text-xs font-medium text-slate-500 uppercase">{{ __('app.nav.actions') ?? 'Actions' }}</th>
                         </tr>
                     </thead>
@@ -91,7 +91,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="px-4 py-3 text-center text-slate-500">{{ __('shared.empty_properties') ?? 'No properties found' }}</td>
+                            <td colspan="4" class="px-4 py-3 text-center text-slate-500">{{ __('shared.manager.empty_properties') }}</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -109,9 +109,9 @@
                 <thead class="bg-slate-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">#</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('invoices.fields.period') ?? 'Period' }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.invoices.period') }}</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('invoices.fields.status') ?? 'Status' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('invoices.fields.total') ?? 'Total' }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.invoices.total') }}</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('app.nav.actions') ?? 'Actions' }}</th>
                     </tr>
                 </thead>
@@ -146,7 +146,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-slate-500">{{ __('invoices.empty') ?? 'No invoices found' }}</td>
+                        <td colspan="5" class="px-6 py-4 text-center text-slate-500">{{ __('shared.manager.empty_invoices') }}</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -182,7 +182,7 @@
             <h2 class="text-lg font-semibold mb-3">{{ __('shared.sections.details') ?? 'Details' }}</h2>
             <dl class="space-y-2 text-sm">
                 <div class="flex justify-between">
-                    <dt class="text-slate-500">ID</dt>
+                    <dt class="text-slate-500">{{ __('shared.manager.fields.id') }}</dt>
                     <dd class="text-slate-900">{{ $manager->id }}</dd>
                 </div>
                 <div class="flex justify-between">
@@ -206,9 +206,9 @@
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50">
                         <tr>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Address</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Building</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">Tenants</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">{{ __('shared.superadmin.properties.fields.address') }}</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">{{ __('shared.superadmin.properties.fields.building') }}</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">{{ __('shared.superadmin.properties.fields.tenants') }}</th>
                             <th class="px-4 py-2 text-right text-xs font-medium text-slate-500 uppercase">{{ __('app.nav.actions') ?? 'Actions' }}</th>
                         </tr>
                     </thead>
@@ -243,7 +243,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="px-4 py-3 text-center text-slate-500">{{ __('shared.empty_properties') ?? 'No properties found' }}</td>
+                            <td colspan="4" class="px-4 py-3 text-center text-slate-500">{{ __('shared.manager.empty_properties') }}</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -261,9 +261,9 @@
                 <thead class="bg-slate-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">#</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('invoices.fields.period') ?? 'Period' }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.invoices.period') }}</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('invoices.fields.status') ?? 'Status' }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('invoices.fields.total') ?? 'Total' }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.invoices.total') }}</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('app.nav.actions') ?? 'Actions' }}</th>
                     </tr>
                 </thead>
@@ -298,7 +298,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-slate-500">{{ __('invoices.empty') ?? 'No invoices found' }}</td>
+                        <td colspan="5" class="px-6 py-4 text-center text-slate-500">{{ __('shared.manager.empty_invoices') }}</td>
                     </tr>
                     @endforelse
                 </tbody>

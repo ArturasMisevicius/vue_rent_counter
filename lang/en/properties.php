@@ -117,6 +117,16 @@ return [
         ],
     ],
     'pages' => [
+        'superadmin_index' => [
+            'description' => 'All properties across all organizations',
+        ],
+        'superadmin_show' => [
+            'sections' => [
+                'invoices_description' => 'Invoices for tenants in this property',
+                'meters_description' => 'Meters assigned to this property',
+                'property_details' => 'Property Details',
+            ],
+        ],
         'manager_form' => [
             'actions' => [
                 'cancel' => 'Cancel',

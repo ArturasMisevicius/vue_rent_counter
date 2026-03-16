@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <title>Property Details</title>
+    <title>{{ __('properties.sections.property_details') }}</title>
 </head>
 <body>
-    <h1>Property Details</h1>
-    <p>Address: {{ $property->address }}</p>
-    <p>Type: {{ enum_label($property->type) }}</p>
+    <h1>{{ __('properties.sections.property_details') }}</h1>
+    <p>{{ __('properties.labels.address') }}: {{ $property->address }}</p>
+    <p>{{ __('properties.labels.type') }}: {{ enum_label($property->type) }}</p>
 </body>
 </html>

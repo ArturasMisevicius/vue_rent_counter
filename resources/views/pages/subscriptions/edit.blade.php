@@ -10,7 +10,7 @@
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-2xl mx-auto">
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-slate-900">Edit Subscription</h1>
+            <h1 class="text-3xl font-bold text-slate-900">{{ __('subscriptions.pages.edit.title') }}</h1>
             <p class="text-slate-600 mt-2">{{ $subscription->user->organization_name }}</p>
         </div>
 
@@ -22,7 +22,7 @@
                 <div class="space-y-6">
                     <div>
                         <label for="plan_type" class="block text-sm font-medium text-slate-700 mb-1">
-                            Plan Type <span class="text-red-500">*</span>
+                            {{ __('subscriptions.labels.plan_type') }} <span class="text-red-500">*</span>
                         </label>
                         <select 
                             name="plan_type" 
@@ -43,7 +43,7 @@
 
                     <div>
                         <label for="status" class="block text-sm font-medium text-slate-700 mb-1">
-                            Status <span class="text-red-500">*</span>
+                            {{ __('subscriptions.labels.status') }} <span class="text-red-500">*</span>
                         </label>
                         <select 
                             name="status" 
@@ -64,7 +64,7 @@
 
                     <div>
                         <label for="expires_at" class="block text-sm font-medium text-slate-700 mb-1">
-                            Expiry Date <span class="text-red-500">*</span>
+                            {{ __('subscriptions.pages.edit.labels.expiry_date') }} <span class="text-red-500">*</span>
                         </label>
                         <input 
                             type="date" 
@@ -81,7 +81,7 @@
 
                     <div>
                         <label for="max_properties" class="block text-sm font-medium text-slate-700 mb-1">
-                            Maximum Properties <span class="text-red-500">*</span>
+                            {{ __('subscriptions.labels.max_properties') }} <span class="text-red-500">*</span>
                         </label>
                         <input 
                             type="number" 
@@ -99,7 +99,7 @@
 
                     <div>
                         <label for="max_tenants" class="block text-sm font-medium text-slate-700 mb-1">
-                            Maximum Tenants <span class="text-red-500">*</span>
+                            {{ __('subscriptions.labels.max_tenants') }} <span class="text-red-500">*</span>
                         </label>
                         <input 
                             type="number" 
@@ -118,10 +118,10 @@
 
                 <div class="flex justify-end gap-4 pt-6 border-t mt-6">
                     <a href="{{ route('superadmin.subscriptions.show', $subscription) }}" class="px-4 py-2 bg-slate-300 text-slate-700 rounded hover:bg-slate-400">
-                        Cancel
+                        {{ __('app.cta.cancel') }}
                     </a>
                     <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                        Update Subscription
+                        {{ __('subscriptions.pages.edit.submit') }}
                     </button>
                 </div>
             </form>
@@ -136,7 +136,7 @@
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-2xl mx-auto">
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-slate-900">Edit Subscription</h1>
+            <h1 class="text-3xl font-bold text-slate-900">{{ __('subscriptions.pages.edit.title') }}</h1>
             <p class="text-slate-600 mt-2">{{ $subscription->user->organization_name }}</p>
         </div>
 
@@ -148,7 +148,7 @@
                 <div class="space-y-6">
                     <div>
                         <label for="plan_type" class="block text-sm font-medium text-slate-700 mb-1">
-                            Plan Type <span class="text-red-500">*</span>
+                            {{ __('subscriptions.labels.plan_type') }} <span class="text-red-500">*</span>
                         </label>
                         <select 
                             name="plan_type" 
@@ -169,7 +169,7 @@
 
                     <div>
                         <label for="status" class="block text-sm font-medium text-slate-700 mb-1">
-                            Status <span class="text-red-500">*</span>
+                            {{ __('subscriptions.labels.status') }} <span class="text-red-500">*</span>
                         </label>
                         <select 
                             name="status" 
@@ -190,7 +190,7 @@
 
                     <div>
                         <label for="expires_at" class="block text-sm font-medium text-slate-700 mb-1">
-                            Expiry Date <span class="text-red-500">*</span>
+                            {{ __('subscriptions.pages.edit.labels.expiry_date') }} <span class="text-red-500">*</span>
                         </label>
                         <input 
                             type="date" 
@@ -207,7 +207,7 @@
 
                     <div>
                         <label for="max_properties" class="block text-sm font-medium text-slate-700 mb-1">
-                            Maximum Properties <span class="text-red-500">*</span>
+                            {{ __('subscriptions.labels.max_properties') }} <span class="text-red-500">*</span>
                         </label>
                         <input 
                             type="number" 
@@ -225,7 +225,7 @@
 
                     <div>
                         <label for="max_tenants" class="block text-sm font-medium text-slate-700 mb-1">
-                            Maximum Tenants <span class="text-red-500">*</span>
+                            {{ __('subscriptions.labels.max_tenants') }} <span class="text-red-500">*</span>
                         </label>
                         <input 
                             type="number" 
@@ -244,10 +244,10 @@
 
                 <div class="flex justify-end gap-4 pt-6 border-t mt-6">
                     <a href="{{ route('superadmin.subscriptions.show', $subscription) }}" class="px-4 py-2 bg-slate-300 text-slate-700 rounded hover:bg-slate-400">
-                        Cancel
+                        {{ __('app.cta.cancel') }}
                     </a>
                     <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                        Update Subscription
+                        {{ __('subscriptions.pages.edit.submit') }}
                     </button>
                 </div>
             </form>

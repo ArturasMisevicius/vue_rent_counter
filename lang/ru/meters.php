@@ -2,12 +2,12 @@
 
 return [
     'actions' => [
-        'add' => 'Добавлять',
+        'add' => 'Добавить',
         'create' => 'Создавать',
         'delete' => 'Удалить',
         'edit' => 'Редактировать',
         'edit_meter' => 'Редактировать счетчик',
-        'view' => 'Вид',
+        'view' => 'Просмотреть',
         'view_readings' => 'Просмотр показаний',
     ],
     'confirmations' => [
@@ -22,7 +22,7 @@ return [
     ],
     'filters' => [
         'no_readings' => 'Нет показаний',
-        'property' => 'Свойство',
+        'property' => 'Объект',
         'supports_zones' => 'Поддерживает зоны',
         'type' => 'Тип',
     ],
@@ -33,17 +33,17 @@ return [
     ],
     'helper_text' => [
         'installation_date' => 'Дата установки',
-        'property' => 'Свойство',
+        'property' => 'Объект',
         'serial_number' => 'Серийный номер',
         'supports_zones' => 'Поддерживает зоны',
         'type' => 'Тип',
     ],
     'labels' => [
-        'created' => 'Созданный',
+        'created' => 'Создано',
         'installation_date' => 'Дата установки',
-        'meter' => 'Метр',
-        'meters' => 'Метры',
-        'property' => 'Свойство',
+        'meter' => 'Счетчик',
+        'meters' => 'Счетчики',
+        'property' => 'Объект',
         'readings' => 'Чтения',
         'readings_count' => 'Количество показаний',
         'serial_number' => 'Серийный номер',
@@ -62,7 +62,7 @@ return [
                 'actions' => 'Действия',
                 'installation_date' => 'Дата установки',
                 'latest_reading' => 'Последнее чтение',
-                'property' => 'Свойство',
+                'property' => 'Объект',
                 'serial_number' => 'Серийный номер',
                 'type' => 'Тип',
                 'zones' => 'Зоны',
@@ -76,7 +76,7 @@ return [
     ],
     'modals' => [
         'bulk_delete' => [
-            'confirm' => 'Подтверждать',
+            'confirm' => 'Подтвердить',
             'description' => 'Описание',
             'title' => 'Заголовок',
         ],
@@ -85,7 +85,7 @@ return [
         'delete_heading' => 'Удалить заголовок',
     ],
     'notifications' => [
-        'created' => 'Созданный',
+        'created' => 'Создано',
         'updated' => 'Обновлено',
     ],
     'placeholders' => [
@@ -109,7 +109,7 @@ return [
     ],
     'tooltips' => [
         'copy_serial' => 'Копировать серийный номер',
-        'property_address' => 'Адрес объекта недвижимости',
+        'property_address' => 'Адрес объекта',
         'readings_count' => 'Количество показаний',
         'supports_zones_no' => 'Поддерживает зоны Нет',
         'supports_zones_yes' => 'Поддерживает зоны Да',
@@ -130,7 +130,7 @@ return [
         'serial_number' => [
             'max' => 'Макс',
             'required' => 'Необходимый',
-            'string' => 'Нить',
+            'string' => 'Строка',
             'unique' => 'Уникальный',
         ],
         'supports_zones' => [

@@ -7,7 +7,7 @@ return [
         'from' => 'От',
         'until' => 'До',
         'update' => 'Обновлять',
-        'view' => 'Вид',
+        'view' => 'Просмотреть',
     ],
     'labels' => [
         'action' => 'Действие',
@@ -26,7 +26,7 @@ return [
             'description' => 'Описание',
             'filters' => [
                 'apply' => 'Применять',
-                'clear' => 'Прозрачный',
+                'clear' => 'Сбросить',
                 'from_date' => 'С даты',
                 'meter_placeholder' => 'Заполнитель счетчика',
                 'meter_serial' => 'Серийный счетчик',
@@ -45,11 +45,11 @@ return [
             'table' => [
                 'caption' => 'Подпись',
                 'changed_by' => 'Изменено кем',
-                'meter' => 'Метр',
+                'meter' => 'Счетчик',
                 'new_value' => 'Новое значение',
                 'old_value' => 'Старое значение',
                 'reading' => 'Чтение',
-                'reading_date' => 'Дата чтения',
+                'reading_date' => 'Дата показания',
                 'reason' => 'Причина',
                 'timestamp' => 'Временная метка',
             ],

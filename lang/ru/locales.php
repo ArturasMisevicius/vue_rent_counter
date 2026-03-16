@@ -27,7 +27,7 @@ return [
         'non_default_only' => 'Только не по умолчанию',
     ],
     'helper_text' => [
-        'active' => 'Активный',
+        'active' => 'Активен',
         'code' => 'Код',
         'default' => 'По умолчанию',
         'details' => 'Подробности',
@@ -36,9 +36,9 @@ return [
         'order' => 'Заказ',
     ],
     'labels' => [
-        'active' => 'Активный',
+        'active' => 'Активен',
         'code' => 'Код',
-        'created' => 'Созданный',
+        'created' => 'Создано',
         'default' => 'По умолчанию',
         'locale' => 'Языковой стандарт',
         'name' => 'Имя',
@@ -76,7 +76,7 @@ return [
         'locale' => [
             'max' => 'Макс',
             'required' => 'Необходимый',
-            'string' => 'Нить',
+            'string' => 'Строка',
         ],
     ],
 ];

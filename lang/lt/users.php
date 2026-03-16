@@ -4,13 +4,13 @@ return [
     'actions' => [
         'add' => 'Pridėti',
         'back' => 'Atgal',
-        'clear' => 'Aišku',
+        'clear' => 'Išvalyti',
         'create' => 'Sukurti',
         'delete' => 'Ištrinti',
         'edit' => 'Redaguoti',
         'filter' => 'Filtruoti',
         'update' => 'Atnaujinti',
-        'view' => 'Žiūrėti',
+        'view' => 'Peržiūrėti',
     ],
     'descriptions' => [
         'index' => 'Rodyklė',
@@ -23,7 +23,7 @@ return [
         'heading' => 'Antraštė',
     ],
     'errors' => [
-        'has_readings' => 'Has Readings',
+        'has_readings' => 'Turi skaitymų',
     ],
     'filters' => [
         'active_only' => 'Tik aktyvus',
@@ -90,20 +90,20 @@ return [
     'validation' => [
         'current_password' => [
             'current_password' => 'Dabartinis slaptažodis',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
             'required_with' => 'Reikalingas Su',
             'string' => 'Styga',
         ],
         'email' => [
             'email' => 'El. paštas',
             'max' => 'Maks',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
             'string' => 'Styga',
             'unique' => 'Unikali',
         ],
         'name' => [
             'max' => 'Maks',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
             'string' => 'Styga',
         ],
         'organization_name' => [
@@ -113,17 +113,17 @@ return [
         'password' => [
             'confirmed' => 'Patvirtinta',
             'min' => 'Min',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
             'string' => 'Styga',
         ],
         'role' => [
             'enum' => 'Enum',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
         'tenant_id' => [
             'exists' => 'Egzistuoja',
             'integer' => 'Sveikasis skaičius',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
     ],
 ];

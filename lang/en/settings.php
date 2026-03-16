@@ -2,6 +2,20 @@
 
 return [
     'description' => 'Description',
+    'system_page' => [
+        'description' => 'Manage platform-wide settings and configuration. Changes will take effect immediately after saving.',
+        'notes' => [
+            'backup_schedule' => 'Backup schedule uses cron expression format (e.g., "0 2 * * *" for daily at 2 AM)',
+            'email' => 'Email settings require valid SMTP credentials to send notifications',
+            'feature_flags' => 'Feature flags affect all organizations unless overridden',
+            'password_policy' => 'Password policy changes apply to new passwords only',
+            'queue' => 'Queue configuration changes may require worker restart',
+        ],
+        'notes_title' => 'Configuration Notes',
+        'title' => 'System Configuration',
+        'warning_body' => 'Modifying system settings can affect platform stability and user experience. Always test changes in a development environment first. Export your current configuration before making significant changes.',
+        'warning_title' => 'Important Warning',
+    ],
     'forms' => [
         'app_name' => 'App Name',
         'app_name_hint' => 'App Name Hint',

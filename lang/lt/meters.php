@@ -7,8 +7,8 @@ return [
         'delete' => 'Ištrinti',
         'edit' => 'Redaguoti',
         'edit_meter' => 'Redaguoti matuoklį',
-        'view' => 'Žiūrėti',
-        'view_readings' => 'Peržiūrėti rodmenis',
+        'view' => 'Peržiūrėti',
+        'view_readings' => 'Žiūrėti skaitymus',
     ],
     'confirmations' => [
         'delete' => 'Ištrinti',
@@ -18,7 +18,7 @@ return [
         'heading' => 'Antraštė',
     ],
     'errors' => [
-        'has_readings' => 'Has Readings',
+        'has_readings' => 'Turi skaitymų',
     ],
     'filters' => [
         'no_readings' => 'Jokių skaitymų',
@@ -41,8 +41,8 @@ return [
     'labels' => [
         'created' => 'Sukurta',
         'installation_date' => 'Įdiegimo data',
-        'meter' => 'Metras',
-        'meters' => 'Metrai',
+        'meter' => 'Skaitiklis',
+        'meters' => 'Skaitikliai',
         'property' => 'Turtas',
         'readings' => 'Skaitymai',
         'readings_count' => 'Skaitymų skaičius',
@@ -121,28 +121,28 @@ return [
         'installation_date' => [
             'before_or_equal' => 'Prieš arba lygus',
             'date' => 'Data',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
         'property_id' => [
             'exists' => 'Egzistuoja',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
         'serial_number' => [
             'max' => 'Maks',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
             'string' => 'Styga',
             'unique' => 'Unikali',
         ],
         'supports_zones' => [
-            'boolean' => 'Boolean',
+            'boolean' => 'Būlio',
         ],
         'tenant_id' => [
             'integer' => 'Sveikasis skaičius',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
         'type' => [
-            'enum_detail' => 'Enum Detail',
-            'required' => 'Reikalingas',
+            'enum_detail' => 'Enum detalė',
+            'required' => 'Privaloma',
         ],
     ],
 ];

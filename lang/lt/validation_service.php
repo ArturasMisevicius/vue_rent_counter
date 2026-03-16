@@ -73,7 +73,7 @@ return [
     'attributes' => [
         'service_configuration' => 'paslaugos konfigūracija',
         'validation_options' => 'patvirtinimo parinktys',
-        'reading_ids' => 'reading IDs',
+        'reading_ids' => 'skaitymo ID',
         'reading_id' => 'skaitymo ID',
     ],
 ];

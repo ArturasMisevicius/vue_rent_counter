@@ -15,21 +15,21 @@ return [
         'order' => 'Eilė',
     ],
     'types' => [
-        'general' => 'Bendras',
+        'general' => 'Dažnas',
         'property' => 'Turtas',
         'tenant' => 'Nuomininkas',
         'invoice' => 'Sąskaita faktūra',
     ],
     'actions' => [
-        'create' => 'Sukurti žymą',
+        'create' => 'Sukurkite žymą',
         'edit' => 'Redaguoti žymą',
         'delete' => 'Ištrinti žymą',
-        'view' => 'Peržiūrėti žymą',
+        'view' => 'Žiūrėti žymą',
     ],
     'messages' => [
-        'created' => 'Žyma sukurta sėkmingai.',
-        'updated' => 'Žyma atnaujinta sėkmingai.',
-        'deleted' => 'Žyma ištrinta sėkmingai.',
+        'created' => 'Žyma sėkmingai sukurta.',
+        'updated' => 'Žyma sėkmingai atnaujinta.',
+        'deleted' => 'Žyma sėkmingai ištrinta.',
     ],
     'labels' => [
         'description' => 'Aprašymas',

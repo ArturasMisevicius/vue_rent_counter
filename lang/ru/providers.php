@@ -2,7 +2,7 @@
 
 return [
     'actions' => [
-        'add' => 'Добавлять',
+        'add' => 'Добавить',
         'add_tariff' => 'Добавить тариф',
         'back' => 'Назад',
         'cancel' => 'Отмена',
@@ -10,7 +10,7 @@ return [
         'delete' => 'Удалить',
         'edit' => 'Редактировать',
         'update' => 'Обновлять',
-        'view' => 'Вид',
+        'view' => 'Просмотреть',
     ],
     'confirmations' => [
         'delete' => 'Удалить',
@@ -36,19 +36,19 @@ return [
     ],
     'labels' => [
         'contact_info' => 'Контактная информация',
-        'created' => 'Созданный',
+        'created' => 'Создано',
         'name' => 'Имя',
         'service_type' => 'Тип услуги',
     ],
     'notifications' => [
         'cannot_delete' => 'Невозможно удалить',
-        'created' => 'Созданный',
+        'created' => 'Создано',
         'deleted' => 'Удалено',
         'updated' => 'Обновлено',
     ],
     'statuses' => [
-        'active' => 'Активный',
-        'inactive' => 'Неактивный',
+        'active' => 'Активен',
+        'inactive' => 'Неактивен',
         'not_available' => 'Нет в наличии',
         'present' => 'Подарок',
     ],
@@ -64,12 +64,12 @@ return [
     ],
     'validation' => [
         'contact_info' => [
-            'string' => 'Нить',
+            'string' => 'Строка',
         ],
         'name' => [
             'max' => 'Макс',
             'required' => 'Необходимый',
-            'string' => 'Нить',
+            'string' => 'Строка',
         ],
         'service_type' => [
             'in' => 'В',

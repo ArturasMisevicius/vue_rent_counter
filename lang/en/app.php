@@ -302,6 +302,7 @@ return [
     'You are impersonating' => 'You are impersonating',
     'by' => 'from',
     'impersonation' => [
+        'currently_impersonating' => 'You are currently impersonating',
         'mode_active' => 'Impersonation mode active',
         'you_are_impersonating' => 'You are impersonating',
         'reason' => 'Reason',
@@ -340,5 +341,48 @@ Line 3',
     'long_text' => 'This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. This is a very long translation text. ',
     'pages' => [
         'superadmin_dashboard' => 'Super Admin Panel',
+    ],
+    'superadmin_status' => [
+        'emergency_mode' => [
+            'next_steps' => [
+                'logs' => 'Check server logs',
+                'performance' => 'Monitor performance',
+                'reenable' => 'Gradually re-enable features',
+            ],
+            'notice_body' => 'The panel is running in emergency mode with minimal features to prevent timeouts.',
+            'notice_title' => 'Notice:',
+            'status' => [
+                'authentication' => '✓ Authentication working',
+                'database' => '✓ Database connected',
+                'panel_accessible' => '✓ Panel is accessible',
+            ],
+            'title' => 'Superadmin Panel - Emergency Mode',
+        ],
+        'minimal_mode' => [
+            'authentication' => 'Authentication',
+            'description' => 'The superadmin panel is running in minimal mode to prevent timeout issues.',
+            'mode' => 'Mode',
+            'next_steps' => [
+                'accessible' => 'Panel is now accessible without timeouts',
+                'logs' => 'Monitor server logs for any issues',
+                'reenable' => 'Gradually re-enable features in SuperadminPanelProvider',
+                'test' => 'Test each feature as you re-enable it',
+            ],
+            'panel_status' => 'Panel Status',
+            'success_body' => 'Authentication is working and the panel is accessible.',
+            'success_title' => 'Panel is working!',
+            'title' => 'Superadmin Panel - Minimal Mode',
+        ],
+        'next_steps' => 'Next Steps',
+        'system_status' => 'System Status',
+        'values' => [
+            'active' => 'Active',
+            'minimal' => 'Minimal',
+            'working' => 'Working',
+        ],
+    ],
+    'testing' => [
+        'navigation_title' => 'Test Navigation',
+        'role_title' => 'Test Role',
     ],
 ];

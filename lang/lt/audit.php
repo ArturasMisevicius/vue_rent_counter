@@ -7,7 +7,7 @@ return [
         'from' => 'Nuo',
         'until' => 'Iki',
         'update' => 'Atnaujinti',
-        'view' => 'Žiūrėti',
+        'view' => 'Peržiūrėti',
     ],
     'labels' => [
         'action' => 'Veiksmas',
@@ -26,7 +26,7 @@ return [
             'description' => 'Aprašymas',
             'filters' => [
                 'apply' => 'Taikyti',
-                'clear' => 'Aišku',
+                'clear' => 'Išvalyti',
                 'from_date' => 'Nuo datos',
                 'meter_placeholder' => 'Metras Vietos rezervuaras',
                 'meter_serial' => 'Skaitiklio serija',
@@ -45,11 +45,11 @@ return [
             'table' => [
                 'caption' => 'Antraštė',
                 'changed_by' => 'Pakeitė',
-                'meter' => 'Metras',
+                'meter' => 'Skaitiklis',
                 'new_value' => 'Nauja vertė',
                 'old_value' => 'Sena Vertė',
                 'reading' => 'Skaitymas',
-                'reading_date' => 'Skaitymo data',
+                'reading_date' => 'Rodmens data',
                 'reason' => 'Priežastis',
                 'timestamp' => 'Laiko žyma',
             ],

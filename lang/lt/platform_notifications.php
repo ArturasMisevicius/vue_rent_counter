@@ -15,7 +15,7 @@ return [
         'scheduling' => 'Planavimas',
         'scheduling_and_delivery' => 'Planavimas ir pristatymas',
         'delivery_statistics' => 'Pristatymo statistika',
-        'timestamps' => 'Timestamps',
+        'timestamps' => 'Laiko žymos',
         'history' => 'Platformos pranešimų istorija',
         'send_platform_notification' => 'Siųsti platformos pranešimą',
     ],

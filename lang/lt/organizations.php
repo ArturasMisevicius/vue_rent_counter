@@ -45,14 +45,14 @@ return [
         'max_properties' => 'Maksimalios savybės',
         'max_users' => 'Maksimalus vartotojų skaičius',
         'meter_count' => 'Metrų skaičius',
-        'meters' => 'Metrai',
+        'meters' => 'Skaitikliai',
         'name' => 'Vardas',
         'new_plan' => 'Naujas planas',
         'not_on_trial' => 'Ne teisiamas',
         'not_suspended' => 'Nesustabdytas',
         'phone' => 'Telefonas',
         'plan' => 'Planuoti',
-        'properties' => 'Savybės',
+        'properties' => 'Turtai',
         'remaining_properties' => 'Likusios savybės',
         'remaining_users' => 'Likę vartotojai',
         'slug' => 'Šliužas',
@@ -60,7 +60,7 @@ return [
         'suspended_at' => 'Sustabdytas',
         'suspension_reason' => 'Sustabdymo priežastis',
         'tenants' => 'Nuomininkai',
-        'timezone' => 'Timezone',
+        'timezone' => 'Laiko juosta',
         'total_buildings' => 'Iš viso pastatų',
         'total_invoices' => 'Iš viso sąskaitų faktūrų',
         'total_properties' => 'Bendros savybės',
@@ -79,6 +79,38 @@ return [
         'no_admin' => 'Nėra administratoriaus',
     ],
     'navigation' => 'Organizacijos',
+    'pages' => [
+        'create' => [
+            'title' => 'Sukurti organizaciją',
+        ],
+        'edit' => [
+            'title' => 'Redaguoti organizaciją',
+        ],
+        'index' => [
+            'actions' => [
+                'create' => 'Sukurti',
+            ],
+            'empty' => 'Organizacijų nerasta.',
+            'title' => 'Organizacijos',
+        ],
+        'invitation_show' => [
+            'labels' => [
+                'expires' => 'Baigia galioti',
+                'plan' => 'Planuoti',
+                'status' => 'Būsena',
+                'token' => 'Žetonas',
+            ],
+            'statuses' => [
+                'accepted' => 'Priimta',
+                'inactive' => 'Neaktyvus',
+                'pending' => 'Laukiama',
+            ],
+            'title_fallback' => 'Kvietimas',
+        ],
+        'show' => [
+            'heading' => 'Organizacijos informacija',
+        ],
+    ],
     'notifications' => [
         'bulk_failed_suffix' => 'Masinis nepavyko priesaga',
         'bulk_reactivated' => 'Masinis iš naujo suaktyvintas',
@@ -86,7 +118,7 @@ return [
         'bulk_updated' => 'Masinis atnaujintas',
         'cannot_delete' => 'Negalima ištrinti',
         'deleted' => 'Ištrinta',
-        'has_relations' => 'Has Relations',
+        'has_relations' => 'Turi santykių',
     ],
     'relations' => [
         'activity_logs' => [
@@ -115,7 +147,7 @@ return [
             'building' => 'Pastatas',
             'empty_description' => 'Tuščias aprašymas',
             'empty_heading' => 'Tuščia antraštė',
-            'meters' => 'Metrai',
+            'meters' => 'Skaitikliai',
             'tenants' => 'Nuomininkai',
             'title' => 'Pavadinimas',
         ],
@@ -149,36 +181,36 @@ return [
         'email' => [
             'email' => 'El. paštas',
             'max' => 'Maks',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
             'string' => 'Styga',
             'unique' => 'Unikali',
         ],
         'expires_at' => [
             'after' => 'Po to',
             'date' => 'Data',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
         'is_active' => [
-            'boolean' => 'Boolean',
+            'boolean' => 'Būlio',
         ],
         'name' => [
             'max' => 'Maks',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
             'string' => 'Styga',
         ],
         'organization_name' => [
             'max' => 'Maks',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
             'string' => 'Styga',
         ],
         'password' => [
             'min' => 'Min',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
             'string' => 'Styga',
         ],
         'plan_type' => [
             'in' => 'Į',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
     ],
 ];

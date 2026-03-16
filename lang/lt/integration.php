@@ -2,7 +2,7 @@
 
 return [
     'health' => [
-        'check_completed' => 'Būklės patikra baigta',
+        'check_completed' => 'Baigtas sveikatos patikrinimas',
     ],
     'maintenance' => [
         'enabled' => 'Priežiūros režimas įjungtas',

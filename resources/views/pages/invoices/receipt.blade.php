@@ -85,7 +85,7 @@
                     </tr>
                     @endforeach
                     <tr class="bg-slate-50">
-                        <td colspan="3" class="px-3 py-4 text-sm font-semibold text-slate-900 text-right">Total</td>
+                        <td colspan="3" class="px-3 py-4 text-sm font-semibold text-slate-900 text-right">{{ __('invoices.shared.receipt.total') }}</td>
                         <td class="px-3 py-4 text-sm font-semibold text-slate-900 text-right">€{{ number_format($invoice->total_amount, 2) }}</td>
                     </tr>
                 </tbody>
@@ -192,7 +192,7 @@
                     </tr>
                     @endforeach
                     <tr class="bg-slate-50">
-                        <td colspan="3" class="px-3 py-4 text-sm font-semibold text-slate-900 text-right">Total</td>
+                        <td colspan="3" class="px-3 py-4 text-sm font-semibold text-slate-900 text-right">{{ __('invoices.shared.receipt.total') }}</td>
                         <td class="px-3 py-4 text-sm font-semibold text-slate-900 text-right">€{{ number_format($invoice->total_amount, 2) }}</td>
                     </tr>
                 </tbody>

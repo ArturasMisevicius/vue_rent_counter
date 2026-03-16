@@ -16,7 +16,7 @@ return [
     ],
     'types' => [
         'general' => 'Общий',
-        'property' => 'Свойство',
+        'property' => 'Объект',
         'tenant' => 'Жилец',
         'invoice' => 'Счет',
     ],

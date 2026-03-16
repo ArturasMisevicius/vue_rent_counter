@@ -39,7 +39,7 @@ return [
         'order' => 'Заказ',
         'published' => 'Опубликовано',
         'question' => 'Вопрос',
-        'resource' => 'Ресурс',
+        'resource' => 'FAQ',
     ],
     'modals' => [
         'delete' => [

@@ -8,7 +8,7 @@ return [
         'text' => 'Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas. Tai ilgas tekstas.',
     ],
     'multi' => [
-        'language' => 'Lietuviška Vertė',
+        'language' => 'Anglų vertė',
     ],
     'multiline' => [
         'text' => '1 eilutė

@@ -32,7 +32,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <x-card>
-            <h2 class="text-lg font-semibold text-slate-900 mb-3">{{ __('shared.properties.singular') }} Details</h2>
+            <h2 class="text-lg font-semibold text-slate-900 mb-3">{{ __('properties.pages.superadmin_show.sections.property_details') }}</h2>
             <dl class="grid grid-cols-2 gap-3 text-sm text-slate-700">
                 <dt class="font-semibold">{{ __('shared.properties.fields.address') }}</dt>
                 <dd>{{ $property->address }}</dd>
@@ -59,7 +59,7 @@
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('shared.manager.fields.id') }}</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('tenants.fields.name') ?? 'Name' }}</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('tenants.fields.email') ?? 'Email' }}</th>
                             <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('app.nav.actions') }}</th>
@@ -97,14 +97,14 @@
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h2 class="text-lg font-semibold text-slate-900">{{ __('shared.properties.fields.meters') }}</h2>
-                    <p class="text-sm text-slate-500">Meters assigned to this property</p>
+                    <p class="text-sm text-slate-500">{{ __('properties.pages.superadmin_show.sections.meters_description') }}</p>
                 </div>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('shared.manager.fields.id') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('meters.labels.type') ?? 'Type' }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('meters.labels.serial_number') ?? 'Serial' }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('meters.labels.reading_date') ?? 'Last Reading' }}</th>
@@ -147,7 +147,7 @@
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h2 class="text-lg font-semibold text-slate-900">{{ __('billing.invoices.title') ?? 'Invoices' }}</h2>
-                    <p class="text-sm text-slate-500">Invoices for tenants in this property</p>
+                    <p class="text-sm text-slate-500">{{ __('properties.pages.superadmin_show.sections.invoices_description') }}</p>
                 </div>
             </div>
             <div class="overflow-x-auto">
@@ -387,7 +387,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <x-card>
-            <h2 class="text-lg font-semibold text-slate-900 mb-3">{{ __('shared.properties.singular') }} Details</h2>
+            <h2 class="text-lg font-semibold text-slate-900 mb-3">{{ __('properties.pages.superadmin_show.sections.property_details') }}</h2>
             <dl class="grid grid-cols-2 gap-3 text-sm text-slate-700">
                 <dt class="font-semibold">{{ __('shared.properties.fields.address') }}</dt>
                 <dd>{{ $property->address }}</dd>
@@ -414,7 +414,7 @@
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50">
                         <tr>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('shared.manager.fields.id') }}</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('tenants.fields.name') ?? 'Name' }}</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('tenants.fields.email') ?? 'Email' }}</th>
                             <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('app.nav.actions') }}</th>
@@ -452,14 +452,14 @@
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h2 class="text-lg font-semibold text-slate-900">{{ __('shared.properties.fields.meters') }}</h2>
-                    <p class="text-sm text-slate-500">Meters assigned to this property</p>
+                    <p class="text-sm text-slate-500">{{ __('properties.pages.superadmin_show.sections.meters_description') }}</p>
                 </div>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('shared.manager.fields.id') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('meters.labels.type') ?? 'Type' }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('meters.labels.serial_number') ?? 'Serial' }}</th>
                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ __('meters.labels.reading_date') ?? 'Last Reading' }}</th>
@@ -502,7 +502,7 @@
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h2 class="text-lg font-semibold text-slate-900">{{ __('billing.invoices.title') ?? 'Invoices' }}</h2>
-                    <p class="text-sm text-slate-500">Invoices for tenants in this property</p>
+                    <p class="text-sm text-slate-500">{{ __('properties.pages.superadmin_show.sections.invoices_description') }}</p>
                 </div>
             </div>
             <div class="overflow-x-auto">

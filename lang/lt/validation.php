@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'errors_occurred' => 'Errors Occurred',
+    'errors_occurred' => 'Įvyko klaidų',
     'exists' => 'Egzistuoja',
     'unauthorized_rate_change' => 'Neteisėta patvirtinti šios paslaugos tarifų pakeitimus',
     'rate_schedule_empty' => 'Kainų tvarkaraštis negali būti tuščias',
@@ -43,32 +43,32 @@ return [
     'custom_requests' => [
         'api_login' => [
             'email' => [
-                'required' => 'El. pašto adresas yra privalomas',
-                'email' => 'Įveskite galiojantį el. pašto adresą',
+                'required' => 'Būtinas el. pašto adresas',
+                'email' => 'Pateikite galiojantį el. pašto adresą',
             ],
             'password' => [
-                'required' => 'Slaptažodis yra privalomas',
-                'min' => 'Slaptažodis turi būti bent 8 simbolių',
+                'required' => 'Reikalingas slaptažodis',
+                'min' => 'Slaptažodį turi sudaryti bent 8 simboliai',
             ],
         ],
         'csp_violation' => [
-            'report_required' => 'CSP ataskaitos duomenys yra privalomi',
-            'violated_directive_required' => 'Pažeista direktyva yra privaloma',
-            'document_uri_required' => 'Dokumento URI yra privalomas',
-            'max' => ':attribute laukas yra per ilgas.',
-            'integer' => ':attribute turi būti sveikasis skaičius.',
-            'invalid_content_type' => 'Neteisingas turinio tipas',
+            'report_required' => 'Reikalingi CSP ataskaitos duomenys',
+            'violated_directive_required' => 'Būtina pažeisti direktyvą',
+            'document_uri_required' => 'Būtinas dokumento URI',
+            'max' => 'Laukas :attribute per ilgas.',
+            'integer' => ':attribute turi būti galiojantis sveikasis skaičius.',
+            'invalid_content_type' => 'Netinkamas turinio tipas',
             'request_too_large' => 'Užklausa per didelė',
             'too_many_reports' => 'Per daug CSP ataskaitų',
         ],
         'organizations' => [
-            'invalid_data' => 'Pateikti duomenys yra neteisingi.',
+            'invalid_data' => 'Pateikti duomenys neteisingi.',
         ],
         'properties' => [
             'building_must_belong' => 'Pasirinktas pastatas turi priklausyti jūsų organizacijai.',
             'attributes' => [
                 'area_sqm' => 'plotas (m²)',
-                'unit_number' => 'patalpos numeris',
+                'unit_number' => 'vieneto numeris',
             ],
         ],
     ],

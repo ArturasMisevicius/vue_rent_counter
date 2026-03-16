@@ -3,17 +3,17 @@
     <div class="mb-6">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div class="space-y-1">
-                <h3 class="text-2xl font-bold text-slate-900 font-display">Invoice #{{ $invoice->id }}</h3>
+                <h3 class="text-2xl font-bold text-slate-900 font-display">{{ __('invoices.summary.labels.invoice', ['id' => $invoice->id]) }}</h3>
                 <p class="text-slate-600 mt-1">
-                    Period: {{ $invoice->billing_period_start->format('Y-m-d') }} - {{ $invoice->billing_period_end->format('Y-m-d') }}
+                    {{ __('invoices.summary.labels.period') }}: {{ $invoice->billing_period_start->locale(app()->getLocale())->translatedFormat('Y-m-d') }} - {{ $invoice->billing_period_end->locale(app()->getLocale())->translatedFormat('Y-m-d') }}
                 </p>
                 @if($invoice->tenant)
                     <p class="text-slate-600">
-                        Tenant: {{ $invoice->tenant->name }}
+                        {{ __('invoices.summary.labels.tenant') }}: {{ $invoice->tenant->name }}
                     </p>
                     @if($invoice->tenant->property)
                         <p class="text-slate-600">
-                            Property: {{ $invoice->tenant->property->address }}
+                            {{ __('invoices.summary.labels.property') }}: {{ $invoice->tenant->property->address }}
                         </p>
                     @endif
                 @endif
@@ -22,21 +22,21 @@
                 <x-status-badge :status="$invoice->status->value" class="justify-start sm:justify-end" />
                 @if($invoice->due_date)
                     <p class="text-sm font-semibold {{ $isOverdue($invoice) ? 'text-rose-600' : 'text-slate-700' }}">
-                        Due: {{ $invoice->due_date->format('Y-m-d') }}
+                        {{ __('invoices.summary.labels.due') }}: {{ $invoice->due_date->locale(app()->getLocale())->translatedFormat('Y-m-d') }}
                         @if($isOverdue($invoice))
-                            <span class="ml-2 inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">Overdue</span>
+                            <span class="ml-2 inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700">{{ __('invoices.summary.labels.overdue') }}</span>
                         @endif
                     </p>
                 @endif
                 @if($invoice->payment_reference)
-                    <p class="text-sm text-slate-700">Payment ref: {{ $invoice->payment_reference }}</p>
+                    <p class="text-sm text-slate-700">{{ __('invoices.summary.labels.payment_reference') }}: {{ $invoice->payment_reference }}</p>
                 @endif
                 @if($invoice->paid_amount)
-                    <p class="text-sm text-slate-700">Paid amount: €{{ number_format($invoice->paid_amount, 2) }}</p>
+                    <p class="text-sm text-slate-700">{{ __('invoices.summary.labels.paid_amount') }}: €{{ number_format($invoice->paid_amount, 2) }}</p>
                 @endif
                 @if($invoice->finalized_at)
                     <p class="text-sm text-slate-500 mt-2">
-                        Finalized: {{ $invoice->finalized_at->format('Y-m-d H:i') }}
+                        {{ __('invoices.summary.labels.finalized') }}: {{ $invoice->finalized_at->locale(app()->getLocale())->translatedFormat('Y-m-d H:i') }}
                     </p>
                 @endif
             </div>
@@ -47,7 +47,7 @@
     @if($showPropertyFilter && count($properties) > 1)
         <div class="mb-6" x-data="{ selectedProperty: '' }">
             <label for="property-filter" class="block text-sm font-medium text-slate-700 mb-2">
-                Filter by Property
+                {{ __('invoices.summary.labels.filter_by_property') }}
             </label>
             <select 
                 id="property-filter" 

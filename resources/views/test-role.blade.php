@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <title>Test Role</title>
+    <title>{{ __('app.testing.role_title') }}</title>
 </head>
 <body>
     {!! $testView !!}

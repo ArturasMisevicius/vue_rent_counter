@@ -3,10 +3,10 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div class="mb-6">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                    System Configuration
+                    {{ __('settings.system_page.title') }}
                 </h2>
                 <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    Manage platform-wide settings and configuration. Changes will take effect immediately after saving.
+                    {{ __('settings.system_page.description') }}
                 </p>
             </div>
 
@@ -24,15 +24,15 @@
                 </div>
                 <div class="ml-3">
                     <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">
-                        Configuration Notes
+                        {{ __('settings.system_page.notes_title') }}
                     </h3>
                     <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
                         <ul class="list-disc list-inside space-y-1">
-                            <li>Email settings require valid SMTP credentials to send notifications</li>
-                            <li>Backup schedule uses cron expression format (e.g., "0 2 * * *" for daily at 2 AM)</li>
-                            <li>Queue configuration changes may require worker restart</li>
-                            <li>Feature flags affect all organizations unless overridden</li>
-                            <li>Password policy changes apply to new passwords only</li>
+                            <li>{{ __('settings.system_page.notes.email') }}</li>
+                            <li>{{ __('settings.system_page.notes.backup_schedule') }}</li>
+                            <li>{{ __('settings.system_page.notes.queue') }}</li>
+                            <li>{{ __('settings.system_page.notes.feature_flags') }}</li>
+                            <li>{{ __('settings.system_page.notes.password_policy') }}</li>
                         </ul>
                     </div>
                 </div>
@@ -48,13 +48,11 @@
                 </div>
                 <div class="ml-3">
                     <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                        Important Warning
+                        {{ __('settings.system_page.warning_title') }}
                     </h3>
                     <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
                         <p>
-                            Modifying system settings can affect platform stability and user experience. 
-                            Always test changes in a development environment first. 
-                            Export your current configuration before making significant changes.
+                            {{ __('settings.system_page.warning_body') }}
                         </p>
                     </div>
                 </div>

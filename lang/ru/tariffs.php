@@ -5,7 +5,7 @@ return [
         'back' => 'Назад',
         'delete' => 'Удалить',
         'edit' => 'Редактировать',
-        'view' => 'Вид',
+        'view' => 'Просмотреть',
     ],
     'confirmations' => [
         'delete' => 'Удалить',
@@ -64,7 +64,7 @@ return [
             'ongoing' => 'Непрерывный',
             'provider' => 'Поставщик',
             'type' => 'Тип',
-            'view' => 'Вид',
+            'view' => 'Просмотреть',
         ],
         'title' => 'Заголовок',
     ],
@@ -83,8 +83,8 @@ return [
         'admin_form' => [
             'actions' => [
                 'cancel' => 'Отмена',
-                'save_create' => 'Сохранить Создать',
-                'save_edit' => 'Сохранить Редактировать',
+                'save_create' => 'Сохранить и создать',
+                'save_edit' => 'Сохранить изменения',
             ],
             'create_subtitle' => 'Создать субтитры',
             'create_title' => 'Создать заголовок',
@@ -96,6 +96,33 @@ return [
                 'required_fields' => 'Обязательные поля',
                 'tou_fields' => 'Тоу Филдс',
                 'tou_heading' => 'Тоу заголовок',
+            ],
+            'editor' => [
+                'add_zone' => 'Добавить зону',
+                'apply_day_rate' => 'Применить дневной тариф',
+                'apply_night_rate' => 'Применить ночной тариф',
+                'currency' => 'Валюта',
+                'end_time' => 'Конец Времени',
+                'fixed_fee_optional' => 'Фиксированная плата (необязательно)',
+                'flat_rate' => 'Единая ставка',
+                'flat_rate_configuration' => 'Конфигурация фиксированной ставки',
+                'generate_failed' => 'Не удалось сгенерировать JSON.',
+                'id' => 'ID',
+                'invalid_json' => 'Неверный JSON',
+                'json_editor' => 'Редактор JSON',
+                'parse_failed' => 'Не удалось проанализировать исходную конфигурацию.',
+                'rate' => 'Ставка',
+                'rate_per_unit' => 'Цена (за единицу)',
+                'remove' => 'Удалять',
+                'separate_rate' => 'Отдельный тариф',
+                'start_time' => 'Время начала',
+                'tabs_aria' => 'Вкладки',
+                'tariff_type' => 'Тип тарифа',
+                'time_of_use' => 'Время использования',
+                'time_of_use_zones' => 'Зоны времени использования',
+                'visual_editor' => 'Визуальный редактор',
+                'weekend_logic' => 'Логика выходного дня',
+                'zone' => 'Зона',
             ],
             'labels' => [
                 'active_from' => 'Активно с',
@@ -115,8 +142,8 @@ return [
         ],
     ],
     'statuses' => [
-        'active' => 'Активный',
-        'inactive' => 'Неактивный',
+        'active' => 'Активен',
+        'inactive' => 'Неактивен',
     ],
     'types' => [
         '' => '',
@@ -135,7 +162,7 @@ return [
             'currency' => [
                 'in' => 'В',
                 'required' => 'Необходимый',
-                'string' => 'Нить',
+                'string' => 'Строка',
             ],
             'fixed_fee' => [
                 'max' => 'Макс',
@@ -152,18 +179,18 @@ return [
             'type' => [
                 'in' => 'В',
                 'required' => 'Необходимый',
-                'string' => 'Нить',
+                'string' => 'Строка',
             ],
             'weekend_logic' => [
                 'in' => 'В',
-                'string' => 'Нить',
+                'string' => 'Строка',
             ],
             'zones' => [
                 'array' => 'Множество',
                 'end' => [
                     'regex' => 'регулярное выражение',
                     'required_with' => 'Требуется с',
-                    'string' => 'Нить',
+                    'string' => 'Строка',
                 ],
                 'errors' => [
                     'coverage' => 'Обнаружен пробел, начиная с :time',
@@ -174,7 +201,7 @@ return [
                     'max' => 'Макс',
                     'regex' => 'регулярное выражение',
                     'required_with' => 'Требуется с',
-                    'string' => 'Нить',
+                    'string' => 'Строка',
                 ],
                 'min' => 'Мин',
                 'rate' => [
@@ -187,7 +214,7 @@ return [
                 'start' => [
                     'regex' => 'регулярное выражение',
                     'required_with' => 'Требуется с',
-                    'string' => 'Нить',
+                    'string' => 'Строка',
                 ],
             ],
         ],
@@ -198,7 +225,7 @@ return [
             'max' => 'Макс',
             'regex' => 'регулярное выражение',
             'required' => 'Необходимый',
-            'string' => 'Нить',
+            'string' => 'Строка',
         ],
         'provider_id' => [
             'exists' => 'Существует',

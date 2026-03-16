@@ -68,6 +68,13 @@ return [
         ],
     ],
     'pages' => [
+        'edit' => [
+            'labels' => [
+                'expiry_date' => 'Expiry Date',
+            ],
+            'submit' => 'Update Subscription',
+            'title' => 'Edit Subscription',
+        ],
         'index' => [
             'description' => 'Manage all organization subscriptions',
             'filters' => [
@@ -85,6 +92,41 @@ return [
                 'tenants' => '{1} :count tenant|[2,*] :count tenants',
             ],
             'title' => 'Subscriptions',
+        ],
+        'show' => [
+            'actions' => [
+                'cancel' => [
+                    'confirm' => 'Are you sure you want to cancel this subscription? This action cannot be undone.',
+                    'description' => 'Permanently cancel the subscription',
+                    'title' => 'Cancel Subscription',
+                ],
+                'renew' => [
+                    'description' => 'Extend the subscription expiry date',
+                    'title' => 'Renew Subscription',
+                ],
+                'suspend' => [
+                    'description' => 'Temporarily suspend access',
+                    'reason' => 'Reason for Suspension',
+                    'title' => 'Suspend Subscription',
+                ],
+                'view_organization' => 'View Organization →',
+            ],
+            'days_remaining' => '{1} :count day|[2,*] :count days',
+            'labels' => [
+                'expiry_date' => 'Expiry Date',
+                'start_date' => 'Start Date',
+            ],
+            'limit_reached' => 'Limit reached',
+            'organization' => [
+                'organization_name' => 'Organization Name',
+                'tenant_id' => 'Tenant ID',
+            ],
+            'sections' => [
+                'actions' => 'Actions',
+                'subscription_information' => 'Subscription Information',
+                'usage_statistics' => 'Usage Statistics',
+            ],
+            'title' => 'Subscription Details',
         ],
     ],
     'sections' => [

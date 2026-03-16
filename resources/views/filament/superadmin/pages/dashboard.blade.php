@@ -3,10 +3,10 @@
         <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="px-4 py-5 sm:p-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900">
-                    Superadmin Panel - Minimal Mode
+                    {{ __('app.superadmin_status.minimal_mode.title') }}
                 </h3>
                 <div class="mt-2 max-w-xl text-sm text-gray-500">
-                    <p>The superadmin panel is running in minimal mode to prevent timeout issues.</p>
+                    <p>{{ __('app.superadmin_status.minimal_mode.description') }}</p>
                 </div>
                 <div class="mt-5">
                     <div class="rounded-md bg-green-50 p-4">
@@ -18,10 +18,10 @@
                             </div>
                             <div class="ml-3">
                                 <h3 class="text-sm font-medium text-green-800">
-                                    Panel is working!
+                                    {{ __('app.superadmin_status.minimal_mode.success_title') }}
                                 </h3>
                                 <div class="mt-2 text-sm text-green-700">
-                                    <p>Authentication is working and the panel is accessible.</p>
+                                    <p>{{ __('app.superadmin_status.minimal_mode.success_body') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -33,32 +33,32 @@
         <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="px-4 py-5 sm:p-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900">
-                    System Status
+                    {{ __('app.superadmin_status.system_status') }}
                 </h3>
                 <div class="mt-5">
                     <dl class="grid grid-cols-1 gap-5 sm:grid-cols-3">
                         <div class="px-4 py-5 bg-gray-50 shadow rounded-lg overflow-hidden sm:p-6">
                             <dt class="text-sm font-medium text-gray-500 truncate">
-                                Panel Status
+                                {{ __('app.superadmin_status.minimal_mode.panel_status') }}
                             </dt>
                             <dd class="mt-1 text-3xl font-semibold text-green-600">
-                                Active
+                                {{ __('app.superadmin_status.values.active') }}
                             </dd>
                         </div>
                         <div class="px-4 py-5 bg-gray-50 shadow rounded-lg overflow-hidden sm:p-6">
                             <dt class="text-sm font-medium text-gray-500 truncate">
-                                Authentication
+                                {{ __('app.superadmin_status.minimal_mode.authentication') }}
                             </dt>
                             <dd class="mt-1 text-3xl font-semibold text-green-600">
-                                Working
+                                {{ __('app.superadmin_status.values.working') }}
                             </dd>
                         </div>
                         <div class="px-4 py-5 bg-gray-50 shadow rounded-lg overflow-hidden sm:p-6">
                             <dt class="text-sm font-medium text-gray-500 truncate">
-                                Mode
+                                {{ __('app.superadmin_status.minimal_mode.mode') }}
                             </dt>
                             <dd class="mt-1 text-3xl font-semibold text-blue-600">
-                                Minimal
+                                {{ __('app.superadmin_status.values.minimal') }}
                             </dd>
                         </div>
                     </dl>
@@ -69,14 +69,14 @@
         <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="px-4 py-5 sm:p-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900">
-                    Next Steps
+                    {{ __('app.superadmin_status.next_steps') }}
                 </h3>
                 <div class="mt-2 text-sm text-gray-500">
                     <ul class="list-disc list-inside space-y-1">
-                        <li>Panel is now accessible without timeouts</li>
-                        <li>Gradually re-enable features in SuperadminPanelProvider</li>
-                        <li>Monitor server logs for any issues</li>
-                        <li>Test each feature as you re-enable it</li>
+                        <li>{{ __('app.superadmin_status.minimal_mode.next_steps.accessible') }}</li>
+                        <li>{{ __('app.superadmin_status.minimal_mode.next_steps.reenable') }}</li>
+                        <li>{{ __('app.superadmin_status.minimal_mode.next_steps.logs') }}</li>
+                        <li>{{ __('app.superadmin_status.minimal_mode.next_steps.test') }}</li>
                     </ul>
                 </div>
             </div>

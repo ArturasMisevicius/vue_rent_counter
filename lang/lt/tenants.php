@@ -6,12 +6,12 @@ return [
         'deactivate' => 'Išjungti',
         'reactivate' => 'Iš naujo suaktyvinkite',
         'reassign' => 'Perskirti',
-        'view' => 'Žiūrėti',
+        'view' => 'Peržiūrėti',
     ],
     'empty' => [
         'assignment_history' => 'Užduočių istorija',
         'list' => 'Sąrašas',
-        'list_cta' => 'List Cta',
+        'list_cta' => 'Sąrašas Cta',
         'property' => 'Turtas',
         'recent_invoices' => 'Naujausios sąskaitos faktūros',
         'recent_readings' => 'Naujausi skaitiniai',
@@ -31,11 +31,13 @@ return [
         'actions' => 'Veiksmai',
         'address' => 'Adresas',
         'area' => 'Plotas',
+        'building' => 'Pastatas',
         'created' => 'Sukurta',
         'created_by' => 'Sukūrė',
         'email' => 'El. paštas',
         'invoice' => 'Sąskaita faktūra',
         'name' => 'Vardas',
+        'phone' => 'Telefonas',
         'property' => 'Turtas',
         'reading' => 'Skaitymas',
         'reason' => 'Priežastis',
@@ -43,6 +45,10 @@ return [
         'type' => 'Tipas',
     ],
     'pages' => [
+        'index' => [
+            'subtitle' => 'Visi nuomininkai visose organizacijose',
+            'title' => 'Nuomininkai',
+        ],
         'admin_form' => [
             'actions' => [
                 'cancel' => 'Atšaukti',
@@ -61,9 +67,9 @@ return [
                 'no_properties' => 'Nėra savybių',
             ],
             'placeholders' => [
-                'property' => 'Pasirinkite objektą',
+                'property' => 'Pasirinkite nuosavybę',
             ],
-            'subtitle' => 'Sukurkite nuomininko paskyrą ir priskirkite ją jūsų portfelio objektui.',
+            'subtitle' => 'Sukurkite nuomininko paskyrą ir priskirkite ją nuosavybei savo portfelyje.',
             'title' => 'Sukurti nuomininką',
         ],
         'reassign' => [
@@ -102,15 +108,20 @@ return [
         'active' => 'Aktyvus',
         'inactive' => 'Neaktyvus',
     ],
+    'sections' => [
+        'details' => 'Detalės',
+        'invoices' => 'Sąskaitos faktūros',
+        'stats' => 'Statistika',
+    ],
     'validation' => [
         'email' => [
             'email' => 'El. paštas',
             'max' => 'Maks',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
         'invoice_id' => [
             'exists' => 'Egzistuoja',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
         'lease_end' => [
             'after' => 'Po to',
@@ -118,11 +129,11 @@ return [
         ],
         'lease_start' => [
             'date' => 'Data',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
         'name' => [
             'max' => 'Maks',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
             'string' => 'Styga',
         ],
         'phone' => [
@@ -131,11 +142,11 @@ return [
         ],
         'property_id' => [
             'exists' => 'Egzistuoja',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
         'tenant_id' => [
             'integer' => 'Sveikasis skaičius',
-            'required' => 'Reikalingas',
+            'required' => 'Privaloma',
         ],
     ],
 ];
