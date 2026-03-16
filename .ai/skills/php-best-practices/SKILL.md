@@ -1,5 +1,5 @@
 ---
-name: "php-best-practices"
+name: php-best-practices
 description: PHP 8.x modern patterns, PSR standards, and SOLID principles. Use when reviewing PHP code, checking type safety, auditing code quality, or ensuring PHP best practices. Triggers on "review PHP", "check PHP code", "audit PHP", or "PHP best practices".
 license: MIT
 metadata:
@@ -7,6 +7,7 @@ metadata:
   version: "2.1.0"
   phpVersion: "8.0 - 8.5"
 ---
+
 # PHP Best Practices
 
 Modern PHP 8.x patterns, PSR standards, type system best practices, and SOLID principles. Contains 51 rules for writing clean, maintainable PHP code.

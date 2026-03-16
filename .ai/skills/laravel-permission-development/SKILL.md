@@ -1,7 +1,8 @@
 ---
-name: "laravel-permission-development"
+name: laravel-permission-development
 description: Build and work with Spatie Laravel Permission features, including roles, permissions, middleware, policies, teams, and Blade directives.
 ---
+
 # Laravel Permission Development
 
 ## When to use this skill

@@ -1,7 +1,8 @@
 ---
-name: "php-development"
+name: php-development
 description: Expert guidance for PHP 8+ development with SOLID principles, PSR standards, and modern best practices
 ---
+
 # PHP Development
 
 You are an expert PHP developer with deep knowledge of PHP 8+, object-oriented programming, and SOLID principles.

@@ -11,7 +11,6 @@ use App\Http\Controllers\Admin\TenantController as AdminTenantController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\BuildingController;
 use App\Http\Controllers\FinalizeInvoiceController;
 use App\Http\Controllers\InvitationAcceptanceController;
 use App\Http\Controllers\InvoiceController as SharedInvoiceController;
@@ -25,11 +24,8 @@ use App\Http\Controllers\Manager\MeterReadingController as ManagerMeterReadingCo
 use App\Http\Controllers\Manager\ProfileController as ManagerProfileController;
 use App\Http\Controllers\Manager\PropertyController as ManagerPropertyController;
 use App\Http\Controllers\Manager\ReportController as ManagerReportController;
-use App\Http\Controllers\MeterController;
-use App\Http\Controllers\MeterReadingController;
 use App\Http\Controllers\MeterReadingUpdateController;
 use App\Http\Controllers\NotificationTrackingController;
-use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Superadmin\BuildingController as SuperadminBuildingController;
 use App\Http\Controllers\Superadmin\DashboardController as SuperadminDashboardController;
@@ -42,16 +38,18 @@ use App\Http\Controllers\Superadmin\PropertyController as SuperadminPropertyCont
 use App\Http\Controllers\Superadmin\SubscriptionController as SuperadminSubscriptionController;
 use App\Http\Controllers\Superadmin\TenantController as SuperadminTenantController;
 use App\Http\Controllers\Superadmin\UserController as SuperadminUserController;
-use App\Http\Controllers\TenantController;
 use App\Http\Controllers\Tenant\DashboardController as TenantDashboardController;
 use App\Http\Controllers\Tenant\InvoiceController as TenantInvoiceController;
 use App\Http\Controllers\Tenant\MeterController as TenantMeterController;
 use App\Http\Controllers\Tenant\MeterReadingController as TenantMeterReadingController;
 use App\Http\Controllers\Tenant\ProfileController as TenantProfileController;
 use App\Http\Controllers\Tenant\PropertyController as TenantPropertyController;
+use App\Http\Controllers\TenantController;
 use App\Http\Controllers\WelcomeController;
-use App\Services\RoleDashboardResolver;
 use App\Http\Middleware\EnsureUserIsAdminOrManager;
+use App\Models\User;
+use App\Services\RoleDashboardResolver;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
@@ -89,15 +87,6 @@ Route::get('/notification-track/{notification}/{organization}', [NotificationTra
 // Invitation acceptance (public)
 Route::post('/invitations/{token}/accept', [InvitationAcceptanceController::class, 'accept'])
     ->name('invitations.accept');
-
-// Debug route to test if routing works
-Route::get('/test-debug', function () {
-    return response()->json([
-        'status' => 'OK',
-        'message' => 'Laravel is working',
-        'timestamp' => now()->toDateTimeString(),
-    ]);
-});
 
 // Authentication routes
 Route::middleware('guest')->group(function () {
@@ -308,7 +297,7 @@ Route::middleware(['auth', 'role:admin', 'throttle:admin', 'subscription.check',
         }
 
         return response()->noContent();
-    })->middleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
+    })->middleware(ValidateCsrfToken::class);
 
     // Tenant Management (Admin-specific tenant views)
     Route::get('tenants', [AdminTenantController::class, 'index'])->name('tenants.index');
@@ -355,7 +344,7 @@ Route::middleware(['auth'])->post('/admin/platform-users', function (Request $re
 
     $data['password'] = Hash::make('password');
 
-    \App\Models\User::create($data);
+    User::create($data);
 
     return redirect()->back();
 });

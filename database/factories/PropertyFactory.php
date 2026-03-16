@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
+use App\Models\Building;
 use App\Models\Property;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Property>
+ * @extends Factory<Property>
  */
 class PropertyFactory extends Factory
 {
@@ -34,9 +37,18 @@ class PropertyFactory extends Factory
      */
     public function forTenantId(int $tenantId): static
     {
-        return $this->state(fn (array $attributes) => [
-            'tenant_id' => $tenantId,
-        ]);
+        return $this->state(function (array $attributes) use ($tenantId): array {
+            $building = $attributes['building_id'] ?? Building::factory();
+
+            if ($building instanceof Factory) {
+                $building = $building->forTenantId($tenantId);
+            }
+
+            return [
+                'tenant_id' => $tenantId,
+                'building_id' => $building,
+            ];
+        });
     }
 
     /**

@@ -1,5 +1,5 @@
 ---
-name: "php-expert"
+name: php-expert
 version: 1.0.0
 description: Expert-level PHP development with PHP 8+, Laravel, Composer, and modern best practices
 category: languages
@@ -10,6 +10,7 @@ allowed-tools:
   - Edit
   - Bash(php:*, composer:*, artisan:*)
 ---
+
 # PHP Expert
 
 Expert guidance for modern PHP development including PHP 8+ features, Laravel framework, Composer dependency management, and PHP best practices.

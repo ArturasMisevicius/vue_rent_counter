@@ -9,7 +9,6 @@ use App\Filament\Widgets\PolicyRegistryHealthWidget;
 use App\Models\User;
 use App\Services\PolicyRegistryMonitoringService;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Mockery;
@@ -17,8 +16,6 @@ use Tests\TestCase;
 
 final class PolicyRegistryHealthWidgetTest extends TestCase
 {
-    use RefreshDatabase;
-
     private PolicyRegistryInterface $policyRegistry;
 
     private PolicyRegistryMonitoringService $monitoringService;
@@ -58,7 +55,7 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
         Cache::put('policy_registry_monitoring.last_health_check', $healthCheckData, 3600);
 
         // Act
-        $stats = $this->widget->getStats();
+        $stats = $this->getWidgetStats();
 
         // Assert
         $this->assertCount(6, $stats);
@@ -69,9 +66,9 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
         $this->assertEquals('success', $this->getStatColor($healthStat));
 
         // Check metrics are properly formatted
-        $this->assertStringContains('95.0%', $this->getStatValue($stats[3])); // Cache hit rate
-        $this->assertStringContains('45ms', $this->getStatValue($stats[4])); // Performance
-        $this->assertStringContains('0.5%', $this->getStatValue($stats[5])); // Error rate
+        $this->assertStringContainsString('95.0%', $this->getStatValue($stats[3])); // Cache hit rate
+        $this->assertStringContainsString('45ms', $this->getStatValue($stats[4])); // Performance
+        $this->assertStringContainsString('0.5%', $this->getStatValue($stats[5])); // Error rate
     }
 
     public function test_widget_displays_unhealthy_status_with_critical_issues(): void
@@ -95,7 +92,7 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
         Cache::put('policy_registry_monitoring.last_health_check', $healthCheckData, 3600);
 
         // Act
-        $stats = $this->widget->getStats();
+        $stats = $this->getWidgetStats();
 
         // Assert
         $healthStat = $stats[0];
@@ -148,7 +145,7 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
         Cache::put('policy_registry_monitoring.operations_24h', 100, 3600);
 
         // Act
-        $stats = $this->widget->getStats();
+        $stats = $this->getWidgetStats();
 
         // Assert
         $this->assertCount(6, $stats);
@@ -164,13 +161,17 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
             ->once()
             ->with('PolicyRegistryHealthWidget: Failed to load health data', Mockery::type('array'));
 
+        Log::shouldReceive('info')
+            ->zeroOrMoreTimes()
+            ->withAnyArgs();
+
         $this->policyRegistry
             ->shouldReceive('validateConfiguration')
             ->once()
             ->andThrow(new \RuntimeException('Service unavailable'));
 
         // Act
-        $stats = $this->widget->getStats();
+        $stats = $this->getWidgetStats();
 
         // Assert
         $this->assertCount(1, $stats);
@@ -184,7 +185,7 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
         Cache::put('policy_registry_monitoring.last_health_check', ['invalid' => 'data'], 3600);
 
         // Act
-        $stats = $this->widget->getStats();
+        $stats = $this->getWidgetStats();
 
         // Assert
         $this->assertCount(1, $stats);
@@ -204,7 +205,7 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
         Cache::put('policy_registry_monitoring.last_health_check', $healthCheckData, 3600);
 
         // Act
-        $stats = $this->widget->getStats();
+        $stats = $this->getWidgetStats();
 
         // Assert
         $this->assertCount(6, $stats);
@@ -212,7 +213,7 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
         // Check default values are used
         $this->assertEquals('0', $this->getStatValue($stats[1])); // Policies count
         $this->assertEquals('0', $this->getStatValue($stats[2])); // Gates count
-        $this->assertStringContains('0.0%', $this->getStatValue($stats[3])); // Cache hit rate
+        $this->assertStringContainsString('0.0%', $this->getStatValue($stats[3])); // Cache hit rate
     }
 
     public function test_format_duration_handles_various_time_ranges(): void
@@ -300,6 +301,23 @@ final class PolicyRegistryHealthWidgetTest extends TestCase
         $property->setAccessible(true);
 
         return $property->getValue($stat);
+    }
+
+    /**
+     * Invoke the widget's protected getStats method for unit testing.
+     *
+     * @return array<Stat>
+     */
+    private function getWidgetStats(): array
+    {
+        $reflection = new \ReflectionClass($this->widget);
+        $method = $reflection->getMethod('getStats');
+        $method->setAccessible(true);
+
+        /** @var array<Stat> $stats */
+        $stats = $method->invoke($this->widget);
+
+        return $stats;
     }
 
     protected function tearDown(): void

@@ -1,7 +1,8 @@
 ---
-name: "shadcn-vue"
+name: shadcn-vue
 description: shadcn-vue for Vue/Nuxt with Reka UI components and Tailwind. Use for accessible UI, Auto Form, data tables, charts, dark mode, MCP server setup, or encountering component imports, Reka UI errors.
 ---
+
 # shadcn-vue
 
 ---

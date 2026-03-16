@@ -1,7 +1,8 @@
 ---
-name: "laravel-multi-tenancy"
+name: laravel-multi-tenancy
 description: Multi-tenant application architecture patterns. Use when working with multi-tenant systems, tenant isolation, or when user mentions multi-tenancy, tenants, tenant scoping, tenant isolation, multi-tenant.
 ---
+
 # Laravel Multi-Tenancy
 
 Multi-tenancy separates application logic into **central** (non-tenant) and **tenanted** (tenant-specific) contexts.

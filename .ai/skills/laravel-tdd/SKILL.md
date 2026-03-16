@@ -1,7 +1,8 @@
 ---
-name: "laravel-tdd"
+name: laravel-tdd
 description: Test-Driven Development specifically for Laravel applications using Pest PHP. Use when implementing any Laravel feature or bugfix - write the test first, watch it fail, write minimal code to pass.
 ---
+
 # Test-Driven Development for Laravel
 
 ## Overview

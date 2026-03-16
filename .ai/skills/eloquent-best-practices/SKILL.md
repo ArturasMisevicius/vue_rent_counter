@@ -1,7 +1,8 @@
 ---
-name: "eloquent-best-practices"
+name: eloquent-best-practices
 description: Best practices for Laravel Eloquent ORM including query optimization, relationship management, and avoiding common pitfalls like N+1 queries.
 ---
+
 # Eloquent Best Practices
 
 ## Query Optimization

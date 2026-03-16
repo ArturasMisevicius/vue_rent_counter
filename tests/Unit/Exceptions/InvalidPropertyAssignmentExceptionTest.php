@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Exceptions;
 
 use App\Exceptions\InvalidPropertyAssignmentException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +15,7 @@ class InvalidPropertyAssignmentExceptionTest extends TestCase
 {
     public function test_exception_has_correct_default_message(): void
     {
-        $exception = new InvalidPropertyAssignmentException();
+        $exception = new InvalidPropertyAssignmentException;
 
         expect($exception->getMessage())
             ->toBe('Cannot assign tenant to property from different organization.');
@@ -22,7 +23,7 @@ class InvalidPropertyAssignmentExceptionTest extends TestCase
 
     public function test_exception_has_correct_default_status_code(): void
     {
-        $exception = new InvalidPropertyAssignmentException();
+        $exception = new InvalidPropertyAssignmentException;
 
         expect($exception->getCode())
             ->toBe(Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -53,13 +54,13 @@ class InvalidPropertyAssignmentExceptionTest extends TestCase
 
     public function test_render_returns_json_for_json_requests(): void
     {
-        $exception = new InvalidPropertyAssignmentException();
+        $exception = new InvalidPropertyAssignmentException;
         $request = Request::create('/api/test', 'POST');
         $request->headers->set('Accept', 'application/json');
 
         $response = $exception->render($request);
 
-        expect($response)->toBeInstanceOf(\Illuminate\Http\JsonResponse::class)
+        expect($response)->toBeInstanceOf(JsonResponse::class)
             ->and($response->getStatusCode())->toBe(422)
             ->and($response->getData(true))->toHaveKey('message')
             ->and($response->getData(true))->toHaveKey('error')
@@ -68,7 +69,7 @@ class InvalidPropertyAssignmentExceptionTest extends TestCase
 
     public function test_render_returns_view_for_web_requests(): void
     {
-        $exception = new InvalidPropertyAssignmentException();
+        $exception = new InvalidPropertyAssignmentException;
         $request = Request::create('/admin/test', 'POST');
 
         $response = $exception->render($request);
@@ -79,6 +80,10 @@ class InvalidPropertyAssignmentExceptionTest extends TestCase
 
     public function test_report_logs_to_security_channel(): void
     {
+        Log::shouldReceive('info')
+            ->zeroOrMoreTimes()
+            ->withAnyArgs();
+
         Log::shouldReceive('channel')
             ->once()
             ->with('security')
@@ -88,7 +93,7 @@ class InvalidPropertyAssignmentExceptionTest extends TestCase
             ->once()
             ->with('Invalid property assignment attempt', \Mockery::type('array'));
 
-        $exception = new InvalidPropertyAssignmentException();
+        $exception = new InvalidPropertyAssignmentException;
         $result = $exception->report();
 
         expect($result)->toBeTrue();
@@ -103,21 +108,21 @@ class InvalidPropertyAssignmentExceptionTest extends TestCase
 
     public function test_exception_extends_base_exception(): void
     {
-        $exception = new InvalidPropertyAssignmentException();
+        $exception = new InvalidPropertyAssignmentException;
 
         expect($exception)->toBeInstanceOf(\Exception::class);
     }
 
     public function test_exception_message_is_string_type(): void
     {
-        $exception = new InvalidPropertyAssignmentException();
+        $exception = new InvalidPropertyAssignmentException;
 
         expect($exception->getMessage())->toBeString();
     }
 
     public function test_exception_code_is_integer_type(): void
     {
-        $exception = new InvalidPropertyAssignmentException();
+        $exception = new InvalidPropertyAssignmentException;
 
         expect($exception->getCode())->toBeInt();
     }
@@ -168,7 +173,7 @@ class InvalidPropertyAssignmentExceptionTest extends TestCase
         // Response should be an HTTP Response with 422 status
         expect($response)->toBeInstanceOf(\Illuminate\Http\Response::class)
             ->and($response->getStatusCode())->toBe(422);
-        
+
         // The view should be errors.422 with the custom message
         // We can't easily test view data in unit tests, but we verify the response type and status
     }
@@ -176,6 +181,10 @@ class InvalidPropertyAssignmentExceptionTest extends TestCase
     public function test_report_logs_custom_message(): void
     {
         $customMessage = 'Custom security violation message';
+
+        Log::shouldReceive('info')
+            ->zeroOrMoreTimes()
+            ->withAnyArgs();
 
         Log::shouldReceive('channel')
             ->once()
@@ -195,7 +204,7 @@ class InvalidPropertyAssignmentExceptionTest extends TestCase
     public function test_exception_can_be_caught_as_exception(): void
     {
         try {
-            throw new InvalidPropertyAssignmentException();
+            throw new InvalidPropertyAssignmentException;
         } catch (\Exception $e) {
             expect($e)->toBeInstanceOf(InvalidPropertyAssignmentException::class);
         }
@@ -204,7 +213,7 @@ class InvalidPropertyAssignmentExceptionTest extends TestCase
     public function test_exception_can_be_caught_as_throwable(): void
     {
         try {
-            throw new InvalidPropertyAssignmentException();
+            throw new InvalidPropertyAssignmentException;
         } catch (\Throwable $e) {
             expect($e)->toBeInstanceOf(InvalidPropertyAssignmentException::class);
         }

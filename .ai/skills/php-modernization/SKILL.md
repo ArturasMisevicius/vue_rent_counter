@@ -1,11 +1,12 @@
 ---
-name: "php-modernization"
+name: php-modernization
 description: >-
   PHP 8.x modernization patterns. Use when upgrading to PHP 8.2/8.3/8.4, implementing type
   safety, or achieving PHPStan level 10.
 metadata:
   version: "1.0.0"
 ---
+
 # PHP Modernization Skill
 
 Modernize PHP applications to PHP 8.x with type safety, PSR compliance, and static analysis.

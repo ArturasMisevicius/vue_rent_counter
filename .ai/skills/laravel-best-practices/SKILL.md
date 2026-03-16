@@ -1,5 +1,5 @@
 ---
-name: "laravel-best-practices"
+name: laravel-best-practices
 description: Laravel 12 conventions and best practices. Use when creating controllers, models, migrations, validation, services, or structuring Laravel applications. Triggers on tasks involving Laravel architecture, Eloquent, database, API development, or PHP patterns.
 license: MIT
 metadata:
@@ -8,6 +8,7 @@ metadata:
   laravelVersion: "12.x"
   phpVersion: "8.3+"
 ---
+
 # Laravel 12 Best Practices
 
 Comprehensive best practices guide for Laravel 12 applications. Contains 29 rules across 7 categories for building scalable, maintainable Laravel applications.

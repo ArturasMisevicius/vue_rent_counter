@@ -1,7 +1,8 @@
 ---
-name: "laravel-quality"
+name: laravel-quality
 description: Code quality tooling with PHPStan, Pint, and strict types. Use when working with code quality, static analysis, formatting, or when user mentions PHPStan, Pint, quality, static analysis, type safety, code style, linting.
 ---
+
 # Laravel Quality
 
 Testing, static analysis, and code quality enforcement.

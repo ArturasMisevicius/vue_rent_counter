@@ -1,7 +1,8 @@
 ---
-name: "laravel-architecture"
+name: laravel-architecture
 description: High-level architecture decisions, patterns, and project structure. Use when user asks about architecture decisions, project structure, pattern selection, or mentions how to organize, which pattern to use, best practices, architecture.
 ---
+
 # Laravel Architecture
 
 High-level architectural guidance for Laravel applications.

@@ -1,7 +1,8 @@
 ---
-name: "laravel-testing"
+name: laravel-testing
 description: Comprehensive testing patterns with Pest. Use when working with tests, testing patterns, or when user mentions testing, tests, Pest, PHPUnit, mocking, factories, test patterns.
 ---
+
 # Laravel Testing
 
 Testing patterns with Pest: Arrange-Act-Assert, proper mocking, null drivers, declarative factories.
