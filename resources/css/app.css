@@ -37,6 +37,58 @@ body {
     min-height: 100vh;
 }
 
+@layer components {
+    .ds-card .overflow-x-auto > table.min-w-full.divide-y.divide-slate-200,
+    .ds-card .overflow-x-auto > table.min-w-full.divide-y.divide-gray-200 {
+        border-collapse: separate;
+        border-spacing: 0 0.75rem;
+    }
+
+    .ds-card .overflow-x-auto > table.min-w-full.divide-y.divide-slate-200 thead th,
+    .ds-card .overflow-x-auto > table.min-w-full.divide-y.divide-gray-200 thead th {
+        padding: 0.75rem 1rem;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgb(100 116 139);
+    }
+
+    .ds-card .overflow-x-auto > table.min-w-full.divide-y.divide-slate-200 tbody td,
+    .ds-card .overflow-x-auto > table.min-w-full.divide-y.divide-gray-200 tbody td {
+        border-top: 1px solid rgb(226 232 240 / 0.85);
+        border-bottom: 1px solid rgb(226 232 240 / 0.85);
+        background: rgb(255 255 255 / 0.96);
+        vertical-align: top;
+    }
+
+    .ds-card .overflow-x-auto > table.min-w-full.divide-y.divide-slate-200 tbody td:first-child,
+    .ds-card .overflow-x-auto > table.min-w-full.divide-y.divide-gray-200 tbody td:first-child {
+        border-left: 1px solid rgb(226 232 240 / 0.85);
+        border-radius: 1rem 0 0 1rem;
+    }
+
+    .ds-card .overflow-x-auto > table.min-w-full.divide-y.divide-slate-200 tbody td:last-child,
+    .ds-card .overflow-x-auto > table.min-w-full.divide-y.divide-gray-200 tbody td:last-child {
+        border-right: 1px solid rgb(226 232 240 / 0.85);
+        border-radius: 0 1rem 1rem 0;
+    }
+
+    .ds-card .overflow-x-auto > table.min-w-full.divide-y.divide-slate-200 tbody tr:hover td,
+    .ds-card .overflow-x-auto > table.min-w-full.divide-y.divide-gray-200 tbody tr:hover td {
+        background: rgb(248 250 252);
+        border-color: rgb(199 210 254 / 0.85);
+    }
+
+    @media (max-width: 767px) {
+        .ds-card .overflow-x-auto > table.min-w-full.divide-y.divide-slate-200 thead th,
+        .ds-card .overflow-x-auto > table.min-w-full.divide-y.divide-gray-200 thead th {
+            padding: 0.65rem 0.75rem;
+            letter-spacing: 0.14em;
+        }
+    }
+}
+
 /* Cursor pointer for interactive elements */
 a,
 button,
