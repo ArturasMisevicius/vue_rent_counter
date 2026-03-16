@@ -172,14 +172,18 @@ Supported account statuses:
 - `active`
 - `inactive`
 - `suspended`
-- `invited`
 
 Behavior:
 
 - `active`: may authenticate if related organization state also allows it.
 - `inactive`: reserved for non-destructive deactivation states in later slices.
 - `suspended`: blocked from authentication.
-- `invited`: user record exists but may not authenticate until invitation acceptance is completed, if the implementation chooses pre-created users. If the implementation creates users only upon invitation acceptance, this status can instead be applied to the invitation record and omitted from initial user creation.
+
+Implementation rule for this slice:
+
+- invited Manager and Tenant accounts are not pre-created in `users`
+- the invitation record is the only pre-acceptance state
+- the `users` row is created only when the recipient successfully accepts the invitation
 
 ### Organization Status
 
@@ -273,7 +277,7 @@ Behavior:
 - Prefills full name when supplied by the inviter.
 - Accepts password and password confirmation.
 - On success:
-  - creates or activates the invited account
+  - creates the invited account
   - assigns the role encoded in the invitation
   - assigns `organization_id`
   - marks the invitation as accepted
