@@ -3,7 +3,17 @@
 namespace App\Providers\Filament;
 
 use App\Enums\UserRole;
+use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\GDPRCompliance;
+use App\Filament\Pages\PrivacyPolicy;
+use App\Filament\Pages\TermsOfService;
+use App\Http\Middleware\CheckSubscriptionStatus;
+use App\Http\Middleware\EnsureHierarchicalAccess;
+use App\Http\Middleware\EnsureUserIsAdminOrManager;
+use App\Http\Middleware\ThrottleAdminAccess;
+use App\Services\SubscriptionChecker;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -18,14 +28,15 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /**
  * Filament Admin Panel Provider
  *
  * Configures the Filament v4 admin panel with comprehensive multi-tenant security,
- * subscription enforcement, and role-based access control for the Vilnius Utilities
- * Billing System.
+ * subscription enforcement, and role-based access control for Tenanto.
  *
  * ## Security Architecture
  *
@@ -73,10 +84,10 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
  *
  * ## Related Components
  *
- * @see \App\Http\Middleware\CheckSubscriptionStatus Subscription validation middleware
- * @see \App\Http\Middleware\EnsureHierarchicalAccess Tenant isolation middleware
- * @see \App\Services\SubscriptionChecker Cached subscription lookup service
- * @see \App\Enums\UserRole User role definitions
+ * @see CheckSubscriptionStatus Subscription validation middleware
+ * @see EnsureHierarchicalAccess Tenant isolation middleware
+ * @see SubscriptionChecker Cached subscription lookup service
+ * @see UserRole User role definitions
  */
 class AdminPanelProvider extends PanelProvider
 {
@@ -135,10 +146,10 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                \App\Filament\Pages\Dashboard::class,
-                \App\Filament\Pages\PrivacyPolicy::class,
-                \App\Filament\Pages\TermsOfService::class,
-                \App\Filament\Pages\GDPRCompliance::class,
+                Dashboard::class,
+                PrivacyPolicy::class,
+                TermsOfService::class,
+                GDPRCompliance::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -158,12 +169,6 @@ class AdminPanelProvider extends PanelProvider
                 // Filament-specific middleware
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-
-                // Application security middleware (order matters)
-                \App\Http\Middleware\ThrottleAdminAccess::class,        // 1. Rate limiting
-                \App\Http\Middleware\EnsureUserIsAdminOrManager::class, // 2. Role check
-                \App\Http\Middleware\CheckSubscriptionStatus::class,    // 3. Subscription validation (Req 3.4)
-                \App\Http\Middleware\EnsureHierarchicalAccess::class,   // 4. Tenant/property access (Req 12.5, 13.3)
             ])
             ->plugins([
                 FilamentShieldPlugin::make(),
@@ -171,11 +176,17 @@ class AdminPanelProvider extends PanelProvider
             ->globalSearch(true)
             ->authMiddleware([
                 Authenticate::class,
+                ThrottleAdminAccess::class,
+                EnsureUserIsAdminOrManager::class,
+                CheckSubscriptionStatus::class,
+                EnsureHierarchicalAccess::class,
             ])
             // Configure authorization error handling (Requirement 9.4)
             ->renderHook(
                 'panels::auth.login.form.after',
-                fn (): string => ''
+                fn (): string => view('filament.auth.demo-accounts', [
+                    'panelId' => 'admin',
+                ])->render()
             )
             // Add global search to header (Requirement 14.2, 14.3)
             ->renderHook(
@@ -217,7 +228,7 @@ class AdminPanelProvider extends PanelProvider
     public function boot(): void
     {
         // Configure role-based navigation visibility (Requirements 1.1, 13.1)
-        \Filament\Facades\Filament::serving(function () {
+        Filament::serving(function () {
             $user = auth()->user();
 
             if (! $user) {
@@ -234,13 +245,13 @@ class AdminPanelProvider extends PanelProvider
         });
 
         // Log authorization failures for security monitoring (Requirement 9.4)
-        \Illuminate\Support\Facades\Gate::after(function ($user, $ability, $result, $arguments) {
+        Gate::after(function ($user, $ability, $result, $arguments) {
             if (app()->runningUnitTests()) {
                 return;
             }
 
             if ($result === false) {
-                \Illuminate\Support\Facades\Log::warning('Authorization denied', [
+                Log::warning('Authorization denied', [
                     'user_id' => $user?->id,
                     'user_email' => $user?->email,
                     'user_role' => $user?->role?->value,

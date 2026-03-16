@@ -1319,7 +1319,7 @@ return [
         'attached_files_intro' => 'This email contains the following export files:',
         'attached_files_title' => 'Attached Files',
         'auto_reply_notice' => 'This is an automated message. Please do not reply to this email.',
-        'footer_platform' => 'RentCounter Rent & Property Platform',
+        'footer_platform' => 'Tenanto',
         'footer_system' => 'Superadmin Dashboard - Automated Export System',
         'greeting' => 'Hello :name,',
         'items' => [

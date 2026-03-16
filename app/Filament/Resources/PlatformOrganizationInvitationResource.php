@@ -215,18 +215,18 @@ class PlatformOrganizationInvitationResource extends Resource
                     ),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make()
+                \Filament\Actions\ViewAction::make(),
+                \Filament\Actions\EditAction::make()
                     ->visible(fn ($record) => $record->status === 'pending'),
                 ResendInvitationAction::make(),
                 CancelInvitationAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+                \Filament\Actions\BulkActionGroup::make([
                     BulkResendAction::make(),
                     BulkCancelAction::make(),
                     BulkDeleteExpiredAction::make(),
-                    Tables\Actions\DeleteBulkAction::make()
+                    \Filament\Actions\DeleteBulkAction::make()
                         ->visible(fn () => auth()->user()?->isSuperadmin() ?? false),
                 ]),
             ])

@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace App\Filament\Tenant\Pages;
 
 use App\Enums\UserRole;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
 

@@ -1319,7 +1319,7 @@ return [
         'attached_files_intro' => 'Šiame el. laiške yra šie eksporto failai:',
         'attached_files_title' => 'Prisegti failai',
         'auto_reply_notice' => 'Tai automatizuotas pranešimas. Prašome neatsakyti į šį el. laišką.',
-        'footer_platform' => 'RentCounter nuomos ir turto valdymo platforma',
+        'footer_platform' => 'Tenanto',
         'footer_system' => '„Superadmin“ prietaisų skydelis – automatizuota eksportavimo sistema',
         'greeting' => 'Sveiki, :name',
         'items' => [

@@ -9,7 +9,7 @@ use App\Filament\Resources\LanguageResource\Pages;
 use App\Models\Language;
 use App\Models\User;
 use Filament\Actions;
-use Filament\Forms\Components\Section;
+use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
@@ -263,10 +263,10 @@ class LanguageResource extends Resource
                         ! $record->is_default || ! $record->is_active
                     ),
 
-                Tables\Actions\EditAction::make()
+                \Filament\Actions\EditAction::make()
                     ->iconButton(),
 
-                Tables\Actions\DeleteAction::make()
+                \Filament\Actions\DeleteAction::make()
                     ->iconButton()
                     ->before(function (Language $record) {
                         // Prevent deleting default language
@@ -280,8 +280,8 @@ class LanguageResource extends Resource
                     }),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('activate')
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\BulkAction::make('activate')
                         ->label(__('locales.actions.bulk_activate'))
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
@@ -290,7 +290,7 @@ class LanguageResource extends Resource
                         )
                         ->deselectRecordsAfterCompletion(),
 
-                    Tables\Actions\BulkAction::make('deactivate')
+                    \Filament\Actions\BulkAction::make('deactivate')
                         ->label(__('locales.actions.bulk_deactivate'))
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')
@@ -306,7 +306,7 @@ class LanguageResource extends Resource
                         })
                         ->deselectRecordsAfterCompletion(),
 
-                    Tables\Actions\DeleteBulkAction::make()
+                    \Filament\Actions\DeleteBulkAction::make()
                         ->requiresConfirmation()
                         ->modalHeading(__('locales.modals.delete.heading'))
                         ->modalDescription(__('locales.modals.delete.description'))
@@ -321,7 +321,7 @@ class LanguageResource extends Resource
             ->emptyStateHeading(__('locales.empty.heading'))
             ->emptyStateDescription(__('locales.empty.description'))
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make()
+                \Filament\Actions\CreateAction::make()
                     ->label(__('locales.empty.action')),
             ])
             ->defaultSort('display_order', 'asc')

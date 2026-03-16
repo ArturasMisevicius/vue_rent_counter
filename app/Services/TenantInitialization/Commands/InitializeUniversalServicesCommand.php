@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\TenantInitialization\Commands;
 
-use App\Data\TenantInitialization\InitializationResult;
+use App\Services\TenantInitialization\Results\InitializationResult;
 use App\Models\Organization;
 use App\Services\TenantInitialization\Factories\UtilityServiceFactory;
 use App\Services\TenantInitialization\ServiceDefinitionProvider;

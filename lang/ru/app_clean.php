@@ -74,7 +74,7 @@ return [
         'calculated_automatically' => 'Рассчитывается автоматически',
     ],
     'brand' => [
-        'name' => 'RentCounter',
-        'product' => 'Платформа управления арендой и недвижимостью',
+        'name' => 'Tenanto',
+        'product' => 'Tenanto',
     ],
 ];

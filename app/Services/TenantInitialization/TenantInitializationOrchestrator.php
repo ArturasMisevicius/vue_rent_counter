@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\TenantInitialization;
 
-use App\Data\TenantInitialization\InitializationResult;
-use App\Data\TenantInitialization\PropertyServiceAssignmentResult;
+use App\Services\TenantInitialization\Results\InitializationResult;
+use App\Services\TenantInitialization\Results\PropertyServiceAssignmentResult;
 use App\Models\Organization;
 use App\Services\TenantInitialization\Commands\InitializeUniversalServicesCommand;
 use App\Services\TenantInitialization\Validators\TenantInitializationValidator;

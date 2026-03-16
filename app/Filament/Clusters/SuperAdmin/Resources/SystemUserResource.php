@@ -211,7 +211,7 @@ final class SystemUserResource extends Resource
                     ->toggle(),
             ])
             ->actions([
-                Tables\Actions\Action::make('impersonate')
+                \Filament\Actions\Action::make('impersonate')
                     ->label(__('superadmin.user.actions.impersonate'))
                     ->icon('heroicon-o-user-circle')
                     ->color('warning')
@@ -230,7 +230,7 @@ final class SystemUserResource extends Resource
                     ->requiresConfirmation()
                     ->visible(fn (User $record) => $record->is_active && !$record->hasRole('super_admin')),
 
-                Tables\Actions\Action::make('suspend')
+                \Filament\Actions\Action::make('suspend')
                     ->label(__('superadmin.user.actions.suspend'))
                     ->icon('heroicon-o-no-symbol')
                     ->color('danger')
@@ -251,7 +251,7 @@ final class SystemUserResource extends Resource
                     ->requiresConfirmation()
                     ->visible(fn (User $record) => $record->is_active),
 
-                Tables\Actions\Action::make('reactivate')
+                \Filament\Actions\Action::make('reactivate')
                     ->label(__('superadmin.user.actions.reactivate'))
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
@@ -266,19 +266,19 @@ final class SystemUserResource extends Resource
                     ->requiresConfirmation()
                     ->visible(fn (User $record) => !$record->is_active),
 
-                Tables\Actions\Action::make('activity_report')
+                \Filament\Actions\Action::make('activity_report')
                     ->label(__('superadmin.user.actions.activity_report'))
                     ->icon('heroicon-o-document-chart-bar')
                     ->color('info')
                     ->url(fn (User $record) => static::getUrl('activity', ['record' => $record]))
                     ->openUrlInNewTab(),
 
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                \Filament\Actions\ViewAction::make(),
+                \Filament\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('bulk_suspend')
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\BulkAction::make('bulk_suspend')
                         ->label(__('superadmin.user.bulk_actions.suspend'))
                         ->icon('heroicon-o-no-symbol')
                         ->color('danger')
@@ -307,7 +307,7 @@ final class SystemUserResource extends Resource
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion(),
 
-                    Tables\Actions\BulkAction::make('bulk_reactivate')
+                    \Filament\Actions\BulkAction::make('bulk_reactivate')
                         ->label(__('superadmin.user.bulk_actions.reactivate'))
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
@@ -330,7 +330,7 @@ final class SystemUserResource extends Resource
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion(),
 
-                    Tables\Actions\DeleteBulkAction::make()
+                    \Filament\Actions\DeleteBulkAction::make()
                         ->requiresConfirmation(),
                 ]),
             ])

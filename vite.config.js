@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 
 /**
- * Vite configuration for Vilnius Utilities Billing System
+ * Vite configuration for Tenanto
  * 
  * Asset Strategy:
  * - Alpine.js (v3.14.0) bundled via Vite for optimal performance and reliability

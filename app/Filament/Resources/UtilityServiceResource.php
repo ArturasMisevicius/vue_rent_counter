@@ -160,7 +160,7 @@ class UtilityServiceResource extends Resource
                     ->label('Active'),
             ])
             ->actions([
-                Tables\Actions\Action::make('clone')
+                \Filament\Actions\Action::make('clone')
                     ->label('Clone')
                     ->icon('heroicon-o-document-duplicate')
                     ->visible(fn (UtilityService $record): bool =>
@@ -176,7 +176,7 @@ class UtilityServiceResource extends Resource
                         $record->createTenantCopy($tenantId);
                     }),
 
-                Tables\Actions\Action::make('audit_history')
+                \Filament\Actions\Action::make('audit_history')
                     ->label('Audit History')
                     ->icon('heroicon-o-clock')
                     ->color('gray')
@@ -190,7 +190,7 @@ class UtilityServiceResource extends Resource
                     ->modalWidth('7xl')
                     ->slideOver(),
 
-                Tables\Actions\Action::make('rollback')
+                \Filament\Actions\Action::make('rollback')
                     ->label('Rollback')
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('warning')
@@ -256,22 +256,22 @@ class UtilityServiceResource extends Resource
                     ->modalHeading(__('dashboard.audit.rollback_confirmation'))
                     ->modalDescription(__('dashboard.audit.rollback_warning')),
 
-                Tables\Actions\EditAction::make()
+                \Filament\Actions\EditAction::make()
                     ->visible(fn (UtilityService $record): bool =>
                         auth()->user()?->role === UserRole::SUPERADMIN || !$record->is_global_template
                     ),
 
-                Tables\Actions\DeleteAction::make()
+                \Filament\Actions\DeleteAction::make()
                     ->visible(fn (UtilityService $record): bool =>
                         auth()->user()?->role === UserRole::SUPERADMIN || !$record->is_global_template
                     ),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                \Filament\Actions\CreateAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('name');

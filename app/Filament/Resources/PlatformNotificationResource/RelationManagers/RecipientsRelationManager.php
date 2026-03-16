@@ -89,10 +89,10 @@ class RecipientsRelationManager extends RelationManager
                 // No create action needed - recipients are auto-generated
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                \Filament\Actions\ViewAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+                \Filament\Actions\BulkActionGroup::make([
                     // No bulk actions needed for recipients
                 ]),
             ])

@@ -84,9 +84,9 @@ class ComprehensiveTenantSeeder extends Seeder
 
         $organizationData = Organization::factory()->make([
             'id' => self::TENANT_ID,
-            'name' => 'RentCounter Demo Organization',
-            'slug' => 'rentcounter-demo-organization',
-            'domain' => 'demo.rentcounter.test',
+            'name' => 'Tenanto Demo Organization',
+            'slug' => 'tenanto-demo-organization',
+            'domain' => 'demo.tenanto.test',
             'email' => 'admin@example.com',
             'primary_contact_email' => 'admin@example.com',
             'timezone' => 'Europe/Vilnius',
@@ -725,13 +725,13 @@ class ComprehensiveTenantSeeder extends Seeder
                 'tenant_id' => $admin->id,
                 'violation_type' => 'csp',
                 'policy_directive' => 'script-src',
-                'document_uri' => 'https://rentcounter.test/admin/dashboard',
+                'document_uri' => 'https://tenanto.test/admin/dashboard',
             ],
             SecurityViolation::factory()->suspicious()->make([
                 'tenant_id' => $admin->id,
                 'violation_type' => 'csp',
                 'policy_directive' => 'script-src',
-                'document_uri' => 'https://rentcounter.test/admin/dashboard',
+                'document_uri' => 'https://tenanto.test/admin/dashboard',
                 'blocked_uri' => 'http://suspicious.example.com/script.js',
             ])->getAttributes(),
         );

@@ -241,15 +241,15 @@ class PlatformNotificationResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make()
+                \Filament\Actions\ViewAction::make(),
+                \Filament\Actions\EditAction::make()
                     ->visible(fn (PlatformNotification $record) => $record->isDraft()),
-                Tables\Actions\DeleteAction::make()
+                \Filament\Actions\DeleteAction::make()
                     ->visible(fn (PlatformNotification $record) => $record->isDraft()),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make()
                         ->action(function ($records) {
                             $records->each(function (PlatformNotification $record) {
                                 if ($record->isDraft()) {

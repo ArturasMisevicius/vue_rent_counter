@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Clusters\SuperAdmin\Resources;
 
 use App\Contracts\TenantManagementInterface;
-use App\Data\Tenant\CreateTenantData;
+use App\Support\Tenants\CreateTenantData;
 use App\Enums\SubscriptionPlan;
 use App\Enums\TenantStatus;
 use App\Filament\Clusters\SuperAdmin;
@@ -487,7 +487,7 @@ final class TenantResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\Action::make('impersonate')
+                \Filament\Actions\Action::make('impersonate')
                     ->label(__('superadmin.tenants.actions.impersonate'))
                     ->icon('heroicon-o-user-circle')
                     ->color('warning')
@@ -495,7 +495,7 @@ final class TenantResource extends Resource
                     ->openUrlInNewTab()
                     ->visible(fn (Organization $record) => $record->status === TenantStatus::ACTIVE),
 
-                Tables\Actions\Action::make('suspend')
+                \Filament\Actions\Action::make('suspend')
                     ->label(__('superadmin.tenants.actions.suspend'))
                     ->icon('heroicon-o-pause-circle')
                     ->color('warning')
@@ -518,7 +518,7 @@ final class TenantResource extends Resource
                     ->modalDescription(__('superadmin.tenants.modals.suspend.description'))
                     ->visible(fn (Organization $record) => $record->status === TenantStatus::ACTIVE),
 
-                Tables\Actions\Action::make('activate')
+                \Filament\Actions\Action::make('activate')
                     ->label(__('superadmin.tenants.actions.activate'))
                     ->icon('heroicon-o-play-circle')
                     ->color('success')
@@ -535,12 +535,12 @@ final class TenantResource extends Resource
                     ->modalDescription(__('superadmin.tenants.modals.activate.description'))
                     ->visible(fn (Organization $record) => $record->status !== TenantStatus::ACTIVE),
 
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                \Filament\Actions\ViewAction::make(),
+                \Filament\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('bulk_suspend')
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\BulkAction::make('bulk_suspend')
                         ->label(__('superadmin.tenants.actions.bulk_suspend'))
                         ->icon('heroicon-o-pause-circle')
                         ->color('warning')
@@ -563,7 +563,7 @@ final class TenantResource extends Resource
                         ->modalDescription(__('superadmin.tenants.modals.bulk_suspend.description'))
                         ->deselectRecordsAfterCompletion(),
 
-                    Tables\Actions\BulkAction::make('bulk_activate')
+                    \Filament\Actions\BulkAction::make('bulk_activate')
                         ->label(__('superadmin.tenants.actions.bulk_activate'))
                         ->icon('heroicon-o-play-circle')
                         ->color('success')
@@ -578,7 +578,7 @@ final class TenantResource extends Resource
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion(),
 
-                    Tables\Actions\DeleteBulkAction::make()
+                    \Filament\Actions\DeleteBulkAction::make()
                         ->requiresConfirmation(),
                 ]),
             ])

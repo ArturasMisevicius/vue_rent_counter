@@ -74,7 +74,7 @@ return [
         'calculated_automatically' => 'Skaičiuojama automatiškai',
     ],
     'brand' => [
-        'name' => 'RentCounter',
-        'product' => 'Nuomos ir turto valdymo platforma',
+        'name' => 'Tenanto',
+        'product' => 'Tenanto',
     ],
 ];

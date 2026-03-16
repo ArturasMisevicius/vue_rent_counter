@@ -31,7 +31,7 @@ return [
     'features_subtitle' => 'Viskas, ko reikia nuomojamam turtui, vienetams, atsiskaitymams ir nuomininkams valdyti',
     'features_title' => 'Išsamus nuomos ir turto valdymas',
     'hero' => [
-        'badge' => 'RentCounter platforma',
+        'badge' => 'Tenanto',
         'tagline' => 'Užtikrintai valdykite namus, butus, kambarius, biurus, skaitiklius ir sąskaitas',
         'title' => 'Modernus nuomos ir turto valdymas bet kokiam portfeliui',
     ],

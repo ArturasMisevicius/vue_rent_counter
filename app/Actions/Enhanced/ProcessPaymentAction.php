@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Enhanced;
 
-use App\DTOs\PaymentProcessingDTO;
+use App\Support\Billing\PaymentProcessingDTO;
 use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use App\Models\Payment;

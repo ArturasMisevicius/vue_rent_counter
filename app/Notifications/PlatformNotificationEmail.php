@@ -46,7 +46,7 @@ class PlatformNotificationEmail extends Notification implements ShouldQueue
             ->subject($this->platformNotification->title)
             ->greeting("Hello {$this->organization->name},")
             ->line($this->platformNotification->message)
-            ->line('This is an important notification from the Vilnius Utilities Billing Platform.')
+            ->line('This is an important notification from Tenanto.')
             ->action('View in Dashboard', route('dashboard'))
             ->line('If you have any questions, please contact our support team.')
             ->line("Best regards,\nThe Platform Team")

@@ -38,10 +38,10 @@
                                 <a href="{{ route('superadmin.managers.show', $manager) }}" class="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
                                     {{ __('common.view') }}
                                 </a>
-                                <a href="{{ route('superadmin.compat.users.edit', $manager) }}" class="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100">
+                                <a href="{{ route('superadmin.users.edit', $manager) }}" class="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100">
                                     {{ __('common.edit') }}
                                 </a>
-                                <form action="{{ route('superadmin.compat.users.destroy', $manager) }}" method="POST" onsubmit="return confirm('{{ __('common.confirm_delete') }}');">
+                                <form action="{{ route('superadmin.users.destroy', $manager) }}" method="POST" onsubmit="return confirm('{{ __('common.confirm_delete') }}');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 transition hover:bg-rose-100">
@@ -73,10 +73,10 @@
                         <a href="{{ route('superadmin.managers.show', $manager) }}" class="inline-flex w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2">
                             {{ __('common.view') }}
                         </a>
-                        <a href="{{ route('superadmin.compat.users.edit', $manager) }}" class="inline-flex w-full items-center justify-center rounded-2xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        <a href="{{ route('superadmin.users.edit', $manager) }}" class="inline-flex w-full items-center justify-center rounded-2xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                             {{ __('common.edit') }}
                         </a>
-                        <form action="{{ route('superadmin.compat.users.destroy', $manager) }}" method="POST" onsubmit="return confirm('{{ __('common.confirm_delete') }}');" class="w-full">
+                        <form action="{{ route('superadmin.users.destroy', $manager) }}" method="POST" onsubmit="return confirm('{{ __('common.confirm_delete') }}');" class="w-full">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="inline-flex w-full items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 shadow-sm transition hover:bg-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2">

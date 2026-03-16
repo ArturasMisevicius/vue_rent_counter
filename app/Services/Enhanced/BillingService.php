@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Enhanced;
 
 use App\Actions\GenerateInvoiceAction;
-use App\DTOs\InvoiceGenerationDTO;
+use App\Support\Billing\InvoiceGenerationDTO;
 use App\Enums\InvoiceStatus;
 use App\Enums\PricingModel;
 use App\Models\Invoice;

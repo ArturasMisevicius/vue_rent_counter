@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use App\Models\Organization;
 use App\Services\TenantContext as TenantContextService;
-use App\Support\SharedTranslationKey;
-
 if (! function_exists('tenant')) {
     /**
      * Get the current tenant organization from the tenant context or session.
@@ -96,19 +94,5 @@ if (! function_exists('svgIcon')) {
                 return '<svg class="h-5 w-5"><rect width="20" height="20" fill="currentColor"/></svg>';
             }
         }
-    }
-}
-
-if (! function_exists('shared_trans')) {
-    /**
-     * Translate key using shared key normalization (role segments -> shared).
-     *
-     * Example:
-     * - invoices.manager.index.title => invoices.shared.index.title
-     * - tenant.profile.title => shared.profile.title
-     */
-    function shared_trans(string $key, array $replace = [], ?string $locale = null): string
-    {
-        return __(SharedTranslationKey::normalize($key), $replace, $locale);
     }
 }

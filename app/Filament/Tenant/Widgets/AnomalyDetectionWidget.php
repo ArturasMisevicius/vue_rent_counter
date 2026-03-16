@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Tenant\Widgets;
 
 use App\Services\Audit\UniversalServiceAuditReporter;
-use Filament\Tables\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;

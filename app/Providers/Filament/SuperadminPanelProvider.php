@@ -32,7 +32,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
  * Filament Superadmin Panel Provider
  *
  * Configures the Filament v4 superadmin panel with comprehensive system-wide access
- * and organization management for the Vilnius Utilities Billing System.
+ * and organization management for Tenanto.
  *
  * ## Security Architecture
  *
@@ -118,6 +118,12 @@ final class SuperadminPanelProvider extends PanelProvider
                 Authenticate::class,
                 EnsureUserIsSuperadmin::class,
             ])
+            ->renderHook(
+                'panels::auth.login.form.after',
+                fn (): string => view('filament.auth.demo-accounts', [
+                    'panelId' => 'superadmin',
+                ])->render()
+            )
             ->globalSearch(true)
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->spa(false)

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Jobs\BulkOperationJob;
-use App\Jobs\ExportGenerationJob;
-use App\Jobs\ActivityLogCleanupJob;
-use App\Jobs\SubscriptionExpiryCheckJob;
+use App\Support\Queue\BulkOperationJob;
+use App\Support\Queue\ExportGenerationJob;
+use App\Support\Queue\ActivityLogCleanupJob;
+use App\Support\Queue\SubscriptionExpiryCheckJob;
 use Illuminate\Support\Facades\Log;
 
 /**

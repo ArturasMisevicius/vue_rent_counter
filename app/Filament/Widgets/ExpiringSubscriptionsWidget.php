@@ -7,7 +7,7 @@ use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use App\Services\QueryOptimizationService;
 use App\Models\Subscription;
-use Filament\Tables\Actions\Action;
+use Filament\Actions\Action;
 
 /**
  * Expiring Subscriptions Widget with optimized loading

@@ -198,7 +198,7 @@ final readonly class IntegrationResilienceHandler
     ): string {
         $jobId = uniqid('integration_', true);
         
-        Queue::push(new \App\Jobs\RetryIntegrationOperation(
+        Queue::push(new \App\Support\Queue\RetryIntegrationOperation(
             $serviceName,
             $operationData,
             $tenant?->id,

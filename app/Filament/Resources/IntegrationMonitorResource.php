@@ -6,13 +6,11 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\IntegrationMonitorResource\Pages;
 use App\Services\Integration\IntegrationResilienceHandler;
+use Filament\Actions\Action;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Actions\Action;
-use Illuminate\Support\Collection;
 
 class IntegrationMonitorResource extends Resource
 {
@@ -83,7 +81,7 @@ class IntegrationMonitorResource extends Resource
                     ]),
             ])
             ->actions([
-                Tables\Actions\Action::make('reset')
+                Action::make('reset')
                     ->label('Reset Circuit')
                     ->icon('heroicon-o-arrow-path')
                     ->color('warning')
@@ -98,7 +96,7 @@ class IntegrationMonitorResource extends Resource
                     }),
             ])
             ->headerActions([
-                Tables\Actions\Action::make('enable_offline')
+                Action::make('enable_offline')
                     ->label('Enable Offline Mode')
                     ->icon('heroicon-o-wifi')
                     ->color('warning')
@@ -110,7 +108,7 @@ class IntegrationMonitorResource extends Resource
                             ->send();
                     }),
                     
-                Tables\Actions\Action::make('disable_offline')
+                Action::make('disable_offline')
                     ->label('Disable Offline Mode')
                     ->icon('heroicon-o-signal')
                     ->color('success')
@@ -122,7 +120,7 @@ class IntegrationMonitorResource extends Resource
                             ->send();
                     }),
                     
-                Tables\Actions\Action::make('sync_offline')
+                Action::make('sync_offline')
                     ->label('Sync Offline Data')
                     ->icon('heroicon-o-arrow-path')
                     ->color('primary')

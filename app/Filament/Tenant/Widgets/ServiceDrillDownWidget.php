@@ -163,7 +163,7 @@ final class ServiceDrillDownWidget extends BaseWidget
                     ),
             ])
             ->actions([
-                Tables\Actions\Action::make('view_readings')
+                \Filament\Actions\Action::make('view_readings')
                     ->label(__('dashboard.view_readings'))
                     ->icon('heroicon-o-chart-bar')
                     ->url(fn ($record) => route('filament.tenant.resources.meter-readings.index', [
@@ -173,7 +173,7 @@ final class ServiceDrillDownWidget extends BaseWidget
                     ]))
                     ->openUrlInNewTab(),
 
-                Tables\Actions\Action::make('add_reading')
+                \Filament\Actions\Action::make('add_reading')
                     ->label(__('dashboard.add_reading'))
                     ->icon('heroicon-o-plus')
                     ->url(fn ($record) => route('filament.tenant.resources.meter-readings.create', [
@@ -182,8 +182,8 @@ final class ServiceDrillDownWidget extends BaseWidget
                     ->visible(fn ($record) => Auth::user()?->can('create', \App\Models\MeterReading::class)),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('export_readings')
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\BulkAction::make('export_readings')
                         ->label(__('dashboard.export_readings'))
                         ->icon('heroicon-o-arrow-down-tray')
                         ->action(function ($records) {

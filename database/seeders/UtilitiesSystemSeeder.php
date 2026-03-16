@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Enums\MeterType;
-use App\Enums\PropertyType;
 use App\Enums\DistributionMethod;
+use App\Enums\MeterType;
 use App\Enums\PricingModel;
+use App\Enums\PropertyType;
 use App\Enums\ServiceType;
 use App\Models\Building;
 use App\Models\Meter;
@@ -20,6 +20,7 @@ use App\Models\Tenant;
 use App\Models\UtilityService;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 final class UtilitiesSystemSeeder extends Seeder
@@ -29,30 +30,30 @@ final class UtilitiesSystemSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('Seeding Vilnius Utilities Billing System...');
+        $this->command->info('Seeding Tenanto sample data...');
 
         // Create providers
         $this->createProviders();
-        
+
         // Create tariffs
         $this->createTariffs();
-        
+
         // Create buildings
         $buildings = $this->createBuildings();
-        
+
         // Create properties
         $properties = $this->createProperties($buildings);
 
         // Create universal utility services and property-specific configurations
         $utilityServices = $this->createUtilityServices();
         $serviceConfigurations = $this->createServiceConfigurations($properties, $utilityServices);
-        
+
         // Create tenants
         $tenants = $this->createTenants($properties);
-        
+
         // Create meters
         $meters = $this->createMeters($properties, $serviceConfigurations);
-        
+
         // Create meter readings
         $this->createMeterReadings($meters);
 
@@ -125,11 +126,11 @@ final class UtilitiesSystemSeeder extends Seeder
     /**
      * Create property-attached service configurations.
      *
-     * @param \Illuminate\Support\Collection<int, Property> $properties
-     * @param array<string, UtilityService> $utilityServices
+     * @param  Collection<int, Property>  $properties
+     * @param  array<string, UtilityService>  $utilityServices
      * @return array<int, array<string, ServiceConfiguration>>
      */
-    private function createServiceConfigurations(\Illuminate\Support\Collection $properties, array $utilityServices): array
+    private function createServiceConfigurations(Collection $properties, array $utilityServices): array
     {
         $electricityTariff = Tariff::where('provider_id', 1)->latest('active_from')->first();
         $heatingTariff = Tariff::where('provider_id', 2)->latest('active_from')->first();
@@ -295,7 +296,7 @@ final class UtilitiesSystemSeeder extends Seeder
         $this->command->info('Created tariffs');
     }
 
-    private function createBuildings(): \Illuminate\Support\Collection
+    private function createBuildings(): Collection
     {
         $buildings = [
             [
@@ -325,70 +326,73 @@ final class UtilitiesSystemSeeder extends Seeder
         }
 
         $this->command->info('Created buildings');
+
         return $collection;
     }
 
-    private function createProperties(\Illuminate\Support\Collection $buildings): \Illuminate\Support\Collection
+    private function createProperties(Collection $buildings): Collection
     {
         $collection = collect();
-        
+
         foreach ($buildings as $building) {
             $apartmentCount = $building->total_apartments;
-            
+
             for ($i = 1; $i <= $apartmentCount; $i++) {
                 $property = Property::create([
                     'tenant_id' => 1, // Default tenant for seeding
                     'building_id' => $building->id,
-                    'unit_number' => 'Apt ' . $i,
-                    'address' => $building->address . ', Apt ' . $i,
+                    'unit_number' => 'Apt '.$i,
+                    'address' => $building->address.', Apt '.$i,
                     'type' => PropertyType::APARTMENT,
                     'area_sqm' => fake()->numberBetween(35, 120),
                 ]);
-                
+
                 $collection->push($property);
             }
         }
 
         $this->command->info('Created properties');
+
         return $collection;
     }
 
-    private function createTenants(\Illuminate\Support\Collection $properties): \Illuminate\Support\Collection
+    private function createTenants(Collection $properties): Collection
     {
         $collection = collect();
-        
+
         // Create tenants for about 80% of properties
         $propertiesToFill = $properties->random((int) ($properties->count() * 0.8));
-        
+
         foreach ($propertiesToFill as $property) {
             $firstName = fake('lt_LT')->firstName();
             $lastName = fake('lt_LT')->lastName();
-            
+
             $tenant = Tenant::create([
                 'tenant_id' => 1, // Organization ID for multi-tenancy
                 'property_id' => $property->id,
-                'name' => $firstName . ' ' . $lastName,
+                'name' => $firstName.' '.$lastName,
                 'email' => fake()->unique()->safeEmail(),
                 'phone' => fake('lt_LT')->phoneNumber(),
                 'lease_start' => fake()->dateTimeBetween('-2 years', '-1 month'),
                 'lease_end' => fake()->optional(0.3)->dateTimeBetween('+1 month', '+2 years'),
             ]);
-            
+
             $collection->push($tenant);
         }
 
         $this->command->info('Created tenants');
+
         return $collection;
     }
 
     /**
-     * @param \Illuminate\Support\Collection<int, Property> $properties
-     * @param array<int, array<string, ServiceConfiguration>> $serviceConfigurations
+     * @param  Collection<int, Property>  $properties
+     * @param  array<int, array<string, ServiceConfiguration>>  $serviceConfigurations
      */
-    private function createMeters(\Illuminate\Support\Collection $properties, array $serviceConfigurations): \Illuminate\Support\Collection
+    private function createMeters(Collection $properties, array $serviceConfigurations): Collection
     {
         $collection = collect();
-        
+
         foreach ($properties as $property) {
             // Each property gets electricity, water, and heating meters
             $meterTypes = [
@@ -396,7 +400,7 @@ final class UtilitiesSystemSeeder extends Seeder
                 MeterType::WATER_COLD,
                 MeterType::HEATING,
             ];
-            
+
             foreach ($meterTypes as $meterType) {
                 $serviceKey = match ($meterType) {
                     MeterType::ELECTRICITY => 'electricity',
@@ -419,36 +423,37 @@ final class UtilitiesSystemSeeder extends Seeder
                     'supports_zones' => false,
                     'service_configuration_id' => $serviceConfigurationId,
                 ]);
-                
+
                 $collection->push($meter);
             }
         }
 
         $this->command->info('Created meters');
+
         return $collection;
     }
 
-    private function createMeterReadings(\Illuminate\Support\Collection $meters): void
+    private function createMeterReadings(Collection $meters): void
     {
         $readingCount = 0;
-        
+
         foreach ($meters as $meter) {
             // Create readings for the last 6 months
             $startDate = Carbon::now()->subMonths(6)->startOfMonth();
             $currentValue = fake()->numberBetween(1000, 5000);
-            
+
             for ($month = 0; $month < 6; $month++) {
                 $readingDate = $startDate->copy()->addMonths($month)->endOfMonth();
-                
+
                 // Simulate monthly consumption
                 $consumption = match ($meter->type) {
                     MeterType::ELECTRICITY => fake()->numberBetween(150, 400), // kWh
                     MeterType::WATER_COLD => fake()->numberBetween(3, 15), // m³
                     MeterType::HEATING => fake()->numberBetween(200, 800), // kWh
                 };
-                
+
                 $currentValue += $consumption;
-                
+
                 MeterReading::create([
                     'tenant_id' => 1, // Default tenant for seeding
                     'meter_id' => $meter->id,
@@ -457,7 +462,7 @@ final class UtilitiesSystemSeeder extends Seeder
                     'zone' => null,
                     'entered_by' => 1, // Assuming admin user ID 1
                 ]);
-                
+
                 $readingCount++;
             }
         }
@@ -473,7 +478,7 @@ final class UtilitiesSystemSeeder extends Seeder
             MeterType::WATER_HOT => 'WH',
             MeterType::HEATING => 'HT',
         };
-        
-        return $prefix . fake()->unique()->numberBetween(100000, 999999);
+
+        return $prefix.fake()->unique()->numberBetween(100000, 999999);
     }
 }

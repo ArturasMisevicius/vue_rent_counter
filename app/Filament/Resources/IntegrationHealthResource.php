@@ -201,10 +201,10 @@ final class IntegrationHealthResource extends Resource
                     ),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                \Filament\Actions\ViewAction::make(),
+                \Filament\Actions\EditAction::make(),
                 
-                Tables\Actions\Action::make('health_check')
+                \Filament\Actions\Action::make('health_check')
                     ->label(__('app.actions.run_health_check'))
                     ->icon('heroicon-o-heart')
                     ->color('info')
@@ -231,7 +231,7 @@ final class IntegrationHealthResource extends Resource
                     ->modalHeading(__('app.modals.run_health_check'))
                     ->modalDescription(__('app.modals.health_check_description')),
 
-                Tables\Actions\Action::make('enable_maintenance')
+                \Filament\Actions\Action::make('enable_maintenance')
                     ->label(__('app.actions.enable_maintenance'))
                     ->icon('heroicon-o-wrench-screwdriver')
                     ->color('warning')
@@ -269,10 +269,10 @@ final class IntegrationHealthResource extends Resource
                     ),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make(),
                     
-                    Tables\Actions\BulkAction::make('bulk_health_check')
+                    \Filament\Actions\BulkAction::make('bulk_health_check')
                         ->label(__('app.actions.run_health_checks'))
                         ->icon('heroicon-o-heart')
                         ->color('info')

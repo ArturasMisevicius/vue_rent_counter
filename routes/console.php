@@ -63,7 +63,7 @@ Schedule::command('dashboard:warm-cache')
 // Schedule activity log cleanup monthly on the 1st at 01:00
 // Removes old activity logs to prevent database bloat
 Schedule::call(function () {
-    \App\Jobs\ActivityLogCleanupJob::dispatch(365, 1000);
+    \App\Support\Queue\ActivityLogCleanupJob::dispatch(365, 1000);
 })->monthlyOn(1, '01:00')
   ->timezone('Europe/Vilnius')
   ->name('activity-log-cleanup');
@@ -71,7 +71,7 @@ Schedule::call(function () {
 // Schedule subscription expiry check daily at 08:00
 // Sends notifications and processes auto-renewals
 Schedule::call(function () {
-    \App\Jobs\SubscriptionExpiryCheckJob::dispatch();
+    \App\Support\Queue\SubscriptionExpiryCheckJob::dispatch();
 })->dailyAt('08:00')
   ->timezone('Europe/Vilnius')
   ->name('subscription-expiry-check');

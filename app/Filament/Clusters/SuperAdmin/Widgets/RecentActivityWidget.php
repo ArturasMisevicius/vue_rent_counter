@@ -63,7 +63,7 @@ final class RecentActivityWidget extends BaseWidget
                     ->sortable(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
+                \Filament\Actions\ViewAction::make()
                     ->label(__('superadmin.audit.actions.view'))
                     ->url(fn ($record): string => 
                         route('filament.superadmin.resources.audit-logs.view', $record)

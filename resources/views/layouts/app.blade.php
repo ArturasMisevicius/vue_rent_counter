@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
+    @php
+        $brandName = __('app.brand.name');
+        $brandProduct = __('app.brand.product');
+        $showBrandProduct = filled($brandProduct) && $brandProduct !== $brandName;
+    @endphp
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -28,8 +33,10 @@
                         <a href="{{ isset($navigationLinks[0]) ? route($navigationLinks[0]['route']) : url('/') }}" class="flex items-center gap-3 group">
                             <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-400 text-white font-display text-lg shadow-glow transition-transform duration-300">V</span>
                             <div class="leading-tight">
-                                <p class="text-[11px] uppercase tracking-[0.22em] text-slate-500">{{ __('app.brand.name') }}</p>
-                                <p class="font-display text-lg text-slate-900">{{ __('app.brand.product') }}</p>
+                                <p class="text-[11px] uppercase tracking-[0.22em] text-slate-500">{{ $brandName }}</p>
+                                @if($showBrandProduct)
+                                    <p class="font-display text-lg text-slate-900">{{ $brandProduct }}</p>
+                                @endif
                             </div>
                         </a>
                     </div>

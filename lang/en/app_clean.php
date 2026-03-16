@@ -74,7 +74,7 @@ return [
         'calculated_automatically' => 'Calculated automatically',
     ],
     'brand' => [
-        'name' => 'RentCounter',
-        'product' => 'Rent & Property Management Platform',
+        'name' => 'Tenanto',
+        'product' => 'Tenanto',
     ],
 ];

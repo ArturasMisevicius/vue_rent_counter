@@ -6,7 +6,7 @@ use BackedEnum;
 use UnitEnum;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Tables\Table;
 
 class ActivityLogsRelationManager extends RelationManager
@@ -75,7 +75,7 @@ class ActivityLogsRelationManager extends RelationManager
                     ]),
             ])
             ->actions([
-                Tables\Actions\Action::make('view_details')
+                \Filament\Actions\Action::make('view_details')
                     ->label(__('organizations.relations.activity_logs.details'))
                     ->icon('heroicon-o-eye')
                     ->modalHeading(__('organizations.relations.activity_logs.modal_heading'))

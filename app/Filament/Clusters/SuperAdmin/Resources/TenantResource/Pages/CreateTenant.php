@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Clusters\SuperAdmin\Resources\TenantResource\Pages;
 
 use App\Contracts\TenantManagementInterface;
-use App\Data\Tenant\CreateTenantData;
+use App\Support\Tenants\CreateTenantData;
 use App\Filament\Clusters\SuperAdmin\Resources\TenantResource;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Notifications\Notification;

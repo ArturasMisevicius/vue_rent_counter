@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use App\DTOs\AssignUtilityServiceDTO;
+use App\Support\PropertyServices\AssignUtilityServiceDTO;
 use App\Exceptions\ServiceConfigurationException;
 use App\Models\Meter;
 use App\Models\Property;

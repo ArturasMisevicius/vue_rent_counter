@@ -229,11 +229,11 @@ class OrganizationActivityLogResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                \Filament\Actions\ViewAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('export_selected_csv')
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\BulkAction::make('export_selected_csv')
                         ->label('Export Selected (CSV)')
                         ->icon('heroicon-o-arrow-down-tray')
                         ->color('success')
@@ -242,7 +242,7 @@ class OrganizationActivityLogResource extends Resource
                         })
                         ->deselectRecordsAfterCompletion(),
                     
-                    Tables\Actions\BulkAction::make('export_selected_json')
+                    \Filament\Actions\BulkAction::make('export_selected_json')
                         ->label('Export Selected (JSON)')
                         ->icon('heroicon-o-arrow-down-tray')
                         ->color('info')
@@ -251,7 +251,7 @@ class OrganizationActivityLogResource extends Resource
                         })
                         ->deselectRecordsAfterCompletion(),
                     
-                    Tables\Actions\DeleteBulkAction::make()
+                    \Filament\Actions\DeleteBulkAction::make()
                         ->requiresConfirmation()
                         ->modalHeading('Delete Activity Logs')
                         ->modalDescription('Are you sure you want to delete these activity logs? This action cannot be undone.')

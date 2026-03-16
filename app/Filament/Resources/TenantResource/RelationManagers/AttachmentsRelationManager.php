@@ -171,7 +171,7 @@ class AttachmentsRelationManager extends RelationManager
                     ]),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                \Filament\Actions\CreateAction::make()
                     ->label('Upload File')
                     ->icon('heroicon-o-arrow-up-tray')
                     ->mutateFormDataUsing(function (array $data): array {
@@ -197,21 +197,21 @@ class AttachmentsRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                Tables\Actions\Action::make('download')
+                \Filament\Actions\Action::make('download')
                     ->label('Download')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->action(function (Attachment $record) {
                         return Storage::disk($record->disk)->download($record->path, $record->original_filename);
                     }),
                     
-                Tables\Actions\Action::make('view')
+                \Filament\Actions\Action::make('view')
                     ->label('View')
                     ->icon('heroicon-o-eye')
                     ->url(fn (Attachment $record) => $record->url)
                     ->openUrlInNewTab()
                     ->visible(fn (Attachment $record) => $record->isImage() || $record->isPdf()),
                     
-                Tables\Actions\EditAction::make()
+                \Filament\Actions\EditAction::make()
                     ->form([
                         Forms\Components\Select::make('category')
                             ->label('Category')
@@ -236,12 +236,12 @@ class AttachmentsRelationManager extends RelationManager
                         return $data;
                     }),
                     
-                Tables\Actions\DeleteAction::make()
+                \Filament\Actions\DeleteAction::make()
                     ->requiresConfirmation(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make()
                         ->requiresConfirmation(),
                 ]),
             ])
@@ -250,7 +250,7 @@ class AttachmentsRelationManager extends RelationManager
             ->emptyStateDescription('Upload documents, photos, and other files for this tenant.')
             ->emptyStateIcon('heroicon-o-document-arrow-up')
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make()
+                \Filament\Actions\CreateAction::make()
                     ->label('Upload First File')
                     ->icon('heroicon-o-arrow-up-tray'),
             ]);

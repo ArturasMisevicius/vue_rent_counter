@@ -79,7 +79,7 @@ class SubscriptionsRelationManager extends RelationManager
                     ->options(SubscriptionStatus::labels()),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
+                \Filament\Actions\ViewAction::make()
                     ->url(fn ($record): string => route('filament.admin.resources.subscriptions.view', ['record' => $record]))
                     ->openUrlInNewTab(false),
             ])

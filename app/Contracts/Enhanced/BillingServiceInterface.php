@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contracts\Enhanced;
 
-use App\DTOs\InvoiceGenerationDTO;
+use App\Support\Billing\InvoiceGenerationDTO;
 use App\Models\Invoice;
 use App\Models\Property;
 use App\Models\Tenant;

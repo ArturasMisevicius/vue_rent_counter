@@ -31,7 +31,7 @@ return [
     'features_subtitle' => 'Everything you need to manage rental properties, units, billing, and tenants',
     'features_title' => 'Comprehensive Rent & Property Management',
     'hero' => [
-        'badge' => 'RentCounter Platform',
+        'badge' => 'Tenanto',
         'tagline' => 'Manage houses, flats, rooms, offices, meters, and invoices with confidence',
         'title' => 'Modern Rent and Property Management for Every Portfolio',
     ],

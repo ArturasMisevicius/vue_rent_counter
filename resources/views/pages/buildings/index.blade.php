@@ -147,8 +147,8 @@
                             <td class="text-right">
                                 <div class="flex justify-end gap-2">
                                     <a href="{{ route('superadmin.buildings.show', $building) }}" class="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">{{ __('common.view') }}</a>
-                                    <a href="{{ route('superadmin.compat.buildings.edit', $building) }}" class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 transition hover:bg-amber-100">{{ __('common.edit') }}</a>
-                                    <form action="{{ route('superadmin.compat.buildings.destroy', $building) }}" method="POST" onsubmit="return confirm('{{ __('common.confirm_delete') }}');">
+                                    <a href="{{ route('superadmin.buildings.edit', $building) }}" class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 transition hover:bg-amber-100">{{ __('common.edit') }}</a>
+                                    <form action="{{ route('superadmin.buildings.destroy', $building) }}" method="POST" onsubmit="return confirm('{{ __('common.confirm_delete') }}');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 transition hover:bg-rose-100">{{ __('common.delete') }}</button>
@@ -177,10 +177,10 @@
                             <a href="{{ route('superadmin.buildings.show', $building) }}" class="inline-flex w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2">
                                 {{ __('common.view') }}
                             </a>
-                            <a href="{{ route('superadmin.compat.buildings.edit', $building) }}" class="inline-flex w-full items-center justify-center rounded-2xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                            <a href="{{ route('superadmin.buildings.edit', $building) }}" class="inline-flex w-full items-center justify-center rounded-2xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                 {{ __('common.edit') }}
                             </a>
-                            <form action="{{ route('superadmin.compat.buildings.destroy', $building) }}" method="POST" onsubmit="return confirm('{{ __('common.confirm_delete') }}');" class="w-full">
+                            <form action="{{ route('superadmin.buildings.destroy', $building) }}" method="POST" onsubmit="return confirm('{{ __('common.confirm_delete') }}');" class="w-full">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="inline-flex w-full items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 shadow-sm transition hover:bg-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2">

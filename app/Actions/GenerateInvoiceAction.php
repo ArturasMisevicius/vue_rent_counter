@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use App\DTOs\InvoiceGenerationDTO;
+use App\Support\Billing\InvoiceGenerationDTO;
 use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use App\Models\Tenant;

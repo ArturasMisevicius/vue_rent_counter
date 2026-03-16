@@ -201,12 +201,12 @@ class NotificationHistory extends Page implements HasTable
                     }),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
+                \Filament\Actions\ViewAction::make()
                     ->url(fn (PlatformNotification $record): string => route('filament.admin.resources.platform-notifications.view', $record)),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make()
                         ->action(function ($records) {
                             $records->each(function (PlatformNotification $record) {
                                 if ($record->isDraft()) {

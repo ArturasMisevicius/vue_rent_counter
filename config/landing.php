@@ -2,8 +2,8 @@
 
 return [
     'brand' => [
-        'name' => 'Vilnius Utilities',
-        'product' => 'Rent Counter',
+        'name' => 'Tenanto',
+        'product' => 'Tenanto',
         'tagline' => 'One cockpit for usage, billing, and compliance across your properties.',
     ],
 

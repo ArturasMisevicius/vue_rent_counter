@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Contracts\TenantManagementInterface;
-use App\Data\Tenant\BulkOperationResult;
-use App\Data\Tenant\CreateTenantData;
+use App\Support\Tenants\BulkOperationResult;
+use App\Support\Tenants\CreateTenantData;
 use App\Enums\AuditAction;
 use App\Models\Organization;
 use App\Models\SuperAdminAuditLog;

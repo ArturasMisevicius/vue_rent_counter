@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Contracts;
 
-use App\Data\Tenant\CreateTenantData;
-use App\Data\Tenant\BulkOperationResult;
+use App\Support\Tenants\CreateTenantData;
+use App\Support\Tenants\BulkOperationResult;
 use App\Models\Organization;
 use App\ValueObjects\TenantMetrics;
 use Illuminate\Database\Eloquent\Collection;

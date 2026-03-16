@@ -261,8 +261,8 @@ class PlatformUserResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                \Filament\Actions\ViewAction::make(),
+                \Filament\Actions\EditAction::make(),
 
                 Actions\Action::make('reset_password')
                     ->label(__('filament.resources.platform_users.actions.reset_password.label'))
@@ -391,7 +391,7 @@ class PlatformUserResource extends Resource
                     ),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+                \Filament\Actions\BulkActionGroup::make([
                     Actions\BulkAction::make('bulk_deactivate')
                         ->label(__('filament.resources.platform_users.bulk_actions.deactivate.label'))
                         ->icon('heroicon-o-x-circle')
@@ -498,7 +498,7 @@ class PlatformUserResource extends Resource
                             ]);
                         }),
 
-                    Tables\Actions\DeleteBulkAction::make(),
+                    \Filament\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

@@ -9,10 +9,8 @@ use App\Contracts\ServiceRegistration\PolicyRegistryInterface;
 use App\Services\PolicyRegistryMonitoringService;
 use App\Services\ServiceRegistration\RegistrationErrorHandler;
 use App\Services\ServiceRegistration\ServiceRegistrationOrchestrator;
-use App\Support\ServiceRegistration\CompatibilityRegistry;
 use App\Support\ServiceRegistration\ObserverRegistry;
 use App\Support\ServiceRegistration\PolicyRegistry;
-use App\Support\SharedTranslationKey;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -55,59 +53,10 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->bootSharedTranslationFallback();
         $this->bootRateLimiters();
         $this->bootObservers();
         $this->bootServiceRegistration();
         $this->bootViewComposers();
-    }
-
-    /**
-     * Resolve translation aliases between legacy role keys and shared translation trees.
-     */
-    private function bootSharedTranslationFallback(): void
-    {
-        $translator = $this->app->make('translator');
-        $roleSegments = ['superadmin', 'admin', 'manager', 'tenant'];
-
-        $translator->handleMissingKeysUsing(function (string $key, array $replace, ?string $locale, bool $fallback) use ($translator, $roleSegments): string {
-            $firstSegment = explode('.', $key)[0] ?? '';
-            $isRoleRootKey = in_array($firstSegment, $roleSegments, true);
-
-            if (! SharedTranslationKey::hasSharedSegment($key) && ! $isRoleRootKey) {
-                return $key;
-            }
-
-            if (SharedTranslationKey::hasSharedSegment($key)) {
-                $preferredRole = auth()->user()?->role?->value;
-
-                foreach (SharedTranslationKey::legacyCandidates($key, $preferredRole) as $candidate) {
-                    if ($candidate === $key) {
-                        continue;
-                    }
-
-                    if ($translator->has($candidate, $locale, $fallback)) {
-                        return $translator->get($candidate, $replace, $locale, $fallback);
-                    }
-
-                    $sharedCandidate = "shared.{$candidate}";
-
-                    if ($translator->has($sharedCandidate, $locale, $fallback)) {
-                        return $translator->get($sharedCandidate, $replace, $locale, $fallback);
-                    }
-                }
-            }
-
-            if ($isRoleRootKey) {
-                $sharedCandidate = "shared.{$key}";
-
-                if ($translator->has($sharedCandidate, $locale, $fallback)) {
-                    return $translator->get($sharedCandidate, $replace, $locale, $fallback);
-                }
-            }
-
-            return $key;
-        });
     }
 
     /**
@@ -168,11 +117,6 @@ final class AppServiceProvider extends ServiceProvider
      */
     private function registerLaravel12Compatibility(): void
     {
-        $compatibilityRegistry = new CompatibilityRegistry;
-
-        // Register Filament v4 action class aliases for legacy resource code.
-        $compatibilityRegistry->registerFilamentCompatibility();
-
         // Register lang path for Laravel 12 compatibility
         $this->app->useLangPath(base_path('lang'));
 

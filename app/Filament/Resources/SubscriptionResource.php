@@ -260,8 +260,8 @@ class SubscriptionResource extends Resource
                     ->label(__('subscriptions.filters.expired')),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                \Filament\Actions\ViewAction::make(),
+                \Filament\Actions\EditAction::make(),
 
                 Actions\Action::make('renew')
                     ->label(__('subscriptions.actions.renew'))
@@ -334,7 +334,7 @@ class SubscriptionResource extends Resource
                     ->visible(fn (Subscription $record) => $record->status === SubscriptionStatus::ACTIVE && $record->daysUntilExpiry() <= 30),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+                \Filament\Actions\BulkActionGroup::make([
                     Actions\BulkAction::make('bulk_renew')
                         ->label(__('subscriptions.actions.renew_selected'))
                         ->icon('heroicon-o-arrow-path')

@@ -330,8 +330,8 @@ class MeterResource extends Resource
                 // Table row actions removed - use page header actions instead
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make()
                         ->requiresConfirmation()
                         ->modalHeading(__('meters.modals.bulk_delete.title'))
                         ->modalDescription(__('meters.modals.bulk_delete.description'))

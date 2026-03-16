@@ -74,7 +74,7 @@ class RecentActivityWidget extends BaseWidget
                     ->size(Tables\Columns\TextColumn\TextColumnSize::Small),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
+                \Filament\Actions\ViewAction::make()
                     ->modalHeading('Activity Details')
                     ->modalContent(function (OrganizationActivityLog $record): string {
                         return view('filament.widgets.activity-details', [

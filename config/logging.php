@@ -63,7 +63,7 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
-            'tap' => [\App\Logging\Tap\RedactSensitiveDataTap::class],
+            'tap' => [\App\Support\Logging\Tap\RedactSensitiveDataTap::class],
         ],
 
         'daily' => [
@@ -72,7 +72,7 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,
-            'tap' => [\App\Logging\Tap\RedactSensitiveDataTap::class],
+            'tap' => [\App\Support\Logging\Tap\RedactSensitiveDataTap::class],
         ],
 
         'slack' => [
@@ -136,7 +136,7 @@ return [
             'days' => 90,
             'replace_placeholders' => true,
             'permission' => 0640, // Restricted access for security
-            'tap' => [\App\Logging\Tap\RedactSensitiveDataTap::class],
+            'tap' => [\App\Support\Logging\Tap\RedactSensitiveDataTap::class],
         ],
 
         'security' => [
@@ -146,7 +146,7 @@ return [
             'days' => 90,
             'permission' => 0640, // Restricted access for security
             'replace_placeholders' => true,
-            'tap' => [\App\Logging\Tap\RedactSensitiveDataTap::class],
+            'tap' => [\App\Support\Logging\Tap\RedactSensitiveDataTap::class],
         ],
 
         'services' => [
@@ -156,7 +156,7 @@ return [
             'days' => env('LOG_SERVICES_DAYS', 14),
             'permission' => 0640, // Restricted access for security
             'replace_placeholders' => true,
-            'tap' => [\App\Logging\Tap\RedactSensitiveDataTap::class],
+            'tap' => [\App\Support\Logging\Tap\RedactSensitiveDataTap::class],
         ],
 
         'tenant_context' => [
@@ -166,7 +166,7 @@ return [
             'days' => 90, // Keep tenant context logs for 90 days for audit purposes
             'permission' => 0640, // Restricted access for security
             'replace_placeholders' => true,
-            'tap' => [\App\Logging\Tap\RedactSensitiveDataTap::class],
+            'tap' => [\App\Support\Logging\Tap\RedactSensitiveDataTap::class],
         ],
 
     ],

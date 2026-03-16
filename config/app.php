@@ -151,9 +151,8 @@ return [
     */
 
     'aliases' => [
-        // Laravel 12 automatically discovers facades
-        // Custom aliases can be added here if needed
-        'TenantContext' => App\Facades\TenantContext::class,
+        // Laravel 12 automatically discovers facades.
+        // Keep this array for explicit aliases when truly needed.
     ],
 
 ];

@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
+    @php
+        $brandName = __('app.brand.name');
+        $brandProduct = __('app.brand.product');
+        $showBrandProduct = filled($brandProduct) && $brandProduct !== $brandName;
+    @endphp
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ __('app.brand.name') }} · {{ __('app.brand.product') }}</title>
+    <title>{{ $showBrandProduct ? "{$brandName} · {$brandProduct}" : $brandName }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-slate-950 text-slate-50 antialiased">
@@ -19,8 +24,10 @@
         <div class="flex items-center gap-3">
             <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-400 text-white font-display text-xl shadow-glow">V</span>
             <div class="leading-tight">
-                <p class="text-[11px] uppercase tracking-[0.22em] text-slate-300">{{ __('app.brand.name') }}</p>
-                <p class="font-display text-lg text-white">{{ __('app.brand.product') }}</p>
+                <p class="text-[11px] uppercase tracking-[0.22em] text-slate-300">{{ $brandName }}</p>
+                @if($showBrandProduct)
+                    <p class="font-display text-lg text-white">{{ $brandProduct }}</p>
+                @endif
             </div>
         </div>
 

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Enhanced;
 
-use App\DTOs\InvoiceGenerationDTO;
-use App\DTOs\Enhanced\PaymentProcessingDTO;
+use App\Support\Billing\InvoiceGenerationDTO;
+use App\Support\Billing\PaymentProcessingDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreInvoiceRequest;
 use App\Http\Requests\ProcessPaymentRequest;

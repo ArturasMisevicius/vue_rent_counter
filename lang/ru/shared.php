@@ -1319,7 +1319,7 @@ return [
         'attached_files_intro' => 'Это письмо содержит следующие файлы экспорта:',
         'attached_files_title' => 'Прикрепленные файлы',
         'auto_reply_notice' => 'Это автоматическое сообщение. Пожалуйста, не отвечайте на это письмо.',
-        'footer_platform' => 'RentCounter — платформа управления арендой и недвижимостью',
+        'footer_platform' => 'Tenanto',
         'footer_system' => 'Панель управления Superadmin — автоматизированная система экспорта',
         'greeting' => 'Здравствуйте, :name!',
         'items' => [

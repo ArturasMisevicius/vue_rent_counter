@@ -393,7 +393,7 @@ class ServiceConfigurationResource extends Resource
                     ->label('Active'),
             ])
             ->actions([
-                Tables\Actions\Action::make('audit_history')
+                \Filament\Actions\Action::make('audit_history')
                     ->label('Audit History')
                     ->icon('heroicon-o-clock')
                     ->color('gray')
@@ -407,7 +407,7 @@ class ServiceConfigurationResource extends Resource
                     ->modalWidth('7xl')
                     ->slideOver(),
 
-                Tables\Actions\Action::make('rollback')
+                \Filament\Actions\Action::make('rollback')
                     ->label('Rollback')
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('warning')
@@ -473,15 +473,15 @@ class ServiceConfigurationResource extends Resource
                     ->modalHeading(__('dashboard.audit.rollback_confirmation'))
                     ->modalDescription(__('dashboard.audit.rollback_warning')),
 
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                \Filament\Actions\EditAction::make(),
+                \Filament\Actions\DeleteAction::make(),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                \Filament\Actions\CreateAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('effective_from', 'desc');

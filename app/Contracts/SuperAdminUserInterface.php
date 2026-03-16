@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Contracts;
 
-use App\Data\User\ActivityReport;
-use App\Data\User\BulkOperationResult;
-use App\Data\User\ImpersonationSession;
+use App\Support\Users\ActivityReport;
+use App\Support\Users\BulkOperationResult;
+use App\Support\Users\ImpersonationSession;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 

@@ -324,10 +324,10 @@ final class SystemConfigResource extends Resource
                     ->placeholder(__('superadmin.config.values.all')),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                \Filament\Actions\ViewAction::make(),
+                \Filament\Actions\EditAction::make(),
                 
-                Tables\Actions\Action::make('duplicate')
+                \Filament\Actions\Action::make('duplicate')
                     ->label(__('superadmin.config.actions.duplicate'))
                     ->icon('heroicon-o-document-duplicate')
                     ->color('info')
@@ -350,12 +350,12 @@ final class SystemConfigResource extends Resource
                             ->send();
                     }),
 
-                Tables\Actions\DeleteAction::make()
+                \Filament\Actions\DeleteAction::make()
                     ->requiresConfirmation(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('bulk_update_category')
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\BulkAction::make('bulk_update_category')
                         ->label(__('superadmin.config.bulk_actions.update_category'))
                         ->icon('heroicon-o-tag')
                         ->color('info')
@@ -389,7 +389,7 @@ final class SystemConfigResource extends Resource
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion(),
 
-                    Tables\Actions\DeleteBulkAction::make()
+                    \Filament\Actions\DeleteBulkAction::make()
                         ->requiresConfirmation(),
                 ]),
             ])

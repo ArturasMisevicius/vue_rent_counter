@@ -237,9 +237,8 @@ final readonly class TenantTranslationService
      */
     private function getCurrentTenantId(): ?int
     {
-        // This would integrate with your tenant context system
-        if (class_exists(\App\Services\TenantContext::class)) {
-            return \App\Services\TenantContext::getCurrentTenantId();
+        if (app()->bound(\App\Services\TenantContext::class)) {
+            return app(\App\Services\TenantContext::class)->getCurrentTenantId();
         }
 
         return session('tenant_id');

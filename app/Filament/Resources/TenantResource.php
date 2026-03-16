@@ -263,11 +263,11 @@ final class TenantResource extends Resource
                     ->label('Active Status'),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                \Filament\Actions\ViewAction::make(),
+                \Filament\Actions\EditAction::make(),
+                \Filament\Actions\DeleteAction::make(),
 
-                Tables\Actions\Action::make('generate_invoice')
+                \Filament\Actions\Action::make('generate_invoice')
                     ->label('Generate Invoice')
                     ->icon('heroicon-o-document-text')
                     ->color('success')
@@ -320,10 +320,10 @@ final class TenantResource extends Resource
                     ->visible(fn (Tenant $record) => $record->is_active),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make(),
 
-                    Tables\Actions\BulkAction::make('activate')
+                    \Filament\Actions\BulkAction::make('activate')
                         ->label('Activate Tenants')
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
@@ -332,7 +332,7 @@ final class TenantResource extends Resource
                         ->deselectRecordsAfterCompletion()
                         ->requiresConfirmation(),
 
-                    Tables\Actions\BulkAction::make('deactivate')
+                    \Filament\Actions\BulkAction::make('deactivate')
                         ->label('Deactivate Tenants')
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')

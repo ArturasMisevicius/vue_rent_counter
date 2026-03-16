@@ -264,14 +264,14 @@ final class AuditLogResource extends Resource
                     ->toggle(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
+                \Filament\Actions\ViewAction::make()
                     ->modalHeading(__('superadmin.audit.modals.details.heading'))
                     ->modalContent(fn ($record) => view('filament.superadmin.modals.audit-log-details', [
                         'auditLog' => $record,
                     ]))
                     ->modalWidth('4xl'),
 
-                Tables\Actions\Action::make('view_target')
+                \Filament\Actions\Action::make('view_target')
                     ->label(__('superadmin.audit.actions.view_target'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->color('info')
@@ -288,8 +288,8 @@ final class AuditLogResource extends Resource
                     ->openUrlInNewTab(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('export_selected')
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\BulkAction::make('export_selected')
                         ->label(__('superadmin.audit.bulk_actions.export'))
                         ->icon('heroicon-o-arrow-down-tray')
                         ->color('success')

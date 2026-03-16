@@ -302,8 +302,8 @@ class MeterReadingResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                \Filament\Actions\ViewAction::make(),
+                \Filament\Actions\EditAction::make(),
 
                 // Truth-but-Verify Workflow Actions (Gold Master v7.0)
                 Action::make('approve')
@@ -353,11 +353,11 @@ class MeterReadingResource extends Resource
                             ->send();
                     }),
 
-                Tables\Actions\DeleteAction::make(),
+                \Filament\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('reading_date', 'desc');

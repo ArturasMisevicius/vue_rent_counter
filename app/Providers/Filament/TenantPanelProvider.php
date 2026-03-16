@@ -9,6 +9,7 @@ use App\Filament\Tenant\Pages\Profile;
 use App\Filament\Tenant\Resources\InvoiceResource;
 use App\Filament\Tenant\Resources\MeterReadingResource;
 use App\Filament\Tenant\Resources\PropertyResource;
+use App\Http\Middleware\EnsureUserIsTenant;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -29,7 +30,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
  * Filament Tenant Panel Provider
  *
  * Configures the Filament v4 tenant panel with property-scoped access
- * for the Vilnius Utilities Billing System.
+ * for Tenanto.
  *
  * ## Security Architecture
  *
@@ -112,8 +113,14 @@ final class TenantPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                \App\Http\Middleware\EnsureUserIsTenant::class,
+                EnsureUserIsTenant::class,
             ])
+            ->renderHook(
+                'panels::auth.login.form.after',
+                fn (): string => view('filament.auth.demo-accounts', [
+                    'panelId' => 'tenant',
+                ])->render()
+            )
             ->globalSearch(false) // Tenants don't need global search
             ->spa(false)
             ->unsavedChangesAlerts(false) // Tenants mostly view data

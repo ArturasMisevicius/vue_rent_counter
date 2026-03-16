@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Database\Concerns\ManagesIndexes;
+use App\Support\Database\Concerns\ManagesIndexes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

@@ -7,7 +7,7 @@ namespace App\Services\Enhanced;
 use App\Actions\CreateUserAction;
 use App\Actions\AssignRoleAction;
 use App\Actions\SendWelcomeEmailAction;
-use App\DTOs\CreateUserDTO;
+use App\Support\Users\CreateUserDTO;
 use App\Enums\UserRole;
 use App\Models\User;
 use App\Models\Organization;

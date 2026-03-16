@@ -181,14 +181,14 @@ class TranslationResource extends Resource
                     ->native(false),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
+                \Filament\Actions\EditAction::make()
                     ->iconButton(),
-                Tables\Actions\DeleteAction::make()
+                \Filament\Actions\DeleteAction::make()
                     ->iconButton(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\DeleteBulkAction::make()
                         ->requiresConfirmation()
                         ->modalHeading(__('translations.modals.delete.heading'))
                         ->modalDescription(__('translations.modals.delete.description')),
@@ -197,7 +197,7 @@ class TranslationResource extends Resource
             ->emptyStateHeading(__('translations.empty.heading'))
             ->emptyStateDescription(__('translations.empty.description'))
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make()
+                \Filament\Actions\CreateAction::make()
                     ->label(__('translations.empty.action')),
             ])
             ->defaultSort('group', 'asc')

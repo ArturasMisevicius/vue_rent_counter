@@ -16,7 +16,7 @@ use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Schemas\Schema;
@@ -233,8 +233,8 @@ class InvoiceResource extends Resource
                     ->default($filterManager->getFilterValue('status')),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                \Filament\Actions\ViewAction::make(),
+                \Filament\Actions\EditAction::make(),
                 Action::make('downloadPdf')
                     ->label(__('invoices.admin.actions.download_pdf'))
                     ->icon('heroicon-o-arrow-down-tray')
@@ -270,8 +270,8 @@ class InvoiceResource extends Resource
                     }),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('updateStatus')
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\BulkAction::make('updateStatus')
                         ->label(__('invoices.admin.labels.update_status'))
                         ->icon('heroicon-o-pencil-square')
                         ->form([
@@ -292,7 +292,7 @@ class InvoiceResource extends Resource
                         ->deselectRecordsAfterCompletion()
                         ->successNotificationTitle(__('invoices.admin.bulk.status_updated')),
                     
-                    Tables\Actions\DeleteBulkAction::make()
+                    \Filament\Actions\DeleteBulkAction::make()
                         ->action(function ($records) {
                             foreach ($records as $record) {
                                 // Only allow deletion of draft invoices

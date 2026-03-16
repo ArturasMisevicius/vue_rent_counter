@@ -7,7 +7,7 @@ namespace App\Filament\Tenant\Widgets;
 use App\Enums\InvoiceStatus;
 use App\Enums\UserRole;
 use App\Models\Invoice;
-use Filament\Tables\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -108,7 +108,7 @@ final class RecentInvoicesWidget extends BaseWidget
         $user = Auth::user();
         
         if (!$user || !$user->property_id) {
-            return Invoice::query()->whereRaw('1 = 0'); // Empty query
+            return Invoice::query()->whereKey(-1);
         }
         
         return Invoice::query()
