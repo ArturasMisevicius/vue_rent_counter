@@ -36,6 +36,17 @@ it('supports variant, size, and merged custom classes for the canonical ui butto
         ->toContain('w-full');
 });
 
+it('renders anchor markup when the canonical ui button is used as a link', function (): void {
+    $html = Blade::render('<x-ui.button href="/reports">Open reports</x-ui.button>');
+
+    expect($html)
+        ->toContain('<a')
+        ->toContain('href="/reports"')
+        ->toContain('role="button"')
+        ->toContain('ds-btn')
+        ->not->toContain('<button');
+});
+
 it('keeps the canonical ui button template free of inline php blocks', function (): void {
     $viewContent = file_get_contents(resource_path('views/components/ui/button.blade.php'));
 

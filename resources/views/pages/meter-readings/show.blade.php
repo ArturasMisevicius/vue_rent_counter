@@ -17,17 +17,17 @@
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none space-x-2">
             @can('update', $meterReading)
-            <x-button href="{{ route('manager.meter-readings.edit', $meterReading) }}" variant="secondary">
+            <x-ui.button href="{{ route('manager.meter-readings.edit', $meterReading) }}" variant="secondary">
                 {{ __('meter_readings.actions.correct') }}
-            </x-button>
+            </x-ui.button>
             @endcan
             @can('delete', $meterReading)
             <form action="{{ route('manager.meter-readings.destroy', $meterReading) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('meter_readings.actions.delete') }}?');">
                 @csrf
                 @method('DELETE')
-                <x-button type="submit" variant="danger">
+                <x-ui.button type="submit" variant="danger">
                     {{ __('meter_readings.actions.delete') }}
-                </x-button>
+                </x-ui.button>
             </form>
             @endcan
         </div>
@@ -170,17 +170,17 @@
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none space-x-2">
             @can('update', $meterReading)
-            <x-button href="{{ route('manager.meter-readings.edit', $meterReading) }}" variant="secondary">
+            <x-ui.button href="{{ route('manager.meter-readings.edit', $meterReading) }}" variant="secondary">
                 {{ __('meter_readings.actions.correct') }}
-            </x-button>
+            </x-ui.button>
             @endcan
             @can('delete', $meterReading)
             <form action="{{ route('manager.meter-readings.destroy', $meterReading) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('meter_readings.actions.delete') }}?');">
                 @csrf
                 @method('DELETE')
-                <x-button type="submit" variant="danger">
+                <x-ui.button type="submit" variant="danger">
                     {{ __('meter_readings.actions.delete') }}
-                </x-button>
+                </x-ui.button>
             </form>
             @endcan
         </div>

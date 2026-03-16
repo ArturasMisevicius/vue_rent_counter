@@ -9,7 +9,7 @@
 @section('title', __('tenants.pages.admin_form.title'))
 
 @section('content')
-<x-backoffice.page
+<x-ui.page
     class="px-4 sm:px-6 lg:px-8"
     :title="__('tenants.pages.admin_form.title')"
     :description="__('tenants.pages.admin_form.subtitle')"
@@ -72,19 +72,19 @@
             </x-card>
 
             <div class="flex items-center justify-end gap-x-6">
-                <x-button
+                <x-ui.button
                     :href="route('admin.tenants.index')"
                     variant="secondary"
                 >
                     {{ __('tenants.pages.admin_form.actions.cancel') }}
-                </x-button>
-                <x-button type="submit">
+                </x-ui.button>
+                <x-ui.button type="submit">
                     {{ __('tenants.pages.admin_form.actions.submit') }}
-                </x-button>
+                </x-ui.button>
             </div>
         </form>
     </div>
-</x-backoffice.page>
+</x-ui.page>
 @endsection
 @break
 
@@ -92,7 +92,7 @@
 @section('title', __('tenants.pages.admin_form.title'))
 
 @section('content')
-<x-backoffice.page
+<x-ui.page
     class="px-4 sm:px-6 lg:px-8"
     :title="__('tenants.pages.admin_form.title')"
     :description="__('tenants.pages.admin_form.subtitle')"
@@ -155,18 +155,18 @@
             </x-card>
 
             <div class="flex items-center justify-end gap-x-6">
-                <x-button
+                <x-ui.button
                     :href="route('admin.tenants.index')"
                     variant="secondary"
                 >
                     {{ __('tenants.pages.admin_form.actions.cancel') }}
-                </x-button>
-                <x-button type="submit">
+                </x-ui.button>
+                <x-ui.button type="submit">
                     {{ __('tenants.pages.admin_form.actions.submit') }}
-                </x-button>
+                </x-ui.button>
             </div>
         </form>
     </div>
-</x-backoffice.page>
+</x-ui.page>
 @endsection
 @endswitch

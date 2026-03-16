@@ -2,14 +2,14 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@extends(auth()->user()?->role?->value === 'tenant' ? 'layouts.tenant' : 'layouts.app')
+@extends('layouts.app')
 
 @switch($role)
 @case('tenant')
 @section('title', __('shared.property.meters_title'))
 
 @section('tenant-content')
-<x-tenant.page :title="__('shared.property.meters_title')" :description="__('shared.property.meters_description')">
+<x-ui.page :title="__('shared.property.meters_title')" :description="__('shared.property.meters_description')">
     @if($meters->count() > 0)
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             @foreach($meters as $meter)
@@ -37,7 +37,7 @@
     @else
         <p class="text-sm text-slate-600">{{ __('shared.property.no_meters') }}</p>
     @endif
-</x-tenant.page>
+</x-ui.page>
 @endsection
 @break
 
@@ -45,7 +45,7 @@
 @section('title', __('shared.property.meters_title'))
 
 @section('tenant-content')
-<x-tenant.page :title="__('shared.property.meters_title')" :description="__('shared.property.meters_description')">
+<x-ui.page :title="__('shared.property.meters_title')" :description="__('shared.property.meters_description')">
     @if($meters->count() > 0)
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             @foreach($meters as $meter)
@@ -73,6 +73,6 @@
     @else
         <p class="text-sm text-slate-600">{{ __('shared.property.no_meters') }}</p>
     @endif
-</x-tenant.page>
+</x-ui.page>
 @endsection
 @endswitch

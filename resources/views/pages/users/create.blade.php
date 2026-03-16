@@ -3,14 +3,14 @@
 @section('title', __('users.headings.create'))
 
 @section('content')
-<x-backoffice.page
+<x-ui.page
     :title="__('users.headings.create')"
     :description="__('users.descriptions.index')"
 >
     <x-slot name="actions">
-        <x-button variant="secondary" :href="route('admin.users.index')">
+        <x-ui.button variant="secondary" :href="route('admin.users.index')">
             {{ __('users.actions.back') }}
-        </x-button>
+        </x-ui.button>
     </x-slot>
 
     <x-card class="max-w-2xl">
@@ -67,11 +67,11 @@
             />
 
             <div class="flex justify-end">
-                <x-button type="submit">
+                <x-ui.button type="submit">
                     {{ __('users.actions.create') }}
-                </x-button>
+                </x-ui.button>
             </div>
         </form>
     </x-card>
-</x-backoffice.page>
+</x-ui.page>
 @endsection

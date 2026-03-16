@@ -2,7 +2,7 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@extends(auth()->user()?->role?->value === 'tenant' ? 'layouts.tenant' : 'layouts.app')
+@extends('layouts.app')
 
 @switch($role)
 @case('manager')
@@ -17,22 +17,22 @@
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none space-x-2">
             @can('create', App\Models\MeterReading::class)
-            <x-button href="{{ route('manager.meter-readings.create', ['meter_id' => $meter->id]) }}">
+            <x-ui.button href="{{ route('manager.meter-readings.create', ['meter_id' => $meter->id]) }}">
                 {{ __('meter_readings.actions.enter_new') }}
-            </x-button>
+            </x-ui.button>
             @endcan
             @can('update', $meter)
-            <x-button href="{{ route('manager.meters.edit', $meter) }}" variant="secondary">
+            <x-ui.button href="{{ route('manager.meters.edit', $meter) }}" variant="secondary">
                 {{ __('meters.actions.edit_meter') }}
-            </x-button>
+            </x-ui.button>
             @endcan
             @can('delete', $meter)
             <form action="{{ route('manager.meters.destroy', $meter) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('meters.confirmations.delete') }}');">
                 @csrf
                 @method('DELETE')
-                <x-button type="submit" variant="danger">
+                <x-ui.button type="submit" variant="danger">
                     {{ __('meters.actions.delete') }}
-                </x-button>
+                </x-ui.button>
             </form>
             @endcan
         </div>
@@ -219,7 +219,7 @@
 @section('title', __('shared.meters.show_title', ['serial' => $meter->serial_number]))
 
 @section('tenant-content')
-<x-tenant.page
+<x-ui.page
     :title="__('shared.meters.show_title', ['serial' => $meter->serial_number])"
     :description="__('shared.meters.show_description', ['type' => $meter->getServiceDisplayName(), 'property' => $meter->property->address ?? __('shared.property.title')])"
 >
@@ -234,8 +234,8 @@
         </div>
     </x-slot>
 
-    <x-tenant.meter-details :meter="$meter" />
-</x-tenant.page>
+    <x-ui.meter-details :meter="$meter" />
+</x-ui.page>
 @endsection
 @break
 
@@ -251,22 +251,22 @@
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none space-x-2">
             @can('create', App\Models\MeterReading::class)
-            <x-button href="{{ route('manager.meter-readings.create', ['meter_id' => $meter->id]) }}">
+            <x-ui.button href="{{ route('manager.meter-readings.create', ['meter_id' => $meter->id]) }}">
                 {{ __('meter_readings.actions.enter_new') }}
-            </x-button>
+            </x-ui.button>
             @endcan
             @can('update', $meter)
-            <x-button href="{{ route('manager.meters.edit', $meter) }}" variant="secondary">
+            <x-ui.button href="{{ route('manager.meters.edit', $meter) }}" variant="secondary">
                 {{ __('meters.actions.edit_meter') }}
-            </x-button>
+            </x-ui.button>
             @endcan
             @can('delete', $meter)
             <form action="{{ route('manager.meters.destroy', $meter) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('meters.confirmations.delete') }}');">
                 @csrf
                 @method('DELETE')
-                <x-button type="submit" variant="danger">
+                <x-ui.button type="submit" variant="danger">
                     {{ __('meters.actions.delete') }}
-                </x-button>
+                </x-ui.button>
             </form>
             @endcan
         </div>

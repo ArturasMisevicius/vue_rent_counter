@@ -146,17 +146,17 @@
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none space-x-2">
             @can('update', $building)
-            <x-button href="{{ route('manager.buildings.edit', $building) }}" variant="secondary">
+            <x-ui.button href="{{ route('manager.buildings.edit', $building) }}" variant="secondary">
                 {{ __('buildings.pages.manager_show.edit_building') }}
-            </x-button>
+            </x-ui.button>
             @endcan
             @can('delete', $building)
             <form action="{{ route('manager.buildings.destroy', $building) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('buildings.pages.manager_show.delete_confirm') }}');">
                 @csrf
                 @method('DELETE')
-                <x-button type="submit" variant="danger">
+                <x-ui.button type="submit" variant="danger">
                     {{ __('buildings.pages.manager_show.delete_building') }}
-                </x-button>
+                </x-ui.button>
             </form>
             @endcan
         </div>
@@ -194,9 +194,9 @@
             <div class="flex items-center justify-between">
                 <x-slot name="title">{{ __('buildings.pages.manager_show.properties_title') }}</x-slot>
                 @can('create', App\Models\Property::class)
-                <x-button href="{{ route('manager.properties.create', ['building_id' => $building->id]) }}" variant="secondary" size="sm">
+                <x-ui.button href="{{ route('manager.properties.create', ['building_id' => $building->id]) }}" variant="secondary" size="sm">
                     {{ __('buildings.pages.manager_show.add_property') }}
-                </x-button>
+                </x-ui.button>
                 @endcan
             </div>
             

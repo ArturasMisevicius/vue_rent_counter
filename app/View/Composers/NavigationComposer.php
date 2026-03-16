@@ -6,6 +6,7 @@ namespace App\View\Composers;
 
 use App\Enums\UserRole;
 use App\Models\Language;
+use App\Models\User;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Collection;
@@ -39,7 +40,7 @@ final class NavigationComposer
      *
      * @var array<string, array<int, array{route: string, prefix: string, label: string}>>
      */
-    private const BACKOFFICE_LINKS = [
+    private const NAVIGATION_LINKS = [
         'superadmin' => [
             ['route' => 'superadmin.dashboard', 'prefix' => 'superadmin.dashboard', 'label' => 'app.nav.dashboard'],
             ['route' => 'superadmin.organizations.index', 'prefix' => 'superadmin.organizations', 'label' => 'app.nav.organizations'],
@@ -68,6 +69,14 @@ final class NavigationComposer
             ['route' => 'manager.invoices.index', 'prefix' => 'manager.invoices', 'label' => 'app.nav.invoices'],
             ['route' => 'manager.reports.index', 'prefix' => 'manager.reports', 'label' => 'app.nav.reports'],
             ['route' => 'manager.profile.show', 'prefix' => 'manager.profile', 'label' => 'app.nav.profile'],
+        ],
+        'tenant' => [
+            ['route' => 'tenant.dashboard', 'prefix' => 'tenant.dashboard', 'label' => 'app.nav.dashboard'],
+            ['route' => 'tenant.property.show', 'prefix' => 'tenant.property', 'label' => 'app.nav.properties', 'requires_property' => true],
+            ['route' => 'tenant.meters.index', 'prefix' => 'tenant.meters', 'label' => 'app.nav.meters', 'requires_property' => true],
+            ['route' => 'tenant.meter-readings.index', 'prefix' => 'tenant.meter-readings', 'label' => 'app.nav.readings', 'requires_property' => true],
+            ['route' => 'tenant.invoices.index', 'prefix' => 'tenant.invoices', 'label' => 'app.nav.invoices'],
+            ['route' => 'tenant.profile.show', 'prefix' => 'tenant.profile', 'label' => 'app.nav.profile'],
         ],
     ];
 
@@ -153,6 +162,7 @@ final class NavigationComposer
                 'mobileInactiveClass' => self::INACTIVE_CLASS,
                 'canSwitchLocale' => false,
                 'showTopLocaleSwitcher' => false,
+                'navigationLinks' => [],
                 'backofficeLinks' => [],
                 'languages' => collect(),
                 'currentLocale' => app()->getLocale(),
@@ -163,6 +173,7 @@ final class NavigationComposer
 
         $user = $this->auth->user();
         $userRole = $user->role;
+        $navigationLinks = $this->getNavigationLinks($user);
 
         $view->with([
             'userRole' => $userRole->value,
@@ -173,7 +184,8 @@ final class NavigationComposer
             'mobileInactiveClass' => self::INACTIVE_CLASS,
             'canSwitchLocale' => $this->router->has('language.switch'),
             'showTopLocaleSwitcher' => $this->shouldShowLocaleSwitcher($userRole),
-            'backofficeLinks' => $this->getBackofficeLinks($userRole),
+            'navigationLinks' => $navigationLinks,
+            'backofficeLinks' => $navigationLinks,
             'languages' => $this->getActiveLanguages($userRole),
             'currentLocale' => app()->getLocale(),
         ]);
@@ -216,13 +228,20 @@ final class NavigationComposer
     }
 
     /**
-     * Resolve translated backoffice links for the current role.
+     * Resolve translated navigation links for the current role.
      *
      * @return array<int, array{route: string, prefix: string, label: string}>
      */
-    private function getBackofficeLinks(UserRole $userRole): array
+    private function getNavigationLinks(User $user): array
     {
-        $links = self::BACKOFFICE_LINKS[$userRole->value] ?? [];
+        $links = self::NAVIGATION_LINKS[$user->role->value] ?? [];
+
+        if ($user->role === UserRole::TENANT && ! $user->property_id) {
+            $links = array_values(array_filter(
+                $links,
+                static fn (array $link): bool => ! ($link['requires_property'] ?? false),
+            ));
+        }
 
         return array_map(static fn (array $link): array => [
             'route' => $link['route'],

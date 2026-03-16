@@ -2,18 +2,18 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@extends(auth()->user()?->role?->value === 'tenant' ? 'layouts.tenant' : 'layouts.app')
+@extends('layouts.app')
 
 @switch($role)
 @case('tenant')
 @section('title', __('invoices.shared.receipt.title', ['id' => $invoice->id]))
 
 @section('tenant-content')
-<x-tenant.page
+<x-ui.page
     :title="__('invoices.shared.receipt.title', ['id' => $invoice->id])"
     :description="__('invoices.shared.receipt.description', ['from' => $invoice->billing_period_start->format('Y-m-d'), 'to' => $invoice->billing_period_end->format('Y-m-d')])"
 >
-    <x-tenant.section-card :title="__('invoices.shared.receipt.details')">
+    <x-ui.section-card :title="__('invoices.shared.receipt.details')">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
                 <p class="text-sm text-slate-600">{{ __('invoices.shared.receipt.invoice') }}</p>
@@ -62,9 +62,9 @@
             </div>
             @endif
         </div>
-    </x-tenant.section-card>
+    </x-ui.section-card>
 
-    <x-tenant.section-card :title="__('invoices.shared.receipt.line_items')">
+    <x-ui.section-card :title="__('invoices.shared.receipt.line_items')">
         <div class="hidden sm:block overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200">
                 <thead class="bg-slate-50">
@@ -91,7 +91,7 @@
                 </tbody>
             </table>
         </div>
-        <x-tenant.stack gap="3" class="sm:hidden">
+        <x-ui.stack gap="3" class="sm:hidden">
             @foreach($invoice->items as $item)
             <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                 <p class="text-sm font-semibold text-slate-900">{{ $item->description }}</p>
@@ -106,9 +106,9 @@
                     <p class="text-sm font-semibold text-slate-900">€{{ number_format($invoice->total_amount, 2) }}</p>
                 </div>
             </div>
-        </x-tenant.stack>
-    </x-tenant.section-card>
-</x-tenant.page>
+        </x-ui.stack>
+    </x-ui.section-card>
+</x-ui.page>
 @endsection
 @break
 
@@ -116,11 +116,11 @@
 @section('title', __('invoices.shared.receipt.title', ['id' => $invoice->id]))
 
 @section('tenant-content')
-<x-tenant.page
+<x-ui.page
     :title="__('invoices.shared.receipt.title', ['id' => $invoice->id])"
     :description="__('invoices.shared.receipt.description', ['from' => $invoice->billing_period_start->format('Y-m-d'), 'to' => $invoice->billing_period_end->format('Y-m-d')])"
 >
-    <x-tenant.section-card :title="__('invoices.shared.receipt.details')">
+    <x-ui.section-card :title="__('invoices.shared.receipt.details')">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
                 <p class="text-sm text-slate-600">{{ __('invoices.shared.receipt.invoice') }}</p>
@@ -169,9 +169,9 @@
             </div>
             @endif
         </div>
-    </x-tenant.section-card>
+    </x-ui.section-card>
 
-    <x-tenant.section-card :title="__('invoices.shared.receipt.line_items')">
+    <x-ui.section-card :title="__('invoices.shared.receipt.line_items')">
         <div class="hidden sm:block overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200">
                 <thead class="bg-slate-50">
@@ -198,7 +198,7 @@
                 </tbody>
             </table>
         </div>
-        <x-tenant.stack gap="3" class="sm:hidden">
+        <x-ui.stack gap="3" class="sm:hidden">
             @foreach($invoice->items as $item)
             <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                 <p class="text-sm font-semibold text-slate-900">{{ $item->description }}</p>
@@ -213,8 +213,8 @@
                     <p class="text-sm font-semibold text-slate-900">€{{ number_format($invoice->total_amount, 2) }}</p>
                 </div>
             </div>
-        </x-tenant.stack>
-    </x-tenant.section-card>
-</x-tenant.page>
+        </x-ui.stack>
+    </x-ui.section-card>
+</x-ui.page>
 @endsection
 @endswitch

@@ -12,22 +12,22 @@
 @section('title', __('users.headings.show'))
 
 @section('content')
-<x-backoffice.page
+<x-ui.page
     :title="__('users.headings.show')"
     :description="__('users.descriptions.index')"
 >
     <x-slot name="actions">
         @if($isAdmin)
             @can('update', $user)
-                <x-button :href="route('admin.users.edit', $user)">
+                <x-ui.button :href="route('admin.users.edit', $user)">
                     {{ __('users.actions.edit') }}
-                </x-button>
+                </x-ui.button>
             @endcan
         @endif
 
-        <x-button variant="secondary" :href="$backRoute">
+        <x-ui.button variant="secondary" :href="$backRoute">
             {{ __('users.actions.back') }}
-        </x-button>
+        </x-ui.button>
     </x-slot>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -84,18 +84,18 @@
                 <x-card :title="__('users.headings.quick_actions')">
                     <div class="space-y-3">
                         @can('update', $user)
-                            <x-button variant="secondary" :href="route('admin.users.edit', $user)" class="w-full">
+                            <x-ui.button variant="secondary" :href="route('admin.users.edit', $user)" class="w-full">
                                 {{ __('users.actions.edit') }}
-                            </x-button>
+                            </x-ui.button>
                         @endcan
 
                         @can('delete', $user)
                             <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('{{ __('users.actions.delete') }}?');">
                                 @csrf
                                 @method('DELETE')
-                                <x-button variant="danger" type="submit" class="w-full">
+                                <x-ui.button variant="danger" type="submit" class="w-full">
                                     {{ __('users.actions.delete') }}
-                                </x-button>
+                                </x-ui.button>
                             </form>
                         @endcan
                     </div>
@@ -103,5 +103,5 @@
             </div>
         @endif
     </div>
-</x-backoffice.page>
+</x-ui.page>
 @endsection

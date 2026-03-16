@@ -10,7 +10,7 @@
 
     @stack('styles')
 </head>
-<body class="text-slate-900 antialiased" data-layout="backoffice">
+<body class="text-slate-900 antialiased" data-layout="{{ $userRole ?? 'guest' }}">
     <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:top-4 focus:left-4 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
         {{ __('app.accessibility.skip_to_content') }}
     </a>
@@ -25,7 +25,7 @@
             <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
                     <div class="flex items-center gap-3">
-                        <a href="{{ url('/') }}" class="flex items-center gap-3 group">
+                        <a href="{{ isset($navigationLinks[0]) ? route($navigationLinks[0]['route']) : url('/') }}" class="flex items-center gap-3 group">
                             <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-400 text-white font-display text-lg shadow-glow transition-transform duration-300">V</span>
                             <div class="leading-tight">
                                 <p class="text-[11px] uppercase tracking-[0.22em] text-slate-500">{{ __('app.brand.name') }}</p>
@@ -37,8 +37,8 @@
                     <!-- Desktop Navigation -->
                     <div class="hidden md:flex md:items-center md:space-x-1">
                         @auth
-                            @if(in_array($userRole, ['superadmin', 'admin', 'manager'], true))
-                                @include('layouts.partials.backoffice-nav-items')
+                            @if(! empty($navigationLinks))
+                                @include('layouts.partials.navigation-items')
                             @endif
                         @endauth
                     </div>
@@ -73,8 +73,8 @@
             @auth
             <div x-show="mobileMenuOpen" x-transition class="md:hidden bg-white/95 backdrop-blur border-t border-slate-200 shadow-lg">
                 <div class="space-y-1 px-4 pb-4 pt-3">
-                    @if(in_array($userRole, ['superadmin', 'admin', 'manager'], true))
-                        @include('layouts.partials.backoffice-nav-items', ['mobile' => true])
+                    @if(! empty($navigationLinks))
+                        @include('layouts.partials.navigation-items', ['mobile' => true])
                     @endif
 
                     <div class="border-t border-slate-200 pt-2 mt-2">
@@ -150,7 +150,11 @@
             </div>
             
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                @yield('content')
+                @hasSection('content')
+                    @yield('content')
+                @else
+                    @yield('tenant-content')
+                @endif
             </div>
         </main>
     </div>

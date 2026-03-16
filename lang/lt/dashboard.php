@@ -392,6 +392,12 @@ return [
             'deleted' => 'Ištrinta',
             'rollback' => 'Atšaukimas',
         ],
+        'severity_levels' => [
+            'critical' => 'Critical',
+            'high' => 'High',
+            'low' => 'Low',
+            'medium' => 'Medium',
+        ],
         'models' => [
             'utility_service' => 'Komunalinės paslaugos',
             'service_configuration' => 'Paslaugos konfigūracija',

@@ -77,9 +77,9 @@
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             @can('create', App\Models\Building::class)
-            <x-button href="{{ route('manager.buildings.create') }}">
+            <x-ui.button href="{{ route('manager.buildings.create') }}">
                 {{ __('buildings.pages.manager_index.add') }}
-            </x-button>
+            </x-ui.button>
             @endcan
         </div>
     </div>

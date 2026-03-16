@@ -59,12 +59,12 @@
                     />
 
                     <div class="flex items-center justify-end gap-x-4">
-                        <x-button href="{{ route('manager.properties.index') }}" variant="secondary">
+                        <x-ui.button href="{{ route('manager.properties.index') }}" variant="secondary">
                             {{ __('properties.pages.manager_form.actions.cancel') }}
-                        </x-button>
-                        <x-button type="submit">
+                        </x-ui.button>
+                        <x-ui.button type="submit">
                             {{ __('properties.pages.manager_form.actions.save_create') }}
-                        </x-button>
+                        </x-ui.button>
                     </div>
                 </div>
             </form>
@@ -128,12 +128,12 @@
                     />
 
                     <div class="flex items-center justify-end gap-x-4">
-                        <x-button href="{{ route('manager.properties.index') }}" variant="secondary">
+                        <x-ui.button href="{{ route('manager.properties.index') }}" variant="secondary">
                             {{ __('properties.pages.manager_form.actions.cancel') }}
-                        </x-button>
-                        <x-button type="submit">
+                        </x-ui.button>
+                        <x-ui.button type="submit">
                             {{ __('properties.pages.manager_form.actions.save_create') }}
-                        </x-button>
+                        </x-ui.button>
                     </div>
                 </div>
             </form>

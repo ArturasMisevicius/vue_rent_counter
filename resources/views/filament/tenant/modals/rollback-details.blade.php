@@ -1,4 +1,51 @@
 {{-- Rollback Details Modal --}}
+@php
+    $resolveAuditFieldLabel = static function (string $field): string {
+        $normalized = \Illuminate\Support\Str::snake($field);
+
+        foreach ([
+            'dashboard.audit.labels.' . $normalized,
+            'shared.superadmin.audit.fields.' . $normalized,
+        ] as $key) {
+            $label = __($key);
+
+            if ($label !== $key) {
+                return $label;
+            }
+        }
+
+        return \Illuminate\Support\Str::headline(str_replace('_', ' ', $field));
+    };
+
+    $resolveAuditEventLabel = static function (?string $event): string {
+        if (filled($event)) {
+            $key = 'dashboard.audit.events.' . \Illuminate\Support\Str::snake($event);
+            $label = __($key);
+
+            if ($label !== $key) {
+                return $label;
+            }
+        }
+
+        return __('dashboard.audit.unknown_status');
+    };
+
+    $resolveAuditModelLabel = static function (?string $modelType): string {
+        $basename = filled($modelType) ? class_basename($modelType) : null;
+
+        if (! filled($basename)) {
+            return __('dashboard.audit.unknown_status');
+        }
+
+        $key = 'dashboard.audit.models.' . \Illuminate\Support\Str::snake($basename);
+        $label = __($key);
+
+        return $label !== $key
+            ? $label
+            : \Illuminate\Support\Str::headline($basename);
+    };
+@endphp
+
 <div class="space-y-6">
     {{-- Rollback Summary --}}
     <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
@@ -12,7 +59,7 @@
                     {{ __('dashboard.audit.labels.performed_at') }}:
                 </span>
                 <span class="ml-2 text-sm text-gray-900 dark:text-gray-100">
-                    {{ \Carbon\Carbon::parse($rollback['performed_at'])->format('M j, Y H:i:s') }}
+                    {{ \Carbon\Carbon::parse($rollback['performed_at'])->locale(app()->getLocale())->translatedFormat('M j, Y H:i:s') }}
                 </span>
             </div>
             
@@ -37,7 +84,7 @@
                     {{ __('dashboard.audit.labels.model_type') }}:
                 </span>
                 <span class="ml-2 text-sm text-gray-900 dark:text-gray-100">
-                    {{ class_basename($rollback['model_type'] ?? 'Unknown') }}
+                    {{ $resolveAuditModelLabel($rollback['model_type'] ?? null) }}
                 </span>
             </div>
             
@@ -78,7 +125,7 @@
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                         </svg>
                         <span class="text-sm text-blue-800 dark:text-blue-200">
-                            {{ ucfirst(str_replace('_', ' ', $field)) }}
+                            {{ $resolveAuditFieldLabel($field) }}
                         </span>
                     </div>
                 @endforeach
@@ -114,7 +161,7 @@
                                     bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100
                             @endswitch
                         ">
-                            {{ ucfirst($rollback['original_change']['event'] ?? 'Unknown') }}
+                            {{ $resolveAuditEventLabel($rollback['original_change']['event'] ?? null) }}
                         </span>
                     </div>
                     
@@ -123,7 +170,7 @@
                             {{ __('dashboard.audit.labels.changed_at') }}:
                         </span>
                         <span class="ml-2 text-sm text-gray-900 dark:text-gray-100">
-                            {{ \Carbon\Carbon::parse($rollback['original_change']['changed_at'])->format('M j, Y H:i:s') }}
+                            {{ \Carbon\Carbon::parse($rollback['original_change']['changed_at'])->locale(app()->getLocale())->translatedFormat('M j, Y H:i:s') }}
                         </span>
                     </div>
                 </div>

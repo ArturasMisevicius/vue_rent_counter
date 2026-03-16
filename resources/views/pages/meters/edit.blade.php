@@ -73,12 +73,12 @@
                     </div>
 
                     <div class="flex items-center justify-end gap-x-4">
-                        <x-button href="{{ route('manager.meters.show', $meter) }}" variant="secondary">
+                        <x-ui.button href="{{ route('manager.meters.show', $meter) }}" variant="secondary">
                             {{ __('invoices.shared.edit.cancel') }}
-                        </x-button>
-                        <x-button type="submit">
+                        </x-ui.button>
+                        <x-ui.button type="submit">
                             {{ __('meters.actions.edit_meter') }}
-                        </x-button>
+                        </x-ui.button>
                     </div>
                 </div>
             </form>
@@ -156,12 +156,12 @@
                     </div>
 
                     <div class="flex items-center justify-end gap-x-4">
-                        <x-button href="{{ route('manager.meters.show', $meter) }}" variant="secondary">
+                        <x-ui.button href="{{ route('manager.meters.show', $meter) }}" variant="secondary">
                             {{ __('invoices.shared.edit.cancel') }}
-                        </x-button>
-                        <x-button type="submit">
+                        </x-ui.button>
+                        <x-ui.button type="submit">
                             {{ __('meters.actions.edit_meter') }}
-                        </x-button>
+                        </x-ui.button>
                     </div>
                 </div>
             </form>

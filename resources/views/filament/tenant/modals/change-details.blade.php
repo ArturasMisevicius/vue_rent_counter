@@ -1,4 +1,51 @@
 {{-- Change Details Modal --}}
+@php
+    $resolveAuditFieldLabel = static function (string $field): string {
+        $normalized = \Illuminate\Support\Str::snake($field);
+
+        foreach ([
+            'dashboard.audit.labels.' . $normalized,
+            'shared.superadmin.audit.fields.' . $normalized,
+        ] as $key) {
+            $label = __($key);
+
+            if ($label !== $key) {
+                return $label;
+            }
+        }
+
+        return \Illuminate\Support\Str::headline(str_replace('_', ' ', $field));
+    };
+
+    $resolveAuditEventLabel = static function (?string $event): string {
+        if (filled($event)) {
+            $key = 'dashboard.audit.events.' . \Illuminate\Support\Str::snake($event);
+            $label = __($key);
+
+            if ($label !== $key) {
+                return $label;
+            }
+        }
+
+        return __('dashboard.audit.unknown_status');
+    };
+
+    $resolveAuditModelLabel = static function (?string $modelType): string {
+        $basename = filled($modelType) ? class_basename($modelType) : null;
+
+        if (! filled($basename)) {
+            return __('dashboard.audit.unknown_status');
+        }
+
+        $key = 'dashboard.audit.models.' . \Illuminate\Support\Str::snake($basename);
+        $label = __($key);
+
+        return $label !== $key
+            ? $label
+            : \Illuminate\Support\Str::headline($basename);
+    };
+@endphp
+
 <div class="space-y-6">
     {{-- Change Summary --}}
     <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
@@ -12,7 +59,7 @@
                     {{ __('dashboard.audit.labels.model_type') }}:
                 </span>
                 <span class="ml-2 text-sm text-gray-900 dark:text-gray-100">
-                    {{ class_basename($change->modelType) }}
+                    {{ $resolveAuditModelLabel($change->modelType) }}
                 </span>
             </div>
             
@@ -38,7 +85,7 @@
                             bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100
                     @endswitch
                 ">
-                    {{ ucfirst($change->event) }}
+                    {{ $resolveAuditEventLabel($change->event) }}
                 </span>
             </div>
             
@@ -47,7 +94,7 @@
                     {{ __('dashboard.audit.labels.changed_at') }}:
                 </span>
                 <span class="ml-2 text-sm text-gray-900 dark:text-gray-100">
-                    {{ $change->changedAt->format('M j, Y H:i:s') }}
+                    {{ $change->changedAt->locale(app()->getLocale())->translatedFormat('M j, Y H:i:s') }}
                 </span>
             </div>
             
@@ -81,7 +128,7 @@
                     <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
                         <div class="flex justify-between items-start mb-2">
                             <span class="font-medium text-gray-900 dark:text-gray-100">
-                                {{ ucfirst(str_replace('_', ' ', $field)) }}
+                                {{ $resolveAuditFieldLabel($field) }}
                             </span>
                         </div>
                         

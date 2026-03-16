@@ -348,6 +348,7 @@ def php_export(data: Any, indent: int = 0) -> str:
 
 def write_php_array(file_path: Path, data: Any) -> None:
     content = "<?php\n\nreturn " + php_export(data) + ";\n"
+    file_path.parent.mkdir(parents=True, exist_ok=True)
     file_path.write_text(content, encoding="utf-8")
 
 
@@ -606,6 +607,46 @@ def apply_translations(data: Any, translations: dict[str, str]) -> Any:
     return data
 
 
+def merge_missing_values(source: Any, existing: Any) -> Any:
+    if isinstance(source, dict):
+        existing_dict = existing if isinstance(existing, dict) else {}
+
+        return {
+            key: merge_missing_values(value, existing_dict.get(key))
+            for key, value in source.items()
+        }
+
+    if isinstance(source, list):
+        existing_list = existing if isinstance(existing, list) else []
+
+        if not existing_list:
+            return source
+
+        merged: list[Any] = []
+        max_length = max(len(source), len(existing_list))
+
+        for index in range(max_length):
+            if index >= len(source):
+                merged.append(existing_list[index])
+                continue
+
+            if index >= len(existing_list):
+                merged.append(source[index])
+                continue
+
+            merged.append(merge_missing_values(source[index], existing_list[index]))
+
+        return merged
+
+    if existing is None:
+        return source
+
+    if isinstance(existing, str) and existing.strip() == "":
+        return source
+
+    return existing
+
+
 def canonical_source_file_for(file_path: Path, locale: str) -> Path:
     if locale == CANONICAL_SOURCE_LOCALE:
         return file_path
@@ -621,12 +662,24 @@ def locale_files(locales: list[str], files: list[str] | None) -> list[Path]:
     if files:
         return [ROOT / file for file in files]
 
+    canonical_file_names = {
+        path.name for path in (LANG_PATH / CANONICAL_SOURCE_LOCALE).glob("*.php")
+    }
+
     collected: list[Path] = []
     for locale in locales:
         locale_path = LANG_PATH / locale
         if not locale_path.is_dir():
             continue
-        collected.extend(sorted(locale_path.glob("*.php")))
+
+        if locale == CANONICAL_SOURCE_LOCALE:
+            file_names = canonical_file_names
+        else:
+            file_names = canonical_file_names | {
+                path.name for path in locale_path.glob("*.php")
+            }
+
+        collected.extend(sorted(locale_path / file_name for file_name in file_names))
 
     return collected
 
@@ -635,6 +688,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Normalize locale files by translating each locale to its own language.")
     parser.add_argument("--locale", action="append", dest="locales", help="Locale(s) to normalize, e.g. --locale en --locale lt")
     parser.add_argument("--file", action="append", dest="files", help="Specific file(s) relative to repo root")
+    parser.add_argument("--copy-source", action="store_true", help="Copy canonical source strings for missing locale keys instead of machine translating")
     parser.add_argument("--from-head", action="store_true", help="Load source locale files from HEAD before writing")
     parser.add_argument("--dry-run", action="store_true", help="Print the files that would be normalized without writing them")
     return parser.parse_args()
@@ -674,6 +728,12 @@ def main() -> int:
         for file_path in locale_file_paths:
             source_file_path = canonical_source_file_for(file_path, locale)
             payload = run_php_json_loader(source_file_path, args.from_head if locale == CANONICAL_SOURCE_LOCALE else False)
+
+            if args.copy_source and locale != CANONICAL_SOURCE_LOCALE:
+                existing_payload = run_php_json_loader(file_path, False) if file_path.exists() else None
+                file_payloads[file_path] = merge_missing_values(payload, existing_payload)
+                continue
+
             file_payloads[file_path] = payload
             if locale == CANONICAL_SOURCE_LOCALE:
                 all_strings.extend(
@@ -685,6 +745,19 @@ def main() -> int:
                 )
             else:
                 all_strings.extend(walk_scalars(payload))
+
+        if args.copy_source:
+            print(f"  Filling missing keys from {CANONICAL_SOURCE_LOCALE}")
+
+            for file_path, payload in file_payloads.items():
+                if args.dry_run:
+                    print(f"  Would write {file_path.relative_to(ROOT)}")
+                    continue
+
+                write_php_array(file_path, payload)
+                print(f"  Wrote {file_path.relative_to(ROOT)}")
+
+            continue
 
         unique_strings = list(dict.fromkeys(all_strings))
         print(f"  Translating {len(unique_strings)} unique strings")

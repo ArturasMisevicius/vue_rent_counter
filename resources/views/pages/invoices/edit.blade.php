@@ -68,12 +68,12 @@
                     </div>
 
                     <div class="flex items-center justify-end gap-x-4">
-                        <x-button href="{{ route('manager.invoices.show', $invoice) }}" variant="secondary">
+                        <x-ui.button href="{{ route('manager.invoices.show', $invoice) }}" variant="secondary">
                             {{ __('invoices.shared.edit.cancel') }}
-                        </x-button>
-                        <x-button type="submit">
+                        </x-ui.button>
+                        <x-ui.button type="submit">
                             {{ __('invoices.shared.edit.submit') }}
-                        </x-button>
+                        </x-ui.button>
                     </div>
                 </div>
             </form>
@@ -200,12 +200,12 @@
                     </div>
 
                     <div class="flex items-center justify-end gap-x-4">
-                        <x-button href="{{ route('manager.invoices.show', $invoice) }}" variant="secondary">
+                        <x-ui.button href="{{ route('manager.invoices.show', $invoice) }}" variant="secondary">
                             {{ __('invoices.shared.edit.cancel') }}
-                        </x-button>
-                        <x-button type="submit">
+                        </x-ui.button>
+                        <x-ui.button type="submit">
                             {{ __('invoices.shared.edit.submit') }}
-                        </x-button>
+                        </x-ui.button>
                     </div>
                 </div>
             </form>

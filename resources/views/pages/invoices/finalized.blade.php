@@ -17,9 +17,9 @@
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             @can('create', App\Models\Invoice::class)
-            <x-button href="{{ route('manager.invoices.create') }}">
+            <x-ui.button href="{{ route('manager.invoices.create') }}">
                 {{ __('invoices.shared.index.generate') }}
-            </x-button>
+            </x-ui.button>
             @endcan
         </div>
     </div>
@@ -43,9 +43,9 @@
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             @can('create', App\Models\Invoice::class)
-            <x-button href="{{ route('manager.invoices.create') }}">
+            <x-ui.button href="{{ route('manager.invoices.create') }}">
                 {{ __('invoices.shared.index.generate') }}
-            </x-button>
+            </x-ui.button>
             @endcan
         </div>
     </div>

@@ -53,12 +53,12 @@
                     />
 
                     <div class="flex items-center justify-end gap-x-4">
-                        <x-button href="{{ route('manager.buildings.show', $building) }}" variant="secondary">
+                        <x-ui.button href="{{ route('manager.buildings.show', $building) }}" variant="secondary">
                             {{ __('buildings.pages.manager_form.actions.cancel') }}
-                        </x-button>
-                        <x-button type="submit">
+                        </x-ui.button>
+                        <x-ui.button type="submit">
                             {{ __('buildings.pages.manager_form.actions.save_edit') }}
-                        </x-button>
+                        </x-ui.button>
                     </div>
                 </div>
             </form>
@@ -116,12 +116,12 @@
                     />
 
                     <div class="flex items-center justify-end gap-x-4">
-                        <x-button href="{{ route('manager.buildings.show', $building) }}" variant="secondary">
+                        <x-ui.button href="{{ route('manager.buildings.show', $building) }}" variant="secondary">
                             {{ __('buildings.pages.manager_form.actions.cancel') }}
-                        </x-button>
-                        <x-button type="submit">
+                        </x-ui.button>
+                        <x-ui.button type="submit">
                             {{ __('buildings.pages.manager_form.actions.save_edit') }}
-                        </x-button>
+                        </x-ui.button>
                     </div>
                 </div>
             </form>

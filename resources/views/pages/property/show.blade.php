@@ -2,20 +2,20 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@extends(auth()->user()?->role?->value === 'tenant' ? 'layouts.tenant' : 'layouts.app')
+@extends('layouts.app')
 
 @switch($role)
 @case('tenant')
 @section('title', __('shared.property.title'))
 
 @section('tenant-content')
-<x-tenant.page :title="__('shared.property.title')" :description="__('shared.property.description')">
+<x-ui.page :title="__('shared.property.title')" :description="__('shared.property.description')">
     @if(!$property)
-        <x-tenant.alert type="warning" :title="__('shared.property.no_property_title')">
+        <x-ui.alert type="warning" :title="__('shared.property.no_property_title')">
             {{ __('shared.property.no_property_body') }}
-        </x-tenant.alert>
+        </x-ui.alert>
     @else
-        <x-tenant.section-card :title="__('shared.property.info_title')">
+        <x-ui.section-card :title="__('shared.property.info_title')">
             <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
                     <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{{ __('shared.property.labels.address') }}</dt>
@@ -40,9 +40,9 @@
                 </div>
                 @endif
             </dl>
-        </x-tenant.section-card>
+        </x-ui.section-card>
 
-        <x-tenant.section-card :title="__('shared.property.meters_title')" :description="__('shared.property.meters_description')">
+        <x-ui.section-card :title="__('shared.property.meters_title')" :description="__('shared.property.meters_description')">
             @if($property->meters && $property->meters->count() > 0)
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     @foreach($property->meters as $meter)
@@ -68,9 +68,9 @@
             @else
                 <p class="text-sm text-slate-600">{{ __('shared.property.no_meters') }}</p>
             @endif
-        </x-tenant.section-card>
+        </x-ui.section-card>
 
-        <x-tenant.section-card :title="__('shared.property.services_title')" :description="__('shared.property.services_description')" class="mt-6">
+        <x-ui.section-card :title="__('shared.property.services_title')" :description="__('shared.property.services_description')" class="mt-6">
             @if($property->serviceConfigurations && $property->serviceConfigurations->count() > 0)
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     @foreach($property->serviceConfigurations as $configuration)
@@ -116,9 +116,9 @@
             @else
                 <p class="text-sm text-slate-600">{{ __('shared.property.no_services') }}</p>
             @endif
-        </x-tenant.section-card>
+        </x-ui.section-card>
     @endif
-</x-tenant.page>
+</x-ui.page>
 @endsection
 @break
 
@@ -126,13 +126,13 @@
 @section('title', __('shared.property.title'))
 
 @section('tenant-content')
-<x-tenant.page :title="__('shared.property.title')" :description="__('shared.property.description')">
+<x-ui.page :title="__('shared.property.title')" :description="__('shared.property.description')">
     @if(!$property)
-        <x-tenant.alert type="warning" :title="__('shared.property.no_property_title')">
+        <x-ui.alert type="warning" :title="__('shared.property.no_property_title')">
             {{ __('shared.property.no_property_body') }}
-        </x-tenant.alert>
+        </x-ui.alert>
     @else
-        <x-tenant.section-card :title="__('shared.property.info_title')">
+        <x-ui.section-card :title="__('shared.property.info_title')">
             <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
                     <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{{ __('shared.property.labels.address') }}</dt>
@@ -157,9 +157,9 @@
                 </div>
                 @endif
             </dl>
-        </x-tenant.section-card>
+        </x-ui.section-card>
 
-        <x-tenant.section-card :title="__('shared.property.meters_title')" :description="__('shared.property.meters_description')">
+        <x-ui.section-card :title="__('shared.property.meters_title')" :description="__('shared.property.meters_description')">
             @if($property->meters && $property->meters->count() > 0)
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     @foreach($property->meters as $meter)
@@ -185,9 +185,9 @@
             @else
                 <p class="text-sm text-slate-600">{{ __('shared.property.no_meters') }}</p>
             @endif
-        </x-tenant.section-card>
+        </x-ui.section-card>
 
-        <x-tenant.section-card :title="__('shared.property.services_title')" :description="__('shared.property.services_description')" class="mt-6">
+        <x-ui.section-card :title="__('shared.property.services_title')" :description="__('shared.property.services_description')" class="mt-6">
             @if($property->serviceConfigurations && $property->serviceConfigurations->count() > 0)
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     @foreach($property->serviceConfigurations as $configuration)
@@ -233,8 +233,8 @@
             @else
                 <p class="text-sm text-slate-600">{{ __('shared.property.no_services') }}</p>
             @endif
-        </x-tenant.section-card>
+        </x-ui.section-card>
     @endif
-</x-tenant.page>
+</x-ui.page>
 @endsection
 @endswitch

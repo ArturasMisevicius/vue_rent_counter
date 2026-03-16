@@ -1,8 +1,31 @@
+@php
+    $formatDashboardInterval = static function (int|string $seconds): string {
+        $seconds = (int) $seconds;
+
+        return match (true) {
+            $seconds < 60 => __('shared.dashboard_customization.intervals.seconds', ['count' => $seconds]),
+            $seconds % 3600 === 0 => __('shared.dashboard_customization.intervals.hour', ['count' => (int) ($seconds / 3600)]),
+            $seconds === 60 => __('shared.dashboard_customization.intervals.minute', ['count' => 1]),
+            $seconds % 60 === 0 => __('shared.dashboard_customization.intervals.minutes', ['count' => (int) ($seconds / 60)]),
+            default => __('shared.dashboard_customization.intervals.seconds', ['count' => $seconds]),
+        };
+    };
+
+    $resolveDashboardCategory = static function (string $category): string {
+        $key = 'shared.dashboard_customization.categories.' . \Illuminate\Support\Str::snake($category);
+        $label = __($key);
+
+        return $label !== $key
+            ? $label
+            : \Illuminate\Support\Str::headline($category);
+    };
+@endphp
+
 <div class="dashboard-customization">
     <!-- Customization Toggle Button -->
     <div class="mb-4 flex justify-between items-center">
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-            Dashboard Customization
+            {{ __('shared.dashboard_customization.title') }}
         </h2>
         
         <div class="flex gap-2">
@@ -14,7 +37,7 @@
                         size="sm"
                         icon="heroicon-o-arrow-down-tray"
                     >
-                        Export Layout
+                        {{ __('shared.dashboard_customization.actions.export_layout') }}
                     </x-filament::button>
                     
                     <x-filament::button
@@ -23,7 +46,7 @@
                         size="sm"
                         icon="heroicon-o-arrow-path"
                     >
-                        Reset to Default
+                        {{ __('shared.dashboard_customization.actions.reset_to_default') }}
                     </x-filament::button>
                 </div>
             @endif
@@ -34,7 +57,7 @@
                 size="sm"
                 :icon="$customizationMode ? 'heroicon-o-check' : 'heroicon-o-cog-6-tooth'"
             >
-                {{ $customizationMode ? 'Done' : 'Customize' }}
+                {{ $customizationMode ? __('shared.dashboard_customization.actions.done') : __('shared.dashboard_customization.actions.customize') }}
             </x-filament::button>
         </div>
     </div>
@@ -45,13 +68,13 @@
             <div class="lg:col-span-1">
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
                     <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                        Widget Library
+                        {{ __('shared.dashboard_customization.widget_library') }}
                     </h3>
                     
                     @foreach($widgetLibrary as $category => $widgets)
                         <div class="mb-4">
                             <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 capitalize">
-                                {{ $category }}
+                                {{ $resolveDashboardCategory($category) }}
                             </h4>
                             
                             <div class="space-y-2">
@@ -74,7 +97,7 @@
                                                     icon="heroicon-o-minus-circle"
                                                     color="danger"
                                                     size="sm"
-                                                    tooltip="Remove from dashboard"
+                                                    :tooltip="__('shared.dashboard_customization.actions.remove_from_dashboard')"
                                                 />
                                             @else
                                                 <x-filament::icon-button
@@ -82,7 +105,7 @@
                                                     icon="heroicon-o-plus-circle"
                                                     color="success"
                                                     size="sm"
-                                                    tooltip="Add to dashboard"
+                                                    :tooltip="__('shared.dashboard_customization.actions.add_to_dashboard')"
                                                 />
                                             @endif
                                         </div>
@@ -98,7 +121,7 @@
             <div class="lg:col-span-3">
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
                     <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                        Dashboard Layout
+                        {{ __('shared.dashboard_customization.dashboard_layout') }}
                     </h3>
                     
                     <div id="dashboard-preview" class="sortable-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -109,11 +132,13 @@
                                 <div class="flex justify-between items-start mb-2">
                                     <div class="flex-1">
                                         <h4 class="text-sm font-medium text-gray-900 dark:text-white">
-                                            {{ $availableWidgets[$widget['class']]['name'] ?? 'Unknown Widget' }}
+                                            {{ $availableWidgets[$widget['class']]['name'] ?? __('shared.dashboard_customization.unknown_widget') }}
                                         </h4>
                                         <p class="text-xs text-gray-500 dark:text-gray-400">
-                                            Size: {{ ucfirst($widget['size']) }} | 
-                                            Refresh: {{ $widget['refresh_interval'] }}s
+                                            {{ __('shared.dashboard_customization.summary', [
+                                                'size' => __('shared.dashboard_customization.sizes.' . $widget['size']),
+                                                'interval' => $formatDashboardInterval($widget['refresh_interval']),
+                                            ]) }}
                                         </p>
                                     </div>
                                     
@@ -123,7 +148,7 @@
                                             icon="heroicon-o-cog-6-tooth"
                                             color="gray"
                                             size="sm"
-                                            tooltip="Configure widget"
+                                            :tooltip="__('shared.dashboard_customization.actions.configure_widget_action')"
                                         />
                                         
                                         <x-filament::icon-button
@@ -131,7 +156,7 @@
                                             icon="heroicon-o-eye-slash"
                                             color="warning"
                                             size="sm"
-                                            tooltip="Hide widget"
+                                            :tooltip="__('shared.dashboard_customization.actions.hide_widget')"
                                         />
                                         
                                         <x-filament::icon-button
@@ -139,13 +164,13 @@
                                             icon="heroicon-o-trash"
                                             color="danger"
                                             size="sm"
-                                            tooltip="Remove widget"
+                                            :tooltip="__('shared.dashboard_customization.actions.remove_widget')"
                                         />
                                     </div>
                                 </div>
                                 
                                 <div class="widget-preview-content bg-gray-100 dark:bg-gray-700 rounded p-2 text-center text-xs text-gray-600 dark:text-gray-400">
-                                    Widget Preview
+                                    {{ __('shared.dashboard_customization.widget_preview') }}
                                 </div>
                             </div>
                         @endforeach
@@ -154,14 +179,14 @@
                     @if(count($this->getDisabledWidgets()) > 0)
                         <div class="mt-6">
                             <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Hidden Widgets
+                                {{ __('shared.dashboard_customization.hidden_widgets') }}
                             </h4>
                             
                             <div class="flex flex-wrap gap-2">
                                 @foreach($this->getDisabledWidgets() as $widget)
                                     <div class="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm">
                                         <span class="text-gray-600 dark:text-gray-400">
-                                            {{ $availableWidgets[$widget['class']]['name'] ?? 'Unknown Widget' }}
+                                            {{ $availableWidgets[$widget['class']]['name'] ?? __('shared.dashboard_customization.unknown_widget') }}
                                         </span>
                                         
                                         <x-filament::icon-button
@@ -169,7 +194,7 @@
                                             icon="heroicon-o-eye"
                                             color="success"
                                             size="xs"
-                                            tooltip="Show widget"
+                                            :tooltip="__('shared.dashboard_customization.actions.show_widget')"
                                         />
                                     </div>
                                 @endforeach

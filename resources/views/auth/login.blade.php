@@ -8,6 +8,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-slate-950 text-slate-50 antialiased">
+@php($demoPassword = 'password')
 
 <div class="relative overflow-hidden min-h-screen">
     <div class="pointer-events-none absolute inset-0">
@@ -120,7 +121,8 @@
             <div class="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur text-center">
                 <p class="text-xs uppercase tracking-[0.2em] text-slate-400 mb-2">{{ __('app.auth.login_page.quick_access') }}</p>
                 <p class="text-sm text-slate-300">
-                    <strong class="text-white">{{ __('app.auth.login_page.default_password') }}</strong> password
+                    <strong class="text-white">{{ __('app.auth.login_page.default_password') }}</strong>
+                    <code class="rounded bg-white/10 px-2 py-1 font-mono text-white">{{ $demoPassword }}</code>
                 </p>
                 <p class="text-xs text-slate-400 mt-2">
                     {{ __('app.auth.login_page.click_hint') }}
@@ -172,7 +174,7 @@
                                 @forelse($users as $user)
                                     <tr 
                                         class="transition-all duration-200 cursor-pointer"
-                                        onclick="document.getElementById('email').value = '{{ $user->email }}'; document.getElementById('password').value = 'password'; document.getElementById('email').focus();"
+                                        onclick="document.getElementById('email').value = '{{ $user->email }}'; document.getElementById('password').value = @js($demoPassword); document.getElementById('email').focus();"
                                     >
                                         <td class="px-5 py-4 text-white font-medium">
                                             <div class="flex items-center gap-3">
@@ -186,7 +188,7 @@
                                             {{ $user->email }}
                                         </td>
                                         <td class="px-5 py-4 text-slate-300 font-mono text-xs">
-                                            password
+                                            {{ $demoPassword }}
                                         </td>
                                         <td class="px-5 py-4">
                                             <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold
@@ -196,7 +198,7 @@
                                                 @else bg-slate-500/20 text-slate-200 ring-1 ring-slate-500/40
                                                 @endif
                                             ">
-                                                {{ ucfirst($user->role->value) }}
+                                                {{ enum_label($user->role) }}
                                             </span>
                                         </td>
                                         <td class="px-5 py-4 text-center">

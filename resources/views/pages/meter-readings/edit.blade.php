@@ -116,12 +116,12 @@
                     </div>
 
                     <div class="flex items-center justify-end gap-x-4">
-                        <x-button href="{{ route('manager.meter-readings.show', $meterReading) }}" variant="secondary">
+                        <x-ui.button href="{{ route('manager.meter-readings.show', $meterReading) }}" variant="secondary">
                             {{ __('meter_readings.shared.edit.actions.cancel') }}
-                        </x-button>
-                        <x-button type="submit">
+                        </x-ui.button>
+                        <x-ui.button type="submit">
                             {{ __('meter_readings.shared.edit.actions.save') }}
-                        </x-button>
+                        </x-ui.button>
                     </div>
                 </div>
             </form>
@@ -242,12 +242,12 @@
                     </div>
 
                     <div class="flex items-center justify-end gap-x-4">
-                        <x-button href="{{ route('manager.meter-readings.show', $meterReading) }}" variant="secondary">
+                        <x-ui.button href="{{ route('manager.meter-readings.show', $meterReading) }}" variant="secondary">
                             {{ __('meter_readings.shared.edit.actions.cancel') }}
-                        </x-button>
-                        <x-button type="submit">
+                        </x-ui.button>
+                        <x-ui.button type="submit">
                             {{ __('meter_readings.shared.edit.actions.save') }}
-                        </x-button>
+                        </x-ui.button>
                     </div>
                 </div>
             </form>

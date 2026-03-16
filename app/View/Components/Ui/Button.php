@@ -23,6 +23,7 @@ class Button extends Component
         public bool $outline = false,
         public bool $loading = false,
         public bool $disabled = false,
+        public ?string $href = null,
         public string $type = 'button',
     ) {}
 
@@ -40,6 +41,7 @@ class Button extends Component
     public function classes(): string
     {
         $classes = [
+            'ds-btn',
             'inline-flex',
             'items-center',
             'justify-center',

@@ -2,7 +2,7 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@extends(auth()->user()?->role?->value === 'tenant' ? 'layouts.tenant' : 'layouts.app')
+@extends('layouts.app')
 
 @switch($role)
 @case('manager')
@@ -17,9 +17,9 @@
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             @can('create', App\Models\Meter::class)
-            <x-button href="{{ route('manager.meters.create') }}">
+            <x-ui.button href="{{ route('manager.meters.create') }}">
                 {{ __('meters.actions.add') }}
-            </x-button>
+            </x-ui.button>
             @endcan
         </div>
     </div>
@@ -165,11 +165,11 @@
 @section('title', __('shared.meters.index_title'))
 
 @section('tenant-content')
-<x-tenant.page :title="__('shared.meters.index_title')" :description="__('shared.meters.index_description')">
+<x-ui.page :title="__('shared.meters.index_title')" :description="__('shared.meters.index_description')">
     @if($metersCollection->isEmpty())
-        <x-tenant.alert type="info" :title="__('shared.meters.empty_title')">
+        <x-ui.alert type="info" :title="__('shared.meters.empty_title')">
             {{ __('shared.meters.empty_body') }}
-        </x-tenant.alert>
+        </x-ui.alert>
     @else
         <div class="grid grid-cols-1 gap-3 lg:grid-cols-3">
             <div class="relative overflow-hidden rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-white p-4 shadow-sm">
@@ -194,7 +194,7 @@
             </div>
         </div>
 
-        <x-tenant.section-card class="mt-6">
+        <x-ui.section-card class="mt-6">
             <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h2 class="text-lg font-semibold text-slate-900">{{ __('shared.meters.list_title') }}</h2>
@@ -270,9 +270,9 @@
                     {{ $meters->links() }}
                 </div>
             @endif
-        </x-tenant.section-card>
+        </x-ui.section-card>
     @endif
-</x-tenant.page>
+</x-ui.page>
 @endsection
 @break
 
@@ -288,9 +288,9 @@
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             @can('create', App\Models\Meter::class)
-            <x-button href="{{ route('manager.meters.create') }}">
+            <x-ui.button href="{{ route('manager.meters.create') }}">
                 {{ __('meters.actions.add') }}
-            </x-button>
+            </x-ui.button>
             @endcan
         </div>
     </div>

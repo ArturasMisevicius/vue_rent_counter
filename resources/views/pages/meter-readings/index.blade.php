@@ -2,7 +2,7 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@extends(auth()->user()?->role?->value === 'tenant' ? 'layouts.tenant' : 'layouts.app')
+@extends('layouts.app')
 
 @switch($role)
 @case('manager')
@@ -17,9 +17,9 @@
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             @can('create', App\Models\MeterReading::class)
-            <x-button href="{{ route('manager.meter-readings.create') }}">
+            <x-ui.button href="{{ route('manager.meter-readings.create') }}">
                 {{ __('meter_readings.actions.enter_new') }}
-            </x-button>
+            </x-ui.button>
             @endcan
         </div>
     </div>
@@ -59,9 +59,9 @@
             </div>
 
             <div class="flex items-end">
-                <x-button type="submit" class="w-full">
+                <x-ui.button type="submit" class="w-full">
                     {{ __('meter_readings.shared.index.filters.apply') }}
-                </x-button>
+                </x-ui.button>
             </div>
         </form>
     </x-card>
@@ -407,10 +407,10 @@
 @section('title', __('meter_readings.shared.title'))
 
 @section('tenant-content')
-<x-tenant.page :title="__('meter_readings.shared.title')" :description="__('meter_readings.shared.description')" x-data="consumptionHistory()">
-    <x-tenant.quick-actions />
+<x-ui.page :title="__('meter_readings.shared.title')" :description="__('meter_readings.shared.description')" x-data="consumptionHistory()">
+    <x-ui.quick-actions />
 
-    <x-tenant.section-card :title="__('meter_readings.shared.filters.title')" :description="__('meter_readings.shared.filters.description')">
+    <x-ui.section-card :title="__('meter_readings.shared.filters.title')" :description="__('meter_readings.shared.filters.description')">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
                 <label class="block text-sm font-semibold text-slate-800">{{ __('meter_readings.shared.filters.service') }}</label>
@@ -445,9 +445,9 @@
                 <input x-model="filters.dateTo" @change="applyFilters()" type="date" class="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
             </div>
         </div>
-    </x-tenant.section-card>
+    </x-ui.section-card>
 
-    <x-tenant.section-card :title="__('meter_readings.shared.submit.title')" :description="__('meter_readings.shared.submit.description')">
+    <x-ui.section-card :title="__('meter_readings.shared.submit.title')" :description="__('meter_readings.shared.submit.description')">
         @if(($properties ?? collect())->isEmpty())
             <p class="text-sm text-slate-600">{{ __('meter_readings.shared.submit.no_property') }}</p>
         @else
@@ -488,11 +488,11 @@
             </div>
         </form>
         @endif
-    </x-tenant.section-card>
+    </x-ui.section-card>
 
-    <x-tenant.stack gap="6">
+    <x-ui.stack gap="6">
         <template x-for="(meterReadings, meterName) in groupedReadings" :key="meterName">
-            <x-tenant.section-card>
+            <x-ui.section-card>
                 <div class="mb-4 flex items-center justify-between gap-3">
                     <h3 class="text-lg font-semibold text-slate-900" x-text="meterName"></h3>
                 </div>
@@ -525,7 +525,7 @@
                         </tbody>
                     </table>
                 </div>
-                <x-tenant.stack gap="3" class="sm:hidden">
+                <x-ui.stack gap="3" class="sm:hidden">
                     <template x-for="(reading, index) in meterReadings" :key="`mobile-${reading.id}`">
                         <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                             <div class="flex items-center justify-between">
@@ -542,8 +542,8 @@
                             </p>
                         </div>
                     </template>
-                </x-tenant.stack>
-            </x-tenant.section-card>
+                </x-ui.stack>
+            </x-ui.section-card>
         </template>
 
         <div x-show="Object.keys(groupedReadings).length === 0" class="rounded-2xl border border-dashed border-slate-200 bg-white/80 py-12 text-center shadow-sm">
@@ -553,8 +553,8 @@
             <h3 class="mt-2 text-sm font-semibold text-slate-900">{{ __('meter_readings.shared.empty.title') }}</h3>
             <p class="mt-1 text-sm text-slate-600">{{ __('meter_readings.shared.empty.description') }}</p>
         </div>
-    </x-tenant.stack>
-</x-tenant.page>
+    </x-ui.stack>
+</x-ui.page>
 
 @push('scripts')
 <script>
@@ -676,9 +676,9 @@ function consumptionHistory() {
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             @can('create', App\Models\MeterReading::class)
-            <x-button href="{{ route('manager.meter-readings.create') }}">
+            <x-ui.button href="{{ route('manager.meter-readings.create') }}">
                 {{ __('meter_readings.actions.enter_new') }}
-            </x-button>
+            </x-ui.button>
             @endcan
         </div>
     </div>
@@ -718,9 +718,9 @@ function consumptionHistory() {
             </div>
 
             <div class="flex items-end">
-                <x-button type="submit" class="w-full">
+                <x-ui.button type="submit" class="w-full">
                     {{ __('meter_readings.shared.index.filters.apply') }}
-                </x-button>
+                </x-ui.button>
             </div>
         </form>
     </x-card>

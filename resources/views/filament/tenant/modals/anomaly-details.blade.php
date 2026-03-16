@@ -1,3 +1,31 @@
+@php
+    $resolveAuditFieldLabel = static function (string $field): string {
+        $normalized = \Illuminate\Support\Str::snake($field);
+
+        foreach ([
+            'dashboard.audit.labels.' . $normalized,
+            'shared.superadmin.audit.fields.' . $normalized,
+        ] as $key) {
+            $label = __($key);
+
+            if ($label !== $key) {
+                return $label;
+            }
+        }
+
+        return \Illuminate\Support\Str::headline(str_replace('_', ' ', $field));
+    };
+
+    $resolveAuditSeverityLabel = static function (string $severity): string {
+        $key = 'dashboard.audit.severity_levels.' . \Illuminate\Support\Str::snake($severity);
+        $label = __($key);
+
+        return $label !== $key
+            ? $label
+            : \Illuminate\Support\Str::headline($severity);
+    };
+@endphp
+
 <div class="space-y-6">
     {{-- Anomaly Header --}}
     <div class="flex items-start space-x-4">
@@ -31,11 +59,11 @@
             <div class="mt-2 flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
                 <span class="flex items-center">
                     <x-heroicon-o-clock class="w-4 h-4 mr-1" />
-                    {{ $anomaly['detected_at']->format('M j, Y \a\t g:i A') }}
+                    {{ $anomaly['detected_at']->locale(app()->getLocale())->translatedFormat('M j, Y \\a\\t g:i A') }}
                 </span>
                 <span class="flex items-center">
                     <x-heroicon-o-flag class="w-4 h-4 mr-1" />
-                    {{ ucfirst($anomaly['severity']) }} {{ __('audit.labels.severity') }}
+                    {{ $resolveAuditSeverityLabel($anomaly['severity']) }} {{ __('audit.labels.severity') }}
                 </span>
             </div>
         </div>
@@ -52,7 +80,7 @@
                 @foreach($anomaly['details'] as $key => $value)
                     <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                         <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                            {{ ucfirst(str_replace('_', ' ', $key)) }}
+                            {{ $resolveAuditFieldLabel($key) }}
                         </dt>
                         <dd class="mt-1 text-sm text-gray-900 dark:text-white">
                             @if(is_array($value))

@@ -2,7 +2,7 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@extends($role === 'tenant' ? 'layouts.tenant' : 'layouts.app')
+@extends('layouts.app')
 
 @switch($role)
 @case('superadmin')
@@ -10,7 +10,7 @@
 @section('title', __('shared.dashboard.title'))
 
 @section('content')
-<x-backoffice.page
+<x-ui.page
     class="container mx-auto px-4 py-8"
     wire:poll.60s
     :title="__('shared.dashboard.title')"
@@ -54,41 +54,41 @@
         <h2 class="text-xl font-semibold">{{ __('shared.dashboard.quick_actions.title') }}</h2>
         <p class="mb-4 text-sm text-slate-500">{{ __('shared.dashboard.quick_actions.description') }}</p>
         <div class="grid grid-cols-1 gap-4">
-            <x-backoffice.quick-action
+            <x-ui.quick-action
                 :href="route('superadmin.organizations.create')"
                 :title="__('shared.dashboard.quick_actions.create_organization')"
                 :description="__('shared.dashboard.quick_actions.create_organization_desc')"
             >
                 <x-slot:icon>➕</x-slot:icon>
-            </x-backoffice.quick-action>
-            <x-backoffice.quick-action
+            </x-ui.quick-action>
+            <x-ui.quick-action
                 :href="route('superadmin.subscriptions.index')"
                 :title="__('shared.dashboard.quick_actions.create_subscription')"
                 :description="__('shared.dashboard.quick_actions.create_subscription_desc')"
             >
                 <x-slot:icon>🧾</x-slot:icon>
-            </x-backoffice.quick-action>
-            <x-backoffice.quick-action
+            </x-ui.quick-action>
+            <x-ui.quick-action
                 href="#recent-activity"
                 :title="__('shared.dashboard.quick_actions.view_all_activity')"
                 :description="__('shared.dashboard.quick_actions.view_all_activity_desc')"
             >
                 <x-slot:icon>🕒</x-slot:icon>
-            </x-backoffice.quick-action>
-            <x-backoffice.quick-action
+            </x-ui.quick-action>
+            <x-ui.quick-action
                 :href="route('superadmin.organizations.index')"
                 :title="__('shared.dashboard.quick_actions.manage_organizations')"
                 :description="__('shared.dashboard.quick_actions.manage_organizations_desc')"
             >
                 <x-slot:icon>🏢</x-slot:icon>
-            </x-backoffice.quick-action>
-            <x-backoffice.quick-action
+            </x-ui.quick-action>
+            <x-ui.quick-action
                 :href="route('superadmin.subscriptions.index')"
                 :title="__('shared.dashboard.quick_actions.manage_subscriptions')"
                 :description="__('shared.dashboard.quick_actions.manage_subscriptions_desc')"
             >
                 <x-slot:icon>📊</x-slot:icon>
-            </x-backoffice.quick-action>
+            </x-ui.quick-action>
         </div>
     </x-card>
 
@@ -461,7 +461,7 @@
         <p class="text-slate-500">{{ __('shared.dashboard.analytics.empty') }}</p>
     </x-card>
 
-</x-backoffice.page>
+</x-ui.page>
 @endsection
 @break
 
@@ -470,7 +470,7 @@
 @section('title', __('dashboard.shared.title'))
 
 @section('content')
-<x-backoffice.page
+<x-ui.page
     class="px-4 sm:px-6 lg:px-8"
     :title="auth()->user()->role->value === 'admin'
         ? __('dashboard.shared.org_dashboard', ['name' => auth()->user()->organization_name ?? '—'])
@@ -602,7 +602,7 @@
     <!-- Primary Stats Grid -->
     @if(auth()->user()->role->value === 'admin')
         <!-- Admin Portfolio Stats -->
-        <x-backoffice.stats-section class="mt-8" :columns="1">
+        <x-ui.stats-section class="mt-8" :columns="1">
             <x-stat-card label="{{ __('dashboard.shared.stats.total_properties') }}" :value="$stats['total_properties']" :href="route('admin.tenants.index')">
                 <x-slot:icon>
                     <svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -634,19 +634,19 @@
                     </svg>
                 </x-slot:icon>
             </x-stat-card>
-        </x-backoffice.stats-section>
+        </x-ui.stats-section>
 
         <!-- Pending Tasks -->
         @if(isset($pendingTasks))
-        <x-backoffice.stats-section class="mt-6" :title="__('settings.maintenance.title')" :columns="1">
+        <x-ui.stats-section class="mt-6" :title="__('settings.maintenance.title')" :columns="1">
                 <x-stat-card label="{{ __('meter_readings.actions.enter_new') }}" :value="$pendingTasks['pending_meter_readings']" :href="route('admin.tenants.index')" />
                 <x-stat-card label="{{ __('invoices.actions.finalize') }}" :value="$pendingTasks['draft_invoices']" :href="route('invoices.drafts')" />
                 <x-stat-card label="{{ __('app.nav.tenants') }}" :value="$pendingTasks['inactive_tenants']" :href="route('admin.tenants.index')" />
-        </x-backoffice.stats-section>
+        </x-ui.stats-section>
         @endif
     @else
         <!-- System-wide Stats for Superadmin/Manager -->
-        <x-backoffice.stats-section class="mt-8" :columns="1">
+        <x-ui.stats-section class="mt-8" :columns="1">
             <x-stat-card label="{{ __('dashboard.shared.stats.total_users') }}" :value="$stats['total_users']" :href="route('admin.users.index')">
                 <x-slot:icon>
                     <svg class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -678,12 +678,12 @@
                     </svg>
                 </x-slot:icon>
             </x-stat-card>
-        </x-backoffice.stats-section>
+        </x-ui.stats-section>
     @endif
 
     @if(auth()->user()->role->value === 'admin')
         <!-- Admin Secondary Stats -->
-        <x-backoffice.stats-section class="mt-6" :columns="1">
+        <x-ui.stats-section class="mt-6" :columns="1">
             <x-stat-card :label="__('dashboard.shared.stats.total_buildings')" :value="$stats['total_buildings']" :href="route('admin.tenants.index')">
                 <x-slot:icon>
                     <svg class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -715,10 +715,10 @@
                     </svg>
                 </x-slot:icon>
             </x-stat-card>
-        </x-backoffice.stats-section>
+        </x-ui.stats-section>
     @else
         <!-- System-wide Secondary Stats -->
-        <x-backoffice.stats-section class="mt-6" :columns="1">
+        <x-ui.stats-section class="mt-6" :columns="1">
             <x-stat-card :label="__('dashboard.shared.stats.total_buildings')" :value="$stats['total_buildings']" :href="route('admin.tenants.index')">
                 <x-slot:icon>
                     <svg class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -750,21 +750,21 @@
                     </svg>
                 </x-slot:icon>
             </x-stat-card>
-        </x-backoffice.stats-section>
+        </x-ui.stats-section>
 
         <!-- User Role Breakdown -->
-        <x-backoffice.stats-section class="mt-8" :title="__('dashboard.shared.breakdown.users_title')" :columns="1">
+        <x-ui.stats-section class="mt-8" :title="__('dashboard.shared.breakdown.users_title')" :columns="1">
             <x-stat-card :label="__('dashboard.shared.breakdown.administrators')" :value="$stats['admin_count']" :href="route('admin.users.index', ['role' => 'admin'])" />
             <x-stat-card :label="__('dashboard.shared.breakdown.managers')" :value="$stats['manager_count']" :href="route('admin.users.index', ['role' => 'manager'])" />
             <x-stat-card :label="__('dashboard.shared.breakdown.tenants')" :value="$stats['tenant_count']" :href="route('admin.tenants.index')" />
-        </x-backoffice.stats-section>
+        </x-ui.stats-section>
 
         <!-- Invoice Status Breakdown -->
-        <x-backoffice.stats-section class="mt-8" :title="__('dashboard.shared.breakdown.invoice_title')" :columns="1">
+        <x-ui.stats-section class="mt-8" :title="__('dashboard.shared.breakdown.invoice_title')" :columns="1">
             <x-stat-card :label="__('dashboard.shared.breakdown.draft_invoices')" :value="$stats['draft_invoices']" :href="route('invoices.drafts')" />
             <x-stat-card :label="__('dashboard.shared.breakdown.finalized_invoices')" :value="$stats['finalized_invoices']" :href="route('invoices.finalized')" />
             <x-stat-card :label="__('dashboard.shared.breakdown.paid_invoices')" :value="$stats['paid_invoices']" :href="route('invoices.paid')" />
-        </x-backoffice.stats-section>
+        </x-ui.stats-section>
     @endif
 
     <!-- Quick Actions -->
@@ -772,7 +772,7 @@
         <h2 class="text-lg font-medium text-slate-900 mb-4">{{ __('dashboard.shared.quick_actions.title') }}</h2>
         <div class="grid grid-cols-1 gap-4">
             @if(auth()->user()->role->value === 'admin')
-                <x-backoffice.quick-action
+                <x-ui.quick-action
                     :href="route('admin.tenants.index')"
                     :title="__('dashboard.shared.quick_actions.manage_tenants_title')"
                     :description="__('dashboard.shared.quick_actions.manage_tenants_desc')"
@@ -782,9 +782,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                         </svg>
                     </x-slot:icon>
-                </x-backoffice.quick-action>
+                </x-ui.quick-action>
 
-                <x-backoffice.quick-action
+                <x-ui.quick-action
                     :href="route('admin.profile.show')"
                     :title="__('dashboard.shared.quick_actions.organization_profile_title')"
                     :description="__('dashboard.shared.quick_actions.organization_profile_desc')"
@@ -794,9 +794,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                         </svg>
                     </x-slot:icon>
-                </x-backoffice.quick-action>
+                </x-ui.quick-action>
 
-                <x-backoffice.quick-action
+                <x-ui.quick-action
                     :href="route('admin.tenants.create')"
                     :title="__('dashboard.shared.quick_actions.create_tenant_title')"
                     :description="__('dashboard.shared.quick_actions.create_tenant_desc')"
@@ -807,10 +807,10 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                         </svg>
                     </x-slot:icon>
-                </x-backoffice.quick-action>
+                </x-ui.quick-action>
             @else
                 @can('viewAny', App\Models\User::class)
-                    <x-backoffice.quick-action
+                    <x-ui.quick-action
                         :href="route('admin.users.index')"
                         :title="__('dashboard.shared.quick_actions.manage_users_title')"
                         :description="__('dashboard.shared.quick_actions.manage_users_desc')"
@@ -820,11 +820,11 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                             </svg>
                         </x-slot:icon>
-                    </x-backoffice.quick-action>
+                    </x-ui.quick-action>
                 @endcan
 
                 @can('viewAny', App\Models\Provider::class)
-                    <x-backoffice.quick-action
+                    <x-ui.quick-action
                         :href="route('admin.providers.index')"
                         :title="__('dashboard.shared.quick_actions.manage_providers_title')"
                         :description="__('dashboard.shared.quick_actions.manage_providers_desc')"
@@ -834,11 +834,11 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z" />
                             </svg>
                         </x-slot:icon>
-                    </x-backoffice.quick-action>
+                    </x-ui.quick-action>
                 @endcan
 
                 @can('viewAny', App\Models\Tariff::class)
-                    <x-backoffice.quick-action
+                    <x-ui.quick-action
                         :href="route('admin.tariffs.index')"
                         :title="__('dashboard.shared.quick_actions.manage_tariffs_title')"
                         :description="__('dashboard.shared.quick_actions.manage_tariffs_desc')"
@@ -848,10 +848,10 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </x-slot:icon>
-                    </x-backoffice.quick-action>
+                    </x-ui.quick-action>
                 @endcan
 
-                <x-backoffice.quick-action
+                <x-ui.quick-action
                     :href="route('admin.audit.index')"
                     :title="__('dashboard.shared.quick_actions.view_audit_log_title')"
                     :description="__('dashboard.shared.quick_actions.view_audit_log_desc')"
@@ -861,9 +861,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                         </svg>
                     </x-slot:icon>
-                </x-backoffice.quick-action>
+                </x-ui.quick-action>
 
-                <x-backoffice.quick-action
+                <x-ui.quick-action
                     :href="route('admin.settings.index')"
                     :title="__('dashboard.shared.quick.settings')"
                     :description="__('dashboard.shared.quick.settings_desc')"
@@ -874,10 +874,10 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                     </x-slot:icon>
-                </x-backoffice.quick-action>
+                </x-ui.quick-action>
 
                 @can('create', App\Models\User::class)
-                    <x-backoffice.quick-action
+                    <x-ui.quick-action
                         :href="route('admin.users.create')"
                         :title="__('dashboard.shared.quick.create_user')"
                         :description="__('dashboard.shared.quick.create_user_desc')"
@@ -888,7 +888,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                             </svg>
                         </x-slot:icon>
-                    </x-backoffice.quick-action>
+                    </x-ui.quick-action>
                 @endcan
             @endif
         </div>
@@ -952,7 +952,7 @@
                                     </div>
                                     <div>
                                         <x-status-badge :status="$user->role->value">
-                                            {{ ucfirst($user->role->value) }}
+                                            {{ enum_label($user->role) }}
                                         </x-status-badge>
                                     </div>
                                 </div>
@@ -1030,7 +1030,7 @@
             </x-card>
         </div>
     </div>
-</x-backoffice.page>
+</x-ui.page>
 @endsection
 @break
 
@@ -1040,7 +1040,7 @@
 
 @section('content')
 <div class="px-4 sm:px-6 lg:px-8">
-    <x-manager.page :title="__('dashboard.shared.title')" :description="__('dashboard.shared.description')">
+    <x-ui.page variant="hero" :title="__('dashboard.shared.title')" :description="__('dashboard.shared.description')">
         <x-slot:meta>
             <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 shadow-sm shadow-indigo-500/10">
                 <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
@@ -1050,56 +1050,56 @@
 
         <x-slot:actions>
             @can('create', App\Models\MeterReading::class)
-                <x-button href="{{ route('manager.meter-readings.create') }}" class="bg-white/90 text-indigo-700 shadow-lg shadow-indigo-500/10 hover:bg-white">
+                <x-ui.button href="{{ route('manager.meter-readings.create') }}" class="bg-white/90 text-indigo-700 shadow-lg shadow-indigo-500/10 hover:bg-white">
                     {{ __('meter_readings.actions.enter_new') }}
-                </x-button>
+                </x-ui.button>
             @endcan
             @can('create', App\Models\Invoice::class)
-                <x-button href="{{ route('manager.invoices.create') }}" class="bg-slate-900 text-white shadow-lg shadow-slate-900/20 hover:bg-slate-800">
+                <x-ui.button href="{{ route('manager.invoices.create') }}" class="bg-slate-900 text-white shadow-lg shadow-slate-900/20 hover:bg-slate-800">
                     {{ __('invoices.shared.index.generate') }}
-                </x-button>
+                </x-ui.button>
             @endcan
             @can('create', App\Models\Property::class)
-                <x-button href="{{ route('manager.properties.create') }}" variant="secondary">
+                <x-ui.button href="{{ route('manager.properties.create') }}" variant="secondary">
                     {{ __('properties.actions.add') }}
-                </x-button>
+                </x-ui.button>
             @endcan
         </x-slot:actions>
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            <x-manager.stat-card :label="__('dashboard.shared.stats.total_properties')" :value="$stats['total_properties']" tone="indigo" :icon="<<<'SVG'
+            <x-ui.stat-card :label="__('dashboard.shared.stats.total_properties')" :value="$stats['total_properties']" tone="indigo" :icon="<<<'SVG'
 <svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='1.5'>
     <path stroke-linecap='round' stroke-linejoin='round' d='M3 9.75 12 3l9 6.75M4.5 10.5V21h5.25v-4.5A1.5 1.5 0 0 1 11.25 15h1.5A1.5 1.5 0 0 1 14.25 16.5V21H19.5V10.5' />
 </svg>
 SVG"/>
-            <x-manager.stat-card :label="__('dashboard.shared.stats.active_meters')" :value="$stats['active_meters']" tone="slate" :icon="<<<'SVG'
+            <x-ui.stat-card :label="__('dashboard.shared.stats.active_meters')" :value="$stats['active_meters']" tone="slate" :icon="<<<'SVG'
 <svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='1.5'>
     <path stroke-linecap='round' stroke-linejoin='round' d='M12 3v6m0 0 3-3m-3 3-3-3m6 6v6m0 0 3-3m-3 3-3-3M6 5.25h-.75A1.5 1.5 0 0 0 3.75 6.75v10.5a1.5 1.5 0 0 0 1.5 1.5H6M18 5.25h.75a1.5 1.5 0 0 1 1.5 1.5v10.5a1.5 1.5 0 0 1-1.5 1.5H18' />
 </svg>
 SVG"/>
-            <x-manager.stat-card :label="__('dashboard.shared.stats.meters_pending')" :value="$stats['meters_pending_reading']" tone="amber" :hint="__('dashboard.shared.hints.operations')" :icon="<<<'SVG'
+            <x-ui.stat-card :label="__('dashboard.shared.stats.meters_pending')" :value="$stats['meters_pending_reading']" tone="amber" :hint="__('dashboard.shared.hints.operations')" :icon="<<<'SVG'
 <svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='1.5'>
     <path stroke-linecap='round' stroke-linejoin='round' d='M12 9v3.75m9 .75a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-9 3.75h.008v.008H12v-.008z' />
 </svg>
 SVG"/>
-            <x-manager.stat-card :label="__('dashboard.shared.stats.draft_invoices')" :value="$stats['draft_invoices']" tone="indigo" :icon="<<<'SVG'
+            <x-ui.stat-card :label="__('dashboard.shared.stats.draft_invoices')" :value="$stats['draft_invoices']" tone="indigo" :icon="<<<'SVG'
 <svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='1.5'>
     <path stroke-linecap='round' stroke-linejoin='round' d='M9 8.25h6m-6 3h3.75M7.5 21h9A2.25 2.25 0 0 0 18.75 18.75V5.25A2.25 2.25 0 0 0 16.5 3h-9A2.25 2.25 0 0 0 5.25 5.25v13.5A2.25 2.25 0 0 0 7.5 21z' />
 </svg>
 SVG"/>
-            <x-manager.stat-card :label="__('dashboard.shared.stats.overdue_invoices')" :value="$stats['overdue_invoices']" tone="amber" :hint="__('dashboard.shared.hints.drafts')" :icon="<<<'SVG'
+            <x-ui.stat-card :label="__('dashboard.shared.stats.overdue_invoices')" :value="$stats['overdue_invoices']" tone="amber" :hint="__('dashboard.shared.hints.drafts')" :icon="<<<'SVG'
 <svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='1.5'>
     <path stroke-linecap='round' stroke-linejoin='round' d='M12 6v6l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z' />
 </svg>
 SVG"/>
-            <x-manager.stat-card :label="__('dashboard.shared.stats.active_tenants')" :value="$stats['active_tenants']" tone="emerald" :icon="<<<'SVG'
+            <x-ui.stat-card :label="__('dashboard.shared.stats.active_tenants')" :value="$stats['active_tenants']" tone="emerald" :icon="<<<'SVG'
 <svg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' fill='none' viewBox='0 0 24 24' stroke='currentColor' stroke-width='1.5'>
     <path stroke-linecap='round' stroke-linejoin='round' d='M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM6.75 19.5a4.5 4.5 0 0 1 10.5 0' />
 </svg>
 SVG"/>
         </div>
 
-        <x-manager.section-card :title="__('dashboard.shared.sections.operations')" :description="__('dashboard.shared.hints.operations')" class="mt-4">
+        <x-ui.section-card :title="__('dashboard.shared.sections.operations')" :description="__('dashboard.shared.hints.operations')" class="mt-4">
             @if($propertiesNeedingReadings->isNotEmpty())
                 <div class="space-y-3">
                     @foreach($propertiesNeedingReadings as $property)
@@ -1128,10 +1128,10 @@ SVG"/>
             @else
                 <p class="text-sm text-slate-600">{{ __('dashboard.shared.empty.operations') }}</p>
             @endif
-        </x-manager.section-card>
+        </x-ui.section-card>
 
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <x-manager.section-card :title="__('dashboard.shared.sections.drafts')" :description="__('dashboard.shared.hints.drafts')">
+            <x-ui.section-card :title="__('dashboard.shared.sections.drafts')" :description="__('dashboard.shared.hints.drafts')">
                 @if($draftInvoices->isNotEmpty())
                     <div class="divide-y divide-slate-100">
                         @foreach($draftInvoices as $invoice)
@@ -1169,9 +1169,9 @@ SVG"/>
                 @else
                     <p class="text-sm text-slate-600">{{ __('dashboard.shared.empty.drafts') }}</p>
                 @endif
-            </x-manager.section-card>
+            </x-ui.section-card>
 
-            <x-manager.section-card :title="__('dashboard.shared.sections.recent')" :description="__('dashboard.shared.hints.recent')">
+            <x-ui.section-card :title="__('dashboard.shared.sections.recent')" :description="__('dashboard.shared.hints.recent')">
                 @if($stats['recent_invoices']->isNotEmpty())
                     <div class="space-y-3">
                         @foreach($stats['recent_invoices'] as $invoice)
@@ -1197,10 +1197,10 @@ SVG"/>
                 @else
                     <p class="text-sm text-slate-600">{{ __('dashboard.shared.empty.recent') }}</p>
                 @endif
-            </x-manager.section-card>
+            </x-ui.section-card>
         </div>
 
-        <x-manager.section-card :title="__('dashboard.shared.sections.shortcuts')" :description="__('dashboard.shared.hints.shortcuts')">
+        <x-ui.section-card :title="__('dashboard.shared.sections.shortcuts')" :description="__('dashboard.shared.hints.shortcuts')">
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 @can('create', App\Models\MeterReading::class)
                     <a href="{{ route('manager.meter-readings.create') }}" class="group relative overflow-hidden rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
@@ -1297,8 +1297,8 @@ SVG"/>
                     </div>
                 </a>
             </div>
-        </x-manager.section-card>
-    </x-manager.page>
+        </x-ui.section-card>
+    </x-ui.page>
 </div>
 @endsection
 @break
@@ -1308,15 +1308,15 @@ SVG"/>
 @section('title', __('dashboard.shared.title'))
 
 @section('tenant-content')
-<x-tenant.page :title="__('dashboard.shared.title')" :description="__('dashboard.shared.description')">
+<x-ui.page :title="__('dashboard.shared.title')" :description="__('dashboard.shared.description')">
     @if(!$stats['property'])
-        <x-tenant.alert type="warning" :title="__('dashboard.shared.alerts.no_property_title')">
+        <x-ui.alert type="warning" :title="__('dashboard.shared.alerts.no_property_title')">
             {{ __('dashboard.shared.alerts.no_property_body') }}
-        </x-tenant.alert>
+        </x-ui.alert>
     @else
-        <x-tenant.quick-actions />
+        <x-ui.quick-actions />
 
-        <x-tenant.section-card :title="__('dashboard.shared.property.title')">
+        <x-ui.section-card :title="__('dashboard.shared.property.title')">
             <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                     <dt class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{{ __('dashboard.shared.property.address') }}</dt>
@@ -1337,10 +1337,10 @@ SVG"/>
                 </div>
                 @endif
             </dl>
-        </x-tenant.section-card>
+        </x-ui.section-card>
 
         @if($stats['unpaid_balance'] > 0)
-        <x-tenant.alert type="error" :title="__('dashboard.shared.balance.title')">
+        <x-ui.alert type="error" :title="__('dashboard.shared.balance.title')">
             <p class="text-sm">
                 <span class="font-semibold">{{ __('dashboard.shared.balance.outstanding') }}</span> €{{ number_format($stats['unpaid_balance'], 2) }}
             </p>
@@ -1352,17 +1352,17 @@ SVG"/>
                     {{ __('dashboard.shared.balance.cta') }}
                 </a>
             </x-slot>
-        </x-tenant.alert>
+        </x-ui.alert>
         @endif
 
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
-            <x-tenant.stat-card :label="__('dashboard.shared.stats.total_invoices')" :value="$stats['total_invoices']" />
-            <x-tenant.stat-card :label="__('dashboard.shared.stats.unpaid_invoices')" :value="$stats['unpaid_invoices']" value-color="text-orange-600" />
-            <x-tenant.stat-card :label="__('dashboard.shared.stats.active_meters')" :value="$stats['property']->meters->count()" />
+            <x-ui.stat-card :label="__('dashboard.shared.stats.total_invoices')" :value="$stats['total_invoices']" />
+            <x-ui.stat-card :label="__('dashboard.shared.stats.unpaid_invoices')" :value="$stats['unpaid_invoices']" value-color="text-orange-600" />
+            <x-ui.stat-card :label="__('dashboard.shared.stats.active_meters')" :value="$stats['property']->meters->count()" />
         </div>
 
         @if($stats['latest_readings']->isNotEmpty())
-        <x-tenant.section-card :title="__('dashboard.shared.readings.title')">
+        <x-ui.section-card :title="__('dashboard.shared.readings.title')">
             <div class="hidden sm:block overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50">
@@ -1393,7 +1393,7 @@ SVG"/>
                     </tbody>
                 </table>
             </div>
-            <x-tenant.stack gap="3" class="sm:hidden">
+            <x-ui.stack gap="3" class="sm:hidden">
                 @foreach($stats['latest_readings'] as $reading)
                     <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                         <div class="flex items-center justify-between">
@@ -1406,11 +1406,11 @@ SVG"/>
                         </p>
                     </div>
                 @endforeach
-            </x-tenant.stack>
-        </x-tenant.section-card>
+            </x-ui.stack>
+        </x-ui.section-card>
         @endif
 
-        <x-tenant.section-card :title="__('dashboard.shared.consumption.title')" :description="__('dashboard.shared.consumption.description')">
+        <x-ui.section-card :title="__('dashboard.shared.consumption.title')" :description="__('dashboard.shared.consumption.description')">
             @if(empty($stats['consumption_trends']) || $stats['consumption_trends']->every(fn($t) => !$t['previous']))
                 <p class="text-sm text-slate-600">{{ __('dashboard.shared.consumption.need_more') }}</p>
             @else
@@ -1445,9 +1445,9 @@ SVG"/>
                     @endforeach
                 </div>
             @endif
-        </x-tenant.section-card>
+        </x-ui.section-card>
     @endif
-</x-tenant.page>
+</x-ui.page>
 @endsection
 @break
 
@@ -1456,7 +1456,7 @@ SVG"/>
 @section('title', __('shared.dashboard.title'))
 
 @section('content')
-<x-backoffice.page
+<x-ui.page
     class="container mx-auto px-4 py-8"
     wire:poll.60s
     :title="__('shared.dashboard.title')"
@@ -1500,41 +1500,41 @@ SVG"/>
         <h2 class="text-xl font-semibold">{{ __('shared.dashboard.quick_actions.title') }}</h2>
         <p class="mb-4 text-sm text-slate-500">{{ __('shared.dashboard.quick_actions.description') }}</p>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <x-backoffice.quick-action
+            <x-ui.quick-action
                 :href="route('superadmin.organizations.create')"
                 :title="__('shared.dashboard.quick_actions.create_organization')"
                 :description="__('shared.dashboard.quick_actions.create_organization_desc')"
             >
                 <x-slot:icon>➕</x-slot:icon>
-            </x-backoffice.quick-action>
-            <x-backoffice.quick-action
+            </x-ui.quick-action>
+            <x-ui.quick-action
                 :href="route('superadmin.subscriptions.index')"
                 :title="__('shared.dashboard.quick_actions.create_subscription')"
                 :description="__('shared.dashboard.quick_actions.create_subscription_desc')"
             >
                 <x-slot:icon>🧾</x-slot:icon>
-            </x-backoffice.quick-action>
-            <x-backoffice.quick-action
+            </x-ui.quick-action>
+            <x-ui.quick-action
                 href="#recent-activity"
                 :title="__('shared.dashboard.quick_actions.view_all_activity')"
                 :description="__('shared.dashboard.quick_actions.view_all_activity_desc')"
             >
                 <x-slot:icon>🕒</x-slot:icon>
-            </x-backoffice.quick-action>
-            <x-backoffice.quick-action
+            </x-ui.quick-action>
+            <x-ui.quick-action
                 :href="route('superadmin.organizations.index')"
                 :title="__('shared.dashboard.quick_actions.manage_organizations')"
                 :description="__('shared.dashboard.quick_actions.manage_organizations_desc')"
             >
                 <x-slot:icon>🏢</x-slot:icon>
-            </x-backoffice.quick-action>
-            <x-backoffice.quick-action
+            </x-ui.quick-action>
+            <x-ui.quick-action
                 :href="route('superadmin.subscriptions.index')"
                 :title="__('shared.dashboard.quick_actions.manage_subscriptions')"
                 :description="__('shared.dashboard.quick_actions.manage_subscriptions_desc')"
             >
                 <x-slot:icon>📊</x-slot:icon>
-            </x-backoffice.quick-action>
+            </x-ui.quick-action>
         </div>
     </x-card>
 
@@ -1907,6 +1907,6 @@ SVG"/>
         <p class="text-slate-500">{{ __('shared.dashboard.analytics.empty') }}</p>
     </x-card>
 
-</x-backoffice.page>
+</x-ui.page>
 @endsection
 @endswitch

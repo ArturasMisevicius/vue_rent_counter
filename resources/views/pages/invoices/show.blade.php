@@ -2,7 +2,7 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@extends(auth()->user()?->role?->value === 'tenant' ? 'layouts.tenant' : 'layouts.app')
+@extends('layouts.app')
 
 @switch($role)
 @case('manager')
@@ -30,23 +30,23 @@
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none space-x-2">
             @if($invoice->isDraft())
                 @can('update', $invoice)
-                <x-button href="{{ route('manager.invoices.edit', $invoice) }}" variant="secondary">
+                <x-ui.button href="{{ route('manager.invoices.edit', $invoice) }}" variant="secondary">
                     {{ __('invoices.shared.show.edit') }}
-                </x-button>
+                </x-ui.button>
                 <form action="{{ route('manager.invoices.finalize', $invoice) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('invoices.shared.show.finalize_confirm') }}');">
                     @csrf
-                    <x-button type="submit">
+                    <x-ui.button type="submit">
                         {{ __('invoices.shared.show.finalize') }}
-                    </x-button>
+                    </x-ui.button>
                 </form>
                 @endcan
                 @can('delete', $invoice)
                 <form action="{{ route('manager.invoices.destroy', $invoice) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('invoices.shared.show.delete_confirm') }}');">
                     @csrf
                     @method('DELETE')
-                    <x-button type="submit" variant="danger">
+                    <x-ui.button type="submit" variant="danger">
                         {{ __('invoices.shared.show.delete') }}
-                    </x-button>
+                    </x-ui.button>
                 </form>
                 @endcan
             @endif
@@ -58,18 +58,18 @@
                         <input type="text" name="payment_reference" placeholder="{{ __('invoices.shared.show.payment_reference_placeholder') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         <input type="number" step="0.01" name="paid_amount" placeholder="{{ __('invoices.shared.show.paid_amount_placeholder') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         <input type="datetime-local" name="paid_at" value="{{ now()->format('Y-m-d\\TH:i') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="{{ __('invoices.shared.show.paid_at_placeholder') }}">
-                        <x-button type="submit" variant="secondary">
+                        <x-ui.button type="submit" variant="secondary">
                             {{ __('invoices.shared.show.mark_paid') }}
-                        </x-button>
+                        </x-ui.button>
                     </div>
                 </form>
                 @endcan
             @endif
             {{-- PDF generation to be implemented in future task --}}
             {{-- @if($invoice->isFinalized() || $invoice->isPaid())
-                <x-button href="{{ route('manager.invoices.pdf', $invoice) }}" class="inline-flex" variant="secondary">
+                <x-ui.button href="{{ route('manager.invoices.pdf', $invoice) }}" class="inline-flex" variant="secondary">
                     {{ $invoice->isPaid() ? __('invoices.shared.show.download_receipt') : __('invoices.shared.show.download_pdf') }}
-                </x-button>
+                </x-ui.button>
             @endif --}}
         </div>
     </div>
@@ -197,7 +197,7 @@
 
 @case('tenant')
 @section('tenant-content')
-<x-tenant.page
+<x-ui.page
     :title="__('invoices.shared.show.title', ['id' => $invoice->id])"
     :description="__('invoices.shared.show.description', ['from' => $invoice->billing_period_start->format('Y-m-d'), 'to' => $invoice->billing_period_end->format('Y-m-d')])"
 >
@@ -220,7 +220,7 @@
     />
 
     @if($invoice->due_date && !$invoice->isPaid())
-        <x-tenant.alert :type="$invoice->due_date->isPast() ? 'error' : 'info'" :title="$invoice->due_date->isPast() ? __('invoices.shared.show.payment_overdue') : __('invoices.shared.show.payment_due')" class="mt-4">
+        <x-ui.alert :type="$invoice->due_date->isPast() ? 'error' : 'info'" :title="$invoice->due_date->isPast() ? __('invoices.shared.show.payment_overdue') : __('invoices.shared.show.payment_due')" class="mt-4">
             <p class="text-sm">
                 {{ __('invoices.shared.show.due_date') }} <span class="font-semibold">{{ $invoice->due_date->format('Y-m-d') }}</span>
             </p>
@@ -233,9 +233,9 @@
             @if($invoice->due_date->isPast())
                 <p class="text-sm">{{ __('invoices.shared.show.overdue_notice') }}</p>
             @endif
-        </x-tenant.alert>
+        </x-ui.alert>
     @endif
-</x-tenant.page>
+</x-ui.page>
 @endsection
 @break
 
@@ -264,23 +264,23 @@
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none space-x-2">
             @if($invoice->isDraft())
                 @can('update', $invoice)
-                <x-button href="{{ route('manager.invoices.edit', $invoice) }}" variant="secondary">
+                <x-ui.button href="{{ route('manager.invoices.edit', $invoice) }}" variant="secondary">
                     {{ __('invoices.shared.show.edit') }}
-                </x-button>
+                </x-ui.button>
                 <form action="{{ route('manager.invoices.finalize', $invoice) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('invoices.shared.show.finalize_confirm') }}');">
                     @csrf
-                    <x-button type="submit">
+                    <x-ui.button type="submit">
                         {{ __('invoices.shared.show.finalize') }}
-                    </x-button>
+                    </x-ui.button>
                 </form>
                 @endcan
                 @can('delete', $invoice)
                 <form action="{{ route('manager.invoices.destroy', $invoice) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('invoices.shared.show.delete_confirm') }}');">
                     @csrf
                     @method('DELETE')
-                    <x-button type="submit" variant="danger">
+                    <x-ui.button type="submit" variant="danger">
                         {{ __('invoices.shared.show.delete') }}
-                    </x-button>
+                    </x-ui.button>
                 </form>
                 @endcan
             @endif
@@ -292,18 +292,18 @@
                         <input type="text" name="payment_reference" placeholder="{{ __('invoices.shared.show.payment_reference_placeholder') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         <input type="number" step="0.01" name="paid_amount" placeholder="{{ __('invoices.shared.show.paid_amount_placeholder') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         <input type="datetime-local" name="paid_at" value="{{ now()->format('Y-m-d\\TH:i') }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="{{ __('invoices.shared.show.paid_at_placeholder') }}">
-                        <x-button type="submit" variant="secondary">
+                        <x-ui.button type="submit" variant="secondary">
                             {{ __('invoices.shared.show.mark_paid') }}
-                        </x-button>
+                        </x-ui.button>
                     </div>
                 </form>
                 @endcan
             @endif
             {{-- PDF generation to be implemented in future task --}}
             {{-- @if($invoice->isFinalized() || $invoice->isPaid())
-                <x-button href="{{ route('manager.invoices.pdf', $invoice) }}" class="inline-flex" variant="secondary">
+                <x-ui.button href="{{ route('manager.invoices.pdf', $invoice) }}" class="inline-flex" variant="secondary">
                     {{ $invoice->isPaid() ? __('invoices.shared.show.download_receipt') : __('invoices.shared.show.download_pdf') }}
-                </x-button>
+                </x-ui.button>
             @endif --}}
         </div>
     </div>

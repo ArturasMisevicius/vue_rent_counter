@@ -358,7 +358,7 @@
                             </div>
                             <div>
                                 <x-status-badge :status="$invoice->status">
-                                    {{ ucfirst($invoice->status) }}
+                                    {{ enum_label($invoice->status) }}
                                 </x-status-badge>
                             </div>
                         </div>

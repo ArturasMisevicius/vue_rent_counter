@@ -2,7 +2,7 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@extends(auth()->user()?->role?->value === 'tenant' ? 'layouts.tenant' : 'layouts.app')
+@extends('layouts.app')
 
 @switch($role)
 @case('manager')
@@ -17,9 +17,9 @@
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             @can('create', App\Models\Invoice::class)
-            <x-button href="{{ route('manager.invoices.create') }}">
+            <x-ui.button href="{{ route('manager.invoices.create') }}">
                 {{ __('invoices.shared.index.generate') }}
-            </x-button>
+            </x-ui.button>
             @endcan
         </div>
     </div>
@@ -33,12 +33,12 @@
 
 @case('tenant')
 @section('tenant-content')
-<x-tenant.page :title="__('invoices.shared.title')" :description="__('invoices.shared.description')">
-    <x-tenant.quick-actions />
+<x-ui.page :title="__('invoices.shared.title')" :description="__('invoices.shared.description')">
+    <x-ui.quick-actions />
 
-    <x-tenant.section-card :title="__('invoices.shared.filters.title')" :description="__('invoices.shared.filters.description')">
+    <x-ui.section-card :title="__('invoices.shared.filters.title')" :description="__('invoices.shared.filters.description')">
         <form method="GET" action="{{ route('tenant.invoices.index') }}">
-            <x-tenant.stack gap="4">
+            <x-ui.stack gap="4">
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                     @if(count($properties) > 1)
                     <div>
@@ -87,20 +87,20 @@
                     </a>
                     @endif
                 </div>
-            </x-tenant.stack>
+            </x-ui.stack>
         </form>
-    </x-tenant.section-card>
+    </x-ui.section-card>
 
     @if($invoices->isEmpty())
-        <x-tenant.section-card :title="__('invoices.shared.empty.title')">
+        <x-ui.section-card :title="__('invoices.shared.empty.title')">
             <p class="text-sm text-slate-600">{{ __('invoices.shared.empty.description') }}</p>
-        </x-tenant.section-card>
+        </x-ui.section-card>
     @else
-        <x-tenant.stack gap="4">
+        <x-ui.stack gap="4">
             @foreach($invoices as $invoice)
-                <x-tenant.section-card>
+                <x-ui.section-card>
                     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                        <x-tenant.stack gap="1">
+                        <x-ui.stack gap="1">
                             <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{{ __('invoices.shared.list.invoice_label') }}</p>
                             <h3 class="text-xl font-semibold text-slate-900">#{{ $invoice->id }}</h3>
                             <p class="text-sm text-slate-600">
@@ -111,8 +111,8 @@
                                     {{ __('invoices.shared.list.property', ['address' => $invoice->tenant->property->address]) }}
                                 </p>
                             @endif
-                        </x-tenant.stack>
-                        <x-tenant.stack gap="2" class="text-left sm:text-right">
+                        </x-ui.stack>
+                        <x-ui.stack gap="2" class="text-left sm:text-right">
                             <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold {{ $statusStyles[$invoice->status->value] ?? 'bg-slate-100 text-slate-800' }}">
                                 {{ enum_label($invoice->status) }}
                             </span>
@@ -125,7 +125,7 @@
                                     @endif
                                 </p>
                             @endif
-                        </x-tenant.stack>
+                        </x-ui.stack>
                     </div>
 
                     <div class="mt-5 flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
@@ -137,15 +137,15 @@
                             {{ __('invoices.shared.list.view_details') }}
                         </a>
                     </div>
-                </x-tenant.section-card>
+                </x-ui.section-card>
             @endforeach
-        </x-tenant.stack>
+        </x-ui.stack>
 
         <div>
             {{ $invoices->links() }}
         </div>
     @endif
-</x-tenant.page>
+</x-ui.page>
 @endsection
 @break
 
@@ -161,9 +161,9 @@
         </div>
         <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             @can('create', App\Models\Invoice::class)
-            <x-button href="{{ route('manager.invoices.create') }}">
+            <x-ui.button href="{{ route('manager.invoices.create') }}">
                 {{ __('invoices.shared.index.generate') }}
-            </x-button>
+            </x-ui.button>
             @endcan
         </div>
     </div>

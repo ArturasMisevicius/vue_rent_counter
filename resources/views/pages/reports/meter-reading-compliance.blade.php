@@ -19,12 +19,12 @@
             <form method="GET" action="{{ route('manager.reports.compliance.export') }}" class="inline">
                 <input type="hidden" name="month" value="{{ $month }}">
                 <input type="hidden" name="building_id" value="{{ $buildingId }}">
-                <x-button type="submit" variant="secondary">
+                <x-ui.button type="submit" variant="secondary">
                     <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                     </svg>
                     {{ __('reports.shared.compliance.export') }}
-                </x-button>
+                </x-ui.button>
             </form>
         </div>
     </div>
@@ -48,9 +48,9 @@
                 />
 
                 <div class="flex items-end">
-                    <x-button type="submit" class="w-full">
+                    <x-ui.button type="submit" class="w-full">
                         {{ __('reports.shared.compliance.filters.submit') }}
-                    </x-button>
+                    </x-ui.button>
                 </div>
             </form>
         </x-card>
@@ -274,12 +274,12 @@
             <form method="GET" action="{{ route('manager.reports.compliance.export') }}" class="inline">
                 <input type="hidden" name="month" value="{{ $month }}">
                 <input type="hidden" name="building_id" value="{{ $buildingId }}">
-                <x-button type="submit" variant="secondary">
+                <x-ui.button type="submit" variant="secondary">
                     <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                     </svg>
                     {{ __('reports.shared.compliance.export') }}
-                </x-button>
+                </x-ui.button>
             </form>
         </div>
     </div>
@@ -303,9 +303,9 @@
                 />
 
                 <div class="flex items-end">
-                    <x-button type="submit" class="w-full">
+                    <x-ui.button type="submit" class="w-full">
                         {{ __('reports.shared.compliance.filters.submit') }}
-                    </x-button>
+                    </x-ui.button>
                 </div>
             </form>
         </x-card>

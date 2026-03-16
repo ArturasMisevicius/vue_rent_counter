@@ -2,7 +2,7 @@
     $role = auth()->user()?->role?->value;
 @endphp
 
-@extends($role === 'tenant' ? 'layouts.tenant' : 'layouts.app')
+@extends('layouts.app')
 
 @switch($role)
 @case('superadmin')
@@ -89,9 +89,9 @@
             </div>
 
             <div class="flex flex-wrap gap-3">
-                <x-button type="submit">
+                <x-ui.button type="submit">
                     {{ __('profile.shared.actions.update_profile') }}
-                </x-button>
+                </x-ui.button>
                 <a href="{{ route('superadmin.dashboard') }}" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/90 px-4 py-2.5 text-sm font-semibold tracking-tight text-slate-800 shadow-sm transition duration-150 hover:bg-white">
                     {{ __('app.nav.dashboard') }}
                 </a>
@@ -235,7 +235,7 @@
             </div>
 
             <div class="flex justify-end">
-                <x-button type="submit">{{ __('profile.shared.profile_form.submit') }}</x-button>
+                <x-ui.button type="submit">{{ __('profile.shared.profile_form.submit') }}</x-ui.button>
             </div>
         </form>
     </x-card>
@@ -264,7 +264,7 @@
             </div>
 
             <div class="flex justify-end">
-                <x-button type="submit">{{ __('profile.shared.password_form.submit') }}</x-button>
+                <x-ui.button type="submit">{{ __('profile.shared.password_form.submit') }}</x-ui.button>
             </div>
         </form>
     </x-card>
@@ -315,9 +315,9 @@
             <p class="text-xs text-slate-500">{{ __('shared.profile.password.hint') }}</p>
 
             <div class="flex flex-wrap gap-3">
-                <x-button type="submit">
+                <x-ui.button type="submit">
                     {{ __('shared.profile.update_profile') }}
-                </x-button>
+                </x-ui.button>
                 <a href="{{ route('manager.dashboard') }}" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/90 px-4 py-2.5 text-sm font-semibold tracking-tight text-slate-800 shadow-sm transition duration-150 hover:bg-white">
                     {{ __('app.nav.dashboard') }}
                 </a>
@@ -492,9 +492,9 @@
             </div>
 
             <div class="flex justify-end">
-                <x-button type="submit">
+                <x-ui.button type="submit">
                     {{ __('shared.profile.save_changes') }}
-                </x-button>
+                </x-ui.button>
             </div>
         </form>
     </x-card>
@@ -586,9 +586,9 @@
             </div>
 
             <div class="flex flex-wrap gap-3">
-                <x-button type="submit">
+                <x-ui.button type="submit">
                     {{ __('profile.shared.actions.update_profile') }}
-                </x-button>
+                </x-ui.button>
                 <a href="{{ route('superadmin.dashboard') }}" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white/90 px-4 py-2.5 text-sm font-semibold tracking-tight text-slate-800 shadow-sm transition duration-150 hover:bg-white">
                     {{ __('app.nav.dashboard') }}
                 </a>

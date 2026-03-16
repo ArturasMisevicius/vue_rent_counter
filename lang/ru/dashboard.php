@@ -392,6 +392,12 @@ return [
             'deleted' => 'Удалено',
             'rollback' => 'Откат',
         ],
+        'severity_levels' => [
+            'critical' => 'Critical',
+            'high' => 'High',
+            'low' => 'Low',
+            'medium' => 'Medium',
+        ],
         'models' => [
             'utility_service' => 'Коммунальные услуги',
             'service_configuration' => 'Конфигурация службы',

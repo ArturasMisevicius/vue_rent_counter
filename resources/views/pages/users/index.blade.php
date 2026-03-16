@@ -9,15 +9,15 @@
 @section('title', __('users.headings.index'))
 
 @section('content')
-<x-backoffice.page
+<x-ui.page
     :title="__('users.headings.index')"
     :description="__('users.descriptions.index')"
 >
     <x-slot name="actions">
         @can('create', App\Models\User::class)
-            <x-button :href="route('admin.users.create')">
+            <x-ui.button :href="route('admin.users.create')">
                 {{ __('users.actions.add') }}
-            </x-button>
+            </x-ui.button>
         @endcan
     </x-slot>
 
@@ -42,13 +42,13 @@
             />
 
             <div class="flex flex-wrap gap-2 lg:justify-end">
-                <x-button type="submit">
+                <x-ui.button type="submit">
                     {{ __('users.actions.filter') }}
-                </x-button>
+                </x-ui.button>
                 @if(request()->hasAny(['search', 'role']))
-                    <x-button variant="secondary" :href="route('admin.users.index')">
+                    <x-ui.button variant="secondary" :href="route('admin.users.index')">
                         {{ __('users.actions.clear') }}
-                    </x-button>
+                    </x-ui.button>
                 @endif
             </div>
         </form>
@@ -78,7 +78,7 @@
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                         <x-status-badge :status="$user->role->value">
-                            {{ ucfirst($user->role->value) }}
+                            {{ enum_label($user->role) }}
                         </x-status-badge>
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
@@ -86,21 +86,21 @@
                     </td>
                     <td class="py-4 pl-3 pr-4 sm:pr-6">
                         <div class="flex justify-end gap-2">
-                            <x-button variant="secondary" :href="route('admin.users.show', $user)" class="px-3 py-1.5 text-xs">
+                            <x-ui.button variant="secondary" :href="route('admin.users.show', $user)" class="px-3 py-1.5 text-xs">
                                 {{ __('users.actions.view') }}
-                            </x-button>
+                            </x-ui.button>
                             @can('update', $user)
-                                <x-button :href="route('admin.users.edit', $user)" class="px-3 py-1.5 text-xs">
+                                <x-ui.button :href="route('admin.users.edit', $user)" class="px-3 py-1.5 text-xs">
                                     {{ __('users.actions.edit') }}
-                                </x-button>
+                                </x-ui.button>
                             @endcan
                             @can('delete', $user)
                                 <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('{{ __('users.actions.delete') }}?');">
                                     @csrf
                                     @method('DELETE')
-                                    <x-button variant="danger" type="submit" class="px-3 py-1.5 text-xs">
+                                    <x-ui.button variant="danger" type="submit" class="px-3 py-1.5 text-xs">
                                         {{ __('users.actions.delete') }}
-                                    </x-button>
+                                    </x-ui.button>
                                 </form>
                             @endcan
                         </div>
@@ -127,21 +127,21 @@
                 </div>
 
                 <div class="mt-3 flex flex-col gap-2">
-                    <x-button variant="secondary" :href="route('admin.users.show', $user)">
+                    <x-ui.button variant="secondary" :href="route('admin.users.show', $user)">
                         {{ __('users.actions.view') }}
-                    </x-button>
+                    </x-ui.button>
                     @can('update', $user)
-                        <x-button :href="route('admin.users.edit', $user)">
+                        <x-ui.button :href="route('admin.users.edit', $user)">
                             {{ __('users.actions.edit') }}
-                        </x-button>
+                        </x-ui.button>
                     @endcan
                     @can('delete', $user)
                         <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('{{ __('users.actions.delete') }}?');">
                             @csrf
                             @method('DELETE')
-                            <x-button variant="danger" type="submit" class="w-full">
+                            <x-ui.button variant="danger" type="submit" class="w-full">
                                 {{ __('users.actions.delete') }}
-                            </x-button>
+                            </x-ui.button>
                         </form>
                     @endcan
                 </div>
@@ -156,7 +156,7 @@
     <div>
         {{ $users->links() }}
     </div>
-</x-backoffice.page>
+</x-ui.page>
 @endsection
 @break
 
@@ -164,15 +164,15 @@
 @section('title', __('users.headings.index'))
 
 @section('content')
-<x-backoffice.page
+<x-ui.page
     :title="__('users.headings.index')"
     :description="__('users.descriptions.index')"
 >
     <x-slot name="actions">
         @can('create', App\Models\User::class)
-            <x-button :href="route('admin.users.create')">
+            <x-ui.button :href="route('admin.users.create')">
                 {{ __('users.actions.add') }}
-            </x-button>
+            </x-ui.button>
         @endcan
     </x-slot>
 
@@ -197,13 +197,13 @@
             />
 
             <div class="flex flex-wrap gap-2 lg:justify-end">
-                <x-button type="submit">
+                <x-ui.button type="submit">
                     {{ __('users.actions.filter') }}
-                </x-button>
+                </x-ui.button>
                 @if(request()->hasAny(['search', 'role']))
-                    <x-button variant="secondary" :href="route('admin.users.index')">
+                    <x-ui.button variant="secondary" :href="route('admin.users.index')">
                         {{ __('users.actions.clear') }}
-                    </x-button>
+                    </x-ui.button>
                 @endif
             </div>
         </form>
@@ -233,7 +233,7 @@
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                         <x-status-badge :status="$user->role->value">
-                            {{ ucfirst($user->role->value) }}
+                            {{ enum_label($user->role) }}
                         </x-status-badge>
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
@@ -241,21 +241,21 @@
                     </td>
                     <td class="py-4 pl-3 pr-4 sm:pr-6">
                         <div class="flex justify-end gap-2">
-                            <x-button variant="secondary" :href="route('admin.users.show', $user)" class="px-3 py-1.5 text-xs">
+                            <x-ui.button variant="secondary" :href="route('admin.users.show', $user)" class="px-3 py-1.5 text-xs">
                                 {{ __('users.actions.view') }}
-                            </x-button>
+                            </x-ui.button>
                             @can('update', $user)
-                                <x-button :href="route('admin.users.edit', $user)" class="px-3 py-1.5 text-xs">
+                                <x-ui.button :href="route('admin.users.edit', $user)" class="px-3 py-1.5 text-xs">
                                     {{ __('users.actions.edit') }}
-                                </x-button>
+                                </x-ui.button>
                             @endcan
                             @can('delete', $user)
                                 <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('{{ __('users.actions.delete') }}?');">
                                     @csrf
                                     @method('DELETE')
-                                    <x-button variant="danger" type="submit" class="px-3 py-1.5 text-xs">
+                                    <x-ui.button variant="danger" type="submit" class="px-3 py-1.5 text-xs">
                                         {{ __('users.actions.delete') }}
-                                    </x-button>
+                                    </x-ui.button>
                                 </form>
                             @endcan
                         </div>
@@ -282,21 +282,21 @@
                 </div>
 
                 <div class="mt-3 flex flex-col gap-2">
-                    <x-button variant="secondary" :href="route('admin.users.show', $user)">
+                    <x-ui.button variant="secondary" :href="route('admin.users.show', $user)">
                         {{ __('users.actions.view') }}
-                    </x-button>
+                    </x-ui.button>
                     @can('update', $user)
-                        <x-button :href="route('admin.users.edit', $user)">
+                        <x-ui.button :href="route('admin.users.edit', $user)">
                             {{ __('users.actions.edit') }}
-                        </x-button>
+                        </x-ui.button>
                     @endcan
                     @can('delete', $user)
                         <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('{{ __('users.actions.delete') }}?');">
                             @csrf
                             @method('DELETE')
-                            <x-button variant="danger" type="submit" class="w-full">
+                            <x-ui.button variant="danger" type="submit" class="w-full">
                                 {{ __('users.actions.delete') }}
-                            </x-button>
+                            </x-ui.button>
                         </form>
                     @endcan
                 </div>
@@ -311,6 +311,6 @@
     <div>
         {{ $users->links() }}
     </div>
-</x-backoffice.page>
+</x-ui.page>
 @endsection
 @endswitch

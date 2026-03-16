@@ -1,0 +1,175 @@
+<?php
+
+return [
+    'actions' => [
+        'activate' => 'Activate',
+        'activate_selected' => 'Activate Selected',
+        'close' => 'Close',
+        'export_selected' => 'Export Selected',
+        'renew' => 'Renew',
+        'renew_selected' => 'Renew Selected',
+        'send_reminder' => 'Send Reminder',
+        'subscription_usage' => 'Subscription Usage',
+        'suspend' => 'Suspend',
+        'suspend_selected' => 'Suspend Selected',
+        'view' => 'View',
+        'view_usage' => 'View Usage',
+    ],
+    'filters' => [
+        'expired' => 'Expired',
+        'expiring_soon' => 'Expiring Soon',
+        'plan_type' => 'Plan Type',
+        'status' => 'Status',
+    ],
+    'helper_text' => [
+        'max_properties' => 'Max Properties',
+        'max_tenants' => 'Max Tenants',
+        'select_organization' => 'Select Organization',
+    ],
+    'labels' => [
+        'contact_name' => 'Contact Name',
+        'created_at' => 'Created At',
+        'days_left' => 'Days Left',
+        'days_until_expiry' => 'Days Until Expiry',
+        'email' => 'Email',
+        'expires_at' => 'Expires At',
+        'max_properties' => 'Max Properties',
+        'max_tenants' => 'Max Tenants',
+        'new_expiration_date' => 'New Expiration Date',
+        'organization' => 'Organization',
+        'plan_type' => 'Plan Type',
+        'properties_limit' => 'Properties Limit',
+        'properties_remaining' => 'Properties Remaining',
+        'properties_used' => 'Properties Used',
+        'renewal_duration' => 'Renewal Duration',
+        'starts_at' => 'Starts At',
+        'status' => 'Status',
+        'tenants_limit' => 'Tenants Limit',
+        'tenants_remaining' => 'Tenants Remaining',
+        'tenants_used' => 'Tenants Used',
+        'updated_at' => 'Updated At',
+    ],
+    'notifications' => [
+        'activated' => 'Activated',
+        'bulk_activated' => 'Bulk Activated',
+        'bulk_failed_suffix' => 'Bulk Failed Suffix',
+        'bulk_renewed' => 'Bulk Renewed',
+        'bulk_suspended' => 'Bulk Suspended',
+        'reminder_sent' => 'Reminder Sent',
+        'renewed' => 'Renewed',
+        'suspended' => 'Suspended',
+    ],
+    'options' => [
+        'duration' => [
+            '1_month' => '1 Month',
+            '1_year' => '1 Year',
+            '3_months' => '3 Months',
+            '6_months' => '6 Months',
+        ],
+    ],
+    'pages' => [
+        'edit' => [
+            'labels' => [
+                'expiry_date' => 'Expiry Date',
+            ],
+            'submit' => 'Update Subscription',
+            'title' => 'Edit Subscription',
+        ],
+        'index' => [
+            'description' => 'Manage all organization subscriptions',
+            'filters' => [
+                'expiring_soon' => 'Expiring Soon',
+                'plan_type' => 'Plan Type',
+                'search' => 'Search',
+                'search_placeholder' => 'Organization name',
+                'status' => 'Status',
+                'within_days' => 'Within :count days',
+            ],
+            'table' => [
+                'limits' => 'Limits',
+                'manage' => 'Manage',
+                'properties' => '{1} :count property|[2,*] :count properties',
+                'tenants' => '{1} :count tenant|[2,*] :count tenants',
+            ],
+            'title' => 'Subscriptions',
+        ],
+        'show' => [
+            'actions' => [
+                'cancel' => [
+                    'confirm' => 'Are you sure you want to cancel this subscription? This action cannot be undone.',
+                    'description' => 'Permanently cancel the subscription',
+                    'title' => 'Cancel Subscription',
+                ],
+                'renew' => [
+                    'description' => 'Extend the subscription expiry date',
+                    'title' => 'Renew Subscription',
+                ],
+                'suspend' => [
+                    'description' => 'Temporarily suspend access',
+                    'reason' => 'Reason for Suspension',
+                    'title' => 'Suspend Subscription',
+                ],
+                'view_organization' => 'View Organization →',
+            ],
+            'days_remaining' => '{1} :count day|[2,*] :count days',
+            'labels' => [
+                'expiry_date' => 'Expiry Date',
+                'start_date' => 'Start Date',
+            ],
+            'limit_reached' => 'Limit reached',
+            'organization' => [
+                'organization_name' => 'Organization Name',
+                'tenant_id' => 'Tenant ID',
+            ],
+            'sections' => [
+                'actions' => 'Actions',
+                'subscription_information' => 'Subscription Information',
+                'usage_statistics' => 'Usage Statistics',
+            ],
+            'title' => 'Subscription Details',
+        ],
+    ],
+    'sections' => [
+        'details' => 'Details',
+        'limits' => 'Limits',
+        'period' => 'Period',
+        'timestamps' => 'Timestamps',
+        'usage' => 'Usage',
+    ],
+    'validation' => [
+        'expires_at' => [
+            'after' => 'After',
+            'date' => 'Date',
+            'required' => 'Required',
+        ],
+        'max_properties' => [
+            'integer' => 'Integer',
+            'min' => 'Min',
+            'required' => 'Required',
+        ],
+        'max_tenants' => [
+            'integer' => 'Integer',
+            'min' => 'Min',
+            'required' => 'Required',
+        ],
+        'plan_type' => [
+            'in' => 'In',
+            'required' => 'Required',
+        ],
+        'reason' => [
+            'max' => 'Max',
+            'required' => 'Required',
+            'string' => 'String',
+        ],
+        'status' => [
+            'in' => 'In',
+            'required' => 'Required',
+        ],
+    ],
+    'widgets' => [
+        'expiring_description' => 'Expiring Description',
+        'expiring_empty_description' => 'Expiring Empty Description',
+        'expiring_empty_heading' => 'Expiring Empty Heading',
+        'expiring_heading' => 'Expiring Heading',
+    ],
+];
