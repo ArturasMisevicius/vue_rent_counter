@@ -4,283 +4,227 @@
 
 @extends('layouts.app')
 
-@switch($role)
-@case('superadmin')
-@section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="flex items-center justify-between mb-6">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-900">{{ __('tenants.pages.index.title') }}</h1>
-            <p class="text-slate-600">{{ __('tenants.pages.index.subtitle') }}</p>
-        </div>
-    </div>
+@if($role === 'admin')
+    @section('title', __('tenants.headings.index'))
 
-    <x-card>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200">
-                <thead class="bg-slate-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.fields.id') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.labels.name') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.labels.email') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.labels.property') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.fields.invoices') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('app.navigation.meter_readings') }}</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('app.nav.actions') ?? 'Actions' }}</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-slate-200">
-                    @forelse($tenants as $tenant)
-                    <tr class="hover:bg-slate-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $tenant->id }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                            <a href="{{ route('superadmin.tenants.show', $tenant) }}" class="text-indigo-600 hover:text-indigo-800">
-                                {{ $tenant->name }}
-                            </a>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $tenant->email }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                            @if($tenant->property)
-                                <a href="{{ route('superadmin.compat.properties.edit', $tenant->property) }}" class="text-indigo-600 hover:text-indigo-800">
-                                    {{ $tenant->property->address }}
-                                </a>
-                            @else
-                                <span class="text-slate-400">—</span>
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $tenant->invoices_count }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $tenant->meter_readings_count }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex justify-end gap-2">
-                                <a href="{{ route('superadmin.tenants.show', $tenant) }}" class="px-2 py-1 text-xs font-semibold text-white bg-slate-600 rounded hover:bg-slate-700">
-                                    {{ __('common.view') }}
-                                </a>
-                                <a href="{{ route('superadmin.compat.tenants.edit', $tenant) }}" class="px-2 py-1 text-xs font-semibold text-white bg-indigo-600 rounded hover:bg-indigo-700">
-                                    {{ __('common.edit') }}
-                                </a>
-                                <form action="{{ route('superadmin.compat.tenants.destroy', $tenant) }}" method="POST" onsubmit="return confirm('{{ __('common.confirm_delete') }}');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="px-2 py-1 text-xs font-semibold text-white bg-red-600 rounded hover:bg-red-700">
-                                        {{ __('common.delete') }}
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="px-6 py-4 text-center text-slate-500">
-                            {{ __('tenants.empty.list') }}
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        @if($tenants->hasPages())
-        <div class="mt-4">
-            {{ $tenants->links() }}
-        </div>
-        @endif
-    </x-card>
-</div>
-@endsection
-@break
-
-@case('admin')
-@section('title', __('tenants.headings.index'))
-
-@section('content')
-<div class="px-4 sm:px-6 lg:px-8">
-<div class="sm:flex sm:items-center">
-        <div class="sm:flex-auto">
-            <h1 class="text-2xl font-semibold text-slate-900">{{ __('tenants.headings.index') }}</h1>
-            <p class="mt-2 text-sm text-slate-700">{{ __('tenants.headings.index_description') }}</p>
-        </div>
-        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-            <a href="{{ route('admin.tenants.create') }}" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+    @section('content')
+    <x-ui.page
+        class="px-4 sm:px-6 lg:px-8"
+        :title="__('tenants.headings.index')"
+        :description="__('tenants.headings.index_description')"
+    >
+        <x-slot name="actions">
+            <a href="{{ route('admin.tenants.create') }}" class="inline-flex items-center justify-center rounded-2xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 {{ __('tenants.actions.add') }}
             </a>
-        </div>
-    </div>
+        </x-slot>
 
-    <div class="mt-8">
-        <div class="hidden sm:block">
-            <x-data-table :caption="__('tenants.headings.list')">
-                <x-slot name="header">
-                    <tr>
-                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-6">{{ __('tenants.labels.name') }}</th>
-                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('tenants.labels.email') }}</th>
-                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('tenants.labels.property') }}</th>
-                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('tenants.labels.status') }}</th>
-                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-slate-900">{{ __('tenants.labels.created') }}</th>
-                        <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                            <span class="sr-only">{{ __('tenants.labels.actions') }}</span>
-                        </th>
-                    </tr>
-                </x-slot>
+        <x-card>
+            <div class="hidden md:block">
+                <x-data-table :caption="__('tenants.headings.list')">
+                    <x-slot name="header">
+                        <tr>
+                            <th scope="col">{{ __('tenants.labels.name') }}</th>
+                            <th scope="col">{{ __('tenants.labels.email') }}</th>
+                            <th scope="col">{{ __('tenants.labels.property') }}</th>
+                            <th scope="col">{{ __('tenants.labels.status') }}</th>
+                            <th scope="col">{{ __('tenants.labels.created') }}</th>
+                            <th scope="col" class="text-right">
+                                <span class="sr-only">{{ __('tenants.labels.actions') }}</span>
+                            </th>
+                        </tr>
+                    </x-slot>
 
-                @forelse($tenants as $tenant)
-                <tr>
-                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 sm:pl-6">
-                        {{ $tenant->name }}
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                        {{ $tenant->email }}
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                        @if($tenant->property)
-                            {{ $tenant->property->address }}
-                        @else
-                            <span class="text-slate-400">{{ __('tenants.empty.property') }}</span>
-                        @endif
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm">
-                        @if($tenant->is_active)
-                            <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">{{ __('tenants.statuses.active') }}</span>
-                        @else
-                            <span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">{{ __('tenants.statuses.inactive') }}</span>
-                        @endif
-                    </td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
-                        {{ $tenant->created_at->format('M d, Y') }}
-                    </td>
-                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <a href="{{ route('admin.tenants.show', $tenant) }}" class="text-indigo-600 hover:text-indigo-900">
-                            {{ __('tenants.actions.view') }}<span class="sr-only">, {{ $tenant->name }}</span>
-                        </a>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="px-3 py-8 text-center text-sm text-slate-500">
-                        {{ __('tenants.empty.list') }} <a href="{{ route('admin.tenants.create') }}" class="text-indigo-600 hover:text-indigo-900">{{ __('tenants.empty.list_cta') }}</a>
-                    </td>
-                </tr>
-                @endforelse
-            </x-data-table>
-        </div>
-
-        <div class="sm:hidden space-y-3">
-            @forelse($tenants as $tenant)
-            <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-                <div class="flex items-start justify-between gap-3">
-                    <div>
-                        <p class="text-sm font-semibold text-slate-900">{{ $tenant->name }}</p>
-                        <p class="text-xs text-slate-600">{{ $tenant->email }}</p>
-                        <p class="text-xs text-slate-600 mt-1">
-                            {{ $tenant->property->address ?? __('tenants.empty.property') }}
-                        </p>
-                    </div>
-                    <div class="text-right text-xs text-slate-600">
-                        <p>{{ __('tenants.labels.status') }}: {{ $tenant->is_active ? __('tenants.statuses.active') : __('tenants.statuses.inactive') }}</p>
-                        <p>{{ __('tenants.labels.created') }}: {{ $tenant->created_at->format('M d, Y') }}</p>
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <a href="{{ route('admin.tenants.show', $tenant) }}" class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-indigo-700 shadow-sm transition hover:border-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        {{ __('tenants.actions.view') }}
-                    </a>
-                </div>
-            </div>
-            @empty
-            <div class="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-600 shadow-sm">
-                {{ __('tenants.empty.list') }}
-                <a href="{{ route('admin.tenants.create') }}" class="text-indigo-700 font-semibold">{{ __('tenants.empty.list_cta') }}</a>
-            </div>
-            @endforelse
-        </div>
-    </div>
-
-    @if($tenants->hasPages())
-    <div class="mt-4">
-        {{ $tenants->links() }}
-    </div>
-    @endif
-</div>
-@endsection
-@break
-
-@default
-@section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="flex items-center justify-between mb-6">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-900">{{ __('tenants.pages.index.title') }}</h1>
-            <p class="text-slate-600">{{ __('tenants.pages.index.subtitle') }}</p>
-        </div>
-    </div>
-
-    <x-card>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200">
-                <thead class="bg-slate-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.fields.id') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.labels.name') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.labels.email') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('tenants.labels.property') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('shared.manager.fields.invoices') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('app.navigation.meter_readings') }}</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">{{ __('app.nav.actions') ?? 'Actions' }}</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-slate-200">
                     @forelse($tenants as $tenant)
-                    <tr class="hover:bg-slate-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $tenant->id }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                            <a href="{{ route('superadmin.tenants.show', $tenant) }}" class="text-indigo-600 hover:text-indigo-800">
-                                {{ $tenant->name }}
-                            </a>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $tenant->email }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                            @if($tenant->property)
-                                <a href="{{ route('superadmin.compat.properties.edit', $tenant->property) }}" class="text-indigo-600 hover:text-indigo-800">
+                        <tr>
+                            <td class="font-medium text-slate-900">{{ $tenant->name }}</td>
+                            <td>{{ $tenant->email }}</td>
+                            <td>
+                                @if($tenant->property)
                                     {{ $tenant->property->address }}
+                                @else
+                                    <span class="text-slate-400">{{ __('tenants.empty.property') }}</span>
+                                @endif
+                            </td>
+                            <td>
+                                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold {{ $tenant->is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700' }}">
+                                    {{ $tenant->is_active ? __('tenants.statuses.active') : __('tenants.statuses.inactive') }}
+                                </span>
+                            </td>
+                            <td>{{ $tenant->created_at->format('M d, Y') }}</td>
+                            <td class="text-right">
+                                <a href="{{ route('admin.tenants.show', $tenant) }}" class="text-sm font-semibold text-indigo-600 transition hover:text-indigo-800">
+                                    {{ __('tenants.actions.view') }}
+                                    <span class="sr-only">, {{ $tenant->name }}</span>
                                 </a>
-                            @else
-                                <span class="text-slate-400">—</span>
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $tenant->invoices_count }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $tenant->meter_readings_count }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex justify-end gap-2">
-                                <a href="{{ route('superadmin.tenants.show', $tenant) }}" class="px-2 py-1 text-xs font-semibold text-white bg-slate-600 rounded hover:bg-slate-700">
-                                    {{ __('common.view') }}
-                                </a>
-                                <a href="{{ route('superadmin.compat.tenants.edit', $tenant) }}" class="px-2 py-1 text-xs font-semibold text-white bg-indigo-600 rounded hover:bg-indigo-700">
-                                    {{ __('common.edit') }}
-                                </a>
-                                <form action="{{ route('superadmin.compat.tenants.destroy', $tenant) }}" method="POST" onsubmit="return confirm('{{ __('common.confirm_delete') }}');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="px-2 py-1 text-xs font-semibold text-white bg-red-600 rounded hover:bg-red-700">
-                                        {{ __('common.delete') }}
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
                     @empty
-                    <tr>
-                        <td colspan="7" class="px-6 py-4 text-center text-slate-500">
-                            {{ __('tenants.empty.list') }}
-                        </td>
-                    </tr>
+                        <tr>
+                            <td colspan="6" class="text-center text-sm text-slate-500">
+                                {{ __('tenants.empty.list') }}
+                                <a href="{{ route('admin.tenants.create') }}" class="font-semibold text-indigo-600 hover:text-indigo-800">{{ __('tenants.empty.list_cta') }}</a>
+                            </td>
+                        </tr>
                     @endforelse
-                </tbody>
-            </table>
-        </div>
-        @if($tenants->hasPages())
-        <div class="mt-4">
-            {{ $tenants->links() }}
-        </div>
-        @endif
-    </x-card>
-</div>
-@endsection
-@endswitch
+                </x-data-table>
+            </div>
+
+            <div class="space-y-3 md:hidden">
+                @forelse($tenants as $tenant)
+                    <x-ui.list-record :title="$tenant->name" :subtitle="$tenant->email">
+                        <x-slot name="aside">
+                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold {{ $tenant->is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700' }}">
+                                {{ $tenant->is_active ? __('tenants.statuses.active') : __('tenants.statuses.inactive') }}
+                            </span>
+                        </x-slot>
+
+                        <x-slot name="meta">
+                            <x-ui.list-meta :label="__('tenants.labels.property')">
+                                {{ $tenant->property->address ?? __('tenants.empty.property') }}
+                            </x-ui.list-meta>
+                            <x-ui.list-meta :label="__('tenants.labels.created')">
+                                {{ $tenant->created_at->format('M d, Y') }}
+                            </x-ui.list-meta>
+                        </x-slot>
+
+                        <x-slot name="actions">
+                            <a href="{{ route('admin.tenants.show', $tenant) }}" class="inline-flex w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-indigo-700 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                {{ __('tenants.actions.view') }}
+                            </a>
+                        </x-slot>
+                    </x-ui.list-record>
+                @empty
+                    <div class="rounded-3xl border border-dashed border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-600 shadow-sm">
+                        {{ __('tenants.empty.list') }}
+                        <a href="{{ route('admin.tenants.create') }}" class="font-semibold text-indigo-700">{{ __('tenants.empty.list_cta') }}</a>
+                    </div>
+                @endforelse
+            </div>
+
+            @if($tenants->hasPages())
+                <div class="mt-6">
+                    {{ $tenants->links() }}
+                </div>
+            @endif
+        </x-card>
+    </x-ui.page>
+    @endsection
+@else
+    @section('content')
+    <x-ui.page
+        class="px-4 sm:px-6 lg:px-8"
+        :title="__('tenants.pages.index.title')"
+        :description="__('tenants.pages.index.subtitle')"
+    >
+        <x-card>
+            <div class="hidden md:block">
+                <x-data-table :caption="__('tenants.pages.index.title')">
+                    <x-slot name="header">
+                        <tr>
+                            <th scope="col">{{ __('shared.manager.fields.id') }}</th>
+                            <th scope="col">{{ __('tenants.labels.name') }}</th>
+                            <th scope="col">{{ __('tenants.labels.email') }}</th>
+                            <th scope="col">{{ __('tenants.labels.property') }}</th>
+                            <th scope="col">{{ __('shared.manager.fields.invoices') }}</th>
+                            <th scope="col">{{ __('app.navigation.meter_readings') }}</th>
+                            <th scope="col" class="text-right">{{ __('app.nav.actions') }}</th>
+                        </tr>
+                    </x-slot>
+
+                    @forelse($tenants as $tenant)
+                        <tr>
+                            <td class="font-medium text-slate-500">{{ $tenant->id }}</td>
+                            <td class="font-medium text-slate-900">
+                                <a href="{{ route('superadmin.tenants.show', $tenant) }}" class="text-indigo-600 transition hover:text-indigo-800">
+                                    {{ $tenant->name }}
+                                </a>
+                            </td>
+                            <td>{{ $tenant->email }}</td>
+                            <td>
+                                @if($tenant->property)
+                                    <a href="{{ route('superadmin.compat.properties.edit', $tenant->property) }}" class="text-indigo-600 transition hover:text-indigo-800">
+                                        {{ $tenant->property->address }}
+                                    </a>
+                                @else
+                                    <span class="text-slate-400">—</span>
+                                @endif
+                            </td>
+                            <td>{{ $tenant->invoices_count }}</td>
+                            <td>{{ $tenant->meter_readings_count }}</td>
+                            <td class="text-right">
+                                <div class="flex justify-end gap-2">
+                                    <a href="{{ route('superadmin.tenants.show', $tenant) }}" class="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+                                        {{ __('common.view') }}
+                                    </a>
+                                    <a href="{{ route('superadmin.compat.tenants.edit', $tenant) }}" class="inline-flex items-center rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100">
+                                        {{ __('common.edit') }}
+                                    </a>
+                                    <form action="{{ route('superadmin.compat.tenants.destroy', $tenant) }}" method="POST" onsubmit="return confirm('{{ __('common.confirm_delete') }}');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 transition hover:bg-rose-100">
+                                            {{ __('common.delete') }}
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="text-center text-sm text-slate-500">{{ __('tenants.empty.list') }}</td>
+                        </tr>
+                    @endforelse
+                </x-data-table>
+            </div>
+
+            <div class="space-y-3 md:hidden">
+                @forelse($tenants as $tenant)
+                    <x-ui.list-record :title="$tenant->name" :subtitle="$tenant->email">
+                        <x-slot name="meta">
+                            <x-ui.list-meta :label="__('shared.manager.fields.id')">{{ $tenant->id }}</x-ui.list-meta>
+                            <x-ui.list-meta :label="__('tenants.labels.property')">
+                                @if($tenant->property)
+                                    <a href="{{ route('superadmin.compat.properties.edit', $tenant->property) }}" class="font-medium text-indigo-600 hover:text-indigo-800">
+                                        {{ $tenant->property->address }}
+                                    </a>
+                                @else
+                                    <span class="text-slate-400">—</span>
+                                @endif
+                            </x-ui.list-meta>
+                            <x-ui.list-meta :label="__('shared.manager.fields.invoices')">{{ $tenant->invoices_count }}</x-ui.list-meta>
+                            <x-ui.list-meta :label="__('app.navigation.meter_readings')">{{ $tenant->meter_readings_count }}</x-ui.list-meta>
+                        </x-slot>
+
+                        <x-slot name="actions">
+                            <a href="{{ route('superadmin.tenants.show', $tenant) }}" class="inline-flex w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2">
+                                {{ __('common.view') }}
+                            </a>
+                            <a href="{{ route('superadmin.compat.tenants.edit', $tenant) }}" class="inline-flex w-full items-center justify-center rounded-2xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                {{ __('common.edit') }}
+                            </a>
+                            <form action="{{ route('superadmin.compat.tenants.destroy', $tenant) }}" method="POST" onsubmit="return confirm('{{ __('common.confirm_delete') }}');" class="w-full">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="inline-flex w-full items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-semibold text-rose-700 shadow-sm transition hover:bg-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2">
+                                    {{ __('common.delete') }}
+                                </button>
+                            </form>
+                        </x-slot>
+                    </x-ui.list-record>
+                @empty
+                    <div class="rounded-3xl border border-dashed border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-600 shadow-sm">
+                        {{ __('tenants.empty.list') }}
+                    </div>
+                @endforelse
+            </div>
+
+            @if($tenants->hasPages())
+                <div class="mt-6">
+                    {{ $tenants->links() }}
+                </div>
+            @endif
+        </x-card>
+    </x-ui.page>
+    @endsection
+@endif
