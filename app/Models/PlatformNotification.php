@@ -37,4 +37,9 @@ class PlatformNotification extends Model
     {
         return $this->hasMany(PlatformNotificationDelivery::class);
     }
+
+    public function recipients(): HasMany
+    {
+        return $this->hasMany(PlatformNotificationRecipient::class);
+    }
 }

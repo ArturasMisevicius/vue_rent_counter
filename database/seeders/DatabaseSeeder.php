@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             LoginDemoUsersSeeder::class,
             LegacyReferenceFoundationSeeder::class,
             LegacyOperationsFoundationSeeder::class,
+            LegacyPlatformFoundationSeeder::class,
         ]);
     }
 }

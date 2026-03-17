@@ -21,6 +21,7 @@ class Organization extends Model
         'slug',
         'status',
         'owner_user_id',
+        'system_tenant_id',
     ];
 
     protected function casts(): array
@@ -55,6 +56,11 @@ class Organization extends Model
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_user_id');
+    }
+
+    public function systemTenant(): BelongsTo
+    {
+        return $this->belongsTo(SystemTenant::class);
     }
 
     public function users(): HasMany
@@ -120,5 +126,10 @@ class Organization extends Model
     public function serviceConfigurations(): HasMany
     {
         return $this->hasMany(ServiceConfiguration::class);
+    }
+
+    public function platformNotificationRecipients(): HasMany
+    {
+        return $this->hasMany(PlatformNotificationRecipient::class);
     }
 }
