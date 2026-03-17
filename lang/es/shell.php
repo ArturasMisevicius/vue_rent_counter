@@ -21,6 +21,7 @@ return [
             'account' => 'Cuenta',
         ],
         'items' => [
+            'organizations' => 'Organizaciones',
             'profile' => 'Perfil',
         ],
     ],

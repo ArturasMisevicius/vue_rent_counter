@@ -21,6 +21,7 @@ return [
             'account' => 'Paskyra',
         ],
         'items' => [
+            'organizations' => 'Organizacijos',
             'profile' => 'Profilis',
         ],
     ],

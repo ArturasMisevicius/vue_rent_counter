@@ -18,6 +18,7 @@ class NavigationBuilder
         if ($user->isSuperadmin()) {
             $groups[] = $this->group('platform', __('shell.navigation.groups.platform'), [
                 $this->item($request, 'filament.admin.pages.platform-dashboard', __('dashboard.title')),
+                $this->item($request, 'filament.admin.resources.organizations.index', __('shell.navigation.items.organizations')),
             ]);
         }
 
