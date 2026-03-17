@@ -32,6 +32,11 @@ class User extends Authenticatable implements FilamentUser
         'locale',
         'organization_id',
         'last_login_at',
+        'currency',
+        'system_tenant_id',
+        'is_super_admin',
+        'suspended_at',
+        'suspension_reason',
         'password',
     ];
 
@@ -55,6 +60,8 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
+            'is_super_admin' => 'boolean',
+            'suspended_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
             'status' => UserStatus::class,
@@ -64,6 +71,11 @@ class User extends Authenticatable implements FilamentUser
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
+    }
+
+    public function systemTenant(): BelongsTo
+    {
+        return $this->belongsTo(SystemTenant::class);
     }
 
     public function ownedOrganization(): HasOne
@@ -76,9 +88,55 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(OrganizationInvitation::class, 'inviter_user_id');
     }
 
+    public function propertyAssignments(): HasMany
+    {
+        return $this->hasMany(PropertyAssignment::class, 'tenant_user_id');
+    }
+
+    public function currentPropertyAssignment(): HasOne
+    {
+        return $this->hasOne(PropertyAssignment::class, 'tenant_user_id')
+            ->whereNull('unassigned_at');
+    }
+
+    public function submittedMeterReadings(): HasMany
+    {
+        return $this->hasMany(MeterReading::class, 'submitted_by_user_id');
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class, 'tenant_user_id');
+    }
+
+    public function leases(): HasMany
+    {
+        return $this->hasMany(Lease::class, 'tenant_user_id');
+    }
+
+    public function subscriptionRenewals(): HasMany
+    {
+        return $this->hasMany(SubscriptionRenewal::class);
+    }
+
+    public function createdSystemTenants(): HasMany
+    {
+        return $this->hasMany(SystemTenant::class, 'created_by_admin_id');
+    }
+
+    public function updatedSystemConfigurations(): HasMany
+    {
+        return $this->hasMany(SystemConfiguration::class, 'updated_by_admin_id');
+    }
+
+    public function sentPlatformOrganizationInvitations(): HasMany
+    {
+        return $this->hasMany(PlatformOrganizationInvitation::class, 'invited_by');
+    }
+
     public function isSuperadmin(): bool
     {
-        return $this->role === UserRole::SUPERADMIN;
+        return $this->role === UserRole::SUPERADMIN || $this->is_super_admin;
     }
 
     public function isAdmin(): bool
@@ -109,5 +167,10 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->isAdminLike();
+    }
+
+    public function getCurrentPropertyAttribute(): ?Property
+    {
+        return $this->currentPropertyAssignment?->property;
     }
 }

@@ -3,10 +3,16 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\Profile;
+use App\Filament\Pages\Settings;
+use App\Filament\Resources\Buildings\BuildingResource;
+use App\Filament\Resources\Properties\PropertyResource;
 use App\Http\Controllers\Filament\RedirectToPublicLoginController;
 use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
 use App\Http\Middleware\SetAuthenticatedUserLocale;
+use App\Livewire\Shell\Sidebar;
+use App\Livewire\Shell\Topbar;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -35,10 +41,18 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->topbarLivewireComponent(Topbar::class)
+            ->sidebarLivewireComponent(Sidebar::class)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
+            ->resources([
+                BuildingResource::class,
+                PropertyResource::class,
+            ])
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 Dashboard::class,
+                Profile::class,
+                Settings::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([

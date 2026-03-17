@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Middleware\BlockBlockedIpAddresses;
+use App\Http\Middleware\EnsureAccountIsAccessible;
+use App\Http\Middleware\EnsureOnboardingIsComplete;
+use App\Http\Middleware\EnsureUserIsTenant;
+use App\Http\Middleware\SetAuthenticatedUserLocale;
+use App\Http\Middleware\SetGuestLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -11,10 +17,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(prepend: [
+            BlockBlockedIpAddresses::class,
+        ]);
+
+        $middleware->web(append: [
+            SetGuestLocale::class,
+        ]);
+
         $middleware->alias([
-            'set.auth.locale' => \App\Http\Middleware\SetAuthenticatedUserLocale::class,
-            'ensure.account.accessible' => \App\Http\Middleware\EnsureAccountIsAccessible::class,
-            'ensure.onboarding.complete' => \App\Http\Middleware\EnsureOnboardingIsComplete::class,
+            'set.auth.locale' => SetAuthenticatedUserLocale::class,
+            'ensure.account.accessible' => EnsureAccountIsAccessible::class,
+            'ensure.onboarding.complete' => EnsureOnboardingIsComplete::class,
+            'tenant.only' => EnsureUserIsTenant::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

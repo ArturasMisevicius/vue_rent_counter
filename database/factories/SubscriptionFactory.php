@@ -29,6 +29,20 @@ class SubscriptionFactory extends Factory
             'starts_at' => $startsAt,
             'expires_at' => $startsAt->copy()->addDays(14),
             'is_trial' => true,
+            'property_limit_snapshot' => SubscriptionPlan::BASIC->limits()['properties'],
+            'tenant_limit_snapshot' => SubscriptionPlan::BASIC->limits()['tenants'],
+            'meter_limit_snapshot' => SubscriptionPlan::BASIC->limits()['meters'],
+            'invoice_limit_snapshot' => SubscriptionPlan::BASIC->limits()['invoices'],
         ];
+    }
+
+    public function active(): static
+    {
+        return $this->state([
+            'status' => SubscriptionStatus::ACTIVE,
+            'is_trial' => false,
+            'starts_at' => now()->subMonth(),
+            'expires_at' => now()->addMonth(),
+        ]);
     }
 }

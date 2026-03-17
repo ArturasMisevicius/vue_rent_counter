@@ -114,3 +114,23 @@ it('forbids non-tenant users from the tenant home route', function () {
         ->get(route('tenant.home'))
         ->assertForbidden();
 });
+
+it('forbids non-tenant users from the tenant invoice history route', function () {
+    registerAuthRouteFixtures();
+
+    if (! Route::has('tenant.invoices.index')) {
+        Route::get('/tenant/invoices', fn () => 'tenant invoices')->name('tenant.invoices.index');
+    }
+
+    app('router')->getRoutes()->refreshNameLookups();
+    app('router')->getRoutes()->refreshActionLookups();
+
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('tenant.invoices.index'))
+        ->assertForbidden();
+});

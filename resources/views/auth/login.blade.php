@@ -76,5 +76,49 @@
                 </a>
             </p>
         </form>
+
+        @if (($demoAccounts ?? []) !== [])
+            <section class="rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-5">
+                <div class="mb-4 space-y-1">
+                    <h2 class="font-display text-2xl tracking-tight text-slate-950">Demo Accounts</h2>
+                    <p class="text-sm text-slate-600">Use these seeded credentials for role-based system testing. Click a username to autofill the login form.</p>
+                </div>
+
+                <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                    <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
+                        <thead class="bg-slate-50 text-slate-600">
+                            <tr>
+                                <th class="px-4 py-3 font-semibold">Username</th>
+                                <th class="px-4 py-3 font-semibold">Password</th>
+                                <th class="px-4 py-3 font-semibold">Role</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 text-slate-700">
+                            @forelse ($demoAccounts as $account)
+                                <tr>
+                                    <td class="px-4 py-3">
+                                        <button
+                                            type="button"
+                                            data-demo-account-trigger
+                                            data-demo-account-email="{{ $account['email'] }}"
+                                            data-demo-account-password="{{ $account['password'] }}"
+                                            class="rounded-lg bg-slate-100 px-2 py-1 font-mono text-xs text-slate-900 transition hover:bg-brand-warm/15 hover:text-slate-950"
+                                        >
+                                            {{ $account['email'] }}
+                                        </button>
+                                    </td>
+                                    <td class="px-4 py-3 font-mono text-xs">{{ $account['password'] }}</td>
+                                    <td class="px-4 py-3">{{ $account['role'] }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="px-4 py-4 text-sm text-slate-500">No demo accounts are available yet.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        @endif
     </div>
 @endsection

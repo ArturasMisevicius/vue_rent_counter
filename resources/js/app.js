@@ -22,6 +22,12 @@ const toggleSubmitState = (button, isLoading) => {
     button.querySelector('[data-submit-spinner]')?.classList.toggle('inline-flex', isLoading);
 };
 
+const dispatchInputEvents = (element) => {
+    ['input', 'change'].forEach((eventName) => {
+        element.dispatchEvent(new Event(eventName, { bubbles: true }));
+    });
+};
+
 document.querySelectorAll('[data-auth-form]').forEach((form) => {
     const submitButton = form.querySelector('[data-submit-button]');
     const password = form.querySelector('[data-password-field]');
@@ -92,4 +98,41 @@ document.querySelectorAll('[data-slug-source]').forEach((source) => {
     });
 
     syncSlug();
+});
+
+document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') {
+        return;
+    }
+
+    window.Livewire?.dispatch('shell-search-dismissed');
+});
+
+document.querySelectorAll('[data-demo-account-trigger]').forEach((trigger) => {
+    if (!(trigger instanceof HTMLButtonElement)) {
+        return;
+    }
+
+    trigger.addEventListener('click', () => {
+        const authForm = document.querySelector('[data-auth-form]');
+
+        if (!(authForm instanceof HTMLFormElement)) {
+            return;
+        }
+
+        const emailInput = authForm.querySelector('input[name="email"]');
+        const passwordInput = authForm.querySelector('input[name="password"]');
+
+        if (!(emailInput instanceof HTMLInputElement) || !(passwordInput instanceof HTMLInputElement)) {
+            return;
+        }
+
+        emailInput.value = trigger.dataset.demoAccountEmail ?? '';
+        passwordInput.value = trigger.dataset.demoAccountPassword ?? '';
+
+        dispatchInputEvents(emailInput);
+        dispatchInputEvents(passwordInput);
+
+        passwordInput.focus();
+    });
 });

@@ -4,6 +4,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>@yield('title', config('app.name', 'Tenanto'))</title>
+        <link rel="icon" href="{{ route('favicon') }}" type="image/x-icon">
+        <link rel="shortcut icon" href="{{ route('favicon') }}" type="image/x-icon">
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=sora:400,500,600,700|space-grotesk:500,700" rel="stylesheet" />
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -18,15 +20,13 @@
 
             <main class="relative flex min-h-screen items-center justify-center px-6 py-12">
                 <div class="w-full max-w-xl">
+                    <div class="mb-6 flex justify-end">
+                        <x-public.language-switcher />
+                    </div>
+
                     <div class="mb-8 flex justify-center">
-                        <a href="{{ route('login') }}" class="inline-flex items-center gap-4 text-white transition hover:opacity-90">
-                            <span class="flex size-14 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-xl font-semibold shadow-lg shadow-slate-950/20 backdrop-blur">
-                                T
-                            </span>
-                            <span class="flex flex-col">
-                                <span class="font-display text-2xl tracking-tight">Tenanto</span>
-                                <span class="text-xs uppercase tracking-[0.28em] text-white/65">{{ __('auth.brand_tagline') }}</span>
-                            </span>
+                        <a href="{{ route('home') }}" class="transition hover:opacity-90">
+                            <x-shell.brand light />
                         </a>
                     </div>
 
