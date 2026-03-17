@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'brand_tagline' => 'Turto valdymas',
+    'login_title' => 'Sveiki sugrįžę',
+    'login_subtitle' => 'Prisijunkite prie savo paskyros',
+    'register_title' => 'Sukurkite savo paskyrą',
+    'email_label' => 'El. pašto adresas',
+    'password_label' => 'Slaptažodis',
+    'full_name_label' => 'Vardas ir pavardė',
+    'confirm_password_label' => 'Patvirtinkite slaptažodį',
+    'forgot_password_link' => 'Pamiršote slaptažodį?',
+    'login_button' => 'Prisijungti',
+    'login_button_loading' => 'Jungiama...',
+    'register_button' => 'Sukurti paskyrą',
+    'register_button_loading' => 'Kuriama paskyra...',
+    'login_link' => 'Prisijungti',
+    'register_link' => 'Registruotis',
+    'no_account_prompt' => 'Neturite paskyros?',
+    'has_account_prompt' => 'Jau turite paskyrą?',
+    'invalid_credentials' => 'Neteisingas el. pašto adresas arba slaptažodis. Bandykite dar kartą.',
+    'password_confirmation_mismatch' => 'Slaptažodžių patvirtinimas nesutampa.',
+    'account_suspended' => 'Jūsų paskyra šiuo metu sustabdyta. Susisiekite su pagalba.',
+    'failed' => 'Neteisingas el. pašto adresas arba slaptažodis. Bandykite dar kartą.',
+    'password' => 'Pateiktas slaptažodis yra neteisingas.',
+    'throttle' => 'Per daug bandymų prisijungti. Bandykite dar kartą po :seconds sekundžių.',
+];

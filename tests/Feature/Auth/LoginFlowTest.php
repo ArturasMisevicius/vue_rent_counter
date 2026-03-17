@@ -1,0 +1,100 @@
+<?php
+
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
+
+uses(RefreshDatabase::class);
+
+function registerLoginDestinationFixtures(): void
+{
+    Route::get('/welcome', fn () => 'welcome')->name('welcome.show');
+    Route::get('/tenant/home', fn () => 'tenant home')->name('tenant.home');
+    Route::get('/admin/platform', fn () => 'platform')->name('filament.admin.pages.platform-dashboard');
+    Route::get('/admin/organization', fn () => 'organization')->name('filament.admin.pages.organization-dashboard');
+    Route::middleware(['web', 'auth'])->get('/__test/intended', fn () => 'intended')->name('test.intended');
+
+    app('router')->getRoutes()->refreshNameLookups();
+    app('router')->getRoutes()->refreshActionLookups();
+}
+
+it('renders the login page', function () {
+    registerLoginDestinationFixtures();
+
+    $this->get(route('login'))
+        ->assertSuccessful()
+        ->assertSeeText('Welcome back')
+        ->assertSeeText('Log in to your account')
+        ->assertSeeText('Email Address')
+        ->assertSeeText('Password')
+        ->assertSeeText('Forgot your password?')
+        ->assertSeeText("Don't have an account?")
+        ->assertSeeText('Register');
+});
+
+it('keeps the email and shows a generic message when login fails', function () {
+    registerLoginDestinationFixtures();
+
+    User::factory()->create([
+        'email' => 'asta@example.com',
+    ]);
+
+    $this->from(route('login'))
+        ->post(route('login.store'), [
+            'email' => 'asta@example.com',
+            'password' => 'wrong-password',
+        ])
+        ->assertRedirect(route('login'))
+        ->assertSessionHasErrors([
+            'email' => __('auth.invalid_credentials'),
+        ])
+        ->assertSessionHasInput('email', 'asta@example.com');
+
+    $this->assertGuest();
+});
+
+it('redirects users to their role-specific starting page', function (Closure $userFactory, string $expectedRoute) {
+    registerLoginDestinationFixtures();
+
+    $user = $userFactory();
+
+    $this->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertRedirect(route($expectedRoute));
+
+    $this->assertAuthenticatedAs($user);
+})->with([
+    'superadmin' => [
+        fn () => User::factory()->superadmin()->create(),
+        'filament.admin.pages.platform-dashboard',
+    ],
+    'partially onboarded admin' => [
+        fn () => User::factory()->admin()->create([
+            'organization_id' => null,
+        ]),
+        'welcome.show',
+    ],
+    'manager' => [
+        fn () => User::factory()->manager()->create(),
+        'filament.admin.pages.organization-dashboard',
+    ],
+    'tenant' => [
+        fn () => User::factory()->tenant()->create(),
+        'tenant.home',
+    ],
+]);
+
+it('restores the intended url after login', function () {
+    registerLoginDestinationFixtures();
+
+    $user = User::factory()->manager()->create();
+
+    $this->get(route('test.intended'))
+        ->assertRedirect(route('login'));
+
+    $this->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertRedirect(route('test.intended'));
+});

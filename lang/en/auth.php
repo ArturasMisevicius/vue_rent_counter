@@ -1,20 +1,27 @@
 <?php
 
 return [
-
-    /*
-    |--------------------------------------------------------------------------
-    | Authentication Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | The following language lines are used during authentication for various
-    | messages that we need to display to the user. You are free to modify
-    | these language lines according to your application's requirements.
-    |
-    */
-
-    'failed' => 'These credentials do not match our records.',
+    'brand_tagline' => 'Property Operations',
+    'login_title' => 'Welcome back',
+    'login_subtitle' => 'Log in to your account',
+    'register_title' => 'Create your account',
+    'email_label' => 'Email Address',
+    'password_label' => 'Password',
+    'full_name_label' => 'Full Name',
+    'confirm_password_label' => 'Confirm Password',
+    'forgot_password_link' => 'Forgot your password?',
+    'login_button' => 'Log In',
+    'login_button_loading' => 'Logging in...',
+    'register_button' => 'Create Account',
+    'register_button_loading' => 'Creating account...',
+    'login_link' => 'Log In',
+    'register_link' => 'Register',
+    'no_account_prompt' => "Don't have an account?",
+    'has_account_prompt' => 'Already have an account?',
+    'invalid_credentials' => 'The email or password you entered is incorrect. Please try again.',
+    'password_confirmation_mismatch' => 'The password confirmation does not match.',
+    'account_suspended' => 'Your account is currently suspended. Please contact support.',
+    'failed' => 'The email or password you entered is incorrect. Please try again.',
     'password' => 'The provided password is incorrect.',
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
-
 ];

@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'brand_tagline' => 'Operaciones de propiedades',
+    'login_title' => 'Bienvenido de nuevo',
+    'login_subtitle' => 'Inicia sesión en tu cuenta',
+    'register_title' => 'Crea tu cuenta',
+    'email_label' => 'Dirección de correo electrónico',
+    'password_label' => 'Contraseña',
+    'full_name_label' => 'Nombre completo',
+    'confirm_password_label' => 'Confirmar contraseña',
+    'forgot_password_link' => '¿Olvidaste tu contraseña?',
+    'login_button' => 'Iniciar sesión',
+    'login_button_loading' => 'Iniciando sesión...',
+    'register_button' => 'Crear cuenta',
+    'register_button_loading' => 'Creando cuenta...',
+    'login_link' => 'Iniciar sesión',
+    'register_link' => 'Registrarse',
+    'no_account_prompt' => '¿No tienes una cuenta?',
+    'has_account_prompt' => '¿Ya tienes una cuenta?',
+    'invalid_credentials' => 'El correo electrónico o la contraseña que ingresaste son incorrectos. Inténtalo de nuevo.',
+    'password_confirmation_mismatch' => 'La confirmación de la contraseña no coincide.',
+    'account_suspended' => 'Tu cuenta está suspendida actualmente. Ponte en contacto con soporte.',
+    'failed' => 'El correo electrónico o la contraseña que ingresaste son incorrectos. Inténtalo de nuevo.',
+    'password' => 'La contraseña proporcionada es incorrecta.',
+    'throttle' => 'Demasiados intentos de inicio de sesión. Inténtalo de nuevo en :seconds segundos.',
+];

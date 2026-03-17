@@ -4,9 +4,18 @@ use App\Enums\UserRole;
 use App\Models\User;
 use Filament\Panel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
+
+function registerOnboardingRouteFixtures(): void
+{
+    Route::get('/welcome', fn () => 'welcome')->name('welcome.show');
+
+    app('router')->getRoutes()->refreshNameLookups();
+    app('router')->getRoutes()->refreshActionLookups();
+}
 
 it('creates the foundation auth domain schema', function () {
     expect(Schema::hasTable('organizations'))->toBeTrue();
@@ -64,4 +73,36 @@ it('exposes role helpers for shared auth routing', function () {
         ->and($admin->canAccessPanel($panel))->toBeTrue()
         ->and($manager->canAccessPanel($panel))->toBeTrue()
         ->and($tenant->canAccessPanel($panel))->toBeFalse();
+});
+
+it('renders the register page', function () {
+    registerOnboardingRouteFixtures();
+
+    $this->get(route('register'))
+        ->assertSuccessful()
+        ->assertSeeText('Create your account')
+        ->assertSeeText('Full Name')
+        ->assertSeeText('Email Address')
+        ->assertSeeText('Password')
+        ->assertSeeText('Confirm Password')
+        ->assertSeeText('Create Account');
+});
+
+it('registers an admin and redirects to welcome', function () {
+    registerOnboardingRouteFixtures();
+
+    $response = $this->post(route('register.store'), [
+        'name' => 'Asta Admin',
+        'email' => 'asta@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ]);
+
+    $response->assertRedirect(route('welcome.show'));
+    $this->assertAuthenticated();
+
+    $user = User::firstOrFail();
+
+    expect($user->role)->toBe(UserRole::ADMIN)
+        ->and($user->organization_id)->toBeNull();
 });
