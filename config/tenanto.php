@@ -2,8 +2,17 @@
 
 return [
     'localization' => [
+        'fallback_locale' => 'en',
         'translation_sources' => [
             'php_array_files' => 'lang',
+        ],
+        'translation_exports_directory' => 'storage/app/private/translation-exports',
+    ],
+    'notifications' => [
+        'target_scopes' => [
+            'all' => 'All active users',
+            'admins' => 'Admins and managers',
+            'tenants' => 'Tenants',
         ],
     ],
     'locales' => [

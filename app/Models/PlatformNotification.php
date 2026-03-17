@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\PlatformNotificationSeverity;
 use App\Enums\PlatformNotificationStatus;
 use Database\Factories\PlatformNotificationFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -44,5 +45,31 @@ class PlatformNotification extends Model
     public function deliveries(): HasMany
     {
         return $this->hasMany(PlatformNotificationDelivery::class);
+    }
+
+    public function scopeForSuperadminResource(Builder $query): Builder
+    {
+        return $query
+            ->select([
+                'id',
+                'author_id',
+                'title',
+                'body',
+                'severity',
+                'status',
+                'target_scope',
+                'sent_at',
+                'metadata',
+                'created_at',
+            ])
+            ->with([
+                'author:id,name,email,role,status',
+            ])
+            ->withCount('deliveries');
+    }
+
+    public function canBeSent(): bool
+    {
+        return $this->status === PlatformNotificationStatus::DRAFT;
     }
 }
