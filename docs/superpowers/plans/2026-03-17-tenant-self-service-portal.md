@@ -10,6 +10,11 @@
 
 ---
 
+## Spec Reference
+
+- Spec: `docs/superpowers/specs/2026-03-17-tenant-self-service-portal-design.md`
+- Supporting baselines: `docs/superpowers/specs/2026-03-17-foundation-auth-onboarding-design.md`, `docs/superpowers/specs/2026-03-17-shared-interface-elements-design.md`, `docs/superpowers/specs/2026-03-17-admin-organization-operations-design.md`
+
 ## Scope Check
 
 This is one coherent portal subsystem, but it depends on earlier work:

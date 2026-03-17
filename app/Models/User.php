@@ -32,6 +32,9 @@ class User extends Authenticatable implements FilamentUser
         'locale',
         'organization_id',
         'last_login_at',
+        'currency',
+        'suspended_at',
+        'suspension_reason',
         'password',
     ];
 
@@ -55,6 +58,7 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
+            'suspended_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
             'status' => UserStatus::class,
@@ -95,6 +99,16 @@ class User extends Authenticatable implements FilamentUser
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class, 'tenant_user_id');
+    }
+
+    public function leases(): HasMany
+    {
+        return $this->hasMany(Lease::class, 'tenant_user_id');
+    }
+
+    public function subscriptionRenewals(): HasMany
+    {
+        return $this->hasMany(SubscriptionRenewal::class);
     }
 
     public function isSuperadmin(): bool

@@ -12,6 +12,7 @@
 
 ## Spec Reference
 
+- Spec: `docs/superpowers/specs/2026-03-17-shared-interface-elements-design.md`
 - Requirements source: user-provided “Shared Interface Elements” specification from the 2026-03-17 conversation.
 - Supporting baseline: `docs/superpowers/specs/2026-03-17-foundation-auth-onboarding-design.md`
 - Skills to use during execution: `@laravel-11-12-app-guidelines`, `@tailwindcss-development`, `@pest-testing`, `@livewire-development`

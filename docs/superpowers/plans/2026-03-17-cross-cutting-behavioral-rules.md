@@ -10,6 +10,11 @@
 
 ---
 
+## Spec Reference
+
+- Spec: `docs/superpowers/specs/2026-03-17-cross-cutting-behavioral-rules-design.md`
+- Supporting baseline: `docs/superpowers/specs/2026-03-17-foundation-auth-onboarding-design.md`
+
 ## Scope Check
 
 This spec spans several independent subsystems, but those subsystems have already been split into earlier plans. This document is the **cross-cutting rules layer** that stitches them together after their pages and models exist.

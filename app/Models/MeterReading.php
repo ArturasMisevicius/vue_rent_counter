@@ -8,6 +8,7 @@ use Database\Factories\MeterReadingFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MeterReading extends Model
 {
@@ -54,5 +55,10 @@ class MeterReading extends Model
     public function submittedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'submitted_by_user_id');
+    }
+
+    public function audits(): HasMany
+    {
+        return $this->hasMany(MeterReadingAudit::class);
     }
 }
