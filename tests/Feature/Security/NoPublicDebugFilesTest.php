@@ -1,9 +1,6 @@
 <?php
 
-use Illuminate\Support\Facades\File;
-use Symfony\Component\Finder\SplFileInfo;
-
-it('returns not found for removed public debug entrypoints and routes', function (string $path): void {
+it('returns not found for removed public debug entrypoints', function (string $path): void {
     $this->get($path)->assertNotFound();
 })->with([
     '/check-logs.php',
@@ -17,13 +14,15 @@ it('returns not found for removed public debug entrypoints and routes', function
     '/test.php',
     '/index_fixed.php',
     '/sw.js',
-    '/test-debug',
 ]);
 
+it('returns not found for the removed test debug route', function (): void {
+    $this->get('/test-debug')->assertNotFound();
+});
+
 it('keeps index.php as the only public php entrypoint', function (): void {
-    $publicPhpFiles = collect(File::files(public_path()))
-        ->filter(fn (SplFileInfo $file): bool => $file->getExtension() === 'php')
-        ->map(fn (SplFileInfo $file): string => $file->getFilename())
+    $publicPhpFiles = collect(glob(public_path('*.php')) ?: [])
+        ->map(fn (string $path): string => basename($path))
         ->sort()
         ->values()
         ->all();
