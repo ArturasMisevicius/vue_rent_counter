@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Preferences;
 
+use App\Support\Geography\BalticReferenceCatalog;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -22,7 +23,7 @@ class UpdateGuestLocaleRequest extends FormRequest
             'locale' => [
                 'required',
                 'string',
-                Rule::in(array_keys(config('app.supported_locales', []))),
+                Rule::in(BalticReferenceCatalog::supportedLocaleCodes()),
             ],
         ];
     }

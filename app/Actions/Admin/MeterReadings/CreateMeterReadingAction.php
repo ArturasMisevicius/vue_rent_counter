@@ -6,6 +6,7 @@ use App\Enums\MeterReadingSubmissionMethod;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\User;
+use App\Support\Admin\ReadingValidation\ReadingValidationResult;
 use App\Support\Admin\ReadingValidation\ValidateReadingValue;
 use Illuminate\Validation\ValidationException;
 
@@ -38,7 +39,17 @@ class CreateMeterReadingAction
             'reading_date' => $readingDate,
             'validation_status' => $validation->status,
             'submission_method' => $submissionMethod,
-            'notes' => $notes,
+            'notes' => $this->mergeNotes($notes, $validation),
         ]);
+    }
+
+    private function mergeNotes(?string $notes, ReadingValidationResult $validation): ?string
+    {
+        $segments = array_values(array_filter([
+            $notes,
+            ...$validation->notes,
+        ]));
+
+        return $segments !== [] ? implode("\n", $segments) : null;
     }
 }

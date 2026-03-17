@@ -9,11 +9,13 @@ class ReadingValidationResult
 {
     /**
      * @param  array<string, list<string>>  $messages
+     * @param  list<string>  $notes
      */
     public function __construct(
         public array $messages,
         public MeterReadingValidationStatus $status,
         public ?MeterReading $previousReading = null,
+        public array $notes = [],
     ) {}
 
     public function fails(): bool

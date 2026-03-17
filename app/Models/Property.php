@@ -84,6 +84,11 @@ class Property extends Model
         return $this->hasMany(Meter::class);
     }
 
+    public function serviceConfigurations(): HasMany
+    {
+        return $this->hasMany(ServiceConfiguration::class);
+    }
+
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);

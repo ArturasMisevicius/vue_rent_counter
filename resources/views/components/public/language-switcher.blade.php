@@ -1,5 +1,8 @@
 @php
-    $supportedLocales = config('app.supported_locales', []);
+    $supportedLocales = \Illuminate\Support\Arr::only(
+        config('app.supported_locales', []),
+        \App\Support\Geography\BalticReferenceCatalog::supportedLocaleCodes(),
+    );
     $currentLocale = app()->getLocale();
 @endphp
 

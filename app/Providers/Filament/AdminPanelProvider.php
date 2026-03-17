@@ -3,12 +3,20 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\GenerateBulkInvoices;
 use App\Filament\Pages\Profile;
+use App\Filament\Pages\Reports;
 use App\Filament\Pages\Settings;
 use App\Filament\Resources\Buildings\BuildingResource;
+use App\Filament\Resources\Invoices\InvoiceResource;
+use App\Filament\Resources\MeterReadings\MeterReadingResource;
 use App\Filament\Resources\Meters\MeterResource;
 use App\Filament\Resources\Properties\PropertyResource;
+use App\Filament\Resources\Providers\ProviderResource;
+use App\Filament\Resources\ServiceConfigurations\ServiceConfigurationResource;
+use App\Filament\Resources\Tariffs\TariffResource;
 use App\Filament\Resources\Tenants\TenantResource;
+use App\Filament\Resources\UtilityServices\UtilityServiceResource;
 use App\Http\Controllers\Filament\RedirectToPublicLoginController;
 use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
@@ -51,12 +59,20 @@ class AdminPanelProvider extends PanelProvider
                 PropertyResource::class,
                 TenantResource::class,
                 MeterResource::class,
+                MeterReadingResource::class,
+                ProviderResource::class,
+                TariffResource::class,
+                UtilityServiceResource::class,
+                ServiceConfigurationResource::class,
+                InvoiceResource::class,
             ])
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 Dashboard::class,
                 Profile::class,
                 Settings::class,
+                Reports::class,
+                GenerateBulkInvoices::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([

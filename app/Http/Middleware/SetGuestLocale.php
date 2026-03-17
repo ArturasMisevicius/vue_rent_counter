@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Geography\BalticReferenceCatalog;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +21,7 @@ class SetGuestLocale
 
         if (
             is_string($locale) &&
-            in_array($locale, array_keys(config('app.supported_locales', [])), true)
+            in_array($locale, BalticReferenceCatalog::supportedLocaleCodes(), true)
         ) {
             app()->setLocale($locale);
         }
