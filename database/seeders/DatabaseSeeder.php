@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             IntegrationHealthCheckSeeder::class,
             LoginDemoUsersSeeder::class,
             LegacyReferenceFoundationSeeder::class,
+            LegacyOperationsFoundationSeeder::class,
         ]);
     }
 }
