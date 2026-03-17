@@ -34,6 +34,7 @@ return [
     'reset_link_generic' => 'If an account with that email exists, a reset link has been sent.',
     'invitation_expired' => 'This invitation has expired. Please contact your administrator for a new invitation.',
     'invitation_email_exists' => 'An account with this email already exists.',
+    'invitation_pending_exists' => 'A pending invitation already exists for this email.',
     'invitation_not_allowed' => 'You are not allowed to send invitations for this organization.',
     'invitation_mail_subject' => 'You have been invited to join :organization on Tenanto',
     'invitation_mail_greeting' => 'Hello,',

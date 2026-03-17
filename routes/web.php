@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Onboarding\WelcomeController;
+use App\Http\Controllers\Tenant\HomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -33,7 +34,7 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware(['auth', 'set.auth.locale', 'ensure.account.accessible'])->group(function (): void {
     Route::get('/welcome', [WelcomeController::class, 'show'])->name('welcome.show');
     Route::post('/welcome', [WelcomeController::class, 'store'])->name('welcome.store');
-    Route::view('/tenant/home', 'tenant.home')->name('tenant.home');
+    Route::get('/tenant/home', HomeController::class)->name('tenant.home');
 });
 
 Route::middleware('auth')->group(function (): void {

@@ -34,6 +34,7 @@ return [
     'reset_link_generic' => 'Si existe una cuenta con ese correo electrónico, se ha enviado un enlace para restablecer la contraseña.',
     'invitation_expired' => 'Esta invitación ha caducado. Ponte en contacto con tu administrador para recibir una nueva invitación.',
     'invitation_email_exists' => 'Ya existe una cuenta con este correo electrónico.',
+    'invitation_pending_exists' => 'Ya existe una invitación pendiente para este correo electrónico.',
     'invitation_not_allowed' => 'No tienes permiso para enviar invitaciones para esta organización.',
     'invitation_mail_subject' => 'Has sido invitado a unirte a :organization en Tenanto',
     'invitation_mail_greeting' => 'Hola,',

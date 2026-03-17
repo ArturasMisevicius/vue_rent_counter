@@ -101,3 +101,16 @@ it('routes users to the correct starting page', function () {
         ->and($redirector->for(User::factory()->tenant()->make()))
         ->toBe(route('tenant.home'));
 });
+
+it('forbids non-tenant users from the tenant home route', function () {
+    registerAuthRouteFixtures();
+
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('tenant.home'))
+        ->assertForbidden();
+});

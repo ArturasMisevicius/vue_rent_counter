@@ -165,3 +165,33 @@ it('rejects invitation creation for an existing user email', function () {
 
     Notification::assertNothingSent();
 });
+
+it('rejects invitation creation when a pending invitation already exists for the email', function () {
+    Notification::fake();
+
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $organization->update([
+        'owner_user_id' => $admin->id,
+    ]);
+
+    OrganizationInvitation::factory()->create([
+        'organization_id' => $organization->id,
+        'email' => 'pending@example.com',
+        'accepted_at' => null,
+        'expires_at' => now()->addDay(),
+    ]);
+
+    expect(fn () => app(CreateOrganizationInvitationAction::class)->handle($admin, [
+        'email' => 'pending@example.com',
+        'role' => UserRole::TENANT,
+        'full_name' => 'Pending Tenant',
+    ]))->toThrow(ValidationException::class);
+
+    expect(OrganizationInvitation::query()->count())->toBe(1);
+
+    Notification::assertNothingSent();
+});

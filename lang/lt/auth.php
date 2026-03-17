@@ -34,6 +34,7 @@ return [
     'reset_link_generic' => 'Jei paskyra su šiuo el. paštu egzistuoja, slaptažodžio atkūrimo nuoroda buvo išsiųsta.',
     'invitation_expired' => 'Šis kvietimas nebegalioja. Susisiekite su administratoriumi dėl naujo kvietimo.',
     'invitation_email_exists' => 'Paskyra su šiuo el. paštu jau egzistuoja.',
+    'invitation_pending_exists' => 'Šiam el. paštui jau yra laukiantis kvietimas.',
     'invitation_not_allowed' => 'Jums neleidžiama siųsti kvietimų šiai organizacijai.',
     'invitation_mail_subject' => 'Jūs pakviesti prisijungti prie :organization sistemoje Tenanto',
     'invitation_mail_greeting' => 'Sveiki,',

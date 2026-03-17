@@ -35,6 +35,16 @@ class CreateOrganizationInvitationAction
             ]);
         }
 
+        if (OrganizationInvitation::query()
+            ->where('email', $attributes['email'])
+            ->whereNull('accepted_at')
+            ->where('expires_at', '>', now())
+            ->exists()) {
+            throw ValidationException::withMessages([
+                'email' => __('auth.invitation_pending_exists'),
+            ]);
+        }
+
         $invitation = OrganizationInvitation::query()->create([
             'organization_id' => $inviter->organization_id,
             'inviter_user_id' => $inviter->id,
