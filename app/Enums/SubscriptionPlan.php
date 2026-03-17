@@ -18,6 +18,16 @@ enum SubscriptionPlan: string
     }
 
     /**
+     * @return array<string, string>
+     */
+    public static function options(): array
+    {
+        return collect(self::cases())
+            ->mapWithKeys(fn (self $plan): array => [$plan->value => $plan->label()])
+            ->all();
+    }
+
+    /**
      * @return array<string, int>
      */
     public function limitsSnapshot(): array
@@ -42,5 +52,16 @@ enum SubscriptionPlan: string
                 'meters' => 5000,
             ],
         };
+    }
+
+    /**
+     * @return array{plan_name_snapshot: string, limits_snapshot: array<string, int>}
+     */
+    public function snapshotAttributes(): array
+    {
+        return [
+            'plan_name_snapshot' => $this->label(),
+            'limits_snapshot' => $this->limitsSnapshot(),
+        ];
     }
 }
