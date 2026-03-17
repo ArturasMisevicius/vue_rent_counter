@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Shell\LanguageSwitcher;
+use App\Livewire\Shell\Topbar;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -52,4 +53,25 @@ it('uses the persisted locale on the next rendered response', function () {
     $this->get(route('tenant.home'))
         ->assertSuccessful()
         ->assertSeeText('Ieškoti visko');
+});
+
+it('refreshes shared topbar copy after a locale update event', function () {
+    $user = User::factory()->tenant()->create([
+        'locale' => 'en',
+    ]);
+
+    $this->actingAs($user);
+
+    app()->setLocale('en');
+
+    $topbar = Livewire::test(Topbar::class)
+        ->assertSee('My Profile')
+        ->assertSee('Log Out');
+
+    app()->setLocale('lt');
+
+    $topbar
+        ->dispatch('shell-locale-updated', locale: 'lt')
+        ->assertSee('Mano profilis')
+        ->assertSee('Atsijungti');
 });
