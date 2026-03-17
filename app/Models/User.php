@@ -132,4 +132,47 @@ class User extends Authenticatable implements FilamentUser
                 UserRole::MANAGER,
             ]);
     }
+
+    public function scopeForSuperadminResource(Builder $query): Builder
+    {
+        return $query
+            ->select([
+                'id',
+                'name',
+                'email',
+                'role',
+                'status',
+                'locale',
+                'organization_id',
+                'last_login_at',
+                'email_verified_at',
+                'created_at',
+            ])
+            ->with([
+                'organization:id,name,slug,status,owner_user_id,created_at',
+            ])
+            ->withExists([
+                'ownedOrganization',
+            ]);
+    }
+
+    public function scopeLoggedInWithinDays(Builder $query, int $days = 30): Builder
+    {
+        return $query->where('last_login_at', '>=', now()->subDays($days));
+    }
+
+    public function canBeDeleted(): bool
+    {
+        if ($this->isSuperadmin()) {
+            return false;
+        }
+
+        $ownsOrganization = $this->getAttribute('owned_organization_exists');
+
+        if ($ownsOrganization !== null) {
+            return ! (bool) $ownsOrganization;
+        }
+
+        return ! $this->ownedOrganization()->exists();
+    }
 }

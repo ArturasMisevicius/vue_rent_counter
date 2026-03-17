@@ -79,10 +79,35 @@ it('returns no clickable results when destination routes are missing', function 
         'email' => 'owner@example.com',
     ]);
 
+    config()->set('tenanto.routes.search.organizations.view', '__missing.organizations.view');
+    config()->set('tenanto.routes.search.users.view', '__missing.users.view');
+
     $results = app(GlobalSearchRegistry::class)->search($superadmin, 'Acme');
 
     expect($results['organizations'])->toBe([])
         ->and($results['users'])->toBe([]);
+});
+
+it('returns clickable organization and user results when superadmin destinations exist', function () {
+    $superadmin = User::factory()->superadmin()->create();
+    $organization = Organization::factory()->create([
+        'name' => 'Acme Search',
+    ]);
+
+    $user = User::factory()->create([
+        'organization_id' => $organization->getKey(),
+        'name' => 'Acme Owner',
+        'email' => 'owner@example.com',
+    ]);
+
+    $results = app(GlobalSearchRegistry::class)->search($superadmin, 'Acme');
+
+    expect($results['organizations'])->toHaveCount(1)
+        ->and($results['organizations'][0]->label)->toBe('Acme Search')
+        ->and($results['organizations'][0]->url)->toBe(route('filament.admin.resources.organizations.view', $organization))
+        ->and($results['users'])->toHaveCount(1)
+        ->and($results['users'][0]->label)->toBe('Acme Owner')
+        ->and($results['users'][0]->url)->toBe(route('filament.admin.resources.users.view', $user));
 });
 
 it('never includes another organizations users in provider results', function () {
