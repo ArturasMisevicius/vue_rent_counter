@@ -63,20 +63,30 @@ it('renders grouped sidebar navigation for admin roles', function (
         ]),
         'Workspace',
         'filament.admin.pages.organization-dashboard',
-        [],
+        [
+            'filament.admin.resources.buildings.index',
+            'filament.admin.resources.properties.index',
+            'filament.admin.resources.tenants.index',
+            'filament.admin.resources.meters.index',
+            'filament.admin.resources.invoices.index',
+        ],
         [
             'filament.admin.resources.organizations.index',
-            'filament.admin.resources.buildings.index',
         ],
     ],
     'manager' => [
         fn () => User::factory()->manager()->create(),
         'Workspace',
         'filament.admin.pages.organization-dashboard',
-        [],
+        [
+            'filament.admin.resources.buildings.index',
+            'filament.admin.resources.properties.index',
+            'filament.admin.resources.tenants.index',
+            'filament.admin.resources.meters.index',
+            'filament.admin.resources.invoices.index',
+        ],
         [
             'filament.admin.resources.organizations.index',
-            'filament.admin.resources.buildings.index',
         ],
     ],
 ]);
