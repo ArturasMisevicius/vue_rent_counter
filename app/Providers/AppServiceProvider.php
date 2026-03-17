@@ -20,6 +20,8 @@ use App\Support\Shell\Search\GlobalSearchRegistry;
 use App\Support\Shell\Search\Providers\OrganizationSearchProvider;
 use App\Support\Shell\Search\Providers\UserSearchProvider;
 use App\Support\Shell\UserAvatarColor;
+use App\Support\Superadmin\Usage\NullOrganizationUsageReader;
+use App\Support\Superadmin\Usage\OrganizationUsageReader;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -36,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ImpersonationManager::class);
         $this->app->singleton(OrganizationSearchProvider::class);
         $this->app->singleton(UserSearchProvider::class);
+        $this->app->singleton(OrganizationUsageReader::class, NullOrganizationUsageReader::class);
         $this->app->singleton(GlobalSearchRegistry::class, function ($app): GlobalSearchRegistry {
             return new GlobalSearchRegistry([
                 $app->make(OrganizationSearchProvider::class),
