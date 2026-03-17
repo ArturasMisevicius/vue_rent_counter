@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Actions\Auth;
+
+use App\Enums\UserStatus;
+use App\Models\OrganizationInvitation;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+
+class AcceptOrganizationInvitationAction
+{
+    /**
+     * @param  array{name: string, password: string}  $attributes
+     */
+    public function handle(OrganizationInvitation $invitation, array $attributes): User
+    {
+        if (! $invitation->isPending()) {
+            throw ValidationException::withMessages([
+                'email' => __('auth.invitation_expired'),
+            ]);
+        }
+
+        if (User::query()->where('email', $invitation->email)->exists()) {
+            throw ValidationException::withMessages([
+                'email' => __('auth.invitation_email_exists'),
+            ]);
+        }
+
+        return DB::transaction(function () use ($invitation, $attributes): User {
+            $user = User::query()->create([
+                'name' => $attributes['name'],
+                'email' => $invitation->email,
+                'password' => $attributes['password'],
+                'role' => $invitation->role,
+                'status' => UserStatus::ACTIVE,
+                'locale' => $invitation->inviter->locale ?? app()->getLocale(),
+                'organization_id' => $invitation->organization_id,
+            ]);
+
+            $invitation->forceFill([
+                'accepted_at' => now(),
+            ])->save();
+
+            return $user;
+        });
+    }
+}

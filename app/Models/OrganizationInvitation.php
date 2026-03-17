@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
+use Database\Factories\OrganizationInvitationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OrganizationInvitation extends Model
 {
-    /** @use HasFactory<\Database\Factories\OrganizationInvitationFactory> */
+    /** @use HasFactory<OrganizationInvitationFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -40,5 +41,20 @@ class OrganizationInvitation extends Model
     public function inviter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'inviter_user_id');
+    }
+
+    public function isAccepted(): bool
+    {
+        return filled($this->accepted_at);
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->expires_at->isPast();
+    }
+
+    public function isPending(): bool
+    {
+        return ! $this->isAccepted() && ! $this->isExpired();
     }
 }

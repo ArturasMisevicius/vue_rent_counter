@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AcceptInvitationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -23,6 +24,9 @@ Route::middleware('guest')->group(function (): void {
 
     Route::get('/reset-password/{token}', [ResetPasswordController::class, 'create'])->name('password.reset');
     Route::post('/reset-password', [ResetPasswordController::class, 'store'])->name('password.update');
+
+    Route::get('/invite/{token}', [AcceptInvitationController::class, 'show'])->name('invitation.show');
+    Route::post('/invite/{token}', [AcceptInvitationController::class, 'store'])->name('invitation.store');
 });
 
 Route::middleware(['auth', 'set.auth.locale', 'ensure.account.accessible'])->group(function (): void {
