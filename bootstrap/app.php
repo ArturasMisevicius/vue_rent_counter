@@ -11,7 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'set.auth.locale' => \App\Http\Middleware\SetAuthenticatedUserLocale::class,
+            'ensure.account.accessible' => \App\Http\Middleware\EnsureAccountIsAccessible::class,
+            'ensure.onboarding.complete' => \App\Http\Middleware\EnsureOnboardingIsComplete::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
