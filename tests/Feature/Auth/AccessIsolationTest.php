@@ -12,11 +12,25 @@ uses(RefreshDatabase::class);
 
 function registerAuthRouteFixtures(): void
 {
-    Route::get('/login', fn () => 'login')->name('login');
-    Route::get('/welcome', fn () => 'welcome')->name('welcome.show');
-    Route::get('/tenant/home', fn () => 'tenant home')->name('tenant.home');
-    Route::get('/admin/platform', fn () => 'platform')->name('filament.admin.pages.platform-dashboard');
-    Route::get('/admin/organization', fn () => 'organization')->name('filament.admin.pages.organization-dashboard');
+    if (! Route::has('login')) {
+        Route::get('/login', fn () => 'login')->name('login');
+    }
+
+    if (! Route::has('welcome.show')) {
+        Route::get('/welcome', fn () => 'welcome')->name('welcome.show');
+    }
+
+    if (! Route::has('tenant.home')) {
+        Route::get('/tenant/home', fn () => 'tenant home')->name('tenant.home');
+    }
+
+    if (! Route::has('filament.admin.pages.platform-dashboard')) {
+        Route::get('/admin/platform-dashboard', fn () => 'platform')->name('filament.admin.pages.platform-dashboard');
+    }
+
+    if (! Route::has('filament.admin.pages.organization-dashboard')) {
+        Route::get('/admin/organization-dashboard', fn () => 'organization')->name('filament.admin.pages.organization-dashboard');
+    }
 
     app('router')->getRoutes()->refreshNameLookups();
     app('router')->getRoutes()->refreshActionLookups();

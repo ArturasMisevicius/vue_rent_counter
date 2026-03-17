@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AcceptInvitationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Onboarding\WelcomeController;
@@ -32,4 +33,9 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware(['auth', 'set.auth.locale', 'ensure.account.accessible'])->group(function (): void {
     Route::get('/welcome', [WelcomeController::class, 'show'])->name('welcome.show');
     Route::post('/welcome', [WelcomeController::class, 'store'])->name('welcome.store');
+    Route::view('/tenant/home', 'tenant.home')->name('tenant.home');
+});
+
+Route::middleware('auth')->group(function (): void {
+    Route::post('/logout', LogoutController::class)->name('logout');
 });

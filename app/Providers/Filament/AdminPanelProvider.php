@@ -2,11 +2,15 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Dashboard;
+use App\Http\Controllers\Filament\RedirectToPublicLoginController;
+use App\Http\Middleware\EnsureAccountIsAccessible;
+use App\Http\Middleware\EnsureOnboardingIsComplete;
+use App\Http\Middleware\SetAuthenticatedUserLocale;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -27,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(RedirectToPublicLoginController::class)
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -46,6 +50,7 @@ class AdminPanelProvider extends PanelProvider
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
                 AuthenticateSession::class,
+                SetAuthenticatedUserLocale::class,
                 ShareErrorsFromSession::class,
                 VerifyCsrfToken::class,
                 SubstituteBindings::class,
@@ -54,6 +59,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                EnsureAccountIsAccessible::class,
+                EnsureOnboardingIsComplete::class,
             ]);
     }
 }

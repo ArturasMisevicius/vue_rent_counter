@@ -8,11 +8,25 @@ uses(RefreshDatabase::class);
 
 function registerLoginDestinationFixtures(): void
 {
-    Route::get('/welcome', fn () => 'welcome')->name('welcome.show');
-    Route::get('/tenant/home', fn () => 'tenant home')->name('tenant.home');
-    Route::get('/admin/platform', fn () => 'platform')->name('filament.admin.pages.platform-dashboard');
-    Route::get('/admin/organization', fn () => 'organization')->name('filament.admin.pages.organization-dashboard');
-    Route::middleware(['web', 'auth'])->get('/__test/intended', fn () => 'intended')->name('test.intended');
+    if (! Route::has('welcome.show')) {
+        Route::get('/welcome', fn () => 'welcome')->name('welcome.show');
+    }
+
+    if (! Route::has('tenant.home')) {
+        Route::get('/tenant/home', fn () => 'tenant home')->name('tenant.home');
+    }
+
+    if (! Route::has('filament.admin.pages.platform-dashboard')) {
+        Route::get('/admin/platform-dashboard', fn () => 'platform')->name('filament.admin.pages.platform-dashboard');
+    }
+
+    if (! Route::has('filament.admin.pages.organization-dashboard')) {
+        Route::get('/admin/organization-dashboard', fn () => 'organization')->name('filament.admin.pages.organization-dashboard');
+    }
+
+    if (! Route::has('test.intended')) {
+        Route::middleware(['web', 'auth'])->get('/__test/intended', fn () => 'intended')->name('test.intended');
+    }
 
     app('router')->getRoutes()->refreshNameLookups();
     app('router')->getRoutes()->refreshActionLookups();
@@ -51,6 +65,16 @@ it('keeps the email and shows a generic message when login fails', function () {
         ->assertSessionHasInput('email', 'asta@example.com');
 
     $this->assertGuest();
+});
+
+it('redirects unauthenticated admin panel access to the public login page', function () {
+    registerLoginDestinationFixtures();
+
+    $this->followingRedirects()
+        ->get('/admin')
+        ->assertSuccessful()
+        ->assertSeeText('Welcome back')
+        ->assertSeeText('Log in to your account');
 });
 
 it('redirects users to their role-specific starting page', function (Closure $userFactory, string $expectedRoute) {
@@ -97,4 +121,14 @@ it('restores the intended url after login', function () {
         'email' => $user->email,
         'password' => 'password',
     ])->assertRedirect(route('test.intended'));
+});
+
+it('forbids tenant users from entering the admin panel', function () {
+    registerLoginDestinationFixtures();
+
+    $tenant = User::factory()->tenant()->create();
+
+    $this->actingAs($tenant)
+        ->get('/admin')
+        ->assertForbidden();
 });
