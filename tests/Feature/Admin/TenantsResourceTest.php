@@ -104,6 +104,11 @@ it('shows organization-scoped tenant resource pages and assignment-aware tenant 
         ->assertSuccessful()
         ->assertSeeText($tenant->name);
 
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.tenants.create'))
+        ->assertSuccessful()
+        ->assertSeeText('Assign Property');
+
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.tenants.index'))
         ->assertForbidden();

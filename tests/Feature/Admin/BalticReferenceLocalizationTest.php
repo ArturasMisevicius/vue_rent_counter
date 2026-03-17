@@ -36,8 +36,8 @@ it('seeds baltic-only locales together with multilingual country and city transl
         ->pluck('code')
         ->all();
 
-    expect(array_keys(config('app.supported_locales')))->toBe(['en', 'lt', 'ru'])
-        ->and(array_keys(config('tenanto.locales')))->toBe(['en', 'lt', 'ru'])
+    expect(array_keys(config('app.supported_locales')))->toBe(['en', 'lt', 'ru', 'es'])
+        ->and(array_keys(config('tenanto.locales')))->toBe(['en', 'lt', 'ru', 'es'])
         ->and($activeLanguages)->toEqualCanonicalizing(['en', 'lt', 'ru'])
         ->and(Language::query()->where('code', 'es')->first()?->status)->toBe(LanguageStatus::INACTIVE)
         ->and(Country::query()->count())->toBe(3)

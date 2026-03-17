@@ -2,6 +2,7 @@
 
 use App\Actions\Auth\CreateOrganizationInvitationAction;
 use App\Enums\UserRole;
+use App\Enums\UserStatus;
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
 use App\Models\User;
@@ -114,6 +115,46 @@ it('accepts a valid invitation and logs the user in', function (UserRole $role, 
     'manager' => [UserRole::MANAGER, 'filament.admin.pages.organization-dashboard'],
     'tenant' => [UserRole::TENANT, 'tenant.home'],
 ]);
+
+it('activates an existing tenant placeholder when accepting an invitation', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+        'locale' => 'es',
+    ]);
+
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+        'email' => 'tenant@example.com',
+        'name' => 'Pending Tenant',
+        'locale' => 'es',
+        'status' => UserStatus::INACTIVE,
+    ]);
+
+    $invitation = OrganizationInvitation::factory()->create([
+        'organization_id' => $organization->id,
+        'inviter_user_id' => $admin->id,
+        'email' => $tenant->email,
+        'full_name' => 'Pat Tenant',
+        'role' => UserRole::TENANT,
+    ]);
+
+    $this->post(route('invitation.store', $invitation->token), [
+        'name' => 'Pat Tenant',
+        'password' => 'new-password',
+        'password_confirmation' => 'new-password',
+    ])->assertRedirect(route('tenant.home'));
+
+    $tenant = $tenant->fresh();
+
+    $this->assertAuthenticatedAs($tenant);
+
+    expect($tenant)
+        ->name->toBe('Pat Tenant')
+        ->status->toBe(UserStatus::ACTIVE)
+        ->and(User::query()->where('email', $invitation->email)->count())->toBe(1)
+        ->and($invitation->fresh()->accepted_at)->not->toBeNull();
+});
 
 it('shows the expired state for an expired invitation', function () {
     $invitation = OrganizationInvitation::factory()->create([
