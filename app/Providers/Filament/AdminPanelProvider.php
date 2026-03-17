@@ -5,6 +5,8 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\Profile;
 use App\Filament\Pages\Settings;
+use App\Filament\Resources\Buildings\BuildingResource;
+use App\Filament\Resources\Properties\PropertyResource;
 use App\Http\Controllers\Filament\RedirectToPublicLoginController;
 use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
@@ -42,6 +44,10 @@ class AdminPanelProvider extends PanelProvider
             ->topbarLivewireComponent(Topbar::class)
             ->sidebarLivewireComponent(Sidebar::class)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
+            ->resources([
+                BuildingResource::class,
+                PropertyResource::class,
+            ])
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 Dashboard::class,

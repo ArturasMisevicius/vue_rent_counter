@@ -44,6 +44,14 @@ return [
                             'route' => 'filament.admin.pages.organization-dashboard',
                             'label' => 'dashboard.title',
                         ],
+                        [
+                            'route' => 'filament.admin.resources.buildings.index',
+                            'label' => 'admin.buildings.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.properties.index',
+                            'label' => 'admin.properties.plural',
+                        ],
                     ],
                     'account' => [
                         [
@@ -61,6 +69,14 @@ return [
                         [
                             'route' => 'filament.admin.pages.organization-dashboard',
                             'label' => 'dashboard.title',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.buildings.index',
+                            'label' => 'admin.buildings.plural',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.properties.index',
+                            'label' => 'admin.properties.plural',
                         ],
                     ],
                     'account' => [
