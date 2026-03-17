@@ -17,10 +17,6 @@ class DashboardUrlResolver
             return route('login');
         }
 
-        if ($user->isAdmin() && blank($user->organization_id)) {
-            return route('welcome.show');
-        }
-
-        return route('filament.admin.pages.dashboard');
+        return $this->loginRedirector->for($user);
     }
 }

@@ -44,6 +44,7 @@ class RevenueReportBuilder extends AbstractReportBuilder
                 filled($filters['invoice_status'] ?? null),
                 fn ($query) => $query->where('status', $filters['invoice_status']),
             )
+            ->reorder()
             ->latestBillingFirst()
             ->get();
 

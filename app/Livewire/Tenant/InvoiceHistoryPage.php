@@ -8,6 +8,7 @@ use App\Filament\Support\Tenant\Portal\TenantInvoiceIndexQuery;
 use App\Http\Requests\Tenant\InvoiceHistoryFilterRequest;
 use App\Models\Invoice;
 use App\Models\User;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -48,18 +49,11 @@ class InvoiceHistoryPage extends Component
         return $downloadInvoiceAction->handle($invoice);
     }
 
-    public function render(
-        TenantInvoiceIndexQuery $tenantInvoiceIndexQuery,
-        PaymentInstructionsResolver $paymentInstructionsResolver,
-    ): View {
-        $tenant = $this->tenant;
-
+    public function render(): View
+    {
         return view('tenant.invoices.index', [
-            'invoices' => $tenantInvoiceIndexQuery->for(
-                $tenant,
-                $this->selectedStatusFilter(),
-            ),
-            'paymentGuidance' => $paymentInstructionsResolver->resolve($tenant->organization?->settings),
+            'invoices' => $this->invoices,
+            'paymentGuidance' => $this->paymentGuidance,
             'selectedStatus' => $this->selectedStatus,
         ]);
     }
@@ -72,6 +66,32 @@ class InvoiceHistoryPage extends Component
 
         return $tenant->loadMissing(
             'organization.settings:id,organization_id,billing_contact_name,billing_contact_email,billing_contact_phone,payment_instructions,invoice_footer',
+        );
+    }
+
+    #[Computed]
+    public function invoices(): Paginator
+    {
+        return app(TenantInvoiceIndexQuery::class)->for(
+            $this->tenant,
+            $this->selectedStatusFilter(),
+        );
+    }
+
+    /**
+     * @return array{
+     *     content: string|null,
+     *     contact_name: string|null,
+     *     contact_email: string|null,
+     *     contact_phone: string|null,
+     *     has_contact_details: bool
+     * }
+     */
+    #[Computed]
+    public function paymentGuidance(): array
+    {
+        return app(PaymentInstructionsResolver::class)->resolve(
+            $this->tenant->organization?->settings,
         );
     }
 

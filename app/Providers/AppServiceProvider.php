@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Contracts\BillingServiceInterface;
 use App\Filament\Support\Audit\AuditLogger;
 use App\Filament\Support\Auth\ImpersonationManager;
+use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Filament\Support\Shell\Search\GlobalSearchRegistry;
 use App\Filament\Support\Shell\Search\Providers\OrganizationSearchProvider;
 use App\Filament\Support\Shell\Search\Providers\UserSearchProvider;
@@ -35,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(AuditLogger::class);
         $this->app->singleton(BillingServiceInterface::class, BillingService::class);
         $this->app->singleton(ImpersonationManager::class);
+        $this->app->scoped(DashboardCacheService::class);
         $this->app->singleton(IntegrationProbeRegistry::class, function ($app): IntegrationProbeRegistry {
             return new IntegrationProbeRegistry([
                 $app->make(DatabaseProbe::class),

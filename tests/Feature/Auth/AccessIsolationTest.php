@@ -93,13 +93,13 @@ it('routes users to the correct starting page', function () {
     $redirector = app(LoginRedirector::class);
 
     expect($redirector->for(User::factory()->superadmin()->make()))
-        ->toBe(route('filament.admin.pages.platform-dashboard'))
+        ->toBe(route('filament.admin.pages.dashboard'))
         ->and($redirector->for(User::factory()->admin()->make(['organization_id' => null])))
         ->toBe(route('welcome.show'))
         ->and($redirector->for(User::factory()->manager()->make()))
         ->toBe(route('filament.admin.pages.dashboard'))
         ->and($redirector->for(User::factory()->tenant()->make()))
-        ->toBe(route('tenant.home'));
+        ->toBe(route('filament.admin.pages.dashboard'));
 });
 
 it('forbids non-tenant users from the tenant home route', function () {

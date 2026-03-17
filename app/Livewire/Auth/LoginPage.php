@@ -12,6 +12,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class LoginPage extends Component
@@ -53,10 +54,19 @@ class LoginPage extends Component
             ->withCookie($authenticatedSessionHistory->remember());
     }
 
-    public function render(LoginDemoAccountPresenter $loginDemoAccountPresenter): View
+    public function render(): View
     {
         return view('auth.login', [
-            'demoAccounts' => $loginDemoAccountPresenter->accounts() ?: config('tenanto.demo_accounts', []),
+            'demoAccounts' => $this->demoAccounts,
         ]);
+    }
+
+    /**
+     * @return array<int, array{name: string, email: string, password: string, role: string}>
+     */
+    #[Computed]
+    public function demoAccounts(): array
+    {
+        return app(LoginDemoAccountPresenter::class)->accounts() ?: config('tenanto.demo_accounts', []);
     }
 }

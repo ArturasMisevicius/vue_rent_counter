@@ -2,6 +2,7 @@
 
 namespace App\Filament\Support\Tenant\Portal;
 
+use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Models\Invoice;
 use App\Models\MeterReading;
 use App\Models\User;
@@ -11,12 +12,25 @@ class TenantHomePresenter
 {
     public function __construct(
         protected PaymentInstructionsResolver $paymentInstructionsResolver,
+        protected DashboardCacheService $dashboardCacheService,
     ) {}
 
     /**
      * @return array<string, mixed>
      */
     public function for(User $tenant): array
+    {
+        return $this->dashboardCacheService->remember(
+            $tenant,
+            'tenant-home-summary',
+            fn (): array => $this->buildSummary($tenant),
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildSummary(User $tenant): array
     {
         $tenantId = $tenant->id;
         $organizationId = $tenant->organization_id;

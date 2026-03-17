@@ -68,8 +68,7 @@ class InvoiceResource extends Resource
         }
 
         return parent::getEloquentQuery()
-            ->forAdminWorkspace($organizationId)
-            ->latestBillingFirst();
+            ->forAdminWorkspace($organizationId);
     }
 
     public static function canViewAny(): bool

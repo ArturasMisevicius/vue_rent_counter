@@ -43,6 +43,7 @@ class OutstandingBalancesReportBuilder extends AbstractReportBuilder
                 InvoiceStatus::PAID,
                 InvoiceStatus::VOID,
             ])
+            ->reorder()
             ->orderBy('due_date')
             ->orderBy('id')
             ->get();

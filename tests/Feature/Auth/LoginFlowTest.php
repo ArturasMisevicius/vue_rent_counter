@@ -77,7 +77,7 @@ it('redirects unauthenticated admin panel access to the public login page', func
         ->assertSeeText('Log in to your account');
 });
 
-it('redirects users to their role-specific starting page', function (Closure $userFactory, string $expectedRoute) {
+it('redirects users to the unified app entrypoint for their role context', function (Closure $userFactory, string $expectedRoute) {
     registerLoginDestinationFixtures();
 
     $user = $userFactory();
@@ -91,7 +91,7 @@ it('redirects users to their role-specific starting page', function (Closure $us
 })->with([
     'superadmin' => [
         fn () => User::factory()->superadmin()->create(),
-        'filament.admin.pages.platform-dashboard',
+        'filament.admin.pages.dashboard',
     ],
     'partially onboarded admin' => [
         fn () => User::factory()->admin()->create([
@@ -105,7 +105,7 @@ it('redirects users to their role-specific starting page', function (Closure $us
     ],
     'tenant' => [
         fn () => User::factory()->tenant()->create(),
-        'tenant.home',
+        'filament.admin.pages.dashboard',
     ],
 ]);
 

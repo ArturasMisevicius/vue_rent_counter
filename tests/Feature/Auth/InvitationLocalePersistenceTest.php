@@ -94,7 +94,7 @@ it('updates an invited tenant placeholder to the active guest locale on acceptan
         'name' => 'Pat Tenant',
         'password' => 'new-password',
         'password_confirmation' => 'new-password',
-    ])->assertRedirect(route('tenant.home'));
+    ])->assertRedirect(route('filament.admin.pages.dashboard'));
 
     expect($tenant->fresh()->locale)->toBe('ru');
 });
