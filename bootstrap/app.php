@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\EnsureAccountIsAccessible;
+use App\Http\Middleware\EnsureOnboardingIsComplete;
+use App\Http\Middleware\SetAuthenticatedUserLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,9 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'set.auth.locale' => \App\Http\Middleware\SetAuthenticatedUserLocale::class,
-            'ensure.account.accessible' => \App\Http\Middleware\EnsureAccountIsAccessible::class,
-            'ensure.onboarding.complete' => \App\Http\Middleware\EnsureOnboardingIsComplete::class,
+            'auth' => Authenticate::class,
+            'set.auth.locale' => SetAuthenticatedUserLocale::class,
+            'ensure.account.accessible' => EnsureAccountIsAccessible::class,
+            'ensure.onboarding.complete' => EnsureOnboardingIsComplete::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

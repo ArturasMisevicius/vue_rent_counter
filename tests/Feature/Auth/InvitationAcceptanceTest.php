@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\Auth\CreateOrganizationInvitationAction;
+use App\Actions\Auth\ResendOrganizationInvitationAction;
 use App\Enums\UserRole;
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
@@ -123,6 +124,29 @@ it('shows the expired state for an expired invitation', function () {
     $this->get(route('invitation.show', $invitation->token))
         ->assertSuccessful()
         ->assertSeeText('This invitation has expired. Please contact your administrator for a new invitation.');
+});
+
+it('uses the freshest valid invitation after an invitation is resent', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->for($organization)->create();
+
+    $originalInvitation = OrganizationInvitation::factory()->create([
+        'organization_id' => $organization->id,
+        'inviter_user_id' => $admin->id,
+        'email' => 'resent@example.com',
+        'role' => UserRole::TENANT,
+    ]);
+
+    $resentInvitation = app(ResendOrganizationInvitationAction::class)
+        ->handle($admin, $originalInvitation);
+
+    $this->get(route('invitation.show', $originalInvitation->token))
+        ->assertSuccessful()
+        ->assertSeeText('This invitation has expired. Please contact your administrator for a new invitation.');
+
+    $this->get(route('invitation.show', $resentInvitation->token))
+        ->assertSuccessful()
+        ->assertSeeText('Accept Invitation and Create Account');
 });
 
 it('rejects an already accepted invitation', function () {

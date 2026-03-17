@@ -6,6 +6,7 @@ use App\Actions\Auth\AcceptOrganizationInvitationAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AcceptInvitationRequest;
 use App\Models\OrganizationInvitation;
+use App\Support\Auth\AuthenticatedSessionMarker;
 use App\Support\Auth\LoginRedirector;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -44,7 +45,9 @@ class AcceptInvitationController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->intended($this->loginRedirector->for($user));
+        return redirect()
+            ->intended($this->loginRedirector->for($user))
+            ->withCookie(app(AuthenticatedSessionMarker::class)->make($user));
     }
 
     private function findInvitation(string $token): ?OrganizationInvitation

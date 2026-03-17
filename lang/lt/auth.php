@@ -42,6 +42,7 @@ return [
     'invitation_mail_expiry' => 'Šis kvietimas galioja 7 dienas.',
     'password_confirmation_mismatch' => 'Slaptažodžių patvirtinimas nesutampa.',
     'account_suspended' => 'Jūsų paskyra šiuo metu sustabdyta. Susisiekite su pagalba.',
+    'session_expired' => 'Jūsų sesija baigėsi. Prisijunkite dar kartą.',
     'failed' => 'Neteisingas el. pašto adresas arba slaptažodis. Bandykite dar kartą.',
     'password' => 'Pateiktas slaptažodis yra neteisingas.',
     'throttle' => 'Per daug bandymų prisijungti. Bandykite dar kartą po :seconds sekundžių.',

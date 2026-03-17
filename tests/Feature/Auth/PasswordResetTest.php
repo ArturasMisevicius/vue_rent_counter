@@ -43,6 +43,26 @@ it('always returns the generic reset-link confirmation copy', function () {
         ->assertSessionHas('status', __('auth.reset_link_generic'));
 });
 
+it('allows every supported role to request a password reset link', function (Closure $userFactory) {
+    Notification::fake();
+
+    $user = $userFactory();
+
+    $this->from(route('password.request'))
+        ->post(route('password.email'), [
+            'email' => $user->email,
+        ])
+        ->assertRedirect(route('password.request'))
+        ->assertSessionHas('status', __('auth.reset_link_generic'));
+
+    Notification::assertSentTo($user, ResetPassword::class);
+})->with([
+    'superadmin' => fn () => User::factory()->superadmin()->create(),
+    'admin' => fn () => User::factory()->admin()->create(),
+    'manager' => fn () => User::factory()->manager()->create(),
+    'tenant' => fn () => User::factory()->tenant()->create(),
+]);
+
 it('resets the password with a valid token', function () {
     $user = User::factory()->create();
     $token = Password::broker()->createToken($user);
@@ -74,6 +94,27 @@ it('rejects an expired reset token', function () {
         ->assertSessionHasErrors([
             'email' => __('passwords.token'),
         ]);
+
+    Carbon::setTestNow();
+});
+
+it('keeps reset tokens valid inside the configured 60 minute window', function () {
+    $user = User::factory()->create();
+    $token = Password::broker()->createToken($user);
+
+    expect(config('auth.passwords.users.expire'))->toBe(60);
+
+    Carbon::setTestNow(
+        now()->addMinutes(config('auth.passwords.users.expire'))->subSecond()
+    );
+
+    $this->post(route('password.update'), [
+        'token' => $token,
+        'email' => $user->email,
+        'password' => 'new-password',
+        'password_confirmation' => 'new-password',
+    ])->assertRedirect(route('login'))
+        ->assertSessionHas('status', __('passwords.reset'));
 
     Carbon::setTestNow();
 });
