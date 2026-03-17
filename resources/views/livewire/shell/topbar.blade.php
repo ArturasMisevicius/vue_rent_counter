@@ -63,15 +63,7 @@
 
             @livewire(\App\Livewire\Shell\LanguageSwitcher::class)
 
-            <button
-                type="button"
-                class="inline-flex size-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm"
-                aria-label="{{ __('shell.notifications') }}"
-            >
-                <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 3a4 4 0 0 0-4 4v2.6c0 .5-.19.98-.53 1.33L4 12.4h12l-1.47-1.47A1.88 1.88 0 0 1 14 9.6V7a4 4 0 0 0-4-4Zm-1.7 12a1.75 1.75 0 0 0 3.4 0" />
-                </svg>
-            </button>
+            @livewire(\App\Livewire\Shell\NotificationCenter::class)
 
             @if ($user)
                 <details class="relative">
