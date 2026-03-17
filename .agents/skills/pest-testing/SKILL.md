@@ -66,6 +66,14 @@ it('returns all', function () {
 | `assertNotFound()` | `assertStatus(404)` |
 | `assertForbidden()` | `assertStatus(403)` |
 
+### Security Regression Pattern
+
+For removal of an exposed route, file, or debug surface:
+
+- assert the old path now returns `404` or `403`
+- if the risk involved executable files, add a filesystem assertion for the expected directory contents
+- prefer one focused feature test over spreading the same exposure assertions across many files
+
 ## Mocking
 
 Import mock function before use: `use function Pest\Laravel\mock;`

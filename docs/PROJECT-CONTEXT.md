@@ -40,6 +40,7 @@ Verified from the live repository on 2026-03-17:
 - 84 PHP test files under `tests`
 - 1 Filament panel provider at `app/Providers/Filament/AdminPanelProvider.php`
 - No extra public PHP debug entrypoints; only `public/index.php` exists
+- No standalone service worker is shipped; do not add `public/sw.js` unless a maintained PWA feature is actually introduced
 
 These counts are useful for orientation, but they are a point-in-time snapshot and may change as the codebase evolves.
 
@@ -73,6 +74,8 @@ The repository-local `.mcp.json` currently defines only one MCP server:
 - `herd`
 
 If Laravel-specific MCP servers are available in your editor or Codex session, they are coming from user-global configuration rather than this repository file. Verify before relying on them in documentation or instructions.
+
+The current application also does not register `boost:mcp` or `mcp:start` Artisan namespaces. See `docs/SESSION-BOOTSTRAP.md` for the verified conditional startup flow.
 
 ## Working Defaults
 

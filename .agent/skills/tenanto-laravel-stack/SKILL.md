@@ -22,6 +22,17 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 - Role enum values are `SUPERADMIN`, `ADMIN`, `MANAGER`, and `TENANT`
 - Current repository snapshot includes 17 Filament resources, 27 Livewire components, 84 tests, 1 remaining base controller, and 1 Filament panel provider
 - Repo-local MCP currently defines only `herd` in `.mcp.json`
+- The current app does not register `php artisan boost:mcp` or `php artisan mcp:start tenanto`
+
+## Session Bootstrap
+
+- Read `docs/SESSION-BOOTSTRAP.md` at session start when MCP status, skill activation, or baseline verification matters.
+- If `boost:mcp` and `mcp:start` are unavailable, use the fallback health checks instead of pretending MCP is connected.
+- Use these session-default skills alongside this one when the work matches them:
+  - `pest-testing`
+  - `tailwind-patterns`
+  - `architecture`
+  - `vulnerability-scanner`
 
 ## Required Implementation Rules
 
@@ -37,12 +48,13 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ## Working Sequence
 
 1. Check `docs/PROJECT-CONTEXT.md` if there is any uncertainty about the current repo shape.
-2. Identify the feature path: Filament action/support/resource/page, Livewire component, model, policy, request, or view.
-3. Reuse existing abstractions if available: `App\Filament\Actions`, `App\Filament\Support`, policies, model scopes, schema classes, and table classes.
-4. Keep model queries scope-first and UI layers thin.
-5. Add or update Pest tests for happy path plus authorization or failure path when behavior changes.
-6. Run the smallest relevant test slice first.
-7. Run `vendor/bin/pint --dirty` before finalizing.
+2. Check `docs/SESSION-BOOTSTRAP.md` if you need the verified MCP and baseline startup flow.
+3. Identify the feature path: Filament action/support/resource/page, Livewire component, model, policy, request, or view.
+4. Reuse existing abstractions if available: `App\Filament\Actions`, `App\Filament\Support`, policies, model scopes, schema classes, and table classes.
+5. Keep model queries scope-first and UI layers thin.
+6. Add or update Pest tests for happy path plus authorization or failure path when behavior changes.
+7. Run the smallest relevant test slice first.
+8. Run `vendor/bin/pint --dirty` before finalizing.
 
 ## Quick File Map
 
@@ -63,6 +75,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 - Treat `docs/superpowers/` as historical planning context, not the source of truth for current counts or directory layout.
 - When a pasted brief conflicts with the workspace, prefer the verified repository snapshot.
 - If you need repo-local MCP, assume only `herd` is configured unless you verify otherwise.
+- Do not promise Boost MCP tools like `search-docs`, `database-query`, or `browser-logs` unless MCP startup has been verified in the current environment.
 
 ## Completion Checklist
 

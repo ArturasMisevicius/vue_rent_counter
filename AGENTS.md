@@ -20,6 +20,7 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 ## Tenanto Current Repo Context
 
 Use `docs/PROJECT-CONTEXT.md` as the canonical workspace snapshot when a pasted session brief conflicts with the live repository.
+Use `docs/SESSION-BOOTSTRAP.md` for the verified start-of-session MCP, skills, and baseline verification flow.
 
 Verified snapshot for this workspace on 2026-03-17:
 
@@ -30,7 +31,9 @@ Verified snapshot for this workspace on 2026-03-17:
 - Current application surface includes 1 remaining base controller, 17 Filament resources, 27 Livewire components, 84 test files, and 1 Filament panel provider at `app/Providers/Filament/AdminPanelProvider.php`.
 - The shared application foundation for requests, actions, and support services lives under `app/Filament/Requests`, `app/Filament/Actions`, and `app/Filament/Support`.
 - The repository-local `.mcp.json` currently defines only the `herd` server. Do not assume repo-local `laravel-mcp` or `laravel-boost` entries unless you verify them again.
+- The current application does not register `php artisan boost:mcp` or `php artisan mcp:start tenanto`; verify the Artisan command surface before documenting MCP startup steps as mandatory.
 - The public web root currently exposes only `public/index.php`; do not introduce ad hoc public debug entrypoints.
+- Keep `public/` free of debug probes, extra executable PHP files, and unused assets such as a stray `sw.js` without a real PWA implementation.
 
 <laravel-boost-guidelines>
 === foundation rules ===
@@ -269,8 +272,8 @@ or static analysis failures. Never ignores errors without user approval.
 
 ## Debugging
 
-- Use the `database-query` tool when you only need to read from the database.
-- Use the `database-schema` tool to inspect table structure before writing migrations or models.
+- Use the `database-query` tool when you only need to read from the database and Boost MCP is available in the current environment.
+- Use the `database-schema` tool to inspect table structure before writing migrations or models when Boost MCP is available in the current environment.
 - To execute PHP code for debugging, run `php artisan tinker --execute "your code here"` directly.
 - To read configuration values, read the config files directly or run `php artisan config:show [key]`.
 - To inspect routes, run `php artisan route:list` directly.
@@ -278,13 +281,13 @@ or static analysis failures. Never ignores errors without user approval.
 
 ## Reading Browser Logs With the `browser-logs` Tool
 
-- You can read browser logs, errors, and exceptions using the `browser-logs` tool from Boost.
+- You can read browser logs, errors, and exceptions using the `browser-logs` tool from Boost when Boost MCP is available in the current environment.
 - Only recent browser logs will be useful - ignore old logs.
 
 ## Searching Documentation (Critically Important)
 
-- Boost comes with a powerful `search-docs` tool you should use before trying other approaches when working with Laravel or Laravel ecosystem packages. This tool automatically passes a list of installed packages and their versions to the remote Boost API, so it returns only version-specific documentation for the user's circumstance. You should pass an array of packages to filter on if you know you need docs for particular packages.
-- Search the documentation before making code changes to ensure we are taking the correct approach.
+- When Boost MCP is available in the current environment, use its `search-docs` tool before trying other approaches when working with Laravel or Laravel ecosystem packages. This tool automatically passes a list of installed packages and their versions to the remote Boost API, so it returns only version-specific documentation for the user's circumstance. You should pass an array of packages to filter on if you know you need docs for particular packages.
+- Search the documentation before making code changes to ensure we are taking the correct approach. If Boost MCP is unavailable, fall back to the verified local docs or official framework docs.
 - Use multiple, broad, simple, topic-based queries at once. For example: `['rate limiting', 'routing rate limiting', 'routing']`. The most relevant results will be returned first.
 - Do not add package names to queries; package information is already shared. For example, use `test resource table`, not `filament 4 test resource table`.
 
@@ -401,18 +404,18 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 # Laravel 12
 
-- CRITICAL: ALWAYS use `search-docs` tool for version-specific Laravel documentation and updated code examples.
-- This project upgraded from Laravel 10 without migrating to the new streamlined Laravel file structure.
-- This is perfectly fine and recommended by Laravel. Follow the existing structure from Laravel 10. We do not need to migrate to the new Laravel structure unless the user explicitly requests it.
+- CRITICAL: When Boost MCP is available, use `search-docs` for version-specific Laravel documentation and updated code examples.
+- This repository currently uses the Laravel 11/12 bootstrap structure with `bootstrap/app.php`.
+- Follow the existing structure in the repository instead of assuming an older Laravel 10 layout.
 
-## Laravel 10 Structure
+## Laravel 11/12 Structure
 
-- Middleware typically lives in `app/Http/Middleware/` and service providers in `app/Providers/`.
-- There is no `bootstrap/app.php` application configuration in a Laravel 10 structure:
-    - Middleware registration happens in `app/Http/Kernel.php`
-    - Exception handling is in `app/Exceptions/Handler.php`
-    - Console commands and schedule register in `app/Console/Kernel.php`
-    - Rate limits likely exist in `RouteServiceProvider` or `app/Http/Kernel.php`
+- Middleware classes typically live in `app/Http/Middleware/` and service providers in `app/Providers/`.
+- Application configuration is centered in `bootstrap/app.php`:
+    - route registration is configured in `bootstrap/app.php`
+    - middleware aliases and web stack configuration are configured in `bootstrap/app.php`
+    - exception configuration is wired in `bootstrap/app.php`
+    - providers are registered through `bootstrap/providers.php`
 
 ## Database
 
@@ -437,7 +440,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 - This project uses Pest for testing. Create tests: `php artisan make:test --pest {name}`.
 - Run tests: `php artisan test --compact` or filter: `php artisan test --compact --filter=testName`.
 - Do NOT delete tests without approval.
-- CRITICAL: ALWAYS use `search-docs` tool for version-specific Pest documentation and updated code examples.
+- CRITICAL: When Boost MCP is available, use `search-docs` for version-specific Pest documentation and updated code examples.
 - IMPORTANT: Activate `pest-testing` every time you're working with a Pest or testing-related task.
 
 === tailwindcss/core rules ===
@@ -445,7 +448,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 # Tailwind CSS
 
 - Always use existing Tailwind conventions; check project patterns before adding new ones.
-- IMPORTANT: Always use `search-docs` tool for version-specific Tailwind CSS documentation and updated code examples. Never rely on training data.
+- IMPORTANT: When Boost MCP is available, use `search-docs` for version-specific Tailwind CSS documentation and updated code examples. Never rely on training data alone.
 - IMPORTANT: Activate `tailwindcss-development` every time you're working with a Tailwind CSS or styling-related task.
 
 === filament/filament rules ===
@@ -454,7 +457,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 - Filament is used by this application. Follow the existing conventions for how and where it is implemented.
 - Filament is a Server-Driven UI (SDUI) framework for Laravel that lets you define user interfaces in PHP using structured configuration objects. Built on Livewire, Alpine.js, and Tailwind CSS.
-- Use the `search-docs` tool for official documentation on Artisan commands, code examples, testing, relationships, and idiomatic practices. If `search-docs` is unavailable, refer to https://filamentphp.com/docs.
+- When available, use the `search-docs` tool for official documentation on Artisan commands, code examples, testing, relationships, and idiomatic practices. If `search-docs` is unavailable, refer to https://filamentphp.com/docs.
 
 ### Artisan
 

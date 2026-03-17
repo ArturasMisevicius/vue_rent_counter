@@ -19,6 +19,8 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 - Enforce policy checks at controller, action, resource, page, and component boundaries.
 - Keep auditability for privileged operations.
 - Fail closed on ambiguous access decisions.
+- Keep the public web root free of ad hoc executable files, raw debug scripts, and unused service-worker assets.
+- Never expose unauthenticated debug routes that dump auth state, session state, logs, query results, or server internals.
 
 ## Project Anchors
 
@@ -30,6 +32,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 - Write-side validation: `app/Filament/Requests/*`
 - Public and auth entry points: `app/Livewire/Auth/*`, `app/Livewire/Preferences/*`, `app/Livewire/PublicSite/*`
 - Public web root currently exposes only `public/index.php`; do not add public debug entrypoints
+- Translation health: keep development artifact files out of active locale directories such as `lang/en`
 
 ## Threat Review Checklist
 
@@ -40,6 +43,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 5. Are failure states explicit (`403`, `404`, `401`) and non-leaky?
 6. Are request-level `exists` rules scoped to the actor tenant when IDs reference tenant-owned models?
 7. Are `#[Locked]` Livewire properties or other server-owned identifiers protected from client-side mutation where needed?
+8. Does the change avoid adding raw debug endpoints, public PHP probes, or unauthenticated JSON inspection routes?
 
 ## Testing Expectations
 
@@ -47,6 +51,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 - Include positive authorization path and negative path.
 - Prefer explicit assertions like `assertForbidden()` and `assertNotFound()` where appropriate.
 - Cover impersonation stop or start behavior when that surface is touched.
+- When removing an exposed debug surface, add a regression test that proves the path now returns `404` and that the public root stays minimal.
 
 ## Completion Checklist
 

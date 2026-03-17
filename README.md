@@ -64,6 +64,7 @@ php artisan serve
 - Prefer Eloquent models, relationships, and scopes over raw SQL
 - Keep validation, actions, and support logic in the Filament foundation tree
 - Do not create new classes in `app/Http/Requests`, `app/Actions`, or `app/Support`
+- Keep `public/` minimal: no debug PHP probes, no raw debug routes, and no stray `sw.js` without a real PWA feature
 - Run focused Pest tests plus `vendor/bin/pint --dirty` for changed behavior
 - Treat `docs/superpowers/` as historical execution/design context, not the canonical source for current repository counts
 
@@ -74,5 +75,6 @@ The repository-local [`.mcp.json`](.mcp.json) currently configures only the `her
 ## Documentation
 
 - Project context: [docs/PROJECT-CONTEXT.md](docs/PROJECT-CONTEXT.md)
+- Session bootstrap: [docs/SESSION-BOOTSTRAP.md](docs/SESSION-BOOTSTRAP.md)
 - Delivery plans/specs map: [docs/superpowers/README.md](docs/superpowers/README.md)
 - AI assistant/project instructions: [AGENTS.md](AGENTS.md)
