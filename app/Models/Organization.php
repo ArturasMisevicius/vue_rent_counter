@@ -3,14 +3,16 @@
 namespace App\Models;
 
 use App\Enums\OrganizationStatus;
+use Database\Factories\OrganizationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Organization extends Model
 {
-    /** @use HasFactory<\Database\Factories\OrganizationFactory> */
+    /** @use HasFactory<OrganizationFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -45,5 +47,40 @@ class Organization extends Model
     public function invitations(): HasMany
     {
         return $this->hasMany(OrganizationInvitation::class);
+    }
+
+    public function settings(): HasOne
+    {
+        return $this->hasOne(OrganizationSetting::class);
+    }
+
+    public function buildings(): HasMany
+    {
+        return $this->hasMany(Building::class);
+    }
+
+    public function properties(): HasMany
+    {
+        return $this->hasMany(Property::class);
+    }
+
+    public function propertyAssignments(): HasMany
+    {
+        return $this->hasMany(PropertyAssignment::class);
+    }
+
+    public function meters(): HasMany
+    {
+        return $this->hasMany(Meter::class);
+    }
+
+    public function meterReadings(): HasMany
+    {
+        return $this->hasMany(MeterReading::class);
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
     }
 }

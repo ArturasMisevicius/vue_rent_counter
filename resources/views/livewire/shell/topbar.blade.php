@@ -1,5 +1,8 @@
 @php
     $showsSidebarToggle = request()->routeIs('filament.admin.*');
+    $profileRoute = $user?->isTenant()
+        ? config('tenanto.routes.tenant_navigation.profile', 'profile.edit')
+        : config('tenanto.routes.account.profile', 'profile.edit');
 @endphp
 
 <div class="fi-topbar-ctn">
@@ -59,7 +62,7 @@
 
                         <div class="mt-4 space-y-2">
                             <a
-                                href="{{ route('profile.edit') }}"
+                                href="{{ route($profileRoute) }}"
                                 class="flex items-center rounded-2xl px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-950"
                             >
                                 {{ __('shell.my_profile') }}
