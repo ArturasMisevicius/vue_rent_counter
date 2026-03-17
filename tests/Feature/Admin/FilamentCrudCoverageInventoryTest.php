@@ -11,9 +11,11 @@ use App\Filament\Resources\PlatformNotifications\PlatformNotificationResource;
 use App\Filament\Resources\Properties\PropertyResource;
 use App\Filament\Resources\Providers\ProviderResource;
 use App\Filament\Resources\SecurityViolations\SecurityViolationResource;
+use App\Filament\Resources\ServiceConfigurations\ServiceConfigurationResource;
 use App\Filament\Resources\Subscriptions\SubscriptionResource;
 use App\Filament\Resources\Tariffs\TariffResource;
 use App\Filament\Resources\Tenants\TenantResource;
+use App\Filament\Resources\UtilityServices\UtilityServiceResource;
 use App\Filament\Resources\Users\UserResource;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -64,6 +66,10 @@ it('keeps every Filament resource mapped to regression coverage and its expected
             'pages' => ['index'],
             'test' => 'tests/Feature/Superadmin/SecurityViolationsResourceTest.php',
         ],
+        ServiceConfigurationResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Admin/TariffsAndProvidersTest.php',
+        ],
         SubscriptionResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Superadmin/SubscriptionsResourceTest.php',
@@ -75,6 +81,10 @@ it('keeps every Filament resource mapped to regression coverage and its expected
         TenantResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Admin/TenantsResourceTest.php',
+        ],
+        UtilityServiceResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Admin/TariffsAndProvidersTest.php',
         ],
         UserResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],

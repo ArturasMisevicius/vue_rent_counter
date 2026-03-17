@@ -9,27 +9,81 @@ use App\Models\PropertyAssignment;
 use App\Support\Admin\Invoices\InvoiceEligibilityWindow;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use InvalidArgumentException;
+use App\Models\User;
+use App\Support\Admin\Invoices\InvoiceLineItemCalculator;
 
 class GenerateBulkInvoicesAction
 {
     public function __construct(
         protected GenerateInvoiceLineItemsAction $generateInvoiceLineItemsAction,
         protected InvoiceEligibilityWindow $invoiceEligibilityWindow,
+        protected InvoiceLineItemCalculator $invoiceLineItemCalculator,
     ) {}
 
     /**
-     * @return Collection<int, Invoice>
+     * @return Collection<int, Invoice>|array{created: Collection<int, Invoice>, skipped: array<int, array{tenant_id: int, property_id: int, reason: string}>}
      */
     public function handle(
         Organization $organization,
+        array|CarbonInterface|string $billingPeriodStart,
+        CarbonInterface|string|User|null $billingPeriodEnd = null,
+        ?User $actor = null,
+    ): Collection|array {
+        if (is_array($billingPeriodStart)) {
+            $resolvedActor = $billingPeriodEnd instanceof User ? $billingPeriodEnd : $actor;
+
+            return $this->handleAttributes($organization, $billingPeriodStart, $resolvedActor);
+        }
+
+        if (! $billingPeriodEnd instanceof CarbonInterface && ! is_string($billingPeriodEnd)) {
+            throw new InvalidArgumentException('The billing period end date must be a string or Carbon instance.');
+        }
+
+        return $this->generateInvoices(
+            $organization,
+            $billingPeriodStart,
+            $billingPeriodEnd,
+        )['created'];
+    }
+
+    /**
+     * @param  array{billing_period_start: string, billing_period_end: string, due_date?: string}  $attributes
+     * @return array{created: Collection<int, Invoice>, skipped: array<int, array{tenant_id: int, property_id: int, reason: string}>}
+     */
+    protected function handleAttributes(Organization $organization, array $attributes, ?User $actor = null): array
+    {
+        return $this->generateInvoices(
+            $organization,
+            $attributes['billing_period_start'],
+            $attributes['billing_period_end'],
+            $attributes['due_date'] ?? null,
+            $actor,
+        );
+    }
+
+    /**
+     * @return array{created: Collection<int, Invoice>, skipped: array<int, array{tenant_id: int, property_id: int, reason: string}>}
+     */
+    protected function generateInvoices(
+        Organization $organization,
         CarbonInterface|string $billingPeriodStart,
         CarbonInterface|string $billingPeriodEnd,
-    ): Collection {
+        ?string $dueDate = null,
+        ?User $actor = null,
+    ): array {
         $periodStart = $this->normalizeDate($billingPeriodStart)->startOfDay();
         $periodEnd = $this->normalizeDate($billingPeriodEnd)->endOfDay();
+        $resolvedDueDate = $dueDate !== null
+            ? $this->normalizeDate($dueDate)->toDateString()
+            : $periodEnd->copy()->addDays(14)->toDateString();
 
-        return PropertyAssignment::query()
+        $created = collect();
+        $skipped = [];
+
+        PropertyAssignment::query()
             ->select([
                 'id',
                 'organization_id',
@@ -51,9 +105,17 @@ class GenerateBulkInvoicesAction
                 'tenant:id,organization_id,name,email',
             ])
             ->get()
-            ->reduce(function (Collection $generatedInvoices, PropertyAssignment $assignment) use ($organization, $periodStart, $periodEnd): Collection {
+            ->each(function (PropertyAssignment $assignment) use (
+                $organization,
+                $periodStart,
+                $periodEnd,
+                $resolvedDueDate,
+                $actor,
+                &$created,
+                &$skipped,
+            ): void {
                 if (! $this->invoiceEligibilityWindow->allows($assignment, $periodStart, $periodEnd)) {
-                    return $generatedInvoices;
+                    return;
                 }
 
                 $alreadyGenerated = Invoice::query()
@@ -66,10 +128,16 @@ class GenerateBulkInvoicesAction
                     ->exists();
 
                 if ($alreadyGenerated) {
-                    return $generatedInvoices;
+                    $skipped[] = [
+                        'tenant_id' => $assignment->tenant_user_id,
+                        'property_id' => $assignment->property_id,
+                        'reason' => 'already_billed',
+                    ];
+
+                    return;
                 }
 
-                $lineItems = $this->generateInvoiceLineItemsAction->handle($assignment, $periodStart, $periodEnd);
+                $lineItems = $this->lineItemsFor($assignment, $periodStart, $periodEnd);
 
                 $invoice = Invoice::query()->create([
                     'organization_id' => $organization->id,
@@ -83,19 +151,26 @@ class GenerateBulkInvoicesAction
                     'total_amount' => $lineItems['total_amount'],
                     'amount_paid' => 0,
                     'paid_amount' => 0,
-                    'due_date' => $periodEnd->copy()->addDays(14)->toDateString(),
+                    'due_date' => $resolvedDueDate,
                     'finalized_at' => now(),
                     'items' => $lineItems['items'],
                     'snapshot_data' => $lineItems['items'],
                     'snapshot_created_at' => now(),
                     'generated_at' => now(),
-                    'generated_by' => 'bulk_invoices_action',
+                    'generated_by' => $actor !== null ? "user:{$actor->id}" : 'bulk_invoices_action',
                     'approval_status' => 'approved',
                     'automation_level' => 'manual',
+                    'approved_by' => $actor?->id,
+                    'approved_at' => $actor !== null ? now() : null,
                 ]);
 
-                return $generatedInvoices->push($invoice);
-            }, collect());
+                $created = $created->push($invoice);
+            });
+
+        return [
+            'created' => $created,
+            'skipped' => $skipped,
+        ];
     }
 
     protected function invoiceNumberFor(PropertyAssignment $assignment, CarbonInterface $billingPeriodStart): string
@@ -113,5 +188,40 @@ class GenerateBulkInvoicesAction
         return $value instanceof CarbonInterface
             ? CarbonImmutable::instance($value)
             : CarbonImmutable::parse($value);
+    }
+
+    /**
+     * @return array{
+     *     items: array<int, array<string, mixed>>,
+     *     total_amount: float
+     * }
+     */
+    protected function lineItemsFor(
+        PropertyAssignment $assignment,
+        CarbonInterface $billingPeriodStart,
+        CarbonInterface $billingPeriodEnd,
+    ): array {
+        $property = $assignment->property;
+
+        if ($property !== null) {
+            $items = $this->invoiceLineItemCalculator->handle(
+                $property,
+                Carbon::parse($billingPeriodStart->toDateTimeString()),
+                Carbon::parse($billingPeriodEnd->toDateTimeString()),
+            );
+
+            if ($items !== []) {
+                return [
+                    'items' => $items,
+                    'total_amount' => round((float) collect($items)->sum('total'), 2),
+                ];
+            }
+        }
+
+        return $this->generateInvoiceLineItemsAction->handle(
+            $assignment,
+            $billingPeriodStart,
+            $billingPeriodEnd,
+        );
     }
 }

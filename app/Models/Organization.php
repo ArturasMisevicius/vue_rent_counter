@@ -103,6 +103,11 @@ class Organization extends Model
         return $this->hasMany(PropertyAssignment::class);
     }
 
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
+
     public function meters(): HasMany
     {
         return $this->hasMany(Meter::class);
@@ -116,11 +121,6 @@ class Organization extends Model
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
-    }
-
-    public function projects(): HasMany
-    {
-        return $this->hasMany(Project::class);
     }
 
     public function providers(): HasMany

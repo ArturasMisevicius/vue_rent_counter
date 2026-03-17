@@ -8,6 +8,7 @@ use App\Models\IntegrationHealthCheck;
 use App\Models\Invoice;
 use App\Models\Language;
 use App\Models\Meter;
+use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\PlatformNotification;
 use App\Models\Property;
@@ -21,6 +22,7 @@ use App\Policies\IntegrationHealthCheckPolicy;
 use App\Policies\InvoicePolicy;
 use App\Policies\LanguagePolicy;
 use App\Policies\MeterPolicy;
+use App\Policies\MeterReadingPolicy;
 use App\Policies\OrganizationPolicy;
 use App\Policies\PlatformNotificationPolicy;
 use App\Policies\PropertyPolicy;
@@ -42,6 +44,7 @@ class AuthServiceProvider extends ServiceProvider
         Invoice::class => InvoicePolicy::class,
         Language::class => LanguagePolicy::class,
         Meter::class => MeterPolicy::class,
+        MeterReading::class => MeterReadingPolicy::class,
         Organization::class => OrganizationPolicy::class,
         PlatformNotification::class => PlatformNotificationPolicy::class,
         Property::class => PropertyPolicy::class,

@@ -3,6 +3,7 @@
 namespace App\Livewire\Shell;
 
 use App\Actions\Preferences\UpdateUserLocaleAction;
+use App\Support\Preferences\SupportedLocaleOptions;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -24,7 +25,7 @@ class LanguageSwitcher extends Component
                 'locale' => [
                     'required',
                     'string',
-                    Rule::in(array_keys(config('tenanto.locales', []))),
+                    Rule::in(array_keys($this->availableLocales())),
                 ],
             ],
         )->validate();
@@ -46,7 +47,15 @@ class LanguageSwitcher extends Component
     {
         return view('livewire.shell.language-switcher', [
             'currentLocaleLabel' => mb_strtoupper($this->currentLocale),
-            'locales' => config('tenanto.locales', []),
+            'locales' => $this->availableLocales(),
         ]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function availableLocales(): array
+    {
+        return app(SupportedLocaleOptions::class)->labels();
     }
 }

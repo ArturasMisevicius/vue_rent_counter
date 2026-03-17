@@ -100,6 +100,11 @@ class User extends Authenticatable implements FilamentUser
             ->whereNull('unassigned_at');
     }
 
+    public function dashboardCustomization(): HasOne
+    {
+        return $this->hasOne(DashboardCustomization::class);
+    }
+
     public function submittedMeterReadings(): HasMany
     {
         return $this->hasMany(MeterReading::class, 'submitted_by_user_id');
@@ -113,11 +118,6 @@ class User extends Authenticatable implements FilamentUser
     public function tenantInvoices(): HasMany
     {
         return $this->hasMany(Invoice::class, 'tenant_user_id');
-    }
-
-    public function dashboardCustomization(): HasOne
-    {
-        return $this->hasOne(DashboardCustomization::class);
     }
 
     public function leases(): HasMany

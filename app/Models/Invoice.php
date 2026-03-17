@@ -96,6 +96,21 @@ class Invoice extends Model
         return $this->hasMany(InvoiceGenerationAudit::class);
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(InvoicePayment::class);
+    }
+
+    public function emailLogs(): HasMany
+    {
+        return $this->hasMany(InvoiceEmailLog::class);
+    }
+
+    public function reminderLogs(): HasMany
+    {
+        return $this->hasMany(InvoiceReminderLog::class);
+    }
+
     public function billingRecords(): HasMany
     {
         return $this->hasMany(BillingRecord::class);
