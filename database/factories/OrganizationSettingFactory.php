@@ -20,6 +20,10 @@ class OrganizationSettingFactory extends Factory
             'billing_contact_phone' => fake()->phoneNumber(),
             'payment_instructions' => fake()->sentence(),
             'invoice_footer' => fake()->sentence(),
+            'notification_preferences' => [
+                'invoice_reminders' => true,
+                'reading_deadline_alerts' => true,
+            ],
         ];
     }
 }

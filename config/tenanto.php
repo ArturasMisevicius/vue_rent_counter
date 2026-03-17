@@ -18,6 +18,68 @@ return [
             'limit' => 8,
             'preview_length' => 120,
         ],
+        'navigation' => [
+            'roles' => [
+                'superadmin' => [
+                    'platform' => [
+                        [
+                            'route' => 'filament.admin.pages.platform-dashboard',
+                            'label' => 'dashboard.title',
+                        ],
+                        [
+                            'route' => 'filament.admin.resources.organizations.index',
+                            'label' => 'shell.navigation.items.organizations',
+                        ],
+                    ],
+                    'account' => [
+                        [
+                            'route' => 'filament.admin.pages.profile',
+                            'label' => 'shell.navigation.items.profile',
+                        ],
+                    ],
+                ],
+                'admin' => [
+                    'organization' => [
+                        [
+                            'route' => 'filament.admin.pages.organization-dashboard',
+                            'label' => 'dashboard.title',
+                        ],
+                    ],
+                    'account' => [
+                        [
+                            'route' => 'filament.admin.pages.profile',
+                            'label' => 'shell.navigation.items.profile',
+                        ],
+                        [
+                            'route' => 'filament.admin.pages.settings',
+                            'label' => 'shell.navigation.items.settings',
+                        ],
+                    ],
+                ],
+                'manager' => [
+                    'organization' => [
+                        [
+                            'route' => 'filament.admin.pages.organization-dashboard',
+                            'label' => 'dashboard.title',
+                        ],
+                    ],
+                    'account' => [
+                        [
+                            'route' => 'filament.admin.pages.profile',
+                            'label' => 'shell.navigation.items.profile',
+                        ],
+                        [
+                            'route' => 'filament.admin.pages.settings',
+                            'label' => 'shell.navigation.items.settings',
+                        ],
+                    ],
+                ],
+            ],
+        ],
+        'locale_sources' => [
+            'configured' => 'config.tenanto.locales',
+            'managed' => 'App\\Models\\Language',
+        ],
     ],
 
     'search' => [

@@ -23,6 +23,7 @@ return [
         'items' => [
             'organizations' => 'Organizacijos',
             'profile' => 'Profilis',
+            'settings' => 'Nustatymai',
         ],
     ],
     'roles' => [
@@ -36,6 +37,84 @@ return [
         'eyebrow' => 'Paskyros erdvė',
         'heading' => 'Mano profilis',
         'description' => 'Peržiūrėkite savo paskyros tapatybę, pasirinktą kalbą ir prisijungimo kontekstą vienoje bendroje vietoje.',
+        'personal_information' => [
+            'heading' => 'Asmeninė informacija',
+            'description' => 'Atnaujinkite rodomą vardą, el. pašto adresą ir pageidaujamą kalbą.',
+        ],
+        'password' => [
+            'heading' => 'Slaptažodžio keitimas',
+            'description' => 'Nustatykite naują paskyros slaptažodį ir patvirtinkite jį prieš išsaugodami.',
+        ],
+        'fields' => [
+            'name' => 'Vardas',
+            'email' => 'El. paštas',
+            'locale' => 'Kalba',
+            'current_password' => 'Dabartinis slaptažodis',
+            'password' => 'Naujas slaptažodis',
+            'password_confirmation' => 'Pakartokite naują slaptažodį',
+        ],
+        'actions' => [
+            'save' => 'Išsaugoti profilį',
+            'update_password' => 'Atnaujinti slaptažodį',
+        ],
+        'messages' => [
+            'saved' => 'Jūsų profilis atnaujintas.',
+            'password_updated' => 'Jūsų slaptažodis atnaujintas.',
+        ],
+    ],
+    'settings' => [
+        'title' => 'Nustatymai',
+        'organization' => [
+            'heading' => 'Organizacijos nustatymai',
+            'description' => 'Tvarkykite atsiskaitymų kontaktus ir mokėjimo informaciją, kuri bus rodoma būsimiems naudotojams.',
+            'fields' => [
+                'billing_contact_name' => 'Atsiskaitymų kontakto vardas',
+                'billing_contact_email' => 'Atsiskaitymų kontakto el. paštas',
+                'billing_contact_phone' => 'Atsiskaitymų kontakto telefonas',
+                'payment_instructions' => 'Mokėjimo instrukcijos',
+                'invoice_footer' => 'Sąskaitos poraštė',
+            ],
+            'actions' => [
+                'save' => 'Išsaugoti organizacijos nustatymus',
+            ],
+        ],
+        'notifications' => [
+            'heading' => 'Pranešimų nustatymai',
+            'description' => 'Pasirinkite, kokius priminimus administratoriai gaus organizacijos darbo erdvėje.',
+            'fields' => [
+                'invoice_reminders' => 'Sąskaitų priminimai',
+                'reading_deadline_alerts' => 'Skaitiklių rodmenų termino perspėjimai',
+            ],
+            'actions' => [
+                'save' => 'Išsaugoti pranešimų nustatymus',
+            ],
+        ],
+        'subscription' => [
+            'heading' => 'Prenumerata',
+            'description' => 'Atnaujinkite dabartinį planą ir atnaujinkite organizacijos limitus.',
+            'fields' => [
+                'plan' => 'Planas',
+                'duration' => 'Trukmė',
+            ],
+            'plans' => [
+                'basic' => 'Basic',
+                'professional' => 'Professional',
+                'enterprise' => 'Enterprise',
+            ],
+            'durations' => [
+                'monthly' => 'Mėnesinė',
+                'quarterly' => 'Ketvirtinė',
+                'yearly' => 'Metinė',
+            ],
+            'actions' => [
+                'renew' => 'Atnaujinti prenumeratą',
+            ],
+        ],
+        'messages' => [
+            'organization_saved' => 'Organizacijos nustatymai atnaujinti.',
+            'notifications_saved' => 'Pranešimų nustatymai atnaujinti.',
+            'subscription_renewed' => 'Prenumerata atnaujinta.',
+        ],
     ],
     'actions' => [
         'back_to_dashboard' => 'Grįžti į skydelį',

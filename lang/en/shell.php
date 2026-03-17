@@ -23,6 +23,7 @@ return [
         'items' => [
             'organizations' => 'Organizations',
             'profile' => 'Profile',
+            'settings' => 'Settings',
         ],
     ],
     'roles' => [
@@ -36,6 +37,84 @@ return [
         'eyebrow' => 'Account Space',
         'heading' => 'My Profile',
         'description' => 'Review your account identity, preferred language, and signed-in context from one shared destination.',
+        'personal_information' => [
+            'heading' => 'Personal Information',
+            'description' => 'Keep your display name, email address, and preferred language up to date.',
+        ],
+        'password' => [
+            'heading' => 'Change Password',
+            'description' => 'Set a new password for your account and confirm it before saving.',
+        ],
+        'fields' => [
+            'name' => 'Name',
+            'email' => 'Email',
+            'locale' => 'Language',
+            'current_password' => 'Current Password',
+            'password' => 'New Password',
+            'password_confirmation' => 'Confirm New Password',
+        ],
+        'actions' => [
+            'save' => 'Save Profile',
+            'update_password' => 'Update Password',
+        ],
+        'messages' => [
+            'saved' => 'Your profile has been updated.',
+            'password_updated' => 'Your password has been updated.',
+        ],
+    ],
+    'settings' => [
+        'title' => 'Settings',
+        'organization' => [
+            'heading' => 'Organization Settings',
+            'description' => 'Manage billing contacts and the payment details shown to future users.',
+            'fields' => [
+                'billing_contact_name' => 'Billing Contact Name',
+                'billing_contact_email' => 'Billing Contact Email',
+                'billing_contact_phone' => 'Billing Contact Phone',
+                'payment_instructions' => 'Payment Instructions',
+                'invoice_footer' => 'Invoice Footer',
+            ],
+            'actions' => [
+                'save' => 'Save Organization Settings',
+            ],
+        ],
+        'notifications' => [
+            'heading' => 'Notification Preferences',
+            'description' => 'Choose which reminders admins should receive inside the organization workspace.',
+            'fields' => [
+                'invoice_reminders' => 'Invoice reminders',
+                'reading_deadline_alerts' => 'Reading deadline alerts',
+            ],
+            'actions' => [
+                'save' => 'Save Notification Preferences',
+            ],
+        ],
+        'subscription' => [
+            'heading' => 'Subscription',
+            'description' => 'Renew the current plan and refresh usage limits for the organization.',
+            'fields' => [
+                'plan' => 'Plan',
+                'duration' => 'Duration',
+            ],
+            'plans' => [
+                'basic' => 'Basic',
+                'professional' => 'Professional',
+                'enterprise' => 'Enterprise',
+            ],
+            'durations' => [
+                'monthly' => 'Monthly',
+                'quarterly' => 'Quarterly',
+                'yearly' => 'Yearly',
+            ],
+            'actions' => [
+                'renew' => 'Renew Subscription',
+            ],
+        ],
+        'messages' => [
+            'organization_saved' => 'Organization settings have been updated.',
+            'notifications_saved' => 'Notification preferences have been updated.',
+            'subscription_renewed' => 'Subscription has been renewed.',
+        ],
     ],
     'actions' => [
         'back_to_dashboard' => 'Back to dashboard',

@@ -53,6 +53,10 @@ class Topbar extends Component
             return route('tenant.profile.edit');
         }
 
+        if ($user->isAdminLike() && Route::has('filament.admin.pages.profile')) {
+            return route('filament.admin.pages.profile');
+        }
+
         if (Route::has('profile.edit')) {
             return route('profile.edit');
         }

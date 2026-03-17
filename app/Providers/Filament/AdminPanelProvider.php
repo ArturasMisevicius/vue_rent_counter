@@ -3,6 +3,8 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\Profile;
+use App\Filament\Pages\Settings;
 use App\Http\Controllers\Filament\RedirectToPublicLoginController;
 use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
@@ -43,6 +45,8 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 Dashboard::class,
+                Profile::class,
+                Settings::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([

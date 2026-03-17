@@ -1,6 +1,6 @@
 @php
     $isPageContext = $context === 'page';
-    $isCurrentProfileRoute = request()->routeIs('profile.edit', 'tenant.profile.edit');
+    $isCurrentProfileRoute = request()->routeIs('profile.edit', 'tenant.profile.edit', 'filament.admin.pages.profile');
 @endphp
 
 <div class="fi-topbar-ctn" data-shell-topbar="true">

@@ -19,7 +19,15 @@ class OrganizationSetting extends Model
         'billing_contact_phone',
         'payment_instructions',
         'invoice_footer',
+        'notification_preferences',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'notification_preferences' => 'array',
+        ];
+    }
 
     public function organization(): BelongsTo
     {

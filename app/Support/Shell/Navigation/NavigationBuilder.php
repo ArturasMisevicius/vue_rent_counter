@@ -15,22 +15,9 @@ class NavigationBuilder
     {
         $groups = [];
 
-        if ($user->isSuperadmin()) {
-            $groups[] = $this->group('platform', __('shell.navigation.groups.platform'), [
-                $this->item($request, 'filament.admin.pages.platform-dashboard', __('dashboard.title')),
-                $this->item($request, 'filament.admin.resources.organizations.index', __('shell.navigation.items.organizations')),
-            ]);
+        foreach ($this->groupsFor($user) as $groupKey => $items) {
+            $groups[] = $this->configuredGroup($request, $groupKey, $items);
         }
-
-        if ($user->isAdmin() || $user->isManager()) {
-            $groups[] = $this->group('organization', __('shell.navigation.groups.organization'), [
-                $this->item($request, 'filament.admin.pages.organization-dashboard', __('dashboard.title')),
-            ]);
-        }
-
-        $groups[] = $this->group('account', __('shell.navigation.groups.account'), [
-            $this->item($request, 'profile.edit', __('shell.navigation.items.profile')),
-        ]);
 
         return array_values(array_filter($groups));
     }
@@ -78,5 +65,46 @@ class NavigationBuilder
             routeName: $routeName,
             active: $request->routeIs($routeName),
         );
+    }
+
+    /**
+     * @param  array<int, array{label: string, route: string}>  $items
+     */
+    protected function configuredGroup(Request $request, string $groupKey, array $items): ?NavigationGroupData
+    {
+        return $this->group(
+            $groupKey,
+            __("shell.navigation.groups.{$groupKey}"),
+            array_map(
+                fn (array $item): ?NavigationItemData => $this->item(
+                    $request,
+                    $item['route'],
+                    __($item['label']),
+                ),
+                $items,
+            ),
+        );
+    }
+
+    /**
+     * @return array<string, array<int, array{label: string, route: string}>>
+     */
+    protected function groupsFor(User $user): array
+    {
+        $role = match (true) {
+            $user->isSuperadmin() => 'superadmin',
+            $user->isAdmin() => 'admin',
+            $user->isManager() => 'manager',
+            default => null,
+        };
+
+        if ($role === null) {
+            return [];
+        }
+
+        /** @var array<string, array<int, array{label: string, route: string}>> $groups */
+        $groups = config("tenanto.shell.navigation.roles.{$role}", []);
+
+        return $groups;
     }
 }

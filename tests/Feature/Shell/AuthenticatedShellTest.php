@@ -32,6 +32,7 @@ it('renders role-aware shared chrome around organization admin pages', function 
         ->assertSee('data-shell-nav="sidebar"', false)
         ->assertSee('data-shell-group="organization"', false)
         ->assertSee('data-shell-group="account"', false)
+        ->assertSeeText('Settings')
         ->assertSee('data-shell-current="filament.admin.pages.organization-dashboard"', false)
         ->assertDontSee('data-shell-group="platform"', false);
 });
@@ -46,11 +47,12 @@ it('renders platform navigation for superadmins without organization navigation'
         ->assertSee('data-shell-nav="sidebar"', false)
         ->assertSee('data-shell-group="platform"', false)
         ->assertSee('data-shell-group="account"', false)
+        ->assertSee(route('filament.admin.resources.organizations.index'), false)
         ->assertSee('data-shell-current="filament.admin.pages.platform-dashboard"', false)
         ->assertDontSee('data-shell-group="organization"', false);
 });
 
-it('provides a shared profile destination for authenticated users', function () {
+it('redirects admin-like users from the shared profile route into the filament-backed profile page', function () {
     $organization = Organization::factory()->create();
     $manager = User::factory()->manager()->create([
         'organization_id' => $organization->id,
@@ -58,7 +60,5 @@ it('provides a shared profile destination for authenticated users', function () 
 
     $this->actingAs($manager)
         ->get(route('profile.edit'))
-        ->assertSuccessful()
-        ->assertSeeText('My Profile')
-        ->assertSeeText('Back to dashboard');
+        ->assertRedirect(route('filament.admin.pages.profile'));
 });
