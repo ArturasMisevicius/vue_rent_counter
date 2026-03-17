@@ -9,7 +9,7 @@ class InvoicePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdminLike();
+        return $user->isAdminLike() || $user->isTenant();
     }
 
     public function view(User $user, Invoice $invoice): bool
