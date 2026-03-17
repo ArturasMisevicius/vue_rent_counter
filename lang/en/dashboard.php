@@ -5,6 +5,12 @@ return [
     'platform_eyebrow' => 'Superadmin Shell',
     'platform_heading' => 'Your platform dashboard is ready.',
     'platform_body' => 'Organization, subscription, security, and platform operations modules will attach to this superadmin entry point as the next slices land.',
+    'platform_metrics' => [
+        'total_organizations' => 'Total Organizations',
+        'active_subscriptions' => 'Active Subscriptions',
+        'platform_revenue_this_month' => 'Platform Revenue This Month',
+        'security_violations_last_7_days' => 'Security Violations (7 Days)',
+    ],
     'organization_eyebrow' => 'Admin Workspace',
     'organization_heading' => 'Your organization dashboard is ready.',
     'organization_body' => 'Buildings, tenants, meters, invoices, and reports will grow from this shared admin and manager landing page.',

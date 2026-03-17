@@ -2,21 +2,24 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\OrganizationStatus;
+use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Support\Auth\LoginDemoAccountPresenter;
 use App\Support\Auth\LoginRedirector;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use App\Enums\OrganizationStatus;
-use App\Enums\UserStatus;
 
 class LoginController extends Controller
 {
-    public function create(): View
+    public function create(LoginDemoAccountPresenter $loginDemoAccountPresenter): View
     {
-        return view('auth.login');
+        return view('auth.login', [
+            'demoAccounts' => $loginDemoAccountPresenter->accounts(),
+        ]);
     }
 
     /**

@@ -7,6 +7,8 @@ use App\Http\Controllers\Filament\RedirectToPublicLoginController;
 use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
 use App\Http\Middleware\SetAuthenticatedUserLocale;
+use App\Livewire\Shell\Sidebar;
+use App\Livewire\Shell\Topbar;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -35,6 +37,8 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->topbarLivewireComponent(Topbar::class)
+            ->sidebarLivewireComponent(Sidebar::class)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

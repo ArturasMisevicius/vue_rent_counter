@@ -4,13 +4,14 @@ namespace App\Models;
 
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
+use Database\Factories\SubscriptionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Subscription extends Model
 {
-    /** @use HasFactory<\Database\Factories\SubscriptionFactory> */
+    /** @use HasFactory<SubscriptionFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -20,6 +21,10 @@ class Subscription extends Model
         'starts_at',
         'expires_at',
         'is_trial',
+        'property_limit_snapshot',
+        'tenant_limit_snapshot',
+        'meter_limit_snapshot',
+        'invoice_limit_snapshot',
     ];
 
     protected function casts(): array

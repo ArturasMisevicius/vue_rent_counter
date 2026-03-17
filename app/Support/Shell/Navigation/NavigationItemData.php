@@ -1,0 +1,13 @@
+<?php
+
+namespace App\Support\Shell\Navigation;
+
+class NavigationItemData
+{
+    public function __construct(
+        public readonly string $label,
+        public readonly string $url,
+        public readonly string $routeName,
+        public readonly bool $active = false,
+    ) {}
+}

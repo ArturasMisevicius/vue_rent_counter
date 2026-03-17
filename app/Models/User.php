@@ -76,6 +76,27 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(OrganizationInvitation::class, 'inviter_user_id');
     }
 
+    public function propertyAssignments(): HasMany
+    {
+        return $this->hasMany(PropertyAssignment::class, 'tenant_user_id');
+    }
+
+    public function currentPropertyAssignment(): HasOne
+    {
+        return $this->hasOne(PropertyAssignment::class, 'tenant_user_id')
+            ->whereNull('unassigned_at');
+    }
+
+    public function submittedMeterReadings(): HasMany
+    {
+        return $this->hasMany(MeterReading::class, 'submitted_by_user_id');
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class, 'tenant_user_id');
+    }
+
     public function isSuperadmin(): bool
     {
         return $this->role === UserRole::SUPERADMIN;
@@ -109,5 +130,10 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->isAdminLike();
+    }
+
+    public function getCurrentPropertyAttribute(): ?Property
+    {
+        return $this->currentPropertyAssignment?->property;
     }
 }
