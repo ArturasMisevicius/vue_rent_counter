@@ -67,7 +67,7 @@ it('clears and closes the overlay through the close action', function () {
         ->assertSet('query', '');
 });
 
-it('returns no clickable results when destination routes are missing', function () {
+it('returns only route-backed results when some destinations are missing', function () {
     $superadmin = User::factory()->superadmin()->create();
     $organization = Organization::factory()->create([
         'name' => 'Acme Search',
@@ -81,7 +81,8 @@ it('returns no clickable results when destination routes are missing', function 
 
     $results = app(GlobalSearchRegistry::class)->search($superadmin, 'Acme');
 
-    expect($results['organizations'])->toBe([])
+    expect($results['organizations'])->toHaveCount(1)
+        ->and($results['organizations'][0]->label)->toBe('Acme Search')
         ->and($results['users'])->toBe([]);
 });
 

@@ -4,10 +4,15 @@ namespace App\Providers;
 
 use App\Models\Invoice;
 use App\Models\Meter;
+use App\Models\Organization;
 use App\Models\Property;
+use App\Models\Subscription;
+use App\Observers\OrganizationObserver;
+use App\Observers\SubscriptionObserver;
 use App\Policies\InvoicePolicy;
 use App\Policies\MeterPolicy;
 use App\Policies\PropertyPolicy;
+use App\Support\Audit\AuditLogger;
 use App\Support\Auth\ImpersonationManager;
 use App\Support\Shell\DashboardUrlResolver;
 use App\Support\Shell\Navigation\NavigationBuilder;
@@ -27,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->singleton(AuditLogger::class);
         $this->app->singleton(DashboardUrlResolver::class);
         $this->app->singleton(NavigationBuilder::class);
         $this->app->singleton(UserAvatarColor::class);
@@ -50,5 +56,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Property::class, PropertyPolicy::class);
         Gate::policy(Meter::class, MeterPolicy::class);
         Gate::policy(Invoice::class, InvoicePolicy::class);
+
+        Organization::observe(OrganizationObserver::class);
+        Subscription::observe(SubscriptionObserver::class);
     }
 }

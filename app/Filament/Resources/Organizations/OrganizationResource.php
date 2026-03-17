@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 class OrganizationResource extends Resource
@@ -57,6 +58,26 @@ class OrganizationResource extends Resource
         return Organization::query()->forSuperadminResource();
     }
 
+    public static function canViewAny(): bool
+    {
+        return static::canManageOrganizations();
+    }
+
+    public static function canCreate(): bool
+    {
+        return static::canManageOrganizations();
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return static::canManageOrganizations();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return static::canManageOrganizations();
+    }
+
     public static function getPages(): array
     {
         return [
@@ -65,5 +86,10 @@ class OrganizationResource extends Resource
             'view' => ViewOrganization::route('/{record}'),
             'edit' => EditOrganization::route('/{record}/edit'),
         ];
+    }
+
+    private static function canManageOrganizations(): bool
+    {
+        return auth()->user()?->isSuperadmin() ?? false;
     }
 }
