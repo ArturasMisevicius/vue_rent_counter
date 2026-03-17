@@ -4,6 +4,7 @@ namespace App\Actions\Superadmin\Organizations;
 
 use App\Actions\Auth\TerminateOrganizationSessionsAction;
 use App\Enums\OrganizationStatus;
+use App\Enums\SubscriptionStatus;
 use App\Models\Organization;
 use Illuminate\Support\Facades\DB;
 
@@ -20,9 +21,22 @@ class SuspendOrganizationAction
                 'status' => OrganizationStatus::SUSPENDED,
             ])->save();
 
+            $organization->subscriptions()
+                ->current()
+                ->where('status', SubscriptionStatus::ACTIVE)
+                ->get()
+                ->each(fn ($subscription) => $subscription->forceFill([
+                    'status' => SubscriptionStatus::SUSPENDED,
+                ])->save());
+
             $this->terminateOrganizationSessions->handle($organization);
 
             return $organization->fresh();
         });
+    }
+
+    public function __invoke(Organization $organization): Organization
+    {
+        return $this->handle($organization);
     }
 }
