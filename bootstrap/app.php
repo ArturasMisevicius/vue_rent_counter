@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\BlockBlockedIpAddresses;
 use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
 use App\Http\Middleware\EnsureUserIsTenant;
@@ -16,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(prepend: [
+            BlockBlockedIpAddresses::class,
+        ]);
+
         $middleware->web(append: [
             SetGuestLocale::class,
         ]);

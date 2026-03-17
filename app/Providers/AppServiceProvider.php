@@ -2,17 +2,21 @@
 
 namespace App\Providers;
 
-use App\Models\Invoice;
-use App\Models\Meter;
-use App\Models\Property;
-use App\Policies\InvoicePolicy;
-use App\Policies\MeterPolicy;
-use App\Policies\PropertyPolicy;
+use App\Models\Organization;
+use App\Models\PlatformNotification;
+use App\Models\Subscription;
+use App\Models\SystemSetting;
+use App\Models\User;
+use App\Observers\OrganizationObserver;
+use App\Observers\PlatformNotificationObserver;
+use App\Observers\SubscriptionObserver;
+use App\Observers\SystemSettingObserver;
+use App\Observers\UserObserver;
+use App\Support\Audit\AuditLogger;
 use App\Support\Auth\ImpersonationManager;
 use App\Support\Shell\Search\GlobalSearchRegistry;
 use App\Support\Shell\Search\Providers\OrganizationSearchProvider;
 use App\Support\Shell\Search\Providers\UserSearchProvider;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->singleton(AuditLogger::class);
         $this->app->singleton(ImpersonationManager::class);
 
         $this->app->singleton(GlobalSearchRegistry::class, function ($app): GlobalSearchRegistry {
@@ -37,8 +42,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Gate::policy(Property::class, PropertyPolicy::class);
-        Gate::policy(Meter::class, MeterPolicy::class);
-        Gate::policy(Invoice::class, InvoicePolicy::class);
+        Organization::observe(OrganizationObserver::class);
+        Subscription::observe(SubscriptionObserver::class);
+        User::observe(UserObserver::class);
+        SystemSetting::observe(SystemSettingObserver::class);
+        PlatformNotification::observe(PlatformNotificationObserver::class);
     }
 }
