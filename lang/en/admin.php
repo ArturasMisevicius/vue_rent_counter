@@ -64,9 +64,10 @@ return [
     'buildings' => [
         'singular' => 'Building',
         'plural' => 'Buildings',
+        'view_title' => 'Building Details',
         'sections' => [
             'details' => 'Building Details',
-            'portfolio' => 'Portfolio',
+            'activity' => 'Building Activity',
         ],
         'fields' => [
             'name' => 'Name',
@@ -98,6 +99,7 @@ return [
     'properties' => [
         'singular' => 'Property',
         'plural' => 'Properties',
+        'view_title' => 'Property Details',
         'sections' => [
             'details' => 'Property Details',
             'current_occupancy' => 'Current Occupancy',
@@ -130,7 +132,13 @@ return [
             'office' => 'Office',
             'storage' => 'Storage',
         ],
+        'history' => [
+            'assigned_on' => 'Assigned on :date',
+            'unassigned_on' => 'Unassigned on :date',
+        ],
         'empty' => [
+            'unassigned' => 'Unassigned',
+            'no_history' => 'No assignment history yet.',
             'vacant' => 'Vacant',
             'none' => 'None',
             'assignment_history' => 'No assignment history yet.',

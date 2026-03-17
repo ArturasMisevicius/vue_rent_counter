@@ -64,9 +64,10 @@ return [
     'buildings' => [
         'singular' => 'Здание',
         'plural' => 'Здания',
+        'view_title' => 'Данные здания',
         'sections' => [
             'details' => 'Данные здания',
-            'portfolio' => 'Портфель',
+            'activity' => 'Активность здания',
         ],
         'fields' => [
             'name' => 'Название',
@@ -98,6 +99,7 @@ return [
     'properties' => [
         'singular' => 'Объект',
         'plural' => 'Объекты',
+        'view_title' => 'Данные объекта',
         'sections' => [
             'details' => 'Данные объекта',
             'current_occupancy' => 'Текущее размещение',
@@ -130,7 +132,13 @@ return [
             'office' => 'Офис',
             'storage' => 'Склад',
         ],
+        'history' => [
+            'assigned_on' => 'Назначено :date',
+            'unassigned_on' => 'Снято :date',
+        ],
         'empty' => [
+            'unassigned' => 'Свободно',
+            'no_history' => 'История назначений пока отсутствует.',
             'vacant' => 'Свободно',
             'none' => 'Нет',
             'assignment_history' => 'История назначений пока отсутствует.',

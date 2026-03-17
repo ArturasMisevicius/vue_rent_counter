@@ -10,6 +10,7 @@ use App\Filament\Resources\Properties\Schemas\PropertyForm;
 use App\Filament\Resources\Properties\Schemas\PropertyInfolist;
 use App\Filament\Resources\Properties\Tables\PropertiesTable;
 use App\Models\Property;
+use App\Support\Admin\OrganizationContext;
 use App\Support\Admin\SubscriptionLimitGuard;
 use BackedEnum;
 use Filament\Resources\Pages\PageRegistration;
@@ -25,7 +26,7 @@ class PropertyResource extends Resource
 
     protected static ?string $model = Property::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHomeModern;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHome;
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -58,19 +59,17 @@ class PropertyResource extends Resource
     {
         $user = auth()->user();
 
-        if (! static::canAccess()) {
+        if (! $user?->isAdmin() && ! $user?->isManager()) {
             return false;
         }
 
-        if ($user === null) {
+        $organizationId = app(OrganizationContext::class)->currentOrganizationId();
+
+        if ($organizationId === null) {
             return false;
         }
 
-        if ($user->organization_id === null) {
-            return false;
-        }
-
-        return app(SubscriptionLimitGuard::class)->canCreateProperty($user->organization_id);
+        return app(SubscriptionLimitGuard::class)->canCreateProperty($organizationId);
     }
 
     /**
@@ -78,40 +77,13 @@ class PropertyResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        $organizationId = auth()->user()?->organization_id;
+        $organizationId = app(OrganizationContext::class)->currentOrganizationId();
 
-        return parent::getEloquentQuery()
-            ->select([
-                'id',
-                'organization_id',
-                'building_id',
-                'name',
-                'unit_number',
-                'type',
-                'floor_area_sqm',
-                'created_at',
-                'updated_at',
-            ])
-            ->where('organization_id', $organizationId)
-            ->with([
-                'building:id,organization_id,name,address_line_1,city',
-                'currentAssignment:id,organization_id,property_id,tenant_user_id,unit_area_sqm,assigned_at,unassigned_at',
-                'currentAssignment.tenant:id,name',
-                'assignments' => fn ($query) => $query
-                    ->select([
-                        'id',
-                        'organization_id',
-                        'property_id',
-                        'tenant_user_id',
-                        'unit_area_sqm',
-                        'assigned_at',
-                        'unassigned_at',
-                    ])
-                    ->with([
-                        'tenant:id,name',
-                    ])
-                    ->latest('assigned_at'),
-            ]);
+        if ($organizationId === null) {
+            return parent::getEloquentQuery()->whereKey(-1);
+        }
+
+        return parent::getEloquentQuery()->forOrganizationWorkspace($organizationId);
     }
 
     public static function getRelations(): array

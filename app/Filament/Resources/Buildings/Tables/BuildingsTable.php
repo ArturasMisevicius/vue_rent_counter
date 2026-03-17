@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Buildings\Tables;
 
 use App\Actions\Admin\Buildings\DeleteBuildingAction;
 use App\Models\Building;
+use App\Support\Admin\OrganizationContext;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -18,31 +19,32 @@ class BuildingsTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label(__('admin.buildings.columns.name'))
+                    ->label(__('admin.buildings.fields.name'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('city')
-                    ->label(__('admin.buildings.columns.city'))
+                    ->label(__('admin.buildings.fields.city'))
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('country_code')
-                    ->label(__('admin.buildings.columns.country_code'))
-                    ->sortable(),
+                TextColumn::make('address_line_1')
+                    ->label(__('admin.buildings.fields.address_line_1'))
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('properties_count')
-                    ->label(__('admin.buildings.columns.properties_count'))
+                    ->label(__('admin.buildings.fields.properties_count'))
                     ->sortable(),
-                TextColumn::make('created_at')
-                    ->label(__('admin.buildings.columns.created_at'))
+                TextColumn::make('updated_at')
+                    ->label(__('admin.buildings.fields.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(),
             ])
             ->filters([
                 SelectFilter::make('city')
-                    ->label(__('admin.buildings.columns.city'))
+                    ->label(__('admin.buildings.fields.city'))
                     ->options(fn (): array => Building::query()
                         ->select(['city', 'organization_id'])
-                        ->where('organization_id', auth()->user()?->organization_id)
+                        ->where('organization_id', app(OrganizationContext::class)->currentOrganizationId())
                         ->orderBy('city')
                         ->pluck('city', 'city')
                         ->all()),

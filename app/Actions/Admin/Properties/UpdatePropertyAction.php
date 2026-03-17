@@ -3,51 +3,45 @@
 namespace App\Actions\Admin\Properties;
 
 use App\Enums\PropertyType;
-use App\Models\Building;
 use App\Models\Property;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class UpdatePropertyAction
 {
-    /**
-     * @param  array{
-     *     building_id: int,
-     *     name: string,
-     *     unit_number: string,
-     *     type: PropertyType|string,
-     *     floor_area_sqm: float|string|null
-     * }  $attributes
-     *
-     * @throws ValidationException
-     */
-    public function handle(Property $property, array $attributes): Property
+    public function handle(Property $property, array $data): Property
     {
-        $building = Building::query()
-            ->select(['id', 'organization_id'])
-            ->whereKey($attributes['building_id'])
-            ->firstOrFail();
+        $validated = $this->validate($property->organization_id, $data);
 
-        if ($building->organization_id !== $property->organization_id) {
-            throw ValidationException::withMessages([
-                'building_id' => __('admin.properties.messages.invalid_building'),
-            ]);
-        }
+        $property->update($validated);
 
-        $property->fill([
-            'building_id' => $building->id,
-            'name' => $attributes['name'],
-            'unit_number' => $attributes['unit_number'],
-            'type' => $this->normalizeType($attributes['type']),
-            'floor_area_sqm' => $attributes['floor_area_sqm'],
-        ]);
-
-        $property->save();
-
-        return $property->refresh();
+        return $property->fresh();
     }
 
-    protected function normalizeType(PropertyType|string $type): string
+    /**
+     * @return array{name: string, building_id: int, unit_number: string, type: string, floor_area_sqm: float|int|null}
+     */
+    private function validate(int $organizationId, array $data): array
     {
-        return $type instanceof PropertyType ? $type->value : $type;
+        $data['type'] = $data['type'] instanceof PropertyType
+            ? $data['type']->value
+            : $data['type'];
+
+        /** @var array{name: string, building_id: int, unit_number: string, type: string, floor_area_sqm: float|int|null} $validated */
+        $validated = Validator::make($data, [
+            'building_id' => [
+                'required',
+                'integer',
+                Rule::exists('buildings', 'id')->where(
+                    fn ($query) => $query->where('organization_id', $organizationId),
+                ),
+            ],
+            'name' => ['required', 'string', 'max:255'],
+            'unit_number' => ['required', 'string', 'max:50'],
+            'type' => ['required', Rule::in(collect(PropertyType::cases())->map->value->all())],
+            'floor_area_sqm' => ['nullable', 'numeric', 'min:0'],
+        ])->validate();
+
+        return $validated;
     }
 }

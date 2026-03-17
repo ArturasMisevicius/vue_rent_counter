@@ -10,6 +10,7 @@ use App\Filament\Resources\Buildings\Schemas\BuildingForm;
 use App\Filament\Resources\Buildings\Schemas\BuildingInfolist;
 use App\Filament\Resources\Buildings\Tables\BuildingsTable;
 use App\Models\Building;
+use App\Support\Admin\OrganizationContext;
 use BackedEnum;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
@@ -58,23 +59,13 @@ class BuildingResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        $organizationId = auth()->user()?->organization_id;
+        $organizationId = app(OrganizationContext::class)->currentOrganizationId();
 
-        return parent::getEloquentQuery()
-            ->select([
-                'id',
-                'organization_id',
-                'name',
-                'address_line_1',
-                'address_line_2',
-                'city',
-                'postal_code',
-                'country_code',
-                'created_at',
-                'updated_at',
-            ])
-            ->where('organization_id', $organizationId)
-            ->withCount('properties');
+        if ($organizationId === null) {
+            return parent::getEloquentQuery()->whereKey(-1);
+        }
+
+        return parent::getEloquentQuery()->forOrganizationWorkspace($organizationId);
     }
 
     public static function getRelations(): array

@@ -18,17 +18,13 @@ use Illuminate\Database\Eloquent\Builder;
 
 class OrganizationResource extends Resource
 {
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?string $model = Organization::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $navigationLabel = 'Organizations';
-
     protected static ?string $recordTitleAttribute = 'name';
-
-    protected static ?string $modelLabel = 'Organization';
-
-    protected static ?string $pluralModelLabel = 'Organizations';
 
     public static function form(Schema $schema): Schema
     {
@@ -60,10 +56,7 @@ class OrganizationResource extends Resource
      */
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->select(['id', 'name', 'slug', 'status', 'owner_user_id', 'created_at', 'updated_at'])
-            ->with(['owner:id,name,email'])
-            ->withCount(['users', 'properties', 'subscriptions']);
+        return parent::getEloquentQuery()->forSuperadminControlPlane();
     }
 
     public static function getRelations(): array

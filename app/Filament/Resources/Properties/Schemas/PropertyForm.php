@@ -3,11 +3,12 @@
 namespace App\Filament\Resources\Properties\Schemas;
 
 use App\Enums\PropertyType;
-use App\Models\Building;
+use App\Support\Admin\OrganizationContext;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class PropertyForm
 {
@@ -18,37 +19,39 @@ class PropertyForm
                 Section::make(__('admin.properties.sections.details'))
                     ->schema([
                         Select::make('building_id')
-                            ->label(__('admin.properties.columns.building'))
-                            ->options(fn (): array => Building::query()
-                                ->select(['id', 'name', 'organization_id'])
-                                ->where('organization_id', auth()->user()?->organization_id)
-                                ->orderBy('name')
-                                ->pluck('name', 'id')
-                                ->all())
+                            ->label(__('admin.properties.fields.building'))
+                            ->relationship(
+                                name: 'building',
+                                titleAttribute: 'name',
+                                modifyQueryUsing: fn (Builder $query): Builder => $query
+                                    ->select(['id', 'organization_id', 'name'])
+                                    ->where('organization_id', app(OrganizationContext::class)->currentOrganizationId()),
+                            )
                             ->searchable()
                             ->preload()
                             ->required(),
                         TextInput::make('name')
-                            ->label(__('admin.properties.columns.name'))
+                            ->label(__('admin.properties.fields.name'))
                             ->required()
                             ->maxLength(255),
                         TextInput::make('unit_number')
-                            ->label(__('admin.properties.columns.unit_number'))
+                            ->label(__('admin.properties.fields.unit_number'))
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(50),
                         Select::make('type')
-                            ->label(__('admin.properties.columns.type'))
-                            ->options([
-                                PropertyType::APARTMENT->value => __('admin.properties.types.apartment'),
-                                PropertyType::HOUSE->value => __('admin.properties.types.house'),
-                                PropertyType::OFFICE->value => __('admin.properties.types.office'),
-                                PropertyType::STORAGE->value => __('admin.properties.types.storage'),
-                            ])
+                            ->label(__('admin.properties.fields.type'))
+                            ->options(
+                                collect(PropertyType::cases())
+                                    ->mapWithKeys(fn (PropertyType $type): array => [
+                                        $type->value => __('admin.properties.types.'.$type->value),
+                                    ])
+                                    ->all(),
+                            )
                             ->required(),
                         TextInput::make('floor_area_sqm')
-                            ->label(__('admin.properties.columns.floor_area_sqm'))
+                            ->label(__('admin.properties.fields.floor_area_sqm'))
                             ->numeric()
-                            ->suffix('sqm'),
+                            ->minValue(0),
                     ])
                     ->columns(2),
             ]);

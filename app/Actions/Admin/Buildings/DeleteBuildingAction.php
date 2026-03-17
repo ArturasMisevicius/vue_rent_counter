@@ -7,9 +7,6 @@ use Illuminate\Validation\ValidationException;
 
 class DeleteBuildingAction
 {
-    /**
-     * @throws ValidationException
-     */
     public function handle(Building $building): void
     {
         if ($building->properties()->exists()) {

@@ -2,12 +2,11 @@
 
 namespace App\Filament\Resources\Properties\Schemas;
 
-use App\Enums\PropertyType;
 use App\Models\Property;
+use App\Models\PropertyAssignment;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Carbon;
 
 class PropertyInfolist
 {
@@ -17,60 +16,56 @@ class PropertyInfolist
             ->components([
                 Section::make(__('admin.properties.sections.details'))
                     ->schema([
-                        TextEntry::make('name')
-                            ->label(__('admin.properties.columns.name')),
                         TextEntry::make('building.name')
-                            ->label(__('admin.properties.columns.building')),
+                            ->label(__('admin.properties.fields.building')),
+                        TextEntry::make('name')
+                            ->label(__('admin.properties.fields.name')),
                         TextEntry::make('unit_number')
-                            ->label(__('admin.properties.columns.unit_number')),
+                            ->label(__('admin.properties.fields.unit_number')),
                         TextEntry::make('type')
-                            ->label(__('admin.properties.columns.type'))
-                            ->formatStateUsing(fn (PropertyType $state): string => __("admin.properties.types.{$state->value}")),
+                            ->label(__('admin.properties.fields.type'))
+                            ->formatStateUsing(
+                                fn ($state): string => __('admin.properties.types.'.($state->value ?? $state)),
+                            ),
                         TextEntry::make('floor_area_sqm')
-                            ->label(__('admin.properties.columns.floor_area_sqm'))
-                            ->suffix(' sqm')
-                            ->default(__('admin.properties.empty.none')),
+                            ->label(__('admin.properties.fields.floor_area_sqm')),
                     ])
                     ->columns(2),
                 Section::make(__('admin.properties.sections.current_occupancy'))
                     ->schema([
                         TextEntry::make('currentAssignment.tenant.name')
-                            ->label(__('admin.properties.columns.tenant'))
-                            ->default(__('admin.properties.empty.vacant')),
+                            ->label(__('admin.properties.fields.current_tenant'))
+                            ->default(__('admin.properties.empty.unassigned')),
                         TextEntry::make('currentAssignment.assigned_at')
-                            ->label(__('admin.properties.columns.assigned_since'))
-                            ->dateTime()
-                            ->default(__('admin.properties.empty.none')),
+                            ->label(__('admin.properties.fields.assigned_since'))
+                            ->state(
+                                fn (Property $record): string => $record->currentAssignment?->assigned_at?->format('Y-m-d H:i')
+                                    ?? __('admin.properties.empty.unassigned'),
+                            ),
                     ])
                     ->columns(2),
                 Section::make(__('admin.properties.sections.assignment_history'))
                     ->schema([
                         TextEntry::make('assignment_history')
-                            ->label(__('admin.properties.sections.assignment_history'))
-                            ->state(function (Property $record): array {
-                                if (! $record->relationLoaded('assignments')) {
-                                    $record->load('assignments.tenant');
-                                }
-
+                            ->label(__('admin.properties.fields.assignment_history'))
+                            ->state(function (Property $record): string {
                                 $history = $record->assignments
                                     ->sortByDesc('assigned_at')
-                                    ->map(function ($assignment): string {
-                                        $assignedAt = $assignment->assigned_at instanceof Carbon
-                                            ? $assignment->assigned_at->toDateString()
-                                            : (string) $assignment->assigned_at;
-                                        $unassignedAt = $assignment->unassigned_at instanceof Carbon
-                                            ? $assignment->unassigned_at->toDateString()
-                                            : null;
-                                        $tenantName = $assignment->tenant?->name ?? __('admin.properties.empty.none');
+                                    ->map(function (PropertyAssignment $assignment): string {
+                                        $tenantName = $assignment->tenant?->name ?? __('admin.properties.empty.unassigned');
+                                        $assignedAt = $assignment->assigned_at?->format('Y-m-d');
+                                        $unassignedAt = $assignment->unassigned_at?->format('Y-m-d');
 
-                                        return $tenantName.' · '.$assignedAt.($unassignedAt ? ' → '.$unassignedAt : '');
+                                        return collect([
+                                            $tenantName,
+                                            $assignedAt ? __('admin.properties.history.assigned_on', ['date' => $assignedAt]) : null,
+                                            $unassignedAt ? __('admin.properties.history.unassigned_on', ['date' => $unassignedAt]) : null,
+                                        ])->filter()->implode(' · ');
                                     })
-                                    ->values()
-                                    ->all();
+                                    ->implode("\n");
 
-                                return $history === [] ? [__('admin.properties.empty.assignment_history')] : $history;
-                            })
-                            ->listWithLineBreaks(),
+                                return $history !== '' ? $history : __('admin.properties.empty.no_history');
+                            }),
                     ]),
             ]);
     }

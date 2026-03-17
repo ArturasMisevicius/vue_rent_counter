@@ -64,9 +64,10 @@ return [
     'buildings' => [
         'singular' => 'Pastatas',
         'plural' => 'Pastatai',
+        'view_title' => 'Pastato informacija',
         'sections' => [
             'details' => 'Pastato informacija',
-            'portfolio' => 'Portfelis',
+            'activity' => 'Pastato aktyvumas',
         ],
         'fields' => [
             'name' => 'Pavadinimas',
@@ -98,6 +99,7 @@ return [
     'properties' => [
         'singular' => 'Patalpa',
         'plural' => 'Patalpos',
+        'view_title' => 'Patalpos informacija',
         'sections' => [
             'details' => 'Patalpos informacija',
             'current_occupancy' => 'Esamas užimtumas',
@@ -130,7 +132,13 @@ return [
             'office' => 'Biuras',
             'storage' => 'Sandėliukas',
         ],
+        'history' => [
+            'assigned_on' => 'Priskirta :date',
+            'unassigned_on' => 'Atšaukta :date',
+        ],
         'empty' => [
+            'unassigned' => 'Nepriskirta',
+            'no_history' => 'Priskyrimų istorijos dar nėra.',
             'vacant' => 'Laisva',
             'none' => 'Nėra',
             'assignment_history' => 'Priskyrimų istorijos dar nėra.',

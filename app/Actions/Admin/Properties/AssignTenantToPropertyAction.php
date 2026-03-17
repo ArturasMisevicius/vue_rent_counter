@@ -2,63 +2,57 @@
 
 namespace App\Actions\Admin\Properties;
 
-use App\Enums\UserRole;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\User;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class AssignTenantToPropertyAction
 {
-    /**
-     * @throws ValidationException
-     */
-    public function handle(Property $property, User $tenant, float|string|null $unitAreaSqm = null): PropertyAssignment
+    public function handle(Property $property, User $tenant, ?float $unitAreaSqm = null): PropertyAssignment
     {
-        if (
-            $tenant->organization_id !== $property->organization_id
-            || $tenant->role !== UserRole::TENANT
-        ) {
+        if (! $tenant->isTenant() || $tenant->organization_id !== $property->organization_id) {
             throw ValidationException::withMessages([
-                'tenant_user_id' => __('admin.properties.messages.invalid_tenant'),
+                'tenant' => __('admin.properties.messages.invalid_tenant'),
             ]);
         }
 
-        /** @var PropertyAssignment|null $currentAssignment */
-        $currentAssignment = $property->currentAssignment()
-            ->select([
-                'id',
-                'organization_id',
-                'property_id',
-                'tenant_user_id',
-                'unit_area_sqm',
-                'assigned_at',
-                'unassigned_at',
-            ])
-            ->first();
+        return DB::transaction(function () use ($property, $tenant, $unitAreaSqm): PropertyAssignment {
+            $timestamp = now();
+            $currentAssignment = $property->currentAssignment()->first();
 
-        if ($currentAssignment?->tenant_user_id === $tenant->id) {
-            $currentAssignment->forceFill([
+            if ($currentAssignment?->tenant_user_id === $tenant->id) {
+                $currentAssignment->update([
+                    'unit_area_sqm' => $unitAreaSqm,
+                ]);
+
+                return $currentAssignment->fresh();
+            }
+
+            PropertyAssignment::query()
+                ->where('organization_id', $property->organization_id)
+                ->where('tenant_user_id', $tenant->id)
+                ->whereNull('unassigned_at')
+                ->update([
+                    'unassigned_at' => $timestamp,
+                    'updated_at' => $timestamp,
+                ]);
+
+            if ($currentAssignment !== null) {
+                $currentAssignment->update([
+                    'unassigned_at' => $timestamp,
+                ]);
+            }
+
+            return PropertyAssignment::query()->create([
+                'organization_id' => $property->organization_id,
+                'property_id' => $property->id,
+                'tenant_user_id' => $tenant->id,
                 'unit_area_sqm' => $unitAreaSqm,
-            ])->save();
-
-            return $currentAssignment->refresh();
-        }
-
-        if ($currentAssignment !== null) {
-            $currentAssignment->forceFill([
-                'unassigned_at' => Carbon::now(),
-            ])->save();
-        }
-
-        return PropertyAssignment::query()->create([
-            'organization_id' => $property->organization_id,
-            'property_id' => $property->id,
-            'tenant_user_id' => $tenant->id,
-            'unit_area_sqm' => $unitAreaSqm,
-            'assigned_at' => Carbon::now(),
-            'unassigned_at' => null,
-        ]);
+                'assigned_at' => $timestamp,
+                'unassigned_at' => null,
+            ]);
+        });
     }
 }

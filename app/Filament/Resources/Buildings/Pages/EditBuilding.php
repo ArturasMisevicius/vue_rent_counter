@@ -2,12 +2,8 @@
 
 namespace App\Filament\Resources\Buildings\Pages;
 
-use App\Actions\Admin\Buildings\DeleteBuildingAction;
 use App\Actions\Admin\Buildings\UpdateBuildingAction;
 use App\Filament\Resources\Buildings\BuildingResource;
-use App\Models\Building;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,12 +16,10 @@ class EditBuilding extends EditRecord
         return app(UpdateBuildingAction::class)->handle($record, $data);
     }
 
-    protected function getHeaderActions(): array
+    protected function getRedirectUrl(): string
     {
-        return [
-            ViewAction::make(),
-            DeleteAction::make()
-                ->using(fn (Building $record) => app(DeleteBuildingAction::class)->handle($record)),
-        ];
+        return BuildingResource::getUrl('view', [
+            'record' => $this->record,
+        ]);
     }
 }

@@ -9,12 +9,12 @@ class InvoicePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdminLike();
+        return $user->isAdmin() || $user->isManager();
     }
 
     public function view(User $user, Invoice $invoice): bool
     {
-        if ($user->isAdminLike()) {
+        if ($user->isAdmin() || $user->isManager()) {
             return $user->organization_id === $invoice->organization_id;
         }
 

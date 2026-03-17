@@ -4,33 +4,26 @@ namespace App\Actions\Admin\Buildings;
 
 use App\Models\Building;
 use App\Models\Organization;
+use Illuminate\Support\Facades\Validator;
 
 class CreateBuildingAction
 {
-    /**
-     * @param  array{
-     *     name: string,
-     *     address_line_1: string,
-     *     address_line_2: string|null,
-     *     city: string,
-     *     postal_code: string,
-     *     country_code: string
-     * }  $attributes
-     */
-    public function handle(Organization $organization, array $attributes): Building
+    public function handle(Organization $organization, array $data): Building
     {
-        $building = new Building([
-            'name' => $attributes['name'],
-            'address_line_1' => $attributes['address_line_1'],
-            'address_line_2' => $attributes['address_line_2'],
-            'city' => $attributes['city'],
-            'postal_code' => $attributes['postal_code'],
-            'country_code' => strtoupper($attributes['country_code']),
+        $validated = Validator::make($data, [
+            'name' => ['required', 'string', 'max:255'],
+            'address_line_1' => ['required', 'string', 'max:255'],
+            'address_line_2' => ['nullable', 'string', 'max:255'],
+            'city' => ['required', 'string', 'max:255'],
+            'postal_code' => ['required', 'string', 'max:20'],
+            'country_code' => ['required', 'string', 'size:2'],
+        ])->validate();
+
+        $validated['country_code'] = strtoupper($validated['country_code']);
+
+        return Building::query()->create([
+            ...$validated,
+            'organization_id' => $organization->id,
         ]);
-
-        $building->organization()->associate($organization);
-        $building->save();
-
-        return $building->refresh();
     }
 }
