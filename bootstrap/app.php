@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\SetGuestLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -11,6 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [
+            SetGuestLocale::class,
+        ]);
+
         $middleware->alias([
             'set.auth.locale' => \App\Http\Middleware\SetAuthenticatedUserLocale::class,
             'ensure.account.accessible' => \App\Http\Middleware\EnsureAccountIsAccessible::class,
