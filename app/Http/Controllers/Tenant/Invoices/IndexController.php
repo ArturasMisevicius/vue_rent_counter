@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenant\Invoices;
 
 use App\Http\Controllers\Controller;
+use App\Support\Shell\Breadcrumbs\BreadcrumbItemData;
 use App\Support\Tenant\Portal\PaymentInstructionsResolver;
 use App\Support\Tenant\Portal\TenantInvoiceIndexQuery;
 use Illuminate\Http\Request;
@@ -15,14 +16,18 @@ class IndexController extends Controller
         TenantInvoiceIndexQuery $tenantInvoiceIndexQuery,
         PaymentInstructionsResolver $paymentInstructionsResolver,
     ): View {
-        abort_unless($request->user()?->isTenant(), 403);
+        $selectedStatus = $request->string('status')->toString() ?: null;
 
         $tenant = $request->user()->loadMissing('organization.settings:id,organization_id,payment_instructions,invoice_footer');
 
         return view('tenant.invoices.index', [
-            'invoices' => $tenantInvoiceIndexQuery->for($tenant, $request->string('status')->toString() ?: null),
+            'breadcrumbs' => [
+                new BreadcrumbItemData(__('tenant.navigation.home'), route('tenant.home')),
+                new BreadcrumbItemData(__('tenant.pages.invoices.heading')),
+            ],
+            'invoices' => $tenantInvoiceIndexQuery->for($tenant, $selectedStatus),
             'paymentInstructions' => $paymentInstructionsResolver->resolve($tenant->organization?->settings),
-            'selectedStatus' => $request->string('status')->toString() ?: 'all',
+            'selectedStatus' => $selectedStatus ?? 'all',
         ]);
     }
 }

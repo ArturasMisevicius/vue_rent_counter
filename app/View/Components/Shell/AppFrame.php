@@ -12,6 +12,7 @@ class AppFrame extends Component
     public function __construct(
         public ?string $title = null,
         public bool $showTenantNavigation = false,
+        public array $breadcrumbs = [],
     ) {}
 
     public function render(): View
@@ -21,6 +22,7 @@ class AppFrame extends Component
 
         return view('components.shell.app-frame', [
             'dashboardUrl' => app(DashboardUrlResolver::class)->for($user),
+            'breadcrumbs' => $this->breadcrumbs,
             'user' => $user,
         ]);
     }

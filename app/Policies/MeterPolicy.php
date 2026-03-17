@@ -9,7 +9,7 @@ class MeterPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdminLike();
+        return $user->isAdminLike() || $user->isTenant();
     }
 
     public function view(User $user, Meter $meter): bool
@@ -22,6 +22,6 @@ class MeterPolicy
             return false;
         }
 
-        return $meter->property?->currentAssignment?->tenant_user_id === $user->id;
+        return $user->currentPropertyAssignment?->property_id === $meter->property_id;
     }
 }

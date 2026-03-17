@@ -36,7 +36,7 @@ class SubmitReadingPage extends Component
         try {
             $reading = $submitTenantReadingAction->handle(
                 tenant: $this->tenant(),
-                meterId: (int) $validated['meterId'],
+                meter: (int) $validated['meterId'],
                 readingValue: $validated['readingValue'],
                 readingDate: $validated['readingDate'],
                 notes: filled($validated['notes']) ? $validated['notes'] : null,

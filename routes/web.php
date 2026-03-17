@@ -46,7 +46,7 @@ Route::middleware(['auth', 'set.auth.locale', 'ensure.account.accessible'])->gro
     Route::get('/profile', EditProfileController::class)->name('profile.edit');
     Route::post('/impersonation/stop', StopImpersonationController::class)->name('impersonation.stop');
 
-    Route::prefix('tenant')->name('tenant.')->group(function (): void {
+    Route::prefix('tenant')->name('tenant.')->middleware('tenant.only')->group(function (): void {
         Route::get('/home', HomeController::class)->name('home');
         Route::get('/readings', TenantReadingCreateController::class)->name('readings.create');
         Route::get('/invoices', TenantInvoiceIndexController::class)->name('invoices.index');
