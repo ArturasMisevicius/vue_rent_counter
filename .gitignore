@@ -12,6 +12,7 @@
 /.vscode
 /.zed
 .worktrees/
+.superpowers/
 .chief/
 /auth.json
 /node_modules
