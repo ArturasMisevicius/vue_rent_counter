@@ -22,6 +22,6 @@ class MeterPolicy
             return false;
         }
 
-        return $meter->property?->currentAssignment?->tenant_user_id === $user->id;
+        return $user->currentPropertyAssignment?->property_id === $meter->property_id;
     }
 }

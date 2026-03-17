@@ -12,8 +12,6 @@ class ShowController extends Controller
 {
     public function __invoke(Request $request, TenantPropertyPresenter $presenter): View
     {
-        abort_unless($request->user()?->isTenant(), 403);
-
         return view('tenant.property.show', [
             'breadcrumbs' => [
                 new BreadcrumbItemData(__('tenant.navigation.home'), route('tenant.home')),

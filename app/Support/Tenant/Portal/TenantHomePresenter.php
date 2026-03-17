@@ -77,7 +77,7 @@ class TenantHomePresenter
             'tenant_name' => $tenant->name,
             'property_name' => $property?->name,
             'property_address' => $property?->address,
-            'property_url' => route('tenant.property.show'),
+            'property_url' => $property ? route('tenant.property.show') : null,
             'submit_reading_url' => route('tenant.readings.create'),
             'has_outstanding_balance' => $outstandingInvoices->isNotEmpty(),
             'outstanding_label' => $outstandingInvoices->isNotEmpty() ? 'Outstanding Balance' : 'All paid up',

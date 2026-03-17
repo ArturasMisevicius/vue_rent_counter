@@ -9,9 +9,9 @@ use App\Models\Organization;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\User;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 
 uses(RefreshDatabase::class);
 
@@ -67,10 +67,10 @@ it('rejects reading submissions for meters outside the tenants current property'
 
     expect(fn () => app(SubmitTenantReadingAction::class)->handle(
         tenant: $tenant,
-        meterId: $otherPropertyMeter->id,
+        meter: $otherPropertyMeter,
         readingValue: '145.500',
         readingDate: now()->toDateString(),
-    ))->toThrow(AuthorizationException::class);
+    ))->toThrow(ValidationException::class);
 });
 
 it('keeps invoice access working after unassignment even when no current meters remain', function () {
@@ -107,7 +107,7 @@ it('keeps invoice access working after unassignment even when no current meters 
     $this->actingAs($tenant)
         ->get(route('tenant.readings.create'))
         ->assertSuccessful()
-        ->assertSeeText('No assigned meters are available yet. Contact your property manager if this looks incorrect.');
+        ->assertSeeText('No meters are currently available for submission.');
 
     $this->actingAs($tenant)
         ->get(route('tenant.invoices.index'))

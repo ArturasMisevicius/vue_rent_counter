@@ -11,8 +11,6 @@ class EditController extends Controller
 {
     public function __invoke(Request $request): View
     {
-        abort_unless($request->user()?->isTenant(), 403);
-
         return view('tenant.profile.edit', [
             'breadcrumbs' => [
                 new BreadcrumbItemData(__('tenant.navigation.home'), route('tenant.home')),

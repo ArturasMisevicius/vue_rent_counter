@@ -14,7 +14,7 @@
 
         @if ($meters->isEmpty())
             <div class="rounded-[1.75rem] border border-dashed border-slate-300 px-5 py-6 text-sm text-slate-500">
-                No assigned meters are available yet. Contact your property manager if this looks incorrect.
+                No meters are currently available for submission. Contact your property manager if this looks incorrect.
             </div>
         @else
             <form wire:submit="submit" class="space-y-5">
