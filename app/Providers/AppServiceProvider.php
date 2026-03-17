@@ -2,6 +2,17 @@
 
 namespace App\Providers;
 
+use App\Models\Organization;
+use App\Models\PlatformNotification;
+use App\Models\Subscription;
+use App\Models\SystemSetting;
+use App\Models\User;
+use App\Observers\OrganizationObserver;
+use App\Observers\PlatformNotificationObserver;
+use App\Observers\SubscriptionObserver;
+use App\Observers\SystemSettingObserver;
+use App\Observers\UserObserver;
+use App\Support\Audit\AuditLogger;
 use App\Support\Auth\ImpersonationManager;
 use App\Support\Shell\DashboardUrlResolver;
 use App\Support\Shell\Navigation\NavigationBuilder;
@@ -18,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->singleton(AuditLogger::class);
         $this->app->singleton(DashboardUrlResolver::class);
         $this->app->singleton(NavigationBuilder::class);
         $this->app->singleton(UserAvatarColor::class);
@@ -37,6 +49,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Organization::observe(OrganizationObserver::class);
+        Subscription::observe(SubscriptionObserver::class);
+        User::observe(UserObserver::class);
+        SystemSetting::observe(SystemSettingObserver::class);
+        PlatformNotification::observe(PlatformNotificationObserver::class);
     }
 }

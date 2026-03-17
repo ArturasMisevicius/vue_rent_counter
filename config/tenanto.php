@@ -1,6 +1,11 @@
 <?php
 
 return [
+    'localization' => [
+        'translation_sources' => [
+            'php_array_files' => 'lang',
+        ],
+    ],
     'locales' => [
         'en' => [
             'abbreviation' => 'EN',
@@ -21,6 +26,26 @@ return [
             'abbreviation' => 'ES',
             'native_name' => 'Español',
             'flag' => 'ES',
+        ],
+    ],
+    'navigation' => [
+        'superadmin' => [
+            'platform' => [
+                'Dashboard' => 'filament.admin.pages.platform-dashboard',
+                'Organizations' => 'filament.admin.resources.organizations.index',
+                'Users' => 'filament.admin.resources.users.index',
+                'Subscriptions' => 'filament.admin.resources.subscriptions.index',
+                'System Configuration' => 'filament.admin.pages.system-configuration',
+                'Audit Logs' => 'filament.admin.resources.audit-logs.index',
+                'Notifications' => 'filament.admin.resources.platform-notifications.index',
+                'Languages' => 'filament.admin.resources.languages.index',
+                'Translation Management' => 'filament.admin.pages.translation-management',
+                'Security Violations' => 'filament.admin.resources.security-violations.index',
+                'Integration Health' => 'filament.admin.pages.integration-health',
+            ],
+            'account' => [
+                'Profile' => 'profile.edit',
+            ],
         ],
     ],
     'polling' => [

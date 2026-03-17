@@ -17,29 +17,8 @@ class NavigationBuilder
         }
 
         $definitions = $user->isSuperadmin()
-            ? [
-                __('shell.sections.platform') => [
-                    __('shell.dashboard') => 'filament.admin.pages.platform-dashboard',
-                    'Organizations' => 'filament.admin.resources.organizations.index',
-                    'Users' => 'filament.admin.resources.users.index',
-                ],
-                __('shell.sections.account') => [
-                    __('shell.profile') => 'profile.edit',
-                ],
-            ]
-            : [
-                __('shell.sections.workspace') => [
-                    __('shell.dashboard') => 'filament.admin.pages.organization-dashboard',
-                    'Buildings' => 'filament.admin.resources.buildings.index',
-                    'Properties' => 'filament.admin.resources.properties.index',
-                    'Tenants' => 'filament.admin.resources.tenants.index',
-                    'Meters' => 'filament.admin.resources.meters.index',
-                    'Invoices' => 'filament.admin.resources.invoices.index',
-                ],
-                __('shell.sections.account') => [
-                    __('shell.profile') => 'profile.edit',
-                ],
-            ];
+            ? $this->superadminDefinitions()
+            : $this->workspaceDefinitions();
 
         return collect($definitions)
             ->map(function (array $items, string $label): ?NavigationGroupData {
@@ -99,5 +78,36 @@ class NavigationBuilder
             url: route($routeName),
             isActive: request()->routeIs($routeName),
         );
+    }
+
+    /**
+     * @return array<string, array<string, string>>
+     */
+    private function superadminDefinitions(): array
+    {
+        return [
+            __('shell.sections.platform') => config('tenanto.navigation.superadmin.platform', []),
+            __('shell.sections.account') => config('tenanto.navigation.superadmin.account', []),
+        ];
+    }
+
+    /**
+     * @return array<string, array<string, string>>
+     */
+    private function workspaceDefinitions(): array
+    {
+        return [
+            __('shell.sections.workspace') => [
+                __('shell.dashboard') => 'filament.admin.pages.organization-dashboard',
+                'Buildings' => 'filament.admin.resources.buildings.index',
+                'Properties' => 'filament.admin.resources.properties.index',
+                'Tenants' => 'filament.admin.resources.tenants.index',
+                'Meters' => 'filament.admin.resources.meters.index',
+                'Invoices' => 'filament.admin.resources.invoices.index',
+            ],
+            __('shell.sections.account') => [
+                __('shell.profile') => 'profile.edit',
+            ],
+        ];
     }
 }
