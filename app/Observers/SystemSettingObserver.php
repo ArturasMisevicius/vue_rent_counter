@@ -24,7 +24,12 @@ class SystemSettingObserver
             $systemSetting,
             'System setting updated.',
             [
-                'changes' => $systemSetting->getChanges(),
+                'before' => [
+                    'value' => (string) $systemSetting->getOriginal('value'),
+                ],
+                'after' => [
+                    'value' => (string) $systemSetting->value,
+                ],
             ],
         );
     }
