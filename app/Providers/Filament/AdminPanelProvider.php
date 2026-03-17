@@ -8,12 +8,15 @@ use App\Http\Middleware\AuthenticateAdminPanel;
 use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
 use App\Http\Middleware\SetAuthenticatedUserLocale;
+use App\Livewire\Shell\Sidebar;
+use App\Livewire\Shell\Topbar;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -45,6 +48,12 @@ class AdminPanelProvider extends PanelProvider
                 AccountWidget::class,
                 FilamentInfoWidget::class,
             ])
+            ->topbarLivewireComponent(Topbar::class)
+            ->sidebarLivewireComponent(Sidebar::class)
+            ->renderHook(
+                PanelsRenderHook::TOPBAR_BEFORE,
+                fn (): string => view('components.shell.impersonation-banner')->render(),
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

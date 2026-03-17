@@ -93,3 +93,11 @@ document.querySelectorAll('[data-slug-source]').forEach((source) => {
 
     syncSlug();
 });
+
+document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') {
+        return;
+    }
+
+    window.dispatchEvent(new CustomEvent('shell-search-close'));
+});
