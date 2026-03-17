@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\OrganizationStatus;
 use Database\Factories\OrganizationFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -44,6 +45,11 @@ class Organization extends Model
         return $this->hasMany(Subscription::class);
     }
 
+    public function currentSubscription(): HasOne
+    {
+        return $this->hasOne(Subscription::class)->orderByDesc('id');
+    }
+
     public function invitations(): HasMany
     {
         return $this->hasMany(OrganizationInvitation::class);
@@ -82,5 +88,22 @@ class Organization extends Model
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    public function scopeForSuperadminResource(Builder $query): Builder
+    {
+        return $query
+            ->select([
+                'id',
+                'name',
+                'slug',
+                'status',
+                'owner_user_id',
+                'created_at',
+            ])
+            ->with([
+                'owner:id,name,email,organization_id,role,status',
+                'currentSubscription:id,organization_id,plan,plan_name_snapshot,status,expires_at',
+            ]);
     }
 }

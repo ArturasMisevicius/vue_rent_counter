@@ -7,6 +7,7 @@ use App\Enums\UserStatus;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -135,5 +136,26 @@ class User extends Authenticatable implements FilamentUser
     public function getCurrentPropertyAttribute(): ?Property
     {
         return $this->currentPropertyAssignment?->property;
+    }
+
+    public function scopeAssignableOrganizationOwner(Builder $query): Builder
+    {
+        return $query
+            ->select([
+                'id',
+                'name',
+                'email',
+                'role',
+                'status',
+                'locale',
+                'organization_id',
+                'last_login_at',
+                'password',
+                'remember_token',
+            ])
+            ->whereIn('role', [
+                UserRole::ADMIN,
+                UserRole::MANAGER,
+            ]);
     }
 }

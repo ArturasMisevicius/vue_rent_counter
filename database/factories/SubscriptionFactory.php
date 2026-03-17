@@ -21,14 +21,25 @@ class SubscriptionFactory extends Factory
     public function definition(): array
     {
         $startsAt = now()->startOfDay();
+        $plan = SubscriptionPlan::BASIC;
 
         return [
             'organization_id' => Organization::factory(),
-            'plan' => SubscriptionPlan::BASIC,
+            'plan' => $plan,
+            'plan_name_snapshot' => $plan->label(),
+            'limits_snapshot' => $plan->limitsSnapshot(),
             'status' => SubscriptionStatus::TRIALING,
             'starts_at' => $startsAt,
             'expires_at' => $startsAt->copy()->addDays(14),
             'is_trial' => true,
         ];
+    }
+
+    public function active(): static
+    {
+        return $this->state(fn () => [
+            'status' => SubscriptionStatus::ACTIVE,
+            'is_trial' => false,
+        ]);
     }
 }

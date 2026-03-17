@@ -24,24 +24,38 @@ it('renders tenant pages with topbar and route-safe bottom navigation', function
         ->assertSee('data-navigation-route="tenant.profile.edit"', false);
 });
 
-it('renders grouped sidebar navigation for admin roles', function (Closure $userFactory, string $expectedSection, string $currentRoute) {
+it('renders grouped sidebar navigation for admin roles', function (
+    Closure $userFactory,
+    string $expectedSection,
+    string $currentRoute,
+    array $expectedVisibleRoutes,
+    array $expectedHiddenRoutes,
+) {
     $user = $userFactory();
 
-    $this->actingAs($user)
+    $response = $this->actingAs($user)
         ->get(route($currentRoute))
         ->assertSuccessful()
         ->assertSeeText('Search anything')
         ->assertSeeText($expectedSection)
         ->assertSeeText('Account')
         ->assertSeeText('Profile')
-        ->assertDontSee('data-navigation-route="filament.admin.resources.organizations.index"', false)
-        ->assertDontSee('data-navigation-route="filament.admin.resources.buildings.index"', false)
         ->assertSee("data-navigation-state=\"{$currentRoute}:true\"", false);
+
+    foreach ($expectedVisibleRoutes as $routeName) {
+        $response->assertSee("data-navigation-route=\"{$routeName}\"", false);
+    }
+
+    foreach ($expectedHiddenRoutes as $routeName) {
+        $response->assertDontSee("data-navigation-route=\"{$routeName}\"", false);
+    }
 })->with([
     'superadmin' => [
         fn () => User::factory()->superadmin()->create(),
         'Platform',
         'filament.admin.pages.platform-dashboard',
+        ['filament.admin.resources.organizations.index'],
+        ['filament.admin.resources.buildings.index'],
     ],
     'admin' => [
         fn () => User::factory()->admin()->create([
@@ -49,11 +63,21 @@ it('renders grouped sidebar navigation for admin roles', function (Closure $user
         ]),
         'Workspace',
         'filament.admin.pages.organization-dashboard',
+        [],
+        [
+            'filament.admin.resources.organizations.index',
+            'filament.admin.resources.buildings.index',
+        ],
     ],
     'manager' => [
         fn () => User::factory()->manager()->create(),
         'Workspace',
         'filament.admin.pages.organization-dashboard',
+        [],
+        [
+            'filament.admin.resources.organizations.index',
+            'filament.admin.resources.buildings.index',
+        ],
     ],
 ]);
 
