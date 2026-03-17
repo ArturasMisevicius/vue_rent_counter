@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Onboarding\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -22,4 +23,9 @@ Route::middleware('guest')->group(function (): void {
 
     Route::get('/reset-password/{token}', [ResetPasswordController::class, 'create'])->name('password.reset');
     Route::post('/reset-password', [ResetPasswordController::class, 'store'])->name('password.update');
+});
+
+Route::middleware(['auth', 'set.auth.locale', 'ensure.account.accessible'])->group(function (): void {
+    Route::get('/welcome', [WelcomeController::class, 'show'])->name('welcome.show');
+    Route::post('/welcome', [WelcomeController::class, 'store'])->name('welcome.store');
 });

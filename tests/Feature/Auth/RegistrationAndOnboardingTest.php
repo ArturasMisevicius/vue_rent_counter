@@ -1,6 +1,10 @@
 <?php
 
+use App\Enums\SubscriptionPlan;
+use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
+use App\Models\Organization;
+use App\Models\Subscription;
 use App\Models\User;
 use Filament\Panel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -9,13 +13,20 @@ use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
 
-function registerOnboardingRouteFixtures(): void
+function registerDashboardRouteFixtures(): void
 {
-    Route::get('/welcome', fn () => 'welcome')->name('welcome.show');
+    if (! Route::has('filament.admin.pages.organization-dashboard')) {
+        Route::get('/__test/organization-dashboard', fn () => 'organization dashboard')
+            ->name('filament.admin.pages.organization-dashboard');
+    }
 
     app('router')->getRoutes()->refreshNameLookups();
     app('router')->getRoutes()->refreshActionLookups();
 }
+
+beforeEach(function (): void {
+    registerDashboardRouteFixtures();
+});
 
 it('creates the foundation auth domain schema', function () {
     expect(Schema::hasTable('organizations'))->toBeTrue();
@@ -76,8 +87,6 @@ it('exposes role helpers for shared auth routing', function () {
 });
 
 it('renders the register page', function () {
-    registerOnboardingRouteFixtures();
-
     $this->get(route('register'))
         ->assertSuccessful()
         ->assertSeeText('Create your account')
@@ -89,8 +98,6 @@ it('renders the register page', function () {
 });
 
 it('registers an admin and redirects to welcome', function () {
-    registerOnboardingRouteFixtures();
-
     $response = $this->post(route('register.store'), [
         'name' => 'Asta Admin',
         'email' => 'asta@example.com',
@@ -105,4 +112,91 @@ it('registers an admin and redirects to welcome', function () {
 
     expect($user->role)->toBe(UserRole::ADMIN)
         ->and($user->organization_id)->toBeNull();
+});
+
+it('allows an incomplete admin to view onboarding', function () {
+    $admin = User::factory()->admin()->create([
+        'organization_id' => null,
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('welcome.show'))
+        ->assertSuccessful()
+        ->assertSeeText('Start your free trial')
+        ->assertSeeText('Set up your organization to unlock your admin workspace.')
+        ->assertSeeText('Organization Name')
+        ->assertSeeText('Organization Slug')
+        ->assertSeeText('Activate Free Trial');
+});
+
+it('completes onboarding and creates the organization trial subscription', function () {
+    $admin = User::factory()->admin()->create([
+        'organization_id' => null,
+    ]);
+
+    $response = $this->actingAs($admin)->post(route('welcome.store'), [
+        'name' => 'North Hall',
+        'slug' => 'north-hall',
+    ]);
+
+    $response->assertRedirect(route('filament.admin.pages.organization-dashboard'));
+
+    $organization = Organization::query()->firstOrFail();
+    $subscription = Subscription::query()->firstOrFail();
+
+    expect($organization->name)->toBe('North Hall')
+        ->and($organization->slug)->toBe('north-hall')
+        ->and($organization->owner_user_id)->toBe($admin->id)
+        ->and($admin->fresh()->organization_id)->toBe($organization->id)
+        ->and($subscription->organization_id)->toBe($organization->id)
+        ->and($subscription->plan)->toBe(SubscriptionPlan::BASIC)
+        ->and($subscription->status)->toBe(SubscriptionStatus::TRIALING)
+        ->and($subscription->is_trial)->toBeTrue();
+});
+
+it('requires a unique slug during onboarding', function () {
+    Organization::factory()->create([
+        'slug' => 'north-hall',
+    ]);
+
+    $admin = User::factory()->admin()->create([
+        'organization_id' => null,
+    ]);
+
+    $this->actingAs($admin)
+        ->from(route('welcome.show'))
+        ->post(route('welcome.store'), [
+            'name' => 'Another North Hall',
+            'slug' => 'north-hall',
+        ])
+        ->assertRedirect(route('welcome.show'))
+        ->assertSessionHasErrors(['slug']);
+});
+
+it('blocks repeat onboarding access after completion', function () {
+    $organization = Organization::factory()->create([
+        'slug' => 'original-slug',
+    ]);
+
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $organization->update([
+        'owner_user_id' => $admin->id,
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('welcome.show'))
+        ->assertRedirect(route('filament.admin.pages.organization-dashboard'));
+
+    $this->actingAs($admin)
+        ->post(route('welcome.store'), [
+            'name' => 'Changed Name',
+            'slug' => 'changed-slug',
+        ])
+        ->assertRedirect(route('filament.admin.pages.organization-dashboard'));
+
+    expect($organization->fresh()->slug)->toBe('original-slug')
+        ->and(Organization::query()->count())->toBe(1);
 });
