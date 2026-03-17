@@ -10,6 +10,11 @@
 
 ---
 
+## Spec Reference
+
+- Spec: `docs/superpowers/specs/2026-03-17-missing-information-closures-design.md`
+- Supporting baselines: `docs/superpowers/specs/2026-03-17-foundation-auth-onboarding-design.md`, `docs/superpowers/specs/2026-03-17-shared-interface-elements-design.md`, `docs/superpowers/specs/2026-03-17-admin-organization-operations-design.md`, `docs/superpowers/specs/2026-03-17-superadmin-control-plane-design.md`, `docs/superpowers/specs/2026-03-17-tenant-self-service-portal-design.md`, `docs/superpowers/specs/2026-03-17-cross-cutting-behavioral-rules-design.md`
+
 ## Scope Check
 
 This spec spans multiple existing subsystems, but they are all closure work on earlier plans rather than fresh product areas.

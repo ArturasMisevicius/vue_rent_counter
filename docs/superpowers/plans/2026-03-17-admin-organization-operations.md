@@ -10,6 +10,12 @@
 
 ---
 
+## Spec Reference
+
+- Spec: `docs/superpowers/specs/2026-03-17-admin-organization-operations-design.md`
+- Supporting baselines: `docs/superpowers/specs/2026-03-17-foundation-auth-onboarding-design.md`, `docs/superpowers/specs/2026-03-17-shared-interface-elements-design.md`
+- Skills to apply during execution: `@laravel-11-12-app-guidelines`, `@filament`, `@pest-testing`
+
 ## Scope Check
 
 This specification spans multiple subsystems:

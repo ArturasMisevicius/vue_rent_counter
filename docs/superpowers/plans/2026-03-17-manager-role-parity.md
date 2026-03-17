@@ -10,6 +10,11 @@
 
 ---
 
+## Spec Reference
+
+- Spec: `docs/superpowers/specs/2026-03-17-manager-role-parity-design.md`
+- Supporting baselines: `docs/superpowers/specs/2026-03-17-foundation-auth-onboarding-design.md`, `docs/superpowers/specs/2026-03-17-shared-interface-elements-design.md`, `docs/superpowers/specs/2026-03-17-admin-organization-operations-design.md`
+
 ## Scope Check
 
 This is not an independent subsystem. It is a focused delta on top of:

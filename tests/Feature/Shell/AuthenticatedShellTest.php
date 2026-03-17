@@ -32,7 +32,11 @@ it('renders role-aware shared chrome around organization admin pages', function 
         ->assertSee('data-shell-nav="sidebar"', false)
         ->assertSee('data-shell-group="organization"', false)
         ->assertSee('data-shell-group="account"', false)
+        ->assertSeeText('Buildings')
+        ->assertSeeText('Properties')
         ->assertSeeText('Settings')
+        ->assertSee(route('filament.admin.resources.buildings.index'), false)
+        ->assertSee(route('filament.admin.resources.properties.index'), false)
         ->assertSee('data-shell-current="filament.admin.pages.organization-dashboard"', false)
         ->assertDontSee('data-shell-group="platform"', false);
 });
