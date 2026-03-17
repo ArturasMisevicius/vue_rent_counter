@@ -9,17 +9,17 @@ return [
         ],
         'lt' => [
             'abbreviation' => 'LT',
-            'native_name' => 'Lietuviu',
+            'native_name' => 'Lietuvių',
             'flag' => 'LT',
         ],
         'ru' => [
             'abbreviation' => 'RU',
-            'native_name' => 'Russkii',
+            'native_name' => 'Русский',
             'flag' => 'RU',
         ],
         'es' => [
             'abbreviation' => 'ES',
-            'native_name' => 'Espanol',
+            'native_name' => 'Español',
             'flag' => 'ES',
         ],
     ],

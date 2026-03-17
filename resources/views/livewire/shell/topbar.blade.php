@@ -61,12 +61,7 @@
                 </svg>
             </button>
 
-            <button
-                type="button"
-                class="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 shadow-sm"
-            >
-                {{ data_get($locale, 'abbreviation', 'EN') }}
-            </button>
+            @livewire(\App\Livewire\Shell\LanguageSwitcher::class)
 
             <button
                 type="button"
