@@ -98,3 +98,23 @@ it('marks all notifications as read in one action', function () {
 
     expect($user->fresh()->unreadNotifications()->count())->toBe(0);
 });
+
+it('shows only the most recent notifications in the panel', function () {
+    $user = User::factory()->tenant()->create();
+
+    foreach (range(1, 25) as $index) {
+        createShellNotification($user, [
+            'title' => sprintf('Notification-%02d', $index),
+            'message' => sprintf('Notification body %02d', $index),
+        ], now()->subMinutes(26 - $index));
+    }
+
+    $this->actingAs($user);
+
+    Livewire::test(NotificationCenter::class)
+        ->call('togglePanel')
+        ->assertSee('Notification-25')
+        ->assertSee('Notification-06')
+        ->assertDontSee('Notification-05')
+        ->assertDontSee('Notification-01');
+});

@@ -40,7 +40,7 @@ class OrganizationSearchProvider implements GlobalSearchProvider
                 group: $this->key(),
                 label: $organization->name,
                 detail: $organization->owner?->email ?? $organization->slug,
-                typeLabel: data_get(config('tenanto.search.labels'), $this->key(), 'Organizations'),
+                typeLabel: __((string) data_get(config('tenanto.search.labels'), $this->key(), 'shell.search_groups.organizations')),
                 url: route($routeName, $organization),
             ))
             ->all();

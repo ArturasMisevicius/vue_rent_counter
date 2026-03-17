@@ -67,9 +67,11 @@ class NotificationCenter extends Component
         }
 
         $presenter = app(DatabaseNotificationPresenter::class);
+        $panelLimit = (int) config('tenanto.notifications.panel_limit', 20);
 
         return $user->notifications()
             ->latest()
+            ->limit($panelLimit)
             ->get()
             ->map(fn ($notification): array => [
                 'id' => $notification->getKey(),

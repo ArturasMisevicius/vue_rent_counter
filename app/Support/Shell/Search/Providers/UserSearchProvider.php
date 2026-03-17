@@ -39,7 +39,7 @@ class UserSearchProvider implements GlobalSearchProvider
                 group: $this->key(),
                 label: $searchResultUser->name,
                 detail: $searchResultUser->email,
-                typeLabel: data_get(config('tenanto.search.labels'), $this->key(), 'Users'),
+                typeLabel: __((string) data_get(config('tenanto.search.labels'), $this->key(), 'shell.search_groups.users')),
                 url: route($routeName, $searchResultUser),
             ))
             ->all();

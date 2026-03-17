@@ -39,7 +39,15 @@ class GlobalSearchRegistry
         $labels = config('tenanto.search.labels', []);
 
         return collect($this->groupsFor($user))
-            ->mapWithKeys(fn (string $group): array => [$group => data_get($labels, $group, ucfirst(str_replace('_', ' ', $group)))])
+            ->mapWithKeys(function (string $group) use ($labels): array {
+                $labelKey = data_get($labels, $group);
+
+                if (is_string($labelKey) && $labelKey !== '') {
+                    return [$group => __($labelKey)];
+                }
+
+                return [$group => str($group)->replace('_', ' ')->title()->toString()];
+            })
             ->all();
     }
 

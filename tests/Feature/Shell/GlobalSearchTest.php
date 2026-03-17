@@ -118,3 +118,20 @@ it('never includes another organizations users in provider results', function ()
         ->toContain('Alice Acme')
         ->not->toContain('Bob Bravo');
 });
+
+it('localizes search group labels for the current locale', function () {
+    $user = User::factory()->tenant()->create([
+        'locale' => 'lt',
+    ]);
+
+    $this->actingAs($user);
+
+    app()->setLocale('lt');
+
+    Livewire::test(GlobalSearch::class)
+        ->call('openSearch')
+        ->assertSee('Sąskaitos')
+        ->assertSee('Skaitiklių rodmenys')
+        ->assertDontSee('Invoices')
+        ->assertDontSee('Meter Readings');
+});

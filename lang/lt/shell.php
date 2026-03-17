@@ -33,4 +33,14 @@ return [
         'workspace' => 'Darbo erdvė',
         'account' => 'Paskyra',
     ],
+    'search_groups' => [
+        'organizations' => 'Organizacijos',
+        'users' => 'Vartotojai',
+        'buildings' => 'Pastatai',
+        'properties' => 'Objektai',
+        'tenants' => 'Nuomininkai',
+        'meters' => 'Skaitikliai',
+        'meter_readings' => 'Skaitiklių rodmenys',
+        'invoices' => 'Sąskaitos',
+    ],
 ];

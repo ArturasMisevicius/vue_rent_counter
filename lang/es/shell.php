@@ -33,4 +33,14 @@ return [
         'workspace' => 'Espacio de trabajo',
         'account' => 'Cuenta',
     ],
+    'search_groups' => [
+        'organizations' => 'Organizaciones',
+        'users' => 'Usuarios',
+        'buildings' => 'Edificios',
+        'properties' => 'Propiedades',
+        'tenants' => 'Inquilinos',
+        'meters' => 'Contadores',
+        'meter_readings' => 'Lecturas de contadores',
+        'invoices' => 'Facturas',
+    ],
 ];

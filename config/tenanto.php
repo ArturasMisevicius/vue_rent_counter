@@ -27,17 +27,20 @@ return [
         'notifications' => 30,
         'tenant_home' => 120,
     ],
+    'notifications' => [
+        'panel_limit' => 20,
+    ],
     'search' => [
         'debounce' => 300,
         'labels' => [
-            'organizations' => 'Organizations',
-            'users' => 'Users',
-            'buildings' => 'Buildings',
-            'properties' => 'Properties',
-            'tenants' => 'Tenants',
-            'meters' => 'Meters',
-            'meter_readings' => 'Meter Readings',
-            'invoices' => 'Invoices',
+            'organizations' => 'shell.search_groups.organizations',
+            'users' => 'shell.search_groups.users',
+            'buildings' => 'shell.search_groups.buildings',
+            'properties' => 'shell.search_groups.properties',
+            'tenants' => 'shell.search_groups.tenants',
+            'meters' => 'shell.search_groups.meters',
+            'meter_readings' => 'shell.search_groups.meter_readings',
+            'invoices' => 'shell.search_groups.invoices',
         ],
         'groups' => [
             'superadmin' => ['organizations', 'users', 'buildings', 'properties', 'tenants', 'meters', 'invoices'],
