@@ -7,6 +7,7 @@ use App\Enums\UserStatus;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -164,6 +165,26 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(BlockedIpAddress::class, 'blocked_by_user_id');
     }
 
+    public function scopeForSuperadminControlPlane(Builder $query): Builder
+    {
+        return $query
+            ->select([
+                'id',
+                'organization_id',
+                'name',
+                'email',
+                'role',
+                'status',
+                'locale',
+                'last_login_at',
+                'created_at',
+                'updated_at',
+            ])
+            ->with([
+                'organization:id,name',
+            ]);
+    }
+
     public function isSuperadmin(): bool
     {
         return $this->role === UserRole::SUPERADMIN || $this->is_super_admin;
@@ -197,6 +218,13 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->isAdminLike();
+    }
+
+    public function canBeDeletedFromSuperadmin(): bool
+    {
+        return ! $this->actorAuditLogs()
+            ->select(['id', 'actor_user_id'])
+            ->exists();
     }
 
     public function getCurrentPropertyAttribute(): ?Property

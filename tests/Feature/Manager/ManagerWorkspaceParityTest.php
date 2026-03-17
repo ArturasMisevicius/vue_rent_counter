@@ -1,9 +1,14 @@
 <?php
 
 use App\Models\Building;
+use App\Models\Invoice;
+use App\Models\Meter;
+use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\Property;
+use App\Models\Provider;
 use App\Models\Subscription;
+use App\Models\Tariff;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -13,9 +18,18 @@ it('lets managers access the same organization workspace routes as admins', func
     $organization = Organization::factory()->create();
     $building = Building::factory()->for($organization)->create();
     $property = Property::factory()->for($organization)->for($building)->create();
+    $meter = Meter::factory()->for($organization)->for($property)->create();
+    $reading = MeterReading::factory()->for($organization)->for($property)->for($meter)->create();
     $tenant = User::factory()->tenant()->create([
         'organization_id' => $organization->id,
     ]);
+    $invoice = Invoice::factory()
+        ->for($organization)
+        ->for($property)
+        ->for($tenant, 'tenant')
+        ->create();
+    $provider = Provider::factory()->forOrganization($organization)->create();
+    $tariff = Tariff::factory()->for($provider)->create();
     $manager = User::factory()->manager()->create([
         'organization_id' => $organization->id,
     ]);
@@ -40,6 +54,10 @@ it('lets managers access the same organization workspace routes as admins', func
 
     $this->actingAs($manager)
         ->get(route('filament.admin.pages.settings'))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.pages.reports'))
         ->assertSuccessful();
 
     $this->actingAs($manager)
@@ -88,5 +106,77 @@ it('lets managers access the same organization workspace routes as admins', func
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.tenants.edit', $tenant))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.meters.index'))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.meters.create'))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.meters.view', $meter))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.meters.edit', $meter))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.meter-readings.index'))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.meter-readings.create'))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.meter-readings.view', $reading))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.meter-readings.edit', $reading))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.invoices.index'))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.invoices.view', $invoice))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.providers.index'))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.providers.create'))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.providers.view', $provider))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.providers.edit', $provider))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.tariffs.index'))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.tariffs.create'))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.tariffs.view', $tariff))
+        ->assertSuccessful();
+
+    $this->actingAs($manager)
+        ->get(route('filament.admin.resources.tariffs.edit', $tariff))
         ->assertSuccessful();
 });

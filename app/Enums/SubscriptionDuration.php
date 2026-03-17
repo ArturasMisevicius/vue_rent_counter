@@ -8,6 +8,15 @@ enum SubscriptionDuration: string
     case QUARTERLY = 'quarterly';
     case YEARLY = 'yearly';
 
+    public function label(): string
+    {
+        return match ($this) {
+            self::MONTHLY => 'Monthly',
+            self::QUARTERLY => 'Quarterly',
+            self::YEARLY => 'Yearly',
+        };
+    }
+
     public function months(): int
     {
         return match ($this) {

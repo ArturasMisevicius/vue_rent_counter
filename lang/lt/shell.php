@@ -23,6 +23,7 @@ return [
         'items' => [
             'organizations' => 'Organizacijos',
             'profile' => 'Profilis',
+            'reports' => 'Ataskaitos',
             'settings' => 'Nustatymai',
         ],
     ],

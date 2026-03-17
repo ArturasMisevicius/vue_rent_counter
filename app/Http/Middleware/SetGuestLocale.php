@@ -2,26 +2,24 @@
 
 namespace App\Http\Middleware;
 
+use App\Actions\Preferences\ResolveGuestLocaleAction;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class SetGuestLocale
 {
+    public function __construct(
+        private readonly ResolveGuestLocaleAction $resolveGuestLocale,
+    ) {}
+
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->user()) {
             return $next($request);
         }
 
-        $locale = $request->session()->get(
-            config('app.guest_locale_session_key', 'guest_locale'),
-        );
-
-        if (
-            is_string($locale) &&
-            in_array($locale, array_keys(config('app.supported_locales', [])), true)
-        ) {
+        if ($locale = $this->resolveGuestLocale->sessionLocale($request)) {
             app()->setLocale($locale);
         }
 

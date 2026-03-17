@@ -42,7 +42,7 @@ it('filters the invoice history by unpaid status', function () {
         ->get(route('tenant.invoices.index', ['status' => 'unpaid']))
         ->assertSuccessful()
         ->assertSeeText('UNPAID-001')
-        ->assertDontSeeText('PAID-001');
+        ->assertDontSee('>PAID-001<', false);
 });
 
 it('shows an all-paid-up empty state when the tenant has no unpaid invoices', function () {
@@ -56,6 +56,20 @@ it('shows an all-paid-up empty state when the tenant has no unpaid invoices', fu
         ->assertSuccessful()
         ->assertSeeText('All paid up')
         ->assertSeeText('No outstanding invoices are waiting for payment.');
+});
+
+it('shows a localized empty payment guidance state instead of hardcoded fallback instructions', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withUnpaidInvoices(1)
+        ->withoutPaymentInstructions()
+        ->create();
+
+    $this->actingAs($tenant->user)
+        ->get(route('tenant.invoices.index'))
+        ->assertSuccessful()
+        ->assertSeeText('Payment instructions will appear here once your organization updates its billing settings.')
+        ->assertDontSeeText('Contact your building manager for payment instructions.');
 });
 
 it('allows a tenant to download their own invoice document', function () {
@@ -98,4 +112,41 @@ it('forbids downloading another tenants invoice', function () {
     $this->actingAs($tenant->user)
         ->get(route('tenant.invoices.download', $otherInvoice))
         ->assertForbidden();
+});
+
+it('renders invoice history copy in lithuanian for lithuanian tenants', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withUnpaidInvoices(1)
+        ->create();
+
+    $tenant->user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    $this->actingAs($tenant->user->fresh())
+        ->get(route('tenant.invoices.index'))
+        ->assertSuccessful()
+        ->assertSeeText('Sąskaitų istorija')
+        ->assertSeeText('Neapmokėtos')
+        ->assertSeeText('Apmokėtos');
+});
+
+it('renders the invoice billing period with localized copy', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withUnpaidInvoices(1)
+        ->create();
+
+    $invoice = $tenant->invoices->firstOrFail();
+
+    $tenant->user->forceFill([
+        'locale' => 'lt',
+    ])->save();
+
+    $this->actingAs($tenant->user->fresh())
+        ->get(route('tenant.invoices.index'))
+        ->assertSuccessful()
+        ->assertSeeText($invoice->billing_period_start->format('Y-m-d').' iki '.$invoice->billing_period_end->format('Y-m-d'))
+        ->assertDontSeeText($invoice->billing_period_start->format('Y-m-d').' to '.$invoice->billing_period_end->format('Y-m-d'));
 });

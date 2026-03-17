@@ -8,6 +8,15 @@ enum SubscriptionPlan: string
     case PROFESSIONAL = 'professional';
     case ENTERPRISE = 'enterprise';
 
+    public function label(): string
+    {
+        return match ($this) {
+            self::BASIC => 'Basic',
+            self::PROFESSIONAL => 'Professional',
+            self::ENTERPRISE => 'Enterprise',
+        };
+    }
+
     /**
      * @return array{properties: int, tenants: int, meters: int, invoices: int}
      */

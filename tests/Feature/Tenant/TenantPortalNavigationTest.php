@@ -3,6 +3,7 @@
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\TenantPortalFactory;
 
 uses(RefreshDatabase::class);
 
@@ -38,3 +39,14 @@ it('serves the tenant portal route set for authenticated tenants', function (str
     'tenant.invoices.index',
     'tenant.profile.edit',
 ]);
+
+it('keeps the home navigation item active on the secondary property page', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->create();
+
+    $this->actingAs($tenant->user)
+        ->get(route('tenant.property.show'))
+        ->assertSuccessful()
+        ->assertSee('data-shell-current="tenant.home"', false);
+});

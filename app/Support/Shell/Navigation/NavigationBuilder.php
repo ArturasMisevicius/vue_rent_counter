@@ -28,10 +28,30 @@ class NavigationBuilder
     public function tenant(Request $request): array
     {
         return array_values(array_filter([
-            $this->item($request, 'tenant.home', __('tenant.navigation.home')),
-            $this->item($request, 'tenant.readings.create', __('tenant.navigation.readings')),
-            $this->item($request, 'tenant.invoices.index', __('tenant.navigation.invoices')),
-            $this->item($request, 'tenant.profile.edit', __('tenant.navigation.profile')),
+            $this->item(
+                $request,
+                'tenant.home',
+                __('tenant.navigation.home'),
+                ['tenant.home', 'tenant.property.show'],
+            ),
+            $this->item(
+                $request,
+                'tenant.readings.create',
+                __('tenant.navigation.readings'),
+                ['tenant.readings.*'],
+            ),
+            $this->item(
+                $request,
+                'tenant.invoices.index',
+                __('tenant.navigation.invoices'),
+                ['tenant.invoices.*'],
+            ),
+            $this->item(
+                $request,
+                'tenant.profile.edit',
+                __('tenant.navigation.profile'),
+                ['tenant.profile.*'],
+            ),
         ]));
     }
 
@@ -53,7 +73,10 @@ class NavigationBuilder
         );
     }
 
-    protected function item(Request $request, string $routeName, string $label): ?NavigationItemData
+    /**
+     * @param  list<string>|null  $activePatterns
+     */
+    protected function item(Request $request, string $routeName, string $label, ?array $activePatterns = null): ?NavigationItemData
     {
         if (! Route::has($routeName)) {
             return null;
@@ -63,7 +86,7 @@ class NavigationBuilder
             label: $label,
             url: route($routeName),
             routeName: $routeName,
-            active: $request->routeIs($routeName),
+            active: $request->routeIs(...($activePatterns ?? [$routeName])),
         );
     }
 

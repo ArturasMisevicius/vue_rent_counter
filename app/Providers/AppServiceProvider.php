@@ -17,6 +17,10 @@ use App\Support\Auth\ImpersonationManager;
 use App\Support\Shell\Search\GlobalSearchRegistry;
 use App\Support\Shell\Search\Providers\OrganizationSearchProvider;
 use App\Support\Shell\Search\Providers\UserSearchProvider;
+use App\Support\Superadmin\Integration\IntegrationProbeRegistry;
+use App\Support\Superadmin\Integration\Probes\DatabaseProbe;
+use App\Support\Superadmin\Integration\Probes\MailProbe;
+use App\Support\Superadmin\Integration\Probes\QueueProbe;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -28,6 +32,13 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(AuditLogger::class);
         $this->app->singleton(ImpersonationManager::class);
+        $this->app->singleton(IntegrationProbeRegistry::class, function ($app): IntegrationProbeRegistry {
+            return new IntegrationProbeRegistry([
+                $app->make(DatabaseProbe::class),
+                $app->make(QueueProbe::class),
+                $app->make(MailProbe::class),
+            ]);
+        });
 
         $this->app->singleton(GlobalSearchRegistry::class, function ($app): GlobalSearchRegistry {
             return new GlobalSearchRegistry([

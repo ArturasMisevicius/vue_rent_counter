@@ -53,7 +53,7 @@ class SubmitReadingPage extends Component
                 notes: filled($validated['notes']) ? $validated['notes'] : null,
             );
         } catch (AuthorizationException) {
-            $this->addError('meterId', 'This meter is not available in your tenant portal.');
+            $this->addError('meterId', __('tenant.pages.readings.unauthorized_meter'));
 
             return;
         } catch (ValidationException $exception) {
@@ -65,7 +65,7 @@ class SubmitReadingPage extends Component
         $reading->loadMissing('meter:id,name,identifier,unit');
 
         $this->reset('readingValue', 'notes');
-        $this->successMessage = 'Reading Submitted!';
+        $this->successMessage = __('tenant.pages.readings.success');
         $this->submittedReading = [
             'meter_identifier' => (string) ($reading->meter?->identifier ?? ''),
             'meter_name' => (string) ($reading->meter?->name ?? ''),
@@ -125,7 +125,7 @@ class SubmitReadingPage extends Component
 
         if ($previousReading === null) {
             return [
-                'message' => 'This will be the first reading recorded for this meter.',
+                'message' => __('tenant.pages.readings.first_reading'),
                 'delta' => null,
             ];
         }
@@ -133,7 +133,11 @@ class SubmitReadingPage extends Component
         $delta = (float) $this->readingValue - (float) $previousReading->reading_value;
 
         return [
-            'message' => 'Previous reading: '.number_format((float) $previousReading->reading_value, 3).' '.$selectedMeter->unit.' on '.$previousReading->reading_date->format('Y-m-d'),
+            'message' => __('tenant.pages.readings.previous_reading', [
+                'value' => number_format((float) $previousReading->reading_value, 3),
+                'unit' => $selectedMeter->unit,
+                'date' => $previousReading->reading_date->format('Y-m-d'),
+            ]),
             'delta' => number_format($delta, 3),
         ];
     }
@@ -143,7 +147,8 @@ class SubmitReadingPage extends Component
      */
     protected function availableMeters(): Collection
     {
-        $propertyId = $this->tenant()->currentPropertyAssignment?->property_id;
+        $tenant = $this->tenant();
+        $propertyId = $tenant->currentPropertyAssignment?->property_id;
 
         if ($propertyId === null) {
             return collect();
@@ -152,8 +157,11 @@ class SubmitReadingPage extends Component
         return Meter::query()
             ->select(['id', 'organization_id', 'property_id', 'name', 'identifier', 'type', 'status', 'unit'])
             ->with([
-                'latestReading:id,meter_id,reading_value,reading_date,validation_status',
+                'latestReading' => fn ($query) => $query
+                    ->select(['id', 'organization_id', 'meter_id', 'reading_value', 'reading_date', 'validation_status'])
+                    ->where('organization_id', $tenant->organization_id),
             ])
+            ->where('organization_id', $tenant->organization_id)
             ->where('property_id', $propertyId)
             ->orderBy('name')
             ->get();
@@ -161,12 +169,17 @@ class SubmitReadingPage extends Component
 
     protected function tenant(): User
     {
-        return User::query()
+        $tenantId = auth()->id();
+        $tenant = User::query()
             ->select(['id', 'organization_id', 'role'])
-            ->with([
-                'currentPropertyAssignment:id,property_id,tenant_user_id,assigned_at,unassigned_at',
-            ])
-            ->findOrFail(auth()->id());
+            ->findOrFail($tenantId);
+
+        return $tenant->load([
+            'currentPropertyAssignment' => fn ($query) => $query
+                ->select(['id', 'organization_id', 'property_id', 'tenant_user_id', 'assigned_at', 'unassigned_at'])
+                ->where('organization_id', $tenant->organization_id)
+                ->whereNull('unassigned_at'),
+        ]);
     }
 
     protected function mapDomainErrors(ValidationException $exception): void

@@ -4,9 +4,11 @@ namespace App\Filament\Resources\Properties\Tables;
 
 use App\Actions\Admin\Properties\DeletePropertyAction;
 use App\Enums\PropertyType;
+use App\Filament\Resources\Properties\PropertyResource;
 use App\Models\Building;
 use App\Models\Property;
 use App\Support\Admin\OrganizationContext;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -66,12 +68,60 @@ class PropertiesTable
                             ->all(),
                     ),
             ])
+            ->emptyStateHeading(__('admin.properties.empty_state.heading'))
+            ->emptyStateDescription(__('admin.properties.empty_state.description'))
+            ->emptyStateActions(
+                PropertyResource::shouldShowBlockedCreateAction('properties')
+                    ? [
+                        PropertyResource::makeSubscriptionInfoAction(
+                            name: 'create',
+                            resource: 'properties',
+                            label: __('admin.properties.empty_state.action'),
+                        ),
+                    ]
+                    : (
+                        PropertyResource::canCreate()
+                            ? [
+                                Action::make('createProperty')
+                                    ->label(__('admin.properties.empty_state.action'))
+                                    ->url(PropertyResource::getUrl('create'))
+                                    ->icon('heroicon-m-plus')
+                                    ->button(),
+                            ]
+                            : []
+                    ),
+            )
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make()
-                    ->using(fn (Property $record) => app(DeletePropertyAction::class)->handle($record))
-                    ->authorize(fn (Property $record): bool => auth()->user()?->can('delete', $record) ?? false),
+                ...(
+                    PropertyResource::shouldInterceptGraceEditAction()
+                        ? [
+                            PropertyResource::makeSubscriptionInfoAction(
+                                name: 'edit',
+                                resource: 'properties',
+                                label: __('filament-actions::edit.single.label', [
+                                    'label' => PropertyResource::getModelLabel(),
+                                ]),
+                            ),
+                        ]
+                        : (
+                            PropertyResource::hidesSubscriptionWriteActions()
+                                ? []
+                                : [
+                                    EditAction::make(),
+                                ]
+                        )
+                ),
+                ...(
+                    PropertyResource::canMutateSubscriptionScopedRecords()
+                        ? [
+                            DeleteAction::make()
+                                ->using(fn (Property $record) => app(DeletePropertyAction::class)->handle($record))
+                                ->authorize(fn (Property $record): bool => PropertyResource::canDelete($record)
+                                    && (auth()->user()?->can('delete', $record) ?? false)),
+                        ]
+                        : []
+                ),
             ])
             ->defaultSort('name');
     }

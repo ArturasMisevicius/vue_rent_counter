@@ -38,7 +38,18 @@ class CreateMeterReadingAction
             'reading_date' => $readingDate,
             'validation_status' => $validation->status,
             'submission_method' => $submissionMethod,
-            'notes' => $notes,
+            'notes' => $this->mergeNotes($notes, $validation->notesAsText()),
         ]);
+    }
+
+    private function mergeNotes(?string ...$notes): ?string
+    {
+        $compiledNotes = array_values(array_filter($notes, fn (?string $note): bool => filled($note)));
+
+        if ($compiledNotes === []) {
+            return null;
+        }
+
+        return implode("\n", $compiledNotes);
     }
 }

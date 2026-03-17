@@ -13,11 +13,16 @@ use Illuminate\Validation\ValidationException;
 class CreateOrganizationInvitationAction
 {
     /**
-     * @param  array{email: string, role: UserRole, full_name?: string|null}  $attributes
+     * @param  array{
+     *     email: string,
+     *     role: UserRole,
+     *     full_name?: string|null,
+     *     existing_user_id?: int|null
+     * }  $attributes
      */
     public function handle(User $inviter, array $attributes): OrganizationInvitation
     {
-        if (! $inviter->isAdmin() || blank($inviter->organization_id)) {
+        if ((! $inviter->isAdmin() && ! $inviter->isManager()) || blank($inviter->organization_id)) {
             throw ValidationException::withMessages([
                 'email' => __('auth.invitation_not_allowed'),
             ]);
@@ -29,7 +34,35 @@ class CreateOrganizationInvitationAction
             ]);
         }
 
-        if (User::query()->where('email', $attributes['email'])->exists()) {
+        if ($attributes['role'] === UserRole::MANAGER && ! $inviter->isAdmin()) {
+            throw ValidationException::withMessages([
+                'role' => __('validation.in', ['attribute' => 'role']),
+            ]);
+        }
+
+        $existingUserId = $attributes['existing_user_id'] ?? null;
+        $existingUser = null;
+
+        if ($existingUserId !== null) {
+            $existingUser = User::query()
+                ->select(['id', 'organization_id', 'email', 'role'])
+                ->find($existingUserId);
+        }
+
+        if (
+            $existingUser !== null
+            && (
+                $existingUser->organization_id !== $inviter->organization_id
+                || $existingUser->email !== $attributes['email']
+                || $existingUser->role !== $attributes['role']
+            )
+        ) {
+            throw ValidationException::withMessages([
+                'email' => __('auth.invitation_email_exists'),
+            ]);
+        }
+
+        if ($existingUser === null && User::query()->where('email', $attributes['email'])->exists()) {
             throw ValidationException::withMessages([
                 'email' => __('auth.invitation_email_exists'),
             ]);

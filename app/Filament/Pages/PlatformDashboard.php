@@ -22,14 +22,105 @@ class PlatformDashboard extends Page
         return __('dashboard.title');
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return __('dashboard.title');
+    }
+
     /**
-     * @return array{metrics: array<int, array{label: string, value: string}>}
+     * @return array{
+     *     metrics: array<int, array{label: string, value: string}>,
+     *     revenueByPlan: array<int, array{plan: string, amount: string}>,
+     *     expiringSubscriptions: array<int, array{organization: string, plan: string, expires_at: string}>,
+     *     recentSecurityViolations: array<int, array{organization: string, summary: string, severity: string}>,
+     *     recentOrganizations: array<int, array{name: string, slug: string}>
+     * }
      */
     protected function getViewData(): array
     {
         $revenue = (float) SubscriptionPayment::query()
             ->whereBetween('paid_at', [now()->startOfMonth(), now()->endOfMonth()])
             ->sum('amount');
+
+        $revenueByPlan = SubscriptionPayment::query()
+            ->select([
+                'id',
+                'subscription_id',
+                'amount',
+                'paid_at',
+            ])
+            ->with([
+                'subscription:id,plan',
+            ])
+            ->whereBetween('paid_at', [now()->startOfMonth(), now()->endOfMonth()])
+            ->get()
+            ->groupBy(fn (SubscriptionPayment $payment): string => $payment->subscription?->plan?->label() ?? __('dashboard.not_available'))
+            ->map(fn ($payments, string $plan): array => [
+                'plan' => $plan,
+                'amount' => 'EUR '.number_format((float) $payments->sum('amount'), 2),
+            ])
+            ->values()
+            ->all();
+
+        $expiringSubscriptions = Subscription::query()
+            ->select([
+                'id',
+                'organization_id',
+                'plan',
+                'status',
+                'expires_at',
+            ])
+            ->with([
+                'organization:id,name',
+            ])
+            ->where('status', SubscriptionStatus::ACTIVE)
+            ->whereBetween('expires_at', [now(), now()->addDays(30)])
+            ->orderBy('expires_at')
+            ->limit(5)
+            ->get()
+            ->map(fn (Subscription $subscription): array => [
+                'organization' => $subscription->organization?->name ?? __('dashboard.not_available'),
+                'plan' => $subscription->plan?->label() ?? __('dashboard.not_available'),
+                'expires_at' => $subscription->expires_at?->toDateString() ?? __('dashboard.not_available'),
+            ])
+            ->all();
+
+        $recentSecurityViolations = SecurityViolation::query()
+            ->select([
+                'id',
+                'organization_id',
+                'severity',
+                'summary',
+                'occurred_at',
+            ])
+            ->with([
+                'organization:id,name',
+            ])
+            ->latest('occurred_at')
+            ->limit(5)
+            ->get()
+            ->map(fn (SecurityViolation $violation): array => [
+                'organization' => $violation->organization?->name ?? __('dashboard.not_available'),
+                'summary' => $violation->summary,
+                'severity' => ucfirst((string) ($violation->severity->value ?? $violation->severity)),
+            ])
+            ->all();
+
+        $recentOrganizations = Organization::query()
+            ->select([
+                'id',
+                'name',
+                'slug',
+                'created_at',
+            ])
+            ->latest('created_at')
+            ->limit(5)
+            ->get()
+            ->map(fn (Organization $organization): array => [
+                'name' => $organization->name,
+                'slug' => $organization->slug,
+            ])
+            ->all();
 
         return [
             'metrics' => [
@@ -54,12 +145,11 @@ class PlatformDashboard extends Page
                         ->count(),
                 ],
             ],
+            'revenueByPlan' => $revenueByPlan,
+            'expiringSubscriptions' => $expiringSubscriptions,
+            'recentSecurityViolations' => $recentSecurityViolations,
+            'recentOrganizations' => $recentOrganizations,
         ];
-    }
-
-    public static function getNavigationLabel(): string
-    {
-        return __('dashboard.title');
     }
 
     public static function canAccess(): bool

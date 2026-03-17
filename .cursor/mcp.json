@@ -1,13 +1,5 @@
 {
     "mcpServers": {
-        "laravel-mcp": {
-            "command": "php",
-            "args": [
-                "artisan",
-                "mcp:start",
-                "tenanto"
-            ]
-        },
         "herd": {
             "command": "php",
             "args": [
@@ -16,20 +8,6 @@
             "env": {
                 "SITE_PATH": "/Users/andrejprus/Herd/tenanto"
             }
-        },
-        "laravel-boost": {
-            "command": "php",
-            "args": [
-                "artisan",
-                "boost:mcp"
-            ]
-        },
-        "gptr-mcp": {
-            "command": "bash",
-            "args": [
-                "scripts/gptr-mcp.sh"
-            ],
-            "cwd": "/Users/andrejprus/Herd/tenanto"
         },
         "context7": {
             "command": "npx",
@@ -101,9 +79,6 @@
             "env": {
                 "TASK_MASTER_TOOLS": "standard"
             }
-        },
-        "mindsdb": {
-            "url": "http://127.0.0.1:47334/mcp/sse"
         }
     }
 }

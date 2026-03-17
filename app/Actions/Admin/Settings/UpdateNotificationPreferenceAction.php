@@ -4,9 +4,14 @@ namespace App\Actions\Admin\Settings;
 
 use App\Models\Organization;
 use App\Models\OrganizationSetting;
+use App\Support\Admin\SubscriptionLimitGuard;
 
 class UpdateNotificationPreferenceAction
 {
+    public function __construct(
+        private readonly SubscriptionLimitGuard $subscriptionLimitGuard,
+    ) {}
+
     /**
      * @return array{invoice_reminders: bool, reading_deadline_alerts: bool}
      */
@@ -23,6 +28,8 @@ class UpdateNotificationPreferenceAction
      */
     public function handle(Organization $organization, array $preferences): OrganizationSetting
     {
+        $this->subscriptionLimitGuard->ensureCanWrite($organization);
+
         /** @var OrganizationSetting $settings */
         $settings = OrganizationSetting::query()->firstOrCreate(
             [

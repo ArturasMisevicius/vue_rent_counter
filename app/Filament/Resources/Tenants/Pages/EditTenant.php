@@ -37,6 +37,7 @@ class EditTenant extends EditRecord
         return [
             ViewAction::make(),
             DeleteAction::make()
+                ->visible(fn (): bool => TenantResource::canDelete($this->record))
                 ->using(fn (User $record) => app(DeleteTenantAction::class)->handle($record)),
         ];
     }

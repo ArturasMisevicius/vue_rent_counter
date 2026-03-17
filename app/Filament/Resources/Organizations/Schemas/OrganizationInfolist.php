@@ -13,7 +13,7 @@ class OrganizationInfolist
     {
         return $schema
             ->components([
-                Section::make(__('superadmin.organizations.sections.profile'))
+                Section::make('Organization Overview')
                     ->schema([
                         TextEntry::make('name')
                             ->label(__('superadmin.organizations.columns.name')),

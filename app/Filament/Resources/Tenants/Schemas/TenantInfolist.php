@@ -38,7 +38,7 @@ class TenantInfolist
                         TextEntry::make('currentPropertyAssignment.assigned_at')
                             ->label(__('admin.tenants.fields.assigned_since'))
                             ->dateTime()
-                            ->default(__('admin.tenants.empty.never')),
+                            ->placeholder(__('admin.tenants.empty.never')),
                     ])
                     ->columns(3),
                 Section::make(__('admin.tenants.sections.invoice_history'))

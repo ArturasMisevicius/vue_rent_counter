@@ -11,6 +11,18 @@
             <p class="text-sm text-slate-600">{{ __('auth.login_subtitle') }}</p>
         </div>
 
+        @if (session('status'))
+            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+                {{ session('status') }}
+            </div>
+        @endif
+
+        @if (session()->has('auth.session_expired'))
+            <div class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+                {{ session('auth.session_expired') }}
+            </div>
+        @endif
+
         @if (filled($loginError))
             <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
                 {{ $loginError }}

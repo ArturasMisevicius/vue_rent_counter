@@ -32,6 +32,7 @@ class TenantInvoiceIndexQuery
                 'property:id,organization_id,building_id,name,unit_number,type,floor_area_sqm',
                 'property.building:id,organization_id,name,address_line_1,address_line_2,city,postal_code,country_code',
             ])
+            ->where('organization_id', $tenant->organization_id)
             ->where('tenant_user_id', $tenant->id)
             ->orderByDesc('billing_period_start')
             ->orderByDesc('id');

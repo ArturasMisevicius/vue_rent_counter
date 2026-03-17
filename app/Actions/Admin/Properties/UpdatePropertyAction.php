@@ -4,13 +4,20 @@ namespace App\Actions\Admin\Properties;
 
 use App\Enums\PropertyType;
 use App\Models\Property;
+use App\Support\Admin\SubscriptionLimitGuard;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class UpdatePropertyAction
 {
+    public function __construct(
+        private readonly SubscriptionLimitGuard $subscriptionLimitGuard,
+    ) {}
+
     public function handle(Property $property, array $data): Property
     {
+        $this->subscriptionLimitGuard->ensureCanWrite($property->organization_id);
+
         $validated = $this->validate($property->organization_id, $data);
 
         $property->update($validated);

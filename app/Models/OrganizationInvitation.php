@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use Database\Factories\OrganizationInvitationFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -41,6 +42,25 @@ class OrganizationInvitation extends Model
     public function inviter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'inviter_user_id');
+    }
+
+    public function scopeForAcceptancePortal(Builder $query): Builder
+    {
+        return $query
+            ->select([
+                'id',
+                'organization_id',
+                'inviter_user_id',
+                'email',
+                'role',
+                'full_name',
+                'token',
+                'expires_at',
+                'accepted_at',
+            ])
+            ->with([
+                'organization:id,name',
+            ]);
     }
 
     public function isAccepted(): bool

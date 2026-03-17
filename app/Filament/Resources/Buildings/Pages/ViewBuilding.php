@@ -9,6 +9,14 @@ class ViewBuilding extends ViewRecord
 {
     protected static string $resource = BuildingResource::class;
 
+    public function getBreadcrumbs(): array
+    {
+        return [
+            BuildingResource::getUrl('index') => BuildingResource::getPluralModelLabel(),
+            $this->record->name,
+        ];
+    }
+
     public function getTitle(): string
     {
         return __('admin.buildings.view_title');

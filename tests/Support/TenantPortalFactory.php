@@ -33,6 +33,16 @@ class TenantPortalFactory
 
     protected ?string $paymentInstructions = null;
 
+    protected ?string $invoiceFooter = null;
+
+    protected bool $seedDefaultPaymentInstructions = true;
+
+    protected ?string $billingContactName = null;
+
+    protected ?string $billingContactEmail = null;
+
+    protected ?string $billingContactPhone = null;
+
     public static function new(): self
     {
         return new self;
@@ -90,7 +100,37 @@ class TenantPortalFactory
 
     public function withPaymentInstructions(string $instructions = 'Pay by bank transfer or at the office.'): self
     {
+        $this->seedDefaultPaymentInstructions = false;
         $this->paymentInstructions = $instructions;
+
+        return $this;
+    }
+
+    public function withInvoiceFooter(string $invoiceFooter): self
+    {
+        $this->seedDefaultPaymentInstructions = false;
+        $this->invoiceFooter = $invoiceFooter;
+
+        return $this;
+    }
+
+    public function withoutPaymentInstructions(): self
+    {
+        $this->seedDefaultPaymentInstructions = false;
+        $this->paymentInstructions = null;
+        $this->invoiceFooter = null;
+
+        return $this;
+    }
+
+    public function withBillingContact(
+        ?string $name = 'Billing Team',
+        ?string $email = 'billing@example.com',
+        ?string $phone = '+37060000000',
+    ): self {
+        $this->billingContactName = $name;
+        $this->billingContactEmail = $email;
+        $this->billingContactPhone = $phone;
 
         return $this;
     }
@@ -114,7 +154,13 @@ class TenantPortalFactory
         ]);
 
         $settings = OrganizationSetting::factory()->for($organization)->create([
-            'payment_instructions' => $this->paymentInstructions ?? 'Pay by bank transfer or at the office.',
+            'billing_contact_name' => $this->billingContactName,
+            'billing_contact_email' => $this->billingContactEmail,
+            'billing_contact_phone' => $this->billingContactPhone,
+            'payment_instructions' => $this->seedDefaultPaymentInstructions
+                ? 'Pay by bank transfer or at the office.'
+                : $this->paymentInstructions,
+            'invoice_footer' => $this->invoiceFooter,
         ]);
 
         if ($this->createAssignment) {

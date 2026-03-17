@@ -1,28 +1,13 @@
 {
     "mcpServers": {
-        "laravel-mcp": {
-            "command": "php",
-            "args": [
-                "artisan",
-                "mcp:start",
-                "tenanto"
-            ]
-        },
         "herd": {
             "command": "php",
             "args": [
-                "C:/Users/andre/.config/herd/bin/herd-mcp.phar"
+                "/Applications/Herd.app/Contents/Resources/herd-mcp.phar"
             ],
             "env": {
-                "SITE_PATH": "C:\\Dropbox\\projects\\tenanto"
+                "SITE_PATH": "/Users/andrejprus/Herd/tenanto"
             }
-        },
-        "laravel-boost": {
-            "command": "php",
-            "args": [
-                "artisan",
-                "boost:mcp"
-            ]
         }
     }
 }

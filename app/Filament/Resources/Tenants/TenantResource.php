@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Tenants;
 
+use App\Filament\Concerns\InteractsWithSubscriptionEnforcement;
 use App\Filament\Resources\Tenants\Pages\CreateTenant;
 use App\Filament\Resources\Tenants\Pages\EditTenant;
 use App\Filament\Resources\Tenants\Pages\ListTenants;
@@ -11,7 +12,6 @@ use App\Filament\Resources\Tenants\Schemas\TenantInfolist;
 use App\Filament\Resources\Tenants\Tables\TenantsTable;
 use App\Models\User;
 use App\Support\Admin\OrganizationContext;
-use App\Support\Admin\SubscriptionLimitGuard;
 use BackedEnum;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
@@ -23,6 +23,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class TenantResource extends Resource
 {
+    use InteractsWithSubscriptionEnforcement;
+
     protected static bool $shouldRegisterNavigation = false;
 
     protected static bool $shouldCheckPolicyExistence = false;
@@ -113,7 +115,7 @@ class TenantResource extends Resource
             return false;
         }
 
-        return app(SubscriptionLimitGuard::class)->canCreateTenant($organizationId);
+        return ! static::getSubscriptionAccessState()->blocksCreation('tenants');
     }
 
     public static function canView(Model $record): bool
@@ -128,12 +130,13 @@ class TenantResource extends Resource
 
     public static function canEdit(Model $record): bool
     {
-        return static::canView($record);
+        return static::canView($record)
+            && static::canMutateSubscriptionScopedRecords();
     }
 
     public static function canDelete(Model $record): bool
     {
-        return static::canView($record);
+        return static::canEdit($record);
     }
 
     public static function getRelations(): array

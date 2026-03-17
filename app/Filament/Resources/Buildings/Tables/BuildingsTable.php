@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\Buildings\Tables;
 
 use App\Actions\Admin\Buildings\DeleteBuildingAction;
+use App\Filament\Resources\Buildings\BuildingResource;
 use App\Models\Building;
 use App\Support\Admin\OrganizationContext;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -48,6 +50,15 @@ class BuildingsTable
                         ->orderBy('city')
                         ->pluck('city', 'city')
                         ->all()),
+            ])
+            ->emptyStateHeading(__('admin.buildings.empty_state.heading'))
+            ->emptyStateDescription(__('admin.buildings.empty_state.description'))
+            ->emptyStateActions([
+                Action::make('createBuilding')
+                    ->label(__('admin.buildings.empty_state.action'))
+                    ->url(BuildingResource::getUrl('create'))
+                    ->icon('heroicon-m-plus')
+                    ->button(),
             ])
             ->recordActions([
                 ViewAction::make(),

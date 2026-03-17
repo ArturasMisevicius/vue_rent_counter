@@ -12,6 +12,22 @@ class ListTenants extends ListRecords
 
     protected function getHeaderActions(): array
     {
+        if (TenantResource::shouldShowBlockedCreateAction('tenants')) {
+            return [
+                TenantResource::makeSubscriptionInfoAction(
+                    name: 'create',
+                    resource: 'tenants',
+                    label: __('filament-actions::create.single.label', [
+                        'label' => TenantResource::getModelLabel(),
+                    ]),
+                ),
+            ];
+        }
+
+        if (! TenantResource::canCreate()) {
+            return [];
+        }
+
         return [
             CreateAction::make(),
         ];

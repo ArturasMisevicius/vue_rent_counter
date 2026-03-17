@@ -3,16 +3,13 @@
 namespace App\Actions\Admin\Tenants;
 
 use App\Actions\Admin\Properties\AssignTenantToPropertyAction;
+use App\Actions\Auth\CreateOrganizationInvitationAction;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
-use App\Models\OrganizationInvitation;
 use App\Models\Property;
 use App\Models\User;
-use App\Notifications\Auth\OrganizationInvitationNotification;
 use App\Support\Admin\SubscriptionLimitGuard;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -22,6 +19,7 @@ class CreateTenantAction
     public function __construct(
         private readonly SubscriptionLimitGuard $subscriptionLimitGuard,
         private readonly AssignTenantToPropertyAction $assignTenantToPropertyAction,
+        private readonly CreateOrganizationInvitationAction $createOrganizationInvitationAction,
     ) {}
 
     public function handle(User $actor, array $data): User
@@ -44,23 +42,15 @@ class CreateTenantAction
                 'role' => UserRole::TENANT,
                 'status' => $validated['status'],
                 'locale' => $validated['locale'],
-                'password' => Hash::make(Str::random(32)),
+                'password' => Str::random(32),
             ]);
 
-            $invitation = OrganizationInvitation::query()->create([
-                'organization_id' => $actor->organization_id,
-                'inviter_user_id' => $actor->id,
+            $this->createOrganizationInvitationAction->handle($actor, [
                 'email' => $tenant->email,
                 'role' => UserRole::TENANT,
                 'full_name' => $tenant->name,
-                'token' => (string) Str::uuid(),
-                'expires_at' => now()->addDays(7),
-                'accepted_at' => null,
+                'existing_user_id' => $tenant->id,
             ]);
-
-            Notification::route('mail', $invitation->email)
-                ->notify(new OrganizationInvitationNotification($invitation));
-
             if ($validated['property'] !== null) {
                 $this->assignTenantToPropertyAction->handle(
                     $validated['property'],

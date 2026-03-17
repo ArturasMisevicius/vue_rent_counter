@@ -2,13 +2,16 @@
     <h3 class="text-lg font-semibold text-slate-950">{{ __('shell.profile.personal_information.heading') }}</h3>
     <p class="mt-2 text-sm leading-6 text-slate-600">{{ __('shell.profile.personal_information.description') }}</p>
 
+    @php($profileNameValue = htmlspecialchars($profileForm['name'], ENT_COMPAT, 'UTF-8', false))
+    @php($profileEmailValue = htmlspecialchars($profileForm['email'], ENT_COMPAT, 'UTF-8', false))
+
     <form wire:submit="saveProfile" class="mt-5 grid gap-4 md:grid-cols-2">
         <label class="space-y-2 text-sm font-medium text-slate-700">
             <span>{{ __('shell.profile.fields.name') }}</span>
             <input
                 type="text"
                 wire:model="profileForm.name"
-                value="{{ $profileForm['name'] }}"
+                value="{!! $profileNameValue !!}"
                 class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900"
             >
         </label>
@@ -18,7 +21,7 @@
             <input
                 type="email"
                 wire:model="profileForm.email"
-                value="{{ $profileForm['email'] }}"
+                value="{!! $profileEmailValue !!}"
                 class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900"
             >
         </label>

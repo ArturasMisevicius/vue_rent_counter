@@ -3,25 +3,22 @@
 namespace App\Support\Admin;
 
 use App\Models\Organization;
-use App\Models\Property;
-use App\Models\Subscription;
-use App\Models\User;
+use App\Support\Admin\SubscriptionEnforcement\OrganizationSubscriptionAccess;
+use App\Support\Admin\SubscriptionEnforcement\SubscriptionEnforcementMessage;
 use Illuminate\Validation\ValidationException;
 
 class SubscriptionLimitGuard
 {
+    public function __construct(
+        private readonly OrganizationSubscriptionAccess $organizationSubscriptionAccess,
+        private readonly SubscriptionEnforcementMessage $subscriptionEnforcementMessage,
+    ) {}
+
     public function canCreateProperty(Organization|int $organization): bool
     {
-        $organizationId = $organization instanceof Organization ? $organization->id : $organization;
-        $limit = $this->propertyLimitFor($organizationId);
-
-        if ($limit === null) {
-            return true;
-        }
-
-        return Property::query()
-            ->where('organization_id', $organizationId)
-            ->count() < $limit;
+        return ! $this->organizationSubscriptionAccess
+            ->forOrganization($organization)
+            ->blocksCreation('properties');
     }
 
     public function ensureCanCreateProperty(Organization|int $organization): void
@@ -30,24 +27,21 @@ class SubscriptionLimitGuard
             return;
         }
 
+        $message = $this->subscriptionEnforcementMessage->forResource(
+            'properties',
+            $this->organizationSubscriptionAccess->forOrganization($organization),
+        );
+
         throw ValidationException::withMessages([
-            'property' => __('admin.properties.messages.limit_reached'),
+            'property' => $message['body'],
         ]);
     }
 
     public function canCreateTenant(Organization|int $organization): bool
     {
-        $organizationId = $organization instanceof Organization ? $organization->id : $organization;
-        $limit = $this->tenantLimitFor($organizationId);
-
-        if ($limit === null) {
-            return true;
-        }
-
-        return User::query()
-            ->where('organization_id', $organizationId)
-            ->where('role', 'tenant')
-            ->count() < $limit;
+        return ! $this->organizationSubscriptionAccess
+            ->forOrganization($organization)
+            ->blocksCreation('tenants');
     }
 
     public function ensureCanCreateTenant(Organization|int $organization): void
@@ -56,42 +50,36 @@ class SubscriptionLimitGuard
             return;
         }
 
+        $message = $this->subscriptionEnforcementMessage->forResource(
+            'tenants',
+            $this->organizationSubscriptionAccess->forOrganization($organization),
+        );
+
         throw ValidationException::withMessages([
-            'tenant' => __('admin.tenants.messages.limit_reached'),
+            'tenant' => $message['body'],
         ]);
     }
 
-    private function propertyLimitFor(int $organizationId): ?int
+    public function canWrite(Organization|int $organization): bool
     {
-        return Subscription::query()
-            ->select([
-                'id',
-                'organization_id',
-                'property_limit_snapshot',
-                'starts_at',
-                'status',
-            ])
-            ->where('organization_id', $organizationId)
-            ->whereIn('status', ['trialing', 'active'])
-            ->orderByDesc('starts_at')
-            ->orderByDesc('id')
-            ->value('property_limit_snapshot');
+        return $this->organizationSubscriptionAccess
+            ->forOrganization($organization)
+            ->canWrite();
     }
 
-    private function tenantLimitFor(int $organizationId): ?int
+    public function ensureCanWrite(Organization|int $organization): void
     {
-        return Subscription::query()
-            ->select([
-                'id',
-                'organization_id',
-                'tenant_limit_snapshot',
-                'starts_at',
-                'status',
-            ])
-            ->where('organization_id', $organizationId)
-            ->whereIn('status', ['trialing', 'active'])
-            ->orderByDesc('starts_at')
-            ->orderByDesc('id')
-            ->value('tenant_limit_snapshot');
+        if ($this->canWrite($organization)) {
+            return;
+        }
+
+        $message = $this->subscriptionEnforcementMessage->forResource(
+            'properties',
+            $this->organizationSubscriptionAccess->forOrganization($organization),
+        );
+
+        throw ValidationException::withMessages([
+            'subscription' => $message['body'],
+        ]);
     }
 }

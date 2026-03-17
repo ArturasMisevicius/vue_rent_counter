@@ -23,6 +23,7 @@ return [
         'items' => [
             'organizations' => 'Organizations',
             'profile' => 'Profile',
+            'reports' => 'Reports',
             'settings' => 'Settings',
         ],
     ],

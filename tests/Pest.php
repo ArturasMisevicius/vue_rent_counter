@@ -1,6 +1,32 @@
 <?php
 
+use Carbon\Carbon;
 use Tests\TestCase;
 
 pest()->extend(TestCase::class)
     ->in('Feature');
+
+beforeEach(function (): void {
+    Carbon::setTestNow();
+
+    config()->set('app.supported_locales', [
+        'en' => 'EN',
+        'lt' => 'LT',
+        'es' => 'ES',
+        'ru' => 'RU',
+    ]);
+
+    config()->set('tenanto.locales', [
+        'en' => 'English',
+        'lt' => 'Lietuvių',
+        'es' => 'Español',
+        'ru' => 'Русский',
+    ]);
+
+    app()->setLocale(config('app.locale', 'en'));
+});
+
+afterEach(function (): void {
+    Carbon::setTestNow();
+    app()->setLocale(config('app.locale', 'en'));
+});

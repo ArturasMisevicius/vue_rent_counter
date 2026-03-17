@@ -7,6 +7,7 @@ use App\Enums\UserStatus;
 use App\Models\OrganizationInvitation;
 use App\Models\Property;
 use App\Models\User;
+use App\Support\Admin\SubscriptionLimitGuard;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -15,10 +16,13 @@ class UpdateTenantAction
 {
     public function __construct(
         private readonly AssignTenantToPropertyAction $assignTenantToPropertyAction,
+        private readonly SubscriptionLimitGuard $subscriptionLimitGuard,
     ) {}
 
     public function handle(User $tenant, array $data): User
     {
+        $this->subscriptionLimitGuard->ensureCanWrite($tenant->organization_id);
+
         $validated = $this->validate($tenant, $data);
 
         return DB::transaction(function () use ($tenant, $validated): User {

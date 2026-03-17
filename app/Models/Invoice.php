@@ -59,7 +59,6 @@ class Invoice extends Model
             'paid_at' => 'datetime',
             'snapshot_data' => 'array',
             'snapshot_created_at' => 'datetime',
-            'items' => 'array',
             'generated_at' => 'datetime',
             'approval_deadline' => 'datetime',
             'approval_metadata' => 'array',
@@ -102,8 +101,44 @@ class Invoice extends Model
         return $this->hasMany(BillingRecord::class);
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function getItemsAttribute(mixed $value): array
+    {
+        $items = match (true) {
+            is_string($value) => json_decode($value, true) ?: [],
+            is_array($value) => $value,
+            default => [],
+        };
+
+        return $this->normalizeItems($items);
+    }
+
+    public function setItemsAttribute(mixed $value): void
+    {
+        $items = is_array($value) ? $value : [];
+
+        $this->attributes['items'] = json_encode($this->normalizeItems($items));
+    }
+
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $items
+     * @return array<int, array<string, mixed>>
+     */
+    private function normalizeItems(array $items): array
+    {
+        return array_map(function (array $item): array {
+            if (array_key_exists('amount', $item)) {
+                $item['amount'] = round((float) $item['amount'], 2);
+            }
+
+            return $item;
+        }, $items);
     }
 }

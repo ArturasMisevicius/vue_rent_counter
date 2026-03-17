@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Tenant;
 
+use App\Support\Preferences\SupportedLocaleOptions;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -30,7 +31,7 @@ class UpdateTenantProfileRequest extends FormRequest
             'locale' => [
                 'required',
                 'string',
-                Rule::in(array_keys(config('app.supported_locales', []))),
+                Rule::in(app(SupportedLocaleOptions::class)->codes()),
             ],
         ];
     }

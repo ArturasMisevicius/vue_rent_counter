@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Organizations;
 
+use App\Filament\Resources\Organizations\Pages\CreateOrganization;
+use App\Filament\Resources\Organizations\Pages\EditOrganization;
 use App\Filament\Resources\Organizations\Pages\ListOrganizations;
 use App\Filament\Resources\Organizations\Pages\ViewOrganization;
 use App\Filament\Resources\Organizations\Schemas\OrganizationForm;
@@ -73,7 +75,9 @@ class OrganizationResource extends Resource
     {
         return [
             'index' => ListOrganizations::route('/'),
+            'create' => CreateOrganization::route('/create'),
             'view' => ViewOrganization::route('/{record}'),
+            'edit' => EditOrganization::route('/{record}/edit'),
         ];
     }
 }

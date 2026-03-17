@@ -12,6 +12,22 @@ class ListProperties extends ListRecords
 
     protected function getHeaderActions(): array
     {
+        if (PropertyResource::shouldShowBlockedCreateAction('properties')) {
+            return [
+                PropertyResource::makeSubscriptionInfoAction(
+                    name: 'create',
+                    resource: 'properties',
+                    label: __('filament-actions::create.single.label', [
+                        'label' => PropertyResource::getModelLabel(),
+                    ]),
+                ),
+            ];
+        }
+
+        if (! PropertyResource::canCreate()) {
+            return [];
+        }
+
         return [
             CreateAction::make(),
         ];

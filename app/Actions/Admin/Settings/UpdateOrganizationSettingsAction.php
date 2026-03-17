@@ -4,9 +4,14 @@ namespace App\Actions\Admin\Settings;
 
 use App\Models\Organization;
 use App\Models\OrganizationSetting;
+use App\Support\Admin\SubscriptionLimitGuard;
 
 class UpdateOrganizationSettingsAction
 {
+    public function __construct(
+        private readonly SubscriptionLimitGuard $subscriptionLimitGuard,
+    ) {}
+
     /**
      * @param  array{
      *     billing_contact_name: string|null,
@@ -18,6 +23,8 @@ class UpdateOrganizationSettingsAction
      */
     public function handle(Organization $organization, array $attributes): OrganizationSetting
     {
+        $this->subscriptionLimitGuard->ensureCanWrite($organization);
+
         return OrganizationSetting::query()->updateOrCreate(
             [
                 'organization_id' => $organization->id,

@@ -22,7 +22,8 @@ class InvoicePolicy
             return false;
         }
 
-        return $invoice->tenant_user_id === $user->id;
+        return $invoice->tenant_user_id === $user->id
+            && $invoice->organization_id === $user->organization_id;
     }
 
     public function download(User $user, Invoice $invoice): bool

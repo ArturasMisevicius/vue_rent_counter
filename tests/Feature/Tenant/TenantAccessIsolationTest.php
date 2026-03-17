@@ -7,6 +7,7 @@ use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\Property;
+use App\Models\PropertyAssignment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -95,4 +96,87 @@ it('forbids invoice downloads outside the tenant boundary', function () {
     $this->actingAs($tenant->user)
         ->get(route('tenant.invoices.download', $foreignInvoice))
         ->assertForbidden();
+});
+
+it('does not list malformed invoices from another organization even if they reference the same tenant user', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withUnpaidInvoices(1)
+        ->create();
+
+    $foreignOrganization = Organization::factory()->create();
+    $foreignProperty = Property::factory()->create([
+        'organization_id' => $foreignOrganization->id,
+    ]);
+
+    Invoice::factory()
+        ->for($tenant->user, 'tenant')
+        ->for($foreignProperty)
+        ->create([
+            'organization_id' => $foreignOrganization->id,
+            'invoice_number' => 'MALFORMED-CROSS-ORG-001',
+        ]);
+
+    $this->actingAs($tenant->user)
+        ->get(route('tenant.invoices.index'))
+        ->assertSuccessful()
+        ->assertSeeText('UNPAID-001')
+        ->assertDontSeeText('MALFORMED-CROSS-ORG-001');
+});
+
+it('forbids downloading malformed invoices from another organization even if they reference the same tenant user', function () {
+    Storage::fake(config('filesystems.default', 'local'));
+
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withUnpaidInvoices(1)
+        ->create();
+
+    $foreignOrganization = Organization::factory()->create();
+    $foreignProperty = Property::factory()->create([
+        'organization_id' => $foreignOrganization->id,
+    ]);
+
+    $foreignInvoice = Invoice::factory()
+        ->for($tenant->user, 'tenant')
+        ->for($foreignProperty)
+        ->create([
+            'organization_id' => $foreignOrganization->id,
+            'document_path' => 'tenant-invoices/malformed-cross-org.pdf',
+        ]);
+
+    Storage::disk(config('filesystems.default', 'local'))
+        ->put('tenant-invoices/malformed-cross-org.pdf', 'pdf-content');
+
+    $this->actingAs($tenant->user)
+        ->get(route('tenant.invoices.download', $foreignInvoice))
+        ->assertForbidden();
+});
+
+it('treats malformed cross-organization property assignments as unavailable to the tenant portal', function () {
+    $tenant = TenantPortalFactory::new()->create();
+
+    $foreignOrganization = Organization::factory()->create();
+    $foreignProperty = Property::factory()->create([
+        'organization_id' => $foreignOrganization->id,
+    ]);
+
+    PropertyAssignment::factory()
+        ->for($foreignOrganization)
+        ->for($foreignProperty)
+        ->for($tenant->user, 'tenant')
+        ->create([
+            'assigned_at' => now()->subMonth(),
+            'unassigned_at' => null,
+        ]);
+
+    $this->actingAs($tenant->user)
+        ->get(route('tenant.property.show'))
+        ->assertNotFound();
+
+    $this->actingAs($tenant->user)
+        ->get(route('tenant.readings.create'))
+        ->assertSuccessful()
+        ->assertSeeText(__('tenant.messages.no_meters_assigned'))
+        ->assertDontSeeText($foreignProperty->name);
 });

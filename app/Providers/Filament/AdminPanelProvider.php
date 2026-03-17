@@ -6,15 +6,19 @@ use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\Profile;
 use App\Filament\Pages\Settings;
 use App\Filament\Resources\Buildings\BuildingResource;
+use App\Filament\Resources\Invoices\InvoiceResource;
+use App\Filament\Resources\MeterReadings\MeterReadingResource;
+use App\Filament\Resources\Meters\MeterResource;
 use App\Filament\Resources\Properties\PropertyResource;
+use App\Filament\Resources\Providers\ProviderResource;
+use App\Filament\Resources\Tariffs\TariffResource;
 use App\Filament\Resources\Tenants\TenantResource;
-use App\Http\Controllers\Filament\RedirectToPublicLoginController;
+use App\Http\Middleware\AuthenticateAdminPanel;
 use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
 use App\Http\Middleware\SetAuthenticatedUserLocale;
 use App\Livewire\Shell\Sidebar;
 use App\Livewire\Shell\Topbar;
-use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -38,7 +42,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login(RedirectToPublicLoginController::class)
+            ->login(fn () => redirect()->route('login'))
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -49,6 +53,11 @@ class AdminPanelProvider extends PanelProvider
                 BuildingResource::class,
                 PropertyResource::class,
                 TenantResource::class,
+                MeterResource::class,
+                InvoiceResource::class,
+                MeterReadingResource::class,
+                ProviderResource::class,
+                TariffResource::class,
             ])
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
@@ -74,7 +83,7 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
-                Authenticate::class,
+                AuthenticateAdminPanel::class,
                 EnsureAccountIsAccessible::class,
                 EnsureOnboardingIsComplete::class,
             ]);

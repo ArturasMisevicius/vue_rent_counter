@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Properties;
 
+use App\Filament\Concerns\InteractsWithSubscriptionEnforcement;
 use App\Filament\Resources\Properties\Pages\CreateProperty;
 use App\Filament\Resources\Properties\Pages\EditProperty;
 use App\Filament\Resources\Properties\Pages\ListProperties;
@@ -11,7 +12,6 @@ use App\Filament\Resources\Properties\Schemas\PropertyInfolist;
 use App\Filament\Resources\Properties\Tables\PropertiesTable;
 use App\Models\Property;
 use App\Support\Admin\OrganizationContext;
-use App\Support\Admin\SubscriptionLimitGuard;
 use BackedEnum;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
@@ -19,9 +19,12 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class PropertyResource extends Resource
 {
+    use InteractsWithSubscriptionEnforcement;
+
     protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $model = Property::class;
@@ -69,7 +72,32 @@ class PropertyResource extends Resource
             return false;
         }
 
-        return app(SubscriptionLimitGuard::class)->canCreateProperty($organizationId);
+        return ! static::getSubscriptionAccessState()->blocksCreation('properties');
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = auth()->user();
+
+        return $user?->isAdmin() || $user?->isManager();
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return $record instanceof Property
+            && $record->organization_id === app(OrganizationContext::class)->currentOrganizationId()
+            && static::canViewAny();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return static::canView($record)
+            && static::canMutateSubscriptionScopedRecords();
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return static::canEdit($record);
     }
 
     /**

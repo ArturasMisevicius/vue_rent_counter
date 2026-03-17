@@ -1,0 +1,153 @@
+<?php
+
+namespace App\Filament\Resources\Subscriptions;
+
+use App\Enums\SubscriptionPlan;
+use App\Enums\SubscriptionStatus;
+use App\Filament\Resources\Subscriptions\Pages\CreateSubscription;
+use App\Filament\Resources\Subscriptions\Pages\EditSubscription;
+use App\Filament\Resources\Subscriptions\Pages\ListSubscriptions;
+use App\Filament\Resources\Subscriptions\Pages\ViewSubscription;
+use App\Models\Subscription;
+use BackedEnum;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Resources\Pages\PageRegistration;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+
+class SubscriptionResource extends Resource
+{
+    protected static bool $shouldRegisterNavigation = false;
+
+    protected static ?string $model = Subscription::class;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCreditCard;
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema->components([
+            Section::make('Subscription Details')
+                ->schema([
+                    Select::make('organization_id')
+                        ->label('Organization')
+                        ->relationship('organization', 'name')
+                        ->searchable()
+                        ->preload()
+                        ->required(),
+                    Select::make('plan')
+                        ->label('Plan')
+                        ->options(
+                            collect(SubscriptionPlan::cases())
+                                ->mapWithKeys(fn (SubscriptionPlan $plan): array => [
+                                    $plan->value => $plan->label(),
+                                ])
+                                ->all(),
+                        )
+                        ->required(),
+                    Select::make('status')
+                        ->label('Status')
+                        ->options(
+                            collect(SubscriptionStatus::cases())
+                                ->mapWithKeys(fn (SubscriptionStatus $status): array => [
+                                    $status->value => $status->label(),
+                                ])
+                                ->all(),
+                        )
+                        ->required(),
+                    DatePicker::make('starts_at')
+                        ->label('Starts At'),
+                    DatePicker::make('expires_at')
+                        ->label('Expires At'),
+                ])
+                ->columns(2),
+        ]);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return $schema->components([
+            Section::make('Subscription Details')
+                ->schema([
+                    TextEntry::make('organization.name')
+                        ->label('Organization'),
+                    TextEntry::make('plan')
+                        ->label('Plan')
+                        ->formatStateUsing(fn ($state): string => ($state instanceof SubscriptionPlan) ? $state->label() : (string) $state),
+                    TextEntry::make('status')
+                        ->label('Status')
+                        ->badge()
+                        ->formatStateUsing(fn ($state): string => ($state instanceof SubscriptionStatus) ? $state->label() : (string) $state),
+                    TextEntry::make('expires_at')
+                        ->label('Expires At')
+                        ->date(),
+                ])
+                ->columns(2),
+        ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('organization.name')
+                    ->label('Organization')
+                    ->searchable(),
+                TextColumn::make('plan')
+                    ->label('Plan')
+                    ->badge()
+                    ->formatStateUsing(fn ($state): string => ($state instanceof SubscriptionPlan) ? $state->label() : (string) $state),
+                TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn ($state): string => ($state instanceof SubscriptionStatus) ? $state->label() : (string) $state),
+                TextColumn::make('expires_at')
+                    ->label('Expires At')
+                    ->date()
+                    ->sortable(),
+            ])
+            ->defaultSort('expires_at');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Subscription';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Subscriptions';
+    }
+
+    /**
+     * @return Builder<Subscription>
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->forSuperadminControlPlane();
+    }
+
+    public static function getRelations(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return array<string, PageRegistration>
+     */
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListSubscriptions::route('/'),
+            'create' => CreateSubscription::route('/create'),
+            'view' => ViewSubscription::route('/{record}'),
+            'edit' => EditSubscription::route('/{record}/edit'),
+        ];
+    }
+}

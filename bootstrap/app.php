@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\BlockBlockedIpAddresses;
 use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
+            'auth' => Authenticate::class,
             'set.auth.locale' => SetAuthenticatedUserLocale::class,
             'ensure.account.accessible' => EnsureAccountIsAccessible::class,
             'ensure.onboarding.complete' => EnsureOnboardingIsComplete::class,

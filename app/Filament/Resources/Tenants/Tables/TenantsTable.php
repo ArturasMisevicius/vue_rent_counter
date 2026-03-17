@@ -6,6 +6,7 @@ use App\Actions\Admin\Tenants\DeleteTenantAction;
 use App\Enums\UserStatus;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -53,12 +54,59 @@ class TenantsTable
                 SelectFilter::make('locale')
                     ->options(config('tenanto.locales', [])),
             ])
+            ->emptyStateHeading(__('admin.tenants.empty_state.heading'))
+            ->emptyStateDescription(__('admin.tenants.empty_state.description'))
+            ->emptyStateActions(
+                TenantResource::shouldShowBlockedCreateAction('tenants')
+                    ? [
+                        TenantResource::makeSubscriptionInfoAction(
+                            name: 'create',
+                            resource: 'tenants',
+                            label: __('admin.tenants.empty_state.action'),
+                        ),
+                    ]
+                    : (
+                        TenantResource::canCreate()
+                            ? [
+                                Action::make('createTenant')
+                                    ->label(__('admin.tenants.empty_state.action'))
+                                    ->url(TenantResource::getUrl('create'))
+                                    ->icon('heroicon-m-plus')
+                                    ->button(),
+                            ]
+                            : []
+                    ),
+            )
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make()
-                    ->using(fn (User $record) => app(DeleteTenantAction::class)->handle($record))
-                    ->authorize(fn (User $record): bool => TenantResource::canDelete($record)),
+                ...(
+                    TenantResource::shouldInterceptGraceEditAction()
+                        ? [
+                            TenantResource::makeSubscriptionInfoAction(
+                                name: 'edit',
+                                resource: 'tenants',
+                                label: __('filament-actions::edit.single.label', [
+                                    'label' => TenantResource::getModelLabel(),
+                                ]),
+                            ),
+                        ]
+                        : (
+                            TenantResource::hidesSubscriptionWriteActions()
+                                ? []
+                                : [
+                                    EditAction::make(),
+                                ]
+                        )
+                ),
+                ...(
+                    TenantResource::canMutateSubscriptionScopedRecords()
+                        ? [
+                            DeleteAction::make()
+                                ->using(fn (User $record) => app(DeleteTenantAction::class)->handle($record))
+                                ->authorize(fn (User $record): bool => TenantResource::canDelete($record)),
+                        ]
+                        : []
+                ),
             ])
             ->defaultSort('name');
     }

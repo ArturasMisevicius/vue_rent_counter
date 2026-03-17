@@ -1,15 +1,22 @@
-<x-layouts.tenant :title="__('tenant.pages.profile.title').' · '.config('app.name', 'Tenanto')" :heading="__('tenant.pages.profile.heading')">
+<x-layouts.tenant
+    :title="__('tenant.pages.profile.title').' · '.config('app.name', 'Tenanto')"
+    :heading="__('tenant.pages.profile.heading')"
+    :breadcrumbs="[
+        ['label' => __('tenant.navigation.home'), 'url' => route('tenant.home')],
+        ['label' => __('tenant.pages.profile.heading')],
+    ]"
+>
     <div class="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
         <section class="space-y-6 rounded-[2rem] border border-white/60 bg-white/92 p-8 shadow-[0_28px_90px_rgba(15,23,42,0.18)] backdrop-blur">
             <div class="space-y-3">
                 <p class="text-sm font-semibold uppercase tracking-[0.24em] text-brand-warm">{{ __('tenant.navigation.profile') }}</p>
-                <h2 class="font-display text-3xl tracking-tight text-slate-950">My Profile</h2>
-                <p class="max-w-2xl text-sm leading-6 text-slate-600">Update your contact details and choose the language that should follow you across the tenant portal.</p>
+                <h2 class="font-display text-3xl tracking-tight text-slate-950">{{ __('tenant.pages.profile.page_heading') }}</h2>
+                <p class="max-w-2xl text-sm leading-6 text-slate-600">{{ __('tenant.pages.profile.description') }}</p>
             </div>
 
             @if (session('status') === 'tenant-profile-updated')
                 <div class="rounded-[1.75rem] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
-                    Your profile details were updated.
+                    {{ __('tenant.pages.profile.success') }}
                 </div>
             @endif
 
@@ -18,7 +25,7 @@
                 @method('PUT')
 
                 <div class="space-y-2">
-                    <label for="name" class="text-sm font-semibold text-slate-700">Full Name</label>
+                    <label for="name" class="text-sm font-semibold text-slate-700">{{ __('tenant.pages.profile.name') }}</label>
                     <input
                         id="name"
                         name="name"
@@ -32,7 +39,7 @@
                 </div>
 
                 <div class="space-y-2">
-                    <label for="email" class="text-sm font-semibold text-slate-700">Email Address</label>
+                    <label for="email" class="text-sm font-semibold text-slate-700">{{ __('tenant.pages.profile.email') }}</label>
                     <input
                         id="email"
                         name="email"
@@ -46,7 +53,7 @@
                 </div>
 
                 <div class="space-y-2">
-                    <label for="locale" class="text-sm font-semibold text-slate-700">Language Preference</label>
+                    <label for="locale" class="text-sm font-semibold text-slate-700">{{ __('tenant.pages.profile.locale') }}</label>
                     <select
                         id="locale"
                         name="locale"
@@ -65,21 +72,21 @@
                     type="submit"
                     class="inline-flex items-center justify-center rounded-2xl bg-brand-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-900"
                 >
-                    Save Profile
+                    {{ __('tenant.actions.save_profile') }}
                 </button>
             </form>
         </section>
 
         <section class="space-y-6 rounded-[2rem] border border-white/60 bg-white/92 p-8 shadow-[0_28px_90px_rgba(15,23,42,0.18)] backdrop-blur">
             <div class="space-y-3">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Security</p>
-                <h3 class="font-display text-2xl tracking-tight text-slate-950">Change Password</h3>
-                <p class="text-sm leading-6 text-slate-600">Use your current password to confirm the change, then choose a new password for future sign-ins.</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{{ __('tenant.pages.profile.security_eyebrow') }}</p>
+                <h3 class="font-display text-2xl tracking-tight text-slate-950">{{ __('tenant.pages.profile.password_heading') }}</h3>
+                <p class="text-sm leading-6 text-slate-600">{{ __('tenant.pages.profile.password_description') }}</p>
             </div>
 
             @if (session('status') === 'tenant-password-updated')
                 <div class="rounded-[1.75rem] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
-                    Your password was updated.
+                    {{ __('tenant.pages.profile.password_success') }}
                 </div>
             @endif
 
@@ -88,7 +95,7 @@
                 @method('PUT')
 
                 <div class="space-y-2">
-                    <label for="current_password" class="text-sm font-semibold text-slate-700">Current Password</label>
+                    <label for="current_password" class="text-sm font-semibold text-slate-700">{{ __('tenant.pages.profile.current_password') }}</label>
                     <input
                         id="current_password"
                         name="current_password"
@@ -101,7 +108,7 @@
                 </div>
 
                 <div class="space-y-2">
-                    <label for="password" class="text-sm font-semibold text-slate-700">New Password</label>
+                    <label for="password" class="text-sm font-semibold text-slate-700">{{ __('tenant.pages.profile.new_password') }}</label>
                     <input
                         id="password"
                         name="password"
@@ -114,7 +121,7 @@
                 </div>
 
                 <div class="space-y-2">
-                    <label for="password_confirmation" class="text-sm font-semibold text-slate-700">Confirm New Password</label>
+                    <label for="password_confirmation" class="text-sm font-semibold text-slate-700">{{ __('tenant.pages.profile.confirm_password') }}</label>
                     <input
                         id="password_confirmation"
                         name="password_confirmation"
@@ -127,7 +134,7 @@
                     type="submit"
                     class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
                 >
-                    Update Password
+                    {{ __('tenant.actions.update_password') }}
                 </button>
             </form>
         </section>

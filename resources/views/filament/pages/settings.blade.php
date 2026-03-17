@@ -64,7 +64,7 @@
                 </form>
             </section>
 
-            <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <section id="subscription" class="scroll-mt-24 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h3 class="text-lg font-semibold text-slate-950">{{ __('shell.settings.subscription.heading') }}</h3>
                 <p class="mt-2 text-sm leading-6 text-slate-600">{{ __('shell.settings.subscription.description') }}</p>
 

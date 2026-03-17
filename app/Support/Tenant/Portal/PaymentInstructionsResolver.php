@@ -6,16 +6,31 @@ use App\Models\OrganizationSetting;
 
 class PaymentInstructionsResolver
 {
-    public function resolve(?OrganizationSetting $settings): string
+    /**
+     * @return array{
+     *     content: string|null,
+     *     contact_name: string|null,
+     *     contact_email: string|null,
+     *     contact_phone: string|null,
+     *     has_contact_details: bool
+     * }
+     */
+    public function resolve(?OrganizationSetting $settings): array
     {
-        if (filled($settings?->payment_instructions)) {
-            return $settings->payment_instructions;
-        }
+        $content = filled($settings?->payment_instructions)
+            ? trim($settings->payment_instructions)
+            : (filled($settings?->invoice_footer) ? trim($settings->invoice_footer) : null);
 
-        if (filled($settings?->invoice_footer)) {
-            return $settings->invoice_footer;
-        }
+        $contactName = filled($settings?->billing_contact_name) ? trim($settings->billing_contact_name) : null;
+        $contactEmail = filled($settings?->billing_contact_email) ? trim($settings->billing_contact_email) : null;
+        $contactPhone = filled($settings?->billing_contact_phone) ? trim($settings->billing_contact_phone) : null;
 
-        return 'Contact your building manager for payment instructions.';
+        return [
+            'content' => $content,
+            'contact_name' => $contactName,
+            'contact_email' => $contactEmail,
+            'contact_phone' => $contactPhone,
+            'has_contact_details' => $contactName !== null || $contactEmail !== null || $contactPhone !== null,
+        ];
     }
 }

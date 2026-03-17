@@ -1,7 +1,9 @@
 <?php
 
 use App\Actions\Auth\CreateOrganizationInvitationAction;
+use App\Actions\Auth\ResendOrganizationInvitationAction;
 use App\Enums\UserRole;
+use App\Enums\UserStatus;
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
 use App\Models\User;
@@ -115,6 +117,46 @@ it('accepts a valid invitation and logs the user in', function (UserRole $role, 
     'tenant' => [UserRole::TENANT, 'tenant.home'],
 ]);
 
+it('activates an existing tenant placeholder when accepting an invitation', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+        'locale' => 'es',
+    ]);
+
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+        'email' => 'tenant@example.com',
+        'name' => 'Pending Tenant',
+        'locale' => 'es',
+        'status' => UserStatus::INACTIVE,
+    ]);
+
+    $invitation = OrganizationInvitation::factory()->create([
+        'organization_id' => $organization->id,
+        'inviter_user_id' => $admin->id,
+        'email' => $tenant->email,
+        'full_name' => 'Pat Tenant',
+        'role' => UserRole::TENANT,
+    ]);
+
+    $this->post(route('invitation.store', $invitation->token), [
+        'name' => 'Pat Tenant',
+        'password' => 'new-password',
+        'password_confirmation' => 'new-password',
+    ])->assertRedirect(route('tenant.home'));
+
+    $tenant = $tenant->fresh();
+
+    $this->assertAuthenticatedAs($tenant);
+
+    expect($tenant)
+        ->name->toBe('Pat Tenant')
+        ->status->toBe(UserStatus::ACTIVE)
+        ->and(User::query()->where('email', $invitation->email)->count())->toBe(1)
+        ->and($invitation->fresh()->accepted_at)->not->toBeNull();
+});
+
 it('shows the expired state for an expired invitation', function () {
     $invitation = OrganizationInvitation::factory()->create([
         'expires_at' => now()->subDay(),
@@ -123,6 +165,44 @@ it('shows the expired state for an expired invitation', function () {
     $this->get(route('invitation.show', $invitation->token))
         ->assertSuccessful()
         ->assertSeeText('This invitation has expired. Please contact your administrator for a new invitation.');
+});
+
+it('accepts the freshest resent invitation while keeping the expired token unusable', function () {
+    Notification::fake();
+
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $expiredInvitation = OrganizationInvitation::factory()->create([
+        'organization_id' => $organization->id,
+        'inviter_user_id' => $admin->id,
+        'email' => 'resent@example.com',
+        'role' => UserRole::MANAGER,
+        'full_name' => 'Resent Manager',
+        'expires_at' => now()->subDay(),
+    ]);
+
+    $resentInvitation = app(ResendOrganizationInvitationAction::class)
+        ->handle($admin, $expiredInvitation);
+
+    $this->get(route('invitation.show', $expiredInvitation->token))
+        ->assertSuccessful()
+        ->assertSeeText('This invitation has expired. Please contact your administrator for a new invitation.');
+
+    $this->post(route('invitation.store', $resentInvitation->token), [
+        'name' => 'Resent Manager',
+        'password' => 'new-password',
+        'password_confirmation' => 'new-password',
+    ])->assertRedirect(route('filament.admin.pages.organization-dashboard'));
+
+    $user = User::query()->where('email', 'resent@example.com')->firstOrFail();
+
+    $this->assertAuthenticatedAs($user);
+
+    expect($resentInvitation->fresh()->accepted_at)->not->toBeNull()
+        ->and($expiredInvitation->fresh()->accepted_at)->toBeNull();
 });
 
 it('rejects an already accepted invitation', function () {
