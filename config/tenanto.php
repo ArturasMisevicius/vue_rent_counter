@@ -52,9 +52,9 @@ return [
     'routes' => [
         'tenant_navigation' => [
             'home' => 'tenant.home',
-            'readings' => 'tenant.readings.index',
+            'readings' => 'tenant.readings.create',
             'invoices' => 'tenant.invoices.index',
-            'profile' => 'profile.edit',
+            'profile' => 'tenant.profile.edit',
         ],
         'account' => [
             'profile' => 'profile.edit',

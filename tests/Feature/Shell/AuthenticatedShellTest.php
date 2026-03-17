@@ -14,11 +14,14 @@ it('renders tenant pages with topbar and route-safe bottom navigation', function
         ->assertSuccessful()
         ->assertSeeText('Search anything')
         ->assertSeeText('Home')
+        ->assertSeeText('Readings')
+        ->assertSeeText('Invoices')
         ->assertSeeText('Profile')
         ->assertDontSeeText('Platform')
         ->assertDontSee('data-navigation-route="filament.admin.resources.organizations.index"', false)
-        ->assertDontSee('data-navigation-route="tenant.readings.index"', false)
-        ->assertDontSee('data-navigation-route="tenant.invoices.index"', false);
+        ->assertSee('data-navigation-route="tenant.readings.create"', false)
+        ->assertSee('data-navigation-route="tenant.invoices.index"', false)
+        ->assertSee('data-navigation-route="tenant.profile.edit"', false);
 });
 
 it('renders grouped sidebar navigation for admin roles', function (Closure $userFactory, string $expectedSection, string $currentRoute) {
