@@ -18,6 +18,8 @@ return [
     'search_prompt' => 'Pradėkite rašyti, kad ieškotumėte pasiekiamų duomenų.',
     'search_empty_group' => 'Atitinkančių rezultatų kol kas nėra.',
     'profile_placeholder' => 'Profilio redagavimas bus pridėtas kitame paskyros etape. Kol kas šis puslapis suteikia tikrą vietą vietoje neveikiančios nuorodos.',
+    'impersonation_message' => 'Šiuo metu šią paskyrą matote kaip :name (:email).',
+    'stop_impersonating' => 'Baigti apsimetinėjimą',
     'sections' => [
         'platform' => 'Platforma',
         'workspace' => 'Darbo erdvė',

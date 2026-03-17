@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Support\Auth\ImpersonationManager;
 use App\Support\Shell\DashboardUrlResolver;
 use App\Support\Shell\Navigation\NavigationBuilder;
 use App\Support\Shell\Search\GlobalSearchRegistry;
@@ -20,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(DashboardUrlResolver::class);
         $this->app->singleton(NavigationBuilder::class);
         $this->app->singleton(UserAvatarColor::class);
+        $this->app->singleton(ImpersonationManager::class);
         $this->app->singleton(OrganizationSearchProvider::class);
         $this->app->singleton(UserSearchProvider::class);
         $this->app->singleton(GlobalSearchRegistry::class, function ($app): GlobalSearchRegistry {

@@ -18,6 +18,8 @@ return [
     'search_prompt' => 'Start typing to search the data you can access.',
     'search_empty_group' => 'No matching results are available yet.',
     'profile_placeholder' => 'Profile editing will arrive in the next account slice. For now, this page gives the shell a real destination instead of a dead link.',
+    'impersonation_message' => 'You are currently viewing this account as :name (:email).',
+    'stop_impersonating' => 'Stop Impersonating',
     'sections' => [
         'platform' => 'Platform',
         'workspace' => 'Workspace',

@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\StopImpersonationController;
 use App\Http\Controllers\Onboarding\WelcomeController;
 use App\Http\Controllers\Profile\EditProfileController;
 use App\Http\Controllers\Tenant\HomeController;
@@ -36,6 +37,7 @@ Route::middleware(['auth', 'set.auth.locale', 'ensure.account.accessible'])->gro
     Route::get('/welcome', [WelcomeController::class, 'show'])->name('welcome.show');
     Route::post('/welcome', [WelcomeController::class, 'store'])->name('welcome.store');
     Route::get('/profile', EditProfileController::class)->name('profile.edit');
+    Route::post('/impersonation/stop', StopImpersonationController::class)->name('impersonation.stop');
     Route::get('/tenant/home', HomeController::class)->name('tenant.home');
 });
 

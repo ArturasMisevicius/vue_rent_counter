@@ -3,6 +3,8 @@
     <div class="absolute -left-20 top-28 size-56 rounded-full bg-brand-warm/15 blur-3xl"></div>
     <div class="absolute -right-16 top-20 size-64 rounded-full bg-brand-mint/18 blur-3xl"></div>
 
+    <x-shell.impersonation-banner />
+
     @livewire(\App\Livewire\Shell\Topbar::class)
 
     <div class="relative mx-auto min-h-screen max-w-6xl px-4 pb-28 pt-28 sm:px-6">
