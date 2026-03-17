@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             SystemSettingSeeder::class,
             IntegrationHealthCheckSeeder::class,
             LoginDemoUsersSeeder::class,
+            LegacyReferenceFoundationSeeder::class,
         ]);
     }
 }

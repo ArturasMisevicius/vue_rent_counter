@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\OrganizationStatus;
 use Database\Factories\OrganizationFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,6 +28,28 @@ class Organization extends Model
         return [
             'status' => OrganizationStatus::class,
         ];
+    }
+
+    public function scopeForSuperadminControlPlane(Builder $query): Builder
+    {
+        return $query
+            ->select([
+                'id',
+                'name',
+                'slug',
+                'status',
+                'owner_user_id',
+                'created_at',
+                'updated_at',
+            ])
+            ->with([
+                'owner:id,name,email',
+            ])
+            ->withCount([
+                'users',
+                'properties',
+                'subscriptions',
+            ]);
     }
 
     public function owner(): BelongsTo
@@ -82,5 +105,20 @@ class Organization extends Model
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    public function providers(): HasMany
+    {
+        return $this->hasMany(Provider::class);
+    }
+
+    public function utilityServices(): HasMany
+    {
+        return $this->hasMany(UtilityService::class);
+    }
+
+    public function serviceConfigurations(): HasMany
+    {
+        return $this->hasMany(ServiceConfiguration::class);
     }
 }

@@ -59,4 +59,9 @@ class Invoice extends Model
     {
         return $this->belongsTo(User::class, 'tenant_user_id');
     }
+
+    public function currencyDefinition(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class, 'currency', 'code');
+    }
 }
