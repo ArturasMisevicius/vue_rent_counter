@@ -7,11 +7,13 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Onboarding\WelcomeController;
+use App\Http\Controllers\PublicSite\FaviconController;
 use App\Http\Controllers\Preferences\UpdateGuestLocaleController;
 use App\Http\Controllers\PublicSite\HomepageController;
 use App\Http\Controllers\Tenant\HomeController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/favicon', FaviconController::class)->name('favicon');
 Route::get('/', HomepageController::class)->name('home');
 Route::post('/locale', UpdateGuestLocaleController::class)->name('locale.update');
 
