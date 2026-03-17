@@ -14,7 +14,18 @@ it('renders the tester-first public homepage', function () {
         ->assertSeeText('Admin')
         ->assertSeeText('Manager')
         ->assertSeeText('Tenant')
-        ->assertSeeText('For system testers');
+        ->assertSeeText('For system testers')
+        ->assertSeeText('What Tenanto is growing into')
+        ->assertSeeText('Ready to explore the public flow?');
+});
+
+it('renders the homepage locale switcher with all supported guest locales', function () {
+    $this->get('/')
+        ->assertSuccessful()
+        ->assertSee('value="en"', false)
+        ->assertSee('value="lt"', false)
+        ->assertSee('value="es"', false)
+        ->assertSee('value="ru"', false);
 });
 
 it('renders the homepage in lithuanian when the guest locale is lt', function () {
@@ -23,6 +34,14 @@ it('renders the homepage in lithuanian when the guest locale is lt', function ()
     ])->get('/')
         ->assertSuccessful()
         ->assertSeeText('Turto operacijų platforma, pateikta kaip kryptinga testavimo erdvė.');
+});
+
+it('renders the homepage in spanish when the guest locale is es', function () {
+    $this->withSession([
+        'guest_locale' => 'es',
+    ])->get('/')
+        ->assertSuccessful()
+        ->assertSeeText('Plataforma de operaciones inmobiliarias presentada como un laboratorio de pruebas guiado.');
 });
 
 it('links the favicon on public and guest pages', function () {
