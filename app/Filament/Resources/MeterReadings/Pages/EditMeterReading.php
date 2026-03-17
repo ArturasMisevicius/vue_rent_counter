@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\MeterReadings\Pages;
 
-use App\Actions\Admin\MeterReadings\UpdateMeterReadingAction;
+use App\Filament\Actions\Admin\MeterReadings\UpdateMeterReadingAction;
 use App\Filament\Resources\MeterReadings\MeterReadingResource;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;

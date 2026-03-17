@@ -1,6 +1,6 @@
 <?php
 
-use App\Actions\Admin\Properties\UnassignTenantFromPropertyAction;
+use App\Filament\Actions\Admin\Properties\UnassignTenantFromPropertyAction;
 use App\Livewire\Tenant\SubmitReadingPage;
 use App\Models\Building;
 use App\Models\Invoice;

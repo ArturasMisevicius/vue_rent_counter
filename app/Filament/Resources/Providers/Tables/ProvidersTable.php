@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Providers\Tables;
 
-use App\Actions\Admin\Providers\DeleteProviderAction;
 use App\Enums\ServiceType;
+use App\Filament\Actions\Admin\Providers\DeleteProviderAction;
 use App\Filament\Resources\Providers\ProviderResource;
 use App\Models\Provider;
 use Filament\Actions\DeleteAction;
@@ -25,8 +25,7 @@ class ProvidersTable
                     ->sortable(),
                 TextColumn::make('service_type')
                     ->label(__('admin.providers.columns.service_type'))
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => __('admin.providers.service_types.'.($state->value ?? $state))),
+                    ->badge(),
                 TextColumn::make('contact_info.email')
                     ->label(__('admin.providers.columns.email'))
                     ->default(__('admin.providers.empty.contact'))
@@ -42,13 +41,7 @@ class ProvidersTable
             ->filters([
                 SelectFilter::make('service_type')
                     ->label(__('admin.providers.fields.service_type'))
-                    ->options(
-                        collect(ServiceType::cases())
-                            ->mapWithKeys(fn (ServiceType $serviceType): array => [
-                                $serviceType->value => __('admin.providers.service_types.'.$serviceType->value),
-                            ])
-                            ->all(),
-                    ),
+                    ->options(ServiceType::options()),
             ])
             ->recordActions([
                 ViewAction::make(),

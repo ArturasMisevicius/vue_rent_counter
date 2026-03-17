@@ -54,7 +54,7 @@ it('shows the reset-link confirmation in the selected guest locale', function ()
 
     $this->from($forgotPasswordUrl)
         ->post(route('locale.update'), [
-            'locale' => 'es',
+            'locale' => 'ru',
         ])
         ->assertRedirect($forgotPasswordUrl);
 
@@ -63,12 +63,12 @@ it('shows the reset-link confirmation in the selected guest locale', function ()
             'email' => $user->email,
         ])
         ->assertRedirect($forgotPasswordUrl)
-        ->assertSessionHas('status', __('auth.reset_link_generic', [], 'es'));
+        ->assertSessionHas('status', __('auth.reset_link_generic', [], 'ru'));
 
     $this->get($forgotPasswordUrl)
         ->assertSuccessful()
-        ->assertSeeText('Restablece tu contraseña')
-        ->assertSeeText(__('auth.reset_link_generic', [], 'es'));
+        ->assertSeeText(__('auth.forgot_password_title', [], 'ru'))
+        ->assertSeeText(__('auth.reset_link_generic', [], 'ru'));
 
     Notification::assertSentTo($user, ResetPassword::class);
 });
@@ -127,7 +127,7 @@ it('shows the reset confirmation in the selected guest locale after a successful
 
     $this->from($resetUrl)
         ->post(route('locale.update'), [
-            'locale' => 'es',
+            'locale' => 'ru',
         ])
         ->assertRedirect($resetUrl);
 
@@ -137,12 +137,12 @@ it('shows the reset confirmation in the selected guest locale after a successful
         'password' => 'nueva-password',
         'password_confirmation' => 'nueva-password',
     ])->assertRedirect(route('login'))
-        ->assertSessionHas('status', __('passwords.reset', [], 'es'));
+        ->assertSessionHas('status', __('passwords.reset', [], 'ru'));
 
     $this->get(route('login'))
         ->assertSuccessful()
-        ->assertSeeText('Bienvenido de nuevo')
-        ->assertSeeText(__('passwords.reset', [], 'es'));
+        ->assertSeeText(__('auth.login_title', [], 'ru'))
+        ->assertSeeText(__('passwords.reset', [], 'ru'));
 
     expect(Hash::check('nueva-password', $user->fresh()->password))->toBeTrue();
 });

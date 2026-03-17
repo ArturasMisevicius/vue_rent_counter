@@ -2,8 +2,8 @@
 
 namespace App\Filament\Pages\Concerns;
 
-use App\Actions\Admin\Settings\UpdatePasswordAction;
-use App\Actions\Admin\Settings\UpdateProfileAction;
+use App\Filament\Actions\Admin\Settings\UpdatePasswordAction;
+use App\Filament\Actions\Admin\Settings\UpdateProfileAction;
 use App\Models\User;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Validator;

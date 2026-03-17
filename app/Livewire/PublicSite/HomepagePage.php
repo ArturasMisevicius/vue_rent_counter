@@ -2,7 +2,7 @@
 
 namespace App\Livewire\PublicSite;
 
-use App\Support\PublicSite\HomepageContent;
+use App\Filament\Support\PublicSite\HomepageContent;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 

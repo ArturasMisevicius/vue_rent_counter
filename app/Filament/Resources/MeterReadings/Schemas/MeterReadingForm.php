@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\MeterReadings\Schemas;
 
 use App\Enums\MeterReadingSubmissionMethod;
-use App\Support\Admin\OrganizationContext;
+use App\Filament\Support\Admin\OrganizationContext;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -41,13 +41,7 @@ class MeterReadingForm
                             ->required(),
                         Select::make('submission_method')
                             ->label(__('admin.meter_readings.fields.submission_method'))
-                            ->options(
-                                collect(MeterReadingSubmissionMethod::cases())
-                                    ->mapWithKeys(fn (MeterReadingSubmissionMethod $method): array => [
-                                        $method->value => __('admin.meter_readings.submission_methods.'.$method->value),
-                                    ])
-                                    ->all(),
-                            )
+                            ->options(MeterReadingSubmissionMethod::options())
                             ->default(MeterReadingSubmissionMethod::ADMIN_MANUAL->value)
                             ->required(),
                         Textarea::make('notes')

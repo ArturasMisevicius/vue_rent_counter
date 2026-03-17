@@ -3,21 +3,19 @@
 ## Summary
 
 Restrict the supported language/runtime footprint to English, Lithuanian, and
-Russian, remove Spanish from the platform seed/runtime surfaces, and add
-Baltic-only country and city reference data with multilingual names.
+Russian, and add Baltic-only country and city reference data with multilingual
+names.
 
 ## Problem
 
-The current project still seeds Spanish as a supported language and uses
-generic faker geography. The requested product direction is narrower: only
-English, Lithuanian, and Russian should be supported, and seed/reference data
-should be limited to realistic Baltic countries and cities with multilingual
-names.
+The current project previously carried a broader locale footprint and generic
+faker geography. The requested product direction is narrower: only English,
+Lithuanian, and Russian should be supported, and seed/reference data should be
+limited to realistic Baltic countries and cities with multilingual names.
 
 ## Proposed Change
 
 - Keep only `en`, `lt`, and `ru` as supported seeded languages
-- Stop seeding or surfacing `es` as a supported system language
 - Add Baltic-only country and city reference data
 - Import multilingual country and city names for `en`, `lt`, and `ru`
 - Use this localized geography as the source for later logical demo fixtures

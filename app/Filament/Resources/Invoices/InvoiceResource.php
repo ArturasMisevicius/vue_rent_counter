@@ -8,8 +8,8 @@ use App\Filament\Resources\Invoices\Pages\ViewInvoice;
 use App\Filament\Resources\Invoices\Schemas\InvoiceForm;
 use App\Filament\Resources\Invoices\Schemas\InvoiceInfolist;
 use App\Filament\Resources\Invoices\Tables\InvoicesTable;
+use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Invoice;
-use App\Support\Admin\OrganizationContext;
 use BackedEnum;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
@@ -68,35 +68,8 @@ class InvoiceResource extends Resource
         }
 
         return parent::getEloquentQuery()
-            ->select([
-                'id',
-                'organization_id',
-                'property_id',
-                'tenant_user_id',
-                'invoice_number',
-                'billing_period_start',
-                'billing_period_end',
-                'status',
-                'currency',
-                'total_amount',
-                'amount_paid',
-                'paid_amount',
-                'due_date',
-                'finalized_at',
-                'paid_at',
-                'payment_reference',
-                'items',
-                'notes',
-                'document_path',
-                'created_at',
-                'updated_at',
-            ])
-            ->where('organization_id', $organizationId)
-            ->with([
-                'property:id,organization_id,building_id,name,unit_number',
-                'property.building:id,organization_id,name',
-                'tenant:id,organization_id,name,email',
-            ]);
+            ->forAdminWorkspace($organizationId)
+            ->latestBillingFirst();
     }
 
     public static function canViewAny(): bool

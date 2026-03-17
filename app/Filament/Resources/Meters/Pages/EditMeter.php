@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Meters\Pages;
 
-use App\Actions\Admin\Meters\DeleteMeterAction;
-use App\Actions\Admin\Meters\UpdateMeterAction;
+use App\Filament\Actions\Admin\Meters\DeleteMeterAction;
+use App\Filament\Actions\Admin\Meters\UpdateMeterAction;
 use App\Filament\Resources\Meters\MeterResource;
 use App\Models\Meter;
 use Filament\Actions\DeleteAction;

@@ -16,6 +16,22 @@ class Subscription extends Model
     /** @use HasFactory<SubscriptionFactory> */
     use HasFactory;
 
+    private const CONTROL_PLANE_COLUMNS = [
+        'id',
+        'organization_id',
+        'plan',
+        'status',
+        'starts_at',
+        'expires_at',
+        'is_trial',
+        'property_limit_snapshot',
+        'tenant_limit_snapshot',
+        'meter_limit_snapshot',
+        'invoice_limit_snapshot',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $fillable = [
         'organization_id',
         'plan',
@@ -44,6 +60,44 @@ class Subscription extends Model
         ];
     }
 
+    public function scopeForOrganization(Builder $query, int $organizationId): Builder
+    {
+        return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeLatestFirst(Builder $query): Builder
+    {
+        return $query
+            ->orderByDesc('expires_at')
+            ->orderByDesc('starts_at')
+            ->orderByDesc('id');
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('status', SubscriptionStatus::ACTIVE);
+    }
+
+    public function scopeActiveLike(Builder $query): Builder
+    {
+        return $query->whereIn('status', SubscriptionStatus::activeLikeValues());
+    }
+
+    public function scopeExpiringWithin(Builder $query, int $days): Builder
+    {
+        return $query
+            ->activeLike()
+            ->whereNotNull('expires_at')
+            ->whereBetween('expires_at', [now(), now()->addDays($days)]);
+    }
+
+    public function scopeWithOrganizationSummary(Builder $query): Builder
+    {
+        return $query->with([
+            'organization:id,name',
+        ]);
+    }
+
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
@@ -62,24 +116,9 @@ class Subscription extends Model
     public function scopeForSuperadminControlPlane(Builder $query): Builder
     {
         return $query
-            ->select([
-                'id',
-                'organization_id',
-                'plan',
-                'status',
-                'starts_at',
-                'expires_at',
-                'is_trial',
-                'property_limit_snapshot',
-                'tenant_limit_snapshot',
-                'meter_limit_snapshot',
-                'invoice_limit_snapshot',
-                'created_at',
-                'updated_at',
-            ])
-            ->with([
-                'organization:id,name',
-            ]);
+            ->select(self::CONTROL_PLANE_COLUMNS)
+            ->withOrganizationSummary()
+            ->latestFirst();
     }
 
     public function isActiveLike(): bool

@@ -1,11 +1,11 @@
 <?php
 
-use App\Actions\Admin\Invoices\GenerateBulkInvoicesAction;
 use App\Enums\DistributionMethod;
 use App\Enums\MeterReadingValidationStatus;
 use App\Enums\MeterType;
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
+use App\Filament\Actions\Admin\Invoices\GenerateBulkInvoicesAction;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;

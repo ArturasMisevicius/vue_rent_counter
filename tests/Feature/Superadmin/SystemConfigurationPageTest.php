@@ -1,8 +1,8 @@
 <?php
 
-use App\Actions\Superadmin\SystemConfiguration\UpdateSystemSettingAction;
 use App\Enums\AuditLogAction;
 use App\Enums\SystemSettingCategory;
+use App\Filament\Actions\Superadmin\SystemConfiguration\UpdateSystemSettingAction;
 use App\Models\AuditLog;
 use App\Models\Organization;
 use App\Models\SystemSetting;

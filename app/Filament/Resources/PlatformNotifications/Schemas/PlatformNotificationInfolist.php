@@ -15,8 +15,8 @@ class PlatformNotificationInfolist
                 Section::make('Notification Overview')
                     ->schema([
                         TextEntry::make('title')->label('Title'),
-                        TextEntry::make('severity')->label('Severity')->formatStateUsing(fn ($state): string => ucfirst($state->value ?? (string) $state)),
-                        TextEntry::make('status')->label('Status')->formatStateUsing(fn ($state): string => ucfirst($state->value ?? (string) $state)),
+                        TextEntry::make('severity')->label('Severity')->badge(),
+                        TextEntry::make('status')->label('Status')->badge(),
                         TextEntry::make('body')->label('Message')->html(),
                     ])
                     ->columns(2),

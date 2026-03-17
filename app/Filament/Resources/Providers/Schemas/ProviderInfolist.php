@@ -18,8 +18,7 @@ class ProviderInfolist
                             ->label(__('admin.providers.fields.name')),
                         TextEntry::make('service_type')
                             ->label(__('admin.providers.fields.service_type'))
-                            ->badge()
-                            ->formatStateUsing(fn ($state): string => __('admin.providers.service_types.'.($state->value ?? $state))),
+                            ->badge(),
                         TextEntry::make('contact_info.phone')
                             ->label(__('admin.providers.fields.phone'))
                             ->default(__('admin.providers.empty.contact')),

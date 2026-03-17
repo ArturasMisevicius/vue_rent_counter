@@ -6,16 +6,23 @@ use App\Livewire\Auth\LoginPage;
 use App\Livewire\Auth\RegisterPage;
 use App\Livewire\Auth\ResetPasswordPage;
 use App\Livewire\Onboarding\WelcomePage;
+use App\Livewire\Preferences\UpdateGuestLocaleEndpoint;
 use App\Livewire\PublicSite\HomepagePage;
+use App\Livewire\PublicSite\ShowFaviconEndpoint;
+use App\Livewire\Shell\LogoutEndpoint;
+use App\Livewire\Shell\StopImpersonationEndpoint;
 use App\Livewire\Tenant\HomePage;
 use App\Livewire\Tenant\InvoiceHistoryPage;
 use App\Livewire\Tenant\ProfilePage;
 use App\Livewire\Tenant\PropertyPage;
 use App\Livewire\Tenant\ReadingCreatePage;
+use App\Livewire\Tenant\UpdatePasswordEndpoint;
+use App\Livewire\Tenant\UpdateProfileEndpoint;
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Password;
 use Tests\Support\TenantPortalFactory;
 
@@ -137,23 +144,31 @@ it('keeps shared profile routing as a redirect into the appropriate destination'
         ->assertRedirect(route('tenant.profile.edit'));
 });
 
-it('maps controller-free web routes to closures', function (string $routeName): void {
+it('maps non-livewire web routes to Livewire-backed actions', function (string $routeName, string $action): void {
     $route = app('router')->getRoutes()->getByName($routeName);
 
     expect($route)->not->toBeNull()
-        ->and($route->getActionName())->toBe('Closure');
+        ->and($route->getActionName())->toBe($action);
 })->with([
-    'favicon' => ['favicon'],
-    'guest locale update' => ['locale.update'],
-    'login store' => ['login.store'],
-    'register store' => ['register.store'],
-    'password email' => ['password.email'],
-    'password update' => ['password.update'],
-    'invitation store' => ['invitation.store'],
-    'welcome store' => ['welcome.store'],
-    'impersonation stop' => ['impersonation.stop'],
-    'tenant invoice download' => ['tenant.invoices.download'],
-    'tenant profile update' => ['tenant.profile.update'],
-    'tenant profile password update' => ['tenant.profile.password.update'],
-    'logout' => ['logout'],
+    'favicon' => ['favicon', ShowFaviconEndpoint::class.'@show'],
+    'guest locale update' => ['locale.update', UpdateGuestLocaleEndpoint::class.'@update'],
+    'login store' => ['login.store', LoginPage::class.'@store'],
+    'register store' => ['register.store', RegisterPage::class.'@store'],
+    'password email' => ['password.email', ForgotPasswordPage::class.'@sendResetLink'],
+    'password update' => ['password.update', ResetPasswordPage::class.'@resetPassword'],
+    'invitation store' => ['invitation.store', AcceptInvitationPage::class.'@store'],
+    'welcome store' => ['welcome.store', WelcomePage::class.'@store'],
+    'impersonation stop' => ['impersonation.stop', StopImpersonationEndpoint::class.'@stop'],
+    'tenant invoice download' => ['tenant.invoices.download', InvoiceHistoryPage::class.'@download'],
+    'tenant profile update' => ['tenant.profile.update', UpdateProfileEndpoint::class.'@update'],
+    'tenant profile password update' => ['tenant.profile.password.update', UpdatePasswordEndpoint::class.'@update'],
+    'logout' => ['logout', LogoutEndpoint::class.'@logout'],
 ]);
+
+it('keeps routes/web.php free of inline callbacks', function (): void {
+    $contents = File::get(base_path('routes/web.php'));
+
+    expect($contents)
+        ->not->toContain('fn (')
+        ->not->toContain('function (');
+});

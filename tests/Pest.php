@@ -12,14 +12,12 @@ beforeEach(function (): void {
     config()->set('app.supported_locales', [
         'en' => 'EN',
         'lt' => 'LT',
-        'es' => 'ES',
         'ru' => 'RU',
     ]);
 
     config()->set('tenanto.locales', [
         'en' => 'English',
         'lt' => 'Lietuvių',
-        'es' => 'Español',
         'ru' => 'Русский',
     ]);
 

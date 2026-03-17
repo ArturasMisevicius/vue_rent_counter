@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Actions\Preferences\ResolveGuestLocaleAction;
+use App\Filament\Actions\Preferences\ResolveGuestLocaleAction;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;

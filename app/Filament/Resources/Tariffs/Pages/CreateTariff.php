@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Tariffs\Pages;
 
-use App\Actions\Admin\Tariffs\CreateTariffAction;
+use App\Filament\Actions\Admin\Tariffs\CreateTariffAction;
 use App\Filament\Resources\Tariffs\TariffResource;
-use App\Support\Admin\OrganizationContext;
+use App\Filament\Support\Admin\OrganizationContext;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 

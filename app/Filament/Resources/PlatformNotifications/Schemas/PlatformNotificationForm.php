@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PlatformNotifications\Schemas;
 
 use App\Enums\PlatformNotificationSeverity;
+use App\Enums\PlatformNotificationStatus;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -21,7 +22,11 @@ class PlatformNotificationForm
                         RichEditor::make('body')->label('Message')->required(),
                         Select::make('severity')
                             ->label('Severity')
-                            ->options(collect(PlatformNotificationSeverity::cases())->mapWithKeys(fn (PlatformNotificationSeverity $severity): array => [$severity->value => ucfirst($severity->value)])->all())
+                            ->options(PlatformNotificationSeverity::options())
+                            ->required(),
+                        Select::make('status')
+                            ->label('Status')
+                            ->options(PlatformNotificationStatus::options())
                             ->required(),
                     ]),
             ]);

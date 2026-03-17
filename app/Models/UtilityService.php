@@ -16,6 +16,22 @@ class UtilityService extends Model
     /** @use HasFactory<UtilityServiceFactory> */
     use HasFactory;
 
+    private const SUMMARY_COLUMNS = [
+        'id',
+        'organization_id',
+        'name',
+        'slug',
+        'unit_of_measurement',
+        'default_pricing_model',
+        'is_global_template',
+        'created_by_organization_id',
+        'service_type_bridge',
+        'description',
+        'is_active',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $fillable = [
         'organization_id',
         'name',
@@ -65,63 +81,52 @@ class UtilityService extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query
-            ->select([
-                'id',
-                'organization_id',
-                'name',
-                'slug',
-                'unit_of_measurement',
-                'default_pricing_model',
-                'is_global_template',
-                'created_by_organization_id',
-                'service_type_bridge',
-                'description',
-                'is_active',
-                'created_at',
-                'updated_at',
-            ])
+            ->select(self::SUMMARY_COLUMNS)
             ->where('is_active', true);
+    }
+
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query
+            ->orderBy('name')
+            ->orderBy('id');
+    }
+
+    public function scopeOwnedByOrganization(Builder $query, ?int $organizationId): Builder
+    {
+        return $query->where('organization_id', $organizationId);
     }
 
     public function scopeForOrganization(Builder $query, ?int $organizationId): Builder
     {
         return $query
-            ->select([
-                'id',
-                'organization_id',
-                'name',
-                'slug',
-                'unit_of_measurement',
-                'default_pricing_model',
-                'is_global_template',
-                'created_by_organization_id',
-                'service_type_bridge',
-                'description',
-                'is_active',
-                'created_at',
-                'updated_at',
-            ])
-            ->where('organization_id', $organizationId);
+            ->select(self::SUMMARY_COLUMNS)
+            ->ownedByOrganization($organizationId)
+            ->ordered();
     }
 
     public function scopeGlobalTemplates(Builder $query): Builder
     {
         return $query
-            ->select([
-                'id',
-                'organization_id',
-                'name',
-                'slug',
-                'unit_of_measurement',
-                'default_pricing_model',
-                'is_global_template',
-                'created_by_organization_id',
-                'service_type_bridge',
-                'description',
-                'is_active',
-                'created_at',
-                'updated_at',
-            ])
+            ->select(self::SUMMARY_COLUMNS)
             ->where('is_global_template', true);
+    }
+
+    public function scopeVisibleToOrganization(Builder $query, ?int $organizationId): Builder
+    {
+        return $query->where(function (Builder $builder) use ($organizationId): void {
+            $builder
+                ->ownedByOrganization($organizationId)
+                ->orWhere('is_global_template', true);
+        });
+    }
+
+    public function scopeSelectableForOrganization(Builder $query, ?int $organizationId): Builder
+    {
+        return $query
+            ->select(self::SUMMARY_COLUMNS)
+            ->active()
+            ->visibleToOrganization($organizationId)
+            ->ordered();
     }
 }

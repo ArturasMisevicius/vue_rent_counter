@@ -28,10 +28,10 @@ class MeterReadingInfolist
                             ->date(),
                         TextEntry::make('validation_status')
                             ->label(__('admin.meter_readings.fields.validation_status'))
-                            ->formatStateUsing(fn ($state): string => __('admin.meter_readings.statuses.'.($state->value ?? $state))),
+                            ->badge(),
                         TextEntry::make('submission_method')
                             ->label(__('admin.meter_readings.fields.submission_method'))
-                            ->formatStateUsing(fn ($state): string => __('admin.meter_readings.submission_methods.'.($state->value ?? $state))),
+                            ->badge(),
                         TextEntry::make('submittedBy.name')
                             ->label(__('admin.meter_readings.fields.submitted_by'))
                             ->default(__('admin.meter_readings.empty.submitted_by')),

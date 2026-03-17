@@ -247,7 +247,6 @@ Recommended reuse if already implemented:
 - `lang/en/admin.php`
 - `lang/lt/admin.php`
 - `lang/ru/admin.php`
-- `lang/es/admin.php`
 - `tests/Feature/Admin/AdminDashboardTest.php`
 - `tests/Feature/Admin/BuildingsResourceTest.php`
 - `tests/Feature/Admin/PropertiesResourceTest.php`

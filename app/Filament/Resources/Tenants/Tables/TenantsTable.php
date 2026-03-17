@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Tenants\Tables;
 
-use App\Actions\Admin\Tenants\DeleteTenantAction;
 use App\Enums\UserStatus;
+use App\Filament\Actions\Admin\Tenants\DeleteTenantAction;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -33,8 +33,7 @@ class TenantsTable
                     ->sortable(),
                 TextColumn::make('status')
                     ->label(__('admin.tenants.columns.status'))
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => ucfirst((string) ($state->value ?? $state))),
+                    ->badge(),
                 TextColumn::make('currentPropertyAssignment.property.name')
                     ->label(__('admin.tenants.columns.property'))
                     ->default(__('admin.tenants.empty.property'))
@@ -46,11 +45,7 @@ class TenantsTable
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->options([
-                        UserStatus::ACTIVE->value => 'Active',
-                        UserStatus::INACTIVE->value => 'Inactive',
-                        UserStatus::SUSPENDED->value => 'Suspended',
-                    ]),
+                    ->options(UserStatus::options()),
                 SelectFilter::make('locale')
                     ->options(config('tenanto.locales', [])),
             ])

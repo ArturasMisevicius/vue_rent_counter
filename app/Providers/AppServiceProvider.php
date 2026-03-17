@@ -2,6 +2,15 @@
 
 namespace App\Providers;
 
+use App\Filament\Support\Audit\AuditLogger;
+use App\Filament\Support\Auth\ImpersonationManager;
+use App\Filament\Support\Shell\Search\GlobalSearchRegistry;
+use App\Filament\Support\Shell\Search\Providers\OrganizationSearchProvider;
+use App\Filament\Support\Shell\Search\Providers\UserSearchProvider;
+use App\Filament\Support\Superadmin\Integration\IntegrationProbeRegistry;
+use App\Filament\Support\Superadmin\Integration\Probes\DatabaseProbe;
+use App\Filament\Support\Superadmin\Integration\Probes\MailProbe;
+use App\Filament\Support\Superadmin\Integration\Probes\QueueProbe;
 use App\Models\Organization;
 use App\Models\PlatformNotification;
 use App\Models\Subscription;
@@ -12,15 +21,6 @@ use App\Observers\PlatformNotificationObserver;
 use App\Observers\SubscriptionObserver;
 use App\Observers\SystemSettingObserver;
 use App\Observers\UserObserver;
-use App\Support\Audit\AuditLogger;
-use App\Support\Auth\ImpersonationManager;
-use App\Support\Shell\Search\GlobalSearchRegistry;
-use App\Support\Shell\Search\Providers\OrganizationSearchProvider;
-use App\Support\Shell\Search\Providers\UserSearchProvider;
-use App\Support\Superadmin\Integration\IntegrationProbeRegistry;
-use App\Support\Superadmin\Integration\Probes\DatabaseProbe;
-use App\Support\Superadmin\Integration\Probes\MailProbe;
-use App\Support\Superadmin\Integration\Probes\QueueProbe;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

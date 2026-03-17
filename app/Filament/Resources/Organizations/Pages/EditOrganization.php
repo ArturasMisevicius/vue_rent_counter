@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Organizations\Pages;
 
-use App\Actions\Superadmin\Organizations\UpdateOrganizationAction;
 use App\Enums\SubscriptionPlan;
+use App\Filament\Actions\Superadmin\Organizations\UpdateOrganizationAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;

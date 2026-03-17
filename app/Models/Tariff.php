@@ -14,6 +14,18 @@ class Tariff extends Model
     /** @use HasFactory<TariffFactory> */
     use HasFactory;
 
+    private const SUMMARY_COLUMNS = [
+        'id',
+        'provider_id',
+        'remote_id',
+        'name',
+        'configuration',
+        'active_from',
+        'active_until',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $fillable = [
         'provider_id',
         'remote_id',
@@ -47,22 +59,31 @@ class Tariff extends Model
         $activeOn = $date ?? now();
 
         return $query
-            ->select([
-                'id',
-                'provider_id',
-                'remote_id',
-                'name',
-                'configuration',
-                'active_from',
-                'active_until',
-                'created_at',
-                'updated_at',
-            ])
+            ->select(self::SUMMARY_COLUMNS)
             ->where('active_from', '<=', $activeOn)
             ->where(function (Builder $builder) use ($activeOn): void {
                 $builder
                     ->whereNull('active_until')
                     ->orWhere('active_until', '>=', $activeOn);
             });
+    }
+
+    public function scopeForOrganization(Builder $query, int $organizationId): Builder
+    {
+        return $query->whereHas('provider', fn (Builder $providerQuery): Builder => $providerQuery->forOrganization($organizationId));
+    }
+
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query
+            ->orderBy('name')
+            ->orderBy('id');
+    }
+
+    public function scopeWithProviderSummary(Builder $query): Builder
+    {
+        return $query->with([
+            'provider:id,organization_id,name,service_type',
+        ]);
     }
 }

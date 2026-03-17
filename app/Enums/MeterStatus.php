@@ -2,8 +2,13 @@
 
 namespace App\Enums;
 
-enum MeterStatus: string
+use App\Enums\Concerns\HasTranslatedLabel;
+use Filament\Support\Contracts\HasLabel;
+
+enum MeterStatus: string implements HasLabel
 {
+    use HasTranslatedLabel;
+
     case ACTIVE = 'active';
     case INACTIVE = 'inactive';
 }

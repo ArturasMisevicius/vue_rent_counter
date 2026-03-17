@@ -1,5 +1,5 @@
 @php
-    $supportedLocales = app(\App\Support\Preferences\SupportedLocaleOptions::class)->labels();
+    $supportedLocales = app(\App\Filament\Support\Preferences\SupportedLocaleOptions::class)->labels();
     $currentLocale = app()->getLocale();
 @endphp
 

@@ -2,14 +2,14 @@
 
 namespace App\Filament\Resources\Meters\Tables;
 
-use App\Actions\Admin\Meters\DeleteMeterAction;
 use App\Enums\MeterStatus;
 use App\Enums\MeterType;
+use App\Filament\Actions\Admin\Meters\DeleteMeterAction;
 use App\Filament\Resources\Meters\MeterResource;
+use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Building;
 use App\Models\Meter;
 use App\Models\Property;
-use App\Support\Admin\OrganizationContext;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -42,12 +42,10 @@ class MetersTable
                     ->sortable(),
                 TextColumn::make('type')
                     ->label(__('admin.meters.columns.type'))
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => __('admin.meters.types.'.($state->value ?? $state))),
+                    ->badge(),
                 TextColumn::make('status')
                     ->label(__('admin.meters.columns.status'))
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => __('admin.meters.statuses.'.($state->value ?? $state))),
+                    ->badge(),
                 TextColumn::make('unit')
                     ->label(__('admin.meters.columns.unit'))
                     ->toggleable(),
@@ -78,19 +76,10 @@ class MetersTable
                         ->all()),
                 SelectFilter::make('type')
                     ->label(__('admin.meters.fields.type'))
-                    ->options(
-                        collect(MeterType::cases())
-                            ->mapWithKeys(fn (MeterType $type): array => [
-                                $type->value => __('admin.meters.types.'.$type->value),
-                            ])
-                            ->all(),
-                    ),
+                    ->options(MeterType::options()),
                 SelectFilter::make('status')
                     ->label(__('admin.meters.fields.status'))
-                    ->options([
-                        MeterStatus::ACTIVE->value => __('admin.meters.statuses.active'),
-                        MeterStatus::INACTIVE->value => __('admin.meters.statuses.inactive'),
-                    ]),
+                    ->options(MeterStatus::options()),
             ])
             ->emptyStateHeading(__('admin.meters.empty_state.heading'))
             ->emptyStateDescription(__('admin.meters.empty_state.description'))

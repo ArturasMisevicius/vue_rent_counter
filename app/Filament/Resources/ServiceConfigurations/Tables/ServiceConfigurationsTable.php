@@ -26,8 +26,7 @@ class ServiceConfigurationsTable
                     ->toggleable(),
                 TextColumn::make('pricing_model')
                     ->label(__('admin.service_configurations.columns.pricing_model'))
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => __('admin.service_configurations.pricing_models.'.($state->value ?? $state))),
+                    ->badge(),
             ])
             ->filters([
                 SelectFilter::make('property_id')

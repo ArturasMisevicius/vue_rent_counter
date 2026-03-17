@@ -1,11 +1,11 @@
 <?php
 
-use App\Actions\Superadmin\Translations\ExportMissingTranslationsAction;
-use App\Actions\Superadmin\Translations\ImportTranslationsAction;
-use App\Actions\Superadmin\Translations\UpdateTranslationValueAction;
+use App\Filament\Actions\Superadmin\Translations\ExportMissingTranslationsAction;
+use App\Filament\Actions\Superadmin\Translations\ImportTranslationsAction;
+use App\Filament\Actions\Superadmin\Translations\UpdateTranslationValueAction;
+use App\Filament\Support\Superadmin\Translations\TranslationCatalogService;
 use App\Models\Organization;
 use App\Models\User;
-use App\Support\Superadmin\Translations\TranslationCatalogService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;

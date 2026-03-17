@@ -37,7 +37,7 @@ class SystemConfiguration extends Page
                 ->orderBy('category')
                 ->orderBy('label')
                 ->get()
-                ->groupBy(fn (SystemSetting $setting): string => ucfirst((string) ($setting->category->value ?? $setting->category))),
+                ->groupBy(fn (SystemSetting $setting): string => $setting->category?->label() ?? (string) $setting->category),
         ];
     }
 

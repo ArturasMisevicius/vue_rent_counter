@@ -3,10 +3,10 @@
 namespace App\Filament\Concerns;
 
 use App\Enums\SubscriptionAccessMode;
-use App\Support\Admin\OrganizationContext;
-use App\Support\Admin\SubscriptionEnforcement\OrganizationSubscriptionAccess;
-use App\Support\Admin\SubscriptionEnforcement\SubscriptionAccessState;
-use App\Support\Admin\SubscriptionEnforcement\SubscriptionEnforcementMessage;
+use App\Filament\Support\Admin\OrganizationContext;
+use App\Filament\Support\Admin\SubscriptionEnforcement\OrganizationSubscriptionAccess;
+use App\Filament\Support\Admin\SubscriptionEnforcement\SubscriptionAccessState;
+use App\Filament\Support\Admin\SubscriptionEnforcement\SubscriptionEnforcementMessage;
 use Filament\Actions\Action;
 
 trait InteractsWithSubscriptionEnforcement

@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Enums\LanguageStatus;
+use App\Filament\Support\Geography\BalticReferenceCatalog;
 use App\Models\Language;
-use App\Support\Geography\BalticReferenceCatalog;
 use Illuminate\Database\Seeder;
 
 class LanguageSeeder extends Seeder

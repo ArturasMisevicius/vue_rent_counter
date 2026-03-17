@@ -42,7 +42,7 @@ return [
         'description' => 'Use this page as the public starting point for validating the current guest experience.',
         'items' => [
             'Verify the Login and Register entry points.',
-            'Switch between English, Lithuanian, Spanish, and Russian.',
+            'Switch between English, Lithuanian, and Russian.',
             'Confirm the public copy matches the planned role model.',
             'Check that the roadmap communicates the next product surfaces honestly.',
         ],

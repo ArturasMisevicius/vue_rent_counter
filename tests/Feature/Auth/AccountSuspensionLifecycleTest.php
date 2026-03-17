@@ -1,7 +1,7 @@
 <?php
 
-use App\Actions\Superadmin\Organizations\SuspendOrganizationAction;
 use App\Enums\OrganizationStatus;
+use App\Filament\Actions\Superadmin\Organizations\SuspendOrganizationAction;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;

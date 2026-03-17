@@ -1,8 +1,8 @@
 <?php
 
-use App\Actions\Admin\Properties\UpdatePropertyAction;
 use App\Enums\PropertyType;
 use App\Enums\SubscriptionStatus;
+use App\Filament\Actions\Admin\Properties\UpdatePropertyAction;
 use App\Filament\Resources\Properties\Pages\ListProperties;
 use App\Filament\Resources\Tenants\Pages\ListTenants;
 use App\Models\Building;

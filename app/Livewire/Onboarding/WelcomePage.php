@@ -2,8 +2,11 @@
 
 namespace App\Livewire\Onboarding;
 
-use App\Support\Auth\LoginRedirector;
+use App\Filament\Actions\Auth\CompleteOnboardingAction;
+use App\Filament\Requests\Auth\CompleteOnboardingRequest;
+use App\Filament\Support\Auth\LoginRedirector;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Livewire\Component;
 
 class WelcomePage extends Component
@@ -15,6 +18,25 @@ class WelcomePage extends Component
         if (! $user || ! $user->isAdmin() || filled($user->organization_id)) {
             $this->redirect($loginRedirector->for($user));
         }
+    }
+
+    public function store(
+        CompleteOnboardingRequest $request,
+        CompleteOnboardingAction $completeOnboarding,
+        LoginRedirector $loginRedirector,
+    ): RedirectResponse {
+        $user = $request->user();
+
+        if (! $user || ! $user->isAdmin() || filled($user->organization_id)) {
+            return redirect()->to($loginRedirector->for($user));
+        }
+
+        $completeOnboarding->handle(
+            $user,
+            $request->validated(),
+        );
+
+        return redirect()->route('filament.admin.pages.organization-dashboard');
     }
 
     public function render(): View

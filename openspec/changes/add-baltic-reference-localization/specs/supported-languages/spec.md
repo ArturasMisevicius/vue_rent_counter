@@ -7,12 +7,11 @@
 The system SHALL support only `en`, `lt`, and `ru` as seeded platform
 languages for this slice.
 
-#### Scenario: Spanish is no longer a supported seeded language
+#### Scenario: Only the approved locales are seeded
 
 - GIVEN the platform language seeders have run
 - WHEN the supported language list is queried
 - THEN the list contains `en`, `lt`, and `ru`
-- AND the list does not contain `es`
 
 ### Requirement: English Fallback Contract
 

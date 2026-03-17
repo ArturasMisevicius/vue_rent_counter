@@ -31,7 +31,7 @@ class InvoiceInfolist
                             ->date(),
                         TextEntry::make('status')
                             ->label(__('admin.invoices.fields.status'))
-                            ->formatStateUsing(fn ($state): string => __('admin.invoices.statuses.'.($state->value ?? $state))),
+                            ->badge(),
                         TextEntry::make('due_date')
                             ->label(__('admin.invoices.fields.due_date'))
                             ->date(),
@@ -44,18 +44,18 @@ class InvoiceInfolist
                             ->state(fn ($record): string => sprintf('%s %s', $record->currency, number_format((float) $record->total_amount, 2))),
                         TextEntry::make('amount_paid')
                             ->label(__('admin.invoices.fields.amount_paid'))
-                            ->state(fn ($record): string => sprintf('%s %s', $record->currency, number_format((float) $record->amount_paid, 2))),
+                            ->state(fn ($record): string => sprintf('%s %s', $record->currency, number_format($record->normalized_paid_amount, 2))),
                         TextEntry::make('document_path')
                             ->label(__('admin.invoices.fields.document_path'))
                             ->default(__('admin.invoices.empty.document_path')),
                         TextEntry::make('status_summary')
                             ->label(__('admin.invoices.fields.status_summary'))
                             ->state(function ($record): string {
-                                if ($record->status === InvoiceStatus::PAID) {
+                                if ($record->status === InvoiceStatus::PAID || $record->outstanding_balance <= 0) {
                                     return __('admin.invoices.status_summaries.paid');
                                 }
 
-                                if ((float) $record->amount_paid > 0) {
+                                if ($record->normalized_paid_amount > 0) {
                                     return __('admin.invoices.status_summaries.partially_paid');
                                 }
 

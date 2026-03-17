@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources\Tariffs\Tables;
 
-use App\Actions\Admin\Tariffs\DeleteTariffAction;
 use App\Enums\TariffType;
+use App\Filament\Actions\Admin\Tariffs\DeleteTariffAction;
 use App\Filament\Resources\Tariffs\TariffResource;
+use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Provider;
 use App\Models\Tariff;
-use App\Support\Admin\OrganizationContext;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -31,8 +31,7 @@ class TariffsTable
                     ->sortable(),
                 TextColumn::make('provider.service_type')
                     ->label(__('admin.tariffs.columns.service_type'))
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => __('admin.providers.service_types.'.($state->value ?? $state))),
+                    ->badge(),
                 TextColumn::make('configuration_summary')
                     ->label(__('admin.tariffs.columns.configuration'))
                     ->state(fn (Tariff $record): string => self::formatConfiguration($record->configuration)),
@@ -58,13 +57,7 @@ class TariffsTable
                 SelectFilter::make('configuration_type')
                     ->label(__('admin.tariffs.fields.type'))
                     ->query(fn ($query, array $data) => $query->when($data['value'] ?? null, fn ($query, $type) => $query->where('configuration->type', $type)))
-                    ->options(
-                        collect(TariffType::cases())
-                            ->mapWithKeys(fn (TariffType $type): array => [
-                                $type->value => __('admin.tariffs.types.'.$type->value),
-                            ])
-                            ->all(),
-                    ),
+                    ->options(TariffType::options()),
             ])
             ->recordActions([
                 ViewAction::make(),
@@ -88,7 +81,7 @@ class TariffsTable
         $parts = [];
 
         if (isset($configuration['type'])) {
-            $parts[] = __('admin.tariffs.types.'.(string) $configuration['type']);
+            $parts[] = TariffType::tryFrom((string) $configuration['type'])?->label() ?? (string) $configuration['type'];
         }
 
         if (filled($configuration['currency'] ?? null)) {

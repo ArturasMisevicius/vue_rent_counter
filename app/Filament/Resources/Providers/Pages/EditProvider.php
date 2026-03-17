@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Providers\Pages;
 
-use App\Actions\Admin\Providers\DeleteProviderAction;
-use App\Actions\Admin\Providers\UpdateProviderAction;
+use App\Filament\Actions\Admin\Providers\DeleteProviderAction;
+use App\Filament\Actions\Admin\Providers\UpdateProviderAction;
 use App\Filament\Resources\Providers\ProviderResource;
 use App\Models\Provider;
 use Filament\Actions\DeleteAction;

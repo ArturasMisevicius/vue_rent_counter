@@ -1,14 +1,14 @@
 <?php
 
-use App\Actions\Admin\Providers\DeleteProviderAction;
-use App\Actions\Admin\ServiceConfigurations\CreateServiceConfigurationAction;
-use App\Actions\Admin\ServiceConfigurations\UpdateServiceConfigurationAction;
-use App\Actions\Admin\Tariffs\DeleteTariffAction;
-use App\Actions\Admin\UtilityServices\CreateUtilityServiceAction;
-use App\Actions\Admin\UtilityServices\UpdateUtilityServiceAction;
 use App\Enums\DistributionMethod;
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
+use App\Filament\Actions\Admin\Providers\DeleteProviderAction;
+use App\Filament\Actions\Admin\ServiceConfigurations\CreateServiceConfigurationAction;
+use App\Filament\Actions\Admin\ServiceConfigurations\UpdateServiceConfigurationAction;
+use App\Filament\Actions\Admin\Tariffs\DeleteTariffAction;
+use App\Filament\Actions\Admin\UtilityServices\CreateUtilityServiceAction;
+use App\Filament\Actions\Admin\UtilityServices\UpdateUtilityServiceAction;
 use App\Models\Building;
 use App\Models\Organization;
 use App\Models\Property;

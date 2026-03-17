@@ -2,8 +2,13 @@
 
 namespace App\Enums;
 
-enum PricingModel: string
+use App\Enums\Concerns\HasTranslatedLabel;
+use Filament\Support\Contracts\HasLabel;
+
+enum PricingModel: string implements HasLabel
 {
+    use HasTranslatedLabel;
+
     case FIXED_MONTHLY = 'fixed_monthly';
     case CONSUMPTION_BASED = 'consumption_based';
     case TIERED_RATES = 'tiered_rates';

@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\Buildings\Tables;
 
-use App\Actions\Admin\Buildings\DeleteBuildingAction;
+use App\Filament\Actions\Admin\Buildings\DeleteBuildingAction;
 use App\Filament\Resources\Buildings\BuildingResource;
+use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Building;
-use App\Support\Admin\OrganizationContext;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;

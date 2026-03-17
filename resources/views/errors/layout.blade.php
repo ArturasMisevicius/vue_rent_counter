@@ -1,4 +1,4 @@
-@php($dashboardUrl = app(\App\Support\Shell\DashboardUrlResolver::class)->for(auth()->user()))
+@php($dashboardUrl = app(\App\Filament\Support\Shell\DashboardUrlResolver::class)->for(auth()->user()))
 
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">

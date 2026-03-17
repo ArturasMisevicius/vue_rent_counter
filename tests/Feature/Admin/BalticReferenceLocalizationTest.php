@@ -1,12 +1,12 @@
 <?php
 
 use App\Enums\LanguageStatus;
+use App\Filament\Support\Geography\BalticReferenceCatalog;
 use App\Models\Building;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\Language;
 use App\Models\Translation;
-use App\Support\Geography\BalticReferenceCatalog;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
@@ -21,14 +21,6 @@ it('creates baltic country and city reference tables and models', function () {
 });
 
 it('seeds baltic-only locales together with multilingual country and city translations', function () {
-    Language::factory()->create([
-        'code' => 'es',
-        'name' => 'Spanish',
-        'native_name' => 'Español',
-        'status' => LanguageStatus::ACTIVE,
-        'is_default' => false,
-    ]);
-
     $this->seed(DatabaseSeeder::class);
 
     $activeLanguages = Language::query()
@@ -36,10 +28,10 @@ it('seeds baltic-only locales together with multilingual country and city transl
         ->pluck('code')
         ->all();
 
-    expect(array_keys(config('app.supported_locales')))->toEqualCanonicalizing(['en', 'lt', 'ru', 'es'])
-        ->and(array_keys(config('tenanto.locales')))->toEqualCanonicalizing(['en', 'lt', 'ru', 'es'])
+    expect(array_keys(config('app.supported_locales')))->toEqualCanonicalizing(['en', 'lt', 'ru'])
+        ->and(array_keys(config('tenanto.locales')))->toEqualCanonicalizing(['en', 'lt', 'ru'])
         ->and($activeLanguages)->toEqualCanonicalizing(['en', 'lt', 'ru'])
-        ->and(Language::query()->where('code', 'es')->first()?->status)->toBe(LanguageStatus::INACTIVE)
+        ->and(Language::query()->whereNotIn('code', ['en', 'lt', 'ru'])->exists())->toBeFalse()
         ->and(Country::query()->count())->toBe(3)
         ->and(City::query()->count())->toBe(count(BalticReferenceCatalog::cities()))
         ->and(Country::query()->baltic()->with('cities')->get()->pluck('code')->all())->toEqualCanonicalizing(['EE', 'LT', 'LV'])

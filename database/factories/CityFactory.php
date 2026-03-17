@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Filament\Support\Geography\BalticReferenceCatalog;
 use App\Models\City;
 use App\Models\Country;
-use App\Support\Geography\BalticReferenceCatalog;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

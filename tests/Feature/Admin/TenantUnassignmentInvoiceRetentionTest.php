@@ -1,7 +1,7 @@
 <?php
 
-use App\Actions\Admin\Invoices\GenerateBulkInvoicesAction;
-use App\Actions\Admin\Properties\UnassignTenantFromPropertyAction;
+use App\Filament\Actions\Admin\Invoices\GenerateBulkInvoicesAction;
+use App\Filament\Actions\Admin\Properties\UnassignTenantFromPropertyAction;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Organization;

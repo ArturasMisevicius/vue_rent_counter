@@ -16,6 +16,18 @@ class Property extends Model
     /** @use HasFactory<PropertyFactory> */
     use HasFactory;
 
+    private const WORKSPACE_COLUMNS = [
+        'id',
+        'organization_id',
+        'building_id',
+        'name',
+        'unit_number',
+        'type',
+        'floor_area_sqm',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $fillable = [
         'organization_id',
         'building_id',
@@ -33,29 +45,57 @@ class Property extends Model
         ];
     }
 
+    public function scopeForOrganization(Builder $query, int $organizationId): Builder
+    {
+        return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeWithAddressRelations(Builder $query): Builder
+    {
+        return $query->with([
+            'building:id,organization_id,name,address_line_1,address_line_2,city,postal_code,country_code',
+        ]);
+    }
+
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query
+            ->orderBy('name')
+            ->orderBy('id');
+    }
+
+    public function scopeWithCurrentAssignmentSummary(Builder $query): Builder
+    {
+        return $query->with([
+            'currentAssignment:id,organization_id,property_id,tenant_user_id,assigned_at,unassigned_at',
+            'currentAssignment.tenant:id,name',
+        ]);
+    }
+
+    public function scopeWithAssignmentHistory(Builder $query): Builder
+    {
+        return $query->with([
+            'assignments:id,organization_id,property_id,tenant_user_id,assigned_at,unassigned_at',
+            'assignments.tenant:id,name',
+        ]);
+    }
+
+    public function scopeWithWorkspaceSummary(Builder $query): Builder
+    {
+        return $query
+            ->select(self::WORKSPACE_COLUMNS)
+            ->withAddressRelations()
+            ->withCurrentAssignmentSummary()
+            ->withCount('meters');
+    }
+
     public function scopeForOrganizationWorkspace(Builder $query, int $organizationId): Builder
     {
         return $query
-            ->select([
-                'id',
-                'organization_id',
-                'building_id',
-                'name',
-                'unit_number',
-                'type',
-                'floor_area_sqm',
-                'created_at',
-                'updated_at',
-            ])
-            ->where('organization_id', $organizationId)
-            ->with([
-                'building:id,organization_id,name,address_line_1,city',
-                'currentAssignment:id,property_id,tenant_user_id,assigned_at,unassigned_at',
-                'currentAssignment.tenant:id,name',
-                'assignments:id,property_id,tenant_user_id,assigned_at,unassigned_at',
-                'assignments.tenant:id,name',
-            ])
-            ->withCount('meters');
+            ->forOrganization($organizationId)
+            ->withWorkspaceSummary()
+            ->withAssignmentHistory()
+            ->ordered();
     }
 
     public function organization(): BelongsTo
@@ -76,7 +116,8 @@ class Property extends Model
     public function currentAssignment(): HasOne
     {
         return $this->hasOne(PropertyAssignment::class)
-            ->whereNull('unassigned_at');
+            ->current()
+            ->latestAssignedFirst();
     }
 
     public function meters(): HasMany

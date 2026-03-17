@@ -20,10 +20,10 @@ class UtilityServiceInfolist
                             ->label(__('admin.utility_services.fields.unit_of_measurement')),
                         TextEntry::make('default_pricing_model')
                             ->label(__('admin.utility_services.fields.default_pricing_model'))
-                            ->formatStateUsing(fn ($state): string => __('admin.utility_services.pricing_models.'.($state->value ?? $state))),
+                            ->badge(),
                         TextEntry::make('service_type_bridge')
                             ->label(__('admin.utility_services.fields.service_type_bridge'))
-                            ->formatStateUsing(fn ($state): string => __('admin.utility_services.types.'.($state->value ?? $state))),
+                            ->badge(),
                         TextEntry::make('description')
                             ->label(__('admin.utility_services.fields.description')),
                     ])

@@ -14,6 +14,20 @@ class OrganizationInvitation extends Model
     /** @use HasFactory<OrganizationInvitationFactory> */
     use HasFactory;
 
+    private const ACCEPTANCE_COLUMNS = [
+        'id',
+        'organization_id',
+        'inviter_user_id',
+        'email',
+        'role',
+        'full_name',
+        'token',
+        'expires_at',
+        'accepted_at',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $fillable = [
         'organization_id',
         'inviter_user_id',
@@ -47,20 +61,58 @@ class OrganizationInvitation extends Model
     public function scopeForAcceptancePortal(Builder $query): Builder
     {
         return $query
-            ->select([
-                'id',
-                'organization_id',
-                'inviter_user_id',
-                'email',
-                'role',
-                'full_name',
-                'token',
-                'expires_at',
-                'accepted_at',
-            ])
-            ->with([
-                'organization:id,name',
-            ]);
+            ->select(self::ACCEPTANCE_COLUMNS)
+            ->withAcceptanceSummary()
+            ->latestExpiryFirst();
+    }
+
+    public function scopeForOrganization(Builder $query, int $organizationId): Builder
+    {
+        return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeForToken(Builder $query, string $token): Builder
+    {
+        return $query->where('token', $token);
+    }
+
+    public function scopeAccepted(Builder $query): Builder
+    {
+        return $query->whereNotNull('accepted_at');
+    }
+
+    public function scopeUnexpired(Builder $query): Builder
+    {
+        return $query->where('expires_at', '>=', now());
+    }
+
+    public function scopePending(Builder $query): Builder
+    {
+        return $query
+            ->whereNull('accepted_at')
+            ->unexpired();
+    }
+
+    public function scopePendingForEmail(Builder $query, string $email): Builder
+    {
+        return $query
+            ->pending()
+            ->where('email', $email);
+    }
+
+    public function scopeLatestExpiryFirst(Builder $query): Builder
+    {
+        return $query
+            ->orderBy('expires_at')
+            ->orderByDesc('id');
+    }
+
+    public function scopeWithAcceptanceSummary(Builder $query): Builder
+    {
+        return $query->with([
+            'organization:id,name',
+            'inviter:id,organization_id,name,email,role,status',
+        ]);
     }
 
     public function isAccepted(): bool

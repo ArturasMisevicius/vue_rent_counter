@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources\Properties\Tables;
 
-use App\Actions\Admin\Properties\DeletePropertyAction;
 use App\Enums\PropertyType;
+use App\Filament\Actions\Admin\Properties\DeletePropertyAction;
 use App\Filament\Resources\Properties\PropertyResource;
+use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Building;
 use App\Models\Property;
-use App\Support\Admin\OrganizationContext;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -36,10 +36,7 @@ class PropertiesTable
                     ->toggleable(),
                 TextColumn::make('type')
                     ->label(__('admin.properties.fields.type'))
-                    ->badge()
-                    ->formatStateUsing(
-                        fn (PropertyType|string $state): string => __('admin.properties.types.'.($state instanceof PropertyType ? $state->value : $state)),
-                    ),
+                    ->badge(),
                 TextColumn::make('currentAssignment.tenant.name')
                     ->label(__('admin.properties.fields.current_tenant'))
                     ->default(__('admin.properties.empty.unassigned'))
@@ -60,13 +57,7 @@ class PropertiesTable
                         ->all()),
                 SelectFilter::make('type')
                     ->label(__('admin.properties.fields.type'))
-                    ->options(
-                        collect(PropertyType::cases())
-                            ->mapWithKeys(fn (PropertyType $type): array => [
-                                $type->value => __('admin.properties.types.'.$type->value),
-                            ])
-                            ->all(),
-                    ),
+                    ->options(PropertyType::options()),
             ])
             ->emptyStateHeading(__('admin.properties.empty_state.heading'))
             ->emptyStateDescription(__('admin.properties.empty_state.description'))

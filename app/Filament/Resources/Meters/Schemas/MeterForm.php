@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Meters\Schemas;
 
 use App\Enums\MeterStatus;
 use App\Enums\MeterType;
-use App\Support\Admin\OrganizationContext;
+use App\Filament\Support\Admin\OrganizationContext;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -42,23 +42,14 @@ class MeterForm
                             ->maxLength(255),
                         Select::make('type')
                             ->label(__('admin.meters.fields.type'))
-                            ->options(
-                                collect(MeterType::cases())
-                                    ->mapWithKeys(fn (MeterType $type): array => [
-                                        $type->value => __('admin.meters.types.'.$type->value),
-                                    ])
-                                    ->all(),
-                            )
+                            ->options(MeterType::options())
                             ->required(),
                         TextInput::make('unit')
                             ->label(__('admin.meters.fields.unit'))
                             ->placeholder(__('admin.meters.fields.unit_placeholder')),
                         Select::make('status')
                             ->label(__('admin.meters.fields.status'))
-                            ->options([
-                                MeterStatus::ACTIVE->value => __('admin.meters.statuses.active'),
-                                MeterStatus::INACTIVE->value => __('admin.meters.statuses.inactive'),
-                            ])
+                            ->options(MeterStatus::options())
                             ->default(MeterStatus::ACTIVE->value)
                             ->required(),
                         DatePicker::make('installed_at')

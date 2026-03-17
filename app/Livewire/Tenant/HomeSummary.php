@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Tenant;
 
+use App\Filament\Support\Tenant\Portal\TenantHomePresenter;
 use App\Models\User;
-use App\Support\Tenant\Portal\TenantHomePresenter;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 

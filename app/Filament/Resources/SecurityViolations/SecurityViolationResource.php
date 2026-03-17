@@ -32,8 +32,7 @@ class SecurityViolationResource extends Resource
                     ->searchable(),
                 TextColumn::make('severity')
                     ->label('Severity')
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => ucfirst((string) ($state->value ?? $state))),
+                    ->badge(),
                 TextColumn::make('organization.name')
                     ->label('Organization')
                     ->searchable(),

@@ -1,0 +1,166 @@
+<?php
+
+return [
+    'audit_log_action' => [
+        'created' => 'Sukurtas',
+        'updated' => 'Atnaujintas',
+        'deleted' => 'Ištrintas',
+        'suspended' => 'Sustabdytas',
+        'reinstated' => 'Atkurtas',
+        'sent' => 'Išsiųstas',
+    ],
+    'distribution_method' => [
+        'equal' => 'Po lygiai',
+        'area' => 'Pagal plotą',
+        'by_consumption' => 'Pagal suvartojimą',
+        'custom_formula' => 'Pasirinktinė formulė',
+    ],
+    'integration_health_status' => [
+        'healthy' => 'Veikia gerai',
+        'degraded' => 'Veikia prasčiau',
+        'failed' => 'Nepavyko',
+    ],
+    'invoice_status' => [
+        'draft' => 'Juodraštis',
+        'finalized' => 'Patvirtinta',
+        'partially_paid' => 'Apmokėta iš dalies',
+        'paid' => 'Apmokėta',
+        'overdue' => 'Pradelsta',
+        'void' => 'Anuliuota',
+    ],
+    'language_status' => [
+        'active' => 'Aktyvi',
+        'inactive' => 'Neaktyvi',
+    ],
+    'meter_reading_submission_method' => [
+        'admin_manual' => 'Administratoriaus įrašas',
+        'tenant_portal' => 'Nuomininko portalas',
+        'import' => 'Importas',
+    ],
+    'meter_reading_validation_status' => [
+        'pending' => 'Laukiama',
+        'valid' => 'Galiojanti',
+        'flagged' => 'Pažymėta',
+        'rejected' => 'Atmesta',
+    ],
+    'meter_status' => [
+        'active' => 'Aktyvus',
+        'inactive' => 'Neaktyvus',
+    ],
+    'meter_type' => [
+        'water' => 'Vanduo',
+        'electricity' => 'Elektra',
+        'gas' => 'Dujos',
+        'heating' => 'Šildymas',
+    ],
+    'organization_status' => [
+        'active' => 'Aktyvi',
+        'suspended' => 'Sustabdyta',
+    ],
+    'payment_method' => [
+        'bank_transfer' => 'Bankinis pavedimas',
+        'card' => 'Kortelė',
+        'cash' => 'Grynieji',
+        'other' => 'Kita',
+    ],
+    'platform_notification_severity' => [
+        'info' => 'Informacija',
+        'success' => 'Sėkminga',
+        'warning' => 'Įspėjimas',
+        'error' => 'Klaida',
+    ],
+    'platform_notification_status' => [
+        'draft' => 'Juodraštis',
+        'scheduled' => 'Suplanuota',
+        'sent' => 'Išsiųsta',
+        'failed' => 'Nepavyko',
+    ],
+    'pricing_model' => [
+        'fixed_monthly' => 'Fiksuotas mėnesinis',
+        'consumption_based' => 'Pagal suvartojimą',
+        'tiered_rates' => 'Pakopiniai tarifai',
+        'hybrid' => 'Hibridinis',
+        'custom_formula' => 'Pasirinktinė formulė',
+        'flat' => 'Fiksuotas',
+        'time_of_use' => 'Pagal laiką',
+    ],
+    'property_type' => [
+        'apartment' => 'Butas',
+        'house' => 'Namas',
+        'office' => 'Biuras',
+        'storage' => 'Sandėliukas',
+    ],
+    'security_violation_severity' => [
+        'low' => 'Žema',
+        'medium' => 'Vidutinė',
+        'high' => 'Aukšta',
+        'critical' => 'Kritinė',
+    ],
+    'security_violation_type' => [
+        'authentication' => 'Autentifikacija',
+        'rate_limit' => 'Greičio ribojimas',
+        'suspicious_ip' => 'Įtartinas IP',
+        'data_access' => 'Duomenų prieiga',
+    ],
+    'service_type' => [
+        'electricity' => 'Elektra',
+        'water' => 'Vanduo',
+        'heating' => 'Šildymas',
+        'gas' => 'Dujos',
+    ],
+    'subscription_access_mode' => [
+        'active' => 'Aktyvus',
+        'limit_blocked' => 'Apribotas limitu',
+        'grace_read_only' => 'Tik skaitymas per lengvatinį laikotarpį',
+        'post_grace_read_only' => 'Tik skaitymas po lengvatinio laikotarpio',
+    ],
+    'subscription_duration' => [
+        'monthly' => 'Mėnesinis',
+        'quarterly' => 'Ketvirtinis',
+        'yearly' => 'Metinis',
+    ],
+    'subscription_plan' => [
+        'basic' => 'Bazinis',
+        'professional' => 'Profesionalus',
+        'enterprise' => 'Verslo',
+    ],
+    'subscription_status' => [
+        'trialing' => 'Bandomasis',
+        'active' => 'Aktyvi',
+        'expired' => 'Pasibaigusi',
+        'suspended' => 'Sustabdyta',
+        'cancelled' => 'Atšaukta',
+    ],
+    'system_setting_category' => [
+        'general' => 'Bendrieji',
+        'billing' => 'Apmokėjimas',
+        'localization' => 'Lokalizacija',
+        'security' => 'Saugumas',
+        'integrations' => 'Integracijos',
+    ],
+    'tariff_type' => [
+        'flat' => 'Fiksuotas',
+        'time_of_use' => 'Pagal laiką',
+    ],
+    'tariff_zone' => [
+        'day' => 'Diena',
+        'night' => 'Naktis',
+        'weekend' => 'Savaitgalis',
+    ],
+    'user_role' => [
+        'superadmin' => 'Superadministratorius',
+        'admin' => 'Administratorius',
+        'manager' => 'Vadybininkas',
+        'tenant' => 'Nuomininkas',
+    ],
+    'user_status' => [
+        'active' => 'Aktyvus',
+        'inactive' => 'Neaktyvus',
+        'suspended' => 'Sustabdytas',
+    ],
+    'weekend_logic' => [
+        'apply_night_rate' => 'Taikyti naktinį tarifą',
+        'apply_day_rate' => 'Taikyti dieninį tarifą',
+        'apply_weekend_rate' => 'Taikyti savaitgalio tarifą',
+    ],
+];

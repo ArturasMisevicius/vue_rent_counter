@@ -26,12 +26,12 @@ class MeterInfolist
                             ->label(__('admin.meters.fields.identifier')),
                         TextEntry::make('type')
                             ->label(__('admin.meters.fields.type'))
-                            ->formatStateUsing(fn ($state): string => __('admin.meters.types.'.($state->value ?? $state))),
+                            ->badge(),
                         TextEntry::make('unit')
                             ->label(__('admin.meters.fields.unit')),
                         TextEntry::make('status')
                             ->label(__('admin.meters.fields.status'))
-                            ->formatStateUsing(fn ($state): string => __('admin.meters.statuses.'.($state->value ?? $state))),
+                            ->badge(),
                         TextEntry::make('installed_at')
                             ->label(__('admin.meters.fields.installed_at'))
                             ->date(),
@@ -42,7 +42,16 @@ class MeterInfolist
                         TextEntry::make('reading_history')
                             ->label(__('admin.meters.fields.reading_history'))
                             ->state(function (Meter $record): string {
-                                $history = $record->readings
+                                $readings = $record->relationLoaded('readings')
+                                    ? $record->readings
+                                    : MeterReading::query()
+                                        ->select(['id', 'organization_id', 'meter_id', 'reading_value', 'reading_date'])
+                                        ->forOrganization($record->organization_id)
+                                        ->forMeter($record->id)
+                                        ->latestFirst()
+                                        ->get();
+
+                                $history = $readings
                                     ->sortByDesc('reading_date')
                                     ->map(function (MeterReading $reading): string {
                                         return implode(' · ', array_filter([

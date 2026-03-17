@@ -1,8 +1,8 @@
 <?php
 
-use App\Actions\Superadmin\Integration\ResetIntegrationCircuitBreakerAction;
-use App\Actions\Superadmin\Integration\RunIntegrationHealthChecksAction;
 use App\Enums\IntegrationHealthStatus;
+use App\Filament\Actions\Superadmin\Integration\ResetIntegrationCircuitBreakerAction;
+use App\Filament\Actions\Superadmin\Integration\RunIntegrationHealthChecksAction;
 use App\Models\IntegrationHealthCheck;
 use App\Models\Organization;
 use App\Models\User;

@@ -1,8 +1,8 @@
 <?php
 
-use App\Actions\Superadmin\Security\BlockIpAddressAction;
 use App\Enums\SecurityViolationSeverity;
 use App\Enums\SecurityViolationType;
+use App\Filament\Actions\Superadmin\Security\BlockIpAddressAction;
 use App\Models\Organization;
 use App\Models\SecurityViolation;
 use App\Models\User;

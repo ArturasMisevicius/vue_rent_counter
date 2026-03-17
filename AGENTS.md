@@ -221,6 +221,8 @@ or static analysis failures. Never ignores errors without user approval.
 ## Application Structure & Architecture
 
 - Stick to existing directory structure; don't create new base folders without approval.
+- This repository's approved foundation directories for request validation, actions, and support services are `app/Filament/Requests`, `app/Filament/Actions`, and `app/Filament/Support`.
+- Do not create `app/Http/Requests`, `app/Actions`, or `app/Support`. Any new request, action, or support class belongs in the Filament foundation tree.
 - Do not change the application's dependencies without approval.
 
 ## Frontend Bundling
@@ -350,7 +352,9 @@ protected function isAccessible(User $user, ?string $path = null): bool
 ## Controllers & Validation
 
 - Always create Form Request classes for validation rather than inline validation in controllers. Include both validation rules and custom error messages.
+- Form Request classes must live under `App\\Filament\\Requests\\...`, not `App\\Http\\Requests\\...`.
 - Check sibling Form Requests to see if the application uses array or string based validation rules.
+- Shared orchestration and support code must live under `App\\Filament\\Actions\\...` and `App\\Filament\\Support\\...`.
 
 ## Authentication & Authorization
 

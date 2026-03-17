@@ -2,9 +2,9 @@
 
 namespace App\Filament\Pages;
 
-use App\Actions\Admin\Invoices\GenerateBulkInvoicesAction;
+use App\Filament\Actions\Admin\Invoices\GenerateBulkInvoicesAction;
+use App\Filament\Support\Admin\Invoices\BulkInvoicePreviewBuilder;
 use App\Models\Organization;
-use App\Support\Admin\Invoices\BulkInvoicePreviewBuilder;
 use Filament\Pages\Page;
 
 class GenerateBulkInvoices extends Page

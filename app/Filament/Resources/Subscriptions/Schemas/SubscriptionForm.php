@@ -26,11 +26,11 @@ class SubscriptionForm
                             ->required(),
                         Select::make('plan')
                             ->label('Plan')
-                            ->options(collect(SubscriptionPlan::cases())->mapWithKeys(fn (SubscriptionPlan $plan): array => [$plan->value => $plan->label()])->all())
+                            ->options(SubscriptionPlan::options())
                             ->required(),
                         Select::make('status')
                             ->label('Status')
-                            ->options(collect(SubscriptionStatus::cases())->mapWithKeys(fn (SubscriptionStatus $status): array => [$status->value => $status->label()])->all())
+                            ->options(SubscriptionStatus::options())
                             ->required(),
                         DateTimePicker::make('starts_at')->label('Starts At')->required(),
                         DateTimePicker::make('expires_at')->label('Expires At')->required(),

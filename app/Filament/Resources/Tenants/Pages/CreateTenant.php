@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Tenants\Pages;
 
-use App\Actions\Admin\Tenants\CreateTenantAction;
+use App\Filament\Actions\Admin\Tenants\CreateTenantAction;
 use App\Filament\Resources\Tenants\TenantResource;
-use App\Support\Admin\OrganizationContext;
+use App\Filament\Support\Admin\OrganizationContext;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 

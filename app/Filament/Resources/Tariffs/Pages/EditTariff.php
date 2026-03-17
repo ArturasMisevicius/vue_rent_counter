@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Tariffs\Pages;
 
-use App\Actions\Admin\Tariffs\DeleteTariffAction;
-use App\Actions\Admin\Tariffs\UpdateTariffAction;
+use App\Filament\Actions\Admin\Tariffs\DeleteTariffAction;
+use App\Filament\Actions\Admin\Tariffs\UpdateTariffAction;
 use App\Filament\Resources\Tariffs\TariffResource;
 use App\Models\Tariff;
 use Filament\Actions\DeleteAction;

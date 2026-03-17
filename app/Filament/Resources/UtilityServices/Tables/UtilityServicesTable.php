@@ -23,8 +23,7 @@ class UtilityServicesTable
                     ->sortable(),
                 TextColumn::make('default_pricing_model')
                     ->label(__('admin.utility_services.columns.default_pricing_model'))
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => __('admin.utility_services.pricing_models.'.($state->value ?? $state))),
+                    ->badge(),
             ])
             ->recordActions([
                 ViewAction::make(),

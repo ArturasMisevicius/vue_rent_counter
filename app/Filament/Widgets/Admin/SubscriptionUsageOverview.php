@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets\Admin;
 
-use App\Support\Admin\Dashboard\AdminDashboardStats;
+use App\Filament\Support\Admin\Dashboard\AdminDashboardStats;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 

@@ -6,6 +6,23 @@ description: Backed enums with labels and business logic. Use when working with 
 
 Enums provide type-safe, finite sets of values.
 
+## Project Enum Convention
+
+In this repository:
+
+- Keep application enums under `App\\Enums`.
+- Make every UI-facing enum implement `Filament\\Support\\Contracts\\HasLabel`.
+- Reuse `App\\Enums\\Concerns\\HasTranslatedLabel` so every case gets:
+  - `label()`
+  - `getLabel()`
+  - `options()`
+  - `labels()`
+- Store enum labels in `lang/en/enums.php`, `lang/lt/enums.php`, and `lang/ru/enums.php`.
+- Use `Rule::enum(EnumClass::class)` for validation instead of `Rule::in([...])`.
+- In Filament forms and filters, prefer `EnumClass::options()` over manual `cases()` maps.
+- In Filament tables, infolists, Livewire, and Blade, prefer enum instances with `->label()` or automatic `HasLabel` rendering.
+- Do not use `ucfirst($enum->value)`, `str_replace('_', ' ', ...)`, or hardcoded option arrays for enum presentation.
+
 **Related guides:**
 - [State Machines](../laravel-state-machines/SKILL.md) - For complex state transitions
 - [Models](../laravel-models/SKILL.md) - Model casts to enums

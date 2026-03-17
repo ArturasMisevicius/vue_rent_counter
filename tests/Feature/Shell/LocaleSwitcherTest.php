@@ -17,8 +17,7 @@ it('shows the current locale abbreviation and locale names in their own language
         ->assertSee('LT')
         ->assertSee('English')
         ->assertSee('Lietuvių')
-        ->assertSee('Русский')
-        ->assertSee('Español');
+        ->assertSee('Русский');
 });
 
 it('persists the selected locale for the authenticated user', function () {

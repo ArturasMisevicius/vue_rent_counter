@@ -15,6 +15,16 @@ class Provider extends Model
     /** @use HasFactory<ProviderFactory> */
     use HasFactory;
 
+    private const SUMMARY_COLUMNS = [
+        'id',
+        'organization_id',
+        'name',
+        'service_type',
+        'contact_info',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $fillable = [
         'organization_id',
         'name',
@@ -48,15 +58,22 @@ class Provider extends Model
     public function scopeForOrganization(Builder $query, ?int $organizationId): Builder
     {
         return $query
-            ->select([
-                'id',
-                'organization_id',
-                'name',
-                'service_type',
-                'contact_info',
-                'created_at',
-                'updated_at',
-            ])
-            ->where('organization_id', $organizationId);
+            ->select(self::SUMMARY_COLUMNS)
+            ->where('organization_id', $organizationId)
+            ->ordered();
+    }
+
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query
+            ->orderBy('name')
+            ->orderBy('id');
+    }
+
+    public function scopeWithOrganizationSummary(Builder $query): Builder
+    {
+        return $query->with([
+            'organization:id,name',
+        ]);
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Shell;
 
+use App\Filament\Support\Auth\ImpersonationManager;
+use App\Filament\Support\Shell\DashboardUrlResolver;
 use App\Models\User;
-use App\Support\Auth\ImpersonationManager;
-use App\Support\Shell\DashboardUrlResolver;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Route;
 use Livewire\Attributes\On;

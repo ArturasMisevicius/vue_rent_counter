@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Tariffs\Schemas;
 
+use App\Enums\TariffType;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -18,8 +19,7 @@ class TariffInfolist
                             ->label(__('admin.tariffs.fields.provider')),
                         TextEntry::make('provider.service_type')
                             ->label(__('admin.tariffs.fields.service_type'))
-                            ->badge()
-                            ->formatStateUsing(fn ($state): string => __('admin.providers.service_types.'.($state->value ?? $state))),
+                            ->badge(),
                         TextEntry::make('name')
                             ->label(__('admin.tariffs.fields.name')),
                         TextEntry::make('remote_id')
@@ -54,7 +54,7 @@ class TariffInfolist
         $parts = [];
 
         if (isset($configuration['type'])) {
-            $parts[] = __('admin.tariffs.types.'.(string) $configuration['type']);
+            $parts[] = TariffType::tryFrom((string) $configuration['type'])?->label() ?? (string) $configuration['type'];
         }
 
         if (filled($configuration['currency'] ?? null)) {

@@ -4,7 +4,7 @@ namespace App\Filament\Resources\UtilityServices\Schemas;
 
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
-use App\Support\Admin\OrganizationContext;
+use App\Filament\Support\Admin\OrganizationContext;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -33,23 +33,11 @@ class UtilityServiceForm
                             ->maxLength(50),
                         Select::make('default_pricing_model')
                             ->label(__('admin.utility_services.fields.default_pricing_model'))
-                            ->options(
-                                collect(PricingModel::cases())
-                                    ->mapWithKeys(fn (PricingModel $model): array => [
-                                        $model->value => __('admin.utility_services.pricing_models.'.$model->value),
-                                    ])
-                                    ->all(),
-                            )
+                            ->options(PricingModel::options())
                             ->required(),
                         Select::make('service_type_bridge')
                             ->label(__('admin.utility_services.fields.service_type_bridge'))
-                            ->options(
-                                collect(ServiceType::cases())
-                                    ->mapWithKeys(fn (ServiceType $type): array => [
-                                        $type->value => __('admin.utility_services.types.'.$type->value),
-                                    ])
-                                    ->all(),
-                            )
+                            ->options(ServiceType::options())
                             ->required(),
                         Textarea::make('description')
                             ->label(__('admin.utility_services.fields.description'))

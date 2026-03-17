@@ -2,8 +2,13 @@
 
 namespace App\Enums;
 
-enum OrganizationStatus: string
+use App\Enums\Concerns\HasTranslatedLabel;
+use Filament\Support\Contracts\HasLabel;
+
+enum OrganizationStatus: string implements HasLabel
 {
+    use HasTranslatedLabel;
+
     case ACTIVE = 'active';
     case SUSPENDED = 'suspended';
 }

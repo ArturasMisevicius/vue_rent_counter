@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Properties\Pages;
 
-use App\Actions\Admin\Properties\UpdatePropertyAction;
+use App\Filament\Actions\Admin\Properties\UpdatePropertyAction;
 use App\Filament\Resources\Properties\PropertyResource;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;

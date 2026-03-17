@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\SystemSettingCategory;
 use Database\Factories\SystemSettingFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,5 +28,18 @@ class SystemSetting extends Model
             'value' => 'array',
             'is_encrypted' => 'boolean',
         ];
+    }
+
+    public function scopeForCategory(Builder $query, SystemSettingCategory $category): Builder
+    {
+        return $query->where('category', $category);
+    }
+
+    public function scopeOrderedForDisplay(Builder $query): Builder
+    {
+        return $query
+            ->orderBy('category')
+            ->orderBy('label')
+            ->orderBy('id');
     }
 }

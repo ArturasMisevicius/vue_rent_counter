@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Shell;
 
-use App\Support\Shell\Notifications\DatabaseNotificationPresenter;
+use App\Filament\Support\Shell\Notifications\DatabaseNotificationPresenter;
 use Illuminate\Contracts\View\View;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Collection;

@@ -14,6 +14,19 @@ class Building extends Model
     /** @use HasFactory<BuildingFactory> */
     use HasFactory;
 
+    private const WORKSPACE_COLUMNS = [
+        'id',
+        'organization_id',
+        'name',
+        'address_line_1',
+        'address_line_2',
+        'city',
+        'postal_code',
+        'country_code',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $fillable = [
         'organization_id',
         'name',
@@ -24,23 +37,30 @@ class Building extends Model
         'country_code',
     ];
 
+    public function scopeForOrganization(Builder $query, int $organizationId): Builder
+    {
+        return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query
+            ->orderBy('name')
+            ->orderBy('id');
+    }
+
+    public function scopeWithPropertyCount(Builder $query): Builder
+    {
+        return $query->withCount('properties');
+    }
+
     public function scopeForOrganizationWorkspace(Builder $query, int $organizationId): Builder
     {
         return $query
-            ->select([
-                'id',
-                'organization_id',
-                'name',
-                'address_line_1',
-                'address_line_2',
-                'city',
-                'postal_code',
-                'country_code',
-                'created_at',
-                'updated_at',
-            ])
-            ->where('organization_id', $organizationId)
-            ->withCount('properties');
+            ->select(self::WORKSPACE_COLUMNS)
+            ->forOrganization($organizationId)
+            ->withPropertyCount()
+            ->ordered();
     }
 
     public function organization(): BelongsTo

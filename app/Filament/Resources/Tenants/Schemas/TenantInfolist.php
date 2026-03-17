@@ -24,7 +24,7 @@ class TenantInfolist
                             ->label(__('admin.tenants.fields.locale')),
                         TextEntry::make('status')
                             ->label(__('admin.tenants.fields.status'))
-                            ->formatStateUsing(fn ($state): string => ucfirst((string) ($state->value ?? $state))),
+                            ->badge(),
                     ])
                     ->columns(2),
                 Section::make(__('admin.tenants.sections.current_property'))
@@ -46,7 +46,16 @@ class TenantInfolist
                         TextEntry::make('invoice_history')
                             ->label(__('admin.tenants.fields.invoice_history'))
                             ->state(function (User $record): string {
-                                $history = $record->invoices
+                                $invoices = $record->relationLoaded('invoices')
+                                    ? $record->invoices
+                                    : Invoice::query()
+                                        ->select(['id', 'organization_id', 'tenant_user_id', 'invoice_number', 'due_date'])
+                                        ->forOrganization($record->organization_id)
+                                        ->forTenant($record->id)
+                                        ->latestBillingFirst()
+                                        ->get();
+
+                                $history = $invoices
                                     ->sortByDesc('due_date')
                                     ->map(fn (Invoice $invoice): string => $invoice->invoice_number)
                                     ->implode("\n");

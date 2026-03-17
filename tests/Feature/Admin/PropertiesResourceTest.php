@@ -1,11 +1,11 @@
 <?php
 
-use App\Actions\Admin\Properties\AssignTenantToPropertyAction;
-use App\Actions\Admin\Properties\CreatePropertyAction;
-use App\Actions\Admin\Properties\DeletePropertyAction;
-use App\Actions\Admin\Properties\UnassignTenantFromPropertyAction;
-use App\Actions\Admin\Properties\UpdatePropertyAction;
 use App\Enums\PropertyType;
+use App\Filament\Actions\Admin\Properties\AssignTenantToPropertyAction;
+use App\Filament\Actions\Admin\Properties\CreatePropertyAction;
+use App\Filament\Actions\Admin\Properties\DeletePropertyAction;
+use App\Filament\Actions\Admin\Properties\UnassignTenantFromPropertyAction;
+use App\Filament\Actions\Admin\Properties\UpdatePropertyAction;
 use App\Models\Building;
 use App\Models\Organization;
 use App\Models\Property;

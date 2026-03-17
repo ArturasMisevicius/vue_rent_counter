@@ -26,10 +26,7 @@ class OrganizationsTable
                     ->label(__('superadmin.organizations.columns.status'))
                     ->badge()
                     ->color(fn (OrganizationStatus $state): string => $state === OrganizationStatus::ACTIVE ? 'success' : 'danger')
-                    ->formatStateUsing(fn (OrganizationStatus $state): string => match ($state) {
-                        OrganizationStatus::ACTIVE => __('superadmin.organizations.status.active'),
-                        OrganizationStatus::SUSPENDED => __('superadmin.organizations.status.suspended'),
-                    }),
+                    ->formatStateUsing(fn (OrganizationStatus $state): string => $state->label()),
                 TextColumn::make('owner.name')
                     ->label(__('superadmin.organizations.columns.owner'))
                     ->placeholder(__('superadmin.organizations.empty.owner'))
@@ -54,10 +51,7 @@ class OrganizationsTable
             ->filters([
                 SelectFilter::make('status')
                     ->label(__('superadmin.organizations.columns.status'))
-                    ->options([
-                        OrganizationStatus::ACTIVE->value => __('superadmin.organizations.status.active'),
-                        OrganizationStatus::SUSPENDED->value => __('superadmin.organizations.status.suspended'),
-                    ]),
+                    ->options(OrganizationStatus::options()),
             ])
             ->recordActions([
                 ViewAction::make(),

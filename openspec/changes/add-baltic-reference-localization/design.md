@@ -2,13 +2,12 @@
 
 ## Context
 
-The repository currently seeds `en`, `lt`, `ru`, and `es`. The user request now
-narrows the supported language set to `en`, `lt`, and `ru`, and requires
-realistic Baltic-only countries and cities with multilingual naming.
+The repository now standardizes on `en`, `lt`, and `ru` as the supported
+language set and requires realistic Baltic-only countries and cities with
+multilingual naming.
 
 ## Goals
 
-- Remove Spanish from supported seeded/runtime languages
 - Keep English as the application fallback locale
 - Add valid country/city reference data only for Lithuania, Latvia, and Estonia
 - Store or import multilingual names for those countries and cities in English,

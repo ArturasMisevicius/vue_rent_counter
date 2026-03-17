@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets\Admin;
 
-use App\Support\Admin\Dashboard\UpcomingReadingDeadlineData;
+use App\Filament\Support\Admin\Dashboard\UpcomingReadingDeadlineData;
 use Filament\Widgets\Widget;
 
 class UpcomingReadingDeadlinesWidget extends Widget

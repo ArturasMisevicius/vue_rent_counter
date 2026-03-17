@@ -1,8 +1,8 @@
 <?php
 
-use App\Actions\Auth\ResendOrganizationInvitationAction;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use App\Filament\Actions\Auth\ResendOrganizationInvitationAction;
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
 use App\Models\User;

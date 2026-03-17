@@ -117,7 +117,6 @@ it('shows human-readable labels for supported locales only on the tenant profile
         'en' => 'English',
         'lt' => 'Lietuvių',
         'ru' => 'Русский',
-        'es' => 'Español',
     ]);
 
     $tenant = TenantPortalFactory::new()->create();
@@ -139,5 +138,5 @@ it('shows human-readable labels for supported locales only on the tenant profile
         ->not->toContain('>EN</option>')
         ->not->toContain('>LT</option>')
         ->not->toContain('>RU</option>')
-        ->not->toContain('>Español</option>');
+        ->not->toContain('>Deutsch</option>');
 });

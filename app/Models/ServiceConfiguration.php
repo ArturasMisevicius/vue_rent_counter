@@ -15,6 +15,27 @@ class ServiceConfiguration extends Model
     /** @use HasFactory<ServiceConfigurationFactory> */
     use HasFactory;
 
+    private const SUMMARY_COLUMNS = [
+        'id',
+        'organization_id',
+        'property_id',
+        'utility_service_id',
+        'pricing_model',
+        'rate_schedule',
+        'distribution_method',
+        'is_shared_service',
+        'effective_from',
+        'effective_until',
+        'configuration_overrides',
+        'tariff_id',
+        'provider_id',
+        'area_type',
+        'custom_formula',
+        'is_active',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $fillable = [
         'organization_id',
         'property_id',
@@ -75,27 +96,30 @@ class ServiceConfiguration extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query
-            ->select([
-                'id',
-                'organization_id',
-                'property_id',
-                'utility_service_id',
-                'pricing_model',
-                'rate_schedule',
-                'distribution_method',
-                'is_shared_service',
-                'effective_from',
-                'effective_until',
-                'configuration_overrides',
-                'tariff_id',
-                'provider_id',
-                'area_type',
-                'custom_formula',
-                'is_active',
-                'created_at',
-                'updated_at',
-            ])
+            ->select(self::SUMMARY_COLUMNS)
             ->where('is_active', true);
+    }
+
+    public function scopeForOrganization(Builder $query, int $organizationId): Builder
+    {
+        return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query
+            ->orderByDesc('effective_from')
+            ->orderByDesc('id');
+    }
+
+    public function scopeWithPricingRelations(Builder $query): Builder
+    {
+        return $query->with([
+            'property:id,organization_id,building_id,name,unit_number',
+            'utilityService:id,organization_id,name,unit_of_measurement,default_pricing_model,service_type_bridge',
+            'provider:id,organization_id,name,service_type',
+            'tariff:id,provider_id,name,configuration',
+        ]);
     }
 
     public function scopeEffectiveOn(Builder $query, ?\DateTimeInterface $date = null): Builder
@@ -109,6 +133,13 @@ class ServiceConfiguration extends Model
                     ->whereNull('effective_until')
                     ->orWhere('effective_until', '>=', $effectiveOn);
             });
+    }
+
+    public function scopeActiveOn(Builder $query, ?\DateTimeInterface $date = null): Builder
+    {
+        return $query
+            ->active()
+            ->effectiveOn($date);
     }
 
     public function requiresAreaData(): bool

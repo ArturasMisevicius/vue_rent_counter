@@ -2,8 +2,13 @@
 
 namespace App\Enums;
 
-enum PlatformNotificationStatus: string
+use App\Enums\Concerns\HasTranslatedLabel;
+use Filament\Support\Contracts\HasLabel;
+
+enum PlatformNotificationStatus: string implements HasLabel
 {
+    use HasTranslatedLabel;
+
     case DRAFT = 'draft';
     case SCHEDULED = 'scheduled';
     case SENT = 'sent';

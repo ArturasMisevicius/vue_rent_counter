@@ -24,9 +24,7 @@ class PropertyInfolist
                             ->label(__('admin.properties.fields.unit_number')),
                         TextEntry::make('type')
                             ->label(__('admin.properties.fields.type'))
-                            ->formatStateUsing(
-                                fn ($state): string => __('admin.properties.types.'.($state->value ?? $state)),
-                            ),
+                            ->badge(),
                         TextEntry::make('floor_area_sqm')
                             ->label(__('admin.properties.fields.floor_area_sqm')),
                     ])

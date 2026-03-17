@@ -2,13 +2,13 @@
 
 use App\Enums\SubscriptionAccessMode;
 use App\Enums\SubscriptionStatus;
+use App\Filament\Support\Admin\SubscriptionEnforcement\OrganizationSubscriptionAccess;
 use App\Models\Building;
 use App\Models\Meter;
 use App\Models\Organization;
 use App\Models\Property;
 use App\Models\Subscription;
 use App\Models\User;
-use App\Support\Admin\SubscriptionEnforcement\OrganizationSubscriptionAccess;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

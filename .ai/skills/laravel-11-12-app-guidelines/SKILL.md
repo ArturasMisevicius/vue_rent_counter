@@ -17,6 +17,7 @@ Apply a consistent workflow for Laravel 11/12 apps with optional frontend stacks
 - Detect the stack and command locations; do not guess.
 - Use Laravel Boost `search-docs` for Laravel ecosystem guidance; use Context7 only if Boost docs are unavailable.
 - Follow repo conventions for naming, UI language, docs-first policies, and existing component patterns.
+- In this repository, the shared foundation for requests, actions, and support classes lives under `app/Filament`. Do not create `app/Http/Requests`, `app/Actions`, or `app/Support`.
 
 ## Stack Detection
 
@@ -30,10 +31,20 @@ Apply a consistent workflow for Laravel 11/12 apps with optional frontend stacks
 
 - Use the Laravel 11/12 structure: configure middleware, exceptions, and routes in `bootstrap/app.php`; service providers in `bootstrap/providers.php`; console configuration in `routes/console.php`.
 - Use Eloquent models and relationships first; avoid raw queries and `DB::` unless truly necessary.
-- Create Form Request classes for validation instead of inline validation.
+- Create Form Request classes for validation instead of inline validation, and place them under `app/Filament/Requests`.
+- Use backed enums for fixed value sets and validate them with `Rule::enum(...)`.
+- For UI-facing enums in this repository, prefer translated enum labels from `lang/*/enums.php` and dynamic option lists from `EnumClass::options()`.
 - Prefer named routes and `route()` for URL generation.
 - When altering columns, include all existing attributes in the migration to avoid dropping them.
 - Ask before destructive database operations (e.g., reset/rollback/fresh).
+
+## Project Foundation Placement
+
+- Place new request classes in `app/Filament/Requests` with `App\\Filament\\Requests\\...` namespaces.
+- Place new action classes in `app/Filament/Actions` with `App\\Filament\\Actions\\...` namespaces.
+- Place new support classes in `app/Filament/Support` with `App\\Filament\\Support\\...` namespaces.
+- Treat the legacy directories `app/Http/Requests`, `app/Actions`, and `app/Support` as forbidden in this repository.
+- If you touch older code, prefer migrating legacy imports into the Filament foundation tree rather than extending the old structure.
 
 ## API-Only Mode
 

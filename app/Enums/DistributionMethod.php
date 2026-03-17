@@ -2,8 +2,13 @@
 
 namespace App\Enums;
 
-enum DistributionMethod: string
+use App\Enums\Concerns\HasTranslatedLabel;
+use Filament\Support\Contracts\HasLabel;
+
+enum DistributionMethod: string implements HasLabel
 {
+    use HasTranslatedLabel;
+
     case EQUAL = 'equal';
     case AREA = 'area';
     case BY_CONSUMPTION = 'by_consumption';

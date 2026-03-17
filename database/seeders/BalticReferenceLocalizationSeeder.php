@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Filament\Support\Geography\BalticReferenceCatalog;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\Translation;
-use App\Support\Geography\BalticReferenceCatalog;
 use Illuminate\Database\Seeder;
 
 class BalticReferenceLocalizationSeeder extends Seeder

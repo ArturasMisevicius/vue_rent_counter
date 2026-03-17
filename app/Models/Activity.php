@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\ActivityFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -46,5 +47,17 @@ class Activity extends Model
     public function causer(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function scopeForOrganization(Builder $query, int $organizationId): Builder
+    {
+        return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeRecent(Builder $query): Builder
+    {
+        return $query
+            ->orderByDesc('created_at')
+            ->orderByDesc('id');
     }
 }

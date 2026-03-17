@@ -2,11 +2,15 @@
 
 namespace App\Livewire\Tenant;
 
-use App\Support\Tenant\Portal\PaymentInstructionsResolver;
-use App\Support\Tenant\Portal\TenantInvoiceIndexQuery;
+use App\Filament\Actions\Tenant\Invoices\DownloadInvoiceAction;
+use App\Filament\Support\Tenant\Portal\PaymentInstructionsResolver;
+use App\Filament\Support\Tenant\Portal\TenantInvoiceIndexQuery;
+use App\Models\Invoice;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Livewire\Component;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class InvoiceHistoryPage extends Component
 {
@@ -19,6 +23,13 @@ class InvoiceHistoryPage extends Component
         if ($this->selectedStatus === 'outstanding') {
             $this->selectedStatus = 'unpaid';
         }
+    }
+
+    public function download(
+        Invoice $invoice,
+        DownloadInvoiceAction $downloadInvoiceAction,
+    ): StreamedResponse|Response {
+        return $downloadInvoiceAction->handle($invoice);
     }
 
     public function render(

@@ -8,7 +8,7 @@
         ->take(2)
         ->map(fn (string $part) => mb_strtoupper(mb_substr($part, 0, 1)))
         ->implode('');
-    $palette = app(\App\Support\Shell\UserAvatarColor::class)->for($user->name);
+    $palette = app(\App\Filament\Support\Shell\UserAvatarColor::class)->for($user->name);
 @endphp
 
 <span class="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2 shadow-sm">

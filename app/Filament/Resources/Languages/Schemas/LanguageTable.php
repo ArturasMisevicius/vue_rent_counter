@@ -16,7 +16,7 @@ class LanguageTable
                 TextColumn::make('code')->label('Code')->searchable(),
                 TextColumn::make('name')->label('Name')->searchable(),
                 TextColumn::make('native_name')->label('Native Name'),
-                TextColumn::make('status')->label('Status')->badge()->state(fn ($state): string => ucfirst($state->value ?? (string) $state)),
+                TextColumn::make('status')->label('Status')->badge(),
                 IconColumn::make('is_default')->label('Default')->boolean(),
             ])
             ->recordActions([

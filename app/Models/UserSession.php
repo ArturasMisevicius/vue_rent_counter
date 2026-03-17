@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserSession extends Model
 {
@@ -24,4 +26,35 @@ class UserSession extends Model
         'payload',
         'last_activity',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'user_id' => 'integer',
+            'payload' => 'array',
+            'last_activity' => 'datetime',
+        ];
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function scopeForUser(Builder $query, int $userId): Builder
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    public function scopeActiveSince(Builder $query, \DateTimeInterface $moment): Builder
+    {
+        return $query->where('last_activity', '>=', $moment->getTimestamp());
+    }
+
+    public function scopeLatestActivityFirst(Builder $query): Builder
+    {
+        return $query
+            ->orderByDesc('last_activity')
+            ->orderBy('id');
+    }
 }

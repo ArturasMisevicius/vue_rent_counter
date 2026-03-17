@@ -10,8 +10,8 @@ use App\Filament\Resources\Tenants\Pages\ViewTenant;
 use App\Filament\Resources\Tenants\Schemas\TenantForm;
 use App\Filament\Resources\Tenants\Schemas\TenantInfolist;
 use App\Filament\Resources\Tenants\Tables\TenantsTable;
+use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\User;
-use App\Support\Admin\OrganizationContext;
 use BackedEnum;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
@@ -71,27 +71,7 @@ class TenantResource extends Resource
             return parent::getEloquentQuery()->whereKey(-1);
         }
 
-        return parent::getEloquentQuery()
-            ->select([
-                'id',
-                'organization_id',
-                'name',
-                'email',
-                'role',
-                'status',
-                'locale',
-                'last_login_at',
-                'created_at',
-                'updated_at',
-            ])
-            ->where('organization_id', $organizationId)
-            ->where('role', 'tenant')
-            ->with([
-                'currentPropertyAssignment:id,organization_id,property_id,tenant_user_id,unit_area_sqm,assigned_at,unassigned_at',
-                'currentPropertyAssignment.property:id,organization_id,building_id,name,unit_number,type,floor_area_sqm',
-                'currentPropertyAssignment.property.building:id,organization_id,name,address_line_1,city',
-                'invoices:id,organization_id,property_id,tenant_user_id,invoice_number,status,currency,total_amount,amount_paid,due_date',
-            ]);
+        return parent::getEloquentQuery()->withTenantWorkspaceSummary($organizationId);
     }
 
     public static function canViewAny(): bool

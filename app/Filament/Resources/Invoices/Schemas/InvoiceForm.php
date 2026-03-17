@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\Invoices\Schemas;
 
 use App\Enums\InvoiceStatus;
+use App\Filament\Support\Admin\Invoices\FinalizedInvoiceGuard;
 use App\Models\Invoice;
-use App\Support\Admin\Invoices\FinalizedInvoiceGuard;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
@@ -28,13 +28,7 @@ class InvoiceForm
                             ->hidden(fn (?Invoice $record): bool => self::shouldHideField($record, 'invoice_number')),
                         Select::make('status')
                             ->label(__('admin.invoices.fields.status'))
-                            ->options(
-                                collect(InvoiceStatus::cases())
-                                    ->mapWithKeys(fn (InvoiceStatus $status): array => [
-                                        $status->value => __('admin.invoices.statuses.'.$status->value),
-                                    ])
-                                    ->all(),
-                            )
+                            ->options(InvoiceStatus::options())
                             ->required(),
                         TextInput::make('total_amount')
                             ->label(__('admin.invoices.fields.total_amount'))

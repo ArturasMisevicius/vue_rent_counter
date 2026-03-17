@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Properties\Schemas;
 
 use App\Enums\PropertyType;
-use App\Support\Admin\OrganizationContext;
+use App\Filament\Support\Admin\OrganizationContext;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -40,13 +40,7 @@ class PropertyForm
                             ->maxLength(50),
                         Select::make('type')
                             ->label(__('admin.properties.fields.type'))
-                            ->options(
-                                collect(PropertyType::cases())
-                                    ->mapWithKeys(fn (PropertyType $type): array => [
-                                        $type->value => __('admin.properties.types.'.$type->value),
-                                    ])
-                                    ->all(),
-                            )
+                            ->options(PropertyType::options())
                             ->required(),
                         TextInput::make('floor_area_sqm')
                             ->label(__('admin.properties.fields.floor_area_sqm'))

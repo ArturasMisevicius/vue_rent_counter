@@ -22,7 +22,7 @@ class UserForm
                         TextInput::make('email')->label('Email')->email()->required()->maxLength(255),
                         Select::make('role')
                             ->label('Role')
-                            ->options(collect(UserRole::cases())->mapWithKeys(fn (UserRole $role): array => [$role->value => $role->label()])->all())
+                            ->options(UserRole::options())
                             ->required(),
                         Select::make('organization_id')
                             ->label('Organization')
@@ -31,7 +31,7 @@ class UserForm
                             ->preload(),
                         Select::make('status')
                             ->label('Status')
-                            ->options(collect(UserStatus::cases())->mapWithKeys(fn (UserStatus $status): array => [$status->value => ucfirst($status->value)])->all())
+                            ->options(UserStatus::options())
                             ->required(),
                     ])
                     ->columns(2),

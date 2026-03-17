@@ -2,8 +2,13 @@
 
 namespace App\Enums;
 
-enum MeterType: string
+use App\Enums\Concerns\HasTranslatedLabel;
+use Filament\Support\Contracts\HasLabel;
+
+enum MeterType: string implements HasLabel
 {
+    use HasTranslatedLabel;
+
     case WATER = 'water';
     case ELECTRICITY = 'electricity';
     case GAS = 'gas';

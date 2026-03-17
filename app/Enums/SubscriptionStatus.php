@@ -2,22 +2,27 @@
 
 namespace App\Enums;
 
-enum SubscriptionStatus: string
+use App\Enums\Concerns\HasTranslatedLabel;
+use Filament\Support\Contracts\HasLabel;
+
+enum SubscriptionStatus: string implements HasLabel
 {
+    use HasTranslatedLabel;
+
     case TRIALING = 'trialing';
     case ACTIVE = 'active';
     case EXPIRED = 'expired';
     case SUSPENDED = 'suspended';
     case CANCELLED = 'cancelled';
 
-    public function label(): string
+    /**
+     * @return array<int, string>
+     */
+    public static function activeLikeValues(): array
     {
-        return match ($this) {
-            self::TRIALING => 'Trialing',
-            self::ACTIVE => 'Active',
-            self::EXPIRED => 'Expired',
-            self::SUSPENDED => 'Suspended',
-            self::CANCELLED => 'Cancelled',
-        };
+        return self::onlyValues(
+            self::ACTIVE,
+            self::TRIALING,
+        );
     }
 }

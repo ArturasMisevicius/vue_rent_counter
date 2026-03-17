@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Tenants\Pages;
 
-use App\Actions\Auth\ResendOrganizationInvitationAction;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use App\Filament\Actions\Auth\ResendOrganizationInvitationAction;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Models\OrganizationInvitation;
 use Filament\Actions\Action;
@@ -77,21 +77,11 @@ class ViewTenant extends ViewRecord
     private function latestInvitation(): ?OrganizationInvitation
     {
         return OrganizationInvitation::query()
-            ->select([
-                'id',
-                'organization_id',
-                'inviter_user_id',
-                'email',
-                'role',
-                'full_name',
-                'token',
-                'expires_at',
-                'accepted_at',
-            ])
-            ->where('organization_id', $this->record->organization_id)
+            ->forAcceptancePortal()
+            ->forOrganization($this->record->organization_id)
             ->where('email', $this->record->email)
             ->where('role', UserRole::TENANT)
-            ->latest('id')
+            ->latestExpiryFirst()
             ->first();
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Support\Geography\BalticReferenceCatalog;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;
@@ -14,7 +15,6 @@ use App\Models\Task;
 use App\Models\TaskAssignment;
 use App\Models\TimeEntry;
 use App\Models\User;
-use App\Support\Geography\BalticReferenceCatalog;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 

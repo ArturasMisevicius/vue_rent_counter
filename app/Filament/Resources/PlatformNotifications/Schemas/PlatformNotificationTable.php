@@ -14,8 +14,8 @@ class PlatformNotificationTable
         return $table
             ->columns([
                 TextColumn::make('title')->label('Title')->searchable(),
-                TextColumn::make('severity')->label('Severity')->badge()->state(fn ($state): string => ucfirst($state->value ?? (string) $state)),
-                TextColumn::make('status')->label('Status')->badge()->state(fn ($state): string => ucfirst($state->value ?? (string) $state)),
+                TextColumn::make('severity')->label('Severity')->badge(),
+                TextColumn::make('status')->label('Status')->badge(),
                 TextColumn::make('sent_at')->label('Sent At')->dateTime()->placeholder('Draft'),
             ])
             ->recordActions([

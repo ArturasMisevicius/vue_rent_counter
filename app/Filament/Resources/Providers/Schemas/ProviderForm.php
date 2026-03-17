@@ -22,13 +22,7 @@ class ProviderForm
                             ->maxLength(255),
                         Select::make('service_type')
                             ->label(__('admin.providers.fields.service_type'))
-                            ->options(
-                                collect(ServiceType::cases())
-                                    ->mapWithKeys(fn (ServiceType $serviceType): array => [
-                                        $serviceType->value => __('admin.providers.service_types.'.$serviceType->value),
-                                    ])
-                                    ->all(),
-                            )
+                            ->options(ServiceType::options())
                             ->required(),
                         TextInput::make('contact_info.phone')
                             ->label(__('admin.providers.fields.phone'))

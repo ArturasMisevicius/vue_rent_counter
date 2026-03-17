@@ -2,11 +2,11 @@
 
 namespace App\Filament\Pages;
 
-use App\Actions\Admin\Settings\RenewOrganizationSubscriptionAction;
-use App\Actions\Admin\Settings\UpdateNotificationPreferenceAction;
-use App\Actions\Admin\Settings\UpdateOrganizationSettingsAction;
 use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
+use App\Filament\Actions\Admin\Settings\RenewOrganizationSubscriptionAction;
+use App\Filament\Actions\Admin\Settings\UpdateNotificationPreferenceAction;
+use App\Filament\Actions\Admin\Settings\UpdateOrganizationSettingsAction;
 use App\Filament\Pages\Concerns\InteractsWithAccountProfileForms;
 use App\Models\Organization;
 use App\Models\Subscription;
@@ -190,11 +190,7 @@ class Settings extends Page
      */
     public function getPlanOptions(): array
     {
-        return collect(SubscriptionPlan::cases())
-            ->mapWithKeys(fn (SubscriptionPlan $plan): array => [
-                $plan->value => __("shell.settings.subscription.plans.{$plan->value}"),
-            ])
-            ->all();
+        return SubscriptionPlan::options();
     }
 
     /**
@@ -202,11 +198,7 @@ class Settings extends Page
      */
     public function getDurationOptions(): array
     {
-        return collect(SubscriptionDuration::cases())
-            ->mapWithKeys(fn (SubscriptionDuration $duration): array => [
-                $duration->value => __("shell.settings.subscription.durations.{$duration->value}"),
-            ])
-            ->all();
+        return SubscriptionDuration::options();
     }
 
     protected function currentSubscription(Organization $organization): ?Subscription

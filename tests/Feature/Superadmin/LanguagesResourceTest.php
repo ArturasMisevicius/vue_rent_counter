@@ -1,9 +1,9 @@
 <?php
 
-use App\Actions\Superadmin\Languages\DeleteLanguageAction;
-use App\Actions\Superadmin\Languages\SetDefaultLanguageAction;
-use App\Actions\Superadmin\Languages\ToggleLanguageStatusAction;
 use App\Enums\LanguageStatus;
+use App\Filament\Actions\Superadmin\Languages\DeleteLanguageAction;
+use App\Filament\Actions\Superadmin\Languages\SetDefaultLanguageAction;
+use App\Filament\Actions\Superadmin\Languages\ToggleLanguageStatusAction;
 use App\Models\Language;
 use App\Models\Organization;
 use App\Models\User;

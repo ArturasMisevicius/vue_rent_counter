@@ -48,13 +48,7 @@ class UserResource extends Resource
                         ->maxLength(255),
                     Select::make('role')
                         ->label('Role')
-                        ->options(
-                            collect(UserRole::cases())
-                                ->mapWithKeys(fn (UserRole $role): array => [
-                                    $role->value => ucfirst($role->value),
-                                ])
-                                ->all(),
-                        )
+                        ->options(UserRole::options())
                         ->required(),
                     Select::make('organization_id')
                         ->label('Organization')
@@ -63,13 +57,7 @@ class UserResource extends Resource
                         ->preload(),
                     Select::make('status')
                         ->label('Status')
-                        ->options(
-                            collect(UserStatus::cases())
-                                ->mapWithKeys(fn (UserStatus $status): array => [
-                                    $status->value => ucfirst($status->value),
-                                ])
-                                ->all(),
-                        )
+                        ->options(UserStatus::options())
                         ->required(),
                     Select::make('locale')
                         ->label('Locale')
@@ -94,11 +82,10 @@ class UserResource extends Resource
                         ->placeholder('No organization'),
                     TextEntry::make('role')
                         ->label('Role')
-                        ->formatStateUsing(fn ($state): string => ucfirst((string) ($state->value ?? $state))),
+                        ->badge(),
                     TextEntry::make('status')
                         ->label('Status')
-                        ->badge()
-                        ->formatStateUsing(fn ($state): string => ucfirst((string) ($state->value ?? $state))),
+                        ->badge(),
                 ])
                 ->columns(2),
         ]);
@@ -120,12 +107,10 @@ class UserResource extends Resource
                     ->searchable(),
                 TextColumn::make('role')
                     ->label('Role')
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => ucfirst((string) ($state->value ?? $state))),
+                    ->badge(),
                 TextColumn::make('status')
                     ->label('Status')
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => ucfirst((string) ($state->value ?? $state))),
+                    ->badge(),
             ])
             ->defaultSort('name');
     }

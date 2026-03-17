@@ -7,8 +7,8 @@ use App\Filament\Resources\MeterReadings\Pages\CreateMeterReading;
 use App\Filament\Resources\MeterReadings\Pages\EditMeterReading;
 use App\Filament\Resources\MeterReadings\Pages\ListMeterReadings;
 use App\Filament\Resources\MeterReadings\Pages\ViewMeterReading;
+use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\MeterReading;
-use App\Support\Admin\OrganizationContext;
 use BackedEnum;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -63,13 +63,7 @@ class MeterReadingResource extends Resource
                         ->required(),
                     Select::make('submission_method')
                         ->label('Submission Method')
-                        ->options(
-                            collect(MeterReadingSubmissionMethod::cases())
-                                ->mapWithKeys(fn (MeterReadingSubmissionMethod $method): array => [
-                                    $method->value => ucfirst(str_replace('_', ' ', $method->value)),
-                                ])
-                                ->all(),
-                        )
+                        ->options(MeterReadingSubmissionMethod::options())
                         ->required(),
                     Textarea::make('notes')
                         ->label('Notes')
@@ -95,11 +89,10 @@ class MeterReadingResource extends Resource
                         ->date(),
                     TextEntry::make('submission_method')
                         ->label('Submission Method')
-                        ->formatStateUsing(fn ($state): string => ucfirst(str_replace('_', ' ', (string) ($state->value ?? $state)))),
+                        ->badge(),
                     TextEntry::make('validation_status')
                         ->label('Validation Status')
-                        ->badge()
-                        ->formatStateUsing(fn ($state): string => ucfirst((string) ($state->value ?? $state))),
+                        ->badge(),
                     TextEntry::make('notes')
                         ->label('Notes')
                         ->placeholder('No notes'),
@@ -129,8 +122,7 @@ class MeterReadingResource extends Resource
                     ->sortable(),
                 TextColumn::make('validation_status')
                     ->label('Validation Status')
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => ucfirst((string) ($state->value ?? $state))),
+                    ->badge(),
             ])
             ->defaultSort('reading_date', 'desc');
     }
@@ -170,26 +162,7 @@ class MeterReadingResource extends Resource
             return parent::getEloquentQuery()->whereKey(-1);
         }
 
-        return parent::getEloquentQuery()
-            ->select([
-                'id',
-                'organization_id',
-                'property_id',
-                'meter_id',
-                'submitted_by_user_id',
-                'reading_value',
-                'reading_date',
-                'validation_status',
-                'submission_method',
-                'notes',
-                'created_at',
-                'updated_at',
-            ])
-            ->where('organization_id', $organizationId)
-            ->with([
-                'meter:id,organization_id,property_id,name',
-                'meter.property:id,organization_id,building_id,name',
-            ]);
+        return parent::getEloquentQuery()->forAdminWorkspace($organizationId);
     }
 
     public static function canView(Model $record): bool

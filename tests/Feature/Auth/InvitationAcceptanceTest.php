@@ -1,9 +1,9 @@
 <?php
 
-use App\Actions\Auth\CreateOrganizationInvitationAction;
-use App\Actions\Auth\ResendOrganizationInvitationAction;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use App\Filament\Actions\Auth\CreateOrganizationInvitationAction;
+use App\Filament\Actions\Auth\ResendOrganizationInvitationAction;
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
 use App\Models\User;
@@ -121,14 +121,14 @@ it('activates an existing tenant placeholder when accepting an invitation', func
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([
         'organization_id' => $organization->id,
-        'locale' => 'es',
+        'locale' => 'ru',
     ]);
 
     $tenant = User::factory()->tenant()->create([
         'organization_id' => $organization->id,
         'email' => 'tenant@example.com',
         'name' => 'Pending Tenant',
-        'locale' => 'es',
+        'locale' => 'ru',
         'status' => UserStatus::INACTIVE,
     ]);
 

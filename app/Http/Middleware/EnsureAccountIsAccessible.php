@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Enums\OrganizationStatus;
 use App\Enums\UserStatus;
-use App\Support\Auth\AuthenticatedSessionHistory;
+use App\Filament\Support\Auth\AuthenticatedSessionHistory;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

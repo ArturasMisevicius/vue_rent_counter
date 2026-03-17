@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Tenant;
 
-use App\Support\Preferences\SupportedLocaleOptions;
+use App\Filament\Support\Preferences\SupportedLocaleOptions;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 

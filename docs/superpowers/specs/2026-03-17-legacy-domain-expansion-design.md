@@ -108,7 +108,8 @@ Cities must belong to the correct country and expose localized names in:
 - Lithuanian
 - Russian
 
-Spanish must be removed from language seed/runtime support in this slice.
+This slice is limited to the supported runtime locales: English, Lithuanian,
+and Russian.
 
 ## Fixture Strategy
 

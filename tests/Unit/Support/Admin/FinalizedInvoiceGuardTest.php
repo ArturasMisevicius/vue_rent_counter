@@ -1,6 +1,6 @@
 <?php
 
-use App\Support\Admin\Invoices\FinalizedInvoiceGuard;
+use App\Filament\Support\Admin\Invoices\FinalizedInvoiceGuard;
 
 it('allows payment fields to change on finalized invoices but locks commercial fields', function () {
     $guard = app(FinalizedInvoiceGuard::class);

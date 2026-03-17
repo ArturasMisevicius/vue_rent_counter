@@ -1,11 +1,11 @@
 <?php
 
-use App\Actions\Admin\Tenants\CreateTenantAction;
-use App\Actions\Admin\Tenants\DeleteTenantAction;
-use App\Actions\Admin\Tenants\ToggleTenantStatusAction;
-use App\Actions\Admin\Tenants\UpdateTenantAction;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
+use App\Filament\Actions\Admin\Tenants\CreateTenantAction;
+use App\Filament\Actions\Admin\Tenants\DeleteTenantAction;
+use App\Filament\Actions\Admin\Tenants\ToggleTenantStatusAction;
+use App\Filament\Actions\Admin\Tenants\UpdateTenantAction;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Organization;

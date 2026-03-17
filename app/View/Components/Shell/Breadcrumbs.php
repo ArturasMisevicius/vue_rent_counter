@@ -2,7 +2,7 @@
 
 namespace App\View\Components\Shell;
 
-use App\Support\Shell\Breadcrumbs\BreadcrumbItemData;
+use App\Filament\Support\Shell\Breadcrumbs\BreadcrumbItemData;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 

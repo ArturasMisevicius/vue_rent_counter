@@ -2,8 +2,13 @@
 
 namespace App\Enums;
 
-enum ServiceType: string
+use App\Enums\Concerns\HasTranslatedLabel;
+use Filament\Support\Contracts\HasLabel;
+
+enum ServiceType: string implements HasLabel
 {
+    use HasTranslatedLabel;
+
     case ELECTRICITY = 'electricity';
     case WATER = 'water';
     case HEATING = 'heating';

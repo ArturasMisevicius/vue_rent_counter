@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages;
 
-use App\Support\Superadmin\Translations\TranslationCatalogService;
+use App\Filament\Support\Superadmin\Translations\TranslationCatalogService;
 use Filament\Pages\Page;
 
 class TranslationManagement extends Page

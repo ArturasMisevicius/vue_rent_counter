@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\Tenants\Schemas;
 
 use App\Enums\UserStatus;
+use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Property;
 use App\Models\User;
-use App\Support\Admin\OrganizationContext;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -34,10 +34,7 @@ class TenantForm
                             ->required(),
                         Select::make('status')
                             ->label(__('admin.tenants.fields.status'))
-                            ->options([
-                                UserStatus::ACTIVE->value => 'Active',
-                                UserStatus::INACTIVE->value => 'Inactive',
-                            ])
+                            ->options(UserStatus::options())
                             ->required(),
                         Select::make('property_id')
                             ->label(__('admin.tenants.fields.property'))

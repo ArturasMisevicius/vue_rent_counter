@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Buildings\Pages;
 
-use App\Actions\Admin\Buildings\UpdateBuildingAction;
+use App\Filament\Actions\Admin\Buildings\UpdateBuildingAction;
 use App\Filament\Resources\Buildings\BuildingResource;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;

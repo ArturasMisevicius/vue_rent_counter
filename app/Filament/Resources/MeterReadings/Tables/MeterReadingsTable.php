@@ -31,11 +31,10 @@ class MeterReadingsTable
                     ->sortable(),
                 TextColumn::make('validation_status')
                     ->label(__('admin.meter_readings.columns.validation_status'))
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => __('admin.meter_readings.statuses.'.($state->value ?? $state))),
+                    ->badge(),
                 TextColumn::make('submission_method')
                     ->label(__('admin.meter_readings.columns.submission_method'))
-                    ->formatStateUsing(fn ($state): string => __('admin.meter_readings.submission_methods.'.($state->value ?? $state))),
+                    ->badge(),
             ])
             ->recordActions([
                 ViewAction::make(),

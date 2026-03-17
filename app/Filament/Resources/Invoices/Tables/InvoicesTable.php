@@ -28,8 +28,7 @@ class InvoicesTable
                     ->sortable(),
                 TextColumn::make('status')
                     ->label(__('admin.invoices.columns.status'))
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => __('admin.invoices.statuses.'.($state->value ?? $state))),
+                    ->badge(),
                 TextColumn::make('total_amount')
                     ->label(__('admin.invoices.columns.total_amount'))
                     ->formatStateUsing(fn ($state, Invoice $record): string => sprintf('%s %s', $record->currency, number_format((float) $state, 2)))

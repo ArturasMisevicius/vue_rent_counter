@@ -46,24 +46,12 @@ class PlatformNotificationResource extends Resource
                         ->rows(5),
                     Select::make('severity')
                         ->label('Severity')
-                        ->options(
-                            collect(PlatformNotificationSeverity::cases())
-                                ->mapWithKeys(fn (PlatformNotificationSeverity $severity): array => [
-                                    $severity->value => ucfirst($severity->value),
-                                ])
-                                ->all(),
-                        )
+                        ->options(PlatformNotificationSeverity::options())
                         ->default(PlatformNotificationSeverity::INFO->value)
                         ->required(),
                     Select::make('status')
                         ->label('Status')
-                        ->options(
-                            collect(PlatformNotificationStatus::cases())
-                                ->mapWithKeys(fn (PlatformNotificationStatus $status): array => [
-                                    $status->value => ucfirst($status->value),
-                                ])
-                                ->all(),
-                        )
+                        ->options(PlatformNotificationStatus::options())
                         ->default(PlatformNotificationStatus::DRAFT->value)
                         ->required(),
                 ])
@@ -82,12 +70,10 @@ class PlatformNotificationResource extends Resource
                         ->label('Message'),
                     TextEntry::make('severity')
                         ->label('Severity')
-                        ->badge()
-                        ->formatStateUsing(fn ($state): string => ucfirst((string) ($state->value ?? $state))),
+                        ->badge(),
                     TextEntry::make('status')
                         ->label('Status')
-                        ->badge()
-                        ->formatStateUsing(fn ($state): string => ucfirst((string) ($state->value ?? $state))),
+                        ->badge(),
                 ])
                 ->columns(2),
         ]);
@@ -103,12 +89,10 @@ class PlatformNotificationResource extends Resource
                     ->sortable(),
                 TextColumn::make('severity')
                     ->label('Severity')
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => ucfirst((string) ($state->value ?? $state))),
+                    ->badge(),
                 TextColumn::make('status')
                     ->label('Status')
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => ucfirst((string) ($state->value ?? $state))),
+                    ->badge(),
                 TextColumn::make('sent_at')
                     ->label('Sent At')
                     ->dateTime()

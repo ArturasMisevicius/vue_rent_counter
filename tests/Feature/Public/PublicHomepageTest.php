@@ -15,7 +15,7 @@ it('renders the tester-first public homepage', function () {
         ->assertSeeText('Manager')
         ->assertSeeText('Tenant')
         ->assertSeeText('For system testers')
-        ->assertSeeText('Switch between English, Lithuanian, Spanish, and Russian.')
+        ->assertSeeText('Switch between English, Lithuanian, and Russian.')
         ->assertSeeText('What Tenanto is growing into')
         ->assertSeeText('Cross-cutting behavioral rules')
         ->assertSeeText('Ready to explore the public flow?');
@@ -26,7 +26,6 @@ it('renders the homepage locale switcher with all supported guest locales', func
         ->assertSuccessful()
         ->assertSee('value="en"', false)
         ->assertSee('value="lt"', false)
-        ->assertSee('value="es"', false)
         ->assertSee('value="ru"', false);
 });
 
@@ -38,14 +37,14 @@ it('renders the homepage in lithuanian when the guest locale is lt', function ()
         ->assertSeeText('Turto operacijų platforma, pateikta kaip kryptinga testavimo erdvė.');
 });
 
-it('renders the homepage in spanish when the guest locale is es', function () {
+it('falls back to english when the guest locale is unsupported', function () {
     $this->withSession([
-        'guest_locale' => 'es',
+        'guest_locale' => 'de',
     ])->get('/')
         ->assertSuccessful()
-        ->assertSeeText('Plataforma de operaciones inmobiliarias presentada como un laboratorio de pruebas guiado.')
-        ->assertSeeText('Iniciar sesión')
-        ->assertSeeText('Registrarse');
+        ->assertSeeText('Property operations platform, presented as a guided testing lab.')
+        ->assertSeeText('Login')
+        ->assertSeeText('Register');
 });
 
 it('renders the homepage in russian when the guest locale is ru', function () {

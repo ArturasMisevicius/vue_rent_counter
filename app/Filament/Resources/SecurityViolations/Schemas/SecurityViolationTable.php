@@ -12,8 +12,8 @@ class SecurityViolationTable
         return $table
             ->columns([
                 TextColumn::make('summary')->label('Summary')->wrap()->searchable(),
-                TextColumn::make('severity')->label('Severity')->badge()->state(fn ($state): string => ucfirst($state->value ?? (string) $state)),
-                TextColumn::make('type')->label('Type')->badge()->state(fn ($state): string => ucfirst(str_replace('_', ' ', $state->value ?? (string) $state))),
+                TextColumn::make('severity')->label('Severity')->badge(),
+                TextColumn::make('type')->label('Type')->badge(),
                 TextColumn::make('ip_address')->label('IP Address'),
                 TextColumn::make('organization.name')->label('Organization')->placeholder('Platform'),
                 TextColumn::make('occurred_at')->label('Occurred At')->dateTime()->sortable(),

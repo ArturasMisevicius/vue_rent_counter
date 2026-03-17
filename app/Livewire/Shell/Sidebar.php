@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Shell;
 
-use App\Support\Shell\DashboardUrlResolver;
-use App\Support\Shell\Navigation\NavigationBuilder;
+use App\Filament\Support\Shell\DashboardUrlResolver;
+use App\Filament\Support\Shell\Navigation\NavigationBuilder;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 

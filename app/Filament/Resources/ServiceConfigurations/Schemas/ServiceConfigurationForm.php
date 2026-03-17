@@ -4,7 +4,7 @@ namespace App\Filament\Resources\ServiceConfigurations\Schemas;
 
 use App\Enums\DistributionMethod;
 use App\Enums\PricingModel;
-use App\Support\Admin\OrganizationContext;
+use App\Filament\Support\Admin\OrganizationContext;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -75,13 +75,7 @@ class ServiceConfigurationForm
                             ->preload(),
                         Select::make('pricing_model')
                             ->label(__('admin.service_configurations.fields.pricing_model'))
-                            ->options(
-                                collect(PricingModel::cases())
-                                    ->mapWithKeys(fn (PricingModel $model): array => [
-                                        $model->value => __('admin.service_configurations.pricing_models.'.$model->value),
-                                    ])
-                                    ->all(),
-                            )
+                            ->options(PricingModel::options())
                             ->required(),
                         TextInput::make('rate_schedule.unit_rate')
                             ->label(__('admin.service_configurations.fields.unit_rate'))
@@ -91,13 +85,7 @@ class ServiceConfigurationForm
                             ->numeric(),
                         Select::make('distribution_method')
                             ->label(__('admin.service_configurations.fields.distribution_method'))
-                            ->options(
-                                collect(DistributionMethod::cases())
-                                    ->mapWithKeys(fn (DistributionMethod $method): array => [
-                                        $method->value => __('admin.service_configurations.distribution_methods.'.$method->value),
-                                    ])
-                                    ->all(),
-                            )
+                            ->options(DistributionMethod::options())
                             ->required(),
                         Toggle::make('is_shared_service')
                             ->label(__('admin.service_configurations.fields.is_shared_service')),

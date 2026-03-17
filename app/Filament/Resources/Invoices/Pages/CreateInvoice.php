@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Invoices\Pages;
 
-use App\Actions\Admin\Invoices\SaveInvoiceDraftAction;
+use App\Filament\Actions\Admin\Invoices\SaveInvoiceDraftAction;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Models\Organization;
 use Filament\Resources\Pages\CreateRecord;

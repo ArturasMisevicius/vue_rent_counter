@@ -1,0 +1,166 @@
+<?php
+
+return [
+    'audit_log_action' => [
+        'created' => 'Создано',
+        'updated' => 'Обновлено',
+        'deleted' => 'Удалено',
+        'suspended' => 'Приостановлено',
+        'reinstated' => 'Восстановлено',
+        'sent' => 'Отправлено',
+    ],
+    'distribution_method' => [
+        'equal' => 'Поровну',
+        'area' => 'По площади',
+        'by_consumption' => 'По потреблению',
+        'custom_formula' => 'Произвольная формула',
+    ],
+    'integration_health_status' => [
+        'healthy' => 'Исправно',
+        'degraded' => 'С ухудшением',
+        'failed' => 'Сбой',
+    ],
+    'invoice_status' => [
+        'draft' => 'Черновик',
+        'finalized' => 'Подтверждено',
+        'partially_paid' => 'Оплачено частично',
+        'paid' => 'Оплачено',
+        'overdue' => 'Просрочено',
+        'void' => 'Аннулировано',
+    ],
+    'language_status' => [
+        'active' => 'Активный',
+        'inactive' => 'Неактивный',
+    ],
+    'meter_reading_submission_method' => [
+        'admin_manual' => 'Ввод администратором',
+        'tenant_portal' => 'Портал арендатора',
+        'import' => 'Импорт',
+    ],
+    'meter_reading_validation_status' => [
+        'pending' => 'Ожидает',
+        'valid' => 'Корректно',
+        'flagged' => 'Отмечено',
+        'rejected' => 'Отклонено',
+    ],
+    'meter_status' => [
+        'active' => 'Активный',
+        'inactive' => 'Неактивный',
+    ],
+    'meter_type' => [
+        'water' => 'Вода',
+        'electricity' => 'Электричество',
+        'gas' => 'Газ',
+        'heating' => 'Отопление',
+    ],
+    'organization_status' => [
+        'active' => 'Активна',
+        'suspended' => 'Приостановлена',
+    ],
+    'payment_method' => [
+        'bank_transfer' => 'Банковский перевод',
+        'card' => 'Карта',
+        'cash' => 'Наличные',
+        'other' => 'Другое',
+    ],
+    'platform_notification_severity' => [
+        'info' => 'Информация',
+        'success' => 'Успешно',
+        'warning' => 'Предупреждение',
+        'error' => 'Ошибка',
+    ],
+    'platform_notification_status' => [
+        'draft' => 'Черновик',
+        'scheduled' => 'Запланировано',
+        'sent' => 'Отправлено',
+        'failed' => 'Сбой',
+    ],
+    'pricing_model' => [
+        'fixed_monthly' => 'Фиксированная ежемесячная',
+        'consumption_based' => 'По потреблению',
+        'tiered_rates' => 'Многоуровневые тарифы',
+        'hybrid' => 'Гибридная',
+        'custom_formula' => 'Произвольная формула',
+        'flat' => 'Фиксированная',
+        'time_of_use' => 'По времени использования',
+    ],
+    'property_type' => [
+        'apartment' => 'Квартира',
+        'house' => 'Дом',
+        'office' => 'Офис',
+        'storage' => 'Кладовая',
+    ],
+    'security_violation_severity' => [
+        'low' => 'Низкая',
+        'medium' => 'Средняя',
+        'high' => 'Высокая',
+        'critical' => 'Критическая',
+    ],
+    'security_violation_type' => [
+        'authentication' => 'Аутентификация',
+        'rate_limit' => 'Ограничение скорости',
+        'suspicious_ip' => 'Подозрительный IP',
+        'data_access' => 'Доступ к данным',
+    ],
+    'service_type' => [
+        'electricity' => 'Электричество',
+        'water' => 'Вода',
+        'heating' => 'Отопление',
+        'gas' => 'Газ',
+    ],
+    'subscription_access_mode' => [
+        'active' => 'Активный',
+        'limit_blocked' => 'Заблокировано лимитом',
+        'grace_read_only' => 'Только чтение в льготный период',
+        'post_grace_read_only' => 'Только чтение после льготного периода',
+    ],
+    'subscription_duration' => [
+        'monthly' => 'Ежемесячно',
+        'quarterly' => 'Ежеквартально',
+        'yearly' => 'Ежегодно',
+    ],
+    'subscription_plan' => [
+        'basic' => 'Базовый',
+        'professional' => 'Профессиональный',
+        'enterprise' => 'Корпоративный',
+    ],
+    'subscription_status' => [
+        'trialing' => 'Пробный',
+        'active' => 'Активна',
+        'expired' => 'Истекла',
+        'suspended' => 'Приостановлена',
+        'cancelled' => 'Отменена',
+    ],
+    'system_setting_category' => [
+        'general' => 'Общие',
+        'billing' => 'Биллинг',
+        'localization' => 'Локализация',
+        'security' => 'Безопасность',
+        'integrations' => 'Интеграции',
+    ],
+    'tariff_type' => [
+        'flat' => 'Фиксированный',
+        'time_of_use' => 'По времени использования',
+    ],
+    'tariff_zone' => [
+        'day' => 'День',
+        'night' => 'Ночь',
+        'weekend' => 'Выходные',
+    ],
+    'user_role' => [
+        'superadmin' => 'Суперадминистратор',
+        'admin' => 'Администратор',
+        'manager' => 'Менеджер',
+        'tenant' => 'Арендатор',
+    ],
+    'user_status' => [
+        'active' => 'Активный',
+        'inactive' => 'Неактивный',
+        'suspended' => 'Приостановлен',
+    ],
+    'weekend_logic' => [
+        'apply_night_rate' => 'Применять ночной тариф',
+        'apply_day_rate' => 'Применять дневной тариф',
+        'apply_weekend_rate' => 'Применять тариф выходного дня',
+    ],
+];

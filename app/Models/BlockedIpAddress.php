@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\BlockedIpAddressFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,5 +30,23 @@ class BlockedIpAddress extends Model
     public function blockedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'blocked_by_user_id');
+    }
+
+    public function scopeActive(Builder $query, ?\DateTimeInterface $moment = null): Builder
+    {
+        $activeAt = $moment ?? now();
+
+        return $query->where(function (Builder $builder) use ($activeAt): void {
+            $builder
+                ->whereNull('blocked_until')
+                ->orWhere('blocked_until', '>=', $activeAt);
+        });
+    }
+
+    public function scopeRecent(Builder $query): Builder
+    {
+        return $query
+            ->orderByDesc('created_at')
+            ->orderByDesc('id');
     }
 }

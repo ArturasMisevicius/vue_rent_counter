@@ -9,8 +9,8 @@ use App\Filament\Resources\Meters\Pages\ViewMeter;
 use App\Filament\Resources\Meters\Schemas\MeterForm;
 use App\Filament\Resources\Meters\Schemas\MeterInfolist;
 use App\Filament\Resources\Meters\Tables\MetersTable;
+use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\Meter;
-use App\Support\Admin\OrganizationContext;
 use BackedEnum;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
@@ -75,27 +75,7 @@ class MeterResource extends Resource
             return parent::getEloquentQuery()->whereKey(-1);
         }
 
-        return parent::getEloquentQuery()
-            ->select([
-                'id',
-                'organization_id',
-                'property_id',
-                'name',
-                'identifier',
-                'type',
-                'status',
-                'unit',
-                'installed_at',
-                'created_at',
-                'updated_at',
-            ])
-            ->where('organization_id', $organizationId)
-            ->with([
-                'property:id,organization_id,building_id,name,unit_number',
-                'property.building:id,organization_id,name',
-                'latestReading:id,meter_id,reading_value,reading_date',
-                'readings:id,meter_id,reading_value,reading_date',
-            ]);
+        return parent::getEloquentQuery()->forOrganizationWorkspace($organizationId);
     }
 
     public static function canView(Model $record): bool

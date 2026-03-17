@@ -24,10 +24,10 @@ class ServiceConfigurationInfolist
                             ->label(__('admin.service_configurations.fields.tariff')),
                         TextEntry::make('pricing_model')
                             ->label(__('admin.service_configurations.fields.pricing_model'))
-                            ->formatStateUsing(fn ($state): string => __('admin.service_configurations.pricing_models.'.($state->value ?? $state))),
+                            ->badge(),
                         TextEntry::make('distribution_method')
                             ->label(__('admin.service_configurations.fields.distribution_method'))
-                            ->formatStateUsing(fn ($state): string => __('admin.service_configurations.distribution_methods.'.($state->value ?? $state))),
+                            ->badge(),
                         TextEntry::make('rate_schedule.unit_rate')
                             ->label(__('admin.service_configurations.fields.unit_rate')),
                     ])

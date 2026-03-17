@@ -1,9 +1,9 @@
 <?php
 
-use App\Actions\Admin\Invoices\FinalizeInvoiceAction;
-use App\Actions\Admin\Invoices\RecordInvoicePaymentAction;
-use App\Actions\Admin\Invoices\SaveInvoiceDraftAction;
 use App\Enums\InvoiceStatus;
+use App\Filament\Actions\Admin\Invoices\FinalizeInvoiceAction;
+use App\Filament\Actions\Admin\Invoices\RecordInvoicePaymentAction;
+use App\Filament\Actions\Admin\Invoices\SaveInvoiceDraftAction;
 use App\Filament\Resources\Invoices\Pages\EditInvoice;
 use App\Models\Building;
 use App\Models\Invoice;

@@ -1,8 +1,8 @@
 <?php
 
-use App\Actions\Admin\Buildings\CreateBuildingAction;
-use App\Actions\Admin\Buildings\DeleteBuildingAction;
-use App\Actions\Admin\Buildings\UpdateBuildingAction;
+use App\Filament\Actions\Admin\Buildings\CreateBuildingAction;
+use App\Filament\Actions\Admin\Buildings\DeleteBuildingAction;
+use App\Filament\Actions\Admin\Buildings\UpdateBuildingAction;
 use App\Models\Building;
 use App\Models\Organization;
 use App\Models\Property;

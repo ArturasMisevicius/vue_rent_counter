@@ -1,12 +1,12 @@
 <?php
 
-use App\Actions\Admin\Tariffs\CreateTariffAction;
-use App\Actions\Admin\Tariffs\DeleteTariffAction;
-use App\Actions\Admin\Tariffs\UpdateTariffAction;
 use App\Enums\DistributionMethod;
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
 use App\Enums\TariffType;
+use App\Filament\Actions\Admin\Tariffs\CreateTariffAction;
+use App\Filament\Actions\Admin\Tariffs\DeleteTariffAction;
+use App\Filament\Actions\Admin\Tariffs\UpdateTariffAction;
 use App\Models\Building;
 use App\Models\Organization;
 use App\Models\Property;

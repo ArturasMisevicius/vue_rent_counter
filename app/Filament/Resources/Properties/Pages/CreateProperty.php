@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Properties\Pages;
 
-use App\Actions\Admin\Properties\CreatePropertyAction;
+use App\Filament\Actions\Admin\Properties\CreatePropertyAction;
 use App\Filament\Resources\Properties\PropertyResource;
-use App\Support\Admin\OrganizationContext;
+use App\Filament\Support\Admin\OrganizationContext;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 

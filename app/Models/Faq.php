@@ -16,6 +16,17 @@ class Faq extends Model
 
     use SoftDeletes;
 
+    private const PUBLISHED_COLUMNS = [
+        'id',
+        'question',
+        'answer',
+        'category',
+        'display_order',
+        'is_published',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $fillable = [
         'question',
         'answer',
@@ -53,17 +64,15 @@ class Faq extends Model
     public function scopePublished(Builder $query): Builder
     {
         return $query
-            ->select([
-                'id',
-                'question',
-                'answer',
-                'category',
-                'display_order',
-                'is_published',
-                'created_at',
-                'updated_at',
-            ])
+            ->select(self::PUBLISHED_COLUMNS)
             ->where('is_published', true)
-            ->orderBy('display_order');
+            ->orderedForDisplay();
+    }
+
+    public function scopeOrderedForDisplay(Builder $query): Builder
+    {
+        return $query
+            ->orderBy('display_order')
+            ->orderBy('id');
     }
 }

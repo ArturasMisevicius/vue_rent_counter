@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\PlatformNotifications\Pages;
 
-use App\Actions\Superadmin\Notifications\SavePlatformNotificationDraftAction;
 use App\Enums\PlatformNotificationSeverity;
+use App\Filament\Actions\Superadmin\Notifications\SavePlatformNotificationDraftAction;
 use App\Filament\Resources\PlatformNotifications\PlatformNotificationResource;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;

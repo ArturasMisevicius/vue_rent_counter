@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Tariffs\Schemas;
 
 use App\Enums\TariffType;
-use App\Support\Admin\OrganizationContext;
+use App\Filament\Support\Admin\OrganizationContext;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -40,13 +40,7 @@ class TariffForm
                             ->maxLength(255),
                         Select::make('configuration.type')
                             ->label(__('admin.tariffs.fields.type'))
-                            ->options(
-                                collect(TariffType::cases())
-                                    ->mapWithKeys(fn (TariffType $type): array => [
-                                        $type->value => __('admin.tariffs.types.'.$type->value),
-                                    ])
-                                    ->all(),
-                            )
+                            ->options(TariffType::options())
                             ->required(),
                         TextInput::make('configuration.currency')
                             ->label(__('admin.tariffs.fields.currency'))

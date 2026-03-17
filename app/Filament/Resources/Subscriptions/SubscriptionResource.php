@@ -43,23 +43,11 @@ class SubscriptionResource extends Resource
                         ->required(),
                     Select::make('plan')
                         ->label('Plan')
-                        ->options(
-                            collect(SubscriptionPlan::cases())
-                                ->mapWithKeys(fn (SubscriptionPlan $plan): array => [
-                                    $plan->value => $plan->label(),
-                                ])
-                                ->all(),
-                        )
+                        ->options(SubscriptionPlan::options())
                         ->required(),
                     Select::make('status')
                         ->label('Status')
-                        ->options(
-                            collect(SubscriptionStatus::cases())
-                                ->mapWithKeys(fn (SubscriptionStatus $status): array => [
-                                    $status->value => $status->label(),
-                                ])
-                                ->all(),
-                        )
+                        ->options(SubscriptionStatus::options())
                         ->required(),
                     DatePicker::make('starts_at')
                         ->label('Starts At'),
@@ -79,11 +67,10 @@ class SubscriptionResource extends Resource
                         ->label('Organization'),
                     TextEntry::make('plan')
                         ->label('Plan')
-                        ->formatStateUsing(fn ($state): string => ($state instanceof SubscriptionPlan) ? $state->label() : (string) $state),
+                        ->badge(),
                     TextEntry::make('status')
                         ->label('Status')
-                        ->badge()
-                        ->formatStateUsing(fn ($state): string => ($state instanceof SubscriptionStatus) ? $state->label() : (string) $state),
+                        ->badge(),
                     TextEntry::make('expires_at')
                         ->label('Expires At')
                         ->date(),
@@ -101,12 +88,10 @@ class SubscriptionResource extends Resource
                     ->searchable(),
                 TextColumn::make('plan')
                     ->label('Plan')
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => ($state instanceof SubscriptionPlan) ? $state->label() : (string) $state),
+                    ->badge(),
                 TextColumn::make('status')
                     ->label('Status')
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => ($state instanceof SubscriptionStatus) ? $state->label() : (string) $state),
+                    ->badge(),
                 TextColumn::make('expires_at')
                     ->label('Expires At')
                     ->date()

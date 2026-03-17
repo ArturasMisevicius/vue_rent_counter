@@ -2,8 +2,13 @@
 
 namespace App\Enums;
 
-enum SystemSettingCategory: string
+use App\Enums\Concerns\HasTranslatedLabel;
+use Filament\Support\Contracts\HasLabel;
+
+enum SystemSettingCategory: string implements HasLabel
 {
+    use HasTranslatedLabel;
+
     case GENERAL = 'general';
     case BILLING = 'billing';
     case LOCALIZATION = 'localization';

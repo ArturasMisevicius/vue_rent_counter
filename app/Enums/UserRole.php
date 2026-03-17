@@ -2,20 +2,27 @@
 
 namespace App\Enums;
 
-enum UserRole: string
+use App\Enums\Concerns\HasTranslatedLabel;
+use Filament\Support\Contracts\HasLabel;
+
+enum UserRole: string implements HasLabel
 {
+    use HasTranslatedLabel;
+
     case SUPERADMIN = 'superadmin';
     case ADMIN = 'admin';
     case MANAGER = 'manager';
     case TENANT = 'tenant';
 
-    public function label(): string
+    /**
+     * @return array<int, string>
+     */
+    public static function adminLikeValues(): array
     {
-        return match ($this) {
-            self::SUPERADMIN => __('shell.roles.superadmin'),
-            self::ADMIN => __('shell.roles.admin'),
-            self::MANAGER => __('shell.roles.manager'),
-            self::TENANT => __('shell.roles.tenant'),
-        };
+        return self::onlyValues(
+            self::SUPERADMIN,
+            self::ADMIN,
+            self::MANAGER,
+        );
     }
 }

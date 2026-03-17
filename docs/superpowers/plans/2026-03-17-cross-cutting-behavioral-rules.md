@@ -76,7 +76,6 @@ If you want smaller branches, the natural split point is after Chunk 2:
 - `lang/en/behavior.php`
 - `lang/lt/behavior.php`
 - `lang/ru/behavior.php`
-- `lang/es/behavior.php`
 - `tests/Unit/Support/Admin/OrganizationSubscriptionAccessTest.php`
 - `tests/Unit/Support/Admin/FinalizedInvoiceGuardTest.php`
 - `tests/Feature/Admin/SubscriptionEnforcementTest.php`
@@ -172,7 +171,6 @@ If you want smaller branches, the natural split point is after Chunk 2:
 - Modify: `lang/en/behavior.php`
 - Modify: `lang/lt/behavior.php`
 - Modify: `lang/ru/behavior.php`
-- Modify: `lang/es/behavior.php`
 
 - [ ] **Step 1: Write the failing unit tests for subscription access modes**
 

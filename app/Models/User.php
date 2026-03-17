@@ -20,6 +20,32 @@ class User extends Authenticatable implements FilamentUser
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    private const CONTROL_PLANE_COLUMNS = [
+        'id',
+        'organization_id',
+        'name',
+        'email',
+        'role',
+        'status',
+        'locale',
+        'last_login_at',
+        'created_at',
+        'updated_at',
+    ];
+
+    private const TENANT_WORKSPACE_COLUMNS = [
+        'id',
+        'organization_id',
+        'name',
+        'email',
+        'role',
+        'status',
+        'locale',
+        'last_login_at',
+        'created_at',
+        'updated_at',
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -69,6 +95,59 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
+    public function scopeForOrganization(Builder $query, int $organizationId): Builder
+    {
+        return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeTenants(Builder $query): Builder
+    {
+        return $query->where('role', UserRole::TENANT);
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('status', UserStatus::ACTIVE);
+    }
+
+    public function scopeAdminLike(Builder $query): Builder
+    {
+        return $query->whereIn('role', UserRole::adminLikeValues());
+    }
+
+    public function scopeOrderedByName(Builder $query): Builder
+    {
+        return $query
+            ->orderBy('name')
+            ->orderBy('id');
+    }
+
+    public function scopeWithOrganizationSummary(Builder $query): Builder
+    {
+        return $query->with([
+            'organization:id,name',
+        ]);
+    }
+
+    public function scopeWithCurrentPropertySummary(Builder $query): Builder
+    {
+        return $query->with([
+            'currentPropertyAssignment:id,organization_id,property_id,tenant_user_id,unit_area_sqm,assigned_at,unassigned_at',
+            'currentPropertyAssignment.property:id,organization_id,building_id,name,unit_number,type,floor_area_sqm',
+            'currentPropertyAssignment.property.building:id,organization_id,name,address_line_1,city',
+        ]);
+    }
+
+    public function scopeWithTenantWorkspaceSummary(Builder $query, int $organizationId): Builder
+    {
+        return $query
+            ->select(self::TENANT_WORKSPACE_COLUMNS)
+            ->forOrganization($organizationId)
+            ->tenants()
+            ->withCurrentPropertySummary()
+            ->orderedByName();
+    }
+
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
@@ -97,7 +176,8 @@ class User extends Authenticatable implements FilamentUser
     public function currentPropertyAssignment(): HasOne
     {
         return $this->hasOne(PropertyAssignment::class, 'tenant_user_id')
-            ->whereNull('unassigned_at');
+            ->current()
+            ->latestAssignedFirst();
     }
 
     public function dashboardCustomization(): HasOne
@@ -117,7 +197,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function tenantInvoices(): HasMany
     {
-        return $this->hasMany(Invoice::class, 'tenant_user_id');
+        return $this->invoices();
     }
 
     public function leases(): HasMany
@@ -168,21 +248,9 @@ class User extends Authenticatable implements FilamentUser
     public function scopeForSuperadminControlPlane(Builder $query): Builder
     {
         return $query
-            ->select([
-                'id',
-                'organization_id',
-                'name',
-                'email',
-                'role',
-                'status',
-                'locale',
-                'last_login_at',
-                'created_at',
-                'updated_at',
-            ])
-            ->with([
-                'organization:id,name',
-            ]);
+            ->select(self::CONTROL_PLANE_COLUMNS)
+            ->withOrganizationSummary()
+            ->orderedByName();
     }
 
     public function isSuperadmin(): bool

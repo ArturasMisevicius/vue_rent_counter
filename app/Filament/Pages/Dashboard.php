@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages;
 
-use App\Support\Auth\LoginRedirector;
+use App\Filament\Support\Auth\LoginRedirector;
 use Filament\Pages\Dashboard as BaseDashboard;
 
 class Dashboard extends BaseDashboard

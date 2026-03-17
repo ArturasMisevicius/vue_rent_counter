@@ -22,10 +22,7 @@ class LanguageForm
                         TextInput::make('native_name')->label('Native Name')->required()->maxLength(255),
                         Select::make('status')
                             ->label('Status')
-                            ->options([
-                                LanguageStatus::ACTIVE->value => 'Active',
-                                LanguageStatus::INACTIVE->value => 'Inactive',
-                            ])
+                            ->options(LanguageStatus::options())
                             ->required(),
                         Toggle::make('is_default')->label('Default Language'),
                     ])

@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Shell;
 
-use App\Actions\Preferences\UpdateUserLocaleAction;
-use App\Support\Preferences\SupportedLocaleOptions;
+use App\Filament\Actions\Preferences\UpdateUserLocaleAction;
+use App\Filament\Support\Preferences\SupportedLocaleOptions;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
 use Livewire\Component;

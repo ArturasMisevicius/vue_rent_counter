@@ -16,7 +16,7 @@ class UserTable
                 TextColumn::make('name')->label('Name')->searchable()->sortable(),
                 TextColumn::make('email')->label('Email')->searchable()->sortable(),
                 TextColumn::make('role')->label('Role')->badge()->state(fn ($state): string => $state->label()),
-                TextColumn::make('status')->label('Status')->badge()->state(fn ($state): string => ucfirst($state->value ?? (string) $state)),
+                TextColumn::make('status')->label('Status')->badge(),
                 TextColumn::make('organization.name')->label('Organization')->placeholder('Platform user'),
                 TextColumn::make('last_login_at')->label('Last Login')->dateTime()->toggleable(),
             ])

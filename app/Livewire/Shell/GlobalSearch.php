@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Shell;
 
-use App\Support\Shell\Search\Data\GlobalSearchResultData;
-use App\Support\Shell\Search\GlobalSearchRegistry;
+use App\Filament\Support\Shell\Search\Data\GlobalSearchResultData;
+use App\Filament\Support\Shell\Search\GlobalSearchRegistry;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;

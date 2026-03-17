@@ -9,7 +9,7 @@
             @forelse ($checks as $check)
                 <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                     <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">{{ $check->label }}</p>
-                    <p class="mt-3 text-lg font-semibold text-slate-950">{{ ucfirst($check->status->value ?? $check->status) }}</p>
+                    <p class="mt-3 text-lg font-semibold text-slate-950">{{ $check->status?->label() ?? $check->status }}</p>
                     <p class="mt-2 text-sm text-slate-600">{{ $check->summary }}</p>
                 </article>
             @empty

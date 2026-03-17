@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Providers\Pages;
 
-use App\Actions\Admin\Providers\CreateProviderAction;
+use App\Filament\Actions\Admin\Providers\CreateProviderAction;
 use App\Filament\Resources\Providers\ProviderResource;
-use App\Support\Admin\OrganizationContext;
+use App\Filament\Support\Admin\OrganizationContext;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 

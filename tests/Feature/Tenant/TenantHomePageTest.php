@@ -194,7 +194,7 @@ it('renders the tenant home copy in lithuanian for lithuanian tenants', function
         ->assertSeeText('Naujausi rodmenys');
 });
 
-it('renders the tenant home copy in spanish for spanish tenants', function () {
+it('falls back to english when a tenant has an unsupported locale', function () {
     $tenant = TenantPortalFactory::new()
         ->withAssignedProperty()
         ->withUnpaidInvoices()
@@ -203,13 +203,13 @@ it('renders the tenant home copy in spanish for spanish tenants', function () {
         ->create();
 
     $tenant->user->forceFill([
-        'locale' => 'es',
+        'locale' => 'de',
     ])->save();
 
     $this->actingAs($tenant->user->fresh())
         ->get(route('tenant.home'))
         ->assertSuccessful()
-        ->assertSeeText('Resumen del inquilino')
-        ->assertSeeText('Enviar nueva lectura')
-        ->assertSeeText('Lecturas recientes');
+        ->assertSeeText('Tenant Summary')
+        ->assertSeeText('Submit New Reading')
+        ->assertSeeText('Recent Readings');
 });

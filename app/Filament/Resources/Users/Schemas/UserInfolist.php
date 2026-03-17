@@ -16,8 +16,8 @@ class UserInfolist
                     ->schema([
                         TextEntry::make('name')->label('Name'),
                         TextEntry::make('email')->label('Email'),
-                        TextEntry::make('role')->label('Role')->formatStateUsing(fn ($state): string => $state->label()),
-                        TextEntry::make('status')->label('Status')->formatStateUsing(fn ($state): string => ucfirst($state->value ?? (string) $state)),
+                        TextEntry::make('role')->label('Role')->badge(),
+                        TextEntry::make('status')->label('Status')->badge(),
                         TextEntry::make('organization.name')->label('Organization')->default('Platform user'),
                     ])
                     ->columns(2),

@@ -2,8 +2,13 @@
 
 namespace App\Enums;
 
-enum AuditLogAction: string
+use App\Enums\Concerns\HasTranslatedLabel;
+use Filament\Support\Contracts\HasLabel;
+
+enum AuditLogAction: string implements HasLabel
 {
+    use HasTranslatedLabel;
+
     case CREATED = 'created';
     case UPDATED = 'updated';
     case DELETED = 'deleted';

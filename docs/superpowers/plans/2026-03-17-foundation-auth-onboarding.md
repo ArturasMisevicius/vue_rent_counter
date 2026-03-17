@@ -83,10 +83,6 @@
 - `lang/ru/onboarding.php`
 - `lang/ru/roles.php`
 - `lang/ru/passwords.php`
-- `lang/es/auth.php`
-- `lang/es/onboarding.php`
-- `lang/es/roles.php`
-- `lang/es/passwords.php`
 - `tests/Pest.php`
 - `tests/Feature/Auth/LoginFlowTest.php`
 - `tests/Feature/Auth/RegistrationAndOnboardingTest.php`
@@ -129,7 +125,6 @@
 - Create: `lang/en/passwords.php`
 - Create: `lang/lt/passwords.php`
 - Create: `lang/ru/passwords.php`
-- Create: `lang/es/passwords.php`
 
 - [ ] **Step 1: Add Pest to the dev toolchain**
 

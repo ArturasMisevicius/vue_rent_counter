@@ -47,10 +47,7 @@ class LanguageResource extends Resource
                         ->maxLength(255),
                     Select::make('status')
                         ->label('Status')
-                        ->options([
-                            LanguageStatus::ACTIVE->value => 'Active',
-                            LanguageStatus::INACTIVE->value => 'Inactive',
-                        ])
+                        ->options(LanguageStatus::options())
                         ->default(LanguageStatus::ACTIVE->value)
                         ->required(),
                 ])
@@ -75,8 +72,7 @@ class LanguageResource extends Resource
                     ->searchable(),
                 TextColumn::make('status')
                     ->label('Status')
-                    ->badge()
-                    ->formatStateUsing(fn ($state): string => ucfirst((string) ($state->value ?? $state))),
+                    ->badge(),
                 IconColumn::make('is_default')
                     ->label('Default')
                     ->boolean(),

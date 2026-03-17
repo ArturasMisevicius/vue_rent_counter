@@ -2,20 +2,16 @@
 
 namespace App\Enums;
 
-enum SubscriptionPlan: string
+use App\Enums\Concerns\HasTranslatedLabel;
+use Filament\Support\Contracts\HasLabel;
+
+enum SubscriptionPlan: string implements HasLabel
 {
+    use HasTranslatedLabel;
+
     case BASIC = 'basic';
     case PROFESSIONAL = 'professional';
     case ENTERPRISE = 'enterprise';
-
-    public function label(): string
-    {
-        return match ($this) {
-            self::BASIC => 'Basic',
-            self::PROFESSIONAL => 'Professional',
-            self::ENTERPRISE => 'Enterprise',
-        };
-    }
 
     /**
      * @return array{properties: int, tenants: int, meters: int, invoices: int}

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\AttachmentFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -52,5 +53,29 @@ class Attachment extends Model
     public function uploader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by_user_id');
+    }
+
+    public function scopeForOrganization(Builder $query, int $organizationId): Builder
+    {
+        return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeUploadedBy(Builder $query, int $userId): Builder
+    {
+        return $query->where('uploaded_by_user_id', $userId);
+    }
+
+    public function scopeLatestFirst(Builder $query): Builder
+    {
+        return $query
+            ->orderByDesc('created_at')
+            ->orderByDesc('id');
+    }
+
+    public function scopeWithUploaderSummary(Builder $query): Builder
+    {
+        return $query->with([
+            'uploader:id,name,email',
+        ]);
     }
 }

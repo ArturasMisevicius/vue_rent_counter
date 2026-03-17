@@ -9,19 +9,19 @@ uses(RefreshDatabase::class);
 it('applies the selected guest locale to public auth pages', function () {
     $this->from('/')
         ->post(route('locale.update'), [
-            'locale' => 'es',
+            'locale' => 'ru',
         ])
         ->assertRedirect('/');
 
     $this->get(route('login'))
         ->assertSuccessful()
-        ->assertSeeText('Bienvenido de nuevo');
+        ->assertSeeText(__('auth.login_title', [], 'ru'));
 });
 
 it('stores the active guest locale on newly registered admins', function () {
     $this->from('/')
         ->post(route('locale.update'), [
-            'locale' => 'es',
+            'locale' => 'ru',
         ])
         ->assertRedirect('/');
 
@@ -32,7 +32,7 @@ it('stores the active guest locale on newly registered admins', function () {
         'password_confirmation' => 'password',
     ])->assertRedirect(route('welcome.show'));
 
-    expect(User::query()->firstOrFail()->locale)->toBe('es');
+    expect(User::query()->firstOrFail()->locale)->toBe('ru');
 });
 
 it('rejects unsupported guest locales', function () {

@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Tenant;
 
-use App\Support\Tenant\Portal\TenantPropertyPresenter;
+use App\Filament\Support\Tenant\Portal\TenantPropertyPresenter;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 

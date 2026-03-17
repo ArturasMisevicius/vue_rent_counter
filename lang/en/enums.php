@@ -1,0 +1,166 @@
+<?php
+
+return [
+    'audit_log_action' => [
+        'created' => 'Created',
+        'updated' => 'Updated',
+        'deleted' => 'Deleted',
+        'suspended' => 'Suspended',
+        'reinstated' => 'Reinstated',
+        'sent' => 'Sent',
+    ],
+    'distribution_method' => [
+        'equal' => 'Equal',
+        'area' => 'By area',
+        'by_consumption' => 'By consumption',
+        'custom_formula' => 'Custom formula',
+    ],
+    'integration_health_status' => [
+        'healthy' => 'Healthy',
+        'degraded' => 'Degraded',
+        'failed' => 'Failed',
+    ],
+    'invoice_status' => [
+        'draft' => 'Draft',
+        'finalized' => 'Finalized',
+        'partially_paid' => 'Partially paid',
+        'paid' => 'Paid',
+        'overdue' => 'Overdue',
+        'void' => 'Void',
+    ],
+    'language_status' => [
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+    ],
+    'meter_reading_submission_method' => [
+        'admin_manual' => 'Admin manual',
+        'tenant_portal' => 'Tenant portal',
+        'import' => 'Import',
+    ],
+    'meter_reading_validation_status' => [
+        'pending' => 'Pending',
+        'valid' => 'Valid',
+        'flagged' => 'Flagged',
+        'rejected' => 'Rejected',
+    ],
+    'meter_status' => [
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+    ],
+    'meter_type' => [
+        'water' => 'Water',
+        'electricity' => 'Electricity',
+        'gas' => 'Gas',
+        'heating' => 'Heating',
+    ],
+    'organization_status' => [
+        'active' => 'Active',
+        'suspended' => 'Suspended',
+    ],
+    'payment_method' => [
+        'bank_transfer' => 'Bank transfer',
+        'card' => 'Card',
+        'cash' => 'Cash',
+        'other' => 'Other',
+    ],
+    'platform_notification_severity' => [
+        'info' => 'Info',
+        'success' => 'Success',
+        'warning' => 'Warning',
+        'error' => 'Error',
+    ],
+    'platform_notification_status' => [
+        'draft' => 'Draft',
+        'scheduled' => 'Scheduled',
+        'sent' => 'Sent',
+        'failed' => 'Failed',
+    ],
+    'pricing_model' => [
+        'fixed_monthly' => 'Fixed monthly',
+        'consumption_based' => 'Consumption based',
+        'tiered_rates' => 'Tiered rates',
+        'hybrid' => 'Hybrid',
+        'custom_formula' => 'Custom formula',
+        'flat' => 'Flat',
+        'time_of_use' => 'Time of use',
+    ],
+    'property_type' => [
+        'apartment' => 'Apartment',
+        'house' => 'House',
+        'office' => 'Office',
+        'storage' => 'Storage',
+    ],
+    'security_violation_severity' => [
+        'low' => 'Low',
+        'medium' => 'Medium',
+        'high' => 'High',
+        'critical' => 'Critical',
+    ],
+    'security_violation_type' => [
+        'authentication' => 'Authentication',
+        'rate_limit' => 'Rate limit',
+        'suspicious_ip' => 'Suspicious IP',
+        'data_access' => 'Data access',
+    ],
+    'service_type' => [
+        'electricity' => 'Electricity',
+        'water' => 'Water',
+        'heating' => 'Heating',
+        'gas' => 'Gas',
+    ],
+    'subscription_access_mode' => [
+        'active' => 'Active',
+        'limit_blocked' => 'Limit blocked',
+        'grace_read_only' => 'Grace read only',
+        'post_grace_read_only' => 'Post-grace read only',
+    ],
+    'subscription_duration' => [
+        'monthly' => 'Monthly',
+        'quarterly' => 'Quarterly',
+        'yearly' => 'Yearly',
+    ],
+    'subscription_plan' => [
+        'basic' => 'Basic',
+        'professional' => 'Professional',
+        'enterprise' => 'Enterprise',
+    ],
+    'subscription_status' => [
+        'trialing' => 'Trialing',
+        'active' => 'Active',
+        'expired' => 'Expired',
+        'suspended' => 'Suspended',
+        'cancelled' => 'Cancelled',
+    ],
+    'system_setting_category' => [
+        'general' => 'General',
+        'billing' => 'Billing',
+        'localization' => 'Localization',
+        'security' => 'Security',
+        'integrations' => 'Integrations',
+    ],
+    'tariff_type' => [
+        'flat' => 'Flat',
+        'time_of_use' => 'Time of use',
+    ],
+    'tariff_zone' => [
+        'day' => 'Day',
+        'night' => 'Night',
+        'weekend' => 'Weekend',
+    ],
+    'user_role' => [
+        'superadmin' => 'Superadmin',
+        'admin' => 'Admin',
+        'manager' => 'Manager',
+        'tenant' => 'Tenant',
+    ],
+    'user_status' => [
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+        'suspended' => 'Suspended',
+    ],
+    'weekend_logic' => [
+        'apply_night_rate' => 'Apply night rate',
+        'apply_day_rate' => 'Apply day rate',
+        'apply_weekend_rate' => 'Apply weekend rate',
+    ],
+];

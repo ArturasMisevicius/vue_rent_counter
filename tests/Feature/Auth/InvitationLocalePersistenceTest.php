@@ -46,7 +46,7 @@ it('stores the active guest locale when accepting a new invitation', function ()
 
     $this->from(route('invitation.show', $invitation->token))
         ->post(route('locale.update'), [
-            'locale' => 'es',
+            'locale' => 'ru',
         ])
         ->assertRedirect(route('invitation.show', $invitation->token));
 
@@ -58,7 +58,7 @@ it('stores the active guest locale when accepting a new invitation', function ()
 
     $user = User::query()->where('email', $invitation->email)->firstOrFail();
 
-    expect($user->locale)->toBe('es');
+    expect($user->locale)->toBe('ru');
 });
 
 it('updates an invited tenant placeholder to the active guest locale on acceptance', function () {
@@ -86,7 +86,7 @@ it('updates an invited tenant placeholder to the active guest locale on acceptan
 
     $this->from(route('invitation.show', $invitation->token))
         ->post(route('locale.update'), [
-            'locale' => 'es',
+            'locale' => 'ru',
         ])
         ->assertRedirect(route('invitation.show', $invitation->token));
 
@@ -96,5 +96,5 @@ it('updates an invited tenant placeholder to the active guest locale on acceptan
         'password_confirmation' => 'new-password',
     ])->assertRedirect(route('tenant.home'));
 
-    expect($tenant->fresh()->locale)->toBe('es');
+    expect($tenant->fresh()->locale)->toBe('ru');
 });

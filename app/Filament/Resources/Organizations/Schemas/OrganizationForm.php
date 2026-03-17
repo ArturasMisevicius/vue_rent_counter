@@ -29,10 +29,7 @@ class OrganizationForm
                             ->maxLength(255),
                         Select::make('status')
                             ->label(__('superadmin.organizations.columns.status'))
-                            ->options([
-                                OrganizationStatus::ACTIVE->value => __('superadmin.organizations.status.active'),
-                                OrganizationStatus::SUSPENDED->value => __('superadmin.organizations.status.suspended'),
-                            ])
+                            ->options(OrganizationStatus::options())
                             ->default(OrganizationStatus::ACTIVE->value)
                             ->required(),
                         TextInput::make('owner_name')
@@ -46,16 +43,12 @@ class OrganizationForm
                             ->maxLength(255),
                         Select::make('plan')
                             ->label('Subscription plan')
-                            ->options(collect(SubscriptionPlan::cases())->mapWithKeys(
-                                fn (SubscriptionPlan $plan): array => [$plan->value => $plan->label()],
-                            )->all())
+                            ->options(SubscriptionPlan::options())
                             ->default(SubscriptionPlan::BASIC->value)
                             ->required(),
                         Select::make('duration')
                             ->label('Duration')
-                            ->options(collect(SubscriptionDuration::cases())->mapWithKeys(
-                                fn (SubscriptionDuration $duration): array => [$duration->value => $duration->label()],
-                            )->all())
+                            ->options(SubscriptionDuration::options())
                             ->default(SubscriptionDuration::MONTHLY->value)
                             ->required(),
                     ])

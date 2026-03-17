@@ -2,9 +2,9 @@
 
 use App\Enums\OrganizationStatus;
 use App\Enums\UserStatus;
+use App\Filament\Support\Auth\LoginRedirector;
 use App\Models\Organization;
 use App\Models\User;
-use App\Support\Auth\LoginRedirector;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 

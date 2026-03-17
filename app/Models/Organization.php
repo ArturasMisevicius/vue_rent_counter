@@ -16,6 +16,16 @@ class Organization extends Model
     /** @use HasFactory<OrganizationFactory> */
     use HasFactory;
 
+    private const CONTROL_PLANE_COLUMNS = [
+        'id',
+        'name',
+        'slug',
+        'status',
+        'owner_user_id',
+        'created_at',
+        'updated_at',
+    ];
+
     protected $fillable = [
         'name',
         'slug',
@@ -31,26 +41,41 @@ class Organization extends Model
         ];
     }
 
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('status', OrganizationStatus::ACTIVE);
+    }
+
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query
+            ->orderBy('name')
+            ->orderBy('id');
+    }
+
+    public function scopeWithOwnerSummary(Builder $query): Builder
+    {
+        return $query->with([
+            'owner:id,name,email',
+        ]);
+    }
+
+    public function scopeWithUsageCounts(Builder $query): Builder
+    {
+        return $query->withCount([
+            'users',
+            'properties',
+            'subscriptions',
+        ]);
+    }
+
     public function scopeForSuperadminControlPlane(Builder $query): Builder
     {
         return $query
-            ->select([
-                'id',
-                'name',
-                'slug',
-                'status',
-                'owner_user_id',
-                'created_at',
-                'updated_at',
-            ])
-            ->with([
-                'owner:id,name,email',
-            ])
-            ->withCount([
-                'users',
-                'properties',
-                'subscriptions',
-            ]);
+            ->select(self::CONTROL_PLANE_COLUMNS)
+            ->withOwnerSummary()
+            ->withUsageCounts()
+            ->ordered();
     }
 
     public function owner(): BelongsTo
@@ -71,6 +96,12 @@ class Organization extends Model
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);
+    }
+
+    public function currentSubscription(): HasOne
+    {
+        return $this->hasOne(Subscription::class)
+            ->latestFirst();
     }
 
     public function subscriptionPayments(): HasMany

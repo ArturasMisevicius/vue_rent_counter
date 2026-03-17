@@ -1,9 +1,9 @@
 <?php
 
-use App\Actions\Admin\Providers\CreateProviderAction;
-use App\Actions\Admin\Providers\DeleteProviderAction;
-use App\Actions\Admin\Providers\UpdateProviderAction;
 use App\Enums\ServiceType;
+use App\Filament\Actions\Admin\Providers\CreateProviderAction;
+use App\Filament\Actions\Admin\Providers\DeleteProviderAction;
+use App\Filament\Actions\Admin\Providers\UpdateProviderAction;
 use App\Models\Organization;
 use App\Models\Provider;
 use App\Models\Tariff;

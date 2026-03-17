@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\ProjectFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +15,28 @@ class Project extends Model
 {
     /** @use HasFactory<ProjectFactory> */
     use HasFactory;
+
+    private const SUMMARY_COLUMNS = [
+        'id',
+        'organization_id',
+        'property_id',
+        'building_id',
+        'created_by_user_id',
+        'assigned_to_user_id',
+        'name',
+        'description',
+        'type',
+        'status',
+        'priority',
+        'start_date',
+        'due_date',
+        'completed_at',
+        'budget',
+        'actual_cost',
+        'metadata',
+        'created_at',
+        'updated_at',
+    ];
 
     protected $fillable = [
         'organization_id',
@@ -96,5 +119,53 @@ class Project extends Model
         return $this->morphToMany(Tag::class, 'taggable')
             ->withPivot(['tagged_by_user_id'])
             ->withTimestamps();
+    }
+
+    public function scopeForOrganization(Builder $query, int $organizationId): Builder
+    {
+        return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeOpen(Builder $query): Builder
+    {
+        return $query->whereNull('completed_at');
+    }
+
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query
+            ->orderBy('due_date')
+            ->orderBy('name')
+            ->orderBy('id');
+    }
+
+    public function scopeWithPlanningRelations(Builder $query): Builder
+    {
+        return $query->with([
+            'property:id,organization_id,building_id,name,unit_number',
+            'building:id,organization_id,name,address_line_1,city',
+            'creator:id,name,email',
+            'assignedTo:id,name,email',
+        ]);
+    }
+
+    public function scopeWithWorkCounts(Builder $query): Builder
+    {
+        return $query->withCount([
+            'tasks',
+            'enhancedTasks',
+            'comments',
+            'attachments',
+        ]);
+    }
+
+    public function scopeForWorkspaceSummary(Builder $query, int $organizationId): Builder
+    {
+        return $query
+            ->select(self::SUMMARY_COLUMNS)
+            ->forOrganization($organizationId)
+            ->withPlanningRelations()
+            ->withWorkCounts()
+            ->ordered();
     }
 }

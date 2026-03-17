@@ -2,8 +2,13 @@
 
 namespace App\Enums;
 
-enum SecurityViolationType: string
+use App\Enums\Concerns\HasTranslatedLabel;
+use Filament\Support\Contracts\HasLabel;
+
+enum SecurityViolationType: string implements HasLabel
 {
+    use HasTranslatedLabel;
+
     case AUTHENTICATION = 'authentication';
     case RATE_LIMIT = 'rate_limit';
     case SUSPICIOUS_IP = 'suspicious_ip';

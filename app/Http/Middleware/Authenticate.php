@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Support\Auth\AuthenticatedSessionHistory;
+use App\Filament\Support\Auth\AuthenticatedSessionHistory;
 use Closure;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;

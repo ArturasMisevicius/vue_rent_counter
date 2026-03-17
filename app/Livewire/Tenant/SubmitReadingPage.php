@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Tenant;
 
-use App\Actions\Tenant\Readings\SubmitTenantReadingAction;
+use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
 use App\Models\Meter;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -159,10 +159,11 @@ class SubmitReadingPage extends Component
             ->with([
                 'latestReading' => fn ($query) => $query
                     ->select(['id', 'organization_id', 'meter_id', 'reading_value', 'reading_date', 'validation_status'])
-                    ->where('organization_id', $tenant->organization_id),
+                    ->forOrganization($tenant->organization_id)
+                    ->latestFirst(),
             ])
-            ->where('organization_id', $tenant->organization_id)
-            ->where('property_id', $propertyId)
+            ->forOrganization($tenant->organization_id)
+            ->forProperty($propertyId)
             ->orderBy('name')
             ->get();
     }
@@ -177,8 +178,8 @@ class SubmitReadingPage extends Component
         return $tenant->load([
             'currentPropertyAssignment' => fn ($query) => $query
                 ->select(['id', 'organization_id', 'property_id', 'tenant_user_id', 'assigned_at', 'unassigned_at'])
-                ->where('organization_id', $tenant->organization_id)
-                ->whereNull('unassigned_at'),
+                ->forOrganization($tenant->organization_id)
+                ->current(),
         ]);
     }
 

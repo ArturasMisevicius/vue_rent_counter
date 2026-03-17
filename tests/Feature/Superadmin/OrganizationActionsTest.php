@@ -1,14 +1,14 @@
 <?php
 
-use App\Actions\Superadmin\Organizations\CreateOrganizationAction;
-use App\Actions\Superadmin\Organizations\ExportOrganizationDataAction;
-use App\Actions\Superadmin\Organizations\ReinstateOrganizationAction;
-use App\Actions\Superadmin\Organizations\SendOrganizationNotificationAction;
-use App\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
-use App\Actions\Superadmin\Organizations\SuspendOrganizationAction;
 use App\Enums\OrganizationStatus;
 use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
+use App\Filament\Actions\Superadmin\Organizations\CreateOrganizationAction;
+use App\Filament\Actions\Superadmin\Organizations\ExportOrganizationDataAction;
+use App\Filament\Actions\Superadmin\Organizations\ReinstateOrganizationAction;
+use App\Filament\Actions\Superadmin\Organizations\SendOrganizationNotificationAction;
+use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
+use App\Filament\Actions\Superadmin\Organizations\SuspendOrganizationAction;
 use App\Models\Organization;
 use App\Models\PlatformNotification;
 use App\Models\PlatformNotificationDelivery;

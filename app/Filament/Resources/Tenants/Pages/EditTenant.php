@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Tenants\Pages;
 
-use App\Actions\Admin\Tenants\DeleteTenantAction;
-use App\Actions\Admin\Tenants\UpdateTenantAction;
+use App\Filament\Actions\Admin\Tenants\DeleteTenantAction;
+use App\Filament\Actions\Admin\Tenants\UpdateTenantAction;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Models\User;
 use Filament\Actions\DeleteAction;

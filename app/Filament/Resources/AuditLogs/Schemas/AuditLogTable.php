@@ -14,7 +14,7 @@ class AuditLogTable
                 TextColumn::make('description')->label('Description')->searchable()->wrap(),
                 TextColumn::make('actor.name')->label('Actor')->placeholder('System'),
                 TextColumn::make('organization.name')->label('Organization')->placeholder('Platform'),
-                TextColumn::make('action')->label('Action')->badge()->state(fn ($state): string => $state->value ?? (string) $state),
+                TextColumn::make('action')->label('Action')->badge(),
                 TextColumn::make('occurred_at')->label('Occurred At')->dateTime()->sortable(),
             ])
             ->defaultSort('occurred_at', 'desc');

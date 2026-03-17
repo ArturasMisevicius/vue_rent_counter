@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
+use App\Filament\Support\Audit\AuditLogger;
 use App\Models\User;
-use App\Support\Audit\AuditLogger;
 
 class UserObserver
 {

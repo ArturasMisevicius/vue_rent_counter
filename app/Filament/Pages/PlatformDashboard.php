@@ -102,7 +102,7 @@ class PlatformDashboard extends Page
             ->map(fn (SecurityViolation $violation): array => [
                 'organization' => $violation->organization?->name ?? __('dashboard.not_available'),
                 'summary' => $violation->summary,
-                'severity' => ucfirst((string) ($violation->severity->value ?? $violation->severity)),
+                'severity' => $violation->severity?->label() ?? __('dashboard.not_available'),
             ])
             ->all();
 

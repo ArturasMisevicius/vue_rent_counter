@@ -4,13 +4,13 @@ namespace App\Filament\Pages;
 
 use App\Enums\InvoiceStatus;
 use App\Enums\MeterType;
+use App\Filament\Support\Admin\OrganizationContext;
+use App\Filament\Support\Admin\Reports\ConsumptionReportBuilder;
+use App\Filament\Support\Admin\Reports\MeterComplianceReportBuilder;
+use App\Filament\Support\Admin\Reports\OutstandingBalancesReportBuilder;
+use App\Filament\Support\Admin\Reports\ReportPdfExporter;
+use App\Filament\Support\Admin\Reports\RevenueReportBuilder;
 use App\Models\User;
-use App\Support\Admin\OrganizationContext;
-use App\Support\Admin\Reports\ConsumptionReportBuilder;
-use App\Support\Admin\Reports\MeterComplianceReportBuilder;
-use App\Support\Admin\Reports\OutstandingBalancesReportBuilder;
-use App\Support\Admin\Reports\ReportPdfExporter;
-use App\Support\Admin\Reports\RevenueReportBuilder;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Carbon;
@@ -180,11 +180,7 @@ class Reports extends Page
      */
     public function meterTypeOptions(): array
     {
-        return collect(MeterType::cases())
-            ->mapWithKeys(fn (MeterType $meterType): array => [
-                $meterType->value => __('admin.meters.types.'.$meterType->value),
-            ])
-            ->all();
+        return MeterType::options();
     }
 
     /**
@@ -192,11 +188,7 @@ class Reports extends Page
      */
     public function invoiceStatusOptions(): array
     {
-        return collect(InvoiceStatus::cases())
-            ->mapWithKeys(fn (InvoiceStatus $status): array => [
-                $status->value => __('admin.invoices.statuses.'.$status->value),
-            ])
-            ->all();
+        return InvoiceStatus::options();
     }
 
     /**
