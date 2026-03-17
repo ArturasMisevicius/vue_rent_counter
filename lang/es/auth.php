@@ -42,6 +42,7 @@ return [
     'invitation_mail_expiry' => 'Esta invitación caduca en 7 días.',
     'password_confirmation_mismatch' => 'La confirmación de la contraseña no coincide.',
     'account_suspended' => 'Tu cuenta está suspendida actualmente. Ponte en contacto con soporte.',
+    'session_expired' => 'Tu sesión expiró. Vuelve a iniciar sesión.',
     'failed' => 'El correo electrónico o la contraseña que ingresaste son incorrectos. Inténtalo de nuevo.',
     'password' => 'La contraseña proporcionada es incorrecta.',
     'throttle' => 'Demasiados intentos de inicio de sesión. Inténtalo de nuevo en :seconds segundos.',

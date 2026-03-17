@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\OrganizationStatus;
+use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Support\Auth\AuthenticatedSessionMarker;
 use App\Support\Auth\LoginRedirector;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use App\Enums\OrganizationStatus;
-use App\Enums\UserStatus;
 
 class LoginController extends Controller
 {
@@ -22,8 +23,11 @@ class LoginController extends Controller
     /**
      * @throws ValidationException
      */
-    public function store(LoginRequest $request, LoginRedirector $loginRedirector): RedirectResponse
-    {
+    public function store(
+        LoginRequest $request,
+        LoginRedirector $loginRedirector,
+        AuthenticatedSessionMarker $authenticatedSessionMarker,
+    ): RedirectResponse {
         if (! Auth::attempt($request->credentials())) {
             throw ValidationException::withMessages([
                 'email' => __('auth.invalid_credentials'),
@@ -51,6 +55,8 @@ class LoginController extends Controller
             'last_login_at' => now(),
         ])->save();
 
-        return redirect()->intended($loginRedirector->for($user));
+        return redirect()
+            ->intended($loginRedirector->for($user))
+            ->withCookie($authenticatedSessionMarker->make($user));
     }
 }

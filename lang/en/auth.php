@@ -42,6 +42,7 @@ return [
     'invitation_mail_expiry' => 'This invitation expires in 7 days.',
     'password_confirmation_mismatch' => 'The password confirmation does not match.',
     'account_suspended' => 'Your account is currently suspended. Please contact support.',
+    'session_expired' => 'Your session expired. Please log in again.',
     'failed' => 'The email or password you entered is incorrect. Please try again.',
     'password' => 'The provided password is incorrect.',
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',

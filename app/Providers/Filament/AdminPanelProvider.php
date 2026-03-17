@@ -4,12 +4,12 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\Dashboard;
 use App\Http\Controllers\Filament\RedirectToPublicLoginController;
+use App\Http\Middleware\AuthenticateAdminPanel;
 use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
 use App\Http\Middleware\SetAuthenticatedUserLocale;
 use App\Livewire\Shell\Sidebar;
 use App\Livewire\Shell\Topbar;
-use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -67,7 +67,7 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
-                Authenticate::class,
+                AuthenticateAdminPanel::class,
                 EnsureAccountIsAccessible::class,
                 EnsureOnboardingIsComplete::class,
             ]);

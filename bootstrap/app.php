@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
 use App\Http\Middleware\EnsureUserIsTenant;
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+            'auth' => Authenticate::class,
             'set.auth.locale' => SetAuthenticatedUserLocale::class,
             'ensure.account.accessible' => EnsureAccountIsAccessible::class,
             'ensure.onboarding.complete' => EnsureOnboardingIsComplete::class,
