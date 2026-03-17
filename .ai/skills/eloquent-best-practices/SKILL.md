@@ -1,11 +1,52 @@
 ---
 name: eloquent-best-practices
-description: Best practices for Laravel Eloquent ORM including query optimization, relationship management, and avoiding common pitfalls like N+1 queries.
+description: Use when optimizing Laravel Eloquent queries, relationships, eager loading, scopes, aggregates, or model-layer performance issues such as N+1 queries.
 ---
 
 # Eloquent Best Practices
 
+## When Refactoring a Model
+
+When the task is to review or refactor a specific Eloquent model, explicitly check:
+
+- repeated `where(...)` chains that should become local scopes
+- relationship correctness, inverse relations, and eager-loading strategy
+- N+1 risks in loops, views, table formatters, widgets, and jobs
+- whether `withCount()` or `withExists()` is a better fit than loading full relations
+- casts, cheap accessors/mutators, and expensive computed attributes
+- mass-assignment safety through explicit `$fillable`
+- SQL-first filtering, `exists()` for booleans, and chunking/lazy iteration for large datasets
+- indexes that match repeated filters, joins, and sort order
+- logic that belongs in actions, services, query objects, observers, or policies instead of the model
+
+For model-refactor requests, prefer returning the full refactored model first, then a concise flat list of practical improvements.
+
 ## Query Optimization
+
+### Use Small Composable Scopes
+
+```php
+class Invoice extends Model
+{
+    public function scopeForOrganization($query, int $organizationId)
+    {
+        return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeOutstanding($query)
+    {
+        return $query->whereColumn('amount_paid', '<', 'total_amount');
+    }
+
+    public function scopeOrdered($query)
+    {
+        return $query->orderByDesc('due_date')->orderByDesc('id');
+    }
+}
+```
+
+- Keep scopes focused and chainable
+- Use query builders/query objects only when scopes become too numerous or branch heavily
 
 ### Always Eager Load Relationships
 
@@ -21,6 +62,11 @@ $posts = Post::with('user')->get();
 foreach ($posts as $post) {
     echo $post->user->name; // No additional queries
 }
+
+// ✅ Constrained eager loading
+$properties = Property::with([
+    'meters' => fn ($query) => $query->select(['id', 'property_id', 'name'])->active(),
+])->get();
 ```
 
 ### Select Only Needed Columns
@@ -93,6 +139,12 @@ $posts = Post::withCount('comments')->get();
 foreach ($posts as $post) {
     echo $post->comments_count;
 }
+
+// ✅ Use withExists for booleans
+$posts = Post::withExists('comments')->get();
+foreach ($posts as $post) {
+    echo $post->comments_exists ? 'Yes' : 'No';
+}
 ```
 
 ## Mass Assignment Protection
@@ -102,14 +154,11 @@ class Post extends Model
 {
     // ✅ Whitelist fillable attributes
     protected $fillable = ['title', 'content', 'status'];
-    
-    // Or blacklist guarded attributes
-    protected $guarded = ['id', 'user_id'];
-    
-    // ❌ Never do this
-    // protected $guarded = [];
 }
 ```
+
+- Prefer explicit `$fillable` over `$guarded`
+- Avoid `protected $guarded = [];`
 
 ## Use Casts for Type Safety
 
@@ -122,6 +171,20 @@ class Post extends Model
         'is_featured' => 'boolean',
         'views' => 'integer',
     ];
+}
+```
+
+## Prefer Exists for Boolean Checks
+
+```php
+// ❌ Loads more work than needed
+if (Invoice::where('tenant_id', $tenantId)->count() > 0) {
+    // ...
+}
+
+// ✅ Stops at the first match
+if (Invoice::where('tenant_id', $tenantId)->exists()) {
+    // ...
 }
 ```
 
@@ -175,6 +238,8 @@ class Post extends Model
 }
 ```
 
+Prefer observers for cross-cutting side effects once the hooks become non-trivial or are shared by multiple write paths.
+
 ## Common Pitfalls to Avoid
 
 ### Don't Query in Loops
@@ -187,6 +252,25 @@ foreach ($userIds as $id) {
 
 // ✅ Good
 $users = User::whereIn('id', $userIds)->get();
+```
+
+### Don't Filter Large Collections in PHP
+
+```php
+// ❌ Pulls too much into memory
+$overdue = $invoices->filter(fn ($invoice) => $invoice->due_date->isPast());
+
+// ✅ Keep the filtering in SQL
+$overdue = Invoice::query()->whereDate('due_date', '<', today())->get();
+```
+
+### Select Only What the UI Needs
+
+```php
+$users = User::query()
+    ->select(['id', 'organization_id', 'name', 'email'])
+    ->with('organization:id,name')
+    ->get();
 ```
 
 ### Don't Forget Indexes
@@ -205,6 +289,11 @@ Schema::create('posts', function (Blueprint $table) {
 });
 ```
 
+Add indexes for:
+- repeated organization/tenant/property scopes
+- latest-first queries such as `(created_at, id)` or `(reading_date, id)`
+- status/date combinations used by dashboards, tables, and widgets
+
 ### Prevent Lazy Loading in Development
 
 ```php
@@ -217,7 +306,10 @@ Model::preventLazyLoading(!app()->isProduction());
 - [ ] Relationships eagerly loaded where needed
 - [ ] Only selecting required columns
 - [ ] Using query scopes for reusability
-- [ ] Mass assignment protection configured
+- [ ] Explicit `$fillable` used for mass-assigned models
+- [ ] `exists()` used for boolean checks
+- [ ] `withCount()` / `withExists()` used where the UI does not need full relations
+- [ ] Large collection filtering left in SQL
 - [ ] Appropriate casts defined
 - [ ] Indexes on foreign keys and query columns
 - [ ] Using database-level operations when possible

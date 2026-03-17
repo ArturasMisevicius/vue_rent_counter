@@ -17,6 +17,21 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 <!-- OPENSPEC:END -->
 
+## Tenanto Current Repo Context
+
+Use `docs/PROJECT-CONTEXT.md` as the canonical workspace snapshot when a pasted session brief conflicts with the live repository.
+
+Verified snapshot for this workspace on 2026-03-17:
+
+- Local CLI runtime is PHP `8.5.4`; `composer.json` currently requires PHP `^8.2`.
+- Core stack is Laravel `12`, Filament `5.3`, Livewire `4`, Tailwind CSS `4`, Pest `4`, PHPUnit `12`, Alpine.js `3`, and Sanctum `4`.
+- Tenanto is currently a Filament-first, Livewire-assisted multi-tenant utility billing and property management application.
+- Role enum values are `SUPERADMIN`, `ADMIN`, `MANAGER`, and `TENANT`.
+- Current application surface includes 1 remaining base controller, 17 Filament resources, 27 Livewire components, 84 test files, and 1 Filament panel provider at `app/Providers/Filament/AdminPanelProvider.php`.
+- The shared application foundation for requests, actions, and support services lives under `app/Filament/Requests`, `app/Filament/Actions`, and `app/Filament/Support`.
+- The repository-local `.mcp.json` currently defines only the `herd` server. Do not assume repo-local `laravel-mcp` or `laravel-boost` entries unless you verify them again.
+- The public web root currently exposes only `public/index.php`; do not introduce ad hoc public debug entrypoints.
+
 <laravel-boost-guidelines>
 === foundation rules ===
 

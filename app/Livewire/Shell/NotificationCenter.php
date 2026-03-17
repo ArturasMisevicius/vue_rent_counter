@@ -6,22 +6,18 @@ use App\Filament\Support\Shell\Notifications\DatabaseNotificationPresenter;
 use Illuminate\Contracts\View\View;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Collection;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class NotificationCenter extends Component
 {
-    public int $unreadCount = 0;
-
-    public function mount(): void
-    {
-        $this->refreshNotifications();
-    }
-
     public function refreshNotifications(): void
     {
-        $user = auth()->user();
-
-        $this->unreadCount = $user?->unreadNotifications()->count() ?? 0;
+        unset(
+            $this->unreadCount,
+            $this->notifications,
+            $this->presentedNotifications,
+        );
     }
 
     public function openNotification(string $notificationId): void
@@ -63,17 +59,17 @@ class NotificationCenter extends Component
     public function render(DatabaseNotificationPresenter $presenter): View
     {
         return view('livewire.shell.notification-center', [
-            'notifications' => $this->notifications()
-                ->map(fn (DatabaseNotification $notification): array => $presenter->present($notification))
-                ->all(),
-            'pollSeconds' => max(5, (int) config('tenanto.shell.polling.notifications', 30)),
+            'notifications' => $this->presentedNotifications,
+            'pollSeconds' => $this->pollSeconds,
+            'unreadCount' => $this->unreadCount,
         ]);
     }
 
     /**
      * @return Collection<int, DatabaseNotification>
      */
-    protected function notifications(): Collection
+    #[Computed]
+    public function notifications(): Collection
     {
         $user = auth()->user();
 
@@ -89,6 +85,31 @@ class NotificationCenter extends Component
             ->get();
 
         return $notifications;
+    }
+
+    /**
+     * @return array<int, array{id: string, title: string, preview: string, relative_time: string, unread: bool, url: ?string}>
+     */
+    #[Computed]
+    public function presentedNotifications(): array
+    {
+        $presenter = app(DatabaseNotificationPresenter::class);
+
+        return $this->notifications
+            ->map(fn (DatabaseNotification $notification): array => $presenter->present($notification))
+            ->all();
+    }
+
+    #[Computed]
+    public function unreadCount(): int
+    {
+        return auth()->user()?->unreadNotifications()->count() ?? 0;
+    }
+
+    #[Computed]
+    public function pollSeconds(): int
+    {
+        return max(5, (int) config('tenanto.shell.polling.notifications', 30));
     }
 
     protected function findNotification(string $notificationId): ?DatabaseNotification

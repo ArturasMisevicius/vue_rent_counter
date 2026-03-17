@@ -5,21 +5,35 @@ namespace App\Livewire\Tenant;
 use App\Filament\Support\Tenant\Portal\TenantHomePresenter;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class HomeSummary extends Component
 {
     public function render(): View
     {
-        /** @var User $tenant */
+        return view('livewire.tenant.home-summary', [
+            'summary' => $this->summary,
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    #[Computed]
+    public function summary(): array
+    {
+        /** @var User|null $tenant */
         $tenant = auth()->user();
 
-        return view('livewire.tenant.home-summary', [
-            'summary' => array_replace_recursive(
-                $this->defaultSummary(),
-                app(TenantHomePresenter::class)->for($tenant),
-            ),
-        ]);
+        if (! $tenant instanceof User) {
+            return $this->defaultSummary();
+        }
+
+        return array_replace_recursive(
+            $this->defaultSummary(),
+            app(TenantHomePresenter::class)->for($tenant),
+        );
     }
 
     /**

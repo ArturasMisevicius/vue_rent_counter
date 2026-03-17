@@ -1,6 +1,6 @@
 ---
 name: livewire-development
-description: "Develops reactive Livewire 4 components. Activates when creating, updating, or modifying Livewire components; working with wire:model, wire:click, wire:loading, or any wire: directives; adding real-time updates, loading states, or reactivity; debugging component behavior; writing Livewire tests; or when the user mentions Livewire, component, counter, or reactive UI."
+description: "Use when creating, reviewing, or refactoring Livewire 4 components, component state, wire directives, render/query behavior, or Livewire component tests in Laravel apps."
 license: MIT
 metadata:
   author: laravel
@@ -129,6 +129,86 @@ These things changed in Livewire 4, but may not have been updated in this applic
 - Use `wire:model.live` for instant updates (default is debounced)
 - Validate and authorize in actions (treat like HTTP requests)
 
+## State Design
+
+Separate state into three buckets:
+
+- Persistent state: form inputs, filters, sort direction, pagination, route-backed values
+- Derived state: query results, labels, selected records, counts, presenter output
+- UI-only state: dropdown visibility, modal state, tabs, loading toggles
+
+Rules:
+- Keep derived state out of public arrays/collections when it can be `#[Computed]`
+- Do not store full Eloquent collections or models in public properties unless there is a strong reason
+- Prefer scalar IDs or lightweight arrays over hydrated models in component state
+- Protect route/server-owned properties like IDs, tokens, and context flags with `#[Locked]`
+
+## Livewire 4 Attributes
+
+Use Livewire 4 attributes intentionally:
+
+- `#[Computed]`: for request-memoized derived state such as selected records, filtered collections, and presenter output
+- `#[Validate]`: for property-level rules on interactive inputs and filters
+- `#[Locked]`: for public properties that must not be modified client-side
+
+```php
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\Validate;
+
+#[Locked]
+public string $token = '';
+
+#[Validate('required|string|in:all,open,closed')]
+public string $status = 'all';
+
+#[Computed]
+public function tickets()
+{
+    return Ticket::query()
+        ->forOrganization(auth()->user()->organization_id)
+        ->when($this->status !== 'all', fn ($query) => $query->where('status', $this->status))
+        ->simplePaginate(10);
+}
+```
+
+Notes:
+- `#[Computed]` is memoized only for the current component request
+- If a mutation changes the underlying source, invalidate with `unset($this->computedPropertyName)`
+- Use application cache only for expensive shared data, not as a substitute for good component structure
+
+## Query and Render Guidance
+
+- Keep `render()` thin; resolve heavy derived state in `#[Computed]` methods or dedicated presenter/query classes
+- If the same component method needs the same query in `mount()`, validation, and `render()`, move it to `#[Computed]`
+- Use explicit `select([...])` on large list queries
+- Prefer paginated results for large datasets
+- Use `withCount()` / `withExists()` instead of loading entire relations for badges or booleans
+- Use `wire:init` when data can load after first paint without harming UX
+
+## Hydration Safety
+
+Watch for:
+- large public arrays of search results
+- large notification/activity payloads
+- storing models or collections that rehydrate on every request
+- repeated relation loading triggered by `updated*` handlers or render-time calls
+
+If a component repeatedly serializes large datasets, move those results to computed state or a paginated query.
+
+## Architecture Guidance
+
+- Livewire components should orchestrate UI, not own deep domain logic
+- Move writes, transactions, and multi-step workflows into action/service classes
+- Move large read queries into presenters/query objects if the component starts collecting many scopes
+- Use nested Livewire components only when the child needs isolated behavior or lifecycle; otherwise prefer Blade
+
+## Blade Pairing
+
+- Add `wire:key` to dynamic loops, nested lists, and items that can reorder or update independently
+- Use `wire:navigate` for full-page Livewire routes when it clearly improves navigation flow
+- Avoid expensive inline formatting that would require extra queries; preload what the Blade needs
+
 ## Configuration
 
 - `smart_wire_keys` defaults to `true`; new configs: `component_locations`, `component_namespaces`, `make_command`, `csp_safe`.
@@ -163,3 +243,6 @@ Livewire::test(Counter::class)
 - Unclosed component tags → syntax errors in v4
 - Using deprecated config keys or JS hooks
 - Including Alpine.js separately (already bundled in Livewire 4)
+- Putting large query trees directly inside `render()` instead of computed/presenter layers
+- Trusting client-editable public IDs or tokens that should be `#[Locked]`
+- Hiding repeated heavy database work inside computed properties without discussing cache strategy

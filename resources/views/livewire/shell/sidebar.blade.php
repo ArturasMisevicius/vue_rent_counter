@@ -18,7 +18,7 @@
         <nav class="fi-sidebar-nav" data-shell-nav="sidebar">
             <div class="space-y-6 px-4 py-6">
                 @foreach ($groups as $group)
-                    <section data-shell-group="{{ $group->key }}" class="space-y-3">
+                    <section wire:key="sidebar-group-{{ $group->key }}" data-shell-group="{{ $group->key }}" class="space-y-3">
                         <p class="px-3 text-xs font-semibold uppercase tracking-[0.26em] text-white/45">
                             {{ $group->label }}
                         </p>
@@ -27,6 +27,7 @@
                             @foreach ($group->items as $item)
                                 <a
                                     href="{{ $item->url }}"
+                                    wire:key="sidebar-item-{{ $group->key }}-{{ $item->routeName }}"
                                     wire:navigate
                                     @if ($item->active)
                                         aria-current="page"

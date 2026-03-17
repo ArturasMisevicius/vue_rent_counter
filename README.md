@@ -1,29 +1,41 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Tenanto
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Tenanto is a multi-tenant utility billing and property management application built on Laravel 12, Filament 5, and Livewire 4. The current repository is Filament-first for administration and uses Livewire for auth, shell interactions, public-site endpoints, preferences, and tenant self-service screens.
 
-## About Laravel
+## Verified Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Verified from the checked-in manifests and the local CLI environment on 2026-03-17:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP `8.5.4` locally, with Composer requiring PHP `^8.2`
+- Laravel `12`
+- Filament `5.3`
+- Livewire `4`
+- Tailwind CSS `4`
+- Pest `4`
+- PHPUnit `12`
+- Alpine.js `3`
+- Laravel Sanctum `4`
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Product Shape
 
-## Project Setup
+- Multi-tenant SaaS for utility billing and property management
+- Role enum values: `SUPERADMIN`, `ADMIN`, `MANAGER`, `TENANT`
+- Filament foundation directories for requests, actions, and support services:
+  - `app/Filament/Requests`
+  - `app/Filament/Actions`
+  - `app/Filament/Support`
+- Current workspace snapshot:
+  - 17 Filament resources
+  - 27 Livewire components
+  - 84 test files
+  - 1 remaining base controller
+  - 1 Filament panel provider
 
-The app is locked to Laravel v12.54.1 and Filament v5.3.5 (the current stable releases) and is already wired to use SQLite. `DB_CONNECTION=sqlite` plus `DB_DATABASE=database/database.sqlite` are the defaults, so a fresh clone needs no external database server.
+For a fuller current-state snapshot, see [docs/PROJECT-CONTEXT.md](docs/PROJECT-CONTEXT.md).
+
+## Local Setup
+
+The application is configured for SQLite by default.
 
 1. `composer install`
 2. `cp .env.example .env`
@@ -34,41 +46,33 @@ The app is locked to Laravel v12.54.1 and Filament v5.3.5 (the current stable re
 7. `npm run build`
 8. `php artisan test --compact`
 
-Or run `composer run setup` to execute steps 1‑5 plus asset compilation (it already generates the key, migrates, installs npm deps, and builds the frontend). Use `npm run dev` and `php artisan serve` for a long-running local environment.
+Or use:
 
-## Learning Laravel
+```bash
+composer run setup
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+For local development:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+npm run dev
+php artisan serve
+```
 
-## Laravel Sponsors
+## Working Conventions
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- Prefer Eloquent models, relationships, and scopes over raw SQL
+- Keep validation, actions, and support logic in the Filament foundation tree
+- Do not create new classes in `app/Http/Requests`, `app/Actions`, or `app/Support`
+- Run focused Pest tests plus `vendor/bin/pint --dirty` for changed behavior
+- Treat `docs/superpowers/` as historical execution/design context, not the canonical source for current repository counts
 
-### Premium Partners
+## MCP
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+The repository-local [`.mcp.json`](.mcp.json) currently configures only the `herd` MCP server. If `laravel-mcp` or `laravel-boost` are available in your editor session, they are coming from user-global configuration rather than this repository file.
 
-## Contributing
+## Documentation
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- Project context: [docs/PROJECT-CONTEXT.md](docs/PROJECT-CONTEXT.md)
+- Delivery plans/specs map: [docs/superpowers/README.md](docs/superpowers/README.md)
+- AI assistant/project instructions: [AGENTS.md](AGENTS.md)

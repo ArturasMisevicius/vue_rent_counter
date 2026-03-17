@@ -3,6 +3,7 @@
         @foreach ($items as $item)
             <a
                 href="{{ $item->url }}"
+                wire:key="tenant-nav-{{ $item->routeName }}"
                 wire:navigate
                 @if ($item->active)
                     aria-current="page"

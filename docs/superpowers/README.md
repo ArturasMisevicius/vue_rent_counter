@@ -1,5 +1,7 @@
 # Tenanto Superpowers Docs Map
 
+Before using this folder as current-state guidance, read `../PROJECT-CONTEXT.md`. The files here are planning and delivery artifacts; they may describe earlier target shapes or counts than the live repository now has.
+
 This folder contains the 2026-03-17 Tenanto delivery set in two layers:
 
 - `plans/` contains implementation plans with task-level execution detail

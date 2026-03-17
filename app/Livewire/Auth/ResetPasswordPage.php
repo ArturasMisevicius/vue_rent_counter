@@ -9,12 +9,15 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 class ResetPasswordPage extends Component
 {
+    #[Locked]
     public string $token = '';
 
+    #[Locked]
     public string $email = '';
 
     public function mount(Request $request, string $token): void

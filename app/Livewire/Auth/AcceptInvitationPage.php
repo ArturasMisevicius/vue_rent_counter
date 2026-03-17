@@ -11,10 +11,13 @@ use App\Models\OrganizationInvitation;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 class AcceptInvitationPage extends Component
 {
+    #[Locked]
     public string $token = '';
 
     public function mount(string $token): void
@@ -57,7 +60,7 @@ class AcceptInvitationPage extends Component
 
     public function render(): View
     {
-        $invitation = $this->findInvitation($this->token);
+        $invitation = $this->invitation;
 
         return view('auth.accept-invitation', [
             'invitation' => $invitation,
@@ -65,11 +68,12 @@ class AcceptInvitationPage extends Component
         ]);
     }
 
-    protected function findInvitation(string $token): ?OrganizationInvitation
+    #[Computed]
+    public function invitation(): ?OrganizationInvitation
     {
         return OrganizationInvitation::query()
             ->forAcceptancePortal()
-            ->forToken($token)
+            ->forToken($this->token)
             ->first();
     }
 }

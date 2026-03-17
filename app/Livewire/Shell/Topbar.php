@@ -7,15 +7,19 @@ use App\Filament\Support\Shell\DashboardUrlResolver;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Route;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Topbar extends Component
 {
+    #[Locked]
     public string $context = 'panel';
 
+    #[Locked]
     public ?string $eyebrow = null;
 
+    #[Locked]
     public ?string $heading = null;
 
     public function mount(string $context = 'panel', ?string $eyebrow = null, ?string $heading = null): void

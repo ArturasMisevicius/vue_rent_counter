@@ -64,6 +64,28 @@ Apply a consistent workflow for Laravel 11/12 apps with optional frontend stacks
 
 - Follow existing component patterns and conventions; do not mix frameworks unless the repo already does.
 - Keep UI strings in the repo's expected language.
+- For Livewire 4 in this repository:
+  - use `#[Computed]` for derived state
+  - use `#[Validate]` for interactive property validation
+  - use `#[Locked]` for client-immutable public properties like route IDs, tokens, and context flags
+  - keep `render()` thin and move repeated query work into computed methods or presenter/query classes
+  - avoid large public collections or full models in component state
+  - add `wire:key` in dynamic loops and use `wire:init` when data can load after first paint
+
+## Models, Livewire, and Filament Performance
+
+- Extract repeated Eloquent filters into small, composable scopes before repeating them in Livewire or Filament
+- Use eager loading, constrained eager loading, `withCount()`, and `withExists()` when UI surfaces need related data
+- Prefer `exists()` over `count() > 0` for boolean checks
+- Select only the columns needed for summary/workspace queries
+- Prefer explicit `$fillable` on mass-assigned models; avoid `Model::unguard()` and broad guarded patterns
+- Keep models thin; move workflows and side effects into actions, support classes, observers, and policies
+- For model-review requests, return the full refactored model first, then summarize practical improvements and any index or architecture follow-ups
+- In Filament 5+ resources/pages/widgets/tables/forms:
+  - preload relationships used by table columns, filters, infolists, and actions
+  - keep heavy logic in Filament actions/support classes
+  - extract reusable schema fragments when resource files become too large
+  - avoid expensive formatting callbacks that depend on lazy-loaded relations
 
 ## Tailwind CSS v4 (if present)
 

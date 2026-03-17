@@ -10,6 +10,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class SubmitReadingPage extends Component
@@ -33,20 +34,18 @@ class SubmitReadingPage extends Component
     {
         $this->readingDate = now()->toDateString();
 
-        $meters = $this->availableMeters();
-
-        if ($meters->count() === 1) {
-            $this->meterId = (string) $meters->firstOrFail()->id;
+        if ($this->meterSelectionLocked) {
+            $this->meterId = (string) $this->availableMeters->firstOrFail()->id;
         }
     }
 
     public function submit(SubmitTenantReadingAction $submitTenantReadingAction): void
     {
-        $validated = $this->validate($this->rules());
+        $validated = $this->validate();
 
         try {
             $reading = $submitTenantReadingAction->handle(
-                tenant: $this->tenant(),
+                tenant: $this->tenant,
                 meterId: (int) $validated['meterId'],
                 readingValue: $validated['readingValue'],
                 readingDate: $validated['readingDate'],
@@ -64,6 +63,14 @@ class SubmitReadingPage extends Component
 
         $reading->loadMissing('meter:id,name,identifier,unit');
 
+        unset(
+            $this->availableMeters,
+            $this->availableMeterIds,
+            $this->selectedMeter,
+            $this->preview,
+            $this->meterSelectionLocked,
+        );
+
         $this->reset('readingValue', 'notes');
         $this->successMessage = __('tenant.pages.readings.success');
         $this->submittedReading = [
@@ -77,13 +84,11 @@ class SubmitReadingPage extends Component
 
     public function render(): View
     {
-        $meters = $this->availableMeters();
-
         return view('livewire.tenant.submit-reading-page', [
-            'meters' => $meters,
-            'selectedMeter' => $meters->firstWhere('id', (int) $this->meterId),
-            'preview' => $this->preview($meters),
-            'meterSelectionLocked' => $meters->count() === 1,
+            'meters' => $this->availableMeters,
+            'selectedMeter' => $this->selectedMeter,
+            'preview' => $this->preview,
+            'meterSelectionLocked' => $this->meterSelectionLocked,
         ]);
     }
 
@@ -96,12 +101,7 @@ class SubmitReadingPage extends Component
             'meterId' => [
                 'required',
                 'string',
-                Rule::in(
-                    $this->availableMeters()
-                        ->pluck('id')
-                        ->map(fn (int $id): string => (string) $id)
-                        ->all()
-                ),
+                Rule::in($this->availableMeterIds),
             ],
             'readingValue' => ['required', 'numeric', 'gt:0'],
             'readingDate' => ['required', 'date'],
@@ -110,12 +110,12 @@ class SubmitReadingPage extends Component
     }
 
     /**
-     * @param  Collection<int, Meter>  $meters
      * @return array{message: string, delta: string|null}|null
      */
-    protected function preview(Collection $meters): ?array
+    #[Computed]
+    public function preview(): ?array
     {
-        $selectedMeter = $meters->firstWhere('id', (int) $this->meterId);
+        $selectedMeter = $this->selectedMeter;
 
         if (! $selectedMeter || ! is_numeric($this->readingValue)) {
             return null;
@@ -145,9 +145,10 @@ class SubmitReadingPage extends Component
     /**
      * @return Collection<int, Meter>
      */
-    protected function availableMeters(): Collection
+    #[Computed]
+    public function availableMeters(): Collection
     {
-        $tenant = $this->tenant();
+        $tenant = $this->tenant;
         $propertyId = $tenant->currentPropertyAssignment?->property_id;
 
         if ($propertyId === null) {
@@ -156,19 +157,39 @@ class SubmitReadingPage extends Component
 
         return Meter::query()
             ->select(['id', 'organization_id', 'property_id', 'name', 'identifier', 'type', 'status', 'unit'])
-            ->with([
-                'latestReading' => fn ($query) => $query
-                    ->select(['id', 'organization_id', 'meter_id', 'reading_value', 'reading_date', 'validation_status'])
-                    ->forOrganization($tenant->organization_id)
-                    ->latestFirst(),
-            ])
             ->forOrganization($tenant->organization_id)
             ->forProperty($propertyId)
-            ->orderBy('name')
+            ->withLatestReadingSummary()
+            ->ordered()
             ->get();
     }
 
-    protected function tenant(): User
+    /**
+     * @return list<string>
+     */
+    #[Computed]
+    public function availableMeterIds(): array
+    {
+        return $this->availableMeters
+            ->pluck('id')
+            ->map(fn (int $id): string => (string) $id)
+            ->all();
+    }
+
+    #[Computed]
+    public function selectedMeter(): ?Meter
+    {
+        return $this->availableMeters->firstWhere('id', (int) $this->meterId);
+    }
+
+    #[Computed]
+    public function meterSelectionLocked(): bool
+    {
+        return $this->availableMeters->count() === 1;
+    }
+
+    #[Computed]
+    public function tenant(): User
     {
         $tenantId = auth()->id();
         $tenant = User::query()

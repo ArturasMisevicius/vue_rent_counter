@@ -49,6 +49,7 @@
             @forelse ($notifications as $notification)
                 <button
                     type="button"
+                    wire:key="notification-{{ $notification['id'] }}"
                     wire:click="openNotification('{{ $notification['id'] }}')"
                     x-on:click="open = false"
                     @class([

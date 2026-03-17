@@ -21,6 +21,7 @@
 
             <button
                 type="button"
+                wire:key="locale-option-{{ $locale }}"
                 wire:click="changeLocale('{{ $locale }}')"
                 x-on:click="open = false"
                 @class([

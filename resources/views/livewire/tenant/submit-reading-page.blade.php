@@ -48,7 +48,7 @@
                                 <option value="">{{ __('tenant.pages.readings.meter_select') }}</option>
                             @endunless
                             @foreach ($meters as $meter)
-                                <option value="{{ $meter->id }}">{{ $meter->name }} · {{ $meter->identifier }}</option>
+                                <option wire:key="meter-option-{{ $meter->id }}" value="{{ $meter->id }}">{{ $meter->name }} · {{ $meter->identifier }}</option>
                             @endforeach
                         </select>
                         @if ($meterSelectionLocked)
@@ -105,6 +105,8 @@
 
                 <button
                     type="submit"
+                    wire:loading.attr="disabled"
+                    wire:target="submit"
                     class="inline-flex items-center justify-center rounded-2xl bg-brand-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-900"
                 >
                     {{ __('tenant.pages.readings.title') }}

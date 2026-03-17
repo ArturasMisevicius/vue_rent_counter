@@ -6,10 +6,13 @@ use App\Filament\Actions\Preferences\UpdateUserLocaleAction;
 use App\Filament\Support\Preferences\SupportedLocaleOptions;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 class LanguageSwitcher extends Component
 {
+    #[Locked]
     public string $currentLocale = 'en';
 
     public function mount(): void
@@ -19,13 +22,15 @@ class LanguageSwitcher extends Component
 
     public function changeLocale(string $locale, UpdateUserLocaleAction $updateUserLocaleAction): void
     {
+        $availableLocales = $this->locales;
+
         validator(
             ['locale' => $locale],
             [
                 'locale' => [
                     'required',
                     'string',
-                    Rule::in(array_keys($this->availableLocales())),
+                    Rule::in(array_keys($availableLocales)),
                 ],
             ],
         )->validate();
@@ -39,6 +44,7 @@ class LanguageSwitcher extends Component
         $updateUserLocaleAction->handle($user, $locale);
 
         $this->currentLocale = $locale;
+        unset($this->currentLocaleLabel);
 
         $this->dispatch('shell-locale-updated');
     }
@@ -46,16 +52,23 @@ class LanguageSwitcher extends Component
     public function render(): View
     {
         return view('livewire.shell.language-switcher', [
-            'currentLocaleLabel' => mb_strtoupper($this->currentLocale),
-            'locales' => $this->availableLocales(),
+            'currentLocaleLabel' => $this->currentLocaleLabel,
+            'locales' => $this->locales,
         ]);
     }
 
     /**
      * @return array<string, string>
      */
-    private function availableLocales(): array
+    #[Computed]
+    public function locales(): array
     {
         return app(SupportedLocaleOptions::class)->labels();
+    }
+
+    #[Computed]
+    public function currentLocaleLabel(): string
+    {
+        return mb_strtoupper($this->currentLocale);
     }
 }
