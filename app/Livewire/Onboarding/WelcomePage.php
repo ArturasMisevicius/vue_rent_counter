@@ -3,8 +3,8 @@
 namespace App\Livewire\Onboarding;
 
 use App\Filament\Actions\Auth\CompleteOnboardingAction;
-use App\Filament\Requests\Auth\CompleteOnboardingRequest;
 use App\Filament\Support\Auth\LoginRedirector;
+use App\Http\Requests\Auth\CompleteOnboardingRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Livewire\Component;
@@ -36,7 +36,7 @@ class WelcomePage extends Component
             $request->validated(),
         );
 
-        return redirect()->route('filament.admin.pages.organization-dashboard');
+        return redirect()->to($loginRedirector->for($user->fresh()));
     }
 
     public function render(): View

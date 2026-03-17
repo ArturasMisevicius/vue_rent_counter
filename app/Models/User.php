@@ -285,7 +285,8 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->isAdminLike();
+        return $panel->getId() === 'admin'
+            && ($this->isAdminLike() || $this->isTenant());
     }
 
     public function canBeDeletedFromSuperadmin(): bool

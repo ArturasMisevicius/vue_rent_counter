@@ -53,12 +53,12 @@ class Topbar extends Component
             return null;
         }
 
-        if ($user->isTenant() && Route::has('tenant.profile.edit')) {
-            return route('tenant.profile.edit');
+        if (Route::has('filament.admin.pages.profile') && $user->canAccessPanel(filament()->getCurrentOrDefaultPanel())) {
+            return route('filament.admin.pages.profile');
         }
 
-        if ($user->isAdminLike() && Route::has('filament.admin.pages.profile')) {
-            return route('filament.admin.pages.profile');
+        if ($user->isTenant() && Route::has('tenant.profile.edit')) {
+            return route('tenant.profile.edit');
         }
 
         if (Route::has('profile.edit')) {

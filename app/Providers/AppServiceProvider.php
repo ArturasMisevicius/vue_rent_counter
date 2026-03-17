@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Contracts\BillingServiceInterface;
 use App\Filament\Support\Audit\AuditLogger;
 use App\Filament\Support\Auth\ImpersonationManager;
 use App\Filament\Support\Shell\Search\GlobalSearchRegistry;
@@ -21,6 +22,7 @@ use App\Observers\PlatformNotificationObserver;
 use App\Observers\SubscriptionObserver;
 use App\Observers\SystemSettingObserver;
 use App\Observers\UserObserver;
+use App\Services\Billing\BillingService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -31,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(AuditLogger::class);
+        $this->app->singleton(BillingServiceInterface::class, BillingService::class);
         $this->app->singleton(ImpersonationManager::class);
         $this->app->singleton(IntegrationProbeRegistry::class, function ($app): IntegrationProbeRegistry {
             return new IntegrationProbeRegistry([

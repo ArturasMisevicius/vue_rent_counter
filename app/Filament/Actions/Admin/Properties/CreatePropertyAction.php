@@ -2,12 +2,10 @@
 
 namespace App\Filament\Actions\Admin\Properties;
 
-use App\Enums\PropertyType;
 use App\Filament\Support\Admin\SubscriptionLimitGuard;
+use App\Http\Requests\Admin\Properties\PropertyRequest;
 use App\Models\Organization;
 use App\Models\Property;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class CreatePropertyAction
 {
@@ -32,24 +30,11 @@ class CreatePropertyAction
      */
     private function validate(int $organizationId, array $data): array
     {
-        $data['type'] = $data['type'] instanceof PropertyType
-            ? $data['type']->value
-            : $data['type'];
-
-        /** @var array{name: string, building_id: int, unit_number: string, type: string, floor_area_sqm: float|int|null} $validated */
-        $validated = Validator::make($data, [
-            'building_id' => [
-                'required',
-                'integer',
-                Rule::exists('buildings', 'id')->where(
-                    fn ($query) => $query->where('organization_id', $organizationId),
-                ),
-            ],
-            'name' => ['required', 'string', 'max:255'],
-            'unit_number' => ['required', 'string', 'max:50'],
-            'type' => ['required', Rule::enum(PropertyType::class)],
-            'floor_area_sqm' => ['nullable', 'numeric', 'min:0'],
-        ])->validate();
+        /** @var PropertyRequest $request */
+        $request = new PropertyRequest;
+        $validated = $request
+            ->forOrganization($organizationId)
+            ->validatePayload($data);
 
         return $validated;
     }

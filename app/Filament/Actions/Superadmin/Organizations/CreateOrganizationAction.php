@@ -6,12 +6,12 @@ use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
+use App\Http\Requests\Superadmin\Organizations\StoreOrganizationRequest;
 use App\Models\Organization;
 use App\Models\PlatformOrganizationInvitation;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -19,18 +19,13 @@ class CreateOrganizationAction
 {
     public function handle(User $actor, array $attributes): Organization
     {
-        abort_unless($actor->isSuperadmin(), 403);
-
-        /** @var array{name: string, owner_email: string, owner_name: string, plan: SubscriptionPlan, duration: SubscriptionDuration} $validated */
-        $validated = Validator::make($attributes, [
-            'name' => ['required', 'string', 'max:255'],
-            'owner_email' => ['required', 'email:rfc', 'max:255'],
-            'owner_name' => ['required', 'string', 'max:255'],
-            'plan' => ['required'],
-            'duration' => ['required'],
-        ])->validate();
+        /** @var StoreOrganizationRequest $request */
+        $request = new StoreOrganizationRequest;
+        $validated = $request->validatePayload($attributes, $actor);
 
         return DB::transaction(function () use ($actor, $validated): Organization {
+            $plan = SubscriptionPlan::from((string) $validated['plan']);
+            $duration = SubscriptionDuration::from((string) $validated['duration']);
             $organization = Organization::query()->create([
                 'name' => $validated['name'],
                 'slug' => Str::slug($validated['name']),
@@ -61,9 +56,9 @@ class CreateOrganizationAction
                 PlatformOrganizationInvitation::query()->create([
                     'organization_name' => $organization->name,
                     'admin_email' => $validated['owner_email'],
-                    'plan_type' => $validated['plan']->value,
-                    'max_properties' => $validated['plan']->limits()['properties'],
-                    'max_users' => $validated['plan']->limits()['tenants'],
+                    'plan_type' => $plan->value,
+                    'max_properties' => $plan->limits()['properties'],
+                    'max_users' => $plan->limits()['tenants'],
                     'invited_by' => $actor->id,
                 ]);
             }
@@ -72,11 +67,11 @@ class CreateOrganizationAction
                 'organization_id' => $organization->id,
                 'status' => SubscriptionStatus::ACTIVE,
                 'starts_at' => now()->startOfDay(),
-                'expires_at' => now()->startOfDay()->addMonths($validated['duration']->months()),
+                'expires_at' => now()->startOfDay()->addMonths($duration->months()),
                 'is_trial' => false,
             ]);
 
-            $subscription->applyPlanSnapshots($validated['plan']);
+            $subscription->applyPlanSnapshots($plan);
             $subscription->save();
 
             return $organization->fresh([

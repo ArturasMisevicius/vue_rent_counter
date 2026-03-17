@@ -40,9 +40,11 @@ it('lets managers access the same organization workspace routes as admins', func
     ]);
 
     $this->actingAs($manager)
-        ->get(route('filament.admin.pages.organization-dashboard'))
+        ->get(route('filament.admin.pages.dashboard'))
         ->assertSuccessful()
-        ->assertSee('data-shell-group="organization"', false)
+        ->assertSee('data-shell-group="properties"', false)
+        ->assertSee('data-shell-group="billing"', false)
+        ->assertSee('data-shell-group="reports"', false)
         ->assertSee('data-shell-group="account"', false)
         ->assertSeeText('Profile')
         ->assertSeeText('Settings')

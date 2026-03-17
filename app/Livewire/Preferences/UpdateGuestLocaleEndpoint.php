@@ -4,14 +4,14 @@ namespace App\Livewire\Preferences;
 
 use App\Filament\Actions\Preferences\ResolveGuestLocaleRedirectAction;
 use App\Filament\Actions\Preferences\StoreGuestLocaleAction;
-use App\Filament\Requests\Preferences\UpdateGuestLocaleRequest;
+use App\Http\Requests\Preferences\SetLocaleRequest;
 use Illuminate\Http\RedirectResponse;
 use Livewire\Component;
 
 class UpdateGuestLocaleEndpoint extends Component
 {
     public function update(
-        UpdateGuestLocaleRequest $request,
+        SetLocaleRequest $request,
         ResolveGuestLocaleRedirectAction $resolveGuestLocaleRedirectAction,
         StoreGuestLocaleAction $storeGuestLocaleAction,
     ): RedirectResponse {

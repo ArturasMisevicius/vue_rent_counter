@@ -97,7 +97,7 @@ it('routes users to the correct starting page', function () {
         ->and($redirector->for(User::factory()->admin()->make(['organization_id' => null])))
         ->toBe(route('welcome.show'))
         ->and($redirector->for(User::factory()->manager()->make()))
-        ->toBe(route('filament.admin.pages.organization-dashboard'))
+        ->toBe(route('filament.admin.pages.dashboard'))
         ->and($redirector->for(User::factory()->tenant()->make()))
         ->toBe(route('tenant.home'));
 });

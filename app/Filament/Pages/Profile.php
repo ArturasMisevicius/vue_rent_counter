@@ -9,8 +9,6 @@ class Profile extends Page
 {
     use InteractsWithAccountProfileForms;
 
-    protected static bool $isDiscovered = false;
-
     protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $slug = 'profile';
@@ -32,6 +30,6 @@ class Profile extends Page
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->isAdminLike() ?? false;
+        return auth()->check();
     }
 }

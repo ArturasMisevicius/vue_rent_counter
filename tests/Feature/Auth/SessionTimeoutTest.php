@@ -36,7 +36,7 @@ it('redirects expired sessions on admin routes to login with a timeout message',
 
     $this->withCookie(sessionTimeoutCookieName(), '1')
         ->get(route('filament.admin.resources.buildings.index'))
-        ->assertRedirect(route('login'))
+        ->assertRedirect(route('filament.admin.auth.login'))
         ->assertSessionHas('auth.session_expired', __('auth.session_expired'));
 });
 

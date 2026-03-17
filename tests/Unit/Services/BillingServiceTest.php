@@ -1,0 +1,187 @@
+<?php
+
+use App\Contracts\BillingServiceInterface;
+use App\Enums\DistributionMethod;
+use App\Enums\InvoiceStatus;
+use App\Enums\PricingModel;
+use App\Enums\ServiceType;
+use App\Models\Building;
+use App\Models\Invoice;
+use App\Models\InvoicePayment;
+use App\Models\Organization;
+use App\Models\Property;
+use App\Models\PropertyAssignment;
+use App\Models\Provider;
+use App\Models\ServiceConfiguration;
+use App\Models\Tariff;
+use App\Models\User;
+use App\Models\UtilityService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+uses(TestCase::class, RefreshDatabase::class);
+
+it('calculates a flat rate charge exactly', function () {
+    $billingService = app(BillingServiceInterface::class);
+
+    expect($billingService->calculateFlatRateCharge('12.5', '1.20', '2.00'))
+        ->toBe('17.00');
+});
+
+it('calculates time-of-use charges across peak and off-peak zones', function () {
+    $billingService = app(BillingServiceInterface::class);
+
+    $total = $billingService->calculateTimeOfUseCharge(
+        [
+            'day' => '10',
+            'night' => '5',
+        ],
+        [
+            ['id' => 'day', 'rate' => '0.18'],
+            ['id' => 'night', 'rate' => '0.10'],
+        ],
+        '1.00',
+    );
+
+    expect($total)->toBe('3.30');
+});
+
+dataset('shared-service-distribution-methods', [
+    'equal' => [
+        DistributionMethod::EQUAL,
+        ['participant_count' => 3],
+        '90.00',
+        '30.00',
+    ],
+    'area' => [
+        DistributionMethod::AREA,
+        ['participant_area' => '45', 'total_area' => '180'],
+        '100.00',
+        '25.00',
+    ],
+    'consumption' => [
+        DistributionMethod::BY_CONSUMPTION,
+        ['participant_consumption' => '30', 'total_consumption' => '150'],
+        '120.00',
+        '24.00',
+    ],
+]);
+
+it('distributes shared service costs using the configured distribution method', function (
+    DistributionMethod $distributionMethod,
+    array $context,
+    string $totalCost,
+    string $expectedShare,
+) {
+    $billingService = app(BillingServiceInterface::class);
+
+    expect($billingService->distributeSharedServiceCost($totalCost, $distributionMethod, $context))
+        ->toBe($expectedShare);
+})->with('shared-service-distribution-methods');
+
+it('bulk generates one invoice per active tenant assignment', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $building = Building::factory()->for($organization)->create();
+    $provider = Provider::factory()->forOrganization($organization)->create([
+        'service_type' => ServiceType::WATER,
+    ]);
+    $tariff = Tariff::factory()->for($provider)->flat()->create([
+        'configuration' => [
+            'type' => 'flat',
+            'currency' => 'EUR',
+            'rate' => 25.00,
+        ],
+    ]);
+    $utilityService = UtilityService::factory()->for($organization)->create([
+        'service_type_bridge' => ServiceType::WATER,
+        'default_pricing_model' => PricingModel::FLAT,
+        'unit_of_measurement' => 'month',
+    ]);
+
+    foreach (['A-1', 'A-2'] as $unitNumber) {
+        $tenant = User::factory()->tenant()->create([
+            'organization_id' => $organization->id,
+        ]);
+        $property = Property::factory()->for($organization)->for($building)->create([
+            'name' => $unitNumber,
+        ]);
+
+        PropertyAssignment::factory()->for($organization)->for($property)->for($tenant, 'tenant')->create([
+            'unit_area_sqm' => 50,
+        ]);
+
+        ServiceConfiguration::factory()->for($organization)->for($property)->for($utilityService)->for($provider)->for($tariff)->create([
+            'pricing_model' => PricingModel::FLAT,
+            'distribution_method' => DistributionMethod::EQUAL,
+            'rate_schedule' => [
+                'unit_rate' => 25.00,
+            ],
+            'is_shared_service' => false,
+        ]);
+    }
+
+    $result = app(BillingServiceInterface::class)->generateBulkInvoices($organization, [
+        'billing_period_start' => now()->startOfMonth()->toDateString(),
+        'billing_period_end' => now()->endOfMonth()->toDateString(),
+        'due_date' => now()->addDays(14)->toDateString(),
+    ], $admin);
+
+    expect($result['created'])->toHaveCount(2)
+        ->and($result['skipped'])->toBe([])
+        ->and(Invoice::query()->count())->toBe(2)
+        ->and(Invoice::query()->where('organization_id', $organization->id)->where('total_amount', '25.00')->count())->toBe(2);
+});
+
+it('applies a payment, updates invoice status, and records a payment entry', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $building = Building::factory()->for($organization)->create();
+    $property = Property::factory()->for($organization)->for($building)->create();
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $invoice = Invoice::factory()->for($organization)->for($property)->for($tenant, 'tenant')->create([
+        'status' => InvoiceStatus::FINALIZED,
+        'total_amount' => '100.00',
+        'amount_paid' => '0.00',
+        'paid_amount' => '0.00',
+        'items' => [
+            ['description' => 'Water usage', 'amount' => 100.00],
+        ],
+    ]);
+
+    $paidInvoice = app(BillingServiceInterface::class)->applyPayment($invoice, [
+        'amount_paid' => '100.00',
+        'payment_reference' => 'PAY-100',
+        'paid_at' => now()->toDateTimeString(),
+    ], $admin);
+
+    expect($paidInvoice->status)->toBe(InvoiceStatus::PAID)
+        ->and((float) $paidInvoice->amount_paid)->toBe(100.0)
+        ->and($paidInvoice->payment_reference)->toBe('PAY-100')
+        ->and(InvoicePayment::query()->where('invoice_id', $invoice->id)->count())->toBe(1)
+        ->and((float) InvoicePayment::query()->where('invoice_id', $invoice->id)->firstOrFail()->amount)->toBe(100.0)
+        ->and(InvoicePayment::query()->where('invoice_id', $invoice->id)->firstOrFail()->reference)->toBe('PAY-100');
+});
+
+it('rounds monetary calculations to two decimal places without floating point drift', function () {
+    $billingService = app(BillingServiceInterface::class);
+
+    expect($billingService->calculateFlatRateCharge('3', '0.10'))
+        ->toBe('0.30')
+        ->and($billingService->calculateFlatRateCharge('1', '10.005'))
+        ->toBe('10.01')
+        ->and($billingService->calculateTimeOfUseCharge([
+            'day' => '1',
+            'night' => '2',
+        ], [
+            ['id' => 'day', 'rate' => '0.10'],
+            ['id' => 'night', 'rate' => '0.10'],
+        ]))
+        ->toBe('0.30');
+});

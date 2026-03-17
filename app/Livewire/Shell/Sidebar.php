@@ -3,19 +3,19 @@
 namespace App\Livewire\Shell;
 
 use App\Filament\Support\Shell\DashboardUrlResolver;
-use App\Filament\Support\Shell\Navigation\NavigationBuilder;
+use Filament\Facades\Filament;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class Sidebar extends Component
 {
-    public function render(NavigationBuilder $navigationBuilder, DashboardUrlResolver $dashboardUrlResolver): View
+    public function render(DashboardUrlResolver $dashboardUrlResolver): View
     {
         $user = auth()->user();
 
         return view('livewire.shell.sidebar', [
             'dashboardUrl' => $dashboardUrlResolver->for($user),
-            'groups' => $user ? $navigationBuilder->adminLike($user, request()) : [],
+            'groups' => $user ? Filament::getNavigation() : [],
         ]);
     }
 }

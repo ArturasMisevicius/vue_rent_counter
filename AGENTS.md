@@ -29,7 +29,7 @@ Verified snapshot for this workspace on 2026-03-17:
 - Tenanto is currently a Filament-first, Livewire-assisted multi-tenant utility billing and property management application.
 - Role enum values are `SUPERADMIN`, `ADMIN`, `MANAGER`, and `TENANT`.
 - Current application surface includes 1 remaining base controller, 17 Filament resources, 27 Livewire components, 84 test files, and 1 Filament panel provider at `app/Providers/Filament/AdminPanelProvider.php`.
-- The shared application foundation for requests, actions, and support services lives under `app/Filament/Requests`, `app/Filament/Actions`, and `app/Filament/Support`.
+- The shared application foundation for requests, actions, and support services lives under `app/Http/Requests`, `app/Filament/Actions`, and `app/Filament/Support`.
 - The repository-local `.mcp.json` currently defines only the `herd` server. Do not assume repo-local `laravel-mcp` or `laravel-boost` entries unless you verify them again.
 - The current application does not register `php artisan boost:mcp` or `php artisan mcp:start tenanto`; verify the Artisan command surface before documenting MCP startup steps as mandatory.
 - The public web root currently exposes only `public/index.php`; do not introduce ad hoc public debug entrypoints.
@@ -239,8 +239,8 @@ or static analysis failures. Never ignores errors without user approval.
 ## Application Structure & Architecture
 
 - Stick to existing directory structure; don't create new base folders without approval.
-- This repository's approved foundation directories for request validation, actions, and support services are `app/Filament/Requests`, `app/Filament/Actions`, and `app/Filament/Support`.
-- Do not create `app/Http/Requests`, `app/Actions`, or `app/Support`. Any new request, action, or support class belongs in the Filament foundation tree.
+- This repository's approved foundation directories for request validation, actions, and support services are `app/Http/Requests`, `app/Filament/Actions`, and `app/Filament/Support`.
+- Do not create `app/Actions` or `app/Support`. New request classes belong in `app/Http/Requests`, while new action and support classes belong in the Filament foundation tree.
 - Do not change the application's dependencies without approval.
 
 ## Frontend Bundling

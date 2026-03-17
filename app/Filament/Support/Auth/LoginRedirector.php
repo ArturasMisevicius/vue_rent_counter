@@ -15,7 +15,7 @@ class LoginRedirector
 
         return match ($user->role) {
             UserRole::SUPERADMIN => route('filament.admin.pages.platform-dashboard'),
-            UserRole::ADMIN, UserRole::MANAGER => route('filament.admin.pages.organization-dashboard'),
+            UserRole::ADMIN, UserRole::MANAGER => route('filament.admin.pages.dashboard'),
             UserRole::TENANT => route('tenant.home'),
         };
     }

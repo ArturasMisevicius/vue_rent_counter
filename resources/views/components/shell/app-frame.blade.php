@@ -1,3 +1,11 @@
+@props([
+    'title' => config('app.name', 'Tenanto'),
+    'eyebrow' => null,
+    'heading' => null,
+    'showTenantNavigation' => false,
+    'breadcrumbs' => [],
+])
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -38,7 +46,7 @@
             </div>
 
             @if ($showTenantNavigation)
-                @livewire(\App\Livewire\Shell\TenantBottomNavigation::class)
+                <x-shared.tenant-bottom-nav />
             @endif
         </div>
 

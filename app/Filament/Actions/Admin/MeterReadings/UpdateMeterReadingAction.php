@@ -4,10 +4,9 @@ namespace App\Filament\Actions\Admin\MeterReadings;
 
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Filament\Support\Admin\ReadingValidation\ValidateReadingValue;
+use App\Http\Requests\Admin\MeterReadings\UpdateMeterReadingRequest;
 use App\Models\MeterReading;
 use App\Models\MeterReadingAudit;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class UpdateMeterReadingAction
@@ -64,23 +63,9 @@ class UpdateMeterReadingAction
      */
     private function validate(array $data): array
     {
-        $data['submission_method'] = $data['submission_method'] instanceof MeterReadingSubmissionMethod
-            ? $data['submission_method']->value
-            : $data['submission_method'];
-
-        /** @var array{
-         *     reading_value: string|int|float,
-         *     reading_date: string,
-         *     submission_method: MeterReadingSubmissionMethod|string,
-         *     notes: string|null
-         * } $validated
-         */
-        $validated = Validator::make($data, [
-            'reading_value' => ['required', 'numeric', 'min:0'],
-            'reading_date' => ['required', 'date'],
-            'submission_method' => ['required', Rule::enum(MeterReadingSubmissionMethod::class)],
-            'notes' => ['nullable', 'string'],
-        ])->validate();
+        /** @var UpdateMeterReadingRequest $request */
+        $request = new UpdateMeterReadingRequest;
+        $validated = $request->validatePayload($data);
 
         return $validated;
     }

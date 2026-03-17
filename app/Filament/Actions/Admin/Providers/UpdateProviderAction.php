@@ -3,9 +3,8 @@
 namespace App\Filament\Actions\Admin\Providers;
 
 use App\Enums\ServiceType;
+use App\Http\Requests\Admin\Providers\ProviderRequest;
 use App\Models\Provider;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class UpdateProviderAction
 {
@@ -31,23 +30,9 @@ class UpdateProviderAction
      */
     private function validate(array $data): array
     {
-        $data['service_type'] = $data['service_type'] instanceof ServiceType
-            ? $data['service_type']->value
-            : $data['service_type'];
-
-        /** @var array{
-         *     name: string,
-         *     service_type: ServiceType|string,
-         *     contact_info?: array{phone?: string|null, email?: string|null, website?: string|null}
-         * } $validated
-         */
-        $validated = Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'service_type' => ['required', Rule::enum(ServiceType::class)],
-            'contact_info.phone' => ['nullable', 'string', 'max:255'],
-            'contact_info.email' => ['nullable', 'email', 'max:255'],
-            'contact_info.website' => ['nullable', 'url', 'max:255'],
-        ])->validate();
+        /** @var ProviderRequest $request */
+        $request = new ProviderRequest;
+        $validated = $request->validatePayload($data);
 
         return $validated;
     }

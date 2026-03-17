@@ -3,10 +3,10 @@
 namespace App\Filament\Actions\Superadmin\Organizations;
 
 use App\Filament\Actions\Superadmin\Notifications\SendPlatformNotificationAction;
+use App\Http\Requests\Superadmin\Notifications\SendPlatformNotificationRequest;
 use App\Models\Organization;
 use App\Models\PlatformNotification;
 use App\Models\User;
-use Illuminate\Support\Facades\Validator;
 
 class SendOrganizationNotificationAction
 {
@@ -16,11 +16,9 @@ class SendOrganizationNotificationAction
 
     public function handle(Organization $organization, array $attributes): PlatformNotification
     {
-        /** @var array{title: string, body: string} $validated */
-        $validated = Validator::make($attributes, [
-            'title' => ['required', 'string', 'max:255'],
-            'body' => ['required', 'string'],
-        ])->validate();
+        /** @var SendPlatformNotificationRequest $request */
+        $request = new SendPlatformNotificationRequest;
+        $validated = $request->validatePayload($attributes);
 
         $notification = PlatformNotification::query()->create([
             'title' => $validated['title'],

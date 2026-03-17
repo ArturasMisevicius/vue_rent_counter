@@ -54,7 +54,7 @@ it('stores the active guest locale when accepting a new invitation', function ()
         'name' => 'Marta Manager',
         'password' => 'new-password',
         'password_confirmation' => 'new-password',
-    ])->assertRedirect(route('filament.admin.pages.organization-dashboard'));
+    ])->assertRedirect(route('filament.admin.pages.dashboard'));
 
     $user = User::query()->where('email', $invitation->email)->firstOrFail();
 

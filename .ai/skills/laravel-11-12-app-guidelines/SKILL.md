@@ -17,7 +17,7 @@ Apply a consistent workflow for Laravel 11/12 apps with optional frontend stacks
 - Detect the stack and command locations; do not guess.
 - Use Laravel Boost `search-docs` for Laravel ecosystem guidance; use Context7 only if Boost docs are unavailable.
 - Follow repo conventions for naming, UI language, docs-first policies, and existing component patterns.
-- In this repository, the shared foundation for requests, actions, and support classes lives under `app/Filament`. Do not create `app/Http/Requests`, `app/Actions`, or `app/Support`.
+- In this repository, request validation belongs in `app/Http/Requests`, while shared action and support classes belong under `app/Filament`. Do not create `app/Actions` or `app/Support`.
 
 ## Stack Detection
 
@@ -31,7 +31,7 @@ Apply a consistent workflow for Laravel 11/12 apps with optional frontend stacks
 
 - Use the Laravel 11/12 structure: configure middleware, exceptions, and routes in `bootstrap/app.php`; service providers in `bootstrap/providers.php`; console configuration in `routes/console.php`.
 - Use Eloquent models and relationships first; avoid raw queries and `DB::` unless truly necessary.
-- Create Form Request classes for validation instead of inline validation, and place them under `app/Filament/Requests`.
+- Create Form Request classes for validation instead of inline validation, and place them under `app/Http/Requests`.
 - Use backed enums for fixed value sets and validate them with `Rule::enum(...)`.
 - For UI-facing enums in this repository, prefer translated enum labels from `lang/*/enums.php` and dynamic option lists from `EnumClass::options()`.
 - Prefer named routes and `route()` for URL generation.
@@ -40,11 +40,11 @@ Apply a consistent workflow for Laravel 11/12 apps with optional frontend stacks
 
 ## Project Foundation Placement
 
-- Place new request classes in `app/Filament/Requests` with `App\\Filament\\Requests\\...` namespaces.
+- Place new request classes in `app/Http/Requests` with `App\\Http\\Requests\\...` namespaces.
 - Place new action classes in `app/Filament/Actions` with `App\\Filament\\Actions\\...` namespaces.
 - Place new support classes in `app/Filament/Support` with `App\\Filament\\Support\\...` namespaces.
-- Treat the legacy directories `app/Http/Requests`, `app/Actions`, and `app/Support` as forbidden in this repository.
-- If you touch older code, prefer migrating legacy imports into the Filament foundation tree rather than extending the old structure.
+- Treat the legacy directories `app/Actions` and `app/Support` as forbidden in this repository.
+- If you touch older code, prefer migrating request imports into `app/Http/Requests` and keeping action plus support imports in the Filament foundation tree rather than extending older structures.
 
 ## API-Only Mode
 
@@ -71,6 +71,10 @@ Apply a consistent workflow for Laravel 11/12 apps with optional frontend stacks
   - keep `render()` thin and move repeated query work into computed methods or presenter/query classes
   - avoid large public collections or full models in component state
   - add `wire:key` in dynamic loops and use `wire:init` when data can load after first paint
+  - use `@island` for isolated update regions inside larger Livewire surfaces
+  - use `@placeholder` only when an island is lazy-loaded and the loading state matters to UX
+  - use `wire:show` for DOM-preserving visibility toggles and `wire:transition` for Livewire-controlled conditionals
+  - use `wire:current`, `@persist`, and `wire:navigate:scroll` only when navigation persistence clearly improves the experience
 
 ## Models, Livewire, and Filament Performance
 

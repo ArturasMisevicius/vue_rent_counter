@@ -1,6 +1,8 @@
-<x-layouts.tenant
+<x-layouts.app
     :title="__('tenant.pages.invoices.title').' · '.config('app.name', 'Tenanto')"
     :heading="__('tenant.pages.invoices.heading')"
+    :subtitle="__('tenant.pages.invoices.description')"
+    :show-tenant-navigation="true"
     :breadcrumbs="[
         ['label' => __('tenant.navigation.home'), 'url' => route('tenant.home')],
         ['label' => __('tenant.pages.invoices.heading')],
@@ -9,10 +11,9 @@
     <div class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
         <section class="space-y-6 rounded-[2rem] border border-white/60 bg-white/92 p-8 shadow-[0_28px_90px_rgba(15,23,42,0.18)] backdrop-blur">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                <div class="space-y-3">
-                    <p class="text-sm font-semibold uppercase tracking-[0.24em] text-brand-warm">{{ __('tenant.navigation.invoices') }}</p>
-                    <h2 class="font-display text-3xl tracking-tight text-slate-950">{{ __('tenant.pages.invoices.page_heading') }}</h2>
-                    <p class="max-w-2xl text-sm leading-6 text-slate-600">{{ __('tenant.pages.invoices.description') }}</p>
+                <div class="space-y-2">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{{ __('tenant.navigation.invoices') }}</p>
+                    <h2 class="font-display text-2xl tracking-tight text-slate-950">{{ __('tenant.pages.invoices.page_heading') }}</h2>
                 </div>
 
                 <div class="flex flex-wrap gap-2">
@@ -38,28 +39,12 @@
 
             <div class="space-y-4">
                 @forelse ($invoices as $invoice)
-                    @php
-                        $balanceDue = max((float) $invoice->total_amount - (float) $invoice->amount_paid, 0);
-                        $statusLabel = match ($invoice->status) {
-                            \App\Enums\InvoiceStatus::OVERDUE => __('tenant.status.overdue'),
-                            \App\Enums\InvoiceStatus::PAID => __('tenant.status.paid'),
-                            default => __('tenant.status.unpaid'),
-                        };
-                    @endphp
-
                     <article class="rounded-[1.75rem] border border-slate-200 bg-slate-50 px-5 py-5">
                         <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                             <div class="space-y-2">
                                 <div class="flex flex-wrap items-center gap-2">
                                     <h3 class="font-display text-2xl tracking-tight text-slate-950">{{ $invoice->invoice_number }}</h3>
-                                    <span @class([
-                                        'inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]',
-                                        'bg-rose-100 text-rose-900' => $invoice->status === \App\Enums\InvoiceStatus::OVERDUE,
-                                        'bg-amber-100 text-amber-900' => $invoice->status !== \App\Enums\InvoiceStatus::OVERDUE && $balanceDue > 0,
-                                        'bg-emerald-100 text-emerald-900' => $balanceDue === 0.0,
-                                    ])>
-                                        {{ $statusLabel }}
-                                    </span>
+                                    <x-shared.status-badge :status="$invoice->status" :model="$invoice" />
                                 </div>
 
                                 <p class="text-sm text-slate-500">
@@ -76,7 +61,7 @@
 
                             <div class="space-y-2 text-left md:text-right">
                                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{{ __('tenant.pages.invoices.balance_due') }}</p>
-                                <p class="font-display text-3xl tracking-tight text-slate-950">{{ $invoice->currency }} {{ number_format($balanceDue, 2) }}</p>
+                                <p class="font-display text-3xl tracking-tight text-slate-950">{{ $invoice->currency }} {{ number_format((float) $invoice->outstanding_balance, 2) }}</p>
                                 <p class="text-sm text-slate-500">{{ __('tenant.pages.invoices.total', ['amount' => number_format((float) $invoice->total_amount, 2)]) }}</p>
 
                                 @if ($invoice->document_path)
@@ -92,12 +77,17 @@
                     </article>
                 @empty
                     @if ($selectedStatus === 'unpaid')
-                        <div class="rounded-[1.75rem] border border-dashed border-emerald-300 bg-emerald-50 px-5 py-6">
-                            <p class="font-semibold text-emerald-900">{{ __('tenant.status.all_paid_up') }}</p>
-                            <p class="mt-2 text-sm text-emerald-800">{{ __('tenant.messages.all_paid_up_detail') }}</p>
-                        </div>
+                        <x-shared.empty-state
+                            icon="heroicon-m-check-badge"
+                            :title="__('tenant.status.all_paid_up')"
+                            :description="__('tenant.messages.all_paid_up_detail')"
+                        />
                     @else
-                        <p class="rounded-[1.75rem] border border-dashed border-slate-300 px-5 py-6 text-sm text-slate-500">{{ __('tenant.messages.no_invoices_for_filter') }}</p>
+                        <x-shared.empty-state
+                            icon="heroicon-m-document-text"
+                            :title="__('tenant.pages.invoices.page_heading')"
+                            :description="__('tenant.messages.no_invoices_for_filter')"
+                        />
                     @endif
                 @endforelse
             </div>
@@ -137,4 +127,4 @@
             @endif
         </aside>
     </div>
-</x-layouts.tenant>
+</x-layouts.app>

@@ -11,15 +11,15 @@ This repository uses Filament 5+ patterns and treats Filament as both the admin 
 
 In this repository, Filament is the base application foundation for request validation, actions, and support classes.
 
-- Create all new request classes under `app/Filament/Requests` with namespaces rooted at `App\\Filament\\Requests`.
+- Create all new request classes under `app/Http/Requests` with namespaces rooted at `App\\Http\\Requests`.
 - Create all new action classes under `app/Filament/Actions` with namespaces rooted at `App\\Filament\\Actions`.
 - Create all new support/service/helper classes under `app/Filament/Support` with namespaces rooted at `App\\Filament\\Support`.
-- Do not create or recreate `app/Http/Requests`, `app/Actions`, or `app/Support`.
-- When editing older code, migrate references toward the Filament foundation tree instead of adding new legacy references.
+- Do not create or recreate `app/Actions` or `app/Support`.
+- When editing older code, migrate request references toward `app/Http/Requests` and keep action plus support references in the Filament foundation tree instead of adding new legacy references.
 
 ## Placement Examples
 
-- `App\\Filament\\Requests\\Auth\\LoginRequest`
+- `App\\Http\\Requests\\Auth\\LoginRequest`
 - `App\\Filament\\Actions\\Admin\\Invoices\\GenerateBulkInvoicesAction`
 - `App\\Filament\\Support\\Shell\\Navigation\\NavigationBuilder`
 

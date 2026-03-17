@@ -4,24 +4,28 @@ namespace App\Livewire\Shell;
 
 use App\Filament\Support\Shell\Search\Data\GlobalSearchResultData;
 use App\Filament\Support\Shell\Search\GlobalSearchRegistry;
+use App\Http\Requests\Shell\SearchQueryRequest;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
-use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 class GlobalSearch extends Component
 {
     public bool $open = false;
 
-    #[Validate('nullable|string|max:120')]
     public string $query = '';
 
     public function updatedQuery(): void
     {
-        $this->query = trim($this->query);
-        $this->validateOnly('query');
-        $this->open = filled(trim($this->query));
+        /** @var SearchQueryRequest $request */
+        $request = new SearchQueryRequest;
+        $validated = $request->validatePayload([
+            'query' => $this->query,
+        ]);
+
+        $this->query = (string) ($validated['query'] ?? '');
+        $this->open = filled($this->query);
     }
 
     public function openOverlay(): void

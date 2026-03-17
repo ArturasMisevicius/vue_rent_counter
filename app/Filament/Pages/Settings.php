@@ -8,18 +8,17 @@ use App\Filament\Actions\Admin\Settings\RenewOrganizationSubscriptionAction;
 use App\Filament\Actions\Admin\Settings\UpdateNotificationPreferenceAction;
 use App\Filament\Actions\Admin\Settings\UpdateOrganizationSettingsAction;
 use App\Filament\Pages\Concerns\InteractsWithAccountProfileForms;
+use App\Http\Requests\Admin\Settings\RenewSubscriptionRequest;
+use App\Http\Requests\Admin\Settings\UpdateNotificationPreferencesRequest;
+use App\Http\Requests\Admin\Settings\UpdateOrganizationSettingsRequest;
 use App\Models\Organization;
 use App\Models\Subscription;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class Settings extends Page
 {
     use InteractsWithAccountProfileForms;
-
-    protected static bool $isDiscovered = false;
 
     protected static bool $shouldRegisterNavigation = false;
 
@@ -81,13 +80,9 @@ class Settings extends Page
     ): void {
         $this->ensureAdmin();
 
-        $attributes = Validator::make($this->organizationForm, [
-            'billing_contact_name' => ['nullable', 'string', 'max:255'],
-            'billing_contact_email' => ['nullable', 'email', 'max:255'],
-            'billing_contact_phone' => ['nullable', 'string', 'max:255'],
-            'payment_instructions' => ['nullable', 'string'],
-            'invoice_footer' => ['nullable', 'string'],
-        ])->validate();
+        /** @var UpdateOrganizationSettingsRequest $request */
+        $request = new UpdateOrganizationSettingsRequest;
+        $attributes = $request->validatePayload($this->organizationForm, $this->user());
 
         $updateOrganizationSettingsAction->handle($this->organization(), $attributes);
 
@@ -104,10 +99,9 @@ class Settings extends Page
     ): void {
         $this->ensureAdmin();
 
-        $preferences = Validator::make($this->notificationForm, [
-            'invoice_reminders' => ['required', 'boolean'],
-            'reading_deadline_alerts' => ['required', 'boolean'],
-        ])->validate();
+        /** @var UpdateNotificationPreferencesRequest $request */
+        $request = new UpdateNotificationPreferencesRequest;
+        $preferences = $request->validatePayload($this->notificationForm, $this->user());
 
         $updateNotificationPreferenceAction->handle($this->organization(), $preferences);
 
@@ -124,10 +118,9 @@ class Settings extends Page
     ): void {
         $this->ensureAdmin();
 
-        $attributes = Validator::make($this->renewalForm, [
-            'plan' => ['required', Rule::enum(SubscriptionPlan::class)],
-            'duration' => ['required', Rule::enum(SubscriptionDuration::class)],
-        ])->validate();
+        /** @var RenewSubscriptionRequest $request */
+        $request = new RenewSubscriptionRequest;
+        $attributes = $request->validatePayload($this->renewalForm, $this->user());
 
         $renewOrganizationSubscriptionAction->handle(
             $this->organization(),

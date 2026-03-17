@@ -30,7 +30,9 @@ it('renders role-aware shared chrome around organization admin pages', function 
         ->assertSuccessful()
         ->assertSeeText('Search anything')
         ->assertSee('data-shell-nav="sidebar"', false)
-        ->assertSee('data-shell-group="organization"', false)
+        ->assertSee('data-shell-group="properties"', false)
+        ->assertSee('data-shell-group="billing"', false)
+        ->assertSee('data-shell-group="reports"', false)
         ->assertSee('data-shell-group="account"', false)
         ->assertSeeText('Buildings')
         ->assertSeeText('Properties')
@@ -53,7 +55,7 @@ it('renders platform navigation for superadmins without organization navigation'
         ->assertSee('data-shell-group="account"', false)
         ->assertSee(route('filament.admin.resources.organizations.index'), false)
         ->assertSee('data-shell-current="filament.admin.pages.platform-dashboard"', false)
-        ->assertDontSee('data-shell-group="organization"', false);
+        ->assertDontSee('data-shell-group="properties"', false);
 });
 
 it('redirects admin-like users from the shared profile route into the filament-backed profile page', function () {

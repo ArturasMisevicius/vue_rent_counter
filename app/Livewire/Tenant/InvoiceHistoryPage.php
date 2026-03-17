@@ -5,32 +5,40 @@ namespace App\Livewire\Tenant;
 use App\Filament\Actions\Tenant\Invoices\DownloadInvoiceAction;
 use App\Filament\Support\Tenant\Portal\PaymentInstructionsResolver;
 use App\Filament\Support\Tenant\Portal\TenantInvoiceIndexQuery;
+use App\Http\Requests\Tenant\InvoiceHistoryFilterRequest;
 use App\Models\Invoice;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Livewire\Attributes\Computed;
-use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class InvoiceHistoryPage extends Component
 {
-    #[Validate('required|string|in:all,unpaid,paid,outstanding')]
     public string $selectedStatus = 'all';
 
     public function mount(Request $request): void
     {
-        $this->selectedStatus = $this->normalizeSelectedStatus(
-            $request->string('status')->toString() ?: $this->selectedStatus,
-        );
+        /** @var InvoiceHistoryFilterRequest $filtersRequest */
+        $filtersRequest = new InvoiceHistoryFilterRequest;
+        $validated = $filtersRequest->validatePayload([
+            'selectedStatus' => $request->string('status')->toString() ?: $this->selectedStatus,
+        ]);
+
+        $this->selectedStatus = (string) $validated['selectedStatus'];
     }
 
     public function updatedSelectedStatus(string $status): void
     {
-        $this->selectedStatus = $this->normalizeSelectedStatus($status);
-        $this->validateOnly('selectedStatus');
+        /** @var InvoiceHistoryFilterRequest $filtersRequest */
+        $filtersRequest = new InvoiceHistoryFilterRequest;
+        $validated = $filtersRequest->validatePayload([
+            'selectedStatus' => $status,
+        ]);
+
+        $this->selectedStatus = (string) $validated['selectedStatus'];
     }
 
     public function download(
@@ -70,14 +78,5 @@ class InvoiceHistoryPage extends Component
     private function selectedStatusFilter(): ?string
     {
         return $this->selectedStatus === 'all' ? null : $this->selectedStatus;
-    }
-
-    private function normalizeSelectedStatus(string $status): string
-    {
-        return match ($status) {
-            'outstanding', 'unpaid' => 'unpaid',
-            'paid' => 'paid',
-            default => 'all',
-        };
     }
 }

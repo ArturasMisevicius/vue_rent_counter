@@ -47,12 +47,11 @@ These counts are useful for orientation, but they are a point-in-time snapshot a
 ## Architecture Baseline
 
 - Prefer Eloquent-first data access and model scopes over raw SQL
-- Keep request validation, actions, and shared support logic in the Filament foundation tree:
-  - `app/Filament/Requests`
+- Keep request validation in `app/Http/Requests` and keep actions plus shared support logic in the Filament foundation tree:
+  - `app/Http/Requests`
   - `app/Filament/Actions`
   - `app/Filament/Support`
 - Do not create new classes in:
-  - `app/Http/Requests`
   - `app/Actions`
   - `app/Support`
 - Keep authorization explicit through policies, Filament authorization hooks, and route or component boundaries

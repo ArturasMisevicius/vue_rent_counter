@@ -141,7 +141,7 @@ it('keeps shared profile routing as a redirect into the appropriate destination'
 
     $this->actingAs($tenant)
         ->get(route('profile.edit'))
-        ->assertRedirect(route('tenant.profile.edit'));
+        ->assertRedirect(route('filament.admin.pages.profile'));
 });
 
 it('maps non-livewire web routes to Livewire-backed actions', function (string $routeName, string $action): void {

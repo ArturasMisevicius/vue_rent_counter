@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Auth;
 
-use App\Filament\Requests\Auth\ForgotPasswordRequest;
+use App\Http\Requests\Auth\ForgotPasswordRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Password;

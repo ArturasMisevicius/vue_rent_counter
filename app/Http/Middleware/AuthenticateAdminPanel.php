@@ -7,6 +7,7 @@ use Closure;
 use Filament\Http\Middleware\Authenticate as FilamentAuthenticate;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Auth\Factory as Auth;
+use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthenticateAdminPanel extends FilamentAuthenticate
@@ -41,6 +42,10 @@ class AuthenticateAdminPanel extends FilamentAuthenticate
 
     protected function redirectTo($request): string
     {
+        if (Route::has('filament.admin.auth.login')) {
+            return route('filament.admin.auth.login');
+        }
+
         return route('login');
     }
 }

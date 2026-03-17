@@ -24,22 +24,19 @@
         </div>
 
         <div class="grid gap-4 md:grid-cols-2">
-            <article class="rounded-[1.75rem] bg-slate-950 px-5 py-5 text-white">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-brand-mint/90">{{ $summary['outstanding_label'] }}</p>
-                @if ($summary['has_outstanding_balance'])
-                    <p class="mt-3 font-display text-3xl tracking-tight">{{ $summary['outstanding_total_display'] }}</p>
-                    <p class="mt-2 text-sm text-slate-300">{{ __('tenant.pages.home.across_invoices', ['count' => $summary['outstanding_invoice_count']]) }}</p>
-                @else
-                    <p class="mt-3 font-display text-3xl tracking-tight">{{ __('tenant.status.all_paid_up') }}</p>
-                    <p class="mt-2 text-sm text-slate-300">{{ __('tenant.messages.all_paid_up_detail') }}</p>
-                @endif
-            </article>
+            <x-shared.stat-card
+                :label="$summary['outstanding_label']"
+                :value="$summary['has_outstanding_balance'] ? $summary['outstanding_total_display'] : __('tenant.status.all_paid_up')"
+                :trend="$summary['has_outstanding_balance'] ? __('tenant.pages.home.across_invoices', ['count' => $summary['outstanding_invoice_count']]) : __('tenant.messages.all_paid_up_detail')"
+                icon="heroicon-m-banknotes"
+            />
 
-            <article class="rounded-[1.75rem] border border-slate-200 bg-slate-50 px-5 py-5">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{{ $summary['month_heading'] }}</p>
-                <p class="mt-3 font-display text-3xl tracking-tight text-slate-950">{{ $summary['current_month_metric'] }}</p>
-                <p class="mt-2 text-sm text-slate-600">{{ $summary['current_month_message'] }}</p>
-            </article>
+            <x-shared.stat-card
+                :label="$summary['month_heading']"
+                :value="$summary['current_month_metric']"
+                :trend="$summary['current_month_message']"
+                icon="heroicon-m-bolt"
+            />
         </div>
 
         <article class="rounded-[1.75rem] border border-slate-200 bg-slate-50 px-5 py-5">
@@ -66,7 +63,11 @@
                         </div>
                     </div>
                 @empty
-                    <p class="rounded-2xl border border-dashed border-slate-300 px-4 py-5 text-sm text-slate-500">{{ __('tenant.messages.no_readings_yet') }}</p>
+                    <x-shared.empty-state
+                        icon="heroicon-m-beaker"
+                        :title="__('tenant.pages.home.recent_readings')"
+                        :description="__('tenant.messages.no_readings_yet')"
+                    />
                 @endforelse
             </div>
         </article>

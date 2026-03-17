@@ -37,13 +37,19 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ## Required Implementation Rules
 
 - Follow existing conventions in sibling files before introducing new patterns.
-- Prefer Filament request classes under `app/Filament/Requests`; do not create `app/Http/Requests`.
+- Prefer request classes under `app/Http/Requests`.
 - Keep reusable write logic in `app/Filament/Actions` and shared read/support logic in `app/Filament/Support`.
 - Prefer Eloquent models, relationships, and scopes over raw SQL and avoid `DB::` unless unavoidable.
 - Keep tenant boundaries explicit when accessing data.
 - Use strict typing and explicit return types in new and touched PHP files.
 - Do not add ad hoc public debug PHP entrypoints.
 - Run focused tests for changed behavior.
+- For Livewire 4 work, prefer the current primitives intentionally:
+  - `@island` for isolated page regions
+  - `@placeholder` for lazy islands only
+  - `wire:show` for visibility toggles that should preserve DOM state
+  - `wire:transition` for Livewire-controlled conditional UI
+  - `wire:current` and `@persist` only where navigation persistence clearly helps UX
 
 ## Working Sequence
 
@@ -61,7 +67,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 - `app/Filament/Resources/*`: Filament resources and their pages, schemas, and tables
 - `app/Filament/Pages/*`: custom Filament pages
 - `app/Filament/Widgets/*`: dashboard widgets
-- `app/Filament/Requests/*`: request validation foundation
+- `app/Http/Requests/*`: request validation foundation
 - `app/Filament/Actions/*`: workflow and write-side actions
 - `app/Filament/Support/*`: presenters, query objects, report builders, shell helpers
 - `app/Livewire/*` and `resources/views/livewire/*`: Livewire components and views

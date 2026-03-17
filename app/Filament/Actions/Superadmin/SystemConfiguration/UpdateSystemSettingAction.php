@@ -2,17 +2,16 @@
 
 namespace App\Filament\Actions\Superadmin\SystemConfiguration;
 
+use App\Http\Requests\Superadmin\SystemConfiguration\UpdateSystemSettingRequest;
 use App\Models\SystemSetting;
-use Illuminate\Support\Facades\Validator;
 
 class UpdateSystemSettingAction
 {
     public function handle(SystemSetting $setting, array $attributes): SystemSetting
     {
-        /** @var array{value: string} $validated */
-        $validated = Validator::make($attributes, [
-            'value' => ['required', 'string'],
-        ])->validate();
+        /** @var UpdateSystemSettingRequest $request */
+        $request = new UpdateSystemSettingRequest;
+        $validated = $request->validatePayload($attributes);
 
         $setting->update([
             'value' => ['value' => $validated['value']],

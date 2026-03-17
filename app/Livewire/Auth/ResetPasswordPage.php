@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Auth;
 
-use App\Filament\Requests\Auth\ResetPasswordRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;

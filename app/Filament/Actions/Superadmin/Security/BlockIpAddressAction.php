@@ -2,20 +2,16 @@
 
 namespace App\Filament\Actions\Superadmin\Security;
 
+use App\Http\Requests\Superadmin\Security\BlockIpAddressRequest;
 use App\Models\BlockedIpAddress;
-use Illuminate\Support\Facades\Validator;
 
 class BlockIpAddressAction
 {
     public function handle(array $attributes): BlockedIpAddress
     {
-        /** @var array{ip_address: string, reason: string, blocked_by_user_id: int, blocked_until?: mixed} $validated */
-        $validated = Validator::make($attributes, [
-            'ip_address' => ['required', 'ip'],
-            'reason' => ['required', 'string', 'max:255'],
-            'blocked_by_user_id' => ['required', 'integer', 'exists:users,id'],
-            'blocked_until' => ['nullable', 'date'],
-        ])->validate();
+        /** @var BlockIpAddressRequest $request */
+        $request = new BlockIpAddressRequest;
+        $validated = $request->validatePayload($attributes);
 
         return BlockedIpAddress::query()->updateOrCreate(
             ['ip_address' => $validated['ip_address']],

@@ -7,12 +7,11 @@ use App\Enums\UserStatus;
 use App\Filament\Actions\Admin\Properties\AssignTenantToPropertyAction;
 use App\Filament\Actions\Auth\CreateOrganizationInvitationAction;
 use App\Filament\Support\Admin\SubscriptionLimitGuard;
+use App\Http\Requests\Admin\Tenants\StoreTenantRequest;
 use App\Models\Property;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 
 class CreateTenantAction
 {
@@ -78,29 +77,11 @@ class CreateTenantAction
      */
     private function validate(int $organizationId, array $data): array
     {
-        /** @var array{
-         *     name: string,
-         *     email: string,
-         *     locale: string,
-         *     status: UserStatus,
-         *     property_id: int|null,
-         *     unit_area_sqm: float|int|null
-         * } $validated
-         */
-        $validated = Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email:rfc', 'max:255', Rule::unique('users', 'email')],
-            'locale' => ['required', Rule::in(array_keys(config('tenanto.locales', [])))],
-            'status' => ['required', Rule::enum(UserStatus::class)],
-            'property_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('properties', 'id')->where(
-                    fn ($query) => $query->where('organization_id', $organizationId),
-                ),
-            ],
-            'unit_area_sqm' => ['nullable', 'numeric', 'min:0'],
-        ])->validate();
+        /** @var StoreTenantRequest $request */
+        $request = new StoreTenantRequest;
+        $validated = $request
+            ->forOrganization($organizationId)
+            ->validatePayload($data);
 
         /** @var Property|null $property */
         $property = null;

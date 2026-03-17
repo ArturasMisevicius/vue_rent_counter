@@ -3,9 +3,9 @@
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
-it('keeps requests actions and support classes inside the filament foundation tree', function (): void {
+it('keeps requests in the http foundation tree and actions/support classes inside the filament foundation tree', function (): void {
     $forbiddenDirectories = [
-        app_path('Http/Requests'),
+        app_path('Filament/Requests'),
         app_path('Actions'),
         app_path('Support'),
     ];
@@ -15,7 +15,7 @@ it('keeps requests actions and support classes inside the filament foundation tr
     }
 
     $requiredDirectories = [
-        app_path('Filament/Requests'),
+        app_path('Http/Requests'),
         app_path('Filament/Actions'),
         app_path('Filament/Support'),
     ];
@@ -37,7 +37,7 @@ it('does not reference legacy foundation namespaces in executable code', functio
     ];
 
     $forbiddenNamespaceFragments = [
-        'App\\Http\\Requests\\',
+        'App\\Filament\\Requests\\',
         'App\\Actions\\',
         'App\\Support\\',
     ];
@@ -56,9 +56,9 @@ it('does not reference legacy foundation namespaces in executable code', functio
     }
 });
 
-it('keeps moved foundation classes in filament namespaces', function (): void {
+it('keeps moved foundation classes in their expected namespaces', function (): void {
     $namespaceExpectations = [
-        app_path('Filament/Requests') => 'namespace App\\Filament\\Requests',
+        app_path('Http/Requests') => 'namespace App\\Http\\Requests',
         app_path('Filament/Actions') => 'namespace App\\Filament\\Actions',
         app_path('Filament/Support') => 'namespace App\\Filament\\Support',
     ];

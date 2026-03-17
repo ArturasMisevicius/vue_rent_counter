@@ -4,10 +4,10 @@ namespace App\Livewire\Auth;
 
 use App\Enums\OrganizationStatus;
 use App\Enums\UserStatus;
-use App\Filament\Requests\Auth\LoginRequest;
 use App\Filament\Support\Auth\AuthenticatedSessionHistory;
 use App\Filament\Support\Auth\LoginDemoAccountPresenter;
 use App\Filament\Support\Auth\LoginRedirector;
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;

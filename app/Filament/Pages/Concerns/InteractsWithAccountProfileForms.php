@@ -4,10 +4,10 @@ namespace App\Filament\Pages\Concerns;
 
 use App\Filament\Actions\Admin\Settings\UpdatePasswordAction;
 use App\Filament\Actions\Admin\Settings\UpdateProfileAction;
+use App\Http\Requests\Profile\UpdatePasswordRequest;
+use App\Http\Requests\Profile\UpdateProfileRequest;
 use App\Models\User;
 use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 trait InteractsWithAccountProfileForms
 {
@@ -40,16 +40,9 @@ trait InteractsWithAccountProfileForms
 
     public function saveProfile(UpdateProfileAction $updateProfileAction): void
     {
-        $attributes = Validator::make($this->profileForm, [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($this->user()->id),
-            ],
-            'locale' => ['required', Rule::in(array_keys(config('tenanto.locales', [])))],
-        ])->validate();
+        /** @var UpdateProfileRequest $request */
+        $request = new UpdateProfileRequest;
+        $attributes = $request->validatePayload($this->profileForm, $this->user());
 
         $user = $updateProfileAction->handle($this->user(), $attributes);
 
@@ -69,10 +62,9 @@ trait InteractsWithAccountProfileForms
 
     public function updatePassword(UpdatePasswordAction $updatePasswordAction): void
     {
-        $attributes = Validator::make($this->passwordForm, [
-            'current_password' => ['required', 'current_password'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ])->validate();
+        /** @var UpdatePasswordRequest $request */
+        $request = new UpdatePasswordRequest;
+        $attributes = $request->validatePayload($this->passwordForm, $this->user());
 
         $updatePasswordAction->handle($this->user(), $attributes['password']);
 

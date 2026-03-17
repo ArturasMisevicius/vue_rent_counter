@@ -4,9 +4,9 @@ namespace App\Livewire\Auth;
 
 use App\Filament\Actions\Auth\AcceptOrganizationInvitationAction;
 use App\Filament\Actions\Preferences\ResolveGuestLocaleAction;
-use App\Filament\Requests\Auth\AcceptInvitationRequest;
 use App\Filament\Support\Auth\AuthenticatedSessionHistory;
 use App\Filament\Support\Auth\LoginRedirector;
+use App\Http\Requests\Auth\AcceptInvitationRequest;
 use App\Models\OrganizationInvitation;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;

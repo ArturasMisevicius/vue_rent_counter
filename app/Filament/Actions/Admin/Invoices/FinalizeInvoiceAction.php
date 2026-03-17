@@ -2,24 +2,17 @@
 
 namespace App\Filament\Actions\Admin\Invoices;
 
-use App\Enums\InvoiceStatus;
+use App\Contracts\BillingServiceInterface;
 use App\Models\Invoice;
 
 class FinalizeInvoiceAction
 {
     public function __construct(
-        private readonly SaveInvoiceDraftAction $saveInvoiceDraftAction,
+        private readonly BillingServiceInterface $billingService,
     ) {}
 
     public function handle(Invoice $invoice, array $attributes = []): Invoice
     {
-        $invoice = $this->saveInvoiceDraftAction->handle($invoice, $attributes);
-
-        $invoice->update([
-            'status' => InvoiceStatus::FINALIZED,
-            'finalized_at' => $invoice->finalized_at ?? now(),
-        ]);
-
-        return $invoice->fresh();
+        return $this->billingService->finalize($invoice, $attributes);
     }
 }

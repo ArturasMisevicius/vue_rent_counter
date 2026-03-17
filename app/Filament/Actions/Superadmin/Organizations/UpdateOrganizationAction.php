@@ -4,10 +4,10 @@ namespace App\Filament\Actions\Superadmin\Organizations;
 
 use App\Enums\SubscriptionPlan;
 use App\Enums\UserRole;
+use App\Http\Requests\Superadmin\Organizations\UpdateOrganizationRequest;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -15,13 +15,9 @@ class UpdateOrganizationAction
 {
     public function handle(Organization $organization, array $attributes): Organization
     {
-        /** @var array{name: string, owner_email: string|null, owner_name: string|null, plan: SubscriptionPlan|null} $validated */
-        $validated = Validator::make($attributes, [
-            'name' => ['required', 'string', 'max:255'],
-            'owner_email' => ['nullable', 'email:rfc', 'max:255'],
-            'owner_name' => ['nullable', 'string', 'max:255'],
-            'plan' => ['nullable'],
-        ])->validate();
+        /** @var UpdateOrganizationRequest $request */
+        $request = new UpdateOrganizationRequest;
+        $validated = $request->validatePayload($attributes);
 
         return DB::transaction(function () use ($organization, $validated): Organization {
             $organization->update([
@@ -54,7 +50,11 @@ class UpdateOrganizationAction
                 }
             }
 
-            if ($validated['plan'] instanceof SubscriptionPlan) {
+            $plan = filled($validated['plan'] ?? null)
+                ? SubscriptionPlan::from((string) $validated['plan'])
+                : null;
+
+            if ($plan instanceof SubscriptionPlan) {
                 $subscription = $organization->subscriptions()
                     ->select([
                         'id',
@@ -73,7 +73,7 @@ class UpdateOrganizationAction
                     ->first();
 
                 if ($subscription !== null) {
-                    $subscription->applyPlanSnapshots($validated['plan']);
+                    $subscription->applyPlanSnapshots($plan);
                     $subscription->save();
                 }
             }

@@ -10,13 +10,16 @@ use App\Filament\Support\Admin\Reports\MeterComplianceReportBuilder;
 use App\Filament\Support\Admin\Reports\OutstandingBalancesReportBuilder;
 use App\Filament\Support\Admin\Reports\ReportPdfExporter;
 use App\Filament\Support\Admin\Reports\RevenueReportBuilder;
+use App\Http\Requests\Admin\Reports\ConsumptionReportRequest;
+use App\Http\Requests\Admin\Reports\ExportReportRequest;
+use App\Http\Requests\Admin\Reports\MeterComplianceReportRequest;
+use App\Http\Requests\Admin\Reports\OutstandingBalancesReportRequest;
+use App\Http\Requests\Admin\Reports\RevenueReportRequest;
 use App\Models\User;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -119,6 +122,13 @@ class Reports extends Page
 
     public function exportCsv(): ?StreamedResponse
     {
+        /** @var ExportReportRequest $request */
+        $request = new ExportReportRequest;
+        $request->validatePayload([
+            ...$this->filters,
+            'format' => 'csv',
+        ], $this->user());
+
         $report = $this->currentReport();
 
         if ($report === null) {
@@ -156,6 +166,13 @@ class Reports extends Page
 
     public function exportPdf(ReportPdfExporter $reportPdfExporter): ?Response
     {
+        /** @var ExportReportRequest $request */
+        $request = new ExportReportRequest;
+        $request->validatePayload([
+            ...$this->filters,
+            'format' => 'pdf',
+        ], $this->user());
+
         $report = $this->currentReport();
 
         if ($report === null) {
@@ -252,35 +269,29 @@ class Reports extends Page
      */
     private function validatedFilters(): array
     {
-        /** @var array{
-         *     start_date: Carbon,
-         *     end_date: Carbon,
-         *     meter_type: string|null,
-         *     invoice_status: string|null,
-         *     only_overdue: bool,
-         *     compliance_state: string|null
-         * } $validated
-         */
-        $validated = Validator::make([
+        $validated = $this->currentFiltersRequest()->validatePayload([
             'start_date' => $this->filters['start_date'] ?? now()->startOfMonth()->toDateString(),
             'end_date' => $this->filters['end_date'] ?? now()->endOfMonth()->toDateString(),
-            'meter_type' => filled($this->filters['meter_type'] ?? null) ? $this->filters['meter_type'] : null,
-            'invoice_status' => filled($this->filters['invoice_status'] ?? null) ? $this->filters['invoice_status'] : null,
-            'only_overdue' => (bool) ($this->filters['only_overdue'] ?? false),
-            'compliance_state' => filled($this->filters['compliance_state'] ?? null) ? $this->filters['compliance_state'] : null,
-        ], [
-            'start_date' => ['required', 'date'],
-            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
-            'meter_type' => ['nullable', Rule::in(array_keys($this->meterTypeOptions()))],
-            'invoice_status' => ['nullable', Rule::in(array_keys($this->invoiceStatusOptions()))],
-            'only_overdue' => ['required', 'boolean'],
-            'compliance_state' => ['nullable', Rule::in(array_keys($this->complianceStateOptions()))],
-        ])->validate();
+            'meter_type' => $this->filters['meter_type'] ?? null,
+            'invoice_status' => $this->filters['invoice_status'] ?? null,
+            'only_overdue' => $this->filters['only_overdue'] ?? false,
+            'compliance_state' => $this->filters['compliance_state'] ?? null,
+        ], $this->user());
 
         $validated['start_date'] = Carbon::parse($validated['start_date']);
         $validated['end_date'] = Carbon::parse($validated['end_date']);
 
         return $validated;
+    }
+
+    protected function currentFiltersRequest(): ConsumptionReportRequest|RevenueReportRequest|OutstandingBalancesReportRequest|MeterComplianceReportRequest
+    {
+        return match ($this->activeTab) {
+            'revenue' => new RevenueReportRequest,
+            'outstanding_balances' => new OutstandingBalancesReportRequest,
+            'meter_compliance' => new MeterComplianceReportRequest,
+            default => new ConsumptionReportRequest,
+        };
     }
 
     /**

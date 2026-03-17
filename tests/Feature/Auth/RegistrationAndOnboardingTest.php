@@ -83,7 +83,7 @@ it('exposes role helpers for shared auth routing', function () {
         ->and($superadmin->canAccessPanel($panel))->toBeTrue()
         ->and($admin->canAccessPanel($panel))->toBeTrue()
         ->and($manager->canAccessPanel($panel))->toBeTrue()
-        ->and($tenant->canAccessPanel($panel))->toBeFalse();
+        ->and($tenant->canAccessPanel($panel))->toBeTrue();
 });
 
 it('renders the register page', function () {
@@ -139,7 +139,7 @@ it('completes onboarding and creates the organization trial subscription', funct
         'slug' => 'north-hall',
     ]);
 
-    $response->assertRedirect(route('filament.admin.pages.organization-dashboard'));
+    $response->assertRedirect(route('filament.admin.pages.dashboard'));
 
     $organization = Organization::query()->firstOrFail();
     $subscription = Subscription::query()->firstOrFail();
@@ -188,14 +188,14 @@ it('blocks repeat onboarding access after completion', function () {
 
     $this->actingAs($admin)
         ->get(route('welcome.show'))
-        ->assertRedirect(route('filament.admin.pages.organization-dashboard'));
+        ->assertRedirect(route('filament.admin.pages.dashboard'));
 
     $this->actingAs($admin)
         ->post(route('welcome.store'), [
             'name' => 'Changed Name',
             'slug' => 'changed-slug',
         ])
-        ->assertRedirect(route('filament.admin.pages.organization-dashboard'));
+        ->assertRedirect(route('filament.admin.pages.dashboard'));
 
     expect($organization->fresh()->slug)->toBe('original-slug')
         ->and(Organization::query()->count())->toBe(1);

@@ -29,7 +29,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 - Tenant context and visibility rules: model scopes in `app/Models/*`, especially `User`, `Invoice`, `PropertyAssignment`, `Meter`, and `MeterReading`
 - Shell and auth support: `app/Filament/Support/Auth/*`, `app/Filament/Support/Shell/*`, and `app/Livewire/Shell/*`
 - Tenant-facing queries and presenters: `app/Filament/Support/Tenant/Portal/*`
-- Write-side validation: `app/Filament/Requests/*`
+- Write-side validation: `app/Http/Requests/*`
 - Public and auth entry points: `app/Livewire/Auth/*`, `app/Livewire/Preferences/*`, `app/Livewire/PublicSite/*`
 - Public web root currently exposes only `public/index.php`; do not add public debug entrypoints
 - Translation health: keep development artifact files out of active locale directories such as `lang/en`

@@ -7,6 +7,7 @@ pest()->extend(TestCase::class)
     ->in('Feature');
 
 beforeEach(function (): void {
+    auth()->logout();
     Carbon::setTestNow();
 
     config()->set('app.supported_locales', [
@@ -25,6 +26,7 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
+    auth()->logout();
     Carbon::setTestNow();
     app()->setLocale(config('app.locale', 'en'));
 });

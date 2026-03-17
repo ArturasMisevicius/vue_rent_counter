@@ -113,7 +113,7 @@ it('accepts a valid invitation and logs the user in', function (UserRole $role, 
         ->and($user->organization_id)->toBe($organization->id)
         ->and($invitation->fresh()->accepted_at)->not->toBeNull();
 })->with([
-    'manager' => [UserRole::MANAGER, 'filament.admin.pages.organization-dashboard'],
+    'manager' => [UserRole::MANAGER, 'filament.admin.pages.dashboard'],
     'tenant' => [UserRole::TENANT, 'tenant.home'],
 ]);
 
@@ -195,7 +195,7 @@ it('accepts the freshest resent invitation while keeping the expired token unusa
         'name' => 'Resent Manager',
         'password' => 'new-password',
         'password_confirmation' => 'new-password',
-    ])->assertRedirect(route('filament.admin.pages.organization-dashboard'));
+    ])->assertRedirect(route('filament.admin.pages.dashboard'));
 
     $user = User::query()->where('email', 'resent@example.com')->firstOrFail();
 

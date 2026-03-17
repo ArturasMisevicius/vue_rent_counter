@@ -3,12 +3,12 @@
 namespace App\Livewire\Tenant;
 
 use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
+use App\Http\Requests\Tenant\StoreMeterReadingRequest;
 use App\Models\Meter;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -41,7 +41,16 @@ class SubmitReadingPage extends Component
 
     public function submit(SubmitTenantReadingAction $submitTenantReadingAction): void
     {
-        $validated = $this->validate();
+        /** @var StoreMeterReadingRequest $request */
+        $request = new StoreMeterReadingRequest;
+        $validated = $request
+            ->forAvailableMeters($this->availableMeterIds)
+            ->validatePayload([
+                'meterId' => $this->meterId,
+                'readingValue' => $this->readingValue,
+                'readingDate' => $this->readingDate,
+                'notes' => $this->notes,
+            ], $this->tenant);
 
         try {
             $reading = $submitTenantReadingAction->handle(
@@ -90,23 +99,6 @@ class SubmitReadingPage extends Component
             'preview' => $this->preview,
             'meterSelectionLocked' => $this->meterSelectionLocked,
         ]);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    protected function rules(): array
-    {
-        return [
-            'meterId' => [
-                'required',
-                'string',
-                Rule::in($this->availableMeterIds),
-            ],
-            'readingValue' => ['required', 'numeric', 'gt:0'],
-            'readingDate' => ['required', 'date'],
-            'notes' => ['nullable', 'string', 'max:1000'],
-        ];
     }
 
     /**

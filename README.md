@@ -20,8 +20,8 @@ Verified from the checked-in manifests and the local CLI environment on 2026-03-
 
 - Multi-tenant SaaS for utility billing and property management
 - Role enum values: `SUPERADMIN`, `ADMIN`, `MANAGER`, `TENANT`
-- Filament foundation directories for requests, actions, and support services:
-  - `app/Filament/Requests`
+- Approved foundation directories for requests, actions, and support services:
+  - `app/Http/Requests`
   - `app/Filament/Actions`
   - `app/Filament/Support`
 - Current workspace snapshot:
@@ -62,8 +62,9 @@ php artisan serve
 ## Working Conventions
 
 - Prefer Eloquent models, relationships, and scopes over raw SQL
-- Keep validation, actions, and support logic in the Filament foundation tree
-- Do not create new classes in `app/Http/Requests`, `app/Actions`, or `app/Support`
+- Keep validation in `app/Http/Requests`
+- Keep actions and support logic in the Filament foundation tree
+- Do not create new classes in `app/Actions` or `app/Support`
 - Keep `public/` minimal: no debug PHP probes, no raw debug routes, and no stray `sw.js` without a real PWA feature
 - Run focused Pest tests plus `vendor/bin/pint --dirty` for changed behavior
 - Treat `docs/superpowers/` as historical execution/design context, not the canonical source for current repository counts

@@ -99,19 +99,27 @@ These things changed in Livewire 4, but may not have been updated in this applic
 ### New Features
 
 - Component formats: single-file (SFC), multi-file (MFC), view-based components.
-- Islands (`@island`) for isolated updates; async actions (`wire:click.async`, `#[Async]`) for parallel execution.
+- Islands (`@island`) for isolated updates; lazy islands can use `@placeholder` for skeleton states.
+- Async actions (`wire:click.async`, `#[Async]`) for parallel execution.
 - Deferred/bundled loading: `defer`, `lazy.bundle` for optimized component loading.
+- Persisted navigation and current-link styling: `@persist`, `wire:current`, and `wire:navigate:scroll`.
+- DOM visibility and replacement helpers: `wire:show`, `wire:replace`, and `wire:transition`.
 
 | Feature | Usage | Purpose |
 |---------|-------|---------|
-| Islands | `@island(name: 'stats')` | Isolated update regions |
+| Islands | `@island` / `@island(lazy: true)` | Isolated update regions |
+| Placeholder | `@placeholder ... @endplaceholder` | Loading UI for lazy islands |
 | Async | `wire:click.async` or `#[Async]` | Non-blocking actions |
 | Deferred | `defer` attribute | Load after page render |
 | Bundled | `lazy.bundle` | Load multiple together |
+| Persist | `@persist('nav')` | Keep navigation/media between `wire:navigate` visits |
+| Current | `wire:current="..."` | Active-link styling on navigate links |
+| Show | `wire:show="expression"` | Toggle visibility without tearing DOM nodes down |
+| Replace | `wire:replace` | Fully replace DOM children for stateful custom elements |
 
 ### New Directives
 
-- `wire:sort`, `wire:intersect`, `wire:ref`, `.renderless`, `.preserve-scroll` are available for use.
+- `wire:sort`, `wire:intersect`, `wire:ref`, `wire:show`, `wire:replace`, `wire:current`, `.renderless`, and `.preserve-scroll` are available for use.
 - `data-loading` attribute automatically added to elements triggering network requests.
 
 | Directive | Purpose |
@@ -119,6 +127,9 @@ These things changed in Livewire 4, but may not have been updated in this applic
 | `wire:sort` | Drag-and-drop sorting |
 | `wire:intersect` | Viewport intersection detection |
 | `wire:ref` | Element references for JS |
+| `wire:show` | Toggle visibility with CSS instead of removing DOM |
+| `wire:replace` | Replace children for custom/stateful DOM islands |
+| `wire:current` | Style active `wire:navigate` links |
 | `.renderless` | Component without rendering |
 | `.preserve-scroll` | Preserve scroll position |
 
@@ -128,6 +139,10 @@ These things changed in Livewire 4, but may not have been updated in this applic
 - Use `wire:loading` for loading states
 - Use `wire:model.live` for instant updates (default is debounced)
 - Validate and authorize in actions (treat like HTTP requests)
+- Use `@island` when only part of a larger Livewire surface needs isolated re-rendering
+- Use `@placeholder` only for lazy islands or lazy-loaded regions where a skeleton improves perceived performance
+- Use `wire:show` when you want transitions and DOM continuity; use Blade `@if` when the element should not exist at all
+- Use `wire:current` on `wire:navigate` links when active styling should survive persisted navigation
 
 ## State Design
 
@@ -207,7 +222,11 @@ If a component repeatedly serializes large datasets, move those results to compu
 
 - Add `wire:key` to dynamic loops, nested lists, and items that can reorder or update independently
 - Use `wire:navigate` for full-page Livewire routes when it clearly improves navigation flow
+- Use `@persist` selectively for navigation, audio/video, or shell regions that should survive `wire:navigate` visits
+- Use `wire:navigate:scroll` only on persisted scroll containers that should retain their own scroll position
+- Prefer `wire:transition` for Livewire-controlled conditional regions instead of ad hoc CSS-only fades
 - Avoid expensive inline formatting that would require extra queries; preload what the Blade needs
+- Do not place `@island` directly inside Blade loops or conditionals; move the loop or conditional inside the island
 
 ## Configuration
 

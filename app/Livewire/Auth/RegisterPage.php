@@ -3,7 +3,7 @@
 namespace App\Livewire\Auth;
 
 use App\Filament\Actions\Auth\RegisterAdminAction;
-use App\Filament\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\RegisterRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;

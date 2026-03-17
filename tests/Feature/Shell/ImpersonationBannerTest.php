@@ -47,7 +47,7 @@ it('clears impersonation state and returns to the impersonators dashboard', func
     $this->actingAs($tenant)
         ->withSession(impersonationSessionFor($impersonator))
         ->post(route('impersonation.stop'))
-        ->assertRedirect(route('filament.admin.pages.organization-dashboard'));
+        ->assertRedirect(route('filament.admin.pages.dashboard'));
 
     $this->assertAuthenticatedAs($impersonator);
 

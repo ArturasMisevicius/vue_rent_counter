@@ -3,14 +3,14 @@
 namespace App\Livewire\Tenant;
 
 use App\Filament\Actions\Tenant\Profile\UpdateTenantPasswordAction;
-use App\Filament\Requests\Tenant\UpdateTenantPasswordRequest;
+use App\Http\Requests\Profile\UpdatePasswordRequest;
 use Illuminate\Http\RedirectResponse;
 use Livewire\Component;
 
 class UpdatePasswordEndpoint extends Component
 {
     public function update(
-        UpdateTenantPasswordRequest $request,
+        UpdatePasswordRequest $request,
         UpdateTenantPasswordAction $updateTenantPasswordAction,
     ): RedirectResponse {
         $updateTenantPasswordAction->handle($request->user(), $request->validated('password'));

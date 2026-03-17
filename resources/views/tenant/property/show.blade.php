@@ -1,28 +1,30 @@
-<x-layouts.tenant
+<x-layouts.app
     :title="__('tenant.pages.property.title').' · '.config('app.name', 'Tenanto')"
-    :heading="__('tenant.pages.property.heading')"
+    :heading="$summary['property_name'] ?: __('tenant.pages.property.heading')"
+    :subtitle="$summary['property_address']"
+    :show-tenant-navigation="true"
     :breadcrumbs="[
         ['label' => __('tenant.navigation.home'), 'url' => route('tenant.home')],
         ['label' => __('tenant.pages.property.heading')],
     ]"
 >
+    <x-slot:actions>
+        <a
+            href="{{ route('tenant.readings.create') }}"
+            class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+        >
+            {{ __('tenant.actions.submit_new_reading') }}
+        </a>
+    </x-slot:actions>
+
     <section class="rounded-[2rem] border border-white/60 bg-white/92 p-8 shadow-[0_28px_90px_rgba(15,23,42,0.18)] backdrop-blur">
-        <div class="space-y-3">
-            <p class="text-sm font-semibold uppercase tracking-[0.24em] text-brand-warm">{{ __('tenant.pages.property.eyebrow') }}</p>
-            <h2 class="font-display text-3xl tracking-tight text-slate-950">{{ $summary['property_name'] }}</h2>
-            <p class="max-w-2xl text-sm leading-6 text-slate-600">{{ $summary['property_address'] }}</p>
-            <p class="text-sm text-slate-500">{{ __('tenant.pages.property.assigned_since', ['date' => $summary['assigned_since']]) }}</p>
+        <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 px-5 py-5 text-sm text-slate-600">
+            {{ __('tenant.pages.property.assigned_since', ['date' => $summary['assigned_since']]) }}
         </div>
 
         <div class="mt-8 space-y-4">
             <div class="flex items-center justify-between gap-3">
                 <h3 class="font-display text-2xl tracking-tight text-slate-950">{{ __('tenant.pages.property.meters_heading') }}</h3>
-                <a
-                    href="{{ route('tenant.readings.create') }}"
-                    class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-                >
-                    {{ __('tenant.actions.submit_new_reading') }}
-                </a>
             </div>
 
             <div class="space-y-3">
@@ -41,12 +43,20 @@
                         </div>
                     </article>
                 @empty
-                    <x-ui.empty-state
-                        :heading="__('tenant.pages.property.meters_heading')"
+                    <x-shared.empty-state
+                        icon="heroicon-m-building-office-2"
+                        :title="__('tenant.pages.property.meters_heading')"
                         :description="__('tenant.messages.no_property_meters')"
-                    />
+                    >
+                        <a
+                            href="{{ route('tenant.readings.create') }}"
+                            class="inline-flex items-center justify-center rounded-2xl bg-brand-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-900"
+                        >
+                            {{ __('tenant.actions.submit_new_reading') }}
+                        </a>
+                    </x-shared.empty-state>
                 @endforelse
             </div>
         </div>
     </section>
-</x-layouts.tenant>
+</x-layouts.app>
