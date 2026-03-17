@@ -1,0 +1,9 @@
+<x-layouts.tenant :title="__('tenant.pages.profile.title').' · '.config('app.name', 'Tenanto')" :heading="__('tenant.pages.profile.heading')">
+    <section class="rounded-[2rem] border border-white/60 bg-white/92 p-8 shadow-[0_28px_90px_rgba(15,23,42,0.18)] backdrop-blur">
+        <div class="space-y-3">
+            <p class="text-sm font-semibold uppercase tracking-[0.24em] text-brand-warm">{{ __('tenant.navigation.profile') }}</p>
+            <h2 class="font-display text-3xl tracking-tight text-slate-950">{{ __('tenant.pages.profile.heading') }}</h2>
+            <p class="max-w-2xl text-sm leading-6 text-slate-600">{{ __('tenant.pages.profile.description') }}</p>
+        </div>
+    </section>
+</x-layouts.tenant>

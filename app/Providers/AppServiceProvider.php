@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Invoice;
+use App\Models\Meter;
+use App\Models\Property;
+use App\Policies\InvoicePolicy;
+use App\Policies\MeterPolicy;
+use App\Policies\PropertyPolicy;
 use App\Support\Auth\ImpersonationManager;
 use App\Support\Shell\DashboardUrlResolver;
 use App\Support\Shell\Navigation\NavigationBuilder;
@@ -9,6 +15,7 @@ use App\Support\Shell\Search\GlobalSearchRegistry;
 use App\Support\Shell\Search\Providers\OrganizationSearchProvider;
 use App\Support\Shell\Search\Providers\UserSearchProvider;
 use App\Support\Shell\UserAvatarColor;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -37,6 +44,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::policy(Property::class, PropertyPolicy::class);
+        Gate::policy(Meter::class, MeterPolicy::class);
+        Gate::policy(Invoice::class, InvoicePolicy::class);
     }
 }

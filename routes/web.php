@@ -10,6 +10,10 @@ use App\Http\Controllers\Auth\StopImpersonationController;
 use App\Http\Controllers\Onboarding\WelcomeController;
 use App\Http\Controllers\Profile\EditProfileController;
 use App\Http\Controllers\Tenant\HomeController;
+use App\Http\Controllers\Tenant\Invoices\IndexController as TenantInvoiceIndexController;
+use App\Http\Controllers\Tenant\Profile\EditController as TenantProfileEditController;
+use App\Http\Controllers\Tenant\Property\ShowController as TenantPropertyShowController;
+use App\Http\Controllers\Tenant\Readings\CreateController as TenantReadingCreateController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -38,7 +42,17 @@ Route::middleware(['auth', 'set.auth.locale', 'ensure.account.accessible'])->gro
     Route::post('/welcome', [WelcomeController::class, 'store'])->name('welcome.store');
     Route::get('/profile', EditProfileController::class)->name('profile.edit');
     Route::post('/impersonation/stop', StopImpersonationController::class)->name('impersonation.stop');
-    Route::get('/tenant/home', HomeController::class)->name('tenant.home');
+
+    Route::prefix('tenant')
+        ->name('tenant.')
+        ->middleware('tenant.only')
+        ->group(function (): void {
+            Route::get('/home', HomeController::class)->name('home');
+            Route::get('/readings/create', TenantReadingCreateController::class)->name('readings.create');
+            Route::get('/invoices', TenantInvoiceIndexController::class)->name('invoices.index');
+            Route::get('/property', TenantPropertyShowController::class)->name('property.show');
+            Route::get('/profile', TenantProfileEditController::class)->name('profile.edit');
+        });
 });
 
 Route::middleware('auth')->group(function (): void {

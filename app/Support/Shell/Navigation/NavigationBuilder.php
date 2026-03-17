@@ -74,9 +74,9 @@ class NavigationBuilder
 
         return collect([
             __('shell.home') => 'tenant.home',
-            __('shell.readings') => 'tenant.readings.index',
+            __('shell.readings') => 'tenant.readings.create',
             __('shell.invoices') => 'tenant.invoices.index',
-            __('shell.profile') => 'profile.edit',
+            __('shell.profile') => 'tenant.profile.edit',
         ])
             ->map(fn (string $routeName, string $label): ?NavigationItemData => $this->makeItem(
                 label: $label,
