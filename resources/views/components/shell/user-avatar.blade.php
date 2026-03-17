@@ -19,6 +19,6 @@
 
     <span class="hidden text-left md:flex md:flex-col">
         <span class="max-w-40 truncate text-sm font-semibold text-slate-950">{{ $user->name }}</span>
-        <span class="text-xs text-slate-500">{{ __('roles.' . $user->role->value) }}</span>
+        <span class="text-xs text-slate-500">{{ $user->role->label() }}</span>
     </span>
 </span>
