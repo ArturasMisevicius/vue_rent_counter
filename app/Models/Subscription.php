@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
 use Database\Factories\SubscriptionFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -46,5 +47,14 @@ class Subscription extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(SubscriptionPayment::class);
+    }
+
+    public function scopeCurrent(Builder $query): Builder
+    {
+        return $query->whereIn('status', [
+            SubscriptionStatus::ACTIVE,
+            SubscriptionStatus::TRIALING,
+            SubscriptionStatus::SUSPENDED,
+        ]);
     }
 }

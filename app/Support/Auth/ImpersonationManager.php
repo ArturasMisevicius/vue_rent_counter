@@ -4,6 +4,7 @@ namespace App\Support\Auth;
 
 use App\Models\User;
 use Illuminate\Contracts\Session\Session;
+use Illuminate\Support\Facades\Auth;
 
 class ImpersonationManager
 {
@@ -36,6 +37,20 @@ class ImpersonationManager
             'email' => (string) $this->session->get(self::IMPERSONATOR_EMAIL, ''),
             'name' => (string) $this->session->get(self::IMPERSONATOR_NAME, ''),
         ];
+    }
+
+    public function start(User $impersonator, User $targetUser): User
+    {
+        $this->session->put([
+            self::IMPERSONATOR_ID => $impersonator->id,
+            self::IMPERSONATOR_EMAIL => $impersonator->email,
+            self::IMPERSONATOR_NAME => $impersonator->name,
+        ]);
+
+        Auth::guard('web')->login($targetUser);
+        $this->session->regenerate();
+
+        return $targetUser;
     }
 
     public function stop(): ?User
