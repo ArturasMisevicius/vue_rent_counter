@@ -39,27 +39,7 @@
         </div>
 
         <div class="fi-topbar-end flex min-w-0 flex-1 items-center justify-end gap-3">
-            <button
-                type="button"
-                class="hidden min-w-0 flex-1 items-center gap-3 rounded-full border border-slate-200 bg-slate-50/90 px-4 py-3 text-left text-sm text-slate-500 shadow-sm transition hover:border-slate-300 hover:bg-white md:flex"
-            >
-                <span class="inline-flex size-8 items-center justify-center rounded-full bg-white text-slate-400 ring-1 ring-slate-200">
-                    <svg class="size-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.5 14.5-3.5-3.5m1.75-4.25a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z" />
-                    </svg>
-                </span>
-                <span>{{ __('shell.search_placeholder') }}</span>
-            </button>
-
-            <button
-                type="button"
-                class="inline-flex size-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm md:hidden"
-                aria-label="{{ __('shell.search_placeholder') }}"
-            >
-                <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.5 14.5-3.5-3.5m1.75-4.25a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z" />
-                </svg>
-            </button>
+            @livewire(\App\Livewire\Shell\GlobalSearch::class)
 
             @livewire(\App\Livewire\Shell\LanguageSwitcher::class)
 

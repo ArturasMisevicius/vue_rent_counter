@@ -15,6 +15,8 @@ return [
     'role' => 'Rolė',
     'language' => 'Kalba',
     'dashboard' => 'Skydelis',
+    'search_prompt' => 'Pradėkite rašyti, kad ieškotumėte pasiekiamų duomenų.',
+    'search_empty_group' => 'Atitinkančių rezultatų kol kas nėra.',
     'profile_placeholder' => 'Profilio redagavimas bus pridėtas kitame paskyros etape. Kol kas šis puslapis suteikia tikrą vietą vietoje neveikiančios nuorodos.',
     'sections' => [
         'platform' => 'Platforma',

@@ -29,6 +29,16 @@ return [
     ],
     'search' => [
         'debounce' => 300,
+        'labels' => [
+            'organizations' => 'Organizations',
+            'users' => 'Users',
+            'buildings' => 'Buildings',
+            'properties' => 'Properties',
+            'tenants' => 'Tenants',
+            'meters' => 'Meters',
+            'meter_readings' => 'Meter Readings',
+            'invoices' => 'Invoices',
+        ],
         'groups' => [
             'superadmin' => ['organizations', 'users', 'buildings', 'properties', 'tenants', 'meters', 'invoices'],
             'admin' => ['buildings', 'properties', 'tenants', 'meters', 'meter_readings', 'invoices'],
@@ -45,6 +55,14 @@ return [
         ],
         'account' => [
             'profile' => 'profile.edit',
+        ],
+        'search' => [
+            'organizations' => [
+                'view' => 'filament.admin.resources.organizations.view',
+            ],
+            'users' => [
+                'view' => 'filament.admin.resources.users.view',
+            ],
         ],
     ],
 ];
