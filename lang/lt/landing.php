@@ -41,7 +41,7 @@ return [
         'heading' => 'Sistemų testuotojams',
         'description' => 'Naudokite šį puslapį kaip viešą starto tašką dabartinei svečio patirčiai tikrinti.',
         'items' => [
-            'Patikrinkite prisijungimo ir registracijos įėjimo taškus.',
+            'Patikrinkite Prisijungti ir Registruotis įėjimo taškus.',
             'Perjunkite anglų, lietuvių, ispanų ir rusų kalbas.',
             'Įsitikinkite, kad viešas tekstas atitinka planuojamą vaidmenų modelį.',
             'Patikrinkite, ar gairės sąžiningai aprašo kitus produkto etapus.',
@@ -68,6 +68,10 @@ return [
             [
                 'title' => 'Nuomininkų savitarna',
                 'description' => 'Mobilumui pritaikytas portalas sąskaitoms, rodmenų pateikimui ir profilio priežiūrai.',
+            ],
+            [
+                'title' => 'Skersinės elgsenos taisyklės',
+                'description' => 'Bendras prenumeratų taikymas, validavimo saugikliai ir kitos platformos taisyklės, kurios išlaiko nuoseklų kiekvieno vaidmens srautą.',
             ],
         ],
     ],

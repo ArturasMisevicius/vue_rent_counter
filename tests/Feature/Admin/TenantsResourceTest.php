@@ -99,10 +99,24 @@ it('shows organization-scoped tenant resource pages and assignment-aware tenant 
         ->assertSeeText('INV-200001')
         ->assertSeeText('Taylor Tenant');
 
+    $this->actingAs($admin)
+        ->get(route('filament.admin.resources.tenants.edit', $tenant))
+        ->assertSuccessful()
+        ->assertSeeText('Save changes')
+        ->assertSeeText('Assign Property');
+
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.tenants.index'))
         ->assertSuccessful()
         ->assertSeeText($tenant->name);
+
+    $this->actingAs($admin)
+        ->get(route('filament.admin.resources.tenants.view', $otherTenant))
+        ->assertNotFound();
+
+    $this->actingAs($admin)
+        ->get(route('filament.admin.resources.tenants.edit', $otherTenant))
+        ->assertNotFound();
 
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.tenants.index'))
@@ -133,7 +147,7 @@ it('creates tenants through invitation reuse with optional property assignment a
     $tenant = app(CreateTenantAction::class)->handle($admin, [
         'name' => 'Pat Tenant',
         'email' => 'pat@example.com',
-        'locale' => 'es',
+        'locale' => 'lt',
         'status' => UserStatus::INACTIVE,
         'property_id' => $property->id,
         'unit_area_sqm' => 48.5,
@@ -144,7 +158,7 @@ it('creates tenants through invitation reuse with optional property assignment a
         ->email->toBe('pat@example.com')
         ->role->toBe(UserRole::TENANT)
         ->status->toBe(UserStatus::INACTIVE)
-        ->locale->toBe('es')
+        ->locale->toBe('lt')
         ->organization_id->toBe($organization->id);
 
     expect($tenant->fresh()->currentProperty?->is($property))->toBeTrue();

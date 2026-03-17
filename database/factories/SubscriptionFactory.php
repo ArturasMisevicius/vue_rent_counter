@@ -29,10 +29,10 @@ class SubscriptionFactory extends Factory
             'starts_at' => $startsAt,
             'expires_at' => $startsAt->copy()->addDays(14),
             'is_trial' => true,
-            'property_limit_snapshot' => SubscriptionPlan::BASIC->limits()['properties'],
-            'tenant_limit_snapshot' => SubscriptionPlan::BASIC->limits()['tenants'],
-            'meter_limit_snapshot' => SubscriptionPlan::BASIC->limits()['meters'],
-            'invoice_limit_snapshot' => SubscriptionPlan::BASIC->limits()['invoices'],
+            'property_limit_snapshot' => 25,
+            'tenant_limit_snapshot' => 100,
+            'meter_limit_snapshot' => 250,
+            'invoice_limit_snapshot' => 120,
         ];
     }
 

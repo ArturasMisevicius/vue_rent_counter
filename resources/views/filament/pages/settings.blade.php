@@ -1,6 +1,8 @@
 <x-filament-panels::page>
     <div class="space-y-6">
-        @if (auth()->user()?->isAdmin())
+        @include('filament.pages.partials.account-profile-sections')
+
+        @if ($this->canManageOrganizationSettings())
             <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h3 class="text-lg font-semibold text-slate-950">{{ __('shell.settings.organization.heading') }}</h3>
                 <p class="mt-2 text-sm leading-6 text-slate-600">{{ __('shell.settings.organization.description') }}</p>

@@ -12,6 +12,22 @@
             </div>
         @endif
 
+        @if ($submittedReading)
+            <div class="rounded-[1.75rem] border border-emerald-200/70 bg-white px-5 py-5 shadow-sm">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Submitted Reading</p>
+                <div class="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div class="space-y-1">
+                        <p class="font-semibold text-slate-950">{{ $submittedReading['meter_name'] }}</p>
+                        <p class="text-sm text-slate-500">{{ $submittedReading['meter_identifier'] }}</p>
+                    </div>
+                    <div class="text-left sm:text-right">
+                        <p class="font-display text-3xl tracking-tight text-slate-950">{{ $submittedReading['value'] }} {{ $submittedReading['unit'] }}</p>
+                        <p class="text-sm text-slate-500">{{ $submittedReading['date'] }}</p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         @if ($meters->isEmpty())
             <div class="rounded-[1.75rem] border border-dashed border-slate-300 px-5 py-6 text-sm text-slate-500">
                 No assigned meters are available yet. Contact your property manager if this looks incorrect.
@@ -24,13 +40,19 @@
                         <select
                             id="meterId"
                             wire:model.live="meterId"
+                            @disabled($meterSelectionLocked)
                             class="block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-brand-mint focus:outline-none focus:ring-2 focus:ring-brand-mint/30"
                         >
-                            <option value="">Select a meter</option>
+                            @unless ($meterSelectionLocked)
+                                <option value="">Select a meter</option>
+                            @endunless
                             @foreach ($meters as $meter)
                                 <option value="{{ $meter->id }}">{{ $meter->name }} · {{ $meter->identifier }}</option>
                             @endforeach
                         </select>
+                        @if ($meterSelectionLocked)
+                            <p class="text-sm text-slate-500">Your account has one assigned meter, so it is preselected for this submission.</p>
+                        @endif
                         @error('meterId')
                             <p class="text-sm text-rose-600">{{ $message }}</p>
                         @enderror

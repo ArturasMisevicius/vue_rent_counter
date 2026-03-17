@@ -26,7 +26,11 @@
                                 <p class="font-semibold text-slate-950">{{ $meter['name'] }}</p>
                                 <p class="text-sm text-slate-500">{{ $meter['identifier'] }} · {{ $meter['unit'] }}</p>
                             </div>
-                            <p class="text-sm text-slate-600">{{ $meter['last_reading'] }}</p>
+                            @if ($meter['has_reading'])
+                                <p class="text-sm text-slate-600">{{ $meter['last_reading'] }}</p>
+                            @else
+                                <p class="text-sm text-slate-600">Last reading: <a href="{{ route('tenant.readings.create') }}" class="font-semibold text-brand-ink underline decoration-brand-mint/60 underline-offset-4">None recorded yet</a></p>
+                            @endif
                         </div>
                     </article>
                 @empty

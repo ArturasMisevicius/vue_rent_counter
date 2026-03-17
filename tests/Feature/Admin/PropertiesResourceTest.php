@@ -82,10 +82,24 @@ it('shows organization-scoped properties resource pages and occupancy details', 
         ->assertSeeText('Assignment History')
         ->assertSeeText('Taylor Tenant');
 
+    $this->actingAs($admin)
+        ->get(route('filament.admin.resources.properties.edit', $property))
+        ->assertSuccessful()
+        ->assertSeeText('Save changes')
+        ->assertSeeText($property->name);
+
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.properties.index'))
         ->assertSuccessful()
         ->assertSeeText($property->name);
+
+    $this->actingAs($admin)
+        ->get(route('filament.admin.resources.properties.view', $otherProperty))
+        ->assertNotFound();
+
+    $this->actingAs($admin)
+        ->get(route('filament.admin.resources.properties.edit', $otherProperty))
+        ->assertNotFound();
 });
 
 it('creates properties within limits and keeps assignment history during reassign and unassign flows', function () {

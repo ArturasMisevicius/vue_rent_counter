@@ -11,7 +11,7 @@
                 <div class="flex flex-wrap gap-2">
                     @foreach ([
                         'all' => 'All',
-                        'outstanding' => 'Outstanding',
+                        'unpaid' => 'Unpaid',
                         'paid' => 'Paid',
                     ] as $filter => $label)
                         <a
@@ -32,7 +32,11 @@
                 @forelse ($invoices as $invoice)
                     @php
                         $balanceDue = max((float) $invoice->total_amount - (float) $invoice->amount_paid, 0);
-                        $statusLabel = $balanceDue > 0 ? 'Outstanding' : 'Paid';
+                        $statusLabel = match ($invoice->status) {
+                            \App\Enums\InvoiceStatus::OVERDUE => 'Overdue',
+                            \App\Enums\InvoiceStatus::PAID => 'Paid',
+                            default => 'Unpaid',
+                        };
                     @endphp
 
                     <article class="rounded-[1.75rem] border border-slate-200 bg-slate-50 px-5 py-5">
@@ -42,7 +46,8 @@
                                     <h3 class="font-display text-2xl tracking-tight text-slate-950">{{ $invoice->invoice_number }}</h3>
                                     <span @class([
                                         'inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]',
-                                        'bg-amber-100 text-amber-900' => $balanceDue > 0,
+                                        'bg-rose-100 text-rose-900' => $invoice->status === \App\Enums\InvoiceStatus::OVERDUE,
+                                        'bg-amber-100 text-amber-900' => $invoice->status !== \App\Enums\InvoiceStatus::OVERDUE && $balanceDue > 0,
                                         'bg-emerald-100 text-emerald-900' => $balanceDue === 0.0,
                                     ])>
                                         {{ $statusLabel }}
@@ -75,7 +80,14 @@
                         </div>
                     </article>
                 @empty
-                    <p class="rounded-[1.75rem] border border-dashed border-slate-300 px-5 py-6 text-sm text-slate-500">No invoices match the selected filter.</p>
+                    @if ($selectedStatus === 'unpaid')
+                        <div class="rounded-[1.75rem] border border-dashed border-emerald-300 bg-emerald-50 px-5 py-6">
+                            <p class="font-semibold text-emerald-900">All paid up</p>
+                            <p class="mt-2 text-sm text-emerald-800">No outstanding invoices are waiting for payment.</p>
+                        </div>
+                    @else
+                        <p class="rounded-[1.75rem] border border-dashed border-slate-300 px-5 py-6 text-sm text-slate-500">No invoices match the selected filter.</p>
+                    @endif
                 @endforelse
             </div>
 

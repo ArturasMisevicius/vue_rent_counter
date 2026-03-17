@@ -99,6 +99,9 @@
                                     <td class="px-4 py-3">
                                         <button
                                             type="button"
+                                            data-demo-account
+                                            data-demo-email="{{ $account['email'] }}"
+                                            data-demo-password="{{ $account['password'] }}"
                                             data-demo-account-trigger
                                             data-demo-account-email="{{ $account['email'] }}"
                                             data-demo-account-password="{{ $account['password'] }}"

@@ -12,7 +12,10 @@ class SetAuthenticatedUserLocale
     {
         $locale = $request->user()?->locale;
 
-        if (filled($locale)) {
+        if (
+            filled($locale) &&
+            in_array($locale, array_keys(config('app.supported_locales', [])), true)
+        ) {
             app()->setLocale($locale);
         }
 

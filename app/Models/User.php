@@ -109,6 +109,16 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Invoice::class, 'tenant_user_id');
     }
 
+    public function tenantInvoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class, 'tenant_user_id');
+    }
+
+    public function dashboardCustomization(): HasOne
+    {
+        return $this->hasOne(DashboardCustomization::class);
+    }
+
     public function leases(): HasMany
     {
         return $this->hasMany(Lease::class, 'tenant_user_id');
@@ -132,6 +142,26 @@ class User extends Authenticatable implements FilamentUser
     public function sentPlatformOrganizationInvitations(): HasMany
     {
         return $this->hasMany(PlatformOrganizationInvitation::class, 'invited_by');
+    }
+
+    public function actorAuditLogs(): HasMany
+    {
+        return $this->hasMany(AuditLog::class, 'actor_user_id');
+    }
+
+    public function platformNotificationDeliveries(): HasMany
+    {
+        return $this->hasMany(PlatformNotificationDelivery::class);
+    }
+
+    public function securityViolations(): HasMany
+    {
+        return $this->hasMany(SecurityViolation::class);
+    }
+
+    public function blockedIpAddresses(): HasMany
+    {
+        return $this->hasMany(BlockedIpAddress::class, 'blocked_by_user_id');
     }
 
     public function isSuperadmin(): bool

@@ -33,6 +33,8 @@ document.querySelectorAll('[data-auth-form]').forEach((form) => {
     const password = form.querySelector('[data-password-field]');
     const confirmation = form.querySelector('[data-password-confirmation-field]');
     const confirmationError = form.querySelector('[data-password-confirmation-error]');
+    const emailField = form.querySelector('#email');
+    const passwordField = form.querySelector('#password');
 
     const validatePasswordConfirmation = () => {
         if (!(password instanceof HTMLInputElement) || !(confirmation instanceof HTMLInputElement) || !confirmationError) {
@@ -59,6 +61,24 @@ document.querySelectorAll('[data-auth-form]').forEach((form) => {
     password?.addEventListener('input', validatePasswordConfirmation);
     confirmation?.addEventListener('input', validatePasswordConfirmation);
     confirmation?.addEventListener('blur', validatePasswordConfirmation);
+
+    document.querySelectorAll('[data-demo-account]').forEach((button) => {
+        button.addEventListener('click', () => {
+            if (!(button instanceof HTMLElement)) {
+                return;
+            }
+
+            if (emailField instanceof HTMLInputElement) {
+                emailField.value = button.dataset.demoEmail ?? '';
+                emailField.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+
+            if (passwordField instanceof HTMLInputElement) {
+                passwordField.value = button.dataset.demoPassword ?? '';
+                passwordField.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        });
+    });
 
     form.addEventListener('submit', (event) => {
         if (!validatePasswordConfirmation()) {

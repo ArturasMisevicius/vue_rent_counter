@@ -73,6 +73,11 @@ class Organization extends Model
         return $this->hasMany(Subscription::class);
     }
 
+    public function subscriptionPayments(): HasMany
+    {
+        return $this->hasMany(SubscriptionPayment::class);
+    }
+
     public function invitations(): HasMany
     {
         return $this->hasMany(OrganizationInvitation::class);
@@ -113,6 +118,11 @@ class Organization extends Model
         return $this->hasMany(Invoice::class);
     }
 
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
+
     public function providers(): HasMany
     {
         return $this->hasMany(Provider::class);
@@ -131,5 +141,15 @@ class Organization extends Model
     public function platformNotificationRecipients(): HasMany
     {
         return $this->hasMany(PlatformNotificationRecipient::class);
+    }
+
+    public function auditLogs(): HasMany
+    {
+        return $this->hasMany(AuditLog::class);
+    }
+
+    public function securityViolations(): HasMany
+    {
+        return $this->hasMany(SecurityViolation::class);
     }
 }

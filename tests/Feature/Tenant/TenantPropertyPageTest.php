@@ -30,5 +30,7 @@ it('shows the empty reading state when a meter has no recorded reading', functio
     $this->actingAs($tenant->user)
         ->get(route('tenant.property.show'))
         ->assertSuccessful()
-        ->assertSeeText('Last reading: None recorded yet');
+        ->assertSeeText('Last reading:')
+        ->assertSee('Last reading: <a href="'.route('tenant.readings.create').'"', false)
+        ->assertSee('>None recorded yet</a>', false);
 });

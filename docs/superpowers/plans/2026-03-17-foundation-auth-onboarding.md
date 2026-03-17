@@ -1,5 +1,7 @@
 # Foundation Auth Onboarding Implementation Plan
 
+> **Workflow note:** Implement this plan directly on `main`. Do not create or switch to feature branches or worktrees for this rollout.
+
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the first Tenanto vertical slice so users can authenticate through one shared login flow, Admins can self-register and complete organization onboarding, invited Managers and Tenants can activate accounts, and role- plus organization-aware redirects and locale behavior work end to end.

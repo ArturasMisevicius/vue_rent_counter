@@ -27,7 +27,10 @@ it('allows a tenant to submit a reading for an assigned meter', function () {
         ->set('notes', 'Submitted from the tenant portal.')
         ->call('submit')
         ->assertHasNoErrors()
-        ->assertSeeText('Reading submitted successfully');
+        ->assertSeeText('Reading Submitted!')
+        ->assertSeeText($meter->identifier)
+        ->assertSeeText($meter->unit)
+        ->assertSeeText('245.125');
 
     $reading = MeterReading::query()
         ->where('meter_id', $meter->id)
@@ -76,6 +79,40 @@ it('shows a validation error when the submitted reading decreases', function () 
         ->set('readingDate', now()->toDateString())
         ->call('submit')
         ->assertHasErrors(['readingValue']);
+});
+
+it('rejects future-dated tenant readings through the shared validation rules', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->create();
+
+    /** @var Meter $meter */
+    $meter = $tenant->meters->firstOrFail();
+
+    Livewire::actingAs($tenant->user)
+        ->test(SubmitReadingPage::class)
+        ->set('meterId', (string) $meter->id)
+        ->set('readingValue', '245.125')
+        ->set('readingDate', now()->addDay()->toDateString())
+        ->call('submit')
+        ->assertHasErrors(['readingDate']);
+});
+
+it('preselects and locks the meter picker for single-meter tenant accounts', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->create();
+
+    /** @var Meter $meter */
+    $meter = $tenant->meters->firstOrFail();
+
+    Livewire::actingAs($tenant->user)
+        ->test(SubmitReadingPage::class)
+        ->assertSet('meterId', (string) $meter->id)
+        ->assertSeeText($meter->name)
+        ->assertSeeHtml('disabled');
 });
 
 it('does not expose outside meters and rejects submissions for them', function () {

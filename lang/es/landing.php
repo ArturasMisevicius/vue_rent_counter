@@ -41,7 +41,7 @@ return [
         'heading' => 'Para testers del sistema',
         'description' => 'Usa esta página como punto de partida público para validar la experiencia actual de invitados.',
         'items' => [
-            'Verifica los puntos de entrada de Login y Register.',
+            'Verifica los puntos de entrada de Iniciar sesión y Registrarse.',
             'Cambia entre inglés, lituano, español y ruso.',
             'Confirma que el texto público coincide con el modelo de roles previsto.',
             'Comprueba que la hoja de ruta comunica con honestidad las próximas superficies del producto.',
@@ -69,13 +69,17 @@ return [
                 'title' => 'Autoservicio del inquilino',
                 'description' => 'Un portal móvil para historial de facturas, envío de lecturas y mantenimiento del perfil.',
             ],
+            [
+                'title' => 'Reglas de comportamiento transversales',
+                'description' => 'Aplicación compartida de suscripciones, reglas de validación y otros comportamientos de plataforma que mantienen alineado cada flujo por rol.',
+            ],
         ],
     ],
     'cta' => [
         'heading' => '¿Listo para explorar el flujo público?',
         'description' => 'Inicia sesión si ya tienes acceso, o registra una nueva cuenta Admin para comenzar el proceso de incorporación.',
         'note' => 'El acceso de Manager y Tenant se habilita mediante invitaciones de la organización.',
-        'login' => 'Login',
-        'register' => 'Register',
+        'login' => 'Iniciar sesión',
+        'register' => 'Registrarse',
     ],
 ];

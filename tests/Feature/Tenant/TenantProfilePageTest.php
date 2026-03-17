@@ -35,6 +35,21 @@ it('updates the tenant profile and locale', function () {
         ->locale->toBe('lt');
 });
 
+it('uses the newly selected locale on the redirected response', function () {
+    $tenant = TenantPortalFactory::new()->create();
+
+    $this->actingAs($tenant->user)
+        ->from(route('tenant.profile.edit'))
+        ->followingRedirects()
+        ->put(route('tenant.profile.update'), [
+            'name' => 'Taylor Updated',
+            'email' => 'taylor.updated@example.com',
+            'locale' => 'lt',
+        ])
+        ->assertSuccessful()
+        ->assertSee('<html lang="lt">', false);
+});
+
 it('updates the tenant password', function () {
     $tenant = TenantPortalFactory::new()->create();
 
@@ -48,4 +63,32 @@ it('updates the tenant password', function () {
         ->assertRedirect(route('tenant.profile.edit'));
 
     expect(Hash::check('new-password-123', $tenant->user->fresh()->password))->toBeTrue();
+});
+
+it('requires the current password before changing the tenant password', function () {
+    $tenant = TenantPortalFactory::new()->create();
+
+    $this->actingAs($tenant->user)
+        ->from(route('tenant.profile.edit'))
+        ->put(route('tenant.profile.password.update'), [
+            'current_password' => '',
+            'password' => 'new-password-123',
+            'password_confirmation' => 'new-password-123',
+        ])
+        ->assertRedirect(route('tenant.profile.edit'))
+        ->assertSessionHasErrors(['current_password']);
+});
+
+it('requires the password confirmation to match', function () {
+    $tenant = TenantPortalFactory::new()->create();
+
+    $this->actingAs($tenant->user)
+        ->from(route('tenant.profile.edit'))
+        ->put(route('tenant.profile.password.update'), [
+            'current_password' => 'password',
+            'password' => 'new-password-123',
+            'password_confirmation' => 'different-password',
+        ])
+        ->assertRedirect(route('tenant.profile.edit'))
+        ->assertSessionHasErrors(['password']);
 });

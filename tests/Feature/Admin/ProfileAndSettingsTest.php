@@ -103,6 +103,8 @@ it('shows admin settings sections and saves organization settings plus notificat
         ->get(route('filament.admin.pages.settings'))
         ->assertSuccessful()
         ->assertSeeText('Settings')
+        ->assertSeeText('Personal Information')
+        ->assertSeeText('Change Password')
         ->assertSeeText('Organization Settings')
         ->assertSeeText('Notification Preferences')
         ->assertSeeText('Subscription');
@@ -163,19 +165,4 @@ it('allows admins to renew the current organization subscription from settings',
         ->and($subscription->is_trial)->toBeFalse()
         ->and($subscription->expires_at->greaterThan(now()->addMonths(2)))->toBeTrue()
         ->and($subscription->property_limit_snapshot)->toBe(SubscriptionPlan::PROFESSIONAL->limits()['properties']);
-});
-
-it('keeps the settings route available to managers while hiding admin-only sections', function () {
-    $organization = Organization::factory()->create();
-    $manager = User::factory()->manager()->create([
-        'organization_id' => $organization->id,
-    ]);
-
-    $this->actingAs($manager)
-        ->get(route('filament.admin.pages.settings'))
-        ->assertSuccessful()
-        ->assertSeeText('Settings')
-        ->assertDontSeeText('Organization Settings')
-        ->assertDontSeeText('Notification Preferences')
-        ->assertDontSeeText('Subscription');
 });

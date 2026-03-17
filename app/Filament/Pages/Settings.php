@@ -7,9 +7,9 @@ use App\Actions\Admin\Settings\UpdateNotificationPreferenceAction;
 use App\Actions\Admin\Settings\UpdateOrganizationSettingsAction;
 use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
+use App\Filament\Pages\Concerns\InteractsWithAccountProfileForms;
 use App\Models\Organization;
 use App\Models\Subscription;
-use App\Models\User;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Validator;
@@ -17,6 +17,8 @@ use Illuminate\Validation\Rule;
 
 class Settings extends Page
 {
+    use InteractsWithAccountProfileForms;
+
     protected static bool $isDiscovered = false;
 
     protected static bool $shouldRegisterNavigation = false;
@@ -55,7 +57,11 @@ class Settings extends Page
     public function mount(): void
     {
         app()->setLocale($this->user()->locale);
-        $this->fillForms();
+        $this->fillAccountProfileForms();
+
+        if ($this->canManageOrganizationSettings()) {
+            $this->fillForms();
+        }
     }
 
     public function getTitle(): string
@@ -230,13 +236,5 @@ class Settings extends Page
         $organization = $this->user()->organization;
 
         return $organization;
-    }
-
-    protected function user(): User
-    {
-        /** @var User $user */
-        $user = auth()->user();
-
-        return $user;
     }
 }

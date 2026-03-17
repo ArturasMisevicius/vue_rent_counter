@@ -1,5 +1,7 @@
 # Tenanto Superadmin Control Plane Design
 
+> **Workflow note:** Keep spec and implementation changes for this slice on `main` only. Do not create or use separate branches or worktrees.
+
 ## Goal
 
 Define the platform-level control plane that lets the Tenanto operator oversee organizations, users, subscriptions, security, localization, platform notifications, and integration health from one coherent superadmin experience.

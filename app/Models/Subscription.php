@@ -36,6 +36,10 @@ class Subscription extends Model
             'starts_at' => 'datetime',
             'expires_at' => 'datetime',
             'is_trial' => 'boolean',
+            'property_limit_snapshot' => 'integer',
+            'tenant_limit_snapshot' => 'integer',
+            'meter_limit_snapshot' => 'integer',
+            'invoice_limit_snapshot' => 'integer',
         ];
     }
 
@@ -47,5 +51,10 @@ class Subscription extends Model
     public function renewals(): HasMany
     {
         return $this->hasMany(SubscriptionRenewal::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(SubscriptionPayment::class);
     }
 }

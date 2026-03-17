@@ -15,7 +15,9 @@ it('renders the tester-first public homepage', function () {
         ->assertSeeText('Manager')
         ->assertSeeText('Tenant')
         ->assertSeeText('For system testers')
+        ->assertSeeText('Switch between English, Lithuanian, Spanish, and Russian.')
         ->assertSeeText('What Tenanto is growing into')
+        ->assertSeeText('Cross-cutting behavioral rules')
         ->assertSeeText('Ready to explore the public flow?');
 });
 
@@ -41,7 +43,19 @@ it('renders the homepage in spanish when the guest locale is es', function () {
         'guest_locale' => 'es',
     ])->get('/')
         ->assertSuccessful()
-        ->assertSeeText('Plataforma de operaciones inmobiliarias presentada como un laboratorio de pruebas guiado.');
+        ->assertSeeText('Plataforma de operaciones inmobiliarias presentada como un laboratorio de pruebas guiado.')
+        ->assertSeeText('Iniciar sesión')
+        ->assertSeeText('Registrarse');
+});
+
+it('renders the homepage in russian when the guest locale is ru', function () {
+    $this->withSession([
+        'guest_locale' => 'ru',
+    ])->get('/')
+        ->assertSuccessful()
+        ->assertSeeText('Платформа операций с недвижимостью, представленная как управляемая тестовая среда.')
+        ->assertSeeText('Войти')
+        ->assertSeeText('Регистрация');
 });
 
 it('links the favicon on public and guest pages', function () {

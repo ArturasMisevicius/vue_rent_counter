@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             LegacyOperationsFoundationSeeder::class,
             LegacyPlatformFoundationSeeder::class,
             LegacyCollaborationFoundationSeeder::class,
+            OperationalDemoDatasetSeeder::class,
         ]);
     }
 }

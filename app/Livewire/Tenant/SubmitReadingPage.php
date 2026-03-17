@@ -24,9 +24,20 @@ class SubmitReadingPage extends Component
 
     public ?string $successMessage = null;
 
+    /**
+     * @var array{meter_identifier: string, meter_name: string, unit: string, value: string, date: string}|null
+     */
+    public ?array $submittedReading = null;
+
     public function mount(): void
     {
         $this->readingDate = now()->toDateString();
+
+        $meters = $this->availableMeters();
+
+        if ($meters->count() === 1) {
+            $this->meterId = (string) $meters->firstOrFail()->id;
+        }
     }
 
     public function submit(SubmitTenantReadingAction $submitTenantReadingAction): void
@@ -51,8 +62,17 @@ class SubmitReadingPage extends Component
             return;
         }
 
+        $reading->loadMissing('meter:id,name,identifier,unit');
+
         $this->reset('readingValue', 'notes');
-        $this->successMessage = 'Reading submitted successfully for '.$reading->meter?->name.'.';
+        $this->successMessage = 'Reading Submitted!';
+        $this->submittedReading = [
+            'meter_identifier' => (string) ($reading->meter?->identifier ?? ''),
+            'meter_name' => (string) ($reading->meter?->name ?? ''),
+            'unit' => (string) ($reading->meter?->unit ?? ''),
+            'value' => number_format((float) $reading->reading_value, 3, '.', ''),
+            'date' => $reading->reading_date->format('Y-m-d'),
+        ];
     }
 
     public function render(): View
@@ -63,6 +83,7 @@ class SubmitReadingPage extends Component
             'meters' => $meters,
             'selectedMeter' => $meters->firstWhere('id', (int) $this->meterId),
             'preview' => $this->preview($meters),
+            'meterSelectionLocked' => $meters->count() === 1,
         ]);
     }
 

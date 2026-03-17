@@ -1,5 +1,7 @@
 # Tenanto Foundation, Auth, and Onboarding Design
 
+> **Workflow note:** Keep spec and implementation changes for this slice on `main` only. Do not create or use separate branches or worktrees.
+
 ## Goal
 
 Establish the first production-ready vertical slice of Tenanto so the application can support one shared login experience, role-aware entry points, localized public auth pages, organization-scoped onboarding for new Admin users, and invitation-based account activation for Manager and Tenant users.

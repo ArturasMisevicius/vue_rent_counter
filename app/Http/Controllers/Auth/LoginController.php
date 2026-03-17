@@ -18,7 +18,7 @@ class LoginController extends Controller
     public function create(LoginDemoAccountPresenter $loginDemoAccountPresenter): View
     {
         return view('auth.login', [
-            'demoAccounts' => $loginDemoAccountPresenter->accounts(),
+            'demoAccounts' => $loginDemoAccountPresenter->accounts() ?: config('tenanto.demo_accounts', []),
         ]);
     }
 

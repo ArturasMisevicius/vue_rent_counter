@@ -42,7 +42,7 @@ return [
         'description' => 'Use this page as the public starting point for validating the current guest experience.',
         'items' => [
             'Verify the Login and Register entry points.',
-            'Switch between English, Lithuanian, and Russian.',
+            'Switch between English, Lithuanian, Spanish, and Russian.',
             'Confirm the public copy matches the planned role model.',
             'Check that the roadmap communicates the next product surfaces honestly.',
         ],
@@ -68,6 +68,10 @@ return [
             [
                 'title' => 'Tenant self-service',
                 'description' => 'A mobile-first portal for invoice history, reading submission, and profile maintenance.',
+            ],
+            [
+                'title' => 'Cross-cutting behavioral rules',
+                'description' => 'Shared subscription enforcement, validation guardrails, and other platform-wide behaviors that keep every role flow aligned.',
             ],
         ],
     ],

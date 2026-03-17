@@ -20,14 +20,18 @@ it('shows the tenant invoice history with paid and outstanding invoices', functi
         ->get(route('tenant.invoices.index'))
         ->assertSuccessful()
         ->assertSeeText('Invoice History')
+        ->assertSeeText('All')
+        ->assertSeeText('Unpaid')
+        ->assertSeeText('Paid')
         ->assertSeeText('UNPAID-001')
         ->assertSeeText('PAID-001')
-        ->assertSeeText('Outstanding')
+        ->assertSeeText('Overdue')
+        ->assertSeeText('Unpaid')
         ->assertSeeText('Paid')
         ->assertSeeText('Pay by bank transfer before the due date.');
 });
 
-it('filters the invoice history by status', function () {
+it('filters the invoice history by unpaid status', function () {
     $tenant = TenantPortalFactory::new()
         ->withAssignedProperty()
         ->withUnpaidInvoices(1)
@@ -35,10 +39,23 @@ it('filters the invoice history by status', function () {
         ->create();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.invoices.index', ['status' => 'paid']))
+        ->get(route('tenant.invoices.index', ['status' => 'unpaid']))
         ->assertSuccessful()
-        ->assertSeeText('PAID-001')
-        ->assertDontSeeText('UNPAID-001');
+        ->assertSeeText('UNPAID-001')
+        ->assertDontSeeText('PAID-001');
+});
+
+it('shows an all-paid-up empty state when the tenant has no unpaid invoices', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withPaidInvoices(1)
+        ->create();
+
+    $this->actingAs($tenant->user)
+        ->get(route('tenant.invoices.index', ['status' => 'unpaid']))
+        ->assertSuccessful()
+        ->assertSeeText('All paid up')
+        ->assertSeeText('No outstanding invoices are waiting for payment.');
 });
 
 it('allows a tenant to download their own invoice document', function () {

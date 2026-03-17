@@ -16,11 +16,16 @@ class IndexController extends Controller
         PaymentInstructionsResolver $paymentInstructionsResolver,
     ): View {
         $tenant = $request->user()->loadMissing('organization.settings:id,organization_id,payment_instructions,invoice_footer');
+        $selectedStatus = $request->string('status')->toString() ?: 'all';
+
+        if ($selectedStatus === 'outstanding') {
+            $selectedStatus = 'unpaid';
+        }
 
         return view('tenant.invoices.index', [
-            'invoices' => $tenantInvoiceIndexQuery->for($tenant, $request->string('status')->toString() ?: null),
+            'invoices' => $tenantInvoiceIndexQuery->for($tenant, $selectedStatus === 'all' ? null : $selectedStatus),
             'paymentInstructions' => $paymentInstructionsResolver->resolve($tenant->organization?->settings),
-            'selectedStatus' => $request->string('status')->toString() ?: 'all',
+            'selectedStatus' => $selectedStatus,
         ]);
     }
 }

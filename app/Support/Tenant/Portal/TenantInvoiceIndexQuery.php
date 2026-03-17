@@ -37,12 +37,12 @@ class TenantInvoiceIndexQuery
             ->orderByDesc('id');
 
         match ($status) {
-            'paid' => $query->where('status', InvoiceStatus::PAID),
-            'outstanding' => $query->whereIn('status', [
-                InvoiceStatus::FINALIZED,
-                InvoiceStatus::OVERDUE,
-                InvoiceStatus::PARTIALLY_PAID,
+            'unpaid', 'outstanding' => $query->whereIn('status', [
+                InvoiceStatus::FINALIZED->value,
+                InvoiceStatus::OVERDUE->value,
+                InvoiceStatus::PARTIALLY_PAID->value,
             ]),
+            'paid' => $query->where('status', InvoiceStatus::PAID->value),
             default => null,
         };
 
