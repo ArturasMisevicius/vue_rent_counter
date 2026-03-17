@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\LanguageStatus;
 use App\Models\Language;
+use App\Support\Geography\BalticReferenceCatalog;
 use Illuminate\Database\Seeder;
 
 class LanguageSeeder extends Seeder
@@ -12,9 +13,8 @@ class LanguageSeeder extends Seeder
     {
         collect([
             ['code' => 'en', 'name' => 'English', 'native_name' => 'English', 'is_default' => true],
-            ['code' => 'lt', 'name' => 'Lithuanian', 'native_name' => 'Lietuviu', 'is_default' => false],
-            ['code' => 'ru', 'name' => 'Russian', 'native_name' => 'Russkii', 'is_default' => false],
-            ['code' => 'es', 'name' => 'Spanish', 'native_name' => 'Espanol', 'is_default' => false],
+            ['code' => 'lt', 'name' => 'Lithuanian', 'native_name' => 'Lietuvių', 'is_default' => false],
+            ['code' => 'ru', 'name' => 'Russian', 'native_name' => 'Русский', 'is_default' => false],
         ])->each(function (array $language): void {
             Language::query()->updateOrCreate(
                 ['code' => $language['code']],
@@ -26,5 +26,12 @@ class LanguageSeeder extends Seeder
                 ],
             );
         });
+
+        Language::query()
+            ->whereNotIn('code', BalticReferenceCatalog::supportedLocaleCodes())
+            ->update([
+                'status' => LanguageStatus::INACTIVE,
+                'is_default' => false,
+            ]);
     }
 }

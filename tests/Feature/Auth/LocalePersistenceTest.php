@@ -21,7 +21,7 @@ it('applies the selected guest locale to public auth pages', function () {
 it('stores the active guest locale on newly registered admins', function () {
     $this->from('/')
         ->post(route('locale.update'), [
-            'locale' => 'es',
+            'locale' => 'ru',
         ])
         ->assertRedirect('/');
 
@@ -32,7 +32,16 @@ it('stores the active guest locale on newly registered admins', function () {
         'password_confirmation' => 'password',
     ])->assertRedirect(route('welcome.show'));
 
-    expect(User::query()->firstOrFail()->locale)->toBe('es');
+    expect(User::query()->firstOrFail()->locale)->toBe('ru');
+});
+
+it('rejects spanish as an unsupported guest locale', function () {
+    $this->from('/')
+        ->post(route('locale.update'), [
+            'locale' => 'es',
+        ])
+        ->assertRedirect('/')
+        ->assertSessionHasErrors(['locale']);
 });
 
 it('pulls the locale from the authenticated user even when a guest locale is present', function () {
@@ -44,7 +53,7 @@ it('pulls the locale from the authenticated user even when a guest locale is pre
     ]);
 
     $this->withSession([
-        'guest_locale' => 'es',
+        'guest_locale' => 'ru',
     ])->actingAs($user)
         ->get('/__test/locale')
         ->assertSee('lt');

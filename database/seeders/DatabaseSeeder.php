@@ -20,8 +20,10 @@ class DatabaseSeeder extends Seeder
             IntegrationHealthCheckSeeder::class,
             LoginDemoUsersSeeder::class,
             LegacyReferenceFoundationSeeder::class,
+            BalticReferenceLocalizationSeeder::class,
             LegacyOperationsFoundationSeeder::class,
             LegacyPlatformFoundationSeeder::class,
+            LegacyCollaborationFoundationSeeder::class,
         ]);
     }
 }
