@@ -1,7 +1,6 @@
 <x-layouts.tenant
     :title="__('tenant.pages.property.title').' · '.config('app.name', 'Tenanto')"
     :breadcrumbs="$breadcrumbs"
-    :heading="__('tenant.pages.property.heading')"
 >
     <section class="rounded-[2rem] border border-white/60 bg-white/92 p-8 shadow-[0_28px_90px_rgba(15,23,42,0.18)] backdrop-blur">
         <div class="space-y-3">

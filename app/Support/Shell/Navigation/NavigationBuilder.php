@@ -73,11 +73,12 @@ class NavigationBuilder
         }
 
         return collect([
-            __('shell.home') => 'tenant.home',
-            __('shell.readings') => 'tenant.readings.create',
-            __('shell.invoices') => 'tenant.invoices.index',
-            __('shell.profile') => 'tenant.profile.edit',
+            __('shell.home') => config('tenanto.routes.tenant_navigation.home'),
+            __('shell.readings') => config('tenanto.routes.tenant_navigation.readings'),
+            __('shell.invoices') => config('tenanto.routes.tenant_navigation.invoices'),
+            __('shell.profile') => config('tenanto.routes.tenant_navigation.profile'),
         ])
+            ->filter(fn (mixed $routeName): bool => is_string($routeName) && $routeName !== '')
             ->map(fn (string $routeName, string $label): ?NavigationItemData => $this->makeItem(
                 label: $label,
                 routeName: $routeName,
