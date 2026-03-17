@@ -8,6 +8,12 @@
     @livewire(\App\Livewire\Shell\Topbar::class)
 
     <div class="relative mx-auto min-h-screen max-w-6xl px-4 pb-28 pt-28 sm:px-6">
+        @if ($breadcrumbs !== [])
+            <div class="mb-6">
+                <x-shell.breadcrumbs :items="$breadcrumbs" />
+            </div>
+        @endif
+
         {{ $slot }}
     </div>
 

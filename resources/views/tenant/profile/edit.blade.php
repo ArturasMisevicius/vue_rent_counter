@@ -1,4 +1,8 @@
-<x-layouts.tenant :title="__('tenant.pages.profile.title').' · '.config('app.name', 'Tenanto')" :heading="__('tenant.pages.profile.heading')">
+<x-layouts.tenant
+    :title="__('tenant.pages.profile.title').' · '.config('app.name', 'Tenanto')"
+    :breadcrumbs="$breadcrumbs"
+    :heading="__('tenant.pages.profile.heading')"
+>
     <section class="rounded-[2rem] border border-white/60 bg-white/92 p-8 shadow-[0_28px_90px_rgba(15,23,42,0.18)] backdrop-blur">
         <div class="space-y-3">
             <p class="text-sm font-semibold uppercase tracking-[0.24em] text-brand-warm">{{ __('tenant.navigation.profile') }}</p>

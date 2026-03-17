@@ -1,6 +1,7 @@
 @props([
     'title' => null,
     'showTenantNavigation' => false,
+    'breadcrumbs' => [],
 ])
 
 <!DOCTYPE html>
@@ -27,7 +28,11 @@
         @endif
     </head>
     <body class="min-h-screen bg-brand-ink text-slate-950 antialiased">
-        <x-shell.app-frame :title="$title" :show-tenant-navigation="$showTenantNavigation">
+        <x-shell.app-frame
+            :title="$title"
+            :show-tenant-navigation="$showTenantNavigation"
+            :breadcrumbs="$breadcrumbs"
+        >
             {{ $slot }}
         </x-shell.app-frame>
 

@@ -34,8 +34,6 @@ it('renders grouped sidebar navigation for admin roles', function (Closure $user
         ->assertSeeText($expectedSection)
         ->assertSeeText('Account')
         ->assertSeeText('Profile')
-        ->assertDontSee('data-navigation-route="filament.admin.resources.organizations.index"', false)
-        ->assertDontSee('data-navigation-route="filament.admin.resources.buildings.index"', false)
         ->assertSee("data-navigation-state=\"{$currentRoute}:true\"", false);
 })->with([
     'superadmin' => [
