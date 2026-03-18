@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\OrganizationStatus;
+use App\Enums\PlatformNotificationSeverity;
 use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
 use App\Filament\Actions\Superadmin\Organizations\CreateOrganizationAction;
@@ -112,6 +113,7 @@ it('suspends reinstates notifies impersonates and exports organizations', functi
     $notification = app(SendOrganizationNotificationAction::class)->handle($organization, [
         'title' => 'Maintenance window',
         'body' => 'Please review your billing contact before Friday.',
+        'severity' => PlatformNotificationSeverity::WARNING,
     ]);
 
     expect($notification)->toBeInstanceOf(PlatformNotification::class)

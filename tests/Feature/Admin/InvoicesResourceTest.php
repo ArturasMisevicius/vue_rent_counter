@@ -100,5 +100,53 @@ it('shows organization-scoped invoice resource pages to admin and manager users'
 
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.invoices.index'))
-        ->assertForbidden();
+        ->assertSuccessful()
+        ->assertDontSeeText($invoice->invoice_number);
+});
+
+it('shows tenants only their own invoices inside the shared panel invoice resource', function () {
+    $organization = Organization::factory()->create();
+    $building = Building::factory()->for($organization)->create();
+    $property = Property::factory()->for($organization)->for($building)->create();
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+        'name' => 'Tenant One',
+    ]);
+    $otherTenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+        'name' => 'Tenant Two',
+    ]);
+
+    $invoice = Invoice::factory()
+        ->for($organization)
+        ->for($property)
+        ->for($tenant, 'tenant')
+        ->create([
+            'invoice_number' => 'INV-TENANT-1',
+            'status' => InvoiceStatus::FINALIZED,
+        ]);
+
+    $otherInvoice = Invoice::factory()
+        ->for($organization)
+        ->for($property)
+        ->for($otherTenant, 'tenant')
+        ->create([
+            'invoice_number' => 'INV-TENANT-2',
+            'status' => InvoiceStatus::FINALIZED,
+        ]);
+
+    $this->actingAs($tenant)
+        ->get(route('filament.admin.resources.invoices.index'))
+        ->assertSuccessful()
+        ->assertSeeText($invoice->invoice_number)
+        ->assertDontSeeText($otherInvoice->invoice_number);
+
+    $this->actingAs($tenant)
+        ->get(route('filament.admin.resources.invoices.view', $invoice))
+        ->assertSuccessful()
+        ->assertSeeText($invoice->invoice_number);
+
+    $this->actingAs($tenant)
+        ->get(route('filament.admin.resources.invoices.view', $otherInvoice))
+        ->assertNotFound();
 });

@@ -41,6 +41,7 @@ final class BillingService implements BillingServiceInterface
         $periodStart = $this->normalizeDate($attributes['billing_period_start'])->startOfDay();
         $periodEnd = $this->normalizeDate($attributes['billing_period_end'])->endOfDay();
         [$assignments, $existingInvoiceKeys] = $this->invoiceCandidates($organization, $periodStart, $periodEnd);
+        $selectedAssignmentKeys = $this->selectedAssignmentKeys($attributes);
 
         $valid = [];
         $skipped = [];
@@ -48,10 +49,17 @@ final class BillingService implements BillingServiceInterface
         foreach ($assignments as $assignment) {
             $assignmentKey = $this->invoiceKey($assignment->property_id, $assignment->tenant_user_id);
 
+            if ($selectedAssignmentKeys !== [] && ! isset($selectedAssignmentKeys[$assignmentKey])) {
+                continue;
+            }
+
             if (isset($existingInvoiceKeys[$assignmentKey])) {
                 $skipped[] = [
+                    'assignment_key' => $assignmentKey,
                     'tenant_id' => $assignment->tenant_user_id,
                     'property_id' => $assignment->property_id,
+                    'tenant_name' => (string) ($assignment->tenant?->name ?? ''),
+                    'property_name' => (string) ($assignment->property?->name ?? ''),
                     'reason' => 'already_billed',
                 ];
 
@@ -61,8 +69,11 @@ final class BillingService implements BillingServiceInterface
             $lineItems = $this->buildLineItemPayload($assignment, $periodStart, $periodEnd);
 
             $valid[] = [
+                'assignment_key' => $assignmentKey,
                 'property_id' => $assignment->property_id,
                 'tenant_user_id' => $assignment->tenant_user_id,
+                'tenant_name' => (string) ($assignment->tenant?->name ?? ''),
+                'property_name' => (string) ($assignment->property?->name ?? ''),
                 'items' => $lineItems['items'],
                 'total' => $lineItems['total_amount'],
             ];
@@ -82,6 +93,7 @@ final class BillingService implements BillingServiceInterface
             ? $this->normalizeDate($attributes['due_date'])->toDateString()
             : $periodEnd->addDays(14)->toDateString();
         [$assignments, $existingInvoiceKeys] = $this->invoiceCandidates($organization, $periodStart, $periodEnd);
+        $selectedAssignmentKeys = $this->selectedAssignmentKeys($attributes);
 
         $created = collect();
         $skipped = [];
@@ -89,10 +101,17 @@ final class BillingService implements BillingServiceInterface
         foreach ($assignments as $assignment) {
             $assignmentKey = $this->invoiceKey($assignment->property_id, $assignment->tenant_user_id);
 
+            if ($selectedAssignmentKeys !== [] && ! isset($selectedAssignmentKeys[$assignmentKey])) {
+                continue;
+            }
+
             if (isset($existingInvoiceKeys[$assignmentKey])) {
                 $skipped[] = [
+                    'assignment_key' => $assignmentKey,
                     'tenant_id' => $assignment->tenant_user_id,
                     'property_id' => $assignment->property_id,
+                    'tenant_name' => (string) ($assignment->tenant?->name ?? ''),
+                    'property_name' => (string) ($assignment->property?->name ?? ''),
                     'reason' => 'already_billed',
                 ];
 
@@ -138,12 +157,7 @@ final class BillingService implements BillingServiceInterface
     {
         $invoice = $this->saveDraft($invoice, $attributes);
 
-        $invoice->update([
-            'status' => InvoiceStatus::FINALIZED,
-            'finalized_at' => $invoice->finalized_at ?? now(),
-        ]);
-
-        return $invoice->fresh(['invoiceItems', 'payments']);
+        return $this->invoiceService->markAsFinalized($invoice);
     }
 
     public function applyPayment(Invoice $invoice, array $attributes, ?User $actor = null): Invoice
@@ -271,6 +285,24 @@ final class BillingService implements BillingServiceInterface
     private function invoiceKey(int $propertyId, int $tenantId): string
     {
         return $propertyId.':'.$tenantId;
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     * @return array<string, true>
+     */
+    private function selectedAssignmentKeys(array $attributes): array
+    {
+        $selectedAssignments = $attributes['selected_assignments'] ?? [];
+
+        if (! is_array($selectedAssignments)) {
+            return [];
+        }
+
+        return collect($selectedAssignments)
+            ->filter(fn (mixed $value): bool => is_string($value) && $value !== '')
+            ->mapWithKeys(fn (string $value): array => [$value => true])
+            ->all();
     }
 
     private function normalizeDate(CarbonInterface|string $value): CarbonImmutable
@@ -506,12 +538,14 @@ final class BillingService implements BillingServiceInterface
             ];
         }
 
-        $consumption = $this->calculator->quantity(
-            max(
-                0,
-                (float) $this->calculator->subtract($endReading->reading_value, $startReading->reading_value, 3),
-            ),
+        $consumptionDelta = $this->calculator->subtract(
+            $endReading->reading_value,
+            $startReading->reading_value,
+            3,
         );
+        $consumption = $this->calculator->compare($consumptionDelta, '0', 3) < 0
+            ? $this->calculator->quantity('0')
+            : $this->calculator->quantity($consumptionDelta);
 
         return [
             'quantity' => $consumption,
@@ -521,12 +555,12 @@ final class BillingService implements BillingServiceInterface
                 'meter_name' => $meter->name,
                 'start' => [
                     'id' => $startReading->id,
-                    'value' => (float) $startReading->reading_value,
+                    'value' => $this->calculator->quantity($startReading->reading_value),
                     'date' => $startReading->reading_date?->toDateString(),
                 ],
                 'end' => [
                     'id' => $endReading->id,
-                    'value' => (float) $endReading->reading_value,
+                    'value' => $this->calculator->quantity($endReading->reading_value),
                     'date' => $endReading->reading_date?->toDateString(),
                 ],
             ],

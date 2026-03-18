@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Support\Shell\Search\Providers;
 
 use App\Filament\Support\Shell\Search\Contracts\GlobalSearchProvider;
 use App\Filament\Support\Shell\Search\Data\GlobalSearchResultData;
+use App\Filament\Support\Shell\Search\SearchQueryPattern;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,7 +16,7 @@ class OrganizationSearchProvider implements GlobalSearchProvider
 {
     public function group(): string
     {
-        return (string) config('tenanto.search.providers.organizations.group', 'platform');
+        return (string) config('tenanto.search.providers.organizations.group', 'organizations');
     }
 
     /**
@@ -27,13 +30,17 @@ class OrganizationSearchProvider implements GlobalSearchProvider
             return [];
         }
 
+        $pattern = SearchQueryPattern::from($query)->likePattern();
+
         return Organization::query()
             ->select(['id', 'name', 'slug'])
-            ->where(function (Builder $builder) use ($query): void {
+            ->where(function (Builder $builder) use ($pattern): void {
                 $builder
-                    ->where('name', 'like', '%'.$query.'%')
-                    ->orWhere('slug', 'like', '%'.$query.'%');
+                    ->where('name', 'like', $pattern)
+                    ->orWhere('slug', 'like', $pattern);
             })
+            ->orderBy('name')
+            ->orderBy('id')
             ->limit((int) config('tenanto.search.limit', 5))
             ->get()
             ->map(fn (Organization $organization): GlobalSearchResultData => new GlobalSearchResultData(

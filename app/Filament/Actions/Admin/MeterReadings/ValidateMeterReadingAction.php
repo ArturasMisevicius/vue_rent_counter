@@ -3,12 +3,14 @@
 namespace App\Filament\Actions\Admin\MeterReadings;
 
 use App\Filament\Support\Admin\ReadingValidation\ValidateReadingValue;
+use App\Filament\Support\Audit\AuditLogger;
 use App\Models\MeterReading;
 
 class ValidateMeterReadingAction
 {
     public function __construct(
         private readonly ValidateReadingValue $validateReadingValue,
+        private readonly AuditLogger $auditLogger,
     ) {}
 
     public function handle(MeterReading $meterReading): MeterReading
@@ -26,6 +28,8 @@ class ValidateMeterReadingAction
                 ? collect($validation->messages)->flatten()->implode("\n")
                 : $validation->notesAsText(),
         ]);
+
+        $this->auditLogger->updated($meterReading);
 
         return $meterReading->fresh();
     }

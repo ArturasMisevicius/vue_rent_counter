@@ -1,7 +1,9 @@
 <?php
 
+use App\Filament\Pages\Profile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Livewire\Livewire;
 use Tests\Support\TenantPortalFactory;
 
 uses(RefreshDatabase::class);
@@ -10,9 +12,11 @@ it('shows the tenant profile form with the current account details', function ()
     $tenant = TenantPortalFactory::new()->create();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.profile.edit'))
+        ->get(route('filament.admin.pages.profile'))
         ->assertSuccessful()
         ->assertSeeText('My Profile')
+        ->assertSeeText('Personal Information')
+        ->assertSeeText('Change Password')
         ->assertSee('value="'.$tenant->user->name.'"', false)
         ->assertSee('value="'.$tenant->user->email.'"', false);
 });
@@ -20,14 +24,13 @@ it('shows the tenant profile form with the current account details', function ()
 it('updates the tenant profile and locale', function () {
     $tenant = TenantPortalFactory::new()->create();
 
-    $this->actingAs($tenant->user)
-        ->from(route('tenant.profile.edit'))
-        ->put(route('tenant.profile.update'), [
-            'name' => 'Taylor Updated',
-            'email' => 'taylor.updated@example.com',
-            'locale' => 'lt',
-        ])
-        ->assertRedirect(route('tenant.profile.edit'));
+    Livewire::actingAs($tenant->user)
+        ->test(Profile::class)
+        ->set('profileForm.name', 'Taylor Updated')
+        ->set('profileForm.email', 'taylor.updated@example.com')
+        ->set('profileForm.locale', 'lt')
+        ->call('saveProfile')
+        ->assertHasNoErrors();
 
     expect($tenant->user->fresh())
         ->name->toBe('Taylor Updated')
@@ -38,29 +41,30 @@ it('updates the tenant profile and locale', function () {
 it('uses the newly selected locale on the redirected response', function () {
     $tenant = TenantPortalFactory::new()->create();
 
-    $this->actingAs($tenant->user)
-        ->from(route('tenant.profile.edit'))
-        ->followingRedirects()
-        ->put(route('tenant.profile.update'), [
-            'name' => 'Taylor Updated',
-            'email' => 'taylor.updated@example.com',
-            'locale' => 'lt',
-        ])
+    Livewire::actingAs($tenant->user)
+        ->test(Profile::class)
+        ->set('profileForm.name', 'Taylor Updated')
+        ->set('profileForm.email', 'taylor.updated@example.com')
+        ->set('profileForm.locale', 'lt')
+        ->call('saveProfile')
+        ->assertHasNoErrors();
+
+    $this->actingAs($tenant->user->fresh())
+        ->get(route('filament.admin.pages.profile'))
         ->assertSuccessful()
-        ->assertSee('<html lang="lt">', false);
+        ->assertSee('lang="lt"', false);
 });
 
 it('updates the tenant password', function () {
     $tenant = TenantPortalFactory::new()->create();
 
-    $this->actingAs($tenant->user)
-        ->from(route('tenant.profile.edit'))
-        ->put(route('tenant.profile.password.update'), [
-            'current_password' => 'password',
-            'password' => 'new-password-123',
-            'password_confirmation' => 'new-password-123',
-        ])
-        ->assertRedirect(route('tenant.profile.edit'));
+    Livewire::actingAs($tenant->user)
+        ->test(Profile::class)
+        ->set('passwordForm.current_password', 'password')
+        ->set('passwordForm.password', 'new-password-123')
+        ->set('passwordForm.password_confirmation', 'new-password-123')
+        ->call('updatePassword')
+        ->assertHasNoErrors();
 
     expect(Hash::check('new-password-123', $tenant->user->fresh()->password))->toBeTrue();
 });
@@ -68,29 +72,25 @@ it('updates the tenant password', function () {
 it('requires the current password before changing the tenant password', function () {
     $tenant = TenantPortalFactory::new()->create();
 
-    $this->actingAs($tenant->user)
-        ->from(route('tenant.profile.edit'))
-        ->put(route('tenant.profile.password.update'), [
-            'current_password' => '',
-            'password' => 'new-password-123',
-            'password_confirmation' => 'new-password-123',
-        ])
-        ->assertRedirect(route('tenant.profile.edit'))
-        ->assertSessionHasErrors(['current_password']);
+    Livewire::actingAs($tenant->user)
+        ->test(Profile::class)
+        ->set('passwordForm.current_password', '')
+        ->set('passwordForm.password', 'new-password-123')
+        ->set('passwordForm.password_confirmation', 'new-password-123')
+        ->call('updatePassword')
+        ->assertHasErrors(['current_password']);
 });
 
 it('requires the password confirmation to match', function () {
     $tenant = TenantPortalFactory::new()->create();
 
-    $this->actingAs($tenant->user)
-        ->from(route('tenant.profile.edit'))
-        ->put(route('tenant.profile.password.update'), [
-            'current_password' => 'password',
-            'password' => 'new-password-123',
-            'password_confirmation' => 'different-password',
-        ])
-        ->assertRedirect(route('tenant.profile.edit'))
-        ->assertSessionHasErrors(['password']);
+    Livewire::actingAs($tenant->user)
+        ->test(Profile::class)
+        ->set('passwordForm.current_password', 'password')
+        ->set('passwordForm.password', 'new-password-123')
+        ->set('passwordForm.password_confirmation', 'different-password')
+        ->call('updatePassword')
+        ->assertHasErrors(['password']);
 });
 
 it('renders tenant profile copy in lithuanian for lithuanian tenants', function () {
@@ -101,10 +101,10 @@ it('renders tenant profile copy in lithuanian for lithuanian tenants', function 
     ])->save();
 
     $this->actingAs($tenant->user->fresh())
-        ->get(route('tenant.profile.edit'))
+        ->get(route('filament.admin.pages.profile'))
         ->assertSuccessful()
         ->assertSeeText('Mano profilis')
-        ->assertSeeText('Kalbos pasirinkimas');
+        ->assertSeeText('Asmeninė informacija');
 });
 
 it('shows human-readable labels for supported locales only on the tenant profile form', function () {
@@ -122,11 +122,11 @@ it('shows human-readable labels for supported locales only on the tenant profile
     $tenant = TenantPortalFactory::new()->create();
 
     $response = $this->actingAs($tenant->user)
-        ->get(route('tenant.profile.edit'))
+        ->get(route('filament.admin.pages.profile'))
         ->assertSuccessful()
-        ->assertSee('id="locale"', false);
+        ->assertSee('wire:model="profileForm.locale"', false);
 
-    preg_match('/<select[^>]*id="locale"[^>]*>(.*?)<\/select>/s', $response->getContent(), $matches);
+    preg_match('/<select[^>]*wire:model="profileForm\\.locale"[^>]*>(.*?)<\/select>/s', $response->getContent(), $matches);
 
     $localeSelect = $matches[1] ?? null;
 

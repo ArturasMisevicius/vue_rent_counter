@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Support\Shell\Search\Providers;
 
 use App\Filament\Support\Shell\Search\Contracts\GlobalSearchProvider;
 use App\Filament\Support\Shell\Search\Data\GlobalSearchResultData;
+use App\Filament\Support\Shell\Search\SearchQueryPattern;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Route;
@@ -26,13 +29,15 @@ class UserSearchProvider implements GlobalSearchProvider
             return [];
         }
 
+        $pattern = SearchQueryPattern::from($query)->likePattern();
+
         return User::query()
             ->select(['id', 'name', 'email', 'organization_id'])
             ->where('organization_id', $user->organization_id)
-            ->where(function (Builder $builder) use ($query): void {
+            ->where(function (Builder $builder) use ($pattern): void {
                 $builder
-                    ->where('name', 'like', '%'.$query.'%')
-                    ->orWhere('email', 'like', '%'.$query.'%');
+                    ->where('name', 'like', $pattern)
+                    ->orWhere('email', 'like', $pattern);
             })
             ->limit((int) config('tenanto.search.limit', 5))
             ->get()

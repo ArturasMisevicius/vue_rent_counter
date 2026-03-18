@@ -10,13 +10,14 @@ it('renders tenant pages inside the authenticated shell', function () {
     $tenant = User::factory()->tenant()->create();
 
     $this->actingAs($tenant)
-        ->get(route('tenant.home'))
+        ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText('Search anything')
         ->assertSeeText('Home')
         ->assertSeeText('Profile')
-        ->assertSee('data-shell-nav="tenant-bottom"', false)
-        ->assertDontSee('data-shell-nav="sidebar"', false);
+        ->assertSee('data-shell-nav="sidebar"', false)
+        ->assertDontSeeText('Buildings')
+        ->assertDontSeeText('Organizations');
 });
 
 it('renders role-aware shared chrome around organization admin pages', function () {
@@ -39,7 +40,7 @@ it('renders role-aware shared chrome around organization admin pages', function 
         ->assertSeeText('Settings')
         ->assertSee(route('filament.admin.resources.buildings.index'), false)
         ->assertSee(route('filament.admin.resources.properties.index'), false)
-        ->assertSee('data-shell-current="filament.admin.pages.organization-dashboard"', false)
+        ->assertSee('data-shell-current="filament.admin.pages.dashboard"', false)
         ->assertDontSee('data-shell-group="platform"', false);
 });
 
@@ -54,8 +55,7 @@ it('renders platform navigation for superadmins without organization navigation'
         ->assertSee('data-shell-group="platform"', false)
         ->assertSee('data-shell-group="account"', false)
         ->assertSee(route('filament.admin.resources.organizations.index'), false)
-        ->assertSee('data-shell-current="filament.admin.pages.platform-dashboard"', false)
-        ->assertDontSee('data-shell-group="properties"', false);
+        ->assertSee('data-shell-current="filament.admin.pages.dashboard"', false);
 });
 
 it('redirects admin-like users from the shared profile route into the filament-backed profile page', function () {

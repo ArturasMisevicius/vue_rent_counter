@@ -34,9 +34,18 @@ class TenantPropertyPresenter
 
         $property = $tenant->currentProperty;
 
-        abort_if($property === null, 404);
+        if ($property === null) {
+            return [
+                'has_assignment' => false,
+                'property_name' => null,
+                'property_address' => null,
+                'assigned_since' => null,
+                'meters' => [],
+            ];
+        }
 
         return [
+            'has_assignment' => true,
             'property_name' => $property->name,
             'property_address' => $property->address,
             'assigned_since' => optional($tenant->currentPropertyAssignment?->assigned_at)?->format('Y-m-d'),

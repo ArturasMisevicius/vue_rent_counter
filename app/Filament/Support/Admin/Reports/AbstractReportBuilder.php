@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Support\Admin\Reports;
 
 use App\Models\Property;
@@ -34,5 +36,10 @@ abstract class AbstractReportBuilder
         ]);
 
         return implode(' · ', $parts);
+    }
+
+    protected function formatNumber(float $value, int $decimals = 2): string
+    {
+        return number_format($value, $decimals, '.', '');
     }
 }

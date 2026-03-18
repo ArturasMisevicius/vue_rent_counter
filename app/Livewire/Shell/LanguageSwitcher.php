@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Shell;
 
 use App\Filament\Actions\Preferences\UpdateUserLocaleAction;
 use App\Filament\Support\Preferences\SupportedLocaleOptions;
+use App\Http\Requests\Preferences\SetLocaleRequest;
 use Illuminate\Contracts\View\View;
-use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -20,20 +22,13 @@ class LanguageSwitcher extends Component
         $this->currentLocale = auth()->user()?->locale ?? app()->getLocale();
     }
 
-    public function changeLocale(string $locale, UpdateUserLocaleAction $updateUserLocaleAction): void
-    {
-        $availableLocales = $this->locales;
-
-        validator(
-            ['locale' => $locale],
-            [
-                'locale' => [
-                    'required',
-                    'string',
-                    Rule::in(array_keys($availableLocales)),
-                ],
-            ],
-        )->validate();
+    public function changeLocale(
+        string $locale,
+        UpdateUserLocaleAction $updateUserLocaleAction,
+    ): void {
+        $validated = (new SetLocaleRequest)->validatePayload([
+            'locale' => $locale,
+        ]);
 
         $user = auth()->user();
 
@@ -41,9 +36,9 @@ class LanguageSwitcher extends Component
             return;
         }
 
-        $updateUserLocaleAction->handle($user, $locale);
+        $updateUserLocaleAction->handle($user, (string) $validated['locale']);
 
-        $this->currentLocale = $locale;
+        $this->currentLocale = (string) $validated['locale'];
         unset($this->currentLocaleLabel);
 
         $this->dispatch('shell-locale-updated');

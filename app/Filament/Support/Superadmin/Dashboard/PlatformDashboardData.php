@@ -22,7 +22,7 @@ class PlatformDashboardData
      *     revenueByPlan: array<int, array{plan: string, amount: string}>,
      *     expiringSubscriptions: array<int, array{organization: string, plan: string, expires_at: string}>,
      *     recentSecurityViolations: array<int, array{organization: string, summary: string, severity: string}>,
-     *     recentOrganizations: array<int, array{name: string, slug: string}>
+     *     recentOrganizations: array<int, array{name: string, slug: string, subscription_status: string}>
      * }
      */
     public function for(User $user): array
@@ -40,12 +40,13 @@ class PlatformDashboardData
      *     revenueByPlan: array<int, array{plan: string, amount: string}>,
      *     expiringSubscriptions: array<int, array{organization: string, plan: string, expires_at: string}>,
      *     recentSecurityViolations: array<int, array{organization: string, summary: string, severity: string}>,
-     *     recentOrganizations: array<int, array{name: string, slug: string}>
+     *     recentOrganizations: array<int, array{name: string, slug: string, subscription_status: string}>
      * }
      */
     private function buildData(): array
     {
         $currentMonth = [now()->startOfMonth(), now()->endOfMonth()];
+        $recentSecurityWindowStart = now()->subDays(7);
         $revenue = (float) SubscriptionPayment::query()
             ->whereBetween('paid_at', $currentMonth)
             ->sum('amount');
@@ -65,8 +66,8 @@ class PlatformDashboardData
 
         $expiringSubscriptions = Subscription::query()
             ->forSuperadminControlPlane()
-            ->where('status', SubscriptionStatus::ACTIVE)
-            ->whereBetween('expires_at', [now(), now()->addDays(30)])
+            ->activeLike()
+            ->expiringWithin(30)
             ->orderBy('expires_at')
             ->limit(5)
             ->get()
@@ -79,6 +80,7 @@ class PlatformDashboardData
 
         $recentSecurityViolations = SecurityViolation::query()
             ->forDashboard()
+            ->occurredSince($recentSecurityWindowStart)
             ->limit(5)
             ->get()
             ->map(fn (SecurityViolation $violation): array => [
@@ -90,12 +92,16 @@ class PlatformDashboardData
 
         $recentOrganizations = Organization::query()
             ->select(['id', 'name', 'slug', 'created_at'])
+            ->with([
+                'currentSubscription:id,organization_id,status',
+            ])
             ->latest('created_at')
-            ->limit(5)
+            ->limit(10)
             ->get()
             ->map(fn (Organization $organization): array => [
                 'name' => $organization->name,
                 'slug' => $organization->slug,
+                'subscription_status' => $organization->currentSubscription?->status?->label() ?? __('dashboard.not_available'),
             ])
             ->all();
 
@@ -118,7 +124,7 @@ class PlatformDashboardData
                 [
                     'label' => __('dashboard.platform_metrics.security_violations_last_7_days'),
                     'value' => (string) SecurityViolation::query()
-                        ->where('occurred_at', '>=', now()->subDays(7))
+                        ->where('occurred_at', '>=', $recentSecurityWindowStart)
                         ->count(),
                 ],
             ],

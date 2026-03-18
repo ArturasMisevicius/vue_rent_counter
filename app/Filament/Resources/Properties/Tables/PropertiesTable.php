@@ -23,32 +23,32 @@ class PropertiesTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label(__('admin.properties.fields.name'))
+                    ->label(__('admin.properties.columns.name'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('building.name')
-                    ->label(__('admin.properties.fields.building'))
+                    ->label(__('admin.properties.columns.building'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('unit_number')
-                    ->label(__('admin.properties.fields.unit_number'))
+                    ->label(__('admin.properties.columns.unit_number'))
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('type')
-                    ->label(__('admin.properties.fields.type'))
+                    ->label(__('admin.properties.columns.type'))
                     ->badge(),
                 TextColumn::make('currentAssignment.tenant.name')
-                    ->label(__('admin.properties.fields.current_tenant'))
+                    ->label(__('admin.properties.columns.tenant'))
                     ->default(__('admin.properties.empty.unassigned'))
                     ->searchable(),
                 TextColumn::make('meters_count')
-                    ->label(__('admin.properties.fields.meters_count'))
+                    ->label(__('admin.properties.columns.meters_count'))
                     ->sortable()
                     ->toggleable(),
             ])
             ->filters([
                 SelectFilter::make('building_id')
-                    ->label(__('admin.properties.fields.building'))
+                    ->label(__('admin.properties.columns.building'))
                     ->options(fn (): array => Building::query()
                         ->select(['id', 'name', 'organization_id'])
                         ->where('organization_id', app(OrganizationContext::class)->currentOrganizationId())
@@ -56,8 +56,21 @@ class PropertiesTable
                         ->pluck('name', 'id')
                         ->all()),
                 SelectFilter::make('type')
-                    ->label(__('admin.properties.fields.type'))
+                    ->label(__('admin.properties.columns.type'))
                     ->options(PropertyType::options()),
+                SelectFilter::make('occupancy_status')
+                    ->label(__('admin.properties.filters.occupancy_status'))
+                    ->options([
+                        'occupied' => __('admin.properties.filters.occupancy.occupied'),
+                        'vacant' => __('admin.properties.filters.occupancy.vacant'),
+                    ])
+                    ->query(function ($query, array $data): void {
+                        match ($data['value'] ?? null) {
+                            'occupied' => $query->whereHas('currentAssignment'),
+                            'vacant' => $query->whereDoesntHave('currentAssignment'),
+                            default => null,
+                        };
+                    }),
             ])
             ->emptyStateHeading(__('admin.properties.empty_state.heading'))
             ->emptyStateDescription(__('admin.properties.empty_state.description'))

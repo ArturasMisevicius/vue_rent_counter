@@ -16,16 +16,28 @@ return [
     'organization_body' => 'Buildings, tenants, meters, invoices, and reports will grow from this shared admin and manager landing page.',
     'organization_metrics' => [
         'total_properties' => 'Total Properties',
+        'total_properties_trend' => 'Properties currently assigned to this organization.',
         'active_tenants' => 'Active Tenants',
+        'active_tenants_trend' => 'Current occupants with an active assignment.',
         'pending_invoices' => 'Pending Invoices',
+        'draft_invoices' => 'Draft Invoices',
+        'draft_invoices_trend' => 'Invoices still waiting to be finalized.',
         'revenue_this_month' => 'Revenue This Month',
+        'revenue_this_month_trend' => 'Paid invoice value captured during the current month.',
     ],
     'organization_usage' => [
         'heading' => 'Subscription Usage',
+        'description' => 'Live workspace capacity against the current subscription snapshot.',
         'properties' => 'Properties',
         'tenants' => 'Tenants',
         'meters' => 'Meters',
         'invoices' => 'Invoices',
+    ],
+    'platform_sections' => [
+        'revenue_by_plan' => 'Revenue by Plan',
+        'expiring_subscriptions' => 'Expiring Subscriptions',
+        'recent_security_violations' => 'Recent Security Violations',
+        'recent_organizations' => 'Recently Created Organizations',
     ],
     'organization_widgets' => [
         'recent_invoices' => 'Recent Invoices',

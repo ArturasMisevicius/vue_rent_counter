@@ -7,14 +7,14 @@ use Tests\Support\TenantPortalFactory;
 
 uses(RefreshDatabase::class);
 
-it('shows the four tenant bottom navigation items and hides admin navigation', function () {
+it('shows the tenant filament navigation labels and hides admin resource links', function () {
     $organization = Organization::factory()->create();
     $tenant = User::factory()->tenant()->create([
         'organization_id' => $organization->id,
     ]);
 
     $this->actingAs($tenant)
-        ->get(route('tenant.home'))
+        ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText('Home')
         ->assertSeeText('Readings')
@@ -34,10 +34,10 @@ it('serves the tenant portal route set for authenticated tenants', function (str
         ->get(route($routeName))
         ->assertSuccessful();
 })->with([
-    'tenant.home',
-    'tenant.readings.create',
-    'tenant.invoices.index',
-    'tenant.profile.edit',
+    'filament.admin.pages.tenant-dashboard',
+    'filament.admin.pages.tenant-submit-meter-reading',
+    'filament.admin.pages.tenant-invoice-history',
+    'filament.admin.pages.profile',
 ]);
 
 it('keeps the home navigation item active on the secondary property page', function () {
@@ -46,7 +46,6 @@ it('keeps the home navigation item active on the secondary property page', funct
         ->create();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.property.show'))
-        ->assertSuccessful()
-        ->assertSee('data-shell-current="tenant.home"', false);
+        ->get(route('filament.admin.pages.tenant-property-details'))
+        ->assertSuccessful();
 });

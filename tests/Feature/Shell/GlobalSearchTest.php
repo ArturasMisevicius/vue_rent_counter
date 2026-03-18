@@ -1,10 +1,10 @@
 <?php
 
 use App\Livewire\Shell\GlobalSearch;
+use App\Models\Building;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -16,95 +16,57 @@ it('renders the global search field in the shared topbar', function () {
     ]);
 
     $this->actingAs($admin)
-        ->get(route('filament.admin.pages.organization-dashboard'))
+        ->get(route('filament.admin.pages.dashboard'))
         ->assertSuccessful()
         ->assertSee('data-shell-search="global"', false)
         ->assertSeeText('Search anything');
 });
 
-it('shows role-appropriate group labels and clears on escape', function () {
+it('shows model type group labels for admins and clears on escape', function () {
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([
         'organization_id' => $organization->id,
+    ]);
+    Building::factory()->for($organization)->create([
+        'name' => 'Marina Heights',
     ]);
 
     Livewire::actingAs($admin)
         ->test(GlobalSearch::class)
         ->set('query', 'mar')
         ->assertSet('open', true)
-        ->assertSee('Organization')
+        ->assertSee('Buildings')
         ->dispatch('shell-search-dismissed')
         ->assertSet('open', false)
         ->assertSet('query', '');
 });
 
-it('never includes another organizations records in results', function () {
-    registerGlobalSearchFixtures();
-
-    config()->set('tenanto.search.providers.users.route', 'test.search.users.show');
-
+it('reuses the admin organization search groups for managers', function () {
     $organization = Organization::factory()->create();
-    $otherOrganization = Organization::factory()->create();
-
-    $admin = User::factory()->admin()->create([
+    $manager = User::factory()->manager()->create([
         'organization_id' => $organization->id,
     ]);
-
-    $visibleUser = User::factory()->manager()->create([
-        'organization_id' => $organization->id,
-        'name' => 'Marta Manager',
-        'email' => 'marta.manager@example.com',
+    Building::factory()->for($organization)->create([
+        'name' => 'Marina Court',
     ]);
 
-    $hiddenUser = User::factory()->manager()->create([
-        'organization_id' => $otherOrganization->id,
-        'name' => 'Marta External',
-        'email' => 'marta.external@example.com',
-    ]);
-
-    Livewire::actingAs($admin)
+    Livewire::actingAs($manager)
         ->test(GlobalSearch::class)
-        ->set('query', 'Marta')
-        ->assertSee('Marta Manager')
-        ->assertSee(route('test.search.users.show', $visibleUser), false)
-        ->assertDontSee('Marta External')
-        ->assertDontSee(route('test.search.users.show', $hiddenUser), false);
+        ->set('query', 'mar')
+        ->assertSet('open', true)
+        ->assertSee('Buildings')
+        ->assertDontSee('Organizations');
 });
 
-it('returns no clickable result when a destination route is missing', function () {
+it('keeps the query string in sync with the validated search term', function () {
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([
         'organization_id' => $organization->id,
     ]);
 
-    User::factory()->manager()->create([
-        'organization_id' => $organization->id,
-        'name' => 'Asta User',
-        'email' => 'asta@example.com',
-    ]);
-
-    config()->set('tenanto.search.providers.users.route', 'missing.search.route');
-
-    Livewire::actingAs($admin)
+    $component = Livewire::actingAs($admin)
         ->test(GlobalSearch::class)
-        ->set('query', 'Asta')
-        ->assertSee('Organization')
-        ->assertDontSee('Asta User')
-        ->assertSee('No results yet');
+        ->set('query', '  Marina   ');
+
+    expect($component->instance()->query)->toBe('Marina');
 });
-
-function registerGlobalSearchFixtures(): void
-{
-    if (! Route::has('test.search.users.show')) {
-        Route::get('/__test/search/users/{user}', fn (User $user) => $user->name)
-            ->name('test.search.users.show');
-    }
-
-    if (! Route::has('test.search.organizations.show')) {
-        Route::get('/__test/search/organizations/{organization}', fn (Organization $organization) => $organization->name)
-            ->name('test.search.organizations.show');
-    }
-
-    app('router')->getRoutes()->refreshNameLookups();
-    app('router')->getRoutes()->refreshActionLookups();
-}

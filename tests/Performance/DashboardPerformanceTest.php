@@ -31,14 +31,14 @@ it('keeps the warmed admin dashboard under the query budget', function () {
     [$admin] = seedAdminDashboardPerformanceData();
 
     $this->actingAs($admin)
-        ->get(route('filament.admin.pages.organization-dashboard'))
+        ->get(route('filament.admin.pages.dashboard'))
         ->assertSuccessful();
 
     DB::flushQueryLog();
     DB::enableQueryLog();
 
     $this->actingAs($admin)
-        ->get(route('filament.admin.pages.organization-dashboard'))
+        ->get(route('filament.admin.pages.dashboard'))
         ->assertSuccessful();
 
     $queryCount = collect(DB::getQueryLog())
@@ -54,14 +54,14 @@ it('keeps the warmed superadmin dashboard under the query budget', function () {
     [$superadmin] = seedSuperadminDashboardPerformanceData();
 
     $this->actingAs($superadmin)
-        ->get(route('filament.admin.pages.platform-dashboard'))
+        ->get(route('filament.admin.pages.dashboard'))
         ->assertSuccessful();
 
     DB::flushQueryLog();
     DB::enableQueryLog();
 
     $this->actingAs($superadmin)
-        ->get(route('filament.admin.pages.platform-dashboard'))
+        ->get(route('filament.admin.pages.dashboard'))
         ->assertSuccessful();
 
     $queryCount = collect(DB::getQueryLog())

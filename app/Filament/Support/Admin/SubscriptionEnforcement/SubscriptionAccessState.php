@@ -24,7 +24,11 @@ class SubscriptionAccessState
 
     public function canWrite(): bool
     {
-        return ! $this->isReadOnly();
+        return ! in_array($this->mode, [
+            SubscriptionAccessMode::GRACE_READ_ONLY,
+            SubscriptionAccessMode::POST_GRACE_READ_ONLY,
+            SubscriptionAccessMode::SUSPENDED,
+        ], true);
     }
 
     public function isReadOnly(): bool
@@ -37,12 +41,15 @@ class SubscriptionAccessState
 
     public function hidesWriteActions(): bool
     {
-        return $this->mode === SubscriptionAccessMode::POST_GRACE_READ_ONLY;
+        return in_array($this->mode, [
+            SubscriptionAccessMode::POST_GRACE_READ_ONLY,
+            SubscriptionAccessMode::SUSPENDED,
+        ], true);
     }
 
     public function blocksCreation(string $resource): bool
     {
-        if ($this->isReadOnly()) {
+        if (($this->mode === SubscriptionAccessMode::SUSPENDED) || $this->isReadOnly()) {
             return true;
         }
 

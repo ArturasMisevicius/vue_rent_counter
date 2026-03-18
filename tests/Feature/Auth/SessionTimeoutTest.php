@@ -7,6 +7,10 @@ use Illuminate\Support\Facades\Route;
 
 uses(RefreshDatabase::class);
 
+it('keeps the session idle timeout at 120 minutes', function () {
+    expect(config('session.lifetime'))->toBe(120);
+});
+
 function sessionTimeoutCookieName(): string
 {
     return config('tenanto.auth.session_history_cookie_name', 'tenanto_authenticated_session');

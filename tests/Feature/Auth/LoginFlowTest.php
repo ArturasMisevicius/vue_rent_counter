@@ -12,8 +12,8 @@ function registerLoginDestinationFixtures(): void
         Route::get('/welcome', fn () => 'welcome')->name('welcome.show');
     }
 
-    if (! Route::has('tenant.home')) {
-        Route::get('/tenant/home', fn () => 'tenant home')->name('tenant.home');
+    if (! Route::has('filament.admin.pages.tenant-dashboard')) {
+        Route::get('/__test/tenant-dashboard', fn () => 'tenant dashboard')->name('filament.admin.pages.tenant-dashboard');
     }
 
     if (! Route::has('filament.admin.pages.platform-dashboard')) {
@@ -67,6 +67,32 @@ it('keeps the email and shows a generic message when login fails', function () {
     $this->assertGuest();
 });
 
+it('rate limits login after five failed attempts', function () {
+    registerLoginDestinationFixtures();
+
+    $user = User::factory()->create([
+        'email' => 'asta@example.com',
+    ]);
+
+    foreach (range(1, 5) as $attempt) {
+        $this->from(route('login'))
+            ->post(route('login.store'), [
+                'email' => $user->email,
+                'password' => 'wrong-password',
+            ])
+            ->assertRedirect(route('login'));
+    }
+
+    $this->from(route('login'))
+        ->post(route('login.store'), [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ])
+        ->assertTooManyRequests();
+
+    $this->assertGuest();
+});
+
 it('redirects unauthenticated admin panel access to the public login page', function () {
     registerLoginDestinationFixtures();
 
@@ -105,7 +131,7 @@ it('redirects users to the unified app entrypoint for their role context', funct
     ],
     'tenant' => [
         fn () => User::factory()->tenant()->create(),
-        'filament.admin.pages.dashboard',
+        'filament.admin.pages.tenant-dashboard',
     ],
 ]);
 

@@ -2,25 +2,20 @@
 
 namespace App\Filament\Resources\MeterReadings;
 
-use App\Enums\MeterReadingSubmissionMethod;
 use App\Filament\Resources\MeterReadings\Pages\CreateMeterReading;
 use App\Filament\Resources\MeterReadings\Pages\EditMeterReading;
 use App\Filament\Resources\MeterReadings\Pages\ListMeterReadings;
 use App\Filament\Resources\MeterReadings\Pages\ViewMeterReading;
+use App\Filament\Resources\MeterReadings\Schemas\MeterReadingForm;
+use App\Filament\Resources\MeterReadings\Schemas\MeterReadingInfolist;
+use App\Filament\Resources\MeterReadings\Tables\MeterReadingsTable;
 use App\Filament\Support\Admin\OrganizationContext;
 use App\Models\MeterReading;
 use BackedEnum;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\PageRegistration;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -39,102 +34,49 @@ class MeterReadingResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([
-            Section::make('Reading Details')
-                ->schema([
-                    Select::make('meter_id')
-                        ->label('Meter')
-                        ->relationship(
-                            name: 'meter',
-                            titleAttribute: 'name',
-                            modifyQueryUsing: fn (Builder $query): Builder => $query
-                                ->select(['id', 'organization_id', 'property_id', 'name'])
-                                ->where('organization_id', app(OrganizationContext::class)->currentOrganizationId()),
-                        )
-                        ->searchable()
-                        ->preload()
-                        ->required(),
-                    TextInput::make('reading_value')
-                        ->label('Reading Value')
-                        ->numeric()
-                        ->required(),
-                    DatePicker::make('reading_date')
-                        ->label('Reading Date')
-                        ->required(),
-                    Select::make('submission_method')
-                        ->label('Submission Method')
-                        ->options(MeterReadingSubmissionMethod::options())
-                        ->required(),
-                    Textarea::make('notes')
-                        ->label('Notes')
-                        ->rows(3),
-                ])
-                ->columns(2),
-        ]);
+        return MeterReadingForm::configure($schema);
     }
 
     public static function infolist(Schema $schema): Schema
     {
-        return $schema->components([
-            Section::make('Reading Details')
-                ->schema([
-                    TextEntry::make('meter.name')
-                        ->label('Meter'),
-                    TextEntry::make('meter.property.name')
-                        ->label('Property'),
-                    TextEntry::make('reading_value')
-                        ->label('Reading Value'),
-                    TextEntry::make('reading_date')
-                        ->label('Reading Date')
-                        ->date(),
-                    TextEntry::make('submission_method')
-                        ->label('Submission Method')
-                        ->badge(),
-                    TextEntry::make('validation_status')
-                        ->label('Validation Status')
-                        ->badge(),
-                    TextEntry::make('notes')
-                        ->label('Notes')
-                        ->placeholder('No notes'),
-                ])
-                ->columns(2),
-        ]);
+        return MeterReadingInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                TextColumn::make('meter.name')
-                    ->label('Meter')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('meter.property.name')
-                    ->label('Property')
-                    ->searchable()
-                    ->toggleable(),
-                TextColumn::make('reading_value')
-                    ->label('Reading Value')
-                    ->sortable(),
-                TextColumn::make('reading_date')
-                    ->label('Reading Date')
-                    ->date()
-                    ->sortable(),
-                TextColumn::make('validation_status')
-                    ->label('Validation Status')
-                    ->badge(),
-            ])
-            ->defaultSort('reading_date', 'desc');
+        return MeterReadingsTable::configure($table);
     }
 
     public static function getModelLabel(): string
     {
-        return 'Meter Reading';
+        return __('admin.meter_readings.singular');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Meter Readings';
+        return __('admin.meter_readings.plural');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('shell.navigation.groups.billing');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.meter_readings.navigation');
+    }
+
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canAccess();
     }
 
     public static function canCreate(): bool
@@ -148,7 +90,7 @@ class MeterReadingResource extends Resource
     {
         $user = auth()->user();
 
-        return $user?->isAdmin() || $user?->isManager();
+        return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
     }
 
     /**
@@ -171,7 +113,7 @@ class MeterReadingResource extends Resource
 
         return $record instanceof MeterReading
             && $record->organization_id === app(OrganizationContext::class)->currentOrganizationId()
-            && ($user?->isAdmin() || $user?->isManager());
+            && ($user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager());
     }
 
     public static function canEdit(Model $record): bool

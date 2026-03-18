@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Languages;
 
 use App\Enums\LanguageStatus;
+use App\Filament\Concerns\AuthorizesSuperadminAccess;
 use App\Filament\Resources\Languages\Pages\CreateLanguage;
 use App\Filament\Resources\Languages\Pages\EditLanguage;
 use App\Filament\Resources\Languages\Pages\ListLanguages;
@@ -22,6 +23,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class LanguageResource extends Resource
 {
+    use AuthorizesSuperadminAccess;
+
     protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $model = Language::class;

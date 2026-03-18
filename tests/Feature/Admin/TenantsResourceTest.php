@@ -94,6 +94,9 @@ it('shows organization-scoped tenant resource pages and assignment-aware tenant 
         ->get(route('filament.admin.resources.tenants.view', $tenant))
         ->assertSuccessful()
         ->assertSeeText('Tenant Details')
+        ->assertSeeText('Profile')
+        ->assertSeeText('Audit Trail')
+        ->assertSeeText('Reassign Property')
         ->assertSeeText('Current Property')
         ->assertSeeText('Invoice History')
         ->assertSeeText('INV-200001')
@@ -148,6 +151,8 @@ it('creates tenants through invitation reuse with optional property assignment a
     Subscription::factory()->for($organization)->active()->create([
         'tenant_limit_snapshot' => 5,
     ]);
+
+    $this->actingAs($admin);
 
     $tenant = app(CreateTenantAction::class)->handle($admin, [
         'name' => 'Pat Tenant',
@@ -211,7 +216,7 @@ it('creates tenants through invitation reuse with optional property assignment a
         ->and($reactivated->status)->toBe(UserStatus::ACTIVE);
 });
 
-it('blocks new tenant entry when the subscription limit is exhausted and prevents deleting tenants with invoice history', function () {
+it('keeps the tenant create page reachable at the limit and prevents deleting tenants with invoice history', function () {
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([
         'organization_id' => $organization->id,
@@ -230,7 +235,7 @@ it('blocks new tenant entry when the subscription limit is exhausted and prevent
 
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.tenants.create'))
-        ->assertForbidden();
+        ->assertSuccessful();
 
     Invoice::factory()
         ->for($organization)

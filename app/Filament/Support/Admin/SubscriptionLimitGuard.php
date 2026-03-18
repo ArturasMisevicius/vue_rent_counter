@@ -2,22 +2,22 @@
 
 namespace App\Filament\Support\Admin;
 
-use App\Filament\Support\Admin\SubscriptionEnforcement\OrganizationSubscriptionAccess;
 use App\Filament\Support\Admin\SubscriptionEnforcement\SubscriptionEnforcementMessage;
 use App\Models\Organization;
+use App\Services\SubscriptionChecker;
 use Illuminate\Validation\ValidationException;
 
 class SubscriptionLimitGuard
 {
     public function __construct(
-        private readonly OrganizationSubscriptionAccess $organizationSubscriptionAccess,
+        private readonly SubscriptionChecker $subscriptionChecker,
         private readonly SubscriptionEnforcementMessage $subscriptionEnforcementMessage,
     ) {}
 
     public function canCreateProperty(Organization|int $organization): bool
     {
-        return ! $this->organizationSubscriptionAccess
-            ->forOrganization($organization)
+        return ! $this->subscriptionChecker
+            ->accessStateForOrganization($organization)
             ->blocksCreation('properties');
     }
 
@@ -29,7 +29,7 @@ class SubscriptionLimitGuard
 
         $message = $this->subscriptionEnforcementMessage->forResource(
             'properties',
-            $this->organizationSubscriptionAccess->forOrganization($organization),
+            $this->subscriptionChecker->accessStateForOrganization($organization),
         );
 
         throw ValidationException::withMessages([
@@ -39,8 +39,8 @@ class SubscriptionLimitGuard
 
     public function canCreateTenant(Organization|int $organization): bool
     {
-        return ! $this->organizationSubscriptionAccess
-            ->forOrganization($organization)
+        return ! $this->subscriptionChecker
+            ->accessStateForOrganization($organization)
             ->blocksCreation('tenants');
     }
 
@@ -52,7 +52,7 @@ class SubscriptionLimitGuard
 
         $message = $this->subscriptionEnforcementMessage->forResource(
             'tenants',
-            $this->organizationSubscriptionAccess->forOrganization($organization),
+            $this->subscriptionChecker->accessStateForOrganization($organization),
         );
 
         throw ValidationException::withMessages([
@@ -62,8 +62,8 @@ class SubscriptionLimitGuard
 
     public function canWrite(Organization|int $organization): bool
     {
-        return $this->organizationSubscriptionAccess
-            ->forOrganization($organization)
+        return $this->subscriptionChecker
+            ->accessStateForOrganization($organization)
             ->canWrite();
     }
 
@@ -75,7 +75,7 @@ class SubscriptionLimitGuard
 
         $message = $this->subscriptionEnforcementMessage->forResource(
             'properties',
-            $this->organizationSubscriptionAccess->forOrganization($organization),
+            $this->subscriptionChecker->accessStateForOrganization($organization),
         );
 
         throw ValidationException::withMessages([

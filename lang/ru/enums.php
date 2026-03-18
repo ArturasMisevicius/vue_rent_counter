@@ -113,6 +113,7 @@ return [
         'limit_blocked' => 'Заблокировано лимитом',
         'grace_read_only' => 'Только чтение в льготный период',
         'post_grace_read_only' => 'Только чтение после льготного периода',
+        'suspended' => 'Приостановлена',
     ],
     'subscription_duration' => [
         'monthly' => 'Ежемесячно',

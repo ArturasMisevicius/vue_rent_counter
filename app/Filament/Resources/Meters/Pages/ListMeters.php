@@ -10,6 +10,11 @@ class ListMeters extends ListRecords
 {
     protected static string $resource = MeterResource::class;
 
+    protected function authorizeAccess(): void
+    {
+        abort_unless(MeterResource::canViewAny(), 403);
+    }
+
     protected function getHeaderActions(): array
     {
         return [

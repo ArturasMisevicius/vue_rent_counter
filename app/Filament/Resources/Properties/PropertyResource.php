@@ -7,6 +7,9 @@ use App\Filament\Resources\Properties\Pages\CreateProperty;
 use App\Filament\Resources\Properties\Pages\EditProperty;
 use App\Filament\Resources\Properties\Pages\ListProperties;
 use App\Filament\Resources\Properties\Pages\ViewProperty;
+use App\Filament\Resources\Properties\RelationManagers\InvoicesRelationManager;
+use App\Filament\Resources\Properties\RelationManagers\MetersRelationManager;
+use App\Filament\Resources\Properties\RelationManagers\ReadingsRelationManager;
 use App\Filament\Resources\Properties\Schemas\PropertyForm;
 use App\Filament\Resources\Properties\Schemas\PropertyInfolist;
 use App\Filament\Resources\Properties\Tables\PropertiesTable;
@@ -56,6 +59,28 @@ class PropertyResource extends Resource
     public static function getPluralModelLabel(): string
     {
         return __('admin.properties.plural');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('shell.navigation.groups.properties');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.properties.navigation');
+    }
+
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canAccess();
     }
 
     public static function canCreate(): bool
@@ -116,7 +141,11 @@ class PropertyResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            MetersRelationManager::class,
+            ReadingsRelationManager::class,
+            InvoicesRelationManager::class,
+        ];
     }
 
     /**

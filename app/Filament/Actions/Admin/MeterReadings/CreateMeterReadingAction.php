@@ -7,12 +7,14 @@ use App\Filament\Support\Admin\ReadingValidation\ValidateReadingValue;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\User;
+use App\Services\MeterReadingService;
 use Illuminate\Validation\ValidationException;
 
 class CreateMeterReadingAction
 {
     public function __construct(
         protected ValidateReadingValue $validateReadingValue,
+        protected MeterReadingService $meterReadingService,
     ) {}
 
     public function handle(
@@ -29,17 +31,15 @@ class CreateMeterReadingAction
             throw ValidationException::withMessages($validation->messages);
         }
 
-        return MeterReading::query()->create([
-            'organization_id' => $meter->organization_id,
-            'property_id' => $meter->property_id,
-            'meter_id' => $meter->id,
-            'submitted_by_user_id' => $submittedBy?->id,
-            'reading_value' => $readingValue,
-            'reading_date' => $readingDate,
-            'validation_status' => $validation->status,
-            'submission_method' => $submissionMethod,
-            'notes' => $this->mergeNotes($notes, $validation->notesAsText()),
-        ]);
+        return $this->meterReadingService->create(
+            meter: $meter,
+            readingValue: $readingValue,
+            readingDate: $readingDate,
+            submittedBy: $submittedBy,
+            validationStatus: $validation->status,
+            submissionMethod: $submissionMethod,
+            notes: $this->mergeNotes($notes, $validation->notesAsText()),
+        );
     }
 
     private function mergeNotes(?string ...$notes): ?string

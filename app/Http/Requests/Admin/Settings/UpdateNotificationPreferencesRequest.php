@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Admin\Settings;
 
 use App\Http\Requests\Concerns\InteractsWithValidationPayload;
+use App\Services\NotificationPreferenceService;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateNotificationPreferencesRequest extends FormRequest
@@ -22,8 +23,10 @@ class UpdateNotificationPreferencesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'invoice_reminders' => ['required', 'boolean'],
-            'reading_deadline_alerts' => ['required', 'boolean'],
+            NotificationPreferenceService::NEW_INVOICE_GENERATED => ['required', 'boolean'],
+            NotificationPreferenceService::INVOICE_OVERDUE => ['required', 'boolean'],
+            NotificationPreferenceService::TENANT_SUBMITS_READING => ['required', 'boolean'],
+            NotificationPreferenceService::SUBSCRIPTION_EXPIRING => ['required', 'boolean'],
         ];
     }
 
@@ -33,10 +36,14 @@ class UpdateNotificationPreferencesRequest extends FormRequest
     public function messages(): array
     {
         return $this->translatedMessages([
-            'invoice_reminders.required' => ['required', 'invoice_reminders'],
-            'invoice_reminders.boolean' => ['boolean', 'invoice_reminders'],
-            'reading_deadline_alerts.required' => ['required', 'reading_deadline_alerts'],
-            'reading_deadline_alerts.boolean' => ['boolean', 'reading_deadline_alerts'],
+            'new_invoice_generated.required' => ['required', 'new_invoice_generated'],
+            'new_invoice_generated.boolean' => ['boolean', 'new_invoice_generated'],
+            'invoice_overdue.required' => ['required', 'invoice_overdue'],
+            'invoice_overdue.boolean' => ['boolean', 'invoice_overdue'],
+            'tenant_submits_reading.required' => ['required', 'tenant_submits_reading'],
+            'tenant_submits_reading.boolean' => ['boolean', 'tenant_submits_reading'],
+            'subscription_expiring.required' => ['required', 'subscription_expiring'],
+            'subscription_expiring.boolean' => ['boolean', 'subscription_expiring'],
         ]);
     }
 
@@ -46,16 +53,20 @@ class UpdateNotificationPreferencesRequest extends FormRequest
     public function attributes(): array
     {
         return $this->translatedAttributes([
-            'invoice_reminders',
-            'reading_deadline_alerts',
+            'new_invoice_generated',
+            'invoice_overdue',
+            'tenant_submits_reading',
+            'subscription_expiring',
         ]);
     }
 
     protected function prepareForValidation(): void
     {
         $this->castBooleans([
-            'invoice_reminders',
-            'reading_deadline_alerts',
+            'new_invoice_generated',
+            'invoice_overdue',
+            'tenant_submits_reading',
+            'subscription_expiring',
         ]);
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Shell;
 
-use App\Filament\Support\Auth\ImpersonationManager;
 use App\Filament\Support\Shell\DashboardUrlResolver;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -34,13 +33,11 @@ class Topbar extends Component
 
     public function render(
         DashboardUrlResolver $dashboardUrlResolver,
-        ImpersonationManager $impersonationManager,
     ): View {
         $user = auth()->user();
 
         return view('livewire.shell.topbar', [
             'dashboardUrl' => $dashboardUrlResolver->for($user),
-            'impersonation' => $impersonationManager->current(request()),
             'profileUrl' => $this->resolveProfileUrl($user),
             'roleLabel' => $user?->role?->label(),
             'user' => $user,
@@ -55,10 +52,6 @@ class Topbar extends Component
 
         if (Route::has('filament.admin.pages.profile') && $user->canAccessPanel(filament()->getCurrentOrDefaultPanel())) {
             return route('filament.admin.pages.profile');
-        }
-
-        if ($user->isTenant() && Route::has('tenant.profile.edit')) {
-            return route('tenant.profile.edit');
         }
 
         if (Route::has('profile.edit')) {

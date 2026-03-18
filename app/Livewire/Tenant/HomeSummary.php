@@ -2,70 +2,9 @@
 
 namespace App\Livewire\Tenant;
 
-use App\Filament\Support\Tenant\Portal\TenantHomePresenter;
-use App\Models\User;
-use Illuminate\Contracts\View\View;
-use Livewire\Attributes\Computed;
-use Livewire\Component;
+use App\Livewire\Pages\Dashboard\TenantDashboard;
 
-class HomeSummary extends Component
+class HomeSummary extends TenantDashboard
 {
-    public function render(): View
-    {
-        return view('livewire.tenant.home-summary', [
-            'summary' => $this->summary,
-        ]);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    #[Computed]
-    public function summary(): array
-    {
-        /** @var User|null $tenant */
-        $tenant = auth()->user();
-
-        if (! $tenant instanceof User) {
-            return $this->defaultSummary();
-        }
-
-        return array_replace_recursive(
-            $this->defaultSummary(),
-            app(TenantHomePresenter::class)->for($tenant),
-        );
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    protected function defaultSummary(): array
-    {
-        return [
-            'tenant_name' => '',
-            'property_name' => null,
-            'property_address' => null,
-            'property_url' => route('tenant.property.show'),
-            'submit_reading_url' => route('tenant.readings.create'),
-            'has_outstanding_balance' => false,
-            'outstanding_label' => __('tenant.status.all_paid_up'),
-            'outstanding_total' => 0,
-            'outstanding_total_display' => '',
-            'outstanding_invoice_count' => 0,
-            'payment_guidance' => [
-                'content' => null,
-                'has_contact_details' => false,
-                'contact_name' => null,
-                'contact_email' => null,
-                'contact_phone' => null,
-            ],
-            'month_heading' => __('tenant.pages.home.month_heading'),
-            'meters_missing_current_month' => 0,
-            'current_month_metric' => trans_choice('tenant.pages.home.current_month_metric', 0, [
-                'count' => 0,
-            ]),
-            'current_month_message' => __('tenant.messages.all_current_month'),
-            'recent_readings' => [],
-        ];
-    }
+    public bool $showIntro = false;
 }

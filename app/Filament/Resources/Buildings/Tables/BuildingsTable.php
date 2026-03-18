@@ -21,29 +21,29 @@ class BuildingsTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label(__('admin.buildings.fields.name'))
+                    ->label(__('admin.buildings.columns.name'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('city')
-                    ->label(__('admin.buildings.fields.city'))
+                    ->label(__('admin.buildings.columns.city'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('address_line_1')
-                    ->label(__('admin.buildings.fields.address_line_1'))
+                    ->label(__('admin.buildings.columns.address_line_1'))
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('properties_count')
-                    ->label(__('admin.buildings.fields.properties_count'))
+                    ->label(__('admin.buildings.columns.properties_count'))
                     ->sortable(),
                 TextColumn::make('updated_at')
-                    ->label(__('admin.buildings.fields.updated_at'))
+                    ->label(__('admin.buildings.columns.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(),
             ])
             ->filters([
                 SelectFilter::make('city')
-                    ->label(__('admin.buildings.fields.city'))
+                    ->label(__('admin.buildings.columns.city'))
                     ->options(fn (): array => Building::query()
                         ->select(['city', 'organization_id'])
                         ->where('organization_id', app(OrganizationContext::class)->currentOrganizationId())

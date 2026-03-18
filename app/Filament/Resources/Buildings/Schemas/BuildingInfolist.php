@@ -33,6 +33,8 @@ class BuildingInfolist
                     ->schema([
                         TextEntry::make('properties_count')
                             ->label(__('admin.buildings.fields.properties_count')),
+                        TextEntry::make('meters_count')
+                            ->label(__('admin.buildings.fields.meters_count')),
                         TextEntry::make('updated_at')
                             ->label(__('admin.buildings.fields.updated_at'))
                             ->dateTime(),

@@ -6,6 +6,7 @@ use App\Filament\Resources\Meters\Pages\CreateMeter;
 use App\Filament\Resources\Meters\Pages\EditMeter;
 use App\Filament\Resources\Meters\Pages\ListMeters;
 use App\Filament\Resources\Meters\Pages\ViewMeter;
+use App\Filament\Resources\Meters\RelationManagers\ReadingHistoryRelationManager;
 use App\Filament\Resources\Meters\Schemas\MeterForm;
 use App\Filament\Resources\Meters\Schemas\MeterInfolist;
 use App\Filament\Resources\Meters\Tables\MetersTable;
@@ -57,6 +58,35 @@ class MeterResource extends Resource
         return __('admin.meters.plural');
     }
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('shell.navigation.groups.billing');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.meters.navigation');
+    }
+
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canAccess();
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = auth()->user();
+
+        return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
+    }
+
     public static function canCreate(): bool
     {
         $user = auth()->user();
@@ -99,7 +129,9 @@ class MeterResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            ReadingHistoryRelationManager::class,
+        ];
     }
 
     /**

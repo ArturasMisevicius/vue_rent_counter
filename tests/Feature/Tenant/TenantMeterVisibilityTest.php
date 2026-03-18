@@ -46,13 +46,13 @@ it('shows only meters assigned to the tenants current property', function () {
     ]);
 
     $this->actingAs($tenant)
-        ->get(route('tenant.property.show'))
+        ->get(route('filament.admin.pages.tenant-property-details'))
         ->assertSuccessful()
         ->assertSeeText($assignedMeter->identifier)
         ->assertDontSeeText($otherMeter->identifier);
 
     $this->actingAs($tenant)
-        ->get(route('tenant.readings.create'))
+        ->get(route('filament.admin.pages.tenant-submit-meter-reading'))
         ->assertSuccessful()
         ->assertSeeText($assignedMeter->identifier)
         ->assertDontSeeText($otherMeter->identifier);
@@ -129,12 +129,12 @@ it('keeps historical invoices visible after unassignment while exposing no curre
     app(UnassignTenantFromPropertyAction::class)->handle($property);
 
     $this->actingAs($tenant)
-        ->get(route('tenant.invoices.index'))
+        ->get(route('filament.admin.pages.tenant-invoice-history'))
         ->assertSuccessful()
         ->assertSeeText('INV-TENANT-HISTORY-001');
 
     $this->actingAs($tenant)
-        ->get(route('tenant.readings.create'))
+        ->get(route('filament.admin.pages.tenant-submit-meter-reading'))
         ->assertSuccessful()
         ->assertSeeText(__('tenant.messages.no_meters_assigned'));
 });
@@ -166,13 +166,13 @@ it('does not expose malformed cross-organization meters that point at the tenant
     ]);
 
     $this->actingAs($tenant)
-        ->get(route('tenant.property.show'))
+        ->get(route('filament.admin.pages.tenant-property-details'))
         ->assertSuccessful()
         ->assertSeeText($assignedMeter->identifier)
         ->assertDontSeeText($foreignMeter->identifier);
 
     $this->actingAs($tenant)
-        ->get(route('tenant.readings.create'))
+        ->get(route('filament.admin.pages.tenant-submit-meter-reading'))
         ->assertSuccessful()
         ->assertSeeText($assignedMeter->identifier)
         ->assertDontSeeText($foreignMeter->identifier);

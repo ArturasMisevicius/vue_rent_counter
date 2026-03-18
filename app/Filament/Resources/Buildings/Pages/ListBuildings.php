@@ -10,6 +10,11 @@ class ListBuildings extends ListRecords
 {
     protected static string $resource = BuildingResource::class;
 
+    protected function authorizeAccess(): void
+    {
+        abort_unless(BuildingResource::canViewAny(), 403);
+    }
+
     protected function getHeaderActions(): array
     {
         return [

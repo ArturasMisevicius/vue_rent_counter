@@ -6,6 +6,8 @@ namespace App\Services\Billing;
 
 use App\Enums\InvoiceStatus;
 use App\Enums\PaymentMethod;
+use App\Events\InvoiceFinalized;
+use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
 use App\Models\Organization;
@@ -19,6 +21,7 @@ final class InvoiceService
 {
     public function __construct(
         private readonly UniversalBillingCalculator $calculator,
+        private readonly DashboardCacheService $dashboardCacheService,
     ) {}
 
     /**
@@ -103,7 +106,43 @@ final class InvoiceService
             $this->syncInvoiceItems($invoice, $items);
             $this->syncBillingRecords($invoice, $assignment, $items, $billingPeriodStart, $billingPeriodEnd);
 
-            return $invoice->fresh(['invoiceItems', 'payments', 'billingRecords']);
+            $freshInvoice = $invoice->fresh(['invoiceItems', 'payments', 'billingRecords']);
+
+            DB::afterCommit(function () use ($organization, $freshInvoice, $assignment): void {
+                $this->dashboardCacheService->touchOrganization($organization->id);
+
+                event(new InvoiceFinalized(
+                    organizationId: $organization->id,
+                    invoiceId: $freshInvoice->id,
+                    tenantUserId: $assignment->tenant_user_id,
+                ));
+            });
+
+            return $freshInvoice;
+        });
+    }
+
+    public function markAsFinalized(Invoice $invoice): Invoice
+    {
+        return DB::transaction(function () use ($invoice): Invoice {
+            $invoice->update([
+                'status' => InvoiceStatus::FINALIZED,
+                'finalized_at' => $invoice->finalized_at ?? now(),
+            ]);
+
+            $freshInvoice = $invoice->fresh(['invoiceItems', 'payments']);
+
+            DB::afterCommit(function () use ($freshInvoice): void {
+                $this->dashboardCacheService->touchOrganization($freshInvoice->organization_id);
+
+                event(new InvoiceFinalized(
+                    organizationId: $freshInvoice->organization_id,
+                    invoiceId: $freshInvoice->id,
+                    tenantUserId: $freshInvoice->tenant_user_id,
+                ));
+            });
+
+            return $freshInvoice;
         });
     }
 
@@ -143,7 +182,13 @@ final class InvoiceService
                 'notes' => $validated['notes'] ?? null,
             ]);
 
-            return $invoice->fresh(['payments']);
+            $freshInvoice = $invoice->fresh(['payments']);
+
+            DB::afterCommit(function () use ($freshInvoice): void {
+                $this->dashboardCacheService->touchOrganization($freshInvoice->organization_id);
+            });
+
+            return $freshInvoice;
         });
     }
 
@@ -173,7 +218,7 @@ final class InvoiceService
                 $resolvedItem = is_array($item) ? $item : [];
 
                 if (array_key_exists('amount', $resolvedItem)) {
-                    $resolvedItem['amount'] = round((float) $resolvedItem['amount'], 2);
+                    $resolvedItem['amount'] = $this->calculator->money($resolvedItem['amount']);
                 }
 
                 return $resolvedItem;

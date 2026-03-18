@@ -78,6 +78,10 @@ it('shows organization-scoped properties resource pages and occupancy details', 
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.properties.view', $property))
         ->assertSuccessful()
+        ->assertSeeText('Tenant')
+        ->assertSeeText('Meters')
+        ->assertSeeText('Readings')
+        ->assertSeeText('Invoices')
         ->assertSeeText('Current Occupancy')
         ->assertSeeText('Assignment History')
         ->assertSeeText('Taylor Tenant');
@@ -104,6 +108,9 @@ it('shows organization-scoped properties resource pages and occupancy details', 
 
 it('creates properties within limits and keeps assignment history during reassign and unassign flows', function () {
     $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
 
     Subscription::factory()->for($organization)->active()->create([
         'property_limit_snapshot' => 5,
@@ -118,6 +125,8 @@ it('creates properties within limits and keeps assignment history during reassig
         'organization_id' => $organization->id,
         'name' => 'Tenant B',
     ]);
+
+    $this->actingAs($admin);
 
     $property = app(CreatePropertyAction::class)->handle($organization, [
         'building_id' => $building->id,
@@ -162,7 +171,7 @@ it('creates properties within limits and keeps assignment history during reassig
         ->and($updated->assignments()->count())->toBe(2);
 });
 
-it('blocks property create entry when the subscription limit is exhausted and prevents deleting properties with history', function () {
+it('keeps the property create page reachable at the limit and prevents deleting properties with history', function () {
     $organization = Organization::factory()->create();
     $building = Building::factory()->for($organization)->create();
 
@@ -178,7 +187,7 @@ it('blocks property create entry when the subscription limit is exhausted and pr
 
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.properties.create'))
-        ->assertForbidden();
+        ->assertSuccessful();
 
     $tenant = User::factory()->tenant()->create([
         'organization_id' => $organization->id,

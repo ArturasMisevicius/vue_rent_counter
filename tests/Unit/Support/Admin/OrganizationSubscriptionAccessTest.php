@@ -98,3 +98,18 @@ it('marks an expired subscription after the grace period as post-grace read only
     expect($state->mode)->toBe(SubscriptionAccessMode::POST_GRACE_READ_ONLY)
         ->and($state->hidesWriteActions())->toBeTrue();
 });
+
+it('marks a suspended subscription as suspended access', function () {
+    $organization = Organization::factory()->create();
+
+    Subscription::factory()->for($organization)->create([
+        'status' => SubscriptionStatus::SUSPENDED,
+        'expires_at' => now()->addMonth(),
+    ]);
+
+    $state = app(OrganizationSubscriptionAccess::class)->forOrganization($organization);
+
+    expect($state->mode)->toBe(SubscriptionAccessMode::SUSPENDED)
+        ->and($state->canWrite())->toBeFalse()
+        ->and($state->hidesWriteActions())->toBeTrue();
+});

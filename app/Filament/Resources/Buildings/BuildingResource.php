@@ -6,6 +6,7 @@ use App\Filament\Resources\Buildings\Pages\CreateBuilding;
 use App\Filament\Resources\Buildings\Pages\EditBuilding;
 use App\Filament\Resources\Buildings\Pages\ListBuildings;
 use App\Filament\Resources\Buildings\Pages\ViewBuilding;
+use App\Filament\Resources\Buildings\RelationManagers\PropertiesRelationManager;
 use App\Filament\Resources\Buildings\Schemas\BuildingForm;
 use App\Filament\Resources\Buildings\Schemas\BuildingInfolist;
 use App\Filament\Resources\Buildings\Tables\BuildingsTable;
@@ -18,6 +19,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class BuildingResource extends Resource
 {
@@ -54,6 +56,57 @@ class BuildingResource extends Resource
         return __('admin.buildings.plural');
     }
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('shell.navigation.groups.properties');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.buildings.navigation');
+    }
+
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canAccess();
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = auth()->user();
+
+        return $user?->isAdmin() || $user?->isManager();
+    }
+
+    public static function canCreate(): bool
+    {
+        return static::canViewAny() && app(OrganizationContext::class)->currentOrganizationId() !== null;
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return $record instanceof Building
+            && $record->organization_id === app(OrganizationContext::class)->currentOrganizationId()
+            && static::canViewAny();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return static::canView($record);
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return static::canView($record);
+    }
+
     /**
      * @return Builder<Building>
      */
@@ -70,7 +123,9 @@ class BuildingResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            PropertiesRelationManager::class,
+        ];
     }
 
     /**

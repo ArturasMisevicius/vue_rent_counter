@@ -18,11 +18,14 @@ class SendOrganizationNotificationAction
     {
         /** @var SendPlatformNotificationRequest $request */
         $request = new SendPlatformNotificationRequest;
-        $validated = $request->validatePayload($attributes);
+        $validated = $request
+            ->requireSeverity()
+            ->validatePayload($attributes);
 
         $notification = PlatformNotification::query()->create([
             'title' => $validated['title'],
             'body' => $validated['body'],
+            'severity' => $validated['severity'],
         ]);
 
         $users = User::query()

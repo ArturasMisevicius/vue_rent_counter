@@ -16,16 +16,28 @@ return [
     'organization_body' => 'Pastatų, nuomininkų, skaitiklių, sąskaitų ir ataskaitų moduliai bus vystomi nuo šio bendro administratoriaus ir vadybininko puslapio.',
     'organization_metrics' => [
         'total_properties' => 'Visi objektai',
+        'total_properties_trend' => 'Objektai, šiuo metu priskirti šiai organizacijai.',
         'active_tenants' => 'Aktyvūs nuomininkai',
+        'active_tenants_trend' => 'Dabartiniai gyventojai su aktyviu priskyrimu.',
         'pending_invoices' => 'Laukiamos sąskaitos',
+        'draft_invoices' => 'Juodraštinės sąskaitos',
+        'draft_invoices_trend' => 'Sąskaitos, kurios dar turi būti patvirtintos.',
         'revenue_this_month' => 'Pajamos šį mėnesį',
+        'revenue_this_month_trend' => 'Apmokėtų sąskaitų vertė per einamąjį mėnesį.',
     ],
     'organization_usage' => [
         'heading' => 'Prenumeratos panaudojimas',
+        'description' => 'Gyva darbo erdvės apkrova pagal dabartinės prenumeratos ribas.',
         'properties' => 'Objektai',
         'tenants' => 'Nuomininkai',
         'meters' => 'Skaitikliai',
         'invoices' => 'Sąskaitos',
+    ],
+    'platform_sections' => [
+        'revenue_by_plan' => 'Pajamos pagal planą',
+        'expiring_subscriptions' => 'Besibaigiančios prenumeratos',
+        'recent_security_violations' => 'Naujausi saugumo pažeidimai',
+        'recent_organizations' => 'Naujausios organizacijos',
     ],
     'organization_widgets' => [
         'recent_invoices' => 'Naujausios sąskaitos',

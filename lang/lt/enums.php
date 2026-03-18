@@ -113,6 +113,7 @@ return [
         'limit_blocked' => 'Apribotas limitu',
         'grace_read_only' => 'Tik skaitymas per lengvatinį laikotarpį',
         'post_grace_read_only' => 'Tik skaitymas po lengvatinio laikotarpio',
+        'suspended' => 'Sustabdyta',
     ],
     'subscription_duration' => [
         'monthly' => 'Mėnesinis',

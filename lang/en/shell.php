@@ -5,13 +5,16 @@ return [
         'label' => 'Global search',
         'placeholder' => 'Search anything',
         'groups' => [
-            'platform' => 'Platform',
-            'organization' => 'Organization',
-            'tenant' => 'Tenant',
+            'organizations' => 'Organizations',
+            'buildings' => 'Buildings',
+            'properties' => 'Properties',
+            'tenants' => 'Tenants',
+            'invoices' => 'Invoices',
+            'readings' => 'Readings',
         ],
         'empty' => [
             'heading' => 'No results yet',
-            'body' => 'Search results will appear here when matching routes and records exist.',
+            'body' => 'Search results will appear here when matching records are available in your current workspace.',
         ],
     ],
     'navigation' => [
@@ -94,10 +97,18 @@ return [
         ],
         'notifications' => [
             'heading' => 'Notification Preferences',
-            'description' => 'Choose which reminders admins should receive inside the organization workspace.',
+            'description' => 'Choose which operational emails admins should receive for this organization.',
             'fields' => [
-                'invoice_reminders' => 'Invoice reminders',
-                'reading_deadline_alerts' => 'Reading deadline alerts',
+                'new_invoice_generated' => 'New invoice generated',
+                'invoice_overdue' => 'Invoice overdue',
+                'tenant_submits_reading' => 'Tenant submits reading',
+                'subscription_expiring' => 'Subscription expiring',
+            ],
+            'help' => [
+                'new_invoice_generated' => 'Email admins when a newly generated invoice is finalized.',
+                'invoice_overdue' => 'Email admins when overdue invoice reminder workflows are triggered.',
+                'tenant_submits_reading' => 'Email admins when a tenant submits a fresh meter reading.',
+                'subscription_expiring' => 'Email admins before the current subscription expires.',
             ],
             'actions' => [
                 'save' => 'Save Notification Preferences',
@@ -161,6 +172,10 @@ return [
         'actions' => [
             'toggle' => 'Toggle notifications',
             'mark_all_read' => 'Mark all as read',
+        ],
+        'status' => [
+            'read' => 'Read',
+            'unread' => 'Unread',
         ],
         'empty' => [
             'heading' => 'No notifications yet',

@@ -20,8 +20,8 @@ function registerAuthRouteFixtures(): void
         Route::get('/welcome', fn () => 'welcome')->name('welcome.show');
     }
 
-    if (! Route::has('tenant.home')) {
-        Route::get('/tenant/home', fn () => 'tenant home')->name('tenant.home');
+    if (! Route::has('filament.admin.pages.tenant-dashboard')) {
+        Route::get('/__test/tenant-dashboard', fn () => 'tenant dashboard')->name('filament.admin.pages.tenant-dashboard');
     }
 
     if (! Route::has('filament.admin.pages.platform-dashboard')) {
@@ -99,7 +99,7 @@ it('routes users to the correct starting page', function () {
         ->and($redirector->for(User::factory()->manager()->make()))
         ->toBe(route('filament.admin.pages.dashboard'))
         ->and($redirector->for(User::factory()->tenant()->make()))
-        ->toBe(route('filament.admin.pages.dashboard'));
+        ->toBe(route('filament.admin.pages.tenant-dashboard'));
 });
 
 it('forbids non-tenant users from the tenant home route', function () {
@@ -111,15 +111,15 @@ it('forbids non-tenant users from the tenant home route', function () {
     ]);
 
     $this->actingAs($admin)
-        ->get(route('tenant.home'))
+        ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertForbidden();
 });
 
 it('forbids non-tenant users from the tenant invoice history route', function () {
     registerAuthRouteFixtures();
 
-    if (! Route::has('tenant.invoices.index')) {
-        Route::get('/tenant/invoices', fn () => 'tenant invoices')->name('tenant.invoices.index');
+    if (! Route::has('filament.admin.pages.tenant-invoice-history')) {
+        Route::get('/__test/tenant-invoices', fn () => 'tenant invoices')->name('filament.admin.pages.tenant-invoice-history');
     }
 
     app('router')->getRoutes()->refreshNameLookups();
@@ -131,6 +131,6 @@ it('forbids non-tenant users from the tenant invoice history route', function ()
     ]);
 
     $this->actingAs($admin)
-        ->get(route('tenant.invoices.index'))
+        ->get(route('filament.admin.pages.tenant-invoice-history'))
         ->assertForbidden();
 });

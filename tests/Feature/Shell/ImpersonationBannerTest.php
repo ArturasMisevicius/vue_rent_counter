@@ -6,19 +6,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('renders the impersonation banner on tenant pages when impersonation metadata exists', function () {
-    $impersonator = User::factory()->admin()->create();
-    $tenant = User::factory()->tenant()->create();
-
-    $this->actingAs($tenant)
-        ->withSession(impersonationSessionFor($impersonator))
-        ->get(route('tenant.home'))
-        ->assertSuccessful()
-        ->assertSeeText('You are impersonating this account')
-        ->assertSeeText($impersonator->name)
-        ->assertSeeText($impersonator->email);
-});
-
 it('renders the impersonation banner on admin pages when impersonation metadata exists', function () {
     $organization = Organization::factory()->create();
     $impersonator = User::factory()->superadmin()->create();
@@ -56,11 +43,14 @@ it('clears impersonation state and returns to the impersonators dashboard', func
         ->and(session()->missing('impersonator_email'))->toBeTrue();
 });
 
-it('does not render the banner when no impersonation session exists', function () {
-    $tenant = User::factory()->tenant()->create();
+it('does not render the banner on admin pages when no impersonation session exists', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
 
-    $this->actingAs($tenant)
-        ->get(route('tenant.home'))
+    $this->actingAs($admin)
+        ->get(route('filament.admin.pages.dashboard'))
         ->assertSuccessful()
         ->assertDontSeeText('You are impersonating this account');
 });

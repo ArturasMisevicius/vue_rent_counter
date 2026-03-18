@@ -3,11 +3,9 @@
 ## Context
 
 Today the repository exposes only one tenant route, `tenant.home`, backed by a
-placeholder Blade view and a controller that simply checks `isTenant()`. The
-implementation plan in
-`docs/superpowers/plans/2026-03-17-tenant-self-service-portal.md` defines a
-much larger tenant portal, but the repository did not yet contain OpenSpec
-artifacts or an `openspec/` scaffold.
+placeholder Blade view and a controller that simply checks `isTenant()`. This
+OpenSpec change captured the larger tenant portal rollout before the current
+repository had a full `openspec/` scaffold.
 
 ## Goals
 

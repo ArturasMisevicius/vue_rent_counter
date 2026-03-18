@@ -1,0 +1,84 @@
+<?php
+
+namespace App\Filament\Resources\Tenants\RelationManagers;
+
+use App\Filament\Resources\MeterReadings\MeterReadingResource;
+use App\Filament\Resources\Tenants\TenantResource;
+use App\Models\MeterReading;
+use App\Models\User;
+use Filament\Actions\ViewAction;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+
+class ReadingsRelationManager extends RelationManager
+{
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        return TenantResource::canView($ownerRecord);
+    }
+
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
+        return __('admin.tenants.tabs.readings');
+    }
+
+    public function getRelationship(): Relation|Builder
+    {
+        $tenant = $this->getOwnerRecord();
+        $propertyId = $this->resolveCurrentPropertyId($tenant);
+
+        if ($propertyId === null) {
+            return MeterReading::query()->whereKey(-1);
+        }
+
+        return MeterReading::query()
+            ->forOrganization($tenant->organization_id)
+            ->forProperty($propertyId)
+            ->withWorkspaceRelations()
+            ->latestFirst();
+    }
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('meter.name')
+                    ->label(__('admin.meter_readings.columns.meter'))
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('property.name')
+                    ->label(__('admin.meter_readings.columns.property'))
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('reading_value')
+                    ->label(__('admin.meter_readings.columns.reading_value'))
+                    ->formatStateUsing(fn ($state): string => rtrim(rtrim(number_format((float) $state, 3, '.', ''), '0'), '.'))
+                    ->sortable(),
+                TextColumn::make('reading_date')
+                    ->label(__('admin.meter_readings.columns.reading_date'))
+                    ->date()
+                    ->sortable(),
+                TextColumn::make('validation_status')
+                    ->label(__('admin.meter_readings.columns.validation_status'))
+                    ->badge(),
+            ])
+            ->recordActions([
+                ViewAction::make()
+                    ->url(fn (MeterReading $record): string => MeterReadingResource::getUrl('view', ['record' => $record])),
+            ])
+            ->defaultSort('reading_date', 'desc');
+    }
+
+    private function resolveCurrentPropertyId(User $tenant): ?int
+    {
+        if ($tenant->relationLoaded('currentPropertyAssignment')) {
+            return $tenant->currentPropertyAssignment?->property_id;
+        }
+
+        return $tenant->currentPropertyAssignment()->value('property_id');
+    }
+}

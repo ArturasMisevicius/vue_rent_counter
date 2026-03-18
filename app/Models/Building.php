@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Building extends Model
 {
@@ -54,12 +55,18 @@ class Building extends Model
         return $query->withCount('properties');
     }
 
+    public function scopeWithMeterCount(Builder $query): Builder
+    {
+        return $query->withCount('meters');
+    }
+
     public function scopeForOrganizationWorkspace(Builder $query, int $organizationId): Builder
     {
         return $query
             ->select(self::WORKSPACE_COLUMNS)
             ->forOrganization($organizationId)
             ->withPropertyCount()
+            ->withMeterCount()
             ->ordered();
     }
 
@@ -71,5 +78,17 @@ class Building extends Model
     public function properties(): HasMany
     {
         return $this->hasMany(Property::class);
+    }
+
+    public function meters(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Meter::class,
+            Property::class,
+            'building_id',
+            'property_id',
+            'id',
+            'id',
+        );
     }
 }

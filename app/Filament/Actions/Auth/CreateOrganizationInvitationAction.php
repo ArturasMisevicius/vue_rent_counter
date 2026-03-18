@@ -7,7 +7,6 @@ use App\Models\OrganizationInvitation;
 use App\Models\User;
 use App\Notifications\Auth\OrganizationInvitationNotification;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class CreateOrganizationInvitationAction
@@ -76,19 +75,23 @@ class CreateOrganizationInvitationAction
             ]);
         }
 
+        $plainTextToken = OrganizationInvitation::issueToken();
+
         $invitation = OrganizationInvitation::query()->create([
             'organization_id' => $inviter->organization_id,
             'inviter_user_id' => $inviter->id,
             'email' => $attributes['email'],
             'role' => $attributes['role'],
             'full_name' => $attributes['full_name'] ?? null,
-            'token' => (string) Str::uuid(),
+            'token' => OrganizationInvitation::hashToken($plainTextToken),
             'expires_at' => now()->addDays(7),
             'accepted_at' => null,
         ]);
 
+        $invitation->acceptanceToken = $plainTextToken;
+
         Notification::route('mail', $invitation->email)
-            ->notify(new OrganizationInvitationNotification($invitation));
+            ->notify(new OrganizationInvitationNotification($invitation, $plainTextToken));
 
         return $invitation;
     }

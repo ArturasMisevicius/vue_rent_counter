@@ -41,6 +41,9 @@ class SendPlatformNotificationRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'body' => ['required', 'string'],
             'severity' => $severityRules,
+            'target_mode' => ['nullable', 'string', Rule::in(['all', 'specific'])],
+            'organization_ids' => ['nullable', 'array', 'required_if:target_mode,specific'],
+            'organization_ids.*' => ['integer', Rule::exists('organizations', 'id')],
         ];
     }
 
@@ -55,6 +58,9 @@ class SendPlatformNotificationRequest extends FormRequest
             'body.required' => ['required', 'body'],
             'severity.required' => ['required', 'notification_severity'],
             'severity.enum' => ['enum', 'notification_severity'],
+            'organization_ids.required_if' => ['required', 'organization'],
+            'organization_ids.array' => ['array', 'organization'],
+            'organization_ids.*.exists' => ['exists', 'organization'],
         ]);
     }
 
@@ -67,6 +73,7 @@ class SendPlatformNotificationRequest extends FormRequest
             'title' => $this->translateAttribute('title'),
             'body' => $this->translateAttribute('body'),
             'severity' => $this->translateAttribute('notification_severity'),
+            'organization_ids' => $this->translateAttribute('organization'),
         ];
     }
 
@@ -76,6 +83,7 @@ class SendPlatformNotificationRequest extends FormRequest
             'title',
             'body',
             'severity',
+            'target_mode',
         ]);
 
         $severity = $this->input('severity');
@@ -88,6 +96,7 @@ class SendPlatformNotificationRequest extends FormRequest
 
         $this->emptyStringsToNull([
             'severity',
+            'target_mode',
         ]);
     }
 }

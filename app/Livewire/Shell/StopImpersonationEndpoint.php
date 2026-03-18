@@ -2,30 +2,22 @@
 
 namespace App\Livewire\Shell;
 
-use App\Filament\Support\Auth\ImpersonationManager;
 use App\Filament\Support\Shell\DashboardUrlResolver;
+use App\Services\ImpersonationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class StopImpersonationEndpoint extends Component
 {
     public function stop(
         Request $request,
-        ImpersonationManager $impersonationManager,
+        ImpersonationService $impersonationService,
         DashboardUrlResolver $dashboardUrlResolver,
     ): RedirectResponse {
-        $impersonator = $impersonationManager->resolveImpersonator($request);
+        $impersonator = $impersonationService->stop($request);
+        $redirectUser = $impersonator ?? $request->user();
 
-        $impersonationManager->forget($request);
-
-        if ($impersonator !== null) {
-            Auth::guard('web')->login($impersonator);
-
-            return redirect()->to($dashboardUrlResolver->for($impersonator));
-        }
-
-        return redirect()->to($dashboardUrlResolver->for($request->user()));
+        return redirect()->to($dashboardUrlResolver->for($redirectUser));
     }
 }

@@ -32,6 +32,7 @@ class Invoice extends Model
         'due_date',
         'finalized_at',
         'paid_at',
+        'last_reminder_sent_at',
         'payment_reference',
         'items',
         'notes',
@@ -54,6 +55,7 @@ class Invoice extends Model
         'amount_paid',
         'due_date',
         'paid_at',
+        'last_reminder_sent_at',
         'document_path',
     ];
 
@@ -72,6 +74,7 @@ class Invoice extends Model
         'due_date',
         'finalized_at',
         'paid_at',
+        'last_reminder_sent_at',
         'payment_reference',
         'snapshot_data',
         'snapshot_created_at',
@@ -100,6 +103,7 @@ class Invoice extends Model
             'due_date' => 'date',
             'finalized_at' => 'datetime',
             'paid_at' => 'datetime',
+            'last_reminder_sent_at' => 'datetime',
             'snapshot_data' => 'array',
             'snapshot_created_at' => 'datetime',
             'generated_at' => 'datetime',

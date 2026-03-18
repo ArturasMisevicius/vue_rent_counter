@@ -143,7 +143,7 @@ it('shows organization dashboard metrics, usage, invoices, and deadlines for adm
         ->assertSuccessful()
         ->assertSeeText('Total Properties')
         ->assertSeeText('Active Tenants')
-        ->assertSeeText('Pending Invoices')
+        ->assertSeeText('Draft Invoices')
         ->assertSeeText('Revenue This Month')
         ->assertSeeText('Subscription Usage')
         ->assertSeeText('Recent Invoices')

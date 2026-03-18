@@ -7,6 +7,10 @@ use App\Filament\Resources\Tenants\Pages\CreateTenant;
 use App\Filament\Resources\Tenants\Pages\EditTenant;
 use App\Filament\Resources\Tenants\Pages\ListTenants;
 use App\Filament\Resources\Tenants\Pages\ViewTenant;
+use App\Filament\Resources\Tenants\RelationManagers\AuditTrailRelationManager;
+use App\Filament\Resources\Tenants\RelationManagers\InvoicesRelationManager;
+use App\Filament\Resources\Tenants\RelationManagers\MetersRelationManager;
+use App\Filament\Resources\Tenants\RelationManagers\ReadingsRelationManager;
 use App\Filament\Resources\Tenants\Schemas\TenantForm;
 use App\Filament\Resources\Tenants\Schemas\TenantInfolist;
 use App\Filament\Resources\Tenants\Tables\TenantsTable;
@@ -58,6 +62,28 @@ class TenantResource extends Resource
     public static function getPluralModelLabel(): string
     {
         return __('admin.tenants.plural');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('shell.navigation.groups.properties');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.tenants.navigation');
+    }
+
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        return $user?->isSuperadmin() || $user?->isAdmin() || $user?->isManager();
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canAccess();
     }
 
     /**
@@ -121,7 +147,12 @@ class TenantResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            MetersRelationManager::class,
+            ReadingsRelationManager::class,
+            InvoicesRelationManager::class,
+            AuditTrailRelationManager::class,
+        ];
     }
 
     /**

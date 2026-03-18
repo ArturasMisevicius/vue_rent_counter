@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Tenants\Tables;
 use App\Enums\UserStatus;
 use App\Filament\Actions\Admin\Tenants\DeleteTenantAction;
 use App\Filament\Resources\Tenants\TenantResource;
+use App\Filament\Support\Admin\OrganizationContext;
+use App\Models\Property;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -45,8 +47,29 @@ class TenantsTable
             ])
             ->filters([
                 SelectFilter::make('status')
+                    ->label(__('admin.tenants.columns.status'))
                     ->options(UserStatus::options()),
+                SelectFilter::make('property_id')
+                    ->label(__('admin.tenants.columns.property'))
+                    ->query(function ($query, array $data): void {
+                        $propertyId = $data['value'] ?? null;
+
+                        if ($propertyId === null || $propertyId === '') {
+                            return;
+                        }
+
+                        $query->whereHas('currentPropertyAssignment', function ($assignmentQuery) use ($propertyId): void {
+                            $assignmentQuery->where('property_id', $propertyId);
+                        });
+                    })
+                    ->options(fn (): array => Property::query()
+                        ->select(['id', 'organization_id', 'name'])
+                        ->where('organization_id', app(OrganizationContext::class)->currentOrganizationId())
+                        ->orderBy('name')
+                        ->pluck('name', 'id')
+                        ->all()),
                 SelectFilter::make('locale')
+                    ->label(__('admin.tenants.columns.locale'))
                     ->options(config('tenanto.locales', [])),
             ])
             ->emptyStateHeading(__('admin.tenants.empty_state.heading'))

@@ -36,11 +36,15 @@ return [
         ],
         'notifications' => [
             'title' => 'Notification Preferences',
-            'description' => 'Decide which operational alerts should stay visible for this organization.',
-            'invoice_reminders' => 'Invoice Reminders',
-            'invoice_reminders_help' => 'Show reminder controls for overdue invoices and due-date follow-ups.',
-            'reading_deadline_alerts' => 'Reading Deadline Alerts',
-            'reading_deadline_alerts_help' => 'Highlight meters that are approaching their next expected reading window.',
+            'description' => 'Decide which operational emails admins should receive for this organization.',
+            'new_invoice_generated' => 'New Invoice Generated',
+            'new_invoice_generated_help' => 'Email admins when a newly generated invoice is finalized.',
+            'invoice_overdue' => 'Invoice Overdue',
+            'invoice_overdue_help' => 'Email admins when overdue invoice reminder workflows are triggered.',
+            'tenant_submits_reading' => 'Tenant Submits Reading',
+            'tenant_submits_reading_help' => 'Email admins when a tenant submits a fresh meter reading.',
+            'subscription_expiring' => 'Subscription Expiring',
+            'subscription_expiring_help' => 'Email admins before the organization subscription expires.',
         ],
         'subscription' => [
             'title' => 'Subscription',
@@ -64,10 +68,15 @@ return [
     'buildings' => [
         'singular' => 'Building',
         'plural' => 'Buildings',
+        'navigation' => 'Buildings',
         'view_title' => 'Building Details',
         'sections' => [
             'details' => 'Building Details',
             'activity' => 'Building Activity',
+        ],
+        'tabs' => [
+            'overview' => 'Overview',
+            'properties' => 'Properties',
         ],
         'fields' => [
             'name' => 'Name',
@@ -77,6 +86,7 @@ return [
             'postal_code' => 'Postal Code',
             'country_code' => 'Country Code',
             'properties_count' => 'Properties',
+            'meters_count' => 'Meters',
             'updated_at' => 'Updated At',
         ],
         'columns' => [
@@ -88,6 +98,7 @@ return [
             'country_code' => 'Country Code',
             'properties_count' => 'Properties',
             'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
         ],
         'empty' => [
             'address_line_2' => 'Not set',
@@ -104,11 +115,18 @@ return [
     'properties' => [
         'singular' => 'Property',
         'plural' => 'Properties',
+        'navigation' => 'Properties',
         'view_title' => 'Property Details',
         'sections' => [
             'details' => 'Property Details',
             'current_occupancy' => 'Current Occupancy',
             'assignment_history' => 'Assignment History',
+        ],
+        'tabs' => [
+            'tenant' => 'Tenant',
+            'meters' => 'Meters',
+            'readings' => 'Readings',
+            'invoices' => 'Invoices',
         ],
         'fields' => [
             'name' => 'Name',
@@ -130,6 +148,14 @@ return [
             'tenant' => 'Tenant',
             'assigned_since' => 'Assigned Since',
             'created_at' => 'Created At',
+            'meters_count' => 'Meters',
+        ],
+        'filters' => [
+            'occupancy_status' => 'Occupancy Status',
+            'occupancy' => [
+                'occupied' => 'Occupied',
+                'vacant' => 'Vacant',
+            ],
         ],
         'types' => [
             'apartment' => 'Apartment',
@@ -162,16 +188,25 @@ return [
             'invalid_tenant' => 'The selected tenant is not available for this organization.',
             'limit_reached' => 'The property limit for this organization has been reached.',
             'delete_blocked' => 'Properties with assignment, meter, or invoice history cannot be deleted.',
+            'tenant_assigned' => 'The tenant assignment was updated.',
         ],
     ],
     'tenants' => [
         'singular' => 'Tenant',
         'plural' => 'Tenants',
+        'navigation' => 'Tenants',
         'view_title' => 'Tenant Details',
         'sections' => [
             'details' => 'Tenant Details',
             'current_property' => 'Current Property',
             'invoice_history' => 'Invoice History',
+        ],
+        'tabs' => [
+            'profile' => 'Profile',
+            'meters' => 'Meters',
+            'readings' => 'Readings',
+            'invoices' => 'Invoices',
+            'audit_trail' => 'Audit Trail',
         ],
         'fields' => [
             'name' => 'Name',
@@ -206,16 +241,31 @@ return [
         ],
         'actions' => [
             'resend_invitation' => 'Resend Invitation',
+            'reassign_property' => 'Reassign Property',
         ],
         'messages' => [
             'limit_reached' => 'The tenant limit for this organization has been reached.',
             'delete_blocked' => 'Tenants with invoice history cannot be deleted.',
             'invitation_resent' => 'A fresh invitation has been sent.',
+            'reassign_property_warning' => 'Reassigning this tenant moves portal access to the newly selected property and removes access to the current property data.',
+            'property_reassigned' => 'The tenant property assignment was updated.',
+        ],
+        'audit' => [
+            'columns' => [
+                'occurred_at' => 'Occurred At',
+                'actor' => 'Actor',
+                'action' => 'Action',
+                'description' => 'Description',
+            ],
+            'empty' => [
+                'system' => 'System',
+            ],
         ],
     ],
     'meters' => [
         'singular' => 'Meter',
         'plural' => 'Meters',
+        'navigation' => 'Meters',
         'view_title' => 'Meter Details',
         'sections' => [
             'details' => 'Meter Details',
@@ -259,6 +309,10 @@ return [
             'readings' => 'No readings yet.',
             'chart' => 'Chart coming soon.',
         ],
+        'chart' => [
+            'description' => 'Reading values are plotted chronologically so you can spot unexpected jumps before billing runs.',
+            'empty' => 'Add meter readings to render the consumption chart.',
+        ],
         'empty_state' => [
             'heading' => 'Register your first meter',
             'description' => 'Meters power tenant readings and future invoice generation for each property you manage.',
@@ -271,6 +325,7 @@ return [
     'invoices' => [
         'singular' => 'Invoice',
         'plural' => 'Invoices',
+        'navigation' => 'Invoices',
         'view_title' => 'Invoice Details',
         'sections' => [
             'details' => 'Invoice Details',
@@ -287,7 +342,9 @@ return [
             'due_date' => 'Due Date',
             'total_amount' => 'Total Amount',
             'amount_paid' => 'Amount Paid',
+            'method' => 'Payment Method',
             'payment_reference' => 'Payment Reference',
+            'recipient_email' => 'Recipient Email',
             'paid_at' => 'Paid At',
             'items' => 'Items',
             'description' => 'Description',
@@ -322,6 +379,7 @@ return [
         'empty' => [
             'document_path' => 'No document generated yet.',
             'property' => 'No property assigned',
+            'tenant' => 'No tenant assigned',
         ],
         'generated' => [
             'default_line_item' => 'Generated invoice for :property (:period_start to :period_end)',
@@ -330,20 +388,55 @@ return [
             'title' => 'Bulk Invoice Generation',
             'description' => 'Preview invoice eligibility for the selected billing period and generate missing invoices in one step.',
             'summary' => 'Bulk invoice summary',
+            'summary_help' => 'The generation run is scoped to the tenants selected in step two.',
             'created' => 'Created',
+            'failed' => 'Failed',
             'skipped' => 'Skipped',
+            'progress' => 'Completion',
+            'selection_help' => 'Review eligible tenants, skip the already billed ones, and generate only the invoices you want for this period.',
+            'search' => 'Search tenants',
+            'search_placeholder' => 'Search by tenant or property',
+            'estimated_total' => 'Estimated total',
+            'empty_preview' => 'Preview the billing period first so Tenanto can show which tenants are ready for invoice generation.',
+            'empty_candidates' => 'No tenants match the current search.',
+            'processing' => 'Generating invoices. This can take a few moments for larger organizations.',
+            'steps' => [
+                'period' => '1. Billing Period',
+                'tenants' => '2. Tenants',
+            ],
+            'status' => [
+                'already_billed' => 'Already billed',
+            ],
             'actions' => [
                 'preview' => 'Preview invoices',
+                'review_tenants' => 'Review tenants',
+                'back' => 'Back to billing period',
                 'generate' => 'Generate invoices',
             ],
         ],
+        'actions' => [
+            'finalize' => 'Finalize',
+            'process_payment' => 'Process Payment',
+            'send_email' => 'Send Email',
+            'download_pdf' => 'Download PDF',
+        ],
         'messages' => [
+            'finalized' => 'Invoice finalized successfully.',
             'finalized_locked' => 'Finalized invoices keep payment and status updates available, but commercial content can no longer be changed.',
+            'payment_recorded' => 'Payment recorded successfully.',
+            'email_sent' => 'Invoice email logged successfully.',
+            'email_subject' => 'Invoice :number',
+            'reminder_sent' => 'Reminder email sent successfully.',
+        ],
+        'pdf' => [
+            'title' => 'Invoice :number',
+            'empty_items' => 'No invoice line items are available for this document.',
         ],
     ],
     'meter_readings' => [
         'singular' => 'Meter Reading',
         'plural' => 'Meter Readings',
+        'navigation' => 'Meter Readings',
         'view_title' => 'Reading Details',
         'sections' => [
             'details' => 'Reading Details',
@@ -358,6 +451,7 @@ return [
             'submission_method' => 'Submission Method',
             'submitted_by' => 'Submitted By',
             'notes' => 'Notes',
+            'rejection_reason' => 'Rejection Reason',
         ],
         'columns' => [
             'meter' => 'Meter',
@@ -381,6 +475,14 @@ return [
         'empty' => [
             'submitted_by' => 'System',
             'notes' => 'No notes recorded.',
+        ],
+        'actions' => [
+            'validate' => 'Validate',
+            'reject' => 'Reject',
+        ],
+        'messages' => [
+            'validated' => 'Meter reading validated.',
+            'rejected' => 'Meter reading rejected.',
         ],
     ],
     'providers' => [
@@ -562,21 +664,32 @@ return [
         ],
         'descriptions' => [
             'consumption' => 'Track meter-level usage over the selected period and compare the first and latest readings in range.',
+            'consumption_grouped' => 'Review consumption grouped by tenant and meter type across the selected reporting period.',
             'revenue' => 'Review billed, collected, and outstanding amounts for invoices that closed during the selected period.',
+            'revenue_grouped' => 'Review monthly invoiced, paid, and outstanding totals for the selected reporting period.',
             'outstanding_balances' => 'Focus on unpaid invoices and the tenants or properties that still require collection follow-up.',
+            'outstanding_balances_grouped' => 'Review unpaid invoices, overdue exposure, and reminder activity for the selected reporting period.',
             'meter_compliance' => 'Confirm which meters have current readings in range and which still need attention.',
+            'meter_compliance_threshold' => 'Confirm which meters remain compliant using a :days-day reading threshold.',
         ],
         'filters' => [
             'start_date' => 'Start Date',
             'end_date' => 'End Date',
+            'building' => 'Building',
+            'property' => 'Property',
+            'tenant' => 'Tenant',
             'meter_type' => 'Meter Type',
             'invoice_status' => 'Invoice Status',
             'only_overdue' => 'Only overdue invoices',
             'compliance_state' => 'Compliance State',
+            'status_filter' => 'Status',
             'all' => 'All',
         ],
         'columns' => [
+            'actions' => 'Actions',
+            'building' => 'Building',
             'meter' => 'Meter',
+            'month' => 'Month',
             'property' => 'Property',
             'type' => 'Type',
             'first_reading' => 'First Reading',
@@ -588,14 +701,24 @@ return [
             'tenant' => 'Tenant',
             'status' => 'Status',
             'billed' => 'Billed',
+            'total_invoiced' => 'Total Invoiced',
             'paid' => 'Paid',
+            'total_paid' => 'Total Paid',
             'outstanding' => 'Outstanding',
+            'total_outstanding' => 'Total Outstanding',
+            'invoice_count' => 'Invoice Count',
             'period_end' => 'Period End',
             'due_date' => 'Due Date',
+            'days_overdue' => 'Days Overdue',
             'latest_reading' => 'Latest Reading',
+            'days_since_last_reading' => 'Days Since Last Reading',
             'compliance' => 'Compliance',
+            'reminder_sent_at' => 'Last Reminder Sent',
         ],
         'summary' => [
+            'tenant_groups' => 'Tenant Groups',
+            'meter_type_groups' => 'Meter Type Groups',
+            'months' => 'Months',
             'total_meters' => 'Meters',
             'total_readings' => 'Readings',
             'total_consumption' => 'Total Consumption',
@@ -603,6 +726,9 @@ return [
             'billed_total' => 'Billed Total',
             'collected_total' => 'Collected Total',
             'outstanding_total' => 'Outstanding Total',
+            'total_invoiced' => 'Total Invoiced',
+            'total_paid' => 'Total Paid',
+            'total_outstanding' => 'Total Outstanding',
             'overdue_count' => 'Overdue Invoices',
             'affected_tenants' => 'Affected Tenants',
             'compliant_meters' => 'Compliant Meters',
@@ -618,9 +744,22 @@ return [
             'load' => 'Load Report',
             'export_csv' => 'Export CSV',
             'export_pdf' => 'Export PDF',
+            'send_reminder' => 'Send Reminder Email',
+        ],
+        'notifications' => [
+            'overdue_subject' => 'Invoice :number is overdue',
+            'overdue_greeting' => 'Hello,',
+            'overdue_intro' => 'This is a reminder that invoice :number is still outstanding.',
+            'overdue_period' => 'Billing period: :from to :to',
+            'overdue_balance' => 'Outstanding balance: :amount',
+            'overdue_days' => 'Days overdue: :count',
+            'download_invoice' => 'Download invoice PDF',
         ],
         'messages' => [
             'load_before_export' => 'Load a report before exporting it.',
+            'organization_context_required' => 'Select an organization context before viewing reports.',
+            'reminder_sent' => 'Reminder email sent successfully.',
+            'reminder_skipped' => 'Reminder email was skipped because delivery is disabled or unavailable.',
         ],
         'empty' => [
             'consumption' => 'No readings matched the selected filters.',

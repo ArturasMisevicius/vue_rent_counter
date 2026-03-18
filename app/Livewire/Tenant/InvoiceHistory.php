@@ -1,0 +1,129 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Livewire\Tenant;
+
+use App\Filament\Support\Tenant\Portal\PaymentInstructionsResolver;
+use App\Filament\Support\Tenant\Portal\TenantInvoiceIndexQuery;
+use App\Http\Requests\Tenant\InvoiceHistoryFilterRequest;
+use App\Models\Invoice;
+use App\Models\User;
+use App\Services\Billing\InvoicePdfService;
+use Illuminate\Contracts\Pagination\Paginator;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Gate;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Url;
+use Livewire\Component;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+class InvoiceHistory extends Component
+{
+    #[Url(as: 'status')]
+    public string $selectedStatus = 'all';
+
+    public function mount(): void
+    {
+        /** @var InvoiceHistoryFilterRequest $filtersRequest */
+        $filtersRequest = new InvoiceHistoryFilterRequest;
+        $validated = $filtersRequest->validatePayload([
+            'selectedStatus' => $this->selectedStatus,
+        ]);
+
+        $this->selectedStatus = (string) $validated['selectedStatus'];
+    }
+
+    public function render(): View
+    {
+        return view('livewire.tenant.invoice-history', [
+            'invoices' => $this->invoices,
+            'paymentGuidance' => $this->paymentGuidance,
+            'selectedStatus' => $this->selectedStatus,
+        ]);
+    }
+
+    public function downloadPdf(int $invoiceId, InvoicePdfService $invoicePdfService): StreamedResponse
+    {
+        $invoice = Invoice::query()
+            ->select([
+                'id',
+                'organization_id',
+                'property_id',
+                'tenant_user_id',
+                'invoice_number',
+                'status',
+                'currency',
+                'total_amount',
+                'amount_paid',
+                'paid_amount',
+                'billing_period_start',
+                'billing_period_end',
+                'due_date',
+                'items',
+                'document_path',
+            ])
+            ->findOrFail($invoiceId);
+
+        Gate::forUser($this->tenant())->authorize('download', $invoice);
+
+        return $invoicePdfService->streamDownload($invoice);
+    }
+
+    public function updatedSelectedStatus(string $status): void
+    {
+        /** @var InvoiceHistoryFilterRequest $filtersRequest */
+        $filtersRequest = new InvoiceHistoryFilterRequest;
+        $validated = $filtersRequest->validatePayload([
+            'selectedStatus' => $status,
+        ]);
+
+        $this->selectedStatus = (string) $validated['selectedStatus'];
+    }
+
+    #[Computed]
+    public function tenant(): User
+    {
+        $tenantId = auth()->id();
+
+        /** @var User $tenant */
+        $tenant = User::query()
+            ->select(['id', 'organization_id', 'role'])
+            ->findOrFail($tenantId);
+
+        return $tenant->loadMissing(
+            'organization.settings:id,organization_id,billing_contact_name,billing_contact_email,billing_contact_phone,payment_instructions,invoice_footer',
+        );
+    }
+
+    #[Computed]
+    public function invoices(): Paginator
+    {
+        return app(TenantInvoiceIndexQuery::class)->for(
+            $this->tenant,
+            $this->selectedStatusFilter(),
+        );
+    }
+
+    /**
+     * @return array{
+     *     content: string|null,
+     *     contact_name: string|null,
+     *     contact_email: string|null,
+     *     contact_phone: string|null,
+     *     has_contact_details: bool
+     * }
+     */
+    #[Computed]
+    public function paymentGuidance(): array
+    {
+        return app(PaymentInstructionsResolver::class)->resolve(
+            $this->tenant->organization?->settings,
+        );
+    }
+
+    private function selectedStatusFilter(): ?string
+    {
+        return $this->selectedStatus === 'all' ? null : $this->selectedStatus;
+    }
+}

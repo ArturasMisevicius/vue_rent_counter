@@ -45,9 +45,13 @@ return [
             'greeting' => 'Sveiki, :name',
             'month_heading' => 'Šis mėnuo',
             'current_month_metric' => '{0}Viskas pateikta|{1}:count laukia|[2,*]:count laukia',
+            'current_month_consumption' => 'Šio mėnesio sunaudojimas',
             'recent_readings' => 'Naujausi rodmenys',
             'across_invoices' => 'Per :count sąsk.',
+            'building_label' => 'Pastatas: :building',
             'no_reading_this_month' => 'Šį mėnesį rodmuo dar nepateiktas',
+            'unassigned_title' => 'Turtas dar nepriskirtas',
+            'unassigned_description' => 'Nuomininko portalas bus aktyvuotas, kai administratorius priskirs jūsų būstą ir skaitiklius.',
         ],
         'readings' => [
             'title' => 'Pateikti rodmenį',
@@ -68,6 +72,7 @@ return [
             'preview_empty' => 'Pasirinkite skaitiklį ir įveskite reikšmę, kad prieš pateikdami pamatytumėte pokytį.',
             'first_reading' => 'Tai bus pirmasis šio skaitiklio rodmuo.',
             'previous_reading' => 'Ankstesnis rodmuo: :value :unit, data :date',
+            'lower_than_previous_warning' => 'Šis rodmuo yra mažesnis už ankstesnį užfiksuotą ir pateikimo metu bus atmestas.',
             'unauthorized_meter' => 'Šis skaitiklis jūsų portale neprieinamas.',
         ],
         'invoices' => [

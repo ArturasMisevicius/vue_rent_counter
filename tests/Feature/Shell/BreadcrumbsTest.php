@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('renders breadcrumbs on tenant non-dashboard pages and keeps dashboards breadcrumb-free', function () {
+it('renders tenant portal pages without the legacy breadcrumb shell markers', function () {
     $organization = Organization::factory()->create();
     $building = Building::factory()->for($organization)->create();
     $property = Property::factory()->for($organization)->for($building)->create([
@@ -31,21 +31,17 @@ it('renders breadcrumbs on tenant non-dashboard pages and keeps dashboards bread
     Invoice::factory()->for($organization)->for($property)->for($tenant, 'tenant')->create();
 
     $this->actingAs($tenant)
-        ->get(route('tenant.property.show'))
+        ->get(route('filament.admin.pages.tenant-property-details'))
         ->assertSuccessful()
-        ->assertSee('data-breadcrumbs="true"', false)
-        ->assertSee('data-breadcrumb-link="'.route('tenant.home').'"', false)
-        ->assertDontSee('data-breadcrumb-link="'.route('tenant.property.show').'"', false);
+        ->assertDontSee('data-breadcrumbs="true"', false);
 
     $this->actingAs($tenant)
-        ->get(route('tenant.invoices.index'))
+        ->get(route('filament.admin.pages.tenant-invoice-history'))
         ->assertSuccessful()
-        ->assertSee('data-breadcrumbs="true"', false)
-        ->assertSee('data-breadcrumb-link="'.route('tenant.home').'"', false)
-        ->assertDontSee('data-breadcrumb-link="'.route('tenant.invoices.index').'"', false);
+        ->assertDontSee('data-breadcrumbs="true"', false);
 
     $this->actingAs($tenant)
-        ->get(route('tenant.home'))
+        ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertDontSee('data-breadcrumbs="true"', false);
 });

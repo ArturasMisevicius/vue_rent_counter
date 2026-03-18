@@ -8,29 +8,29 @@ use App\Http\Requests\Shell\SearchQueryRequest;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 class GlobalSearch extends Component
 {
     public bool $open = false;
 
+    #[Url(as: 'q', except: '')]
     public string $query = '';
+
+    public function mount(): void
+    {
+        $this->synchronizeQueryState($this->query);
+    }
 
     public function updatedQuery(): void
     {
-        /** @var SearchQueryRequest $request */
-        $request = new SearchQueryRequest;
-        $validated = $request->validatePayload([
-            'query' => $this->query,
-        ]);
-
-        $this->query = (string) ($validated['query'] ?? '');
-        $this->open = filled($this->query);
+        $this->synchronizeQueryState($this->query);
     }
 
     public function openOverlay(): void
     {
-        $this->open = true;
+        $this->open = filled($this->query);
     }
 
     #[On('shell-search-dismissed')]
@@ -44,7 +44,8 @@ class GlobalSearch extends Component
     {
         return view('livewire.shell.global-search', [
             'groupLabels' => $this->groupLabels,
-            'results' => $this->results,
+            'hasResults' => $this->hasResults,
+            'results' => $this->visibleResults,
         ]);
     }
 
@@ -69,6 +70,23 @@ class GlobalSearch extends Component
     }
 
     /**
+     * @return array<string, array<int, array{group: string, title: string, subtitle: ?string, url: ?string}>>
+     */
+    #[Computed]
+    public function visibleResults(): array
+    {
+        return collect($this->results)
+            ->filter(fn (array $groupResults): bool => $groupResults !== [])
+            ->all();
+    }
+
+    #[Computed]
+    public function hasResults(): bool
+    {
+        return $this->visibleResults !== [];
+    }
+
+    /**
      * @param  array<string, array<int, GlobalSearchResultData>>  $results
      * @return array<string, array<int, array{group: string, title: string, subtitle: ?string, url: ?string}>>
      */
@@ -80,5 +98,17 @@ class GlobalSearch extends Component
                 $groupResults,
             ))
             ->all();
+    }
+
+    protected function synchronizeQueryState(string $query): void
+    {
+        /** @var SearchQueryRequest $request */
+        $request = new SearchQueryRequest;
+        $validated = $request->validatePayload([
+            'query' => $query,
+        ]);
+
+        $this->query = (string) ($validated['query'] ?? '');
+        $this->open = filled($this->query);
     }
 }

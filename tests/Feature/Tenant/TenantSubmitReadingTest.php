@@ -62,6 +62,23 @@ it('shows a live consumption preview for the selected meter', function () {
         ->assertSeeText('5.250');
 });
 
+it('shows a live warning when the entered reading is lower than the previous value', function () {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->withReadings()
+        ->create();
+
+    /** @var Meter $meter */
+    $meter = $tenant->meters->firstOrFail();
+
+    Livewire::actingAs($tenant->user)
+        ->test(SubmitReadingPage::class)
+        ->set('meterId', (string) $meter->id)
+        ->set('readingValue', '120.000')
+        ->assertSeeText('will be rejected on submission');
+});
+
 it('shows a validation error when the submitted reading decreases', function () {
     $tenant = TenantPortalFactory::new()
         ->withAssignedProperty()

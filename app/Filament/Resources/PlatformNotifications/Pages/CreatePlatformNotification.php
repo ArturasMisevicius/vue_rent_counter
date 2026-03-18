@@ -18,6 +18,8 @@ class CreatePlatformNotification extends CreateRecord
             'title' => $data['title'],
             'body' => $data['body'],
             'severity' => PlatformNotificationSeverity::from($data['severity']),
+            'target_mode' => $data['target_mode'] ?? 'all',
+            'organization_ids' => $data['organization_ids'] ?? [],
         ]);
     }
 

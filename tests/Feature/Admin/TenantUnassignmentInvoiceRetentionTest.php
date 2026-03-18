@@ -41,7 +41,7 @@ it('keeps historical invoices visible after a tenant is unassigned', function ()
     expect($invoice->fresh()->tenant_user_id)->toBe($tenant->id);
 
     $this->actingAs($tenant)
-        ->get(route('tenant.invoices.index'))
+        ->get(route('filament.admin.pages.tenant-invoice-history'))
         ->assertSuccessful()
         ->assertSeeText('INV-HISTORY-001');
 

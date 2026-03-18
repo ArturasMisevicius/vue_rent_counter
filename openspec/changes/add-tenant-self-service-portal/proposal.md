@@ -31,9 +31,9 @@ pages.
 
 ## Dependencies
 
-- `docs/superpowers/plans/2026-03-17-foundation-auth-onboarding.md`
-- `docs/superpowers/plans/2026-03-17-shared-interface-elements.md`
-- `docs/superpowers/plans/2026-03-17-admin-organization-operations.md`
+- `docs/superpowers/specs/2026-03-17-foundation-auth-onboarding-design.md`
+- `docs/superpowers/specs/2026-03-17-admin-organization-operations-design.md`
+- `docs/superpowers/specs/2026-03-17-cross-cutting-behavioral-rules-design.md`
 
 This change assumes the admin organization-operations work provides the shared
 `Property`, `Meter`, `MeterReading`, `Invoice`, `OrganizationSetting`, and

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\AuditLogs;
 
+use App\Filament\Concerns\AuthorizesSuperadminAccess;
 use App\Filament\Resources\AuditLogs\Pages\ListAuditLogs;
 use App\Models\AuditLog;
 use BackedEnum;
@@ -14,6 +15,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class AuditLogResource extends Resource
 {
+    use AuthorizesSuperadminAccess;
+
     protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $model = AuditLog::class;

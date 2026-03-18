@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Http\Middleware\AuthenticateAdminPanel;
+use App\Http\Middleware\CheckSubscriptionStatus;
 use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
 use App\Http\Middleware\SecurityHeaders;
@@ -21,6 +22,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -52,6 +54,7 @@ class AppPanelProvider extends PanelProvider
                 AccountWidget::class,
                 FilamentInfoWidget::class,
             ])
+            ->renderHook(PanelsRenderHook::BODY_END, fn () => view('components.shell.session-expiry-monitor'))
             ->navigation(fn (NavigationBuilder $builder): NavigationBuilder => $this->buildNavigation($builder))
             ->navigationGroups([
                 NavigationGroup::make(__('shell.navigation.groups.platform')),
@@ -78,6 +81,7 @@ class AppPanelProvider extends PanelProvider
                 AuthenticateAdminPanel::class,
                 EnsureAccountIsAccessible::class,
                 EnsureOnboardingIsComplete::class,
+                CheckSubscriptionStatus::class,
             ]);
     }
 
@@ -243,7 +247,7 @@ class AppPanelProvider extends PanelProvider
                         icon: Heroicon::OutlinedChartBar,
                         routeName: 'filament.admin.pages.reports',
                         activePatterns: ['filament.admin.pages.reports'],
-                        visible: fn (): bool => $this->isAdminOrManager(),
+                        visible: fn (): bool => $this->isAdminLike(),
                     ),
                     $this->navigationItem(
                         label: __('shell.navigation.items.audit_logs'),
@@ -275,29 +279,29 @@ class AppPanelProvider extends PanelProvider
                     $this->navigationItem(
                         label: __('tenant.navigation.home'),
                         icon: Heroicon::OutlinedHome,
-                        routeName: 'filament.admin.pages.dashboard',
-                        activePatterns: ['filament.admin.pages.dashboard', 'tenant.home'],
+                        routeName: 'filament.admin.pages.tenant-dashboard',
+                        activePatterns: ['filament.admin.pages.tenant-dashboard'],
                         visible: fn (): bool => $this->isTenant(),
                     ),
                     $this->navigationItem(
                         label: __('tenant.pages.property.title'),
                         icon: Heroicon::OutlinedBuildingOffice2,
-                        routeName: 'tenant.property.show',
-                        activePatterns: ['tenant.property.*'],
+                        routeName: 'filament.admin.pages.tenant-property-details',
+                        activePatterns: ['filament.admin.pages.tenant-property-details'],
                         visible: fn (): bool => $this->isTenant(),
                     ),
                     $this->navigationItem(
                         label: __('tenant.navigation.readings'),
                         icon: Heroicon::OutlinedClipboardDocumentList,
-                        routeName: 'tenant.readings.create',
-                        activePatterns: ['tenant.readings.*'],
+                        routeName: 'filament.admin.pages.tenant-submit-meter-reading',
+                        activePatterns: ['filament.admin.pages.tenant-submit-meter-reading'],
                         visible: fn (): bool => $this->isTenant(),
                     ),
                     $this->navigationItem(
                         label: __('tenant.navigation.invoices'),
                         icon: Heroicon::OutlinedDocumentText,
-                        routeName: 'tenant.invoices.index',
-                        activePatterns: ['tenant.invoices.*'],
+                        routeName: 'filament.admin.pages.tenant-invoice-history',
+                        activePatterns: ['filament.admin.pages.tenant-invoice-history'],
                         visible: fn (): bool => $this->isTenant(),
                     ),
                 ],

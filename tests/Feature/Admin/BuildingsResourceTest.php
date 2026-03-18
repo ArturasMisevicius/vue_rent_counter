@@ -53,6 +53,8 @@ it('shows organization-scoped buildings resource pages to admin and manager user
         ->get(route('filament.admin.resources.buildings.view', $building))
         ->assertSuccessful()
         ->assertSeeText('Building Details')
+        ->assertSeeText('Overview')
+        ->assertSeeText('Properties')
         ->assertSeeText($building->address_line_1);
 
     $this->actingAs($admin)

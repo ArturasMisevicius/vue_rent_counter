@@ -31,7 +31,7 @@ it('shows the branded 404 page with a tenant dashboard action', function () {
         ->get('/__test/missing-page')
         ->assertNotFound()
         ->assertSeeText('The page you are looking for does not exist')
-        ->assertSee(route('filament.admin.pages.dashboard'), false);
+        ->assertSee(route('filament.admin.pages.tenant-dashboard'), false);
 });
 
 it('shows the support-safe 500 page when debug mode is disabled', function () {
@@ -43,7 +43,7 @@ it('shows the support-safe 500 page when debug mode is disabled', function () {
         ->get(route('test.errors.server'))
         ->assertStatus(500)
         ->assertSeeText('Something went wrong on our side')
-        ->assertSee(route('filament.admin.pages.dashboard'), false);
+        ->assertSee(route('filament.admin.pages.tenant-dashboard'), false);
 });
 
 function registerErrorPageFixtures(): void

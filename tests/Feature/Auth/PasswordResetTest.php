@@ -43,6 +43,28 @@ it('always returns the generic reset-link confirmation copy', function () {
         ->assertSessionHas('status', __('auth.reset_link_generic'));
 });
 
+it('rate limits repeated password reset link requests', function () {
+    Notification::fake();
+
+    $user = User::factory()->create([
+        'email' => 'tenant@example.com',
+    ]);
+
+    foreach (range(1, 5) as $attempt) {
+        $this->from(route('password.request'))
+            ->post(route('password.email'), [
+                'email' => $user->email,
+            ])
+            ->assertRedirect(route('password.request'));
+    }
+
+    $this->from(route('password.request'))
+        ->post(route('password.email'), [
+            'email' => $user->email,
+        ])
+        ->assertTooManyRequests();
+});
+
 it('shows the reset-link confirmation in the selected guest locale', function () {
     Notification::fake();
 
@@ -185,4 +207,30 @@ it('keeps reset tokens valid for the configured 60 minute window', function () {
         ->and(config('auth.passwords.users.expire'))->toBe(60);
 
     Carbon::setTestNow();
+});
+
+it('rate limits repeated password reset submissions', function () {
+    $user = User::factory()->create([
+        'email' => 'reset@example.com',
+    ]);
+
+    foreach (range(1, 5) as $attempt) {
+        $this->from(route('password.reset', ['token' => 'invalid-token', 'email' => $user->email]))
+            ->post(route('password.update'), [
+                'token' => 'invalid-token',
+                'email' => $user->email,
+                'password' => 'new-password',
+                'password_confirmation' => 'new-password',
+            ])
+            ->assertRedirect(route('password.reset', ['token' => 'invalid-token', 'email' => $user->email]));
+    }
+
+    $this->from(route('password.reset', ['token' => 'invalid-token', 'email' => $user->email]))
+        ->post(route('password.update'), [
+            'token' => 'invalid-token',
+            'email' => $user->email,
+            'password' => 'new-password',
+            'password_confirmation' => 'new-password',
+        ])
+        ->assertTooManyRequests();
 });

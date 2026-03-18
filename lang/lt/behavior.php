@@ -23,5 +23,9 @@ return [
             'title' => 'Prenumerata pasibaigė',
             'body' => 'Lengvatinis laikotarpis baigėsi. Organizacijos duomenys vis dar matomi, tačiau keitimai nepasiekiami, kol prenumerata neatnaujinta.',
         ],
+        'suspended' => [
+            'title' => 'Prenumerata sustabdyta',
+            'body' => 'Šios organizacijos prenumerata sustabdyta. Darbo srities prieiga blokuojama, kol prenumerata nebus atkurta.',
+        ],
     ],
 ];

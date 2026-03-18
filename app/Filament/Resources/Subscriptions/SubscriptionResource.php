@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Subscriptions;
 
 use App\Enums\SubscriptionPlan;
 use App\Enums\SubscriptionStatus;
+use App\Filament\Concerns\AuthorizesSuperadminAccess;
 use App\Filament\Resources\Subscriptions\Pages\CreateSubscription;
 use App\Filament\Resources\Subscriptions\Pages\EditSubscription;
 use App\Filament\Resources\Subscriptions\Pages\ListSubscriptions;
@@ -24,6 +25,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class SubscriptionResource extends Resource
 {
+    use AuthorizesSuperadminAccess;
+
     protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $model = Subscription::class;

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SecurityViolations;
 
+use App\Filament\Concerns\AuthorizesSuperadminAccess;
 use App\Filament\Resources\SecurityViolations\Pages\ListSecurityViolations;
 use App\Models\SecurityViolation;
 use BackedEnum;
@@ -14,6 +15,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class SecurityViolationResource extends Resource
 {
+    use AuthorizesSuperadminAccess;
+
     protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $model = SecurityViolation::class;

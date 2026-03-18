@@ -4,12 +4,16 @@ namespace App\Filament\Resources\PlatformNotifications;
 
 use App\Enums\PlatformNotificationSeverity;
 use App\Enums\PlatformNotificationStatus;
+use App\Filament\Concerns\AuthorizesSuperadminAccess;
 use App\Filament\Resources\PlatformNotifications\Pages\CreatePlatformNotification;
 use App\Filament\Resources\PlatformNotifications\Pages\EditPlatformNotification;
 use App\Filament\Resources\PlatformNotifications\Pages\ListPlatformNotifications;
 use App\Filament\Resources\PlatformNotifications\Pages\ViewPlatformNotification;
+use App\Filament\Resources\PlatformNotifications\RelationManagers\RecipientsRelationManager;
+use App\Models\Organization;
 use App\Models\PlatformNotification;
 use BackedEnum;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -25,6 +29,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class PlatformNotificationResource extends Resource
 {
+    use AuthorizesSuperadminAccess;
+
     protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $model = PlatformNotification::class;
@@ -54,6 +60,24 @@ class PlatformNotificationResource extends Resource
                         ->options(PlatformNotificationStatus::options())
                         ->default(PlatformNotificationStatus::DRAFT->value)
                         ->required(),
+                ])
+                ->columns(2),
+            Section::make('Target Organizations')
+                ->schema([
+                    Radio::make('target_mode')
+                        ->label('Recipients')
+                        ->options([
+                            'all' => 'All Organizations',
+                            'specific' => 'Specific Organizations',
+                        ])
+                        ->default('all')
+                        ->live(),
+                    Select::make('organization_ids')
+                        ->label('Organizations')
+                        ->options(fn (): array => Organization::query()->orderBy('name')->pluck('name', 'id')->all())
+                        ->multiple()
+                        ->searchable()
+                        ->visible(fn ($get): bool => $get('target_mode') === 'specific'),
                 ])
                 ->columns(2),
         ]);
@@ -127,12 +151,15 @@ class PlatformNotificationResource extends Resource
                 'sent_at',
                 'created_at',
                 'updated_at',
-            ]);
+            ])
+            ->withDeliverySummary();
     }
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            RecipientsRelationManager::class,
+        ];
     }
 
     /**

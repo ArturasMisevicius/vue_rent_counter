@@ -46,14 +46,36 @@
                 <p class="mt-2 text-sm leading-6 text-slate-600">{{ __('shell.settings.notifications.description') }}</p>
 
                 <form wire:submit="saveNotificationPreferences" class="mt-5 space-y-4">
-                    <label class="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
-                        <span>{{ __('shell.settings.notifications.fields.invoice_reminders') }}</span>
-                        <input type="checkbox" wire:model="notificationForm.invoice_reminders" class="h-4 w-4 rounded border-slate-300 text-slate-950">
+                    <label class="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
+                        <span class="space-y-1">
+                            <span class="block">{{ __('shell.settings.notifications.fields.new_invoice_generated') }}</span>
+                            <span class="block text-xs font-normal text-slate-500">{{ __('shell.settings.notifications.help.new_invoice_generated') }}</span>
+                        </span>
+                        <input type="checkbox" wire:model="notificationForm.new_invoice_generated" class="mt-1 h-4 w-4 rounded border-slate-300 text-slate-950">
                     </label>
 
-                    <label class="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
-                        <span>{{ __('shell.settings.notifications.fields.reading_deadline_alerts') }}</span>
-                        <input type="checkbox" wire:model="notificationForm.reading_deadline_alerts" class="h-4 w-4 rounded border-slate-300 text-slate-950">
+                    <label class="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
+                        <span class="space-y-1">
+                            <span class="block">{{ __('shell.settings.notifications.fields.invoice_overdue') }}</span>
+                            <span class="block text-xs font-normal text-slate-500">{{ __('shell.settings.notifications.help.invoice_overdue') }}</span>
+                        </span>
+                        <input type="checkbox" wire:model="notificationForm.invoice_overdue" class="mt-1 h-4 w-4 rounded border-slate-300 text-slate-950">
+                    </label>
+
+                    <label class="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
+                        <span class="space-y-1">
+                            <span class="block">{{ __('shell.settings.notifications.fields.tenant_submits_reading') }}</span>
+                            <span class="block text-xs font-normal text-slate-500">{{ __('shell.settings.notifications.help.tenant_submits_reading') }}</span>
+                        </span>
+                        <input type="checkbox" wire:model="notificationForm.tenant_submits_reading" class="mt-1 h-4 w-4 rounded border-slate-300 text-slate-950">
+                    </label>
+
+                    <label class="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
+                        <span class="space-y-1">
+                            <span class="block">{{ __('shell.settings.notifications.fields.subscription_expiring') }}</span>
+                            <span class="block text-xs font-normal text-slate-500">{{ __('shell.settings.notifications.help.subscription_expiring') }}</span>
+                        </span>
+                        <input type="checkbox" wire:model="notificationForm.subscription_expiring" class="mt-1 h-4 w-4 rounded border-slate-300 text-slate-950">
                     </label>
 
                     <div>

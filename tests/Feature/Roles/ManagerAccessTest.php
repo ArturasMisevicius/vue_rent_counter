@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('lets managers access the unified app dashboard and key workspace resources', function () {
+it('lets managers use the shared app dashboard and workspace resources', function () {
     $organization = Organization::factory()->create();
     $manager = User::factory()->manager()->create([
         'organization_id' => $organization->id,
@@ -25,15 +25,20 @@ it('lets managers access the unified app dashboard and key workspace resources',
 
     $this->actingAs($manager)
         ->get('/app')
-        ->assertSuccessful();
+        ->assertSuccessful()
+        ->assertSee('data-shell-group="properties"', false)
+        ->assertSee(route('filament.admin.resources.buildings.index'), false)
+        ->assertSee(route('filament.admin.resources.properties.index'), false);
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.buildings.index'))
-        ->assertSuccessful();
+        ->assertSuccessful()
+        ->assertSeeText('Buildings');
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.properties.index'))
-        ->assertSuccessful();
+        ->assertSuccessful()
+        ->assertSeeText('Properties');
 
     $this->actingAs($manager)
         ->get(route('filament.admin.pages.settings'))

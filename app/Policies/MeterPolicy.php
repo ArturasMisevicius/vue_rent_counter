@@ -9,12 +9,12 @@ class MeterPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isManager();
+        return $user->isAdminLike();
     }
 
     public function view(User $user, Meter $meter): bool
     {
-        if ($user->isAdmin() || $user->isManager()) {
+        if ($user->isAdminLike()) {
             return $user->organization_id === $meter->organization_id;
         }
 

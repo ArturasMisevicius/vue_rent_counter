@@ -6,6 +6,8 @@
     'breadcrumbs' => [],
 ])
 
+@php($cspNonce = \Illuminate\Support\Facades\Vite::cspNonce())
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -17,13 +19,13 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=sora:400,500,600,700|space-grotesk:500,700" rel="stylesheet" />
 
-        <style>
+        <style @if($cspNonce) nonce="{{ $cspNonce }}" @endif>
             [x-cloak] {
                 display: none !important;
             }
         </style>
 
-        @livewireStyles
+        @livewireStyles(['nonce' => $cspNonce])
 
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -36,7 +38,7 @@
             <div class="relative mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 pb-8 pt-6 sm:px-6 sm:pt-8">
                 @livewire(\App\Livewire\Shell\Topbar::class, ['context' => 'page', 'eyebrow' => $eyebrow, 'heading' => $heading])
 
-                <main @class(['flex-1', 'pb-20' => $showTenantNavigation])>
+                <main class="flex-1">
                     @if ($breadcrumbs !== [])
                         <x-shell.breadcrumbs :items="$breadcrumbs" />
                     @endif
@@ -44,12 +46,10 @@
                     {{ $slot }}
                 </main>
             </div>
-
-            @if ($showTenantNavigation)
-                <x-shared.tenant-bottom-nav />
-            @endif
         </div>
 
-        @livewireScripts
+        <x-shell.session-expiry-monitor />
+
+        @livewireScripts(['nonce' => $cspNonce])
     </body>
 </html>

@@ -1,12 +1,10 @@
 @php
     $isPageContext = $context === 'page';
-    $isCurrentProfileRoute = request()->routeIs('profile.edit', 'tenant.profile.edit', 'filament.admin.pages.profile');
+    $isCurrentProfileRoute = request()->routeIs('profile.edit', 'filament.admin.pages.profile');
 @endphp
 
 <div class="fi-topbar-ctn" data-shell-topbar="true">
-    @if ($impersonation)
-        <x-shell.impersonation-banner :impersonation="$impersonation" />
-    @endif
+    @livewire(\App\Livewire\Shell\ImpersonationBanner::class)
 
     @if ($isPageContext)
         <header class="mb-6 rounded-[1.75rem] border border-white/60 bg-white/90 px-5 py-4 shadow-[0_20px_70px_rgba(15,23,42,0.14)] backdrop-blur">
@@ -26,7 +24,7 @@
                         </span>
                     @endif
 
-                    @livewire(\App\Livewire\Shell\NotificationCenter::class)
+                    @livewire(\App\Livewire\NotificationBell::class)
 
                     @livewire(\App\Livewire\Shell\LanguageSwitcher::class)
 
@@ -101,7 +99,7 @@
                         </span>
                     @endif
 
-                    @livewire(\App\Livewire\Shell\NotificationCenter::class)
+                    @livewire(\App\Livewire\NotificationBell::class)
 
                     @livewire(\App\Livewire\Shell\LanguageSwitcher::class)
 

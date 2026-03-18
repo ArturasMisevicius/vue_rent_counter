@@ -18,7 +18,7 @@ it('shows the tenant greeting, outstanding balance, and recent readings', functi
         ->create();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.home'))
+        ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText('Taylor')
         ->assertSeeText('Outstanding Balance')
@@ -36,7 +36,7 @@ it('shows all paid up copy when no unpaid invoices exist', function () {
         ->create();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.home'))
+        ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText('All paid up');
 });
@@ -49,7 +49,7 @@ it('shows the combined unpaid invoice count copy', function () {
         ->create();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.home'))
+        ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText('Across 2 invoices');
 });
@@ -68,7 +68,7 @@ it('uses the tenants outstanding invoice currency on the home balance card', fun
     });
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.home'))
+        ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText('USD 75.00')
         ->assertDontSeeText('EUR 75.00');
@@ -81,7 +81,7 @@ it('shows no reading this month when a meter is missing a current-month reading'
         ->create();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.home'))
+        ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText('1 pending')
         ->assertSeeText('No reading this month');
@@ -95,10 +95,10 @@ it('shows the my property link on the tenant home screen', function () {
         ->create();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.home'))
+        ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText('My Property')
-        ->assertSee(route('tenant.property.show'), false);
+        ->assertSee(route('filament.admin.pages.tenant-property-details'), false);
 });
 
 it('builds payment guidance from organization billing contact settings when no instructions are configured', function () {
@@ -114,7 +114,7 @@ it('builds payment guidance from organization billing contact settings when no i
         ->create();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.home'))
+        ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText('Updated Billing Team')
         ->assertSeeText('billing@example.com')
@@ -144,7 +144,7 @@ it('does not include malformed cross-organization invoices in the home balance s
         ]);
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.home'))
+        ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText('EUR 75.00')
         ->assertDontSeeText('EUR 1,074.00');
@@ -169,7 +169,7 @@ it('does not include malformed cross-organization readings in the home activity 
         ]);
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.home'))
+        ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertDontSeeText('999.999');
 });
@@ -187,7 +187,7 @@ it('renders the tenant home copy in lithuanian for lithuanian tenants', function
     ])->save();
 
     $this->actingAs($tenant->user->fresh())
-        ->get(route('tenant.home'))
+        ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText('Nuomininko suvestinė')
         ->assertSeeText('Pateikti naują rodmenį')
@@ -207,7 +207,7 @@ it('falls back to english when a tenant has an unsupported locale', function () 
     ])->save();
 
     $this->actingAs($tenant->user->fresh())
-        ->get(route('tenant.home'))
+        ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText('Tenant Summary')
         ->assertSeeText('Submit New Reading')

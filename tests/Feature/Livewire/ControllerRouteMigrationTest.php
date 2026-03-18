@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TenantInvoiceDownloadController;
 use App\Livewire\Auth\AcceptInvitationPage;
 use App\Livewire\Auth\ForgotPasswordPage;
 use App\Livewire\Auth\LoginPage;
@@ -11,13 +12,9 @@ use App\Livewire\PublicSite\HomepagePage;
 use App\Livewire\PublicSite\ShowFaviconEndpoint;
 use App\Livewire\Shell\LogoutEndpoint;
 use App\Livewire\Shell\StopImpersonationEndpoint;
-use App\Livewire\Tenant\HomePage;
-use App\Livewire\Tenant\InvoiceHistoryPage;
-use App\Livewire\Tenant\ProfilePage;
-use App\Livewire\Tenant\PropertyPage;
-use App\Livewire\Tenant\ReadingCreatePage;
-use App\Livewire\Tenant\UpdatePasswordEndpoint;
-use App\Livewire\Tenant\UpdateProfileEndpoint;
+use App\Livewire\Tenant\InvoiceHistory;
+use App\Livewire\Tenant\SubmitMeterReading;
+use App\Livewire\Tenant\TenantDashboard;
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
 use App\Models\User;
@@ -28,7 +25,7 @@ use Tests\Support\TenantPortalFactory;
 
 uses(RefreshDatabase::class);
 
-it('renders migrated public and tenant routes as livewire pages', function (Closure $requestFactory, string $component): void {
+it('renders migrated public and nested tenant routes through the expected livewire components', function (Closure $requestFactory, string $component): void {
     $requestFactory($this)
         ->assertSuccessful()
         ->assertSeeLivewire($component);
@@ -86,9 +83,9 @@ it('renders migrated public and tenant routes as livewire pages', function (Clos
         function ($test) {
             $tenant = TenantPortalFactory::new()->create();
 
-            return $test->actingAs($tenant->user)->get(route('tenant.home'));
+            return $test->actingAs($tenant->user)->get(route('filament.admin.pages.tenant-dashboard'));
         },
-        HomePage::class,
+        TenantDashboard::class,
     ],
     'tenant reading create' => [
         function ($test) {
@@ -97,9 +94,9 @@ it('renders migrated public and tenant routes as livewire pages', function (Clos
                 ->withMeters(1)
                 ->create();
 
-            return $test->actingAs($tenant->user)->get(route('tenant.readings.create'));
+            return $test->actingAs($tenant->user)->get(route('filament.admin.pages.tenant-submit-meter-reading'));
         },
-        ReadingCreatePage::class,
+        SubmitMeterReading::class,
     ],
     'tenant invoices' => [
         function ($test) {
@@ -108,30 +105,26 @@ it('renders migrated public and tenant routes as livewire pages', function (Clos
                 ->withUnpaidInvoices(1)
                 ->create();
 
-            return $test->actingAs($tenant->user)->get(route('tenant.invoices.index'));
+            return $test->actingAs($tenant->user)->get(route('filament.admin.pages.tenant-invoice-history'));
         },
-        InvoiceHistoryPage::class,
-    ],
-    'tenant property' => [
-        function ($test) {
-            $tenant = TenantPortalFactory::new()
-                ->withAssignedProperty()
-                ->withMeters(1)
-                ->create();
-
-            return $test->actingAs($tenant->user)->get(route('tenant.property.show'));
-        },
-        PropertyPage::class,
-    ],
-    'tenant profile' => [
-        function ($test) {
-            $tenant = TenantPortalFactory::new()->create();
-
-            return $test->actingAs($tenant->user)->get(route('tenant.profile.edit'));
-        },
-        ProfilePage::class,
+        InvoiceHistory::class,
     ],
 ]);
+
+it('renders tenant property and profile routes without legacy livewire page wrappers', function (): void {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->create();
+
+    $this->actingAs($tenant->user)
+        ->get(route('filament.admin.pages.tenant-property-details'))
+        ->assertSuccessful();
+
+    $this->actingAs($tenant->user)
+        ->get(route('filament.admin.pages.profile'))
+        ->assertSuccessful();
+});
 
 it('keeps shared profile routing as a redirect into the appropriate destination', function (): void {
     $organization = Organization::factory()->create();
@@ -159,9 +152,7 @@ it('maps non-livewire web routes to Livewire-backed actions', function (string $
     'invitation store' => ['invitation.store', AcceptInvitationPage::class.'@store'],
     'welcome store' => ['welcome.store', WelcomePage::class.'@store'],
     'impersonation stop' => ['impersonation.stop', StopImpersonationEndpoint::class.'@stop'],
-    'tenant invoice download' => ['tenant.invoices.download', InvoiceHistoryPage::class.'@download'],
-    'tenant profile update' => ['tenant.profile.update', UpdateProfileEndpoint::class.'@update'],
-    'tenant profile password update' => ['tenant.profile.password.update', UpdatePasswordEndpoint::class.'@update'],
+    'tenant invoice download' => ['tenant.invoices.download', TenantInvoiceDownloadController::class],
     'logout' => ['logout', LogoutEndpoint::class.'@logout'],
 ]);
 

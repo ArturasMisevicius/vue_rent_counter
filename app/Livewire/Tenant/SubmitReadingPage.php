@@ -89,6 +89,8 @@ class SubmitReadingPage extends Component
             'value' => number_format((float) $reading->reading_value, 3, '.', ''),
             'date' => $reading->reading_date->format('Y-m-d'),
         ];
+
+        $this->dispatch('reading.submitted');
     }
 
     public function render(): View
@@ -102,7 +104,7 @@ class SubmitReadingPage extends Component
     }
 
     /**
-     * @return array{message: string, delta: string|null}|null
+     * @return array{message: string, delta: string|null, warning: string|null}|null
      */
     #[Computed]
     public function preview(): ?array
@@ -119,6 +121,7 @@ class SubmitReadingPage extends Component
             return [
                 'message' => __('tenant.pages.readings.first_reading'),
                 'delta' => null,
+                'warning' => null,
             ];
         }
 
@@ -131,6 +134,9 @@ class SubmitReadingPage extends Component
                 'date' => $previousReading->reading_date->format('Y-m-d'),
             ]),
             'delta' => number_format($delta, 3),
+            'warning' => $delta < 0
+                ? __('tenant.pages.readings.lower_than_previous_warning')
+                : null,
         ];
     }
 

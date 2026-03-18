@@ -17,8 +17,8 @@ function registerInvitationLocaleDestinationFixtures(): void
             ->name('filament.admin.pages.organization-dashboard');
     }
 
-    if (! Route::has('tenant.home')) {
-        Route::get('/__test/tenant-home', fn () => 'tenant home')->name('tenant.home');
+    if (! Route::has('filament.admin.pages.tenant-dashboard')) {
+        Route::get('/__test/tenant-dashboard', fn () => 'tenant dashboard')->name('filament.admin.pages.tenant-dashboard');
     }
 
     app('router')->getRoutes()->refreshNameLookups();
@@ -94,7 +94,7 @@ it('updates an invited tenant placeholder to the active guest locale on acceptan
         'name' => 'Pat Tenant',
         'password' => 'new-password',
         'password_confirmation' => 'new-password',
-    ])->assertRedirect(route('filament.admin.pages.dashboard'));
+    ])->assertRedirect(route('filament.admin.pages.tenant-dashboard'));
 
     expect($tenant->fresh()->locale)->toBe('ru');
 });

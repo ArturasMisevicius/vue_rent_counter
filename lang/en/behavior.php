@@ -23,5 +23,9 @@ return [
             'title' => 'Subscription expired',
             'body' => 'The renewal grace period has ended. Organization data is still visible, but write actions stay unavailable until the subscription is renewed.',
         ],
+        'suspended' => [
+            'title' => 'Subscription suspended',
+            'body' => 'This organization subscription is suspended. Workspace access remains blocked until the subscription is reinstated.',
+        ],
     ],
 ];

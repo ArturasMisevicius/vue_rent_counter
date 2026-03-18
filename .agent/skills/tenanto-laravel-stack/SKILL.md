@@ -1,6 +1,6 @@
 ---
 name: tenanto-laravel-stack
-description: Use when starting a Tenanto session or changing Laravel, Filament, Livewire, Blade, routes, or tests in this repository.
+description: Use for Tenanto Laravel, Filament, Livewire, Blade, route, request, or test work when you need the current stack, validation, scoping, naming, localization, and money-handling conventions.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
@@ -8,86 +8,72 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 
 ## Use This Skill When
 
-- Starting a new Tenanto session and you need the current repository baseline quickly.
-- Editing Laravel application logic under `app/`, `routes/`, `resources/`, `database/`, or `tests/`.
-- Implementing Filament resources/pages/widgets or Livewire components.
-- Making architecture or refactor changes that touch multiple modules.
+- Starting a Tenanto coding session and you need the live repository baseline.
+- Editing Laravel code under `app/`, `routes/`, `resources/`, `database/`, or `tests/`.
+- Building or refactoring Filament resources/pages, Livewire components, Form Requests, actions, or support classes.
 
-## Project Facts
+## Verified Stack
 
-- Verified workspace snapshot date: `2026-03-17`
-- Local CLI runtime is PHP `8.5.4`; Composer currently requires PHP `^8.2`
-- Stack: Laravel `12`, Filament `5.3`, Livewire `4`, Tailwind CSS `4`, Pest `4`, PHPUnit `12`, Alpine.js `3`, Sanctum `4`
-- Tenanto is a Filament-first, Livewire-assisted multi-tenant utility billing and property management application
-- Role enum values are `SUPERADMIN`, `ADMIN`, `MANAGER`, and `TENANT`
-- Current repository snapshot includes 17 Filament resources, 27 Livewire components, 84 tests, 1 remaining base controller, and 1 Filament panel provider
-- Repo-local MCP currently defines only `herd` in `.mcp.json`
-- The current app does not register `php artisan boost:mcp` or `php artisan mcp:start tenanto`
+- Runtime PHP: `8.5.4`
+- Composer PHP constraint: `^8.2`
+- Laravel: `12`
+- Filament: `5.3`
+- Livewire: `4`
+- Tailwind CSS: `4`
+- Alpine.js: `3`
+- Sanctum: `4`
+- Pest: `4`
+- PHPUnit: `12`
 
-## Session Bootstrap
+## Core Code Rules
 
-- Read `docs/SESSION-BOOTSTRAP.md` at session start when MCP status, skill activation, or baseline verification matters.
-- If `boost:mcp` and `mcp:start` are unavailable, use the fallback health checks instead of pretending MCP is connected.
-- Use these session-default skills alongside this one when the work matches them:
-  - `pest-testing`
-  - `tailwind-patterns`
-  - `architecture`
-  - `vulnerability-scanner`
+- Every new or touched PHP file starts with `declare(strict_types=1);`.
+- Validation lives in `app/Http/Requests/*`, never in inline controller, Filament page, or Livewire arrays.
+- Livewire components must reuse Form Request rules instead of duplicating them:
+  - Simple case: call `(new XxxRequest())->rules()`.
+  - Context-sensitive case: instantiate the request and use `validatePayload(...)` or another request helper backed by `rules()`.
+- Navigation labels, titles, and grouped UI labels use translation keys, not hard-coded English strings.
+- Monetary calculations always use BCMath-backed services such as `App\Services\Billing\UniversalBillingCalculator`; do not use floats for business math.
 
-## Required Implementation Rules
+## Query Scoping Rules
 
-- Follow existing conventions in sibling files before introducing new patterns.
-- Prefer request classes under `app/Http/Requests`.
-- Keep reusable write logic in `app/Filament/Actions` and shared read/support logic in `app/Filament/Support`.
-- Prefer Eloquent models, relationships, and scopes over raw SQL and avoid `DB::` unless unavoidable.
-- Keep tenant boundaries explicit when accessing data.
-- Use strict typing and explicit return types in new and touched PHP files.
-- Do not add ad hoc public debug PHP entrypoints.
-- Run focused tests for changed behavior.
-- For Livewire 4 work, prefer the current primitives intentionally:
-  - `@island` for isolated page regions
-  - `@placeholder` for lazy islands only
-  - `wire:show` for visibility toggles that should preserve DOM state
-  - `wire:transition` for Livewire-controlled conditional UI
-  - `wire:current` and `@persist` only where navigation persistence clearly helps UX
+- The historical `HierarchicalScope` idea still defines the security model, but the live repo does not currently register an active `HierarchicalScope` class in `app/`.
+- In current code, enforce the same behavior explicitly with model scopes and where clauses:
+  - `forOrganization($organizationId)` for admin/manager organization scope
+  - `forProperty($propertyId)` for property-bound tenant data
+  - `where('tenant_user_id', auth()->id())` or equivalent self-owned record predicates for tenant-owned invoices/readings
+- No cross-organization query is allowed unless the actor is explicitly checked as `SUPERADMIN`.
 
-## Working Sequence
+## Livewire and View Naming
 
-1. Check `docs/PROJECT-CONTEXT.md` if there is any uncertainty about the current repo shape.
-2. Check `docs/SESSION-BOOTSTRAP.md` if you need the verified MCP and baseline startup flow.
-3. Identify the feature path: Filament action/support/resource/page, Livewire component, model, policy, request, or view.
-4. Reuse existing abstractions if available: `App\Filament\Actions`, `App\Filament\Support`, policies, model scopes, schema classes, and table classes.
-5. Keep model queries scope-first and UI layers thin.
-6. Add or update Pest tests for happy path plus authorization or failure path when behavior changes.
-7. Run the smallest relevant test slice first.
-8. Run `vendor/bin/pint --dirty` before finalizing.
+- Livewire class names are `PascalCase` and map directly to mirrored Blade views.
+- `app/Livewire/Tenant/SubmitReadingPage.php` renders `resources/views/livewire/tenant/submit-reading-page.blade.php`.
+- `app/Livewire/Pages/Reports/ReportsPage.php` renders `resources/views/livewire/pages/reports/reports-page.blade.php`.
+- `app/Livewire/Shell/GlobalSearch.php` renders `resources/views/livewire/shell/global-search.blade.php`.
+- Filament page wrappers live under `app/Filament/Pages/*` and normally render `resources/views/filament/pages/*`.
 
-## Quick File Map
+## Filament and Livewire Conventions
 
-- `app/Filament/Resources/*`: Filament resources and their pages, schemas, and tables
-- `app/Filament/Pages/*`: custom Filament pages
-- `app/Filament/Widgets/*`: dashboard widgets
-- `app/Http/Requests/*`: request validation foundation
-- `app/Filament/Actions/*`: workflow and write-side actions
-- `app/Filament/Support/*`: presenters, query objects, report builders, shell helpers
-- `app/Livewire/*` and `resources/views/livewire/*`: Livewire components and views
-- `app/Models/*`: Eloquent domain layer
-- `app/Policies/*`: authorization rules
-- `app/Providers/Filament/AdminPanelProvider.php`: current panel registration entry point
-- `tests/*`: regression coverage
+- Keep Filament resources/pages thin; move write logic to `app/Filament/Actions/*`.
+- Put shared read/query/presenter logic in `app/Filament/Support/*`.
+- Prefer `#[Computed]` for Livewire data that should only resolve once per render.
+- Do not query in Blade or in Livewire `render()` when a computed property or prepared payload fits.
+- Keep table/resource queries explicit with `select([...])` and eager loading.
 
-## Session Defaults
+## Working Defaults
 
-- Treat `docs/superpowers/` as historical planning context, not the source of truth for current counts or directory layout.
-- When a pasted brief conflicts with the workspace, prefer the verified repository snapshot.
-- If you need repo-local MCP, assume only `herd` is configured unless you verify otherwise.
-- Do not promise Boost MCP tools like `search-docs`, `database-query`, or `browser-logs` unless MCP startup has been verified in the current environment.
+1. Check `docs/PROJECT-CONTEXT.md` if a pasted brief conflicts with the live repo.
+2. Reuse existing request, action, support, and policy classes before introducing new abstractions.
+3. Keep tenant boundaries explicit in every query.
+4. Add or update Pest coverage for changed behavior.
+5. Run focused tests first, then `vendor/bin/pint --dirty`.
 
 ## Completion Checklist
 
-- [ ] Change follows existing project patterns.
-- [ ] Tenant and authorization implications reviewed.
-- [ ] Filament foundation placement respected.
-- [ ] Pest tests added or updated when behavior changed.
-- [ ] Focused verification ran.
-- [ ] Formatting or linting ran for touched files.
+- [ ] `strict_types` added in touched PHP files
+- [ ] Validation came from a Form Request
+- [ ] Navigation text came from translation keys
+- [ ] Query scope is organization/property/self constrained
+- [ ] Money math used BCMath-backed services
+- [ ] Livewire class/view naming stayed aligned
+- [ ] Focused Pest verification ran

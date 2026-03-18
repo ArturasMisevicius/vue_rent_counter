@@ -5,13 +5,16 @@ return [
         'label' => 'Bendroji paieška',
         'placeholder' => 'Search anything',
         'groups' => [
-            'platform' => 'Platforma',
-            'organization' => 'Organizacija',
-            'tenant' => 'Nuomininkas',
+            'organizations' => 'Organizacijos',
+            'buildings' => 'Pastatai',
+            'properties' => 'Objektai',
+            'tenants' => 'Nuomininkai',
+            'invoices' => 'Sąskaitos',
+            'readings' => 'Rodmenys',
         ],
         'empty' => [
             'heading' => 'Rezultatų dar nėra',
-            'body' => 'Rezultatai bus rodomi čia, kai atsiras atitinkančių maršrutų ir įrašų.',
+            'body' => 'Rezultatai bus rodomi čia, kai dabartinėje darbo srityje atsiras atitinkančių įrašų.',
         ],
     ],
     'navigation' => [
@@ -94,10 +97,18 @@ return [
         ],
         'notifications' => [
             'heading' => 'Pranešimų nustatymai',
-            'description' => 'Pasirinkite, kokius priminimus administratoriai gaus organizacijos darbo erdvėje.',
+            'description' => 'Pasirinkite, kokius operacinius laiškus administratoriai gaus šiai organizacijai.',
             'fields' => [
-                'invoice_reminders' => 'Sąskaitų priminimai',
-                'reading_deadline_alerts' => 'Skaitiklių rodmenų termino perspėjimai',
+                'new_invoice_generated' => 'Sugeneruota nauja sąskaita',
+                'invoice_overdue' => 'Pradelsta sąskaita',
+                'tenant_submits_reading' => 'Nuomininkas pateikia rodmenį',
+                'subscription_expiring' => 'Baigiasi prenumerata',
+            ],
+            'help' => [
+                'new_invoice_generated' => 'Siųsti laišką administratoriams, kai organizacijoje užbaigiama nauja sąskaita.',
+                'invoice_overdue' => 'Siųsti laišką administratoriams, kai inicijuojami pradelstų sąskaitų priminimai.',
+                'tenant_submits_reading' => 'Siųsti laišką administratoriams, kai nuomininkas pateikia naują skaitiklio rodmenį.',
+                'subscription_expiring' => 'Siųsti laišką administratoriams prieš pasibaigiant dabartinei prenumeratai.',
             ],
             'actions' => [
                 'save' => 'Išsaugoti pranešimų nustatymus',
@@ -161,6 +172,10 @@ return [
         'actions' => [
             'toggle' => 'Perjungti pranešimus',
             'mark_all_read' => 'Pažymėti visus kaip skaitytus',
+        ],
+        'status' => [
+            'read' => 'Skaityta',
+            'unread' => 'Neskaityta',
         ],
         'empty' => [
             'heading' => 'Pranešimų dar nėra',

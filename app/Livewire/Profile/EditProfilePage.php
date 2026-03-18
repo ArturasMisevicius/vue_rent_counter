@@ -14,12 +14,6 @@ class EditProfilePage extends Component
 
         if ($user && Route::has('filament.admin.pages.profile')) {
             $this->redirectRoute('filament.admin.pages.profile');
-
-            return;
-        }
-
-        if ($user?->isTenant() && Route::has('tenant.profile.edit')) {
-            $this->redirectRoute('tenant.profile.edit');
         }
     }
 

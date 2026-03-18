@@ -23,39 +23,6 @@ class NavigationBuilder
     }
 
     /**
-     * @return array<int, NavigationItemData>
-     */
-    public function tenant(Request $request): array
-    {
-        return array_values(array_filter([
-            $this->item(
-                $request,
-                'tenant.home',
-                __('tenant.navigation.home'),
-                ['tenant.home', 'tenant.property.show'],
-            ),
-            $this->item(
-                $request,
-                'tenant.readings.create',
-                __('tenant.navigation.readings'),
-                ['tenant.readings.*'],
-            ),
-            $this->item(
-                $request,
-                'tenant.invoices.index',
-                __('tenant.navigation.invoices'),
-                ['tenant.invoices.*'],
-            ),
-            $this->item(
-                $request,
-                'tenant.profile.edit',
-                __('tenant.navigation.profile'),
-                ['tenant.profile.*'],
-            ),
-        ]));
-    }
-
-    /**
      * @param  array<int, NavigationItemData|null>  $items
      */
     protected function group(string $key, string $label, array $items): ?NavigationGroupData
@@ -114,12 +81,7 @@ class NavigationBuilder
      */
     protected function groupsFor(User $user): array
     {
-        $role = match (true) {
-            $user->isSuperadmin() => 'superadmin',
-            $user->isAdmin() => 'admin',
-            $user->isManager() => 'manager',
-            default => null,
-        };
+        $role = $this->configurationRoleFor($user);
 
         if ($role === null) {
             return [];
@@ -129,5 +91,14 @@ class NavigationBuilder
         $groups = config("tenanto.shell.navigation.roles.{$role}", []);
 
         return $groups;
+    }
+
+    protected function configurationRoleFor(User $user): ?string
+    {
+        return match (true) {
+            $user->isSuperadmin() => 'superadmin',
+            $user->isAdmin(), $user->isManager() => 'admin',
+            default => null,
+        };
     }
 }

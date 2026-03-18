@@ -10,6 +10,11 @@ class ListProperties extends ListRecords
 {
     protected static string $resource = PropertyResource::class;
 
+    protected function authorizeAccess(): void
+    {
+        abort_unless(PropertyResource::canViewAny(), 403);
+    }
+
     protected function getHeaderActions(): array
     {
         if (PropertyResource::shouldShowBlockedCreateAction('properties')) {

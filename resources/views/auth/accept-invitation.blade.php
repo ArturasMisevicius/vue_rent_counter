@@ -6,21 +6,21 @@
     <div class="space-y-8">
         <div class="space-y-3 text-center">
             <h1 class="font-display text-4xl tracking-tight text-slate-950">{{ __('auth.invitation_title') }}</h1>
-            @if (! $isExpired && $invitation)
+            @if ($statusMessage === null && $invitation)
                 <p class="text-sm text-slate-600">
                     {{ __('auth.invitation_greeting', ['organization' => $invitation->organization->name]) }}
                 </p>
             @endif
         </div>
 
-        @if ($isExpired)
+        @if ($statusMessage !== null)
             <div class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm font-medium text-amber-800">
-                {{ __('auth.invitation_expired') }}
+                {{ $statusMessage }}
             </div>
         @else
             <form
                 method="POST"
-                action="{{ route('invitation.store', $invitation->token) }}"
+                action="{{ route('invitation.store', $token) }}"
                 class="space-y-5"
                 data-auth-form
                 data-password-mismatch="{{ __('auth.password_confirmation_mismatch') }}"

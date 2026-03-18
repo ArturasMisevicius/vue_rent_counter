@@ -4,8 +4,10 @@ use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterReadingValidationStatus;
 use App\Filament\Actions\Admin\MeterReadings\CreateMeterReadingAction;
 use App\Filament\Actions\Admin\MeterReadings\ImportMeterReadingsAction;
+use App\Filament\Actions\Admin\MeterReadings\RejectMeterReadingAction;
 use App\Filament\Actions\Admin\MeterReadings\UpdateMeterReadingAction;
 use App\Filament\Actions\Admin\MeterReadings\ValidateMeterReadingAction;
+use App\Models\AuditLog;
 use App\Models\Building;
 use App\Models\Meter;
 use App\Models\MeterReading;
@@ -163,6 +165,17 @@ it('revalidates pending rows and returns an import preview with invalid rows', f
     $validated = app(ValidateMeterReadingAction::class)->handle($pending);
 
     expect($validated->validation_status)->toBe(MeterReadingValidationStatus::VALID);
+
+    $rejected = app(RejectMeterReadingAction::class)->handle($pending->fresh(), [
+        'reason' => 'Manual review rejected this reading.',
+    ]);
+
+    expect($rejected->validation_status)->toBe(MeterReadingValidationStatus::REJECTED)
+        ->and($rejected->notes)->toContain('Manual review rejected this reading.')
+        ->and(AuditLog::query()
+            ->where('subject_type', MeterReading::class)
+            ->where('subject_id', $rejected->id)
+            ->exists())->toBeTrue();
 
     $preview = app(ImportMeterReadingsAction::class)->handle($meter, [
         [

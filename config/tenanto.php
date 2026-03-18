@@ -1,5 +1,59 @@
 <?php
 
+$organizationNavigation = [
+    [
+        'route' => 'filament.admin.pages.organization-dashboard',
+        'label' => 'dashboard.title',
+    ],
+    [
+        'route' => 'filament.admin.resources.buildings.index',
+        'label' => 'admin.buildings.plural',
+    ],
+    [
+        'route' => 'filament.admin.resources.properties.index',
+        'label' => 'admin.properties.plural',
+    ],
+    [
+        'route' => 'filament.admin.pages.reports',
+        'label' => 'shell.navigation.items.reports',
+    ],
+    [
+        'route' => 'filament.admin.resources.tenants.index',
+        'label' => 'admin.tenants.plural',
+    ],
+    [
+        'route' => 'filament.admin.resources.meters.index',
+        'label' => 'admin.meters.plural',
+    ],
+    [
+        'route' => 'filament.admin.resources.meter-readings.index',
+        'label' => 'admin.meter_readings.plural',
+    ],
+    [
+        'route' => 'filament.admin.resources.invoices.index',
+        'label' => 'admin.invoices.plural',
+    ],
+    [
+        'route' => 'filament.admin.resources.providers.index',
+        'label' => 'admin.providers.plural',
+    ],
+    [
+        'route' => 'filament.admin.resources.tariffs.index',
+        'label' => 'admin.tariffs.plural',
+    ],
+];
+
+$adminAccountNavigation = [
+    [
+        'route' => 'filament.admin.pages.profile',
+        'label' => 'shell.navigation.items.profile',
+    ],
+    [
+        'route' => 'filament.admin.pages.settings',
+        'label' => 'shell.navigation.items.settings',
+    ],
+];
+
 return [
     'auth' => [
         'session_history_cookie_name' => 'tenanto_authenticated_session',
@@ -23,7 +77,7 @@ return [
         ],
         'search_debounce_ms' => 300,
         'notifications' => [
-            'limit' => 8,
+            'limit' => 10,
             'preview_length' => 120,
         ],
         'navigation' => [
@@ -83,112 +137,8 @@ return [
                     ],
                 ],
                 'admin' => [
-                    'organization' => [
-                        [
-                            'route' => 'filament.admin.pages.organization-dashboard',
-                            'label' => 'dashboard.title',
-                        ],
-                        [
-                            'route' => 'filament.admin.resources.buildings.index',
-                            'label' => 'admin.buildings.plural',
-                        ],
-                        [
-                            'route' => 'filament.admin.resources.properties.index',
-                            'label' => 'admin.properties.plural',
-                        ],
-                        [
-                            'route' => 'filament.admin.pages.reports',
-                            'label' => 'shell.navigation.items.reports',
-                        ],
-                        [
-                            'route' => 'filament.admin.resources.tenants.index',
-                            'label' => 'admin.tenants.plural',
-                        ],
-                        [
-                            'route' => 'filament.admin.resources.meters.index',
-                            'label' => 'admin.meters.plural',
-                        ],
-                        [
-                            'route' => 'filament.admin.resources.meter-readings.index',
-                            'label' => 'admin.meter_readings.plural',
-                        ],
-                        [
-                            'route' => 'filament.admin.resources.invoices.index',
-                            'label' => 'admin.invoices.plural',
-                        ],
-                        [
-                            'route' => 'filament.admin.resources.providers.index',
-                            'label' => 'admin.providers.plural',
-                        ],
-                        [
-                            'route' => 'filament.admin.resources.tariffs.index',
-                            'label' => 'admin.tariffs.plural',
-                        ],
-                    ],
-                    'account' => [
-                        [
-                            'route' => 'filament.admin.pages.profile',
-                            'label' => 'shell.navigation.items.profile',
-                        ],
-                        [
-                            'route' => 'filament.admin.pages.settings',
-                            'label' => 'shell.navigation.items.settings',
-                        ],
-                    ],
-                ],
-                'manager' => [
-                    'organization' => [
-                        [
-                            'route' => 'filament.admin.pages.organization-dashboard',
-                            'label' => 'dashboard.title',
-                        ],
-                        [
-                            'route' => 'filament.admin.resources.buildings.index',
-                            'label' => 'admin.buildings.plural',
-                        ],
-                        [
-                            'route' => 'filament.admin.resources.properties.index',
-                            'label' => 'admin.properties.plural',
-                        ],
-                        [
-                            'route' => 'filament.admin.pages.reports',
-                            'label' => 'shell.navigation.items.reports',
-                        ],
-                        [
-                            'route' => 'filament.admin.resources.tenants.index',
-                            'label' => 'admin.tenants.plural',
-                        ],
-                        [
-                            'route' => 'filament.admin.resources.meters.index',
-                            'label' => 'admin.meters.plural',
-                        ],
-                        [
-                            'route' => 'filament.admin.resources.meter-readings.index',
-                            'label' => 'admin.meter_readings.plural',
-                        ],
-                        [
-                            'route' => 'filament.admin.resources.invoices.index',
-                            'label' => 'admin.invoices.plural',
-                        ],
-                        [
-                            'route' => 'filament.admin.resources.providers.index',
-                            'label' => 'admin.providers.plural',
-                        ],
-                        [
-                            'route' => 'filament.admin.resources.tariffs.index',
-                            'label' => 'admin.tariffs.plural',
-                        ],
-                    ],
-                    'account' => [
-                        [
-                            'route' => 'filament.admin.pages.profile',
-                            'label' => 'shell.navigation.items.profile',
-                        ],
-                        [
-                            'route' => 'filament.admin.pages.settings',
-                            'label' => 'shell.navigation.items.settings',
-                        ],
-                    ],
+                    'organization' => $organizationNavigation,
+                    'account' => $adminAccountNavigation,
                 ],
             ],
         ],
@@ -202,24 +152,49 @@ return [
         'min_query_length' => 2,
         'limit' => 5,
         'role_groups' => [
-            'superadmin' => ['platform'],
-            'admin' => ['organization'],
-            'manager' => ['organization'],
-            'tenant' => ['tenant'],
+            'superadmin' => ['organizations', 'buildings', 'properties', 'tenants', 'invoices', 'readings'],
+            'admin' => ['buildings', 'properties', 'tenants', 'invoices', 'readings'],
+            'tenant' => ['invoices', 'readings'],
         ],
         'group_labels' => [
-            'platform' => 'shell.search.groups.platform',
-            'organization' => 'shell.search.groups.organization',
-            'tenant' => 'shell.search.groups.tenant',
+            'organizations' => 'shell.search.groups.organizations',
+            'buildings' => 'shell.search.groups.buildings',
+            'properties' => 'shell.search.groups.properties',
+            'tenants' => 'shell.search.groups.tenants',
+            'invoices' => 'shell.search.groups.invoices',
+            'readings' => 'shell.search.groups.readings',
         ],
         'providers' => [
             'organizations' => [
-                'group' => 'platform',
+                'group' => 'organizations',
                 'route' => 'filament.admin.resources.organizations.view',
             ],
-            'users' => [
-                'group' => 'organization',
-                'route' => 'filament.admin.resources.users.view',
+            'buildings' => [
+                'group' => 'buildings',
+                'route' => 'filament.admin.resources.buildings.view',
+                'superadmin_route' => 'filament.admin.resources.organizations.view',
+            ],
+            'properties' => [
+                'group' => 'properties',
+                'route' => 'filament.admin.resources.properties.view',
+                'superadmin_route' => 'filament.admin.resources.organizations.view',
+            ],
+            'tenants' => [
+                'group' => 'tenants',
+                'route' => 'filament.admin.resources.tenants.view',
+                'superadmin_route' => 'filament.admin.resources.organizations.view',
+            ],
+            'invoices' => [
+                'group' => 'invoices',
+                'route' => 'filament.admin.resources.invoices.view',
+                'superadmin_route' => 'filament.admin.resources.organizations.view',
+                'tenant_route' => 'filament.admin.pages.tenant-invoice-history',
+            ],
+            'readings' => [
+                'group' => 'readings',
+                'route' => 'filament.admin.resources.meter-readings.view',
+                'superadmin_route' => 'filament.admin.resources.organizations.view',
+                'tenant_route' => 'filament.admin.pages.tenant-dashboard',
             ],
         ],
     ],

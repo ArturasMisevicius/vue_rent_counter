@@ -2,6 +2,7 @@
 
 namespace App\Filament\Support\Admin\Dashboard;
 
+use App\Enums\InvoiceStatus;
 use App\Filament\Support\Dashboard\DashboardCacheService;
 use App\Models\Invoice;
 use App\Models\Meter;
@@ -10,7 +11,6 @@ use App\Models\Property;
 use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
 
 class AdminDashboardStats
 {
@@ -24,6 +24,7 @@ class AdminDashboardStats
      *         total_properties: int,
      *         active_tenants: int,
      *         pending_invoices: int,
+     *         draft_invoices: int,
      *         revenue_this_month: string
      *     },
      *     subscription_usage: array<int, array{label: string, value: string}>,
@@ -41,7 +42,7 @@ class AdminDashboardStats
      *     }>
      * }
      */
-    public function dashboardFor(User $user, int $invoiceLimit = 5, int $deadlineLimit = 5): array
+    public function dashboardFor(User $user, int $invoiceLimit = 10, int $deadlineLimit = 10): array
     {
         $organizationId = $this->resolveOrganizationId($user);
 
@@ -65,6 +66,7 @@ class AdminDashboardStats
      *     total_properties: int,
      *     active_tenants: int,
      *     pending_invoices: int,
+     *     draft_invoices: int,
      *     revenue_this_month: string
      * }
      */
@@ -90,7 +92,7 @@ class AdminDashboardStats
      *     status: string
      * }>
      */
-    public function recentInvoicesFor(User $user, int $limit = 5): array
+    public function recentInvoicesFor(User $user, int $limit = 10): array
     {
         return $this->dashboardFor($user, $limit)['recent_invoices'];
     }
@@ -102,7 +104,7 @@ class AdminDashboardStats
      *     due_label: string
      * }>
      */
-    public function upcomingReadingDeadlinesFor(User $user, int $limit = 5): array
+    public function upcomingReadingDeadlinesFor(User $user, int $limit = 10): array
     {
         return $this->dashboardFor($user, deadlineLimit: $limit)['upcoming_reading_deadlines'];
     }
@@ -118,6 +120,7 @@ class AdminDashboardStats
      *         total_properties: int,
      *         active_tenants: int,
      *         pending_invoices: int,
+     *         draft_invoices: int,
      *         revenue_this_month: string
      *     },
      *     subscription_usage: array<int, array{label: string, value: string}>,
@@ -146,6 +149,7 @@ class AdminDashboardStats
                 'invoices',
                 'propertyAssignments as active_tenants_count' => fn (Builder $query): Builder => $query->current(),
                 'invoices as pending_invoices_count' => fn (Builder $query): Builder => $query->pendingAttention(),
+                'invoices as draft_invoices_count' => fn (Builder $query): Builder => $query->where('status', InvoiceStatus::DRAFT),
             ])
             ->withSum([
                 'invoices as revenue_this_month' => fn (Builder $query): Builder => $query->paidBetween(
@@ -167,6 +171,7 @@ class AdminDashboardStats
                 'total_properties' => (int) $organization->properties_count,
                 'active_tenants' => (int) $organization->active_tenants_count,
                 'pending_invoices' => (int) $organization->pending_invoices_count,
+                'draft_invoices' => (int) $organization->draft_invoices_count,
                 'revenue_this_month' => $this->formatCurrency((float) ($organization->revenue_this_month ?? 0)),
             ],
             'subscription_usage' => [
@@ -246,10 +251,7 @@ class AdminDashboardStats
                         ? $propertyName.' · '.$unitNumber
                         : $propertyName,
                     'amount' => $this->formatCurrency((float) $invoice->total_amount),
-                    'status' => Str::of($invoice->status->value)
-                        ->replace('_', ' ')
-                        ->title()
-                        ->value(),
+                    'status' => $invoice->status->label(),
                 ];
             })
             ->all();
@@ -310,6 +312,7 @@ class AdminDashboardStats
      *         total_properties: int,
      *         active_tenants: int,
      *         pending_invoices: int,
+     *         draft_invoices: int,
      *         revenue_this_month: string
      *     },
      *     subscription_usage: array<int, array{label: string, value: string}>,
@@ -334,6 +337,7 @@ class AdminDashboardStats
                 'total_properties' => 0,
                 'active_tenants' => 0,
                 'pending_invoices' => 0,
+                'draft_invoices' => 0,
                 'revenue_this_month' => $this->formatCurrency(0),
             ],
             'subscription_usage' => [],

@@ -22,8 +22,8 @@ function registerInvitationDestinationFixtures(): void
             ->name('filament.admin.pages.organization-dashboard');
     }
 
-    if (! Route::has('tenant.home')) {
-        Route::get('/__test/tenant-home', fn () => 'tenant home')->name('tenant.home');
+    if (! Route::has('filament.admin.pages.tenant-dashboard')) {
+        Route::get('/__test/tenant-dashboard', fn () => 'tenant dashboard')->name('filament.admin.pages.tenant-dashboard');
     }
 
     app('router')->getRoutes()->refreshNameLookups();
@@ -33,6 +33,22 @@ function registerInvitationDestinationFixtures(): void
 beforeEach(function (): void {
     registerInvitationDestinationFixtures();
 });
+
+/**
+ * @param  array<string, mixed>  $attributes
+ * @return array{invitation: OrganizationInvitation, token: string}
+ */
+function createSecuredInvitation(array $attributes = []): array
+{
+    $token = OrganizationInvitation::issueToken();
+
+    $invitation = OrganizationInvitation::factory()->create([
+        ...$attributes,
+        'token' => OrganizationInvitation::hashToken($token),
+    ]);
+
+    return compact('invitation', 'token');
+}
 
 it('creates and emails a pending invitation', function () {
     Notification::fake();
@@ -72,12 +88,12 @@ it('renders the invitation acceptance page', function () {
         'name' => 'North Hall',
     ]);
 
-    $invitation = OrganizationInvitation::factory()->create([
+    ['invitation' => $invitation, 'token' => $token] = createSecuredInvitation([
         'organization_id' => $organization->id,
         'full_name' => 'Marta Manager',
     ]);
 
-    $this->get(route('invitation.show', $invitation->token))
+    $this->get(route('invitation.show', $token))
         ->assertSuccessful()
         ->assertSeeText('You have been invited to join Tenanto by North Hall.')
         ->assertSeeText('Full Name')
@@ -87,7 +103,7 @@ it('renders the invitation acceptance page', function () {
 
 it('accepts a valid invitation and logs the user in', function (UserRole $role, string $expectedRoute) {
     $organization = Organization::factory()->create();
-    $invitation = OrganizationInvitation::factory()->create([
+    ['invitation' => $invitation, 'token' => $token] = createSecuredInvitation([
         'organization_id' => $organization->id,
         'email' => match ($role) {
             UserRole::MANAGER => 'manager@example.com',
@@ -98,7 +114,7 @@ it('accepts a valid invitation and logs the user in', function (UserRole $role, 
         'role' => $role,
     ]);
 
-    $this->post(route('invitation.store', $invitation->token), [
+    $this->post(route('invitation.store', $token), [
         'name' => 'Invited User',
         'password' => 'new-password',
         'password_confirmation' => 'new-password',
@@ -114,7 +130,7 @@ it('accepts a valid invitation and logs the user in', function (UserRole $role, 
         ->and($invitation->fresh()->accepted_at)->not->toBeNull();
 })->with([
     'manager' => [UserRole::MANAGER, 'filament.admin.pages.dashboard'],
-    'tenant' => [UserRole::TENANT, 'filament.admin.pages.dashboard'],
+    'tenant' => [UserRole::TENANT, 'filament.admin.pages.tenant-dashboard'],
 ]);
 
 it('activates an existing tenant placeholder when accepting an invitation', function () {
@@ -132,7 +148,7 @@ it('activates an existing tenant placeholder when accepting an invitation', func
         'status' => UserStatus::INACTIVE,
     ]);
 
-    $invitation = OrganizationInvitation::factory()->create([
+    ['invitation' => $invitation, 'token' => $token] = createSecuredInvitation([
         'organization_id' => $organization->id,
         'inviter_user_id' => $admin->id,
         'email' => $tenant->email,
@@ -140,11 +156,11 @@ it('activates an existing tenant placeholder when accepting an invitation', func
         'role' => UserRole::TENANT,
     ]);
 
-    $this->post(route('invitation.store', $invitation->token), [
+    $this->post(route('invitation.store', $token), [
         'name' => 'Pat Tenant',
         'password' => 'new-password',
         'password_confirmation' => 'new-password',
-    ])->assertRedirect(route('filament.admin.pages.dashboard'));
+    ])->assertRedirect(route('filament.admin.pages.tenant-dashboard'));
 
     $tenant = $tenant->fresh();
 
@@ -158,11 +174,11 @@ it('activates an existing tenant placeholder when accepting an invitation', func
 });
 
 it('shows the expired state for an expired invitation', function () {
-    $invitation = OrganizationInvitation::factory()->create([
+    ['invitation' => $invitation, 'token' => $token] = createSecuredInvitation([
         'expires_at' => now()->subDay(),
     ]);
 
-    $this->get(route('invitation.show', $invitation->token))
+    $this->get(route('invitation.show', $token))
         ->assertSuccessful()
         ->assertSeeText('This invitation has expired. Please contact your administrator for a new invitation.');
 });
@@ -175,7 +191,7 @@ it('accepts the freshest resent invitation while keeping the expired token unusa
         'organization_id' => $organization->id,
     ]);
 
-    $expiredInvitation = OrganizationInvitation::factory()->create([
+    ['invitation' => $expiredInvitation, 'token' => $expiredToken] = createSecuredInvitation([
         'organization_id' => $organization->id,
         'inviter_user_id' => $admin->id,
         'email' => 'resent@example.com',
@@ -187,11 +203,11 @@ it('accepts the freshest resent invitation while keeping the expired token unusa
     $resentInvitation = app(ResendOrganizationInvitationAction::class)
         ->handle($admin, $expiredInvitation);
 
-    $this->get(route('invitation.show', $expiredInvitation->token))
+    $this->get(route('invitation.show', $expiredToken))
         ->assertSuccessful()
         ->assertSeeText('This invitation has expired. Please contact your administrator for a new invitation.');
 
-    $this->post(route('invitation.store', $resentInvitation->token), [
+    $this->post(route('invitation.store', $resentInvitation->routeToken()), [
         'name' => 'Resent Manager',
         'password' => 'new-password',
         'password_confirmation' => 'new-password',
@@ -206,15 +222,27 @@ it('accepts the freshest resent invitation while keeping the expired token unusa
 });
 
 it('rejects an already accepted invitation', function () {
-    $invitation = OrganizationInvitation::factory()->create([
+    ['invitation' => $invitation, 'token' => $token] = createSecuredInvitation([
         'accepted_at' => now(),
     ]);
 
-    $this->post(route('invitation.store', $invitation->token), [
+    $this->get(route('invitation.show', $token))
+        ->assertSuccessful()
+        ->assertSeeText(__('auth.invitation_used'));
+
+    $this->post(route('invitation.store', $token), [
         'name' => 'Used Invitation',
         'password' => 'new-password',
         'password_confirmation' => 'new-password',
-    ])->assertRedirect(route('invitation.show', $invitation->token));
+    ])->assertRedirect(route('invitation.show', $token));
+
+    $this->followingRedirects()
+        ->post(route('invitation.store', $token), [
+            'name' => 'Used Invitation',
+            'password' => 'new-password',
+            'password_confirmation' => 'new-password',
+        ])
+        ->assertSeeText(__('auth.invitation_used'));
 
     expect(User::query()->where('email', $invitation->email)->exists())->toBeFalse();
 });

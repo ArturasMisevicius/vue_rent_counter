@@ -1,29 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Support\Admin\Reports;
 
 use App\Models\Invoice;
 use Carbon\CarbonInterface;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
-class RevenueReportBuilder extends AbstractReportBuilder
+final class RevenueReportBuilder extends AbstractReportBuilder
 {
     /**
-     * @param  array{invoice_status: string|null}  $filters
+     * @param  array{building_id: int|null, property_id: int|null, tenant_id: int|null, status_filter: string|null}  $filters
      * @return array{
      *     title: string,
      *     description: string,
      *     summary: array<int, array{label: string, value: string}>,
      *     columns: array<int, array{key: string, label: string}>,
-     *     rows: array<int, array<string, string>>,
+     *     rows: array<int, array<string, mixed>>,
      *     empty_state: string
      * }
      */
     public function build(int $organizationId, CarbonInterface $startDate, CarbonInterface $endDate, array $filters): array
     {
         $invoices = Invoice::query()
-            ->forAdminWorkspace($organizationId)
             ->select([
                 'id',
                 'organization_id',
@@ -35,72 +35,93 @@ class RevenueReportBuilder extends AbstractReportBuilder
                 'total_amount',
                 'amount_paid',
                 'paid_amount',
-                'due_date',
                 'billing_period_end',
                 'paid_at',
             ])
-            ->whereBetween('billing_period_end', [$startDate->toDateString(), $endDate->toDateString()])
+            ->forOrganization($organizationId)
             ->when(
-                filled($filters['invoice_status'] ?? null),
-                fn ($query) => $query->where('status', $filters['invoice_status']),
+                filled($filters['building_id'] ?? null),
+                fn ($query) => $query->whereHas(
+                    'property',
+                    fn ($query) => $query->where('building_id', $filters['building_id']),
+                ),
             )
+            ->when(
+                filled($filters['property_id'] ?? null),
+                fn ($query) => $query->forProperty($filters['property_id']),
+            )
+            ->when(
+                filled($filters['tenant_id'] ?? null),
+                fn ($query) => $query->forTenant($filters['tenant_id']),
+            )
+            ->when(
+                filled($filters['status_filter'] ?? null) && $filters['status_filter'] !== 'all',
+                fn ($query) => $query->where('status', $filters['status_filter']),
+            )
+            ->whereDate('billing_period_end', '>=', $startDate->toDateString())
+            ->whereDate('billing_period_end', '<=', $endDate->toDateString())
             ->reorder()
-            ->latestBillingFirst()
+            ->orderBy('billing_period_end')
+            ->orderBy('id')
             ->get();
 
-        /** @var Collection<int, array<string, float|string>> $rowData */
+        /** @var Collection<int, array<string, mixed>> $rowData */
         $rowData = $invoices
-            ->map(function (Invoice $invoice): array {
-                $paidAmount = $invoice->normalized_paid_amount;
-                $outstanding = $invoice->outstanding_balance;
-                $currency = (string) ($invoice->currency ?? 'EUR');
+            ->filter(fn (Invoice $invoice): bool => $invoice->billing_period_end !== null)
+            ->groupBy(fn (Invoice $invoice): string => $invoice->billing_period_end->format('Y-m'))
+            ->map(function (Collection $monthInvoices, string $month): array {
+                $rawTotal = (float) $monthInvoices->sum(
+                    fn (Invoice $invoice): float => (float) $invoice->total_amount
+                );
+                $rawPaid = (float) $monthInvoices->sum(
+                    fn (Invoice $invoice): float => $invoice->normalized_paid_amount
+                );
+                $rawOutstanding = max($rawTotal - $rawPaid, 0.0);
 
                 return [
-                    'raw_total' => (float) $invoice->total_amount,
-                    'raw_paid' => $paidAmount,
-                    'raw_outstanding' => $outstanding,
-                    'invoice_number' => (string) $invoice->invoice_number,
-                    'tenant' => (string) ($invoice->tenant?->name ?? __('dashboard.not_available')),
-                    'property' => $this->propertyLabel($invoice->property),
-                    'status' => __('admin.invoices.statuses.'.$invoice->status->value),
-                    'billed' => $this->formatCurrency((float) $invoice->total_amount, $currency),
-                    'paid' => $this->formatCurrency($paidAmount, $currency),
-                    'outstanding' => $this->formatCurrency($outstanding, $currency),
-                    'period_end' => $this->formatDate($invoice->billing_period_end),
+                    'month' => $month,
+                    'raw_total' => $rawTotal,
+                    'raw_paid' => $rawPaid,
+                    'raw_outstanding' => $rawOutstanding,
+                    'invoice_count' => (string) $monthInvoices->count(),
+                    'total_invoiced' => $this->formatCurrency($rawTotal),
+                    'total_paid' => $this->formatCurrency($rawPaid),
+                    'total_outstanding' => $this->formatCurrency($rawOutstanding),
                 ];
             })
+            ->values()
+            ->sortByDesc('month')
             ->values();
 
         return [
             'title' => __('admin.reports.tabs.revenue'),
-            'description' => __('admin.reports.descriptions.revenue'),
+            'description' => __('admin.reports.descriptions.revenue_grouped'),
             'summary' => [
                 [
-                    'label' => __('admin.reports.summary.invoice_count'),
+                    'label' => __('admin.reports.summary.months'),
                     'value' => (string) $rowData->count(),
                 ],
                 [
-                    'label' => __('admin.reports.summary.billed_total'),
+                    'label' => __('admin.reports.summary.total_invoiced'),
                     'value' => $this->formatCurrency((float) $rowData->sum('raw_total')),
                 ],
                 [
-                    'label' => __('admin.reports.summary.collected_total'),
+                    'label' => __('admin.reports.summary.total_paid'),
                     'value' => $this->formatCurrency((float) $rowData->sum('raw_paid')),
+                ],
+                [
+                    'label' => __('admin.reports.summary.total_outstanding'),
+                    'value' => $this->formatCurrency((float) $rowData->sum('raw_outstanding')),
                 ],
             ],
             'columns' => [
-                ['key' => 'invoice_number', 'label' => __('admin.reports.columns.invoice')],
-                ['key' => 'tenant', 'label' => __('admin.reports.columns.tenant')],
-                ['key' => 'property', 'label' => __('admin.reports.columns.property')],
-                ['key' => 'status', 'label' => __('admin.reports.columns.status')],
-                ['key' => 'billed', 'label' => __('admin.reports.columns.billed')],
-                ['key' => 'paid', 'label' => __('admin.reports.columns.paid')],
-                ['key' => 'outstanding', 'label' => __('admin.reports.columns.outstanding')],
-                ['key' => 'period_end', 'label' => __('admin.reports.columns.period_end')],
+                ['key' => 'month', 'label' => __('admin.reports.columns.month')],
+                ['key' => 'total_invoiced', 'label' => __('admin.reports.columns.total_invoiced')],
+                ['key' => 'total_paid', 'label' => __('admin.reports.columns.total_paid')],
+                ['key' => 'total_outstanding', 'label' => __('admin.reports.columns.total_outstanding')],
+                ['key' => 'invoice_count', 'label' => __('admin.reports.columns.invoice_count')],
             ],
-            'rows' => $rowData
-                ->map(fn (array $row): array => Arr::except($row, ['raw_total', 'raw_paid', 'raw_outstanding']))
-                ->all(),
+            'rows' => $rowData->all(),
             'empty_state' => __('admin.reports.empty.revenue'),
         ];
     }

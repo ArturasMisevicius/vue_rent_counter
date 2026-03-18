@@ -24,7 +24,11 @@
             @endif
         </div>
 
-        @if ($meters->isEmpty())
+        @if ($submittedReading)
+            <div class="rounded-[1.75rem] border border-slate-200 bg-slate-50 px-5 py-5 text-sm leading-6 text-slate-600">
+                {{ __('tenant.pages.readings.description') }}
+            </div>
+        @elseif ($meters->isEmpty())
             <x-shared.empty-state
                 icon="heroicon-m-beaker"
                 :title="__('tenant.pages.readings.title')"
@@ -126,6 +130,12 @@
             @if ($preview)
                 <div class="space-y-4 rounded-[1.75rem] border border-slate-200 bg-white px-5 py-5">
                     <p class="text-sm leading-6 text-slate-600">{{ $preview['message'] }}</p>
+
+                    @if ($preview['warning'])
+                        <div class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
+                            {{ $preview['warning'] }}
+                        </div>
+                    @endif
 
                     @if ($preview['delta'] !== null)
                         <div>

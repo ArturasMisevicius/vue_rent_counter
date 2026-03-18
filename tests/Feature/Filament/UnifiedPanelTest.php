@@ -37,7 +37,7 @@ it('allows a tenant to access the unified app panel without properties or billin
     $this->actingAs($user)
         ->get('/app')
         ->assertSuccessful()
-        ->assertSee('data-dashboard-tenant-summary-placeholder="true"', false)
+        ->assertSeeText('No property assigned yet')
         ->assertSee('data-shell-group="my-home"', false)
         ->assertDontSee('data-shell-group="properties"', false)
         ->assertDontSee('data-shell-group="billing"', false);

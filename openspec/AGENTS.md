@@ -32,8 +32,8 @@ needs a reviewable implementation proposal before coding.
 - The root [`AGENTS.md`](/Users/andrejprus/Herd/tenanto/AGENTS.md) remains authoritative.
 - Specs must preserve the Laravel and Eloquent rules from the root instructions:
   no raw SQL, no Blade queries, no duplicate business logic, and tenant-safe authorization.
-- When a detailed implementation plan already exists under `docs/superpowers/plans/`,
-  mirror its chunking in `tasks.md` and capture the durable product behavior in the spec deltas.
+- When a historical implementation note exists under `docs/superpowers/`,
+  mirror its durable chunking in `tasks.md` and capture the user-visible behavior in the spec deltas.
 - For tenant features, prefer shared domain models, policies, and actions over tenant-only duplicates.
 
 ## Review Checklist

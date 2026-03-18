@@ -2,10 +2,15 @@
 
 namespace App\Filament\Resources\Organizations;
 
+use App\Filament\Concerns\AuthorizesSuperadminAccess;
 use App\Filament\Resources\Organizations\Pages\CreateOrganization;
 use App\Filament\Resources\Organizations\Pages\EditOrganization;
 use App\Filament\Resources\Organizations\Pages\ListOrganizations;
 use App\Filament\Resources\Organizations\Pages\ViewOrganization;
+use App\Filament\Resources\Organizations\RelationManagers\ActivityLogsRelationManager;
+use App\Filament\Resources\Organizations\RelationManagers\PropertiesRelationManager;
+use App\Filament\Resources\Organizations\RelationManagers\SubscriptionsRelationManager;
+use App\Filament\Resources\Organizations\RelationManagers\UsersRelationManager;
 use App\Filament\Resources\Organizations\Schemas\OrganizationForm;
 use App\Filament\Resources\Organizations\Schemas\OrganizationInfolist;
 use App\Filament\Resources\Organizations\Tables\OrganizationsTable;
@@ -20,6 +25,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class OrganizationResource extends Resource
 {
+    use AuthorizesSuperadminAccess;
+
     protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $model = Organization::class;
@@ -64,7 +71,10 @@ class OrganizationResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            UsersRelationManager::class,
+            SubscriptionsRelationManager::class,
+            PropertiesRelationManager::class,
+            ActivityLogsRelationManager::class,
         ];
     }
 

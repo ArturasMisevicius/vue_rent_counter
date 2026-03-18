@@ -113,6 +113,7 @@ return [
         'limit_blocked' => 'Limit blocked',
         'grace_read_only' => 'Grace read only',
         'post_grace_read_only' => 'Post-grace read only',
+        'suspended' => 'Suspended',
     ],
     'subscription_duration' => [
         'monthly' => 'Monthly',

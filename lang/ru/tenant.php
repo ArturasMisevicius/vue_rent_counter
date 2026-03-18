@@ -45,9 +45,13 @@ return [
             'greeting' => 'Здравствуйте, :name',
             'month_heading' => 'Этот месяц',
             'current_month_metric' => '{0}Все актуально|{1}:count ожидает|[2,*]:count ожидают',
+            'current_month_consumption' => 'Потребление за текущий месяц',
             'recent_readings' => 'Последние показания',
             'across_invoices' => 'По :count счетам',
+            'building_label' => 'Здание: :building',
             'no_reading_this_month' => 'В этом месяце показание еще не отправлено',
+            'unassigned_title' => 'Объект еще не назначен',
+            'unassigned_description' => 'Портал арендатора станет доступен после того, как администратор назначит вам объект и счетчики.',
         ],
         'readings' => [
             'title' => 'Отправить показание',
@@ -68,6 +72,7 @@ return [
             'preview_empty' => 'Выберите счетчик и введите значение, чтобы увидеть изменение перед отправкой.',
             'first_reading' => 'Это будет первое показание для этого счетчика.',
             'previous_reading' => 'Предыдущее показание: :value :unit на :date',
+            'lower_than_previous_warning' => 'Это показание ниже предыдущего зафиксированного значения и будет отклонено при отправке.',
             'unauthorized_meter' => 'Этот счетчик недоступен в вашем портале арендатора.',
         ],
         'invoices' => [

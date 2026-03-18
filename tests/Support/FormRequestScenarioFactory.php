@@ -16,11 +16,15 @@ use App\Enums\SubscriptionPlan;
 use App\Enums\TariffType;
 use App\Enums\UserStatus;
 use App\Http\Requests\Admin\Buildings\BuildingRequest;
+use App\Http\Requests\Admin\Invoices\GenerateBulkInvoicesRequest;
 use App\Http\Requests\Admin\Invoices\ProcessPaymentRequest;
 use App\Http\Requests\Admin\Invoices\SaveInvoiceDraftRequest;
+use App\Http\Requests\Admin\Invoices\SendInvoiceEmailRequest;
+use App\Http\Requests\Admin\MeterReadings\RejectMeterReadingRequest;
 use App\Http\Requests\Admin\MeterReadings\UpdateMeterReadingRequest;
 use App\Http\Requests\Admin\Meters\MeterRequest;
 use App\Http\Requests\Admin\Properties\PropertyRequest;
+use App\Http\Requests\Admin\Properties\StorePropertyRequest;
 use App\Http\Requests\Admin\Providers\ProviderRequest;
 use App\Http\Requests\Admin\Reports\ConsumptionReportRequest;
 use App\Http\Requests\Admin\Reports\ExportReportRequest;
@@ -43,12 +47,15 @@ use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Preferences\SetLocaleRequest;
 use App\Http\Requests\Profile\UpdatePasswordRequest;
 use App\Http\Requests\Profile\UpdateProfileRequest;
+use App\Http\Requests\Security\CspViolationRequest;
 use App\Http\Requests\Shell\SearchQueryRequest;
 use App\Http\Requests\Superadmin\Notifications\SendPlatformNotificationRequest;
 use App\Http\Requests\Superadmin\Organizations\ImpersonateUserRequest;
 use App\Http\Requests\Superadmin\Organizations\StoreOrganizationRequest;
 use App\Http\Requests\Superadmin\Organizations\UpdateOrganizationRequest;
 use App\Http\Requests\Superadmin\Security\BlockIpAddressRequest;
+use App\Http\Requests\Superadmin\Subscriptions\ExtendSubscriptionExpiryRequest;
+use App\Http\Requests\Superadmin\Subscriptions\UpgradeSubscriptionPlanRequest;
 use App\Http\Requests\Superadmin\SystemConfiguration\UpdateSystemSettingRequest;
 use App\Http\Requests\Tenant\InvoiceHistoryFilterRequest;
 use App\Http\Requests\Tenant\StoreMeterReadingRequest;
@@ -58,6 +65,7 @@ use App\Models\Meter;
 use App\Models\Organization;
 use App\Models\Property;
 use App\Models\Provider;
+use App\Models\Subscription;
 use App\Models\SystemSetting;
 use App\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -109,6 +117,25 @@ final class FormRequestScenarioFactory
                     'slug unique' => static fn (array $valid, array $context): array => [
                         'field' => 'slug',
                         'input' => self::withField($valid, 'slug', $context['existingOrganization']->slug),
+                    ],
+                ],
+            ],
+            'CspViolationRequest' => [
+                'request' => static fn (array $context): FormRequest => new CspViolationRequest,
+                'valid' => static fn (array $context): array => [
+                    'csp-report' => [
+                        'document-uri' => 'https://tenanto.test/app',
+                        'violated-directive' => 'script-src-elem',
+                        'effective-directive' => 'script-src',
+                        'blocked-uri' => 'https://cdn.example.test/script.js',
+                    ],
+                ],
+                'required' => [],
+                'authorize' => self::allRoles(true),
+                'invalid' => [
+                    'csp report must be an array' => static fn (array $valid, array $context): array => [
+                        'field' => 'csp-report',
+                        'input' => self::withField($valid, 'csp-report', 'not-an-array'),
                     ],
                 ],
             ],
@@ -270,6 +297,22 @@ final class FormRequestScenarioFactory
                 'required' => ['ip_address', 'reason', 'blocked_by_user_id'],
                 'authorize' => self::superadminOnly(),
             ],
+            'ExtendSubscriptionExpiryRequest' => [
+                'request' => static fn (array $context): FormRequest => new ExtendSubscriptionExpiryRequest,
+                'valid' => static fn (array $context): array => [
+                    'expires_at' => now()->addMonth()->toDateString(),
+                ],
+                'required' => ['expires_at'],
+                'authorize' => self::superadminOnly(),
+            ],
+            'UpgradeSubscriptionPlanRequest' => [
+                'request' => static fn (array $context): FormRequest => new UpgradeSubscriptionPlanRequest,
+                'valid' => static fn (array $context): array => [
+                    'plan' => SubscriptionPlan::PROFESSIONAL->value,
+                ],
+                'required' => ['plan'],
+                'authorize' => self::superadminOnly(),
+            ],
             'UpdateSystemSettingRequest' => [
                 'request' => static fn (array $context): FormRequest => new UpdateSystemSettingRequest,
                 'valid' => static fn (array $context): array => [
@@ -296,10 +339,12 @@ final class FormRequestScenarioFactory
             'UpdateNotificationPreferencesRequest' => [
                 'request' => static fn (array $context): FormRequest => new UpdateNotificationPreferencesRequest,
                 'valid' => static fn (array $context): array => [
-                    'invoice_reminders' => true,
-                    'reading_deadline_alerts' => false,
+                    'new_invoice_generated' => true,
+                    'invoice_overdue' => false,
+                    'tenant_submits_reading' => true,
+                    'subscription_expiring' => false,
                 ],
-                'required' => ['invoice_reminders', 'reading_deadline_alerts'],
+                'required' => ['new_invoice_generated', 'invoice_overdue', 'tenant_submits_reading', 'subscription_expiring'],
                 'authorize' => self::adminOnly(),
             ],
             'UpdateOrganizationSettingsRequest' => [
@@ -338,6 +383,17 @@ final class FormRequestScenarioFactory
                 'required' => [],
                 'authorize' => self::adminManagerOnly(),
             ],
+            'GenerateBulkInvoicesRequest' => [
+                'request' => static fn (array $context): FormRequest => new GenerateBulkInvoicesRequest,
+                'valid' => static fn (array $context): array => [
+                    'billing_period_start' => now()->startOfMonth()->toDateString(),
+                    'billing_period_end' => now()->endOfMonth()->toDateString(),
+                    'due_date' => now()->endOfMonth()->addDays(14)->toDateString(),
+                    'selected_assignments' => ['assignment-1'],
+                ],
+                'required' => ['billing_period_start', 'billing_period_end', 'due_date'],
+                'authorize' => self::adminManagerOnly(),
+            ],
             'SaveInvoiceDraftRequest' => [
                 'request' => static fn (array $context): FormRequest => new SaveInvoiceDraftRequest,
                 'valid' => static fn (array $context): array => [
@@ -355,6 +411,22 @@ final class FormRequestScenarioFactory
                     'notes' => 'Draft invoice',
                 ],
                 'required' => [],
+                'authorize' => self::adminManagerOnly(),
+            ],
+            'SendInvoiceEmailRequest' => [
+                'request' => static fn (array $context): FormRequest => new SendInvoiceEmailRequest,
+                'valid' => static fn (array $context): array => [
+                    'recipient_email' => $context['tenant']->email,
+                ],
+                'required' => ['recipient_email'],
+                'authorize' => self::adminManagerOnly(),
+            ],
+            'RejectMeterReadingRequest' => [
+                'request' => static fn (array $context): FormRequest => new RejectMeterReadingRequest,
+                'valid' => static fn (array $context): array => [
+                    'reason' => 'The submitted reading requires a corrected value.',
+                ],
+                'required' => ['reason'],
                 'authorize' => self::adminManagerOnly(),
             ],
             'UpdateMeterReadingRequest' => [
@@ -384,6 +456,18 @@ final class FormRequestScenarioFactory
             ],
             'PropertyRequest' => [
                 'request' => static fn (array $context): FormRequest => (new PropertyRequest)->forOrganization($context['organization']->id),
+                'valid' => static fn (array $context): array => [
+                    'building_id' => $context['building']->id,
+                    'name' => 'Apartment 12',
+                    'unit_number' => '12',
+                    'type' => PropertyType::APARTMENT->value,
+                    'floor_area_sqm' => '58.50',
+                ],
+                'required' => ['building_id', 'name', 'unit_number', 'type'],
+                'authorize' => self::adminManagerOnly(),
+            ],
+            'StorePropertyRequest' => [
+                'request' => static fn (array $context): FormRequest => (new StorePropertyRequest)->forOrganization($context['organization']->id),
                 'valid' => static fn (array $context): array => [
                     'building_id' => $context['building']->id,
                     'name' => 'Apartment 12',
@@ -506,6 +590,13 @@ final class FormRequestScenarioFactory
         ]);
         $duplicateUser = User::factory()->create([
             'organization_id' => $organization->id,
+        ]);
+
+        Subscription::factory()->for($organization)->active()->create([
+            'property_limit_snapshot' => 25,
+            'tenant_limit_snapshot' => 25,
+            'meter_limit_snapshot' => 50,
+            'invoice_limit_snapshot' => 100,
         ]);
 
         $building = Building::factory()->create([
@@ -755,6 +846,20 @@ final class FormRequestScenarioFactory
     }
 
     /**
+     * @return array{guest: bool, superadmin: bool, admin: bool, manager: bool, tenant: bool}
+     */
+    private static function adminLikeOnly(): array
+    {
+        return [
+            'guest' => false,
+            'superadmin' => true,
+            'admin' => true,
+            'manager' => true,
+            'tenant' => false,
+        ];
+    }
+
+    /**
      * @param  class-string<FormRequest>  $requestClass
      * @param  list<string>  $additionalRequired
      * @param  (callable(array<string, mixed>): array<string, mixed>)|null  $extraValid
@@ -789,7 +894,7 @@ final class FormRequestScenarioFactory
                 'only_overdue',
                 ...$additionalRequired,
             ],
-            'authorize' => self::adminManagerOnly(),
+            'authorize' => self::adminLikeOnly(),
         ];
     }
 

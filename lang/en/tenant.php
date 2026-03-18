@@ -45,9 +45,13 @@ return [
             'greeting' => 'Hello, :name',
             'month_heading' => 'This Month',
             'current_month_metric' => '{0}All current|{1}:count pending|[2,*]:count pending',
+            'current_month_consumption' => 'Current Month Consumption',
             'recent_readings' => 'Recent Readings',
             'across_invoices' => 'Across :count invoices',
+            'building_label' => 'Building: :building',
             'no_reading_this_month' => 'No reading this month',
+            'unassigned_title' => 'No property assigned yet',
+            'unassigned_description' => 'Your tenant portal will activate once an administrator assigns your property and meters.',
         ],
         'readings' => [
             'title' => 'Submit Reading',
@@ -68,6 +72,7 @@ return [
             'preview_empty' => 'Choose a meter and enter a value to preview the change before you submit it.',
             'first_reading' => 'This will be the first reading recorded for this meter.',
             'previous_reading' => 'Previous reading: :value :unit on :date',
+            'lower_than_previous_warning' => 'This reading is lower than the previous recorded value and will be rejected on submission.',
             'unauthorized_meter' => 'This meter is not available in your tenant portal.',
         ],
         'invoices' => [

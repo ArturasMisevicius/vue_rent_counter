@@ -3,7 +3,7 @@
 namespace App\Filament\Actions\Admin\Properties;
 
 use App\Filament\Support\Admin\SubscriptionLimitGuard;
-use App\Http\Requests\Admin\Properties\PropertyRequest;
+use App\Http\Requests\Admin\Properties\StorePropertyRequest;
 use App\Models\Organization;
 use App\Models\Property;
 
@@ -30,11 +30,13 @@ class CreatePropertyAction
      */
     private function validate(int $organizationId, array $data): array
     {
-        /** @var PropertyRequest $request */
-        $request = new PropertyRequest;
+        /** @var StorePropertyRequest $request */
+        $request = new StorePropertyRequest;
         $validated = $request
             ->forOrganization($organizationId)
             ->validatePayload($data);
+
+        unset($validated['subscription_limit']);
 
         return $validated;
     }

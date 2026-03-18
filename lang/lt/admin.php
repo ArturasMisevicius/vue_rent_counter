@@ -36,11 +36,15 @@ return [
         ],
         'notifications' => [
             'title' => 'Pranešimų nuostatos',
-            'description' => 'Pasirinkite, kurie operaciniai įspėjimai turi būti rodomi organizacijai.',
-            'invoice_reminders' => 'Sąskaitų priminimai',
-            'invoice_reminders_help' => 'Rodyti priminimus apie pradelstas sąskaitas ir artėjančius terminus.',
-            'reading_deadline_alerts' => 'Rodmenų terminų įspėjimai',
-            'reading_deadline_alerts_help' => 'Išryškinti skaitiklius, kuriems artėja kito rodmens pateikimo terminas.',
+            'description' => 'Pasirinkite, kokius operacinius laiškus administratoriai turėtų gauti šiai organizacijai.',
+            'new_invoice_generated' => 'Sugeneruota nauja sąskaita',
+            'new_invoice_generated_help' => 'Siųsti laišką administratoriams, kai užbaigiama naujai sugeneruota sąskaita.',
+            'invoice_overdue' => 'Pradelsta sąskaita',
+            'invoice_overdue_help' => 'Siųsti laišką administratoriams, kai aktyvuojami pradelstų sąskaitų priminimai.',
+            'tenant_submits_reading' => 'Nuomininkas pateikia rodmenį',
+            'tenant_submits_reading_help' => 'Siųsti laišką administratoriams, kai nuomininkas pateikia naują rodmenį.',
+            'subscription_expiring' => 'Baigiasi prenumerata',
+            'subscription_expiring_help' => 'Siųsti laišką administratoriams prieš pasibaigiant organizacijos prenumeratai.',
         ],
         'subscription' => [
             'title' => 'Prenumerata',
@@ -64,10 +68,15 @@ return [
     'buildings' => [
         'singular' => 'Pastatas',
         'plural' => 'Pastatai',
+        'navigation' => 'Pastatai',
         'view_title' => 'Pastato informacija',
         'sections' => [
             'details' => 'Pastato informacija',
             'activity' => 'Pastato aktyvumas',
+        ],
+        'tabs' => [
+            'overview' => 'Apžvalga',
+            'properties' => 'Patalpos',
         ],
         'fields' => [
             'name' => 'Pavadinimas',
@@ -77,6 +86,7 @@ return [
             'postal_code' => 'Pašto kodas',
             'country_code' => 'Šalies kodas',
             'properties_count' => 'Patalpos',
+            'meters_count' => 'Skaitikliai',
             'updated_at' => 'Atnaujinta',
         ],
         'columns' => [
@@ -88,6 +98,7 @@ return [
             'country_code' => 'Šalies kodas',
             'properties_count' => 'Patalpos',
             'created_at' => 'Sukurta',
+            'updated_at' => 'Atnaujinta',
         ],
         'empty' => [
             'address_line_2' => 'Nenurodyta',
@@ -104,11 +115,18 @@ return [
     'properties' => [
         'singular' => 'Patalpa',
         'plural' => 'Patalpos',
+        'navigation' => 'Patalpos',
         'view_title' => 'Patalpos informacija',
         'sections' => [
             'details' => 'Patalpos informacija',
             'current_occupancy' => 'Esamas užimtumas',
             'assignment_history' => 'Priskyrimų istorija',
+        ],
+        'tabs' => [
+            'tenant' => 'Nuomininkas',
+            'meters' => 'Skaitikliai',
+            'readings' => 'Rodmenys',
+            'invoices' => 'Sąskaitos',
         ],
         'fields' => [
             'name' => 'Pavadinimas',
@@ -130,6 +148,14 @@ return [
             'tenant' => 'Nuomininkas',
             'assigned_since' => 'Priskirta nuo',
             'created_at' => 'Sukurta',
+            'meters_count' => 'Skaitikliai',
+        ],
+        'filters' => [
+            'occupancy_status' => 'Užimtumas',
+            'occupancy' => [
+                'occupied' => 'Užimta',
+                'vacant' => 'Laisva',
+            ],
         ],
         'types' => [
             'apartment' => 'Butas',
@@ -162,16 +188,25 @@ return [
             'invalid_tenant' => 'Pasirinktas nuomininkas neprieinamas šiai organizacijai.',
             'limit_reached' => 'Šios organizacijos patalpų limitas jau pasiektas.',
             'delete_blocked' => 'Patalpos su priskyrimų, skaitiklių ar sąskaitų istorija negalima ištrinti.',
+            'tenant_assigned' => 'Nuomininko priskyrimas atnaujintas.',
         ],
     ],
     'tenants' => [
         'singular' => 'Nuomininkas',
         'plural' => 'Nuomininkai',
+        'navigation' => 'Nuomininkai',
         'view_title' => 'Nuomininko informacija',
         'sections' => [
             'details' => 'Nuomininko informacija',
             'current_property' => 'Dabartinė patalpa',
             'invoice_history' => 'Sąskaitų istorija',
+        ],
+        'tabs' => [
+            'profile' => 'Profilis',
+            'meters' => 'Skaitikliai',
+            'readings' => 'Rodmenys',
+            'invoices' => 'Sąskaitos',
+            'audit_trail' => 'Audito istorija',
         ],
         'fields' => [
             'name' => 'Vardas',
@@ -206,16 +241,31 @@ return [
         ],
         'actions' => [
             'resend_invitation' => 'Persiųsti kvietimą',
+            'reassign_property' => 'Perkelti į kitą patalpą',
         ],
         'messages' => [
             'limit_reached' => 'Šios organizacijos nuomininkų limitas jau pasiektas.',
             'delete_blocked' => 'Nuomininko su sąskaitų istorija negalima ištrinti.',
             'invitation_resent' => 'Naujas kvietimas buvo išsiųstas.',
+            'reassign_property_warning' => 'Perkėlus nuomininką, portalo prieiga bus susieta su nauja patalpa, o dabartinės patalpos duomenys nebebus pasiekiami.',
+            'property_reassigned' => 'Nuomininko patalpos priskyrimas atnaujintas.',
+        ],
+        'audit' => [
+            'columns' => [
+                'occurred_at' => 'Įvyko',
+                'actor' => 'Atliko',
+                'action' => 'Veiksmas',
+                'description' => 'Aprašymas',
+            ],
+            'empty' => [
+                'system' => 'Sistema',
+            ],
         ],
     ],
     'meters' => [
         'singular' => 'Skaitiklis',
         'plural' => 'Skaitikliai',
+        'navigation' => 'Skaitikliai',
         'view_title' => 'Skaitiklio informacija',
         'sections' => [
             'details' => 'Skaitiklio informacija',
@@ -259,6 +309,10 @@ return [
             'readings' => 'Rodmenų dar nėra.',
             'chart' => 'Grafikas bus pridėtas netrukus.',
         ],
+        'chart' => [
+            'description' => 'Rodmenų reikšmės pateikiamos chronologiškai, kad būtų lengviau pastebėti netikėtus šuolius prieš generuojant sąskaitas.',
+            'empty' => 'Pridėkite skaitiklio rodmenų, kad būtų parodytas sunaudojimo grafikas.',
+        ],
         'empty_state' => [
             'heading' => 'Užregistruokite pirmą skaitiklį',
             'description' => 'Skaitikliai leidžia rinkti nuomininkų rodmenis ir vėliau generuoti sąskaitas kiekvienai patalpai.',
@@ -271,6 +325,7 @@ return [
     'invoices' => [
         'singular' => 'Sąskaita',
         'plural' => 'Sąskaitos',
+        'navigation' => 'Sąskaitos',
         'view_title' => 'Sąskaitos informacija',
         'sections' => [
             'details' => 'Sąskaitos informacija',
@@ -287,7 +342,9 @@ return [
             'due_date' => 'Terminas',
             'total_amount' => 'Bendra suma',
             'amount_paid' => 'Apmokėta suma',
+            'method' => 'Mokėjimo būdas',
             'payment_reference' => 'Mokėjimo nuoroda',
+            'recipient_email' => 'Gavėjo el. paštas',
             'paid_at' => 'Apmokėta',
             'items' => 'Eilutės',
             'description' => 'Aprašymas',
@@ -322,6 +379,7 @@ return [
         'empty' => [
             'document_path' => 'Dokumentas dar nesugeneruotas.',
             'property' => 'Patalpa nepriskirta',
+            'tenant' => 'Nuomininkas nepriskirtas',
         ],
         'generated' => [
             'default_line_item' => 'Sugeneruota sąskaita už :property (:period_start iki :period_end)',
@@ -330,20 +388,55 @@ return [
             'title' => 'Masinis sąskaitų generavimas',
             'description' => 'Peržiūrėkite pasirinkto laikotarpio tinkamas sąskaitas ir vienu veiksmu sugeneruokite trūkstamas.',
             'summary' => 'Masinio generavimo suvestinė',
+            'summary_help' => 'Generavimo eiga taikoma tik antrame žingsnyje pasirinktiems nuomininkams.',
             'created' => 'Sukurta',
+            'failed' => 'Nepavyko',
             'skipped' => 'Praleista',
+            'progress' => 'Įvykdyta',
+            'selection_help' => 'Peržiūrėkite tinkamus nuomininkus, praleiskite jau išrašytas sąskaitas ir generuokite tik jums reikalingus įrašus.',
+            'search' => 'Ieškoti nuomininkų',
+            'search_placeholder' => 'Ieškoti pagal nuomininką ar patalpą',
+            'estimated_total' => 'Numatoma suma',
+            'empty_preview' => 'Pirmiausia peržiūrėkite laikotarpį, kad Tenanto parodytų, kurie nuomininkai jau paruošti sąskaitoms.',
+            'empty_candidates' => 'Pagal pasirinktą paiešką nuomininkų nerasta.',
+            'processing' => 'Sąskaitos generuojamos. Didesnėms organizacijoms tai gali užtrukti kelias akimirkas.',
+            'steps' => [
+                'period' => '1. Laikotarpis',
+                'tenants' => '2. Nuomininkai',
+            ],
+            'status' => [
+                'already_billed' => 'Jau išrašyta',
+            ],
             'actions' => [
                 'preview' => 'Peržiūrėti sąskaitas',
+                'review_tenants' => 'Peržiūrėti nuomininkus',
+                'back' => 'Grįžti į laikotarpį',
                 'generate' => 'Generuoti sąskaitas',
             ],
         ],
+        'actions' => [
+            'finalize' => 'Patvirtinti',
+            'process_payment' => 'Registruoti mokėjimą',
+            'send_email' => 'Siųsti el. paštu',
+            'download_pdf' => 'Atsisiųsti PDF',
+        ],
         'messages' => [
+            'finalized' => 'Sąskaita sėkmingai patvirtinta.',
             'finalized_locked' => 'Patvirtintose sąskaitose galima atnaujinti tik mokėjimo informaciją ir būseną, bet ne komercinį turinį.',
+            'payment_recorded' => 'Mokėjimas sėkmingai užregistruotas.',
+            'email_sent' => 'Sąskaitos laiškas sėkmingai užregistruotas.',
+            'email_subject' => 'Sąskaita :number',
+            'reminder_sent' => 'Priminimo laiškas sėkmingai išsiųstas.',
+        ],
+        'pdf' => [
+            'title' => 'Sąskaita :number',
+            'empty_items' => 'Šiam dokumentui nėra sąskaitos eilučių.',
         ],
     ],
     'meter_readings' => [
         'singular' => 'Skaitiklio rodmuo',
         'plural' => 'Skaitiklio rodmenys',
+        'navigation' => 'Skaitiklio rodmenys',
         'view_title' => 'Rodmens informacija',
         'sections' => [
             'details' => 'Rodmens informacija',
@@ -358,6 +451,7 @@ return [
             'submission_method' => 'Pateikimo būdas',
             'submitted_by' => 'Pateikė',
             'notes' => 'Pastabos',
+            'rejection_reason' => 'Atmetimo priežastis',
         ],
         'columns' => [
             'meter' => 'Skaitiklis',
@@ -381,6 +475,14 @@ return [
         'empty' => [
             'submitted_by' => 'Sistema',
             'notes' => 'Pastabų nėra.',
+        ],
+        'actions' => [
+            'validate' => 'Patvirtinti',
+            'reject' => 'Atmesti',
+        ],
+        'messages' => [
+            'validated' => 'Skaitiklio rodmuo patvirtintas.',
+            'rejected' => 'Skaitiklio rodmuo atmestas.',
         ],
     ],
     'providers' => [
@@ -562,21 +664,32 @@ return [
         ],
         'descriptions' => [
             'consumption' => 'Stebėkite skaitiklių suvartojimą pasirinktame laikotarpyje ir palyginkite pirmą bei paskutinį rodmenį intervale.',
+            'consumption_grouped' => 'Peržiūrėkite suvartojimą, sugrupuotą pagal nuomininką ir skaitiklio tipą pasirinktame laikotarpyje.',
             'revenue' => 'Peržiūrėkite išrašytas, surinktas ir dar nepadengtas sumas pagal sąskaitas pasirinktame laikotarpyje.',
+            'revenue_grouped' => 'Peržiūrėkite mėnesines išrašytų, apmokėtų ir neapmokėtų sumų suvestines pasirinktame laikotarpyje.',
             'outstanding_balances' => 'Sutelkite dėmesį į neapmokėtas sąskaitas ir nuomininkus ar patalpas, kuriems reikia priminimo.',
+            'outstanding_balances_grouped' => 'Peržiūrėkite neapmokėtas sąskaitas, pradelstus likučius ir priminimų istoriją pasirinktame laikotarpyje.',
             'meter_compliance' => 'Patikrinkite, kurie skaitikliai turi aktualius rodmenis, o kuriems dar reikia dėmesio.',
+            'meter_compliance_threshold' => 'Patikrinkite skaitiklių atitiktį naudodami :days dienų rodmenų slenkstį.',
         ],
         'filters' => [
             'start_date' => 'Pradžios data',
             'end_date' => 'Pabaigos data',
+            'building' => 'Pastatas',
+            'property' => 'Patalpa',
+            'tenant' => 'Nuomininkas',
             'meter_type' => 'Skaitiklio tipas',
             'invoice_status' => 'Sąskaitos būsena',
             'only_overdue' => 'Tik pradelstos sąskaitos',
             'compliance_state' => 'Atitikties būsena',
+            'status_filter' => 'Būsena',
             'all' => 'Visi',
         ],
         'columns' => [
+            'actions' => 'Veiksmai',
+            'building' => 'Pastatas',
             'meter' => 'Skaitiklis',
+            'month' => 'Mėnuo',
             'property' => 'Patalpa',
             'type' => 'Tipas',
             'first_reading' => 'Pirmas rodmuo',
@@ -588,14 +701,24 @@ return [
             'tenant' => 'Nuomininkas',
             'status' => 'Būsena',
             'billed' => 'Išrašyta',
+            'total_invoiced' => 'Išrašyta iš viso',
             'paid' => 'Apmokėta',
+            'total_paid' => 'Apmokėta iš viso',
             'outstanding' => 'Likutis',
+            'total_outstanding' => 'Neapmokėta iš viso',
+            'invoice_count' => 'Sąskaitų skaičius',
             'period_end' => 'Laikotarpio pabaiga',
             'due_date' => 'Terminas',
+            'days_overdue' => 'Pradelsta dienų',
             'latest_reading' => 'Naujausias rodmuo',
+            'days_since_last_reading' => 'Dienos nuo paskutinio rodmens',
             'compliance' => 'Atitiktis',
+            'reminder_sent_at' => 'Paskutinis priminimas',
         ],
         'summary' => [
+            'tenant_groups' => 'Nuomininkų grupės',
+            'meter_type_groups' => 'Skaitiklių tipų grupės',
+            'months' => 'Mėnesiai',
             'total_meters' => 'Skaitikliai',
             'total_readings' => 'Rodmenys',
             'total_consumption' => 'Bendras suvartojimas',
@@ -603,6 +726,9 @@ return [
             'billed_total' => 'Išrašyta suma',
             'collected_total' => 'Surinkta suma',
             'outstanding_total' => 'Neapmokėta suma',
+            'total_invoiced' => 'Išrašyta iš viso',
+            'total_paid' => 'Apmokėta iš viso',
+            'total_outstanding' => 'Neapmokėta iš viso',
             'overdue_count' => 'Pradelstos sąskaitos',
             'affected_tenants' => 'Paveikti nuomininkai',
             'compliant_meters' => 'Atitinkantys skaitikliai',
@@ -618,9 +744,22 @@ return [
             'load' => 'Įkelti ataskaitą',
             'export_csv' => 'Eksportuoti CSV',
             'export_pdf' => 'Eksportuoti PDF',
+            'send_reminder' => 'Siųsti priminimą',
+        ],
+        'notifications' => [
+            'overdue_subject' => 'Sąskaita :number yra pradelsta',
+            'overdue_greeting' => 'Sveiki,',
+            'overdue_intro' => 'Primename, kad sąskaita :number vis dar neapmokėta.',
+            'overdue_period' => 'Atsiskaitymo laikotarpis: nuo :from iki :to',
+            'overdue_balance' => 'Neapmokėta suma: :amount',
+            'overdue_days' => 'Pradelsta dienų: :count',
+            'download_invoice' => 'Atsisiųsti sąskaitos PDF',
         ],
         'messages' => [
             'load_before_export' => 'Prieš eksportuodami įkelkite ataskaitą.',
+            'organization_context_required' => 'Prieš peržiūrėdami ataskaitas pasirinkite organizacijos kontekstą.',
+            'reminder_sent' => 'Priminimo laiškas sėkmingai išsiųstas.',
+            'reminder_skipped' => 'Priminimo laiškas buvo praleistas, nes pristatymas išjungtas arba nepasiekiamas.',
         ],
         'empty' => [
             'consumption' => 'Pasirinkti filtrai neatitiko nė vieno rodmens.',

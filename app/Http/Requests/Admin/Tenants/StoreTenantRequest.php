@@ -6,6 +6,8 @@ namespace App\Http\Requests\Admin\Tenants;
 
 use App\Enums\UserStatus;
 use App\Http\Requests\Concerns\InteractsWithValidationPayload;
+use App\Rules\WithinTenantLimit;
+use App\Services\SubscriptionChecker;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -48,6 +50,7 @@ class StoreTenantRequest extends FormRequest
                 ),
             ],
             'unit_area_sqm' => ['nullable', 'numeric', 'min:0'],
+            'subscription_limit' => [new WithinTenantLimit(app(SubscriptionChecker::class))],
         ];
     }
 
@@ -81,6 +84,7 @@ class StoreTenantRequest extends FormRequest
     {
         return [
             'property_id' => $this->translateAttribute('property'),
+            'subscription_limit' => $this->translateAttribute('tenant_id'),
             ...$this->translatedAttributes([
                 'name',
                 'email',
@@ -104,6 +108,10 @@ class StoreTenantRequest extends FormRequest
         $this->emptyStringsToNull([
             'property_id',
             'unit_area_sqm',
+        ]);
+
+        $this->merge([
+            'subscription_limit' => true,
         ]);
     }
 }

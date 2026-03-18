@@ -13,6 +13,7 @@ use App\Http\Requests\Admin\Settings\UpdateNotificationPreferencesRequest;
 use App\Http\Requests\Admin\Settings\UpdateOrganizationSettingsRequest;
 use App\Models\Organization;
 use App\Models\Subscription;
+use App\Services\NotificationPreferenceService;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 
@@ -38,7 +39,12 @@ class Settings extends Page
     public array $organizationForm = [];
 
     /**
-     * @var array{invoice_reminders: bool, reading_deadline_alerts: bool}
+     * @var array{
+     *     new_invoice_generated: bool,
+     *     invoice_overdue: bool,
+     *     tenant_submits_reading: bool,
+     *     subscription_expiring: bool
+     * }
      */
     public array $notificationForm = [];
 
@@ -148,7 +154,7 @@ class Settings extends Page
 
         $settings = $organization->settings;
         $subscription = $this->currentSubscription($organization);
-        $preferences = $settings?->notification_preferences ?? [];
+        $preferences = app(NotificationPreferenceService::class)->resolveForOrganization($organization);
 
         $this->organizationForm = [
             'billing_contact_name' => (string) ($settings?->billing_contact_name ?? ''),
@@ -159,8 +165,10 @@ class Settings extends Page
         ];
 
         $this->notificationForm = [
-            'invoice_reminders' => (bool) ($preferences['invoice_reminders'] ?? false),
-            'reading_deadline_alerts' => (bool) ($preferences['reading_deadline_alerts'] ?? false),
+            'new_invoice_generated' => (bool) ($preferences['new_invoice_generated'] ?? false),
+            'invoice_overdue' => (bool) ($preferences['invoice_overdue'] ?? false),
+            'tenant_submits_reading' => (bool) ($preferences['tenant_submits_reading'] ?? false),
+            'subscription_expiring' => (bool) ($preferences['subscription_expiring'] ?? false),
         ];
 
         $this->renewalForm = [

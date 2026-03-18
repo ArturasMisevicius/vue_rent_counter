@@ -17,7 +17,7 @@ it('shows the tenant invoice history with paid and outstanding invoices', functi
         ->create();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.invoices.index'))
+        ->get(route('filament.admin.pages.tenant-invoice-history'))
         ->assertSuccessful()
         ->assertSeeText('Invoice History')
         ->assertSeeText('All')
@@ -39,7 +39,7 @@ it('filters the invoice history by unpaid status', function () {
         ->create();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.invoices.index', ['status' => 'unpaid']))
+        ->get(route('filament.admin.pages.tenant-invoice-history', ['status' => 'unpaid']))
         ->assertSuccessful()
         ->assertSeeText('UNPAID-001')
         ->assertDontSee('>PAID-001<', false);
@@ -52,7 +52,7 @@ it('shows an all-paid-up empty state when the tenant has no unpaid invoices', fu
         ->create();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.invoices.index', ['status' => 'unpaid']))
+        ->get(route('filament.admin.pages.tenant-invoice-history', ['status' => 'unpaid']))
         ->assertSuccessful()
         ->assertSeeText('All paid up')
         ->assertSeeText('No outstanding invoices are waiting for payment.');
@@ -66,7 +66,7 @@ it('shows a localized empty payment guidance state instead of hardcoded fallback
         ->create();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.invoices.index'))
+        ->get(route('filament.admin.pages.tenant-invoice-history'))
         ->assertSuccessful()
         ->assertSeeText('Payment instructions will appear here once your organization updates its billing settings.')
         ->assertDontSeeText('Contact your building manager for payment instructions.');
@@ -125,7 +125,7 @@ it('renders invoice history copy in lithuanian for lithuanian tenants', function
     ])->save();
 
     $this->actingAs($tenant->user->fresh())
-        ->get(route('tenant.invoices.index'))
+        ->get(route('filament.admin.pages.tenant-invoice-history'))
         ->assertSuccessful()
         ->assertSeeText('Sąskaitų istorija')
         ->assertSeeText('Neapmokėtos')
@@ -145,7 +145,7 @@ it('renders the invoice billing period with localized copy', function () {
     ])->save();
 
     $this->actingAs($tenant->user->fresh())
-        ->get(route('tenant.invoices.index'))
+        ->get(route('filament.admin.pages.tenant-invoice-history'))
         ->assertSuccessful()
         ->assertSeeText($invoice->billing_period_start->format('Y-m-d').' iki '.$invoice->billing_period_end->format('Y-m-d'))
         ->assertDontSeeText($invoice->billing_period_start->format('Y-m-d').' to '.$invoice->billing_period_end->format('Y-m-d'));

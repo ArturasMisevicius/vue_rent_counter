@@ -89,8 +89,10 @@ it('shows admin settings sections and saves organization settings plus notificat
     OrganizationSetting::factory()->for($organization)->create([
         'billing_contact_name' => 'Initial Billing Team',
         'notification_preferences' => [
-            'invoice_reminders' => false,
-            'reading_deadline_alerts' => false,
+            'new_invoice_generated' => false,
+            'invoice_overdue' => false,
+            'tenant_submits_reading' => false,
+            'subscription_expiring' => false,
         ],
     ]);
 
@@ -118,8 +120,10 @@ it('shows admin settings sections and saves organization settings plus notificat
         ->set('organizationForm.invoice_footer', 'Thank you for paying on time.')
         ->call('saveOrganizationSettings')
         ->assertHasNoErrors()
-        ->set('notificationForm.invoice_reminders', true)
-        ->set('notificationForm.reading_deadline_alerts', true)
+        ->set('notificationForm.new_invoice_generated', true)
+        ->set('notificationForm.invoice_overdue', true)
+        ->set('notificationForm.tenant_submits_reading', true)
+        ->set('notificationForm.subscription_expiring', true)
         ->call('saveNotificationPreferences')
         ->assertHasNoErrors();
 
@@ -132,8 +136,10 @@ it('shows admin settings sections and saves organization settings plus notificat
         ->and($settings?->payment_instructions)->toBe('Pay by bank transfer.')
         ->and($settings?->invoice_footer)->toBe('Thank you for paying on time.')
         ->and($settings?->notification_preferences)->toBe([
-            'invoice_reminders' => true,
-            'reading_deadline_alerts' => true,
+            'new_invoice_generated' => true,
+            'invoice_overdue' => true,
+            'tenant_submits_reading' => true,
+            'subscription_expiring' => true,
         ]);
 });
 

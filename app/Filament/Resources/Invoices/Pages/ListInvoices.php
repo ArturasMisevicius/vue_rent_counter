@@ -8,4 +8,9 @@ use Filament\Resources\Pages\ListRecords;
 class ListInvoices extends ListRecords
 {
     protected static string $resource = InvoiceResource::class;
+
+    protected function authorizeAccess(): void
+    {
+        abort_unless(InvoiceResource::canViewAny(), 403);
+    }
 }

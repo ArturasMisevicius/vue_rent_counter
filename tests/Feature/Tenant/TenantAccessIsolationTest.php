@@ -20,7 +20,7 @@ it('returns not found for the property page when the tenant has no assigned prop
     $tenant = TenantPortalFactory::new()->create();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.property.show'))
+        ->get(route('filament.admin.pages.tenant-property-details'))
         ->assertNotFound();
 });
 
@@ -44,7 +44,7 @@ it('does not list invoices that belong to a different tenant', function () {
     ]);
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.invoices.index'))
+        ->get(route('filament.admin.pages.tenant-invoice-history'))
         ->assertSuccessful()
         ->assertSeeText('UNPAID-001')
         ->assertDontSeeText('FOREIGN-001');
@@ -118,7 +118,7 @@ it('does not list malformed invoices from another organization even if they refe
         ]);
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.invoices.index'))
+        ->get(route('filament.admin.pages.tenant-invoice-history'))
         ->assertSuccessful()
         ->assertSeeText('UNPAID-001')
         ->assertDontSeeText('MALFORMED-CROSS-ORG-001');
@@ -171,11 +171,11 @@ it('treats malformed cross-organization property assignments as unavailable to t
         ]);
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.property.show'))
+        ->get(route('filament.admin.pages.tenant-property-details'))
         ->assertNotFound();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.readings.create'))
+        ->get(route('filament.admin.pages.tenant-submit-meter-reading'))
         ->assertSuccessful()
         ->assertSeeText(__('tenant.messages.no_meters_assigned'))
         ->assertDontSeeText($foreignProperty->name);

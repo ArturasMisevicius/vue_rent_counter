@@ -20,11 +20,13 @@ class GlobalSearchRegistry
      */
     public function groupLabelsFor(?User $user): array
     {
-        if ($user === null) {
+        $roleKey = $this->configurationRoleFor($user);
+
+        if ($roleKey === null) {
             return [];
         }
 
-        $groupKeys = config('tenanto.search.role_groups.'.$user->role->value, []);
+        $groupKeys = config('tenanto.search.role_groups.'.$roleKey, []);
 
         return collect($groupKeys)
             ->mapWithKeys(function (string $groupKey): array {
@@ -50,6 +52,8 @@ class GlobalSearchRegistry
             return $results;
         }
 
+        $this->prepareUserContext($user);
+
         foreach ($this->providers as $provider) {
             $groupKey = $provider->group();
 
@@ -64,5 +68,28 @@ class GlobalSearchRegistry
         }
 
         return $results;
+    }
+
+    protected function configurationRoleFor(?User $user): ?string
+    {
+        if ($user === null) {
+            return null;
+        }
+
+        return match (true) {
+            $user->isSuperadmin() => 'superadmin',
+            $user->isAdmin(), $user->isManager() => 'admin',
+            $user->isTenant() => 'tenant',
+            default => null,
+        };
+    }
+
+    protected function prepareUserContext(User $user): void
+    {
+        if ($user->isTenant()) {
+            $user->loadMissing([
+                'currentPropertyAssignment:id,organization_id,property_id,tenant_user_id,assigned_at,unassigned_at',
+            ]);
+        }
     }
 }

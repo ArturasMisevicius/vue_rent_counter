@@ -12,6 +12,10 @@ class ImpersonationManager
      */
     public function current(Request $request): ?array
     {
+        if (! $request->hasSession()) {
+            return null;
+        }
+
         $id = $request->session()->get('impersonator_id');
         $name = $request->session()->get('impersonator_name');
         $email = $request->session()->get('impersonator_email');
@@ -34,6 +38,10 @@ class ImpersonationManager
 
     public function forget(Request $request): void
     {
+        if (! $request->hasSession()) {
+            return;
+        }
+
         $request->session()->forget([
             'impersonator_id',
             'impersonator_name',

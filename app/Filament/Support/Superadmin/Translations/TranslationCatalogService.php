@@ -2,6 +2,8 @@
 
 namespace App\Filament\Support\Superadmin\Translations;
 
+use App\Models\Language;
+use App\Models\Translation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
@@ -16,6 +18,28 @@ class TranslationCatalogService
      */
     public function rows(): Collection
     {
+        if ($this->basePath === null) {
+            $locales = $this->locales();
+
+            return Translation::query()
+                ->select([
+                    'id',
+                    'group',
+                    'key',
+                    'values',
+                ])
+                ->orderBy('group')
+                ->orderBy('key')
+                ->get()
+                ->map(fn (Translation $translation): TranslationRowData => new TranslationRowData(
+                    group: $translation->group,
+                    key: $translation->key,
+                    values: collect($locales)
+                        ->mapWithKeys(fn (string $locale): array => [$locale => data_get($translation->values, $locale)])
+                        ->all(),
+                ));
+        }
+
         $groups = collect($this->localeDirectories())
             ->flatMap(fn (string $locale): array => array_map(
                 fn (string $file): array => [$locale, $file],
@@ -46,8 +70,64 @@ class TranslationCatalogService
             ->values();
     }
 
+    /**
+     * @return list<string>
+     */
+    public function locales(): array
+    {
+        if ($this->basePath !== null) {
+            return $this->localeDirectories();
+        }
+
+        $languageLocales = Language::query()
+            ->select(['id', 'code', 'name', 'native_name', 'status', 'is_default'])
+            ->orderByDesc('is_default')
+            ->orderBy('name')
+            ->pluck('code')
+            ->filter()
+            ->map(fn (mixed $code): string => (string) $code)
+            ->values()
+            ->all();
+
+        if ($languageLocales !== []) {
+            return $languageLocales;
+        }
+
+        $configuredLocales = array_keys(config('tenanto.locales', []));
+
+        if ($configuredLocales !== []) {
+            return $configuredLocales;
+        }
+
+        return Translation::query()
+            ->select(['values'])
+            ->get()
+            ->flatMap(fn (Translation $translation): array => array_keys($translation->values ?? []))
+            ->unique()
+            ->values()
+            ->all();
+    }
+
     public function updateValue(string $group, string $key, string $locale, string $value): void
     {
+        if ($this->basePath === null) {
+            $translation = Translation::query()->firstOrNew([
+                'group' => $group,
+                'key' => $key,
+            ]);
+
+            $values = $translation->values ?? [];
+            data_set($values, $locale, $value);
+
+            $translation->fill([
+                'values' => $values,
+            ]);
+
+            $translation->save();
+
+            return;
+        }
+
         $translations = $this->load($locale, $group);
         Arr::set($translations, $key, $value);
         $this->write($locale, $group, $translations);
@@ -65,7 +145,7 @@ class TranslationCatalogService
 
     public function exportMissing(?string $locale = null): string
     {
-        $targetLocales = $locale === null ? $this->localeDirectories() : [$locale];
+        $targetLocales = $locale === null ? $this->locales() : [$locale];
         $path = storage_path('app/exports/missing-translations-'.now()->timestamp.'.csv');
 
         if (! is_dir(dirname($path))) {

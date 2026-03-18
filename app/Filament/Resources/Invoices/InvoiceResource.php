@@ -56,11 +56,42 @@ class InvoiceResource extends Resource
         return __('admin.invoices.plural');
     }
 
+    public static function getNavigationGroup(): ?string
+    {
+        return auth()->user()?->isTenant()
+            ? __('shell.navigation.groups.my_home')
+            : __('shell.navigation.groups.billing');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.invoices.navigation');
+    }
+
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        return $user?->isAdminLike() || $user?->isTenant();
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canAccess();
+    }
+
     /**
      * @return Builder<Invoice>
      */
     public static function getEloquentQuery(): Builder
     {
+        $user = auth()->user();
+
+        if ($user?->isTenant()) {
+            return parent::getEloquentQuery()
+                ->forTenantWorkspace($user->organization_id, $user->id);
+        }
+
         $organizationId = app(OrganizationContext::class)->currentOrganizationId();
 
         if ($organizationId === null) {
@@ -73,23 +104,22 @@ class InvoiceResource extends Resource
 
     public static function canViewAny(): bool
     {
-        $user = auth()->user();
-
-        return $user?->isAdmin() || $user?->isManager();
+        return auth()->user()?->can('viewAny', Invoice::class) ?? false;
     }
 
     public static function canView(Model $record): bool
+    {
+        return $record instanceof Invoice
+            && (auth()->user()?->can('view', $record) ?? false);
+    }
+
+    public static function canEdit(Model $record): bool
     {
         $user = auth()->user();
 
         return $record instanceof Invoice
             && $record->organization_id === app(OrganizationContext::class)->currentOrganizationId()
-            && ($user?->isAdmin() || $user?->isManager());
-    }
-
-    public static function canEdit(Model $record): bool
-    {
-        return static::canView($record);
+            && ($user?->isAdminLike() ?? false);
     }
 
     public static function canDelete(Model $record): bool

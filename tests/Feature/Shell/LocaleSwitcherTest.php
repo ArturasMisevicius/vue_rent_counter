@@ -35,6 +35,19 @@ it('persists the selected locale for the authenticated user', function () {
         ->and(app()->getLocale())->toBe('ru');
 });
 
+it('rejects unsupported locales through the shared form request rules', function () {
+    $user = User::factory()->admin()->create([
+        'locale' => 'en',
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(LanguageSwitcher::class)
+        ->call('changeLocale', 'zz')
+        ->assertHasErrors(['locale']);
+
+    expect($user->fresh()->locale)->toBe('en');
+});
+
 it('uses the updated locale on the next authenticated response', function () {
     $user = User::factory()->tenant()->create([
         'locale' => 'en',
@@ -45,7 +58,7 @@ it('uses the updated locale on the next authenticated response', function () {
         ->call('changeLocale', 'lt');
 
     $this->actingAs($user->fresh())
-        ->get(route('tenant.home'))
+        ->get(route('filament.admin.pages.tenant-dashboard'))
         ->assertSuccessful()
         ->assertSeeText('Nuomininko portalas')
         ->assertSeeText('Profilis');

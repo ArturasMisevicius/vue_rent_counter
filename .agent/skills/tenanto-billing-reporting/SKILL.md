@@ -1,6 +1,6 @@
 ---
 name: tenanto-billing-reporting
-description: Use for Tenanto billing, tariff, meter reading, invoice, statement, or reporting changes in the current Filament-first codebase.
+description: Use for Tenanto billing, tariffs, invoices, readings, statements, exports, or reporting changes that must follow the repo's financial calculation and lifecycle rules.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
@@ -8,48 +8,95 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 
 ## Use This Skill When
 
-- Implementing or changing meter reading, tariff, billing, invoice, payment, or subscription logic.
-- Updating reporting or export flows, including PDF or spreadsheet style outputs.
-- Refactoring financial calculations and related read models.
+- Implementing or changing tariff resolution, invoice generation, payment handling, meter-reading billing, or shared-service allocation.
+- Building report builders, CSV exports, PDF exports, or billing dashboards.
+- Reviewing invoice lifecycle or money calculation correctness.
 
-## Domain Focus
+## Canonical Billing Service
 
-- Accuracy and determinism of calculations
-- Reproducible invoice generation and finalization behavior
-- Consistent handling of periods, statuses, and edge cases
-- Auditable report and export outputs
+- Interface: `App\Contracts\BillingServiceInterface`
+- Canonical implementation: `App\Services\Billing\BillingService`
+- Container binding: `App\Providers\AppServiceProvider`
+- Prefer the contract in consuming code; do not create competing billing service entry points.
 
-## Project Anchors
+## Money Rule: BCMath Only
 
-- Billing models: `app/Models/Invoice.php`, `app/Models/BillingRecord.php`, `app/Models/InvoiceItem.php`, `app/Models/InvoicePayment.php`, `app/Models/Tariff.php`, `app/Models/Meter.php`, `app/Models/MeterReading.php`
-- Billing actions: `app/Filament/Actions/Admin/Invoices/*`, `app/Filament/Actions/Admin/MeterReadings/*`, `app/Filament/Actions/Tenant/Readings/*`, `app/Filament/Actions/Tenant/Invoices/*`
-- Billing and reporting support: `app/Filament/Support/Admin/Invoices/*`, `app/Filament/Support/Admin/Reports/*`, `app/Filament/Support/Admin/ReadingValidation/*`
-- Pages and widgets: `app/Filament/Pages/GenerateBulkInvoices.php`, `app/Filament/Pages/Reports.php`, `app/Filament/Widgets/Admin/*`
-- Views and resources: invoice, meter, tariff, report, and tenant billing Blade or Filament resources
-- Audit trail: `app/Models/InvoiceGenerationAudit.php` and the `invoice_generation_audits` table
+- All monetary values are decimal strings, not floats.
+- All money math flows through BCMath-backed helpers, especially `App\Services\Billing\UniversalBillingCalculator`.
+- Use calculator helpers like `money()`, `rate()`, `quantity()`, `add()`, `subtract()`, `multiply()`, `divide()`, and `compare()`.
+- Do not use native float addition, subtraction, multiplication, division, or `round()` for billable amounts.
 
-## Implementation Checklist
+## Invoice Lifecycle
 
-1. Define the business rule change with explicit input and output behavior.
-2. Confirm period boundaries, statuses, and rounding behavior.
-3. Apply the change in the model scope, Filament action, or support/query layer first, then wire the UI surface.
-4. Preserve invoice-generation idempotency for tenant plus period draft runs.
-5. Keep generation audits complete: actor, period, totals, metadata.
-6. Add regression tests for happy path plus edge and failure paths.
-7. Validate report or export impact if PDF, CSV, or spreadsheet flows are touched.
-8. Prefer aggregate helpers like `withCount()`, `withExists()`, and explicit `select()` lists when building reporting surfaces.
+- `draft` is the editable pre-finalization state.
+- Moving from `draft` to `finalized` is one-way for billable structure.
+- After finalization, invoice contents are effectively immutable; only limited payment/status fields may change.
+- Downstream states such as `partially_paid`, `paid`, `overdue`, and `void` still represent finalized invoices, not editable drafts.
 
-## Test Scenarios To Cover
+## Tariff Resolution Hierarchy
 
-- Correct totals under normal conditions
-- Boundary periods and missing or late readings
-- Status transitions such as draft, finalized, paid, overdue, or void
-- Multi-tenant safety for billing and report access
-- Export or report generation does not regress format-critical fields
+`App\Services\Billing\TariffResolver` resolves effective tariff data in this order:
+
+- `type`: `rate_schedule.type` -> `tariff.configuration.type` -> `pricing_model->value` -> `'flat'`
+- `unit_rate`: `configuration_overrides.unit_rate` -> `rate_schedule.unit_rate` -> `tariff.configuration.rate` -> `0`
+- `base_fee`: `configuration_overrides.base_fee` -> `rate_schedule.base_fee` -> `tariff.configuration.base_fee` -> `0`
+- `zones`: `rate_schedule.zones` -> `tariff.configuration.zones` -> `configuration_overrides.zones` -> `[]`
+
+Do not invent a different precedence order without updating tests and docs together.
+
+## Shared Service Cost Distribution
+
+`App\Services\Billing\SharedServiceCostDistributorService` is the canonical allocator:
+
+- `EQUAL`: divide total cost by `participant_count`
+- `AREA`: prorate by `participant_area / total_area`
+- `BY_CONSUMPTION`: prorate by `participant_consumption / total_consumption`
+- `CUSTOM_FORMULA`: use `custom_share`
+
+All outputs must be normalized back through the calculator's money formatting.
+
+## Billing Period Convention
+
+- Billing period `from` and `to` dates are both inclusive.
+- Period filters, eligibility windows, and report ranges must treat both endpoints as part of the billing window.
+- Do not silently switch to exclusive end dates in reports, exports, or invoice generation logic.
+
+## Export Conventions
+
+CSV exports:
+
+- first row is the report title
+- summary rows come next
+- then a blank row
+- then the column header row
+- then flat scalar data rows
+- content type is `text/csv; charset=UTF-8`
+
+PDF exports:
+
+- use the report PDF exporter path already wired through `ReportExportService`
+- keep the same title, summary, columns, rows, and empty-state semantics as CSV
+- content type is `application/pdf`
+
+## Working Rules
+
+- Reuse existing billing support classes before adding new calculators.
+- Keep report builders query-focused and Blade query-free.
+- Scope every invoice, reading, tariff, and report query to the actor's organization unless the actor is explicitly superadmin.
+- Add regression tests for totals, edge dates, lifecycle transitions, and export formatting when behavior changes.
+
+## Suggested Verification
+
+- `tests/Unit/Services/BillingServiceTest.php`
+- `tests/Feature/Billing/ReportsTest.php`
+- invoice lifecycle or payment tests touching finalization behavior
 
 ## Completion Checklist
 
-- [ ] Calculation behavior documented in tests.
-- [ ] Edge cases covered.
-- [ ] Invoice, report, and export paths validated.
-- [ ] No tenant boundary regression introduced.
+- [ ] Billing code used the canonical service or calculator path
+- [ ] All money math used BCMath-backed helpers
+- [ ] Invoice lifecycle rules stayed intact
+- [ ] Tariff precedence stayed correct
+- [ ] Shared-service distribution logic stayed canonical
+- [ ] Billing periods remained inclusive
+- [ ] CSV and PDF output stayed aligned

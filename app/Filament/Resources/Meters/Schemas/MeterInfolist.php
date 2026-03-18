@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Meters\Schemas;
 
-use App\Models\Meter;
-use App\Models\MeterReading;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -37,39 +35,6 @@ class MeterInfolist
                             ->date(),
                     ])
                     ->columns(2),
-                Section::make(__('admin.meters.sections.history'))
-                    ->schema([
-                        TextEntry::make('reading_history')
-                            ->label(__('admin.meters.fields.reading_history'))
-                            ->state(function (Meter $record): string {
-                                $readings = $record->relationLoaded('readings')
-                                    ? $record->readings
-                                    : MeterReading::query()
-                                        ->select(['id', 'organization_id', 'meter_id', 'reading_value', 'reading_date'])
-                                        ->forOrganization($record->organization_id)
-                                        ->forMeter($record->id)
-                                        ->latestFirst()
-                                        ->get();
-
-                                $history = $readings
-                                    ->sortByDesc('reading_date')
-                                    ->map(function (MeterReading $reading): string {
-                                        return implode(' · ', array_filter([
-                                            $reading->reading_date?->format('Y-m-d'),
-                                            (string) $reading->reading_value,
-                                        ]));
-                                    })
-                                    ->implode("\n");
-
-                                return $history !== '' ? $history : __('admin.meters.empty.readings');
-                            }),
-                    ]),
-                Section::make(__('admin.meters.sections.chart'))
-                    ->schema([
-                        TextEntry::make('usage_chart')
-                            ->label(__('admin.meters.fields.usage_chart'))
-                            ->state(__('admin.meters.empty.chart')),
-                    ]),
             ]);
     }
 }

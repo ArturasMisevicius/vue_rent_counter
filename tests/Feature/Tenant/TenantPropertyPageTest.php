@@ -12,11 +12,11 @@ it('shows the tenant property details and assigned meters without edit actions',
         ->create();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.property.show'))
+        ->get(route('filament.admin.pages.tenant-property-details'))
         ->assertSuccessful()
         ->assertSeeText('My Property')
         ->assertSeeText($tenant->property->address)
-        ->assertSeeText('Your Meters')
+        ->assertSeeText($tenant->meters->firstOrFail()->name)
         ->assertDontSeeText('Edit')
         ->assertDontSeeText('Delete');
 });
@@ -28,9 +28,7 @@ it('shows the empty reading state when a meter has no recorded reading', functio
         ->create();
 
     $this->actingAs($tenant->user)
-        ->get(route('tenant.property.show'))
+        ->get(route('filament.admin.pages.tenant-property-details'))
         ->assertSuccessful()
-        ->assertSeeText('Last reading:')
-        ->assertSee('Last reading: <a href="'.route('tenant.readings.create').'"', false)
-        ->assertSee('>None recorded yet</a>', false);
+        ->assertSeeText('Last reading: None recorded yet');
 });

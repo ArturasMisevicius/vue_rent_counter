@@ -21,8 +21,10 @@ class OrganizationSettingFactory extends Factory
             'payment_instructions' => fake()->sentence(),
             'invoice_footer' => fake()->sentence(),
             'notification_preferences' => [
-                'invoice_reminders' => true,
-                'reading_deadline_alerts' => true,
+                'new_invoice_generated' => true,
+                'invoice_overdue' => true,
+                'tenant_submits_reading' => true,
+                'subscription_expiring' => true,
             ],
         ];
     }

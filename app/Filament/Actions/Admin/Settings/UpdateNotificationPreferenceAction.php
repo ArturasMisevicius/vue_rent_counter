@@ -5,6 +5,7 @@ namespace App\Filament\Actions\Admin\Settings;
 use App\Filament\Support\Admin\SubscriptionLimitGuard;
 use App\Models\Organization;
 use App\Models\OrganizationSetting;
+use App\Services\NotificationPreferenceService;
 
 class UpdateNotificationPreferenceAction
 {
@@ -13,18 +14,25 @@ class UpdateNotificationPreferenceAction
     ) {}
 
     /**
-     * @return array{invoice_reminders: bool, reading_deadline_alerts: bool}
+     * @return array{
+     *     new_invoice_generated: bool,
+     *     invoice_overdue: bool,
+     *     tenant_submits_reading: bool,
+     *     subscription_expiring: bool
+     * }
      */
     public static function defaults(): array
     {
-        return [
-            'invoice_reminders' => false,
-            'reading_deadline_alerts' => false,
-        ];
+        return NotificationPreferenceService::defaults();
     }
 
     /**
-     * @param  array{invoice_reminders: bool, reading_deadline_alerts: bool}  $preferences
+     * @param  array{
+     *     new_invoice_generated: bool,
+     *     invoice_overdue: bool,
+     *     tenant_submits_reading: bool,
+     *     subscription_expiring: bool
+     * }  $preferences
      */
     public function handle(Organization $organization, array $preferences): OrganizationSetting
     {

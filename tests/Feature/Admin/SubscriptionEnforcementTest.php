@@ -155,9 +155,10 @@ it('hides write actions after the grace period while keeping subscription settin
         ->assertActionDoesNotExist('create')
         ->assertActionDoesNotExist(TestAction::make('edit')->table($tenant));
 
+    $settingsUrl = route('filament.admin.pages.settings').'#subscription';
+
     $this->get(route('filament.admin.resources.tenants.view', $tenant))
-        ->assertSuccessful()
-        ->assertSeeText($tenant->name);
+        ->assertRedirect($settingsUrl);
 
     $this->get(route('filament.admin.pages.settings'))
         ->assertSuccessful()

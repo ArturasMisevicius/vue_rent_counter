@@ -16,6 +16,8 @@ class DashboardCacheService
 
     private const CACHE_PREFIX = 'dashboard';
 
+    private const ORGANIZATION_VERSION_PREFIX = 'dashboard:organization-version';
+
     /**
      * @var array<string, mixed>
      */
@@ -59,10 +61,46 @@ class DashboardCacheService
             'locale-'.$user->locale,
         ];
 
+        if ($user->organization_id !== null) {
+            $parts[] = 'org-version-'.$this->organizationVersion($user->organization_id);
+        }
+
         foreach ($context as $value) {
             $parts[] = (string) $value;
         }
 
         return implode(':', $parts);
+    }
+
+    public function touchOrganization(?int $organizationId): void
+    {
+        if ($organizationId === null) {
+            return;
+        }
+
+        $key = $this->organizationVersionKey($organizationId);
+
+        if (! Cache::has($key)) {
+            Cache::forever($key, 1);
+        }
+
+        Cache::increment($key);
+        $this->memoized = [];
+    }
+
+    private function organizationVersion(int $organizationId): int
+    {
+        $key = $this->organizationVersionKey($organizationId);
+
+        if (! Cache::has($key)) {
+            Cache::forever($key, 1);
+        }
+
+        return (int) Cache::get($key, 1);
+    }
+
+    private function organizationVersionKey(int $organizationId): string
+    {
+        return self::ORGANIZATION_VERSION_PREFIX.':'.$organizationId;
     }
 }

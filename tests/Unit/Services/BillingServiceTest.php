@@ -162,11 +162,49 @@ it('applies a payment, updates invoice status, and records a payment entry', fun
     ], $admin);
 
     expect($paidInvoice->status)->toBe(InvoiceStatus::PAID)
-        ->and((float) $paidInvoice->amount_paid)->toBe(100.0)
+        ->and($paidInvoice->amount_paid)->toBe('100.00')
         ->and($paidInvoice->payment_reference)->toBe('PAY-100')
         ->and(InvoicePayment::query()->where('invoice_id', $invoice->id)->count())->toBe(1)
-        ->and((float) InvoicePayment::query()->where('invoice_id', $invoice->id)->firstOrFail()->amount)->toBe(100.0)
+        ->and(InvoicePayment::query()->where('invoice_id', $invoice->id)->firstOrFail()->amount)->toBe('100.00')
         ->and(InvoicePayment::query()->where('invoice_id', $invoice->id)->firstOrFail()->reference)->toBe('PAY-100');
+});
+
+it('normalizes draft line item amounts with exact two-decimal precision', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $building = Building::factory()->for($organization)->create();
+    $property = Property::factory()->for($organization)->for($building)->create();
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $invoice = Invoice::factory()->for($organization)->for($property)->for($tenant, 'tenant')->create([
+        'status' => InvoiceStatus::DRAFT,
+        'total_amount' => '0.00',
+        'amount_paid' => '0.00',
+        'paid_amount' => '0.00',
+        'finalized_at' => null,
+        'items' => [],
+    ]);
+
+    $this->actingAs($admin);
+
+    $draft = app(BillingServiceInterface::class)->saveDraft($invoice, [
+        'items' => [
+            [
+                'description' => 'Shared heating adjustment',
+                'quantity' => '1',
+                'unit_price' => '10.005',
+                'amount' => '10.005',
+            ],
+        ],
+    ]);
+
+    expect($draft->total_amount)->toBe('10.01')
+        ->and($draft->items)->toBeArray()
+        ->and((string) $draft->items[0]['amount'])->toBe('10.01')
+        ->and($draft->invoiceItems()->firstOrFail()->total)->toBe('10.01');
 });
 
 it('rounds monetary calculations to two decimal places without floating point drift', function () {

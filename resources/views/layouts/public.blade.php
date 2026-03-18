@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
+        @php($cspNonce = \Illuminate\Support\Facades\Vite::cspNonce())
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>@yield('title', config('app.name', 'Tenanto'))</title>
@@ -9,7 +10,7 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=sora:400,500,600,700|space-grotesk:500,700" rel="stylesheet" />
 
-        @livewireStyles
+        @livewireStyles(['nonce' => $cspNonce])
 
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -26,6 +27,6 @@
             </main>
         </div>
 
-        @livewireScripts
+        @livewireScripts(['nonce' => $cspNonce])
     </body>
 </html>

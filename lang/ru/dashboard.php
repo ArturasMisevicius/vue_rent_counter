@@ -16,16 +16,28 @@ return [
     'organization_body' => 'Модули зданий, арендаторов, счетчиков, счетов и отчетов будут развиваться от этой общей стартовой страницы для администратора и менеджера.',
     'organization_metrics' => [
         'total_properties' => 'Всего объектов',
+        'total_properties_trend' => 'Объекты, которые сейчас закреплены за этой организацией.',
         'active_tenants' => 'Активные арендаторы',
+        'active_tenants_trend' => 'Текущие жильцы с активным назначением.',
         'pending_invoices' => 'Ожидающие счета',
+        'draft_invoices' => 'Черновики счетов',
+        'draft_invoices_trend' => 'Счета, которые еще не были финализированы.',
         'revenue_this_month' => 'Доход за месяц',
+        'revenue_this_month_trend' => 'Сумма оплаченных счетов за текущий месяц.',
     ],
     'organization_usage' => [
         'heading' => 'Использование подписки',
+        'description' => 'Текущая загрузка рабочего пространства относительно лимитов подписки.',
         'properties' => 'Объекты',
         'tenants' => 'Арендаторы',
         'meters' => 'Счетчики',
         'invoices' => 'Счета',
+    ],
+    'platform_sections' => [
+        'revenue_by_plan' => 'Доход по планам',
+        'expiring_subscriptions' => 'Истекающие подписки',
+        'recent_security_violations' => 'Последние нарушения безопасности',
+        'recent_organizations' => 'Недавно созданные организации',
     ],
     'organization_widgets' => [
         'recent_invoices' => 'Последние счета',

@@ -38,6 +38,12 @@ class AcceptInvitationPage extends Component
             ->forToken($token)
             ->first();
 
+        if ($invitation?->isAccepted()) {
+            return redirect()
+                ->route('invitation.show', $token)
+                ->with('status', __('auth.invitation_used'));
+        }
+
         if (! $invitation?->isPending()) {
             return redirect()->route('invitation.show', $token);
         }
@@ -61,10 +67,17 @@ class AcceptInvitationPage extends Component
     public function render(): View
     {
         $invitation = $this->invitation;
+        $statusMessage = match (true) {
+            $invitation === null => __('auth.invitation_expired'),
+            $invitation->isAccepted() => session('status', __('auth.invitation_used')),
+            $invitation->isExpired() => __('auth.invitation_expired'),
+            default => null,
+        };
 
         return view('auth.accept-invitation', [
             'invitation' => $invitation,
-            'isExpired' => ! $invitation?->isPending(),
+            'statusMessage' => $statusMessage,
+            'token' => $this->token,
         ]);
     }
 

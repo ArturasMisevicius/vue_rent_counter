@@ -11,7 +11,10 @@ class OrganizationInvitationNotification extends Notification
 {
     use Queueable;
 
-    public function __construct(public readonly OrganizationInvitation $invitation) {}
+    public function __construct(
+        public readonly OrganizationInvitation $invitation,
+        private readonly ?string $routeToken = null,
+    ) {}
 
     /**
      * @return array<int, string>
@@ -31,7 +34,7 @@ class OrganizationInvitationNotification extends Notification
             ->line(__('auth.invitation_mail_intro', [
                 'organization' => $this->invitation->organization->name,
             ]))
-            ->action(__('auth.accept_invitation_button'), route('invitation.show', $this->invitation->token))
+            ->action(__('auth.accept_invitation_button'), route('invitation.show', $this->routeToken ?? $this->invitation->routeToken()))
             ->line(__('auth.invitation_mail_expiry'));
     }
 }

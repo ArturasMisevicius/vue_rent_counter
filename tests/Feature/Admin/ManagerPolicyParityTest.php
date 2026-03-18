@@ -104,7 +104,7 @@ it('keeps tenant invoice and meter access scoped to their own records and assign
         ->for($otherProperty)
         ->create();
 
-    expect($tenant->can('viewAny', Invoice::class))->toBeFalse()
+    expect($tenant->can('viewAny', Invoice::class))->toBeTrue()
         ->and($tenant->can('view', $invoice))->toBeTrue()
         ->and($tenant->can('view', $otherInvoice))->toBeFalse()
         ->and($tenant->can('viewAny', Meter::class))->toBeFalse()

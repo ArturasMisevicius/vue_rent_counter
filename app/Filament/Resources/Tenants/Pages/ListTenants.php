@@ -10,6 +10,11 @@ class ListTenants extends ListRecords
 {
     protected static string $resource = TenantResource::class;
 
+    protected function authorizeAccess(): void
+    {
+        abort_unless(TenantResource::canViewAny(), 403);
+    }
+
     protected function getHeaderActions(): array
     {
         if (TenantResource::shouldShowBlockedCreateAction('tenants')) {

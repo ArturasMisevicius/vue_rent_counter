@@ -1,7 +1,7 @@
 # Tasks: Add Tenant Self-Service Portal
 
-Source plan:
-`docs/superpowers/plans/2026-03-17-tenant-self-service-portal.md`
+Historical source: completed tenant portal rollout checklist now folded into
+the current repository state.
 
 ## 1. Prepare The Portal Shell
 

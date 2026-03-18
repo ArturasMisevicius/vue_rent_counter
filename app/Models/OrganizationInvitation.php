@@ -8,11 +8,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class OrganizationInvitation extends Model
 {
     /** @use HasFactory<OrganizationInvitationFactory> */
     use HasFactory;
+
+    public ?string $acceptanceToken = null;
 
     private const ACCEPTANCE_COLUMNS = [
         'id',
@@ -73,7 +76,11 @@ class OrganizationInvitation extends Model
 
     public function scopeForToken(Builder $query, string $token): Builder
     {
-        return $query->where('token', $token);
+        return $query->where(function (Builder $query) use ($token): void {
+            $query
+                ->where('token', static::hashToken($token))
+                ->orWhere('token', $token);
+        });
     }
 
     public function scopeAccepted(Builder $query): Builder
@@ -128,5 +135,20 @@ class OrganizationInvitation extends Model
     public function isPending(): bool
     {
         return ! $this->isAccepted() && ! $this->isExpired();
+    }
+
+    public function routeToken(): string
+    {
+        return $this->acceptanceToken ?? $this->token;
+    }
+
+    public static function issueToken(): string
+    {
+        return Str::random(64);
+    }
+
+    public static function hashToken(string $token): string
+    {
+        return hash('sha256', $token);
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Middleware\BlockBlockedIpAddresses;
 use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
 use App\Http\Middleware\EnsureUserIsTenant;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetAuthenticatedUserLocale;
 use App\Http\Middleware\SetGuestLocale;
 use Illuminate\Foundation\Application;
@@ -15,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
+        channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -24,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(append: [
             SetGuestLocale::class,
+            SecurityHeaders::class,
         ]);
 
         $middleware->alias([
