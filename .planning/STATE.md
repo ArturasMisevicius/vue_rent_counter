@@ -65,6 +65,7 @@ Recent decisions affecting current work:
 ### Pending Todos
 
 - Phase 01 `01-05`: have a repo admin require the `Phase 1 Guardrails` status check on `main`, or provide admin-scoped GitHub credentials so it can be applied and verified.
+- 2026-03-19: connect MCP and activate skills before work sessions by verifying Boost and Laravel MCP startup, mapping the requested session skills to installed equivalents, and recording the baseline route, Filament, and test state.
 
 ### Blockers/Concerns
 
