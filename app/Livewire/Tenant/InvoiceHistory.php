@@ -7,6 +7,7 @@ namespace App\Livewire\Tenant;
 use App\Filament\Support\Tenant\Portal\PaymentInstructionsResolver;
 use App\Filament\Support\Tenant\Portal\TenantInvoiceIndexQuery;
 use App\Http\Requests\Tenant\InvoiceHistoryFilterRequest;
+use App\Livewire\Concerns\ResolvesTenantWorkspace;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Services\Billing\InvoicePdfService;
@@ -20,11 +21,15 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class InvoiceHistory extends Component
 {
+    use ResolvesTenantWorkspace;
+
     #[Url(as: 'status')]
     public string $selectedStatus = 'all';
 
     public function mount(): void
     {
+        $this->tenantWorkspace();
+
         /** @var InvoiceHistoryFilterRequest $filtersRequest */
         $filtersRequest = new InvoiceHistoryFilterRequest;
         $validated = $filtersRequest->validatePayload([
@@ -84,16 +89,22 @@ class InvoiceHistory extends Component
     #[Computed]
     public function tenant(): User
     {
-        $tenantId = auth()->id();
+        $workspace = $this->tenantWorkspace();
 
         /** @var User $tenant */
-        $tenant = User::query()
-            ->select(['id', 'organization_id', 'role'])
-            ->findOrFail($tenantId);
+        $tenant = $this->currentTenant();
 
-        return $tenant->loadMissing(
+        return $tenant->loadMissing([
             'organization.settings:id,organization_id,billing_contact_name,billing_contact_email,billing_contact_phone,payment_instructions,invoice_footer',
-        );
+            'currentPropertyAssignment' => fn ($query) => $query
+                ->select(['id', 'organization_id', 'property_id', 'tenant_user_id', 'assigned_at', 'unassigned_at'])
+                ->forOrganization($workspace->organizationId)
+                ->when(
+                    $workspace->propertyId !== null,
+                    fn ($query) => $query->forProperty($workspace->propertyId),
+                )
+                ->current(),
+        ]);
     }
 
     #[Computed]

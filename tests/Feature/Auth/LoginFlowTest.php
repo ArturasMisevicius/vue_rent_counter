@@ -131,7 +131,7 @@ it('redirects users to the unified app entrypoint for their role context', funct
     ],
     'tenant' => [
         fn () => User::factory()->tenant()->create(),
-        'filament.admin.pages.tenant-dashboard',
+        'filament.admin.pages.dashboard',
     ],
 ]);
 

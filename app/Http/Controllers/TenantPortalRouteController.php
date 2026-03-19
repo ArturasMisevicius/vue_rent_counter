@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Filament\Support\Workspace\WorkspaceResolver;
 use Illuminate\Http\RedirectResponse;
 
 class TenantPortalRouteController extends Controller
@@ -19,8 +20,10 @@ class TenantPortalRouteController extends Controller
         'profile.edit' => 'filament.admin.pages.profile',
     ];
 
-    public function __invoke(string $destination): RedirectResponse
+    public function __invoke(WorkspaceResolver $workspaceResolver, string $destination): RedirectResponse
     {
+        abort_unless($workspaceResolver->current()?->isTenant(), 403);
+
         $routeName = self::DESTINATION_ROUTES[$destination] ?? null;
 
         abort_if($routeName === null, 404);

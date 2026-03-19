@@ -61,12 +61,12 @@ it('resolves the authenticated organization workspace for admin-like users', fun
         ]);
 });
 
-it('fails closed when an organization-scoped account has no organization assignment', function () {
-    $admin = User::factory()->admin()->create([
+it('fails closed when a non-onboarding workspace account has no organization assignment', function () {
+    $manager = User::factory()->manager()->create([
         'organization_id' => null,
     ]);
 
-    $this->actingAs($admin)
+    $this->actingAs($manager)
         ->get(route('test.security.workspace-context'))
         ->assertRedirect(route('login'));
 

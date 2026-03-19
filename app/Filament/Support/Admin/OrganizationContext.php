@@ -2,11 +2,17 @@
 
 namespace App\Filament\Support\Admin;
 
+use App\Filament\Support\Workspace\WorkspaceContext;
+use App\Filament\Support\Workspace\WorkspaceResolver;
 use App\Models\Organization;
 use App\Models\User;
 
 class OrganizationContext
 {
+    public function __construct(
+        private readonly WorkspaceResolver $workspaceResolver,
+    ) {}
+
     public function currentUser(): ?User
     {
         $user = auth()->user();
@@ -14,9 +20,19 @@ class OrganizationContext
         return $user instanceof User ? $user : null;
     }
 
+    public function currentWorkspace(): ?WorkspaceContext
+    {
+        return $this->workspaceResolver->current();
+    }
+
     public function currentOrganizationId(): ?int
     {
-        return $this->currentUser()?->organization_id;
+        return $this->currentWorkspace()?->organizationId;
+    }
+
+    public function currentPropertyId(): ?int
+    {
+        return $this->currentWorkspace()?->propertyId;
     }
 
     public function currentOrganization(): ?Organization

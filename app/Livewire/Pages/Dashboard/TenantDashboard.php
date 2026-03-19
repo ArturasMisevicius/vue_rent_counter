@@ -6,6 +6,7 @@ namespace App\Livewire\Pages\Dashboard;
 
 use App\Filament\Support\Tenant\Portal\TenantHomePresenter;
 use App\Livewire\Concerns\ListensForDashboardRefreshes;
+use App\Livewire\Concerns\ResolvesTenantWorkspace;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Computed;
@@ -15,6 +16,7 @@ use Livewire\Component;
 class TenantDashboard extends Component
 {
     use ListensForDashboardRefreshes;
+    use ResolvesTenantWorkspace;
 
     public bool $showIntro = true;
 
@@ -23,11 +25,9 @@ class TenantDashboard extends Component
 
     public function mount(): void
     {
-        $tenant = $this->tenant();
+        $workspace = $this->tenantWorkspace();
 
-        abort_unless($tenant->isTenant(), 403);
-
-        $this->organizationId = (int) $tenant->organization_id;
+        $this->organizationId = (int) $workspace->organizationId;
     }
 
     public function render(): View
@@ -95,10 +95,6 @@ class TenantDashboard extends Component
 
     protected function tenant(): User
     {
-        $tenant = auth()->user();
-
-        abort_unless($tenant instanceof User, 403);
-
-        return $tenant;
+        return $this->currentTenant();
     }
 }

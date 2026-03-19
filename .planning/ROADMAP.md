@@ -50,7 +50,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] `02-01-PLAN.md` — Resolve shared workspace context, normalize role authority, harden tenant property boundaries, and add boundary inventory proof.
+- [x] `02-01-PLAN.md` — Resolve shared workspace context, normalize role authority, harden tenant property boundaries, and add boundary inventory proof.
 
 ### Phase 3: Surface and Read Path Unification
 **Goal**: Users reach and read billing and workspace data through one coherent, canonical operating model.
@@ -113,7 +113,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Safety Freeze and Guardrails | 4/5 | In Progress | - |
-| 2. Workspace Boundary and Role Contracts | 0/1 | Planned | - |
+| 2. Workspace Boundary and Role Contracts | 1/1 | Complete | 2026-03-19 |
 | 3. Surface and Read Path Unification | 0/1 | Planned | - |
 | 4. Mutation Governance and Async Pipelines | 0/1 | Planned | - |
 | 5. Billing Lifecycle Canonicalization | 0/1 | Planned | - |

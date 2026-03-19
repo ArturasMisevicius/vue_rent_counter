@@ -4,6 +4,7 @@ namespace App\Livewire\Tenant;
 
 use App\Filament\Actions\Tenant\Readings\SubmitTenantReadingAction;
 use App\Http\Requests\Tenant\StoreMeterReadingRequest;
+use App\Livewire\Concerns\ResolvesTenantWorkspace;
 use App\Models\Meter;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -15,6 +16,8 @@ use Livewire\Component;
 
 class SubmitReadingPage extends Component
 {
+    use ResolvesTenantWorkspace;
+
     public string $meterId = '';
 
     public string $readingValue = '';
@@ -32,6 +35,7 @@ class SubmitReadingPage extends Component
 
     public function mount(): void
     {
+        $this->tenantWorkspace();
         $this->readingDate = now()->toDateString();
 
         if ($this->meterSelectionLocked) {
@@ -146,8 +150,8 @@ class SubmitReadingPage extends Component
     #[Computed]
     public function availableMeters(): Collection
     {
-        $tenant = $this->tenant;
-        $propertyId = $tenant->currentPropertyAssignment?->property_id;
+        $workspace = $this->tenantWorkspace();
+        $propertyId = $workspace->propertyId;
 
         if ($propertyId === null) {
             return collect();
@@ -155,7 +159,7 @@ class SubmitReadingPage extends Component
 
         return Meter::query()
             ->select(['id', 'organization_id', 'property_id', 'name', 'identifier', 'type', 'status', 'unit'])
-            ->forOrganization($tenant->organization_id)
+            ->forOrganization($workspace->organizationId)
             ->forProperty($propertyId)
             ->withLatestReadingSummary()
             ->ordered()
@@ -189,15 +193,17 @@ class SubmitReadingPage extends Component
     #[Computed]
     public function tenant(): User
     {
-        $tenantId = auth()->id();
-        $tenant = User::query()
-            ->select(['id', 'organization_id', 'role'])
-            ->findOrFail($tenantId);
+        $workspace = $this->tenantWorkspace();
+        $tenant = $this->currentTenant();
 
         return $tenant->load([
             'currentPropertyAssignment' => fn ($query) => $query
                 ->select(['id', 'organization_id', 'property_id', 'tenant_user_id', 'assigned_at', 'unassigned_at'])
-                ->forOrganization($tenant->organization_id)
+                ->forOrganization($workspace->organizationId)
+                ->when(
+                    $workspace->propertyId !== null,
+                    fn ($query) => $query->forProperty($workspace->propertyId),
+                )
                 ->current(),
         ]);
     }

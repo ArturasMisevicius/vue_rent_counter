@@ -2,15 +2,15 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Support\Workspace\WorkspaceContext;
+use App\Filament\Support\Workspace\WorkspaceResolver;
 use App\Http\Middleware\AuthenticateAdminPanel;
-use App\Http\Middleware\CheckSubscriptionStatus;
 use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetAuthenticatedUserLocale;
 use App\Livewire\Shell\Sidebar;
 use App\Livewire\Shell\Topbar;
-use App\Models\User;
 use BackedEnum;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -81,7 +81,6 @@ class AppPanelProvider extends PanelProvider
                 AuthenticateAdminPanel::class,
                 EnsureAccountIsAccessible::class,
                 EnsureOnboardingIsComplete::class,
-                CheckSubscriptionStatus::class,
             ]);
     }
 
@@ -378,26 +377,26 @@ class AppPanelProvider extends PanelProvider
 
     protected function isSuperadmin(): bool
     {
-        return auth()->user()?->isSuperadmin() ?? false;
+        return $this->currentWorkspace()?->isPlatform() ?? false;
     }
 
     protected function isAdminOrManager(): bool
     {
-        $user = auth()->user();
-
-        return ($user?->isAdmin() || $user?->isManager()) ?? false;
+        return $this->currentWorkspace()?->isAdminOrManager() ?? false;
     }
 
     protected function isAdminLike(): bool
     {
-        /** @var User|null $user */
-        $user = auth()->user();
-
-        return $user?->isAdminLike() ?? false;
+        return $this->currentWorkspace()?->isAdminLike() ?? false;
     }
 
     protected function isTenant(): bool
     {
-        return auth()->user()?->isTenant() ?? false;
+        return $this->currentWorkspace()?->isTenant() ?? false;
+    }
+
+    protected function currentWorkspace(): ?WorkspaceContext
+    {
+        return app(WorkspaceResolver::class)->current();
     }
 }

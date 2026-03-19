@@ -4,16 +4,19 @@ namespace App\Filament\Actions\Tenant\Readings;
 
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Filament\Actions\Admin\MeterReadings\CreateMeterReadingAction;
+use App\Filament\Support\Workspace\WorkspaceResolver;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 
 class SubmitTenantReadingAction
 {
     public function __construct(
         protected CreateMeterReadingAction $createMeterReadingAction,
+        protected WorkspaceResolver $workspaceResolver,
     ) {}
 
     /**
@@ -26,16 +29,25 @@ class SubmitTenantReadingAction
         string $readingDate,
         ?string $notes = null,
     ): MeterReading {
+        $workspace = $this->workspaceResolver->resolveFor($tenant);
+
+        if (! $workspace->isTenant() || $workspace->organizationId === null || $workspace->propertyId === null) {
+            throw ValidationException::withMessages([
+                'meter_id' => __('tenant.pages.readings.unauthorized_meter'),
+            ]);
+        }
+
         $meter = Meter::query()
             ->select(['id', 'organization_id', 'property_id', 'name', 'identifier', 'type', 'status', 'unit'])
             ->with([
                 'property:id,organization_id,building_id,name,unit_number,type,floor_area_sqm',
                 'property.currentAssignment' => fn ($query) => $query
                     ->select(['id', 'organization_id', 'property_id', 'tenant_user_id', 'assigned_at', 'unassigned_at'])
-                    ->forOrganization($tenant->organization_id)
+                    ->forOrganization($workspace->organizationId)
                     ->current(),
             ])
-            ->forOrganization($tenant->organization_id)
+            ->forOrganization($workspace->organizationId)
+            ->forProperty($workspace->propertyId)
             ->findOrFail($meterId);
 
         Gate::forUser($tenant)->authorize('view', $meter);

@@ -130,7 +130,7 @@ it('accepts a valid invitation and logs the user in', function (UserRole $role, 
         ->and($invitation->fresh()->accepted_at)->not->toBeNull();
 })->with([
     'manager' => [UserRole::MANAGER, 'filament.admin.pages.dashboard'],
-    'tenant' => [UserRole::TENANT, 'filament.admin.pages.tenant-dashboard'],
+    'tenant' => [UserRole::TENANT, 'filament.admin.pages.dashboard'],
 ]);
 
 it('activates an existing tenant placeholder when accepting an invitation', function () {
@@ -160,7 +160,7 @@ it('activates an existing tenant placeholder when accepting an invitation', func
         'name' => 'Pat Tenant',
         'password' => 'new-password',
         'password_confirmation' => 'new-password',
-    ])->assertRedirect(route('filament.admin.pages.tenant-dashboard'));
+    ])->assertRedirect(route('filament.admin.pages.dashboard'));
 
     $tenant = $tenant->fresh();
 

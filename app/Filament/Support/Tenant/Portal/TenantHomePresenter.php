@@ -3,6 +3,7 @@
 namespace App\Filament\Support\Tenant\Portal;
 
 use App\Filament\Support\Dashboard\DashboardCacheService;
+use App\Filament\Support\Workspace\WorkspaceResolver;
 use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\MeterReading;
@@ -14,6 +15,7 @@ class TenantHomePresenter
     public function __construct(
         protected PaymentInstructionsResolver $paymentInstructionsResolver,
         protected DashboardCacheService $dashboardCacheService,
+        protected WorkspaceResolver $workspaceResolver,
     ) {}
 
     /**
@@ -33,8 +35,17 @@ class TenantHomePresenter
      */
     private function buildSummary(User $tenant): array
     {
-        $tenantId = $tenant->id;
-        $organizationId = $tenant->organization_id;
+        $workspace = $this->workspaceResolver->resolveFor($tenant);
+
+        if (! $workspace->isTenant() || $workspace->organizationId === null) {
+            return [
+                'has_assignment' => false,
+            ];
+        }
+
+        $tenantId = $workspace->userId;
+        $organizationId = $workspace->organizationId;
+        $propertyId = $workspace->propertyId;
 
         $tenant = User::query()
             ->select(['id', 'name', 'organization_id'])
@@ -53,6 +64,11 @@ class TenantHomePresenter
             ->findOrFail($tenantId);
 
         $property = $tenant->currentProperty;
+
+        if ($propertyId !== null && $property?->id !== $propertyId) {
+            $property = null;
+        }
+
         $meters = $property?->meters ?? Collection::make();
         $hasAssignment = $property !== null;
         $outstandingInvoices = Invoice::query()
