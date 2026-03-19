@@ -1,0 +1,47 @@
+name: Phase 1 Guardrails
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  phase-1-guardrails:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          coverage: none
+
+      - name: Determine Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare environment
+        run: |
+          if [ ! -f .env ]; then
+            cp .env.example .env
+          fi
+
+          php artisan key:generate --ansi
+
+      - name: Run Phase 1 guardrails
+        run: composer guard:phase1
