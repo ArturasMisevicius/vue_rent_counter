@@ -32,7 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 5 plans
 
 Plans:
-- [ ] `01-01-PLAN.md` — Remove live test-route exposure and add public-surface inventory proof.
+- [x] `01-01-PLAN.md` — Remove live test-route exposure and add public-surface inventory proof.
 - [ ] `01-02-PLAN.md` — Remove the PWA dependency, config, and public assets with executable removal proof.
 - [ ] `01-03-PLAN.md` — Harden `/csp/report` with a named throttle, source tagging, and pruning retention.
 - [ ] `01-04-PLAN.md` — Add the shared Phase 1 guard command and GitHub Actions merge gate.
@@ -97,7 +97,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Safety Freeze and Guardrails | 0/5 | Not started | - |
+| 1. Safety Freeze and Guardrails | 1/5 | In Progress | - |
 | 2. Workspace Boundary and Role Contracts | 0/TBD | Not started | - |
 | 3. Surface and Read Path Unification | 0/TBD | Not started | - |
 | 4. Mutation Governance and Async Pipelines | 0/TBD | Not started | - |
