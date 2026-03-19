@@ -118,3 +118,14 @@ Plans:
 | 4. Mutation Governance and Async Pipelines | 0/1 | Planned | - |
 | 5. Billing Lifecycle Canonicalization | 0/1 | Planned | - |
 | 6. Operational Hardening and Recovery | 0/1 | Planned | - |
+| 7. Consolidate, clean, and standardize full application stack | 1/1 | Complete | 2026-03-19 |
+
+### Phase 7: Consolidate, clean, and standardize full application stack
+
+**Goal:** Consolidate the full application surface by removing inline policy/validation drift, eliminating public debug/public entrypoints, and standardizing controller/request, Livewire, and Filament data flows.
+**Requirements**: ARCH-01, ARCH-02, SEC-03, GOV-01, OPS-01
+**Depends on:** Phase 6
+**Plans:** 1 plan
+
+Plans:
+- [x] `07-01-PLAN.md` — Consolidate full application stack surfaces, remove policy/validation drift, lock down public entrypoints, and standardize controller/request + Livewire/Filament flows.
