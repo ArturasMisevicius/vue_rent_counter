@@ -14,8 +14,6 @@ Route::post('/csp/report', CspViolationReportController::class)
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('security.csp.report');
 
-require base_path('routes/testing.php');
-
 Route::middleware('guest')->group(base_path('routes/web/guest.php'));
 Route::middleware(['auth', 'set.auth.locale', 'ensure.account.accessible'])
     ->group(base_path('routes/web/authenticated.php'));
