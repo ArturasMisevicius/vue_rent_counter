@@ -20,17 +20,6 @@
       0 => 'BladeUI\\Icons\\BladeIconsServiceProvider',
     ),
   ),
-  'erag/laravel-pwa' => 
-  array (
-    'aliases' => 
-    array (
-      'Pwa' => 'EragLaravelPwa\\Facades\\Pwa',
-    ),
-    'providers' => 
-    array (
-      0 => 'EragLaravelPwa\\EragLaravelPwaServiceProvider',
-    ),
-  ),
   'filament/actions' => 
   array (
     'providers' => 

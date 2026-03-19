@@ -7,6 +7,13 @@ it('removes pwa package references from composer manifests', function (): void {
         ->not->toContain('erag/laravel-pwa');
 });
 
+it('removes pwa package references from tracked package discovery caches', function (): void {
+    expect(file_get_contents(base_path('bootstrap/cache/packages.php')))
+        ->not->toContain('erag/laravel-pwa')
+        ->and(file_get_contents(base_path('bootstrap/cache/services.php')))
+        ->not->toContain('erag/laravel-pwa');
+});
+
 it('removes pwa config and public assets', function (): void {
     expect(file_exists(config_path('pwa.php')))->toBeFalse()
         ->and(file_exists(public_path('manifest.json')))->toBeFalse()
