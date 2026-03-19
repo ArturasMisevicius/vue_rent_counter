@@ -67,6 +67,7 @@ Recent decisions affecting current work:
 - Phase 01 `01-05`: have a repo admin require the `Phase 1 Guardrails` status check on `main`, or provide admin-scoped GitHub credentials so it can be applied and verified.
 - 2026-03-19: connect MCP and activate skills before work sessions by verifying Boost and Laravel MCP startup, mapping the requested session skills to installed equivalents, and recording the baseline route, Filament, and test state.
 - 2026-03-19: verify the public debug surface lockdown by confirming only `public/index.php` remains, `/test-debug` stays absent, translation artifact files are gone, and the existing security regression coverage still passes.
+- 2026-03-19: finalize the unified `/app` Filament panel by removing panel-level subscription enforcement, routing all roles through the shared dashboard entrypoint, and keeping the unified panel tests aligned with the live implementation.
 
 ### Blockers/Concerns
 
