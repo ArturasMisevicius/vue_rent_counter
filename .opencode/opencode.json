@@ -1,0 +1,10 @@
+{
+  "permission": {
+    "read": {
+      "/Users/andrejprus/Herd/tenanto/.opencode/get-shit-done/*": "allow"
+    },
+    "external_directory": {
+      "/Users/andrejprus/Herd/tenanto/.opencode/get-shit-done/*": "allow"
+    }
+  }
+}

@@ -168,6 +168,16 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(OrganizationInvitation::class, 'inviter_user_id');
     }
 
+    public function organizationMemberships(): HasMany
+    {
+        return $this->hasMany(OrganizationUser::class);
+    }
+
+    public function invitedOrganizationMemberships(): HasMany
+    {
+        return $this->hasMany(OrganizationUser::class, 'invited_by');
+    }
+
     public function propertyAssignments(): HasMany
     {
         return $this->hasMany(PropertyAssignment::class, 'tenant_user_id');
@@ -228,6 +238,16 @@ class User extends Authenticatable implements FilamentUser
     public function actorAuditLogs(): HasMany
     {
         return $this->hasMany(AuditLog::class, 'actor_user_id');
+    }
+
+    public function organizationActivityLogs(): HasMany
+    {
+        return $this->hasMany(OrganizationActivityLog::class);
+    }
+
+    public function superAdminAuditLogs(): HasMany
+    {
+        return $this->hasMany(SuperAdminAuditLog::class, 'admin_id');
     }
 
     public function platformNotificationDeliveries(): HasMany

@@ -6,6 +6,7 @@ use App\Models\Organization;
 use App\Models\PlatformNotification;
 use App\Models\PlatformNotificationRecipient;
 use App\Models\PlatformOrganizationInvitation;
+use App\Models\SuperAdminAuditLog;
 use App\Models\SystemConfiguration;
 use App\Models\SystemTenant;
 use App\Models\User;
@@ -108,6 +109,23 @@ class LegacyPlatformFoundationSeeder extends Seeder
                 'expires_at' => now()->addDays(7),
                 'accepted_at' => null,
                 'invited_by' => $superadmin->id,
+            ],
+        );
+
+        SuperAdminAuditLog::query()->updateOrCreate(
+            [
+                'admin_id' => $superadmin->id,
+                'action' => 'legacy.platform.seeded',
+                'system_tenant_id' => $systemTenant->id,
+            ],
+            [
+                'target_type' => Organization::class,
+                'target_id' => $organization->id,
+                'changes' => ['system_tenant_id' => ['old' => null, 'new' => $systemTenant->id]],
+                'ip_address' => '127.0.0.1',
+                'user_agent' => 'legacy-platform-seeder',
+                'impersonation_session_id' => null,
+                'metadata' => ['seed' => true],
             ],
         );
     }

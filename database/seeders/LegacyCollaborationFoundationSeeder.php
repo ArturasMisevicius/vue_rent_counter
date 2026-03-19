@@ -10,6 +10,8 @@ use App\Models\CommentReaction;
 use App\Models\DashboardCustomization;
 use App\Models\EnhancedTask;
 use App\Models\Organization;
+use App\Models\OrganizationActivityLog;
+use App\Models\OrganizationUser;
 use App\Models\Project;
 use App\Models\Property;
 use App\Models\Tag;
@@ -228,6 +230,36 @@ class LegacyCollaborationFoundationSeeder extends Seeder
                 'description' => 'Seeded demo time entry for imported collaboration task.',
                 'metadata' => ['billable' => true],
                 'logged_at' => now(),
+            ],
+        );
+
+        OrganizationUser::query()->updateOrCreate(
+            [
+                'organization_id' => $organization->id,
+                'user_id' => $tenant->id,
+            ],
+            [
+                'role' => 'manager',
+                'permissions' => ['projects.view', 'tasks.update'],
+                'joined_at' => now()->subMonths(2),
+                'left_at' => null,
+                'is_active' => true,
+                'invited_by' => $admin->id,
+            ],
+        );
+
+        OrganizationActivityLog::query()->updateOrCreate(
+            [
+                'organization_id' => $organization->id,
+                'user_id' => $admin->id,
+                'action' => 'legacy.collaboration.seeded',
+            ],
+            [
+                'resource_type' => Project::class,
+                'resource_id' => $project->id,
+                'metadata' => ['seed' => true],
+                'ip_address' => '127.0.0.1',
+                'user_agent' => 'legacy-collaboration-seeder',
             ],
         );
     }

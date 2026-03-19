@@ -49,3 +49,37 @@ it('keeps the home navigation item active on the secondary property page', funct
         ->get(route('filament.admin.pages.tenant-property-details'))
         ->assertSuccessful();
 });
+
+it('registers the tenant route aliases required by the portal contract', function (string $routeName) {
+    expect(app('router')->getRoutes()->getByName($routeName))
+        ->not->toBeNull("Expected tenant portal route alias [{$routeName}] to exist.");
+})->with([
+    'tenant.home',
+    'tenant.readings.create',
+    'tenant.invoices.index',
+    'tenant.property.show',
+    'tenant.profile.edit',
+]);
+
+it('resolves the tenant route aliases to the canonical tenant portal pages', function (string $routeName, string $canonicalRoute) {
+    $tenant = TenantPortalFactory::new()
+        ->withAssignedProperty()
+        ->withMeters(1)
+        ->withUnpaidInvoices(1)
+        ->create();
+
+    $this->actingAs($tenant->user)
+        ->get(route($routeName))
+        ->assertRedirect(route($canonicalRoute));
+
+    $this->actingAs($tenant->user)
+        ->followingRedirects()
+        ->get(route($routeName))
+        ->assertSuccessful();
+})->with([
+    'home alias' => ['tenant.home', 'filament.admin.pages.tenant-dashboard'],
+    'readings alias' => ['tenant.readings.create', 'filament.admin.pages.tenant-submit-meter-reading'],
+    'invoices alias' => ['tenant.invoices.index', 'filament.admin.pages.tenant-invoice-history'],
+    'property alias' => ['tenant.property.show', 'filament.admin.pages.tenant-property-details'],
+    'profile alias' => ['tenant.profile.edit', 'filament.admin.pages.profile'],
+]);

@@ -44,7 +44,7 @@ depends on the legacy concept yet.
 | Provider | import | `App\Models\Provider` | providers table | tariffs, services, and organization relations | Reference foundation |
 | SecurityViolation | merge | `App\Models\SecurityViolation` | legacy support columns only if missing | actor/context relations and scopes | Preserve current violation tracking |
 | ServiceConfiguration | import | `App\Models\ServiceConfiguration` | service configurations table | provider, utility service, and tariff relations | Reference foundation |
-| SharedService | import | `App\Models\SharedService` | shared services table | building/property allocation relations | Import once utility billing support lands |
+| SharedService | defer | `App\Models\ServiceConfiguration` | none | current shared-service behavior already rides on service configuration flags and distribution rules | Add a first-class shared-service catalog only when allocation workflows require a durable model |
 | Subscription | merge | `App\Models\Subscription` | auto-renewal/support columns only if missing | renewal history relation | Keep current subscription table authoritative |
 | SubscriptionRenewal | import | `App\Models\SubscriptionRenewal` | subscription renewals table | subscription and actor relations | Operations foundation |
 | SuperAdminAuditLog | import | `App\Models\SuperAdminAuditLog` | superadmin audit logs table | actor and subject relations | Platform foundation |
@@ -58,7 +58,7 @@ depends on the legacy concept yet.
 | TimeEntry | import | `App\Models\TimeEntry` | time entries table | task, user, and project relations | Collaboration foundation |
 | Translation | import | `App\Models\Translation` | translations table | language-aware translation scopes | Reference foundation and Wave 2 localization |
 | User | merge | `App\Models\User` | legacy hierarchy/support columns only if missing | system-tenant, currency, and assignment helpers | Extend current role-based user model |
-| UtilityReading | import | `App\Models\UtilityReading` | utility readings table | utility service, meter, and property relations | Defer UI until billing domain depends on it |
+| UtilityReading | merge | `App\Models\MeterReading` | no dedicated schema planned | current meter reading fields already cover value, reading date, notes, and property-meter scoping | Keep the modern meter-reading model canonical instead of importing a duplicate legacy type |
 | UtilityService | import | `App\Models\UtilityService` | utility services table | provider, tariff, and configuration relations | Reference foundation |
 
 ## Summary

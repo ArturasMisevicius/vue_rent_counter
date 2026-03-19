@@ -129,6 +129,11 @@ class Organization extends Model
         return $this->hasMany(Property::class);
     }
 
+    public function memberships(): HasMany
+    {
+        return $this->hasMany(OrganizationUser::class);
+    }
+
     public function propertyAssignments(): HasMany
     {
         return $this->hasMany(PropertyAssignment::class);
@@ -177,6 +182,11 @@ class Organization extends Model
     public function auditLogs(): HasMany
     {
         return $this->hasMany(AuditLog::class);
+    }
+
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(OrganizationActivityLog::class);
     }
 
     public function securityViolations(): HasMany

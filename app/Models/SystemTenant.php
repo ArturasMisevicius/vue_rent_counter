@@ -59,4 +59,9 @@ class SystemTenant extends Model
     {
         return $this->hasMany(Organization::class);
     }
+
+    public function superAdminAuditLogs(): HasMany
+    {
+        return $this->hasMany(SuperAdminAuditLog::class);
+    }
 }
