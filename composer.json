@@ -51,6 +51,11 @@
             "@php artisan config:clear --ansi",
             "@php artisan test"
         ],
+        "guard:phase1": [
+            "@php artisan config:clear --ansi",
+            "vendor/bin/pint --test app config database routes tests resources/views bootstrap/app.php",
+            "@php artisan test tests/Feature/Security/NoPublicDebugFilesTest.php tests/Feature/Architecture/Phase1PublicSurfaceInventoryTest.php tests/Feature/Public/PwaIntegrationTest.php tests/Feature/Architecture/PwaSurfaceRemovalInventoryTest.php tests/Feature/Security/SecurityHeadersTest.php tests/Feature/Security/CspReportRateLimitTest.php tests/Feature/Security/TenantIsolationTest.php tests/Feature/Security/TenantPortalIsolationTest.php tests/Feature/Filament/SuperadminResourcesTest.php tests/Feature/Architecture/FilamentFoundationPlacementTest.php tests/Feature/Admin/FilamentCrudCoverageInventoryTest.php tests/Feature/Admin/InvoiceImmutabilityTest.php tests/Feature/Admin/TenantUnassignmentInvoiceRetentionTest.php --compact"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi",

@@ -15,8 +15,8 @@ use App\Filament\Resources\ServiceConfigurations\ServiceConfigurationResource;
 use App\Filament\Resources\Subscriptions\SubscriptionResource;
 use App\Filament\Resources\Tariffs\TariffResource;
 use App\Filament\Resources\Tenants\TenantResource;
-use App\Filament\Resources\UtilityServices\UtilityServiceResource;
 use App\Filament\Resources\Users\UserResource;
+use App\Filament\Resources\UtilityServices\UtilityServiceResource;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
