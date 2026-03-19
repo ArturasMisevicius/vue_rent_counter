@@ -28,7 +28,7 @@ class EnsureAccountIsAccessible
 
         if (
             $user->status === UserStatus::SUSPENDED ||
-            $organization?->status === OrganizationStatus::SUSPENDED
+            ($organization?->status instanceof OrganizationStatus && ! $organization->status->permitsAccess())
         ) {
             Auth::guard('web')->logout();
 

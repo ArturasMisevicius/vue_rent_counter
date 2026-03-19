@@ -45,7 +45,8 @@ class MetersTable
                     ->badge(),
                 TextColumn::make('status')
                     ->label(__('admin.meters.columns.status'))
-                    ->badge(),
+                    ->badge()
+                    ->color(fn (MeterStatus $state): string => $state->badgeColor()),
                 TextColumn::make('unit')
                     ->label(__('admin.meters.columns.unit'))
                     ->toggleable(),

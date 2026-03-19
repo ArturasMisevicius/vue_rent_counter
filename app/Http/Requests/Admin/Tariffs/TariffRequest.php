@@ -35,6 +35,8 @@ class TariffRequest extends FormRequest
      */
     public function rules(): array
     {
+        $type = TariffType::tryFrom((string) $this->input('configuration.type'));
+
         return [
             'provider_id' => [
                 'required',
@@ -48,7 +50,7 @@ class TariffRequest extends FormRequest
             'configuration.type' => ['required', Rule::enum(TariffType::class)],
             'configuration.currency' => ['required', 'string', 'max:10'],
             'configuration.rate' => [
-                Rule::requiredIf(fn (): bool => $this->input('configuration.type') === TariffType::FLAT->value),
+                Rule::requiredIf(fn (): bool => $type?->requiresRate() ?? false),
                 'nullable',
                 'numeric',
                 'min:0',

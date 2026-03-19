@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Organizations\Pages;
 
-use App\Enums\OrganizationStatus;
 use App\Enums\PlatformNotificationSeverity;
 use App\Enums\UserRole;
 use App\Filament\Actions\Superadmin\Organizations\ReinstateOrganizationAction;
@@ -52,7 +51,7 @@ class ViewOrganization extends ViewRecord
             Action::make('suspendOrganization')
                 ->label('Suspend Organization')
                 ->color('danger')
-                ->visible(fn (): bool => $this->record->status !== OrganizationStatus::SUSPENDED)
+                ->visible(fn (): bool => $this->record->status->permitsAccess())
                 ->authorize(fn (): bool => auth()->user()?->can('suspend', $this->record) ?? false)
                 ->requiresConfirmation()
                 ->modalDescription('Suspending this organization revokes active sessions for all associated users.')
@@ -68,7 +67,7 @@ class ViewOrganization extends ViewRecord
             Action::make('reinstateOrganization')
                 ->label('Reinstate Organization')
                 ->color('success')
-                ->visible(fn (): bool => $this->record->status === OrganizationStatus::SUSPENDED)
+                ->visible(fn (): bool => ! $this->record->status->permitsAccess())
                 ->authorize(fn (): bool => auth()->user()?->can('reinstate', $this->record) ?? false)
                 ->requiresConfirmation()
                 ->modalDescription('Reinstating the organization restores access for future sign-ins.')

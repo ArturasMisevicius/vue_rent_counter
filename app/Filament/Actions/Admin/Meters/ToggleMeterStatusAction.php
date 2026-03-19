@@ -2,7 +2,6 @@
 
 namespace App\Filament\Actions\Admin\Meters;
 
-use App\Enums\MeterStatus;
 use App\Models\Meter;
 
 class ToggleMeterStatusAction
@@ -10,9 +9,7 @@ class ToggleMeterStatusAction
     public function handle(Meter $meter): Meter
     {
         $meter->update([
-            'status' => $meter->status === MeterStatus::ACTIVE
-                ? MeterStatus::INACTIVE
-                : MeterStatus::ACTIVE,
+            'status' => $meter->status->toggleTarget(),
         ]);
 
         return $meter->fresh();

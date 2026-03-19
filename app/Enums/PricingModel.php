@@ -10,6 +10,7 @@ enum PricingModel: string implements HasLabel
     use HasTranslatedLabel;
 
     case FIXED_MONTHLY = 'fixed_monthly';
+    case FIXED_DAILY = 'fixed_daily';
     case CONSUMPTION_BASED = 'consumption_based';
     case TIERED_RATES = 'tiered_rates';
     case HYBRID = 'hybrid';
@@ -26,6 +27,11 @@ enum PricingModel: string implements HasLabel
             self::TIME_OF_USE => true,
             default => false,
         };
+    }
+
+    public function requiresBillingPeriodQuantity(): bool
+    {
+        return $this === self::FIXED_DAILY;
     }
 
     public function supportsCustomFormulas(): bool

@@ -87,6 +87,25 @@ it('blocks suspended organizations from protected routes', function () {
     $this->assertGuest();
 });
 
+it('blocks non-active organizations from protected routes', function () {
+    registerAuthRouteFixtures();
+
+    $organization = Organization::factory()->create([
+        'status' => OrganizationStatus::ARCHIVED,
+    ]);
+
+    Route::middleware(['web', 'auth', 'ensure.account.accessible'])
+        ->get('/__test/protected-archived-organization', fn () => 'ok');
+
+    $user = User::factory()->admin()->for($organization)->create();
+
+    $this->actingAs($user)
+        ->get('/__test/protected-archived-organization')
+        ->assertRedirect(route('login'));
+
+    $this->assertGuest();
+});
+
 it('routes users to the correct starting page', function () {
     registerAuthRouteFixtures();
 

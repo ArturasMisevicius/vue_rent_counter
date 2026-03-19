@@ -25,7 +25,7 @@ class OrganizationsTable
                 TextColumn::make('status')
                     ->label(__('superadmin.organizations.columns.status'))
                     ->badge()
-                    ->color(fn (OrganizationStatus $state): string => $state === OrganizationStatus::ACTIVE ? 'success' : 'danger')
+                    ->color(fn (OrganizationStatus $state): string => $state->badgeColor())
                     ->formatStateUsing(fn (OrganizationStatus $state): string => $state->label()),
                 TextColumn::make('owner.name')
                     ->label(__('superadmin.organizations.columns.owner'))

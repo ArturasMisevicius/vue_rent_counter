@@ -7,7 +7,9 @@ namespace App\Services\Billing;
 use App\Contracts\BillingServiceInterface;
 use App\Enums\DistributionMethod;
 use App\Enums\InvoiceStatus;
+use App\Enums\MeterType;
 use App\Enums\PricingModel;
+use App\Enums\ServiceType;
 use App\Filament\Support\Admin\Invoices\FinalizedInvoiceGuard;
 use App\Filament\Support\Admin\Invoices\InvoiceEligibilityWindow;
 use App\Http\Requests\Admin\Invoices\ProcessPaymentRequest;
@@ -404,7 +406,7 @@ final class BillingService implements BillingServiceInterface
     ): array {
         $pricing = $this->tariffResolver->resolve($configuration);
         $measurement = $this->measurementContext($property, $configuration, $periodStart, $periodEnd);
-        $quantity = $measurement['quantity'];
+        $quantity = $this->billableQuantity($configuration, $measurement['quantity'], $periodStart, $periodEnd);
         $zoneConsumption = $measurement['zone_consumption'];
         $total = $this->calculateServiceTotal(
             $configuration,
@@ -434,7 +436,11 @@ final class BillingService implements BillingServiceInterface
             'unit' => (string) ($configuration->utilityService?->unit_of_measurement ?? ''),
             'unit_price' => $this->calculator->rate($pricing['unit_rate']),
             'total' => $this->calculator->money($total),
-            'consumption' => $this->calculator->quantity($measurement['consumption']),
+            'consumption' => $this->calculator->quantity(
+                $configuration->pricing_model?->requiresBillingPeriodQuantity()
+                    ? $quantity
+                    : $measurement['consumption'],
+            ),
             'rate' => $this->calculator->rate($pricing['unit_rate']),
             'meter_reading_snapshot' => $measurement['snapshot'],
         ];
@@ -469,6 +475,23 @@ final class BillingService implements BillingServiceInterface
         );
     }
 
+    private function billableQuantity(
+        ServiceConfiguration $configuration,
+        string $measuredQuantity,
+        CarbonImmutable $periodStart,
+        CarbonImmutable $periodEnd,
+    ): string {
+        if (! $configuration->pricing_model?->requiresBillingPeriodQuantity()) {
+            return $measuredQuantity;
+        }
+
+        $days = $periodStart->startOfDay()->diffInDays($periodEnd->startOfDay()) + 1;
+
+        return $this->calculator->quantity(
+            (string) $days,
+        );
+    }
+
     /**
      * @return array{
      *     quantity: string,
@@ -498,9 +521,9 @@ final class BillingService implements BillingServiceInterface
             ];
         }
 
-        $serviceType = $configuration->utilityService?->service_type_bridge?->value;
+        $serviceType = $configuration->utilityService?->service_type_bridge;
 
-        if ($serviceType === null) {
+        if (! $serviceType instanceof ServiceType) {
             return [
                 'quantity' => $this->calculator->quantity('0'),
                 'consumption' => $this->calculator->quantity('0'),
@@ -509,9 +532,14 @@ final class BillingService implements BillingServiceInterface
             ];
         }
 
+        $compatibleMeterTypes = array_map(
+            static fn (MeterType $meterType): string => $meterType->value,
+            $serviceType->compatibleMeterTypes(),
+        );
+
         /** @var Meter|null $meter */
         $meter = $property->meters
-            ->first(fn (Meter $candidate): bool => $candidate->type?->value === $serviceType);
+            ->first(fn (Meter $candidate): bool => in_array($candidate->type?->value, $compatibleMeterTypes, true));
 
         if (! $meter instanceof Meter) {
             return [
@@ -644,6 +672,8 @@ final class BillingService implements BillingServiceInterface
 
         return [
             'participant_count' => $participantCount,
+            'participant_occupants' => 1,
+            'total_occupants' => $participantCount,
             'participant_area' => (string) ($assignment->unit_area_sqm ?? '0'),
             'total_area' => $totalArea,
             'participant_consumption' => $participantConsumption,

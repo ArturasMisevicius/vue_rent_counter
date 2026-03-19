@@ -13,4 +13,5 @@ enum PlatformNotificationSeverity: string implements HasLabel
     case SUCCESS = 'success';
     case WARNING = 'warning';
     case ERROR = 'error';
+    case CRITICAL = 'critical';
 }

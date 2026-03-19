@@ -12,4 +12,6 @@ enum IntegrationHealthStatus: string implements HasLabel
     case HEALTHY = 'healthy';
     case DEGRADED = 'degraded';
     case FAILED = 'failed';
+    case MAINTENANCE = 'maintenance';
+    case UNKNOWN = 'unknown';
 }

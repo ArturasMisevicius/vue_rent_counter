@@ -14,4 +14,12 @@ enum SystemSettingCategory: string implements HasLabel
     case LOCALIZATION = 'localization';
     case SECURITY = 'security';
     case INTEGRATIONS = 'integrations';
+    case NOTIFICATIONS = 'notifications';
+    case EMAIL = 'email';
+    case SUBSCRIPTION = 'subscription';
+    case BACKUPS = 'backups';
+    case MAINTENANCE = 'maintenance';
+    case REPORTING = 'reporting';
+    case API = 'api';
+    case COMPLIANCE = 'compliance';
 }

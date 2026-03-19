@@ -137,3 +137,23 @@ it('creates meters with default units, updates and toggles status, and blocks de
 
     expect(Meter::query()->whereKey($deletableMeter->id)->exists())->toBeFalse();
 });
+
+it('reactivates actionable meter statuses but leaves retired meters unchanged', function () {
+    $organization = Organization::factory()->create();
+    $building = Building::factory()->for($organization)->create();
+    $property = Property::factory()->for($organization)->for($building)->create();
+
+    $faultyMeter = Meter::factory()->for($organization)->for($property)->create([
+        'status' => MeterStatus::FAULTY,
+    ]);
+
+    $retiredMeter = Meter::factory()->for($organization)->for($property)->create([
+        'status' => MeterStatus::RETIRED,
+    ]);
+
+    $reactivated = app(ToggleMeterStatusAction::class)->handle($faultyMeter);
+    $unchanged = app(ToggleMeterStatusAction::class)->handle($retiredMeter);
+
+    expect($reactivated->status)->toBe(MeterStatus::ACTIVE)
+        ->and($unchanged->status)->toBe(MeterStatus::RETIRED);
+});

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Meters\Schemas;
 
+use App\Enums\MeterStatus;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -29,7 +30,8 @@ class MeterInfolist
                             ->label(__('admin.meters.fields.unit')),
                         TextEntry::make('status')
                             ->label(__('admin.meters.fields.status'))
-                            ->badge(),
+                            ->badge()
+                            ->color(fn (MeterStatus $state): string => $state->badgeColor()),
                         TextEntry::make('installed_at')
                             ->label(__('admin.meters.fields.installed_at'))
                             ->date(),

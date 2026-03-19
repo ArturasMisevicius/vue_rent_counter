@@ -12,6 +12,9 @@ enum DistributionMethod: string implements HasLabel
     case EQUAL = 'equal';
     case AREA = 'area';
     case BY_CONSUMPTION = 'by_consumption';
+    case BY_OCCUPANCY = 'by_occupancy';
+    case FIXED_SHARE = 'fixed_share';
+    case WEIGHTED_SHARE = 'weighted_share';
     case CUSTOM_FORMULA = 'custom_formula';
 
     public function requiresAreaData(): bool
@@ -22,6 +25,21 @@ enum DistributionMethod: string implements HasLabel
     public function requiresConsumptionData(): bool
     {
         return $this === self::BY_CONSUMPTION;
+    }
+
+    public function requiresOccupancyData(): bool
+    {
+        return $this === self::BY_OCCUPANCY;
+    }
+
+    public function requiresFixedShare(): bool
+    {
+        return $this === self::FIXED_SHARE;
+    }
+
+    public function requiresWeightData(): bool
+    {
+        return $this === self::WEIGHTED_SHARE;
     }
 
     public function supportsCustomFormulas(): bool

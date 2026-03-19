@@ -45,6 +45,19 @@ class LoginPage extends Component
             ]);
         }
 
+        if (
+            $user->organization?->status instanceof OrganizationStatus &&
+            ! $user->organization->status->permitsAccess()
+        ) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            throw ValidationException::withMessages([
+                'email' => __('auth.account_inactive'),
+            ]);
+        }
+
         $user->forceFill([
             'last_login_at' => now(),
         ])->save();

@@ -46,6 +46,65 @@ it('calculates time-of-use charges across peak and off-peak zones', function () 
     expect($total)->toBe('3.30');
 });
 
+it('calculates fixed-daily charges across the full billing period', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $building = Building::factory()->for($organization)->create();
+    $provider = Provider::factory()->forOrganization($organization)->create([
+        'service_type' => ServiceType::WATER,
+    ]);
+    $tariff = Tariff::factory()->for($provider)->flat()->create([
+        'configuration' => [
+            'type' => 'seasonal',
+            'currency' => 'EUR',
+            'rate' => 2.50,
+        ],
+    ]);
+    $utilityService = UtilityService::factory()->for($organization)->create([
+        'service_type_bridge' => ServiceType::WATER,
+        'default_pricing_model' => PricingModel::FIXED_DAILY,
+        'unit_of_measurement' => 'day',
+    ]);
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $property = Property::factory()->for($organization)->for($building)->create([
+        'name' => 'A-10',
+    ]);
+
+    PropertyAssignment::factory()->for($organization)->for($property)->for($tenant, 'tenant')->create([
+        'unit_area_sqm' => 50,
+        'assigned_at' => '2025-12-01 00:00:00',
+    ]);
+
+    ServiceConfiguration::factory()->for($organization)->for($property)->for($utilityService)->for($provider)->for($tariff)->create([
+        'pricing_model' => PricingModel::FIXED_DAILY,
+        'distribution_method' => DistributionMethod::EQUAL,
+        'rate_schedule' => [
+            'unit_rate' => 2.50,
+            'base_fee' => 5.00,
+        ],
+        'is_shared_service' => false,
+        'effective_from' => '2025-12-01 00:00:00',
+    ]);
+
+    $result = app(BillingServiceInterface::class)->generateBulkInvoices($organization, [
+        'billing_period_start' => '2026-01-01',
+        'billing_period_end' => '2026-01-10',
+        'due_date' => '2026-01-24',
+    ], $admin);
+
+    /** @var Invoice $invoice */
+    $invoice = $result['created']->first();
+
+    expect($invoice)->not->toBeNull()
+        ->and($invoice->total_amount)->toBe('30.00')
+        ->and((string) $invoice->items[0]['quantity'])->toBe('10.000')
+        ->and((string) $invoice->items[0]['unit_price'])->toBe('2.5000');
+});
+
 dataset('shared-service-distribution-methods', [
     'equal' => [
         DistributionMethod::EQUAL,

@@ -35,6 +35,17 @@ final class SharedServiceCostDistributorService
                 $context['participant_consumption'] ?? 0,
                 $context['total_consumption'] ?? 0,
             ),
+            DistributionMethod::BY_OCCUPANCY => $this->distributeProportionally(
+                $totalCost,
+                $context['participant_occupants'] ?? $context['participant_count'] ?? 1,
+                $context['total_occupants'] ?? $context['participant_count'] ?? 1,
+            ),
+            DistributionMethod::FIXED_SHARE => $this->calculator->money($context['fixed_share'] ?? 0),
+            DistributionMethod::WEIGHTED_SHARE => $this->distributeProportionally(
+                $totalCost,
+                $context['participant_weight'] ?? 0,
+                $context['total_weight'] ?? 0,
+            ),
             DistributionMethod::CUSTOM_FORMULA => $this->calculator->money($context['custom_share'] ?? $totalCost),
         };
     }

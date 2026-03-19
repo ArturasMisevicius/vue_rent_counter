@@ -10,17 +10,29 @@ enum MeterType: string implements HasLabel
     use HasTranslatedLabel;
 
     case WATER = 'water';
+    case WATER_COLD = 'water_cold';
+    case WATER_HOT = 'water_hot';
     case ELECTRICITY = 'electricity';
     case GAS = 'gas';
     case HEATING = 'heating';
+    case COOLING = 'cooling';
+    case STEAM = 'steam';
+    case SOLAR = 'solar';
+    case CUSTOM = 'custom';
 
     public function defaultUnit(): string
     {
         return match ($this) {
-            self::WATER => 'm3',
-            self::ELECTRICITY => 'kWh',
+            self::WATER,
+            self::WATER_COLD,
+            self::WATER_HOT,
             self::GAS => 'm3',
-            self::HEATING => 'kWh',
+            self::ELECTRICITY,
+            self::HEATING,
+            self::COOLING,
+            self::SOLAR => 'kWh',
+            self::STEAM => 'MWh',
+            self::CUSTOM => 'unit',
         };
     }
 }

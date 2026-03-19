@@ -11,6 +11,14 @@ enum PropertyType: string implements HasLabel
 
     case APARTMENT = 'apartment';
     case HOUSE = 'house';
+    case STUDIO = 'studio';
     case OFFICE = 'office';
+    case RETAIL = 'retail';
+    case WAREHOUSE = 'warehouse';
+    case COMMERCIAL = 'commercial';
+    case INDUSTRIAL = 'industrial';
+    case MIXED_USE = 'mixed_use';
+    case GARAGE = 'garage';
+    case PARKING = 'parking';
     case STORAGE = 'storage';
 }

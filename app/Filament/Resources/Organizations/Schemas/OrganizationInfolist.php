@@ -22,11 +22,8 @@ class OrganizationInfolist
                         TextEntry::make('status')
                             ->label(__('superadmin.organizations.columns.status'))
                             ->badge()
-                            ->color(fn (OrganizationStatus $state): string => $state === OrganizationStatus::ACTIVE ? 'success' : 'danger')
-                            ->formatStateUsing(fn (OrganizationStatus $state): string => match ($state) {
-                                OrganizationStatus::ACTIVE => __('superadmin.organizations.status.active'),
-                                OrganizationStatus::SUSPENDED => __('superadmin.organizations.status.suspended'),
-                            }),
+                            ->color(fn (OrganizationStatus $state): string => $state->badgeColor())
+                            ->formatStateUsing(fn (OrganizationStatus $state): string => $state->label()),
                         TextEntry::make('owner.name')
                             ->label(__('superadmin.organizations.columns.owner'))
                             ->default(__('superadmin.organizations.empty.owner')),

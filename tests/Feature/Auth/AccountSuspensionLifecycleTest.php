@@ -29,6 +29,26 @@ it('shows the suspended-account message on login when the organization is suspen
         ]);
 });
 
+it('shows the inactive-account message on login when the organization is not active', function () {
+    $organization = Organization::factory()->create([
+        'status' => OrganizationStatus::PENDING,
+    ]);
+
+    $admin = User::factory()->admin()->for($organization)->create([
+        'password' => 'password',
+    ]);
+
+    $this->from(route('login'))
+        ->post(route('login.store'), [
+            'email' => $admin->email,
+            'password' => 'password',
+        ])
+        ->assertRedirect(route('login'))
+        ->assertSessionHasErrors([
+            'email' => __('auth.account_inactive'),
+        ]);
+});
+
 it('invalidates all active organization sessions when an organization is suspended', function () {
     $organization = Organization::factory()->create();
     $member = User::factory()->admin()->for($organization)->create();
