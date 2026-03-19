@@ -110,6 +110,7 @@ it('accepts valid csp violation reports and records a security violation', funct
         ->and($violation?->metadata)->toMatchArray([
             'url' => 'https://tenanto.test/app',
             'user_agent' => 'Tenanto Security Test',
+            'source' => 'csp-report',
             'blocked_uri' => 'https://malicious.example/script.js',
             'violated_directive' => 'script-src-elem',
         ]);

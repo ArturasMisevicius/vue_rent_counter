@@ -76,6 +76,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $this->configureAuthRateLimiters();
+        $this->configureSecurityRateLimiters();
 
         Organization::observe(OrganizationObserver::class);
         Subscription::observe(SubscriptionObserver::class);
@@ -103,6 +104,15 @@ class AppServiceProvider extends ServiceProvider
 
             return Limit::perMinute(5)->by(
                 'password-reset|'.$this->throttleKey($request).'|'.$token,
+            );
+        });
+    }
+
+    private function configureSecurityRateLimiters(): void
+    {
+        RateLimiter::for('security-csp-report', function (Request $request): Limit {
+            return Limit::perMinute(10)->by(
+                'security-csp-report|'.$request->ip(),
             );
         });
     }

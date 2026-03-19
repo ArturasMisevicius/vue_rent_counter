@@ -12,6 +12,7 @@ Route::get('/favicon', [ShowFaviconEndpoint::class, 'show'])->name('favicon');
 Route::post('/locale', [UpdateGuestLocaleEndpoint::class, 'update'])->name('locale.update');
 Route::post('/csp/report', CspViolationReportController::class)
     ->withoutMiddleware([VerifyCsrfToken::class])
+    ->middleware('throttle:security-csp-report')
     ->name('security.csp.report');
 
 Route::middleware('guest')->group(base_path('routes/web/guest.php'));

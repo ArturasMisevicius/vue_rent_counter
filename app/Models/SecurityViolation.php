@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\SecurityViolationSeverity;
@@ -7,6 +9,7 @@ use App\Enums\SecurityViolationType;
 use Database\Factories\SecurityViolationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -14,6 +17,8 @@ class SecurityViolation extends Model
 {
     /** @use HasFactory<SecurityViolationFactory> */
     use HasFactory;
+
+    use MassPrunable;
 
     private const DASHBOARD_COLUMNS = [
         'id',
@@ -119,5 +124,13 @@ class SecurityViolation extends Model
             ->select(self::DASHBOARD_COLUMNS)
             ->withDashboardRelations()
             ->recent();
+    }
+
+    public function prunable(): Builder
+    {
+        return static::query()
+            ->where('type', SecurityViolationType::DATA_ACCESS)
+            ->where('metadata->source', 'csp-report')
+            ->where('occurred_at', '<=', now()->subDays(14));
     }
 }

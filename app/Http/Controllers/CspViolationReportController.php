@@ -29,7 +29,10 @@ final class CspViolationReportController extends Controller
                 sprintf('CSP violation: %s blocked %s', $effectiveDirective, $blockedUri),
                 255,
             ),
-            $reportData,
+            [
+                ...$reportData,
+                'source' => 'csp-report',
+            ],
         );
 
         return response()->noContent(202);
