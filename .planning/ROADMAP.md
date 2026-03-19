@@ -47,7 +47,10 @@ Plans:
   2. `SUPERADMIN` can perform platform-wide actions without tenant assignment, while non-superadmin users cannot cross organization boundaries.
   3. `ADMIN` users retain billing-management authority and equivalent finance controls that `MANAGER` users cannot access.
   4. `TENANT` users can access only property-scoped self-service records and actions tied to their tenant.
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] `02-01-PLAN.md` — Resolve shared workspace context, normalize role authority, harden tenant property boundaries, and add boundary inventory proof.
 
 ### Phase 3: Surface and Read Path Unification
 **Goal**: Users reach and read billing and workspace data through one coherent, canonical operating model.
@@ -58,7 +61,10 @@ Plans:
   2. Navigation, workspace switching, and primary billing or reporting entry points resolve from one canonical source of truth across the application.
   3. Read-heavy screens, tables, and reports show consistent workspace-aware data across admin, operator, and tenant surfaces for the same underlying records.
   4. Tenants and authorized staff see one coherent invoice history, invoice detail, document, and supporting-record experience across supported entry points.
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] `03-01-PLAN.md` — Canonicalize entry paths, collapse navigation to one source, standardize read builders, and unify invoice read experience.
 
 ### Phase 4: Mutation Governance and Async Pipelines
 **Goal**: Writes and governance actions follow one validated, auditable, queue-aware pipeline across current workflows.
@@ -70,7 +76,10 @@ Plans:
   3. Invoice approvals, status transitions, and comparable governance actions preserve consistent actor, timestamp, and before or after context across supported workflows.
   4. Tenants can submit meter readings through one validated workflow with consistent success, validation-error, and out-of-scope behavior.
   5. Notifications, reminders, exports, and similar slow side effects run through an asynchronous queue-backed path instead of blocking critical request flows.
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] `04-01-PLAN.md` — Standardize mutation pipelines, attach governance capture, unify tenant reading writes, and queue slow side effects.
 
 ### Phase 5: Billing Lifecycle Canonicalization
 **Goal**: Billing outcomes become canonical, explainable, and internally consistent before deeper expansion work.
@@ -82,7 +91,10 @@ Plans:
   3. Money calculations use one canonical rounding and allocation policy across invoice generation, payment handling, and reporting outputs.
   4. Meter-reading validation, billing candidate selection, and downstream invoice generation follow the same rules across all current entry points.
   5. Resident-facing and operator-facing invoice views expose clear bill breakdowns and stable downloadable artifacts for the same invoice.
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] `05-01-PLAN.md` — Canonicalize overdue semantics, billing parity, money policy, eligibility rules, and invoice explainability.
 
 ### Phase 6: Operational Hardening and Recovery
 **Goal**: The modernized application can be monitored, recovered, and released with trustworthy operational evidence.
@@ -91,15 +103,18 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Health and readiness checks reflect real dependency connectivity and runtime behavior instead of configuration presence alone.
   2. Backup and restore procedures for the modernized application are documented, runnable, and validated enough to support release confidence.
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] `06-01-PLAN.md` — Replace false-positive health probes, add backup/restore readiness, and publish release evidence.
 
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Safety Freeze and Guardrails | 4/5 | In Progress | - |
-| 2. Workspace Boundary and Role Contracts | 0/TBD | Not started | - |
-| 3. Surface and Read Path Unification | 0/TBD | Not started | - |
-| 4. Mutation Governance and Async Pipelines | 0/TBD | Not started | - |
-| 5. Billing Lifecycle Canonicalization | 0/TBD | Not started | - |
-| 6. Operational Hardening and Recovery | 0/TBD | Not started | - |
+| 2. Workspace Boundary and Role Contracts | 0/1 | Planned | - |
+| 3. Surface and Read Path Unification | 0/1 | Planned | - |
+| 4. Mutation Governance and Async Pipelines | 0/1 | Planned | - |
+| 5. Billing Lifecycle Canonicalization | 0/1 | Planned | - |
+| 6. Operational Hardening and Recovery | 0/1 | Planned | - |
