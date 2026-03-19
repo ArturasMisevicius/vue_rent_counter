@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 01-04-PLAN.md
-last_updated: "2026-03-19T06:14:50Z"
-last_activity: 2026-03-19 — Completed 01-04 local and CI guardrails; waiting on the first remote main run for 01-05.
+last_updated: "2026-03-19T09:21:49Z"
+last_activity: 2026-03-19 — Deferred 01-05 branch-protection enforcement after the first successful remote main run; continuing forward with Phase 2.
 progress:
   total_phases: 6
   completed_phases: 0
@@ -20,12 +20,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Tenanto must deliver tenant-safe utility billing and property management workflows on a clean, consistent application foundation that the team can evolve confidently.
-**Current focus:** Phase 01 — safety-freeze-and-guardrails
+**Current focus:** Phase 02 planning while the admin-only Phase 01 enforcement follow-up remains open
 
 ## Current Position
 
-Phase: 01 (safety-freeze-and-guardrails) — EXECUTING
-Plan: 5 of 5
+Phase: 02 (workspace-boundary-and-role-contracts) — READY TO PLAN
+Plan: 0 of TBD
 
 ## Performance Metrics
 
@@ -63,15 +63,16 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-None yet.
+- Phase 01 `01-05`: have a repo admin require the `Phase 1 Guardrails` status check on `main`, or provide admin-scoped GitHub credentials so it can be applied and verified.
 
 ### Blockers/Concerns
 
+- Phase 01 is functionally complete in code and remote CI, but branch-protection enforcement remains deferred because the current GitHub identity has push access without admin rights.
 - Phase 5 planning needs a verified inventory of overdue, rounding, allocation, preview, and finalization invariants before execution planning starts.
 - Phase 6 planning needs environment-specific confirmation for queue workers, dependency probes, backup tooling, and restore expectations.
 
 ## Session Continuity
 
-Last session: 2026-03-19T06:14:50Z
-Stopped at: Completed 01-04-PLAN.md
-Resume file: .planning/phases/01-safety-freeze-and-guardrails/01-05-PLAN.md
+Last session: 2026-03-19T09:21:49Z
+Stopped at: User deferred 01-05 branch-protection enforcement after remote workflow success
+Resume file: .planning/ROADMAP.md
