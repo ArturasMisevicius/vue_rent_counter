@@ -34,6 +34,7 @@ Phase 1 removes unsafe public and test-facing exposure from the live application
 ### Merge gate strictness
 - Add a real merge-time gate in Phase 1, but keep it lean rather than turning this phase into a general tooling expansion.
 - Defer PHPStan bootstrap to a later phase; Phase 1 should not add static-analysis rollout work.
+- For Phase 1, the accepted static-check layer is the curated executable architecture and inventory guard bundle rather than a repo-wide PHPStan or Larastan rollout.
 - Gate a curated guard bundle rather than the entire test suite. The bundle should cover security, architecture inventory, and core billing invariants already identified in discussion.
 - Use an explicit file-list command for the guard bundle instead of introducing new Pest grouping conventions in this phase.
 - Add both a dedicated local entrypoint and a CI workflow that reuse the same guard command.

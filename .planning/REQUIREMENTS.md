@@ -26,7 +26,7 @@ Requirements for the first modernization milestone. These define what "foundatio
 
 - [ ] **GOV-01**: Authorized operators can trace who changed invoice, approval, or other high-risk financial records, when the change occurred, and which workspace it affected.
 - [ ] **GOV-02**: Invoice approvals, status transitions, and comparable governance actions retain consistent actor, timestamp, and before/after context across all supported workflows.
-- [ ] **GOV-03**: Maintainers have merge-time safety gates for formatting, static analysis, and regression tests so high-risk modernization changes are blocked before release.
+- [ ] **GOV-03**: Maintainers have merge-time safety gates for formatting, an approved static-check layer, and regression tests so high-risk modernization changes are blocked before release. For Phase 1, the accepted static-check layer is the curated executable architecture and inventory guard bundle rather than a repo-wide PHPStan or Larastan rollout.
 
 ### Billing Lifecycle Consistency
 

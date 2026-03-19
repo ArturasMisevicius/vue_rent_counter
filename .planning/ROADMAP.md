@@ -27,15 +27,16 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Requirements**: SEC-05, GOV-03, OPS-04
 **Success Criteria** (what must be TRUE):
   1. Public debug, test, and diagnostic entrypoints are unavailable outside explicitly approved development or testing contexts.
-  2. Merge-time gates block modernization changes when formatting, static analysis, or regression checks fail.
+  2. Merge-time gates block modernization changes when formatting, the approved Phase 1 static-check layer, or regression checks fail.
   3. Maintainers can run regression coverage for tenant isolation, role-bound access, and core billing invariants before Milestone 1 changes ship.
-**Plans**: 4 plans
+**Plans**: 5 plans
 
 Plans:
 - [ ] `01-01-PLAN.md` — Remove live test-route exposure and add public-surface inventory proof.
 - [ ] `01-02-PLAN.md` — Remove the PWA dependency, config, and public assets with executable removal proof.
 - [ ] `01-03-PLAN.md` — Harden `/csp/report` with a named throttle, source tagging, and pruning retention.
 - [ ] `01-04-PLAN.md` — Add the shared Phase 1 guard command and GitHub Actions merge gate.
+- [ ] `01-05-PLAN.md` — Require the remote `main` branch to enforce `Phase 1 Guardrails` before merge.
 
 ### Phase 2: Workspace Boundary and Role Contracts
 **Goal**: Every protected request resolves the same tenant-safe workspace and authority contract before data access.
@@ -96,7 +97,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Safety Freeze and Guardrails | 0/4 | Not started | - |
+| 1. Safety Freeze and Guardrails | 0/5 | Not started | - |
 | 2. Workspace Boundary and Role Contracts | 0/TBD | Not started | - |
 | 3. Surface and Read Path Unification | 0/TBD | Not started | - |
 | 4. Mutation Governance and Async Pipelines | 0/TBD | Not started | - |
