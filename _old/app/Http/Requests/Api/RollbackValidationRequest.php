@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api;
 
+use App\Models\AuditLog;
+use App\Models\ServiceConfiguration;
+use App\Models\UtilityService;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * Rollback Validation Request
- * 
+ *
  * Validates requests for rollback validation operations.
  */
 final class RollbackValidationRequest extends FormRequest
@@ -69,20 +72,20 @@ final class RollbackValidationRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $auditLogId = $this->input('audit_log_id');
-            
+
             if ($auditLogId) {
                 // Verify the audit log belongs to the current tenant
-                $auditLog = \App\Models\AuditLog::find($auditLogId);
-                
-                if ($auditLog && !$this->canAccessAuditLog($auditLog)) {
+                $auditLog = AuditLog::find($auditLogId);
+
+                if ($auditLog && ! $this->canAccessAuditLog($auditLog)) {
                     $validator->errors()->add(
                         'audit_log_id',
                         __('dashboard.audit.validation.audit_log_access_denied')
                     );
                 }
-                
+
                 // Verify the audit log is for a supported model type
-                if ($auditLog && !$this->isSupportedModelType($auditLog->auditable_type)) {
+                if ($auditLog && ! $this->isSupportedModelType($auditLog->auditable_type)) {
                     $validator->errors()->add(
                         'audit_log_id',
                         __('dashboard.audit.validation.unsupported_model_type')
@@ -95,15 +98,15 @@ final class RollbackValidationRequest extends FormRequest
     /**
      * Check if the user can access the audit log.
      */
-    private function canAccessAuditLog(\App\Models\AuditLog $auditLog): bool
+    private function canAccessAuditLog(AuditLog $auditLog): bool
     {
         $user = auth()->user();
-        
+
         // Super admin can access all audit logs
         if ($user->hasRole('super_admin')) {
             return true;
         }
-        
+
         // Regular users can only access their tenant's audit logs
         return $auditLog->tenant_id === $user->currentTeam->id;
     }
@@ -114,10 +117,10 @@ final class RollbackValidationRequest extends FormRequest
     private function isSupportedModelType(string $modelType): bool
     {
         $supportedTypes = [
-            \App\Models\UtilityService::class,
-            \App\Models\ServiceConfiguration::class,
+            UtilityService::class,
+            ServiceConfiguration::class,
         ];
-        
+
         return in_array($modelType, $supportedTypes, true);
     }
 }

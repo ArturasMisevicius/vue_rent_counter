@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace App\Services\Optimized;
 
-use App\Models\MeterReading;
 use App\Models\Meter;
+use App\Models\MeterReading;
 use App\Models\Property;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Subquery Optimization Examples
- * 
+ *
  * Demonstrates when to use subqueries vs JOINs and optimization techniques
  */
 final readonly class SubqueryOptimizationService
 {
     /**
      * SUBQUERY vs JOIN Performance Comparison
-     * 
+     *
      * Rule of thumb:
      * - Use JOINs when you need data from both tables
      * - Use subqueries when you only need to filter based on related data
@@ -121,7 +121,7 @@ final readonly class SubqueryOptimizationService
      */
     public function getMetersWithLatestReadingWindowFunction(int $tenantId): array
     {
-        return DB::select("
+        return DB::select('
             SELECT 
                 m.*,
                 mr.value as latest_reading_value,
@@ -136,13 +136,13 @@ final readonly class SubqueryOptimizationService
                 FROM meter_readings
             ) mr ON m.id = mr.meter_id AND mr.rn = 1
             WHERE m.tenant_id = ?
-        ", [$tenantId]);
+        ', [$tenantId]);
     }
 
     /**
      * Subquery Placement Optimization
      */
-    
+
     /**
      * BAD: Subquery in WHERE with OR conditions
      */
@@ -228,10 +228,10 @@ final readonly class SubqueryOptimizationService
             GROUP BY m.id, m.serial_number, m.type, p.name
         ");
 
-        $results = DB::select("SELECT * FROM temp_consumption_summary");
-        
-        DB::statement("DROP TEMPORARY TABLE temp_consumption_summary");
-        
+        $results = DB::select('SELECT * FROM temp_consumption_summary');
+
+        DB::statement('DROP TEMPORARY TABLE temp_consumption_summary');
+
         return $results;
     }
 
@@ -272,7 +272,7 @@ final readonly class SubqueryOptimizationService
 
     /**
      * Performance Tips for Subqueries:
-     * 
+     *
      * 1. Use EXISTS instead of IN for large datasets
      * 2. Avoid correlated subqueries in SELECT clause
      * 3. Consider window functions for ranking/aggregation

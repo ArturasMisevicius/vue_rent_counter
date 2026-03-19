@@ -38,17 +38,17 @@ final class TenantOverviewWidget extends BaseWidget
                 ->chart($this->getTenantTrendData()),
 
             Stat::make(__('superadmin.dashboard.widgets.tenant_overview.active_tenants'), $stats['active'])
-                ->description($this->getPercentage($stats['active'], $stats['total']) . '% ' . __('common.status.active'))
+                ->description($this->getPercentage($stats['active'], $stats['total']).'% '.__('common.status.active'))
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),
 
             Stat::make(__('superadmin.dashboard.widgets.tenant_overview.suspended_tenants'), $stats['suspended'])
-                ->description($this->getPercentage($stats['suspended'], $stats['total']) . '% ' . __('common.status.suspended'))
+                ->description($this->getPercentage($stats['suspended'], $stats['total']).'% '.__('common.status.suspended'))
                 ->descriptionIcon('heroicon-m-pause-circle')
                 ->color('warning'),
 
             Stat::make(__('superadmin.dashboard.widgets.tenant_overview.trial_tenants'), $stats['trial'])
-                ->description($this->getPercentage($stats['trial'], $stats['total']) . '% ' . __('common.status.trial'))
+                ->description($this->getPercentage($stats['trial'], $stats['total']).'% '.__('common.status.trial'))
                 ->descriptionIcon('heroicon-m-clock')
                 ->color('info'),
         ];
@@ -63,6 +63,7 @@ final class TenantOverviewWidget extends BaseWidget
                 $count = Organization::where('created_at', '<=', $date->endOfDay())->count();
                 $data[] = $count;
             }
+
             return $data;
         });
     }

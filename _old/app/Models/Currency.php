@@ -88,7 +88,7 @@ final class Currency extends Model
      */
     public static function getDefault(): ?self
     {
-        return static::default()->first();
+        return self::default()->first();
     }
 
     /**

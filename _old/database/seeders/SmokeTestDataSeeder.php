@@ -13,15 +13,15 @@ use Illuminate\Support\Facades\Hash;
 
 /**
  * Smoke Test Data Seeder
- * 
+ *
  * Creates clean test data for manual testing of the Superadmin Panel:
  * - Test Organization with domain "test.tenanto.lt"
  * - Admin user assigned to this organization
- * 
+ *
  * Login Credentials:
  * - Email: smoketest.admin@tenanto.lt
  * - Password: SmokeTest2024!
- * 
+ *
  * Admin Panel URL: /admin
  */
 final class SmokeTestDataSeeder extends Seeder
@@ -91,7 +91,7 @@ final class SmokeTestDataSeeder extends Seeder
         $this->command->info('                    SMOKE TEST DATA CREATED                     ');
         $this->command->info('═══════════════════════════════════════════════════════════════');
         $this->command->newLine();
-        
+
         $this->command->table(
             ['Item', 'Value'],
             [
@@ -121,8 +121,8 @@ final class SmokeTestDataSeeder extends Seeder
         $this->command->table(
             ['Panel', 'URL'],
             [
-                ['Admin Panel', config('app.url') . '/admin'],
-                ['Login Page', config('app.url') . '/admin/login'],
+                ['Admin Panel', config('app.url').'/admin'],
+                ['Login Page', config('app.url').'/admin/login'],
             ]
         );
 

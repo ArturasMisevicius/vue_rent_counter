@@ -10,13 +10,14 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Security Performance Monitor
- * 
+ *
  * Tracks and reports on security header performance metrics
  * for optimization and monitoring purposes.
  */
 final class SecurityPerformanceMonitor
 {
     private const METRICS_CACHE_KEY = 'security_performance_metrics';
+
     private const METRICS_TTL = 3600; // 1 hour
 
     public function __construct(
@@ -29,12 +30,12 @@ final class SecurityPerformanceMonitor
      */
     public function recordMetric(string $operation, float $durationMs, array $context = []): void
     {
-        if (!$this->config->get('security.performance.enabled', true)) {
+        if (! $this->config->get('security.performance.enabled', true)) {
             return;
         }
 
         $metrics = $this->getMetrics();
-        
+
         $metrics['operations'][$operation] = $metrics['operations'][$operation] ?? [
             'count' => 0,
             'total_time' => 0,
@@ -99,7 +100,7 @@ final class SecurityPerformanceMonitor
 
         foreach ($metrics['operations'] as $operation => $data) {
             $avgTime = $data['count'] > 0 ? $data['total_time'] / $data['count'] : 0;
-            
+
             $summary[$operation] = [
                 'count' => $data['count'],
                 'avg_time_ms' => round($avgTime, 2),
@@ -178,7 +179,7 @@ final class SecurityPerformanceMonitor
     private function updateCacheHitRate(array &$metrics): void
     {
         $total = $metrics['cache_stats']['hits'] + $metrics['cache_stats']['misses'];
-        $metrics['cache_stats']['hit_rate'] = $total > 0 
+        $metrics['cache_stats']['hit_rate'] = $total > 0
             ? round(($metrics['cache_stats']['hits'] / $total) * 100, 2)
             : 0;
     }

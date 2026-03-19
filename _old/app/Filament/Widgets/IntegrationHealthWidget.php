@@ -11,34 +11,35 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 class IntegrationHealthWidget extends BaseWidget
 {
     protected static ?int $sort = 2;
+
     protected static bool $isLazy = false;
-    
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
 
     protected function getStats(): array
     {
         $resilienceHandler = app(IntegrationResilienceHandler::class);
         $healthStatus = $resilienceHandler->getHealthStatus();
-        
+
         return [
-            Stat::make('Overall Health', number_format($healthStatus['overall_health'], 1) . '%')
+            Stat::make('Overall Health', number_format($healthStatus['overall_health'], 1).'%')
                 ->description('Integration services health')
                 ->descriptionIcon('heroicon-m-heart')
                 ->color($this->getHealthColor($healthStatus['overall_health']))
                 ->chart($this->getHealthChart()),
-                
+
             Stat::make('Healthy Services', $healthStatus['healthy_services'])
                 ->description("out of {$healthStatus['total_services']} total")
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color($healthStatus['healthy_services'] === $healthStatus['total_services'] ? 'success' : 'warning'),
-                
+
             Stat::make('Offline Mode', $healthStatus['offline_mode'] ? 'Enabled' : 'Disabled')
                 ->description('Fallback data availability')
                 ->descriptionIcon($healthStatus['offline_mode'] ? 'heroicon-m-wifi' : 'heroicon-m-signal')
                 ->color($healthStatus['offline_mode'] ? 'warning' : 'success'),
         ];
     }
-    
+
     private function getHealthColor(float $health): string
     {
         if ($health >= 90) {
@@ -49,7 +50,7 @@ class IntegrationHealthWidget extends BaseWidget
             return 'danger';
         }
     }
-    
+
     private function getHealthChart(): array
     {
         // Generate a simple chart showing health over time

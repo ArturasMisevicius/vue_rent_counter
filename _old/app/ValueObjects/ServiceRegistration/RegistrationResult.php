@@ -33,7 +33,7 @@ final readonly class RegistrationResult
 
     public function hasErrors(): bool
     {
-        return !empty($this->errors);
+        return ! empty($this->errors);
     }
 
     public function getTotalProcessed(): int
@@ -55,8 +55,8 @@ final readonly class RegistrationResult
             'duration_ms' => $this->durationMs,
             'total_processed' => $this->getTotalProcessed(),
             'error_count' => $this->getErrorCount(),
-            'success_rate' => $this->getTotalProcessed() > 0 
-                ? ($this->registered / $this->getTotalProcessed()) * 100 
+            'success_rate' => $this->getTotalProcessed() > 0
+                ? ($this->registered / $this->getTotalProcessed()) * 100
                 : 0,
         ];
     }

@@ -8,20 +8,26 @@ use App\Contracts\SuperAdminUserInterface;
 use App\Filament\Clusters\SuperAdmin;
 use App\Filament\Clusters\SuperAdmin\Resources\SystemUserResource\Pages;
 use App\Models\User;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\TextInput;
-use Filament\Schemas\Components\Select;
-use Filament\Schemas\Components\Toggle;
 use Filament\Schemas\Components\DateTimePicker;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Select;
 use Filament\Schemas\Components\Textarea;
+use Filament\Schemas\Components\TextInput;
+use Filament\Schemas\Components\Toggle;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
 
 final class SystemUserResource extends Resource
 {
@@ -211,26 +217,26 @@ final class SystemUserResource extends Resource
                     ->toggle(),
             ])
             ->actions([
-                \Filament\Actions\Action::make('impersonate')
+                Action::make('impersonate')
                     ->label(__('superadmin.user.actions.impersonate'))
                     ->icon('heroicon-o-user-circle')
                     ->color('warning')
                     ->action(function (User $record, SuperAdminUserInterface $userService) {
                         $session = $userService->impersonateUser($record);
-                        
+
                         Notification::make()
                             ->title(__('superadmin.user.notifications.impersonation_started'))
                             ->body(__('superadmin.user.notifications.impersonation_started_body', ['name' => $record->name]))
                             ->warning()
                             ->persistent()
                             ->send();
-                            
+
                         redirect()->route('filament.admin.pages.dashboard', ['tenant' => $record->organization->slug]);
                     })
                     ->requiresConfirmation()
-                    ->visible(fn (User $record) => $record->is_active && !$record->hasRole('super_admin')),
+                    ->visible(fn (User $record) => $record->is_active && ! $record->hasRole('super_admin')),
 
-                \Filament\Actions\Action::make('suspend')
+                Action::make('suspend')
                     ->label(__('superadmin.user.actions.suspend'))
                     ->icon('heroicon-o-no-symbol')
                     ->color('danger')
@@ -242,7 +248,7 @@ final class SystemUserResource extends Resource
                     ])
                     ->action(function (User $record, array $data, SuperAdminUserInterface $userService) {
                         $userService->suspendUserGlobally($record, $data['reason']);
-                        
+
                         Notification::make()
                             ->title(__('superadmin.user.notifications.suspended'))
                             ->success()
@@ -251,34 +257,34 @@ final class SystemUserResource extends Resource
                     ->requiresConfirmation()
                     ->visible(fn (User $record) => $record->is_active),
 
-                \Filament\Actions\Action::make('reactivate')
+                Action::make('reactivate')
                     ->label(__('superadmin.user.actions.reactivate'))
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->action(function (User $record, SuperAdminUserInterface $userService) {
                         $userService->reactivateUserGlobally($record);
-                        
+
                         Notification::make()
                             ->title(__('superadmin.user.notifications.reactivated'))
                             ->success()
                             ->send();
                     })
                     ->requiresConfirmation()
-                    ->visible(fn (User $record) => !$record->is_active),
+                    ->visible(fn (User $record) => ! $record->is_active),
 
-                \Filament\Actions\Action::make('activity_report')
+                Action::make('activity_report')
                     ->label(__('superadmin.user.actions.activity_report'))
                     ->icon('heroicon-o-document-chart-bar')
                     ->color('info')
-                    ->url(fn (User $record) => static::getUrl('activity', ['record' => $record]))
+                    ->url(fn (User $record) => self::getUrl('activity', ['record' => $record]))
                     ->openUrlInNewTab(),
 
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
+                ViewAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\BulkAction::make('bulk_suspend')
+                BulkActionGroup::make([
+                    BulkAction::make('bulk_suspend')
                         ->label(__('superadmin.user.bulk_actions.suspend'))
                         ->icon('heroicon-o-no-symbol')
                         ->color('danger')
@@ -288,7 +294,7 @@ final class SystemUserResource extends Resource
                                 ->required()
                                 ->rows(3),
                         ])
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data, SuperAdminUserInterface $userService) {
+                        ->action(function (Collection $records, array $data, SuperAdminUserInterface $userService) {
                             $successful = 0;
                             foreach ($records as $record) {
                                 try {
@@ -298,7 +304,7 @@ final class SystemUserResource extends Resource
                                     // Log error but continue
                                 }
                             }
-                            
+
                             Notification::make()
                                 ->title(__('superadmin.user.notifications.bulk_suspended', ['count' => $successful]))
                                 ->success()
@@ -307,11 +313,11 @@ final class SystemUserResource extends Resource
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion(),
 
-                    \Filament\Actions\BulkAction::make('bulk_reactivate')
+                    BulkAction::make('bulk_reactivate')
                         ->label(__('superadmin.user.bulk_actions.reactivate'))
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, SuperAdminUserInterface $userService) {
+                        ->action(function (Collection $records, SuperAdminUserInterface $userService) {
                             $successful = 0;
                             foreach ($records as $record) {
                                 try {
@@ -321,7 +327,7 @@ final class SystemUserResource extends Resource
                                     // Log error but continue
                                 }
                             }
-                            
+
                             Notification::make()
                                 ->title(__('superadmin.user.notifications.bulk_reactivated', ['count' => $successful]))
                                 ->success()
@@ -330,7 +336,7 @@ final class SystemUserResource extends Resource
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion(),
 
-                    \Filament\Actions\DeleteBulkAction::make()
+                    DeleteBulkAction::make()
                         ->requiresConfirmation(),
                 ]),
             ])

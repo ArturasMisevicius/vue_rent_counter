@@ -7,7 +7,7 @@ namespace App\Http\Controllers;
 use App\Enums\SecurityViolationSeverity;
 use App\Enums\SecurityViolationType;
 use App\Http\Requests\Security\CspViolationRequest;
-use App\Services\Security\SecurityMonitor;
+use App\Services\Security\SecurityMonitoringService;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 
@@ -15,7 +15,7 @@ final class CspViolationReportController extends Controller
 {
     public function __invoke(
         CspViolationRequest $request,
-        SecurityMonitor $securityMonitor,
+        SecurityMonitoringService $securityMonitor,
     ): Response {
         $reportData = $request->reportData();
         $effectiveDirective = $reportData['effective_directive'] ?? $reportData['violated_directive'] ?? 'unknown-directive';

@@ -8,11 +8,18 @@ use App\Enums\UserRole;
 use App\Filament\Resources\LanguageResource\Pages;
 use App\Models\Language;
 use App\Models\User;
+use App\Policies\LanguagePolicy;
 use Filament\Actions;
-use Filament\Schemas\Components\Section;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -28,7 +35,7 @@ use Illuminate\Support\Collection;
  * - Default language selection
  * - Display order control
  *
- * @see \App\Models\Language
+ * @see Language
  */
 class LanguageResource extends Resource
 {
@@ -43,7 +50,7 @@ class LanguageResource extends Resource
         return 'heroicon-o-language';
     }
 
-    public static function getNavigationGroup(): string|null
+    public static function getNavigationGroup(): ?string
     {
         return __('app.nav_groups.localization');
     }
@@ -59,7 +66,7 @@ class LanguageResource extends Resource
      * Note: Authorization for CRUD operations is handled by LanguagePolicy.
      * This method only controls navigation visibility.
      *
-     * @see \App\Policies\LanguagePolicy
+     * @see LanguagePolicy
      */
     public static function shouldRegisterNavigation(): bool
     {
@@ -263,10 +270,10 @@ class LanguageResource extends Resource
                         ! $record->is_default || ! $record->is_active
                     ),
 
-                \Filament\Actions\EditAction::make()
+                EditAction::make()
                     ->iconButton(),
 
-                \Filament\Actions\DeleteAction::make()
+                DeleteAction::make()
                     ->iconButton()
                     ->before(function (Language $record) {
                         // Prevent deleting default language
@@ -280,8 +287,8 @@ class LanguageResource extends Resource
                     }),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\BulkAction::make('activate')
+                BulkActionGroup::make([
+                    BulkAction::make('activate')
                         ->label(__('locales.actions.bulk_activate'))
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
@@ -290,7 +297,7 @@ class LanguageResource extends Resource
                         )
                         ->deselectRecordsAfterCompletion(),
 
-                    \Filament\Actions\BulkAction::make('deactivate')
+                    BulkAction::make('deactivate')
                         ->label(__('locales.actions.bulk_deactivate'))
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')
@@ -306,7 +313,7 @@ class LanguageResource extends Resource
                         })
                         ->deselectRecordsAfterCompletion(),
 
-                    \Filament\Actions\DeleteBulkAction::make()
+                    DeleteBulkAction::make()
                         ->requiresConfirmation()
                         ->modalHeading(__('locales.modals.delete.heading'))
                         ->modalDescription(__('locales.modals.delete.description'))
@@ -321,7 +328,7 @@ class LanguageResource extends Resource
             ->emptyStateHeading(__('locales.empty.heading'))
             ->emptyStateDescription(__('locales.empty.description'))
             ->emptyStateActions([
-                \Filament\Actions\CreateAction::make()
+                CreateAction::make()
                     ->label(__('locales.empty.action')),
             ])
             ->defaultSort('display_order', 'asc')

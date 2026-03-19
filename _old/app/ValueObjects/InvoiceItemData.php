@@ -9,7 +9,7 @@ use App\Models\Tariff;
 
 /**
  * Value object for invoice item data.
- * 
+ *
  * Encapsulates all data needed to create an invoice item,
  * reducing parameter count in service methods.
  */

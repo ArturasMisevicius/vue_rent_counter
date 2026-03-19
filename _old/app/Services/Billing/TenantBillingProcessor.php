@@ -4,19 +4,17 @@ declare(strict_types=1);
 
 namespace App\Services\Billing;
 
+use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use App\Models\Tenant;
 use App\Services\InvoiceSnapshotService;
-use App\ValueObjects\BillingPeriod;
 use App\ValueObjects\BillingOptions;
-use App\ValueObjects\TenantBillingResult;
-use App\Enums\InvoiceStatus;
+use App\ValueObjects\BillingPeriod;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Processes billing for individual tenants.
- * 
+ *
  * Handles the creation of invoices for tenants based on their
  * meter readings and service configurations. Ensures proper
  * date handling and invoice creation consistency.
@@ -45,12 +43,12 @@ final readonly class TenantBillingProcessor
         try {
             // Check if invoice already exists for this period
             $existingInvoice = $this->findExistingInvoice($tenant, $period);
-            if ($existingInvoice && !$options->shouldOverwriteExisting()) {
+            if ($existingInvoice && ! $options->shouldOverwriteExisting()) {
                 Log::info('Invoice already exists for tenant', [
                     'tenant_id' => $tenant->id,
                     'invoice_id' => $existingInvoice->id,
                 ]);
-                
+
                 return [
                     'invoices_generated' => 0,
                     'total_amount' => $existingInvoice->total_amount,
@@ -61,13 +59,13 @@ final readonly class TenantBillingProcessor
 
             // Calculate charges for this tenant
             $totalAmount = 0.0;
-            
+
             // Get the property for this tenant
             $property = $tenant->property;
-            if (!$property) {
+            if (! $property) {
                 throw new \Exception("Tenant {$tenant->id} has no associated property");
             }
-            
+
             // Process universal services
             $serviceResult = $this->serviceProcessor->processUniversalServices(
                 $property,
@@ -75,7 +73,7 @@ final readonly class TenantBillingProcessor
                 $options
             );
             $totalAmount += $serviceResult['amount'];
-            
+
             // Process heating charges
             $meters = $property->meters()->get();
             $heatingResult = $this->heatingProcessor->processHeatingCharges(
@@ -143,12 +141,12 @@ final readonly class TenantBillingProcessor
         BillingOptions $options
     ): Invoice {
         // Only create invoice if amount > 0 or if zero invoices are enabled
-        if ($totalAmount <= 0 && !$options->shouldCreateZeroInvoices()) {
+        if ($totalAmount <= 0 && ! $options->shouldCreateZeroInvoices()) {
             Log::info('Skipping zero amount invoice', [
                 'tenant_id' => $tenant->id,
                 'amount' => $totalAmount,
             ]);
-            
+
             // Create a placeholder invoice with zero amount
             $totalAmount = 0.0;
         }

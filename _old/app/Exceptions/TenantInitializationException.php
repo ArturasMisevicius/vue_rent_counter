@@ -10,12 +10,12 @@ use Throwable;
 
 /**
  * Exception thrown when tenant initialization operations fail.
- * 
+ *
  * Provides specific factory methods for different types of initialization
  * failures with contextual information for debugging and logging.
- * 
- * @package App\Exceptions
+ *
  * @author Laravel Development Team
+ *
  * @since 1.0.0
  */
 final class TenantInitializationException extends Exception
@@ -26,10 +26,10 @@ final class TenantInitializationException extends Exception
     public static function serviceCreationFailed(
         Organization $tenant,
         string $serviceType,
-        Throwable $previous = null
+        ?Throwable $previous = null
     ): self {
         $message = "Failed to create {$serviceType} service for tenant {$tenant->id} ({$tenant->name})";
-        
+
         return new self($message, 0, $previous);
     }
 
@@ -38,10 +38,10 @@ final class TenantInitializationException extends Exception
      */
     public static function propertyAssignmentFailed(
         Organization $tenant,
-        Throwable $previous = null
+        ?Throwable $previous = null
     ): self {
         $message = "Failed to assign services to properties for tenant {$tenant->id} ({$tenant->name})";
-        
+
         return new self($message, 0, $previous);
     }
 
@@ -53,7 +53,7 @@ final class TenantInitializationException extends Exception
         string $reason
     ): self {
         $message = "Invalid tenant data for tenant {$tenant->id}: {$reason}";
-        
+
         return new self($message);
     }
 
@@ -62,10 +62,10 @@ final class TenantInitializationException extends Exception
      */
     public static function heatingCompatibilityFailed(
         Organization $tenant,
-        Throwable $previous = null
+        ?Throwable $previous = null
     ): self {
         $message = "Heating compatibility check failed for tenant {$tenant->id} ({$tenant->name})";
-        
+
         return new self($message, 0, $previous);
     }
 
@@ -75,10 +75,10 @@ final class TenantInitializationException extends Exception
     public static function meterConfigurationFailed(
         Organization $tenant,
         string $reason,
-        Throwable $previous = null
+        ?Throwable $previous = null
     ): self {
         $message = "Meter configuration failed for tenant {$tenant->id} ({$tenant->name}): {$reason}";
-        
+
         return new self($message, 0, $previous);
     }
 
@@ -88,10 +88,10 @@ final class TenantInitializationException extends Exception
     public static function templateCreationFailed(
         Organization $tenant,
         string $templateType,
-        Throwable $previous = null
+        ?Throwable $previous = null
     ): self {
         $message = "Failed to create {$templateType} template for tenant {$tenant->id} ({$tenant->name})";
-        
+
         return new self($message, 0, $previous);
     }
 
@@ -105,7 +105,7 @@ final class TenantInitializationException extends Exception
     ): self {
         $errorList = implode(', ', $errors);
         $message = "Configuration validation failed for {$configType} in tenant {$tenant->id}: {$errorList}";
-        
+
         return new self($message);
     }
 
@@ -115,10 +115,10 @@ final class TenantInitializationException extends Exception
     public static function dependencyResolutionFailed(
         Organization $tenant,
         string $dependency,
-        Throwable $previous = null
+        ?Throwable $previous = null
     ): self {
         $message = "Failed to resolve dependency '{$dependency}' for tenant {$tenant->id} ({$tenant->name})";
-        
+
         return new self($message, 0, $previous);
     }
 }

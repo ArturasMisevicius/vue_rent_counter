@@ -52,7 +52,7 @@ class BulkResendAction extends BulkAction
                 Notification::make()
                     ->success()
                     ->title('Invitations Resent')
-                    ->body("Successfully resent {$resent} invitation(s)" . ($skipped > 0 ? " ({$skipped} skipped - not pending)" : ''))
+                    ->body("Successfully resent {$resent} invitation(s)".($skipped > 0 ? " ({$skipped} skipped - not pending)" : ''))
                     ->send();
             } else {
                 Notification::make()

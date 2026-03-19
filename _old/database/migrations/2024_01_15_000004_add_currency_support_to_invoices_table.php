@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('original_currency_id')->nullable()->after('currency_id')->constrained('currencies')->onDelete('set null');
             $table->decimal('exchange_rate', 12, 6)->nullable()->after('original_currency_id');
             $table->date('conversion_date')->nullable()->after('exchange_rate');
-            
+
             $table->index(['currency_id', 'conversion_date']);
             $table->index('original_currency_id');
         });

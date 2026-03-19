@@ -17,7 +17,9 @@ class RetryFailedIntegrationJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
+
     public int $maxExceptions = 3;
+
     public int $timeout = 300;
 
     public function __construct(
@@ -35,16 +37,17 @@ class RetryFailedIntegrationJob implements ShouldQueue
 
         try {
             // Check if service is healthy before retrying
-            if (!$resilienceHandler->isServiceHealthy($this->serviceName)) {
+            if (! $resilienceHandler->isServiceHealthy($this->serviceName)) {
                 Log::warning('Service still unhealthy, skipping retry', [
                     'service' => $this->serviceName,
                 ]);
+
                 return;
             }
 
             // Attempt to synchronize any pending offline data
             $syncResults = $resilienceHandler->synchronizeOfflineData();
-            
+
             Log::info('Integration retry completed', [
                 'service' => $this->serviceName,
                 'sync_results' => $syncResults,

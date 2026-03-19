@@ -37,10 +37,10 @@ it('allows a tenant to access the unified app panel without properties or billin
     $this->actingAs($user)
         ->get('/app')
         ->assertSuccessful()
-        ->assertSeeText('No property assigned yet')
-        ->assertSee('data-shell-group="my-home"', false)
-        ->assertDontSee('data-shell-group="properties"', false)
-        ->assertDontSee('data-shell-group="billing"', false);
+        ->assertSeeText(__('tenant.navigation.home'))
+        ->assertSeeText(__('shell.navigation.groups.my_home'))
+        ->assertDontSeeText(__('shell.navigation.groups.properties'))
+        ->assertDontSeeText(__('shell.navigation.groups.billing'));
 });
 
 it('redirects unauthenticated panel access to the panel login page', function () {

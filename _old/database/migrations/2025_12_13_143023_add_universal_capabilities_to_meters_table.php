@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::table('meters', function (Blueprint $table) {
             // Add new fields for universal capabilities
-            if (!Schema::hasColumn('meters', 'reading_structure')) {
+            if (! Schema::hasColumn('meters', 'reading_structure')) {
                 $table->json('reading_structure')->nullable()->after('supports_zones');
             }
 
-            if (!Schema::hasColumn('meters', 'service_configuration_id')) {
+            if (! Schema::hasColumn('meters', 'service_configuration_id')) {
                 $table->foreignId('service_configuration_id')
                     ->nullable()
                     ->after('reading_structure')
@@ -28,7 +28,7 @@ return new class extends Migration
             // Add index for performance if the column exists
             if (
                 Schema::hasColumn('meters', 'service_configuration_id') &&
-                !Schema::hasIndex('meters', ['service_configuration_id'])
+                ! Schema::hasIndex('meters', ['service_configuration_id'])
             ) {
                 $table->index('service_configuration_id');
             }

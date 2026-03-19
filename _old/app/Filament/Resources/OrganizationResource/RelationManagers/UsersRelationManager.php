@@ -2,19 +2,20 @@
 
 namespace App\Filament\Resources\OrganizationResource\RelationManagers;
 
+use App\Enums\UserRole;
+use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use BackedEnum;
-use UnitEnum;
 use Filament\Forms;
-use Filament\Schemas\Schema;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class UsersRelationManager extends RelationManager
 {
@@ -24,7 +25,7 @@ class UsersRelationManager extends RelationManager
 
     protected static string|BackedEnum|null $icon = 'heroicon-o-users';
 
-    public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
         return __('organizations.relations.users.title');
     }
@@ -37,18 +38,18 @@ class UsersRelationManager extends RelationManager
                     ->label(__('users.labels.name'))
                     ->required()
                     ->maxLength(255),
-                
+
                 Forms\Components\TextInput::make('email')
                     ->label(__('users.labels.email'))
                     ->email()
                     ->required()
                     ->maxLength(255),
-                
+
                 Forms\Components\Select::make('role')
                     ->label(__('users.labels.role'))
-                    ->options(\App\Enums\UserRole::labels())
+                    ->options(UserRole::labels())
                     ->required(),
-                
+
                 Forms\Components\Toggle::make('is_active')
                     ->label(__('organizations.relations.users.active'))
                     ->default(true),
@@ -65,12 +66,12 @@ class UsersRelationManager extends RelationManager
                     ->label(__('users.labels.name'))
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('email')
                     ->label(__('users.labels.email'))
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('role')
                     ->label(__('users.labels.role'))
                     ->badge()
@@ -80,17 +81,17 @@ class UsersRelationManager extends RelationManager
                         'tenant' => 'success',
                         default => 'gray',
                     }),
-                
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->boolean()
                     ->label(__('organizations.relations.users.active')),
-                
+
                 Tables\Columns\TextColumn::make('last_login_at')
                     ->label(__('users.labels.last_login_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('users.labels.created_at'))
                     ->dateTime()
@@ -100,8 +101,8 @@ class UsersRelationManager extends RelationManager
             ->filters([
                 Tables\Filters\SelectFilter::make('role')
                     ->label(__('users.labels.role'))
-                    ->options(\App\Enums\UserRole::labels()),
-                
+                    ->options(UserRole::labels()),
+
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label(__('organizations.relations.users.active')),
             ])

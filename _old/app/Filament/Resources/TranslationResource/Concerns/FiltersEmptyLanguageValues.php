@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\TranslationResource\Concerns;
 
+use App\Filament\Resources\TranslationResource\Pages\CreateTranslation;
+use App\Filament\Resources\TranslationResource\Pages\EditTranslation;
+
 /**
  * Trait for filtering empty language values from translation forms.
  *
@@ -11,8 +14,8 @@ namespace App\Filament\Resources\TranslationResource\Concerns;
  * translation pages to ensure empty language values are not stored
  * in the database.
  *
- * @see \App\Filament\Resources\TranslationResource\Pages\CreateTranslation
- * @see \App\Filament\Resources\TranslationResource\Pages\EditTranslation
+ * @see CreateTranslation
+ * @see EditTranslation
  */
 trait FiltersEmptyLanguageValues
 {
@@ -22,7 +25,7 @@ trait FiltersEmptyLanguageValues
      * This ensures that when a language value is empty (null or empty string),
      * it's removed from the values JSON field rather than stored.
      *
-     * @param array<string, mixed> $data The form data to filter
+     * @param  array<string, mixed>  $data  The form data to filter
      * @return array<string, mixed> The filtered form data
      */
     protected function filterEmptyLanguageValues(array $data): array

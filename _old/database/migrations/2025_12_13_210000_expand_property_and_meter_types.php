@@ -16,12 +16,14 @@ return new class extends Migration
         if ($driver === 'mysql') {
             $this->expandMySqlPropertyTypes();
             $this->expandMySqlMeterTypes();
+
             return;
         }
 
         if ($driver === 'sqlite') {
             $this->rebuildPropertiesTableForSqlite(['apartment', 'house', 'commercial']);
             $this->rebuildMetersTableForSqlite(['electricity', 'water_cold', 'water_hot', 'heating', 'custom']);
+
             return;
         }
     }
@@ -33,12 +35,14 @@ return new class extends Migration
         if ($driver === 'mysql') {
             DB::statement("ALTER TABLE properties MODIFY type ENUM('apartment','house') NOT NULL");
             DB::statement("ALTER TABLE meters MODIFY type ENUM('electricity','water_cold','water_hot','heating') NOT NULL");
+
             return;
         }
 
         if ($driver === 'sqlite') {
             $this->rebuildPropertiesTableForSqlite(['apartment', 'house']);
             $this->rebuildMetersTableForSqlite(['electricity', 'water_cold', 'water_hot', 'heating']);
+
             return;
         }
     }
@@ -57,7 +61,7 @@ return new class extends Migration
      * SQLite enum columns are implemented using CHECK constraints, so we rebuild the table
      * to adjust allowed values while preserving data, foreign keys, and indexes.
      *
-     * @param array<int, string> $allowedTypes
+     * @param  array<int, string>  $allowedTypes
      */
     private function rebuildPropertiesTableForSqlite(array $allowedTypes): void
     {
@@ -105,7 +109,7 @@ return new class extends Migration
     }
 
     /**
-     * @param array<int, string> $allowedTypes
+     * @param  array<int, string>  $allowedTypes
      */
     private function rebuildMetersTableForSqlite(array $allowedTypes): void
     {
@@ -153,4 +157,3 @@ return new class extends Migration
         Schema::enableForeignKeyConstraints();
     }
 };
-

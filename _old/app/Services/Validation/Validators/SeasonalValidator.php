@@ -10,20 +10,20 @@ use App\Services\Validation\ValidationResult;
 
 /**
  * Validates seasonal consumption patterns.
- * 
+ *
  * Validates consumption against expected seasonal patterns for different utility types.
  */
 final class SeasonalValidator implements ValidatorInterface
 {
     public function validate(ValidationContext $context): ValidationResult
     {
-        if (!$this->isApplicable($context)) {
+        if (! $this->isApplicable($context)) {
             return ValidationResult::valid(metadata: ['validator' => $this->getName(), 'skipped' => 'not_applicable']);
         }
 
         $consumption = $context->getConsumption();
         $serviceType = $context->getUtilityService()?->service_type_bridge?->value;
-        
+
         $result = ValidationResult::valid();
 
         // Apply service-specific seasonal validation
@@ -35,8 +35,8 @@ final class SeasonalValidator implements ValidatorInterface
         };
 
         return $result->addMetadata('validator', $this->getName())
-                     ->addMetadata('season', $this->getCurrentSeason($context))
-                     ->addMetadata('service_type', $serviceType);
+            ->addMetadata('season', $this->getCurrentSeason($context))
+            ->addMetadata('service_type', $serviceType);
     }
 
     public function getName(): string
@@ -46,7 +46,7 @@ final class SeasonalValidator implements ValidatorInterface
 
     public function isApplicable(ValidationContext $context): bool
     {
-        return $context->getConsumption() !== null 
+        return $context->getConsumption() !== null
             && $context->getUtilityService() !== null;
     }
 
@@ -69,44 +69,44 @@ final class SeasonalValidator implements ValidatorInterface
         if ($context->isSummerPeriod()) {
             // Summer heating should be minimal
             $summerMaxThreshold = $heatingConfig['summer_max_threshold'] ?? 50;
-            
+
             if ($consumption > $summerMaxThreshold) {
                 $result = $result->addWarning(
                     __('validation.heating_consumption_high_summer', [
                         'consumption' => $consumption,
                         'threshold' => $summerMaxThreshold,
-                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'kWh'
+                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'kWh',
                     ])
                 );
-                
+
                 $result = $result->addRecommendation(__('validation.check_heating_system_summer'));
             }
         } elseif ($context->isWinterPeriod()) {
             // Winter heating should meet minimum threshold
             $winterMinThreshold = $heatingConfig['winter_min_threshold'] ?? 100;
-            
+
             if ($consumption < $winterMinThreshold) {
                 $result = $result->addWarning(
                     __('validation.heating_consumption_low_winter', [
                         'consumption' => $consumption,
                         'threshold' => $winterMinThreshold,
-                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'kWh'
+                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'kWh',
                     ])
                 );
-                
+
                 $result = $result->addRecommendation(__('validation.check_heating_efficiency_winter'));
             }
 
             // Check for peak winter consumption
             $peakMultiplier = $heatingConfig['peak_winter_multiplier'] ?? 1.5;
             $historicalAverage = $context->getHistoricalAverage();
-            
+
             if ($historicalAverage && $consumption > ($historicalAverage * $peakMultiplier)) {
                 $result = $result->addWarning(
                     __('validation.heating_consumption_peak_winter', [
                         'consumption' => $consumption,
                         'expected_max' => round($historicalAverage * $peakMultiplier, 2),
-                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'kWh'
+                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'kWh',
                     ])
                 );
             }
@@ -114,13 +114,13 @@ final class SeasonalValidator implements ValidatorInterface
             // Shoulder season (spring/fall)
             $shoulderMultiplier = $heatingConfig['shoulder_season_multiplier'] ?? 1.2;
             $historicalAverage = $context->getHistoricalAverage();
-            
+
             if ($historicalAverage && $consumption > ($historicalAverage * $shoulderMultiplier)) {
                 $result = $result->addWarning(
                     __('validation.heating_consumption_high_shoulder', [
                         'consumption' => $consumption,
                         'expected_max' => round($historicalAverage * $shoulderMultiplier, 2),
-                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'kWh'
+                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'kWh',
                     ])
                 );
             }
@@ -153,7 +153,7 @@ final class SeasonalValidator implements ValidatorInterface
                         'consumption' => $consumption,
                         'season' => $season,
                         'minimum' => $minExpected,
-                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'kWh'
+                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'kWh',
                     ])
                 );
             } elseif ($consumption > $maxExpected) {
@@ -162,7 +162,7 @@ final class SeasonalValidator implements ValidatorInterface
                         'consumption' => $consumption,
                         'season' => $season,
                         'maximum' => $maxExpected,
-                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'kWh'
+                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'kWh',
                     ])
                 );
 
@@ -179,13 +179,13 @@ final class SeasonalValidator implements ValidatorInterface
         if ($context->isWinterPeriod()) {
             $heatingMultiplier = $electricityConfig['heating_season_multiplier'] ?? 1.3;
             $historicalAverage = $context->getHistoricalAverage();
-            
+
             if ($historicalAverage && $consumption > ($historicalAverage * $heatingMultiplier)) {
                 $result = $result->addWarning(
                     __('validation.electricity_heating_season_high', [
                         'consumption' => $consumption,
                         'expected_max' => round($historicalAverage * $heatingMultiplier, 2),
-                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'kWh'
+                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'kWh',
                     ])
                 );
             }
@@ -218,7 +218,7 @@ final class SeasonalValidator implements ValidatorInterface
                         'consumption' => $consumption,
                         'season' => $season,
                         'minimum' => $minExpected,
-                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'm³'
+                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'm³',
                     ])
                 );
             } elseif ($consumption > $maxExpected) {
@@ -227,7 +227,7 @@ final class SeasonalValidator implements ValidatorInterface
                         'consumption' => $consumption,
                         'season' => $season,
                         'maximum' => $maxExpected,
-                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'm³'
+                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'm³',
                     ])
                 );
 
@@ -238,17 +238,17 @@ final class SeasonalValidator implements ValidatorInterface
         // Check seasonal variance threshold
         $varianceThreshold = $waterConfig['seasonal_variance_threshold'] ?? 0.3;
         $historicalAverage = $context->getHistoricalAverage();
-        
+
         if ($historicalAverage) {
             $variance = abs($consumption - $historicalAverage) / $historicalAverage;
-            
+
             if ($variance > $varianceThreshold) {
                 $result = $result->addWarning(
                     __('validation.water_seasonal_variance_high', [
                         'consumption' => $consumption,
                         'average' => round($historicalAverage, 2),
                         'variance' => round($variance * 100, 1),
-                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'm³'
+                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'm³',
                     ])
                 );
             }
@@ -270,32 +270,32 @@ final class SeasonalValidator implements ValidatorInterface
 
         $varianceThreshold = $defaultConfig['variance_threshold'] ?? 0.3;
         $adjustmentFactor = $defaultConfig['seasonal_adjustment_factor'] ?? 1.1;
-        
+
         $historicalAverage = $context->getHistoricalAverage();
-        
+
         if ($historicalAverage) {
             $expectedRange = $historicalAverage * $adjustmentFactor;
-            
+
             if ($consumption > $expectedRange) {
                 $result = $result->addWarning(
                     __('validation.consumption_above_seasonal_expectation', [
                         'consumption' => $consumption,
                         'expected_max' => round($expectedRange, 2),
-                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units'
+                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units',
                     ])
                 );
             }
 
             // Check general variance
             $variance = abs($consumption - $historicalAverage) / $historicalAverage;
-            
+
             if ($variance > $varianceThreshold) {
                 $result = $result->addWarning(
                     __('validation.seasonal_variance_detected', [
                         'consumption' => $consumption,
                         'average' => round($historicalAverage, 2),
                         'variance' => round($variance * 100, 1),
-                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units'
+                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units',
                     ])
                 );
             }

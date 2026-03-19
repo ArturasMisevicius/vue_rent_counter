@@ -10,7 +10,7 @@ use App\Services\Validation\ValidationResult;
 
 /**
  * Validates consumption limits and patterns.
- * 
+ *
  * Checks meter readings against configured consumption limits,
  * historical patterns, and reasonable usage thresholds.
  */
@@ -18,7 +18,7 @@ final class ConsumptionValidator implements ValidatorInterface
 {
     public function validate(ValidationContext $context): ValidationResult
     {
-        if (!$this->isApplicable($context)) {
+        if (! $this->isApplicable($context)) {
             return ValidationResult::valid(metadata: ['validator' => $this->getName(), 'skipped' => 'not_applicable']);
         }
 
@@ -35,7 +35,7 @@ final class ConsumptionValidator implements ValidatorInterface
         $result = $this->validateReasonableness($context, $consumption, $result);
 
         return $result->addMetadata('validator', $this->getName())
-                     ->addMetadata('consumption_validated', $consumption);
+            ->addMetadata('consumption_validated', $consumption);
     }
 
     public function getName(): string
@@ -65,12 +65,12 @@ final class ConsumptionValidator implements ValidatorInterface
         $validationConfig = $context->validationConfig;
 
         // Get consumption limits from service configuration or defaults
-        $minConsumption = $config['consumption_limits']['min'] 
-            ?? $validationConfig['default_min_consumption'] 
+        $minConsumption = $config['consumption_limits']['min']
+            ?? $validationConfig['default_min_consumption']
             ?? 0;
 
-        $maxConsumption = $config['consumption_limits']['max'] 
-            ?? $validationConfig['default_max_consumption'] 
+        $maxConsumption = $config['consumption_limits']['max']
+            ?? $validationConfig['default_max_consumption']
             ?? 10000;
 
         // Validate minimum consumption
@@ -79,7 +79,7 @@ final class ConsumptionValidator implements ValidatorInterface
                 __('validation.consumption_below_minimum', [
                     'consumption' => $consumption,
                     'minimum' => $minConsumption,
-                    'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units'
+                    'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units',
                 ])
             );
         }
@@ -90,7 +90,7 @@ final class ConsumptionValidator implements ValidatorInterface
                 __('validation.consumption_exceeds_maximum', [
                     'consumption' => $consumption,
                     'maximum' => $maxConsumption,
-                    'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units'
+                    'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units',
                 ])
             );
         }
@@ -106,7 +106,7 @@ final class ConsumptionValidator implements ValidatorInterface
         float $consumption,
         ValidationResult $result
     ): ValidationResult {
-        if (!$context->hasHistoricalData()) {
+        if (! $context->hasHistoricalData()) {
             return $result->addWarning(__('validation.insufficient_historical_data'));
         }
 
@@ -120,14 +120,14 @@ final class ConsumptionValidator implements ValidatorInterface
 
         if ($variance > $varianceThreshold) {
             $percentageChange = round($variance * 100, 1);
-            
+
             if ($variance > 1.0) { // 100% variance is an error
                 $result = $result->addError(
                     __('validation.consumption_extreme_variance', [
                         'consumption' => $consumption,
                         'average' => round($historicalAverage, 2),
                         'variance' => $percentageChange,
-                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units'
+                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units',
                     ])
                 );
             } else {
@@ -136,7 +136,7 @@ final class ConsumptionValidator implements ValidatorInterface
                         'consumption' => $consumption,
                         'average' => round($historicalAverage, 2),
                         'variance' => $percentageChange,
-                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units'
+                        'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units',
                     ])
                 );
 
@@ -150,7 +150,7 @@ final class ConsumptionValidator implements ValidatorInterface
         }
 
         return $result->addMetadata('historical_average', $historicalAverage)
-                     ->addMetadata('variance_percentage', round($variance * 100, 2));
+            ->addMetadata('variance_percentage', round($variance * 100, 2));
     }
 
     /**
@@ -169,13 +169,13 @@ final class ConsumptionValidator implements ValidatorInterface
         // Extremely high consumption check (5x historical average or absolute threshold)
         $maxMultiplier = $context->getValidationConfig('data_quality.max_consumption_multiplier', 5.0);
         $historicalAverage = $context->getHistoricalAverage();
-        
+
         if ($historicalAverage && $consumption > ($historicalAverage * $maxMultiplier)) {
             $result = $result->addError(
                 __('validation.consumption_unreasonably_high', [
                     'consumption' => $consumption,
                     'threshold' => round($historicalAverage * $maxMultiplier, 2),
-                    'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units'
+                    'unit' => $context->getUtilityService()?->unit_of_measurement ?? 'units',
                 ])
             );
         }

@@ -13,30 +13,30 @@ return new class extends Migration
     {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
-            
+
             // Foreign key to users table (admin only)
             $table->foreignId('user_id')
-                  ->constrained('users')
-                  ->onDelete('cascade');
-            
+                ->constrained('users')
+                ->onDelete('cascade');
+
             // Plan type
             $table->enum('plan_type', ['basic', 'professional', 'enterprise'])
-                  ->default('basic');
-            
+                ->default('basic');
+
             // Subscription status
             $table->enum('status', ['active', 'expired', 'suspended', 'cancelled'])
-                  ->default('active');
-            
+                ->default('active');
+
             // Subscription dates
             $table->timestamp('starts_at');
             $table->timestamp('expires_at');
-            
+
             // Subscription limits
             $table->integer('max_properties')->default(10);
             $table->integer('max_tenants')->default(50);
-            
+
             $table->timestamps();
-            
+
             // Indexes for performance
             $table->index(['user_id', 'status'], 'subscriptions_user_status_index');
             $table->index('expires_at', 'subscriptions_expires_at_index');

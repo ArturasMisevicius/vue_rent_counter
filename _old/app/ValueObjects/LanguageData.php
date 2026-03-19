@@ -9,7 +9,7 @@ use Illuminate\Support\Collection;
 
 /**
  * Language Data Value Object
- * 
+ *
  * Immutable value object representing language information for UI components.
  * Provides type safety and encapsulates language-related business logic.
  */
@@ -52,8 +52,8 @@ final readonly class LanguageData
      */
     public function getDisplayName(bool $preferNative = true): string
     {
-        return $preferNative && !empty($this->nativeName) 
-            ? $this->nativeName 
+        return $preferNative && ! empty($this->nativeName)
+            ? $this->nativeName
             : $this->name;
     }
 

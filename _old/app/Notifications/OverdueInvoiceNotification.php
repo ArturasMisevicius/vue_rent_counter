@@ -12,9 +12,7 @@ class OverdueInvoiceNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public Invoice $invoice)
-    {
-    }
+    public function __construct(public Invoice $invoice) {}
 
     public function via(object $notifiable): array
     {

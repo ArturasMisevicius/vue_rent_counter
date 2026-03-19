@@ -7,16 +7,21 @@ namespace App\Filament\Resources;
 use App\Enums\UserRole;
 use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\BuildingResource\Pages;
-use App\Filament\Resources\BuildingResource\RelationManagers;
+use App\Filament\Resources\BuildingResource\Pages\CreateBuilding;
+use App\Filament\Resources\BuildingResource\RelationManagers\PropertiesRelationManager;
 use App\Models\Building;
 use App\Models\User;
+use App\Policies\BuildingPolicy;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Forms;
+use Filament\GlobalSearch\Actions\Action;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Building Resource for Filament Admin Panel
@@ -66,11 +71,11 @@ use Filament\Tables\Table;
  * - Validation: `buildings.validation.*`
  *
  * ## Related Components
- * - Model: {@see \App\Models\Building}
- * - Policy: {@see \App\Policies\BuildingPolicy}
- * - Trait: {@see \App\Filament\Concerns\HasTranslatedValidation}
- * - Relation Manager: {@see \App\Filament\Resources\BuildingResource\RelationManagers\PropertiesRelationManager}
- * - Pages: {@see \App\Filament\Resources\BuildingResource\Pages}
+ * - Model: {@see Building}
+ * - Policy: {@see BuildingPolicy}
+ * - Trait: {@see HasTranslatedValidation}
+ * - Relation Manager: {@see PropertiesRelationManager}
+ * - Pages: {@see Pages}
  *
  * ## Usage Example
  * ```php
@@ -90,10 +95,9 @@ use Filament\Tables\Table;
  * - Tenant scope isolation checks
  * - Localization verification
  *
- * @package App\Filament\Resources
- * @see \App\Models\Building
- * @see \App\Policies\BuildingPolicy
- * @see \App\Filament\Resources\BuildingResource\RelationManagers\PropertiesRelationManager
+ * @see Building
+ * @see BuildingPolicy
+ * @see PropertiesRelationManager
  */
 class BuildingResource extends Resource
 {
@@ -139,7 +143,7 @@ class BuildingResource extends Resource
      *
      * @return bool True if user can view the building list, false otherwise
      *
-     * @see \App\Policies\BuildingPolicy::viewAny()
+     * @see BuildingPolicy::viewAny()
      */
     public static function canViewAny(): bool
     {
@@ -162,8 +166,8 @@ class BuildingResource extends Resource
      *
      * @return bool True if user can create buildings, false otherwise
      *
-     * @see \App\Policies\BuildingPolicy::create()
-     * @see \App\Filament\Resources\BuildingResource\Pages\CreateBuilding::mutateFormDataBeforeCreate()
+     * @see BuildingPolicy::create()
+     * @see CreateBuilding::mutateFormDataBeforeCreate()
      */
     public static function canCreate(): bool
     {
@@ -182,10 +186,10 @@ class BuildingResource extends Resource
      * - Manager: Can edit buildings where tenant_id matches their own
      * - Tenant: Cannot edit buildings
      *
-     * @param Building $record The building to check edit permissions for
+     * @param  Building  $record  The building to check edit permissions for
      * @return bool True if user can edit the building, false otherwise
      *
-     * @see \App\Policies\BuildingPolicy::update()
+     * @see BuildingPolicy::update()
      */
     public static function canEdit($record): bool
     {
@@ -207,10 +211,10 @@ class BuildingResource extends Resource
      * Note: Deletion may cascade to related properties depending on foreign
      * key constraints. Consider soft deletes for data retention.
      *
-     * @param Building $record The building to check delete permissions for
+     * @param  Building  $record  The building to check delete permissions for
      * @return bool True if user can delete the building, false otherwise
      *
-     * @see \App\Policies\BuildingPolicy::delete()
+     * @see BuildingPolicy::delete()
      */
     public static function canDelete($record): bool
     {
@@ -282,8 +286,8 @@ class BuildingResource extends Resource
      *
      * @return Forms\Components\TextInput Configured name input field
      *
-     * @see \App\Models\Building::getDisplayNameAttribute()
-     * @see \App\Filament\Concerns\HasTranslatedValidation::getValidationMessages()
+     * @see Building::getDisplayNameAttribute()
+     * @see HasTranslatedValidation::getValidationMessages()
      */
     private static function buildNameField(): Forms\Components\TextInput
     {
@@ -311,7 +315,7 @@ class BuildingResource extends Resource
      *
      * @return Forms\Components\TextInput Configured address input field
      *
-     * @see \App\Filament\Concerns\HasTranslatedValidation::getValidationMessages()
+     * @see HasTranslatedValidation::getValidationMessages()
      */
     private static function buildAddressField(): Forms\Components\TextInput
     {
@@ -333,13 +337,13 @@ class BuildingResource extends Resource
      *
      * ## Validation Rules
      * - **Required**: Cannot be empty
-     * - **Numeric**: Integer values only  
+     * - **Numeric**: Integer values only
      * - **Range**: 1-1000 apartments
      * - **Localized**: Error messages via HasTranslatedValidation trait
      *
      * @return Forms\Components\TextInput Configured total apartments input field
      *
-     * @see \App\Filament\Concerns\HasTranslatedValidation::getValidationMessages() Validation
+     * @see HasTranslatedValidation::getValidationMessages() Validation
      */
     private static function buildTotalApartmentsField(): Forms\Components\TextInput
     {
@@ -421,34 +425,34 @@ class BuildingResource extends Resource
      *
      * @return array<Tables\Columns\Column> Array of configured table columns
      *
-     * @see \Filament\Tables\Columns\TextColumn
+     * @see TextColumn
      */
     private static function getTableColumns(): array
     {
         $translations = self::getCachedTranslations();
 
         return [
-            Tables\Columns\TextColumn::make('name')
+            TextColumn::make('name')
                 ->label($translations['name'])
                 ->searchable()
                 ->sortable(),
 
-            Tables\Columns\TextColumn::make('address')
+            TextColumn::make('address')
                 ->label($translations['address'])
                 ->searchable()
                 ->sortable(),
 
-            Tables\Columns\TextColumn::make('total_apartments')
+            TextColumn::make('total_apartments')
                 ->label($translations['total_apartments'])
                 ->numeric()
                 ->sortable(),
 
-            Tables\Columns\TextColumn::make('properties_count')
+            TextColumn::make('properties_count')
                 ->label($translations['property_count'])
                 ->counts('properties')
                 ->sortable(),
 
-            Tables\Columns\TextColumn::make('created_at')
+            TextColumn::make('created_at')
                 ->label($translations['created_at'])
                 ->dateTime()
                 ->sortable()
@@ -459,7 +463,7 @@ class BuildingResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\PropertiesRelationManager::class,
+            PropertiesRelationManager::class,
         ];
     }
 
@@ -467,7 +471,7 @@ class BuildingResource extends Resource
     {
         return [
             'index' => Pages\ListBuildings::route('/'),
-            'create' => Pages\CreateBuilding::route('/create'),
+            'create' => CreateBuilding::route('/create'),
             'edit' => Pages\EditBuilding::route('/{record}/edit'),
         ];
     }
@@ -477,7 +481,7 @@ class BuildingResource extends Resource
         return ['name', 'address'];
     }
 
-    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
             'Address' => $record->address,
@@ -485,10 +489,10 @@ class BuildingResource extends Resource
         ];
     }
 
-    public static function getGlobalSearchResultActions(\Illuminate\Database\Eloquent\Model $record): array
+    public static function getGlobalSearchResultActions(Model $record): array
     {
         return [
-            \Filament\GlobalSearch\Actions\Action::make('edit')
+            Action::make('edit')
                 ->iconButton()
                 ->icon('heroicon-m-pencil-square')
                 ->url(static::getUrl('edit', ['record' => $record])),

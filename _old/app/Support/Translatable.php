@@ -23,12 +23,12 @@ trait Translatable
     public function getTranslation(string $field, ?string $locale = null): ?string
     {
         $locale = $locale ?? app()->getLocale();
-        
+
         $translation = $this->translations()
             ->where('field', $field)
             ->first();
 
-        if (!$translation) {
+        if (! $translation) {
             return null;
         }
 
@@ -44,7 +44,7 @@ trait Translatable
             ->where('field', $field)
             ->first();
 
-        if (!$translation) {
+        if (! $translation) {
             $translation = new Translation([
                 'field' => $field,
                 'values' => [],
@@ -85,10 +85,10 @@ trait Translatable
     public function hasTranslation(string $field, ?string $locale = null): bool
     {
         $locale = $locale ?? app()->getLocale();
-        
+
         return $this->translations()
             ->where('field', $field)
-            ->whereJsonContains('values->' . $locale, fn($query) => $query->whereNotNull())
+            ->whereJsonContains('values->'.$locale, fn ($query) => $query->whereNotNull())
             ->exists();
     }
 

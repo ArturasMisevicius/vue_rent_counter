@@ -2,28 +2,28 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\OrganizationActivityLog;
+use Filament\Actions\ViewAction;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use App\Services\DashboardCacheService;
-use App\Models\OrganizationActivityLog;
 
 /**
  * Recent Activity Widget with optimized loading
- * 
+ *
  * Shows recent superadmin and organization actions with performance optimizations
  */
 class RecentActivityWidget extends BaseWidget
 {
     protected static ?int $sort = 6;
-    
+
     // Enable lazy loading for better performance
     protected static bool $isLazy = true;
-    
+
     // Polling interval - refresh every 2 minutes
     protected ?string $pollingInterval = '120s';
-    
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
@@ -41,7 +41,7 @@ class RecentActivityWidget extends BaseWidget
                     ->dateTime('M j, H:i')
                     ->sortable()
                     ->size(Tables\Columns\TextColumn\TextColumnSize::Small),
-                    
+
                 Tables\Columns\TextColumn::make('organization.name')
                     ->label('Organization')
                     ->limit(20)
@@ -49,15 +49,15 @@ class RecentActivityWidget extends BaseWidget
                         return $record->organization?->name;
                     })
                     ->size(Tables\Columns\TextColumn\TextColumnSize::Small),
-                    
+
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('User')
                     ->limit(15)
                     ->tooltip(function (OrganizationActivityLog $record): ?string {
-                        return $record->user?->name . ' (' . $record->user?->email . ')';
+                        return $record->user?->name.' ('.$record->user?->email.')';
                     })
                     ->size(Tables\Columns\TextColumn\TextColumnSize::Small),
-                    
+
                 Tables\Columns\BadgeColumn::make('action')
                     ->label('Action')
                     ->colors([
@@ -67,18 +67,18 @@ class RecentActivityWidget extends BaseWidget
                         'primary' => ['login', 'logout'],
                     ])
                     ->size(Tables\Columns\TextColumn\TextColumnSize::Small),
-                    
+
                 Tables\Columns\TextColumn::make('resource_type')
                     ->label('Resource')
                     ->formatStateUsing(fn (string $state): string => class_basename($state))
                     ->size(Tables\Columns\TextColumn\TextColumnSize::Small),
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make()
+                ViewAction::make()
                     ->modalHeading('Activity Details')
                     ->modalContent(function (OrganizationActivityLog $record): string {
                         return view('filament.widgets.activity-details', [
-                            'record' => $record
+                            'record' => $record,
                         ])->render();
                     }),
             ])

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * HasAttachments Trait
- * 
+ *
  * Add this trait to any model that should support file attachments
  */
 trait HasAttachments
@@ -65,8 +65,8 @@ trait HasAttachments
      * Attach a file
      */
     public function attachFile(
-        UploadedFile $file, 
-        ?string $description = null, 
+        UploadedFile $file,
+        ?string $description = null,
         ?string $category = null,
         ?User $uploader = null,
         bool $isPublic = false
@@ -101,13 +101,13 @@ trait HasAttachments
      * Attach multiple files
      */
     public function attachFiles(
-        array $files, 
+        array $files,
         ?string $category = null,
         ?User $uploader = null,
         bool $isPublic = false
     ): array {
         $attachments = [];
-        
+
         foreach ($files as $file) {
             if ($file instanceof UploadedFile) {
                 $attachments[] = $this->attachFile($file, null, $category, $uploader, $isPublic);
@@ -140,12 +140,12 @@ trait HasAttachments
     {
         $bytes = $this->getTotalAttachmentSizeAttribute();
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-        
+
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
             $bytes /= 1024;
         }
-        
-        return round($bytes, 2) . ' ' . $units[$i];
+
+        return round($bytes, 2).' '.$units[$i];
     }
 
     /**

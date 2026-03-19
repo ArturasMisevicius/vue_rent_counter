@@ -8,8 +8,7 @@ class TimeRange
         public readonly int $start,
         public readonly int $end,
         public readonly int $index
-    ) {
-    }
+    ) {}
 
     /**
      * Create from time string (HH:MM).
@@ -29,7 +28,8 @@ class TimeRange
     public static function timeToMinutes(string $time): int
     {
         [$hours, $minutes] = explode(':', $time);
-        return (int)$hours * 60 + (int)$minutes;
+
+        return (int) $hours * 60 + (int) $minutes;
     }
 
     /**
@@ -37,7 +37,7 @@ class TimeRange
      */
     public function overlaps(self $other): bool
     {
-        return !($this->end <= $other->start || $other->end <= $this->start);
+        return ! ($this->end <= $other->start || $other->end <= $this->start);
     }
 
     /**
@@ -53,7 +53,7 @@ class TimeRange
      */
     public function split(): array
     {
-        if (!$this->crossesMidnight()) {
+        if (! $this->crossesMidnight()) {
             return [$this];
         }
 

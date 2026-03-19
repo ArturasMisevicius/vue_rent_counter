@@ -10,12 +10,16 @@ use App\Http\Middleware\EnsureUserIsSuperadmin;
 use App\Http\Middleware\HandleImpersonation;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\SetTenantContext;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 // Create the application with proper bootstrap sequence
 $app = Application::configure(basePath: dirname(__DIR__))
@@ -53,20 +57,20 @@ $app = Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->reportable(function (\Throwable $e) {
+        $exceptions->reportable(function (Throwable $e) {
             if (app()->runningUnitTests()) {
                 return false;
             }
         });
 
         // Handle authorization exceptions with user-friendly messages (Requirement 9.4)
-        $exceptions->render(function (\Illuminate\Auth\Access\AuthorizationException $e, \Illuminate\Http\Request $request) {
+        $exceptions->render(function (AuthorizationException $e, Request $request) {
             if (app()->runningUnitTests()) {
                 throw $e;
             }
 
             // Log the authorization failure
-            \Illuminate\Support\Facades\Log::warning('Authorization exception caught', [
+            Log::warning('Authorization exception caught', [
                 'user_id' => auth()->id(),
                 'user_email' => auth()->user()?->email,
                 'user_role' => auth()->user()?->role?->value,
@@ -90,7 +94,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         });
 
         // Avoid logging HttpException-based authorization responses during tests
-        $exceptions->reportable(function (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+        $exceptions->reportable(function (HttpException $e) {
             if (app()->runningUnitTests()) {
                 return false;
             }

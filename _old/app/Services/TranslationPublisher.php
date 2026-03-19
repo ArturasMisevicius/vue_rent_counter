@@ -11,8 +11,7 @@ class TranslationPublisher
 {
     public function __construct(
         private readonly Filesystem $files
-    ) {
-    }
+    ) {}
 
     public function publish(?string $group = null): void
     {
@@ -67,7 +66,7 @@ class TranslationPublisher
         $dir = lang_path($locale);
         $this->files->ensureDirectoryExists($dir);
 
-        $content = "<?php\n\nreturn " . var_export($data, true) . ";\n";
+        $content = "<?php\n\nreturn ".var_export($data, true).";\n";
         $this->files->put("$dir/$group.php", $content);
     }
 }

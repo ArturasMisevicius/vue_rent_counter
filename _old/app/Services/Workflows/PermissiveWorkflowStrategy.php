@@ -11,7 +11,7 @@ use App\Models\User;
 
 /**
  * Permissive workflow strategy for meter readings.
- * 
+ *
  * In this workflow:
  * - Tenants can update their own readings if status is 'pending'
  * - Tenants can delete their own readings if status is 'pending'
@@ -25,7 +25,7 @@ final readonly class PermissiveWorkflowStrategy implements WorkflowStrategyInter
      */
     public function canTenantUpdate(User $tenant, MeterReading $meterReading): bool
     {
-        return $this->isTenantOwner($tenant, $meterReading) 
+        return $this->isTenantOwner($tenant, $meterReading)
             && $this->isPendingStatus($meterReading);
     }
 
@@ -34,7 +34,7 @@ final readonly class PermissiveWorkflowStrategy implements WorkflowStrategyInter
      */
     public function canTenantDelete(User $tenant, MeterReading $meterReading): bool
     {
-        return $this->isTenantOwner($tenant, $meterReading) 
+        return $this->isTenantOwner($tenant, $meterReading)
             && $this->isPendingStatus($meterReading);
     }
 
@@ -74,9 +74,9 @@ final readonly class PermissiveWorkflowStrategy implements WorkflowStrategyInter
 
     /**
      * Check if the tenant is the owner of the meter reading.
-     * 
-     * @param User $tenant The tenant user
-     * @param MeterReading $meterReading The meter reading
+     *
+     * @param  User  $tenant  The tenant user
+     * @param  MeterReading  $meterReading  The meter reading
      * @return bool True if tenant owns the reading
      */
     private function isTenantOwner(User $tenant, MeterReading $meterReading): bool
@@ -86,8 +86,8 @@ final readonly class PermissiveWorkflowStrategy implements WorkflowStrategyInter
 
     /**
      * Check if the meter reading has pending status.
-     * 
-     * @param MeterReading $meterReading The meter reading
+     *
+     * @param  MeterReading  $meterReading  The meter reading
      * @return bool True if status is pending
      */
     private function isPendingStatus(MeterReading $meterReading): bool

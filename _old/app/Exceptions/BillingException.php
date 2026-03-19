@@ -8,15 +8,13 @@ use Exception;
 
 /**
  * Base exception for billing-related errors.
- * 
- * @package App\Exceptions
  */
 class BillingException extends Exception
 {
     public static function invalidSchedule(string $schedule, array $supported): self
     {
         return new self(
-            "Unsupported billing schedule: {$schedule}. Supported: " . implode(', ', $supported)
+            "Unsupported billing schedule: {$schedule}. Supported: ".implode(', ', $supported)
         );
     }
 

@@ -12,15 +12,15 @@ use InvalidArgumentException;
 
 /**
  * Pricing models for universal utility services.
- * 
+ *
  * Extends TariffType capabilities with additional models for flexible
  * utility billing scenarios. Supports consumption-based, tiered, hybrid,
  * and custom formula pricing models.
- * 
+ *
  * @see TariffType For legacy compatibility
  * @see DistributionMethod For cost distribution patterns
  */
-enum PricingModel: string implements HasLabel, HasColor, HasIcon
+enum PricingModel: string implements HasColor, HasIcon, HasLabel
 {
     use HasTranslatableLabel;
 
@@ -29,7 +29,7 @@ enum PricingModel: string implements HasLabel, HasColor, HasIcon
     case TIERED_RATES = 'tiered_rates';
     case HYBRID = 'hybrid';
     case CUSTOM_FORMULA = 'custom_formula';
-    
+
     // Legacy compatibility with TariffType
     case FLAT = 'flat';
     case TIME_OF_USE = 'time_of_use';
@@ -84,7 +84,7 @@ enum PricingModel: string implements HasLabel, HasColor, HasIcon
 
     /**
      * Check if this model requires consumption data.
-     * 
+     *
      * Performance: Uses match expression instead of in_array for O(1) lookup.
      */
     public function requiresConsumptionData(): bool
@@ -146,7 +146,7 @@ enum PricingModel: string implements HasLabel, HasColor, HasIcon
 
     /**
      * Get the complexity level of this pricing model.
-     * 
+     *
      * @return 'simple'|'moderate'|'complex'
      */
     public function getComplexityLevel(): string
@@ -160,7 +160,7 @@ enum PricingModel: string implements HasLabel, HasColor, HasIcon
 
     /**
      * Convert from legacy TariffType enum.
-     * 
+     *
      * @throws InvalidArgumentException When tariffType is invalid
      */
     public static function fromTariffType(string $tariffType): self
@@ -185,7 +185,7 @@ enum PricingModel: string implements HasLabel, HasColor, HasIcon
 
     /**
      * Convert to legacy TariffType enum for backward compatibility.
-     * 
+     *
      * @throws InvalidArgumentException When conversion is not possible
      */
     public function toTariffType(): string
@@ -210,7 +210,7 @@ enum PricingModel: string implements HasLabel, HasColor, HasIcon
 
     /**
      * Get all modern pricing models (excluding legacy ones).
-     * 
+     *
      * @return array<self>
      */
     public static function modernModels(): array
@@ -226,7 +226,7 @@ enum PricingModel: string implements HasLabel, HasColor, HasIcon
 
     /**
      * Get all legacy pricing models.
-     * 
+     *
      * @return array<self>
      */
     public static function legacyModels(): array
@@ -239,7 +239,7 @@ enum PricingModel: string implements HasLabel, HasColor, HasIcon
 
     /**
      * Get pricing models that require meter readings.
-     * 
+     *
      * @return array<self>
      */
     public static function meterReadingModels(): array

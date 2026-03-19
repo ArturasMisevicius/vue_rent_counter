@@ -6,6 +6,7 @@ namespace App\Services\ServiceRegistration;
 
 use App\Contracts\ServiceRegistration\ErrorHandlingStrategyInterface;
 use App\ValueObjects\ServiceRegistration\RegistrationResult;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Log;
 
@@ -21,36 +22,36 @@ final readonly class RegistrationErrorHandler implements ErrorHandlingStrategyIn
     public function handleRegistration(callable $operation, string $context): RegistrationResult
     {
         $startTime = microtime(true);
-        
+
         try {
             $result = $operation();
             $duration = (microtime(true) - $startTime) * 1000;
-            
+
             return new RegistrationResult(
                 registered: $result['registered'] ?? 0,
                 skipped: $result['skipped'] ?? 0,
                 errors: $result['errors'] ?? [],
                 durationMs: $duration,
             );
-        } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+        } catch (AuthorizationException $e) {
             $duration = (microtime(true) - $startTime) * 1000;
-            
+
             Log::debug('Registration skipped due to authorization', [
                 'context' => $context,
                 'reason' => 'unauthorized_user',
                 'duration_ms' => $duration,
             ]);
-            
+
             return new RegistrationResult(0, 0, [], $duration);
         } catch (\Throwable $e) {
             $duration = (microtime(true) - $startTime) * 1000;
-            
+
             Log::error('Registration operation failed', [
                 'context' => $context,
                 'error' => $e->getMessage(),
                 'duration_ms' => $duration,
             ]);
-            
+
             return new RegistrationResult(0, 0, ['system' => 'registration_failed'], $duration);
         }
     }
@@ -84,8 +85,8 @@ final readonly class RegistrationErrorHandler implements ErrorHandlingStrategyIn
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
             'context' => $context,
-            'trace' => $this->app->environment('local', 'testing') 
-                ? $exception->getTraceAsString() 
+            'trace' => $this->app->environment('local', 'testing')
+                ? $exception->getTraceAsString()
                 : 'trace_hidden_in_production',
         ]);
 

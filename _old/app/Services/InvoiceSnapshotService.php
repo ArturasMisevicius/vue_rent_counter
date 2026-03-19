@@ -4,38 +4,33 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\Invoice;
-use App\Models\Tariff;
-use App\Models\ServiceConfiguration;
-use App\Models\UtilityService;
-use App\Models\User;
-use App\Models\Currency;
-use App\Services\CurrencyConversionService;
-use App\ValueObjects\BillingPeriod;
-use App\ValueObjects\BillingOptions;
-use App\Enums\InvoiceStatus;
 use App\Enums\ApprovalStatus;
 use App\Enums\AutomationLevel;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Currency;
+use App\Models\Invoice;
+use App\Models\ServiceConfiguration;
+use App\Models\Tariff;
+use App\Models\UtilityService;
+use App\ValueObjects\BillingOptions;
+use App\ValueObjects\BillingPeriod;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Service for creating immutable snapshots of tariffs and service configurations
  * at the time of invoice generation.
- * 
+ *
  * Ensures historical invoice accuracy by preserving calculation methods,
  * rates, and configurations that were active during the billing period.
- * 
- * @package App\Services
  */
 final readonly class InvoiceSnapshotService
 {
     /**
      * Create an enhanced snapshot with currency conversion and additional analytics.
-     * 
-     * @param Invoice $invoice The invoice to create snapshots for
-     * @param string $targetCurrency Target currency code for conversion
+     *
+     * @param  Invoice  $invoice  The invoice to create snapshots for
+     * @param  string  $targetCurrency  Target currency code for conversion
      * @return array Enhanced snapshot data with currency conversion
      */
     public function createEnhancedSnapshot(Invoice $invoice, string $targetCurrency): array
@@ -50,15 +45,15 @@ final readonly class InvoiceSnapshotService
             Carbon::parse($invoice->billing_period_start),
             Carbon::parse($invoice->billing_period_end)
         );
-        $options = new BillingOptions();
-        
+        $options = new BillingOptions;
+
         $snapshot = $this->createInvoiceSnapshot($invoice, $period, $options);
 
         // Add currency conversion
         $currencyConversionService = app(CurrencyConversionService::class);
         $fromCurrency = Currency::where('code', $invoice->currency)->first();
         $toCurrency = Currency::where('code', $targetCurrency)->first();
-        
+
         if ($fromCurrency && $toCurrency) {
             try {
                 $conversionResult = $currencyConversionService->convert(
@@ -66,7 +61,7 @@ final readonly class InvoiceSnapshotService
                     $fromCurrency,
                     $toCurrency
                 );
-                
+
                 $snapshot['converted_amount'] = $conversionResult->convertedAmount;
                 $snapshot['target_currency'] = $targetCurrency;
                 $snapshot['exchange_rate'] = $conversionResult->exchangeRate;
@@ -78,7 +73,7 @@ final readonly class InvoiceSnapshotService
                     'to_currency' => $targetCurrency,
                     'error' => $e->getMessage(),
                 ]);
-                
+
                 // Fallback to original amount
                 $snapshot['converted_amount'] = $invoice->amount;
                 $snapshot['target_currency'] = $targetCurrency;
@@ -134,16 +129,16 @@ final readonly class InvoiceSnapshotService
         // Add analytics
         $billingRecords = $invoice->billingRecords;
         $totalConsumption = $billingRecords->sum('consumption');
-        $averageRate = $billingRecords->count() > 0 ? 
+        $averageRate = $billingRecords->count() > 0 ?
             $billingRecords->sum('rate') / $billingRecords->count() : 0;
-        
+
         $serviceBreakdown = [];
         foreach ($billingRecords->groupBy('service_type') as $serviceType => $records) {
             $serviceBreakdown[] = [
                 'service_type' => $serviceType,
                 'total_consumption' => $records->sum('consumption'),
                 'total_amount' => $records->sum('amount'),
-                'average_rate' => $records->count() > 0 ? 
+                'average_rate' => $records->count() > 0 ?
                     $records->sum('rate') / $records->count() : 0,
             ];
         }
@@ -166,10 +161,10 @@ final readonly class InvoiceSnapshotService
 
     /**
      * Create an enhanced snapshot with approval workflow and automation metadata.
-     * 
-     * @param Invoice $invoice The invoice to create snapshots for
-     * @param BillingPeriod $period The billing period
-     * @param BillingOptions $options Billing configuration options
+     *
+     * @param  Invoice  $invoice  The invoice to create snapshots for
+     * @param  BillingPeriod  $period  The billing period
+     * @param  BillingOptions  $options  Billing configuration options
      * @return array Enhanced snapshot data with approval workflow
      */
     public function createEnhancedSnapshotWithWorkflow(
@@ -196,13 +191,13 @@ final readonly class InvoiceSnapshotService
 
         // Add enhanced approval workflow data
         $snapshot['approval_workflow_enhanced'] = $this->createEnhancedApprovalWorkflow($invoice, $options);
-        
+
         // Add automation confidence scoring
         $snapshot['automation_confidence'] = $this->createAutomationConfidenceData($invoice, $options);
-        
+
         // Add risk assessment data
         $snapshot['risk_assessment'] = $this->createRiskAssessmentData($invoice, $options);
-        
+
         // Add predictive analytics
         $snapshot['predictive_analytics'] = $this->createPredictiveAnalyticsData($invoice, $period);
 
@@ -212,8 +207,8 @@ final readonly class InvoiceSnapshotService
             'snapshot_created_at' => now(),
             'approval_status' => $this->determineEnhancedApprovalStatus($invoice, $options),
             'automation_level' => $options->getAutomationLevel(),
-            'approval_deadline' => $this->calculateApprovalDeadline($invoice, $options) ? 
-                \Carbon\Carbon::parse($this->calculateApprovalDeadline($invoice, $options)) : null,
+            'approval_deadline' => $this->calculateApprovalDeadline($invoice, $options) ?
+                Carbon::parse($this->calculateApprovalDeadline($invoice, $options)) : null,
         ]);
 
         Log::info('Enhanced invoice snapshot created successfully', [
@@ -234,7 +229,7 @@ final readonly class InvoiceSnapshotService
     private function createEnhancedApprovalWorkflow(Invoice $invoice, BillingOptions $options): array
     {
         $baseWorkflow = $this->createApprovalWorkflowData($invoice, $options);
-        
+
         return array_merge($baseWorkflow, [
             'enhanced_features' => [
                 'dynamic_thresholds' => true,
@@ -257,7 +252,7 @@ final readonly class InvoiceSnapshotService
     private function createAutomationConfidenceData(Invoice $invoice, BillingOptions $options): array
     {
         $baseScore = $this->calculateAutomationConfidenceScore($invoice, $options);
-        
+
         return [
             'overall_score' => $baseScore,
             'component_scores' => [
@@ -312,22 +307,22 @@ final readonly class InvoiceSnapshotService
     {
         $mlScore = $this->calculateMLApprovalScore($invoice, $options);
         $riskLevel = $this->calculateOverallRiskLevel($invoice, $options);
-        
+
         // High confidence and low risk -> auto approve
         if ($mlScore > 0.9 && $riskLevel === 'low' && $this->isAutoApprovalEligible($invoice, $options)) {
             return ApprovalStatus::AUTO_APPROVED;
         }
-        
+
         // High risk or low confidence -> requires review
         if ($riskLevel === 'high' || $mlScore < 0.5) {
             return ApprovalStatus::REQUIRES_REVIEW;
         }
-        
+
         // Standard approval workflow
         if ($this->requiresApprovalWorkflow($invoice, $options)) {
             return ApprovalStatus::PENDING;
         }
-        
+
         return ApprovalStatus::AUTO_APPROVED;
     }
 
@@ -337,7 +332,7 @@ final readonly class InvoiceSnapshotService
         $baseThreshold = $options->getApprovalThreshold();
         $riskMultiplier = $this->getRiskMultiplier($invoice);
         $historicalAccuracy = $this->getHistoricalAccuracyMultiplier($invoice);
-        
+
         return $baseThreshold * $riskMultiplier * $historicalAccuracy;
     }
 
@@ -359,7 +354,7 @@ final readonly class InvoiceSnapshotService
             'accuracy_score' => $this->hasHistoricalAccuracy($invoice) ? 0.9 : 0.5,
             'risk_score' => $this->calculateOverallRiskLevel($invoice, $options) === 'low' ? 0.9 : 0.3,
         ];
-        
+
         return array_sum($factors) / count($factors);
     }
 
@@ -371,8 +366,8 @@ final readonly class InvoiceSnapshotService
     private function getRecommendedApprovers(Invoice $invoice, BillingOptions $options): array
     {
         $riskLevel = $this->calculateOverallRiskLevel($invoice, $options);
-        
-        return match($riskLevel) {
+
+        return match ($riskLevel) {
             'high' => ['senior_manager', 'risk_manager', 'director'],
             'medium' => ['manager', 'senior_supervisor'],
             'low' => ['supervisor', 'team_lead'],
@@ -384,28 +379,41 @@ final readonly class InvoiceSnapshotService
     {
         $baseComplexity = $this->calculateComplexityScore($invoice);
         $approvalFactors = 0;
-        
-        if ($invoice->total_amount > 2000.0) $approvalFactors += 2;
-        if ($this->hasEstimatedReadings($invoice)) $approvalFactors += 1;
-        if ($this->hasComplexCalculations($invoice)) $approvalFactors += 2;
-        
+
+        if ($invoice->total_amount > 2000.0) {
+            $approvalFactors += 2;
+        }
+        if ($this->hasEstimatedReadings($invoice)) {
+            $approvalFactors += 1;
+        }
+        if ($this->hasComplexCalculations($invoice)) {
+            $approvalFactors += 2;
+        }
+
         return $baseComplexity + $approvalFactors;
     }
 
     private function calculateDataQualityScore(Invoice $invoice): float
     {
         $score = 1.0;
-        
-        if ($this->hasEstimatedReadings($invoice)) $score -= 0.3;
-        if ($this->hasMissingData($invoice)) $score -= 0.2;
-        if ($this->hasInconsistentData($invoice)) $score -= 0.2;
-        
+
+        if ($this->hasEstimatedReadings($invoice)) {
+            $score -= 0.3;
+        }
+        if ($this->hasMissingData($invoice)) {
+            $score -= 0.2;
+        }
+        if ($this->hasInconsistentData($invoice)) {
+            $score -= 0.2;
+        }
+
         return max(0.0, $score);
     }
 
     private function calculateCalculationComplexityScore(Invoice $invoice): float
     {
         $complexity = $this->calculateComplexityScore($invoice);
+
         return max(0.0, 1.0 - ($complexity / 10.0));
     }
 
@@ -423,8 +431,8 @@ final readonly class InvoiceSnapshotService
     private function getConfidenceFactors(Invoice $invoice, BillingOptions $options): array
     {
         return [
-            'data_completeness' => !$this->hasEstimatedReadings($invoice),
-            'calculation_simplicity' => !$this->hasComplexCalculations($invoice),
+            'data_completeness' => ! $this->hasEstimatedReadings($invoice),
+            'calculation_simplicity' => ! $this->hasComplexCalculations($invoice),
             'historical_consistency' => $this->hasHistoricalAccuracy($invoice),
             'automation_eligibility' => $this->isAutoApprovalEligible($invoice, $options),
         ];
@@ -443,13 +451,21 @@ final readonly class InvoiceSnapshotService
     private function calculateOverallRiskLevel(Invoice $invoice, BillingOptions $options): string
     {
         $riskFactors = 0;
-        
-        if ($invoice->total_amount > 2000.0) $riskFactors++;
-        if ($this->hasEstimatedReadings($invoice)) $riskFactors++;
-        if ($this->hasComplexCalculations($invoice)) $riskFactors++;
-        if (!$this->hasHistoricalAccuracy($invoice)) $riskFactors++;
-        
-        return match(true) {
+
+        if ($invoice->total_amount > 2000.0) {
+            $riskFactors++;
+        }
+        if ($this->hasEstimatedReadings($invoice)) {
+            $riskFactors++;
+        }
+        if ($this->hasComplexCalculations($invoice)) {
+            $riskFactors++;
+        }
+        if (! $this->hasHistoricalAccuracy($invoice)) {
+            $riskFactors++;
+        }
+
+        return match (true) {
             $riskFactors >= 3 => 'high',
             $riskFactors >= 2 => 'medium',
             default => 'low',
@@ -559,7 +575,7 @@ final readonly class InvoiceSnapshotService
 
     private function getReviewFrequency(Invoice $invoice, BillingOptions $options): string
     {
-        return match($this->calculateOverallRiskLevel($invoice, $options)) {
+        return match ($this->calculateOverallRiskLevel($invoice, $options)) {
             'high' => 'daily',
             'medium' => 'weekly',
             'low' => 'monthly',
@@ -568,10 +584,10 @@ final readonly class InvoiceSnapshotService
 
     /**
      * Create a complete snapshot of all billing-related data for an invoice.
-     * 
-     * @param Invoice $invoice The invoice to create snapshots for
-     * @param BillingPeriod $period The billing period
-     * @param BillingOptions $options Billing configuration options
+     *
+     * @param  Invoice  $invoice  The invoice to create snapshots for
+     * @param  BillingPeriod  $period  The billing period
+     * @param  BillingOptions  $options  Billing configuration options
      * @return array Complete snapshot data
      */
     public function createInvoiceSnapshot(
@@ -626,10 +642,10 @@ final readonly class InvoiceSnapshotService
         // Get all tariffs that were active during the billing period
         $activeTariffs = Tariff::where(function ($query) use ($period) {
             $query->where('active_from', '<=', $period->getEndDate())
-                  ->where(function ($subQuery) use ($period) {
-                      $subQuery->whereNull('active_until')
-                               ->orWhere('active_until', '>=', $period->getStartDate());
-                  });
+                ->where(function ($subQuery) use ($period) {
+                    $subQuery->whereNull('active_until')
+                        ->orWhere('active_until', '>=', $period->getStartDate());
+                });
         })->get();
 
         foreach ($activeTariffs as $tariff) {
@@ -664,7 +680,7 @@ final readonly class InvoiceSnapshotService
             ->where('effective_from', '<=', $period->getEndDate())
             ->where(function ($query) use ($period) {
                 $query->whereNull('effective_until')
-                      ->orWhere('effective_until', '>=', $period->getStartDate());
+                    ->orWhere('effective_until', '>=', $period->getStartDate());
             })
             ->with('utilityService')
             ->get();
@@ -700,12 +716,12 @@ final readonly class InvoiceSnapshotService
         // Get utility services through service configurations
         $utilityServices = UtilityService::whereHas('serviceConfigurations', function ($query) use ($invoice, $period) {
             $query->where('property_id', $invoice->property_id)
-                  ->where('is_active', true)
-                  ->where('effective_from', '<=', $period->getEndDate())
-                  ->where(function ($subQuery) use ($period) {
-                      $subQuery->whereNull('effective_until')
-                               ->orWhere('effective_until', '>=', $period->getStartDate());
-                  });
+                ->where('is_active', true)
+                ->where('effective_from', '<=', $period->getEndDate())
+                ->where(function ($subQuery) use ($period) {
+                    $subQuery->whereNull('effective_until')
+                        ->orWhere('effective_until', '>=', $period->getStartDate());
+                });
         })->get();
 
         foreach ($utilityServices as $service) {
@@ -757,10 +773,10 @@ final readonly class InvoiceSnapshotService
         // Check if the period includes winter months (heating season)
         $startMonth = $period->getStartDate()->month;
         $endMonth = $period->getEndDate()->month;
-        
+
         // Winter months in Lithuania: October through April
         $winterMonths = [10, 11, 12, 1, 2, 3, 4];
-        
+
         return in_array($startMonth, $winterMonths) || in_array($endMonth, $winterMonths);
     }
 
@@ -797,7 +813,7 @@ final readonly class InvoiceSnapshotService
     {
         $approvalRequired = $this->requiresApprovalWorkflow($invoice, $options);
         $approvalThreshold = $this->getApprovalThreshold($options);
-        
+
         return [
             'required' => $approvalRequired,
             'threshold_amount' => $approvalThreshold,
@@ -843,7 +859,7 @@ final readonly class InvoiceSnapshotService
      */
     private function determineInitialApprovalStatus(Invoice $invoice, BillingOptions $options): ApprovalStatus
     {
-        if (!$this->requiresApprovalWorkflow($invoice, $options)) {
+        if (! $this->requiresApprovalWorkflow($invoice, $options)) {
             return ApprovalStatus::AUTO_APPROVED;
         }
 
@@ -930,13 +946,13 @@ final readonly class InvoiceSnapshotService
         // Auto-approval criteria
         $criteria = [
             $invoice->total_amount <= $this->getAutoApprovalThreshold($options),
-            !$this->hasEstimatedReadings($invoice),
-            !$this->hasComplexCalculations($invoice),
-            !$this->hasHighRiskFactors($invoice, $options),
+            ! $this->hasEstimatedReadings($invoice),
+            ! $this->hasComplexCalculations($invoice),
+            ! $this->hasHighRiskFactors($invoice, $options),
             $this->hasHistoricalAccuracy($invoice),
         ];
 
-        return !in_array(false, $criteria, true);
+        return ! in_array(false, $criteria, true);
     }
 
     /**
@@ -944,7 +960,7 @@ final readonly class InvoiceSnapshotService
      */
     private function calculateApprovalDeadline(Invoice $invoice, BillingOptions $options): ?string
     {
-        if (!$this->requiresApprovalWorkflow($invoice, $options)) {
+        if (! $this->requiresApprovalWorkflow($invoice, $options)) {
             return null;
         }
 
@@ -1181,7 +1197,7 @@ final readonly class InvoiceSnapshotService
         if ($invoice->total_amount > 2000.0) {
             return 5; // 5 business days for high-value invoices
         }
-        
+
         return 3; // 3 business days for standard invoices
     }
 
@@ -1204,7 +1220,7 @@ final readonly class InvoiceSnapshotService
 
     private function hasHighRiskFactors(Invoice $invoice, BillingOptions $options): bool
     {
-        return $invoice->total_amount > 2000.0 || 
+        return $invoice->total_amount > 2000.0 ||
                $this->hasEstimatedReadings($invoice) ||
                $this->hasComplexCalculations($invoice);
     }
@@ -1221,45 +1237,45 @@ final readonly class InvoiceSnapshotService
     private function calculateComplexityScore(Invoice $invoice): int
     {
         $score = 0;
-        
+
         // Base complexity
         $score += 1;
-        
+
         // Add complexity for multiple service configurations
         $serviceConfigCount = ServiceConfiguration::where('property_id', $invoice->property_id)
             ->where('is_active', true)
             ->count();
         $score += $serviceConfigCount;
-        
+
         // Add complexity for shared services
         $sharedServiceCount = ServiceConfiguration::where('property_id', $invoice->property_id)
             ->where('is_shared_service', true)
             ->where('is_active', true)
             ->count();
         $score += $sharedServiceCount * 2; // Shared services are more complex
-        
+
         // Add complexity for heating calculations
         if ($this->hasHeatingCalculations($invoice)) {
             $score += 3; // Heating calculations are complex
         }
-        
+
         return $score;
     }
 
     /**
      * Restore invoice calculation context from snapshot.
-     * 
-     * @param Invoice $invoice The invoice with snapshot data
+     *
+     * @param  Invoice  $invoice  The invoice with snapshot data
      * @return array Restored calculation context
      */
     public function restoreCalculationContext(Invoice $invoice): array
     {
-        if (!$invoice->snapshot_data) {
+        if (! $invoice->snapshot_data) {
             throw new \InvalidArgumentException("Invoice {$invoice->id} has no snapshot data");
         }
 
         $snapshot = $invoice->snapshot_data;
-        
+
         Log::info('Restoring calculation context from snapshot', [
             'invoice_id' => $invoice->id,
             'snapshot_created_at' => $invoice->snapshot_created_at,
@@ -1277,18 +1293,18 @@ final readonly class InvoiceSnapshotService
 
     /**
      * Validate that an invoice can be recalculated using its snapshot.
-     * 
-     * @param Invoice $invoice The invoice to validate
+     *
+     * @param  Invoice  $invoice  The invoice to validate
      * @return bool True if recalculation is possible
      */
     public function canRecalculateFromSnapshot(Invoice $invoice): bool
     {
-        if (!$invoice->snapshot_data) {
+        if (! $invoice->snapshot_data) {
             return false;
         }
 
         $snapshot = $invoice->snapshot_data;
-        
+
         // Check that all required snapshot components exist
         $requiredComponents = [
             'tariff_snapshots',
@@ -1299,11 +1315,12 @@ final readonly class InvoiceSnapshotService
         ];
 
         foreach ($requiredComponents as $component) {
-            if (!isset($snapshot[$component])) {
+            if (! isset($snapshot[$component])) {
                 Log::warning('Missing snapshot component', [
                     'invoice_id' => $invoice->id,
                     'missing_component' => $component,
                 ]);
+
                 return false;
             }
         }
@@ -1313,18 +1330,18 @@ final readonly class InvoiceSnapshotService
 
     /**
      * Get snapshot summary for reporting.
-     * 
-     * @param Invoice $invoice The invoice to get summary for
+     *
+     * @param  Invoice  $invoice  The invoice to get summary for
      * @return array Snapshot summary
      */
     public function getSnapshotSummary(Invoice $invoice): array
     {
-        if (!$invoice->snapshot_data) {
+        if (! $invoice->snapshot_data) {
             return ['has_snapshot' => false];
         }
 
         $snapshot = $invoice->snapshot_data;
-        
+
         return [
             'has_snapshot' => true,
             'created_at' => $invoice->snapshot_created_at,

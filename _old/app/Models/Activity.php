@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * Activity Model - Activity log with polymorphic relationships
- * 
+ *
  * Tracks all important actions across the system
- * 
+ *
  * @property int $id
  * @property int $tenant_id
  * @property string|null $log_name
@@ -26,7 +26,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 class Activity extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use BelongsToTenant, HasFactory;
 
     protected $fillable = [
         'tenant_id',

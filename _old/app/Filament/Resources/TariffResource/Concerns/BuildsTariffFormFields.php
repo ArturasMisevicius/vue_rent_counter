@@ -6,13 +6,17 @@ namespace App\Filament\Resources\TariffResource\Concerns;
 
 use App\Enums\TariffType;
 use App\Enums\WeekendLogic;
+use App\Filament\Resources\TariffResource;
 use App\Models\Provider;
+use App\Models\Tariff;
+use App\Services\InputSanitizer;
 use Filament\Forms;
 use Filament\Schemas\Components\Utilities\Get;
+use Tests\Feature\Filament\TariffManualModeTest;
 
 /**
  * Trait for building tariff form fields with manual entry mode support.
- * 
+ *
  * Extracts form field construction logic from TariffResource to improve
  * maintainability and reduce method complexity. Implements conditional
  * field visibility and validation based on manual entry mode.
@@ -36,9 +40,9 @@ use Filament\Schemas\Components\Utilities\Get;
  * When manual mode is disabled (default), requires provider selection and
  * optionally accepts a remote_id for external system synchronization.
  *
- * @see \App\Filament\Resources\TariffResource
- * @see \App\Models\Tariff::isManual()
- * @see \Tests\Feature\Filament\TariffManualModeTest
+ * @see TariffResource
+ * @see Tariff::isManual()
+ * @see TariffManualModeTest
  * @see database/migrations/2025_12_05_163137_add_remote_id_to_tariffs_table.php
  */
 trait BuildsTariffFormFields
@@ -84,8 +88,8 @@ trait BuildsTariffFormFields
      *
      * @return array<Forms\Components\Component> Array of form field components
      *
-     * @see \App\Models\Provider::getCachedOptions()
-     * @see \App\Services\InputSanitizer::sanitizeText()
+     * @see Provider::getCachedOptions()
+     * @see InputSanitizer::sanitizeText()
      */
     protected static function buildBasicInformationFields(): array
     {
@@ -97,13 +101,13 @@ trait BuildsTariffFormFields
                 ->live()
                 ->columnSpanFull()
                 ->dehydrated(false), // Don't save this field to database
-            
+
             Forms\Components\Select::make('provider_id')
                 ->label(__('tariffs.forms.provider'))
                 ->options(fn () => Provider::getCachedOptions())
                 ->searchable()
-                ->visible(fn (Get $get): bool => !$get('manual_mode'))
-                ->required(fn (Get $get): bool => !$get('manual_mode'))
+                ->visible(fn (Get $get): bool => ! $get('manual_mode'))
+                ->required(fn (Get $get): bool => ! $get('manual_mode'))
                 ->rules([
                     'nullable',
                     'exists:providers,id',
@@ -112,11 +116,11 @@ trait BuildsTariffFormFields
                     'required' => __('tariffs.validation.provider_id.required'),
                     'exists' => __('tariffs.validation.provider_id.exists'),
                 ]),
-            
+
             Forms\Components\TextInput::make('remote_id')
                 ->label(__('tariffs.forms.remote_id'))
                 ->maxLength(255)
-                ->visible(fn (Get $get): bool => !$get('manual_mode'))
+                ->visible(fn (Get $get): bool => ! $get('manual_mode'))
                 ->helperText(__('tariffs.forms.remote_id_helper'))
                 ->mutateStateForValidationUsing(function (mixed $state): mixed {
                     if (! is_string($state)) {
@@ -130,7 +134,7 @@ trait BuildsTariffFormFields
                     }
 
                     try {
-                        return app(\App\Services\InputSanitizer::class)->sanitizeIdentifier($state);
+                        return app(InputSanitizer::class)->sanitizeIdentifier($state);
                     } catch (\InvalidArgumentException) {
                         // Fall back to original state; validation rules handle rejection.
                         return $state;
@@ -142,7 +146,7 @@ trait BuildsTariffFormFields
                     'max:255',
                     'regex:/^[a-zA-Z0-9\-\_\.]+$/', // Security: Alphanumeric, hyphens, underscores, dots only
                     'not_regex:/\.\./',
-                    fn (Get $get): string => $get('remote_id') && !$get('provider_id') ? 'required_with:provider_id' : '',
+                    fn (Get $get): string => $get('remote_id') && ! $get('provider_id') ? 'required_with:provider_id' : '',
                 ])
                 ->validationMessages([
                     'max' => __('tariffs.validation.remote_id.max'),
@@ -150,10 +154,9 @@ trait BuildsTariffFormFields
                     'not_regex' => __('tariffs.validation.remote_id.format'),
                     'required_with' => __('tariffs.validation.provider_id.required_with'),
                 ])
-                ->dehydrateStateUsing(fn (?string $state): ?string => 
-                    $state ? app(\App\Services\InputSanitizer::class)->sanitizeIdentifier($state) : null
+                ->dehydrateStateUsing(fn (?string $state): ?string => $state ? app(InputSanitizer::class)->sanitizeIdentifier($state) : null
                 ),
-            
+
             Forms\Components\TextInput::make('name')
                 ->label(__('tariffs.forms.name'))
                 ->required()
@@ -165,7 +168,7 @@ trait BuildsTariffFormFields
                     'max' => __('tariffs.validation.name.max'),
                     'regex' => __('tariffs.validation.name.regex'),
                 ])
-                ->dehydrateStateUsing(fn (string $state): string => app(\App\Services\InputSanitizer::class)->sanitizeText($state)),
+                ->dehydrateStateUsing(fn (string $state): string => app(InputSanitizer::class)->sanitizeText($state)),
         ];
     }
 
@@ -186,7 +189,7 @@ trait BuildsTariffFormFields
                     'required' => __('tariffs.validation.active_from.required'),
                     'date' => __('tariffs.validation.active_from.date'),
                 ]),
-            
+
             Forms\Components\DatePicker::make('active_until')
                 ->label(__('tariffs.forms.active_until'))
                 ->nullable()
@@ -219,8 +222,6 @@ trait BuildsTariffFormFields
 
     /**
      * Build the tariff type selection field.
-     *
-     * @return Forms\Components\Select
      */
     protected static function buildTariffTypeField(): Forms\Components\Select
     {
@@ -240,8 +241,6 @@ trait BuildsTariffFormFields
 
     /**
      * Build the currency selection field.
-     *
-     * @return Forms\Components\Select
      */
     protected static function buildCurrencyField(): Forms\Components\Select
     {
@@ -263,8 +262,6 @@ trait BuildsTariffFormFields
 
     /**
      * Build the flat rate field (conditional on tariff type).
-     *
-     * @return Forms\Components\TextInput
      */
     protected static function buildFlatRateField(): Forms\Components\TextInput
     {
@@ -292,8 +289,6 @@ trait BuildsTariffFormFields
 
     /**
      * Build the time-of-use zones repeater field.
-     *
-     * @return Forms\Components\Repeater
      */
     protected static function buildTimeOfUseZonesField(): Forms\Components\Repeater
     {
@@ -339,9 +334,9 @@ trait BuildsTariffFormFields
                     'regex' => __('tariffs.validation.configuration.zones.id.regex'),
                 ])
                 ->dehydrateStateUsing(fn (?string $state): ?string => $state !== null && $state !== ''
-                    ? app(\App\Services\InputSanitizer::class)->sanitizeIdentifier($state)
+                    ? app(InputSanitizer::class)->sanitizeIdentifier($state)
                     : null),
-            
+
             Forms\Components\TextInput::make('start')
                 ->label(__('tariffs.forms.start_time'))
                 ->required()
@@ -353,7 +348,7 @@ trait BuildsTariffFormFields
                     'string' => __('tariffs.validation.configuration.zones.start.string'),
                     'regex' => __('tariffs.validation.configuration.zones.start.regex'),
                 ]),
-            
+
             Forms\Components\TextInput::make('end')
                 ->label(__('tariffs.forms.end_time'))
                 ->required()
@@ -365,7 +360,7 @@ trait BuildsTariffFormFields
                     'string' => __('tariffs.validation.configuration.zones.end.string'),
                     'regex' => __('tariffs.validation.configuration.zones.end.regex'),
                 ]),
-            
+
             Forms\Components\TextInput::make('rate')
                 ->label(__('tariffs.forms.zone_rate'))
                 ->numeric()
@@ -385,8 +380,6 @@ trait BuildsTariffFormFields
 
     /**
      * Build the weekend logic field.
-     *
-     * @return Forms\Components\Select
      */
     protected static function buildWeekendLogicField(): Forms\Components\Select
     {
@@ -406,8 +399,6 @@ trait BuildsTariffFormFields
 
     /**
      * Build the fixed fee field.
-     *
-     * @return Forms\Components\TextInput
      */
     protected static function buildFixedFeeField(): Forms\Components\TextInput
     {

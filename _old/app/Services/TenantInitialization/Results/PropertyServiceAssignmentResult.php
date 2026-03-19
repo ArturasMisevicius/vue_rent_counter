@@ -9,19 +9,19 @@ use Illuminate\Support\Collection;
 
 /**
  * Data Transfer Object for property service assignment results.
- * 
+ *
  * Contains the results of assigning utility services to properties,
  * providing convenient access methods for retrieving configurations
  * by property and service type.
- * 
- * @package App\Services\TenantInitialization\Results
+ *
  * @author Laravel Development Team
+ *
  * @since 1.0.0
  */
 final readonly class PropertyServiceAssignmentResult
 {
     /**
-     * @param Collection<int, Collection<string, ServiceConfiguration>> $configurations Service configurations grouped by property ID
+     * @param  Collection<int, Collection<string, ServiceConfiguration>>  $configurations  Service configurations grouped by property ID
      */
     public function __construct(
         private Collection $configurations,
@@ -29,13 +29,13 @@ final readonly class PropertyServiceAssignmentResult
 
     /**
      * Create from array of configurations.
-     * 
-     * @param array<int, array<string, ServiceConfiguration>> $configurations
+     *
+     * @param  array<int, array<string, ServiceConfiguration>>  $configurations
      */
     public static function fromArray(array $configurations): self
     {
-        $collection = collect($configurations)->map(fn($configs) => collect($configs));
-        
+        $collection = collect($configurations)->map(fn ($configs) => collect($configs));
+
         return new self($collection);
     }
 
@@ -52,12 +52,12 @@ final readonly class PropertyServiceAssignmentResult
      */
     public function getTotalConfigurationCount(): int
     {
-        return $this->configurations->sum(fn($configs) => $configs->count());
+        return $this->configurations->sum(fn ($configs) => $configs->count());
     }
 
     /**
      * Get service configurations for a specific property.
-     * 
+     *
      * @return Collection<string, ServiceConfiguration>|null
      */
     public function getPropertyConfigurations(int $propertyId): ?Collection
@@ -75,7 +75,7 @@ final readonly class PropertyServiceAssignmentResult
 
     /**
      * Get all property IDs that have configurations.
-     * 
+     *
      * @return array<int>
      */
     public function getPropertyIds(): array
@@ -101,13 +101,13 @@ final readonly class PropertyServiceAssignmentResult
 
     /**
      * Get all service types configured across all properties.
-     * 
+     *
      * @return array<string>
      */
     public function getAllServiceTypes(): array
     {
         return $this->configurations
-            ->flatMap(fn($configs) => $configs->keys())
+            ->flatMap(fn ($configs) => $configs->keys())
             ->unique()
             ->values()
             ->toArray();
@@ -115,13 +115,13 @@ final readonly class PropertyServiceAssignmentResult
 
     /**
      * Convert to array representation.
-     * 
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array
     {
         return [
-            'configurations' => $this->configurations->map(fn($configs) => $configs->toArray())->toArray(),
+            'configurations' => $this->configurations->map(fn ($configs) => $configs->toArray())->toArray(),
             'property_count' => $this->getPropertyCount(),
             'total_configuration_count' => $this->getTotalConfigurationCount(),
             'property_ids' => $this->getPropertyIds(),

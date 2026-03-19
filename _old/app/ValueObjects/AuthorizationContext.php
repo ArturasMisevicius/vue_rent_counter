@@ -8,7 +8,7 @@ use App\Models\User;
 
 /**
  * Value object representing authorization context.
- * 
+ *
  * This encapsulates the context information needed for authorization decisions,
  * providing better type safety and reducing parameter passing complexity.
  */
@@ -24,11 +24,10 @@ final readonly class AuthorizationContext
 
     /**
      * Create context for a specific operation.
-     * 
-     * @param User $user The authenticated user
-     * @param string $operation The operation being performed
-     * @param array $additionalData Additional context data
-     * @return self
+     *
+     * @param  User  $user  The authenticated user
+     * @param  string  $operation  The operation being performed
+     * @param  array  $additionalData  Additional context data
      */
     public static function forOperation(User $user, string $operation, array $additionalData = []): self
     {
@@ -41,19 +40,18 @@ final readonly class AuthorizationContext
 
     /**
      * Create context for a resource operation.
-     * 
-     * @param User $user The authenticated user
-     * @param string $operation The operation being performed
-     * @param string $resourceType The resource type
-     * @param int $resourceId The resource ID
-     * @param array $additionalData Additional context data
-     * @return self
+     *
+     * @param  User  $user  The authenticated user
+     * @param  string  $operation  The operation being performed
+     * @param  string  $resourceType  The resource type
+     * @param  int  $resourceId  The resource ID
+     * @param  array  $additionalData  Additional context data
      */
     public static function forResource(
-        User $user, 
-        string $operation, 
-        string $resourceType, 
-        int $resourceId, 
+        User $user,
+        string $operation,
+        string $resourceType,
+        int $resourceId,
         array $additionalData = []
     ): self {
         return new self(
@@ -67,8 +65,6 @@ final readonly class AuthorizationContext
 
     /**
      * Get context data for logging.
-     * 
-     * @return array
      */
     public function toLogContext(): array
     {

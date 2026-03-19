@@ -6,16 +6,16 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 /**
  * Rate Limiting Middleware for Billing Operations
- * 
+ *
  * Protects expensive billing operations from abuse and DoS attacks.
- * 
+ *
  * Security Features:
  * - Per-user rate limiting
  * - Configurable limits
@@ -27,12 +27,12 @@ class RateLimitBilling
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next, int $maxAttempts = 10, int $decayMinutes = 1): Response
     {
         $key = $this->resolveRequestSignature($request);
-        
+
         if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
             Log::warning('Billing rate limit exceeded', [
                 'user_id' => auth()->id(),
@@ -40,17 +40,17 @@ class RateLimitBilling
                 'path' => $request->path(),
                 'method' => $request->method(),
             ]);
-            
+
             throw new TooManyRequestsHttpException(
                 RateLimiter::availableIn($key),
                 'Too many billing requests. Please try again later.'
             );
         }
-        
+
         RateLimiter::hit($key, $decayMinutes * 60);
-        
+
         $response = $next($request);
-        
+
         return $this->addHeaders(
             $response,
             $maxAttempts,
@@ -64,10 +64,10 @@ class RateLimitBilling
     protected function resolveRequestSignature(Request $request): string
     {
         if ($user = $request->user()) {
-            return 'billing:user:' . $user->id;
+            return 'billing:user:'.$user->id;
         }
 
-        return 'billing:ip:' . $request->ip();
+        return 'billing:ip:'.$request->ip();
     }
 
     /**

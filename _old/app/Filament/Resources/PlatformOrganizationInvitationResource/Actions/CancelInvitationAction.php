@@ -23,8 +23,7 @@ class CancelInvitationAction extends Action
 
         $this->color('danger');
 
-        $this->visible(fn (PlatformOrganizationInvitation $record): bool => 
-            $record->status === 'pending'
+        $this->visible(fn (PlatformOrganizationInvitation $record): bool => $record->status === 'pending'
         );
 
         $this->requiresConfirmation();

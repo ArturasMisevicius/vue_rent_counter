@@ -28,6 +28,7 @@ final class CheckMissingTranslationsCommand extends Command
         $availableLocales = array_keys(config('locales.available', []));
         if (empty($availableLocales)) {
             $this->error('No locales configured in config/locales.php');
+
             return self::FAILURE;
         }
 
@@ -39,6 +40,7 @@ final class CheckMissingTranslationsCommand extends Command
         $usedKeys = $this->findUsedTranslationKeys();
         if ($usedKeys->isEmpty()) {
             $this->warn('No translation keys found in codebase.');
+
             return self::SUCCESS;
         }
 
@@ -161,7 +163,7 @@ final class CheckMissingTranslationsCommand extends Command
             }
 
             $relative = trim(str_replace('\\', '/', substr($file->getPathname(), strlen($basePath))), '/');
-            $group = $prefix . str_replace('/', '.', substr($relative, 0, -4)); // drop .php
+            $group = $prefix.str_replace('/', '.', substr($relative, 0, -4)); // drop .php
 
             $array = include $file->getPathname();
             if (! is_array($array)) {

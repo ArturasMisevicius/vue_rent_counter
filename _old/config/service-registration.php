@@ -1,6 +1,23 @@
 <?php
 
 declare(strict_types=1);
+use App\Contracts\CircuitBreakerInterface;
+use App\Contracts\ServiceRegistration\ErrorHandlingStrategyInterface;
+use App\Contracts\ServiceRegistration\PolicyRegistryInterface;
+use App\Contracts\SubscriptionCheckerInterface;
+use App\Contracts\TenantAuditLoggerInterface;
+use App\Contracts\TenantAuthorizationServiceInterface;
+use App\Contracts\TenantContextInterface;
+use App\Repositories\Eloquent\EloquentTenantRepository;
+use App\Repositories\TenantRepositoryInterface;
+use App\Services\Integration\CircuitBreakerService;
+use App\Services\ServiceRegistration\RegistrationErrorHandler;
+use App\Services\SubscriptionChecker;
+use App\Services\TenantAuditLogger;
+use App\Services\TenantAuthorizationService;
+use App\Services\TenantBoundaryService;
+use App\Services\TenantContext;
+use App\Support\ServiceRegistration\PolicyRegistry;
 
 return [
     /*
@@ -56,7 +73,7 @@ return [
             'gate_registration' => 'gate_registration',
             'service_registration' => 'service_registration',
         ],
-        
+
         'log_levels' => [
             'success' => 'info',
             'warning' => 'warning',
@@ -75,22 +92,22 @@ return [
         |
         */
         'singletons' => [
-            \App\Services\TenantContext::class,
-            \App\Services\TenantBoundaryService::class,
-            \App\Repositories\Eloquent\EloquentTenantRepository::class,
-            \App\Services\TenantAuditLogger::class,
-            \App\Services\TenantAuthorizationService::class,
+            TenantContext::class,
+            TenantBoundaryService::class,
+            EloquentTenantRepository::class,
+            TenantAuditLogger::class,
+            TenantAuthorizationService::class,
         ],
-        
+
         'bindings' => [
-            \App\Contracts\ServiceRegistration\PolicyRegistryInterface::class => \App\Support\ServiceRegistration\PolicyRegistry::class,
-            \App\Contracts\ServiceRegistration\ErrorHandlingStrategyInterface::class => \App\Services\ServiceRegistration\RegistrationErrorHandler::class,
-            \App\Contracts\CircuitBreakerInterface::class => \App\Services\Integration\CircuitBreakerService::class,
-            \App\Contracts\SubscriptionCheckerInterface::class => \App\Services\SubscriptionChecker::class,
-            \App\Repositories\TenantRepositoryInterface::class => \App\Repositories\Eloquent\EloquentTenantRepository::class,
-            \App\Contracts\TenantAuditLoggerInterface::class => \App\Services\TenantAuditLogger::class,
-            \App\Contracts\TenantAuthorizationServiceInterface::class => \App\Services\TenantAuthorizationService::class,
-            \App\Contracts\TenantContextInterface::class => \App\Services\TenantContext::class,
+            PolicyRegistryInterface::class => PolicyRegistry::class,
+            ErrorHandlingStrategyInterface::class => RegistrationErrorHandler::class,
+            CircuitBreakerInterface::class => CircuitBreakerService::class,
+            SubscriptionCheckerInterface::class => SubscriptionChecker::class,
+            TenantRepositoryInterface::class => EloquentTenantRepository::class,
+            TenantAuditLoggerInterface::class => TenantAuditLogger::class,
+            TenantAuthorizationServiceInterface::class => TenantAuthorizationService::class,
+            TenantContextInterface::class => TenantContext::class,
         ],
     ],
 ];

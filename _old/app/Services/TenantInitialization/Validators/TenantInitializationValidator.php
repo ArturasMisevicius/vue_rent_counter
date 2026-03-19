@@ -10,7 +10,7 @@ use App\Services\TenantInitialization\Repositories\UtilityServiceRepositoryInter
 
 /**
  * Validator for tenant initialization operations.
- * 
+ *
  * Provides comprehensive validation for different initialization scenarios
  * with specific error messages and context.
  */
@@ -22,15 +22,15 @@ final readonly class TenantInitializationValidator
 
     /**
      * Validate tenant for service initialization.
-     * 
-     * @param Organization $tenant The tenant to validate
-     * 
+     *
+     * @param  Organization  $tenant  The tenant to validate
+     *
      * @throws TenantInitializationException If validation fails
      */
     public function validateForInitialization(Organization $tenant): void
     {
         $this->validateBasicTenantData($tenant);
-        
+
         if ($this->utilityServiceRepository->tenantHasServices($tenant)) {
             throw TenantInitializationException::invalidTenantData(
                 $tenant,
@@ -41,16 +41,16 @@ final readonly class TenantInitializationValidator
 
     /**
      * Validate tenant for property assignment.
-     * 
-     * @param Organization $tenant The tenant to validate
-     * 
+     *
+     * @param  Organization  $tenant  The tenant to validate
+     *
      * @throws TenantInitializationException If validation fails
      */
     public function validateForPropertyAssignment(Organization $tenant): void
     {
         $this->validateBasicTenantData($tenant);
-        
-        if (!$this->utilityServiceRepository->tenantHasServices($tenant)) {
+
+        if (! $this->utilityServiceRepository->tenantHasServices($tenant)) {
             throw TenantInitializationException::invalidTenantData(
                 $tenant,
                 'Tenant must have utility services before property assignment'
@@ -60,9 +60,9 @@ final readonly class TenantInitializationValidator
 
     /**
      * Validate tenant for compatibility check.
-     * 
-     * @param Organization $tenant The tenant to validate
-     * 
+     *
+     * @param  Organization  $tenant  The tenant to validate
+     *
      * @throws TenantInitializationException If validation fails
      */
     public function validateForCompatibilityCheck(Organization $tenant): void
@@ -72,14 +72,14 @@ final readonly class TenantInitializationValidator
 
     /**
      * Validate basic tenant data requirements.
-     * 
-     * @param Organization $tenant The tenant to validate
-     * 
+     *
+     * @param  Organization  $tenant  The tenant to validate
+     *
      * @throws TenantInitializationException If validation fails
      */
     private function validateBasicTenantData(Organization $tenant): void
     {
-        if (!$tenant->exists) {
+        if (! $tenant->exists) {
             throw TenantInitializationException::invalidTenantData(
                 $tenant,
                 'Tenant must be persisted to database'
@@ -93,7 +93,7 @@ final readonly class TenantInitializationValidator
             );
         }
 
-        if (!$tenant->id) {
+        if (! $tenant->id) {
             throw TenantInitializationException::invalidTenantData(
                 $tenant,
                 'Tenant ID is required'

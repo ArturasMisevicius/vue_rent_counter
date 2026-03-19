@@ -123,7 +123,7 @@ class ViewOrganization extends ViewRecord
 
                     $startOrganizationImpersonationAction->handle(auth()->user(), $admin);
 
-                    $this->redirect(route('filament.admin.pages.dashboard'));
+                    $this->redirect('/app');
                 }),
             EditAction::make(),
         ];

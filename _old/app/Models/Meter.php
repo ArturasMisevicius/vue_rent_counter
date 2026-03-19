@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Meter extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use BelongsToTenant, HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -123,7 +123,7 @@ class Meter extends Model
      */
     public function supportsMultiValueReadings(): bool
     {
-        return !empty($this->reading_structure);
+        return ! empty($this->reading_structure);
     }
 
     /**
@@ -147,6 +147,7 @@ class Meter extends Model
             if (count($readingValues) > 1) {
                 $errors[] = 'Legacy meter only supports single reading value';
             }
+
             return $errors;
         }
 
@@ -156,24 +157,25 @@ class Meter extends Model
             $isRequired = $field['required'] ?? false;
             $dataType = $field['type'] ?? 'number';
 
-            if ($isRequired && !isset($readingValues[$fieldName])) {
+            if ($isRequired && ! isset($readingValues[$fieldName])) {
                 $errors[] = "Required field '{$fieldName}' is missing";
+
                 continue;
             }
 
             if (isset($readingValues[$fieldName])) {
                 $value = $readingValues[$fieldName];
-                
+
                 // Type validation
-                if ($dataType === 'number' && !is_numeric($value)) {
+                if ($dataType === 'number' && ! is_numeric($value)) {
                     $errors[] = "Field '{$fieldName}' must be numeric";
                 }
-                
+
                 // Range validation
                 if (isset($field['min']) && $value < $field['min']) {
                     $errors[] = "Field '{$fieldName}' must be at least {$field['min']}";
                 }
-                
+
                 if (isset($field['max']) && $value > $field['max']) {
                     $errors[] = "Field '{$fieldName}' must not exceed {$field['max']}";
                 }
@@ -188,7 +190,7 @@ class Meter extends Model
      */
     public function isUniversalService(): bool
     {
-        return !is_null($this->service_configuration_id);
+        return ! is_null($this->service_configuration_id);
     }
 
     /**

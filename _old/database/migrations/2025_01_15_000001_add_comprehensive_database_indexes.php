@@ -30,32 +30,32 @@ return new class extends Migration
         // Users table indexes
         Schema::table('users', function (Blueprint $table) {
             // Email is already unique, but ensure index exists for lookups
-            if (!$this->indexExists('users', 'users_email_unique')) {
+            if (! $this->indexExists('users', 'users_email_unique')) {
                 $table->index('email', 'users_email_index');
             }
-            
+
             // Index for role-based queries (already exists from hierarchical migration, but ensure it)
-            if (!$this->indexExists('users', 'users_tenant_role_index') && Schema::hasColumn('users', 'role')) {
+            if (! $this->indexExists('users', 'users_tenant_role_index') && Schema::hasColumn('users', 'role')) {
                 $table->index(['tenant_id', 'role'], 'users_tenant_role_index');
             }
-            
+
             // Index for active user filtering (only if column exists)
-            if (!$this->indexExists('users', 'users_is_active_index') && Schema::hasColumn('users', 'is_active')) {
+            if (! $this->indexExists('users', 'users_is_active_index') && Schema::hasColumn('users', 'is_active')) {
                 $table->index('is_active', 'users_is_active_index');
             }
-            
+
             // Composite index for active users by tenant (only if column exists)
-            if (!$this->indexExists('users', 'users_tenant_active_index') && Schema::hasColumn('users', 'is_active')) {
+            if (! $this->indexExists('users', 'users_tenant_active_index') && Schema::hasColumn('users', 'is_active')) {
                 $table->index(['tenant_id', 'is_active'], 'users_tenant_active_index');
             }
-            
+
             // Index for email verification status
-            if (!$this->indexExists('users', 'users_email_verified_index') && Schema::hasColumn('users', 'email_verified_at')) {
+            if (! $this->indexExists('users', 'users_email_verified_index') && Schema::hasColumn('users', 'email_verified_at')) {
                 $table->index('email_verified_at', 'users_email_verified_index');
             }
-            
+
             // Index for created_at (sorting, date range queries)
-            if (!$this->indexExists('users', 'users_created_at_index')) {
+            if (! $this->indexExists('users', 'users_created_at_index')) {
                 $table->index('created_at', 'users_created_at_index');
             }
         });
@@ -63,7 +63,7 @@ return new class extends Migration
         // Buildings table indexes
         Schema::table('buildings', function (Blueprint $table) {
             // Index for created_at (sorting)
-            if (!$this->indexExists('buildings', 'buildings_created_at_index')) {
+            if (! $this->indexExists('buildings', 'buildings_created_at_index')) {
                 $table->index('created_at', 'buildings_created_at_index');
             }
         });
@@ -71,17 +71,17 @@ return new class extends Migration
         // Properties table indexes (some already exist from previous migration)
         Schema::table('properties', function (Blueprint $table) {
             // Index for created_at (sorting)
-            if (!$this->indexExists('properties', 'properties_created_at_index')) {
+            if (! $this->indexExists('properties', 'properties_created_at_index')) {
                 $table->index('created_at', 'properties_created_at_index');
             }
-            
+
             // Composite index for tenant + created_at (recent properties per tenant)
-            if (!$this->indexExists('properties', 'properties_tenant_created_index')) {
+            if (! $this->indexExists('properties', 'properties_tenant_created_index')) {
                 $table->index(['tenant_id', 'created_at'], 'properties_tenant_created_index');
             }
-            
+
             // Index for building_id if not already indexed (foreign key may not auto-index)
-            if (!$this->indexExists('properties', 'properties_building_id_index')) {
+            if (! $this->indexExists('properties', 'properties_building_id_index')) {
                 $table->index('building_id', 'properties_building_id_index');
             }
         });
@@ -89,22 +89,22 @@ return new class extends Migration
         // Meters table indexes
         Schema::table('meters', function (Blueprint $table) {
             // Index for type filtering
-            if (!$this->indexExists('meters', 'meters_type_index')) {
+            if (! $this->indexExists('meters', 'meters_type_index')) {
                 $table->index('type', 'meters_type_index');
             }
-            
+
             // Composite index for property + type
-            if (!$this->indexExists('meters', 'meters_property_type_index')) {
+            if (! $this->indexExists('meters', 'meters_property_type_index')) {
                 $table->index(['property_id', 'type'], 'meters_property_type_index');
             }
-            
+
             // Index for installation_date (date range queries)
-            if (!$this->indexExists('meters', 'meters_installation_date_index')) {
+            if (! $this->indexExists('meters', 'meters_installation_date_index')) {
                 $table->index('installation_date', 'meters_installation_date_index');
             }
-            
+
             // Index for created_at
-            if (!$this->indexExists('meters', 'meters_created_at_index')) {
+            if (! $this->indexExists('meters', 'meters_created_at_index')) {
                 $table->index('created_at', 'meters_created_at_index');
             }
         });
@@ -112,17 +112,17 @@ return new class extends Migration
         // Meter readings table indexes (some already exist)
         Schema::table('meter_readings', function (Blueprint $table) {
             // Index for entered_by (user tracking)
-            if (!$this->indexExists('meter_readings', 'meter_readings_entered_by_index')) {
+            if (! $this->indexExists('meter_readings', 'meter_readings_entered_by_index')) {
                 $table->index('entered_by', 'meter_readings_entered_by_index');
             }
-            
+
             // Composite index for tenant + reading_date
-            if (!$this->indexExists('meter_readings', 'meter_readings_tenant_date_index')) {
+            if (! $this->indexExists('meter_readings', 'meter_readings_tenant_date_index')) {
                 $table->index(['tenant_id', 'reading_date'], 'meter_readings_tenant_date_index');
             }
-            
+
             // Index for created_at
-            if (!$this->indexExists('meter_readings', 'meter_readings_created_at_index')) {
+            if (! $this->indexExists('meter_readings', 'meter_readings_created_at_index')) {
                 $table->index('created_at', 'meter_readings_created_at_index');
             }
         });
@@ -130,17 +130,17 @@ return new class extends Migration
         // Meter reading audits table indexes
         Schema::table('meter_reading_audits', function (Blueprint $table) {
             // Index for changed_by_user_id (already exists from organizations migration, but ensure)
-            if (!$this->indexExists('meter_reading_audits', 'meter_reading_audits_changed_by_index')) {
+            if (! $this->indexExists('meter_reading_audits', 'meter_reading_audits_changed_by_index')) {
                 $table->index('changed_by_user_id', 'meter_reading_audits_changed_by_index');
             }
-            
+
             // Index for created_at (audit trail sorting)
-            if (!$this->indexExists('meter_reading_audits', 'meter_reading_audits_created_at_index')) {
+            if (! $this->indexExists('meter_reading_audits', 'meter_reading_audits_created_at_index')) {
                 $table->index('created_at', 'meter_reading_audits_created_at_index');
             }
-            
+
             // Composite index for meter_reading_id + created_at
-            if (!$this->indexExists('meter_reading_audits', 'meter_reading_audits_reading_created_index')) {
+            if (! $this->indexExists('meter_reading_audits', 'meter_reading_audits_reading_created_index')) {
                 $table->index(['meter_reading_id', 'created_at'], 'meter_reading_audits_reading_created_index');
             }
         });
@@ -148,22 +148,22 @@ return new class extends Migration
         // Invoices table indexes (some already exist)
         Schema::table('invoices', function (Blueprint $table) {
             // Index for finalized_at (filtering finalized invoices)
-            if (!$this->indexExists('invoices', 'invoices_finalized_at_index')) {
+            if (! $this->indexExists('invoices', 'invoices_finalized_at_index')) {
                 $table->index('finalized_at', 'invoices_finalized_at_index');
             }
-            
+
             // Composite index for tenant + status
-            if (!$this->indexExists('invoices', 'invoices_tenant_status_index')) {
+            if (! $this->indexExists('invoices', 'invoices_tenant_status_index')) {
                 $table->index(['tenant_id', 'status'], 'invoices_tenant_status_index');
             }
-            
+
             // Composite index for billing period queries
-            if (!$this->indexExists('invoices', 'invoices_period_index')) {
+            if (! $this->indexExists('invoices', 'invoices_period_index')) {
                 $table->index(['billing_period_start', 'billing_period_end'], 'invoices_period_index');
             }
-            
+
             // Index for created_at
-            if (!$this->indexExists('invoices', 'invoices_created_at_index')) {
+            if (! $this->indexExists('invoices', 'invoices_created_at_index')) {
                 $table->index('created_at', 'invoices_created_at_index');
             }
         });
@@ -171,12 +171,12 @@ return new class extends Migration
         // Invoice items table indexes
         Schema::table('invoice_items', function (Blueprint $table) {
             // Index for invoice_id (already indexed as foreign key, but ensure)
-            if (!$this->indexExists('invoice_items', 'invoice_items_invoice_id_index')) {
+            if (! $this->indexExists('invoice_items', 'invoice_items_invoice_id_index')) {
                 $table->index('invoice_id', 'invoice_items_invoice_id_index');
             }
-            
+
             // Index for created_at
-            if (!$this->indexExists('invoice_items', 'invoice_items_created_at_index')) {
+            if (! $this->indexExists('invoice_items', 'invoice_items_created_at_index')) {
                 $table->index('created_at', 'invoice_items_created_at_index');
             }
         });
@@ -184,12 +184,12 @@ return new class extends Migration
         // Tenants table indexes
         Schema::table('tenants', function (Blueprint $table) {
             // Index for email (user lookups)
-            if (!$this->indexExists('tenants', 'tenants_email_index')) {
+            if (! $this->indexExists('tenants', 'tenants_email_index')) {
                 $table->index('email', 'tenants_email_index');
             }
-            
+
             // Index for created_at
-            if (!$this->indexExists('tenants', 'tenants_created_at_index')) {
+            if (! $this->indexExists('tenants', 'tenants_created_at_index')) {
                 $table->index('created_at', 'tenants_created_at_index');
             }
         });
@@ -197,7 +197,7 @@ return new class extends Migration
         // Providers table indexes
         Schema::table('providers', function (Blueprint $table) {
             // Index for created_at
-            if (!$this->indexExists('providers', 'providers_created_at_index')) {
+            if (! $this->indexExists('providers', 'providers_created_at_index')) {
                 $table->index('created_at', 'providers_created_at_index');
             }
         });
@@ -205,12 +205,12 @@ return new class extends Migration
         // Tariffs table indexes (some already exist)
         Schema::table('tariffs', function (Blueprint $table) {
             // Index for type filtering
-            if (!$this->indexExists('tariffs', 'tariffs_type_index')) {
+            if (! $this->indexExists('tariffs', 'tariffs_type_index')) {
                 $table->index('type', 'tariffs_type_index');
             }
-            
+
             // Index for created_at
-            if (!$this->indexExists('tariffs', 'tariffs_created_at_index')) {
+            if (! $this->indexExists('tariffs', 'tariffs_created_at_index')) {
                 $table->index('created_at', 'tariffs_created_at_index');
             }
         });
@@ -219,7 +219,7 @@ return new class extends Migration
         if (Schema::hasTable('subscriptions')) {
             Schema::table('subscriptions', function (Blueprint $table) {
                 // Index for created_at
-                if (!$this->indexExists('subscriptions', 'subscriptions_created_at_index')) {
+                if (! $this->indexExists('subscriptions', 'subscriptions_created_at_index')) {
                     $table->index('created_at', 'subscriptions_created_at_index');
                 }
             });
@@ -229,12 +229,12 @@ return new class extends Migration
         if (Schema::hasTable('property_tenant')) {
             Schema::table('property_tenant', function (Blueprint $table) {
                 // Index for assigned_at (date range queries)
-                if (!$this->indexExists('property_tenant', 'property_tenant_assigned_at_index')) {
+                if (! $this->indexExists('property_tenant', 'property_tenant_assigned_at_index')) {
                     $table->index('assigned_at', 'property_tenant_assigned_at_index');
                 }
-                
+
                 // Index for created_at
-                if (!$this->indexExists('property_tenant', 'property_tenant_created_at_index')) {
+                if (! $this->indexExists('property_tenant', 'property_tenant_created_at_index')) {
                     $table->index('created_at', 'property_tenant_created_at_index');
                 }
             });
@@ -244,7 +244,7 @@ return new class extends Migration
         if (Schema::hasTable('faqs')) {
             Schema::table('faqs', function (Blueprint $table) {
                 // Index for created_at
-                if (!$this->indexExists('faqs', 'faqs_created_at_index')) {
+                if (! $this->indexExists('faqs', 'faqs_created_at_index')) {
                     $table->index('created_at', 'faqs_created_at_index');
                 }
             });
@@ -254,7 +254,7 @@ return new class extends Migration
         if (Schema::hasTable('translations')) {
             Schema::table('translations', function (Blueprint $table) {
                 // Index for created_at
-                if (!$this->indexExists('translations', 'translations_created_at_index')) {
+                if (! $this->indexExists('translations', 'translations_created_at_index')) {
                     $table->index('created_at', 'translations_created_at_index');
                 }
             });
@@ -362,23 +362,24 @@ return new class extends Migration
         try {
             $connection = Schema::getConnection();
             $driver = $connection->getDriverName();
-            
+
             if ($driver === 'sqlite') {
                 // SQLite uses a different approach
                 $indexes = $connection->select("SELECT name FROM sqlite_master WHERE type='index' AND name=?", [$indexName]);
-                return !empty($indexes);
+
+                return ! empty($indexes);
             }
-            
+
             // MySQL, PostgreSQL, etc.
             $database = $connection->getDatabaseName();
-            
+
             if ($driver === 'mysql') {
                 $result = $connection->select(
-                    "SELECT COUNT(*) as count 
+                    'SELECT COUNT(*) as count 
                      FROM information_schema.statistics 
                      WHERE table_schema = ? 
                      AND table_name = ? 
-                     AND index_name = ?",
+                     AND index_name = ?',
                     [$database, $table, $indexName]
                 );
             } else {
@@ -392,9 +393,9 @@ return new class extends Migration
                     [$table, $indexName]
                 );
             }
-            
+
             return isset($result[0]) && $result[0]->count > 0;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // If we can't check, assume it doesn't exist to be safe
             return false;
         }
@@ -416,7 +417,7 @@ return new class extends Migration
                 // SQLite and PostgreSQL both support DROP INDEX IF EXISTS syntax
                 $connection->statement("DROP INDEX IF EXISTS \"{$indexName}\"");
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Swallow exceptions to keep rollback idempotent
         }
     }

@@ -16,10 +16,10 @@ return new class extends Migration
         Schema::table('tariffs', function (Blueprint $table) {
             // Add remote_id column for external system integration
             $table->string('remote_id', 255)->nullable()->after('provider_id');
-            
+
             // Make provider_id nullable to support manual tariff entry
             $table->foreignId('provider_id')->nullable()->change();
-            
+
             // Add index for remote_id lookups
             $table->index('remote_id');
         });
@@ -33,7 +33,7 @@ return new class extends Migration
         Schema::table('tariffs', function (Blueprint $table) {
             $table->dropIndex(['remote_id']);
             $table->dropColumn('remote_id');
-            
+
             // Restore provider_id as required
             $table->foreignId('provider_id')->nullable(false)->change();
         });

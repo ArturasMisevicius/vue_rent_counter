@@ -21,7 +21,7 @@ final class InvoiceFilters extends Component implements HasForms
     use WithPagination;
 
     public ?array $filters = [];
-    
+
     public string $view = 'all'; // 'all', 'drafts', 'finalized'
 
     public function mount(string $view = 'all'): void
@@ -126,39 +126,39 @@ final class InvoiceFilters extends Component implements HasForms
         }
 
         // Apply status filter
-        if (!empty($this->filters['status'])) {
+        if (! empty($this->filters['status'])) {
             $query->where('status', $this->filters['status']);
         }
 
         // Apply property filter
-        if (!empty($this->filters['property_id'])) {
+        if (! empty($this->filters['property_id'])) {
             $query->whereHas('tenant', function ($q) {
                 $q->where('property_id', $this->filters['property_id']);
             });
         }
 
         // Apply billing period filters
-        if (!empty($this->filters['billing_period_from'])) {
+        if (! empty($this->filters['billing_period_from'])) {
             $query->where('billing_period_start', '>=', $this->filters['billing_period_from']);
         }
 
-        if (!empty($this->filters['billing_period_to'])) {
+        if (! empty($this->filters['billing_period_to'])) {
             $query->where('billing_period_end', '<=', $this->filters['billing_period_to']);
         }
 
         // Apply amount filters
-        if (!empty($this->filters['min_amount'])) {
+        if (! empty($this->filters['min_amount'])) {
             $query->where('total_amount', '>=', $this->filters['min_amount']);
         }
 
-        if (!empty($this->filters['max_amount'])) {
+        if (! empty($this->filters['max_amount'])) {
             $query->where('total_amount', '<=', $this->filters['max_amount']);
         }
 
         // Apply sorting
         $sortColumn = $this->filters['sort'] ?? 'created_at';
         $sortDirection = $this->filters['direction'] ?? 'desc';
-        
+
         $allowedColumns = ['billing_period_start', 'billing_period_end', 'total_amount', 'created_at', 'due_date'];
         if (in_array($sortColumn, $allowedColumns)) {
             $query->orderBy($sortColumn, $sortDirection);

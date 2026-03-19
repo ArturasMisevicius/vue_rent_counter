@@ -22,10 +22,10 @@ return new class extends Migration
             $table->foreignId('created_by')->nullable()->after('is_published')->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by')->nullable()->after('created_by')->constrained('users')->nullOnDelete();
             $table->foreignId('deleted_by')->nullable()->after('updated_by')->constrained('users')->nullOnDelete();
-            
+
             // Soft deletes
             $table->softDeletes()->after('updated_at');
-            
+
             // Indexes for performance
             $table->index('created_by');
             $table->index('updated_by');
@@ -42,11 +42,11 @@ return new class extends Migration
             $table->dropForeign(['created_by']);
             $table->dropForeign(['updated_by']);
             $table->dropForeign(['deleted_by']);
-            
+
             $table->dropIndex(['created_by']);
             $table->dropIndex(['updated_by']);
             $table->dropIndex(['deleted_at']);
-            
+
             $table->dropColumn(['created_by', 'updated_by', 'deleted_by']);
             $table->dropSoftDeletes();
         });

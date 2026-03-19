@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace App\Services\TenantInitialization\Factories;
 
+use App\Exceptions\TenantInitializationException;
 use App\Models\Organization;
 use App\Models\UtilityService;
 use App\Services\TenantInitialization\Contracts\ServiceCreationStrategyInterface;
-use App\Exceptions\TenantInitializationException;
 use Illuminate\Support\Collection;
 
 /**
  * Factory for creating utility services using appropriate strategies.
- * 
+ *
  * Implements Factory pattern to delegate service creation to the most
  * appropriate strategy based on the service definition.
  */
 final readonly class UtilityServiceFactory
 {
     /**
-     * @param Collection<int, ServiceCreationStrategyInterface> $strategies
+     * @param  Collection<int, ServiceCreationStrategyInterface>  $strategies
      */
     public function __construct(
         private Collection $strategies,
@@ -27,26 +27,25 @@ final readonly class UtilityServiceFactory
 
     /**
      * Create a utility service using the appropriate strategy.
-     * 
-     * @param Organization $tenant The tenant to create service for
-     * @param string $serviceKey The service type key
-     * @param array<string, mixed> $definition Service definition
-     * 
+     *
+     * @param  Organization  $tenant  The tenant to create service for
+     * @param  string  $serviceKey  The service type key
+     * @param  array<string, mixed>  $definition  Service definition
      * @return UtilityService The created utility service
-     * 
+     *
      * @throws TenantInitializationException If no strategy can handle the definition
      */
     public function createService(
-        Organization $tenant, 
-        string $serviceKey, 
+        Organization $tenant,
+        string $serviceKey,
         array $definition
     ): UtilityService {
         $strategy = $this->findStrategy($definition);
-        
-        if (!$strategy) {
+
+        if (! $strategy) {
             throw TenantInitializationException::serviceCreationFailed(
-                $tenant, 
-                $serviceKey, 
+                $tenant,
+                $serviceKey,
                 new \InvalidArgumentException('No strategy found for service definition')
             );
         }
@@ -56,10 +55,9 @@ final readonly class UtilityServiceFactory
 
     /**
      * Create multiple utility services in batch.
-     * 
-     * @param Organization $tenant The tenant to create services for
-     * @param array<string, array<string, mixed>> $definitions Service definitions keyed by service key
-     * 
+     *
+     * @param  Organization  $tenant  The tenant to create services for
+     * @param  array<string, array<string, mixed>>  $definitions  Service definitions keyed by service key
      * @return Collection<string, UtilityService> Created services keyed by service key
      */
     public function createBatch(Organization $tenant, array $definitions): Collection
@@ -75,15 +73,14 @@ final readonly class UtilityServiceFactory
 
     /**
      * Find the appropriate strategy for the given definition.
-     * 
-     * @param array<string, mixed> $definition Service definition
-     * 
+     *
+     * @param  array<string, mixed>  $definition  Service definition
      * @return ServiceCreationStrategyInterface|null The strategy or null if none found
      */
     private function findStrategy(array $definition): ?ServiceCreationStrategyInterface
     {
         return $this->strategies->first(
-            fn(ServiceCreationStrategyInterface $strategy) => $strategy->canHandle($definition)
+            fn (ServiceCreationStrategyInterface $strategy) => $strategy->canHandle($definition)
         );
     }
 }

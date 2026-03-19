@@ -10,7 +10,7 @@ use App\Models\User;
 
 /**
  * Truth-but-Verify workflow strategy for meter readings.
- * 
+ *
  * In this workflow:
  * - Tenants cannot update readings once submitted
  * - Tenants cannot delete readings once submitted

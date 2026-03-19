@@ -25,7 +25,7 @@ return new class extends Migration
             $table->date('billing_period_end');
             $table->text('notes')->nullable();
             $table->timestamps();
-            
+
             $table->index(['property_id', 'billing_period_start']);
             $table->index(['tenant_id', 'billing_period_start']);
             $table->index(['utility_service_id', 'billing_period_start']);

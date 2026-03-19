@@ -6,7 +6,7 @@ namespace App\Services\Validation;
 
 /**
  * Immutable validation result value object.
- * 
+ *
  * Represents the outcome of a validation operation with errors, warnings,
  * and metadata. Supports merging multiple validation results.
  */
@@ -73,7 +73,7 @@ final readonly class ValidationResult
 
     /**
      * Merge this result with another result.
-     * 
+     *
      * The merged result is invalid if either result is invalid.
      * Errors, warnings, recommendations, and metadata are combined.
      */
@@ -149,7 +149,7 @@ final readonly class ValidationResult
      */
     public function hasErrors(): bool
     {
-        return !empty($this->errors);
+        return ! empty($this->errors);
     }
 
     /**
@@ -157,7 +157,7 @@ final readonly class ValidationResult
      */
     public function hasWarnings(): bool
     {
-        return !empty($this->warnings);
+        return ! empty($this->warnings);
     }
 
     /**
@@ -165,7 +165,7 @@ final readonly class ValidationResult
      */
     public function hasRecommendations(): bool
     {
-        return !empty($this->recommendations);
+        return ! empty($this->recommendations);
     }
 
     /**
@@ -222,12 +222,12 @@ final readonly class ValidationResult
         if ($this->isValid) {
             $summary = 'Validation passed';
             if ($this->hasWarnings()) {
-                $summary .= ' with ' . $this->getWarningCount() . ' warning(s)';
+                $summary .= ' with '.$this->getWarningCount().' warning(s)';
             }
         } else {
-            $summary = 'Validation failed with ' . $this->getErrorCount() . ' error(s)';
+            $summary = 'Validation failed with '.$this->getErrorCount().' error(s)';
             if ($this->hasWarnings()) {
-                $summary .= ' and ' . $this->getWarningCount() . ' warning(s)';
+                $summary .= ' and '.$this->getWarningCount().' warning(s)';
             }
         }
 

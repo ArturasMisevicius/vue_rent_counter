@@ -4,8 +4,10 @@ namespace App\Models;
 
 use App\Enums\InputMethod;
 use App\Enums\ValidationStatus;
+use App\Services\MeterReadingService;
 use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MeterReading extends Model
 {
-    use HasFactory, BelongsToTenant, Auditable;
+    use Auditable, BelongsToTenant, HasFactory;
 
     /**
      * Attributes to exclude from audit logging.
@@ -28,8 +30,6 @@ class MeterReading extends Model
     /**
      * Temporary attribute to store change reason for audit trail.
      * This is not stored in the database but used by the observer.
-     *
-     * @var string|null
      */
     public ?string $change_reason = null;
 
@@ -106,7 +106,7 @@ class MeterReading extends Model
 
     /**
      * Get the consumption since the previous reading.
-     * 
+     *
      * PERFORMANCE OPTIMIZATION: Accepts optional previous reading to avoid N+1 queries.
      * When used in batch operations, pass the preloaded previous reading.
      */
@@ -118,7 +118,7 @@ class MeterReading extends Model
         }
 
         // Fallback to service lookup for individual calls
-        $service = app(\App\Services\MeterReadingService::class);
+        $service = app(MeterReadingService::class);
         $previous = $service->getPreviousReading($this->meter, $this->zone, $this->reading_date->toDateString());
 
         return $previous ? $this->getEffectiveValue() - $previous->getEffectiveValue() : null;
@@ -131,22 +131,20 @@ class MeterReading extends Model
     public function getCachedConsumption(?MeterReading $previousReading = null): ?float
     {
         // Use model attribute caching to avoid recalculation
-        $cacheKey = 'consumption_' . ($previousReading?->id ?? 'auto');
-        
-        if (!isset($this->attributes[$cacheKey])) {
+        $cacheKey = 'consumption_'.($previousReading?->id ?? 'auto');
+
+        if (! isset($this->attributes[$cacheKey])) {
             $this->attributes[$cacheKey] = $this->getConsumption($previousReading);
         }
-        
+
         return $this->attributes[$cacheKey];
     }
 
     /**
      * Scope a query to readings within a date range.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $startDate
-     * @param string $endDate
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeForPeriod($query, string $startDate, string $endDate)
     {
@@ -156,9 +154,8 @@ class MeterReading extends Model
     /**
      * Scope a query to readings for a specific zone.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string|null $zone
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeForZone($query, ?string $zone)
     {
@@ -168,8 +165,8 @@ class MeterReading extends Model
     /**
      * Scope a query to readings ordered by date descending.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeLatest($query)
     {
@@ -239,7 +236,7 @@ class MeterReading extends Model
      */
     public function isMultiValue(): bool
     {
-        return !empty($this->reading_values);
+        return ! empty($this->reading_values);
     }
 
     /**
@@ -248,23 +245,23 @@ class MeterReading extends Model
     public function getEffectiveValue(): float
     {
         // For backward compatibility, return the single value if available
-        if (!is_null($this->value)) {
+        if (! is_null($this->value)) {
             return (float) $this->value;
         }
 
         // For multi-value readings, return the primary value or sum
         if ($this->isMultiValue()) {
             $values = $this->reading_values;
-            
+
             // If there's a 'primary' or 'total' field, use that
             if (isset($values['primary'])) {
                 return (float) $values['primary'];
             }
-            
+
             if (isset($values['total'])) {
                 return (float) $values['total'];
             }
-            
+
             // Otherwise, sum all numeric values
             return array_sum(array_filter($values, 'is_numeric'));
         }
@@ -277,11 +274,12 @@ class MeterReading extends Model
      */
     public function getReadingValue(string $fieldName): ?float
     {
-        if (!$this->isMultiValue()) {
+        if (! $this->isMultiValue()) {
             return $fieldName === 'value' ? $this->getEffectiveValue() : null;
         }
 
         $values = $this->reading_values ?? [];
+
         return isset($values[$fieldName]) ? (float) $values[$fieldName] : null;
     }
 
@@ -293,7 +291,7 @@ class MeterReading extends Model
         // If meter supports multi-value readings, store in reading_values
         if ($this->meter->supportsMultiValueReadings()) {
             $this->reading_values = $values;
-            
+
             // Also set the primary value for backward compatibility
             $this->value = $this->getEffectiveValue();
         } else {
@@ -309,7 +307,7 @@ class MeterReading extends Model
      */
     public function validateReadingValues(): array
     {
-        if (!$this->isMultiValue()) {
+        if (! $this->isMultiValue()) {
             return []; // Legacy readings don't need structure validation
         }
 
@@ -357,7 +355,7 @@ class MeterReading extends Model
      */
     public function hasPhoto(): bool
     {
-        return !empty($this->photo_path);
+        return ! empty($this->photo_path);
     }
 
     /**
@@ -365,6 +363,6 @@ class MeterReading extends Model
      */
     public function getPhotoUrl(): ?string
     {
-        return $this->hasPhoto() ? asset('storage/' . $this->photo_path) : null;
+        return $this->hasPhoto() ? asset('storage/'.$this->photo_path) : null;
     }
 }

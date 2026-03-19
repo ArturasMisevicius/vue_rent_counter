@@ -27,28 +27,28 @@ class ExportDailyReports extends Command
     public function handle(ScheduledExportService $exportService): int
     {
         $this->info('Starting daily export process...');
-        
+
         try {
             $results = $exportService->executeDailyExports();
-            
+
             foreach ($results as $exportType => $result) {
                 if ($result['success']) {
-                    $this->info("✓ {$exportType}: " . count($result['files']) . ' files generated');
-                    
+                    $this->info("✓ {$exportType}: ".count($result['files']).' files generated');
+
                     foreach ($result['files'] as $file) {
-                        $this->line("  - " . basename($file));
+                        $this->line('  - '.basename($file));
                     }
                 } else {
-                    $this->error("✗ {$exportType}: " . $result['error']);
+                    $this->error("✗ {$exportType}: ".$result['error']);
                 }
             }
-            
+
             $this->info('Daily export process completed successfully.');
-            
+
             return Command::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('Daily export process failed: ' . $e->getMessage());
-            
+            $this->error('Daily export process failed: '.$e->getMessage());
+
             return Command::FAILURE;
         }
     }

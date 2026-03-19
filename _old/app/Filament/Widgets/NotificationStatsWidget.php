@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Widgets;
 
 use App\Models\PlatformNotification;
+use App\Models\PlatformNotificationRecipient;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -12,7 +13,7 @@ class NotificationStatsWidget extends BaseWidget
 {
     protected static ?int $sort = 4;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public static function canView(): bool
     {
@@ -32,8 +33,8 @@ class NotificationStatsWidget extends BaseWidget
             ->get()
             ->sum('recipients_count');
 
-        $successfulDeliveries = \App\Models\PlatformNotificationRecipient::where('delivery_status', 'sent')->count();
-        
+        $successfulDeliveries = PlatformNotificationRecipient::where('delivery_status', 'sent')->count();
+
         $deliveryRate = $totalRecipients > 0 ? ($successfulDeliveries / $totalRecipients) * 100 : 0;
 
         return [
@@ -61,7 +62,7 @@ class NotificationStatsWidget extends BaseWidget
                 ->color('danger')
                 ->url(route('filament.admin.resources.platform-notifications.index')),
 
-            Stat::make('Delivery Rate', number_format($deliveryRate, 1) . '%')
+            Stat::make('Delivery Rate', number_format($deliveryRate, 1).'%')
                 ->description('Overall delivery success')
                 ->descriptionIcon('heroicon-m-chart-bar')
                 ->color($deliveryRate >= 95 ? 'success' : ($deliveryRate >= 85 ? 'warning' : 'danger'))

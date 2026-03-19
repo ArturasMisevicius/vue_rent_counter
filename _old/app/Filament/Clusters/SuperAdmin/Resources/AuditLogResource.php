@@ -7,21 +7,29 @@ namespace App\Filament\Clusters\SuperAdmin\Resources;
 use App\Enums\AuditAction;
 use App\Filament\Clusters\SuperAdmin;
 use App\Filament\Clusters\SuperAdmin\Resources\AuditLogResource\Pages;
+use App\Models\Organization;
 use App\Models\SuperAdminAuditLog;
+use App\Models\SystemConfiguration;
 use App\Models\User;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\DateTimePicker;
-use Filament\Schemas\Components\Select;
-use Filament\Schemas\Components\TextInput;
-use Filament\Schemas\Components\KeyValue;
-use Filament\Schemas\Components\Textarea;
 use Filament\Schemas\Components\DatePicker;
+use Filament\Schemas\Components\DateTimePicker;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\KeyValue;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Select;
+use Filament\Schemas\Components\Textarea;
+use Filament\Schemas\Components\TextInput;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 final class AuditLogResource extends Resource
@@ -145,20 +153,22 @@ final class AuditLogResource extends Resource
                 Tables\Columns\TextColumn::make('target_info')
                     ->label(__('superadmin.audit.fields.target'))
                     ->formatStateUsing(function ($record) {
-                        if (!$record->target_type) {
+                        if (! $record->target_type) {
                             return '—';
                         }
-                        
+
                         $type = class_basename($record->target_type);
                         $id = $record->target_id;
-                        
+
                         return "{$type} #{$id}";
                     })
                     ->description(function ($record) {
                         if ($record->target_type === User::class && $record->target_id) {
                             $user = User::find($record->target_id);
+
                             return $user ? $user->email : null;
                         }
+
                         return null;
                     })
                     ->searchable(['target_type', 'target_id']),
@@ -212,8 +222,8 @@ final class AuditLogResource extends Resource
                             ->label(__('superadmin.audit.fields.target_type'))
                             ->options([
                                 User::class => __('superadmin.audit.target_types.user'),
-                                \App\Models\Organization::class => __('superadmin.audit.target_types.organization'),
-                                \App\Models\SystemConfiguration::class => __('superadmin.audit.target_types.system_config'),
+                                Organization::class => __('superadmin.audit.target_types.organization'),
+                                SystemConfiguration::class => __('superadmin.audit.target_types.system_config'),
                             ])
                             ->multiple(),
                     ])
@@ -264,14 +274,14 @@ final class AuditLogResource extends Resource
                     ->toggle(),
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make()
+                ViewAction::make()
                     ->modalHeading(__('superadmin.audit.modals.details.heading'))
                     ->modalContent(fn ($record) => view('filament.superadmin.modals.audit-log-details', [
                         'auditLog' => $record,
                     ]))
                     ->modalWidth('4xl'),
 
-                \Filament\Actions\Action::make('view_target')
+                Action::make('view_target')
                     ->label(__('superadmin.audit.actions.view_target'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->color('info')
@@ -280,22 +290,23 @@ final class AuditLogResource extends Resource
                         if ($record->target_type === User::class) {
                             return SystemUserResource::getUrl('view', ['record' => $record->target_id]);
                         }
-                        if ($record->target_type === \App\Models\Organization::class) {
+                        if ($record->target_type === Organization::class) {
                             return TenantResource::getUrl('view', ['record' => $record->target_id]);
                         }
+
                         return null;
                     })
                     ->openUrlInNewTab(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\BulkAction::make('export_selected')
+                BulkActionGroup::make([
+                    BulkAction::make('export_selected')
                         ->label(__('superadmin.audit.bulk_actions.export'))
                         ->icon('heroicon-o-arrow-down-tray')
                         ->color('success')
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                        ->action(function (Collection $records) {
                             // TODO: Implement export functionality
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title(__('superadmin.audit.notifications.export_started'))
                                 ->body(__('superadmin.audit.notifications.export_started_body', [
                                     'count' => $records->count(),

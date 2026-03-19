@@ -7,10 +7,10 @@ namespace App\Filament\Resources\ProviderResource\RelationManagers;
 use App\Enums\TariffType;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Actions;
 use Filament\Tables\Table;
-use Filament\Schemas\Schema;
 
 /**
  * Relation manager for provider tariffs.
@@ -43,7 +43,7 @@ class TariffsRelationManager extends RelationManager
                     ->label(__('tariffs.forms.name'))
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('configuration.type')
                     ->label(__('tariffs.forms.type'))
                     ->badge()
@@ -54,18 +54,18 @@ class TariffsRelationManager extends RelationManager
                     })
                     ->formatStateUsing(fn (string $state): string => TariffType::tryFrom($state)?->label() ?? $state)
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('active_from')
                     ->label(__('tariffs.forms.active_from'))
                     ->date()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('active_until')
                     ->label(__('tariffs.forms.active_until'))
                     ->date()
                     ->sortable()
                     ->placeholder(__('tariffs.forms.no_end_date')),
-                
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->label(__('tariffs.labels.status'))
                     ->boolean()

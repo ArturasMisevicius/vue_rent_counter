@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class EnhancedTask extends Model
 {
-    use HasFactory, SoftDeletes, BelongsToTenant;
+    use BelongsToTenant, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'tenant_id',
@@ -125,8 +125,8 @@ final class EnhancedTask extends Model
         return $this->belongsTo(User::class, 'user_id')
             ->join('task_assignments', function ($join) {
                 $join->on('users.id', '=', 'task_assignments.user_id')
-                     ->where('task_assignments.task_id', $this->id)
-                     ->where('task_assignments.role', 'assignee');
+                    ->where('task_assignments.task_id', $this->id)
+                    ->where('task_assignments.role', 'assignee');
             });
     }
 
@@ -158,7 +158,7 @@ final class EnhancedTask extends Model
     public function scopeOverdue($query)
     {
         return $query->where('due_date', '<', now())
-                    ->whereNotIn('status', ['completed', 'cancelled']);
+            ->whereNotIn('status', ['completed', 'cancelled']);
     }
 
     public function scopeByType($query, string $type)
@@ -192,9 +192,9 @@ final class EnhancedTask extends Model
 
     public function getIsOverdueAttribute(): bool
     {
-        return $this->due_date && 
-               $this->due_date->isPast() && 
-               !in_array($this->status, ['completed', 'cancelled']);
+        return $this->due_date &&
+               $this->due_date->isPast() &&
+               ! in_array($this->status, ['completed', 'cancelled']);
     }
 
     public function getHoursRemainingAttribute(): float
@@ -212,11 +212,11 @@ final class EnhancedTask extends Model
         if ($this->status === 'completed') {
             return 100;
         }
-        
+
         if ($this->estimated_hours > 0) {
             return min(100, (int) (($this->actual_hours / $this->estimated_hours) * 100));
         }
-        
+
         return 0;
     }
 
@@ -228,7 +228,7 @@ final class EnhancedTask extends Model
         if ($this->project) {
             return $this->project->members()->where('user_id', $user->id)->exists();
         }
-        
+
         return $user->tenant_id === $this->tenant_id;
     }
 
@@ -238,7 +238,7 @@ final class EnhancedTask extends Model
             'status' => 'completed',
             'completed_at' => now(),
         ]);
-        
+
         // Update all assignments to completed
         $this->assignments()->update(['status' => 'completed']);
     }

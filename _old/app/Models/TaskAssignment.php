@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * TaskAssignment Pivot Model
- * 
+ *
  * Manages the many-to-many relationship between Tasks and Users
  * with additional role and completion tracking
  */
@@ -69,7 +69,7 @@ class TaskAssignment extends Pivot
      */
     public function getDurationHours(): ?float
     {
-        if (!$this->completed_at) {
+        if (! $this->completed_at) {
             return null;
         }
 
@@ -81,8 +81,8 @@ class TaskAssignment extends Pivot
      */
     public function isOverdue(): bool
     {
-        return !$this->isCompleted() && 
-               $this->task->due_date && 
+        return ! $this->isCompleted() &&
+               $this->task->due_date &&
                $this->task->due_date->isPast();
     }
 
@@ -91,7 +91,7 @@ class TaskAssignment extends Pivot
      */
     public function getRoleDisplayName(): string
     {
-        return match($this->role) {
+        return match ($this->role) {
             'assignee' => 'Assignee',
             'reviewer' => 'Reviewer',
             'observer' => 'Observer',

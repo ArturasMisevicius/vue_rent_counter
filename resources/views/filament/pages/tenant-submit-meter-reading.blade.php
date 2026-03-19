@@ -1,3 +1,6 @@
 <x-filament-panels::page>
-    <livewire:tenant.submit-meter-reading />
+    <div class="space-y-6 pb-24 lg:pb-0">
+        <livewire:tenant.submit-meter-reading />
+        <x-shared.tenant-bottom-nav />
+    </div>
 </x-filament-panels::page>

@@ -11,11 +11,9 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * Event fired when a user's subscription cache is invalidated.
- * 
+ *
  * This event can be used for monitoring, logging, or triggering
  * additional cache-related operations.
- * 
- * @package App\Events
  */
 class SubscriptionCacheInvalidated
 {
@@ -26,10 +24,9 @@ class SubscriptionCacheInvalidated
     /**
      * Create a new event instance.
      *
-     * @param User $user The user whose cache was invalidated
+     * @param  User  $user  The user whose cache was invalidated
      */
     public function __construct(
         public readonly User $user
-    ) {
-    }
+    ) {}
 }

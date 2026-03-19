@@ -4,26 +4,27 @@ declare(strict_types=1);
 
 namespace App\Services\TenantInitialization;
 
+use App\Enums\PricingModel;
+use App\Enums\ServiceType;
+use App\Exceptions\TenantInitializationException;
+use App\Models\Organization;
+use App\Models\UtilityService;
+use App\Services\TenantInitialization\Commands\InitializeUniversalServicesCommand;
+use App\Services\TenantInitialization\Repositories\UtilityServiceRepositoryInterface;
 use App\Services\TenantInitialization\Results\InitializationResult;
 use App\Services\TenantInitialization\Results\PropertyServiceAssignmentResult;
-use App\Models\Organization;
-use App\Services\TenantInitialization\Commands\InitializeUniversalServicesCommand;
 use App\Services\TenantInitialization\Validators\TenantInitializationValidator;
-use App\Services\TenantInitialization\Repositories\UtilityServiceRepositoryInterface;
-use App\Exceptions\TenantInitializationException;
-use App\Enums\ServiceType;
-use App\Enums\PricingModel;
 use App\Traits\LogsTenantOperations;
 use Illuminate\Support\Collection;
 
 /**
  * Orchestrator for tenant initialization operations.
- * 
+ *
  * Coordinates the initialization process using various commands and services
  * while maintaining single responsibility and proper separation of concerns.
- * 
- * @package App\Services\TenantInitialization
+ *
  * @author Laravel Development Team
+ *
  * @since 2.0.0
  */
 final readonly class TenantInitializationOrchestrator
@@ -31,6 +32,7 @@ final readonly class TenantInitializationOrchestrator
     use LogsTenantOperations;
 
     private const OPERATION_PROPERTY_ASSIGNMENT = 'property_service_assignment';
+
     private const OPERATION_HEATING_COMPATIBILITY = 'heating_compatibility_check';
 
     public function __construct(
@@ -42,28 +44,26 @@ final readonly class TenantInitializationOrchestrator
 
     /**
      * Initialize universal services for a tenant.
-     * 
-     * @param Organization $tenant The tenant to initialize
-     * 
+     *
+     * @param  Organization  $tenant  The tenant to initialize
      * @return InitializationResult The initialization result
-     * 
+     *
      * @throws TenantInitializationException If initialization fails
      */
     public function initializeUniversalServices(Organization $tenant): InitializationResult
     {
         $this->validator->validateForInitialization($tenant);
-        
+
         return $this->initializeServicesCommand->execute($tenant);
     }
 
     /**
      * Initialize property service assignments.
-     * 
-     * @param Organization $tenant The tenant
-     * @param Collection|array $utilityServices The utility services to assign
-     * 
+     *
+     * @param  Organization  $tenant  The tenant
+     * @param  Collection|array  $utilityServices  The utility services to assign
      * @return PropertyServiceAssignmentResult The assignment result
-     * 
+     *
      * @throws TenantInitializationException If assignment fails
      */
     public function initializePropertyServiceAssignments(
@@ -80,6 +80,7 @@ final readonly class TenantInitializationOrchestrator
                 self::OPERATION_PROPERTY_ASSIGNMENT,
                 'No existing properties found, skipping property service assignments'
             );
+
             return new PropertyServiceAssignmentResult(collect());
         }
 
@@ -90,7 +91,7 @@ final readonly class TenantInitializationOrchestrator
             ]);
 
             $servicesArray = is_array($utilityServices) ? $utilityServices : $utilityServices->toArray();
-            
+
             $configurations = $this->propertyServiceAssigner->assignServicesToProperties(
                 $tenant,
                 $properties,
@@ -113,11 +114,10 @@ final readonly class TenantInitializationOrchestrator
 
     /**
      * Ensure heating compatibility for a tenant.
-     * 
-     * @param Organization $tenant The tenant to check
-     * 
+     *
+     * @param  Organization  $tenant  The tenant to check
      * @return bool True if compatible
-     * 
+     *
      * @throws TenantInitializationException If compatibility check fails
      */
     public function ensureHeatingCompatibility(Organization $tenant): bool
@@ -129,12 +129,13 @@ final readonly class TenantInitializationOrchestrator
 
             $heatingService = $this->utilityServiceRepository->findHeatingService($tenant);
 
-            if (!$heatingService) {
+            if (! $heatingService) {
                 $this->logTenantOperationWarning(
                     $tenant,
                     self::OPERATION_HEATING_COMPATIBILITY,
                     'No heating service found for tenant during compatibility check'
                 );
+
                 return false;
             }
 
@@ -154,15 +155,14 @@ final readonly class TenantInitializationOrchestrator
 
     /**
      * Validate heating service configuration for compatibility.
-     * 
-     * @param \App\Models\UtilityService $heatingService The heating service
-     * 
+     *
+     * @param  UtilityService  $heatingService  The heating service
      * @return bool True if configuration is valid
      */
     private function validateHeatingServiceConfiguration($heatingService): bool
     {
         return $heatingService->service_type_bridge === ServiceType::HEATING
             && $heatingService->default_pricing_model === PricingModel::HYBRID
-            && !empty($heatingService->business_logic_config['supports_shared_distribution']);
+            && ! empty($heatingService->business_logic_config['supports_shared_distribution']);
     }
 }

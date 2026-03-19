@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Support\Console\Commands;
 
 use App\Services\Security\SecurityPerformanceMonitor;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 /**
  * Security Performance Report Command
- * 
+ *
  * Displays current security header performance metrics
  * and health status.
  */
@@ -31,7 +32,7 @@ final class SecurityPerformanceReport extends Command
                 'healthy' => $isHealthy,
                 'summary' => $summary,
             ], JSON_PRETTY_PRINT));
-            
+
             return Command::SUCCESS;
         }
 
@@ -73,6 +74,7 @@ final class SecurityPerformanceReport extends Command
         // Operations performance
         if (empty($summary['operations'])) {
             $this->warn('No performance data available. Run some requests first.');
+
             return;
         }
 
@@ -87,12 +89,12 @@ final class SecurityPerformanceReport extends Command
                     $data['min_time_ms'],
                     $data['max_time_ms'],
                     $data['total_time_ms'],
-                    $data['last_recorded'] ? \Carbon\Carbon::parse($data['last_recorded'])->diffForHumans() : 'Never',
+                    $data['last_recorded'] ? Carbon::parse($data['last_recorded'])->diffForHumans() : 'Never',
                 ];
             })->toArray()
         );
 
         $this->newLine();
-        $this->line("Last Reset: " . \Carbon\Carbon::parse($summary['last_reset'])->diffForHumans());
+        $this->line('Last Reset: '.Carbon::parse($summary['last_reset'])->diffForHumans());
     }
 }

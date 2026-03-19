@@ -9,7 +9,7 @@ use App\Models\ExchangeRate;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ExchangeRate>
+ * @extends Factory<ExchangeRate>
  */
 final class ExchangeRateFactory extends Factory
 {

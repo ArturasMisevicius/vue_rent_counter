@@ -10,21 +10,21 @@ use Throwable;
 
 /**
  * Trait for logging tenant operations with consistent formatting.
- * 
+ *
  * Provides standardized logging methods for tenant-related operations
  * including start, success, error, warning, and info messages with
  * proper context and structured data.
- * 
- * @package App\Traits
+ *
  * @author Laravel Development Team
+ *
  * @since 1.0.0
  */
 trait LogsTenantOperations
 {
     /**
      * Log the start of a tenant operation.
-     * 
-     * @param array<string, mixed> $context Additional context data
+     *
+     * @param  array<string, mixed>  $context  Additional context data
      */
     protected function logTenantOperationStart(
         Organization $tenant,
@@ -43,8 +43,8 @@ trait LogsTenantOperations
 
     /**
      * Log the successful completion of a tenant operation.
-     * 
-     * @param array<string, mixed> $context Additional context data
+     *
+     * @param  array<string, mixed>  $context  Additional context data
      */
     protected function logTenantOperationSuccess(
         Organization $tenant,
@@ -64,8 +64,8 @@ trait LogsTenantOperations
 
     /**
      * Log an error during a tenant operation.
-     * 
-     * @param array<string, mixed> $context Additional context data
+     *
+     * @param  array<string, mixed>  $context  Additional context data
      */
     protected function logTenantOperationError(
         Organization $tenant,
@@ -91,8 +91,8 @@ trait LogsTenantOperations
 
     /**
      * Log a warning during a tenant operation.
-     * 
-     * @param array<string, mixed> $context Additional context data
+     *
+     * @param  array<string, mixed>  $context  Additional context data
      */
     protected function logTenantOperationWarning(
         Organization $tenant,
@@ -114,8 +114,8 @@ trait LogsTenantOperations
 
     /**
      * Log informational message during a tenant operation.
-     * 
-     * @param array<string, mixed> $context Additional context data
+     *
+     * @param  array<string, mixed>  $context  Additional context data
      */
     protected function logTenantOperationInfo(
         Organization $tenant,
@@ -137,8 +137,8 @@ trait LogsTenantOperations
 
     /**
      * Log a debug message during a tenant operation.
-     * 
-     * @param array<string, mixed> $context Additional context data
+     *
+     * @param  array<string, mixed>  $context  Additional context data
      */
     protected function logTenantOperationDebug(
         Organization $tenant,
@@ -160,8 +160,8 @@ trait LogsTenantOperations
 
     /**
      * Log performance metrics for a tenant operation.
-     * 
-     * @param array<string, mixed> $metrics Performance metrics data
+     *
+     * @param  array<string, mixed>  $metrics  Performance metrics data
      */
     protected function logTenantOperationPerformance(
         Organization $tenant,

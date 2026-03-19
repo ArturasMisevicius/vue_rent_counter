@@ -24,7 +24,7 @@ return new class extends Migration
             $table->json('delivery_stats')->nullable(); // email sent count, read receipts, etc.
             $table->text('failure_reason')->nullable();
             $table->timestamps();
-            
+
             $table->index(['status', 'scheduled_at']);
             $table->index(['target_type', 'status']);
         });

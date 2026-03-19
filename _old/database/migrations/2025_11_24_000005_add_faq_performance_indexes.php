@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::table('faqs', function (Blueprint $table) {
             // Composite index for common query pattern (published + order)
             $table->index(['is_published', 'display_order'], 'faqs_published_order_index');
-            
+
             // Index for search queries
             $table->index('question', 'faqs_question_index');
-            
+
             // Note: deleted_at index is automatically created by softDeletes() in the create_faqs_table migration
         });
     }

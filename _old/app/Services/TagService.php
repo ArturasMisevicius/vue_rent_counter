@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * TagService - Advanced tag management with performance optimizations
- * 
+ *
  * Provides high-level tag operations with bulk operations and
  * performance optimizations for the tagging system.
  */
@@ -19,11 +19,9 @@ class TagService
 {
     /**
      * Bulk tag multiple models efficiently
-     * 
-     * @param array<Model> $models
-     * @param array<string> $tagNames
-     * @param int $tenantId
-     * @param int|null $taggedBy
+     *
+     * @param  array<Model>  $models
+     * @param  array<string>  $tagNames
      */
     public function bulkTagModels(array $models, array $tagNames, int $tenantId, ?int $taggedBy = null): void
     {
@@ -63,15 +61,14 @@ class TagService
 
     /**
      * Get or create tags by names
-     * 
-     * @param array<string> $names
-     * @param int $tenantId
+     *
+     * @param  array<string>  $names
      * @return Collection<Tag>
      */
     private function getOrCreateTagsByNames(array $names, int $tenantId): Collection
     {
-        $slugs = array_map(fn($name) => \Str::slug($name), $names);
-        
+        $slugs = array_map(fn ($name) => \Str::slug($name), $names);
+
         // Get existing tags
         $existing = Tag::where('tenant_id', $tenantId)
             ->whereIn('slug', $slugs)
@@ -79,10 +76,10 @@ class TagService
             ->keyBy('slug');
 
         $tags = collect();
-        
+
         foreach ($names as $name) {
             $slug = \Str::slug($name);
-            
+
             if ($existing->has($slug)) {
                 $tags->push($existing->get($slug));
             } else {
@@ -102,9 +99,7 @@ class TagService
 
     /**
      * Clean up unused tags for a tenant
-     * 
-     * @param int $tenantId
-     * @param int $daysUnused
+     *
      * @return int Number of tags deleted
      */
     public function cleanupUnusedTags(int $tenantId, int $daysUnused = 30): int

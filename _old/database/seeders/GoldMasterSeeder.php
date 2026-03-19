@@ -24,11 +24,11 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Gold Master Seeder - Creates the exact hierarchy for testing the Truth-but-Verify workflow
- * 
+ *
  * Creates:
  * - Superadmin (superadmin@example.com)
  * - Admin (admin@example.com) who owns an Organization
- * - Manager (manager@example.com) in same Organization  
+ * - Manager (manager@example.com) in same Organization
  * - Infrastructure: 2 Buildings, 5 Properties total, and 1 active Lease with Tenant (tenant@example.com)
  * - Utilities: Electricity and Water meters for leased Property
  * - All passwords: 'password'
@@ -36,6 +36,7 @@ use Illuminate\Support\Facades\Log;
 class GoldMasterSeeder extends Seeder
 {
     private const DEFAULT_PASSWORD = 'password';
+
     private const TENANT_ID = 1; // Organization ID for the Gold Master setup
 
     /**

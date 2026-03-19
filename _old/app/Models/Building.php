@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Building extends Model
 {
-    use HasFactory, BelongsToTenant, Auditable;
+    use Auditable, BelongsToTenant, HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -30,7 +30,7 @@ class Building extends Model
      */
     public function properties(): HasMany
     {
-        return $this->hasMany(\App\Models\Property::class);
+        return $this->hasMany(Property::class);
     }
 
     /**
@@ -38,7 +38,7 @@ class Building extends Model
      */
     public function getDisplayNameAttribute(): string
     {
-        return $this->name ?: $this->address ?: 'Building #' . $this->id;
+        return $this->name ?: $this->address ?: 'Building #'.$this->id;
     }
 
     /**

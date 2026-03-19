@@ -24,20 +24,20 @@ final class RealTimeCostWidget extends Widget
     public function getRealTimeCosts(): array
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->currentTeam) {
+
+        if (! $user || ! $user->currentTeam) {
             return [];
         }
 
         $cacheKey = "real_time_costs_{$user->currentTeam->id}";
-        
+
         return Cache::remember($cacheKey, 60, function () use ($user) {
             $properties = $user->currentTeam->properties()
                 ->with([
                     'meters.serviceConfiguration.utilityService',
                     'meters.readings' => function ($query) {
                         $query->latest()->limit(1);
-                    }
+                    },
                 ])
                 ->get();
 
@@ -49,12 +49,12 @@ final class RealTimeCostWidget extends Widget
                     $serviceConfig = $meter->serviceConfiguration;
                     $latestReading = $meter->readings->first();
 
-                    if (!$serviceConfig || !$latestReading) {
+                    if (! $serviceConfig || ! $latestReading) {
                         continue;
                     }
 
                     $service = $serviceConfig->utilityService;
-                    
+
                     // Calculate daily cost based on latest reading
                     try {
                         $dailyCost = $billingCalculator->calculateCost(
@@ -71,7 +71,7 @@ final class RealTimeCostWidget extends Widget
                             Carbon::now()->endOfMonth()
                         );
 
-                        if (!isset($costs[$service->name])) {
+                        if (! isset($costs[$service->name])) {
                             $costs[$service->name] = [
                                 'service' => $service->name,
                                 'unit' => $service->unit_of_measurement,
@@ -86,8 +86,8 @@ final class RealTimeCostWidget extends Widget
                         $costs[$service->name]['daily_cost'] += $dailyCost;
                         $costs[$service->name]['monthly_estimate'] += $monthlyCost;
                         $costs[$service->name]['latest_reading'] += $latestReading->value;
-                        
-                        if (!$costs[$service->name]['reading_date'] || 
+
+                        if (! $costs[$service->name]['reading_date'] ||
                             $latestReading->created_at->gt($costs[$service->name]['reading_date'])) {
                             $costs[$service->name]['reading_date'] = $latestReading->created_at;
                         }
@@ -108,8 +108,8 @@ final class RealTimeCostWidget extends Widget
     public function getDailyProjection(): array
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->currentTeam) {
+
+        if (! $user || ! $user->currentTeam) {
             return [
                 'current' => 0,
                 'projected' => 0,
@@ -118,18 +118,18 @@ final class RealTimeCostWidget extends Widget
         }
 
         $cacheKey = "daily_projection_{$user->currentTeam->id}";
-        
+
         return Cache::remember($cacheKey, 300, function () use ($user) {
             $todayStart = Carbon::now()->startOfDay();
             $todayEnd = Carbon::now()->endOfDay();
             $currentHour = Carbon::now()->hour;
-            
+
             $properties = $user->currentTeam->properties()
                 ->with([
                     'meters.serviceConfiguration.utilityService',
                     'meters.readings' => function ($query) use ($todayStart, $todayEnd) {
                         $query->whereBetween('created_at', [$todayStart, $todayEnd]);
-                    }
+                    },
                 ])
                 ->get();
 
@@ -141,7 +141,7 @@ final class RealTimeCostWidget extends Widget
                     $serviceConfig = $meter->serviceConfiguration;
                     $todayReadings = $meter->readings;
 
-                    if (!$serviceConfig || $todayReadings->isEmpty()) {
+                    if (! $serviceConfig || $todayReadings->isEmpty()) {
                         continue;
                     }
 
@@ -154,7 +154,7 @@ final class RealTimeCostWidget extends Widget
                             $todayStart,
                             Carbon::now()
                         );
-                        
+
                         $currentCost += $cost;
                     } catch (\Exception $e) {
                         logger()->warning('Daily projection calculation failed', [

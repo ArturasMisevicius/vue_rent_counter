@@ -19,11 +19,11 @@ return new class extends Migration
             $table->string('endpoint', 500);
             $table->enum('status', [
                 'healthy',
-                'degraded', 
+                'degraded',
                 'unhealthy',
                 'circuit_open',
                 'maintenance',
-                'unknown'
+                'unknown',
             ])->index();
             $table->unsignedInteger('response_time_ms')->nullable();
             $table->text('error_message')->nullable();

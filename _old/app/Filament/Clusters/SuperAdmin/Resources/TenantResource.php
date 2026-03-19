@@ -5,27 +5,34 @@ declare(strict_types=1);
 namespace App\Filament\Clusters\SuperAdmin\Resources;
 
 use App\Contracts\TenantManagementInterface;
-use App\Support\Tenants\CreateTenantData;
 use App\Enums\SubscriptionPlan;
 use App\Enums\TenantStatus;
 use App\Filament\Clusters\SuperAdmin;
 use App\Filament\Clusters\SuperAdmin\Resources\TenantResource\Pages;
 use App\Models\Organization;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\TextInput;
-use Filament\Schemas\Components\Select;
-use Filament\Schemas\Components\DateTimePicker;
 use Filament\Schemas\Components\DatePicker;
+use Filament\Schemas\Components\DateTimePicker;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Select;
 use Filament\Schemas\Components\Textarea;
+use Filament\Schemas\Components\TextInput;
 use Filament\Schemas\Components\Toggle;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 final class TenantResource extends Resource
 {
@@ -65,8 +72,7 @@ final class TenantResource extends Resource
                                     ->required()
                                     ->maxLength(255)
                                     ->live(onBlur: true)
-                                    ->afterStateUpdated(fn ($set, ?string $state) => 
-                                        $set('slug', \Illuminate\Support\Str::slug($state))
+                                    ->afterStateUpdated(fn ($set, ?string $state) => $set('slug', Str::slug($state))
                                     ),
 
                                 TextInput::make('slug')
@@ -106,7 +112,7 @@ final class TenantResource extends Resource
                                             'enterprise' => ['users' => 999, 'storage' => 50000, 'api_calls' => 100000],
                                             'custom' => ['users' => 10, 'storage' => 2000, 'api_calls' => 5000],
                                         ];
-                                        
+
                                         if (isset($limits[$state])) {
                                             $set('max_users', $limits[$state]['users']);
                                             $set('max_storage_gb', $limits[$state]['storage']);
@@ -366,17 +372,15 @@ final class TenantResource extends Resource
                     ->counts('users')
                     ->sortable()
                     ->alignCenter()
-                    ->description(fn (Organization $record) => 
-                        "/ {$record->max_users} " . __('superadmin.tenants.fields.max_users')
+                    ->description(fn (Organization $record) => "/ {$record->max_users} ".__('superadmin.tenants.fields.max_users')
                     ),
 
                 Tables\Columns\TextColumn::make('current_storage_gb')
                     ->label(__('superadmin.tenants.fields.current_storage_gb'))
-                    ->formatStateUsing(fn ($state) => number_format($state ?? 0, 1) . ' GB')
+                    ->formatStateUsing(fn ($state) => number_format($state ?? 0, 1).' GB')
                     ->sortable()
                     ->alignEnd()
-                    ->description(fn (Organization $record) => 
-                        "/ {$record->max_storage_gb} GB"
+                    ->description(fn (Organization $record) => "/ {$record->max_storage_gb} GB"
                     )
                     ->toggleable(),
 
@@ -450,9 +454,8 @@ final class TenantResource extends Resource
 
                 Tables\Filters\Filter::make('trial_ending_soon')
                     ->label('Trial Ending Soon')
-                    ->query(fn (Builder $query) => 
-                        $query->where('trial_ends_at', '<=', now()->addDays(7))
-                              ->where('trial_ends_at', '>', now())
+                    ->query(fn (Builder $query) => $query->where('trial_ends_at', '<=', now()->addDays(7))
+                        ->where('trial_ends_at', '>', now())
                     )
                     ->toggle(),
 
@@ -461,8 +464,8 @@ final class TenantResource extends Resource
                     ->query(function (Builder $query) {
                         return $query->where(function ($q) {
                             $q->whereRaw('current_users > max_users')
-                              ->orWhereRaw('current_storage_gb > max_storage_gb')
-                              ->orWhereRaw('current_api_calls > max_api_calls_per_month');
+                                ->orWhereRaw('current_storage_gb > max_storage_gb')
+                                ->orWhereRaw('current_api_calls > max_api_calls_per_month');
                         });
                     })
                     ->toggle(),
@@ -487,7 +490,7 @@ final class TenantResource extends Resource
                     }),
             ])
             ->actions([
-                \Filament\Actions\Action::make('impersonate')
+                Action::make('impersonate')
                     ->label(__('superadmin.tenants.actions.impersonate'))
                     ->icon('heroicon-o-user-circle')
                     ->color('warning')
@@ -495,7 +498,7 @@ final class TenantResource extends Resource
                     ->openUrlInNewTab()
                     ->visible(fn (Organization $record) => $record->status === TenantStatus::ACTIVE),
 
-                \Filament\Actions\Action::make('suspend')
+                Action::make('suspend')
                     ->label(__('superadmin.tenants.actions.suspend'))
                     ->icon('heroicon-o-pause-circle')
                     ->color('warning')
@@ -507,7 +510,7 @@ final class TenantResource extends Resource
                     ])
                     ->action(function (Organization $record, array $data, TenantManagementInterface $tenantService) {
                         $tenantService->suspendTenant($record, $data['reason']);
-                        
+
                         Notification::make()
                             ->title(__('superadmin.tenants.notifications.suspended'))
                             ->success()
@@ -518,13 +521,13 @@ final class TenantResource extends Resource
                     ->modalDescription(__('superadmin.tenants.modals.suspend.description'))
                     ->visible(fn (Organization $record) => $record->status === TenantStatus::ACTIVE),
 
-                \Filament\Actions\Action::make('activate')
+                Action::make('activate')
                     ->label(__('superadmin.tenants.actions.activate'))
                     ->icon('heroicon-o-play-circle')
                     ->color('success')
                     ->action(function (Organization $record, TenantManagementInterface $tenantService) {
                         $tenantService->activateTenant($record);
-                        
+
                         Notification::make()
                             ->title(__('superadmin.tenants.notifications.activated'))
                             ->success()
@@ -535,12 +538,12 @@ final class TenantResource extends Resource
                     ->modalDescription(__('superadmin.tenants.modals.activate.description'))
                     ->visible(fn (Organization $record) => $record->status !== TenantStatus::ACTIVE),
 
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
+                ViewAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\BulkAction::make('bulk_suspend')
+                BulkActionGroup::make([
+                    BulkAction::make('bulk_suspend')
                         ->label(__('superadmin.tenants.actions.bulk_suspend'))
                         ->icon('heroicon-o-pause-circle')
                         ->color('warning')
@@ -550,9 +553,9 @@ final class TenantResource extends Resource
                                 ->required()
                                 ->rows(3),
                         ])
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data, TenantManagementInterface $tenantService) {
+                        ->action(function (Collection $records, array $data, TenantManagementInterface $tenantService) {
                             $result = $tenantService->bulkUpdateTenants($records, ['suspended' => true, 'reason' => $data['reason']]);
-                            
+
                             Notification::make()
                                 ->title(__('superadmin.tenants.notifications.bulk_suspended', ['count' => $result->successful]))
                                 ->success()
@@ -563,13 +566,13 @@ final class TenantResource extends Resource
                         ->modalDescription(__('superadmin.tenants.modals.bulk_suspend.description'))
                         ->deselectRecordsAfterCompletion(),
 
-                    \Filament\Actions\BulkAction::make('bulk_activate')
+                    BulkAction::make('bulk_activate')
                         ->label(__('superadmin.tenants.actions.bulk_activate'))
                         ->icon('heroicon-o-play-circle')
                         ->color('success')
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, TenantManagementInterface $tenantService) {
+                        ->action(function (Collection $records, TenantManagementInterface $tenantService) {
                             $result = $tenantService->bulkUpdateTenants($records, ['activated' => true]);
-                            
+
                             Notification::make()
                                 ->title(__('superadmin.tenants.notifications.bulk_activated', ['count' => $result->successful]))
                                 ->success()
@@ -578,7 +581,7 @@ final class TenantResource extends Resource
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion(),
 
-                    \Filament\Actions\DeleteBulkAction::make()
+                    DeleteBulkAction::make()
                         ->requiresConfirmation(),
                 ]),
             ])

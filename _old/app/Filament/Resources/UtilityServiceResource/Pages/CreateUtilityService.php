@@ -11,4 +11,3 @@ class CreateUtilityService extends CreateRecord
 {
     protected static string $resource = UtilityServiceResource::class;
 }
-

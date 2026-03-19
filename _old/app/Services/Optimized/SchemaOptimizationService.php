@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * Schema Optimization Service
- * 
+ *
  * Provides recommendations and implementations for database schema optimizations
  */
 final readonly class SchemaOptimizationService
@@ -24,12 +24,12 @@ final readonly class SchemaOptimizationService
     public function addDenormalizedColumns(): void
     {
         // Add meter info to readings for faster queries
-        if (!Schema::hasColumn('meter_readings', 'meter_serial_number')) {
+        if (! Schema::hasColumn('meter_readings', 'meter_serial_number')) {
             Schema::table('meter_readings', function ($table) {
                 $table->string('meter_serial_number', 50)->nullable()->after('meter_id');
                 $table->string('meter_type', 20)->nullable()->after('meter_serial_number');
                 $table->string('property_name', 255)->nullable()->after('meter_type');
-                
+
                 // Index for denormalized search
                 $table->index(['tenant_id', 'meter_serial_number'], 'idx_readings_meter_serial');
                 $table->index(['tenant_id', 'property_name'], 'idx_readings_property_name');
@@ -37,24 +37,24 @@ final readonly class SchemaOptimizationService
         }
 
         // Add consumption calculation to readings
-        if (!Schema::hasColumn('meter_readings', 'calculated_consumption')) {
+        if (! Schema::hasColumn('meter_readings', 'calculated_consumption')) {
             Schema::table('meter_readings', function ($table) {
                 $table->decimal('calculated_consumption', 10, 2)->nullable()->after('value');
                 $table->decimal('previous_reading_value', 10, 2)->nullable()->after('calculated_consumption');
-                
+
                 // Index for consumption queries
                 $table->index(['tenant_id', 'calculated_consumption'], 'idx_readings_consumption');
             });
         }
 
         // Add invoice totals to properties for dashboard
-        if (!Schema::hasColumn('properties', 'total_outstanding_amount')) {
+        if (! Schema::hasColumn('properties', 'total_outstanding_amount')) {
             Schema::table('properties', function ($table) {
                 $table->decimal('total_outstanding_amount', 12, 2)->default(0)->after('name');
                 $table->decimal('last_month_consumption', 10, 2)->default(0)->after('total_outstanding_amount');
                 $table->integer('active_meters_count')->default(0)->after('last_month_consumption');
                 $table->timestamp('last_reading_date')->nullable()->after('active_meters_count');
-                
+
                 // Index for property summaries
                 $table->index(['tenant_id', 'total_outstanding_amount'], 'idx_properties_outstanding');
             });
@@ -67,7 +67,7 @@ final readonly class SchemaOptimizationService
     public function updateDenormalizedData(int $tenantId): void
     {
         // Update meter info in readings
-        DB::statement("
+        DB::statement('
             UPDATE meter_readings mr
             JOIN meters m ON mr.meter_id = m.id
             JOIN properties p ON m.property_id = p.id
@@ -77,10 +77,10 @@ final readonly class SchemaOptimizationService
                 mr.property_name = p.name
             WHERE mr.tenant_id = ? 
               AND (mr.meter_serial_number IS NULL OR mr.property_name IS NULL)
-        ", [$tenantId]);
+        ', [$tenantId]);
 
         // Update consumption calculations
-        DB::statement("
+        DB::statement('
             UPDATE meter_readings mr1
             JOIN (
                 SELECT 
@@ -105,7 +105,7 @@ final readonly class SchemaOptimizationService
             SET 
                 mr1.calculated_consumption = GREATEST(0, calc.consumption),
                 mr1.previous_reading_value = calc.prev_value
-        ", [$tenantId]);
+        ', [$tenantId]);
 
         // Update property summaries
         DB::statement("
@@ -145,11 +145,11 @@ final readonly class SchemaOptimizationService
 
         if ($driver === 'mysql') {
             // Add computed column for invoice total with tax
-            DB::statement("
+            DB::statement('
                 ALTER TABLE invoices 
                 ADD COLUMN total_with_tax DECIMAL(12,2) 
                 GENERATED ALWAYS AS (total_amount * (1 + COALESCE(tax_rate, 0))) STORED
-            ");
+            ');
 
             // Add computed column for reading month/year
             DB::statement("
@@ -159,17 +159,17 @@ final readonly class SchemaOptimizationService
             ");
 
             // Index on computed columns
-            DB::statement("CREATE INDEX idx_invoices_total_with_tax ON invoices (total_with_tax)");
-            DB::statement("CREATE INDEX idx_readings_year_month ON meter_readings (tenant_id, reading_year_month)");
+            DB::statement('CREATE INDEX idx_invoices_total_with_tax ON invoices (total_with_tax)');
+            DB::statement('CREATE INDEX idx_readings_year_month ON meter_readings (tenant_id, reading_year_month)');
         }
 
         if ($driver === 'pgsql') {
             // PostgreSQL generated columns (v12+)
-            DB::statement("
+            DB::statement('
                 ALTER TABLE invoices 
                 ADD COLUMN IF NOT EXISTS total_with_tax DECIMAL(12,2) 
                 GENERATED ALWAYS AS (total_amount * (1 + COALESCE(tax_rate, 0))) STORED
-            ");
+            ');
 
             DB::statement("
                 ALTER TABLE meter_readings 
@@ -232,19 +232,19 @@ final readonly class SchemaOptimizationService
     private function optimizeIdColumns(): void
     {
         // Check if any tables have more than 2 billion records (INT limit)
-        $largeTables = DB::select("
+        $largeTables = DB::select('
             SELECT table_name, table_rows
             FROM information_schema.tables 
             WHERE table_schema = DATABASE()
               AND table_rows > 1000000000
-        ");
+        ');
 
         // Most utility management systems won't need BIGINT for all IDs
         // Keep BIGINT for high-volume tables like meter_readings, audit logs
         $highVolumeTables = ['meter_readings', 'meter_reading_audits', 'audit_logs'];
 
         foreach ($largeTables as $table) {
-            if (!in_array($table->table_name, $highVolumeTables)) {
+            if (! in_array($table->table_name, $highVolumeTables)) {
                 // Consider if BIGINT is really needed
                 echo "Consider if BIGINT is necessary for {$table->table_name} (current rows: {$table->table_rows})\n";
             }
@@ -263,7 +263,7 @@ final readonly class SchemaOptimizationService
 
         foreach ($stringColumns as $column => $recommendedLength) {
             [$table, $col] = explode('.', $column);
-            
+
             // Check actual usage
             $maxLength = DB::selectOne("
                 SELECT MAX(LENGTH({$col})) as max_length 
@@ -288,7 +288,7 @@ final readonly class SchemaOptimizationService
 
         foreach ($numericColumns as $column => $config) {
             [$table, $col] = explode('.', $column);
-            
+
             // Analyze actual precision needs
             $stats = DB::selectOne("
                 SELECT 
@@ -315,7 +315,7 @@ final readonly class SchemaOptimizationService
 
         foreach ($dateOnlyColumns as $column) {
             [$table, $col] = explode('.', $column);
-            
+
             // Check if time component is actually used
             $hasTime = DB::selectOne("
                 SELECT COUNT(*) as count
@@ -355,15 +355,15 @@ final readonly class SchemaOptimizationService
 
         if ($driver === 'pgsql') {
             // PostgreSQL GIN indexes for JSON
-            DB::statement("
+            DB::statement('
                 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_meter_readings_json_gin
                 ON meter_readings USING gin(reading_values)
-            ");
+            ');
 
-            DB::statement("
+            DB::statement('
                 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_service_config_json_gin
                 ON service_configurations USING gin(rate_schedules)
-            ");
+            ');
 
             // Specific path indexes
             DB::statement("
@@ -387,18 +387,18 @@ final readonly class SchemaOptimizationService
         }
 
         // Check current storage engines
-        $tables = DB::select("
+        $tables = DB::select('
             SELECT table_name, engine, table_rows, 
                    ROUND(data_length/1024/1024, 2) as data_mb,
                    ROUND(index_length/1024/1024, 2) as index_mb
             FROM information_schema.tables 
             WHERE table_schema = DATABASE()
-        ");
+        ');
 
         foreach ($tables as $table) {
             // Recommend InnoDB for transactional tables
             if ($table->engine !== 'InnoDB' && in_array($table->table_name, [
-                'meter_readings', 'invoices', 'users', 'properties'
+                'meter_readings', 'invoices', 'users', 'properties',
             ])) {
                 echo "Recommend converting {$table->table_name} to InnoDB\n";
             }
@@ -422,14 +422,14 @@ final readonly class SchemaOptimizationService
                 'id' => [
                     'current_type' => 'BIGINT',
                     'max_value' => 1000000,
-                    'reason' => 'Could use INT if under 2B records'
+                    'reason' => 'Could use INT if under 2B records',
                 ],
                 'value' => [
                     'current_type' => 'DECIMAL(10,2)',
                     'max_value' => 99999.99,
-                    'reason' => 'Precision appropriate'
-                ]
-            ]
+                    'reason' => 'Precision appropriate',
+                ],
+            ],
         ];
     }
 
@@ -454,17 +454,17 @@ final readonly class SchemaOptimizationService
     {
         // Add check constraints for data validation
         if (DB::getDriverName() === 'mysql') {
-            DB::statement("
+            DB::statement('
                 ALTER TABLE meter_readings 
                 ADD CONSTRAINT chk_reading_value_positive 
                 CHECK (value >= 0)
-            ");
+            ');
 
-            DB::statement("
+            DB::statement('
                 ALTER TABLE invoices 
                 ADD CONSTRAINT chk_invoice_amount_positive 
                 CHECK (total_amount >= 0)
-            ");
+            ');
         }
 
         // Add partial unique constraints

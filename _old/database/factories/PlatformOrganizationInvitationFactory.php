@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends Factory<\App\Models\PlatformOrganizationInvitation>
+ * @extends Factory<PlatformOrganizationInvitation>
  */
 class PlatformOrganizationInvitationFactory extends Factory
 {
@@ -18,17 +18,17 @@ class PlatformOrganizationInvitationFactory extends Factory
     public function definition(): array
     {
         $planType = fake()->randomElement(SubscriptionPlanType::cases());
-        
+
         return [
             'organization_name' => fake()->company(),
             'admin_email' => fake()->unique()->safeEmail(),
             'plan_type' => $planType,
-            'max_properties' => match($planType) {
+            'max_properties' => match ($planType) {
                 SubscriptionPlanType::BASIC => 10,
                 SubscriptionPlanType::PROFESSIONAL => 50,
                 SubscriptionPlanType::ENTERPRISE => 200,
             },
-            'max_users' => match($planType) {
+            'max_users' => match ($planType) {
                 SubscriptionPlanType::BASIC => 5,
                 SubscriptionPlanType::PROFESSIONAL => 20,
                 SubscriptionPlanType::ENTERPRISE => 100,

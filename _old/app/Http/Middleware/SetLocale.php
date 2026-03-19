@@ -17,7 +17,7 @@ final class SetLocale
     public function handle(Request $request, Closure $next): Response
     {
         $locale = $this->determineLocale($request);
-        
+
         if (Localization::isAvailable($locale)) {
             app()->setLocale($locale);
         }

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Log;
  * - Separate audit channel for security analysis
  * - PII-safe logging (no sensitive data in languages)
  *
- * @see \App\Models\Language
+ * @see Language
  */
 class LanguageObserver
 {
@@ -26,9 +26,6 @@ class LanguageObserver
      * Handle the Language "created" event.
      *
      * AUDIT: Log language creation with user context.
-     *
-     * @param  \App\Models\Language  $language
-     * @return void
      */
     public function created(Language $language): void
     {
@@ -51,9 +48,6 @@ class LanguageObserver
      * Handle the Language "updated" event.
      *
      * AUDIT: Log language updates with change tracking.
-     *
-     * @param  \App\Models\Language  $language
-     * @return void
      */
     public function updated(Language $language): void
     {
@@ -100,7 +94,6 @@ class LanguageObserver
      *
      * BUSINESS LOGIC: Prevent deletion of default or last active language.
      *
-     * @param  \App\Models\Language  $language
      * @return bool|null Return false to prevent deletion
      */
     public function deleting(Language $language): ?bool
@@ -122,9 +115,6 @@ class LanguageObserver
      * Handle the Language "deleted" event.
      *
      * AUDIT: Log language deletion with security alert.
-     *
-     * @param  \App\Models\Language  $language
-     * @return void
      */
     public function deleted(Language $language): void
     {
@@ -157,9 +147,6 @@ class LanguageObserver
      * Handle the Language "restored" event.
      *
      * AUDIT: Log language restoration.
-     *
-     * @param  \App\Models\Language  $language
-     * @return void
      */
     public function restored(Language $language): void
     {
@@ -179,9 +166,6 @@ class LanguageObserver
      * Handle the Language "force deleted" event.
      *
      * AUDIT: Log permanent language deletion with critical alert.
-     *
-     * @param  \App\Models\Language  $language
-     * @return void
      */
     public function forceDeleted(Language $language): void
     {

@@ -17,16 +17,16 @@ return new class extends Migration
             $table->string('subdomain')->nullable()->unique()->after('slug');
             $table->string('custom_domain')->nullable()->unique()->after('domain');
             $table->boolean('custom_domain_verified')->default(false)->after('custom_domain');
-            
+
             // Tenant configuration
             $table->json('tenant_config')->nullable()->after('settings');
             $table->string('database_name')->nullable()->after('tenant_config'); // For future multi-database support
             $table->string('storage_disk')->default('tenant')->after('database_name');
-            
+
             // Performance and monitoring
             $table->timestamp('last_backup_at')->nullable()->after('last_activity_at');
             $table->json('performance_metrics')->nullable()->after('last_backup_at');
-            
+
             // Indexes for performance
             $table->index('subdomain', 'organizations_subdomain_index');
             $table->index('custom_domain', 'organizations_custom_domain_index');
@@ -104,10 +104,10 @@ return new class extends Migration
             Schema::table('users', function (Blueprint $table) {
                 $table->index(['tenant_id', 'is_tenant_admin'], 'users_tenant_admin_index');
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Index might already exist, continue
         }
-        
+
         // Skip users_tenant_role_index as it already exists from previous migrations
 
         // Create tenant user invitations table
@@ -166,7 +166,7 @@ return new class extends Migration
             $table->dropColumn([
                 'subdomain', 'custom_domain', 'custom_domain_verified',
                 'tenant_config', 'database_name', 'storage_disk',
-                'last_backup_at', 'performance_metrics'
+                'last_backup_at', 'performance_metrics',
             ]);
         });
     }

@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -20,7 +21,7 @@ class FinalizeInvoiceRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -48,9 +49,10 @@ class FinalizeInvoiceRequest extends FormRequest
     protected function validateInvoiceCanBeFinalized(Validator $validator): void
     {
         $invoice = $this->route('invoice'); // Assumes route model binding
-        
-        if (!$invoice instanceof Invoice) {
+
+        if (! $invoice instanceof Invoice) {
             $validator->errors()->add('invoice', __('invoices.validation.finalize.not_found'));
+
             return;
         }
 
@@ -60,6 +62,7 @@ class FinalizeInvoiceRequest extends FormRequest
                 'invoice',
                 __('invoices.validation.finalize.already_finalized')
             );
+
             return;
         }
 
@@ -69,6 +72,7 @@ class FinalizeInvoiceRequest extends FormRequest
                 'invoice',
                 __('invoices.validation.finalize.no_items')
             );
+
             return;
         }
 
@@ -78,6 +82,7 @@ class FinalizeInvoiceRequest extends FormRequest
                 'invoice',
                 __('invoices.validation.finalize.invalid_total')
             );
+
             return;
         }
 
@@ -88,6 +93,7 @@ class FinalizeInvoiceRequest extends FormRequest
                     'invoice',
                     __('invoices.validation.finalize.invalid_items')
                 );
+
                 return;
             }
         }
@@ -98,6 +104,7 @@ class FinalizeInvoiceRequest extends FormRequest
                 'invoice',
                 __('invoices.validation.finalize.invalid_period')
             );
+
             return;
         }
     }

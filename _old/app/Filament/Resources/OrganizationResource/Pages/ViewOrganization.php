@@ -2,16 +2,16 @@
 
 namespace App\Filament\Resources\OrganizationResource\Pages;
 
-
-use BackedEnum;
 use App\Enums\SubscriptionPlanType;
 use App\Filament\Resources\OrganizationResource;
+use BackedEnum;
 use Filament\Actions;
 use Filament\Forms;
-use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists;
-use Filament\Schemas\Schema;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\DB;
 
 class ViewOrganization extends ViewRecord
@@ -56,9 +56,9 @@ class ViewOrganization extends ViewRecord
                     $hasInvoices = $record->invoices()->exists();
                     $hasMeters = $record->meters()->exists();
                     $hasTenants = $record->tenants()->exists();
-                    
+
                     if ($hasUsers || $hasProperties || $hasBuildings || $hasInvoices || $hasMeters || $hasTenants) {
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->title(__('organizations.notifications.cannot_delete'))
                             ->body(__('organizations.notifications.has_relations', [
                                 'users' => $record->users()->count(),
@@ -71,7 +71,7 @@ class ViewOrganization extends ViewRecord
                             ->danger()
                             ->persistent()
                             ->send();
-                        
+
                         $action->cancel();
                     }
                 })
@@ -80,7 +80,7 @@ class ViewOrganization extends ViewRecord
                     DB::transaction(function () use ($record) {
                         // Delete activity logs
                         $record->activityLogs()->delete();
-                        
+
                         // Delete invitations
                         $record->invitations()->delete();
                     });
@@ -179,111 +179,127 @@ class ViewOrganization extends ViewRecord
                             ->label(__('organizations.labels.users'))
                             ->state(function ($record) {
                                 $count = $record->users()->count();
-                                if ($count === 0) return __('app.common.none');
-                                
+                                if ($count === 0) {
+                                    return __('app.common.none');
+                                }
+
                                 $users = $record->users()->limit(5)->get();
                                 $list = $users->pluck('name')->join(', ');
-                                
-                                return $count > 5 
-                                    ? $list . ' ' . __('organizations.labels.and_more', ['count' => $count - 5])
+
+                                return $count > 5
+                                    ? $list.' '.__('organizations.labels.and_more', ['count' => $count - 5])
                                     : $list;
                             })
                             ->badge()
                             ->color(fn ($record) => $record->users()->count() > 0 ? 'success' : 'gray'),
-                        
+
                         Infolists\Components\TextEntry::make('properties_relation')
                             ->label(__('organizations.labels.properties'))
                             ->state(function ($record) {
                                 $count = $record->properties()->count();
-                                if ($count === 0) return __('app.common.none');
-                                
+                                if ($count === 0) {
+                                    return __('app.common.none');
+                                }
+
                                 $properties = $record->properties()->limit(5)->get();
                                 $list = $properties->pluck('address')->join(', ');
-                                
-                                return $count > 5 
-                                    ? $list . ' ' . __('organizations.labels.and_more', ['count' => $count - 5])
+
+                                return $count > 5
+                                    ? $list.' '.__('organizations.labels.and_more', ['count' => $count - 5])
                                     : $list;
                             })
                             ->badge()
                             ->color(fn ($record) => $record->properties()->count() > 0 ? 'success' : 'gray'),
-                        
+
                         Infolists\Components\TextEntry::make('buildings_relation')
                             ->label(__('organizations.labels.buildings'))
                             ->state(function ($record) {
                                 $count = $record->buildings()->count();
-                                if ($count === 0) return __('app.common.none');
-                                
+                                if ($count === 0) {
+                                    return __('app.common.none');
+                                }
+
                                 $buildings = $record->buildings()->limit(5)->get();
                                 $list = $buildings->pluck('name')->join(', ');
-                                
-                                return $count > 5 
-                                    ? $list . ' ' . __('organizations.labels.and_more', ['count' => $count - 5])
+
+                                return $count > 5
+                                    ? $list.' '.__('organizations.labels.and_more', ['count' => $count - 5])
                                     : $list;
                             })
                             ->badge()
                             ->color(fn ($record) => $record->buildings()->count() > 0 ? 'success' : 'gray'),
-                        
+
                         Infolists\Components\TextEntry::make('invoices_relation')
                             ->label(__('organizations.labels.invoices'))
                             ->state(function ($record) {
                                 $count = $record->invoices()->count();
-                                if ($count === 0) return __('app.common.none');
-                                
+                                if ($count === 0) {
+                                    return __('app.common.none');
+                                }
+
                                 return __('organizations.labels.invoice_count', ['count' => $count]);
                             })
                             ->badge()
                             ->color(fn ($record) => $record->invoices()->count() > 0 ? 'info' : 'gray'),
-                        
+
                         Infolists\Components\TextEntry::make('meters_relation')
                             ->label(__('organizations.labels.meters'))
                             ->state(function ($record) {
                                 $count = $record->meters()->count();
-                                if ($count === 0) return __('app.common.none');
-                                
+                                if ($count === 0) {
+                                    return __('app.common.none');
+                                }
+
                                 return __('organizations.labels.meter_count', ['count' => $count]);
                             })
                             ->badge()
                             ->color(fn ($record) => $record->meters()->count() > 0 ? 'info' : 'gray'),
-                        
+
                         Infolists\Components\TextEntry::make('tenants_relation')
                             ->label(__('organizations.labels.tenants'))
                             ->state(function ($record) {
                                 $count = $record->tenants()->count();
-                                if ($count === 0) return __('app.common.none');
-                                
+                                if ($count === 0) {
+                                    return __('app.common.none');
+                                }
+
                                 $tenants = $record->tenants()->limit(5)->get();
                                 $list = $tenants->pluck('name')->join(', ');
-                                
-                                return $count > 5 
-                                    ? $list . ' ' . __('organizations.labels.and_more', ['count' => $count - 5])
+
+                                return $count > 5
+                                    ? $list.' '.__('organizations.labels.and_more', ['count' => $count - 5])
                                     : $list;
                             })
                             ->badge()
                             ->color(fn ($record) => $record->tenants()->count() > 0 ? 'warning' : 'gray'),
-                        
+
                         Infolists\Components\TextEntry::make('invitations_relation')
                             ->label(__('organizations.labels.invitations'))
                             ->state(function ($record) {
                                 $count = $record->invitations()->count();
-                                if ($count === 0) return __('app.common.none');
-                                
+                                if ($count === 0) {
+                                    return __('app.common.none');
+                                }
+
                                 return __('organizations.labels.invitation_count', ['count' => $count]);
                             })
                             ->badge()
                             ->color(fn ($record) => $record->invitations()->count() > 0 ? 'info' : 'gray'),
-                        
+
                         Infolists\Components\TextEntry::make('activity_logs_relation')
                             ->label(__('organizations.labels.activity_logs'))
                             ->state(function ($record) {
                                 $count = $record->activityLogs()->count();
-                                if ($count === 0) return __('app.common.none');
-                                
+                                if ($count === 0) {
+                                    return __('app.common.none');
+                                }
+
                                 return __('organizations.labels.log_count', ['count' => $count]);
                             })
                             ->badge()
                             ->color(fn ($record) => $record->activityLogs()->count() > 0 ? 'gray' : 'gray'),
                     ])->columns(2)
                     ->description(__('organizations.sections.relations_description')),
-           ]);
-   }
+            ]);
+    }
 }

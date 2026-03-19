@@ -4,26 +4,23 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use App\Support\Billing\InvoiceGenerationDTO;
 use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
-use App\Models\Tenant;
+use App\Support\Billing\InvoiceGenerationDTO;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Generate Invoice Action
- * 
+ *
  * Single responsibility: Create a single invoice record.
  * Used by BillingService as part of the invoice generation workflow.
- * 
- * @package App\Actions
  */
 class GenerateInvoiceAction
 {
     /**
      * Execute the action to generate an invoice.
      *
-     * @param InvoiceGenerationDTO $dto Invoice generation data
+     * @param  InvoiceGenerationDTO  $dto  Invoice generation data
      * @return Invoice The created invoice
      */
     public function execute(InvoiceGenerationDTO $dto): Invoice

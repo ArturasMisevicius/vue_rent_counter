@@ -2,21 +2,23 @@
 
 namespace App\Models;
 
-use App\Enums\InvoiceStatus;
 use App\Enums\ApprovalStatus;
 use App\Enums\AutomationLevel;
+use App\Enums\InvoiceStatus;
+use App\Exceptions\InvoiceAlreadyFinalizedException;
 use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class Invoice extends Model
 {
-    use HasFactory, BelongsToTenant, Auditable;
+    use Auditable, BelongsToTenant, HasFactory;
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
@@ -36,13 +38,13 @@ class Invoice extends Model
     protected static function booted(): void
     {
         static::creating(function (Invoice $invoice): void {
-            if (empty($invoice->tenant_renter_id) && !empty($invoice->tenant_id)) {
+            if (empty($invoice->tenant_renter_id) && ! empty($invoice->tenant_id)) {
                 $invoice->tenant_renter_id = $invoice->tenant_id;
             }
 
             $tenant = null;
 
-            if (!empty($invoice->tenant_renter_id)) {
+            if (! empty($invoice->tenant_renter_id)) {
                 $tenant = Tenant::withoutGlobalScopes()->find($invoice->tenant_renter_id);
             }
 
@@ -60,13 +62,13 @@ class Invoice extends Model
         // Prevent modification of finalized or paid invoices
         static::updating(function ($invoice) {
             $originalStatus = $invoice->getOriginal('status');
-            
+
             // If the original status was FINALIZED or PAID
-            $isImmutable = $originalStatus === InvoiceStatus::FINALIZED->value 
+            $isImmutable = $originalStatus === InvoiceStatus::FINALIZED->value
                 || $originalStatus === InvoiceStatus::FINALIZED
                 || $originalStatus === InvoiceStatus::PAID->value
                 || $originalStatus === InvoiceStatus::PAID;
-            
+
             if ($isImmutable) {
                 // Allow only status changes and payment metadata updates.
                 $dirtyAttributes = array_keys($invoice->getDirty());
@@ -77,25 +79,25 @@ class Invoice extends Model
                     'paid_amount',
                     'overdue_notified_at',
                 ];
-                
+
                 // If only allowed attributes are changing, allow it.
                 if (empty(array_diff($dirtyAttributes, $allowedMutableAttributes))) {
                     return;
                 }
-                
+
                 // If status is changing along with other fields, allow only the allowed mutable fields.
                 if (in_array('status', $dirtyAttributes, true)) {
                     foreach ($dirtyAttributes as $attr) {
-                        if (!in_array($attr, $allowedMutableAttributes, true)) {
+                        if (! in_array($attr, $allowedMutableAttributes, true)) {
                             $invoice->$attr = $invoice->getOriginal($attr);
                         }
                     }
 
                     return;
                 }
-                
+
                 // Prevent all other modifications by throwing exception
-                throw new \App\Exceptions\InvoiceAlreadyFinalizedException($invoice->id);
+                throw new InvoiceAlreadyFinalizedException($invoice->id);
             }
         });
     }
@@ -305,20 +307,20 @@ class Invoice extends Model
     }
 
     /**
-    * Check if the invoice is overdue (due_date in past and not paid).
-    */
+     * Check if the invoice is overdue (due_date in past and not paid).
+     */
     public function isOverdue(): bool
     {
         return $this->due_date !== null
-            && !$this->isPaid()
+            && ! $this->isPaid()
             && $this->due_date->isPast();
     }
 
     /**
      * Scope a query to draft invoices.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeDraft($query)
     {
@@ -328,8 +330,8 @@ class Invoice extends Model
     /**
      * Scope a query to finalized invoices.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeFinalized($query)
     {
@@ -339,8 +341,8 @@ class Invoice extends Model
     /**
      * Scope a query to paid invoices.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopePaid($query)
     {
@@ -350,10 +352,8 @@ class Invoice extends Model
     /**
      * Scope a query to invoices for a specific billing period.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $startDate
-     * @param string $endDate
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeForPeriod($query, string $startDate, string $endDate)
     {
@@ -364,9 +364,8 @@ class Invoice extends Model
     /**
      * Scope a query to invoices for a specific tenant.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $tenantId
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeForTenant($query, int $tenantId)
     {
@@ -378,7 +377,7 @@ class Invoice extends Model
      */
     public function hasSnapshot(): bool
     {
-        return !empty($this->snapshot_data);
+        return ! empty($this->snapshot_data);
     }
 
     /**
@@ -386,12 +385,12 @@ class Invoice extends Model
      */
     public function getSnapshotSummary(): array
     {
-        if (!$this->hasSnapshot()) {
+        if (! $this->hasSnapshot()) {
             return ['has_snapshot' => false];
         }
 
         $snapshot = $this->snapshot_data;
-        
+
         return [
             'has_snapshot' => true,
             'created_at' => $this->snapshot_created_at,
@@ -411,12 +410,12 @@ class Invoice extends Model
      */
     public function canRecalculateFromSnapshot(): bool
     {
-        if (!$this->hasSnapshot()) {
+        if (! $this->hasSnapshot()) {
             return false;
         }
 
         $snapshot = $this->snapshot_data;
-        
+
         // Check that all required snapshot components exist
         $requiredComponents = [
             'tariff_snapshots',
@@ -427,7 +426,7 @@ class Invoice extends Model
         ];
 
         foreach ($requiredComponents as $component) {
-            if (!isset($snapshot[$component])) {
+            if (! isset($snapshot[$component])) {
                 return false;
             }
         }
@@ -497,14 +496,14 @@ class Invoice extends Model
         $this->approval_status = ApprovalStatus::REJECTED;
         $this->approved_by = $rejector?->id ?? auth()->id();
         $this->approved_at = now();
-        
+
         if ($reason) {
             $metadata = $this->approval_metadata ?? [];
             $metadata['rejection_reason'] = $reason;
             $metadata['rejected_at'] = now()->toISOString();
             $this->approval_metadata = $metadata;
         }
-        
+
         $this->save();
     }
 
@@ -524,14 +523,14 @@ class Invoice extends Model
     public function markForReview(?string $reason = null): void
     {
         $this->approval_status = ApprovalStatus::REQUIRES_REVIEW;
-        
+
         if ($reason) {
             $metadata = $this->approval_metadata ?? [];
             $metadata['review_reason'] = $reason;
             $metadata['marked_for_review_at'] = now()->toISOString();
             $this->approval_metadata = $metadata;
         }
-        
+
         $this->save();
     }
 
@@ -603,9 +602,9 @@ class Invoice extends Model
     public function scopeApprovalOverdue($query)
     {
         return $query->whereIn('approval_status', [
-                ApprovalStatus::PENDING->value,
-                ApprovalStatus::REQUIRES_REVIEW->value,
-            ])
+            ApprovalStatus::PENDING->value,
+            ApprovalStatus::REQUIRES_REVIEW->value,
+        ])
             ->where('approval_deadline', '<', now());
     }
 

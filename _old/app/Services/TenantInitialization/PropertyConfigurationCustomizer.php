@@ -12,25 +12,24 @@ use App\Models\UtilityService;
 
 /**
  * Customizes service configurations based on property characteristics.
- * 
+ *
  * This class applies property-specific adjustments to utility service configurations,
  * taking into account property type, size, location, and tenant preferences to
  * create optimized service configurations for each property.
- * 
- * @package App\Services\TenantInitialization
+ *
  * @author Laravel Development Team
+ *
  * @since 1.0.0
  */
 final readonly class PropertyConfigurationCustomizer
 {
     /**
      * Get property-specific configuration for a utility service.
-     * 
-     * @param string $serviceKey The service type key (electricity, water, heating, gas)
-     * @param UtilityService $utilityService The utility service to configure
-     * @param Property $property The property to configure for
-     * @param Organization $tenant The tenant organization
-     * 
+     *
+     * @param  string  $serviceKey  The service type key (electricity, water, heating, gas)
+     * @param  UtilityService  $utilityService  The utility service to configure
+     * @param  Property  $property  The property to configure for
+     * @param  Organization  $tenant  The tenant organization
      * @return array<string, mixed> Property-specific service configuration
      */
     public function getPropertySpecificConfiguration(
@@ -102,7 +101,7 @@ final readonly class PropertyConfigurationCustomizer
 
     /**
      * Customize electricity configuration for a property.
-     * 
+     *
      * @return array<string, mixed>
      */
     private function customizeElectricityConfiguration(Property $property, Organization $tenant): array
@@ -134,7 +133,7 @@ final readonly class PropertyConfigurationCustomizer
 
     /**
      * Customize water configuration for a property.
-     * 
+     *
      * @return array<string, mixed>
      */
     private function customizeWaterConfiguration(Property $property, Organization $tenant): array
@@ -164,7 +163,7 @@ final readonly class PropertyConfigurationCustomizer
 
     /**
      * Customize heating configuration for a property.
-     * 
+     *
      * @return array<string, mixed>
      */
     private function customizeHeatingConfiguration(Property $property, Organization $tenant): array
@@ -198,7 +197,7 @@ final readonly class PropertyConfigurationCustomizer
 
     /**
      * Customize gas configuration for a property.
-     * 
+     *
      * @return array<string, mixed>
      */
     private function customizeGasConfiguration(Property $property, Organization $tenant): array
@@ -225,7 +224,7 @@ final readonly class PropertyConfigurationCustomizer
 
     /**
      * Get property type specific adjustments.
-     * 
+     *
      * @return array<string, mixed>
      */
     private function getPropertyTypeAdjustments(Property $property, string $serviceKey): array
@@ -243,7 +242,7 @@ final readonly class PropertyConfigurationCustomizer
 
     /**
      * Get location-specific adjustments.
-     * 
+     *
      * @return array<string, mixed>
      */
     private function getLocationAdjustments(Property $property, string $serviceKey): array
@@ -263,7 +262,7 @@ final readonly class PropertyConfigurationCustomizer
 
     private function isMultiUnitProperty(Property $property): bool
     {
-        return ($property->total_area ?? 0) > 500 || 
+        return ($property->total_area ?? 0) > 500 ||
                str_contains(strtolower($property->address ?? ''), 'apartment') ||
                str_contains(strtolower($property->address ?? ''), 'building');
     }
@@ -280,7 +279,7 @@ final readonly class PropertyConfigurationCustomizer
         if (str_contains(strtolower($property->address ?? ''), 'commercial')) {
             return 'commercial';
         }
-        
+
         return 'residential'; // Default assumption
     }
 
@@ -289,7 +288,7 @@ final readonly class PropertyConfigurationCustomizer
         if ($this->isMultiUnitProperty($property)) {
             return DistributionMethod::AREA; // Area-based for multi-unit
         }
-        
+
         return DistributionMethod::EQUAL; // Equal for single units
     }
 
@@ -363,7 +362,7 @@ final readonly class PropertyConfigurationCustomizer
         if ($this->supportsHotColdSplit($property)) {
             return ['cold_water', 'hot_water'];
         }
-        
+
         return ['total_water'];
     }
 

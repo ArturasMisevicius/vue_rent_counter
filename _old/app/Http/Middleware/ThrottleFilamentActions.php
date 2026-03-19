@@ -31,7 +31,7 @@ use Symfony\Component\HttpFoundation\Response;
  * - Retry-After header with seconds until reset
  * - JSON response for API requests
  *
- * @see \Illuminate\Cache\RateLimiter
+ * @see RateLimiter
  */
 final class ThrottleFilamentActions
 {

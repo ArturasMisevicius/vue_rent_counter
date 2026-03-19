@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace App\Services\Audit;
 
+use App\Models\Team;
 use App\Models\User;
 use App\Notifications\AuditAnomalyDetectedNotification;
 use App\Notifications\ComplianceIssueNotification;
 use App\ValueObjects\Audit\AuditReportData;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 /**
  * Audit Alert System
- * 
+ *
  * Monitors audit data for anomalies and compliance issues,
  * sending alerts to appropriate users when thresholds are exceeded.
  */
@@ -56,13 +58,13 @@ final readonly class AuditAlertSystem
     private function checkCriticalAnomalies(int $tenantId, AuditReportData $report): void
     {
         $criticalAnomalies = $report->getCriticalAnomalies();
-        
+
         if (empty($criticalAnomalies)) {
             return;
         }
 
-        $alertKey = "critical_anomaly_alert_{$tenantId}_" . md5(serialize($criticalAnomalies));
-        
+        $alertKey = "critical_anomaly_alert_{$tenantId}_".md5(serialize($criticalAnomalies));
+
         // Prevent duplicate alerts within 1 hour
         if (Cache::has($alertKey)) {
             return;
@@ -71,7 +73,7 @@ final readonly class AuditAlertSystem
         Cache::put($alertKey, true, 3600); // 1 hour
 
         $adminUsers = $this->getAdminUsers($tenantId);
-        
+
         foreach ($criticalAnomalies as $anomaly) {
             Notification::send($adminUsers, new AuditAnomalyDetectedNotification(
                 tenantId: $tenantId,
@@ -97,11 +99,11 @@ final readonly class AuditAlertSystem
     private function checkComplianceIssues(int $tenantId, AuditReportData $report): void
     {
         $compliance = $report->complianceStatus;
-        
+
         // Alert if overall compliance score drops below 80%
         if ($compliance->overallScore < 80) {
-            $alertKey = "compliance_alert_{$tenantId}_" . date('Y-m-d-H');
-            
+            $alertKey = "compliance_alert_{$tenantId}_".date('Y-m-d-H');
+
             if (Cache::has($alertKey)) {
                 return;
             }
@@ -109,7 +111,7 @@ final readonly class AuditAlertSystem
             Cache::put($alertKey, true, 3600); // 1 hour
 
             $adminUsers = $this->getAdminUsers($tenantId);
-            
+
             Notification::send($adminUsers, new ComplianceIssueNotification(
                 tenantId: $tenantId,
                 overallScore: $compliance->overallScore,
@@ -132,11 +134,11 @@ final readonly class AuditAlertSystem
     {
         $performance = $report->performanceMetrics;
         $overallScore = $performance->getOverallScore();
-        
+
         // Alert if performance score drops below 70%
         if ($overallScore < 70) {
-            $alertKey = "performance_alert_{$tenantId}_" . date('Y-m-d-H');
-            
+            $alertKey = "performance_alert_{$tenantId}_".date('Y-m-d-H');
+
             if (Cache::has($alertKey)) {
                 return;
             }
@@ -161,11 +163,11 @@ final readonly class AuditAlertSystem
     {
         $summary = $report->summary;
         $changesPerDay = $summary->getChangesPerDay();
-        
+
         // Alert if changes per day exceed 100 (configurable threshold)
         if ($changesPerDay > 100) {
-            $alertKey = "high_frequency_alert_{$tenantId}_" . date('Y-m-d');
-            
+            $alertKey = "high_frequency_alert_{$tenantId}_".date('Y-m-d');
+
             if (Cache::has($alertKey)) {
                 return;
             }
@@ -186,15 +188,15 @@ final readonly class AuditAlertSystem
     /**
      * Get admin users for a tenant.
      */
-    private function getAdminUsers(int $tenantId): \Illuminate\Database\Eloquent\Collection
+    private function getAdminUsers(int $tenantId): Collection
     {
         return User::whereHas('teams', function ($query) use ($tenantId) {
             $query->where('teams.id', $tenantId);
         })
-        ->whereHas('roles', function ($query) {
-            $query->whereIn('name', ['admin', 'superadmin']);
-        })
-        ->get();
+            ->whereHas('roles', function ($query) {
+                $query->whereIn('name', ['admin', 'superadmin']);
+            })
+            ->get();
     }
 
     /**
@@ -203,7 +205,7 @@ final readonly class AuditAlertSystem
     private function getFailingComplianceCategories($compliance): array
     {
         $failing = [];
-        
+
         $categories = [
             'audit_trail' => $compliance->auditTrailCompleteness,
             'data_retention' => $compliance->dataRetentionCompliance,
@@ -211,7 +213,7 @@ final readonly class AuditAlertSystem
             'security' => $compliance->securityCompliance,
             'data_quality' => $compliance->dataQualityCompliance,
         ];
-        
+
         foreach ($categories as $name => $category) {
             if (($category['score'] ?? 0) < 80) {
                 $failing[] = [
@@ -221,7 +223,7 @@ final readonly class AuditAlertSystem
                 ];
             }
         }
-        
+
         return $failing;
     }
 
@@ -231,8 +233,8 @@ final readonly class AuditAlertSystem
     public function processAllTenantAlerts(): void
     {
         // Get all active tenant IDs
-        $tenantIds = \App\Models\Team::pluck('id');
-        
+        $tenantIds = Team::pluck('id');
+
         foreach ($tenantIds as $tenantId) {
             $this->processAlerts($tenantId);
         }
@@ -261,7 +263,7 @@ final readonly class AuditAlertSystem
     public function updateAlertConfiguration(int $tenantId, array $config): void
     {
         Cache::put("alert_config_{$tenantId}", $config, 86400); // 24 hours
-        
+
         Log::info('Alert configuration updated', [
             'tenant_id' => $tenantId,
             'config' => $config,

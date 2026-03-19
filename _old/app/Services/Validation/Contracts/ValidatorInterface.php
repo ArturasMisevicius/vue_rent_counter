@@ -9,7 +9,7 @@ use App\Services\Validation\ValidationResult;
 
 /**
  * Interface for all validation strategies.
- * 
+ *
  * Defines the contract for validation implementations using the Strategy pattern.
  * Each validator focuses on a single validation concern for maintainability.
  */

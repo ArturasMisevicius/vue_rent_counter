@@ -4,47 +4,50 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Services\TenantInitialization\Results\InitializationResult;
-use App\Services\TenantInitialization\Results\PropertyServiceAssignmentResult;
 use App\Enums\PricingModel;
 use App\Enums\ServiceType;
 use App\Exceptions\TenantInitializationException;
 use App\Models\Organization;
 use App\Models\Property;
+use App\Models\ServiceConfiguration;
 use App\Models\UtilityService;
-use App\Services\TenantInitialization\ServiceDefinitionProvider;
 use App\Services\TenantInitialization\MeterConfigurationProvider;
 use App\Services\TenantInitialization\PropertyServiceAssigner;
-use App\Services\TenantInitialization\TenantValidator;
+use App\Services\TenantInitialization\Results\InitializationResult;
+use App\Services\TenantInitialization\Results\PropertyServiceAssignmentResult;
+use App\Services\TenantInitialization\ServiceDefinitionProvider;
 use App\Services\TenantInitialization\SlugGeneratorService;
+use App\Services\TenantInitialization\TenantValidator;
 use App\Traits\LogsTenantOperations;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Service for initializing new tenants with default utility service templates
  * and configurations. Extends existing tenant creation to include universal
  * service setup alongside existing heating initialization.
- * 
+ *
  * This service creates the foundational utility services (electricity, water, heating, gas)
  * for new tenants and handles property-level service assignments. It maintains backward
  * compatibility with existing heating systems while enabling the universal utility
  * management framework.
- * 
- * @package App\Services
+ *
  * @author Laravel Development Team
+ *
  * @since 1.0.0
- * 
- * @see \App\Models\UtilityService
- * @see \App\Models\ServiceConfiguration
- * @see \App\Models\Organization
- * @see \App\Models\Property
+ * @see UtilityService
+ * @see ServiceConfiguration
+ * @see Organization
+ * @see Property
  */
 final readonly class TenantInitializationService
 {
     use LogsTenantOperations;
 
     private const OPERATION_UNIVERSAL_SERVICES = 'universal_services_initialization';
+
     private const OPERATION_PROPERTY_ASSIGNMENT = 'property_service_assignment';
+
     private const OPERATION_HEATING_COMPATIBILITY = 'heating_compatibility_check';
 
     public function __construct(
@@ -59,28 +62,27 @@ final readonly class TenantInitializationService
      * Initialize a new tenant with default utility service templates.
      * Creates tenant-specific copies of global templates and sets up
      * default configurations based on tenant type.
-     * 
+     *
      * This method creates four default utility services (electricity, water, heating, gas)
      * for the tenant with appropriate pricing models, validation rules, and business logic
      * configurations. Each service is created with tenant-specific settings while
      * maintaining compatibility with existing heating system integrations.
-     * 
-     * @param Organization $tenant The organization/tenant to initialize services for
-     * 
+     *
+     * @param  Organization  $tenant  The organization/tenant to initialize services for
      * @return InitializationResult Returns DTO with created services and meter configurations
-     * 
+     *
      * @throws TenantInitializationException If service initialization fails
-     * 
+     *
      * @example
      * ```php
      * $service = app(TenantInitializationService::class);
      * $result = $service->initializeUniversalServices($tenant);
-     * 
+     *
      * // Access created services
      * $electricityService = $result->getUtilityService('electricity');
      * $heatingConfig = $result->getMeterConfiguration('heating');
      * ```
-     * 
+     *
      * @since 1.0.0
      */
     public function initializeUniversalServices(Organization $tenant): InitializationResult
@@ -115,23 +117,22 @@ final readonly class TenantInitializationService
     /**
      * Initialize property-level service assignments for existing properties.
      * Creates ServiceConfiguration records for properties that already exist.
-     * 
+     *
      * This method assigns all utility services to each property owned by the tenant,
      * creating ServiceConfiguration records that link properties to utility services
      * with appropriate pricing models and configuration overrides based on property type.
-     * 
-     * @param Organization $tenant The tenant whose properties to configure
-     * @param \Illuminate\Support\Collection<string, UtilityService>|array<string, UtilityService> $utilityServices Collection or array of utility services to assign
-     * 
+     *
+     * @param  Organization  $tenant  The tenant whose properties to configure
+     * @param  Collection<string, UtilityService>|array<string, UtilityService>  $utilityServices  Collection or array of utility services to assign
      * @return PropertyServiceAssignmentResult Service configurations grouped by property ID
-     * 
+     *
      * @throws TenantInitializationException If configuration creation fails
-     * 
+     *
      * @since 1.0.0
      */
     public function initializePropertyServiceAssignments(
-        Organization $tenant, 
-        \Illuminate\Support\Collection|array $utilityServices
+        Organization $tenant,
+        Collection|array $utilityServices
     ): PropertyServiceAssignmentResult {
         $this->tenantValidator->validate($tenant);
 
@@ -139,10 +140,11 @@ final readonly class TenantInitializationService
 
         if ($properties->isEmpty()) {
             $this->logTenantOperationInfo(
-                $tenant, 
-                self::OPERATION_PROPERTY_ASSIGNMENT, 
+                $tenant,
+                self::OPERATION_PROPERTY_ASSIGNMENT,
                 'No existing properties found, skipping property service assignments'
             );
+
             return new PropertyServiceAssignmentResult(collect());
         }
 
@@ -153,7 +155,7 @@ final readonly class TenantInitializationService
             ]);
 
             $servicesArray = is_array($utilityServices) ? $utilityServices : $utilityServices->toArray();
-            
+
             $configurations = $this->propertyServiceAssigner->assignServicesToProperties(
                 $tenant,
                 $properties,
@@ -178,18 +180,17 @@ final readonly class TenantInitializationService
      * Ensure backward compatibility with existing heating initialization.
      * This method can be called to verify that existing heating setup
      * is preserved and enhanced with universal service capabilities.
-     * 
+     *
      * Validates that the heating service exists and is properly configured
      * for integration with the existing heating calculator system. This ensures
      * that universal service initialization doesn't break existing heating
      * functionality.
-     * 
-     * @param Organization $tenant The tenant to check heating compatibility for
-     * 
+     *
+     * @param  Organization  $tenant  The tenant to check heating compatibility for
      * @return bool True if heating service is compatible, false otherwise
-     * 
+     *
      * @throws TenantInitializationException If compatibility check fails
-     * 
+     *
      * @since 1.0.0
      */
     public function ensureHeatingCompatibility(Organization $tenant): bool
@@ -201,12 +202,13 @@ final readonly class TenantInitializationService
 
             $heatingService = $this->findHeatingService($tenant);
 
-            if (!$heatingService) {
+            if (! $heatingService) {
                 $this->logTenantOperationWarning(
-                    $tenant, 
-                    self::OPERATION_HEATING_COMPATIBILITY, 
+                    $tenant,
+                    self::OPERATION_HEATING_COMPATIBILITY,
                     'No heating service found for tenant during compatibility check'
                 );
+
                 return false;
             }
 
@@ -228,16 +230,15 @@ final readonly class TenantInitializationService
      * Create default utility service templates for a new tenant.
      * Includes electricity, water, heating, and gas services with
      * standard pricing models and regional defaults.
-     * 
-     * @param Organization $tenant The tenant to create services for
-     * 
-     * @return \Illuminate\Support\Collection<string, UtilityService> Collection of created utility services keyed by service type
-     * 
+     *
+     * @param  Organization  $tenant  The tenant to create services for
+     * @return Collection<string, UtilityService> Collection of created utility services keyed by service type
+     *
      * @throws TenantInitializationException If service creation fails
-     * 
+     *
      * @since 1.0.0
      */
-    private function createDefaultUtilityServices(Organization $tenant): \Illuminate\Support\Collection
+    private function createDefaultUtilityServices(Organization $tenant): Collection
     {
         $services = collect();
         $serviceDefinitions = $this->serviceDefinitionProvider->getDefaultServiceDefinitions();
@@ -255,11 +256,10 @@ final readonly class TenantInitializationService
 
     /**
      * Create a single utility service for the tenant.
-     * 
-     * @param Organization $tenant The tenant to create the service for
-     * @param string $serviceKey The service type key
-     * @param array<string, mixed> $definition The service definition
-     * 
+     *
+     * @param  Organization  $tenant  The tenant to create the service for
+     * @param  string  $serviceKey  The service type key
+     * @param  array<string, mixed>  $definition  The service definition
      * @return UtilityService The created utility service
      */
     private function createUtilityService(Organization $tenant, string $serviceKey, array $definition): UtilityService
@@ -297,12 +297,11 @@ final readonly class TenantInitializationService
 
     /**
      * Create meter configurations for utility services.
-     * 
-     * @param \Illuminate\Support\Collection<string, UtilityService> $utilityServices
-     * 
+     *
+     * @param  Collection<string, UtilityService>  $utilityServices
      * @return array<string, array<string, mixed>>
      */
-    private function createMeterConfigurations(\Illuminate\Support\Collection $utilityServices): array
+    private function createMeterConfigurations(Collection $utilityServices): array
     {
         return $this->meterConfigurationProvider
             ->createDefaultMeterConfigurations($utilityServices->toArray());
@@ -320,15 +319,14 @@ final readonly class TenantInitializationService
 
     /**
      * Validate heating service configuration for compatibility.
-     * 
-     * @param UtilityService $heatingService The heating service to validate
-     * 
+     *
+     * @param  UtilityService  $heatingService  The heating service to validate
      * @return bool True if configuration is valid
      */
     private function validateHeatingServiceConfiguration(UtilityService $heatingService): bool
     {
         return $heatingService->service_type_bridge === ServiceType::HEATING
             && $heatingService->default_pricing_model === PricingModel::HYBRID
-            && !empty($heatingService->business_logic_config['supports_shared_distribution']);
+            && ! empty($heatingService->business_logic_config['supports_shared_distribution']);
     }
 }

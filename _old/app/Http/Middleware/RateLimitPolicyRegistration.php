@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Rate Limit Policy Registration Middleware
- * 
+ *
  * Prevents abuse of policy registration endpoints
  */
 final class RateLimitPolicyRegistration
@@ -21,20 +21,20 @@ final class RateLimitPolicyRegistration
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $key = 'policy-registration:' . $request->ip();
-        
+        $key = 'policy-registration:'.$request->ip();
+
         if (RateLimiter::tooManyAttempts($key, 5)) {
             Log::warning('Policy registration rate limit exceeded', [
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),
-                'context' => 'security_violation'
+                'context' => 'security_violation',
             ]);
-            
+
             abort(429, 'Too many policy registration attempts');
         }
-        
+
         RateLimiter::hit($key, 300); // 5 minutes
-        
+
         return $next($request);
     }
 }

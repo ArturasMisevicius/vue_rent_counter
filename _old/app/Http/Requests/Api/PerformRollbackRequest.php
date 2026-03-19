@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api;
 
+use App\Models\AuditLog;
+use App\Models\ServiceConfiguration;
+use App\Models\UtilityService;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * Perform Rollback Request
- * 
+ *
  * Validates requests for performing rollback operations.
  */
 final class PerformRollbackRequest extends FormRequest
@@ -93,26 +96,26 @@ final class PerformRollbackRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $auditLogId = $this->input('audit_log_id');
-            
+
             if ($auditLogId) {
                 // Verify the audit log belongs to the current tenant
-                $auditLog = \App\Models\AuditLog::find($auditLogId);
-                
-                if ($auditLog && !$this->canAccessAuditLog($auditLog)) {
+                $auditLog = AuditLog::find($auditLogId);
+
+                if ($auditLog && ! $this->canAccessAuditLog($auditLog)) {
                     $validator->errors()->add(
                         'audit_log_id',
                         __('dashboard.audit.validation.audit_log_access_denied')
                     );
                 }
-                
+
                 // Verify the audit log is for a supported model type
-                if ($auditLog && !$this->isSupportedModelType($auditLog->auditable_type)) {
+                if ($auditLog && ! $this->isSupportedModelType($auditLog->auditable_type)) {
                     $validator->errors()->add(
                         'audit_log_id',
                         __('dashboard.audit.validation.unsupported_model_type')
                     );
                 }
-                
+
                 // Verify the audit log is not already a rollback
                 if ($auditLog && $auditLog->event === 'rollback') {
                     $validator->errors()->add(
@@ -120,16 +123,16 @@ final class PerformRollbackRequest extends FormRequest
                         __('dashboard.audit.validation.cannot_rollback_rollback')
                     );
                 }
-                
+
                 // Check if rollback is still valid (no subsequent changes)
-                if ($auditLog && !$this->isRollbackStillValid($auditLog)) {
+                if ($auditLog && ! $this->isRollbackStillValid($auditLog)) {
                     $validator->errors()->add(
                         'audit_log_id',
                         __('dashboard.audit.validation.rollback_no_longer_valid')
                     );
                 }
             }
-            
+
             // Require reason for high-impact rollbacks
             if ($this->isHighImpactRollback($auditLogId) && empty($this->input('reason'))) {
                 $validator->errors()->add(
@@ -143,15 +146,15 @@ final class PerformRollbackRequest extends FormRequest
     /**
      * Check if the user can access the audit log.
      */
-    private function canAccessAuditLog(\App\Models\AuditLog $auditLog): bool
+    private function canAccessAuditLog(AuditLog $auditLog): bool
     {
         $user = auth()->user();
-        
+
         // Super admin can access all audit logs
         if ($user->hasRole('super_admin')) {
             return true;
         }
-        
+
         // Regular users can only access their tenant's audit logs
         return $auditLog->tenant_id === $user->currentTeam->id;
     }
@@ -162,26 +165,26 @@ final class PerformRollbackRequest extends FormRequest
     private function isSupportedModelType(string $modelType): bool
     {
         $supportedTypes = [
-            \App\Models\UtilityService::class,
-            \App\Models\ServiceConfiguration::class,
+            UtilityService::class,
+            ServiceConfiguration::class,
         ];
-        
+
         return in_array($modelType, $supportedTypes, true);
     }
 
     /**
      * Check if the rollback is still valid (no subsequent changes).
      */
-    private function isRollbackStillValid(\App\Models\AuditLog $auditLog): bool
+    private function isRollbackStillValid(AuditLog $auditLog): bool
     {
         // Check if there are any changes after this audit log for the same model
-        $subsequentChanges = \App\Models\AuditLog::where('auditable_type', $auditLog->auditable_type)
+        $subsequentChanges = AuditLog::where('auditable_type', $auditLog->auditable_type)
             ->where('auditable_id', $auditLog->auditable_id)
             ->where('created_at', '>', $auditLog->created_at)
             ->where('event', '!=', 'rollback')
             ->exists();
-        
-        return !$subsequentChanges;
+
+        return ! $subsequentChanges;
     }
 
     /**
@@ -189,16 +192,16 @@ final class PerformRollbackRequest extends FormRequest
      */
     private function isHighImpactRollback(?int $auditLogId): bool
     {
-        if (!$auditLogId) {
+        if (! $auditLogId) {
             return false;
         }
-        
-        $auditLog = \App\Models\AuditLog::find($auditLogId);
-        
-        if (!$auditLog) {
+
+        $auditLog = AuditLog::find($auditLogId);
+
+        if (! $auditLog) {
             return false;
         }
-        
+
         // Consider it high-impact if it affects pricing or calculation formulas
         $highImpactFields = [
             'pricing_model',
@@ -206,10 +209,10 @@ final class PerformRollbackRequest extends FormRequest
             'rate_schedule',
             'configuration',
         ];
-        
+
         $changedFields = array_keys($auditLog->new_values ?? []);
-        
-        return !empty(array_intersect($highImpactFields, $changedFields));
+
+        return ! empty(array_intersect($highImpactFields, $changedFields));
     }
 
     /**

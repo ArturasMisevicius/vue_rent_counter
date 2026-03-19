@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * Performance Indexes for ServiceValidationEngine N+1 Query Optimization
- * 
+ *
  * These indexes are specifically designed to eliminate N+1 queries and
  * improve performance for the ServiceValidationEngine operations.
  */

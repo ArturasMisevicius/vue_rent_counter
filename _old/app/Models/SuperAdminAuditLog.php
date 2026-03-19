@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * Super Admin Audit Log Model
- * 
+ *
  * Comprehensive audit logging for all super admin actions across the system.
  * Provides detailed tracking of who did what, when, and to which resources.
  */
@@ -105,8 +105,8 @@ class SuperAdminAuditLog extends Model
 
         $adminName = $this->admin?->name ?? 'Unknown Admin';
         $targetName = $this->getTargetName();
-        
-        return match($this->action) {
+
+        return match ($this->action) {
             AuditAction::TENANT_CREATED => "{$adminName} created tenant {$targetName}",
             AuditAction::TENANT_UPDATED => "{$adminName} updated tenant {$targetName}",
             AuditAction::TENANT_SUSPENDED => "{$adminName} suspended tenant {$targetName}",
@@ -125,11 +125,11 @@ class SuperAdminAuditLog extends Model
      */
     private function getTargetName(): string
     {
-        if (!$this->target) {
+        if (! $this->target) {
             return $this->target_type ? "#{$this->target_id}" : 'Unknown';
         }
 
-        return match(true) {
+        return match (true) {
             $this->target instanceof Organization => $this->target->name,
             $this->target instanceof User => $this->target->name,
             method_exists($this->target, 'getName') => $this->target->getName(),
@@ -153,7 +153,7 @@ class SuperAdminAuditLog extends Model
             if (is_array($change) && isset($change['old'], $change['new'])) {
                 $summary[] = "{$field}: {$change['old']} → {$change['new']}";
             } else {
-                $summary[] = "{$field}: " . json_encode($change);
+                $summary[] = "{$field}: ".json_encode($change);
             }
         }
 

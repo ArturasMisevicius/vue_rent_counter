@@ -11,4 +11,3 @@ class CreateServiceConfiguration extends CreateRecord
 {
     protected static string $resource = ServiceConfigurationResource::class;
 }
-

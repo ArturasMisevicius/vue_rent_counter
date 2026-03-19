@@ -27,34 +27,34 @@ class CleanupExportFiles extends Command
     public function handle(ScheduledExportService $exportService): int
     {
         $daysToKeep = (int) $this->option('days');
-        
+
         $this->info("Cleaning up export files older than {$daysToKeep} days...");
-        
+
         try {
             $result = $exportService->cleanupOldExports($daysToKeep);
-            
-            $this->info("✓ Cleanup completed successfully");
-            $this->line("  - Files deleted: " . $result['deleted_count']);
-            $this->line("  - Cutoff date: " . $result['cutoff_date']);
-            
+
+            $this->info('✓ Cleanup completed successfully');
+            $this->line('  - Files deleted: '.$result['deleted_count']);
+            $this->line('  - Cutoff date: '.$result['cutoff_date']);
+
             if ($result['deleted_count'] > 0) {
-                $this->line("  - Deleted files:");
+                $this->line('  - Deleted files:');
                 foreach ($result['deleted_files'] as $file) {
-                    $this->line("    • " . $file);
+                    $this->line('    • '.$file);
                 }
             }
-            
+
             // Show current statistics
             $stats = $exportService->getExportStatistics();
-            $this->line("");
-            $this->info("Current export storage statistics:");
-            $this->line("  - Total files: " . $stats['total_files']);
-            $this->line("  - Total size: " . $stats['total_size_mb'] . " MB");
-            
+            $this->line('');
+            $this->info('Current export storage statistics:');
+            $this->line('  - Total files: '.$stats['total_files']);
+            $this->line('  - Total size: '.$stats['total_size_mb'].' MB');
+
             return Command::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('Cleanup process failed: ' . $e->getMessage());
-            
+            $this->error('Cleanup process failed: '.$e->getMessage());
+
             return Command::FAILURE;
         }
     }

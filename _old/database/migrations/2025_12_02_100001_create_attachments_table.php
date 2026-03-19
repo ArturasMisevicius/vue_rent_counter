@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Polymorphic file attachments - can attach files to any model
      */
     public function up(): void

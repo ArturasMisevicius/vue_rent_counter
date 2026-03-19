@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Platform Notification Recipient Model
- * 
+ *
  * Tracks delivery status for individual notification recipients.
  */
 class PlatformNotificationRecipient extends Model

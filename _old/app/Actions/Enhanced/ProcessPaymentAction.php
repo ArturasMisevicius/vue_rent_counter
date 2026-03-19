@@ -4,28 +4,27 @@ declare(strict_types=1);
 
 namespace App\Actions\Enhanced;
 
-use App\Support\Billing\PaymentProcessingDTO;
 use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Support\Billing\PaymentProcessingDTO;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Process Payment Action
- * 
+ *
  * Single responsibility: Process a payment for an invoice.
  * Handles payment validation, recording, and invoice status updates.
- * 
- * @package App\Actions\Enhanced
  */
 final class ProcessPaymentAction
 {
     /**
      * Execute the payment processing action.
      *
-     * @param PaymentProcessingDTO $dto Payment processing data
+     * @param  PaymentProcessingDTO  $dto  Payment processing data
      * @return Payment The created payment record
+     *
      * @throws \InvalidArgumentException If payment data is invalid
      * @throws \RuntimeException If payment processing fails
      */
@@ -78,7 +77,7 @@ final class ProcessPaymentAction
         }
 
         $remainingAmount = $invoice->total_amount - $invoice->payments()->sum('amount');
-        
+
         if ($amount > $remainingAmount) {
             throw new \InvalidArgumentException('Payment amount exceeds remaining invoice balance');
         }
@@ -90,7 +89,7 @@ final class ProcessPaymentAction
     private function updateInvoiceStatus(Invoice $invoice, Payment $payment): void
     {
         $totalPaid = $invoice->payments()->sum('amount');
-        
+
         if ($totalPaid >= $invoice->total_amount) {
             $invoice->update([
                 'status' => InvoiceStatus::PAID,

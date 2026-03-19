@@ -7,10 +7,11 @@ namespace App\Filament\Clusters\SuperAdmin\Resources\AuditLogResource\Pages;
 use App\Filament\Clusters\SuperAdmin\Resources\AuditLogResource;
 use App\Filament\Clusters\SuperAdmin\Resources\SystemUserResource;
 use App\Filament\Clusters\SuperAdmin\Resources\TenantResource;
+use App\Models\Organization;
 use App\Models\User;
 use Filament\Actions\Action;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ViewEntry;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Grid;
@@ -75,7 +76,7 @@ final class ViewAuditLog extends ViewRecord
                                 ->badge()
                                 ->color('info')
                                 ->icon('heroicon-o-building-office')
-                                ->url(fn ($record) => $record->tenant ? 
+                                ->url(fn ($record) => $record->tenant ?
                                     TenantResource::getUrl('view', ['record' => $record->tenant]) : null),
                         ]),
                     ])
@@ -114,7 +115,7 @@ final class ViewAuditLog extends ViewRecord
                             ]),
                     ])
                     ->collapsible()
-                    ->collapsed(fn ($record) => !$record->changes || count($record->changes) === 0)
+                    ->collapsed(fn ($record) => ! $record->changes || count($record->changes) === 0)
                     ->visible(fn ($record) => $record->changes && count($record->changes) > 0),
 
                 Section::make(__('superadmin.audit.sections.technical_details'))
@@ -141,13 +142,14 @@ final class ViewAuditLog extends ViewRecord
                 ->visible(fn () => $this->getRecord()->target_type && $this->getRecord()->target_id)
                 ->url(function () {
                     $record = $this->getRecord();
-                    
+
                     if ($record->target_type === User::class) {
                         return SystemUserResource::getUrl('view', ['record' => $record->target_id]);
                     }
-                    if ($record->target_type === \App\Models\Organization::class) {
+                    if ($record->target_type === Organization::class) {
                         return TenantResource::getUrl('view', ['record' => $record->target_id]);
                     }
+
                     return null;
                 })
                 ->openUrlInNewTab(),
@@ -172,7 +174,7 @@ final class ViewAuditLog extends ViewRecord
                 ->label(__('superadmin.audit.actions.back_to_list'))
                 ->icon('heroicon-o-arrow-left')
                 ->color('gray')
-                ->url(static::$resource::getUrl('index')),
+                ->url(self::$resource::getUrl('index')),
         ];
     }
 }

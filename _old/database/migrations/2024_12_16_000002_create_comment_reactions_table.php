@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('type'); // like, dislike, heart, laugh, angry, etc.
             $table->timestamps();
-            
+
             $table->unique(['comment_id', 'user_id']);
             $table->index(['comment_id', 'type']);
         });

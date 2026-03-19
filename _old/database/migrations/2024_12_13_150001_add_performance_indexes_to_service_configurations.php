@@ -17,19 +17,19 @@ return new class extends Migration
 
         Schema::table('service_configurations', function (Blueprint $table) {
             // PERFORMANCE OPTIMIZATION: Add indexes for validation engine queries
-            
+
             // Index for active configurations by utility service (validation rule loading)
             $table->index(['utility_service_id', 'is_active', 'effective_from'], 'idx_utility_active_effective');
-            
+
             // Index for shared service queries (cost distribution calculations)
             $table->index(['is_shared_service', 'distribution_method', 'is_active'], 'idx_shared_distribution_active');
-            
+
             // Index for pricing model queries (billing calculations)
             $table->index(['pricing_model', 'is_active'], 'idx_pricing_model_active');
-            
+
             // Index for tariff-based queries (rate validation)
             $table->index(['tariff_id', 'effective_from', 'effective_until'], 'idx_tariff_effective_period');
-            
+
             // Index for provider-based queries (external integration)
             $table->index(['provider_id', 'is_active'], 'idx_provider_active');
         });

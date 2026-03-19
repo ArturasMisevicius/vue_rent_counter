@@ -1,6 +1,19 @@
 <?php
 
 declare(strict_types=1);
+use App\Filament\Superadmin\Pages\Dashboard;
+use App\Http\Middleware\EnsureUserIsSuperadmin;
+use Filament\Http\Middleware\Authenticate;
+use Filament\Http\Middleware\DisableBladeIconComponents;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Widgets\AccountWidget;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Session\Middleware\AuthenticateSession;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 return [
     /*
@@ -40,7 +53,7 @@ return [
 
     'widgets' => [
         'default' => [
-            \Filament\Widgets\AccountWidget::class,
+            AccountWidget::class,
         ],
         'custom' => [
             // \App\Filament\Superadmin\Widgets\SystemOverviewWidget::class,
@@ -50,7 +63,7 @@ return [
 
     'pages' => [
         'default' => [
-            \App\Filament\Superadmin\Pages\Dashboard::class,
+            Dashboard::class,
         ],
     ],
 
@@ -71,21 +84,21 @@ return [
 
     'middleware' => [
         'core' => [
-            \Illuminate\Cookie\Middleware\EncryptCookies::class,
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-            \Illuminate\Session\Middleware\StartSession::class,
-            \Illuminate\Session\Middleware\AuthenticateSession::class,
-            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            AuthenticateSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            SubstituteBindings::class,
         ],
         'filament' => [
-            \Filament\Http\Middleware\DisableBladeIconComponents::class,
-            \Filament\Http\Middleware\DispatchServingFilamentEvent::class,
+            DisableBladeIconComponents::class,
+            DispatchServingFilamentEvent::class,
         ],
         'auth' => [
-            \Filament\Http\Middleware\Authenticate::class,
-            \App\Http\Middleware\EnsureUserIsSuperadmin::class,
+            Authenticate::class,
+            EnsureUserIsSuperadmin::class,
         ],
     ],
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Enums\InvoiceStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\MeterReading;
@@ -19,7 +20,7 @@ class InvoiceController extends Controller
         if (! $property) {
             $invoices = collect();
             $properties = collect();
-            $invoiceStatusLabels = \App\Enums\InvoiceStatus::labels();
+            $invoiceStatusLabels = InvoiceStatus::labels();
             $statusStyles = [
                 'draft' => 'bg-amber-100 text-amber-800 ring-1 ring-amber-600/30',
                 'finalized' => 'bg-sky-100 text-sky-800 ring-1 ring-sky-600/30',
@@ -35,7 +36,7 @@ class InvoiceController extends Controller
         if (! $tenant) {
             $invoices = collect();
             $properties = collect([$property]);
-            $invoiceStatusLabels = \App\Enums\InvoiceStatus::labels();
+            $invoiceStatusLabels = InvoiceStatus::labels();
             $statusStyles = [
                 'draft' => 'bg-amber-100 text-amber-800 ring-1 ring-amber-600/30',
                 'finalized' => 'bg-sky-100 text-sky-800 ring-1 ring-sky-600/30',
@@ -79,7 +80,7 @@ class InvoiceController extends Controller
         $properties = collect([$property]);
 
         // Pass invoice status labels and styles to view
-        $invoiceStatusLabels = \App\Enums\InvoiceStatus::labels();
+        $invoiceStatusLabels = InvoiceStatus::labels();
         $statusStyles = [
             'draft' => 'bg-amber-100 text-amber-800 ring-1 ring-amber-600/30',
             'finalized' => 'bg-sky-100 text-sky-800 ring-1 ring-sky-600/30',

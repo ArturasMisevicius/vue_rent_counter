@@ -12,7 +12,7 @@ use Illuminate\Console\Command;
 
 /**
  * Set up test environment with sample data for manual testing.
- * 
+ *
  * This command creates a complete test environment with known credentials,
  * realistic test data, and comprehensive coverage of all system features.
  * Use --fresh option to reset the database before seeding.
@@ -46,12 +46,13 @@ class TestSetupCommand extends Command
         // Run migrate:fresh if --fresh option is provided
         if ($this->option('fresh')) {
             $this->warn('Running migrate:fresh - this will drop all tables!');
-            
-            if (!$this->option('force') && !$this->confirm('Are you sure you want to continue?', true)) {
+
+            if (! $this->option('force') && ! $this->confirm('Are you sure you want to continue?', true)) {
                 $this->info('Operation cancelled.');
+
                 return self::SUCCESS;
             }
-            
+
             $this->newLine();
             $this->info('Running migrations...');
             $this->call('migrate:fresh');
@@ -71,10 +72,11 @@ class TestSetupCommand extends Command
                 $this->warn("Test data already exists ({$existingUsers} test users found).");
                 $this->warn('Use --fresh option to reset the database before seeding.');
                 $this->newLine();
-                
-                if (!$this->option('force') && !$this->confirm('Do you want to continue anyway? (This may cause errors)', false)) {
+
+                if (! $this->option('force') && ! $this->confirm('Do you want to continue anyway? (This may cause errors)', false)) {
                     $this->info('Operation cancelled.');
                     $this->info('Run with --fresh option to reset: php artisan test:setup --fresh');
+
                     return self::SUCCESS;
                 }
                 $this->newLine();
@@ -83,20 +85,21 @@ class TestSetupCommand extends Command
 
         // Seed test data
         $this->info('Seeding test data...');
-        
+
         try {
             $this->call('db:seed', ['--class' => 'Database\\Seeders\\TestDatabaseSeeder']);
             $this->newLine();
         } catch (\Exception $e) {
-            $this->error('Failed to seed test data: ' . $e->getMessage());
+            $this->error('Failed to seed test data: '.$e->getMessage());
             $this->newLine();
             $this->warn('Tip: Use --fresh option to reset the database: php artisan test:setup --fresh');
+
             return self::FAILURE;
         }
 
         // Display test credentials
         $this->displayTestCredentials();
-        
+
         // Display data summary
         $this->displayDataSummary();
 
@@ -163,7 +166,7 @@ class TestSetupCommand extends Command
         );
 
         $this->newLine();
-        
+
         // Display breakdown by tenant
         $this->info('Data by Tenant:');
         $this->newLine();
@@ -187,4 +190,3 @@ class TestSetupCommand extends Command
         );
     }
 }
-

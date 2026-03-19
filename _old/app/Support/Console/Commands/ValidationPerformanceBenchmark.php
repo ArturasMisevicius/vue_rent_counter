@@ -8,11 +8,12 @@ use App\Models\MeterReading;
 use App\Services\ServiceValidationEngine;
 use App\Services\Validation\ValidationPerformanceMonitor;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Command to run validation performance benchmarks.
- * 
+ *
  * Usage:
  * php artisan validation:benchmark
  * php artisan validation:benchmark --readings=100 --iterations=5
@@ -45,17 +46,18 @@ class ValidationPerformanceBenchmark extends Command
         $enableWarmup = $this->option('warmup') !== 'false';
         $generateReport = $this->option('report') !== 'false';
 
-        $this->info("Starting validation performance benchmark");
+        $this->info('Starting validation performance benchmark');
         $this->info("Readings per iteration: {$readingCount}");
         $this->info("Iterations: {$iterations}");
-        $this->info("Cache warmup: " . ($enableWarmup ? 'enabled' : 'disabled'));
+        $this->info('Cache warmup: '.($enableWarmup ? 'enabled' : 'disabled'));
 
         // Prepare test data
-        $this->info("Preparing test data...");
+        $this->info('Preparing test data...');
         $testReadings = $this->prepareTestData($readingCount);
-        
+
         if ($testReadings->isEmpty()) {
-            $this->error("No test data available. Please ensure you have meter readings in the database.");
+            $this->error('No test data available. Please ensure you have meter readings in the database.');
+
             return 1;
         }
 
@@ -63,7 +65,7 @@ class ValidationPerformanceBenchmark extends Command
 
         // Warmup cache if enabled
         if ($enableWarmup) {
-            $this->info("Warming up cache...");
+            $this->info('Warming up cache...');
             $this->warmupCache($validationEngine, $testReadings->take(10));
         }
 
@@ -109,24 +111,25 @@ class ValidationPerformanceBenchmark extends Command
         // Check for performance regressions
         $this->checkPerformanceRegressions($performanceMonitor);
 
-        $this->info("Benchmark completed successfully!");
+        $this->info('Benchmark completed successfully!');
+
         return 0;
     }
 
     /**
      * Prepare test data for benchmarking.
      */
-    private function prepareTestData(int $count): \Illuminate\Support\Collection
+    private function prepareTestData(int $count): Collection
     {
         // Get existing readings for realistic testing
         $readings = MeterReading::with([
             'meter.serviceConfiguration.utilityService',
             'meter.serviceConfiguration.tariff',
-            'meter.serviceConfiguration.provider'
+            'meter.serviceConfiguration.provider',
         ])
-        ->inRandomOrder()
-        ->limit($count)
-        ->get();
+            ->inRandomOrder()
+            ->limit($count)
+            ->get();
 
         return $readings;
     }
@@ -134,7 +137,7 @@ class ValidationPerformanceBenchmark extends Command
     /**
      * Warmup cache with sample data.
      */
-    private function warmupCache(ServiceValidationEngine $validationEngine, \Illuminate\Support\Collection $sampleReadings): void
+    private function warmupCache(ServiceValidationEngine $validationEngine, Collection $sampleReadings): void
     {
         // Validate a few readings to warm up the cache
         foreach ($sampleReadings as $reading) {
@@ -146,12 +149,12 @@ class ValidationPerformanceBenchmark extends Command
      * Analyze benchmark results and display summary.
      */
     private function analyzeResults(
-        ValidationPerformanceMonitor $performanceMonitor, 
-        array $results, 
+        ValidationPerformanceMonitor $performanceMonitor,
+        array $results,
         int $readingCount
     ): void {
         $summary = $performanceMonitor->getPerformanceSummary();
-        
+
         // Calculate statistics
         $durations = [];
         $queryCount = [];
@@ -163,7 +166,7 @@ class ValidationPerformanceBenchmark extends Command
                 $durations[] = $metrics['duration_ms'];
                 $queryCount[] = $metrics['query_count'];
                 $memoryUsage[] = $metrics['memory_used_mb'];
-                
+
                 if (isset($metrics['readings_per_second'])) {
                     $throughput[] = $metrics['readings_per_second'];
                 }
@@ -180,7 +183,7 @@ class ValidationPerformanceBenchmark extends Command
                     min($durations),
                     max($durations),
                     '< 100ms',
-                    max($durations) < 100 ? '✅ PASS' : '❌ FAIL'
+                    max($durations) < 100 ? '✅ PASS' : '❌ FAIL',
                 ],
                 [
                     'Queries per Reading',
@@ -188,7 +191,7 @@ class ValidationPerformanceBenchmark extends Command
                     round(min($queryCount) / $readingCount, 2),
                     round(max($queryCount) / $readingCount, 2),
                     '< 2.0',
-                    max($queryCount) / $readingCount < 2.0 ? '✅ PASS' : '❌ FAIL'
+                    max($queryCount) / $readingCount < 2.0 ? '✅ PASS' : '❌ FAIL',
                 ],
                 [
                     'Memory Usage (MB)',
@@ -196,15 +199,15 @@ class ValidationPerformanceBenchmark extends Command
                     min($memoryUsage),
                     max($memoryUsage),
                     '< 50MB',
-                    max($memoryUsage) < 50 ? '✅ PASS' : '❌ FAIL'
+                    max($memoryUsage) < 50 ? '✅ PASS' : '❌ FAIL',
                 ],
                 [
                     'Throughput (readings/sec)',
-                    !empty($throughput) ? round(array_sum($throughput) / count($throughput), 2) : 'N/A',
-                    !empty($throughput) ? min($throughput) : 'N/A',
-                    !empty($throughput) ? max($throughput) : 'N/A',
+                    ! empty($throughput) ? round(array_sum($throughput) / count($throughput), 2) : 'N/A',
+                    ! empty($throughput) ? min($throughput) : 'N/A',
+                    ! empty($throughput) ? max($throughput) : 'N/A',
                     '> 20',
-                    !empty($throughput) && min($throughput) > 20 ? '✅ PASS' : '❌ FAIL'
+                    ! empty($throughput) && min($throughput) > 20 ? '✅ PASS' : '❌ FAIL',
                 ],
             ]
         );
@@ -216,9 +219,9 @@ class ValidationPerformanceBenchmark extends Command
     private function generateDetailedReport(ValidationPerformanceMonitor $performanceMonitor, array $results): void
     {
         $this->info("\n=== DETAILED PERFORMANCE REPORT ===");
-        
+
         $summary = $performanceMonitor->getPerformanceSummary();
-        
+
         $this->info("Total Operations: {$summary['total_operations']}");
         $this->info("Average Duration: {$summary['aggregate_metrics']['average_duration_ms']}ms");
         $this->info("Average Memory: {$summary['aggregate_metrics']['average_memory_mb']}MB");
@@ -235,7 +238,7 @@ class ValidationPerformanceBenchmark extends Command
 
         // Show bottlenecks and recommendations
         $bottlenecks = $performanceMonitor->identifyBottlenecks();
-        if (!empty($bottlenecks)) {
+        if (! empty($bottlenecks)) {
             $this->warn("\n--- Performance Bottlenecks Detected ---");
             foreach ($bottlenecks as $bottleneck) {
                 $this->line("• {$bottleneck['type']}: {$bottleneck['operation']} (severity: {$bottleneck['severity']})");
@@ -243,7 +246,7 @@ class ValidationPerformanceBenchmark extends Command
         }
 
         $recommendations = $performanceMonitor->getRecommendations();
-        if (!empty($recommendations)) {
+        if (! empty($recommendations)) {
             $this->info("\n--- Performance Recommendations ---");
             foreach ($recommendations as $recommendation) {
                 $this->line("• [{$recommendation['priority']}] {$recommendation['issue']}");
@@ -258,17 +261,17 @@ class ValidationPerformanceBenchmark extends Command
     private function checkPerformanceRegressions(ValidationPerformanceMonitor $performanceMonitor): void
     {
         $bottlenecks = $performanceMonitor->identifyBottlenecks();
-        $highSeverityIssues = array_filter($bottlenecks, fn($b) => $b['severity'] === 'high');
+        $highSeverityIssues = array_filter($bottlenecks, fn ($b) => $b['severity'] === 'high');
 
-        if (!empty($highSeverityIssues)) {
+        if (! empty($highSeverityIssues)) {
             $this->error("\n❌ PERFORMANCE REGRESSION DETECTED!");
-            $this->error("High-severity performance issues found:");
-            
+            $this->error('High-severity performance issues found:');
+
             foreach ($highSeverityIssues as $issue) {
                 $this->error("• {$issue['type']}: {$issue['operation']}");
             }
-            
-            $this->error("Please review the performance optimizations and fix these issues.");
+
+            $this->error('Please review the performance optimizations and fix these issues.');
         } else {
             $this->info("\n✅ No performance regressions detected.");
         }

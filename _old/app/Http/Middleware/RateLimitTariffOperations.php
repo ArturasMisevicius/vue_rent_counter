@@ -11,13 +11,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Rate Limiting Middleware for Tariff Operations
- * 
+ *
  * Prevents abuse of tariff CRUD operations by limiting requests per user.
- * 
+ *
  * Limits:
  * - 60 requests per minute for authenticated users
  * - 10 requests per minute for IP-based (fallback)
- * 
+ *
  * Security: Prevents DoS attacks through excessive tariff operations
  */
 class RateLimitTariffOperations
@@ -25,7 +25,7 @@ class RateLimitTariffOperations
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -35,7 +35,7 @@ class RateLimitTariffOperations
 
         if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
             $seconds = RateLimiter::availableIn($key);
-            
+
             // Log rate limit violation for security monitoring
             logger()->warning('Tariff operation rate limit exceeded', [
                 'user_id' => auth()->id(),
@@ -66,9 +66,9 @@ class RateLimitTariffOperations
     protected function resolveRequestSignature(Request $request): string
     {
         if ($user = auth()->user()) {
-            return 'tariff-operations:user:' . $user->id;
+            return 'tariff-operations:user:'.$user->id;
         }
 
-        return 'tariff-operations:ip:' . $request->ip();
+        return 'tariff-operations:ip:'.$request->ip();
     }
 }

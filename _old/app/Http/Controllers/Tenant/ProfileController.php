@@ -7,9 +7,12 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TenantUpdateProfileRequest;
 use App\Models\Language;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
@@ -36,7 +39,7 @@ class ProfileController extends Controller
      * @param  Request  $request  The HTTP request instance
      * @return View The profile view with user data
      *
-     * @throws \Illuminate\Auth\AuthenticationException If user is not authenticated
+     * @throws AuthenticationException If user is not authenticated
      */
     public function show(Request $request): View
     {
@@ -71,8 +74,8 @@ class ProfileController extends Controller
      * @param  TenantUpdateProfileRequest  $request  The validated form request
      * @return RedirectResponse Redirects back with success message
      *
-     * @throws \Illuminate\Validation\ValidationException If validation fails
-     * @throws \Illuminate\Database\QueryException If database update fails
+     * @throws ValidationException If validation fails
+     * @throws QueryException If database update fails
      *
      * @see TenantUpdateProfileRequest For validation rules and authorization
      */

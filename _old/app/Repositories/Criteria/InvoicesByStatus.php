@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Invoices By Status Criteria
- * 
+ *
  * Filters invoices by their status (draft, finalized, paid).
  * Supports single status or multiple statuses.
  */
@@ -17,8 +17,8 @@ class InvoicesByStatus implements CriteriaInterface
 {
     /**
      * Create a new invoices by status criteria.
-     * 
-     * @param InvoiceStatus|array<InvoiceStatus> $statuses Status or array of statuses
+     *
+     * @param  InvoiceStatus|array<InvoiceStatus>  $statuses  Status or array of statuses
      */
     public function __construct(
         private readonly InvoiceStatus|array $statuses
@@ -42,8 +42,9 @@ class InvoicesByStatus implements CriteriaInterface
     public function getDescription(): string
     {
         if (is_array($this->statuses)) {
-            $statusNames = array_map(fn($status) => $status->value, $this->statuses);
-            return 'Filter invoices by statuses: ' . implode(', ', $statusNames);
+            $statusNames = array_map(fn ($status) => $status->value, $this->statuses);
+
+            return 'Filter invoices by statuses: '.implode(', ', $statusNames);
         }
 
         return "Filter invoices by status: {$this->statuses->value}";
@@ -55,16 +56,14 @@ class InvoicesByStatus implements CriteriaInterface
     public function getParameters(): array
     {
         return [
-            'statuses' => is_array($this->statuses) 
-                ? array_map(fn($status) => $status->value, $this->statuses)
+            'statuses' => is_array($this->statuses)
+                ? array_map(fn ($status) => $status->value, $this->statuses)
                 : $this->statuses->value,
         ];
     }
 
     /**
      * Create criteria for draft invoices.
-     * 
-     * @return static
      */
     public static function drafts(): static
     {
@@ -73,8 +72,6 @@ class InvoicesByStatus implements CriteriaInterface
 
     /**
      * Create criteria for finalized invoices.
-     * 
-     * @return static
      */
     public static function finalized(): static
     {
@@ -83,8 +80,6 @@ class InvoicesByStatus implements CriteriaInterface
 
     /**
      * Create criteria for paid invoices.
-     * 
-     * @return static
      */
     public static function paid(): static
     {
@@ -93,8 +88,6 @@ class InvoicesByStatus implements CriteriaInterface
 
     /**
      * Create criteria for unpaid invoices (draft or finalized).
-     * 
-     * @return static
      */
     public static function unpaid(): static
     {
@@ -103,8 +96,6 @@ class InvoicesByStatus implements CriteriaInterface
 
     /**
      * Create criteria for processable invoices (draft or finalized).
-     * 
-     * @return static
      */
     public static function processable(): static
     {

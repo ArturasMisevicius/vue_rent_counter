@@ -11,6 +11,10 @@ use App\Models\OrganizationActivityLog;
 use App\Models\User;
 use BackedEnum;
 use Filament\Actions;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\GlobalSearch\Actions\Action;
 use Filament\Notifications\Notification;
@@ -261,8 +265,8 @@ class PlatformUserResource extends Resource
                     }),
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
+                ViewAction::make(),
+                EditAction::make(),
 
                 Actions\Action::make('reset_password')
                     ->label(__('filament.resources.platform_users.actions.reset_password.label'))
@@ -391,7 +395,7 @@ class PlatformUserResource extends Resource
                     ),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
+                BulkActionGroup::make([
                     Actions\BulkAction::make('bulk_deactivate')
                         ->label(__('filament.resources.platform_users.bulk_actions.deactivate.label'))
                         ->icon('heroicon-o-x-circle')
@@ -498,7 +502,7 @@ class PlatformUserResource extends Resource
                             ]);
                         }),
 
-                    \Filament\Actions\DeleteBulkAction::make(),
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

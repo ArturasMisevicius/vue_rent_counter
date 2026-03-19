@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * User Observer
- * 
+ *
  * Handles model events for User to provide audit logging
  * and maintain data integrity.
  */
@@ -35,7 +35,7 @@ class UserObserver
     public function updated(User $user): void
     {
         $changes = $user->getChanges();
-        
+
         // Log critical changes
         if (isset($changes['role']) || isset($changes['is_active']) || isset($changes['tenant_id'])) {
             Log::warning('Critical user attribute changed', [

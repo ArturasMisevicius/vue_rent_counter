@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace App\Services\Security;
 
 use App\Models\SecurityViolation;
-use App\ValueObjects\SecurityNonce;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Psr\Log\LoggerInterface;
 
 /**
  * Security Analytics MCP Service
- * 
+ *
  * Integrates with the security-analytics MCP server to provide
  * real-time security violation tracking, metrics analysis,
  * and anomaly detection capabilities.
@@ -20,7 +19,7 @@ use Psr\Log\LoggerInterface;
 final class SecurityAnalyticsMcpService
 {
     private const MCP_SERVER_NAME = 'security-analytics';
-    
+
     public function __construct(
         private readonly LoggerInterface $logger
     ) {}
@@ -168,18 +167,19 @@ final class SecurityAnalyticsMcpService
     public function processCspViolationFromRequest(Request $request): ?SecurityViolation
     {
         // Validate request structure and rate limiting
-        if (!$this->validateCspRequest($request)) {
+        if (! $this->validateCspRequest($request)) {
             return null;
         }
 
         $violationData = $request->json()->all();
 
         // Validate required CSP violation fields
-        if (!isset($violationData['csp-report']) || !is_array($violationData['csp-report'])) {
+        if (! isset($violationData['csp-report']) || ! is_array($violationData['csp-report'])) {
             $this->logger->warning('Invalid CSP report structure', [
-                'ip_hash' => hash('sha256', $request->ip() . config('app.key')),
-                'user_agent_hash' => hash('sha256', $request->userAgent() . config('app.key')),
+                'ip_hash' => hash('sha256', $request->ip().config('app.key')),
+                'user_agent_hash' => hash('sha256', $request->userAgent().config('app.key')),
             ]);
+
             return null;
         }
 
@@ -187,14 +187,14 @@ final class SecurityAnalyticsMcpService
 
         // Sanitize and validate report data
         $sanitizedReport = $this->sanitizeCspReport($report);
-        
+
         // Check for potential attack patterns
         if ($this->detectMaliciousPatterns($sanitizedReport)) {
             $this->logger->alert('Potential CSP attack detected', [
                 'violation_type' => 'csp_attack',
                 'blocked_uri' => $this->sanitizeUri($sanitizedReport['blocked-uri'] ?? ''),
                 'document_uri' => $this->sanitizeUri($sanitizedReport['document-uri'] ?? ''),
-                'ip_hash' => hash('sha256', $request->ip() . config('app.key')),
+                'ip_hash' => hash('sha256', $request->ip().config('app.key')),
                 'timestamp' => now()->toISOString(),
             ]);
         }
@@ -220,7 +220,7 @@ final class SecurityAnalyticsMcpService
                 'original_policy' => $this->sanitizePolicy($sanitizedReport['original-policy'] ?? null),
                 'effective_directive' => $this->sanitizeDirective($sanitizedReport['effective-directive'] ?? null),
                 'mcp_tracked' => $mcpTracked,
-                'ip_hash' => hash('sha256', $request->ip() . config('app.key')),
+                'ip_hash' => hash('sha256', $request->ip().config('app.key')),
                 'request_id' => $request->header('X-Request-ID'),
                 'processed_at' => now()->toISOString(),
             ]),
@@ -243,20 +243,21 @@ final class SecurityAnalyticsMcpService
     private function validateCspRequest(Request $request): bool
     {
         // Check rate limiting
-        $key = 'csp_reports_' . hash('sha256', $request->ip());
+        $key = 'csp_reports_'.hash('sha256', $request->ip());
         $attempts = cache()->get($key, 0);
-        
+
         if ($attempts >= 50) { // Max 50 reports per minute per IP
             $this->logger->warning('CSP report rate limit exceeded', [
-                'ip_hash' => hash('sha256', $request->ip() . config('app.key')),
+                'ip_hash' => hash('sha256', $request->ip().config('app.key')),
             ]);
+
             return false;
         }
-        
+
         cache()->put($key, $attempts + 1, 60);
 
         // Validate content type
-        if (!$request->isJson()) {
+        if (! $request->isJson()) {
             return false;
         }
 
@@ -274,11 +275,11 @@ final class SecurityAnalyticsMcpService
     private function sanitizeCspReport(array $report): array
     {
         $sanitized = [];
-        
+
         $allowedFields = [
             'violated-directive', 'blocked-uri', 'document-uri', 'referrer',
             'source-file', 'line-number', 'column-number', 'original-policy',
-            'effective-directive'
+            'effective-directive',
         ];
 
         foreach ($allowedFields as $field) {
@@ -300,11 +301,11 @@ final class SecurityAnalyticsMcpService
         }
 
         $value = (string) $value;
-        
+
         // Remove control characters and limit length
         $value = preg_replace('/[\x00-\x1F\x7F]/', '', $value);
         $value = substr($value, 0, 2048);
-        
+
         return $value ?: null;
     }
 
@@ -313,17 +314,17 @@ final class SecurityAnalyticsMcpService
      */
     private function sanitizeUri(?string $uri): ?string
     {
-        if (!$uri) {
+        if (! $uri) {
             return null;
         }
 
         // Basic URI validation and sanitization
         $uri = filter_var($uri, FILTER_SANITIZE_URL);
-        
+
         // Remove potential XSS vectors
         $uri = preg_replace('/javascript:/i', '', $uri);
         $uri = preg_replace('/data:/i', '', $uri);
-        
+
         return substr($uri, 0, 2048);
     }
 
@@ -332,7 +333,7 @@ final class SecurityAnalyticsMcpService
      */
     private function sanitizeDirective(?string $directive): string
     {
-        if (!$directive) {
+        if (! $directive) {
             return 'unknown';
         }
 
@@ -340,11 +341,11 @@ final class SecurityAnalyticsMcpService
         $validDirectives = [
             'default-src', 'script-src', 'style-src', 'img-src', 'font-src',
             'connect-src', 'frame-src', 'object-src', 'media-src', 'child-src',
-            'frame-ancestors', 'base-uri', 'form-action'
+            'frame-ancestors', 'base-uri', 'form-action',
         ];
 
         $directive = strtolower(trim($directive));
-        
+
         return in_array($directive, $validDirectives) ? $directive : 'unknown';
     }
 
@@ -353,12 +354,12 @@ final class SecurityAnalyticsMcpService
      */
     private function sanitizeUserAgent(?string $userAgent): ?string
     {
-        if (!$userAgent) {
+        if (! $userAgent) {
             return null;
         }
 
         // Hash user agent for privacy while maintaining uniqueness
-        return hash('sha256', $userAgent . config('app.key'));
+        return hash('sha256', $userAgent.config('app.key'));
     }
 
     /**
@@ -371,7 +372,7 @@ final class SecurityAnalyticsMcpService
         }
 
         $int = filter_var($value, FILTER_VALIDATE_INT);
-        
+
         return ($int !== false && $int >= 0 && $int <= 999999) ? $int : null;
     }
 
@@ -380,13 +381,13 @@ final class SecurityAnalyticsMcpService
      */
     private function sanitizePolicy(?string $policy): ?string
     {
-        if (!$policy) {
+        if (! $policy) {
             return null;
         }
 
         // Remove potential injection vectors and limit length
         $policy = preg_replace('/[<>"\']/', '', $policy);
-        
+
         return substr($policy, 0, 1024);
     }
 
@@ -408,7 +409,7 @@ final class SecurityAnalyticsMcpService
         $checkFields = ['blocked-uri', 'document-uri', 'source-file'];
 
         foreach ($checkFields as $field) {
-            if (!isset($report[$field])) {
+            if (! isset($report[$field])) {
                 continue;
             }
 
@@ -429,7 +430,7 @@ final class SecurityAnalyticsMcpService
     {
         // Encrypt sensitive fields
         $sensitiveFields = ['original_policy', 'ip_hash'];
-        
+
         foreach ($sensitiveFields as $field) {
             if (isset($metadata[$field]) && $metadata[$field]) {
                 $metadata[$field] = encrypt($metadata[$field]);
@@ -457,10 +458,10 @@ final class SecurityAnalyticsMcpService
     {
         // This would integrate with the actual MCP system
         // For now, we'll simulate the MCP call
-        
+
         // In a real implementation, this would use the MCP client
         // to call the security-analytics MCP server
-        
+
         return [
             'success' => true,
             'tool' => $toolName,

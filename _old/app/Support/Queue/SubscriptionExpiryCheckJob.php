@@ -2,6 +2,10 @@
 
 namespace App\Support\Queue;
 
+use App\Models\Subscription;
+use App\Models\User;
+use App\Services\SubscriptionAutomationService;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -9,14 +13,10 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use App\Models\Subscription;
-use App\Models\Organization;
-use App\Services\SubscriptionAutomationService;
-use Carbon\Carbon;
 
 /**
  * Job for checking subscription expiry and processing notifications/renewals
- * 
+ *
  * Runs daily to check for expiring subscriptions, send notifications,
  * and process auto-renewals according to configuration
  */
@@ -25,6 +25,7 @@ class SubscriptionExpiryCheckJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 600; // 10 minutes
+
     public $tries = 2;
 
     /**
@@ -81,7 +82,7 @@ class SubscriptionExpiryCheckJob implements ShouldQueue
     private function sendExpiryNotifications(int $days): int
     {
         $targetDate = Carbon::now()->addDays($days)->toDateString();
-        
+
         $subscriptions = Subscription::query()
             ->with(['user.organization'])
             ->where('status', 'active')
@@ -118,25 +119,26 @@ class SubscriptionExpiryCheckJob implements ShouldQueue
     private function sendExpiryNotification(Subscription $subscription, int $days): void
     {
         $organization = $subscription->user->organization ?? null;
-        
-        if (!$organization || !$subscription->user->email) {
+
+        if (! $organization || ! $subscription->user->email) {
             Log::warning('Cannot send expiry notification - missing organization or email', [
                 'subscription_id' => $subscription->id,
                 'user_id' => $subscription->user_id,
             ]);
+
             return;
         }
 
         // Simple email notification (in production, you'd create a proper Mailable)
         Mail::raw(
-            "Your subscription for {$organization->name} will expire in {$days} days.\n\n" .
-            "Subscription Details:\n" .
-            "- Plan: {$subscription->plan_type}\n" .
-            "- Expires: {$subscription->expires_at->format('Y-m-d')}\n\n" .
-            "Please renew your subscription to continue using our services.",
+            "Your subscription for {$organization->name} will expire in {$days} days.\n\n".
+            "Subscription Details:\n".
+            "- Plan: {$subscription->plan_type}\n".
+            "- Expires: {$subscription->expires_at->format('Y-m-d')}\n\n".
+            'Please renew your subscription to continue using our services.',
             function ($message) use ($subscription, $organization, $days) {
                 $message->to($subscription->user->email)
-                       ->subject("Subscription Expiring in {$days} Days - {$organization->name}");
+                    ->subject("Subscription Expiring in {$days} Days - {$organization->name}");
             }
         );
 
@@ -168,9 +170,9 @@ class SubscriptionExpiryCheckJob implements ShouldQueue
                 // Attempt auto-renewal
                 $renewalPeriod = $subscription->renewal_period ?? 365; // Default to 1 year
                 $newExpiryDate = $subscription->expires_at->addDays($renewalPeriod);
-                
+
                 $subscription->renew($newExpiryDate);
-                
+
                 // Log the renewal
                 Log::info('Auto-renewal processed', [
                     'subscription_id' => $subscription->id,
@@ -189,7 +191,7 @@ class SubscriptionExpiryCheckJob implements ShouldQueue
 
                 // Send failure notification to superadmins
                 $this->sendAutoRenewalFailureNotification($subscription, $e->getMessage());
-                
+
                 $failures++;
             }
         }
@@ -224,7 +226,7 @@ class SubscriptionExpiryCheckJob implements ShouldQueue
     {
         try {
             // Get superadmin emails (simplified - in production you'd have a proper notification system)
-            $superadminEmails = \App\Models\User::where('role', 'superadmin')
+            $superadminEmails = User::where('role', 'superadmin')
                 ->pluck('email')
                 ->toArray();
 
@@ -233,17 +235,17 @@ class SubscriptionExpiryCheckJob implements ShouldQueue
             }
 
             $organization = $subscription->user->organization;
-            
+
             Mail::raw(
-                "Auto-renewal failed for subscription ID {$subscription->id}\n\n" .
-                "Organization: {$organization?->name}\n" .
-                "Plan: {$subscription->plan_type}\n" .
-                "Original Expiry: {$subscription->expires_at->format('Y-m-d')}\n" .
-                "Error: {$error}\n\n" .
-                "Please review and process manually.",
+                "Auto-renewal failed for subscription ID {$subscription->id}\n\n".
+                "Organization: {$organization?->name}\n".
+                "Plan: {$subscription->plan_type}\n".
+                "Original Expiry: {$subscription->expires_at->format('Y-m-d')}\n".
+                "Error: {$error}\n\n".
+                'Please review and process manually.',
                 function ($message) use ($superadminEmails, $subscription) {
                     $message->to($superadminEmails)
-                           ->subject("Auto-Renewal Failed - Subscription {$subscription->id}");
+                        ->subject("Auto-Renewal Failed - Subscription {$subscription->id}");
                 }
             );
 

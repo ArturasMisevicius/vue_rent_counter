@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Enums\UserRole;
 use App\Models\Property;
 use App\Models\Tenant;
 use App\Models\User;
@@ -23,7 +22,7 @@ class TestTenantsSeeder extends Seeder
 
         // Get properties for tenant 1 (property management company)
         $tenant1Properties = Property::where('tenant_id', 1)->get();
-        
+
         // Get properties for tenant 2 (property management company)
         $tenant2Properties = Property::where('tenant_id', 2)->get();
 

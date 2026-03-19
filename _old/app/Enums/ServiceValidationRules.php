@@ -6,12 +6,12 @@ namespace App\Enums;
 
 /**
  * Validation rules for different utility service types.
- * 
+ *
  * Provides standardized validation rules for utility services
  * to ensure consistent data validation across the application.
- * 
- * @package App\Enums
+ *
  * @author Laravel Development Team
+ *
  * @since 1.0.0
  */
 enum ServiceValidationRules: string
@@ -23,7 +23,7 @@ enum ServiceValidationRules: string
 
     /**
      * Get validation rules for the service type.
-     * 
+     *
      * @return array<string, mixed>
      */
     public function getValidationRules(): array
@@ -135,11 +135,11 @@ enum ServiceValidationRules: string
 
     /**
      * Get all supported service types.
-     * 
+     *
      * @return array<string>
      */
     public static function getSupportedTypes(): array
     {
-        return array_map(fn(self $case) => $case->value, self::cases());
+        return array_map(fn (self $case) => $case->value, self::cases());
     }
 }

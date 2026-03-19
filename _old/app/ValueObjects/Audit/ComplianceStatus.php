@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 /**
  * Compliance Status Value Object
- * 
+ *
  * Contains comprehensive compliance status for regulatory requirements
  * including audit trail completeness, data retention, and security compliance.
  */
@@ -89,7 +89,7 @@ final readonly class ComplianceStatus
      */
     public function getCriticalViolationsCount(): int
     {
-        return count(array_filter($this->violations, fn($v) => $v['severity'] === 'critical'));
+        return count(array_filter($this->violations, fn ($v) => $v['severity'] === 'critical'));
     }
 
     /**
@@ -97,7 +97,7 @@ final readonly class ComplianceStatus
      */
     public function getHighViolationsCount(): int
     {
-        return count(array_filter($this->violations, fn($v) => $v['severity'] === 'high'));
+        return count(array_filter($this->violations, fn ($v) => $v['severity'] === 'high'));
     }
 
     /**
@@ -105,7 +105,7 @@ final readonly class ComplianceStatus
      */
     public function getCriticalViolations(): array
     {
-        return array_filter($this->violations, fn($v) => $v['severity'] === 'critical');
+        return array_filter($this->violations, fn ($v) => $v['severity'] === 'critical');
     }
 
     /**
@@ -113,7 +113,7 @@ final readonly class ComplianceStatus
      */
     public function getHighPriorityRecommendations(): array
     {
-        return array_filter($this->recommendations, fn($r) => $r['priority'] === 'critical' || $r['priority'] === 'high');
+        return array_filter($this->recommendations, fn ($r) => $r['priority'] === 'critical' || $r['priority'] === 'high');
     }
 
     /**
@@ -122,7 +122,7 @@ final readonly class ComplianceStatus
     public function getAreasNeedingImprovement(): array
     {
         $areas = [];
-        
+
         if (($this->auditTrailCompleteness['score'] ?? 100) < 90) {
             $areas[] = [
                 'area' => 'audit_trail_completeness',
@@ -131,7 +131,7 @@ final readonly class ComplianceStatus
                 'issues' => $this->auditTrailCompleteness['issues'] ?? [],
             ];
         }
-        
+
         if (($this->dataRetentionCompliance['score'] ?? 100) < 90) {
             $areas[] = [
                 'area' => 'data_retention_compliance',
@@ -140,7 +140,7 @@ final readonly class ComplianceStatus
                 'issues' => $this->dataRetentionCompliance['issues'] ?? [],
             ];
         }
-        
+
         if (($this->regulatoryCompliance['score'] ?? 100) < 90) {
             $areas[] = [
                 'area' => 'regulatory_compliance',
@@ -149,7 +149,7 @@ final readonly class ComplianceStatus
                 'issues' => $this->regulatoryCompliance['issues'] ?? [],
             ];
         }
-        
+
         if (($this->securityCompliance['score'] ?? 100) < 90) {
             $areas[] = [
                 'area' => 'security_compliance',
@@ -158,7 +158,7 @@ final readonly class ComplianceStatus
                 'issues' => $this->securityCompliance['issues'] ?? [],
             ];
         }
-        
+
         if (($this->dataQualityCompliance['score'] ?? 100) < 90) {
             $areas[] = [
                 'area' => 'data_quality_compliance',
@@ -167,7 +167,7 @@ final readonly class ComplianceStatus
                 'issues' => $this->dataQualityCompliance['issues'] ?? [],
             ];
         }
-        
+
         return $areas;
     }
 
@@ -210,7 +210,7 @@ final readonly class ComplianceStatus
     {
         // This would typically compare with previous assessments
         // For now, we'll provide a simplified trend based on current score
-        
+
         return match (true) {
             $this->overallScore >= 95 => 'excellent',
             $this->overallScore >= 85 => 'improving',
@@ -227,23 +227,23 @@ final readonly class ComplianceStatus
         if ($this->isCompliant()) {
             return null; // Already compliant
         }
-        
+
         $violationsCount = count($this->violations);
         $criticalCount = $this->getCriticalViolationsCount();
-        
+
         // Estimate based on violation severity and count
         if ($criticalCount > 0) {
             return '1-2 weeks'; // Critical issues need immediate attention
         }
-        
+
         if ($violationsCount > 10) {
             return '4-6 weeks'; // Many violations need systematic approach
         }
-        
+
         if ($violationsCount > 5) {
             return '2-3 weeks'; // Moderate violations
         }
-        
+
         return '1 week'; // Few violations, quick fixes
     }
 
@@ -253,43 +253,43 @@ final readonly class ComplianceStatus
     public function getActionPlan(): array
     {
         $plan = [];
-        
+
         // Immediate actions for critical violations
         $criticalViolations = $this->getCriticalViolations();
-        if (!empty($criticalViolations)) {
+        if (! empty($criticalViolations)) {
             $plan[] = [
                 'priority' => 'immediate',
                 'timeframe' => '24-48 hours',
                 'title' => 'Address Critical Violations',
                 'description' => 'Resolve critical compliance violations immediately',
-                'actions' => array_map(fn($v) => $v['description'], $criticalViolations),
+                'actions' => array_map(fn ($v) => $v['description'], $criticalViolations),
             ];
         }
-        
+
         // High priority recommendations
         $highPriorityRecs = $this->getHighPriorityRecommendations();
-        if (!empty($highPriorityRecs)) {
+        if (! empty($highPriorityRecs)) {
             $plan[] = [
                 'priority' => 'high',
                 'timeframe' => '1-2 weeks',
                 'title' => 'Implement High Priority Improvements',
                 'description' => 'Address high priority compliance recommendations',
-                'actions' => array_map(fn($r) => $r['title'], $highPriorityRecs),
+                'actions' => array_map(fn ($r) => $r['title'], $highPriorityRecs),
             ];
         }
-        
+
         // Areas needing improvement
         $improvementAreas = $this->getAreasNeedingImprovement();
-        if (!empty($improvementAreas)) {
+        if (! empty($improvementAreas)) {
             $plan[] = [
                 'priority' => 'medium',
                 'timeframe' => '2-4 weeks',
                 'title' => 'Strengthen Compliance Areas',
                 'description' => 'Improve compliance in identified weak areas',
-                'actions' => array_map(fn($a) => "Improve {$a['area']}", $improvementAreas),
+                'actions' => array_map(fn ($a) => "Improve {$a['area']}", $improvementAreas),
             ];
         }
-        
+
         return $plan;
     }
 }

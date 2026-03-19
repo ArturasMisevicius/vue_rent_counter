@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * Recent Invoices Widget for Tenant Dashboard
- * 
+ *
  * Shows the most recent invoices for the tenant's property
  * with quick actions to view or download.
  */
@@ -31,7 +31,7 @@ final class RecentInvoicesWidget extends BaseWidget
     public static function canView(): bool
     {
         $user = Auth::user();
-        
+
         return $user && $user->role === UserRole::TENANT && $user->property_id;
     }
 
@@ -49,7 +49,7 @@ final class RecentInvoicesWidget extends BaseWidget
                     ->label(__('app.labels.invoice_number'))
                     ->searchable()
                     ->weight('medium'),
-                
+
                 TextColumn::make('status')
                     ->label(__('app.labels.status'))
                     ->badge()
@@ -60,18 +60,18 @@ final class RecentInvoicesWidget extends BaseWidget
                         InvoiceStatus::OVERDUE => 'danger',
                         InvoiceStatus::CANCELLED => 'gray',
                     }),
-                
+
                 TextColumn::make('issue_date')
                     ->label(__('app.labels.issue_date'))
                     ->date()
                     ->sortable(),
-                
+
                 TextColumn::make('due_date')
                     ->label(__('app.labels.due_date'))
                     ->date()
                     ->sortable()
                     ->color(fn ($record) => $record->due_date < now() && $record->status !== InvoiceStatus::PAID ? 'danger' : null),
-                
+
                 TextColumn::make('total_amount')
                     ->label(__('app.labels.total_amount'))
                     ->money('EUR')
@@ -82,11 +82,10 @@ final class RecentInvoicesWidget extends BaseWidget
                 Action::make('view')
                     ->label(__('app.actions.view'))
                     ->icon('heroicon-m-eye')
-                    ->url(fn (Invoice $record): string => 
-                        route('filament.tenant.resources.invoices.view', $record)
+                    ->url(fn (Invoice $record): string => route('filament.tenant.resources.invoices.view', $record)
                     )
                     ->color('gray'),
-                
+
                 Action::make('download')
                     ->label(__('app.actions.download_pdf'))
                     ->icon('heroicon-m-arrow-down-tray')
@@ -106,11 +105,11 @@ final class RecentInvoicesWidget extends BaseWidget
     protected function getTableQuery(): Builder
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->property_id) {
+
+        if (! $user || ! $user->property_id) {
             return Invoice::query()->whereKey(-1);
         }
-        
+
         return Invoice::query()
             ->where('property_id', $user->property_id)
             ->with(['property'])

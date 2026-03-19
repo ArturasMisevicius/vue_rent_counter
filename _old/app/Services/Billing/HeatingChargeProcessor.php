@@ -13,11 +13,9 @@ use Illuminate\Support\Collection;
 
 /**
  * Processes heating charges using existing heating calculator.
- * 
+ *
  * Integrates with the existing heating calculation system
  * while providing a clean interface for the billing engine.
- * 
- * @package App\Services\Billing
  */
 final readonly class HeatingChargeProcessor
 {
@@ -37,7 +35,7 @@ final readonly class HeatingChargeProcessor
         $items = [];
 
         $heatingMeters = $meters->where('type', MeterType::HEATING);
-        
+
         if ($heatingMeters->isEmpty()) {
             return ['amount' => 0.0, 'items' => []];
         }
@@ -46,7 +44,7 @@ final readonly class HeatingChargeProcessor
             // Get latest reading for the billing period
             $reading = $this->getLatestReadingForPeriod($meter->id, $billingPeriod);
 
-            if (!$reading) {
+            if (! $reading) {
                 continue; // Skip if no reading available
             }
 
@@ -59,7 +57,7 @@ final readonly class HeatingChargeProcessor
 
             $amount = $heatingResult['amount'];
             $totalAmount += $amount;
-            
+
             $items[] = [
                 'meter_id' => $meter->id,
                 'service_type' => 'heating',

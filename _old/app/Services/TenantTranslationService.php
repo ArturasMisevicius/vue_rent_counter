@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * Tenant Translation Service
- * 
+ *
  * Handles tenant-specific translations and dynamic translation management
  * for multi-tenant applications with customizable content.
  */
@@ -28,17 +28,17 @@ final readonly class TenantTranslationService
     public function get(string $key, string $locale, ?int $tenantId = null): ?string
     {
         $tenantId = $tenantId ?? $this->getCurrentTenantId();
-        
-        if (!$tenantId) {
+
+        if (! $tenantId) {
             return null;
         }
 
         $cacheKey = "tenant.{$tenantId}.{$key}";
-        
+
         return $this->cacheService->remember(
             $cacheKey,
             $locale,
-            fn() => $this->fetchTenantTranslation($key, $locale, $tenantId)
+            fn () => $this->fetchTenantTranslation($key, $locale, $tenantId)
         );
     }
 
@@ -48,8 +48,8 @@ final readonly class TenantTranslationService
     public function set(string $key, string $locale, string $value, ?int $tenantId = null): bool
     {
         $tenantId = $tenantId ?? $this->getCurrentTenantId();
-        
-        if (!$tenantId) {
+
+        if (! $tenantId) {
             return false;
         }
 
@@ -78,15 +78,15 @@ final readonly class TenantTranslationService
     public function getAllForTenant(?int $tenantId = null): Collection
     {
         $tenantId = $tenantId ?? $this->getCurrentTenantId();
-        
-        if (!$tenantId) {
+
+        if (! $tenantId) {
             return collect();
         }
 
         return Cache::remember(
             "tenant.{$tenantId}.all_translations",
             self::CACHE_TTL,
-            fn() => Translation::where('tenant_id', $tenantId)->get()
+            fn () => Translation::where('tenant_id', $tenantId)->get()
         );
     }
 
@@ -96,13 +96,13 @@ final readonly class TenantTranslationService
     public function import(array $translations, ?int $tenantId = null): int
     {
         $tenantId = $tenantId ?? $this->getCurrentTenantId();
-        
-        if (!$tenantId) {
+
+        if (! $tenantId) {
             return 0;
         }
 
         $imported = 0;
-        
+
         foreach ($translations as $key => $localeValues) {
             foreach ($localeValues as $locale => $value) {
                 if ($this->set($key, $locale, $value, $tenantId)) {
@@ -123,8 +123,8 @@ final readonly class TenantTranslationService
     public function export(?int $tenantId = null): array
     {
         $tenantId = $tenantId ?? $this->getCurrentTenantId();
-        
-        if (!$tenantId) {
+
+        if (! $tenantId) {
             return [];
         }
 
@@ -144,17 +144,17 @@ final readonly class TenantTranslationService
     public function clearTenantCache(?int $tenantId = null): bool
     {
         $tenantId = $tenantId ?? $this->getCurrentTenantId();
-        
-        if (!$tenantId) {
+
+        if (! $tenantId) {
             return false;
         }
 
         // Clear specific tenant cache
         Cache::forget("tenant.{$tenantId}.all_translations");
-        
+
         // Clear individual translation caches
         $translations = Translation::where('tenant_id', $tenantId)->get(['key', 'locale']);
-        
+
         foreach ($translations as $translation) {
             $cacheKey = "tenant.{$tenantId}.{$translation->key}";
             $this->cacheService->forget($cacheKey, $translation->locale);
@@ -169,7 +169,7 @@ final readonly class TenantTranslationService
     public function getWithFallback(string $key, string $locale, ?int $tenantId = null): ?string
     {
         $tenantId = $tenantId ?? $this->getCurrentTenantId();
-        
+
         // Try tenant-specific translation first
         if ($tenantId) {
             $tenantTranslation = $this->get($key, $locale, $tenantId);
@@ -180,7 +180,7 @@ final readonly class TenantTranslationService
 
         // Fall back to global translation
         $globalTranslation = __($key, [], $locale);
-        
+
         return $globalTranslation !== $key ? $globalTranslation : null;
     }
 
@@ -190,8 +190,8 @@ final readonly class TenantTranslationService
     public function syncWithGlobal(?int $tenantId = null): int
     {
         $tenantId = $tenantId ?? $this->getCurrentTenantId();
-        
-        if (!$tenantId) {
+
+        if (! $tenantId) {
             return 0;
         }
 
@@ -202,12 +202,12 @@ final readonly class TenantTranslationService
         foreach ($globalKeys as $key) {
             foreach (config('locales.available', []) as $locale => $config) {
                 $globalValue = __($key, [], $locale);
-                
+
                 if ($globalValue !== $key) {
                     // Check if tenant has this translation
                     $tenantValue = $this->get($key, $locale, $tenantId);
-                    
-                    if (!$tenantValue) {
+
+                    if (! $tenantValue) {
                         $this->set($key, $locale, $globalValue, $tenantId);
                         $synced++;
                     }
@@ -237,8 +237,8 @@ final readonly class TenantTranslationService
      */
     private function getCurrentTenantId(): ?int
     {
-        if (app()->bound(\App\Services\TenantContext::class)) {
-            return app(\App\Services\TenantContext::class)->getCurrentTenantId();
+        if (app()->bound(TenantContext::class)) {
+            return app(TenantContext::class)->getCurrentTenantId();
         }
 
         return session('tenant_id');

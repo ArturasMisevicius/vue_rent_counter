@@ -34,13 +34,13 @@ final readonly class TenantBoundaryService
     public function canAccessModel(User $user, Model $model): bool
     {
         // If model doesn't use tenant scoping, allow access
-        if (!$this->usesTenantScoping($model)) {
+        if (! $this->usesTenantScoping($model)) {
             return true;
         }
 
         // Get tenant ID from model
         $tenantId = $this->getTenantIdFromModel($model);
-        
+
         if ($tenantId === null) {
             return false;
         }
@@ -54,7 +54,7 @@ final readonly class TenantBoundaryService
     public function canCreateForCurrentTenant(User $user): bool
     {
         $currentTenantId = $this->getCurrentTenantId();
-        
+
         if ($currentTenantId === null) {
             return false;
         }
@@ -68,13 +68,15 @@ final readonly class TenantBoundaryService
     public function getCurrentTenantId(): ?int
     {
         // Get from TenantContext service if available
-        if (class_exists(\App\Services\TenantContext::class)) {
-            $tenantContext = app(\App\Services\TenantContext::class);
+        if (class_exists(TenantContext::class)) {
+            $tenantContext = app(TenantContext::class);
+
             return $tenantContext->getCurrentTenantId();
         }
 
         // Fallback to authenticated user's tenant
         $user = auth()->user();
+
         return $user?->tenant_id;
     }
 
@@ -93,7 +95,7 @@ final readonly class TenantBoundaryService
     {
         // Try common tenant ID field names
         $tenantFields = ['tenant_id', 'organization_id', 'team_id'];
-        
+
         foreach ($tenantFields as $field) {
             if (isset($model->{$field})) {
                 return (int) $model->{$field};
@@ -135,7 +137,7 @@ final readonly class TenantBoundaryService
         // Superadmin can access all tenants
         if ($user->hasRole('superadmin')) {
             // Return all tenant IDs from the database
-            return \App\Models\User::distinct()
+            return User::distinct()
                 ->whereNotNull('tenant_id')
                 ->pluck('tenant_id')
                 ->toArray();

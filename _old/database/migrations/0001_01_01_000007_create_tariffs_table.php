@@ -19,7 +19,7 @@ return new class extends Migration
             $table->dateTime('active_from');
             $table->dateTime('active_until')->nullable();
             $table->timestamps();
-            
+
             $table->index(['provider_id', 'active_from', 'active_until']);
         });
     }

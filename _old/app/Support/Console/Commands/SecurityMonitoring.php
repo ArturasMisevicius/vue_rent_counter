@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Mail;
 
 /**
  * Security Monitoring Command
- * 
+ *
  * Monitors security metrics and sends alerts for suspicious activity.
  * Should be scheduled to run every 5-15 minutes via Laravel Scheduler.
  */
@@ -63,17 +63,19 @@ class SecurityMonitoring extends Command
         // Process alerts
         if (empty($alerts)) {
             $this->info('✅ No security alerts detected');
+
             return 0;
         }
 
-        $this->warn('🚨 Security alerts detected: ' . count($alerts));
-        
+        $this->warn('🚨 Security alerts detected: '.count($alerts));
+
         foreach ($alerts as $alert) {
             $this->line("  - {$alert}");
         }
 
         if ($dryRun) {
             $this->info('Dry run mode - no notifications sent');
+
             return 0;
         }
 
@@ -161,7 +163,7 @@ class SecurityMonitoring extends Command
             ->whereHas('tokens', function ($query) {
                 $query->where(function ($q) {
                     $q->whereNull('expires_at')
-                      ->orWhere('expires_at', '>', now());
+                        ->orWhere('expires_at', '>', now());
                 });
             })
             ->count();
@@ -210,7 +212,7 @@ class SecurityMonitoring extends Command
 
         if ($totalTokens > 0) {
             $expiredPercentage = ($expiredTokens / $totalTokens) * 100;
-            
+
             if ($expiredPercentage > 30) {
                 $alerts[] = "High expired token ratio: {$expiredPercentage}% ({$expiredTokens}/{$totalTokens})";
             }
@@ -228,14 +230,14 @@ class SecurityMonitoring extends Command
 
         // Users with no recent login but active tokens
         $staleActiveUsers = User::whereHas('tokens', function ($query) {
-                $query->where(function ($q) {
-                    $q->whereNull('expires_at')
-                      ->orWhere('expires_at', '>', now());
-                });
-            })
+            $query->where(function ($q) {
+                $q->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            });
+        })
             ->where(function ($query) {
                 $query->where('last_login_at', '<', now()->subDays(30))
-                      ->orWhereNull('last_login_at');
+                    ->orWhereNull('last_login_at');
             })
             ->count();
 
@@ -251,26 +253,27 @@ class SecurityMonitoring extends Command
      */
     private function sendAlertNotifications(array $alerts, ?string $alertEmail): void
     {
-        if (!$alertEmail) {
+        if (! $alertEmail) {
             $this->warn('No alert email configured - skipping email notification');
+
             return;
         }
 
         try {
-            $subject = 'Security Alert - ' . config('app.name');
-            $body = "Security alerts detected at " . now()->format('Y-m-d H:i:s') . ":\n\n";
-            $body .= implode("\n", array_map(fn($alert) => "• {$alert}", $alerts));
+            $subject = 'Security Alert - '.config('app.name');
+            $body = 'Security alerts detected at '.now()->format('Y-m-d H:i:s').":\n\n";
+            $body .= implode("\n", array_map(fn ($alert) => "• {$alert}", $alerts));
             $body .= "\n\nPlease investigate these issues immediately.";
 
             Mail::raw($body, function ($message) use ($alertEmail, $subject) {
                 $message->to($alertEmail)
-                       ->subject($subject);
+                    ->subject($subject);
             });
 
             $this->info("✅ Alert email sent to {$alertEmail}");
 
         } catch (\Exception $e) {
-            $this->error("❌ Failed to send alert email: " . $e->getMessage());
+            $this->error('❌ Failed to send alert email: '.$e->getMessage());
             Log::error('Failed to send security alert email', [
                 'error' => $e->getMessage(),
                 'alerts' => $alerts,

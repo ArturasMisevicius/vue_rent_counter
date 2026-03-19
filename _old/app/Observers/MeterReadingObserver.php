@@ -5,20 +5,18 @@ namespace App\Observers;
 use App\Models\Invoice;
 use App\Models\MeterReading;
 use App\Models\MeterReadingAudit;
-use Illuminate\Support\Facades\Log;
+use App\Services\BillingService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class MeterReadingObserver
 {
     /**
      * Handle the MeterReading "updating" event.
-     * 
+     *
      * Creates an audit trail record when a meter reading is modified,
      * capturing the old value, new value, change reason, and user who made the change.
      * Also triggers recalculation of affected draft invoices.
-     *
-     * @param  \App\Models\MeterReading  $meterReading
-     * @return void
      */
     public function updating(MeterReading $meterReading): void
     {
@@ -36,12 +34,9 @@ class MeterReadingObserver
 
     /**
      * Handle the MeterReading "updated" event.
-     * 
+     *
      * Recalculates affected draft invoices when a meter reading is modified.
      * Only draft invoices are recalculated; finalized invoices remain unchanged.
-     *
-     * @param  \App\Models\MeterReading  $meterReading
-     * @return void
      */
     public function updated(MeterReading $meterReading): void
     {
@@ -53,15 +48,12 @@ class MeterReadingObserver
 
     /**
      * Find and recalculate all draft invoices affected by a meter reading change.
-     *
-     * @param  \App\Models\MeterReading  $meterReading
-     * @return void
      */
     private function recalculateAffectedDraftInvoices(MeterReading $meterReading): void
     {
         $meter = $meterReading->meter;
 
-        if (!$meter) {
+        if (! $meter) {
             return;
         }
 
@@ -73,7 +65,7 @@ class MeterReadingObserver
             ->get();
 
         // Recalculate each affected draft invoice
-        $billingService = app(\App\Services\BillingService::class);
+        $billingService = app(BillingService::class);
 
         foreach ($draftInvoices as $invoice) {
             try {

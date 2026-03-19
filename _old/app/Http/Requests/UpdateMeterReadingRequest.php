@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use App\Models\Meter;
 use App\Models\MeterReading;
+use App\Services\MeterReadingService;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -20,7 +22,7 @@ class UpdateMeterReadingRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -53,20 +55,20 @@ class UpdateMeterReadingRequest extends FormRequest
      * Validate that the updated reading maintains monotonicity.
      * Implements Property 1: Meter reading monotonicity
      * Validates: Requirements 1.2
-     * 
+     *
      * Performance: Eager loads meter relationship to prevent N+1 queries
      */
     protected function validateMonotonicity(Validator $validator): void
     {
         $reading = $this->route('reading');
-        
-        if (!$reading instanceof MeterReading) {
+
+        if (! $reading instanceof MeterReading) {
             return;
         }
 
         // Eager load meter relationship if not already loaded
         // Prevents N+1 when service queries adjacent readings
-        if (!$reading->relationLoaded('meter')) {
+        if (! $reading->relationLoaded('meter')) {
             $reading->load('meter');
         }
 
@@ -79,12 +81,6 @@ class UpdateMeterReadingRequest extends FormRequest
 
     /**
      * Validate that new value is not lower than previous reading.
-     *
-     * @param Validator $validator
-     * @param MeterReading $reading
-     * @param float $newValue
-     * @param string|null $zone
-     * @return void
      */
     protected function validateAgainstPreviousReading(
         Validator $validator,
@@ -92,7 +88,7 @@ class UpdateMeterReadingRequest extends FormRequest
         float $newValue,
         ?string $zone
     ): void {
-        $service = app(\App\Services\MeterReadingService::class);
+        $service = app(MeterReadingService::class);
         $previousReading = $service->getAdjacentReading($reading, $zone, 'previous');
 
         if ($previousReading && $newValue < $previousReading->value) {
@@ -107,12 +103,6 @@ class UpdateMeterReadingRequest extends FormRequest
 
     /**
      * Validate that new value is not higher than next reading.
-     *
-     * @param Validator $validator
-     * @param MeterReading $reading
-     * @param float $newValue
-     * @param string|null $zone
-     * @return void
      */
     protected function validateAgainstNextReading(
         Validator $validator,
@@ -120,7 +110,7 @@ class UpdateMeterReadingRequest extends FormRequest
         float $newValue,
         ?string $zone
     ): void {
-        $service = app(\App\Services\MeterReadingService::class);
+        $service = app(MeterReadingService::class);
         $nextReading = $service->getAdjacentReading($reading, $zone, 'next');
 
         if ($nextReading && $newValue > $nextReading->value) {

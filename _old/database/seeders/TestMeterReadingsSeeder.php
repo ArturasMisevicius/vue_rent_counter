@@ -17,7 +17,7 @@ class TestMeterReadingsSeeder extends Seeder
 
     /**
      * Seed test meter readings for all meters.
-     * 
+     *
      * Creates historical readings for the last 12 months:
      * - For electricity meters: separate day and night zone readings
      * - For other meters: single reading per month
@@ -30,8 +30,8 @@ class TestMeterReadingsSeeder extends Seeder
     {
         // Get a manager user to be the one who entered all readings
         $manager = User::where('role', UserRole::MANAGER)->first();
-        
-        if (!$manager) {
+
+        if (! $manager) {
             throw new \RuntimeException(
                 'No manager user found. Run UsersSeeder first.'
             );
@@ -46,10 +46,6 @@ class TestMeterReadingsSeeder extends Seeder
 
     /**
      * Create readings for a specific meter over the last 12 months.
-     *
-     * @param Meter $meter
-     * @param int $managerId
-     * @return void
      */
     private function createReadingsForMeter(Meter $meter, int $managerId): void
     {
@@ -65,13 +61,13 @@ class TestMeterReadingsSeeder extends Seeder
                 // Electricity meter with day/night zones
                 $lastReading = $this->createZonedReading($meter, $readingDate, $currentValue, 'day', $managerId);
                 $this->createZonedReading($meter, $readingDate, $currentValue * 0.6, 'night', $managerId);
-                
+
                 // Increment for next month
                 $currentValue += $this->getIncrement($meter->type);
             } else {
                 // Single reading for non-zoned meters
                 $lastReading = $this->createSingleReading($meter, $readingDate, $currentValue, $managerId);
-                
+
                 // Increment for next month
                 $currentValue += $this->getIncrement($meter->type);
             }
@@ -90,12 +86,6 @@ class TestMeterReadingsSeeder extends Seeder
 
     /**
      * Create a single meter reading.
-     *
-     * @param Meter $meter
-     * @param Carbon $readingDate
-     * @param float $value
-     * @param int $managerId
-     * @return MeterReading
      */
     private function createSingleReading(Meter $meter, Carbon $readingDate, float $value, int $managerId): MeterReading
     {
@@ -111,13 +101,6 @@ class TestMeterReadingsSeeder extends Seeder
 
     /**
      * Create a zoned meter reading (for electricity meters).
-     *
-     * @param Meter $meter
-     * @param Carbon $readingDate
-     * @param float $value
-     * @param string $zone
-     * @param int $managerId
-     * @return MeterReading
      */
     private function createZonedReading(Meter $meter, Carbon $readingDate, float $value, string $zone, int $managerId): MeterReading
     {
@@ -133,13 +116,10 @@ class TestMeterReadingsSeeder extends Seeder
 
     /**
      * Get the initial starting value for a meter based on its type.
-     *
-     * @param MeterType $type
-     * @return float
      */
     private function getInitialValue(MeterType $type): float
     {
-        return match($type) {
+        return match ($type) {
             MeterType::ELECTRICITY => 1000.0,
             MeterType::WATER_COLD => 500.0,
             MeterType::WATER_HOT => 300.0,
@@ -149,13 +129,10 @@ class TestMeterReadingsSeeder extends Seeder
 
     /**
      * Get realistic monthly increment for a meter based on its type.
-     *
-     * @param MeterType $type
-     * @return float
      */
     private function getIncrement(MeterType $type): float
     {
-        return match($type) {
+        return match ($type) {
             MeterType::ELECTRICITY => fake()->numberBetween(150, 250),
             MeterType::WATER_COLD => fake()->numberBetween(8, 15),
             MeterType::WATER_HOT => fake()->numberBetween(5, 12),

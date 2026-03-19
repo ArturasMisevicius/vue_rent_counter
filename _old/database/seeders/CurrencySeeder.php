@@ -122,7 +122,7 @@ final class CurrencySeeder extends Seeder
         $gbp = Currency::where('code', 'GBP')->first();
         $jpy = Currency::where('code', 'JPY')->first();
 
-        if (!$usd || !$eur || !$gbp || !$jpy) {
+        if (! $usd || ! $eur || ! $gbp || ! $jpy) {
             return;
         }
 
@@ -132,17 +132,17 @@ final class CurrencySeeder extends Seeder
             [$usd->id, $eur->id, 0.85, 'USD to EUR'],
             [$usd->id, $gbp->id, 0.73, 'USD to GBP'],
             [$usd->id, $jpy->id, 110.0, 'USD to JPY'],
-            
+
             // EUR to other currencies
             [$eur->id, $usd->id, 1.18, 'EUR to USD'],
             [$eur->id, $gbp->id, 0.86, 'EUR to GBP'],
             [$eur->id, $jpy->id, 129.0, 'EUR to JPY'],
-            
+
             // GBP to other currencies
             [$gbp->id, $usd->id, 1.37, 'GBP to USD'],
             [$gbp->id, $eur->id, 1.16, 'GBP to EUR'],
             [$gbp->id, $jpy->id, 151.0, 'GBP to JPY'],
-            
+
             // JPY to other currencies
             [$jpy->id, $usd->id, 0.009, 'JPY to USD'],
             [$jpy->id, $eur->id, 0.0078, 'JPY to EUR'],

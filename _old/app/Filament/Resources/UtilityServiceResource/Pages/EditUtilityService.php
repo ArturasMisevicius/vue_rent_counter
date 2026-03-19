@@ -11,4 +11,3 @@ class EditUtilityService extends EditRecord
 {
     protected static string $resource = UtilityServiceResource::class;
 }
-

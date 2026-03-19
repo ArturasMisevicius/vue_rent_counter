@@ -8,30 +8,30 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * Add Security-Focused Database Indexes
- * 
+ *
  * Adds performance indexes specifically for security-related queries:
  * - Token validation and cleanup operations (95% faster)
  * - User authentication and authorization (85% faster)
  * - Security monitoring and audit queries (70% faster)
- * 
+ *
  * These indexes improve performance for security-critical operations
  * and prevent potential DoS attacks through slow queries.
- * 
+ *
  * SAFETY: Uses Schema::hasTable() checks to prevent errors when
  * tables don't exist (e.g., Sanctum not installed).
- * 
+ *
  * @see docs/database/security-indexes-migration.md
  */
 return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Adds security-focused indexes to optimize:
      * - API token validation (Sanctum)
      * - User authentication and authorization
      * - Security monitoring and audit queries
-     * 
+     *
      * All table modifications are conditional to prevent errors
      * when optional tables (e.g., personal_access_tokens) don't exist.
      */
@@ -42,16 +42,16 @@ return new class extends Migration
             Schema::table('personal_access_tokens', function (Blueprint $table) {
                 // Token validation performance (most critical)
                 $table->index(['tokenable_type', 'tokenable_id', 'expires_at'], 'pat_validation_idx');
-                
+
                 // Cleanup operations for expired tokens
                 $table->index(['expires_at', 'created_at'], 'pat_cleanup_idx');
-                
+
                 // Usage tracking for security monitoring
                 $table->index(['last_used_at'], 'pat_usage_idx');
-                
+
                 // Security monitoring and audit queries
                 $table->index(['created_at', 'tokenable_type'], 'pat_monitoring_idx');
-                
+
                 // Token enumeration protection
                 $table->index(['tokenable_id', 'name'], 'pat_user_tokens_idx');
             });
@@ -62,16 +62,16 @@ return new class extends Migration
             Schema::table('users', function (Blueprint $table) {
                 // Authentication queries (login, API access)
                 $table->index(['email', 'is_active', 'suspended_at'], 'users_auth_idx');
-                
+
                 // API eligibility checks
                 $table->index(['is_active', 'email_verified_at', 'suspended_at'], 'users_api_eligible_idx');
-                
+
                 // Security monitoring queries
                 $table->index(['last_login_at', 'role'], 'users_security_idx');
-                
+
                 // Tenant-based security queries
                 $table->index(['tenant_id', 'role', 'is_active'], 'users_tenant_security_idx');
-                
+
                 // Superadmin monitoring
                 $table->index(['is_super_admin', 'created_at'], 'users_superadmin_idx');
             });

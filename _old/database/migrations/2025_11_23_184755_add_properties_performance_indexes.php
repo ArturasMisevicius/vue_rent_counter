@@ -27,26 +27,26 @@ return new class extends Migration
             // Filter indexes for common queries
             $table->index('type', 'properties_type_index');
             $table->index('area_sqm', 'properties_area_index');
-            
+
             // Composite index for building + type queries (common pattern)
             $table->index(['building_id', 'type'], 'properties_building_type_index');
-            
+
             // Composite index for tenant scope + type
             $table->index(['tenant_id', 'type'], 'properties_tenant_type_index');
         });
-        
+
         // Add FULLTEXT index for address search (MySQL only)
         if (DB::connection()->getDriverName() === 'mysql') {
             DB::statement('ALTER TABLE properties ADD FULLTEXT properties_address_fulltext (address)');
         }
-        
+
         Schema::table('property_tenant', function (Blueprint $table) {
             // Index for finding active tenants (vacated_at IS NULL)
             $table->index('vacated_at', 'property_tenant_vacated_index');
-            
+
             // Composite index for current tenant lookup
             $table->index(['property_id', 'vacated_at'], 'property_tenant_current_index');
-            
+
             // Composite index for tenant's active properties
             $table->index(['tenant_id', 'vacated_at'], 'property_tenant_active_index');
         });

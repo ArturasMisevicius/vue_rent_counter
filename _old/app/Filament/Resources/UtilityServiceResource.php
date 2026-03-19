@@ -8,18 +8,23 @@ use App\Enums\PricingModel;
 use App\Enums\ServiceType;
 use App\Enums\UserRole;
 use App\Filament\Resources\UtilityServiceResource\Pages;
-use App\Models\UtilityService;
-use App\Models\User;
 use App\Models\AuditLog;
+use App\Models\User;
+use App\Models\UtilityService;
 use App\Services\Audit\ConfigurationRollbackService;
-use Filament\Actions;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Notifications\Notification;
 use Illuminate\Support\Str;
 
 class UtilityServiceResource extends Resource
@@ -70,7 +75,7 @@ class UtilityServiceResource extends Resource
                         ->maxLength(255)
                         ->live(onBlur: true)
                         ->afterStateUpdated(function ($state, Set $set): void {
-                            if (!is_string($state) || $state === '') {
+                            if (! is_string($state) || $state === '') {
                                 return;
                             }
 
@@ -160,23 +165,22 @@ class UtilityServiceResource extends Resource
                     ->label('Active'),
             ])
             ->actions([
-                \Filament\Actions\Action::make('clone')
+                Action::make('clone')
                     ->label('Clone')
                     ->icon('heroicon-o-document-duplicate')
-                    ->visible(fn (UtilityService $record): bool =>
-                        auth()->user()?->role === UserRole::ADMIN && $record->is_global_template
+                    ->visible(fn (UtilityService $record): bool => auth()->user()?->role === UserRole::ADMIN && $record->is_global_template
                     )
                     ->action(function (UtilityService $record): void {
                         $tenantId = auth()->user()?->tenant_id;
 
-                        if (!$tenantId) {
+                        if (! $tenantId) {
                             throw new \RuntimeException('No tenant_id found for current user.');
                         }
 
                         $record->createTenantCopy($tenantId);
                     }),
 
-                \Filament\Actions\Action::make('audit_history')
+                Action::make('audit_history')
                     ->label('Audit History')
                     ->icon('heroicon-o-clock')
                     ->color('gray')
@@ -190,15 +194,14 @@ class UtilityServiceResource extends Resource
                     ->modalWidth('7xl')
                     ->slideOver(),
 
-                \Filament\Actions\Action::make('rollback')
+                Action::make('rollback')
                     ->label('Rollback')
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('warning')
-                    ->visible(fn (UtilityService $record): bool => 
-                        AuditLog::where('auditable_type', UtilityService::class)
-                            ->where('auditable_id', $record->id)
-                            ->where('event', '!=', 'rollback')
-                            ->exists()
+                    ->visible(fn (UtilityService $record): bool => AuditLog::where('auditable_type', UtilityService::class)
+                        ->where('auditable_id', $record->id)
+                        ->where('event', '!=', 'rollback')
+                        ->exists()
                     )
                     ->form([
                         Forms\Components\Select::make('audit_log_id')
@@ -212,6 +215,7 @@ class UtilityServiceResource extends Resource
                                     ->mapWithKeys(function (AuditLog $audit) {
                                         $user = $audit->user_id ? "User {$audit->user_id}" : 'System';
                                         $date = $audit->created_at->format('M j, Y H:i');
+
                                         return [$audit->id => "{$audit->event} by {$user} on {$date}"];
                                     })
                                     ->toArray();
@@ -231,14 +235,14 @@ class UtilityServiceResource extends Resource
                     ])
                     ->action(function (UtilityService $record, array $data): void {
                         $rollbackService = app(ConfigurationRollbackService::class);
-                        
+
                         $result = $rollbackService->performRollback(
                             auditLogId: (int) $data['audit_log_id'],
                             userId: auth()->id(),
                             reason: $data['reason'],
                             notifyStakeholders: $data['notify_stakeholders'] ?? true,
                         );
-                        
+
                         if ($result['success']) {
                             Notification::make()
                                 ->title(__('dashboard.audit.notifications.rollback_success'))
@@ -256,22 +260,20 @@ class UtilityServiceResource extends Resource
                     ->modalHeading(__('dashboard.audit.rollback_confirmation'))
                     ->modalDescription(__('dashboard.audit.rollback_warning')),
 
-                \Filament\Actions\EditAction::make()
-                    ->visible(fn (UtilityService $record): bool =>
-                        auth()->user()?->role === UserRole::SUPERADMIN || !$record->is_global_template
+                EditAction::make()
+                    ->visible(fn (UtilityService $record): bool => auth()->user()?->role === UserRole::SUPERADMIN || ! $record->is_global_template
                     ),
 
-                \Filament\Actions\DeleteAction::make()
-                    ->visible(fn (UtilityService $record): bool =>
-                        auth()->user()?->role === UserRole::SUPERADMIN || !$record->is_global_template
+                DeleteAction::make()
+                    ->visible(fn (UtilityService $record): bool => auth()->user()?->role === UserRole::SUPERADMIN || ! $record->is_global_template
                     ),
             ])
             ->headerActions([
-                \Filament\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('name');

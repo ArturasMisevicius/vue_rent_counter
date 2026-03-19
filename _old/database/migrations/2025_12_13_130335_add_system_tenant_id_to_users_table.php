@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('system_tenant_id')->nullable()->after('id')->constrained('system_tenants')->onDelete('cascade');
             $table->boolean('is_super_admin')->default(false)->after('system_tenant_id');
-            
+
             // Indexes for performance
             $table->index(['system_tenant_id']);
             $table->index(['is_super_admin']);

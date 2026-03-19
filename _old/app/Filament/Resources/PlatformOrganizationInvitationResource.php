@@ -11,15 +11,18 @@ use App\Filament\Resources\PlatformOrganizationInvitationResource\Actions\Resend
 use App\Filament\Resources\PlatformOrganizationInvitationResource\Pages;
 use App\Models\PlatformOrganizationInvitation;
 use BackedEnum;
-use UnitEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-
+use UnitEnum;
 
 class PlatformOrganizationInvitationResource extends Resource
 {
@@ -43,7 +46,7 @@ class PlatformOrganizationInvitationResource extends Resource
         return auth()->user()?->isSuperadmin() ?? false;
     }
 
-    public static function form(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
+    public static function form(Schema $schema): Schema
     {
         return $schema
             ->schema([
@@ -75,7 +78,7 @@ class PlatformOrganizationInvitationResource extends Resource
                             ->live()
                             ->afterStateUpdated(function ($state, Set $set) {
                                 // Auto-populate limits based on plan type
-                                $limits = match($state) {
+                                $limits = match ($state) {
                                     SubscriptionPlanType::BASIC->value => ['properties' => 10, 'users' => 5],
                                     SubscriptionPlanType::PROFESSIONAL->value => ['properties' => 50, 'users' => 20],
                                     SubscriptionPlanType::ENTERPRISE->value => ['properties' => 200, 'users' => 100],
@@ -215,18 +218,18 @@ class PlatformOrganizationInvitationResource extends Resource
                     ),
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make()
+                ViewAction::make(),
+                EditAction::make()
                     ->visible(fn ($record) => $record->status === 'pending'),
                 ResendInvitationAction::make(),
                 CancelInvitationAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
+                BulkActionGroup::make([
                     BulkResendAction::make(),
                     BulkCancelAction::make(),
                     BulkDeleteExpiredAction::make(),
-                    \Filament\Actions\DeleteBulkAction::make()
+                    DeleteBulkAction::make()
                         ->visible(fn () => auth()->user()?->isSuperadmin() ?? false),
                 ]),
             ])

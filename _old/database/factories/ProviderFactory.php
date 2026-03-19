@@ -5,16 +5,17 @@ namespace Database\Factories;
 use App\Enums\ServiceType;
 use App\Models\Provider;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Provider>
+ * @extends Factory<Provider>
  */
 class ProviderFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
-     * @var class-string<\Illuminate\Database\Eloquent\Model>
+     * @var class-string<Model>
      */
     protected $model = Provider::class;
 

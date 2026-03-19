@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Tariff extends Model
 {
-    use HasFactory, Auditable;
+    use Auditable, HasFactory;
 
     /**
      * Attributes to exclude from audit logging.
@@ -84,8 +84,6 @@ class Tariff extends Model
     /**
      * Get the is_currently_active attribute.
      * Computed once per model instance for performance.
-     *
-     * @return bool
      */
     public function getIsCurrentlyActiveAttribute(): bool
     {
@@ -122,11 +120,11 @@ class Tariff extends Model
     public function scopeActive($query, $date = null)
     {
         $date = $date ?? now();
-        
+
         return $query->where('active_from', '<=', $date)
             ->where(function ($q) use ($date) {
                 $q->whereNull('active_until')
-                  ->orWhere('active_until', '>=', $date);
+                    ->orWhere('active_until', '>=', $date);
             });
     }
 

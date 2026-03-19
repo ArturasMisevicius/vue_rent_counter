@@ -2,10 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Enums\SystemSubscriptionPlan;
+use App\Enums\SystemTenantStatus;
+use App\Models\SystemTenant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\SystemTenant>
+ * @extends Factory<SystemTenant>
  */
 class SystemTenantFactory extends Factory
 {
@@ -19,8 +22,8 @@ class SystemTenantFactory extends Factory
         return [
             'name' => $this->faker->company(),
             'primary_contact_email' => $this->faker->unique()->safeEmail(),
-            'subscription_plan' => $this->faker->randomElement(\App\Enums\SystemSubscriptionPlan::cases()),
-            'status' => $this->faker->randomElement(\App\Enums\SystemTenantStatus::cases()),
+            'subscription_plan' => $this->faker->randomElement(SystemSubscriptionPlan::cases()),
+            'status' => $this->faker->randomElement(SystemTenantStatus::cases()),
             'domain' => $this->faker->optional()->domainName(),
             'settings' => $this->faker->optional()->randomElements([
                 'feature_x_enabled' => $this->faker->boolean(),

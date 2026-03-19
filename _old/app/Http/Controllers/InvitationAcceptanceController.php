@@ -9,7 +9,6 @@ use App\Models\OrganizationInvitation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 
 class InvitationAcceptanceController extends Controller
 {
@@ -58,4 +57,3 @@ class InvitationAcceptanceController extends Controller
         return redirect()->route('login');
     }
 }
-

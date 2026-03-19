@@ -7,22 +7,30 @@ namespace App\Filament\Clusters\SuperAdmin\Resources;
 use App\Filament\Clusters\SuperAdmin;
 use App\Filament\Clusters\SuperAdmin\Resources\SystemConfigResource\Pages;
 use App\Models\SystemConfiguration;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\TextInput;
-use Filament\Schemas\Components\Textarea;
-use Filament\Schemas\Components\Select;
-use Filament\Schemas\Components\Group;
-use Filament\Schemas\Components\Toggle;
-use Filament\Schemas\Components\KeyValue;
 use Filament\Schemas\Components\DateTimePicker;
 use Filament\Schemas\Components\Get;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\KeyValue;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Select;
+use Filament\Schemas\Components\Textarea;
+use Filament\Schemas\Components\TextInput;
+use Filament\Schemas\Components\Toggle;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
 
 final class SystemConfigResource extends Resource
 {
@@ -242,13 +250,14 @@ final class SystemConfigResource extends Resource
                         if ($record->is_encrypted) {
                             return __('superadmin.config.tooltips.encrypted_value');
                         }
+
                         return is_string($record->value) ? $record->value : json_encode($record->value);
                     })
                     ->formatStateUsing(function ($record) {
                         if ($record->is_encrypted) {
                             return '••••••••';
                         }
-                        
+
                         return match ($record->type) {
                             'boolean' => $record->value ? __('superadmin.config.values.true') : __('superadmin.config.values.false'),
                             'array', 'json' => is_array($record->value) ? json_encode($record->value) : $record->value,
@@ -263,8 +272,8 @@ final class SystemConfigResource extends Resource
                     ->falseIcon('heroicon-o-eye-slash')
                     ->trueColor('success')
                     ->falseColor('gray')
-                    ->tooltip(fn ($state) => $state ? 
-                        __('superadmin.config.tooltips.public') : 
+                    ->tooltip(fn ($state) => $state ?
+                        __('superadmin.config.tooltips.public') :
                         __('superadmin.config.tooltips.private')),
 
                 Tables\Columns\IconColumn::make('is_encrypted')
@@ -274,8 +283,8 @@ final class SystemConfigResource extends Resource
                     ->falseIcon('heroicon-o-lock-open')
                     ->trueColor('warning')
                     ->falseColor('gray')
-                    ->tooltip(fn ($state) => $state ? 
-                        __('superadmin.config.tooltips.encrypted') : 
+                    ->tooltip(fn ($state) => $state ?
+                        __('superadmin.config.tooltips.encrypted') :
                         __('superadmin.config.tooltips.not_encrypted')),
 
                 Tables\Columns\TextColumn::make('updated_at')
@@ -324,10 +333,10 @@ final class SystemConfigResource extends Resource
                     ->placeholder(__('superadmin.config.values.all')),
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
-                
-                \Filament\Actions\Action::make('duplicate')
+                ViewAction::make(),
+                EditAction::make(),
+
+                Action::make('duplicate')
                     ->label(__('superadmin.config.actions.duplicate'))
                     ->icon('heroicon-o-document-duplicate')
                     ->color('info')
@@ -341,21 +350,21 @@ final class SystemConfigResource extends Resource
                     ->action(function (SystemConfiguration $record, array $data) {
                         $newConfig = $record->replicate();
                         $newConfig->key = $data['new_key'];
-                        $newConfig->name = $record->name . ' (Copy)';
+                        $newConfig->name = $record->name.' (Copy)';
                         $newConfig->save();
 
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->title(__('superadmin.config.notifications.duplicated'))
                             ->success()
                             ->send();
                     }),
 
-                \Filament\Actions\DeleteAction::make()
+                DeleteAction::make()
                     ->requiresConfirmation(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\BulkAction::make('bulk_update_category')
+                BulkActionGroup::make([
+                    BulkAction::make('bulk_update_category')
                         ->label(__('superadmin.config.bulk_actions.update_category'))
                         ->icon('heroicon-o-tag')
                         ->color('info')
@@ -373,12 +382,12 @@ final class SystemConfigResource extends Resource
                                     'maintenance' => __('superadmin.config.categories.maintenance'),
                                 ]),
                         ])
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data) {
+                        ->action(function (Collection $records, array $data) {
                             $records->each(function ($record) use ($data) {
                                 $record->update(['category' => $data['category']]);
                             });
 
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title(__('superadmin.config.notifications.bulk_updated'))
                                 ->body(__('superadmin.config.notifications.bulk_updated_body', [
                                     'count' => $records->count(),
@@ -389,7 +398,7 @@ final class SystemConfigResource extends Resource
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion(),
 
-                    \Filament\Actions\DeleteBulkAction::make()
+                    DeleteBulkAction::make()
                         ->requiresConfirmation(),
                 ]),
             ])

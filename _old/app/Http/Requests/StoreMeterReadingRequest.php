@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Models\Meter;
+use App\Services\MeterReadingService;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -19,7 +21,7 @@ class StoreMeterReadingRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -54,12 +56,12 @@ class StoreMeterReadingRequest extends FormRequest
     protected function validateMonotonicity(Validator $validator): void
     {
         $meter = Meter::find($this->input('meter_id'));
-        
-        if (!$meter) {
+
+        if (! $meter) {
             return;
         }
 
-        $service = app(\App\Services\MeterReadingService::class);
+        $service = app(MeterReadingService::class);
         $previousReading = $service->getPreviousReading($meter, $this->input('zone'));
 
         if ($previousReading && $this->input('value') < $previousReading->value) {
@@ -84,18 +86,18 @@ class StoreMeterReadingRequest extends FormRequest
 
         $meter = Meter::find($meterId);
 
-        if (!$meter) {
+        if (! $meter) {
             return;
         }
 
-        if ($zone && !$meter->supports_zones) {
+        if ($zone && ! $meter->supports_zones) {
             $validator->errors()->add(
                 'zone',
                 __('meter_readings.validation.custom.zone.unsupported')
             );
         }
 
-        if (!$zone && $meter->supports_zones) {
+        if (! $zone && $meter->supports_zones) {
             $validator->errors()->add(
                 'zone',
                 __('meter_readings.validation.custom.zone.required_for_multi_zone')

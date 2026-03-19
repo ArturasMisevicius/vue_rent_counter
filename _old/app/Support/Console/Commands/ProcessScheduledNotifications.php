@@ -38,13 +38,13 @@ class ProcessScheduledNotifications extends Command
 
         try {
             $this->notificationService->processScheduledNotifications();
-            
+
             $this->info('Scheduled notifications processed successfully.');
-            
+
             return Command::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('Failed to process scheduled notifications: ' . $e->getMessage());
-            
+            $this->error('Failed to process scheduled notifications: '.$e->getMessage());
+
             return Command::FAILURE;
         }
     }

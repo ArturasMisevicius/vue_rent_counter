@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
+use App\Providers\Filament\AdminPanelProvider;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -21,8 +23,8 @@ use Symfony\Component\HttpFoundation\Response;
  * - 9.3: Tenant role restrictions
  * - 9.4: Authorization logging
  *
- * @see \App\Models\User::canAccessPanel()
- * @see \App\Providers\Filament\AdminPanelProvider
+ * @see User::canAccessPanel()
+ * @see AdminPanelProvider
  */
 final class EnsureUserIsAdminOrManager
 {
@@ -32,7 +34,7 @@ final class EnsureUserIsAdminOrManager
      * Validates that the authenticated user has admin or manager role.
      * Logs authorization failures for security monitoring.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {

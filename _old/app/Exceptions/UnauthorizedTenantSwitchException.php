@@ -56,7 +56,7 @@ final class UnauthorizedTenantSwitchException extends Exception
     public static function accessDenied(int $tenantId, int $userId, string $reason = ''): self
     {
         $message = "Access denied to tenant {$tenantId} for user {$userId}";
-        if (!empty($reason)) {
+        if (! empty($reason)) {
             $message .= ": {$reason}";
         }
 

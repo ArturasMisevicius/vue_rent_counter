@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace App\Services\Enhanced;
 
-use App\Actions\CreateUserAction;
 use App\Actions\AssignRoleAction;
+use App\Actions\CreateUserAction;
 use App\Actions\SendWelcomeEmailAction;
-use App\Support\Users\CreateUserDTO;
 use App\Enums\UserRole;
-use App\Models\User;
 use App\Models\Organization;
+use App\Models\User;
 use App\Services\ServiceResponse;
+use App\Support\Users\CreateUserDTO;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
 
 /**
  * Enhanced User Management Service
- * 
+ *
  * Orchestrates user lifecycle operations with comprehensive business logic:
  * - User creation with role assignment
  * - Account activation and deactivation
@@ -25,8 +25,6 @@ use Illuminate\Support\Facades\Hash;
  * - Organization membership management
  * - User profile updates with validation
  * - Bulk user operations
- * 
- * @package App\Services\Enhanced
  */
 final class UserManagementService extends BaseService
 {
@@ -41,8 +39,8 @@ final class UserManagementService extends BaseService
     /**
      * Create a new user with comprehensive validation and setup.
      *
-     * @param CreateUserDTO $dto User creation data
-     * @param bool $sendWelcomeEmail Whether to send welcome email
+     * @param  CreateUserDTO  $dto  User creation data
+     * @param  bool  $sendWelcomeEmail  Whether to send welcome email
      * @return ServiceResponse<User>
      */
     public function createUser(CreateUserDTO $dto, bool $sendWelcomeEmail = true): ServiceResponse
@@ -68,7 +66,7 @@ final class UserManagementService extends BaseService
 
                     // Assign role with proper authorization
                     $roleResult = $this->assignRoleAction->execute($user, $dto->role);
-                    if (!$roleResult) {
+                    if (! $roleResult) {
                         throw new \RuntimeException('Failed to assign role to user');
                     }
 
@@ -98,15 +96,13 @@ final class UserManagementService extends BaseService
                 'role' => $dto->role->value,
             ]);
 
-            return $this->error('Failed to create user: ' . $e->getMessage());
+            return $this->error('Failed to create user: '.$e->getMessage());
         }
     }
 
     /**
      * Update user profile with validation.
      *
-     * @param User $user
-     * @param array $data
      * @return ServiceResponse<User>
      */
     public function updateUserProfile(User $user, array $data): ServiceResponse
@@ -143,15 +139,13 @@ final class UserManagementService extends BaseService
                 'user_id' => $user->id,
             ]);
 
-            return $this->error('Failed to update user profile: ' . $e->getMessage());
+            return $this->error('Failed to update user profile: '.$e->getMessage());
         }
     }
 
     /**
      * Change user role with authorization checks.
      *
-     * @param User $user
-     * @param UserRole $newRole
      * @return ServiceResponse<User>
      */
     public function changeUserRole(User $user, UserRole $newRole): ServiceResponse
@@ -161,7 +155,7 @@ final class UserManagementService extends BaseService
             $this->validateTenantOwnership($user);
 
             // Prevent role escalation beyond current user's permissions
-            if (!$this->canAssignRole($newRole)) {
+            if (! $this->canAssignRole($newRole)) {
                 return $this->error('Insufficient permissions to assign this role');
             }
 
@@ -170,7 +164,7 @@ final class UserManagementService extends BaseService
 
                 // Assign new role
                 $result = $this->assignRoleAction->execute($user, $newRole);
-                if (!$result) {
+                if (! $result) {
                     throw new \RuntimeException('Failed to assign new role');
                 }
 
@@ -190,14 +184,13 @@ final class UserManagementService extends BaseService
                 'new_role' => $newRole->value,
             ]);
 
-            return $this->error('Failed to change user role: ' . $e->getMessage());
+            return $this->error('Failed to change user role: '.$e->getMessage());
         }
     }
 
     /**
      * Activate a user account.
      *
-     * @param User $user
      * @return ServiceResponse<User>
      */
     public function activateUser(User $user): ServiceResponse
@@ -224,14 +217,13 @@ final class UserManagementService extends BaseService
                 'user_id' => $user->id,
             ]);
 
-            return $this->error('Failed to activate user: ' . $e->getMessage());
+            return $this->error('Failed to activate user: '.$e->getMessage());
         }
     }
 
     /**
      * Deactivate a user account.
      *
-     * @param User $user
      * @return ServiceResponse<User>
      */
     public function deactivateUser(User $user): ServiceResponse
@@ -240,7 +232,7 @@ final class UserManagementService extends BaseService
             $this->authorize('deactivate', $user);
             $this->validateTenantOwnership($user);
 
-            if (!$user->is_active) {
+            if (! $user->is_active) {
                 return $this->error('User is already inactive');
             }
 
@@ -263,15 +255,13 @@ final class UserManagementService extends BaseService
                 'user_id' => $user->id,
             ]);
 
-            return $this->error('Failed to deactivate user: ' . $e->getMessage());
+            return $this->error('Failed to deactivate user: '.$e->getMessage());
         }
     }
 
     /**
      * Get users for a tenant with filtering and pagination.
      *
-     * @param int $tenantId
-     * @param array $filters
      * @return ServiceResponse<Collection>
      */
     public function getTenantUsers(int $tenantId, array $filters = []): ServiceResponse
@@ -296,7 +286,7 @@ final class UserManagementService extends BaseService
                 $search = $filters['search'];
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
+                        ->orWhere('email', 'like', "%{$search}%");
                 });
             }
 
@@ -309,15 +299,13 @@ final class UserManagementService extends BaseService
                 'tenant_id' => $tenantId,
             ]);
 
-            return $this->error('Failed to retrieve users: ' . $e->getMessage());
+            return $this->error('Failed to retrieve users: '.$e->getMessage());
         }
     }
 
     /**
      * Bulk create users from array data.
      *
-     * @param array $usersData
-     * @param bool $sendWelcomeEmails
      * @return ServiceResponse<array>
      */
     public function bulkCreateUsers(array $usersData, bool $sendWelcomeEmails = false): ServiceResponse
@@ -372,7 +360,7 @@ final class UserManagementService extends BaseService
                 'user_count' => count($usersData),
             ]);
 
-            return $this->error('Bulk user creation failed: ' . $e->getMessage());
+            return $this->error('Bulk user creation failed: '.$e->getMessage());
         }
     }
 
@@ -421,7 +409,7 @@ final class UserManagementService extends BaseService
     private function validateProfileData(array $data): array
     {
         $allowedFields = [
-            'name', 'email', 'password', 'organization_name', 'is_active'
+            'name', 'email', 'password', 'organization_name', 'is_active',
         ];
 
         $validated = [];
@@ -434,7 +422,7 @@ final class UserManagementService extends BaseService
 
         // Additional validation rules would go here
         if (isset($validated['email'])) {
-            if (!filter_var($validated['email'], FILTER_VALIDATE_EMAIL)) {
+            if (! filter_var($validated['email'], FILTER_VALIDATE_EMAIL)) {
                 throw new \InvalidArgumentException('Invalid email format');
             }
         }

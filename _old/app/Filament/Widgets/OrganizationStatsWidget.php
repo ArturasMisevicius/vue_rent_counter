@@ -2,21 +2,20 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Organization;
+use App\Services\DashboardCacheService;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Illuminate\Support\Facades\Cache;
 
 class OrganizationStatsWidget extends BaseWidget
 {
     protected static ?int $sort = 2;
-    
+
     // Enable lazy loading for better performance
     protected static bool $isLazy = true;
 
     protected function getStats(): array
     {
-        $cacheService = app(\App\Services\DashboardCacheService::class);
+        $cacheService = app(DashboardCacheService::class);
         $stats = $cacheService->getOrganizationStats();
 
         return [

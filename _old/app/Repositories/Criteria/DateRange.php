@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Date Range Criteria
- * 
+ *
  * Filters query to include records within a specific date range.
  * Can be applied to any model with date fields.
  */
@@ -16,10 +16,10 @@ class DateRange implements CriteriaInterface
 {
     /**
      * Create a new date range criteria.
-     * 
-     * @param string $field The date field to filter on
-     * @param \DateTimeInterface $startDate Start of the date range
-     * @param \DateTimeInterface $endDate End of the date range
+     *
+     * @param  string  $field  The date field to filter on
+     * @param  \DateTimeInterface  $startDate  Start of the date range
+     * @param  \DateTimeInterface  $endDate  End of the date range
      */
     public function __construct(
         private readonly string $field,
@@ -60,10 +60,6 @@ class DateRange implements CriteriaInterface
 
     /**
      * Create criteria for created_at field.
-     * 
-     * @param \DateTimeInterface $startDate
-     * @param \DateTimeInterface $endDate
-     * @return static
      */
     public static function createdBetween(\DateTimeInterface $startDate, \DateTimeInterface $endDate): static
     {
@@ -72,10 +68,6 @@ class DateRange implements CriteriaInterface
 
     /**
      * Create criteria for updated_at field.
-     * 
-     * @param \DateTimeInterface $startDate
-     * @param \DateTimeInterface $endDate
-     * @return static
      */
     public static function updatedBetween(\DateTimeInterface $startDate, \DateTimeInterface $endDate): static
     {
@@ -84,11 +76,6 @@ class DateRange implements CriteriaInterface
 
     /**
      * Create criteria for any date field.
-     * 
-     * @param string $field
-     * @param \DateTimeInterface $startDate
-     * @param \DateTimeInterface $endDate
-     * @return static
      */
     public static function between(string $field, \DateTimeInterface $startDate, \DateTimeInterface $endDate): static
     {

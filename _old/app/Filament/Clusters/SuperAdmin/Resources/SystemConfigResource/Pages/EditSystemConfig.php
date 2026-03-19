@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Filament\Clusters\SuperAdmin\Resources\SystemConfigResource\Pages;
 
+use App\Enums\AuditAction;
 use App\Filament\Clusters\SuperAdmin\Resources\SystemConfigResource;
+use App\Models\SuperAdminAuditLog;
+use App\Models\SystemConfiguration;
 use Filament\Actions;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
 final class EditSystemConfig extends EditRecord
@@ -35,10 +39,10 @@ final class EditSystemConfig extends EditRecord
                 ->successNotificationTitle(__('superadmin.config.notifications.deleted'))
                 ->after(function () {
                     // Log the configuration deletion
-                    \App\Models\SuperAdminAuditLog::create([
+                    SuperAdminAuditLog::create([
                         'admin_id' => auth()->id(),
-                        'action' => \App\Enums\AuditAction::SYSTEM_CONFIG_DELETED,
-                        'target_type' => \App\Models\SystemConfiguration::class,
+                        'action' => AuditAction::SYSTEM_CONFIG_DELETED,
+                        'target_type' => SystemConfiguration::class,
                         'target_id' => $this->getRecord()->id,
                         'changes' => [
                             'key' => $this->getRecord()->key,
@@ -96,17 +100,17 @@ final class EditSystemConfig extends EditRecord
         }
 
         // Log the configuration update
-        \App\Models\SuperAdminAuditLog::create([
+        SuperAdminAuditLog::create([
             'admin_id' => auth()->id(),
-            'action' => \App\Enums\AuditAction::SYSTEM_CONFIG_UPDATED,
-            'target_type' => \App\Models\SystemConfiguration::class,
+            'action' => AuditAction::SYSTEM_CONFIG_UPDATED,
+            'target_type' => SystemConfiguration::class,
             'target_id' => $this->getRecord()->id,
             'changes' => $changes,
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
         ]);
 
-        \Filament\Notifications\Notification::make()
+        Notification::make()
             ->title(__('superadmin.config.notifications.updated'))
             ->body(__('superadmin.config.notifications.updated_body', [
                 'key' => $this->getRecord()->key,

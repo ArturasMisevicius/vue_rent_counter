@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use App\Support\PropertyServices\AssignUtilityServiceDTO;
 use App\Exceptions\ServiceConfigurationException;
 use App\Models\Meter;
 use App\Models\Property;
 use App\Models\ServiceConfiguration;
 use App\Models\UtilityService;
+use App\Support\PropertyServices\AssignUtilityServiceDTO;
 use App\Traits\Auditable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -17,23 +17,22 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * Assign Utility Service Action
- * 
+ *
  * Single responsibility: Assign utility services to properties with individual configurations.
  * Creates ServiceConfiguration records linking properties to utility services.
  * Supports pricing overrides with full audit trail.
  * Validates configurations don't conflict with existing meter assignments.
- * 
+ *
  * Requirements: 3.1, 3.2, 3.3
- * 
- * @package App\Actions
  */
 final class AssignUtilityServiceAction
 {
     /**
      * Execute the action to assign a utility service to a property.
      *
-     * @param AssignUtilityServiceDTO $data Service assignment data
+     * @param  AssignUtilityServiceDTO  $data  Service assignment data
      * @return ServiceConfiguration The created service configuration
+     *
      * @throws ServiceConfigurationException If validation fails
      * @throws ValidationException If input validation fails
      */
@@ -66,7 +65,6 @@ final class AssignUtilityServiceAction
     /**
      * Validate input data.
      *
-     * @param AssignUtilityServiceDTO $data
      * @throws ValidationException
      */
     private function validateInput(AssignUtilityServiceDTO $data): void
@@ -96,9 +94,6 @@ final class AssignUtilityServiceAction
     /**
      * Validate property and service compatibility.
      *
-     * @param Property $property
-     * @param UtilityService $utilityService
-     * @param AssignUtilityServiceDTO $data
      * @throws ServiceConfigurationException
      */
     private function validatePropertyServiceCompatibility(
@@ -123,18 +118,18 @@ final class AssignUtilityServiceAction
         }
 
         // Validate custom formula if provided
-        if ($data->pricingModel->supportsCustomFormulas() && !empty($data->customFormula)) {
+        if ($data->pricingModel->supportsCustomFormulas() && ! empty($data->customFormula)) {
             $this->validateCustomFormula($data->customFormula);
         }
 
         // Validate configuration overrides against utility service schema (if provided)
         // Note: Core fields like rate_schedule are validated separately, not in overrides
-        if (!empty($data->configurationOverrides)) {
+        if (! empty($data->configurationOverrides)) {
             $configErrors = $utilityService->validateConfiguration(
                 $data->configurationOverrides
             );
 
-            if (!empty($configErrors)) {
+            if (! empty($configErrors)) {
                 throw ServiceConfigurationException::validationErrors($configErrors);
             }
         }
@@ -143,8 +138,6 @@ final class AssignUtilityServiceAction
     /**
      * Validate no conflicting configurations exist.
      *
-     * @param Property $property
-     * @param AssignUtilityServiceDTO $data
      * @throws ServiceConfigurationException
      */
     private function validateNoConflictingConfigurations(
@@ -177,8 +170,8 @@ final class AssignUtilityServiceAction
             ->exists();
 
         if ($overlapping) {
-            $dateRange = $data->effectiveFrom->format('Y-m-d') . 
-                ($data->effectiveUntil ? ' to ' . $data->effectiveUntil->format('Y-m-d') : ' onwards');
+            $dateRange = $data->effectiveFrom->format('Y-m-d').
+                ($data->effectiveUntil ? ' to '.$data->effectiveUntil->format('Y-m-d') : ' onwards');
             throw ServiceConfigurationException::overlappingConfiguration($property->id, $dateRange);
         }
     }
@@ -186,8 +179,6 @@ final class AssignUtilityServiceAction
     /**
      * Validate meter assignments don't conflict.
      *
-     * @param Property $property
-     * @param AssignUtilityServiceDTO $data
      * @throws ServiceConfigurationException
      */
     private function validateMeterAssignments(
@@ -216,14 +207,13 @@ final class AssignUtilityServiceAction
     /**
      * Validate custom formula syntax.
      *
-     * @param string $formula
      * @throws ServiceConfigurationException
      */
     private function validateCustomFormula(string $formula): void
     {
         // Basic validation - check for dangerous functions
         $dangerousFunctions = ['eval', 'exec', 'system', 'shell_exec', 'passthru'];
-        
+
         foreach ($dangerousFunctions as $func) {
             if (stripos($formula, $func) !== false) {
                 throw ServiceConfigurationException::invalidPricingModel(
@@ -234,7 +224,7 @@ final class AssignUtilityServiceAction
         }
 
         // Validate formula has basic mathematical structure
-        if (!preg_match('/^[\d\s\+\-\*\/\(\)\.\w]+$/', $formula)) {
+        if (! preg_match('/^[\d\s\+\-\*\/\(\)\.\w]+$/', $formula)) {
             throw ServiceConfigurationException::invalidPricingModel(
                 'CUSTOM_FORMULA',
                 'Formula contains invalid characters'
@@ -244,11 +234,6 @@ final class AssignUtilityServiceAction
 
     /**
      * Create service configuration with audit trail.
-     *
-     * @param Property $property
-     * @param UtilityService $utilityService
-     * @param AssignUtilityServiceDTO $data
-     * @return ServiceConfiguration
      */
     private function createServiceConfiguration(
         Property $property,

@@ -6,6 +6,7 @@ use App\Enums\ServiceType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 class Provider extends Model
 {
@@ -46,10 +47,8 @@ class Provider extends Model
     /**
      * Get cached provider options for form selects.
      * Cache for 1 hour to reduce database queries.
-     *
-     * @return \Illuminate\Support\Collection
      */
-    public static function getCachedOptions(): \Illuminate\Support\Collection
+    public static function getCachedOptions(): Collection
     {
         return cache()->remember(
             'providers.form_options',
@@ -64,8 +63,6 @@ class Provider extends Model
     /**
      * Clear the cached provider options.
      * Call this after creating, updating, or deleting providers.
-     *
-     * @return void
      */
     public static function clearCachedOptions(): void
     {

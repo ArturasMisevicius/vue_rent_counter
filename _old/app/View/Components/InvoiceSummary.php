@@ -81,9 +81,9 @@ final class InvoiceSummary extends Component
         $zone = $snapshot['zone'] ?? ($firstMeter['zone'] ?? null);
         $meterLabel = $serial ? "{$serial}: " : '';
         $zoneLabel = $zone ? " ({$zone})" : '';
-        $moreLabel = $meterCount > 1 ? ' +' . ($meterCount - 1) . ' more' : '';
+        $moreLabel = $meterCount > 1 ? ' +'.($meterCount - 1).' more' : '';
 
-        return $meterLabel . "{$previousLabel}: {$startFormatted} -> {$currentLabel}: {$endFormatted}{$zoneLabel}{$moreLabel}";
+        return $meterLabel."{$previousLabel}: {$startFormatted} -> {$currentLabel}: {$endFormatted}{$zoneLabel}{$moreLabel}";
     }
 
     private function singleMeterSummary(mixed $previous, mixed $current, bool $short): string

@@ -8,8 +8,8 @@ use App\Enums\SystemSubscriptionPlan;
 use App\Enums\SystemTenantStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 final class SystemTenant extends Model
@@ -42,14 +42,14 @@ final class SystemTenant extends Model
 
     protected static function booted(): void
     {
-        static::creating(function (SystemTenant $tenant): void {
+        self::creating(function (SystemTenant $tenant): void {
             if (empty($tenant->slug)) {
-                $baseSlug = Str::slug($tenant->name ?? 'tenant-' . Str::random(8));
+                $baseSlug = Str::slug($tenant->name ?? 'tenant-'.Str::random(8));
                 $slug = $baseSlug;
                 $counter = 1;
 
                 while (static::where('slug', $slug)->exists()) {
-                    $slug = $baseSlug . '-' . $counter++;
+                    $slug = $baseSlug.'-'.$counter++;
                 }
 
                 $tenant->slug = $slug;
@@ -84,17 +84,17 @@ final class SystemTenant extends Model
 
     public function activate(): void
     {
-        if (!$this->status->canTransitionTo(SystemTenantStatus::ACTIVE)) {
-            throw new \InvalidArgumentException('Cannot activate tenant from current status: ' . $this->status->value);
+        if (! $this->status->canTransitionTo(SystemTenantStatus::ACTIVE)) {
+            throw new \InvalidArgumentException('Cannot activate tenant from current status: '.$this->status->value);
         }
 
         $this->update(['status' => SystemTenantStatus::ACTIVE]);
     }
 
-    public function suspend(string $reason = null): void
+    public function suspend(?string $reason = null): void
     {
-        if (!$this->status->canTransitionTo(SystemTenantStatus::SUSPENDED)) {
-            throw new \InvalidArgumentException('Cannot suspend tenant from current status: ' . $this->status->value);
+        if (! $this->status->canTransitionTo(SystemTenantStatus::SUSPENDED)) {
+            throw new \InvalidArgumentException('Cannot suspend tenant from current status: '.$this->status->value);
         }
 
         $settings = $this->settings ?? [];
@@ -109,8 +109,8 @@ final class SystemTenant extends Model
 
     public function cancel(): void
     {
-        if (!$this->status->canTransitionTo(SystemTenantStatus::CANCELLED)) {
-            throw new \InvalidArgumentException('Cannot cancel tenant from current status: ' . $this->status->value);
+        if (! $this->status->canTransitionTo(SystemTenantStatus::CANCELLED)) {
+            throw new \InvalidArgumentException('Cannot cancel tenant from current status: '.$this->status->value);
         }
 
         $settings = $this->settings ?? [];
@@ -136,7 +136,7 @@ final class SystemTenant extends Model
         $quotas = $this->resource_quotas ?? [];
         $usage = $this->getCurrentUsage();
 
-        if (!isset($quotas["max_{$quotaType}"])) {
+        if (! isset($quotas["max_{$quotaType}"])) {
             return false;
         }
 
@@ -152,7 +152,7 @@ final class SystemTenant extends Model
             default => null,
         };
 
-        if (!$usageKey || !isset($usage[$usageKey])) {
+        if (! $usageKey || ! isset($usage[$usageKey])) {
             return false;
         }
 
@@ -167,7 +167,7 @@ final class SystemTenant extends Model
         // For now, return 0 - this can be implemented to calculate actual storage
         // by summing file sizes from attachments, uploads, etc.
         return 0.0;
-        
+
         // Future implementation:
         // return $this->organizations()
         //     ->withSum('attachments', 'file_size')
@@ -182,7 +182,7 @@ final class SystemTenant extends Model
     {
         // For now, return 0 - this can be implemented with API usage tracking
         return 0;
-        
+
         // Future implementation:
         // return ApiUsageLog::where('tenant_id', $this->id)
         //     ->whereMonth('created_at', now()->month)

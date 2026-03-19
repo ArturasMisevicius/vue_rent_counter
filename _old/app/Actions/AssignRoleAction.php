@@ -11,20 +11,18 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Assign Role Action
- * 
+ *
  * Single responsibility: Assign or change a user's role.
  * Includes audit logging for security compliance.
- * 
- * @package App\Actions
  */
 final class AssignRoleAction
 {
     /**
      * Execute the action to assign a role to a user.
      *
-     * @param User $user The user to assign role to
-     * @param UserRole $role The role to assign
-     * @param User|null $performedBy The user performing the action
+     * @param  User  $user  The user to assign role to
+     * @param  UserRole  $role  The role to assign
+     * @param  User|null  $performedBy  The user performing the action
      * @return User The updated user
      */
     public function execute(User $user, UserRole $role, ?User $performedBy = null): User
@@ -44,11 +42,6 @@ final class AssignRoleAction
 
     /**
      * Log role change for audit trail.
-     *
-     * @param User $user
-     * @param UserRole $previousRole
-     * @param UserRole $newRole
-     * @param User|null $performedBy
      */
     private function logRoleChange(
         User $user,

@@ -14,28 +14,45 @@ use Illuminate\View\Component;
 final class MeterDetails extends Component
 {
     public readonly string $trendChartId;
+
     public readonly string $usageChartId;
+
     public readonly string $unit;
+
     public readonly ?MeterReading $latestReading;
+
     public readonly ?MeterReading $previousReading;
+
     public readonly ?float $delta;
+
     public readonly Collection $chartReadings;
+
     public readonly float $minValue;
+
     public readonly float $maxValue;
+
     public readonly float $averageValue;
+
     public readonly Collection $monthlyChart;
+
     public readonly array $trendLabels;
+
     public readonly array $trendValues;
+
     public readonly array $usageLabels;
+
     public readonly array $usageValues;
+
     public readonly float $maxMonthly;
+
     public readonly float $totalUsage;
+
     public readonly Collection $readingTimeline;
 
     public function __construct(public readonly Meter $meter)
     {
-        $this->trendChartId = 'meter-trend-' . $meter->id;
-        $this->usageChartId = 'meter-usage-' . $meter->id;
+        $this->trendChartId = 'meter-trend-'.$meter->id;
+        $this->usageChartId = 'meter-usage-'.$meter->id;
         $this->unit = $meter->getUnitOfMeasurement();
         $this->latestReading = $meter->readings->first();
         $this->previousReading = $meter->readings->skip(1)->first();

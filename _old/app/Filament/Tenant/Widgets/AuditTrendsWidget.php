@@ -10,14 +10,14 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * Audit Trends Widget
- * 
+ *
  * Displays audit activity trends over time with interactive charts
  * showing change patterns, user activity, and system modifications.
  */
 final class AuditTrendsWidget extends ChartWidget
 {
     protected ?string $heading = 'Audit Activity Trends';
-    
+
     protected static ?int $sort = 2;
 
     protected function getPollingInterval(): ?string
@@ -32,8 +32,8 @@ final class AuditTrendsWidget extends ChartWidget
 
     protected function getData(): array
     {
-        $cacheKey = 'audit_trends_' . auth()->user()->currentTeam->id;
-        
+        $cacheKey = 'audit_trends_'.auth()->user()->currentTeam->id;
+
         return Cache::remember($cacheKey, 600, function () {
             $auditReporter = app(UniversalServiceAuditReporter::class);
             $report = $auditReporter->generateReport(
@@ -41,10 +41,10 @@ final class AuditTrendsWidget extends ChartWidget
                 startDate: now()->subDays(30),
                 endDate: now(),
             );
-            
+
             // Generate daily trend data for the last 30 days
             $dailyData = $this->generateDailyTrendData();
-            
+
             return [
                 'datasets' => [
                     [
@@ -83,12 +83,12 @@ final class AuditTrendsWidget extends ChartWidget
         $totalData = [];
         $userData = [];
         $systemData = [];
-        
+
         // Generate data for the last 30 days
         for ($i = 29; $i >= 0; $i--) {
             $date = now()->subDays($i);
             $labels[] = $date->format('M j');
-            
+
             // Get daily audit counts (simplified for demo)
             $auditReporter = app(UniversalServiceAuditReporter::class);
             $dailyReport = $auditReporter->generateReport(
@@ -96,12 +96,12 @@ final class AuditTrendsWidget extends ChartWidget
                 startDate: $date->startOfDay(),
                 endDate: $date->endOfDay(),
             );
-            
+
             $totalData[] = $dailyReport->summary->totalChanges;
             $userData[] = $dailyReport->summary->userChanges;
             $systemData[] = $dailyReport->summary->systemChanges;
         }
-        
+
         return [
             'labels' => $labels,
             'total' => $totalData,

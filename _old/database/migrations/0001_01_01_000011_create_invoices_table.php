@@ -22,7 +22,7 @@ return new class extends Migration
             $table->enum('status', ['draft', 'finalized', 'paid'])->default('draft');
             $table->dateTime('finalized_at')->nullable();
             $table->timestamps();
-            
+
             $table->index(['tenant_id', 'billing_period_start']);
         });
     }

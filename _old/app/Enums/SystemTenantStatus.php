@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-use App\Enums\Concerns\HasLabel;
 use App\Enums\Concerns\HasColor;
+use App\Enums\Concerns\HasLabel;
 
 enum SystemTenantStatus: string
 {
-    use HasLabel, HasColor;
+    use HasColor, HasLabel;
 
     case ACTIVE = 'active';
     case SUSPENDED = 'suspended';

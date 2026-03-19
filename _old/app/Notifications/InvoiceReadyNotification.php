@@ -59,7 +59,7 @@ class InvoiceReadyNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $invoiceNumber = $this->invoice->invoice_number ?? 'INV-' . $this->invoice->id;
+        $invoiceNumber = $this->invoice->invoice_number ?? 'INV-'.$this->invoice->id;
 
         // Generate PDF for attachment
         $pdfService = app(InvoicePdfService::class);
@@ -75,7 +75,7 @@ class InvoiceReadyNotification extends Notification implements ShouldQueue
             ->greeting("Hello {$notifiable->name}!")
             ->line("Your invoice {$invoiceNumber} is ready for review.")
             ->line("**Billing Period:** {$this->invoice->billing_period_start->format('Y-m-d')} to {$this->invoice->billing_period_end->format('Y-m-d')}")
-            ->line("**Total Amount:** €" . number_format((float) $this->invoice->total_amount, 2))
+            ->line('**Total Amount:** €'.number_format((float) $this->invoice->total_amount, 2))
             ->line('Please find your invoice attached to this email.')
             ->attachData($pdfContent, $filename, [
                 'mime' => 'application/pdf',

@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Filament\Clusters\SuperAdmin\Resources\SystemConfigResource\Pages;
 
+use App\Enums\AuditAction;
 use App\Filament\Clusters\SuperAdmin\Resources\SystemConfigResource;
+use App\Models\SuperAdminAuditLog;
+use App\Models\SystemConfiguration;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 
 final class CreateSystemConfig extends CreateRecord
@@ -48,10 +52,10 @@ final class CreateSystemConfig extends CreateRecord
     protected function afterCreate(): void
     {
         // Log the configuration creation
-        \App\Models\SuperAdminAuditLog::create([
+        SuperAdminAuditLog::create([
             'admin_id' => auth()->id(),
-            'action' => \App\Enums\AuditAction::SYSTEM_CONFIG_CREATED,
-            'target_type' => \App\Models\SystemConfiguration::class,
+            'action' => AuditAction::SYSTEM_CONFIG_CREATED,
+            'target_type' => SystemConfiguration::class,
             'target_id' => $this->getRecord()->id,
             'changes' => [
                 'key' => $this->getRecord()->key,
@@ -62,7 +66,7 @@ final class CreateSystemConfig extends CreateRecord
             'user_agent' => request()->userAgent(),
         ]);
 
-        \Filament\Notifications\Notification::make()
+        Notification::make()
             ->title(__('superadmin.config.notifications.created'))
             ->body(__('superadmin.config.notifications.created_body', [
                 'key' => $this->getRecord()->key,

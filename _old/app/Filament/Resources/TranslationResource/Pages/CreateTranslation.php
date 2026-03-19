@@ -6,6 +6,7 @@ namespace App\Filament\Resources\TranslationResource\Pages;
 
 use App\Filament\Resources\TranslationResource;
 use App\Filament\Resources\TranslationResource\Concerns\FiltersEmptyLanguageValues;
+use App\Models\Translation;
 use Filament\Resources\Pages\CreateRecord;
 
 /**
@@ -15,8 +16,8 @@ use Filament\Resources\Pages\CreateRecord;
  * - Automatic filtering of empty language values
  * - Superadmin-only access (enforced by resource)
  *
- * @see \App\Filament\Resources\TranslationResource
- * @see \App\Models\Translation
+ * @see TranslationResource
+ * @see Translation
  */
 class CreateTranslation extends CreateRecord
 {
@@ -30,7 +31,7 @@ class CreateTranslation extends CreateRecord
      * This ensures that when a language value is left empty (null, empty string,
      * or whitespace-only), it's not stored in the values JSON field.
      *
-     * @param array<string, mixed> $data The form data to mutate
+     * @param  array<string, mixed>  $data  The form data to mutate
      * @return array<string, mixed> The mutated form data
      */
     protected function mutateFormDataBeforeCreate(array $data): array
@@ -38,4 +39,3 @@ class CreateTranslation extends CreateRecord
         return $this->filterEmptyLanguageValues($data);
     }
 }
-

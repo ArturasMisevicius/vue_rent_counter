@@ -18,27 +18,27 @@ return new class extends Migration
             $table->foreignId('meter_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->foreignId('parent_task_id')->nullable()->constrained('enhanced_tasks')->nullOnDelete();
-            
+
             $table->string('title');
             $table->text('description')->nullable();
             $table->enum('type', ['maintenance', 'reading', 'inspection', 'repair', 'installation'])->default('maintenance');
             $table->enum('status', ['pending', 'in_progress', 'completed', 'cancelled', 'on_hold'])->default('pending');
             $table->enum('priority', ['low', 'medium', 'high', 'urgent'])->default('medium');
-            
+
             $table->decimal('estimated_hours', 8, 2)->nullable();
             $table->decimal('actual_hours', 8, 2)->default(0);
             $table->decimal('estimated_cost', 10, 2)->nullable();
             $table->decimal('actual_cost', 10, 2)->default(0);
-            
+
             $table->datetime('due_date')->nullable();
             $table->datetime('started_at')->nullable();
             $table->datetime('completed_at')->nullable();
-            
+
             $table->json('metadata')->nullable(); // For flexible task-specific data
-            
+
             $table->timestamps();
             $table->softDeletes();
-            
+
             // Performance indexes
             $table->index(['tenant_id', 'status', 'priority'], 'tasks_tenant_status_idx');
             $table->index(['project_id', 'status'], 'tasks_project_idx');

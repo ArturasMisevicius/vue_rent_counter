@@ -3,6 +3,12 @@
 namespace App\Http\Middleware;
 
 use App\Enums\UserRole;
+use App\Models\Building;
+use App\Models\Invoice;
+use App\Models\Meter;
+use App\Models\MeterReading;
+use App\Models\Property;
+use App\Models\User;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
@@ -20,13 +26,13 @@ class EnsureHierarchicalAccess
      *
      * Requirements: 12.5, 13.3
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 
@@ -36,9 +42,9 @@ class EnsureHierarchicalAccess
         }
 
         // Validate hierarchical access based on route parameters
-        if (!$this->validateHierarchicalAccess($request, $user)) {
+        if (! $this->validateHierarchicalAccess($request, $user)) {
             $this->logAccessDenial($request, $user);
-            
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'You do not have permission to access this resource.',
@@ -76,7 +82,7 @@ class EnsureHierarchicalAccess
 
     /**
      * Validate admin/manager access to resources.
-     * 
+     *
      * Performance: Uses select() to minimize data transfer, caches validation results,
      * and batches queries when multiple resources are present
      */
@@ -92,27 +98,27 @@ class EnsureHierarchicalAccess
             $request->route()->getName(),
             hash('sha256', $routeParams)  // Use SHA-256 instead of MD5 for security
         );
-        
+
         return cache()->remember($cacheKey, 300, function () use ($request, $user) {
             // Check route parameters for resources that have tenant_id
             $resourceModels = [
-                'building' => \App\Models\Building::class,
-                'property' => \App\Models\Property::class,
-                'meter' => \App\Models\Meter::class,
-                'meterReading' => \App\Models\MeterReading::class,
-                'invoice' => \App\Models\Invoice::class,
-                'user' => \App\Models\User::class,
+                'building' => Building::class,
+                'property' => Property::class,
+                'meter' => Meter::class,
+                'meterReading' => MeterReading::class,
+                'invoice' => Invoice::class,
+                'user' => User::class,
             ];
 
             foreach ($resourceModels as $param => $modelClass) {
                 $resourceId = $request->route($param);
-                
+
                 if ($resourceId) {
                     $resource = $resourceId instanceof Model
                         ? $resourceId
                         // Performance: Only select tenant_id to minimize data transfer
                         : $modelClass::select('id', 'tenant_id')->find($resourceId);
-                    
+
                     if ($resource && isset($resource->tenant_id)) {
                         // Validate tenant_id matches
                         if ($resource->tenant_id !== $user->tenant_id) {
@@ -128,7 +134,7 @@ class EnsureHierarchicalAccess
 
     /**
      * Validate tenant access to resources.
-     * 
+     *
      * Performance: Uses select() to minimize data transfer and caches results
      */
     protected function validateTenantAccess(Request $request, $user): bool
@@ -143,30 +149,30 @@ class EnsureHierarchicalAccess
             $request->route()->getName(),
             hash('sha256', $routeParams)
         );
-        
+
         return cache()->remember($cacheKey, 300, function () use ($request, $user) {
             // First validate tenant_id matches (same as admin)
-            if (!$this->validateAdminAccess($request, $user)) {
+            if (! $this->validateAdminAccess($request, $user)) {
                 return false;
             }
 
             // Additionally validate property_id for tenant-specific resources
             $propertyResourceModels = [
-                'property' => \App\Models\Property::class,
-                'meter' => \App\Models\Meter::class,
-                'meterReading' => \App\Models\MeterReading::class,
-                'invoice' => \App\Models\Invoice::class,
+                'property' => Property::class,
+                'meter' => Meter::class,
+                'meterReading' => MeterReading::class,
+                'invoice' => Invoice::class,
             ];
 
             foreach ($propertyResourceModels as $param => $modelClass) {
                 $resourceId = $request->route($param);
-                
+
                 if ($resourceId) {
                     $resource = $resourceId instanceof Model
                         ? $resourceId
                         // Performance: Only select necessary columns
                         : $modelClass::select('id', 'property_id')->find($resourceId);
-                    
+
                     if ($resource) {
                         // For property, check direct match
                         if ($param === 'property') {
@@ -189,7 +195,7 @@ class EnsureHierarchicalAccess
 
     /**
      * Log access denial for audit purposes.
-     * 
+     *
      * Performance: Only logs denials (not successful checks) to reduce I/O
      */
     protected function logAccessDenial(Request $request, $user): void

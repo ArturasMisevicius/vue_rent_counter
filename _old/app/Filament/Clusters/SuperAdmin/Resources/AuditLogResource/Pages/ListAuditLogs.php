@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace App\Filament\Clusters\SuperAdmin\Resources\AuditLogResource\Pages;
 
 use App\Filament\Clusters\SuperAdmin\Resources\AuditLogResource;
+use App\Models\SuperAdminAuditLog;
+use Carbon\Carbon;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\DatePicker;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Support\Colors\Color;
 
 final class ListAuditLogs extends ListRecords
 {
@@ -27,7 +31,7 @@ final class ListAuditLogs extends ListRecords
                 ->color('success')
                 ->action(function () {
                     // TODO: Implement full export functionality
-                    \Filament\Notifications\Notification::make()
+                    Notification::make()
                         ->title(__('superadmin.audit.notifications.export_started'))
                         ->body(__('superadmin.audit.notifications.export_all_started'))
                         ->info()
@@ -43,30 +47,30 @@ final class ListAuditLogs extends ListRecords
                 ->icon('heroicon-o-trash')
                 ->color('danger')
                 ->form([
-                    \Filament\Forms\Components\DatePicker::make('before_date')
+                    DatePicker::make('before_date')
                         ->label(__('superadmin.audit.fields.cleanup_before_date'))
                         ->required()
                         ->default(now()->subMonths(6))
                         ->maxDate(now()->subMonth()),
-                    
-                    \Filament\Forms\Components\Checkbox::make('confirm_cleanup')
+
+                    Checkbox::make('confirm_cleanup')
                         ->label(__('superadmin.audit.fields.confirm_cleanup'))
                         ->required(),
                 ])
                 ->action(function (array $data) {
-                    if (!$data['confirm_cleanup']) {
+                    if (! $data['confirm_cleanup']) {
                         return;
                     }
 
-                    $count = \App\Models\SuperAdminAuditLog::where('created_at', '<', $data['before_date'])
+                    $count = SuperAdminAuditLog::where('created_at', '<', $data['before_date'])
                         ->count();
 
                     // TODO: Implement cleanup with proper archiving
-                    \Filament\Notifications\Notification::make()
+                    Notification::make()
                         ->title(__('superadmin.audit.notifications.cleanup_scheduled'))
                         ->body(__('superadmin.audit.notifications.cleanup_scheduled_body', [
                             'count' => $count,
-                            'date' => \Carbon\Carbon::parse($data['before_date'])->format('M j, Y'),
+                            'date' => Carbon::parse($data['before_date'])->format('M j, Y'),
                         ]))
                         ->warning()
                         ->send();

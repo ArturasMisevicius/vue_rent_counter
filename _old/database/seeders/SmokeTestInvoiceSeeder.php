@@ -23,7 +23,7 @@ class SmokeTestInvoiceSeeder extends Seeder
 
         // Get or create a property and tenant for testing
         $property = Property::first();
-        
+
         if (! $property) {
             $this->command->info('Creating test property...');
             $property = Property::factory()->forTenantId(1)->create([
@@ -32,7 +32,7 @@ class SmokeTestInvoiceSeeder extends Seeder
         }
 
         $tenant = Tenant::where('property_id', $property->id)->first();
-        
+
         if (! $tenant) {
             $this->command->info('Creating test tenant...');
             $tenant = Tenant::factory()->forProperty($property)->create([
@@ -48,7 +48,7 @@ class SmokeTestInvoiceSeeder extends Seeder
         $draftInvoice = Invoice::create([
             'tenant_id' => $tenant->tenant_id,
             'tenant_renter_id' => $tenant->id,
-            'invoice_number' => 'DRAFT-' . now()->format('Ymd') . '-001',
+            'invoice_number' => 'DRAFT-'.now()->format('Ymd').'-001',
             'billing_period_start' => now()->startOfMonth(),
             'billing_period_end' => now()->endOfMonth(),
             'due_date' => now()->addDays(14),
@@ -61,7 +61,7 @@ class SmokeTestInvoiceSeeder extends Seeder
         $overdueInvoice = Invoice::create([
             'tenant_id' => $tenant->tenant_id,
             'tenant_renter_id' => $tenant->id,
-            'invoice_number' => 'INV-' . now()->subMonth()->format('Ymd') . '-001',
+            'invoice_number' => 'INV-'.now()->subMonth()->format('Ymd').'-001',
             'billing_period_start' => now()->subMonth()->startOfMonth(),
             'billing_period_end' => now()->subMonth()->endOfMonth(),
             'due_date' => now()->subDays(10), // Past due!
@@ -75,7 +75,7 @@ class SmokeTestInvoiceSeeder extends Seeder
         $paidInvoice = Invoice::create([
             'tenant_id' => $tenant->tenant_id,
             'tenant_renter_id' => $tenant->id,
-            'invoice_number' => 'INV-' . now()->subMonths(2)->format('Ymd') . '-001',
+            'invoice_number' => 'INV-'.now()->subMonths(2)->format('Ymd').'-001',
             'billing_period_start' => now()->subMonths(2)->startOfMonth(),
             'billing_period_end' => now()->subMonths(2)->endOfMonth(),
             'due_date' => now()->subMonths(2)->addDays(14),
@@ -83,7 +83,7 @@ class SmokeTestInvoiceSeeder extends Seeder
             'status' => InvoiceStatus::PAID,
             'finalized_at' => now()->subMonths(2)->addDays(5),
             'paid_at' => now()->subMonths(2)->addDays(10),
-            'payment_reference' => 'PAY-' . Str::upper(Str::random(8)),
+            'payment_reference' => 'PAY-'.Str::upper(Str::random(8)),
             'paid_amount' => 102.30,
         ]);
         $this->command->info("✓ Created PAID Invoice: {$paidInvoice->invoice_number} (€{$paidInvoice->total_amount}) - Paid: {$paidInvoice->paid_at->format('Y-m-d')}");
@@ -93,9 +93,9 @@ class SmokeTestInvoiceSeeder extends Seeder
         $this->command->table(
             ['Type', 'Invoice #', 'Amount', 'Status', 'Due Date'],
             [
-                ['Draft (MG-04)', $draftInvoice->invoice_number, '€' . $draftInvoice->total_amount, 'DRAFT', $draftInvoice->due_date->format('Y-m-d')],
-                ['Overdue (TN-03)', $overdueInvoice->invoice_number, '€' . $overdueInvoice->total_amount, 'FINALIZED (OVERDUE)', $overdueInvoice->due_date->format('Y-m-d')],
-                ['Paid (TN-05)', $paidInvoice->invoice_number, '€' . $paidInvoice->total_amount, 'PAID', $paidInvoice->due_date->format('Y-m-d')],
+                ['Draft (MG-04)', $draftInvoice->invoice_number, '€'.$draftInvoice->total_amount, 'DRAFT', $draftInvoice->due_date->format('Y-m-d')],
+                ['Overdue (TN-03)', $overdueInvoice->invoice_number, '€'.$overdueInvoice->total_amount, 'FINALIZED (OVERDUE)', $overdueInvoice->due_date->format('Y-m-d')],
+                ['Paid (TN-05)', $paidInvoice->invoice_number, '€'.$paidInvoice->total_amount, 'PAID', $paidInvoice->due_date->format('Y-m-d')],
             ]
         );
     }

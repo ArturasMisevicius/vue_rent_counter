@@ -19,7 +19,7 @@ class UsersSeeder extends Seeder
 
     /**
      * Seed all users: superadmin, admins with subscriptions, managers, and tenants.
-     * 
+     *
      * This seeder consolidates all user creation logic from TestUsersSeeder
      * and HierarchicalUsersSeeder into a single, optimized seeder.
      */
@@ -56,7 +56,7 @@ class UsersSeeder extends Seeder
 
     /**
      * Create admin users with subscriptions.
-     * 
+     *
      * @return array<int, User> Array of primary admin users keyed by tenant_id (first admin per tenant)
      */
     private function createAdmins(string $password): array
@@ -185,8 +185,8 @@ class UsersSeeder extends Seeder
     private function createTenantUsers(array $admins, string $password): void
     {
         // Get valid tenant IDs (exclude hierarchical keys)
-        $tenantIds = array_filter(array_keys($admins), fn($key) => is_int($key));
-        
+        $tenantIds = array_filter(array_keys($admins), fn ($key) => is_int($key));
+
         // Fetch all properties grouped by tenant_id for efficient access
         $propertiesByTenant = Property::whereIn('tenant_id', $tenantIds)
             ->get()
@@ -195,7 +195,7 @@ class UsersSeeder extends Seeder
         // Tenant users for tenant_id 1 (from TestUsersSeeder)
         if (isset($propertiesByTenant[1]) && $propertiesByTenant[1]->count() >= 2 && isset($admins[1])) {
             $properties1 = $propertiesByTenant[1];
-            
+
             User::factory()
                 ->tenant(1, $properties1[0]->id, $admins[1]->id)
                 ->create([
@@ -216,7 +216,7 @@ class UsersSeeder extends Seeder
         // Tenant users for tenant_id 2 (from TestUsersSeeder)
         if (isset($propertiesByTenant[2]) && $propertiesByTenant[2]->count() >= 1 && isset($admins[2])) {
             $properties2 = $propertiesByTenant[2];
-            
+
             User::factory()
                 ->tenant(2, $properties2[0]->id, $admins[2]->id)
                 ->create([
@@ -231,7 +231,7 @@ class UsersSeeder extends Seeder
         if (isset($propertiesByTenant[1]) && $propertiesByTenant[1]->count() >= 3 && isset($admins['hierarchical_1'])) {
             $properties1 = $propertiesByTenant[1];
             $hierarchicalAdmin1 = $admins['hierarchical_1'];
-            
+
             User::factory()
                 ->tenant(1, $properties1[0]->id, $hierarchicalAdmin1->id)
                 ->create([
@@ -272,7 +272,7 @@ class UsersSeeder extends Seeder
         if (isset($propertiesByTenant[2]) && $propertiesByTenant[2]->count() >= 2 && isset($admins['hierarchical_2'])) {
             $properties2 = $propertiesByTenant[2];
             $hierarchicalAdmin2 = $admins['hierarchical_2'];
-            
+
             User::factory()
                 ->tenant(2, $properties2[0]->id, $hierarchicalAdmin2->id)
                 ->create([

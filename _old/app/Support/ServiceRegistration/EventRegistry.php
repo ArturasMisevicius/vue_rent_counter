@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace App\Support\ServiceRegistration;
 
+use App\Events\SecurityViolationDetected;
+use App\Listeners\LogSecurityViolation;
+use App\View\Composers\NavigationComposer;
 use Illuminate\Auth\Events\Authenticated;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
@@ -12,7 +17,7 @@ use Illuminate\Support\Facades\View;
 
 /**
  * Event Registry for organized event and listener registration
- * 
+ *
  * Centralizes event handling, rate limiting, and view composer
  * registration following Laravel 12 patterns.
  */
@@ -24,8 +29,8 @@ final readonly class EventRegistry
     public function registerSecurityEvents(): void
     {
         Event::listen(
-            \App\Events\SecurityViolationDetected::class,
-            \App\Listeners\LogSecurityViolation::class
+            SecurityViolationDetected::class,
+            LogSecurityViolation::class
         );
     }
 
@@ -49,7 +54,7 @@ final readonly class EventRegistry
     {
         View::composer(
             'layouts.app',
-            \App\View\Composers\NavigationComposer::class
+            NavigationComposer::class
         );
 
         // REMOVED: View composer for language-switcher
@@ -65,23 +70,23 @@ final readonly class EventRegistry
     {
         // Rate limiting for admin routes (120 requests per minute per user)
         // Prevents brute force attacks and DoS attempts
-        RateLimiter::for('admin', function (\Illuminate\Http\Request $request) {
-            return \Illuminate\Cache\RateLimiting\Limit::perMinute(120)
+        RateLimiter::for('admin', function (Request $request) {
+            return Limit::perMinute(120)
                 ->by($request->user()?->id ?: $request->ip())
                 ->response(function () {
                     return response()->json([
-                        'message' => 'Too many requests. Please try again later.'
+                        'message' => 'Too many requests. Please try again later.',
                     ], 429);
                 });
         });
 
         // Rate limiting for API routes (60 requests per minute per user)
-        RateLimiter::for('api', function (\Illuminate\Http\Request $request) {
-            return \Illuminate\Cache\RateLimiting\Limit::perMinute(60)
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)
                 ->by($request->user()?->id ?: $request->ip())
                 ->response(function () {
                     return response()->json([
-                        'message' => 'Too many requests. Please try again later.'
+                        'message' => 'Too many requests. Please try again later.',
                     ], 429);
                 });
         });

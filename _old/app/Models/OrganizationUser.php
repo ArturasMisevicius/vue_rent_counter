@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * OrganizationUser Pivot Model
- * 
+ *
  * Manages the many-to-many relationship between Organizations and Users
  * with role-based permissions and membership tracking
  */
@@ -71,7 +71,7 @@ class OrganizationUser extends Pivot
     public function addPermission(string $permission): void
     {
         $permissions = $this->permissions ?? [];
-        if (!in_array($permission, $permissions)) {
+        if (! in_array($permission, $permissions)) {
             $permissions[] = $permission;
             $this->permissions = $permissions;
             $this->save();
@@ -103,6 +103,7 @@ class OrganizationUser extends Pivot
     public function getMembershipDuration(): int
     {
         $endDate = $this->left_at ?? now();
+
         return $this->joined_at->diffInDays($endDate);
     }
 
@@ -141,7 +142,7 @@ class OrganizationUser extends Pivot
      */
     public function getRoleDisplayName(): string
     {
-        return match($this->role) {
+        return match ($this->role) {
             'admin' => 'Administrator',
             'manager' => 'Manager',
             'viewer' => 'Viewer',

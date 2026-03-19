@@ -10,11 +10,16 @@ use App\Models\Faq;
 use App\Models\User;
 use App\Observers\FaqObserver;
 use App\Policies\FaqPolicy;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\RichEditor;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -272,14 +277,14 @@ class FaqResource extends Resource
                     ->native(false),
             ])
             ->actions([
-                \Filament\Actions\EditAction::make()
+                EditAction::make()
                     ->iconButton(),
-                \Filament\Actions\DeleteAction::make()
+                DeleteAction::make()
                     ->iconButton(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make()
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->requiresConfirmation()
                         ->modalHeading(self::trans('faq.modals.delete.heading'))
                         ->modalDescription(self::trans('faq.modals.delete.description'))
@@ -298,7 +303,7 @@ class FaqResource extends Resource
             ->emptyStateHeading(self::trans('faq.empty.heading'))
             ->emptyStateDescription(self::trans('faq.empty.description'))
             ->emptyStateActions([
-                \Filament\Actions\CreateAction::make()
+                CreateAction::make()
                     ->label(self::trans('faq.actions.add_first')),
             ])
             ->defaultSort('display_order', 'asc')

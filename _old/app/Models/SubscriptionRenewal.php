@@ -5,23 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * SubscriptionRenewal Model
- * 
+ *
  * Tracks the history of subscription renewals including dates, durations, and triggering method.
- * 
+ *
  * @property int $id
  * @property int $subscription_id
  * @property int|null $user_id User who performed the renewal (null for automatic)
  * @property string $method manual or automatic
  * @property string $period monthly, quarterly, annually
- * @property \Illuminate\Support\Carbon $old_expires_at Previous expiry date
- * @property \Illuminate\Support\Carbon $new_expires_at New expiry date
+ * @property Carbon $old_expires_at Previous expiry date
+ * @property Carbon $new_expires_at New expiry date
  * @property int $duration_days Number of days extended
  * @property string|null $notes Optional notes about the renewal
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Subscription $subscription
  * @property-read User|null $user User who performed the renewal
  */

@@ -5,22 +5,26 @@ declare(strict_types=1);
 namespace App\Filament\Clusters\SuperAdmin\Resources\SystemUserResource\Pages;
 
 use App\Contracts\SuperAdminUserInterface;
+use App\Enums\AuditAction;
 use App\Filament\Clusters\SuperAdmin\Resources\SystemUserResource;
+use App\Models\SuperAdminAuditLog;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\TextInput;
-use Filament\Schemas\Components\Select;
-use Filament\Schemas\Components\Toggle;
-use Filament\Schemas\Components\DateTimePicker;
-use Filament\Schemas\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Schemas\Components\DateTimePicker;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Select;
+use Filament\Schemas\Components\Textarea;
+use Filament\Schemas\Components\TextInput;
+use Filament\Schemas\Components\Toggle;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 final class EditSystemUser extends EditRecord
 {
@@ -142,8 +146,8 @@ final class EditSystemUser extends EditRecord
                 ->modalSubmitActionLabel(__('superadmin.users.actions.reset_password'))
                 ->action(function ($record) {
                     // Generate a temporary password
-                    $temporaryPassword = \Illuminate\Support\Str::random(12);
-                    
+                    $temporaryPassword = Str::random(12);
+
                     $record->update([
                         'password' => Hash::make($temporaryPassword),
                         'force_password_reset' => true,
@@ -172,7 +176,7 @@ final class EditSystemUser extends EditRecord
                 ->modalSubmitActionLabel(__('superadmin.users.actions.clear_sessions'))
                 ->action(function ($record) {
                     // Clear all user sessions
-                    \Illuminate\Support\Facades\DB::table('sessions')
+                    DB::table('sessions')
                         ->where('user_id', $record->id)
                         ->delete();
 
@@ -207,7 +211,7 @@ final class EditSystemUser extends EditRecord
                 }),
 
             DeleteAction::make()
-                ->visible(fn ($record) => !$record->hasRole('super_admin'))
+                ->visible(fn ($record) => ! $record->hasRole('super_admin'))
                 ->requiresConfirmation()
                 ->modalHeading(__('superadmin.users.modals.delete.heading'))
                 ->modalDescription(__('superadmin.users.modals.delete.description'))
@@ -218,7 +222,7 @@ final class EditSystemUser extends EditRecord
                             ->title(__('superadmin.users.notifications.cannot_delete_super_admin'))
                             ->danger()
                             ->send();
-                        
+
                         $this->halt();
                     }
                 }),
@@ -233,12 +237,12 @@ final class EditSystemUser extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         // Handle suspension logic
-        if (filled($data['suspended_at']) && !filled($data['suspension_reason'])) {
+        if (filled($data['suspended_at']) && ! filled($data['suspension_reason'])) {
             $data['suspension_reason'] = __('superadmin.users.default_suspension_reason');
         }
 
         // If user is being unsuspended, clear suspension data
-        if (!filled($data['suspended_at'])) {
+        if (! filled($data['suspended_at'])) {
             $data['suspension_reason'] = null;
         }
 
@@ -253,11 +257,11 @@ final class EditSystemUser extends EditRecord
     protected function afterSave(): void
     {
         $userService = app(SuperAdminUserInterface::class);
-        
+
         // Log the user update in audit trail
-        \App\Models\SuperAdminAuditLog::create([
+        SuperAdminAuditLog::create([
             'admin_id' => auth()->id(),
-            'action' => \App\Enums\AuditAction::USER_UPDATED,
+            'action' => AuditAction::USER_UPDATED,
             'target_type' => User::class,
             'target_id' => $this->getRecord()->id,
             'tenant_id' => $this->getRecord()->organization_id,

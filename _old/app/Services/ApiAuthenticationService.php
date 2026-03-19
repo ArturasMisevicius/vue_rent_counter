@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * API Authentication Service
- * 
+ *
  * Handles API token creation, validation, and management
  * with role-based abilities and security controls.
  */
@@ -25,13 +25,13 @@ class ApiAuthenticationService
     {
         $user = User::where('email', $email)->first();
 
-        if (!$user || !Hash::check($password, $user->password)) {
+        if (! $user || ! Hash::check($password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
 
-        if (!$user->is_active || $user->suspended_at) {
+        if (! $user->is_active || $user->suspended_at) {
             throw ValidationException::withMessages([
                 'account' => ['Account is inactive or suspended.'],
             ]);
@@ -100,8 +100,8 @@ class ApiAuthenticationService
     public function validateAbility(Request $request, string $ability): bool
     {
         $user = $request->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return false;
         }
 
@@ -140,7 +140,7 @@ class ApiAuthenticationService
     {
         // Revoke old token
         $this->revokeTokens($user, $oldTokenName);
-        
+
         // Create new token
         return $user->createApiToken($newTokenName ?? $oldTokenName);
     }

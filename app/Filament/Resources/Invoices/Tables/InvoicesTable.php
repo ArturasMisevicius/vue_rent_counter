@@ -96,7 +96,8 @@ class InvoicesTable
                             ->required(),
                         TextInput::make('payment_reference')
                             ->label(__('admin.invoices.fields.payment_reference'))
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->required(),
                     ])
                     ->action(function (Invoice $record, array $data, RecordInvoicePaymentAction $recordInvoicePaymentAction): void {
                         $recordInvoicePaymentAction->handle($record, $data);

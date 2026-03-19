@@ -2,17 +2,20 @@
 
 namespace App\Filament\Resources;
 
-
 use App\Filament\Resources\OrganizationActivityLogResource\Pages;
 use App\Models\OrganizationActivityLog;
-use BackedEnum;
-use UnitEnum;
+use Carbon\Carbon;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
-use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Response;
 
 class OrganizationActivityLogResource extends Resource
 {
@@ -89,23 +92,23 @@ class OrganizationActivityLogResource extends Resource
                     ->dateTime('Y-m-d H:i:s')
                     ->sortable()
                     ->searchable(),
-                
+
                 Tables\Columns\TextColumn::make('organization.name')
                     ->label(__('audit.labels.organization'))
                     ->searchable()
                     ->sortable()
-                    ->url(fn ($record) => $record->organization_id 
+                    ->url(fn ($record) => $record->organization_id
                         ? route('filament.admin.resources.organizations.view', ['record' => $record->organization_id])
                         : null)
                     ->color('primary'),
-                
+
                 Tables\Columns\TextColumn::make('user.name')
                     ->label(__('audit.labels.user'))
                     ->searchable()
                     ->sortable()
                     ->color('primary')
                     ->default(__('app.common.na')),
-                
+
                 Tables\Columns\TextColumn::make('action')
                     ->label(__('audit.labels.action'))
                     ->badge()
@@ -121,23 +124,23 @@ class OrganizationActivityLogResource extends Resource
                     })
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('resource_type')
                     ->label(__('audit.labels.resource_type'))
                     ->searchable()
                     ->sortable()
                     ->formatStateUsing(fn ($state) => $state ? class_basename($state) : __('app.common.na')),
-                
+
                 Tables\Columns\TextColumn::make('resource_id')
                     ->label(__('audit.labels.resource_id'))
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('ip_address')
                     ->label(__('audit.labels.ip_address'))
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                
+
                 Tables\Columns\TextColumn::make('user_agent')
                     ->label(__('audit.labels.user_agent'))
                     ->searchable()
@@ -151,14 +154,14 @@ class OrganizationActivityLogResource extends Resource
                     ->preload()
                     ->label(__('audit.labels.organization'))
                     ->multiple(),
-                
+
                 Tables\Filters\SelectFilter::make('user_id')
                     ->relationship('user', 'name')
                     ->searchable()
                     ->preload()
                     ->label(__('audit.labels.user'))
                     ->multiple(),
-                
+
                 Tables\Filters\SelectFilter::make('action')
                     ->options([
                         'create' => __('audit.filters.create'),
@@ -175,14 +178,14 @@ class OrganizationActivityLogResource extends Resource
                         if (empty($data['values'])) {
                             return $query;
                         }
-                        
+
                         return $query->where(function (Builder $query) use ($data) {
                             foreach ($data['values'] as $action) {
                                 $query->orWhere('action', 'like', "%{$action}%");
                             }
                         });
                     }),
-                
+
                 Tables\Filters\SelectFilter::make('resource_type')
                     ->options(function () {
                         return OrganizationActivityLog::query()
@@ -193,7 +196,7 @@ class OrganizationActivityLogResource extends Resource
                     })
                     ->label(__('audit.labels.resource_type'))
                     ->multiple(),
-                
+
                 Tables\Filters\Filter::make('created_at')
                     ->form([
                         Forms\Components\DatePicker::make('created_from')
@@ -216,24 +219,24 @@ class OrganizationActivityLogResource extends Resource
                     })
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
-                        
+
                         if ($data['created_from'] ?? null) {
-                            $indicators[] = 'From: ' . \Carbon\Carbon::parse($data['created_from'])->toFormattedDateString();
+                            $indicators[] = 'From: '.Carbon::parse($data['created_from'])->toFormattedDateString();
                         }
-                        
+
                         if ($data['created_until'] ?? null) {
-                            $indicators[] = 'Until: ' . \Carbon\Carbon::parse($data['created_until'])->toFormattedDateString();
+                            $indicators[] = 'Until: '.Carbon::parse($data['created_until'])->toFormattedDateString();
                         }
-                        
+
                         return $indicators;
                     }),
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
+                ViewAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\BulkAction::make('export_selected_csv')
+                BulkActionGroup::make([
+                    BulkAction::make('export_selected_csv')
                         ->label('Export Selected (CSV)')
                         ->icon('heroicon-o-arrow-down-tray')
                         ->color('success')
@@ -241,8 +244,8 @@ class OrganizationActivityLogResource extends Resource
                             return static::exportRecordsToCsv($records);
                         })
                         ->deselectRecordsAfterCompletion(),
-                    
-                    \Filament\Actions\BulkAction::make('export_selected_json')
+
+                    BulkAction::make('export_selected_json')
                         ->label('Export Selected (JSON)')
                         ->icon('heroicon-o-arrow-down-tray')
                         ->color('info')
@@ -250,8 +253,8 @@ class OrganizationActivityLogResource extends Resource
                             return static::exportRecordsToJson($records);
                         })
                         ->deselectRecordsAfterCompletion(),
-                    
-                    \Filament\Actions\DeleteBulkAction::make()
+
+                    DeleteBulkAction::make()
                         ->requiresConfirmation()
                         ->modalHeading('Delete Activity Logs')
                         ->modalDescription('Are you sure you want to delete these activity logs? This action cannot be undone.')
@@ -281,19 +284,19 @@ class OrganizationActivityLogResource extends Resource
     {
         return parent::getEloquentQuery()->withoutGlobalScopes();
     }
-    
+
     public static function exportRecordsToCsv($records)
     {
-        $filename = 'activity-logs-selected-' . now()->format('Y-m-d-His') . '.csv';
-        
+        $filename = 'activity-logs-selected-'.now()->format('Y-m-d-His').'.csv';
+
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
-        
+
         $callback = function () use ($records) {
             $file = fopen('php://output', 'w');
-            
+
             // Add CSV headers
             fputcsv($file, [
                 'ID',
@@ -307,7 +310,7 @@ class OrganizationActivityLogResource extends Resource
                 'User Agent',
                 'Metadata',
             ]);
-            
+
             // Add data rows
             foreach ($records as $log) {
                 fputcsv($file, [
@@ -323,17 +326,17 @@ class OrganizationActivityLogResource extends Resource
                     $log->metadata ? json_encode($log->metadata) : 'N/A',
                 ]);
             }
-            
+
             fclose($file);
         };
-        
-        return \Illuminate\Support\Facades\Response::stream($callback, 200, $headers);
+
+        return Response::stream($callback, 200, $headers);
     }
-    
+
     public static function exportRecordsToJson($records)
     {
-        $filename = 'activity-logs-selected-' . now()->format('Y-m-d-His') . '.json';
-        
+        $filename = 'activity-logs-selected-'.now()->format('Y-m-d-His').'.json';
+
         $data = $records->map(function ($log) {
             return [
                 'id' => $log->id,
@@ -358,13 +361,13 @@ class OrganizationActivityLogResource extends Resource
                 'metadata' => $log->metadata,
             ];
         });
-        
+
         $headers = [
             'Content-Type' => 'application/json',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
-        
-        return \Illuminate\Support\Facades\Response::make(
+
+        return Response::make(
             json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
             200,
             $headers

@@ -100,7 +100,7 @@ final readonly class TrendAnalyzer
         $consumptionValues = $consumptionData->pluck('consumption')->toArray();
 
         $correlation = $this->calculateCorrelation($timeValues, $consumptionValues);
-        
+
         return abs($correlation); // Strength is absolute value of correlation
     }
 
@@ -108,6 +108,7 @@ final readonly class TrendAnalyzer
     {
         $seasonalData = $consumptionData->groupBy(function ($record) {
             $date = $record->reading_date ?? $record->created_at;
+
             return $this->getSeason($date);
         });
 
@@ -116,7 +117,7 @@ final readonly class TrendAnalyzer
 
         foreach (['winter', 'spring', 'summer', 'autumn'] as $season) {
             $seasonData = $seasonalData->get($season, collect());
-            
+
             if ($seasonData->isEmpty()) {
                 $patterns[$season] = [
                     'average_consumption' => 0,
@@ -124,6 +125,7 @@ final readonly class TrendAnalyzer
                     'data_points' => 0,
                     'pattern' => 'no_data',
                 ];
+
                 continue;
             }
 
@@ -154,14 +156,14 @@ final readonly class TrendAnalyzer
 
         $consumptions = $consumptionData->pluck('consumption')->toArray();
         $mean = array_sum($consumptions) / count($consumptions);
-        
+
         $variance = array_sum(array_map(
-            fn($consumption) => pow($consumption - $mean, 2),
+            fn ($consumption) => pow($consumption - $mean, 2),
             $consumptions
         )) / (count($consumptions) - 1);
 
         $stdDev = sqrt($variance);
-        
+
         // Return coefficient of variation (volatility as percentage)
         return $mean > 0 ? ($stdDev / $mean) * 100 : 0;
     }
@@ -179,9 +181,9 @@ final readonly class TrendAnalyzer
         // Calculate rolling efficiency (lower consumption = higher efficiency)
         $windowSize = min(6, intval($consumptionData->count() / 2));
         $rollingAverages = [];
-        
+
         $dataArray = $consumptionData->values()->toArray();
-        
+
         for ($i = $windowSize - 1; $i < count($dataArray); $i++) {
             $window = array_slice($dataArray, $i - $windowSize + 1, $windowSize);
             $average = array_sum(array_column($window, 'consumption')) / $windowSize;
@@ -190,9 +192,9 @@ final readonly class TrendAnalyzer
 
         // Calculate efficiency trend (negative slope = improving efficiency)
         $efficiencyTrend = $this->calculateSlope($rollingAverages);
-        
+
         $efficiencyScore = $this->calculateEfficiencyScore($consumptionData);
-        
+
         return [
             'efficiency_score' => $efficiencyScore,
             'trend' => $this->classifyEfficiencyTrend($efficiencyTrend),
@@ -212,8 +214,8 @@ final readonly class TrendAnalyzer
                 $insights[] = [
                     'type' => 'growth_alert',
                     'severity' => abs($growthRate) > 50 ? 'high' : 'medium',
-                    'message' => "Consumption has " . ($growthRate > 0 ? 'increased' : 'decreased') . 
-                                " by " . abs($growthRate) . "% over the analysis period",
+                    'message' => 'Consumption has '.($growthRate > 0 ? 'increased' : 'decreased').
+                                ' by '.abs($growthRate).'% over the analysis period',
                 ];
             }
         }
@@ -273,6 +275,7 @@ final readonly class TrendAnalyzer
     private function getSeason($date): string
     {
         $month = $date->month ?? date('n', strtotime($date));
+
         return match (true) {
             in_array($month, [12, 1, 2]) => 'winter',
             in_array($month, [3, 4, 5]) => 'spring',
@@ -300,9 +303,9 @@ final readonly class TrendAnalyzer
 
         $consumptions = $seasonData->pluck('consumption')->toArray();
         $mean = array_sum($consumptions) / count($consumptions);
-        
+
         $variance = array_sum(array_map(
-            fn($consumption) => pow($consumption - $mean, 2),
+            fn ($consumption) => pow($consumption - $mean, 2),
             $consumptions
         )) / (count($consumptions) - 1);
 
@@ -327,22 +330,24 @@ final readonly class TrendAnalyzer
     private function calculateSeasonalVariation(array $patterns): float
     {
         $consumptions = array_column($patterns, 'average_consumption');
-        $consumptions = array_filter($consumptions, fn($c) => $c > 0);
-        
+        $consumptions = array_filter($consumptions, fn ($c) => $c > 0);
+
         if (count($consumptions) < 2) {
             return 0;
         }
 
         $max = max($consumptions);
         $min = min($consumptions);
-        
+
         return $max > 0 ? ($max - $min) / $max : 0;
     }
 
     private function calculateSlope(array $values): float
     {
         $n = count($values);
-        if ($n < 2) return 0;
+        if ($n < 2) {
+            return 0;
+        }
 
         $x = range(1, $n);
         $sumX = array_sum($x);
@@ -363,11 +368,11 @@ final readonly class TrendAnalyzer
         // Simple efficiency score based on consumption stability and trend
         $volatility = $this->calculateVolatility($consumptionData);
         $growthRate = $this->calculateGrowthRate($consumptionData);
-        
+
         // Lower volatility and negative growth rate = higher efficiency
         $stabilityScore = max(0, 100 - $volatility);
         $trendScore = $growthRate <= 0 ? 100 : max(0, 100 - abs($growthRate));
-        
+
         return ($stabilityScore + $trendScore) / 2;
     }
 

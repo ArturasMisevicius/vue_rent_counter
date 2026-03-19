@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Models\ServiceConfiguration;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -68,11 +69,11 @@ class ValidateMeterReadingRequest extends FormRequest
         $validator->after(function ($validator) {
             // Additional validation logic if needed
             $serviceConfigId = $this->input('service_configuration_id');
-            
+
             if ($serviceConfigId) {
-                $serviceConfig = \App\Models\ServiceConfiguration::find($serviceConfigId);
-                
-                if ($serviceConfig && !$this->user()->can('view', $serviceConfig)) {
+                $serviceConfig = ServiceConfiguration::find($serviceConfigId);
+
+                if ($serviceConfig && ! $this->user()->can('view', $serviceConfig)) {
                     $validator->errors()->add(
                         'service_configuration_id',
                         __('validation.unauthorized_service_configuration')

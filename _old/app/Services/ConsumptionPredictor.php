@@ -92,7 +92,7 @@ final readonly class ConsumptionPredictor
         $historicalData->each(function ($record, $index) use (&$sumX, &$sumY, &$sumXY, &$sumX2) {
             $x = $index + 1;
             $y = $record->consumption;
-            
+
             $sumX += $x;
             $sumY += $y;
             $sumXY += $x * $y;
@@ -104,6 +104,7 @@ final readonly class ConsumptionPredictor
 
         // Project to future period
         $futurePeriod = $n + 1;
+
         return max(0, $slope * $futurePeriod + $intercept);
     }
 
@@ -125,7 +126,9 @@ final readonly class ConsumptionPredictor
         array $seasonalFactors
     ): float {
         $windowSize = min(3, $historicalData->count());
-        if ($windowSize === 0) return 0;
+        if ($windowSize === 0) {
+            return 0;
+        }
 
         $recentData = $historicalData->take(-$windowSize);
         $average = $recentData->avg('consumption') ?? 0;
@@ -139,7 +142,9 @@ final readonly class ConsumptionPredictor
 
     private function exponentialSmoothingPrediction(Collection $historicalData): float
     {
-        if ($historicalData->isEmpty()) return 0;
+        if ($historicalData->isEmpty()) {
+            return 0;
+        }
 
         $alpha = 0.3; // Smoothing parameter
         $forecast = $historicalData->first()->consumption;
@@ -156,7 +161,7 @@ final readonly class ConsumptionPredictor
         array $predictions
     ): array {
         $dataPoints = $historicalData->count();
-        
+
         // Base weights - adjust based on data availability and method suitability
         $baseWeights = [
             'linear_trend' => $dataPoints >= 6 ? 0.3 : 0.1,
@@ -167,7 +172,8 @@ final readonly class ConsumptionPredictor
 
         // Normalize weights to sum to 1
         $totalWeight = array_sum($baseWeights);
-        return array_map(fn($weight) => $weight / $totalWeight, $baseWeights);
+
+        return array_map(fn ($weight) => $weight / $totalWeight, $baseWeights);
     }
 
     private function combinePredictions(array $predictions, array $weights): float
@@ -176,22 +182,23 @@ final readonly class ConsumptionPredictor
         foreach ($predictions as $method => $prediction) {
             $weightedSum += $prediction * ($weights[$method] ?? 0);
         }
+
         return $weightedSum;
     }
 
     private function applyPropertyAdjustments(float $prediction, array $propertyFactors): float
     {
         $adjustment = 1.0;
-        
+
         // Apply area factor
         $adjustment *= $propertyFactors['area_factor'] ?? 1.0;
-        
+
         // Apply occupancy factor
         $adjustment *= $propertyFactors['occupancy_factor'] ?? 1.0;
-        
+
         // Apply floor factor
         $adjustment *= $propertyFactors['floor_factor'] ?? 1.0;
-        
+
         // Apply room factor
         $adjustment *= $propertyFactors['room_factor'] ?? 1.0;
 
@@ -214,9 +221,9 @@ final readonly class ConsumptionPredictor
         // Calculate prediction variance
         $predictionVariance = $this->calculatePredictionVariance($predictions);
         $historicalVariance = $this->calculateHistoricalVariance($historicalData);
-        
+
         $combinedStdDev = sqrt($predictionVariance + $historicalVariance);
-        
+
         // 95% confidence interval (approximately 2 standard deviations)
         return [
             'lower' => max(0, $prediction - 2 * $combinedStdDev),
@@ -229,7 +236,7 @@ final readonly class ConsumptionPredictor
         array $predictions
     ): float {
         $dataPoints = $historicalData->count();
-        
+
         // Base confidence on data availability
         $baseConfidence = match (true) {
             $dataPoints >= 24 => 0.9,
@@ -290,11 +297,11 @@ final readonly class ConsumptionPredictor
     ): ConsumptionPrediction {
         // Default consumption based on property characteristics
         $baseConsumption = 100; // Default base consumption
-        
+
         // Apply property adjustments
         $areaFactor = $propertyFactors['area_factor'] ?? 1.0;
         $occupancyFactor = $propertyFactors['occupancy_factor'] ?? 1.0;
-        
+
         $estimatedConsumption = $baseConsumption * $areaFactor * $occupancyFactor;
 
         return new ConsumptionPrediction(
@@ -316,6 +323,7 @@ final readonly class ConsumptionPredictor
     private function getSeason(Carbon $date): string
     {
         $month = $date->month;
+
         return match (true) {
             in_array($month, [12, 1, 2]) => 'winter',
             in_array($month, [3, 4, 5]) => 'spring',
@@ -326,11 +334,13 @@ final readonly class ConsumptionPredictor
 
     private function calculatePredictionVariance(array $predictions): float
     {
-        if (count($predictions) < 2) return 0;
+        if (count($predictions) < 2) {
+            return 0;
+        }
 
         $mean = array_sum($predictions) / count($predictions);
         $variance = array_sum(array_map(
-            fn($prediction) => pow($prediction - $mean, 2),
+            fn ($prediction) => pow($prediction - $mean, 2),
             $predictions
         )) / count($predictions);
 
@@ -339,13 +349,15 @@ final readonly class ConsumptionPredictor
 
     private function calculateHistoricalVariance(Collection $historicalData): float
     {
-        if ($historicalData->count() < 2) return 0;
+        if ($historicalData->count() < 2) {
+            return 0;
+        }
 
         $consumptions = $historicalData->pluck('consumption')->toArray();
         $mean = array_sum($consumptions) / count($consumptions);
-        
+
         $variance = array_sum(array_map(
-            fn($consumption) => pow($consumption - $mean, 2),
+            fn ($consumption) => pow($consumption - $mean, 2),
             $consumptions
         )) / (count($consumptions) - 1);
 

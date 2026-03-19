@@ -9,6 +9,11 @@ use App\Filament\Resources\TranslationResource\Pages;
 use App\Models\Language;
 use App\Models\Translation;
 use App\Models\User;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -25,7 +30,7 @@ use Illuminate\Database\Eloquent\Model;
  * - Group and key organization
  * - PHP language file integration
  *
- * @see \App\Models\Translation
+ * @see Translation
  */
 class TranslationResource extends Resource
 {
@@ -181,14 +186,14 @@ class TranslationResource extends Resource
                     ->native(false),
             ])
             ->actions([
-                \Filament\Actions\EditAction::make()
+                EditAction::make()
                     ->iconButton(),
-                \Filament\Actions\DeleteAction::make()
+                DeleteAction::make()
                     ->iconButton(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make()
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->requiresConfirmation()
                         ->modalHeading(__('translations.modals.delete.heading'))
                         ->modalDescription(__('translations.modals.delete.description')),
@@ -197,7 +202,7 @@ class TranslationResource extends Resource
             ->emptyStateHeading(__('translations.empty.heading'))
             ->emptyStateDescription(__('translations.empty.description'))
             ->emptyStateActions([
-                \Filament\Actions\CreateAction::make()
+                CreateAction::make()
                     ->label(__('translations.empty.action')),
             ])
             ->defaultSort('group', 'asc')

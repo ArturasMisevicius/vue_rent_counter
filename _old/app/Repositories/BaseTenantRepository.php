@@ -16,7 +16,9 @@ use Illuminate\Pagination\LengthAwarePaginator;
 abstract class BaseTenantRepository implements TenantAwareRepositoryInterface
 {
     protected Model $model;
+
     protected ?TenantId $tenantContext = null;
+
     protected TenantContextInterface $globalTenantContext;
 
     public function __construct(Model $model, TenantContextInterface $tenantContext)
@@ -106,7 +108,7 @@ abstract class BaseTenantRepository implements TenantAwareRepositoryInterface
         if ($tenantContext && method_exists($this->model, 'getTenantIdColumn')) {
             $data[$this->model->getTenantIdColumn()] = $tenantContext->getValue();
         }
-        
+
         return $this->model->create($data);
     }
 
@@ -118,7 +120,7 @@ abstract class BaseTenantRepository implements TenantAwareRepositoryInterface
         if (method_exists($this->model, 'getTenantIdColumn')) {
             $data[$this->model->getTenantIdColumn()] = $tenantId->getValue();
         }
-        
+
         return $this->model->create($data);
     }
 
@@ -130,9 +132,10 @@ abstract class BaseTenantRepository implements TenantAwareRepositoryInterface
         $model = $this->findById($id);
         if ($model) {
             $model->update($data);
+
             return $model->fresh();
         }
-        
+
         return null;
     }
 
@@ -144,9 +147,10 @@ abstract class BaseTenantRepository implements TenantAwareRepositoryInterface
         $model = $this->findByIdForTenant($id, $tenantId);
         if ($model) {
             $model->update($data);
+
             return $model->fresh();
         }
-        
+
         return null;
     }
 
@@ -156,6 +160,7 @@ abstract class BaseTenantRepository implements TenantAwareRepositoryInterface
     public function delete(int $id): bool
     {
         $model = $this->findById($id);
+
         return $model ? $model->delete() : false;
     }
 
@@ -165,6 +170,7 @@ abstract class BaseTenantRepository implements TenantAwareRepositoryInterface
     public function deleteForTenant(int $id, TenantId $tenantId): bool
     {
         $model = $this->findByIdForTenant($id, $tenantId);
+
         return $model ? $model->delete() : false;
     }
 
@@ -198,12 +204,12 @@ abstract class BaseTenantRepository implements TenantAwareRepositoryInterface
     protected function getQuery(): Builder
     {
         $query = $this->model->newQuery();
-        
+
         $tenantContext = $this->getTenantContext();
         if ($tenantContext && method_exists($this->model, 'scopeForTenant')) {
             $query = $query->forTenant($tenantContext);
         }
-        
+
         return $query;
     }
 
@@ -213,11 +219,11 @@ abstract class BaseTenantRepository implements TenantAwareRepositoryInterface
     protected function getQueryForTenant(TenantId $tenantId): Builder
     {
         $query = $this->model->newQuery();
-        
+
         if (method_exists($this->model, 'scopeForTenant')) {
             $query = $query->forTenant($tenantId);
         }
-        
+
         return $query;
     }
 

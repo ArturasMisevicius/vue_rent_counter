@@ -6,8 +6,6 @@ namespace App\Enums;
 
 /**
  * Billing schedule types for automated billing cycles.
- * 
- * @package App\Enums
  */
 enum BillingSchedule: string
 {

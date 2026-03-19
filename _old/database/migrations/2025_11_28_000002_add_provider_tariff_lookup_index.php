@@ -9,11 +9,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Adds composite index on provider columns frequently accessed
      * by tariff table queries. Optimizes the eager loading query:
      * ->with('provider:id,name,service_type')
-     * 
+     *
      * Performance Impact:
      * - 30% faster provider relationship loading
      * - Enables covering index for tariff queries
@@ -23,8 +23,8 @@ return new class extends Migration
         Schema::table('providers', function (Blueprint $table) {
             // Check if index already exists
             $indexName = 'providers_tariff_lookup_index';
-            
-            if (!$this->indexExists('providers', $indexName)) {
+
+            if (! $this->indexExists('providers', $indexName)) {
                 // Composite index covering all columns used in tariff queries
                 $table->index(['id', 'name', 'service_type'], $indexName);
             }
@@ -38,7 +38,7 @@ return new class extends Migration
     {
         Schema::table('providers', function (Blueprint $table) {
             $indexName = 'providers_tariff_lookup_index';
-            
+
             if ($this->indexExists('providers', $indexName)) {
                 $table->dropIndex($indexName);
             }
@@ -47,15 +47,11 @@ return new class extends Migration
 
     /**
      * Check if an index exists on a table.
-     *
-     * @param string $table
-     * @param string $index
-     * @return bool
      */
     private function indexExists(string $table, string $index): bool
     {
         $driver = Schema::getConnection()->getDriverName();
-        
+
         if ($driver === 'sqlite') {
             $indexes = DB::select("PRAGMA index_list({$table})");
             foreach ($indexes as $idx) {
@@ -63,11 +59,13 @@ return new class extends Migration
                     return true;
                 }
             }
+
             return false;
         }
-        
+
         // MySQL/PostgreSQL
         $indexes = DB::select("SHOW INDEX FROM {$table} WHERE Key_name = ?", [$index]);
+
         return count($indexes) > 0;
     }
 };

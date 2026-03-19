@@ -10,15 +10,15 @@ use App\Models\User;
 use App\ValueObjects\ActivityReport;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
-use Filament\Infolists\Components\TextEntry;
+use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ViewEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Support\Colors\Color;
 
 final class ViewSystemUser extends ViewRecord
 {
@@ -34,14 +34,14 @@ final class ViewSystemUser extends ViewRecord
                             TextEntry::make('name')
                                 ->label(__('superadmin.users.fields.name'))
                                 ->icon('heroicon-o-user'),
-                            
+
                             TextEntry::make('email')
                                 ->label(__('superadmin.users.fields.email'))
                                 ->icon('heroicon-o-envelope')
                                 ->copyable()
                                 ->copyMessage(__('superadmin.users.messages.email_copied')),
                         ]),
-                        
+
                         Grid::make(3)->schema([
                             IconEntry::make('is_active')
                                 ->label(__('superadmin.users.fields.status'))
@@ -50,7 +50,7 @@ final class ViewSystemUser extends ViewRecord
                                 ->falseIcon('heroicon-o-x-circle')
                                 ->trueColor('success')
                                 ->falseColor('danger'),
-                            
+
                             IconEntry::make('email_verified_at')
                                 ->label(__('superadmin.users.fields.email_verified'))
                                 ->boolean()
@@ -59,7 +59,7 @@ final class ViewSystemUser extends ViewRecord
                                 ->falseIcon('heroicon-o-shield-exclamation')
                                 ->trueColor('success')
                                 ->falseColor('warning'),
-                            
+
                             IconEntry::make('two_factor_enabled')
                                 ->label(__('superadmin.users.fields.two_factor'))
                                 ->boolean()
@@ -78,16 +78,16 @@ final class ViewSystemUser extends ViewRecord
                             TextEntry::make('organization.name')
                                 ->label(__('superadmin.users.fields.organization'))
                                 ->icon('heroicon-o-building-office')
-                                ->url(fn ($record) => $record->organization ? 
+                                ->url(fn ($record) => $record->organization ?
                                     route('filament.superadmin.resources.tenants.view', $record->organization) : null)
                                 ->color('primary'),
-                            
+
                             TextEntry::make('organization.status')
                                 ->label(__('superadmin.users.fields.tenant_status'))
                                 ->badge()
                                 ->color(fn ($state) => $state?->getColor()),
                         ]),
-                        
+
                         TextEntry::make('roles')
                             ->label(__('superadmin.users.fields.roles'))
                             ->badge()
@@ -105,13 +105,13 @@ final class ViewSystemUser extends ViewRecord
                                 ->dateTime()
                                 ->since()
                                 ->icon('heroicon-o-clock'),
-                            
+
                             TextEntry::make('created_at')
                                 ->label(__('superadmin.users.fields.created_at'))
                                 ->dateTime()
                                 ->since()
                                 ->icon('heroicon-o-calendar'),
-                            
+
                             TextEntry::make('updated_at')
                                 ->label(__('superadmin.users.fields.updated_at'))
                                 ->dateTime()
@@ -129,7 +129,7 @@ final class ViewSystemUser extends ViewRecord
                                 ->dateTime()
                                 ->icon('heroicon-o-no-symbol')
                                 ->color('danger'),
-                            
+
                             TextEntry::make('suspension_reason')
                                 ->label(__('superadmin.users.fields.suspension_reason'))
                                 ->icon('heroicon-o-exclamation-triangle')
@@ -172,7 +172,7 @@ final class ViewSystemUser extends ViewRecord
                     try {
                         $userService = app(SuperAdminUserInterface::class);
                         $session = $userService->impersonateUser($record);
-                        
+
                         Notification::make()
                             ->title(__('superadmin.users.notifications.impersonation_started'))
                             ->body(__('superadmin.users.notifications.impersonation_started_body', [
@@ -183,7 +183,7 @@ final class ViewSystemUser extends ViewRecord
 
                         // Redirect to the main application
                         return redirect()->to('/app');
-                        
+
                     } catch (\Exception $e) {
                         Notification::make()
                             ->title(__('superadmin.users.notifications.impersonation_failed'))
@@ -197,9 +197,9 @@ final class ViewSystemUser extends ViewRecord
                 ->label(__('superadmin.users.actions.suspend'))
                 ->icon('heroicon-o-no-symbol')
                 ->color('danger')
-                ->visible(fn ($record) => $record->is_active && !$record->hasRole('super_admin'))
+                ->visible(fn ($record) => $record->is_active && ! $record->hasRole('super_admin'))
                 ->form([
-                    \Filament\Forms\Components\Textarea::make('reason')
+                    Textarea::make('reason')
                         ->label(__('superadmin.users.fields.suspension_reason'))
                         ->required()
                         ->maxLength(500),
@@ -212,7 +212,7 @@ final class ViewSystemUser extends ViewRecord
                     try {
                         $userService = app(SuperAdminUserInterface::class);
                         $userService->suspendUserGlobally($record, $data['reason']);
-                        
+
                         Notification::make()
                             ->title(__('superadmin.users.notifications.user_suspended'))
                             ->body(__('superadmin.users.notifications.user_suspended_body', [
@@ -226,7 +226,7 @@ final class ViewSystemUser extends ViewRecord
                             'suspended_at',
                             'suspension_reason',
                         ]);
-                        
+
                     } catch (\Exception $e) {
                         Notification::make()
                             ->title(__('superadmin.users.notifications.suspension_failed'))
@@ -240,7 +240,7 @@ final class ViewSystemUser extends ViewRecord
                 ->label(__('superadmin.users.actions.reactivate'))
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
-                ->visible(fn ($record) => !$record->is_active)
+                ->visible(fn ($record) => ! $record->is_active)
                 ->requiresConfirmation()
                 ->modalHeading(__('superadmin.users.modals.reactivate.heading'))
                 ->modalDescription(__('superadmin.users.modals.reactivate.description'))
@@ -249,7 +249,7 @@ final class ViewSystemUser extends ViewRecord
                     try {
                         $userService = app(SuperAdminUserInterface::class);
                         $userService->reactivateUserGlobally($record);
-                        
+
                         Notification::make()
                             ->title(__('superadmin.users.notifications.user_reactivated'))
                             ->body(__('superadmin.users.notifications.user_reactivated_body', [
@@ -263,7 +263,7 @@ final class ViewSystemUser extends ViewRecord
                             'suspended_at',
                             'suspension_reason',
                         ]);
-                        
+
                     } catch (\Exception $e) {
                         Notification::make()
                             ->title(__('superadmin.users.notifications.reactivation_failed'))
@@ -277,14 +277,14 @@ final class ViewSystemUser extends ViewRecord
                 ->label(__('superadmin.users.actions.view_activity'))
                 ->icon('heroicon-o-document-text')
                 ->color('info')
-                ->url(fn ($record) => static::$resource::getUrl('activity', ['record' => $record])),
+                ->url(fn ($record) => self::$resource::getUrl('activity', ['record' => $record])),
         ];
     }
 
     private function canImpersonateUser(User $user): bool
     {
         // Cannot impersonate super admins or inactive users
-        if ($user->hasRole('super_admin') || !$user->is_active) {
+        if ($user->hasRole('super_admin') || ! $user->is_active) {
             return false;
         }
 
@@ -295,6 +295,7 @@ final class ViewSystemUser extends ViewRecord
     private function getUserActivityReport(User $user): ActivityReport
     {
         $userService = app(SuperAdminUserInterface::class);
+
         return $userService->getUserActivityAcrossTenants($user);
     }
 }

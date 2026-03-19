@@ -37,7 +37,7 @@ final class BusinessRuleValidator implements ValidatorInterface
 
         if (is_array($constraints)) {
             foreach ($constraints as $constraint) {
-                if (!is_array($constraint)) {
+                if (! is_array($constraint)) {
                     continue;
                 }
 
@@ -45,7 +45,7 @@ final class BusinessRuleValidator implements ValidatorInterface
                 $operator = $constraint['operator'] ?? null;
                 $expectedValue = $constraint['value'] ?? null;
 
-                if (!is_string($field) || $field === '' || !is_string($operator) || $operator === '') {
+                if (! is_string($field) || $field === '' || ! is_string($operator) || $operator === '') {
                     continue;
                 }
 
@@ -53,7 +53,7 @@ final class BusinessRuleValidator implements ValidatorInterface
 
                 // Business rule constraints act as triggers:
                 // when the condition matches, add the configured warning/error.
-                if (!$this->matchesConstraint($actualValue, $operator, $expectedValue)) {
+                if (! $this->matchesConstraint($actualValue, $operator, $expectedValue)) {
                     continue;
                 }
 
@@ -71,7 +71,7 @@ final class BusinessRuleValidator implements ValidatorInterface
                 }
             }
         }
-        
+
         // Basic business rule validation (fallback)
         $consumption = $context->getConsumption();
         if ($consumption && $consumption > 1000) {
@@ -105,7 +105,7 @@ final class BusinessRuleValidator implements ValidatorInterface
             '=', '==' => $actual == $expected,
             '!=', '<>' => $actual != $expected,
             'in' => is_array($expected) && in_array($actual, $expected, true),
-            'not_in' => is_array($expected) && !in_array($actual, $expected, true),
+            'not_in' => is_array($expected) && ! in_array($actual, $expected, true),
             default => false,
         };
     }

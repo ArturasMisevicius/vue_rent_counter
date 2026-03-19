@@ -4,22 +4,21 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\InvoiceResource\Pages;
 
-use App\Filament\Resources\InvoiceResource;
-use App\Services\InvoiceService;
-use App\Services\InvoicePdfService;
-use App\Notifications\InvoiceReadyNotification;
+use App\Enums\UserRole;
 use App\Exceptions\InvoiceAlreadyFinalizedException;
+use App\Filament\Resources\InvoiceResource;
+use App\Notifications\InvoiceReadyNotification;
+use App\Services\InvoicePdfService;
+use App\Services\InvoiceService;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
-use Filament\Actions\ActionGroup;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
-use App\Enums\UserRole;
 
 /**
  * View page for Invoice resource in Filament admin panel.
@@ -62,6 +61,7 @@ use App\Enums\UserRole;
 final class ViewInvoice extends ViewRecord
 {
     protected static string $resource = InvoiceResource::class;
+
     public string $html = '';
 
     public function mount(int|string $record): void
@@ -76,7 +76,7 @@ final class ViewInvoice extends ViewRecord
 
     protected function resolveRecord($key): Model
     {
-        return static::getResource()::getModel()::withoutGlobalScopes()->findOrFail($key);
+        return self::getResource()::getModel()::withoutGlobalScopes()->findOrFail($key);
     }
 
     protected function authorizeAccess(): void
@@ -87,8 +87,8 @@ final class ViewInvoice extends ViewRecord
             return;
         }
 
-        if (! static::getResource()::canView($this->getRecord())) {
-            throw new AuthorizationException();
+        if (! self::getResource()::canView($this->getRecord())) {
+            throw new AuthorizationException;
         }
     }
 
@@ -121,12 +121,13 @@ final class ViewInvoice extends ViewRecord
                 ->modalSubmitActionLabel('Send Email')
                 ->action(function ($record) {
                     // Check if tenant renter exists
-                    if (!$record->tenantRenter) {
+                    if (! $record->tenantRenter) {
                         Notification::make()
                             ->title('Cannot Send Invoice')
                             ->body('No tenant user assigned to this invoice.')
                             ->danger()
                             ->send();
+
                         return;
                     }
 
@@ -229,7 +230,7 @@ final class ViewInvoice extends ViewRecord
                         'invoice_id' => $record->id,
                     ]);
 
-                    throw new \Illuminate\Auth\Access\AuthorizationException();
+                    throw new AuthorizationException;
                 }
 
                 if (
@@ -246,7 +247,7 @@ final class ViewInvoice extends ViewRecord
                         'invoice_tenant_id' => $record->tenant_id,
                     ]);
 
-                    throw new \Illuminate\Auth\Access\AuthorizationException();
+                    throw new AuthorizationException;
                 }
 
                 $canFinalize = $user?->can('finalize', $record);
@@ -257,7 +258,7 @@ final class ViewInvoice extends ViewRecord
                         'invoice_id' => $record->id,
                     ]);
 
-                    throw new \Illuminate\Auth\Access\AuthorizationException();
+                    throw new AuthorizationException;
                 }
 
                 Log::info('Finalize authorization precheck', [
@@ -321,7 +322,7 @@ final class ViewInvoice extends ViewRecord
                         'status',
                         'finalized_at',
                     ]);
-                } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
+                } catch (AuthorizationException $e) {
                     Log::warning('Invoice finalization authorization denied', [
                         'user_id' => $user->id,
                         'invoice_id' => $record->id,

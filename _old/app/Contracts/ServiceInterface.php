@@ -21,7 +21,7 @@ interface ServiceInterface
      *
      * Implementations may throw \InvalidArgumentException on invalid input.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function validateInput(array $data): bool;
 
@@ -30,4 +30,3 @@ interface ServiceInterface
      */
     public function isAvailable(): bool;
 }
-

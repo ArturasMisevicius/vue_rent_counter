@@ -17,7 +17,7 @@ return new class extends Migration
                 $table->boolean('is_resolved')->default(false)->after('mentions');
                 $table->foreignId('resolved_by')->nullable()->constrained('users')->after('is_resolved');
                 $table->timestamp('resolved_at')->nullable()->after('resolved_by');
-                
+
                 $table->index(['commentable_type', 'commentable_id', 'is_resolved']);
                 $table->index(['path']);
                 $table->index(['parent_id', 'sort_order']);
@@ -33,7 +33,7 @@ return new class extends Migration
                 $table->dropIndex(['commentable_type', 'commentable_id', 'is_resolved']);
                 $table->dropIndex(['path']);
                 $table->dropIndex(['parent_id', 'sort_order']);
-                
+
                 $table->dropColumn([
                     'depth',
                     'path',
@@ -41,7 +41,7 @@ return new class extends Migration
                     'mentions',
                     'is_resolved',
                     'resolved_by',
-                    'resolved_at'
+                    'resolved_at',
                 ]);
             });
         }

@@ -20,11 +20,11 @@ class CreateProperty extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $user = auth()->user();
-        
+
         if ($user instanceof User && $user->tenant_id) {
             $data['tenant_id'] = $user->tenant_id;
         }
-        
+
         return $data;
     }
 
@@ -47,4 +47,3 @@ class CreateProperty extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 }
-

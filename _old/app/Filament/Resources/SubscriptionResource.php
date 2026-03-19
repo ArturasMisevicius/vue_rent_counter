@@ -11,6 +11,9 @@ use App\Models\User;
 use App\Notifications\SubscriptionExpiryWarningEmail;
 use BackedEnum;
 use Filament\Actions;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -260,8 +263,8 @@ class SubscriptionResource extends Resource
                     ->label(__('subscriptions.filters.expired')),
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
+                ViewAction::make(),
+                EditAction::make(),
 
                 Actions\Action::make('renew')
                     ->label(__('subscriptions.actions.renew'))
@@ -334,7 +337,7 @@ class SubscriptionResource extends Resource
                     ->visible(fn (Subscription $record) => $record->status === SubscriptionStatus::ACTIVE && $record->daysUntilExpiry() <= 30),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
+                BulkActionGroup::make([
                     Actions\BulkAction::make('bulk_renew')
                         ->label(__('subscriptions.actions.renew_selected'))
                         ->icon('heroicon-o-arrow-path')

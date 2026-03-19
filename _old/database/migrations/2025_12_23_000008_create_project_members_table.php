@@ -15,21 +15,21 @@ return new class extends Migration
             $table->foreignId('project_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('added_by')->constrained('users')->cascadeOnDelete();
-            
+
             $table->enum('role', ['manager', 'member', 'observer', 'contractor'])->default('member');
             $table->enum('status', ['active', 'inactive', 'removed'])->default('active');
-            
+
             $table->json('permissions')->nullable(); // Project-specific permissions
             $table->decimal('hourly_rate', 8, 2)->nullable(); // For contractors
-            
+
             $table->datetime('joined_at');
             $table->datetime('left_at')->nullable();
-            
+
             $table->timestamps();
-            
+
             // Unique constraint - user can only have one role per project
             $table->unique(['project_id', 'user_id'], 'project_user_unique');
-            
+
             // Performance indexes
             $table->index(['user_id', 'status'], 'project_members_user_idx');
             $table->index(['project_id', 'role'], 'project_members_role_idx');

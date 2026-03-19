@@ -12,13 +12,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Exception thrown when service configuration validation fails.
- * 
+ *
  * This exception is thrown when:
  * - Service configurations conflict with existing meter assignments
  * - Configuration validation fails against utility service schema
  * - Pricing model requirements are not met
  * - Distribution method requirements are not satisfied
- * 
+ *
  * Requirements: 3.1, 3.2, 3.3, 11.1, 11.2, 11.3
  */
 final class ServiceConfigurationException extends Exception
@@ -88,11 +88,11 @@ final class ServiceConfigurationException extends Exception
                 "Property #{$propertyIdOrMessage} already has an active service configuration for the date range: {$dateRange}"
             );
         }
-        
-        $message = is_string($propertyIdOrMessage) 
-            ? $propertyIdOrMessage 
+
+        $message = is_string($propertyIdOrMessage)
+            ? $propertyIdOrMessage
             : 'Service configuration overlaps with existing configuration';
-            
+
         return new self($message);
     }
 
@@ -111,15 +111,15 @@ final class ServiceConfigurationException extends Exception
      */
     public static function validationErrors(array $errors): self
     {
-        $message = "Service configuration validation failed:\n" . implode("\n", $errors);
+        $message = "Service configuration validation failed:\n".implode("\n", $errors);
+
         return new self($message);
     }
 
     /**
      * Render the exception as an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     * @return JsonResponse|\Illuminate\Http\Response
      */
     public function render(Request $request): JsonResponse|Response
     {
@@ -138,8 +138,6 @@ final class ServiceConfigurationException extends Exception
 
     /**
      * Report the exception.
-     *
-     * @return bool
      */
     public function report(): bool
     {

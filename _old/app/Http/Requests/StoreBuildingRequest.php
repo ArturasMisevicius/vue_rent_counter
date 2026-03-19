@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreBuildingRequest extends FormRequest
 {
@@ -17,84 +19,84 @@ class StoreBuildingRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
             'tenant_id' => [
-                'required', 
+                'required',
                 'integer',
-                'exists:organizations,id'
+                'exists:organizations,id',
             ],
             'name' => [
-                'required', 
-                'string', 
+                'required',
+                'string',
                 'max:255',
                 'regex:/^[a-zA-Z0-9\s\-_\.#]+$/', // Allow alphanumeric, spaces, hyphens, underscores, dots, hash
-                \Illuminate\Validation\Rule::unique('buildings')->where('tenant_id', $this->input('tenant_id'))
+                Rule::unique('buildings')->where('tenant_id', $this->input('tenant_id')),
             ],
             'address' => [
-                'required', 
-                'string', 
+                'required',
+                'string',
                 'max:500', // Increased for full addresses
-                'regex:/^[a-zA-Z0-9\s\-_\.,#\/]+$/' // Allow common address characters
+                'regex:/^[a-zA-Z0-9\s\-_\.,#\/]+$/', // Allow common address characters
             ],
             'city' => [
                 'nullable',
                 'string',
                 'max:100',
-                'regex:/^[a-zA-ZąčęėįšųūžĄČĘĖĮŠŲŪŽ\s\-]+$/' // Allow Lithuanian characters
+                'regex:/^[a-zA-ZąčęėįšųūžĄČĘĖĮŠŲŪŽ\s\-]+$/', // Allow Lithuanian characters
             ],
             'postal_code' => [
                 'nullable',
                 'string',
                 'max:10',
-                'regex:/^[A-Z0-9\s\-]+$/i'
+                'regex:/^[A-Z0-9\s\-]+$/i',
             ],
             'country' => [
                 'nullable',
                 'string',
                 'size:2',
-                'uppercase'
+                'uppercase',
             ],
             'total_apartments' => [
-                'required', 
-                'integer', 
-                'min:1', 
-                'max:1000'
+                'required',
+                'integer',
+                'min:1',
+                'max:1000',
             ],
             'floors' => [
                 'nullable',
                 'integer',
                 'min:1',
-                'max:100'
+                'max:100',
             ],
             'built_year' => [
                 'nullable',
                 'integer',
                 'min:1800',
-                'max:' . (date('Y') + 5)
+                'max:'.(date('Y') + 5),
             ],
             'heating_type' => [
                 'nullable',
                 'string',
-                'in:central,individual,electric,gas,other'
+                'in:central,individual,electric,gas,other',
             ],
             'elevator' => [
                 'nullable',
-                'boolean'
+                'boolean',
             ],
             'parking_spaces' => [
                 'nullable',
                 'integer',
                 'min:0',
-                'max:500'
+                'max:500',
             ],
             'notes' => [
                 'nullable',
                 'string',
-                'max:2000'
+                'max:2000',
             ],
         ];
     }
@@ -183,7 +185,7 @@ class StoreBuildingRequest extends FormRequest
             $avgApartmentsPerFloor = $this->total_apartments / $this->floors;
             if ($avgApartmentsPerFloor > 20) {
                 $this->validator->errors()->add(
-                    'total_apartments', 
+                    'total_apartments',
                     __('buildings.validation.apartments_per_floor_excessive')
                 );
             }

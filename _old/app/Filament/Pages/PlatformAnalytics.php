@@ -841,6 +841,7 @@ class PlatformAnalytics extends Page
         if ($label === $key) {
             return ucfirst($role);
         }
+
         return $label;
     }
 }

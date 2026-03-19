@@ -19,4 +19,3 @@ class ListServiceConfigurations extends ListRecords
         ];
     }
 }
-

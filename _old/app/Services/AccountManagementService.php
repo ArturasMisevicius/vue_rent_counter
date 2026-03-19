@@ -54,7 +54,7 @@ class AccountManagementService
 
         return DB::transaction(function () use ($data, $superadmin, $hashedPassword, $subscriptionData) {
             $slugBase = Str::slug($data['organization_name']);
-            $slug = ($slugBase !== '' ? $slugBase : 'organization') . '-' . Str::lower(Str::random(8));
+            $slug = ($slugBase !== '' ? $slugBase : 'organization').'-'.Str::lower(Str::random(8));
 
             $organization = Organization::create([
                 'name' => $data['organization_name'],
@@ -71,7 +71,7 @@ class AccountManagementService
             // Create admin user (tenant_id == organization id)
             // Note: role and tenant_id are protected from mass assignment for security,
             // so we use forceFill() to set them in this trusted service context
-            $admin = new User();
+            $admin = new User;
             $admin->forceFill([
                 'name' => $data['name'],
                 'email' => $data['email'],
@@ -146,7 +146,7 @@ class AccountManagementService
             // Create tenant user inheriting admin's tenant_id
             // Note: role, tenant_id, property_id, parent_user_id are protected from mass assignment
             // for security, so we use forceFill() to set them in this trusted service context
-            $tenant = new User();
+            $tenant = new User;
             $tenant->forceFill([
                 'name' => $data['name'],
                 'email' => $data['email'],

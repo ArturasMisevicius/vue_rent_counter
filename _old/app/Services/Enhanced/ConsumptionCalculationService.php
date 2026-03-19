@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace App\Services\Enhanced;
 
-use App\Models\Property;
+use App\Models\Meter;
 use App\Models\MeterReading;
-use App\Services\ServiceResponse;
+use App\Models\Property;
+use App\Models\ServiceConfiguration;
 use App\Services\MeterReadingService;
+use App\Services\ServiceResponse;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 /**
  * Consumption Calculation Service
- * 
+ *
  * Specialized service for calculating utility consumption with:
  * - Multi-meter property support
  * - Zone-based calculations
  * - Seasonal adjustments
  * - Estimation handling
  * - Historical pattern analysis
- * 
- * @package App\Services\Enhanced
  */
 class ConsumptionCalculationService extends BaseService
 {
@@ -34,9 +34,6 @@ class ConsumptionCalculationService extends BaseService
     /**
      * Calculate consumption for all services in a property for a billing period.
      *
-     * @param Property $property
-     * @param Carbon $periodStart
-     * @param Carbon $periodEnd
      * @return ServiceResponse<array>
      */
     public function calculatePropertyConsumption(
@@ -95,20 +92,17 @@ class ConsumptionCalculationService extends BaseService
                 'property_id' => $property->id,
             ]);
 
-            return $this->error('Failed to calculate property consumption: ' . $e->getMessage());
+            return $this->error('Failed to calculate property consumption: '.$e->getMessage());
         }
     }
 
     /**
      * Calculate consumption for a single meter.
      *
-     * @param \App\Models\Meter $meter
-     * @param Carbon $periodStart
-     * @param Carbon $periodEnd
      * @return ServiceResponse<array>
      */
     public function calculateMeterConsumption(
-        \App\Models\Meter $meter,
+        Meter $meter,
         Carbon $periodStart,
         Carbon $periodEnd
     ): ServiceResponse {
@@ -153,18 +147,16 @@ class ConsumptionCalculationService extends BaseService
                 'meter_id' => $meter->id,
             ]);
 
-            return $this->error('Failed to calculate meter consumption: ' . $e->getMessage());
+            return $this->error('Failed to calculate meter consumption: '.$e->getMessage());
         }
     }
 
     /**
      * Get consumption history for analysis and reporting.
      *
-     * @param \App\Models\Meter $meter
-     * @param int $months
      * @return ServiceResponse<Collection>
      */
-    public function getConsumptionHistory(\App\Models\Meter $meter, int $months = 12): ServiceResponse
+    public function getConsumptionHistory(Meter $meter, int $months = 12): ServiceResponse
     {
         try {
             $this->authorize('view', $meter);
@@ -202,7 +194,7 @@ class ConsumptionCalculationService extends BaseService
                 'meter_id' => $meter->id,
             ]);
 
-            return $this->error('Failed to retrieve consumption history: ' . $e->getMessage());
+            return $this->error('Failed to retrieve consumption history: '.$e->getMessage());
         }
     }
 
@@ -210,7 +202,7 @@ class ConsumptionCalculationService extends BaseService
      * Get meter readings for a specific period.
      */
     private function getMeterReadingsForPeriod(
-        \App\Models\Meter $meter,
+        Meter $meter,
         Carbon $periodStart,
         Carbon $periodEnd
     ): Collection {
@@ -315,6 +307,7 @@ class ConsumptionCalculationService extends BaseService
                     $consumption += max(0, $value - $previous->reading_values[$key]);
                 }
             }
+
             return $consumption;
         }
 
@@ -326,11 +319,11 @@ class ConsumptionCalculationService extends BaseService
      */
     private function applySeasonalAdjustments(
         float $consumption,
-        ?\App\Models\ServiceConfiguration $serviceConfig,
+        ?ServiceConfiguration $serviceConfig,
         Carbon $periodStart,
         Carbon $periodEnd
     ): float {
-        if (!$serviceConfig || !$serviceConfig->seasonal_adjustments) {
+        if (! $serviceConfig || ! $serviceConfig->seasonal_adjustments) {
             return $consumption;
         }
 
@@ -339,6 +332,7 @@ class ConsumptionCalculationService extends BaseService
 
         if (isset($adjustments[$season]['multiplier'])) {
             $multiplier = (float) $adjustments[$season]['multiplier'];
+
             return $consumption * $multiplier;
         }
 
@@ -366,7 +360,7 @@ class ConsumptionCalculationService extends BaseService
      * Validate consumption against historical patterns.
      */
     private function validateConsumptionPattern(
-        \App\Models\Meter $meter,
+        Meter $meter,
         float $consumption,
         Carbon $periodStart
     ): array {
@@ -425,7 +419,7 @@ class ConsumptionCalculationService extends BaseService
         foreach ($consumptionData as $data) {
             $serviceId = $data['service_configuration']->id;
 
-            if (!isset($grouped[$serviceId])) {
+            if (! isset($grouped[$serviceId])) {
                 $grouped[$serviceId] = [
                     'service_configuration' => $data['service_configuration'],
                     'consumption' => 0,

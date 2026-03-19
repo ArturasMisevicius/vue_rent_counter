@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('invoice_id')->constrained()->onDelete('cascade');
             $table->foreignId('billing_record_id')->constrained()->onDelete('cascade');
             $table->timestamps();
-            
+
             $table->unique(['invoice_id', 'billing_record_id']);
             $table->index('invoice_id');
             $table->index('billing_record_id');

@@ -15,10 +15,10 @@ return new class extends Migration
         Schema::table('tariffs', function (Blueprint $table) {
             // Index for date range queries (active tariff lookups)
             $table->index(['active_from', 'active_until'], 'tariffs_active_dates_index');
-            
+
             // Composite index for provider + active date queries
             $table->index(['provider_id', 'active_from'], 'tariffs_provider_active_index');
-            
+
             // Index for configuration type filtering (JSON column)
             // Note: This creates a virtual column index for better JSON query performance
             if (DB::getDriverName() === 'mysql') {
@@ -35,7 +35,7 @@ return new class extends Migration
         Schema::table('tariffs', function (Blueprint $table) {
             $table->dropIndex('tariffs_active_dates_index');
             $table->dropIndex('tariffs_provider_active_index');
-            
+
             if (DB::getDriverName() === 'mysql') {
                 DB::statement('ALTER TABLE tariffs DROP INDEX tariffs_config_type_index');
             }

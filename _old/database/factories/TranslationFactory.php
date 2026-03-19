@@ -8,7 +8,7 @@ use App\Models\Translation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Translation>
+ * @extends Factory<Translation>
  */
 class TranslationFactory extends Factory
 {
@@ -23,7 +23,7 @@ class TranslationFactory extends Factory
     {
         return [
             'group' => $this->faker->randomElement(['app', 'common', 'auth', 'validation', 'messages']),
-            'key' => $this->faker->word() . '_' . $this->faker->unique()->numberBetween(1, 999999),
+            'key' => $this->faker->word().'_'.$this->faker->unique()->numberBetween(1, 999999),
             'values' => [
                 'en' => $this->faker->sentence(),
                 'lt' => $this->faker->sentence(),

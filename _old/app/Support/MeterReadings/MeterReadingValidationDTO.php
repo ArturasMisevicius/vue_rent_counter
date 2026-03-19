@@ -4,18 +4,13 @@ declare(strict_types=1);
 
 namespace App\Support\MeterReadings;
 
-use App\Enums\InputMethod;
-use App\Enums\ValidationStatus;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 /**
  * Meter Reading Validation DTO
- * 
+ *
  * Data transfer object for meter reading validation operations.
  * Encapsulates validation parameters and options.
- * 
- * @package App\Support\MeterReadings
  */
 final readonly class MeterReadingValidationDTO
 {
@@ -31,9 +26,6 @@ final readonly class MeterReadingValidationDTO
 
     /**
      * Create DTO from HTTP request.
-     *
-     * @param Request $request
-     * @return self
      */
     public static function fromRequest(Request $request): self
     {
@@ -48,9 +40,6 @@ final readonly class MeterReadingValidationDTO
 
     /**
      * Create DTO from array.
-     *
-     * @param array $data
-     * @return self
      */
     public static function fromArray(array $data): self
     {
@@ -65,8 +54,6 @@ final readonly class MeterReadingValidationDTO
 
     /**
      * Convert to array.
-     *
-     * @return array
      */
     public function toArray(): array
     {
@@ -90,7 +77,7 @@ final readonly class MeterReadingValidationDTO
             throw new \InvalidArgumentException('Reading ID must be a positive integer');
         }
 
-        if ($this->validationOptions && !is_array($this->validationOptions)) {
+        if ($this->validationOptions && ! is_array($this->validationOptions)) {
             throw new \InvalidArgumentException('Validation options must be an array');
         }
 

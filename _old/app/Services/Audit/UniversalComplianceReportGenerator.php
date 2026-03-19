@@ -5,19 +5,16 @@ declare(strict_types=1);
 namespace App\Services\Audit;
 
 use App\Models\AuditLog;
-use App\Models\ServiceConfiguration;
 use App\Models\UtilityService;
 use App\ValueObjects\Audit\ComplianceReport;
 use App\ValueObjects\Audit\RegulatoryRequirement;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Universal Compliance Report Generator
- * 
+ *
  * Generates comprehensive compliance reports for multiple utility types
  * using existing report infrastructure and regulatory frameworks.
  */
@@ -39,11 +36,11 @@ final readonly class UniversalComplianceReportGenerator
         string $reportFormat = 'detailed',
     ): ComplianceReport {
         $cacheKey = $this->buildCacheKey($tenantId, $utilityTypes, $startDate, $endDate, $reportFormat);
-        
+
         return Cache::remember($cacheKey, 1800, function () use ($tenantId, $utilityTypes, $startDate, $endDate, $reportFormat) {
             $startDate ??= now()->subDays(30);
             $endDate ??= now();
-            
+
             Log::info('Generating compliance report', [
                 'tenant_id' => $tenantId,
                 'utility_types' => $utilityTypes,
@@ -118,12 +115,12 @@ final readonly class UniversalComplianceReportGenerator
         array $regulationIds = [],
     ): array {
         $validationResults = [];
-        
+
         foreach ($regulationIds as $regulationId) {
             $requirement = $this->getRegulatoryRequirement($regulationId);
             $validationResults[$regulationId] = $this->validateRequirement($tenantId, $requirement);
         }
-        
+
         return $validationResults;
     }
 
@@ -137,7 +134,7 @@ final readonly class UniversalComplianceReportGenerator
         Carbon $endDate,
     ): array {
         $auditReport = $this->auditReporter->generateReport($tenantId, $startDate, $endDate, $utilityTypes);
-        
+
         return [
             'overall_compliance_score' => $auditReport->complianceStatus->overallScore,
             'compliance_grade' => $this->calculateComplianceGrade($auditReport->complianceStatus->overallScore),
@@ -183,7 +180,7 @@ final readonly class UniversalComplianceReportGenerator
     ): array {
         $oldestAuditRecord = AuditLog::where('tenant_id', $tenantId)->oldest()->first();
         $retentionDays = $oldestAuditRecord ? now()->diffInDays($oldestAuditRecord->created_at) : 0;
-        
+
         // Different retention requirements for different data types
         $requirements = [
             'audit_logs' => 2555, // 7 years
@@ -191,7 +188,7 @@ final readonly class UniversalComplianceReportGenerator
             'utility_data' => 1825, // 5 years
             'personal_data' => 1095, // 3 years (unless longer required)
         ];
-        
+
         $compliance = [];
         foreach ($requirements as $dataType => $requiredDays) {
             $compliance[$dataType] = [
@@ -201,7 +198,7 @@ final readonly class UniversalComplianceReportGenerator
                 'compliance_percentage' => min(100, ($retentionDays / $requiredDays) * 100),
             ];
         }
-        
+
         return [
             'overall_score' => array_sum(array_column($compliance, 'compliance_percentage')) / count($compliance),
             'data_types' => $compliance,
@@ -221,9 +218,9 @@ final readonly class UniversalComplianceReportGenerator
     ): array {
         $totalOperations = $this->countTotalOperations($tenantId, $startDate, $endDate);
         $auditedOperations = $this->countAuditedOperations($tenantId, $startDate, $endDate);
-        
+
         $completeness = $totalOperations > 0 ? ($auditedOperations / $totalOperations) * 100 : 100;
-        
+
         return [
             'overall_score' => round($completeness, 2),
             'total_operations' => $totalOperations,
@@ -286,10 +283,10 @@ final readonly class UniversalComplianceReportGenerator
         Carbon $endDate,
     ): array {
         $gaps = [];
-        
+
         // Check for missing audit trails
         $auditGaps = $this->identifyCriticalAuditGaps($tenantId, $startDate, $endDate);
-        if (!empty($auditGaps)) {
+        if (! empty($auditGaps)) {
             $gaps[] = [
                 'category' => 'audit_trail',
                 'severity' => 'high',
@@ -298,10 +295,10 @@ final readonly class UniversalComplianceReportGenerator
                 'remediation_effort' => 'medium',
             ];
         }
-        
+
         // Check for data retention issues
         $retentionIssues = $this->identifyRetentionIssues($tenantId);
-        if (!empty($retentionIssues)) {
+        if (! empty($retentionIssues)) {
             $gaps[] = [
                 'category' => 'data_retention',
                 'severity' => 'medium',
@@ -310,10 +307,10 @@ final readonly class UniversalComplianceReportGenerator
                 'remediation_effort' => 'low',
             ];
         }
-        
+
         // Check for security compliance gaps
         $securityGaps = $this->identifySecurityGaps($tenantId, $startDate, $endDate);
-        if (!empty($securityGaps)) {
+        if (! empty($securityGaps)) {
             $gaps[] = [
                 'category' => 'security',
                 'severity' => 'high',
@@ -322,7 +319,7 @@ final readonly class UniversalComplianceReportGenerator
                 'remediation_effort' => 'high',
             ];
         }
-        
+
         return $gaps;
     }
 
@@ -336,13 +333,13 @@ final readonly class UniversalComplianceReportGenerator
         Carbon $endDate,
     ): array {
         $recommendations = [];
-        
+
         // Get audit report for context
         $auditReport = $this->auditReporter->generateReport($tenantId, $startDate, $endDate, $utilityTypes);
-        
+
         // Add audit-based recommendations
         $recommendations = array_merge($recommendations, $auditReport->complianceStatus->recommendations);
-        
+
         // Add compliance-specific recommendations
         if ($auditReport->complianceStatus->overallScore < 90) {
             $recommendations[] = [
@@ -354,7 +351,7 @@ final readonly class UniversalComplianceReportGenerator
                 'expected_impact' => 'High',
             ];
         }
-        
+
         // Add data quality recommendations
         $recommendations[] = [
             'category' => 'data_quality',
@@ -364,7 +361,7 @@ final readonly class UniversalComplianceReportGenerator
             'estimated_effort' => '1-2 weeks',
             'expected_impact' => 'Medium',
         ];
-        
+
         return $recommendations;
     }
 
@@ -438,11 +435,11 @@ final readonly class UniversalComplianceReportGenerator
     private function countUtilityServices(int $tenantId, array $utilityTypes): int
     {
         $query = UtilityService::where('tenant_id', $tenantId);
-        
-        if (!empty($utilityTypes)) {
+
+        if (! empty($utilityTypes)) {
             $query->whereIn('service_type', $utilityTypes);
         }
-        
+
         return $query->count();
     }
 
@@ -562,7 +559,7 @@ final readonly class UniversalComplianceReportGenerator
     {
         return [
             'format' => 'pdf',
-            'filename' => "compliance_report_{$report->tenantId}_" . now()->format('Y-m-d') . '.pdf',
+            'filename' => "compliance_report_{$report->tenantId}_".now()->format('Y-m-d').'.pdf',
             'content' => 'PDF content would be generated here',
             'size' => '2.5MB',
         ];
@@ -572,7 +569,7 @@ final readonly class UniversalComplianceReportGenerator
     {
         return [
             'format' => 'excel',
-            'filename' => "compliance_report_{$report->tenantId}_" . now()->format('Y-m-d') . '.xlsx',
+            'filename' => "compliance_report_{$report->tenantId}_".now()->format('Y-m-d').'.xlsx',
             'content' => 'Excel content would be generated here',
             'size' => '1.8MB',
         ];
@@ -582,7 +579,7 @@ final readonly class UniversalComplianceReportGenerator
     {
         return [
             'format' => 'json',
-            'filename' => "compliance_report_{$report->tenantId}_" . now()->format('Y-m-d') . '.json',
+            'filename' => "compliance_report_{$report->tenantId}_".now()->format('Y-m-d').'.json',
             'content' => json_encode($report, JSON_PRETTY_PRINT),
             'size' => '500KB',
         ];
@@ -592,7 +589,7 @@ final readonly class UniversalComplianceReportGenerator
     {
         return [
             'format' => 'csv',
-            'filename' => "compliance_report_{$report->tenantId}_" . now()->format('Y-m-d') . '.csv',
+            'filename' => "compliance_report_{$report->tenantId}_".now()->format('Y-m-d').'.csv',
             'content' => 'CSV content would be generated here',
             'size' => '200KB',
         ];
@@ -672,8 +669,8 @@ final readonly class UniversalComplianceReportGenerator
         // Stub implementation - would load actual regulatory requirements
         return new RegulatoryRequirement(
             id: $regulationId,
-            name: "Sample Regulation",
-            description: "Sample regulatory requirement",
+            name: 'Sample Regulation',
+            description: 'Sample regulatory requirement',
             requirements: [],
             complianceThreshold: 80.0,
         );

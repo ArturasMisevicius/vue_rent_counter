@@ -54,9 +54,9 @@ use Illuminate\View\Component;
  * @example Handling null status gracefully
  * <x-status-badge :status="$optionalStatus" />
  *
- * @see \App\Enums\InvoiceStatus
- * @see \App\Enums\SubscriptionStatus
- * @see \App\Enums\UserRole
+ * @see InvoiceStatus
+ * @see SubscriptionStatus
+ * @see UserRole
  */
 final class StatusBadge extends Component
 {
@@ -124,8 +124,11 @@ final class StatusBadge extends Component
     ];
 
     public string $statusValue;
+
     public string $label;
+
     public string $badgeClasses;
+
     public string $dotClasses;
 
     /**
@@ -140,7 +143,7 @@ final class StatusBadge extends Component
      *
      * @param  BackedEnum|string|null  $status  The status to display (enum instance, string value, or null)
      * @param  string  $slot  Optional slot content for custom label override
-     * 
+     *
      * @throws \InvalidArgumentException When status contains invalid characters (in strict mode)
      */
     public function __construct(
@@ -255,6 +258,7 @@ final class StatusBadge extends Component
                 $inQuote = true;
                 $quoteChar = $char;
                 $result .= $char;
+
                 continue;
             }
 
@@ -264,6 +268,7 @@ final class StatusBadge extends Component
                 $result .= $buffer;
                 $buffer = '';
                 $result .= $char;
+
                 continue;
             }
 
@@ -296,29 +301,29 @@ final class StatusBadge extends Component
     private function getMergedTranslations(): array
     {
         $cacheKey = 'status-badge.translations';
-        
+
         return Cache::remember($cacheKey, now()->addDay(), function () use ($cacheKey): array {
-                $translations = array_merge(
-                    InvoiceStatus::labels(),
-                    ServiceType::labels(),
-                    UserRole::labels(),
-                    MeterType::labels(),
-                    PropertyType::labels(),
-                    SubscriptionStatus::labels(),
-                    SubscriptionPlanType::labels(),
-                    UserAssignmentAction::labels(),
-                );
-                
-                // Log cache miss for monitoring
-                if (app()->environment('production')) {
-                    logger()->debug('StatusBadge translations cache miss', [
-                        'cache_key' => $cacheKey,
-                        'translation_count' => count($translations),
-                    ]);
-                }
-                
-                return $translations;
-            });
+            $translations = array_merge(
+                InvoiceStatus::labels(),
+                ServiceType::labels(),
+                UserRole::labels(),
+                MeterType::labels(),
+                PropertyType::labels(),
+                SubscriptionStatus::labels(),
+                SubscriptionPlanType::labels(),
+                UserAssignmentAction::labels(),
+            );
+
+            // Log cache miss for monitoring
+            if (app()->environment('production')) {
+                logger()->debug('StatusBadge translations cache miss', [
+                    'cache_key' => $cacheKey,
+                    'translation_count' => count($translations),
+                ]);
+            }
+
+            return $translations;
+        });
     }
 
     /**
@@ -338,7 +343,7 @@ final class StatusBadge extends Component
     private function resolveColors(string $statusValue): array
     {
         $colors = self::STATUS_COLORS[$statusValue] ?? null;
-        
+
         if ($colors === null) {
             // Log unknown status for monitoring in non-production environments
             if (! app()->environment('production')) {
@@ -347,10 +352,10 @@ final class StatusBadge extends Component
                     'available_statuses' => array_keys(self::STATUS_COLORS),
                 ]);
             }
-            
+
             return self::DEFAULT_COLORS;
         }
-        
+
         return $colors;
     }
 
@@ -362,7 +367,7 @@ final class StatusBadge extends Component
     public static function invalidateCache(): void
     {
         Cache::forget('status-badge.translations');
-        
+
         logger()->info('StatusBadge translation cache invalidated');
     }
 

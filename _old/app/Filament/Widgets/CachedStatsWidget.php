@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Filament\Widgets;
 
-use Filament\Widgets\StatsOverviewWidget;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -26,7 +25,7 @@ use Illuminate\Support\Facades\Cache;
  * class ExpensiveStatsWidget extends CachedStatsWidget
  * {
  *     protected int $cacheTtl = 1800; // 30 minutes
- *     
+ *
  *     protected function calculateStats(): array
  *     {
  *         // Expensive calculations here
@@ -36,18 +35,14 @@ use Illuminate\Support\Facades\Cache;
  *     }
  * }
  * ```
- *
- * @package App\Filament\Widgets
  */
 abstract class CachedStatsWidget extends ActionableWidget
 {
     /**
      * Cache TTL in seconds (default: 15 minutes).
-     *
-     * @var int
      */
     protected int $cacheTtl = 900;
-    
+
     /**
      * Get the stats with caching.
      *
@@ -64,7 +59,7 @@ abstract class CachedStatsWidget extends ActionableWidget
             fn () => $this->calculateStats()
         );
     }
-    
+
     /**
      * Calculate the statistics (to be implemented by subclasses).
      *
@@ -74,7 +69,7 @@ abstract class CachedStatsWidget extends ActionableWidget
      * @return array Array of Stat objects
      */
     abstract protected function calculateStats(): array;
-    
+
     /**
      * Generate a cache key for this widget.
      *
@@ -91,7 +86,7 @@ abstract class CachedStatsWidget extends ActionableWidget
             $this->getTenantId() ?? 'global'
         );
     }
-    
+
     /**
      * Invalidate the cache for this widget.
      *
@@ -104,7 +99,7 @@ abstract class CachedStatsWidget extends ActionableWidget
     {
         return Cache::forget($this->getCacheKey());
     }
-    
+
     /**
      * Warm the cache by pre-calculating stats.
      *
@@ -116,6 +111,7 @@ abstract class CachedStatsWidget extends ActionableWidget
     public function warmCache(): array
     {
         $this->invalidateCache();
+
         return $this->getStats();
     }
 }

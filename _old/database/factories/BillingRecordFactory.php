@@ -6,13 +6,13 @@ namespace Database\Factories;
 
 use App\Models\BillingRecord;
 use App\Models\Invoice;
-use App\Models\Tenant;
 use App\Models\Property;
-use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Tenant;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\BillingRecord>
+ * @extends Factory<BillingRecord>
  */
 final class BillingRecordFactory extends Factory
 {
@@ -32,7 +32,7 @@ final class BillingRecordFactory extends Factory
     {
         $startDate = Carbon::now()->startOfMonth();
         $endDate = Carbon::now()->endOfMonth();
-        
+
         return [
             'invoice_id' => Invoice::factory(),
             'tenant_id' => Tenant::factory(),

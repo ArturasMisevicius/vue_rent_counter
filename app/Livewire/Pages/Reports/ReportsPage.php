@@ -11,8 +11,9 @@ use App\Filament\Support\Admin\OrganizationContext;
 use App\Filament\Support\Admin\Reports\ConsumptionReportBuilder;
 use App\Filament\Support\Admin\Reports\MeterComplianceReportBuilder;
 use App\Filament\Support\Admin\Reports\OutstandingBalancesReportBuilder;
-use App\Filament\Support\Admin\Reports\ReportExportService;
 use App\Filament\Support\Admin\Reports\RevenueReportBuilder;
+use App\Services\ExportService;
+use App\Services\PdfReportService;
 use App\Http\Requests\Admin\Reports\ConsumptionReportRequest;
 use App\Http\Requests\Admin\Reports\ExportReportRequest;
 use App\Http\Requests\Admin\Reports\MeterComplianceReportRequest;
@@ -110,11 +111,11 @@ class ReportsPage extends Page
         }
     }
 
-    public function exportCsv(ReportExportService $reportExportService): StreamedResponse
+    public function exportCsv(ExportService $exportService): StreamedResponse
     {
         $report = $this->exportReport('csv');
 
-        return $reportExportService->streamCsv(
+        return $exportService->streamCsv(
             $this->exportFilename('csv'),
             $report['title'],
             $report['summary'],
@@ -123,11 +124,11 @@ class ReportsPage extends Page
         );
     }
 
-    public function exportPdf(ReportExportService $reportExportService): StreamedResponse
+    public function exportPdf(PdfReportService $pdfReportService): StreamedResponse
     {
         $report = $this->exportReport('pdf');
 
-        return $reportExportService->streamPdf(
+        return $pdfReportService->streamPdf(
             $this->exportFilename('pdf'),
             $report['title'],
             $report['summary'],

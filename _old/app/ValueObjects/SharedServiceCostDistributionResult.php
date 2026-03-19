@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace App\ValueObjects;
 
+use App\Services\SharedServiceCostDistributorService;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
+use Tests\Property\SharedServiceCostDistributionPropertyTest;
 
 /**
  * Result of shared service cost distribution calculation.
- * 
+ *
  * Immutable value object containing the distributed amounts
  * and metadata about the distribution process. Provides methods
  * for analyzing distribution results, validating accuracy,
  * and extracting statistical information.
- * 
- * @package App\ValueObjects
- * @see \App\Services\SharedServiceCostDistributorService
- * @see \Tests\Property\SharedServiceCostDistributionPropertyTest
- * 
+ *
+ * @see SharedServiceCostDistributorService
+ * @see SharedServiceCostDistributionPropertyTest
+ *
  * @example
  * ```php
  * $result = new SharedServiceCostDistributionResult(
@@ -26,7 +27,7 @@ use InvalidArgumentException;
  *     1000.00,
  *     ['method' => 'area', 'total_area' => 150.0]
  * );
- * 
+ *
  * echo $result->getTotalDistributed(); // 1000.00
  * echo $result->isBalanced(); // true
  * ```
@@ -34,9 +35,9 @@ use InvalidArgumentException;
 final readonly class SharedServiceCostDistributionResult
 {
     /**
-     * @param Collection<int, float> $distributedAmounts Property ID => Amount mapping
-     * @param float $totalDistributed Total amount distributed
-     * @param array<string, mixed> $metadata Additional distribution metadata
+     * @param  Collection<int, float>  $distributedAmounts  Property ID => Amount mapping
+     * @param  float  $totalDistributed  Total amount distributed
+     * @param  array<string, mixed>  $metadata  Additional distribution metadata
      */
     public function __construct(
         private Collection $distributedAmounts,
@@ -49,7 +50,7 @@ final readonly class SharedServiceCostDistributionResult
                 throw new InvalidArgumentException("Negative amount for property {$propertyId}: {$amount}");
             }
         }
-        
+
         // Calculate total if not provided
         if ($this->totalDistributed === 0.0) {
             $this->totalDistributed = $this->distributedAmounts->sum();
@@ -130,6 +131,7 @@ final readonly class SharedServiceCostDistributionResult
     public function isBalanced(float $tolerance = 0.01): bool
     {
         $calculatedTotal = $this->distributedAmounts->sum();
+
         return abs($calculatedTotal - $this->totalDistributed) <= $tolerance;
     }
 
@@ -149,7 +151,7 @@ final readonly class SharedServiceCostDistributionResult
         if ($this->getPropertyCount() === 0) {
             return 0.0;
         }
-        
+
         return $this->totalDistributed / $this->getPropertyCount();
     }
 
@@ -214,8 +216,8 @@ final readonly class SharedServiceCostDistributionResult
      */
     public function nonZeroAllocations(): self
     {
-        $filtered = $this->distributedAmounts->filter(fn($amount) => $amount > 0);
-        
+        $filtered = $this->distributedAmounts->filter(fn ($amount) => $amount > 0);
+
         return new self(
             $filtered,
             $filtered->sum(),

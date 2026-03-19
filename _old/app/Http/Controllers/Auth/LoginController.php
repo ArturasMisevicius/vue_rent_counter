@@ -14,10 +14,10 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * Login Controller
- * 
+ *
  * Handles user authentication including login form display,
  * credential verification, and logout functionality.
- * 
+ *
  * Requirements: 1.1, 7.1, 8.1, 8.4
  */
 final class LoginController extends Controller
@@ -28,7 +28,7 @@ final class LoginController extends Controller
 
     /**
      * Display the login form with available users.
-     * 
+     *
      * Note: User list is displayed for demo/testing purposes.
      * In production, this should be removed or restricted.
      */
@@ -41,24 +41,25 @@ final class LoginController extends Controller
 
     /**
      * Handle user login attempt.
-     * 
+     *
      * Validates credentials, checks account status, regenerates session,
      * and redirects to role-appropriate dashboard.
-     * 
+     *
      * Requirements: 1.1, 7.1, 8.1, 8.4
      */
     public function login(LoginRequest $request): RedirectResponse
     {
         $credentials = $request->validated();
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             return $this->handleFailedLogin();
         }
 
         $user = Auth::user();
 
-        if (!$this->authService->isAccountActive($user)) {
+        if (! $this->authService->isAccountActive($user)) {
             Auth::logout();
+
             return $this->handleDeactivatedAccount();
         }
 
@@ -69,7 +70,7 @@ final class LoginController extends Controller
 
     /**
      * Handle user logout.
-     * 
+     *
      * Logs out user, invalidates session, and regenerates CSRF token.
      */
     public function logout(Request $request): RedirectResponse

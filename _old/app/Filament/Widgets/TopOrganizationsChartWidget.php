@@ -2,23 +2,23 @@
 
 namespace App\Filament\Widgets;
 
-use Filament\Widgets\ChartWidget;
 use App\Services\QueryOptimizationService;
-use Illuminate\Support\Facades\Cache;
+use Filament\Widgets\ChartWidget;
 
 /**
  * Top Organizations Chart Widget with optimized rendering
- * 
+ *
  * Shows top 10 organizations by property count with performance optimizations
  */
 class TopOrganizationsChartWidget extends ChartWidget
 {
     protected ?string $heading = 'Top Organizations by Properties';
+
     protected static ?int $sort = 5;
-    
+
     // Enable lazy loading for better performance
     protected static bool $isLazy = true;
-    
+
     // Polling interval - refresh every 10 minutes
     protected ?string $pollingInterval = '600s';
 
@@ -26,11 +26,11 @@ class TopOrganizationsChartWidget extends ChartWidget
     {
         $queryService = app(QueryOptimizationService::class);
         $topOrgs = $queryService->getTopOrganizations('properties', 10);
-        
+
         $labels = [];
         $data = [];
         $colors = [];
-        
+
         // Generate colors for each organization
         $colorPalette = [
             'rgb(59, 130, 246)',   // Blue
@@ -44,13 +44,13 @@ class TopOrganizationsChartWidget extends ChartWidget
             'rgb(251, 146, 60)',   // Orange
             'rgb(168, 85, 247)',   // Violet
         ];
-        
+
         foreach ($topOrgs as $index => $org) {
             $labels[] = $org['name'];
             $data[] = $org['properties_count'] ?? 0;
             $colors[] = $colorPalette[$index % count($colorPalette)];
         }
-        
+
         return [
             'datasets' => [
                 [

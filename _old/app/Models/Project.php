@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 final class Project extends Model
 {
-    use HasFactory, SoftDeletes, BelongsToTenant;
+    use BelongsToTenant, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'tenant_id',
@@ -160,8 +160,9 @@ final class Project extends Model
         if ($totalTasks === 0) {
             return 0;
         }
-        
+
         $completedTasks = $this->tasks()->where('status', 'completed')->count();
+
         return (int) (($completedTasks / $totalTasks) * 100);
     }
 }

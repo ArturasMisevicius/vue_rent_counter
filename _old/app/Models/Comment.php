@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Traits\BelongsToTenant;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -190,7 +191,7 @@ final class Comment extends Model
 
     // ==================== HELPER METHODS ====================
 
-    public function getThread(): \Illuminate\Database\Eloquent\Collection
+    public function getThread(): Collection
     {
         // Get root comment and all its descendants
         $root = $this->isRoot ? $this : $this->ancestors()->roots()->first();

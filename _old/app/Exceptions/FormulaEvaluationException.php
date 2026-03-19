@@ -6,7 +6,4 @@ namespace App\Exceptions;
 
 use RuntimeException;
 
-final class FormulaEvaluationException extends RuntimeException
-{
-}
-
+final class FormulaEvaluationException extends RuntimeException {}

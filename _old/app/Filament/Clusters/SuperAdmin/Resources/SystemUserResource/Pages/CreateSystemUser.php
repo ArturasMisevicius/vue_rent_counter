@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Filament\Clusters\SuperAdmin\Resources\SystemUserResource\Pages;
 
 use App\Filament\Clusters\SuperAdmin\Resources\SystemUserResource;
-use Filament\Resources\Pages\CreateRecord;
 use Filament\Notifications\Notification;
+use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Hash;
 
 final class CreateSystemUser extends CreateRecord
@@ -23,7 +23,7 @@ final class CreateSystemUser extends CreateRecord
         // Generate a temporary password
         $data['password'] = Hash::make('TempPassword123!');
         $data['password_reset_required'] = true;
-        
+
         return $data;
     }
 

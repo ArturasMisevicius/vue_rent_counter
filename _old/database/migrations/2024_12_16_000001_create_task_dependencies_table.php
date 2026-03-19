@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('dependency_type')->default('finish_to_start'); // finish_to_start, start_to_start, finish_to_finish, start_to_finish
             $table->text('notes')->nullable();
             $table->timestamps();
-            
+
             $table->unique(['task_id', 'depends_on_task_id']);
             $table->index(['depends_on_task_id']);
         });

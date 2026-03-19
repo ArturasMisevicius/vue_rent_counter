@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Services\Security\SecurityAnalyticsMcpService;
+use App\Services\Security\SecurityHeaderFactory;
 use App\Services\Security\SecurityHeaderService;
 use App\Services\Security\ViteCSPIntegration;
-use App\Services\Security\SecurityAnalyticsMcpService;
+use App\ValueObjects\SecurityNonce;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -15,14 +17,14 @@ use Symfony\Component\HttpFoundation\Response as BaseResponse;
 
 /**
  * Security Headers Middleware
- * 
+ *
  * Applies comprehensive security headers to all HTTP responses to prevent common
  * web vulnerabilities including XSS, clickjacking, MIME sniffing, and content injection.
- * 
+ *
  * This middleware integrates with Laravel's Vite system for CSP nonce generation,
  * provides performance monitoring, and implements graceful error handling with
  * fallback security measures for multi-tenant utility billing applications.
- * 
+ *
  * Features:
  * - CSP nonce generation with Vite integration for secure inline scripts/styles
  * - Environment-aware security policies (development vs production)
@@ -30,7 +32,7 @@ use Symfony\Component\HttpFoundation\Response as BaseResponse;
  * - Graceful error handling with minimal fallback headers
  * - Request-level nonce caching for optimal performance
  * - Multi-tenant context awareness for appropriate security levels
- * 
+ *
  * Security Headers Applied:
  * - Content-Security-Policy: Prevents XSS and code injection
  * - X-Content-Type-Options: Prevents MIME sniffing attacks
@@ -38,14 +40,14 @@ use Symfony\Component\HttpFoundation\Response as BaseResponse;
  * - X-XSS-Protection: Legacy XSS protection (fallback)
  * - Strict-Transport-Security: Enforces HTTPS (production)
  * - Cross-Origin-* policies: Controls cross-origin resource sharing
- * 
- * @see \App\Services\Security\SecurityHeaderService Main header orchestration
- * @see \App\Services\Security\ViteCSPIntegration Vite CSP nonce integration
- * @see \App\Services\Security\SecurityHeaderFactory Context-aware header creation
- * @see \App\ValueObjects\SecurityNonce Cryptographically secure nonce generation
- * 
- * @package App\Http\Middleware
+ *
+ * @see SecurityHeaderService Main header orchestration
+ * @see ViteCSPIntegration Vite CSP nonce integration
+ * @see SecurityHeaderFactory Context-aware header creation
+ * @see SecurityNonce Cryptographically secure nonce generation
+ *
  * @author Laravel Development Team
+ *
  * @since Laravel 12.x
  */
 final class SecurityHeaders
@@ -64,9 +66,8 @@ final class SecurityHeaders
      * - Streamlined error handling
      * - Reduced logging overhead
      *
-     * @param Request $request The incoming HTTP request
-     * @param Closure $next The next middleware in the pipeline
-     *
+     * @param  Request  $request  The incoming HTTP request
+     * @param  Closure  $next  The next middleware in the pipeline
      * @return BaseResponse The response with applied security headers
      */
     public function handle(Request $request, Closure $next): BaseResponse
@@ -74,17 +75,17 @@ final class SecurityHeaders
         try {
             // Initialize Vite CSP integration early
             $this->viteIntegration->initialize($request);
-            
+
             $response = $next($request);
-            
+
             // Apply security headers (performance tracking handled by service)
             $enhancedResponse = $this->securityHeaderService->applyHeaders($request, $response);
-            
+
             // Track security metrics via MCP if enabled
             $this->trackSecurityMetrics($request, $enhancedResponse);
-            
+
             return $enhancedResponse;
-            
+
         } catch (\Throwable $e) {
             // Log only critical errors, not full stack traces
             Log::error('SecurityHeaders middleware error', [
@@ -92,26 +93,24 @@ final class SecurityHeaders
                 'path' => $request->getPathInfo(),
                 'method' => $request->getMethod(),
             ]);
-            
+
             // Continue with response and apply minimal fallback headers
             $response = $next($request);
             $this->applyFallbackHeaders($response);
-            
+
             return $response;
         }
     }
 
     /**
      * Apply minimal fallback security headers when main process fails.
-     * 
+     *
      * Ensures basic security protection even when the primary security
      * header service encounters errors. These headers provide essential
      * protection against common vulnerabilities.
-     * 
-     * @param BaseResponse $response The HTTP response to modify
-     * 
-     * @return void
-     * 
+     *
+     * @param  BaseResponse  $response  The HTTP response to modify
+     *
      * @internal This method is called only during error conditions
      */
     /**
@@ -121,7 +120,7 @@ final class SecurityHeaders
     {
         try {
             // Only track if MCP analytics is available and user is authenticated
-            if (!config('security.mcp.analytics_enabled', true) || !auth()->check()) {
+            if (! config('security.mcp.analytics_enabled', true) || ! auth()->check()) {
                 return;
             }
 
@@ -135,17 +134,18 @@ final class SecurityHeaders
                 'tenant_id' => tenant()?->id,
                 'user_id' => auth()->id(),
                 'timestamp' => now()->toISOString(),
-                'ip_hash' => hash('sha256', $request->ip() . config('app.key')), // Hash IP for privacy
-                'user_agent_hash' => hash('sha256', $request->userAgent() . config('app.key')),
+                'ip_hash' => hash('sha256', $request->ip().config('app.key')), // Hash IP for privacy
+                'user_agent_hash' => hash('sha256', $request->userAgent().config('app.key')),
             ];
 
             // Validate tenant access
-            if (!$this->validateTenantAccess($request)) {
+            if (! $this->validateTenantAccess($request)) {
                 Log::warning('Unauthorized tenant access attempt', [
                     'tenant_id' => tenant()?->id,
                     'user_id' => auth()->id(),
                     'ip_hash' => $metrics['ip_hash'],
                 ]);
+
                 return;
             }
 
@@ -175,7 +175,7 @@ final class SecurityHeaders
         $path = preg_replace('/\/\d+/', '/{id}', $path); // Replace IDs with placeholder
         $path = preg_replace('/[?&]token=[^&]*/', '', $path); // Remove tokens
         $path = preg_replace('/[?&]key=[^&]*/', '', $path); // Remove keys
-        
+
         return substr($path, 0, 255); // Limit length
     }
 
@@ -205,28 +205,27 @@ final class SecurityHeaders
      */
     private function shouldTrackMetrics(): bool
     {
-        $key = 'security_metrics_' . (auth()->id() ?? 'anonymous');
+        $key = 'security_metrics_'.(auth()->id() ?? 'anonymous');
         $attempts = cache()->get($key, 0);
-        
+
         if ($attempts >= 100) { // Max 100 metrics per minute per user
             return false;
         }
-        
+
         cache()->put($key, $attempts + 1, 60);
+
         return true;
     }
 
     /**
      * Apply minimal fallback security headers when main process fails.
-     * 
+     *
      * Ensures basic security protection even when the primary security
      * header service encounters errors. These headers provide essential
      * protection against common vulnerabilities.
-     * 
-     * @param BaseResponse $response The HTTP response to modify
-     * 
-     * @return void
-     * 
+     *
+     * @param  BaseResponse  $response  The HTTP response to modify
+     *
      * @internal This method is called only during error conditions
      */
     private function applyFallbackHeaders(BaseResponse $response): void
@@ -238,11 +237,9 @@ final class SecurityHeaders
         ];
 
         foreach ($fallbackHeaders as $name => $value) {
-            if (!$response->headers->has($name)) {
+            if (! $response->headers->has($name)) {
                 $response->headers->set($name, $value);
             }
         }
     }
-
-
 }

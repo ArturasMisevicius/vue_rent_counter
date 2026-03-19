@@ -13,20 +13,20 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Abstract base validator with common functionality.
- * 
+ *
  * Provides shared services and utility methods for concrete validators.
  */
 abstract class AbstractValidator implements ValidatorInterface
 {
     protected const CACHE_TTL_SECONDS = 3600;
+
     protected const CACHE_PREFIX = 'validation';
 
     public function __construct(
         protected readonly CacheRepository $cache,
         protected readonly ConfigRepository $config,
         protected readonly LoggerInterface $logger,
-    ) {
-    }
+    ) {}
 
     /**
      * Default implementation - most validators apply to all contexts.
@@ -50,11 +50,11 @@ abstract class AbstractValidator implements ValidatorInterface
     protected function getConfigValue(string $key, mixed $default = null): mixed
     {
         $cacheKey = $this->buildCacheKey('config', $key);
-        
+
         return $this->cache->remember(
             $cacheKey,
             self::CACHE_TTL_SECONDS,
-            fn() => $this->config->get($key, $default)
+            fn () => $this->config->get($key, $default)
         );
     }
 
@@ -78,14 +78,14 @@ abstract class AbstractValidator implements ValidatorInterface
      */
     protected function handleException(\Exception $e, ValidationContext $context): ValidationResult
     {
-        $this->logger->error('Validation error in ' . $this->getName(), [
+        $this->logger->error('Validation error in '.$this->getName(), [
             'reading_id' => $context->reading->id,
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString(),
         ]);
 
         return ValidationResult::withError(
-            'Validation system error in ' . $this->getName() . ': ' . $e->getMessage()
+            'Validation system error in '.$this->getName().': '.$e->getMessage()
         );
     }
 }

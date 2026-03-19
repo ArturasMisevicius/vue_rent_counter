@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreLocaleRequest;
 use App\Models\Language;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Schema;
 
 class LocaleController extends Controller
 {

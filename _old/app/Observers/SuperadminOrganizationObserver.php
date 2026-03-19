@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Superadmin Organization Observer
- * 
+ *
  * Handles audit logging for organization operations performed by superadmins.
  * This observer specifically tracks superadmin actions for security and
  * compliance purposes as part of the superadmin dashboard enhancement.
- * 
+ *
  * Requirements: 16.1, 16.2
  */
 class SuperadminOrganizationObserver
@@ -48,8 +48,8 @@ class SuperadminOrganizationObserver
     public function updated(Organization $organization): void
     {
         $changes = $organization->getChanges();
-        
-        if (!empty($changes)) {
+
+        if (! empty($changes)) {
             $this->logSuperadminAction('updated', $organization, $organization->getOriginal(), $changes);
         }
     }
@@ -105,18 +105,17 @@ class SuperadminOrganizationObserver
     /**
      * Log superadmin actions on organizations for audit compliance.
      *
-     * @param string $action The action being performed
-     * @param Organization $organization The organization being acted upon
-     * @param array|null $beforeData The data before the change
-     * @param array|null $afterData The data after the change
-     * @return void
+     * @param  string  $action  The action being performed
+     * @param  Organization  $organization  The organization being acted upon
+     * @param  array|null  $beforeData  The data before the change
+     * @param  array|null  $afterData  The data after the change
      */
     private function logSuperadminAction(string $action, Organization $organization, ?array $beforeData, ?array $afterData): void
     {
         $user = auth()->user();
-        
+
         // Only log if the action is performed by a superadmin
-        if (!$user || !$user->isSuperadmin()) {
+        if (! $user || ! $user->isSuperadmin()) {
             return;
         }
 

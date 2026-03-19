@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use App\Traits\BelongsToTenant;
-use App\Traits\HasTags;
-use App\Traits\HasComments;
 use App\Traits\HasAttachments;
+use App\Traits\HasComments;
+use App\Traits\HasTags;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,12 +13,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Task Model - Individual work items within projects
- * 
+ *
  * Supports multiple assignees with different roles (assignee, reviewer, observer)
  */
 class Task extends Model
 {
-    use HasFactory, BelongsToTenant, HasTags, HasComments, HasAttachments;
+    use BelongsToTenant, HasAttachments, HasComments, HasFactory, HasTags;
 
     protected $fillable = [
         'tenant_id',
@@ -132,7 +132,7 @@ class Task extends Model
      */
     public function getChecklistCompletion(): int
     {
-        if (!$this->checklist || empty($this->checklist)) {
+        if (! $this->checklist || empty($this->checklist)) {
             return 0;
         }
 
@@ -148,7 +148,7 @@ class Task extends Model
     public function updateChecklistItem(int $index, bool $completed): void
     {
         $checklist = $this->checklist ?? [];
-        
+
         if (isset($checklist[$index])) {
             $checklist[$index]['completed'] = $completed;
             $this->checklist = $checklist;
@@ -172,7 +172,7 @@ class Task extends Model
     public function scopeOverdue($query)
     {
         return $query->where('due_date', '<', now())
-                    ->whereNotIn('status', ['completed', 'cancelled']);
+            ->whereNotIn('status', ['completed', 'cancelled']);
     }
 
     /**
@@ -188,9 +188,9 @@ class Task extends Model
      */
     public function isOverdue(): bool
     {
-        return $this->due_date && 
-               $this->due_date->isPast() && 
-               !in_array($this->status, ['completed', 'cancelled']);
+        return $this->due_date &&
+               $this->due_date->isPast() &&
+               ! in_array($this->status, ['completed', 'cancelled']);
     }
 
     /**
@@ -206,7 +206,7 @@ class Task extends Model
      */
     public function getHoursVariance(): ?float
     {
-        if (!$this->estimated_hours || !$this->actual_hours) {
+        if (! $this->estimated_hours || ! $this->actual_hours) {
             return null;
         }
 

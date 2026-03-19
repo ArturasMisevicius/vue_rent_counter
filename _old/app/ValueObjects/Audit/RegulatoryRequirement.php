@@ -6,7 +6,7 @@ namespace App\ValueObjects\Audit;
 
 /**
  * Regulatory Requirement Value Object
- * 
+ *
  * Represents a specific regulatory requirement that must be validated
  * for compliance reporting and assessment.
  */
@@ -33,8 +33,8 @@ final readonly class RegulatoryRequirement
         if ($this->applicableUtilityTypes === null) {
             return true; // Applies to all utility types
         }
-        
-        return !empty(array_intersect($utilityTypes, $this->applicableUtilityTypes));
+
+        return ! empty(array_intersect($utilityTypes, $this->applicableUtilityTypes));
     }
 
     /**
@@ -53,7 +53,7 @@ final readonly class RegulatoryRequirement
         if ($this->effectiveDate === null) {
             return true;
         }
-        
+
         return now()->gte($this->effectiveDate);
     }
 

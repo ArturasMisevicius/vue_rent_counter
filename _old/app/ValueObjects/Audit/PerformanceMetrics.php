@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 /**
  * Performance Metrics Value Object
- * 
+ *
  * Contains comprehensive performance metrics for universal billing calculations,
  * system response times, and operational efficiency indicators.
  */
@@ -55,7 +55,7 @@ final readonly class PerformanceMetrics
             $this->getErrorRateScore(),
             $this->getResourceUtilizationScore(),
         ];
-        
+
         return round(array_sum($scores) / count($scores), 2);
     }
 
@@ -65,7 +65,7 @@ final readonly class PerformanceMetrics
     public function getPerformanceGrade(): string
     {
         $score = $this->getOverallScore();
-        
+
         return match (true) {
             $score >= 90 => 'A',
             $score >= 80 => 'B',
@@ -82,11 +82,11 @@ final readonly class PerformanceMetrics
     {
         $successRate = $this->billingCalculationMetrics['calculation_success_rate'] ?? 0;
         $avgTime = $this->billingCalculationMetrics['average_processing_time_ms'] ?? 1000;
-        
+
         // Score based on success rate (70%) and processing time (30%)
         $successScore = $successRate;
         $timeScore = max(0, 100 - ($avgTime / 10)); // Deduct points for slow processing
-        
+
         return ($successScore * 0.7) + ($timeScore * 0.3);
     }
 
@@ -98,12 +98,12 @@ final readonly class PerformanceMetrics
         $avgResponse = $this->systemResponseMetrics['average_response_time_ms'] ?? 500;
         $errorRate = $this->systemResponseMetrics['error_rate_percentage'] ?? 5;
         $uptime = $this->systemResponseMetrics['uptime_percentage'] ?? 95;
-        
+
         // Score based on response time (40%), error rate (30%), uptime (30%)
         $responseScore = max(0, 100 - ($avgResponse / 5));
         $errorScore = max(0, 100 - ($errorRate * 10));
         $uptimeScore = $uptime;
-        
+
         return ($responseScore * 0.4) + ($errorScore * 0.3) + ($uptimeScore * 0.3);
     }
 
@@ -123,12 +123,12 @@ final readonly class PerformanceMetrics
         $utilizationRate = $this->operationalEfficiency['configuration_utilization_rate'] ?? 0;
         $automationRate = $this->operationalEfficiency['automation_rate'] ?? 0;
         $manualOverrideRate = $this->operationalEfficiency['manual_override_rate'] ?? 100;
-        
+
         // Score based on utilization (40%), automation (40%), manual overrides (20%)
         $utilizationScore = $utilizationRate;
         $automationScore = $automationRate;
         $overrideScore = max(0, 100 - $manualOverrideRate);
-        
+
         return ($utilizationScore * 0.4) + ($automationScore * 0.4) + ($overrideScore * 0.2);
     }
 
@@ -140,13 +140,13 @@ final readonly class PerformanceMetrics
         $totalErrors = $this->errorRates['total_errors'] ?? 0;
         $criticalErrors = $this->errorRates['critical_errors'] ?? 0;
         $errorRatePerHour = $this->errorRates['error_rate_per_hour'] ?? 0;
-        
+
         // Start with 100 and deduct points for errors
         $score = 100;
         $score -= $criticalErrors * 10; // Critical errors cost 10 points each
         $score -= ($totalErrors - $criticalErrors) * 2; // Other errors cost 2 points each
         $score -= $errorRatePerHour * 5; // High error rate costs additional points
-        
+
         return max(0, $score);
     }
 
@@ -158,12 +158,12 @@ final readonly class PerformanceMetrics
         $cpuUtil = $this->resourceUtilization['cpu_utilization_avg'] ?? 50;
         $memoryUtil = $this->resourceUtilization['memory_utilization_avg'] ?? 50;
         $cacheHitRate = $this->resourceUtilization['cache_hit_rate'] ?? 80;
-        
+
         // Optimal utilization is around 60-80%
         $cpuScore = $this->getUtilizationScore($cpuUtil);
         $memoryScore = $this->getUtilizationScore($memoryUtil);
         $cacheScore = $cacheHitRate;
-        
+
         return ($cpuScore * 0.4) + ($memoryScore * 0.4) + ($cacheScore * 0.2);
     }
 
@@ -175,11 +175,11 @@ final readonly class PerformanceMetrics
         if ($utilization >= 60 && $utilization <= 80) {
             return 100; // Optimal range
         }
-        
+
         if ($utilization < 60) {
             return 50 + ($utilization / 60) * 50; // Under-utilization
         }
-        
+
         // Over-utilization
         return max(0, 100 - (($utilization - 80) * 2));
     }
@@ -190,7 +190,7 @@ final readonly class PerformanceMetrics
     public function getPerformanceIssues(): array
     {
         $issues = [];
-        
+
         // Check billing performance
         if ($this->getBillingPerformanceScore() < 80) {
             $issues[] = [
@@ -200,7 +200,7 @@ final readonly class PerformanceMetrics
                 'metrics' => $this->billingCalculationMetrics,
             ];
         }
-        
+
         // Check system response
         if ($this->getSystemResponseScore() < 70) {
             $issues[] = [
@@ -210,7 +210,7 @@ final readonly class PerformanceMetrics
                 'metrics' => $this->systemResponseMetrics,
             ];
         }
-        
+
         // Check data quality
         if ($this->getDataQualityScore() < 90) {
             $issues[] = [
@@ -220,7 +220,7 @@ final readonly class PerformanceMetrics
                 'metrics' => $this->dataQualityMetrics,
             ];
         }
-        
+
         // Check error rates
         if ($this->getErrorRateScore() < 85) {
             $issues[] = [
@@ -230,7 +230,7 @@ final readonly class PerformanceMetrics
                 'metrics' => $this->errorRates,
             ];
         }
-        
+
         return $issues;
     }
 
@@ -241,7 +241,7 @@ final readonly class PerformanceMetrics
     {
         // This would typically compare with historical metrics
         // For now, we'll provide a simplified trend analysis
-        
+
         return [
             'billing_performance_trend' => 'stable', // Would be calculated from historical data
             'response_time_trend' => 'improving',
@@ -264,7 +264,7 @@ final readonly class PerformanceMetrics
     public function getTopBottlenecks(): array
     {
         $bottlenecks = [];
-        
+
         // Analyze each metric category for bottlenecks
         $scores = [
             'billing_calculation' => $this->getBillingPerformanceScore(),
@@ -274,13 +274,13 @@ final readonly class PerformanceMetrics
             'error_rates' => $this->getErrorRateScore(),
             'resource_utilization' => $this->getResourceUtilizationScore(),
         ];
-        
+
         // Sort by score (lowest first)
         asort($scores);
-        
+
         // Take the bottom 3 as bottlenecks
         $bottomThree = array_slice($scores, 0, 3, true);
-        
+
         foreach ($bottomThree as $category => $score) {
             if ($score < 80) {
                 $bottlenecks[] = [
@@ -290,7 +290,7 @@ final readonly class PerformanceMetrics
                 ];
             }
         }
-        
+
         return $bottlenecks;
     }
 }

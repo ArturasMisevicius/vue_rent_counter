@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateSettingsRequest;
+use App\Models\Invoice;
+use App\Models\Meter;
+use App\Models\Property;
+use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 
@@ -21,10 +25,10 @@ class SettingsController extends Controller
         $stats = [
             'database_size' => $this->getDatabaseSize(),
             'cache_size' => $this->getCacheSize(),
-            'total_users' => \App\Models\User::count(),
-            'total_properties' => \App\Models\Property::count(),
-            'total_meters' => \App\Models\Meter::count(),
-            'total_invoices' => \App\Models\Invoice::count(),
+            'total_users' => User::count(),
+            'total_properties' => Property::count(),
+            'total_meters' => Meter::count(),
+            'total_invoices' => Invoice::count(),
         ];
 
         return view('pages.settings.index', compact('stats'));

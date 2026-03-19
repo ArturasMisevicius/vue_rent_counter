@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Configuration Change Auditor
- * 
+ *
  * Tracks and analyzes configuration changes for audit reporting.
  */
 final readonly class ConfigurationChangeAuditor
@@ -24,6 +24,6 @@ final readonly class ConfigurationChangeAuditor
         array $serviceTypes = [],
     ): Collection {
         // Stub implementation - return empty collection
-        return new Collection();
+        return new Collection;
     }
 }

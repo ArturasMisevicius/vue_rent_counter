@@ -19,15 +19,15 @@ use Illuminate\Support\ServiceProvider;
 
 /**
  * Repository Service Provider
- * 
+ *
  * Registers repository interfaces with their concrete implementations.
  * This provider handles dependency injection bindings for the repository pattern.
- * 
+ *
  * Binding Strategy:
  * - Interfaces are bound to concrete implementations
  * - Repositories are registered as singletons for performance
  * - Model instances are injected into repositories
- * 
+ *
  * Usage:
  * - Add this provider to config/app.php providers array
  * - Inject repository interfaces in controllers/services
@@ -37,9 +37,9 @@ class RepositoryServiceProvider extends ServiceProvider
 {
     /**
      * All repository bindings.
-     * 
+     *
      * Maps interface contracts to their concrete implementations.
-     * 
+     *
      * @var array<class-string, class-string>
      */
     protected array $repositories = [
@@ -50,11 +50,9 @@ class RepositoryServiceProvider extends ServiceProvider
 
     /**
      * Register repository services.
-     * 
+     *
      * This method is called during the service container registration phase.
      * All repository bindings are registered here.
-     * 
-     * @return void
      */
     public function register(): void
     {
@@ -64,11 +62,9 @@ class RepositoryServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap repository services.
-     * 
+     *
      * This method is called after all service providers have been registered.
      * Any bootstrapping logic can be added here.
-     * 
-     * @return void
      */
     public function boot(): void
     {
@@ -78,11 +74,9 @@ class RepositoryServiceProvider extends ServiceProvider
 
     /**
      * Register all repository bindings.
-     * 
+     *
      * Each repository is bound as a singleton to improve performance
      * and ensure consistent state throughout the request lifecycle.
-     * 
-     * @return void
      */
     protected function registerRepositories(): void
     {
@@ -110,19 +104,18 @@ class RepositoryServiceProvider extends ServiceProvider
 
     /**
      * Register the base repository for generic usage.
-     * 
+     *
      * This allows injection of the base repository when specific
      * repository interfaces are not needed.
-     * 
-     * @return void
      */
     protected function registerBaseRepository(): void
     {
         $this->app->bind(RepositoryInterface::class, function ($app, $parameters) {
             // Extract model from parameters or use a default
             $model = $parameters['model'] ?? $app->make(User::class);
-            
-            return new class($model) extends BaseRepository {
+
+            return new class($model) extends BaseRepository
+            {
                 // Anonymous class extending BaseRepository for generic usage
             };
         });
@@ -130,7 +123,7 @@ class RepositoryServiceProvider extends ServiceProvider
 
     /**
      * Get the services provided by the provider.
-     * 
+     *
      * @return array<int, string>
      */
     public function provides(): array
@@ -140,14 +133,13 @@ class RepositoryServiceProvider extends ServiceProvider
 
     /**
      * Register a new repository binding.
-     * 
+     *
      * This method allows dynamic registration of repository bindings
      * at runtime, useful for packages or dynamic module loading.
-     * 
-     * @param string $interface The repository interface
-     * @param string $implementation The concrete implementation
-     * @param bool $singleton Whether to bind as singleton
-     * @return void
+     *
+     * @param  string  $interface  The repository interface
+     * @param  string  $implementation  The concrete implementation
+     * @param  bool  $singleton  Whether to bind as singleton
      */
     public function registerRepository(string $interface, string $implementation, bool $singleton = true): void
     {
@@ -162,9 +154,8 @@ class RepositoryServiceProvider extends ServiceProvider
 
     /**
      * Check if a repository is registered.
-     * 
-     * @param string $interface The repository interface
-     * @return bool
+     *
+     * @param  string  $interface  The repository interface
      */
     public function hasRepository(string $interface): bool
     {
@@ -173,7 +164,7 @@ class RepositoryServiceProvider extends ServiceProvider
 
     /**
      * Get all registered repositories.
-     * 
+     *
      * @return array<class-string, class-string>
      */
     public function getRepositories(): array

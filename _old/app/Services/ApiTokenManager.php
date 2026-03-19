@@ -13,13 +13,14 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * API Token Manager Service
- * 
+ *
  * Centralized service for managing API tokens without requiring
  * the HasApiTokens trait on the User model.
  */
 class ApiTokenManager
 {
     private const CACHE_TTL = 900; // 15 minutes
+
     private const CACHE_PREFIX = 'api_tokens:';
 
     /**
@@ -120,7 +121,7 @@ class ApiTokenManager
 
         if ($deleted) {
             $this->clearUserTokenCache($user);
-            
+
             Log::info('API token revoked', [
                 'user_id' => $user->id,
                 'token_id' => $tokenId,
@@ -144,7 +145,7 @@ class ApiTokenManager
     public function hasAbility(User $user, string $ability): bool
     {
         $token = $this->getCurrentAccessToken($user);
-        
+
         return $token ? $token->can($ability) : false;
     }
 
@@ -232,12 +233,12 @@ class ApiTokenManager
     {
         return PersonalAccessToken::join('users', function ($join) {
             $join->on('personal_access_tokens.tokenable_id', '=', 'users.id')
-                 ->where('personal_access_tokens.tokenable_type', '=', User::class);
+                ->where('personal_access_tokens.tokenable_type', '=', User::class);
         })
-        ->selectRaw('users.role, COUNT(*) as token_count')
-        ->groupBy('users.role')
-        ->pluck('token_count', 'role')
-        ->toArray();
+            ->selectRaw('users.role, COUNT(*) as token_count')
+            ->groupBy('users.role')
+            ->pluck('token_count', 'role')
+            ->toArray();
     }
 
     /**
@@ -261,6 +262,6 @@ class ApiTokenManager
      */
     private function getCacheKey(string $type, mixed ...$params): string
     {
-        return self::CACHE_PREFIX . $type . ':' . implode(':', $params);
+        return self::CACHE_PREFIX.$type.':'.implode(':', $params);
     }
 }

@@ -86,7 +86,7 @@ class OrganizationInvitation extends Model
      */
     public function isPending(): bool
     {
-        return !$this->isAccepted() && !$this->isExpired();
+        return ! $this->isAccepted() && ! $this->isExpired();
     }
 
     /**

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\Organization;
 use App\Models\PlatformNotification;
 use App\Models\PlatformNotificationRecipient;
 use App\Notifications\PlatformNotificationEmail;
@@ -15,7 +14,7 @@ use Illuminate\Support\Facades\Mail;
 
 /**
  * Platform Notification Service
- * 
+ *
  * Handles sending platform-wide notifications to organizations.
  */
 class PlatformNotificationService
@@ -26,7 +25,7 @@ class PlatformNotificationService
             try {
                 // Get target organizations
                 $organizations = $notification->getTargetOrganizations();
-                
+
                 if ($organizations->isEmpty()) {
                     throw new \Exception('No target organizations found');
                 }
@@ -72,7 +71,7 @@ class PlatformNotificationService
     public function scheduleNotification(PlatformNotification $notification, Carbon $scheduledAt): void
     {
         $notification->schedule($scheduledAt);
-        
+
         Log::info('Platform notification scheduled', [
             'notification_id' => $notification->id,
             'title' => $notification->title,
@@ -109,7 +108,7 @@ class PlatformNotificationService
 
             } catch (\Exception $e) {
                 $recipient->markAsFailed($e->getMessage());
-                
+
                 Log::warning('Failed to send email to recipient', [
                     'notification_id' => $notification->id,
                     'recipient_id' => $recipient->id,

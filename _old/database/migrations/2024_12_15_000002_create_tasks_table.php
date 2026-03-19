@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('actual_hours')->nullable();
             $table->json('checklist')->nullable();
             $table->timestamps();
-            
+
             $table->index(['project_id', 'status']);
             $table->index(['tenant_id', 'status']);
             $table->index(['created_by']);

@@ -19,13 +19,13 @@ return new class extends Migration
         Schema::table('languages', function (Blueprint $table) {
             // Index for filtering active languages (used in scopeActive and filters)
             $table->index('is_active', 'languages_is_active_index');
-            
+
             // Index for filtering default language (used in business logic and filters)
             $table->index('is_default', 'languages_is_default_index');
-            
+
             // Index for sorting by display order (used in language switcher)
             $table->index('display_order', 'languages_display_order_index');
-            
+
             // Composite index for common query: active languages ordered by display_order
             $table->index(['is_active', 'display_order'], 'languages_active_order_index');
         });

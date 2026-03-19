@@ -7,9 +7,10 @@ namespace App\Filament\Clusters\SuperAdmin\Resources\TenantResource\Pages;
 use App\Contracts\TenantManagementInterface;
 use App\Filament\Clusters\SuperAdmin\Resources\TenantResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ViewRecord;
+use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components;
 use Filament\Notifications\Notification;
+use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -34,7 +35,7 @@ final class ViewTenant extends ViewRecord
                 ->icon('heroicon-o-pause-circle')
                 ->color('warning')
                 ->form([
-                    \Filament\Forms\Components\Textarea::make('reason')
+                    Textarea::make('reason')
                         ->label(__('superadmin.tenant.fields.suspension_reason'))
                         ->required()
                         ->rows(3),
@@ -42,12 +43,12 @@ final class ViewTenant extends ViewRecord
                 ->action(function (array $data) {
                     $tenantService = app(TenantManagementInterface::class);
                     $tenantService->suspendTenant($this->record, $data['reason']);
-                    
+
                     Notification::make()
                         ->title(__('superadmin.tenant.notifications.suspended'))
                         ->success()
                         ->send();
-                        
+
                     $this->refreshFormData(['suspended_at', 'suspension_reason', 'is_active']);
                 })
                 ->requiresConfirmation()
@@ -60,16 +61,16 @@ final class ViewTenant extends ViewRecord
                 ->action(function () {
                     $tenantService = app(TenantManagementInterface::class);
                     $tenantService->activateTenant($this->record);
-                    
+
                     Notification::make()
                         ->title(__('superadmin.tenant.notifications.activated'))
                         ->success()
                         ->send();
-                        
+
                     $this->refreshFormData(['suspended_at', 'suspension_reason', 'is_active']);
                 })
                 ->requiresConfirmation()
-                ->visible(fn () => !$this->record->is_active),
+                ->visible(fn () => ! $this->record->is_active),
 
             Actions\EditAction::make(),
         ];
@@ -86,11 +87,11 @@ final class ViewTenant extends ViewRecord
                                 Components\TextEntry::make('name')
                                     ->label(__('superadmin.tenant.fields.name'))
                                     ->weight('bold'),
-                                    
+
                                 Components\TextEntry::make('slug')
                                     ->label(__('superadmin.tenant.fields.slug'))
                                     ->copyable(),
-                                    
+
                                 Components\TextEntry::make('plan')
                                     ->label(__('superadmin.tenant.fields.plan'))
                                     ->badge(),
@@ -106,19 +107,19 @@ final class ViewTenant extends ViewRecord
                                     ->state(fn () => $this->record->users()->count())
                                     ->badge()
                                     ->color('info'),
-                                    
+
                                 Components\TextEntry::make('properties_count')
                                     ->label(__('superadmin.tenant.fields.properties_count'))
                                     ->state(fn () => $this->record->properties()->count())
                                     ->badge()
                                     ->color('success'),
-                                    
+
                                 Components\TextEntry::make('storage_used')
                                     ->label(__('superadmin.tenant.fields.storage_used'))
-                                    ->state(fn () => number_format($this->record->storage_used_mb, 1) . ' MB')
+                                    ->state(fn () => number_format($this->record->storage_used_mb, 1).' MB')
                                     ->badge()
                                     ->color('warning'),
-                                    
+
                                 Components\TextEntry::make('api_calls_today')
                                     ->label(__('superadmin.tenant.fields.api_calls_today'))
                                     ->badge()
@@ -134,7 +135,7 @@ final class ViewTenant extends ViewRecord
                                     ->label(__('superadmin.tenant.fields.trial_ends_at'))
                                     ->dateTime()
                                     ->placeholder(__('superadmin.tenant.placeholders.no_trial')),
-                                    
+
                                 Components\TextEntry::make('subscription_ends_at')
                                     ->label(__('superadmin.tenant.fields.subscription_ends_at'))
                                     ->dateTime()
@@ -153,18 +154,18 @@ final class ViewTenant extends ViewRecord
                                     ->falseIcon('heroicon-o-x-circle')
                                     ->trueColor('success')
                                     ->falseColor('danger'),
-                                    
+
                                 Components\TextEntry::make('last_activity_at')
                                     ->label(__('superadmin.tenant.fields.last_activity'))
                                     ->dateTime()
                                     ->since(),
                             ]),
-                            
+
                         Components\TextEntry::make('suspended_at')
                             ->label(__('superadmin.tenant.fields.suspended_at'))
                             ->dateTime()
                             ->visible(fn () => $this->record->suspended_at !== null),
-                            
+
                         Components\TextEntry::make('suspension_reason')
                             ->label(__('superadmin.tenant.fields.suspension_reason'))
                             ->visible(fn () => $this->record->suspension_reason !== null),
@@ -177,7 +178,7 @@ final class ViewTenant extends ViewRecord
                                 Components\TextEntry::make('created_at')
                                     ->label(__('superadmin.tenant.fields.created_at'))
                                     ->dateTime(),
-                                    
+
                                 Components\TextEntry::make('updated_at')
                                     ->label(__('superadmin.tenant.fields.updated_at'))
                                     ->dateTime(),

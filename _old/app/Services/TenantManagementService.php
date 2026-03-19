@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Contracts\TenantManagementInterface;
-use App\Support\Tenants\BulkOperationResult;
-use App\Support\Tenants\CreateTenantData;
 use App\Enums\AuditAction;
 use App\Models\Organization;
 use App\Models\SuperAdminAuditLog;
+use App\Support\Tenants\BulkOperationResult;
+use App\Support\Tenants\CreateTenantData;
 use App\ValueObjects\TenantMetrics;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 final readonly class TenantManagementService implements TenantManagementInterface
 {
@@ -40,16 +39,16 @@ final readonly class TenantManagementService implements TenantManagementInterfac
                 // Initialize universal services for the new tenant
                 try {
                     $universalServicesResult = $this->tenantInitializationService->initializeUniversalServices($tenant);
-                    
+
                     // Initialize property service assignments if properties exist
                     $propertyAssignments = $this->tenantInitializationService->initializePropertyServiceAssignments(
-                        $tenant, 
+                        $tenant,
                         $universalServicesResult['utility_services']
                     );
-                    
+
                     // Ensure heating compatibility
                     $heatingCompatible = $this->tenantInitializationService->ensureHeatingCompatibility($tenant);
-                    
+
                     Log::info('Universal services initialized for new tenant', [
                         'tenant_id' => $tenant->id,
                         'services_created' => count($universalServicesResult['utility_services']),
@@ -65,24 +64,24 @@ final readonly class TenantManagementService implements TenantManagementInterfac
                     // This ensures backward compatibility
                 }
 
-            // Log the creation
-            SuperAdminAuditLog::create([
-                'admin_id' => $data->createdByAdminId,
-                'action' => AuditAction::TENANT_CREATED,
-                'target_type' => Organization::class,
-                'target_id' => $tenant->id,
-                'tenant_id' => $tenant->id,
-                'changes' => [
-                    'name' => $tenant->name,
-                    'plan' => $tenant->plan->value,
-                    'email' => $tenant->email,
-                ],
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-            ]);
+                // Log the creation
+                SuperAdminAuditLog::create([
+                    'admin_id' => $data->createdByAdminId,
+                    'action' => AuditAction::TENANT_CREATED,
+                    'target_type' => Organization::class,
+                    'target_id' => $tenant->id,
+                    'tenant_id' => $tenant->id,
+                    'changes' => [
+                        'name' => $tenant->name,
+                        'plan' => $tenant->plan->value,
+                        'email' => $tenant->email,
+                    ],
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
 
-            // Send welcome email (async)
-            $this->sendWelcomeEmail($tenant);
+                // Send welcome email (async)
+                $this->sendWelcomeEmail($tenant);
 
                 Log::info('Tenant created successfully', [
                     'tenant_id' => $tenant->id,
@@ -101,7 +100,7 @@ final readonly class TenantManagementService implements TenantManagementInterfac
                     'error' => $e->getMessage(),
                     'stack_trace' => $e->getTraceAsString(),
                 ]);
-                throw new \RuntimeException('Failed to create tenant: ' . $e->getMessage(), 0, $e);
+                throw new \RuntimeException('Failed to create tenant: '.$e->getMessage(), 0, $e);
             }
         });
     }
@@ -124,7 +123,7 @@ final readonly class TenantManagementService implements TenantManagementInterfac
                 'settings' => $settings,
                 'error' => $e->getMessage(),
             ]);
-            throw new \RuntimeException('Failed to update tenant settings: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('Failed to update tenant settings: '.$e->getMessage(), 0, $e);
         }
     }
 
@@ -137,6 +136,7 @@ final readonly class TenantManagementService implements TenantManagementInterfac
                     'tenant_name' => $tenant->name,
                     'admin_id' => $adminId,
                 ]);
+
                 return;
             }
 
@@ -156,19 +156,20 @@ final readonly class TenantManagementService implements TenantManagementInterfac
                 'admin_id' => $adminId,
                 'error' => $e->getMessage(),
             ]);
-            throw new \RuntimeException('Failed to suspend tenant: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('Failed to suspend tenant: '.$e->getMessage(), 0, $e);
         }
     }
 
     public function activateTenant(Organization $tenant, int $adminId): void
     {
         try {
-            if (!$tenant->suspended_at && $tenant->is_active) {
+            if (! $tenant->suspended_at && $tenant->is_active) {
                 Log::info('Attempted to activate already active tenant', [
                     'tenant_id' => $tenant->id,
                     'tenant_name' => $tenant->name,
                     'admin_id' => $adminId,
                 ]);
+
                 return;
             }
 
@@ -186,7 +187,7 @@ final readonly class TenantManagementService implements TenantManagementInterfac
                 'admin_id' => $adminId,
                 'error' => $e->getMessage(),
             ]);
-            throw new \RuntimeException('Failed to activate tenant: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('Failed to activate tenant: '.$e->getMessage(), 0, $e);
         }
     }
 
@@ -282,7 +283,7 @@ final readonly class TenantManagementService implements TenantManagementInterfac
     public function updateResourceQuotas(Organization $tenant, array $quotas, int $adminId): void
     {
         $originalQuotas = $tenant->resource_quotas ?? [];
-        
+
         foreach ($quotas as $resource => $quota) {
             $tenant->setResourceQuota($resource, $quota);
         }
@@ -360,7 +361,7 @@ final readonly class TenantManagementService implements TenantManagementInterfac
             ->with(['users', 'properties', 'createdByAdmin']);
 
         // Apply filters
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             match ($filters['status']) {
                 'active' => $query->active(),
                 'suspended' => $query->whereNotNull('suspended_at'),
@@ -369,24 +370,24 @@ final readonly class TenantManagementService implements TenantManagementInterfac
             };
         }
 
-        if (!empty($filters['plan'])) {
+        if (! empty($filters['plan'])) {
             $query->onPlan($filters['plan']);
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('domain', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('domain', 'like', "%{$search}%");
             });
         }
 
-        if (!empty($filters['created_after'])) {
+        if (! empty($filters['created_after'])) {
             $query->where('created_at', '>=', $filters['created_after']);
         }
 
-        if (!empty($filters['created_before'])) {
+        if (! empty($filters['created_before'])) {
             $query->where('created_at', '<=', $filters['created_before']);
         }
 
@@ -403,7 +404,7 @@ final readonly class TenantManagementService implements TenantManagementInterfac
                 'email' => $tenant->email,
                 'tenant_name' => $tenant->name ?? 'Unknown',
             ]);
-            
+
             // Future implementation:
             // dispatch(new SendWelcomeEmailJob($tenant));
         } catch (\Exception $e) {

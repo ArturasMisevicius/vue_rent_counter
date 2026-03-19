@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * Language Model
@@ -26,8 +29,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property bool $is_default Whether this is the default language
  * @property bool $is_active Whether this language is active
  * @property int $display_order Display order in language switcher
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 final class Language extends Model
 {
@@ -69,8 +72,8 @@ final class Language extends Model
      * SECURITY: Query scope prevents SQL injection by encapsulating
      * the filtering logic and ensuring consistent parameterization.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeActive($query)
     {
@@ -83,7 +86,7 @@ final class Language extends Model
      * PERFORMANCE: Cached for 15 minutes to reduce database queries.
      * Cache is invalidated when languages are created, updated, or deleted.
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
     public static function getActiveLanguages()
     {
@@ -100,7 +103,7 @@ final class Language extends Model
      * PERFORMANCE: Cached for 15 minutes to reduce database queries.
      * Cache is invalidated when languages are created, updated, or deleted.
      *
-     * @return \App\Models\Language|null
+     * @return Language|null
      */
     public static function getDefault()
     {

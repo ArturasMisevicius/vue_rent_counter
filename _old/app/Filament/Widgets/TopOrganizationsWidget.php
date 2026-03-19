@@ -14,7 +14,7 @@ class TopOrganizationsWidget extends ChartWidget
 
     protected ?string $description = 'Organizations with the most properties';
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     protected function getData(): array
     {

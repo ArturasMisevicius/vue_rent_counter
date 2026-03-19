@@ -23,7 +23,7 @@ trait HasTenantScoping
      * Applies tenant_id filtering for users with a tenant assignment.
      * Superadmin users bypass this scope to access all records.
      *
-     * @param Builder $query The query builder instance
+     * @param  Builder  $query  The query builder instance
      * @return Builder The scoped query builder
      */
     protected static function scopeToUserTenant(Builder $query): Builder

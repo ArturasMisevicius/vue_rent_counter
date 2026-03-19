@@ -127,20 +127,20 @@
                 </div>
             @endif
 
-            @if ($preview)
+            @if ($consumption)
                 <div class="space-y-4 rounded-[1.75rem] border border-slate-200 bg-white px-5 py-5">
-                    <p class="text-sm leading-6 text-slate-600">{{ $preview['message'] }}</p>
+                    <p class="text-sm leading-6 text-slate-600">{{ $consumption['message'] }}</p>
 
-                    @if ($preview['warning'])
+                    @if ($consumption['warning'])
                         <div class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
-                            {{ $preview['warning'] }}
+                            {{ $consumption['warning'] }}
                         </div>
                     @endif
 
-                    @if ($preview['delta'] !== null)
+                    @if ($consumption['delta'] !== null)
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{{ __('tenant.pages.readings.estimated_consumption') }}</p>
-                            <p class="mt-2 font-display text-3xl tracking-tight text-slate-950">{{ $preview['delta'] }}</p>
+                            <p class="mt-2 font-display text-3xl tracking-tight text-slate-950">{{ $consumption['delta'] }}</p>
                         </div>
                     @endif
                 </div>

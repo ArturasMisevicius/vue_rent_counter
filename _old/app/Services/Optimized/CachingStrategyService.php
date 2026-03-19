@@ -4,30 +4,30 @@ declare(strict_types=1);
 
 namespace App\Services\Optimized;
 
-use App\Models\MeterReading;
 use App\Models\Meter;
+use App\Models\MeterReading;
 use App\Models\Tariff;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
-use Carbon\Carbon;
 
 /**
  * Comprehensive Caching Strategy Service
- * 
+ *
  * Implements multi-level caching for utilities management system
  */
 final readonly class CachingStrategyService
 {
     public function __construct(
         private int $shortTtl = 300,    // 5 minutes
-        private int $mediumTtl = 1800,  // 30 minutes  
+        private int $mediumTtl = 1800, // 30 minutes
         private int $longTtl = 3600,    // 1 hour
         private int $dailyTtl = 86400,  // 24 hours
     ) {}
 
     /**
      * CACHE KEY STRATEGY
-     * 
+     *
      * Format: {service}:{entity}:{tenant_id}:{specific_params}:{version}
      * Examples:
      * - readings:dashboard:123:30d:v1
@@ -41,10 +41,10 @@ final readonly class CachingStrategyService
     public function getCachedMeterReadings(int $tenantId, string $period = '30d'): array
     {
         $cacheKey = "readings:dashboard:{$tenantId}:{$period}:v1";
-        
+
         return Cache::remember($cacheKey, $this->mediumTtl, function () use ($tenantId, $period) {
             $days = (int) str_replace('d', '', $period);
-            
+
             return MeterReading::where('tenant_id', $tenantId)
                 ->where('created_at', '>=', now()->subDays($days))
                 ->with(['meter:id,serial_number,type', 'enteredBy:id,name'])
@@ -59,7 +59,7 @@ final readonly class CachingStrategyService
     public function getCachedDashboardMetrics(int $tenantId): array
     {
         $cacheKey = "metrics:dashboard:{$tenantId}:v1";
-        
+
         return Cache::remember($cacheKey, $this->shortTtl, function () use ($tenantId) {
             return [
                 'total_readings' => MeterReading::where('tenant_id', $tenantId)->count(),
@@ -79,14 +79,14 @@ final readonly class CachingStrategyService
     public function getCachedMeterWithReadings(int $meterId): array
     {
         $cacheKey = "meter:full:{$meterId}:v1";
-        
+
         return Cache::remember($cacheKey, $this->longTtl, function () use ($meterId) {
             return Meter::with([
                 'property:id,name,building_id',
                 'property.building:id,name,address',
                 'readings' => function ($query) {
                     $query->latest()->limit(10);
-                }
+                },
             ])->find($meterId)->toArray();
         });
     }
@@ -97,14 +97,14 @@ final readonly class CachingStrategyService
     public function getCachedActiveTariffs(int $tenantId, string $serviceType): array
     {
         $cacheKey = "tariffs:active:{$tenantId}:{$serviceType}:v1";
-        
+
         return Cache::remember($cacheKey, $this->dailyTtl, function () use ($tenantId, $serviceType) {
             return Tariff::where('tenant_id', $tenantId)
                 ->where('type', $serviceType)
                 ->where('active_from', '<=', now())
                 ->where(function ($query) {
                     $query->whereNull('active_until')
-                          ->orWhere('active_until', '>=', now());
+                        ->orWhere('active_until', '>=', now());
                 })
                 ->get()
                 ->toArray();
@@ -123,7 +123,7 @@ final readonly class CachingStrategyService
     {
         $cacheKey = "readings:meter:{$tenantId}:{$meterId}:v1";
         $tags = ["tenant:{$tenantId}", "meter:{$meterId}", 'readings'];
-        
+
         return $this->getCachedWithTags($cacheKey, $tags, $this->mediumTtl, function () use ($tenantId, $meterId) {
             return MeterReading::where('tenant_id', $tenantId)
                 ->where('meter_id', $meterId)
@@ -137,39 +137,39 @@ final readonly class CachingStrategyService
     /**
      * 6. REDIS-SPECIFIC OPTIMIZATIONS
      */
-    public function getCachedWithRedisOptimization(string $key, callable $callback, int $ttl = null): mixed
+    public function getCachedWithRedisOptimization(string $key, callable $callback, ?int $ttl = null): mixed
     {
         $ttl = $ttl ?? $this->mediumTtl;
-        
+
         // Try to get from Redis first
         $cached = Redis::get($key);
-        
+
         if ($cached !== null) {
             return json_decode($cached, true);
         }
-        
+
         // Generate data
         $data = $callback();
-        
+
         // Store in Redis with compression for large datasets
         $serialized = json_encode($data);
-        
+
         if (strlen($serialized) > 1024) {
             // Compress large data
             $compressed = gzcompress($serialized, 6);
-            Redis::setex($key . ':compressed', $ttl, $compressed);
-            Redis::setex($key . ':meta', $ttl, json_encode(['compressed' => true]));
+            Redis::setex($key.':compressed', $ttl, $compressed);
+            Redis::setex($key.':meta', $ttl, json_encode(['compressed' => true]));
         } else {
             Redis::setex($key, $ttl, $serialized);
         }
-        
+
         return $data;
     }
 
     /**
      * 7. CACHE INVALIDATION STRATEGIES
      */
-    
+
     /**
      * Clear cache when meter reading is created/updated
      */
@@ -181,11 +181,11 @@ final readonly class CachingStrategyService
             "metrics:dashboard:{$tenantId}:*",
             "meter:full:{$meterId}:*",
         ];
-        
+
         foreach ($patterns as $pattern) {
             $this->clearCachePattern($pattern);
         }
-        
+
         // Clear tagged cache
         Cache::tags(["tenant:{$tenantId}", "meter:{$meterId}", 'readings'])->flush();
     }
@@ -199,11 +199,11 @@ final readonly class CachingStrategyService
             "tariffs:active:{$tenantId}:{$serviceType}:*",
             "tariffs:active:{$tenantId}:*:*",
         ];
-        
+
         foreach ($patterns as $pattern) {
             $this->clearCachePattern($pattern);
         }
-        
+
         Cache::tags(["tenant:{$tenantId}", 'tariffs'])->flush();
     }
 
@@ -216,7 +216,7 @@ final readonly class CachingStrategyService
         $this->getCachedDashboardMetrics($tenantId);
         $this->getCachedMeterReadings($tenantId, '30d');
         $this->getCachedMeterReadings($tenantId, '7d');
-        
+
         // Pre-load active tariffs for all service types
         $serviceTypes = ['electricity', 'water', 'heating'];
         foreach ($serviceTypes as $type) {
@@ -240,31 +240,32 @@ final readonly class CachingStrategyService
     /**
      * 10. CACHE LAYERS (L1: Memory, L2: Redis, L3: Database)
      */
-    public function getWithMultiLevelCache(string $key, callable $callback, int $ttl = null): mixed
+    public function getWithMultiLevelCache(string $key, callable $callback, ?int $ttl = null): mixed
     {
         $ttl = $ttl ?? $this->mediumTtl;
-        
+
         // L1: In-memory cache (APCu or array)
         static $memoryCache = [];
         if (isset($memoryCache[$key])) {
             return $memoryCache[$key];
         }
-        
+
         // L2: Redis cache
         $redisValue = Redis::get($key);
         if ($redisValue !== null) {
             $data = json_decode($redisValue, true);
             $memoryCache[$key] = $data;
+
             return $data;
         }
-        
+
         // L3: Generate from database
         $data = $callback();
-        
+
         // Store in both levels
         $memoryCache[$key] = $data;
         Redis::setex($key, $ttl, json_encode($data));
-        
+
         return $data;
     }
 
@@ -274,7 +275,7 @@ final readonly class CachingStrategyService
     public function getCacheVersion(): string
     {
         return Cache::rememberForever('cache:version', function () {
-            return 'v' . time();
+            return 'v'.time();
         });
     }
 
@@ -292,7 +293,7 @@ final readonly class CachingStrategyService
         if (str_contains($pattern, '*')) {
             // Use Redis SCAN for pattern matching
             $keys = Redis::keys($pattern);
-            if (!empty($keys)) {
+            if (! empty($keys)) {
                 Redis::del($keys);
             }
         } else {
@@ -305,11 +306,11 @@ final readonly class CachingStrategyService
         $info = Redis::info('stats');
         $hits = $info['keyspace_hits'] ?? 0;
         $misses = $info['keyspace_misses'] ?? 0;
-        
+
         if ($hits + $misses === 0) {
             return 0.0;
         }
-        
+
         return round(($hits / ($hits + $misses)) * 100, 2);
     }
 
@@ -320,7 +321,7 @@ final readonly class CachingStrategyService
     {
         // Preload data in background for heavy reports
         $cacheKey = "report:consumption:{$tenantId}:{$startDate->format('Y-m-d')}:{$endDate->format('Y-m-d')}:v1";
-        
+
         Cache::put($cacheKey, function () use ($tenantId, $startDate, $endDate) {
             return MeterReading::where('tenant_id', $tenantId)
                 ->whereBetween('reading_date', [$startDate, $endDate])

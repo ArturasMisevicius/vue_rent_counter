@@ -2,19 +2,20 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * PropertyTenantPivot - Custom pivot model for property-tenant relationship
- * 
+ *
  * Extends the basic pivot with additional data and business logic
- * 
+ *
  * @property int $id
  * @property int $property_id
  * @property int $tenant_id
- * @property \Carbon\Carbon $assigned_at
- * @property \Carbon\Carbon|null $vacated_at
+ * @property Carbon $assigned_at
+ * @property Carbon|null $vacated_at
  * @property float|null $monthly_rent
  * @property float|null $deposit_amount
  * @property string $lease_type
@@ -89,6 +90,7 @@ class PropertyTenantPivot extends Pivot
     public function getDurationInDays(): int
     {
         $endDate = $this->vacated_at ?? now();
+
         return $this->assigned_at->diffInDays($endDate);
     }
 
@@ -98,6 +100,7 @@ class PropertyTenantPivot extends Pivot
     public function getDurationInMonths(): int
     {
         $endDate = $this->vacated_at ?? now();
+
         return $this->assigned_at->diffInMonths($endDate);
     }
 
@@ -106,11 +109,12 @@ class PropertyTenantPivot extends Pivot
      */
     public function getTotalRentPaid(): float
     {
-        if (!$this->monthly_rent) {
+        if (! $this->monthly_rent) {
             return 0.0;
         }
 
         $months = $this->getDurationInMonths();
+
         return $this->monthly_rent * $months;
     }
 

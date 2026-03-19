@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace App\Services\Optimized;
 
 use App\Models\MeterReading;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Pagination\Paginator;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator as LaravelPaginator;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Pagination Optimization Service
- * 
+ *
  * Addresses performance issues with large datasets and provides
  * alternatives to standard OFFSET-based pagination
  */
@@ -22,9 +21,9 @@ final readonly class PaginationOptimizationService
 {
     /**
      * PROBLEM: Standard OFFSET pagination becomes slow with large datasets
-     * 
+     *
      * SELECT * FROM meter_readings ORDER BY id LIMIT 50 OFFSET 100000;
-     * 
+     *
      * This query gets slower as the offset increases because the database
      * must scan and skip 100,000 rows before returning results.
      */
@@ -42,7 +41,7 @@ final readonly class PaginationOptimizationService
 
     /**
      * BETTER: Simple pagination (no total count)
-     * 
+     *
      * Removes the expensive COUNT(*) query and uses LIMIT + 1 to check for next page
      */
     public function getReadingsSimplePagination(int $tenantId, int $page = 1, int $perPage = 50): Paginator
@@ -55,13 +54,13 @@ final readonly class PaginationOptimizationService
 
     /**
      * BEST: Cursor-based pagination (keyset pagination)
-     * 
+     *
      * Uses the last seen value as a cursor instead of OFFSET
      * Performance remains constant regardless of dataset size
      */
     public function getReadingsCursorPagination(
-        int $tenantId, 
-        ?string $cursor = null, 
+        int $tenantId,
+        ?string $cursor = null,
         int $limit = 50,
         string $direction = 'desc'
     ): array {
@@ -69,40 +68,40 @@ final readonly class PaginationOptimizationService
             ->with(['meter:id,serial_number,type', 'enteredBy:id,name'])
             ->select([
                 'id', 'meter_id', 'reading_date', 'value', 'zone',
-                'validation_status', 'entered_by', 'created_at'
+                'validation_status', 'entered_by', 'created_at',
             ]);
 
         // Apply cursor condition
         if ($cursor) {
             $cursorData = $this->decodeCursor($cursor);
-            
+
             if ($direction === 'desc') {
                 $query->where(function ($q) use ($cursorData) {
                     $q->where('reading_date', '<', $cursorData['reading_date'])
-                      ->orWhere(function ($q2) use ($cursorData) {
-                          $q2->where('reading_date', '=', $cursorData['reading_date'])
-                             ->where('id', '<', $cursorData['id']);
-                      });
+                        ->orWhere(function ($q2) use ($cursorData) {
+                            $q2->where('reading_date', '=', $cursorData['reading_date'])
+                                ->where('id', '<', $cursorData['id']);
+                        });
                 });
             } else {
                 $query->where(function ($q) use ($cursorData) {
                     $q->where('reading_date', '>', $cursorData['reading_date'])
-                      ->orWhere(function ($q2) use ($cursorData) {
-                          $q2->where('reading_date', '=', $cursorData['reading_date'])
-                             ->where('id', '>', $cursorData['id']);
-                      });
+                        ->orWhere(function ($q2) use ($cursorData) {
+                            $q2->where('reading_date', '=', $cursorData['reading_date'])
+                                ->where('id', '>', $cursorData['id']);
+                        });
                 });
             }
         }
 
         // Order and limit
         $query->orderBy('reading_date', $direction)
-              ->orderBy('id', $direction)
-              ->limit($limit + 1); // +1 to check if there are more results
+            ->orderBy('id', $direction)
+            ->limit($limit + 1); // +1 to check if there are more results
 
         $results = $query->get();
         $hasMore = $results->count() > $limit;
-        
+
         if ($hasMore) {
             $results->pop(); // Remove the extra item
         }
@@ -154,17 +153,17 @@ final readonly class PaginationOptimizationService
         if ($lastReadingDate && $lastId) {
             $query->where(function ($q) use ($lastReadingDate, $lastId) {
                 $q->where('mr.reading_date', '<', $lastReadingDate)
-                  ->orWhere(function ($q2) use ($lastReadingDate, $lastId) {
-                      $q2->where('mr.reading_date', '=', $lastReadingDate)
-                         ->where('mr.id', '<', $lastId);
-                  });
+                    ->orWhere(function ($q2) use ($lastReadingDate, $lastId) {
+                        $q2->where('mr.reading_date', '=', $lastReadingDate)
+                            ->where('mr.id', '<', $lastId);
+                    });
             });
         }
 
         $results = $query->orderByDesc('mr.reading_date')
-                        ->orderByDesc('mr.id')
-                        ->limit($limit + 1)
-                        ->get();
+            ->orderByDesc('mr.id')
+            ->limit($limit + 1)
+            ->get();
 
         $hasMore = $results->count() > $limit;
         if ($hasMore) {
@@ -195,8 +194,8 @@ final readonly class PaginationOptimizationService
         }
 
         $results = $query->orderByDesc('id')
-                        ->limit($limit + 1)
-                        ->get();
+            ->limit($limit + 1)
+            ->get();
 
         $hasMore = $results->count() > $limit;
         if ($hasMore) {
@@ -212,7 +211,7 @@ final readonly class PaginationOptimizationService
 
     /**
      * Hybrid pagination for search results
-     * 
+     *
      * Uses cursor pagination for performance but provides approximate counts
      */
     public function searchReadingsHybridPagination(
@@ -230,8 +229,8 @@ final readonly class PaginationOptimizationService
             ->where('mr.tenant_id', $tenantId)
             ->where(function ($q) use ($searchTerm) {
                 $q->where('m.serial_number', 'like', "%{$searchTerm}%")
-                  ->orWhere('mr.value', 'like', "%{$searchTerm}%")
-                  ->orWhere('mr.zone', 'like', "%{$searchTerm}%");
+                    ->orWhere('mr.value', 'like', "%{$searchTerm}%")
+                    ->orWhere('mr.zone', 'like', "%{$searchTerm}%");
             });
 
         // Apply cursor if provided
@@ -241,9 +240,9 @@ final readonly class PaginationOptimizationService
         }
 
         $results = $query->select([
-                'mr.id', 'mr.reading_date', 'mr.value', 'mr.zone',
-                'm.serial_number', 'm.type'
-            ])
+            'mr.id', 'mr.reading_date', 'mr.value', 'mr.zone',
+            'm.serial_number', 'm.type',
+        ])
             ->orderByDesc('mr.id')
             ->limit($limit + 1)
             ->get();
@@ -284,9 +283,9 @@ final readonly class PaginationOptimizationService
         }
 
         $results = $query->orderBy('reading_date')
-                        ->orderBy('id')
-                        ->limit($limit + 1)
-                        ->get();
+            ->orderBy('id')
+            ->limit($limit + 1)
+            ->get();
 
         $hasMore = $results->count() > $limit;
         if ($hasMore) {
@@ -346,7 +345,7 @@ final readonly class PaginationOptimizationService
                 ->where('mr.tenant_id', $tenantId)
                 ->where(function ($q) use ($searchTerm) {
                     $q->where('m.serial_number', 'like', "%{$searchTerm}%")
-                      ->orWhere('mr.value', 'like', "%{$searchTerm}%");
+                        ->orWhere('mr.value', 'like', "%{$searchTerm}%");
                 })
                 ->limit($sampleSize)
                 ->count();
@@ -360,7 +359,7 @@ final readonly class PaginationOptimizationService
             ->where('mr.tenant_id', $tenantId)
             ->where(function ($q) use ($searchTerm) {
                 $q->where('m.serial_number', 'like', "%{$searchTerm}%")
-                  ->orWhere('mr.value', 'like', "%{$searchTerm}%");
+                    ->orWhere('mr.value', 'like', "%{$searchTerm}%");
             })
             ->count();
     }
@@ -377,7 +376,7 @@ final readonly class PaginationOptimizationService
 
     private function calculateProgress(Carbon $start, Carbon $end, ?Carbon $current): float
     {
-        if (!$current) {
+        if (! $current) {
             return 0.0;
         }
 

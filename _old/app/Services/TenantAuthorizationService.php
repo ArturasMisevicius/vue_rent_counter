@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Contracts\TenantAuthorizationServiceInterface;
+use App\Enums\UserRole;
 use App\Models\User;
 use App\ValueObjects\TenantId;
 
@@ -17,7 +18,7 @@ final readonly class TenantAuthorizationService implements TenantAuthorizationSe
             return true;
         }
 
-        if ($user->role === \App\Enums\UserRole::TENANT) {
+        if ($user->role === UserRole::TENANT) {
             return false;
         }
 

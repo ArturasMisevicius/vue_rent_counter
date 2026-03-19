@@ -86,7 +86,7 @@ final readonly class AnomalyDetector
 
         foreach ($consumptionData as $record) {
             $zScore = abs(($record->consumption - $mean) / $stdDev);
-            
+
             if ($zScore >= $severeThreshold) {
                 $anomalies[] = [
                     'id' => $record->id ?? uniqid(),
@@ -126,15 +126,18 @@ final readonly class AnomalyDetector
         array $thresholds
     ): array {
         $anomalies = [];
-        
+
         // Group data by season
         $seasonalData = $consumptionData->groupBy(function ($record) {
             $date = $record->reading_date ?? $record->created_at;
+
             return $this->getSeason($date);
         });
 
         foreach ($seasonalData as $season => $records) {
-            if ($records->count() < 3) continue; // Need minimum data for seasonal analysis
+            if ($records->count() < 3) {
+                continue;
+            } // Need minimum data for seasonal analysis
 
             $seasonalMean = $records->avg('consumption');
             $seasonalStdDev = $this->calculateStandardDeviation(
@@ -142,14 +145,16 @@ final readonly class AnomalyDetector
                 $seasonalMean
             );
 
-            if ($seasonalStdDev === 0) continue;
+            if ($seasonalStdDev === 0) {
+                continue;
+            }
 
             $mildThreshold = $thresholds['mild_threshold'] ?? 2.0;
             $severeThreshold = $thresholds['severe_threshold'] ?? 3.0;
 
             foreach ($records as $record) {
                 $zScore = abs(($record->consumption - $seasonalMean) / $seasonalStdDev);
-                
+
                 if ($zScore >= $severeThreshold) {
                     $anomalies[] = [
                         'id' => $record->id ?? uniqid(),
@@ -192,7 +197,7 @@ final readonly class AnomalyDetector
         array $thresholds
     ): array {
         $anomalies = [];
-        
+
         if ($consumptionData->count() < 5) {
             return $anomalies; // Need minimum data for trend analysis
         }
@@ -200,9 +205,9 @@ final readonly class AnomalyDetector
         // Calculate moving averages and detect sudden changes
         $windowSize = min(5, intval($consumptionData->count() / 3));
         $movingAverages = [];
-        
+
         $dataArray = $consumptionData->values()->toArray();
-        
+
         for ($i = $windowSize - 1; $i < count($dataArray); $i++) {
             $window = array_slice($dataArray, $i - $windowSize + 1, $windowSize);
             $average = array_sum(array_column($window, 'consumption')) / $windowSize;
@@ -217,14 +222,16 @@ final readonly class AnomalyDetector
         for ($i = 1; $i < count($movingAverages); $i++) {
             $current = $movingAverages[$i];
             $previous = $movingAverages[$i - 1];
-            
-            if ($previous['average'] === 0) continue;
-            
+
+            if ($previous['average'] === 0) {
+                continue;
+            }
+
             $changePercent = abs(($current['average'] - $previous['average']) / $previous['average']);
-            
+
             if ($changePercent >= 0.5) { // 50% change threshold
                 $severity = $changePercent >= 1.0 ? 'severe' : 'mild';
-                
+
                 $changePercentValue = $changePercent * 100;
 
                 $anomalies[] = [
@@ -286,10 +293,10 @@ final readonly class AnomalyDetector
         // Remove duplicates based on ID and date
         $unique = [];
         $seen = [];
-        
+
         foreach ($anomalies as $anomaly) {
-            $key = $anomaly['id'] . '_' . $anomaly['date'];
-            if (!isset($seen[$key])) {
+            $key = $anomaly['id'].'_'.$anomaly['date'];
+            if (! isset($seen[$key])) {
                 $unique[] = $anomaly;
                 $seen[$key] = true;
             }
@@ -300,6 +307,7 @@ final readonly class AnomalyDetector
             if ($a['severity'] !== $b['severity']) {
                 return $a['severity'] === 'severe' ? -1 : 1;
             }
+
             return $a['date'] <=> $b['date'];
         });
 
@@ -309,6 +317,7 @@ final readonly class AnomalyDetector
     private function getSeason($date): string
     {
         $month = $date->month ?? date('n', strtotime($date));
+
         return match (true) {
             in_array($month, [12, 1, 2]) => 'winter',
             in_array($month, [3, 4, 5]) => 'spring',
@@ -320,23 +329,27 @@ final readonly class AnomalyDetector
     private function calculateMedian(array $values): float
     {
         $count = count($values);
-        if ($count === 0) return 0;
+        if ($count === 0) {
+            return 0;
+        }
 
         $middle = intval($count / 2);
-        
+
         if ($count % 2 === 0) {
             return ($values[$middle - 1] + $values[$middle]) / 2;
         }
-        
+
         return $values[$middle];
     }
 
     private function calculateStandardDeviation(array $values, float $mean): float
     {
-        if (count($values) <= 1) return 0;
+        if (count($values) <= 1) {
+            return 0;
+        }
 
         $variance = array_sum(array_map(
-            fn($value) => pow($value - $mean, 2),
+            fn ($value) => pow($value - $mean, 2),
             $values
         )) / (count($values) - 1);
 
@@ -345,7 +358,9 @@ final readonly class AnomalyDetector
 
     private function calculatePercentile(array $values, int $percentile): float
     {
-        if (empty($values)) return 0;
+        if (empty($values)) {
+            return 0;
+        }
 
         $index = ($percentile / 100) * (count($values) - 1);
         $lower = floor($index);
@@ -356,6 +371,7 @@ final readonly class AnomalyDetector
         }
 
         $weight = $index - $lower;
+
         return $values[$lower] * (1 - $weight) + $values[$upper] * $weight;
     }
 }

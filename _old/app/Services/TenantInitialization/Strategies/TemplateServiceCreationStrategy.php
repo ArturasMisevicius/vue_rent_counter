@@ -11,7 +11,7 @@ use App\Services\TenantInitialization\Repositories\UtilityServiceRepositoryInter
 
 /**
  * Creates utility services from global templates.
- * 
+ *
  * This strategy looks for existing global templates and creates
  * tenant-specific copies with customizations.
  */
@@ -22,13 +22,13 @@ final readonly class TemplateServiceCreationStrategy implements ServiceCreationS
     ) {}
 
     public function createService(
-        Organization $tenant, 
-        string $serviceKey, 
+        Organization $tenant,
+        string $serviceKey,
         array $definition
     ): UtilityService {
         $template = $this->repository->findGlobalTemplate($definition['service_type_bridge']);
-        
-        if (!$template) {
+
+        if (! $template) {
             throw new \InvalidArgumentException("No global template found for service type: {$definition['service_type_bridge']}");
         }
 
@@ -40,7 +40,7 @@ final readonly class TemplateServiceCreationStrategy implements ServiceCreationS
 
     public function canHandle(array $definition): bool
     {
-        return isset($definition['service_type_bridge']) 
+        return isset($definition['service_type_bridge'])
             && $this->repository->hasGlobalTemplate($definition['service_type_bridge']);
     }
 }

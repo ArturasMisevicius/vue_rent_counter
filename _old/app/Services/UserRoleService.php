@@ -6,13 +6,14 @@ namespace App\Services;
 
 use App\Enums\UserRole;
 use App\Models\User;
+use Illuminate\Cache\RedisStore;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 
 /**
  * User Role Service - Centralized Role Management
- * 
+ *
  * Handles all role-related operations with caching and performance optimizations.
  * Provides a clean interface for role checking, capability validation, and
  * schema-aware role management.
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Schema;
 class UserRoleService
 {
     private const CACHE_TTL = 3600; // 1 hour
+
     private const CACHE_PREFIX = 'user_role:';
 
     /**
@@ -28,7 +30,7 @@ class UserRoleService
     public function hasRole(User $user, string|UserRole|array $roles, ?string $guard = null): bool
     {
         $cacheKey = $this->getCacheKey($user->id, 'has_role', $roles, $guard);
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($user, $roles, $guard) {
             return $this->performRoleCheck($user, $roles, $guard);
         });
@@ -110,12 +112,13 @@ class UserRoleService
     public function clearRoleCache(User $user): void
     {
         // For Redis cache, use pattern matching
-        if (Cache::getStore() instanceof \Illuminate\Cache\RedisStore) {
-            $pattern = self::CACHE_PREFIX . $user->id . ':*';
+        if (Cache::getStore() instanceof RedisStore) {
+            $pattern = self::CACHE_PREFIX.$user->id.':*';
             $keys = Cache::getRedis()->keys($pattern);
-            if (!empty($keys)) {
+            if (! empty($keys)) {
                 Cache::getRedis()->del($keys);
             }
+
             return;
         }
 
@@ -127,7 +130,7 @@ class UserRoleService
         foreach ($operations as $operation) {
             foreach ($roles as $role) {
                 foreach ($guards as $guard) {
-                    $key = self::CACHE_PREFIX . "{$user->id}:{$operation}:{$role}:{$guard}";
+                    $key = self::CACHE_PREFIX."{$user->id}:{$operation}:{$role}:{$guard}";
                     Cache::forget($key);
                 }
             }
@@ -164,11 +167,11 @@ class UserRoleService
     private function hasPermissionTables(): bool
     {
         static $hasPermissionTables = null;
-        
+
         if ($hasPermissionTables === null) {
             $hasPermissionTables = Schema::hasTable(config('permission.table_names.model_has_roles'));
         }
-        
+
         return $hasPermissionTables;
     }
 
@@ -181,7 +184,7 @@ class UserRoleService
         if ($role instanceof \BackedEnum) {
             return $role->value;
         }
-        
+
         if (is_object($role)) {
             // Handle Spatie Role objects or other objects
             if (method_exists($role, 'getName')) {
@@ -193,19 +196,20 @@ class UserRoleService
             if (isset($role->name)) {
                 return $role->name;
             }
+
             // Fallback to class name for objects
             return class_basename($role);
         }
-        
+
         if (is_array($role)) {
             // Handle nested arrays by JSON encoding and hashing for cache safety
             return md5(json_encode($role));
         }
-        
+
         if ($role === null) {
             return 'null';
         }
-        
+
         return (string) $role;
     }
 
@@ -221,9 +225,9 @@ class UserRoleService
         } else {
             $roleKey = $this->normalizeRoleToString($roles);
         }
-        
+
         $guardKey = $guard ?? 'default';
-        
-        return self::CACHE_PREFIX . "{$userId}:{$operation}:{$roleKey}:{$guardKey}";
+
+        return self::CACHE_PREFIX."{$userId}:{$operation}:{$roleKey}:{$guardKey}";
     }
 }

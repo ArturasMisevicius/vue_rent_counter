@@ -6,7 +6,7 @@ namespace App\Enums;
 
 /**
  * Threat Classification Types
- * 
+ *
  * Defines the classification categories for security threats
  * detected in the security monitoring system.
  */

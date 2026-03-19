@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Tags system with morph-to-many relationship
      * Tags can be attached to multiple model types
      */

@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Services\Optimized;
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 /**
  * Database-Specific Optimization Service
- * 
+ *
  * Provides optimizations tailored to specific database engines
  */
 final readonly class DatabaseSpecificOptimizations
@@ -17,7 +16,7 @@ final readonly class DatabaseSpecificOptimizations
     /**
      * POSTGRESQL OPTIMIZATIONS
      */
-    
+
     /**
      * Partial Indexes for PostgreSQL
      * Only index rows that meet certain conditions
@@ -61,10 +60,10 @@ final readonly class DatabaseSpecificOptimizations
         }
 
         // Index on month/year for time-based grouping
-        DB::statement("
+        DB::statement('
             CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_meter_readings_month_year
             ON meter_readings (tenant_id, EXTRACT(YEAR FROM reading_date), EXTRACT(MONTH FROM reading_date))
-        ");
+        ');
 
         // Index on consumption calculation
         DB::statement("
@@ -91,10 +90,10 @@ final readonly class DatabaseSpecificOptimizations
         }
 
         // Add tsvector column for full-text search
-        DB::statement("
+        DB::statement('
             ALTER TABLE meter_readings 
             ADD COLUMN IF NOT EXISTS search_vector tsvector
-        ");
+        ');
 
         // Update search vector with relevant data
         DB::statement("
@@ -107,10 +106,10 @@ final readonly class DatabaseSpecificOptimizations
         ");
 
         // Create GIN index for fast full-text search
-        DB::statement("
+        DB::statement('
             CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_meter_readings_search
             ON meter_readings USING gin(search_vector)
-        ");
+        ');
 
         // Create trigger to maintain search vector
         DB::statement("
@@ -127,12 +126,12 @@ final readonly class DatabaseSpecificOptimizations
             $$ LANGUAGE plpgsql;
         ");
 
-        DB::statement("
+        DB::statement('
             DROP TRIGGER IF EXISTS trigger_update_meter_reading_search_vector ON meter_readings;
             CREATE TRIGGER trigger_update_meter_reading_search_vector
                 BEFORE INSERT OR UPDATE ON meter_readings
                 FOR EACH ROW EXECUTE FUNCTION update_meter_reading_search_vector();
-        ");
+        ');
     }
 
     /**
@@ -207,13 +206,13 @@ final readonly class DatabaseSpecificOptimizations
         ");
 
         // Create unique index on materialized view
-        DB::statement("
+        DB::statement('
             CREATE UNIQUE INDEX IF NOT EXISTS idx_mv_meter_consumption_summary_pk
             ON mv_meter_consumption_summary (tenant_id, meter_id)
-        ");
+        ');
 
         // Refresh materialized view (should be scheduled)
-        DB::statement("REFRESH MATERIALIZED VIEW CONCURRENTLY mv_meter_consumption_summary");
+        DB::statement('REFRESH MATERIALIZED VIEW CONCURRENTLY mv_meter_consumption_summary');
     }
 
     /**
@@ -226,11 +225,11 @@ final readonly class DatabaseSpecificOptimizations
         }
 
         // Create partitioned table for meter readings (by date)
-        DB::statement("
+        DB::statement('
             CREATE TABLE IF NOT EXISTS meter_readings_partitioned (
                 LIKE meter_readings INCLUDING ALL
             ) PARTITION BY RANGE (reading_date);
-        ");
+        ');
 
         // Create monthly partitions for current and next year
         $currentYear = date('Y');
@@ -239,8 +238,8 @@ final readonly class DatabaseSpecificOptimizations
         for ($year = $currentYear; $year <= $nextYear; $year++) {
             for ($month = 1; $month <= 12; $month++) {
                 $startDate = sprintf('%d-%02d-01', $year, $month);
-                $endDate = date('Y-m-01', strtotime($startDate . ' +1 month'));
-                
+                $endDate = date('Y-m-01', strtotime($startDate.' +1 month'));
+
                 DB::statement("
                     CREATE TABLE IF NOT EXISTS meter_readings_y{$year}m{$month}
                     PARTITION OF meter_readings_partitioned
@@ -264,7 +263,7 @@ final readonly class DatabaseSpecificOptimizations
         }
 
         // Use index hints for complex queries
-        $sql = "
+        $sql = '
             SELECT /*+ USE_INDEX(mr, mr_tenant_date_meter_idx) */
                 mr.id,
                 mr.reading_date,
@@ -277,7 +276,7 @@ final readonly class DatabaseSpecificOptimizations
               AND mr.reading_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
             ORDER BY mr.reading_date DESC
             LIMIT 100
-        ";
+        ';
 
         return DB::select($sql, [1]);
     }
@@ -292,22 +291,22 @@ final readonly class DatabaseSpecificOptimizations
         }
 
         // Covering index for dashboard queries
-        DB::statement("
+        DB::statement('
             CREATE INDEX idx_meter_readings_dashboard_covering
             ON meter_readings (tenant_id, reading_date, validation_status, value, meter_id)
-        ");
+        ');
 
         // Covering index for meter listing with latest reading
-        DB::statement("
+        DB::statement('
             CREATE INDEX idx_meters_with_latest_reading
             ON meters (tenant_id, property_id, type, serial_number, id)
-        ");
+        ');
 
         // Covering index for invoice queries
-        DB::statement("
+        DB::statement('
             CREATE INDEX idx_invoices_tenant_status_covering
             ON invoices (tenant_id, status, due_date, total_amount, property_id, created_at)
-        ");
+        ');
     }
 
     /**
@@ -320,7 +319,7 @@ final readonly class DatabaseSpecificOptimizations
         }
 
         // Create partitioned table for audit logs
-        DB::statement("
+        DB::statement('
             CREATE TABLE IF NOT EXISTS meter_reading_audits_partitioned (
                 id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
                 meter_reading_id BIGINT UNSIGNED NOT NULL,
@@ -341,7 +340,7 @@ final readonly class DatabaseSpecificOptimizations
                 PARTITION p2025 VALUES LESS THAN (2026),
                 PARTITION p_future VALUES LESS THAN MAXVALUE
             )
-        ");
+        ');
     }
 
     /**
@@ -358,18 +357,18 @@ final readonly class DatabaseSpecificOptimizations
         }
 
         // Enable WAL mode for better concurrency
-        DB::statement("PRAGMA journal_mode=WAL");
-        
+        DB::statement('PRAGMA journal_mode=WAL');
+
         // Optimize for performance
-        DB::statement("PRAGMA synchronous=NORMAL");
-        DB::statement("PRAGMA cache_size=10000");
-        DB::statement("PRAGMA temp_store=MEMORY");
-        
+        DB::statement('PRAGMA synchronous=NORMAL');
+        DB::statement('PRAGMA cache_size=10000');
+        DB::statement('PRAGMA temp_store=MEMORY');
+
         // Enable foreign key constraints
-        DB::statement("PRAGMA foreign_keys=ON");
-        
+        DB::statement('PRAGMA foreign_keys=ON');
+
         // Analyze tables for better query planning
-        DB::statement("ANALYZE");
+        DB::statement('ANALYZE');
     }
 
     /**
@@ -382,11 +381,11 @@ final readonly class DatabaseSpecificOptimizations
     public function updateTableStatistics(): void
     {
         $driver = DB::getDriverName();
-        
+
         match ($driver) {
-            'mysql' => DB::statement("ANALYZE TABLE meter_readings, meters, invoices, properties"),
-            'pgsql' => DB::statement("ANALYZE meter_readings, meters, invoices, properties"),
-            'sqlite' => DB::statement("ANALYZE"),
+            'mysql' => DB::statement('ANALYZE TABLE meter_readings, meters, invoices, properties'),
+            'pgsql' => DB::statement('ANALYZE meter_readings, meters, invoices, properties'),
+            'sqlite' => DB::statement('ANALYZE'),
             default => null
         };
     }
@@ -397,17 +396,17 @@ final readonly class DatabaseSpecificOptimizations
     public function optimizeTableFragmentation(): void
     {
         $driver = DB::getDriverName();
-        
+
         if ($driver === 'mysql') {
             // Check fragmentation
-            $fragmented = DB::select("
+            $fragmented = DB::select('
                 SELECT table_name, 
                        ROUND(data_free/1024/1024, 2) as fragmented_mb
                 FROM information_schema.tables 
                 WHERE table_schema = DATABASE()
                   AND data_free > 100*1024*1024  -- More than 100MB fragmented
-            ");
-            
+            ');
+
             // Optimize fragmented tables
             foreach ($fragmented as $table) {
                 DB::statement("OPTIMIZE TABLE {$table->table_name}");
@@ -421,7 +420,7 @@ final readonly class DatabaseSpecificOptimizations
     public function getDatabaseConfigRecommendations(): array
     {
         $driver = DB::getDriverName();
-        
+
         return match ($driver) {
             'mysql' => [
                 'innodb_buffer_pool_size' => '70% of available RAM',
@@ -454,7 +453,7 @@ final readonly class DatabaseSpecificOptimizations
     public function getPerformanceMetrics(): array
     {
         $driver = DB::getDriverName();
-        
+
         return match ($driver) {
             'mysql' => $this->getMySQLMetrics(),
             'pgsql' => $this->getPostgreSQLMetrics(),
@@ -465,8 +464,8 @@ final readonly class DatabaseSpecificOptimizations
 
     private function getMySQLMetrics(): array
     {
-        $status = collect(DB::select("SHOW STATUS"))->pluck('Value', 'Variable_name');
-        
+        $status = collect(DB::select('SHOW STATUS'))->pluck('Value', 'Variable_name');
+
         return [
             'queries_per_second' => $status['Queries'] ?? 0,
             'slow_queries' => $status['Slow_queries'] ?? 0,
@@ -477,7 +476,7 @@ final readonly class DatabaseSpecificOptimizations
 
     private function getPostgreSQLMetrics(): array
     {
-        $stats = DB::select("
+        $stats = DB::select('
             SELECT 
                 sum(numbackends) as connections,
                 sum(xact_commit) as commits,
@@ -485,8 +484,8 @@ final readonly class DatabaseSpecificOptimizations
                 sum(blks_read) as blocks_read,
                 sum(blks_hit) as blocks_hit
             FROM pg_stat_database
-        ")[0];
-        
+        ')[0];
+
         return [
             'connections' => $stats->connections,
             'commits' => $stats->commits,
@@ -498,9 +497,9 @@ final readonly class DatabaseSpecificOptimizations
     private function getSQLiteMetrics(): array
     {
         return [
-            'page_count' => DB::select("PRAGMA page_count")[0]->page_count ?? 0,
-            'page_size' => DB::select("PRAGMA page_size")[0]->page_size ?? 0,
-            'cache_size' => DB::select("PRAGMA cache_size")[0]->cache_size ?? 0,
+            'page_count' => DB::select('PRAGMA page_count')[0]->page_count ?? 0,
+            'page_size' => DB::select('PRAGMA page_size')[0]->page_size ?? 0,
+            'cache_size' => DB::select('PRAGMA cache_size')[0]->cache_size ?? 0,
         ];
     }
 
@@ -508,11 +507,11 @@ final readonly class DatabaseSpecificOptimizations
     {
         $reads = $status['Innodb_buffer_pool_reads'] ?? 0;
         $requests = $status['Innodb_buffer_pool_read_requests'] ?? 0;
-        
+
         if ($requests == 0) {
             return 0;
         }
-        
+
         return (1 - ($reads / $requests)) * 100;
     }
 }

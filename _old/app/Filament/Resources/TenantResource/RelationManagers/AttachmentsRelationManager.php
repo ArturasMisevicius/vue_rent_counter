@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace App\Filament\Resources\TenantResource\RelationManagers;
 
 use App\Models\Attachment;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
-use Filament\Schemas\Schema;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Storage;
 
 class AttachmentsRelationManager extends RelationManager
@@ -46,7 +50,7 @@ class AttachmentsRelationManager extends RelationManager
                                     $set('size', $state->getSize());
                                 }
                             }),
-                            
+
                         Forms\Components\Select::make('category')
                             ->label('Category')
                             ->options([
@@ -58,12 +62,12 @@ class AttachmentsRelationManager extends RelationManager
                             ])
                             ->required()
                             ->default('document'),
-                            
+
                         Forms\Components\TextInput::make('description')
                             ->label('Description')
                             ->maxLength(255)
                             ->helperText('Optional description of the file'),
-                            
+
                         Forms\Components\Hidden::make('original_filename'),
                         Forms\Components\Hidden::make('mime_type'),
                         Forms\Components\Hidden::make('size'),
@@ -82,12 +86,13 @@ class AttachmentsRelationManager extends RelationManager
                         if ($record->isImage()) {
                             return $record->url;
                         }
+
                         return null;
                     })
                     ->size(40)
                     ->circular()
                     ->defaultImageUrl(asset('images/file-icon.png')),
-                    
+
                 Tables\Columns\TextColumn::make('original_filename')
                     ->label('File Name')
                     ->searchable()
@@ -95,7 +100,7 @@ class AttachmentsRelationManager extends RelationManager
                     ->copyable()
                     ->limit(30)
                     ->tooltip(fn (Attachment $record): string => $record->original_filename),
-                    
+
                 Tables\Columns\TextColumn::make('category')
                     ->label('Category')
                     ->badge()
@@ -115,11 +120,11 @@ class AttachmentsRelationManager extends RelationManager
                         'other' => 'Other',
                         default => ucfirst($state),
                     }),
-                    
+
                 Tables\Columns\TextColumn::make('human_size')
                     ->label('Size')
                     ->sortable(['size']),
-                    
+
                 Tables\Columns\TextColumn::make('mime_type')
                     ->label('Type')
                     ->badge()
@@ -133,17 +138,17 @@ class AttachmentsRelationManager extends RelationManager
                             default => 'File',
                         };
                     }),
-                    
+
                 Tables\Columns\TextColumn::make('description')
                     ->label('Description')
                     ->limit(50)
                     ->tooltip(fn (?string $state): ?string => $state)
                     ->placeholder('No description'),
-                    
+
                 Tables\Columns\TextColumn::make('uploader.name')
                     ->label('Uploaded By')
                     ->placeholder('System'),
-                    
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Uploaded')
                     ->dateTime()
@@ -159,7 +164,7 @@ class AttachmentsRelationManager extends RelationManager
                         'document' => 'General Document',
                         'other' => 'Other',
                     ]),
-                    
+
                 Tables\Filters\SelectFilter::make('mime_type')
                     ->label('File Type')
                     ->options([
@@ -171,47 +176,47 @@ class AttachmentsRelationManager extends RelationManager
                     ]),
             ])
             ->headerActions([
-                \Filament\Actions\CreateAction::make()
+                CreateAction::make()
                     ->label('Upload File')
                     ->icon('heroicon-o-arrow-up-tray')
                     ->mutateFormDataUsing(function (array $data): array {
                         $data['tenant_id'] = $this->getOwnerRecord()->tenant_id;
                         $data['uploaded_by'] = auth()->id();
-                        
+
                         if (isset($data['file'])) {
                             $file = $data['file'];
-                            $filename = time() . '_' . $file->getClientOriginalName();
+                            $filename = time().'_'.$file->getClientOriginalName();
                             $path = $file->storeAs('tenants/attachments', $filename, 'private');
-                            
+
                             $data['filename'] = $filename;
                             $data['path'] = $path;
                             $data['disk'] = 'private';
                             $data['metadata'] = [
                                 'category' => $data['category'] ?? 'document',
                             ];
-                            
+
                             unset($data['file']);
                         }
-                        
+
                         return $data;
                     }),
             ])
             ->actions([
-                \Filament\Actions\Action::make('download')
+                Action::make('download')
                     ->label('Download')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->action(function (Attachment $record) {
                         return Storage::disk($record->disk)->download($record->path, $record->original_filename);
                     }),
-                    
-                \Filament\Actions\Action::make('view')
+
+                Action::make('view')
                     ->label('View')
                     ->icon('heroicon-o-eye')
                     ->url(fn (Attachment $record) => $record->url)
                     ->openUrlInNewTab()
                     ->visible(fn (Attachment $record) => $record->isImage() || $record->isPdf()),
-                    
-                \Filament\Actions\EditAction::make()
+
+                EditAction::make()
                     ->form([
                         Forms\Components\Select::make('category')
                             ->label('Category')
@@ -223,7 +228,7 @@ class AttachmentsRelationManager extends RelationManager
                                 'other' => 'Other',
                             ])
                             ->required(),
-                            
+
                         Forms\Components\TextInput::make('description')
                             ->label('Description')
                             ->maxLength(255),
@@ -232,16 +237,16 @@ class AttachmentsRelationManager extends RelationManager
                         $metadata = $record->metadata ?? [];
                         $metadata['category'] = $data['category'];
                         $data['metadata'] = $metadata;
-                        
+
                         return $data;
                     }),
-                    
-                \Filament\Actions\DeleteAction::make()
+
+                DeleteAction::make()
                     ->requiresConfirmation(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make()
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->requiresConfirmation(),
                 ]),
             ])
@@ -250,7 +255,7 @@ class AttachmentsRelationManager extends RelationManager
             ->emptyStateDescription('Upload documents, photos, and other files for this tenant.')
             ->emptyStateIcon('heroicon-o-document-arrow-up')
             ->emptyStateActions([
-                \Filament\Actions\CreateAction::make()
+                CreateAction::make()
                     ->label('Upload First File')
                     ->icon('heroicon-o-arrow-up-tray'),
             ]);

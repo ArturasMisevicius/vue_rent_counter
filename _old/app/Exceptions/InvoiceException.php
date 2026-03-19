@@ -31,6 +31,6 @@ class InvoiceException extends Exception
      */
     public static function noItems(): self
     {
-        return new self("Cannot finalize invoice without any items");
+        return new self('Cannot finalize invoice without any items');
     }
 }

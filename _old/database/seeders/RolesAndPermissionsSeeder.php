@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
@@ -26,57 +26,57 @@ class RolesAndPermissionsSeeder extends Seeder
             'create_users',
             'edit_users',
             'delete_users',
-            
+
             // Property management
             'view_properties',
             'create_properties',
             'edit_properties',
             'delete_properties',
-            
+
             // Building management
             'view_buildings',
             'create_buildings',
             'edit_buildings',
             'delete_buildings',
-            
+
             // Meter management
             'view_meters',
             'create_meters',
             'edit_meters',
             'delete_meters',
-            
+
             // Meter reading management
             'view_meter_readings',
             'create_meter_readings',
             'edit_meter_readings',
             'delete_meter_readings',
             'approve_meter_readings',
-            
+
             // Invoice management
             'view_invoices',
             'create_invoices',
             'edit_invoices',
             'delete_invoices',
             'finalize_invoices',
-            
+
             // Tariff management
             'view_tariffs',
             'create_tariffs',
             'edit_tariffs',
             'delete_tariffs',
-            
+
             // Provider management
             'view_providers',
             'create_providers',
             'edit_providers',
             'delete_providers',
-            
+
             // Subscription management
             'view_subscriptions',
             'create_subscriptions',
             'edit_subscriptions',
             'delete_subscriptions',
-            
+
             // System administration
             'access_admin_panel',
             'manage_system_settings',
@@ -88,7 +88,7 @@ class RolesAndPermissionsSeeder extends Seeder
         }
 
         // Create roles and assign permissions
-        
+
         // Superadmin role - all permissions
         $superadmin = Role::firstOrCreate(['name' => 'superadmin']);
         $superadmin->givePermissionTo(Permission::all());

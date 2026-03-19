@@ -5,21 +5,29 @@ declare(strict_types=1);
 namespace App\Filament\Resources;
 
 use App\Enums\MeterType;
+use App\Enums\PricingModel;
 use App\Enums\UserRole;
 use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\MeterResource\Pages;
 use App\Filament\Resources\MeterResource\RelationManagers;
+use App\Http\Requests\StoreMeterRequest;
+use App\Http\Requests\UpdateMeterRequest;
 use App\Models\Meter;
 use App\Models\ServiceConfiguration;
 use App\Models\User;
+use App\Policies\MeterPolicy;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Forms;
-use Filament\Schemas\Schema;
+use Filament\GlobalSearch\Actions\Action;
+use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Filament resource for managing meters.
@@ -30,10 +38,10 @@ use Illuminate\Database\Eloquent\Builder;
  * - Localized validation messages
  * - Integration with StoreMeterRequest and UpdateMeterRequest validation
  *
- * @see \App\Models\Meter
- * @see \App\Policies\MeterPolicy
- * @see \App\Http\Requests\StoreMeterRequest
- * @see \App\Http\Requests\UpdateMeterRequest
+ * @see Meter
+ * @see MeterPolicy
+ * @see StoreMeterRequest
+ * @see UpdateMeterRequest
  */
 class MeterResource extends Resource
 {
@@ -124,7 +132,7 @@ class MeterResource extends Resource
                             ->options(function (Get $get): array {
                                 $propertyId = $get('property_id');
 
-                                if (!$propertyId) {
+                                if (! $propertyId) {
                                     return [];
                                 }
 
@@ -149,14 +157,14 @@ class MeterResource extends Resource
                             ->nullable()
                             ->live()
                             ->afterStateUpdated(function ($state, Set $set): void {
-                                if (!$state) {
+                                if (! $state) {
                                     return;
                                 }
 
                                 $set('type', MeterType::CUSTOM->value);
 
                                 $config = ServiceConfiguration::with('utilityService')->find($state);
-                                if ($config?->pricing_model === \App\Enums\PricingModel::TIME_OF_USE) {
+                                if ($config?->pricing_model === PricingModel::TIME_OF_USE) {
                                     $set('supports_zones', true);
                                 }
                             })
@@ -330,8 +338,8 @@ class MeterResource extends Resource
                 // Table row actions removed - use page header actions instead
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make()
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->requiresConfirmation()
                         ->modalHeading(__('meters.modals.bulk_delete.title'))
                         ->modalDescription(__('meters.modals.bulk_delete.description'))
@@ -402,7 +410,7 @@ class MeterResource extends Resource
         return ['serial_number'];
     }
 
-    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
             'Type' => ucfirst($record->type?->value ?? 'Unknown'),
@@ -410,10 +418,10 @@ class MeterResource extends Resource
         ];
     }
 
-    public static function getGlobalSearchResultActions(\Illuminate\Database\Eloquent\Model $record): array
+    public static function getGlobalSearchResultActions(Model $record): array
     {
         return [
-            \Filament\GlobalSearch\Actions\Action::make('view')
+            Action::make('view')
                 ->iconButton()
                 ->icon('heroicon-m-eye')
                 ->url(static::getUrl('view', ['record' => $record])),

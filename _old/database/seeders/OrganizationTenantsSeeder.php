@@ -24,16 +24,17 @@ class OrganizationTenantsSeeder extends Seeder
 
             if ($properties->isEmpty()) {
                 $this->command->warn("No properties found for organization {$admin->organization_name} (tenant_id: {$admin->tenant_id})");
+
                 continue;
             }
 
             // Create 5-10 tenant users for this organization
             $tenantCount = rand(5, 10);
-            
+
             for ($i = 1; $i <= $tenantCount; $i++) {
                 // Assign to a random property
                 $property = $properties->random();
-                
+
                 $tenant = User::create([
                     'name' => fake()->name(),
                     'email' => fake()->unique()->safeEmail(),

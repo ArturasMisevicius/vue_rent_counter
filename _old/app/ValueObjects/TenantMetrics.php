@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\ValueObjects;
 
-use Carbon\Carbon;
 use App\Enums\TenantStatus;
+use Carbon\Carbon;
 
 final readonly class TenantMetrics
 {
@@ -23,58 +23,58 @@ final readonly class TenantMetrics
         public int $totalInvoices,
         public float $averageResponseTime,
     ) {}
-    
+
     public function getStorageUsagePercentage(): float
     {
         if ($this->storageQuotaMB <= 0) {
             return 0.0;
         }
-        
+
         return min(100.0, ($this->storageUsedMB / $this->storageQuotaMB) * 100);
     }
-    
+
     public function getApiUsagePercentage(): float
     {
         if ($this->apiCallsQuota <= 0) {
             return 0.0;
         }
-        
+
         return min(100.0, ($this->apiCallsToday / $this->apiCallsQuota) * 100);
     }
-    
+
     public function getUserUtilizationPercentage(): float
     {
         if ($this->totalUsers <= 0) {
             return 0.0;
         }
-        
+
         return ($this->activeUsers / $this->totalUsers) * 100;
     }
-    
+
     public function isStorageNearLimit(): bool
     {
         return $this->getStorageUsagePercentage() >= 80.0;
     }
-    
+
     public function isApiNearLimit(): bool
     {
         return $this->getApiUsagePercentage() >= 80.0;
     }
-    
+
     public function getDaysSinceLastActivity(): int
     {
         return (int) now()->diffInDays($this->lastActivity, true);
     }
-    
+
     public function isHealthy(): bool
     {
         return $this->status === TenantStatus::ACTIVE
-            && !$this->isStorageNearLimit()
-            && !$this->isApiNearLimit()
+            && ! $this->isStorageNearLimit()
+            && ! $this->isApiNearLimit()
             && $this->getDaysSinceLastActivity() <= 7
             && $this->averageResponseTime < 2000; // 2 seconds
     }
-    
+
     public function toArray(): array
     {
         return [

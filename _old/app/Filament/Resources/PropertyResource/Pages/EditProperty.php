@@ -37,4 +37,3 @@ class EditProperty extends EditRecord
             ->body(__('properties.notifications.updated.body'));
     }
 }
-

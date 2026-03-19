@@ -17,7 +17,7 @@ return new class extends Migration
             $table->timestamp('completed_at')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
-            
+
             $table->unique(['task_id', 'user_id', 'role']);
             $table->index(['user_id', 'role']);
             $table->index(['task_id', 'role']);

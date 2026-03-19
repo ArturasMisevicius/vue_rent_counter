@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\UserResource\Pages;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\UserResource;
 use Filament\Actions;
 use Filament\Infolists\Components;
@@ -33,7 +34,7 @@ class ViewUser extends ViewRecord
                             ->label(__('users.labels.name'))
                             ->icon('heroicon-o-user')
                             ->copyable(),
-                        
+
                         Components\TextEntry::make('email')
                             ->label(__('users.labels.email'))
                             ->icon('heroicon-o-envelope')
@@ -48,18 +49,18 @@ class ViewUser extends ViewRecord
                             ->label(__('users.labels.role'))
                             ->badge()
                             ->color(fn ($state) => match ($state) {
-                                \App\Enums\UserRole::SUPERADMIN => 'danger',
-                                \App\Enums\UserRole::ADMIN => 'warning',
-                                \App\Enums\UserRole::MANAGER => 'info',
-                                \App\Enums\UserRole::TENANT => 'success',
+                                UserRole::SUPERADMIN => 'danger',
+                                UserRole::ADMIN => 'warning',
+                                UserRole::MANAGER => 'info',
+                                UserRole::TENANT => 'success',
                             })
                             ->formatStateUsing(fn ($state) => $state->label()),
-                        
+
                         Components\TextEntry::make('parentUser.name')
                             ->label(__('users.labels.tenant'))
                             ->placeholder(__('app.common.dash'))
                             ->visible(fn ($record) => $record->tenant_id !== null),
-                        
+
                         Components\IconEntry::make('is_active')
                             ->label(__('users.labels.is_active'))
                             ->boolean(),
@@ -72,7 +73,7 @@ class ViewUser extends ViewRecord
                             ->label(__('app.common.created_at'))
                             ->dateTime()
                             ->icon('heroicon-o-calendar'),
-                        
+
                         Components\TextEntry::make('updated_at')
                             ->label(__('app.common.updated_at'))
                             ->dateTime()

@@ -5,26 +5,25 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\IntegrationStatus;
-use App\Traits\BelongsToTenant;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Integration health check model for tracking external service health.
- * 
+ *
  * @property int $id
  * @property string $service_name
  * @property string $endpoint
  * @property IntegrationStatus $status
  * @property int|null $response_time_ms
  * @property string|null $error_message
- * @property \Carbon\Carbon $checked_at
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- * 
- * @package App\Models
+ * @property Carbon $checked_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ *
  * @author Laravel Development Team
+ *
  * @since 1.0.0
  */
 final class IntegrationHealthCheck extends Model
@@ -94,7 +93,7 @@ final class IntegrationHealthCheck extends Model
      */
     public static function getAverageResponseTime(string $serviceName, int $hours = 24): float
     {
-        return static::forService($serviceName)
+        return self::forService($serviceName)
             ->recent($hours)
             ->whereNotNull('response_time_ms')
             ->avg('response_time_ms') ?? 0.0;
@@ -105,13 +104,13 @@ final class IntegrationHealthCheck extends Model
      */
     public static function getUptimePercentage(string $serviceName, int $hours = 24): float
     {
-        $total = static::forService($serviceName)->recent($hours)->count();
-        
+        $total = self::forService($serviceName)->recent($hours)->count();
+
         if ($total === 0) {
             return 0.0;
         }
 
-        $healthy = static::forService($serviceName)
+        $healthy = self::forService($serviceName)
             ->recent($hours)
             ->whereIn('status', [IntegrationStatus::HEALTHY, IntegrationStatus::DEGRADED])
             ->count();
@@ -121,12 +120,12 @@ final class IntegrationHealthCheck extends Model
 
     /**
      * Get health trend for a service.
-     * 
+     *
      * @return array<string, mixed>
      */
     public static function getHealthTrend(string $serviceName, int $hours = 24): array
     {
-        $checks = static::forService($serviceName)
+        $checks = self::forService($serviceName)
             ->recent($hours)
             ->orderBy('checked_at')
             ->get(['status', 'response_time_ms', 'checked_at']);
@@ -159,7 +158,7 @@ final class IntegrationHealthCheck extends Model
 
         // Analyze response time trend
         $responseTimes = $checks->whereNotNull('response_time_ms')->pluck('response_time_ms')->toArray();
-        
+
         if (count($responseTimes) >= 3) {
             $firstHalf = array_slice($responseTimes, 0, intval(count($responseTimes) / 2));
             $secondHalf = array_slice($responseTimes, intval(count($responseTimes) / 2));

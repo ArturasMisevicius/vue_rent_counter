@@ -10,7 +10,7 @@ class TestDatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database with test data.
-     * 
+     *
      * This seeder orchestrates all test seeders in the correct order,
      * wraps operations in a transaction for rollback on failure,
      * and provides comprehensive error handling and logging.
@@ -74,10 +74,10 @@ class TestDatabaseSeeder extends Seeder
             DB::commit();
 
             Log::info('Test database seeding completed successfully!');
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Test database seeding failed', [
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
@@ -85,9 +85,9 @@ class TestDatabaseSeeder extends Seeder
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            $this->command->error('Test database seeding failed: ' . $e->getMessage());
+            $this->command->error('Test database seeding failed: '.$e->getMessage());
             $this->command->error('All changes have been rolled back.');
-            
+
             throw $e;
         }
     }

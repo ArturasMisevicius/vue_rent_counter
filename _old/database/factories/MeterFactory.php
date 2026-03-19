@@ -6,16 +6,17 @@ use App\Enums\MeterType;
 use App\Models\Meter;
 use App\Models\Property;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Meter>
+ * @extends Factory<Meter>
  */
 class MeterFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
-     * @var class-string<\Illuminate\Database\Eloquent\Model>
+     * @var class-string<Model>
      */
     protected $model = Meter::class;
 

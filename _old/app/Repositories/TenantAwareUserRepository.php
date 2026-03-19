@@ -14,7 +14,7 @@ class TenantAwareUserRepository extends BaseTenantRepository
 {
     public function __construct(TenantContextInterface $tenantContext)
     {
-        parent::__construct(new User(), $tenantContext);
+        parent::__construct(new User, $tenantContext);
     }
 
     /**
@@ -73,7 +73,7 @@ class TenantAwareUserRepository extends BaseTenantRepository
         return $this->getQuery()
             ->where(function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             })
             ->get();
     }
@@ -86,7 +86,7 @@ class TenantAwareUserRepository extends BaseTenantRepository
         return $this->getQueryForTenant($tenantId)
             ->where(function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             })
             ->get();
     }
@@ -97,15 +97,15 @@ class TenantAwareUserRepository extends BaseTenantRepository
     public function getUserStats(): array
     {
         $query = $this->getQuery();
-        
+
         return [
             'total' => $query->count(),
             'active' => $query->where('is_active', true)->count(),
             'inactive' => $query->where('is_active', false)->count(),
             'by_role' => $query->selectRaw('role, count(*) as count')
-                              ->groupBy('role')
-                              ->pluck('count', 'role')
-                              ->toArray(),
+                ->groupBy('role')
+                ->pluck('count', 'role')
+                ->toArray(),
         ];
     }
 
@@ -115,15 +115,15 @@ class TenantAwareUserRepository extends BaseTenantRepository
     public function getUserStatsForTenant(TenantId $tenantId): array
     {
         $query = $this->getQueryForTenant($tenantId);
-        
+
         return [
             'total' => $query->count(),
             'active' => $query->where('is_active', true)->count(),
             'inactive' => $query->where('is_active', false)->count(),
             'by_role' => $query->selectRaw('role, count(*) as count')
-                              ->groupBy('role')
-                              ->pluck('count', 'role')
-                              ->toArray(),
+                ->groupBy('role')
+                ->pluck('count', 'role')
+                ->toArray(),
         ];
     }
 }

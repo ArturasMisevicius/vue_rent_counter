@@ -13,19 +13,20 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Cacheable Repository Decorator
- * 
+ *
  * Adds caching functionality to any repository implementation using
  * the Decorator pattern. This allows for transparent caching without
  * modifying the original repository code.
- * 
+ *
  * Features:
  * - Automatic cache key generation
  * - TTL configuration per operation
  * - Cache invalidation on write operations
  * - Tag-based cache management
  * - Performance logging
- * 
+ *
  * @template TModel of \Illuminate\Database\Eloquent\Model
+ *
  * @implements RepositoryInterface<TModel>
  */
 class CacheableRepository implements RepositoryInterface
@@ -42,17 +43,17 @@ class CacheableRepository implements RepositoryInterface
 
     /**
      * Cache tags for this repository.
-     * 
+     *
      * @var array<string>
      */
     private readonly array $cacheTags;
 
     /**
      * Create a new cacheable repository decorator.
-     * 
-     * @param RepositoryInterface<TModel> $repository The repository to decorate
-     * @param CacheRepository $cache The cache implementation
-     * @param int $ttl Cache TTL in seconds
+     *
+     * @param  RepositoryInterface<TModel>  $repository  The repository to decorate
+     * @param  CacheRepository  $cache  The cache implementation
+     * @param  int  $ttl  Cache TTL in seconds
      */
     public function __construct(
         private readonly RepositoryInterface $repository,
@@ -60,7 +61,7 @@ class CacheableRepository implements RepositoryInterface
         private readonly int $ttl = self::DEFAULT_TTL
     ) {
         $modelClass = get_class($this->repository->getModel());
-        $this->cachePrefix = 'repo:' . strtolower(class_basename($modelClass));
+        $this->cachePrefix = 'repo:'.strtolower(class_basename($modelClass));
         $this->cacheTags = [$this->cachePrefix, 'repositories'];
     }
 
@@ -70,11 +71,11 @@ class CacheableRepository implements RepositoryInterface
     public function find(mixed $id, array $columns = ['*']): ?Model
     {
         $cacheKey = $this->generateCacheKey('find', [$id, $columns]);
-        
+
         return $this->cache->tags($this->cacheTags)->remember(
             $cacheKey,
             $this->ttl,
-            fn() => $this->repository->find($id, $columns)
+            fn () => $this->repository->find($id, $columns)
         );
     }
 
@@ -84,11 +85,11 @@ class CacheableRepository implements RepositoryInterface
     public function findOrFail(mixed $id, array $columns = ['*']): Model
     {
         $cacheKey = $this->generateCacheKey('findOrFail', [$id, $columns]);
-        
+
         return $this->cache->tags($this->cacheTags)->remember(
             $cacheKey,
             $this->ttl,
-            fn() => $this->repository->findOrFail($id, $columns)
+            fn () => $this->repository->findOrFail($id, $columns)
         );
     }
 
@@ -98,11 +99,11 @@ class CacheableRepository implements RepositoryInterface
     public function findBy(string $field, mixed $value, array $columns = ['*']): Collection
     {
         $cacheKey = $this->generateCacheKey('findBy', [$field, $value, $columns]);
-        
+
         return $this->cache->tags($this->cacheTags)->remember(
             $cacheKey,
             $this->ttl,
-            fn() => $this->repository->findBy($field, $value, $columns)
+            fn () => $this->repository->findBy($field, $value, $columns)
         );
     }
 
@@ -112,11 +113,11 @@ class CacheableRepository implements RepositoryInterface
     public function findWhere(array $criteria, array $columns = ['*']): Collection
     {
         $cacheKey = $this->generateCacheKey('findWhere', [$criteria, $columns]);
-        
+
         return $this->cache->tags($this->cacheTags)->remember(
             $cacheKey,
             $this->ttl,
-            fn() => $this->repository->findWhere($criteria, $columns)
+            fn () => $this->repository->findWhere($criteria, $columns)
         );
     }
 
@@ -126,11 +127,11 @@ class CacheableRepository implements RepositoryInterface
     public function all(array $columns = ['*']): Collection
     {
         $cacheKey = $this->generateCacheKey('all', [$columns]);
-        
+
         return $this->cache->tags($this->cacheTags)->remember(
             $cacheKey,
             $this->ttl,
-            fn() => $this->repository->all($columns)
+            fn () => $this->repository->all($columns)
         );
     }
 
@@ -149,12 +150,12 @@ class CacheableRepository implements RepositoryInterface
     public function create(array $data): Model
     {
         $model = $this->repository->create($data);
-        
+
         // Invalidate cache after write operation
         $this->invalidateCache();
-        
+
         $this->logCacheOperation('create', ['id' => $model->getKey()]);
-        
+
         return $model;
     }
 
@@ -164,12 +165,12 @@ class CacheableRepository implements RepositoryInterface
     public function update(mixed $id, array $data): Model
     {
         $model = $this->repository->update($id, $data);
-        
+
         // Invalidate cache after write operation
         $this->invalidateCache();
-        
+
         $this->logCacheOperation('update', ['id' => $id]);
-        
+
         return $model;
     }
 
@@ -179,12 +180,12 @@ class CacheableRepository implements RepositoryInterface
     public function delete(mixed $id): bool
     {
         $result = $this->repository->delete($id);
-        
+
         // Invalidate cache after write operation
         $this->invalidateCache();
-        
+
         $this->logCacheOperation('delete', ['id' => $id]);
-        
+
         return $result;
     }
 
@@ -195,7 +196,7 @@ class CacheableRepository implements RepositoryInterface
     {
         // Return a new instance with the same configuration
         $newRepository = $this->repository->with($relations);
-        
+
         return new static($newRepository, $this->cache, $this->ttl);
     }
 
@@ -205,7 +206,7 @@ class CacheableRepository implements RepositoryInterface
     public function orderBy(string $column, string $direction = 'asc'): static
     {
         $newRepository = $this->repository->orderBy($column, $direction);
-        
+
         return new static($newRepository, $this->cache, $this->ttl);
     }
 
@@ -224,11 +225,11 @@ class CacheableRepository implements RepositoryInterface
     public function count(): int
     {
         $cacheKey = $this->generateCacheKey('count');
-        
+
         return $this->cache->tags($this->cacheTags)->remember(
             $cacheKey,
             $this->ttl,
-            fn() => $this->repository->count()
+            fn () => $this->repository->count()
         );
     }
 
@@ -238,11 +239,11 @@ class CacheableRepository implements RepositoryInterface
     public function exists(): bool
     {
         $cacheKey = $this->generateCacheKey('exists');
-        
+
         return $this->cache->tags($this->cacheTags)->remember(
             $cacheKey,
             $this->ttl,
-            fn() => $this->repository->exists()
+            fn () => $this->repository->exists()
         );
     }
 
@@ -252,12 +253,12 @@ class CacheableRepository implements RepositoryInterface
     public function firstOrCreate(array $attributes, array $values = []): Model
     {
         $model = $this->repository->firstOrCreate($attributes, $values);
-        
+
         if ($model->wasRecentlyCreated) {
             $this->invalidateCache();
             $this->logCacheOperation('firstOrCreate', ['id' => $model->getKey(), 'created' => true]);
         }
-        
+
         return $model;
     }
 
@@ -267,13 +268,13 @@ class CacheableRepository implements RepositoryInterface
     public function updateOrCreate(array $attributes, array $values = []): Model
     {
         $model = $this->repository->updateOrCreate($attributes, $values);
-        
+
         // Always invalidate cache for updateOrCreate
         $this->invalidateCache();
-        
+
         $action = $model->wasRecentlyCreated ? 'created' : 'updated';
         $this->logCacheOperation('updateOrCreate', ['id' => $model->getKey(), 'action' => $action]);
-        
+
         return $model;
     }
 
@@ -283,7 +284,7 @@ class CacheableRepository implements RepositoryInterface
     public function where(string $column, mixed $operator = null, mixed $value = null): static
     {
         $newRepository = $this->repository->where($column, $operator, $value);
-        
+
         return new static($newRepository, $this->cache, $this->ttl);
     }
 
@@ -293,7 +294,7 @@ class CacheableRepository implements RepositoryInterface
     public function whereIn(string $column, array $values): static
     {
         $newRepository = $this->repository->whereIn($column, $values);
-        
+
         return new static($newRepository, $this->cache, $this->ttl);
     }
 
@@ -303,7 +304,7 @@ class CacheableRepository implements RepositoryInterface
     public function whereNotIn(string $column, array $values): static
     {
         $newRepository = $this->repository->whereNotIn($column, $values);
-        
+
         return new static($newRepository, $this->cache, $this->ttl);
     }
 
@@ -313,7 +314,7 @@ class CacheableRepository implements RepositoryInterface
     public function whereBetween(string $column, array $values): static
     {
         $newRepository = $this->repository->whereBetween($column, $values);
-        
+
         return new static($newRepository, $this->cache, $this->ttl);
     }
 
@@ -323,7 +324,7 @@ class CacheableRepository implements RepositoryInterface
     public function whereNull(string $column): static
     {
         $newRepository = $this->repository->whereNull($column);
-        
+
         return new static($newRepository, $this->cache, $this->ttl);
     }
 
@@ -333,7 +334,7 @@ class CacheableRepository implements RepositoryInterface
     public function whereNotNull(string $column): static
     {
         $newRepository = $this->repository->whereNotNull($column);
-        
+
         return new static($newRepository, $this->cache, $this->ttl);
     }
 
@@ -343,7 +344,7 @@ class CacheableRepository implements RepositoryInterface
     public function limit(int $limit): static
     {
         $newRepository = $this->repository->limit($limit);
-        
+
         return new static($newRepository, $this->cache, $this->ttl);
     }
 
@@ -353,7 +354,7 @@ class CacheableRepository implements RepositoryInterface
     public function offset(int $offset): static
     {
         $newRepository = $this->repository->offset($offset);
-        
+
         return new static($newRepository, $this->cache, $this->ttl);
     }
 
@@ -363,7 +364,7 @@ class CacheableRepository implements RepositoryInterface
     public function fresh(): static
     {
         $newRepository = $this->repository->fresh();
-        
+
         return new static($newRepository, $this->cache, $this->ttl);
     }
 
@@ -373,11 +374,11 @@ class CacheableRepository implements RepositoryInterface
     public function get(array $columns = ['*']): Collection
     {
         $cacheKey = $this->generateCacheKey('get', [$columns]);
-        
+
         return $this->cache->tags($this->cacheTags)->remember(
             $cacheKey,
             $this->ttl,
-            fn() => $this->repository->get($columns)
+            fn () => $this->repository->get($columns)
         );
     }
 
@@ -387,11 +388,11 @@ class CacheableRepository implements RepositoryInterface
     public function first(array $columns = ['*']): ?Model
     {
         $cacheKey = $this->generateCacheKey('first', [$columns]);
-        
+
         return $this->cache->tags($this->cacheTags)->remember(
             $cacheKey,
             $this->ttl,
-            fn() => $this->repository->first($columns)
+            fn () => $this->repository->first($columns)
         );
     }
 
@@ -409,38 +410,35 @@ class CacheableRepository implements RepositoryInterface
     public function setModel(Model $model): static
     {
         $newRepository = $this->repository->setModel($model);
-        
+
         return new static($newRepository, $this->cache, $this->ttl);
     }
 
     /**
      * Invalidate all cache entries for this repository.
-     * 
-     * @return void
      */
     public function invalidateCache(): void
     {
         $this->cache->tags($this->cacheTags)->flush();
-        
+
         $this->logCacheOperation('invalidate');
     }
 
     /**
      * Invalidate specific cache entry.
-     * 
-     * @param string $key Cache key to invalidate
-     * @return void
+     *
+     * @param  string  $key  Cache key to invalidate
      */
     public function invalidateCacheKey(string $key): void
     {
         $this->cache->forget($key);
-        
+
         $this->logCacheOperation('invalidateKey', ['key' => $key]);
     }
 
     /**
      * Get cache statistics.
-     * 
+     *
      * @return array<string, mixed>
      */
     public function getCacheStats(): array
@@ -455,28 +453,26 @@ class CacheableRepository implements RepositoryInterface
 
     /**
      * Generate a cache key for the given method and parameters.
-     * 
-     * @param string $method Method name
-     * @param array<mixed> $parameters Method parameters
-     * @return string
+     *
+     * @param  string  $method  Method name
+     * @param  array<mixed>  $parameters  Method parameters
      */
     private function generateCacheKey(string $method, array $parameters = []): string
     {
         $keyParts = [
             $this->cachePrefix,
             $method,
-            md5(serialize($parameters))
+            md5(serialize($parameters)),
         ];
-        
+
         return implode(':', $keyParts);
     }
 
     /**
      * Log cache operations for monitoring and debugging.
-     * 
-     * @param string $operation Operation name
-     * @param array<string, mixed> $context Additional context
-     * @return void
+     *
+     * @param  string  $operation  Operation name
+     * @param  array<string, mixed>  $context  Additional context
      */
     private function logCacheOperation(string $operation, array $context = []): void
     {

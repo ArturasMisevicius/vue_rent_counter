@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\Queue\ActivityLogCleanupJob;
 use App\Support\Queue\BulkOperationJob;
 use App\Support\Queue\ExportGenerationJob;
-use App\Support\Queue\ActivityLogCleanupJob;
 use App\Support\Queue\SubscriptionExpiryCheckJob;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
  * BackgroundJobService handles dispatching background jobs for superadmin operations
- * 
+ *
  * Provides a centralized interface for queuing long-running operations
  * that should not block the user interface
  */
@@ -95,7 +97,7 @@ class BackgroundJobService
             ];
 
             // Get failed jobs count
-            $stats['failed_jobs'] = \Illuminate\Support\Facades\DB::table('failed_jobs')->count();
+            $stats['failed_jobs'] = DB::table('failed_jobs')->count();
 
             return $stats;
         } catch (\Exception $e) {
@@ -120,7 +122,7 @@ class BackgroundJobService
     private function getQueueJobCount(string $queue): int
     {
         try {
-            return \Illuminate\Support\Facades\DB::table('jobs')
+            return DB::table('jobs')
                 ->where('queue', $queue)
                 ->count();
         } catch (\Exception $e) {
@@ -138,20 +140,23 @@ class BackgroundJobService
                 // Retry specific jobs
                 $retried = 0;
                 foreach ($jobIds as $jobId) {
-                    \Illuminate\Support\Facades\Artisan::call('queue:retry', ['id' => $jobId]);
+                    Artisan::call('queue:retry', ['id' => $jobId]);
                     $retried++;
                 }
+
                 return $retried;
             } else {
                 // Retry all failed jobs
-                \Illuminate\Support\Facades\Artisan::call('queue:retry', ['id' => 'all']);
-                return \Illuminate\Support\Facades\DB::table('failed_jobs')->count();
+                Artisan::call('queue:retry', ['id' => 'all']);
+
+                return DB::table('failed_jobs')->count();
             }
         } catch (\Exception $e) {
             Log::error('Failed to retry jobs', [
                 'job_ids' => $jobIds,
                 'error' => $e->getMessage(),
             ]);
+
             return 0;
         }
     }
@@ -162,13 +167,15 @@ class BackgroundJobService
     public function clearFailedJobs(): int
     {
         try {
-            $count = \Illuminate\Support\Facades\DB::table('failed_jobs')->count();
-            \Illuminate\Support\Facades\Artisan::call('queue:flush');
+            $count = DB::table('failed_jobs')->count();
+            Artisan::call('queue:flush');
+
             return $count;
         } catch (\Exception $e) {
             Log::error('Failed to clear failed jobs', [
                 'error' => $e->getMessage(),
             ]);
+
             return 0;
         }
     }
@@ -182,14 +189,15 @@ class BackgroundJobService
             // This is a simplified implementation
             // In production, you might want to use a package like Laravel Horizon
             // or implement proper job tracking
-            
-            $failedJobs = \Illuminate\Support\Facades\DB::table('failed_jobs')
+
+            $failedJobs = DB::table('failed_jobs')
                 ->select('id', 'queue', 'payload', 'exception', 'failed_at')
                 ->orderBy('failed_at', 'desc')
                 ->limit($limit)
                 ->get()
                 ->map(function ($job) {
                     $payload = json_decode($job->payload, true);
+
                     return [
                         'id' => $job->id,
                         'queue' => $job->queue,
@@ -205,6 +213,7 @@ class BackgroundJobService
             Log::error('Failed to get job history', [
                 'error' => $e->getMessage(),
             ]);
+
             return [];
         }
     }
@@ -216,11 +225,11 @@ class BackgroundJobService
     {
         try {
             // Simple check - in production you might want more sophisticated monitoring
-            $recentJobs = \Illuminate\Support\Facades\DB::table('jobs')
+            $recentJobs = DB::table('jobs')
                 ->where('created_at', '>', now()->subMinutes(5))
                 ->count();
 
-            $processingJobs = \Illuminate\Support\Facades\DB::table('jobs')
+            $processingJobs = DB::table('jobs')
                 ->whereNotNull('reserved_at')
                 ->count();
 

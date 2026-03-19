@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\InputMethod;
+use App\Enums\ValidationStatus;
 use App\Exceptions\ServiceConfigurationException;
 use App\Models\Meter;
 use App\Models\MeterReading;
@@ -16,14 +18,12 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Service Transition Handler
- * 
+ *
  * Handles tenant move-in/move-out scenarios for property relationships.
  * Generates final meter readings and calculates pro-rated charges.
  * Supports temporary service suspensions.
- * 
+ *
  * Requirements: 12.1, 12.2, 12.3, 12.4, 12.5
- * 
- * @package App\Services
  */
 final class ServiceTransitionHandler
 {
@@ -34,14 +34,11 @@ final class ServiceTransitionHandler
 
     /**
      * Handle tenant move-out scenario.
-     * 
+     *
      * Generates final meter readings, calculates pro-rated charges,
      * and closes service accounts.
      *
-     * @param Property $property
-     * @param Tenant $tenant
-     * @param Carbon $moveOutDate
-     * @param array $finalReadings Optional final meter readings
+     * @param  array  $finalReadings  Optional final meter readings
      * @return array Move-out summary with final charges
      */
     public function handleMoveOut(
@@ -131,13 +128,10 @@ final class ServiceTransitionHandler
 
     /**
      * Handle tenant move-in scenario.
-     * 
+     *
      * Establishes new service accounts and records initial readings.
      *
-     * @param Property $property
-     * @param Tenant $tenant
-     * @param Carbon $moveInDate
-     * @param array $initialReadings Optional initial meter readings
+     * @param  array  $initialReadings  Optional initial meter readings
      * @return array Move-in summary
      */
     public function handleMoveIn(
@@ -217,13 +211,8 @@ final class ServiceTransitionHandler
 
     /**
      * Suspend service temporarily.
-     * 
-     * Preserves meter and configuration data while marking service as inactive.
      *
-     * @param ServiceConfiguration $configuration
-     * @param Carbon $suspensionDate
-     * @param string|null $reason
-     * @return ServiceConfiguration
+     * Preserves meter and configuration data while marking service as inactive.
      */
     public function suspendService(
         ServiceConfiguration $configuration,
@@ -233,7 +222,7 @@ final class ServiceTransitionHandler
         return DB::transaction(function () use ($configuration, $suspensionDate, $reason) {
             // Generate final readings before suspension
             $meters = Meter::where('service_configuration_id', $configuration->id)->get();
-            
+
             foreach ($meters as $meter) {
                 $this->generateFinalReading($meter, $suspensionDate);
             }
@@ -261,10 +250,6 @@ final class ServiceTransitionHandler
 
     /**
      * Reactivate suspended service.
-     *
-     * @param ServiceConfiguration $configuration
-     * @param Carbon $reactivationDate
-     * @return ServiceConfiguration
      */
     public function reactivateService(
         ServiceConfiguration $configuration,
@@ -273,7 +258,7 @@ final class ServiceTransitionHandler
         return DB::transaction(function () use ($configuration, $reactivationDate) {
             // Generate initial readings for reactivation
             $meters = Meter::where('service_configuration_id', $configuration->id)->get();
-            
+
             foreach ($meters as $meter) {
                 $this->generateInitialReading($meter, $reactivationDate);
             }
@@ -301,11 +286,6 @@ final class ServiceTransitionHandler
 
     /**
      * Generate final meter reading.
-     *
-     * @param Meter $meter
-     * @param Carbon $readingDate
-     * @param float|array|null $readingValue
-     * @return MeterReading
      */
     private function generateFinalReading(
         Meter $meter,
@@ -315,7 +295,7 @@ final class ServiceTransitionHandler
         // If no reading provided, use last reading or estimate
         if ($readingValue === null) {
             $lastReading = $this->meterReadingService->getLatestReading($meter);
-            
+
             if ($lastReading) {
                 // Use last reading value (no consumption since last reading)
                 $readingValue = $lastReading->value;
@@ -334,8 +314,8 @@ final class ServiceTransitionHandler
             'reading_values' => is_array($readingValue) ? $readingValue : null,
             'entered_by' => auth()->id(),
             'is_estimated' => $readingValue === null,
-            'input_method' => \App\Enums\InputMethod::MANUAL,
-            'validation_status' => \App\Enums\ValidationStatus::VALIDATED,
+            'input_method' => InputMethod::MANUAL,
+            'validation_status' => ValidationStatus::VALIDATED,
         ]);
 
         return $reading;
@@ -343,11 +323,6 @@ final class ServiceTransitionHandler
 
     /**
      * Generate initial meter reading.
-     *
-     * @param Meter $meter
-     * @param Carbon $readingDate
-     * @param float|array|null $readingValue
-     * @return MeterReading
      */
     private function generateInitialReading(
         Meter $meter,
@@ -369,8 +344,8 @@ final class ServiceTransitionHandler
             'reading_values' => is_array($readingValue) ? $readingValue : null,
             'entered_by' => auth()->id(),
             'is_estimated' => false,
-            'input_method' => \App\Enums\InputMethod::MANUAL,
-            'validation_status' => \App\Enums\ValidationStatus::VALIDATED,
+            'input_method' => InputMethod::MANUAL,
+            'validation_status' => ValidationStatus::VALIDATED,
         ]);
 
         return $reading;
@@ -378,11 +353,6 @@ final class ServiceTransitionHandler
 
     /**
      * Calculate pro-rated charges for partial billing period.
-     *
-     * @param ServiceConfiguration $configuration
-     * @param Meter $meter
-     * @param Carbon $endDate
-     * @return float
      */
     private function calculateProRatedCharges(
         ServiceConfiguration $configuration,
@@ -391,7 +361,7 @@ final class ServiceTransitionHandler
     ): float {
         // Get billing period start (last billing date or configuration start)
         $startDate = $configuration->effective_from;
-        
+
         // Get last reading
         $lastReading = $this->meterReadingService->getLatestReading($meter);
         if ($lastReading && $lastReading->reading_date > $startDate) {
@@ -410,7 +380,7 @@ final class ServiceTransitionHandler
 
         // Calculate charges using billing calculator
         $billingPeriod = new BillingPeriod($startDate, $endDate);
-        
+
         // Use billing calculator to compute charges
         $charges = $this->billingCalculator->calculateCharges(
             $configuration,

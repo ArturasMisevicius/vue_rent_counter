@@ -39,8 +39,7 @@ final class InvalidPropertyAssignmentException extends Exception
     /**
      * Render the exception as an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     * @return JsonResponse|\Illuminate\Http\Response
      */
     public function render(Request $request): JsonResponse|Response
     {
@@ -61,8 +60,6 @@ final class InvalidPropertyAssignmentException extends Exception
      * Report the exception.
      *
      * Log security-relevant property assignment violations for audit purposes.
-     *
-     * @return bool
      */
     public function report(): bool
     {

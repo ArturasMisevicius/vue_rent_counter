@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Observers;
 
-use App\Services\DashboardCacheService;
 use App\Models\Organization;
-use App\Models\Subscription;
 use App\Models\OrganizationActivityLog;
+use App\Models\Subscription;
+use App\Services\DashboardCacheService;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Observer to handle cache invalidation when models are updated
- * 
+ *
  * This ensures dashboard caches are automatically invalidated
  * when underlying data changes, maintaining data consistency
  */
@@ -53,6 +54,6 @@ class CacheInvalidationObserver
     public function activityLogCreated(OrganizationActivityLog $log): void
     {
         // Only invalidate activity cache, not all caches
-        \Illuminate\Support\Facades\Cache::forget('superadmin.dashboard.activity_stats');
+        Cache::forget('superadmin.dashboard.activity_stats');
     }
 }

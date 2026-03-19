@@ -6,17 +6,14 @@ namespace App\Actions;
 
 use App\Exceptions\InvalidMeterReadingException;
 use App\Models\Meter;
-use App\Models\MeterReading;
 use App\Services\MeterReadingService;
 use Carbon\Carbon;
 
 /**
  * Validate Meter Reading Action
- * 
+ *
  * Single responsibility: Validate a meter reading against business rules.
  * Ensures monotonicity and temporal consistency.
- * 
- * @package App\Actions
  */
 final class ValidateMeterReadingAction
 {
@@ -27,10 +24,11 @@ final class ValidateMeterReadingAction
     /**
      * Execute validation for a meter reading.
      *
-     * @param Meter $meter The meter
-     * @param float $value The reading value
-     * @param Carbon $readingDate The reading date
-     * @param string|null $zone The zone (for multi-zone meters)
+     * @param  Meter  $meter  The meter
+     * @param  float  $value  The reading value
+     * @param  Carbon  $readingDate  The reading date
+     * @param  string|null  $zone  The zone (for multi-zone meters)
+     *
      * @throws InvalidMeterReadingException If validation fails
      */
     public function execute(Meter $meter, float $value, Carbon $readingDate, ?string $zone = null): void
@@ -51,7 +49,7 @@ final class ValidateMeterReadingAction
 
         if ($previousReading && $value < $previousReading->value) {
             throw new InvalidMeterReadingException(
-                "Meter reading must be greater than or equal to previous reading. " .
+                'Meter reading must be greater than or equal to previous reading. '.
                 "Previous: {$previousReading->value}, Current: {$value}"
             );
         }
@@ -65,7 +63,7 @@ final class ValidateMeterReadingAction
 
         if ($nextReading && $value > $nextReading->value) {
             throw new InvalidMeterReadingException(
-                "Meter reading must be less than or equal to next reading. " .
+                'Meter reading must be less than or equal to next reading. '.
                 "Current: {$value}, Next: {$nextReading->value}"
             );
         }
@@ -81,8 +79,8 @@ final class ValidateMeterReadingAction
                 $maxDailyRate = config('billing.max_daily_consumption_rate', 1000);
                 if ($dailyRate > $maxDailyRate) {
                     throw new InvalidMeterReadingException(
-                        "Daily consumption rate ({$dailyRate}) exceeds maximum allowed ({$maxDailyRate}). " .
-                        "Please verify the reading."
+                        "Daily consumption rate ({$dailyRate}) exceeds maximum allowed ({$maxDailyRate}). ".
+                        'Please verify the reading.'
                     );
                 }
             }

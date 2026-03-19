@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Contracts\SuperAdminUserInterface;
-use App\Support\Users\ActivityReport;
-use App\Support\Users\BulkOperationResult;
-use App\Support\Users\ImpersonationSession;
 use App\Enums\AuditAction;
 use App\Models\SuperAdminAuditLog;
 use App\Models\User;
+use App\Support\Users\ActivityReport;
+use App\Support\Users\BulkOperationResult;
+use App\Support\Users\ImpersonationSession;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -22,16 +23,16 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
     public function impersonateUser(User $user, int $adminId): ImpersonationSession
     {
         $adminUser = User::find($adminId);
-        
-        if (!$adminUser) {
+
+        if (! $adminUser) {
             Log::error('Impersonation failed: Admin user not found', [
                 'admin_id' => $adminId,
                 'target_user_id' => $user->id,
             ]);
             throw new \InvalidArgumentException('Admin user not found');
         }
-        
-        if (!$this->canImpersonate($adminUser, $user)) {
+
+        if (! $this->canImpersonate($adminUser, $user)) {
             Log::warning('Unauthorized impersonation attempt', [
                 'admin_id' => $adminId,
                 'target_user_id' => $user->id,
@@ -43,7 +44,7 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
 
         // Create impersonation session
         $sessionId = uniqid('imp_', true);
-        
+
         // Store impersonation data in session
         Session::put('impersonation', [
             'session_id' => $sessionId,
@@ -79,7 +80,7 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
                 'session_id' => $sessionId,
                 'error' => $e->getMessage(),
             ]);
-            throw new \RuntimeException('Failed to start impersonation session: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('Failed to start impersonation session: '.$e->getMessage(), 0, $e);
         }
 
         Log::info('User impersonation started', [
@@ -100,8 +101,8 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
     public function endImpersonation(int $sessionId): void
     {
         $impersonationData = Session::get('impersonation');
-        
-        if (!$impersonationData) {
+
+        if (! $impersonationData) {
             Log::warning('Attempted to end impersonation with no active session', [
                 'session_id' => $sessionId,
                 'current_user_id' => Auth::id(),
@@ -124,7 +125,7 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
         try {
             // Get admin user to switch back
             $adminUser = User::find($adminId);
-            if (!$adminUser) {
+            if (! $adminUser) {
                 Log::error('Admin user not found when ending impersonation', [
                     'admin_id' => $adminId,
                     'session_id' => $sessionId,
@@ -160,7 +161,7 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
                 'session_id' => $sessionId,
                 'error' => $e->getMessage(),
             ]);
-            throw new \RuntimeException('Failed to end impersonation session: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('Failed to end impersonation session: '.$e->getMessage(), 0, $e);
         }
 
         Log::info('User impersonation ended', [
@@ -185,10 +186,10 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
             foreach ($users as $user) {
                 try {
                     $originalData = $user->toArray();
-                    
+
                     // Apply updates
                     $user->update($updates);
-                    
+
                     // Log the update
                     SuperAdminAuditLog::create([
                         'admin_id' => $adminId,
@@ -211,7 +212,7 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
                     $failed++;
                     $failedIds[] = $user->id;
                     $errors[] = "User {$user->id}: {$e->getMessage()}";
-                    
+
                     Log::error('Bulk user update failed', [
                         'user_id' => $user->id,
                         'error' => $e->getMessage(),
@@ -245,7 +246,7 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Bulk user update transaction failed', [
                 'admin_id' => $adminId,
                 'total_users' => $users->count(),
@@ -253,7 +254,7 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
                 'stack_trace' => $e->getTraceAsString(),
             ]);
 
-            throw new \RuntimeException('Bulk user update failed: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('Bulk user update failed: '.$e->getMessage(), 0, $e);
         }
     }
 
@@ -261,7 +262,7 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
     {
         // Get user's activity across all tenants they have access to
         $activities = collect();
-        
+
         // Get login history
         $loginHistory = DB::table('sessions')
             ->where('user_id', $user->id)
@@ -272,11 +273,11 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
         // Get audit logs where user was the target or actor
         $auditLogs = SuperAdminAuditLog::where(function ($query) use ($user) {
             $query->where('admin_id', $user->id)
-                  ->orWhere('target_id', $user->id);
+                ->orWhere('target_id', $user->id);
         })
-        ->orderBy('created_at', 'desc')
-        ->limit(100)
-        ->get();
+            ->orderBy('created_at', 'desc')
+            ->limit(100)
+            ->get();
 
         // Get user's organization activity
         $organizationActivity = $user->organization?->activityLogs()
@@ -345,7 +346,7 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Failed to suspend user globally', [
                 'admin_id' => $adminId,
                 'user_id' => $user->id,
@@ -355,7 +356,7 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
                 'stack_trace' => $e->getTraceAsString(),
             ]);
 
-            throw new \RuntimeException('Failed to suspend user globally: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('Failed to suspend user globally: '.$e->getMessage(), 0, $e);
         }
     }
 
@@ -394,7 +395,7 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
             ->with(['organization', 'roles']);
 
         // Apply filters
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             match ($filters['status']) {
                 'active' => $query->where('is_active', true),
                 'suspended' => $query->whereNotNull('suspended_at'),
@@ -403,23 +404,23 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
             };
         }
 
-        if (!empty($filters['tenant_id'])) {
+        if (! empty($filters['tenant_id'])) {
             $query->where('tenant_id', $filters['tenant_id']);
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
-        if (!empty($filters['created_after'])) {
+        if (! empty($filters['created_after'])) {
             $query->where('created_at', '>=', $filters['created_after']);
         }
 
-        if (!empty($filters['created_before'])) {
+        if (! empty($filters['created_before'])) {
             $query->where('created_at', '<=', $filters['created_before']);
         }
 
@@ -478,8 +479,8 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
     public function getCurrentImpersonationSession(): ?ImpersonationSession
     {
         $impersonationData = Session::get('impersonation');
-        
-        if (!$impersonationData) {
+
+        if (! $impersonationData) {
             return null;
         }
 
@@ -487,7 +488,7 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
             sessionId: $impersonationData['session_id'],
             adminId: $impersonationData['admin_id'],
             targetUserId: $impersonationData['target_user_id'],
-            startedAt: \Carbon\Carbon::parse($impersonationData['started_at']),
+            startedAt: Carbon::parse($impersonationData['started_at']),
             isActive: true,
         );
     }
@@ -496,7 +497,7 @@ final readonly class SuperAdminUserService implements SuperAdminUserInterface
     {
         // Super admin can impersonate anyone except other super admins
         if ($admin->hasRole('super_admin')) {
-            return !$target->hasRole('super_admin');
+            return ! $target->hasRole('super_admin');
         }
 
         return false;

@@ -9,6 +9,6 @@ use App\ValueObjects\TenantId;
 interface TenantRepositoryInterface
 {
     public function exists(TenantId $tenantId): bool;
-    
+
     public function getName(TenantId $tenantId): string;
 }

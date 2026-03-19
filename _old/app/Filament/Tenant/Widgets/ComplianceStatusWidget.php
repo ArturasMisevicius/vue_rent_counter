@@ -33,7 +33,7 @@ final class ComplianceStatusWidget extends BaseWidget
                     ->weight('medium'),
                 TextColumn::make('score')
                     ->label(__('dashboard.audit.compliance_score'))
-                    ->formatStateUsing(fn (float $state): string => number_format($state, 1) . '%')
+                    ->formatStateUsing(fn (float $state): string => number_format($state, 1).'%')
                     ->badge()
                     ->color(fn (float $state): string => match (true) {
                         $state >= 95 => 'success',
@@ -65,7 +65,7 @@ final class ComplianceStatusWidget extends BaseWidget
     private function getComplianceRows(): Collection
     {
         $tenantId = auth()->user()?->currentTeam?->id;
-        $cacheKey = 'compliance_status_rows:' . ($tenantId ?? 'system');
+        $cacheKey = 'compliance_status_rows:'.($tenantId ?? 'system');
 
         return Cache::remember($cacheKey, 300, function () use ($tenantId): Collection {
             $report = app(UniversalServiceAuditReporter::class)->generateReport(

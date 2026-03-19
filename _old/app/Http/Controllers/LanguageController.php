@@ -15,13 +15,13 @@ final class LanguageController extends Controller
      */
     public function switch(Request $request, string $locale): RedirectResponse
     {
-        if (!Localization::isAvailable($locale)) {
+        if (! Localization::isAvailable($locale)) {
             abort(404, "Locale '{$locale}' is not available.");
         }
 
         // Store locale in session
         $request->session()->put('locale', $locale);
-        
+
         // Set locale for current request
         app()->setLocale($locale);
 

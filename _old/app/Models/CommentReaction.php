@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Comment Reaction Model - User reactions to comments
- * 
+ *
  * @property int $id
  * @property int $comment_id
  * @property int $user_id
  * @property string $type
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class CommentReaction extends Model
 {
@@ -33,7 +34,7 @@ class CommentReaction extends Model
      */
     public const TYPES = [
         'like' => '👍',
-        'dislike' => '👎', 
+        'dislike' => '👎',
         'heart' => '❤️',
         'laugh' => '😂',
         'wow' => '😮',

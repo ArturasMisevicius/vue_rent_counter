@@ -19,23 +19,23 @@ return new class extends Migration
     {
         // Use raw SQL to check for existing indexes (Laravel 12 compatible)
         $connection = Schema::getConnection();
-        
+
         // Index for updated_at sorting in Filament table
         try {
             Schema::table('translations', function (Blueprint $table) {
                 $table->index('updated_at', 'translations_updated_at_index');
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Index already exists, skip
         }
-        
+
         // Composite unique index for group+key combination
         // This prevents duplicate translations and speeds up lookups
         try {
             Schema::table('translations', function (Blueprint $table) {
                 $table->unique(['group', 'key'], 'translations_group_key_unique');
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Index already exists, skip
         }
     }
@@ -49,15 +49,15 @@ return new class extends Migration
             Schema::table('translations', function (Blueprint $table) {
                 $table->dropIndex('translations_updated_at_index');
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Index doesn't exist, skip
         }
-        
+
         try {
             Schema::table('translations', function (Blueprint $table) {
                 $table->dropUnique('translations_group_key_unique');
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Index doesn't exist, skip
         }
     }

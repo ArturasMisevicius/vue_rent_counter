@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\SubscriptionPlanType;
 use App\Enums\SubscriptionStatus;
+use App\Services\SubscriptionService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -44,10 +46,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read User $user Admin user who owns this subscription
  *
- * @see \App\Enums\SubscriptionStatus
- * @see \App\Enums\SubscriptionPlanType
- * @see \App\Services\SubscriptionService
- * @see \App\Models\User
+ * @see SubscriptionStatus
+ * @see SubscriptionPlanType
+ * @see SubscriptionService
+ * @see User
  */
 class Subscription extends Model
 {
@@ -207,5 +209,4 @@ class Subscription extends Model
             'status' => SubscriptionStatus::ACTIVE,
         ]);
     }
-
 }

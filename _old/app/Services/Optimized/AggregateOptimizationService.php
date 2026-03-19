@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace App\Services\Optimized;
 
-use App\Models\MeterReading;
-use App\Models\Meter;
 use App\Models\Invoice;
-use Illuminate\Support\Facades\DB;
+use App\Models\Meter;
+use App\Models\MeterReading;
 use Illuminate\Support\Facades\Cache;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Aggregate Optimization Service
- * 
+ *
  * Optimizes COUNT, SUM, AVG operations for dashboard widgets and reports
  */
 final readonly class AggregateOptimizationService
@@ -49,7 +48,7 @@ final readonly class AggregateOptimizationService
     public function getDashboardStatsGood(int $tenantId): array
     {
         $cacheKey = "dashboard_stats_{$tenantId}";
-        
+
         return Cache::remember($cacheKey, $this->cacheTtl, function () use ($tenantId) {
             // Single query with multiple aggregations
             $readingStats = DB::table('meter_readings')
@@ -76,7 +75,7 @@ final readonly class AggregateOptimizationService
                 'validated_readings' => (int) $readingStats->validated_readings,
                 'pending_readings' => (int) $readingStats->pending_readings,
                 'rejected_readings' => (int) $readingStats->rejected_readings,
-                'validation_rate' => $readingStats->total_readings > 0 
+                'validation_rate' => $readingStats->total_readings > 0
                     ? round(($readingStats->validated_readings / $readingStats->total_readings) * 100, 1)
                     : 0,
                 'avg_consumption' => (float) $readingStats->avg_consumption,
@@ -124,7 +123,7 @@ final readonly class AggregateOptimizationService
     public function getConsumptionTrends(int $tenantId, int $months = 6): array
     {
         $cacheKey = "consumption_trends_{$tenantId}_{$months}";
-        
+
         return Cache::remember($cacheKey, $this->cacheTtl, function () use ($tenantId, $months) {
             // Use database aggregation with window functions
             $sql = "
@@ -186,7 +185,7 @@ final readonly class AggregateOptimizationService
                     
                 ORDER BY month DESC, property_name, meter_id
             ";
-            
+
             return DB::select($sql, [$tenantId, $months]);
         });
     }
@@ -197,7 +196,7 @@ final readonly class AggregateOptimizationService
     public function getInvoiceMetrics(int $tenantId): array
     {
         $cacheKey = "invoice_metrics_{$tenantId}";
-        
+
         return Cache::remember($cacheKey, $this->cacheTtl, function () use ($tenantId) {
             return DB::table('invoices')
                 ->selectRaw("
@@ -235,7 +234,7 @@ final readonly class AggregateOptimizationService
     {
         // Create a materialized view for complex aggregations
         // This would be run as a scheduled job
-        
+
         DB::statement("
             CREATE OR REPLACE VIEW meter_consumption_summary AS
             SELECT 
@@ -314,13 +313,13 @@ final readonly class AggregateOptimizationService
         return match ($type) {
             // Real-time for critical business metrics
             'invoice_totals' => $this->getRealTimeInvoiceTotals($tenantId),
-            
+
             // Cached for dashboard widgets
             'dashboard_stats' => $this->getDashboardStatsGood($tenantId),
-            
+
             // Pre-calculated for reports
             'consumption_report' => $this->getPreCalculatedConsumption($tenantId),
-            
+
             default => []
         };
     }
@@ -357,7 +356,7 @@ final readonly class AggregateOptimizationService
             "consumption_trends_{$tenantId}_*",
             "invoice_metrics_{$tenantId}",
         ];
-        
+
         foreach ($patterns as $pattern) {
             Cache::forget($pattern);
         }

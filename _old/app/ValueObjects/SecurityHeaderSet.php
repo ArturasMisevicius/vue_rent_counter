@@ -8,13 +8,13 @@ use InvalidArgumentException;
 
 /**
  * Security Header Set Value Object
- * 
+ *
  * Immutable collection of security headers with validation.
  */
 final readonly class SecurityHeaderSet
 {
     /**
-     * @param array<string, string> $headers
+     * @param  array<string, string>  $headers
      */
     private function __construct(
         public array $headers
@@ -24,8 +24,8 @@ final readonly class SecurityHeaderSet
 
     /**
      * Create a new security header set.
-     * 
-     * @param array<string, string> $headers
+     *
+     * @param  array<string, string>  $headers
      */
     public static function create(array $headers): self
     {
@@ -55,7 +55,7 @@ final readonly class SecurityHeaderSet
     {
         $headers = $this->headers;
         unset($headers[$name]);
-        
+
         return new self($headers);
     }
 
@@ -85,7 +85,7 @@ final readonly class SecurityHeaderSet
 
     /**
      * Get all headers as array.
-     * 
+     *
      * @return array<string, string>
      */
     public function toArray(): array
@@ -103,13 +103,13 @@ final readonly class SecurityHeaderSet
 
     /**
      * Validate header names and values.
-     * 
-     * @param array<string, string> $headers
+     *
+     * @param  array<string, string>  $headers
      */
     private function validateHeaders(array $headers): void
     {
         foreach ($headers as $name => $value) {
-            if (!is_string($name) || !is_string($value)) {
+            if (! is_string($name) || ! is_string($value)) {
                 throw new InvalidArgumentException('Header names and values must be strings');
             }
 
@@ -118,7 +118,7 @@ final readonly class SecurityHeaderSet
             }
 
             // Validate header name format (RFC 7230)
-            if (!preg_match('/^[!#$%&\'*+\-.0-9A-Z^_`a-z|~]+$/', $name)) {
+            if (! preg_match('/^[!#$%&\'*+\-.0-9A-Z^_`a-z|~]+$/', $name)) {
                 throw new InvalidArgumentException("Invalid header name: {$name}");
             }
 

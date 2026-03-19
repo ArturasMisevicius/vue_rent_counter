@@ -7,6 +7,7 @@ namespace App\Services\Enhanced;
 use App\Services\ServiceResponse;
 use App\Services\TenantContext;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Psr\Log\LoggerInterface;
@@ -14,7 +15,7 @@ use Throwable;
 
 /**
  * Enhanced Base Service Class
- * 
+ *
  * Provides comprehensive foundation for all service classes with:
  * - Advanced transaction management with savepoints
  * - Standardized error handling with context preservation
@@ -22,12 +23,11 @@ use Throwable;
  * - Structured logging with tenant and user context
  * - Authorization helpers with audit trails
  * - Performance monitoring and metrics collection
- * 
- * @package App\Services\Enhanced
  */
 abstract class BaseService
 {
     protected LoggerInterface $logger;
+
     protected array $performanceMetrics = [];
 
     public function __construct()
@@ -37,29 +37,30 @@ abstract class BaseService
 
     /**
      * Execute a callback within a database transaction with savepoints.
-     * 
+     *
      * Provides nested transaction support and automatic rollback on exceptions.
      * Includes performance monitoring and comprehensive error logging.
      *
-     * @param callable $callback The operation to execute
-     * @param string|null $savepointName Optional savepoint name for nested transactions
+     * @param  callable  $callback  The operation to execute
+     * @param  string|null  $savepointName  Optional savepoint name for nested transactions
      * @return mixed The result of the callback
+     *
      * @throws Throwable Re-throws the exception after rollback and logging
      */
     protected function executeInTransaction(callable $callback, ?string $savepointName = null): mixed
     {
         $startTime = microtime(true);
         $transactionId = uniqid('txn_');
-        
+
         $this->logTransactionStart($transactionId, $savepointName);
 
         try {
             if ($savepointName) {
                 return DB::transaction($callback, 5, $savepointName);
             }
-            
+
             return DB::transaction($callback);
-            
+
         } catch (Throwable $e) {
             $this->handleTransactionException($e, $transactionId, $savepointName);
             throw $e;
@@ -71,10 +72,9 @@ abstract class BaseService
     /**
      * Handle an exception with comprehensive logging and context preservation.
      *
-     * @param Throwable $e The exception to handle
-     * @param array $context Additional context for logging
-     * @param bool $notify Whether to trigger notification systems
-     * @return void
+     * @param  Throwable  $e  The exception to handle
+     * @param  array  $context  Additional context for logging
+     * @param  bool  $notify  Whether to trigger notification systems
      */
     protected function handleException(Throwable $e, array $context = [], bool $notify = false): void
     {
@@ -89,7 +89,7 @@ abstract class BaseService
         ], $context);
 
         // Add stack trace for non-production environments
-        if (!app()->isProduction()) {
+        if (! app()->isProduction()) {
             $errorContext['stack_trace'] = $e->getTraceAsString();
         }
 
@@ -104,20 +104,19 @@ abstract class BaseService
     /**
      * Create a success response with optional metadata.
      *
-     * @param mixed $data The data to return
-     * @param string $message Optional success message
-     * @param array $metadata Optional metadata
-     * @return ServiceResponse
+     * @param  mixed  $data  The data to return
+     * @param  string  $message  Optional success message
+     * @param  array  $metadata  Optional metadata
      */
     protected function success(mixed $data = null, string $message = '', array $metadata = []): ServiceResponse
     {
         // Add performance metrics if available
-        if (!empty($this->performanceMetrics)) {
+        if (! empty($this->performanceMetrics)) {
             $metadata['performance'] = $this->performanceMetrics;
         }
 
         // Add tenant context
-        if ($tenantId = app(\App\Services\TenantContext::class)->get()) {
+        if ($tenantId = app(TenantContext::class)->get()) {
             $metadata['tenant_id'] = $tenantId;
         }
 
@@ -132,16 +131,15 @@ abstract class BaseService
     /**
      * Create an error response with detailed context.
      *
-     * @param string $message The error message
-     * @param mixed $data Optional error data
-     * @param int $code Optional error code
-     * @param array $metadata Optional metadata
-     * @return ServiceResponse
+     * @param  string  $message  The error message
+     * @param  mixed  $data  Optional error data
+     * @param  int  $code  Optional error code
+     * @param  array  $metadata  Optional metadata
      */
     protected function error(
-        string $message, 
-        mixed $data = null, 
-        int $code = 0, 
+        string $message,
+        mixed $data = null,
+        int $code = 0,
         array $metadata = []
     ): ServiceResponse {
         // Add error context
@@ -163,10 +161,9 @@ abstract class BaseService
     /**
      * Log a message with comprehensive context.
      *
-     * @param string $level Log level (debug, info, warning, error, critical)
-     * @param string $message The message to log
-     * @param array $context Additional context
-     * @return void
+     * @param  string  $level  Log level (debug, info, warning, error, critical)
+     * @param  string  $message  The message to log
+     * @param  array  $context  Additional context
      */
     protected function log(string $level, string $message, array $context = []): void
     {
@@ -178,7 +175,7 @@ abstract class BaseService
         ], $context);
 
         // Add tenant context if available
-        if ($tenantId = app(\App\Services\TenantContext::class)->get()) {
+        if ($tenantId = app(TenantContext::class)->get()) {
             $logContext['tenant_id'] = $tenantId;
         }
 
@@ -203,26 +200,27 @@ abstract class BaseService
     /**
      * Validate that a model belongs to the current tenant with audit logging.
      *
-     * @param object $model The model to validate
-     * @param bool $throwOnFailure Whether to throw exception on failure
+     * @param  object  $model  The model to validate
+     * @param  bool  $throwOnFailure  Whether to throw exception on failure
      * @return bool True if valid, false otherwise
+     *
      * @throws AuthorizationException If validation fails and throwOnFailure is true
      */
     protected function validateTenantOwnership(object $model, bool $throwOnFailure = true): bool
     {
-        if (!property_exists($model, 'tenant_id')) {
+        if (! property_exists($model, 'tenant_id')) {
             return true; // Model doesn't have tenant_id
         }
 
-        $currentTenantId = app(\App\Services\TenantContext::class)->get();
-        
-        if (!$currentTenantId) {
+        $currentTenantId = app(TenantContext::class)->get();
+
+        if (! $currentTenantId) {
             return true; // No tenant context (e.g., superadmin)
         }
 
         $isValid = $model->tenant_id === $currentTenantId;
 
-        if (!$isValid) {
+        if (! $isValid) {
             $this->log('warning', 'Tenant ownership validation failed', [
                 'model_class' => get_class($model),
                 'model_id' => $model->id ?? 'unknown',
@@ -242,25 +240,27 @@ abstract class BaseService
     /**
      * Authorize an action on a model with comprehensive logging.
      *
-     * @param string $ability The ability to check
-     * @param mixed $model The model to authorize against
-     * @param bool $throwOnFailure Whether to throw exception on failure
+     * @param  string  $ability  The ability to check
+     * @param  mixed  $model  The model to authorize against
+     * @param  bool  $throwOnFailure  Whether to throw exception on failure
      * @return bool True if authorized, false otherwise
+     *
      * @throws AuthorizationException If authorization fails and throwOnFailure is true
      */
     protected function authorize(string $ability, mixed $model = null, bool $throwOnFailure = true): bool
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             if ($throwOnFailure) {
                 throw new AuthorizationException('Authentication required');
             }
+
             return false;
         }
 
         $user = auth()->user();
         $isAuthorized = $user->can($ability, $model);
 
-        if (!$isAuthorized) {
+        if (! $isAuthorized) {
             $this->log('warning', 'Authorization failed', [
                 'ability' => $ability,
                 'model_class' => $model ? get_class($model) : null,
@@ -280,10 +280,9 @@ abstract class BaseService
     /**
      * Record performance metrics for monitoring.
      *
-     * @param string $operation Operation name
-     * @param float $duration Duration in seconds
-     * @param array $metadata Additional metadata
-     * @return void
+     * @param  string  $operation  Operation name
+     * @param  float  $duration  Duration in seconds
+     * @param  array  $metadata  Additional metadata
      */
     protected function recordMetric(string $operation, float $duration, array $metadata = []): void
     {
@@ -308,17 +307,18 @@ abstract class BaseService
     /**
      * Execute an operation with performance monitoring.
      *
-     * @param string $operationName Name of the operation for metrics
-     * @param callable $callback The operation to execute
+     * @param  string  $operationName  Name of the operation for metrics
+     * @param  callable  $callback  The operation to execute
      * @return mixed The result of the callback
      */
     protected function withMetrics(string $operationName, callable $callback): mixed
     {
         $startTime = microtime(true);
-        
+
         try {
             $result = $callback();
             $this->recordMetric($operationName, microtime(true) - $startTime, ['success' => true]);
+
             return $result;
         } catch (Throwable $e) {
             $this->recordMetric($operationName, microtime(true) - $startTime, [
@@ -371,7 +371,7 @@ abstract class BaseService
     {
         return $e instanceof \Error ||
                $e instanceof \PDOException ||
-               $e instanceof \Illuminate\Database\QueryException ||
+               $e instanceof QueryException ||
                str_contains($e->getMessage(), 'memory') ||
                str_contains($e->getMessage(), 'timeout');
     }

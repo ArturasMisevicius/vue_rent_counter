@@ -80,7 +80,7 @@ class SubmitReadingPage extends Component
             $this->availableMeters,
             $this->availableMeterIds,
             $this->selectedMeter,
-            $this->preview,
+            $this->consumption,
             $this->meterSelectionLocked,
         );
 
@@ -102,7 +102,7 @@ class SubmitReadingPage extends Component
         return view('livewire.tenant.submit-reading-page', [
             'meters' => $this->availableMeters,
             'selectedMeter' => $this->selectedMeter,
-            'preview' => $this->preview,
+            'consumption' => $this->consumption,
             'meterSelectionLocked' => $this->meterSelectionLocked,
         ]);
     }
@@ -111,7 +111,7 @@ class SubmitReadingPage extends Component
      * @return array{message: string, delta: string|null, warning: string|null}|null
      */
     #[Computed]
-    public function preview(): ?array
+    public function consumption(): ?array
     {
         $selectedMeter = $this->selectedMeter;
 

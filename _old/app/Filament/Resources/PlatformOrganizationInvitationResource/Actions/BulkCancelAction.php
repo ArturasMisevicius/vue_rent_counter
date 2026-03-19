@@ -50,7 +50,7 @@ class BulkCancelAction extends BulkAction
                 Notification::make()
                     ->success()
                     ->title('Invitations Cancelled')
-                    ->body("Successfully cancelled {$cancelled} invitation(s)" . ($skipped > 0 ? " ({$skipped} skipped - not pending)" : ''))
+                    ->body("Successfully cancelled {$cancelled} invitation(s)".($skipped > 0 ? " ({$skipped} skipped - not pending)" : ''))
                     ->send();
             } else {
                 Notification::make()

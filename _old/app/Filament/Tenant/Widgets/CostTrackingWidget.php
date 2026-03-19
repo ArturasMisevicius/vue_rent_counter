@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Tenant\Widgets;
 
+use App\Models\Team;
 use App\Services\UniversalBillingCalculator;
 use Carbon\Carbon;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -18,13 +19,13 @@ final class CostTrackingWidget extends BaseWidget
     protected function getStats(): array
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->currentTeam) {
+
+        if (! $user || ! $user->currentTeam) {
             return [];
         }
 
         $cacheKey = "cost_tracking_{$user->currentTeam->id}";
-        
+
         return Cache::remember($cacheKey, 300, function () use ($user) {
             $properties = $user->currentTeam->properties()
                 ->with([
@@ -32,7 +33,7 @@ final class CostTrackingWidget extends BaseWidget
                     'meters.readings' => function ($query) {
                         $query->whereMonth('created_at', now()->month)
                             ->whereYear('created_at', now()->year);
-                    }
+                    },
                 ])
                 ->get();
 
@@ -41,25 +42,25 @@ final class CostTrackingWidget extends BaseWidget
             $yearToDateCost = $this->calculateYearToDateCost($user->currentTeam->id);
             $averageMonthlyCost = $this->calculateAverageMonthlyCost($user->currentTeam->id);
 
-            $monthlyChange = $lastMonthCost > 0 
-                ? (($currentMonthCost - $lastMonthCost) / $lastMonthCost) * 100 
+            $monthlyChange = $lastMonthCost > 0
+                ? (($currentMonthCost - $lastMonthCost) / $lastMonthCost) * 100
                 : 0;
 
             return [
-                Stat::make(__('dashboard.current_month_cost'), '€' . number_format($currentMonthCost, 2))
-                    ->description($monthlyChange >= 0 
-                        ? '+' . number_format($monthlyChange, 1) . '% ' . __('dashboard.from_last_month')
-                        : number_format($monthlyChange, 1) . '% ' . __('dashboard.from_last_month')
+                Stat::make(__('dashboard.current_month_cost'), '€'.number_format($currentMonthCost, 2))
+                    ->description($monthlyChange >= 0
+                        ? '+'.number_format($monthlyChange, 1).'% '.__('dashboard.from_last_month')
+                        : number_format($monthlyChange, 1).'% '.__('dashboard.from_last_month')
                     )
                     ->descriptionIcon($monthlyChange >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                     ->color($monthlyChange >= 0 ? 'danger' : 'success'),
 
-                Stat::make(__('dashboard.year_to_date_cost'), '€' . number_format($yearToDateCost, 2))
+                Stat::make(__('dashboard.year_to_date_cost'), '€'.number_format($yearToDateCost, 2))
                     ->description(__('dashboard.total_this_year'))
                     ->descriptionIcon('heroicon-m-calendar-days')
                     ->color('primary'),
 
-                Stat::make(__('dashboard.average_monthly_cost'), '€' . number_format($averageMonthlyCost, 2))
+                Stat::make(__('dashboard.average_monthly_cost'), '€'.number_format($averageMonthlyCost, 2))
                     ->description(__('dashboard.last_6_months_average'))
                     ->descriptionIcon('heroicon-m-chart-bar')
                     ->color('gray'),
@@ -80,8 +81,8 @@ final class CostTrackingWidget extends BaseWidget
 
                 $reading = $meter->readings->first();
                 $serviceConfig = $meter->serviceConfiguration;
-                
-                if (!$serviceConfig) {
+
+                if (! $serviceConfig) {
                     continue;
                 }
 
@@ -92,7 +93,7 @@ final class CostTrackingWidget extends BaseWidget
                         Carbon::now()->startOfMonth(),
                         Carbon::now()->endOfMonth()
                     );
-                    
+
                     $totalCost += $cost;
                 } catch (\Exception $e) {
                     // Log error but continue with other calculations
@@ -110,18 +111,18 @@ final class CostTrackingWidget extends BaseWidget
     private function calculateLastMonthCost(int $teamId): float
     {
         $cacheKey = "last_month_cost_{$teamId}";
-        
+
         return Cache::remember($cacheKey, 3600, function () use ($teamId) {
             $lastMonth = Carbon::now()->subMonth();
-            
-            $properties = \App\Models\Team::find($teamId)
+
+            $properties = Team::find($teamId)
                 ->properties()
                 ->with([
                     'meters.serviceConfiguration.utilityService',
                     'meters.readings' => function ($query) use ($lastMonth) {
                         $query->whereMonth('created_at', $lastMonth->month)
                             ->whereYear('created_at', $lastMonth->year);
-                    }
+                    },
                 ])
                 ->get();
 
@@ -131,16 +132,16 @@ final class CostTrackingWidget extends BaseWidget
 
     private function calculateYearToDateCost(int $teamId): float
     {
-        $cacheKey = "ytd_cost_{$teamId}_" . now()->year;
-        
+        $cacheKey = "ytd_cost_{$teamId}_".now()->year;
+
         return Cache::remember($cacheKey, 1800, function () use ($teamId) {
-            $properties = \App\Models\Team::find($teamId)
+            $properties = Team::find($teamId)
                 ->properties()
                 ->with([
                     'meters.serviceConfiguration.utilityService',
                     'meters.readings' => function ($query) {
                         $query->whereYear('created_at', now()->year);
-                    }
+                    },
                 ])
                 ->get();
 
@@ -150,8 +151,8 @@ final class CostTrackingWidget extends BaseWidget
             foreach ($properties as $property) {
                 foreach ($property->meters as $meter) {
                     $serviceConfig = $meter->serviceConfiguration;
-                    
-                    if (!$serviceConfig) {
+
+                    if (! $serviceConfig) {
                         continue;
                     }
 
@@ -161,7 +162,7 @@ final class CostTrackingWidget extends BaseWidget
 
                     foreach ($monthlyReadings as $month => $readings) {
                         $totalConsumption = $readings->sum('value');
-                        $monthStart = Carbon::parse($month . '-01')->startOfMonth();
+                        $monthStart = Carbon::parse($month.'-01')->startOfMonth();
                         $monthEnd = $monthStart->copy()->endOfMonth();
 
                         try {
@@ -171,7 +172,7 @@ final class CostTrackingWidget extends BaseWidget
                                 $monthStart,
                                 $monthEnd
                             );
-                            
+
                             $totalCost += $cost;
                         } catch (\Exception $e) {
                             logger()->warning('YTD cost calculation failed', [
@@ -191,17 +192,17 @@ final class CostTrackingWidget extends BaseWidget
     private function calculateAverageMonthlyCost(int $teamId): float
     {
         $cacheKey = "avg_monthly_cost_{$teamId}";
-        
+
         return Cache::remember($cacheKey, 3600, function () use ($teamId) {
             $sixMonthsAgo = Carbon::now()->subMonths(6);
-            
-            $properties = \App\Models\Team::find($teamId)
+
+            $properties = Team::find($teamId)
                 ->properties()
                 ->with([
                     'meters.serviceConfiguration.utilityService',
                     'meters.readings' => function ($query) use ($sixMonthsAgo) {
                         $query->where('created_at', '>=', $sixMonthsAgo);
-                    }
+                    },
                 ])
                 ->get();
 
@@ -218,8 +219,8 @@ final class CostTrackingWidget extends BaseWidget
                 foreach ($properties as $property) {
                     foreach ($property->meters as $meter) {
                         $serviceConfig = $meter->serviceConfiguration;
-                        
-                        if (!$serviceConfig) {
+
+                        if (! $serviceConfig) {
                             continue;
                         }
 
@@ -240,7 +241,7 @@ final class CostTrackingWidget extends BaseWidget
                                 $monthStart,
                                 $monthEnd
                             );
-                            
+
                             $monthlyCosts[$monthKey] += $cost;
                         } catch (\Exception $e) {
                             logger()->warning('Average monthly cost calculation failed', [
@@ -253,8 +254,8 @@ final class CostTrackingWidget extends BaseWidget
                 }
             }
 
-            $validCosts = array_filter($monthlyCosts, fn($cost) => $cost > 0);
-            
+            $validCosts = array_filter($monthlyCosts, fn ($cost) => $cost > 0);
+
             return count($validCosts) > 0 ? array_sum($validCosts) / count($validCosts) : 0;
         });
     }

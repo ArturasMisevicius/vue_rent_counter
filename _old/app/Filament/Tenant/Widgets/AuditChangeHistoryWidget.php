@@ -28,7 +28,7 @@ final class AuditChangeHistoryWidget extends BaseWidget
 
     protected static ?int $sort = 5;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
@@ -41,7 +41,7 @@ final class AuditChangeHistoryWidget extends BaseWidget
                     ->sortable(),
                 TextColumn::make('auditable_type')
                     ->label(__('dashboard.audit.labels.model_type'))
-                    ->formatStateUsing(fn (string $state, AuditLog $record): string => class_basename($state) . " #{$record->auditable_id}")
+                    ->formatStateUsing(fn (string $state, AuditLog $record): string => class_basename($state)." #{$record->auditable_id}")
                     ->badge()
                     ->color('primary'),
                 TextColumn::make('event')
@@ -142,7 +142,7 @@ final class AuditChangeHistoryWidget extends BaseWidget
 
         $preview = array_slice($fields, 0, 3);
 
-        return implode(', ', $preview) . (count($fields) > 3 ? '...' : '');
+        return implode(', ', $preview).(count($fields) > 3 ? '...' : '');
     }
 
     private function canRollback(AuditLog $record): bool
@@ -172,6 +172,7 @@ final class AuditChangeHistoryWidget extends BaseWidget
                 ->send();
 
             $this->resetTable();
+
             return;
         }
 
@@ -188,7 +189,7 @@ final class AuditChangeHistoryWidget extends BaseWidget
             ->limit(1000)
             ->get();
 
-        $filename = 'audit-change-history-' . now()->format('Y-m-d-H-i-s') . '.csv';
+        $filename = 'audit-change-history-'.now()->format('Y-m-d-H-i-s').'.csv';
 
         return response()->streamDownload(function () use ($rows): void {
             $handle = fopen('php://output', 'w');
@@ -197,7 +198,7 @@ final class AuditChangeHistoryWidget extends BaseWidget
             foreach ($rows as $row) {
                 fputcsv($handle, [
                     $row->created_at?->format('Y-m-d H:i:s'),
-                    class_basename($row->auditable_type) . " #{$row->auditable_id}",
+                    class_basename($row->auditable_type)." #{$row->auditable_id}",
                     $row->event,
                     $row->user?->name ?? __('dashboard.audit.labels.system'),
                     implode(', ', array_keys($row->getChanges())),

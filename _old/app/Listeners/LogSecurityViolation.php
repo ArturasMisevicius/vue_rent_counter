@@ -10,19 +10,14 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Log Security Violation Listener
- * 
+ *
  * Handles security violation events by logging them for monitoring
  * and potentially triggering alerts for repeated violations.
- * 
- * @package App\Listeners
  */
 final class LogSecurityViolation implements ShouldQueue
 {
     /**
      * Handle the event.
-     * 
-     * @param SecurityViolationDetected $event
-     * @return void
      */
     public function handle(SecurityViolationDetected $event): void
     {
@@ -42,13 +37,10 @@ final class LogSecurityViolation implements ShouldQueue
 
     /**
      * Check for repeated violations and trigger alerts if needed.
-     * 
-     * @param SecurityViolationDetected $event
-     * @return void
      */
     private function checkForRepeatedViolations(SecurityViolationDetected $event): void
     {
-        if (!$event->ipAddress) {
+        if (! $event->ipAddress) {
             return;
         }
 

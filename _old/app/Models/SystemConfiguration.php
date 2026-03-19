@@ -20,7 +20,7 @@ enum ConfigurationType: string
 
 /**
  * System Configuration Model
- * 
+ *
  * Manages global system configuration settings that can be controlled by super admins.
  * Supports different data types and tenant-level overrides.
  */
@@ -67,7 +67,7 @@ class SystemConfiguration extends Model
             return $this->getTypedDefaultValue();
         }
 
-        return match($this->type) {
+        return match ($this->type) {
             ConfigurationType::STRING => (string) ($this->value['value'] ?? ''),
             ConfigurationType::INTEGER => (int) ($this->value['value'] ?? 0),
             ConfigurationType::FLOAT => (float) ($this->value['value'] ?? 0.0),
@@ -82,7 +82,7 @@ class SystemConfiguration extends Model
     public function getTypedDefaultValue(): mixed
     {
         if ($this->default_value === null) {
-            return match($this->type) {
+            return match ($this->type) {
                 ConfigurationType::STRING => '',
                 ConfigurationType::INTEGER => 0,
                 ConfigurationType::FLOAT => 0.0,
@@ -91,7 +91,7 @@ class SystemConfiguration extends Model
             };
         }
 
-        return match($this->type) {
+        return match ($this->type) {
             ConfigurationType::STRING => (string) ($this->default_value['value'] ?? ''),
             ConfigurationType::INTEGER => (int) ($this->default_value['value'] ?? 0),
             ConfigurationType::FLOAT => (float) ($this->default_value['value'] ?? 0.0),
@@ -120,8 +120,8 @@ class SystemConfiguration extends Model
         }
 
         $validator = validator(['value' => $value], ['value' => $this->validation_rules]);
-        
-        return !$validator->fails();
+
+        return ! $validator->fails();
     }
 
     /**
@@ -132,7 +132,7 @@ class SystemConfiguration extends Model
         $config = cache()->remember(
             "system_config.{$key}",
             now()->addMinutes(30),
-            fn() => static::where('key', $key)->first()
+            fn () => static::where('key', $key)->first()
         );
 
         return $config?->getTypedValue() ?? $default;
@@ -145,7 +145,7 @@ class SystemConfiguration extends Model
     {
         $config = static::firstOrCreate(['key' => $key]);
         $config->setTypedValue($value, $adminId);
-        
+
         cache()->forget("system_config.{$key}");
     }
 

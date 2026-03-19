@@ -5,48 +5,40 @@ declare(strict_types=1);
 namespace App\Filament\Superadmin\Widgets;
 
 use App\Models\User;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * Recent Users Widget
- * 
+ *
  * Displays recently registered users across all organizations
  * for superadmin monitoring and management.
- * 
- * @package App\Filament\Superadmin\Widgets
  */
 final class RecentUsersWidget extends BaseWidget
 {
     /**
      * Widget heading.
-     * 
-     * @var string|null
      */
     protected static ?string $heading = null;
 
     /**
      * Widget column span configuration.
-     * 
+     *
      * @var string
      */
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     /**
      * Widget sort order.
-     * 
-     * @var int
      */
     protected static ?int $sort = 2;
 
     /**
      * Get the widget heading.
-     * 
-     * @return string
      */
     public function getHeading(): string
     {
@@ -55,9 +47,6 @@ final class RecentUsersWidget extends BaseWidget
 
     /**
      * Configure the table for the widget.
-     * 
-     * @param Table $table
-     * @return Table
      */
     public function table(Table $table): Table
     {
@@ -90,8 +79,7 @@ final class RecentUsersWidget extends BaseWidget
                     ->dateTime('M j, Y H:i')
                     ->sortable()
                     ->since()
-                    ->description(fn ($record): string => 
-                        $record->created_at->format('l, F j, Y')
+                    ->description(fn ($record): string => $record->created_at->format('l, F j, Y')
                     ),
             ])
             ->actions([
@@ -100,7 +88,7 @@ final class RecentUsersWidget extends BaseWidget
                     ->icon('heroicon-m-eye')
                     ->action(function (User $record) {
                         // For now, just show a notification
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->title('User Details')
                             ->body("Viewing user: {$record->name} ({$record->email})")
                             ->info()
@@ -114,7 +102,7 @@ final class RecentUsersWidget extends BaseWidget
 
     /**
      * Get the base query for the table.
-     * 
+     *
      * @return Builder<User>
      */
     protected function getTableQuery(): Builder

@@ -11,57 +11,59 @@ use Illuminate\Support\Facades\Log;
 class OfflineDataService
 {
     private const OFFLINE_MODE_KEY = 'integration_offline_mode';
+
     private const OFFLINE_DATA_PREFIX = 'offline_data:';
+
     private const PENDING_SYNC_PREFIX = 'pending_sync:';
-    
+
     /**
      * Store successful result for offline use
      */
     public function storeSuccessfulResult(string $serviceName, mixed $data): void
     {
-        $key = self::OFFLINE_DATA_PREFIX . $serviceName;
-        
+        $key = self::OFFLINE_DATA_PREFIX.$serviceName;
+
         Cache::put($key, [
             'data' => $data,
             'timestamp' => now(),
             'service' => $serviceName,
         ], now()->addDays(7));
-        
+
         $this->registerCacheKey($key);
-        
+
         Log::debug('Stored offline data', [
             'service' => $serviceName,
             'size' => is_string($data) ? strlen($data) : 'complex',
         ]);
     }
-    
+
     /**
      * Get last successful result for offline use
      */
     public function getLastSuccessfulResult(string $serviceName): mixed
     {
-        $key = self::OFFLINE_DATA_PREFIX . $serviceName;
+        $key = self::OFFLINE_DATA_PREFIX.$serviceName;
         $cached = Cache::get($key);
-        
+
         if ($cached && isset($cached['data'])) {
             Log::info('Retrieved offline data', [
                 'service' => $serviceName,
                 'age_hours' => now()->diffInHours($cached['timestamp']),
             ]);
-            
+
             return $cached['data'];
         }
-        
+
         return null;
     }
-    
+
     /**
      * Store data that needs to be synchronized later
      */
     public function storePendingSync(string $serviceName, array $data, string $operation = 'update'): void
     {
-        $key = self::PENDING_SYNC_PREFIX . $serviceName . ':' . uniqid();
-        
+        $key = self::PENDING_SYNC_PREFIX.$serviceName.':'.uniqid();
+
         Cache::put($key, [
             'service' => $serviceName,
             'operation' => $operation,
@@ -69,38 +71,38 @@ class OfflineDataService
             'timestamp' => now(),
             'attempts' => 0,
         ], now()->addDays(30));
-        
+
         $this->registerCacheKey($key);
-        
+
         Log::info('Stored pending sync data', [
             'service' => $serviceName,
             'operation' => $operation,
             'key' => $key,
         ]);
     }
-    
+
     /**
      * Get all pending synchronization data
      */
-    public function getPendingSyncData(string $serviceName = null): array
+    public function getPendingSyncData(?string $serviceName = null): array
     {
-        $pattern = $serviceName 
-            ? self::PENDING_SYNC_PREFIX . $serviceName . ':'
+        $pattern = $serviceName
+            ? self::PENDING_SYNC_PREFIX.$serviceName.':'
             : self::PENDING_SYNC_PREFIX;
-            
+
         $keys = $this->getCacheKeys($pattern);
         $pendingData = [];
-        
+
         foreach ($keys as $key) {
             $data = Cache::get($key);
             if ($data) {
                 $pendingData[$key] = $data;
             }
         }
-        
+
         return $pendingData;
     }
-    
+
     /**
      * Synchronize pending data when services come back online
      */
@@ -112,28 +114,28 @@ class OfflineDataService
             'failed' => 0,
             'errors' => [],
         ];
-        
+
         foreach ($pendingData as $key => $data) {
             try {
                 $this->processPendingSync($data);
                 Cache::forget($key);
                 $results['synchronized']++;
-                
+
                 Log::info('Successfully synchronized pending data', [
                     'service' => $data['service'],
                     'operation' => $data['operation'],
                 ]);
-                
+
             } catch (\Exception $e) {
                 $results['failed']++;
                 $results['errors'][] = [
                     'service' => $data['service'],
                     'error' => $e->getMessage(),
                 ];
-                
+
                 // Increment attempt count
                 $data['attempts'] = ($data['attempts'] ?? 0) + 1;
-                
+
                 if ($data['attempts'] < 3) {
                     Cache::put($key, $data, now()->addDays(30));
                 } else {
@@ -146,10 +148,10 @@ class OfflineDataService
                 }
             }
         }
-        
+
         return $results;
     }
-    
+
     /**
      * Process individual pending sync item
      */
@@ -158,7 +160,7 @@ class OfflineDataService
         $serviceName = $data['service'];
         $operation = $data['operation'];
         $payload = $data['data'];
-        
+
         // This would typically call the actual integration service
         // For now, we'll just simulate the sync
         switch ($operation) {
@@ -175,7 +177,7 @@ class OfflineDataService
                 throw new \InvalidArgumentException("Unknown sync operation: {$operation}");
         }
     }
-    
+
     /**
      * Sync meter reading data
      */
@@ -187,7 +189,7 @@ class OfflineDataService
             $data
         );
     }
-    
+
     /**
      * Sync billing data
      */
@@ -199,7 +201,7 @@ class OfflineDataService
             $data
         );
     }
-    
+
     /**
      * Sync configuration data
      */
@@ -211,7 +213,7 @@ class OfflineDataService
             $data
         );
     }
-    
+
     /**
      * Enable offline mode
      */
@@ -219,7 +221,7 @@ class OfflineDataService
     {
         Cache::put(self::OFFLINE_MODE_KEY, true, now()->addDays(1));
     }
-    
+
     /**
      * Disable offline mode
      */
@@ -227,7 +229,7 @@ class OfflineDataService
     {
         Cache::forget(self::OFFLINE_MODE_KEY);
     }
-    
+
     /**
      * Check if offline mode is enabled
      */
@@ -235,7 +237,7 @@ class OfflineDataService
     {
         return Cache::get(self::OFFLINE_MODE_KEY, false);
     }
-    
+
     /**
      * Get offline data statistics
      */
@@ -243,7 +245,7 @@ class OfflineDataService
     {
         $offlineKeys = $this->getCacheKeys(self::OFFLINE_DATA_PREFIX);
         $pendingKeys = $this->getCacheKeys(self::PENDING_SYNC_PREFIX);
-        
+
         return [
             'offline_mode' => $this->isOfflineModeEnabled(),
             'cached_services' => count($offlineKeys),
@@ -251,7 +253,7 @@ class OfflineDataService
             'oldest_cache' => $this->getOldestCacheAge(),
         ];
     }
-    
+
     /**
      * Get age of oldest cached data
      */
@@ -259,7 +261,7 @@ class OfflineDataService
     {
         $offlineKeys = $this->getCacheKeys(self::OFFLINE_DATA_PREFIX);
         $oldestAge = null;
-        
+
         foreach ($offlineKeys as $key) {
             $data = Cache::get($key);
             if ($data && isset($data['timestamp'])) {
@@ -269,10 +271,10 @@ class OfflineDataService
                 }
             }
         }
-        
+
         return $oldestAge;
     }
-    
+
     /**
      * Get cache keys matching a pattern (cache-driver agnostic)
      */
@@ -282,16 +284,16 @@ class OfflineDataService
         if (app()->environment('testing')) {
             return $this->getTestCacheKeys($prefix);
         }
-        
+
         // For Redis in production
         try {
-            return Cache::getRedis()->keys($prefix . '*');
+            return Cache::getRedis()->keys($prefix.'*');
         } catch (\Exception $e) {
             // Fallback for non-Redis cache drivers
             return $this->getTestCacheKeys($prefix);
         }
     }
-    
+
     /**
      * Get cache keys for testing environment
      */
@@ -300,12 +302,12 @@ class OfflineDataService
         // In testing, we'll maintain a registry of keys
         $registryKey = 'cache_keys_registry';
         $registry = Cache::get($registryKey, []);
-        
-        return array_filter($registry, function($key) use ($prefix) {
+
+        return array_filter($registry, function ($key) use ($prefix) {
             return str_starts_with($key, $prefix);
         });
     }
-    
+
     /**
      * Register a cache key (for testing)
      */

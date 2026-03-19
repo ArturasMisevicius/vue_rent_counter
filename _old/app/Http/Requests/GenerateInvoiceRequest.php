@@ -7,20 +7,19 @@ namespace App\Http\Requests;
 use App\Models\Invoice;
 use App\Models\Tenant;
 use Carbon\Carbon;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
 /**
  * GenerateInvoiceRequest
- * 
+ *
  * Validates invoice generation parameters.
- * 
+ *
  * Requirements:
  * - Input validation for tenant and date range
  * - Duplicate invoice prevention
  * - Date range validation
- * 
- * @package App\Http\Requests
  */
 class GenerateInvoiceRequest extends FormRequest
 {
@@ -30,8 +29,8 @@ class GenerateInvoiceRequest extends FormRequest
     public function authorize(): bool
     {
         $tenant = Tenant::find($this->input('tenant_id'));
-        
-        if (!$tenant) {
+
+        if (! $tenant) {
             return false;
         }
 
@@ -41,7 +40,7 @@ class GenerateInvoiceRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -81,7 +80,7 @@ class GenerateInvoiceRequest extends FormRequest
             // Validate date range is reasonable (not more than 3 months)
             $start = Carbon::parse($this->input('period_start'));
             $end = Carbon::parse($this->input('period_end'));
-            
+
             if ($start->diffInMonths($end) > 3) {
                 $validator->errors()->add('period_end', __('billing.validation.period_too_long'));
             }

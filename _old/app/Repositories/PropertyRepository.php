@@ -6,24 +6,23 @@ namespace App\Repositories;
 
 use App\Contracts\PropertyRepositoryInterface;
 use App\Enums\PropertyType;
+use App\Exceptions\RepositoryException;
 use App\Models\Property;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
  * Property Repository Implementation
- * 
+ *
  * Provides property-specific data access operations with tenant awareness,
  * type-based filtering, and property management functionality.
- * 
+ *
  * @extends BaseRepository<Property>
  */
 class PropertyRepository extends BaseRepository implements PropertyRepositoryInterface
 {
     /**
      * Create a new property repository instance.
-     * 
-     * @param Property $model
      */
     public function __construct(Property $model)
     {
@@ -39,7 +38,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             return $this->query->ofType($type)->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findByType', 'type' => $type->value]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -54,7 +54,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             return $this->query->where('building_id', $buildingId)->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findByBuilding', 'buildingId' => $buildingId]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -69,7 +70,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             return $this->query->occupied()->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findOccupied']);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -84,7 +86,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             return $this->query->vacant()->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findVacant']);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -99,7 +102,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             return $this->query->withActiveMeters()->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findWithActiveMeters']);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -114,7 +118,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             return $this->query->residential()->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findResidential']);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -129,7 +134,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             return $this->query->commercial()->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findCommercial']);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -144,12 +150,13 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             return $this->query
                 ->where(function ($query) use ($search) {
                     $query->where('address', 'LIKE', "%{$search}%")
-                          ->orWhere('unit_number', 'LIKE', "%{$search}%");
+                        ->orWhere('unit_number', 'LIKE', "%{$search}%");
                 })
                 ->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'searchByAddress', 'search' => $search]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -164,7 +171,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             return $this->query->withTags($tags)->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findWithTags', 'tags' => $tags]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -183,9 +191,10 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             $this->handleException($e, [
                 'method' => 'findByAreaRange',
                 'minArea' => $minArea,
-                'maxArea' => $maxArea
+                'maxArea' => $maxArea,
             ]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -200,7 +209,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             return $this->query->whereNotNull('unit_number')->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findWithUnitNumbers']);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -215,7 +225,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             return $this->query->whereNull('unit_number')->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findWithoutUnitNumbers']);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -230,7 +241,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             return Property::withCommonRelations()->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'getWithCommonRelations']);
-            return new Collection();
+
+            return new Collection;
         }
     }
 
@@ -243,6 +255,7 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             return $this->query->ofType($type)->count();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'countByType', 'type' => $type->value]);
+
             return 0;
         } finally {
             $this->resetQuery();
@@ -258,6 +271,7 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             return $this->query->occupied()->count();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'countOccupied']);
+
             return 0;
         } finally {
             $this->resetQuery();
@@ -273,6 +287,7 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             return $this->query->vacant()->count();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'countVacant']);
+
             return 0;
         } finally {
             $this->resetQuery();
@@ -292,7 +307,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
                 ->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findByTenantId', 'tenantId' => $tenantId]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -307,7 +323,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             return $this->query->vacant()->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findAvailableForAssignment']);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -335,6 +352,7 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             ];
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'getPropertyStats']);
+
             return [];
         } finally {
             $this->resetQuery();
@@ -353,7 +371,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
                 ->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findWithServiceConfigurations']);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -372,7 +391,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
                 ->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findByServiceType', 'serviceType' => $serviceType]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -386,21 +406,21 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
         try {
             return $this->transaction(function () use ($propertyId, $tenantId) {
                 $property = $this->findOrFail($propertyId);
-                
+
                 // Check if property can be assigned
-                if (!$property->canAssignTenant()) {
-                    throw new \App\Exceptions\RepositoryException('Property is already occupied and cannot be assigned');
+                if (! $property->canAssignTenant()) {
+                    throw new RepositoryException('Property is already occupied and cannot be assigned');
                 }
-                
+
                 $property->tenants()->attach($tenantId, [
                     'assigned_at' => now(),
                 ]);
-                
+
                 $this->logOperation('assignTenant', [
                     'propertyId' => $propertyId,
-                    'tenantId' => $tenantId
+                    'tenantId' => $tenantId,
                 ]);
-                
+
                 return $property->load('tenants');
             });
         } catch (ModelNotFoundException $e) {
@@ -409,9 +429,9 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             $this->handleException($e, [
                 'method' => 'assignTenant',
                 'propertyId' => $propertyId,
-                'tenantId' => $tenantId
+                'tenantId' => $tenantId,
             ]);
-            throw new \App\Exceptions\RepositoryException("Failed to assign tenant to property", 0, $e);
+            throw new RepositoryException('Failed to assign tenant to property', 0, $e);
         }
     }
 
@@ -423,16 +443,16 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
         try {
             return $this->transaction(function () use ($propertyId, $tenantId) {
                 $property = $this->findOrFail($propertyId);
-                
+
                 $property->tenants()->updateExistingPivot($tenantId, [
                     'vacated_at' => now(),
                 ]);
-                
+
                 $this->logOperation('removeTenant', [
                     'propertyId' => $propertyId,
-                    'tenantId' => $tenantId
+                    'tenantId' => $tenantId,
                 ]);
-                
+
                 return $property->load('tenants');
             });
         } catch (ModelNotFoundException $e) {
@@ -441,9 +461,9 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             $this->handleException($e, [
                 'method' => 'removeTenant',
                 'propertyId' => $propertyId,
-                'tenantId' => $tenantId
+                'tenantId' => $tenantId,
             ]);
-            throw new \App\Exceptions\RepositoryException("Failed to remove tenant from property", 0, $e);
+            throw new RepositoryException('Failed to remove tenant from property', 0, $e);
         }
     }
 
@@ -459,7 +479,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
                 ->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findWithActiveProjects']);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -467,8 +488,7 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
 
     /**
      * Find properties by building address.
-     * 
-     * @param string $buildingAddress
+     *
      * @return Collection<int, Property>
      */
     public function findByBuildingAddress(string $buildingAddress): Collection
@@ -481,7 +501,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
                 ->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findByBuildingAddress', 'buildingAddress' => $buildingAddress]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -489,8 +510,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
 
     /**
      * Find properties with specific meter types.
-     * 
-     * @param array<string> $meterTypes
+     *
+     * @param  array<string>  $meterTypes
      * @return Collection<int, Property>
      */
     public function findWithMeterTypes(array $meterTypes): Collection
@@ -503,7 +524,8 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
                 ->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findWithMeterTypes', 'meterTypes' => $meterTypes]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -511,8 +533,6 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
 
     /**
      * Get property occupancy rate.
-     * 
-     * @return float
      */
     public function getOccupancyRate(): float
     {
@@ -521,11 +541,13 @@ class PropertyRepository extends BaseRepository implements PropertyRepositoryInt
             if ($total === 0) {
                 return 0.0;
             }
-            
+
             $occupied = $this->countOccupied();
+
             return round(($occupied / $total) * 100, 2);
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'getOccupancyRate']);
+
             return 0.0;
         }
     }

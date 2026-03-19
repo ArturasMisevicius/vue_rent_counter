@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Filament\Resources\PlatformNotificationResource\RelationManagers;
 
 use App\Models\PlatformNotificationRecipient;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -89,10 +91,10 @@ class RecipientsRelationManager extends RelationManager
                 // No create action needed - recipients are auto-generated
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
+                ViewAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
+                BulkActionGroup::make([
                     // No bulk actions needed for recipients
                 ]),
             ])

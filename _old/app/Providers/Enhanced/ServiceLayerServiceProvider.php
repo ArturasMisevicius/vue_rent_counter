@@ -4,37 +4,36 @@ declare(strict_types=1);
 
 namespace App\Providers\Enhanced;
 
-use App\Services\Enhanced\BillingService;
-use App\Services\Enhanced\UserManagementService;
-use App\Services\Enhanced\ConsumptionCalculationService;
+use App\Actions\AssignRoleAction;
+use App\Actions\CreateUserAction;
 use App\Actions\Enhanced\ProcessPaymentAction;
 use App\Actions\Enhanced\ValidateMeterReadingAction;
-use App\Actions\CreateUserAction;
-use App\Actions\AssignRoleAction;
-use App\Actions\SendWelcomeEmailAction;
 use App\Actions\GenerateInvoiceAction;
+use App\Actions\SendWelcomeEmailAction;
 use App\Contracts\BillingServiceInterface;
-use App\Contracts\UserManagementServiceInterface;
 use App\Contracts\ConsumptionCalculationServiceInterface;
+use App\Contracts\UserManagementServiceInterface;
+use App\Services\Enhanced\BillingService;
+use App\Services\Enhanced\ConsumptionCalculationService;
+use App\Services\Enhanced\UserManagementService;
+use App\Services\MeterReadingService;
+use App\Services\ServiceValidationEngine;
+use App\Services\UniversalBillingCalculator;
 use Illuminate\Support\ServiceProvider;
 
 /**
  * Service Layer Service Provider
- * 
+ *
  * Registers all service layer components with proper dependency injection:
  * - Service classes with interface bindings
  * - Action classes as singletons
  * - DTO factories and validators
  * - Performance monitoring and logging
- * 
- * @package App\Providers\Enhanced
  */
 final class ServiceLayerServiceProvider extends ServiceProvider
 {
     /**
      * All of the container bindings that should be registered.
-     *
-     * @var array
      */
     public array $bindings = [
         BillingServiceInterface::class => BillingService::class,
@@ -44,8 +43,6 @@ final class ServiceLayerServiceProvider extends ServiceProvider
 
     /**
      * All of the container singletons that should be registered.
-     *
-     * @var array
      */
     public array $singletons = [
         // Actions are stateless and can be singletons
@@ -66,8 +63,8 @@ final class ServiceLayerServiceProvider extends ServiceProvider
         $this->app->bind(BillingServiceInterface::class, function ($app) {
             return new BillingService(
                 $app->make(GenerateInvoiceAction::class),
-                $app->make(\App\Services\UniversalBillingCalculator::class),
-                $app->make(\App\Services\MeterReadingService::class),
+                $app->make(UniversalBillingCalculator::class),
+                $app->make(MeterReadingService::class),
                 $app->make(ConsumptionCalculationService::class)
             );
         });
@@ -82,18 +79,18 @@ final class ServiceLayerServiceProvider extends ServiceProvider
 
         $this->app->bind(ConsumptionCalculationServiceInterface::class, function ($app) {
             return new ConsumptionCalculationService(
-                $app->make(\App\Services\MeterReadingService::class)
+                $app->make(MeterReadingService::class)
             );
         });
 
         // Register enhanced actions with dependencies
         $this->app->bind(ProcessPaymentAction::class, function ($app) {
-            return new ProcessPaymentAction();
+            return new ProcessPaymentAction;
         });
 
         $this->app->bind(ValidateMeterReadingAction::class, function ($app) {
             return new ValidateMeterReadingAction(
-                $app->make(\App\Services\ServiceValidationEngine::class)
+                $app->make(ServiceValidationEngine::class)
             );
         });
 
@@ -125,7 +122,8 @@ final class ServiceLayerServiceProvider extends ServiceProvider
     private function registerPerformanceMonitoring(): void
     {
         $this->app->singleton('service.performance.monitor', function ($app) {
-            return new class {
+            return new class
+            {
                 private array $metrics = [];
 
                 public function record(string $service, string $operation, float $duration, array $metadata = []): void
@@ -169,7 +167,8 @@ final class ServiceLayerServiceProvider extends ServiceProvider
     private function registerErrorHandling(): void
     {
         $this->app->singleton('service.error.handler', function ($app) {
-            return new class {
+            return new class
+            {
                 public function handle(\Throwable $e, array $context = []): void
                 {
                     $errorContext = array_merge([
@@ -249,8 +248,6 @@ final class ServiceLayerServiceProvider extends ServiceProvider
 
     /**
      * Get the services provided by the provider.
-     *
-     * @return array
      */
     public function provides(): array
     {

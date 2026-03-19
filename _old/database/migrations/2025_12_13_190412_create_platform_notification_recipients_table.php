@@ -21,7 +21,7 @@ return new class extends Migration
             $table->timestamp('read_at')->nullable();
             $table->text('failure_reason')->nullable();
             $table->timestamps();
-            
+
             $table->index(['platform_notification_id', 'delivery_status']);
             $table->index(['organization_id', 'delivery_status']);
         });

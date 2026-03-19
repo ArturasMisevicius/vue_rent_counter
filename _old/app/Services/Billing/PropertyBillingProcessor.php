@@ -8,18 +8,15 @@ use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
 use App\Models\Meter;
 use App\Models\Property;
-use App\Models\ServiceConfiguration;
 use App\ValueObjects\BillingOptions;
 use App\ValueObjects\BillingPeriod;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Processes billing for individual properties.
- * 
+ *
  * Coordinates different service charge processors
  * and creates invoices for properties.
- * 
- * @package App\Services\Billing
  */
 final readonly class PropertyBillingProcessor
 {
@@ -43,9 +40,10 @@ final readonly class PropertyBillingProcessor
         ];
 
         // Check if invoice already exists for this period
-        if ($this->invoiceExistsForPeriod($property, $billingPeriod) && !$options->shouldRegenerateExisting()) {
+        if ($this->invoiceExistsForPeriod($property, $billingPeriod) && ! $options->shouldRegenerateExisting()) {
             $warning = "Invoice already exists for property {$property->id} in period {$billingPeriod->getLabel()}";
             $results['warnings'][] = $warning;
+
             return $results;
         }
 
@@ -54,14 +52,15 @@ final readonly class PropertyBillingProcessor
             ->with(['serviceConfiguration.utilityService', 'readings' => function ($query) use ($billingPeriod) {
                 $query->whereBetween('reading_date', [
                     $billingPeriod->getStartDate(),
-                    $billingPeriod->getEndDate()
+                    $billingPeriod->getEndDate(),
                 ])->orderBy('reading_date');
             }])
             ->get();
-        
+
         if ($meters->isEmpty()) {
             $warning = "Property {$property->id} has no meters";
             $results['warnings'][] = $warning;
+
             return $results;
         }
 
@@ -90,7 +89,7 @@ final readonly class PropertyBillingProcessor
         // Create invoice if there are charges
         if ($totalAmount > 0 || $options->shouldCreateZeroInvoices()) {
             $invoice = $this->createInvoice($property, $billingPeriod, $totalAmount, $invoiceItems, $options);
-            
+
             $results['invoice_generated'] = true;
             $results['invoice_amount'] = $totalAmount;
             $results['invoice_id'] = $invoice->id;
@@ -103,10 +102,10 @@ final readonly class PropertyBillingProcessor
     {
         // Find invoices through the tenant relationship since invoices don't have property_id
         $tenant = $property->tenant()->first();
-        if (!$tenant) {
+        if (! $tenant) {
             return false;
         }
-        
+
         return Invoice::where('tenant_renter_id', $tenant->id)
             ->where('billing_period_start', $billingPeriod->getStartDate())
             ->where('billing_period_end', $billingPeriod->getEndDate())
@@ -124,7 +123,7 @@ final readonly class PropertyBillingProcessor
 
         // Get the tenant for this property
         $tenant = $property->tenant()->first();
-        if (!$tenant) {
+        if (! $tenant) {
             throw new \Exception("Property {$property->id} has no associated tenant");
         }
 

@@ -18,17 +18,17 @@ class TemplateRenderer
     public function render(array $requirements): array
     {
         $templatePath = $this->getTemplatePath($requirements['type']);
-        
-        if (!File::exists($templatePath)) {
+
+        if (! File::exists($templatePath)) {
             throw new \RuntimeException("Template not found: {$templatePath}");
         }
 
         $template = File::get($templatePath);
-        
+
         $rendered = $this->replaceVariables($template, $requirements);
-        
+
         $outputPath = $this->determineOutputPath($requirements);
-        
+
         return [
             'content' => $rendered,
             'path' => $outputPath,
@@ -42,7 +42,7 @@ class TemplateRenderer
     private function getTemplatePath(string $type): string
     {
         $templates = config('generate-tests-easy.templates', []);
-        
+
         if (isset($templates[$type]) && File::exists($templates[$type])) {
             return $templates[$type];
         }
@@ -56,7 +56,7 @@ class TemplateRenderer
     private function replaceVariables(string $template, array $requirements): string
     {
         $variables = $this->extractVariables($requirements);
-        
+
         foreach ($variables as $key => $value) {
             $template = str_replace("{{ {$key} }}", $value, $template);
         }
@@ -71,7 +71,7 @@ class TemplateRenderer
     {
         $className = $requirements['class'];
         $shortName = class_basename($className);
-        
+
         $variables = [
             'namespace' => $this->getTestNamespace($requirements['type']),
             'className' => $className,
@@ -115,10 +115,10 @@ class TemplateRenderer
     private function extractModelName(string $className): string
     {
         $shortName = class_basename($className);
-        
+
         // Remove common suffixes
         $suffixes = ['Controller', 'Service', 'Policy', 'Resource', 'Middleware', 'Observer'];
-        
+
         foreach ($suffixes as $suffix) {
             if (str_ends_with($shortName, $suffix)) {
                 return str_replace($suffix, '', $shortName);
@@ -134,7 +134,7 @@ class TemplateRenderer
     private function getTestNamespace(string $type): string
     {
         $namespaces = config('generate-tests-easy.namespaces', []);
-        
+
         return $namespaces[$type] ?? 'Tests\\Feature';
     }
 
@@ -146,12 +146,12 @@ class TemplateRenderer
         $type = $requirements['type'];
         $className = $requirements['class'];
         $shortName = class_basename($className);
-        
+
         $paths = config('generate-tests-easy.paths', []);
         $basePath = $paths[$type] ?? 'Feature';
-        
-        $testName = $shortName . 'Test.php';
-        
+
+        $testName = $shortName.'Test.php';
+
         return base_path("tests/{$basePath}/{$testName}");
     }
 

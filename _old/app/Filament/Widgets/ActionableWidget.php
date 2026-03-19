@@ -30,11 +30,11 @@ use Illuminate\Support\Facades\Log;
  *     protected function getStats(): array
  *     {
  *         $debtAmount = $this->calculateDebtAmount();
- *         
+ *
  *         $stat = Stat::make('Outstanding Debt', $debtAmount)
  *             ->description('Total unpaid invoices')
  *             ->color('danger');
- *             
+ *
  *         return [
  *             $this->makeStatActionable($stat, InvoiceResource::class, [
  *                 'status' => ['value' => 'unpaid']
@@ -43,8 +43,6 @@ use Illuminate\Support\Facades\Log;
  *     }
  * }
  * ```
- *
- * @package App\Filament\Widgets
  */
 abstract class ActionableWidget extends Widget
 {
@@ -55,89 +53,91 @@ abstract class ActionableWidget extends Widget
      * a filtered resource view when clicked. Includes authorization checks,
      * error handling, and visual feedback.
      *
-     * @param Stat $stat The stat object to make actionable
-     * @param string $resourceClass The Filament resource class to navigate to
-     * @param array $filters Filter parameters to apply to the resource view
+     * @param  Stat  $stat  The stat object to make actionable
+     * @param  string  $resourceClass  The Filament resource class to navigate to
+     * @param  array  $filters  Filter parameters to apply to the resource view
      * @return Stat The actionable stat with URL and styling
      */
     protected function makeStatActionable(Stat $stat, string $resourceClass, array $filters = []): Stat
     {
         try {
             // Check if user can access the resource
-            if (!$this->canViewResource($resourceClass)) {
+            if (! $this->canViewResource($resourceClass)) {
                 return $stat; // Return non-actionable stat
             }
-            
+
             // Apply tenant scoping to filters
             $filters = $this->applyTenantScope($filters);
-            
+
             // Generate the filtered URL
             $url = $resourceClass::getUrl('index', [
-                'tableFilters' => $filters
+                'tableFilters' => $filters,
             ]);
-            
+
             return $stat
                 ->url($url)
                 ->extraAttributes([
                     'class' => 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200',
                     'title' => 'Click to view filtered results',
-                    'style' => 'text-decoration: none;'
+                    'style' => 'text-decoration: none;',
                 ]);
-                
+
         } catch (\Exception $e) {
             Log::warning('Failed to make stat actionable', [
                 'resource' => $resourceClass,
                 'filters' => $filters,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
-            
+
             return $stat; // Return non-actionable stat on error
         }
     }
-    
+
     /**
      * Check if the current user can view the specified resource.
      *
-     * @param string $resourceClass The Filament resource class
+     * @param  string  $resourceClass  The Filament resource class
      * @return bool True if user can view the resource, false otherwise
      */
     protected function canViewResource(string $resourceClass): bool
     {
         try {
             $modelClass = $resourceClass::getModel();
+
             return auth()->user()?->can('viewAny', $modelClass) ?? false;
         } catch (\Exception $e) {
             Log::warning('Failed to check resource permissions', [
                 'resource' => $resourceClass,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
-    
+
     /**
      * Apply tenant scoping to filter parameters.
      *
      * Ensures that filters maintain tenant isolation by adding tenant_id
      * filter when appropriate. Respects existing tenant context.
      *
-     * @param array $filters The filter parameters
+     * @param  array  $filters  The filter parameters
      * @return array The filters with tenant scoping applied
      */
     protected function applyTenantScope(array $filters): array
     {
         $user = auth()->user();
-        
+
         if ($user && property_exists($user, 'tenant_id') && $user->tenant_id) {
             // Only add tenant filter if not already present and user is not superadmin
-            if (!isset($filters['tenant_id']) && !$user->hasRole('superadmin')) {
+            if (! isset($filters['tenant_id']) && ! $user->hasRole('superadmin')) {
                 $filters['tenant_id'] = ['value' => $user->tenant_id];
             }
         }
-        
+
         return $filters;
     }
-    
+
     /**
      * Get the current tenant ID for caching and scoping.
      *
@@ -146,6 +146,7 @@ abstract class ActionableWidget extends Widget
     protected function getTenantId(): ?int
     {
         $user = auth()->user();
+
         return $user && property_exists($user, 'tenant_id') ? $user->tenant_id : null;
     }
 }

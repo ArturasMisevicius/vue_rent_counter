@@ -9,7 +9,7 @@ use Carbon\Carbon;
 
 /**
  * User State Value Object
- * 
+ *
  * Encapsulates user status and state information.
  * Provides a clean interface for checking user status
  * without complex conditional logic.
@@ -25,7 +25,7 @@ readonly class UserState
      */
     public function isActive(): bool
     {
-        return $this->user->is_active && !$this->isSuspended();
+        return $this->user->is_active && ! $this->isSuspended();
     }
 
     /**
@@ -101,11 +101,11 @@ readonly class UserState
             return 'suspended';
         }
 
-        if (!$this->user->is_active) {
+        if (! $this->user->is_active) {
             return 'inactive';
         }
 
-        if (!$this->isEmailVerified()) {
+        if (! $this->isEmailVerified()) {
             return 'unverified';
         }
 

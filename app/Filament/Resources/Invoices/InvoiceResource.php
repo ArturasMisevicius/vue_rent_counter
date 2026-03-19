@@ -72,7 +72,10 @@ class InvoiceResource extends Resource
     {
         $user = auth()->user();
 
-        return $user?->isAdminLike() || $user?->isTenant();
+        return $user?->isSuperadmin()
+            || $user?->isAdmin()
+            || $user?->isManager()
+            || $user?->isTenant();
     }
 
     public static function shouldRegisterNavigation(): bool
@@ -88,8 +91,10 @@ class InvoiceResource extends Resource
         $user = auth()->user();
 
         if ($user?->isTenant()) {
+            $tenantId = (int) $user->getKey();
+
             return parent::getEloquentQuery()
-                ->forTenantWorkspace($user->organization_id, $user->id);
+                ->forTenantWorkspace($user->organization_id, $tenantId);
         }
 
         $organizationId = app(OrganizationContext::class)->currentOrganizationId();

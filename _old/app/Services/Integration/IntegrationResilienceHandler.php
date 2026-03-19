@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Services\Integration;
 
-use App\Enums\IntegrationStatus;
 use App\Exceptions\IntegrationException;
 use App\Models\Organization;
+use App\Support\Queue\RetryIntegrationOperation;
 use App\Traits\LogsTenantOperations;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Throwable;
@@ -19,13 +18,13 @@ use Throwable;
 /**
  * Handles resilience for external system integrations with circuit breaker pattern,
  * retry logic, and graceful degradation capabilities.
- * 
+ *
  * This service provides robust error handling for external API calls, offline operation
  * capabilities, and automatic recovery mechanisms. It ensures the system continues
  * to function even when third-party services are unavailable.
- * 
- * @package App\Services\Integration
+ *
  * @author Laravel Development Team
+ *
  * @since 1.0.0
  */
 final readonly class IntegrationResilienceHandler
@@ -33,27 +32,31 @@ final readonly class IntegrationResilienceHandler
     use LogsTenantOperations;
 
     private const CIRCUIT_BREAKER_THRESHOLD = 5; // failures before opening circuit
+
     private const CIRCUIT_BREAKER_TIMEOUT = 300; // 5 minutes
+
     private const MAX_RETRY_ATTEMPTS = 3;
+
     private const RETRY_DELAY_BASE = 1000; // 1 second base delay
+
     private const HEALTH_CHECK_INTERVAL = 60; // 1 minute
+
     private const CACHE_TTL = 3600; // 1 hour
 
     public function __construct() {}
 
     /**
      * Execute an external API call with resilience patterns.
-     * 
+     *
      * Implements circuit breaker pattern, retry logic with exponential backoff,
      * and fallback mechanisms for critical operations.
-     * 
-     * @param string $serviceName The external service name
-     * @param callable $operation The operation to execute
-     * @param array<string, mixed> $fallbackData Optional fallback data
-     * @param bool $allowOffline Whether to allow offline operation
-     * 
+     *
+     * @param  string  $serviceName  The external service name
+     * @param  callable  $operation  The operation to execute
+     * @param  array<string, mixed>  $fallbackData  Optional fallback data
+     * @param  bool  $allowOffline  Whether to allow offline operation
      * @return array<string, mixed> Operation result or fallback data
-     * 
+     *
      * @throws IntegrationException If operation fails and no fallback available
      */
     public function executeWithResilience(
@@ -65,6 +68,7 @@ final readonly class IntegrationResilienceHandler
         // Check circuit breaker status
         if ($this->isCircuitOpen($serviceName)) {
             Log::warning("Circuit breaker open for service: {$serviceName}");
+
             return $this->handleCircuitOpen($serviceName, $fallbackData, $allowOffline);
         }
 
@@ -73,18 +77,18 @@ final readonly class IntegrationResilienceHandler
         for ($attempt = 1; $attempt <= self::MAX_RETRY_ATTEMPTS; $attempt++) {
             try {
                 $result = $operation();
-                
+
                 // Reset circuit breaker on success
                 $this->resetCircuitBreaker($serviceName);
-                
+
                 // Update health status (stub)
                 $this->recordSuccess($serviceName);
-                
+
                 return $result;
             } catch (ConnectionException|RequestException $e) {
                 $lastException = $e;
                 $this->recordFailure($serviceName, $e);
-                
+
                 if ($attempt < self::MAX_RETRY_ATTEMPTS) {
                     $delay = $this->calculateRetryDelay($attempt);
                     usleep($delay * 1000); // Convert to microseconds
@@ -99,19 +103,19 @@ final readonly class IntegrationResilienceHandler
 
         // All retries failed
         $this->openCircuitBreaker($serviceName);
+
         return $this->handleOperationFailure($serviceName, $lastException, $fallbackData, $allowOffline);
     }
 
     /**
      * Handle external system failure with graceful degradation.
-     * 
-     * @param string $serviceName The failed service name
-     * @param Throwable|null $exception The failure exception
-     * @param array<string, mixed> $fallbackData Fallback data
-     * @param bool $allowOffline Whether offline operation is allowed
-     * 
+     *
+     * @param  string  $serviceName  The failed service name
+     * @param  Throwable|null  $exception  The failure exception
+     * @param  array<string, mixed>  $fallbackData  Fallback data
+     * @param  bool  $allowOffline  Whether offline operation is allowed
      * @return array<string, mixed> Fallback result
-     * 
+     *
      * @throws IntegrationException If no fallback available
      */
     private function handleOperationFailure(
@@ -122,7 +126,7 @@ final readonly class IntegrationResilienceHandler
     ): array {
         Log::error("External service operation failed: {$serviceName}", [
             'exception' => $exception?->getMessage(),
-            'has_fallback' => !empty($fallbackData),
+            'has_fallback' => ! empty($fallbackData),
             'allow_offline' => $allowOffline,
         ]);
 
@@ -130,18 +134,21 @@ final readonly class IntegrationResilienceHandler
         $cachedData = $this->getCachedData($serviceName);
         if ($cachedData !== null) {
             Log::info("Using cached data for failed service: {$serviceName}");
+
             return $cachedData;
         }
 
         // Use provided fallback data
-        if (!empty($fallbackData)) {
+        if (! empty($fallbackData)) {
             Log::info("Using fallback data for failed service: {$serviceName}");
+
             return $fallbackData;
         }
 
         // Enable offline mode if allowed
         if ($allowOffline) {
             Log::info("Enabling offline mode for service: {$serviceName}");
+
             return $this->getOfflineData($serviceName);
         }
 
@@ -151,11 +158,10 @@ final readonly class IntegrationResilienceHandler
 
     /**
      * Handle circuit breaker open state.
-     * 
-     * @param string $serviceName The service name
-     * @param array<string, mixed> $fallbackData Fallback data
-     * @param bool $allowOffline Whether offline operation is allowed
-     * 
+     *
+     * @param  string  $serviceName  The service name
+     * @param  array<string, mixed>  $fallbackData  Fallback data
+     * @param  bool  $allowOffline  Whether offline operation is allowed
      * @return array<string, mixed> Fallback result
      */
     private function handleCircuitOpen(
@@ -170,7 +176,7 @@ final readonly class IntegrationResilienceHandler
         }
 
         // Use fallback data
-        if (!empty($fallbackData)) {
+        if (! empty($fallbackData)) {
             return $fallbackData;
         }
 
@@ -184,11 +190,10 @@ final readonly class IntegrationResilienceHandler
 
     /**
      * Queue operation for later execution when service is available.
-     * 
-     * @param string $serviceName The service name
-     * @param array<string, mixed> $operationData Operation data
-     * @param Organization|null $tenant Optional tenant context
-     * 
+     *
+     * @param  string  $serviceName  The service name
+     * @param  array<string, mixed>  $operationData  Operation data
+     * @param  Organization|null  $tenant  Optional tenant context
      * @return string Queue job ID
      */
     public function queueForLaterExecution(
@@ -197,15 +202,15 @@ final readonly class IntegrationResilienceHandler
         ?Organization $tenant = null
     ): string {
         $jobId = uniqid('integration_', true);
-        
-        Queue::push(new \App\Support\Queue\RetryIntegrationOperation(
+
+        Queue::push(new RetryIntegrationOperation(
             $serviceName,
             $operationData,
             $tenant?->id,
             $jobId
         ));
 
-        Log::info("Queued operation for later execution", [
+        Log::info('Queued operation for later execution', [
             'service' => $serviceName,
             'job_id' => $jobId,
             'tenant_id' => $tenant?->id,
@@ -216,10 +221,9 @@ final readonly class IntegrationResilienceHandler
 
     /**
      * Synchronize offline data when service becomes available.
-     * 
-     * @param string $serviceName The service name
-     * @param Organization|null $tenant Optional tenant context
-     * 
+     *
+     * @param  string  $serviceName  The service name
+     * @param  Organization|null  $tenant  Optional tenant context
      * @return array<string, mixed> Synchronization result
      */
     public function synchronizeOfflineData(string $serviceName, ?Organization $tenant = null): array
@@ -229,7 +233,7 @@ final readonly class IntegrationResilienceHandler
         }
 
         $offlineData = $this->getPendingSyncData($serviceName, $tenant?->id);
-        
+
         if (empty($offlineData)) {
             return ['synchronized' => 0, 'errors' => 0];
         }
@@ -243,6 +247,7 @@ final readonly class IntegrationResilienceHandler
     private function isCircuitOpen(string $serviceName): bool
     {
         $key = "circuit_breaker:{$serviceName}:state";
+
         return Cache::get($key) === 'open';
     }
 
@@ -253,9 +258,9 @@ final readonly class IntegrationResilienceHandler
     {
         $key = "circuit_breaker:{$serviceName}:state";
         Cache::put($key, 'open', self::CIRCUIT_BREAKER_TIMEOUT);
-        
+
         Log::warning("Circuit breaker opened for service: {$serviceName}");
-        
+
         // Record health status (stub)
         $this->recordCircuitOpen($serviceName);
     }
@@ -267,7 +272,7 @@ final readonly class IntegrationResilienceHandler
     {
         $failureKey = "circuit_breaker:{$serviceName}:failures";
         $stateKey = "circuit_breaker:{$serviceName}:state";
-        
+
         Cache::forget($failureKey);
         Cache::forget($stateKey);
     }
@@ -279,12 +284,12 @@ final readonly class IntegrationResilienceHandler
     {
         $key = "circuit_breaker:{$serviceName}:failures";
         $failures = Cache::get($key, 0) + 1;
-        
+
         Cache::put($key, $failures, self::CIRCUIT_BREAKER_TIMEOUT);
-        
+
         // Record health status (stub)
         $this->recordFailureInternal($serviceName, $exception);
-        
+
         if ($failures >= self::CIRCUIT_BREAKER_THRESHOLD) {
             $this->openCircuitBreaker($serviceName);
         }
@@ -304,6 +309,7 @@ final readonly class IntegrationResilienceHandler
     private function getCachedData(string $serviceName): ?array
     {
         $key = "service_cache:{$serviceName}:data";
+
         return Cache::get($key);
     }
 
@@ -318,7 +324,7 @@ final readonly class IntegrationResilienceHandler
 
     /**
      * Get health status for all monitored services.
-     * 
+     *
      * @return array<string, array<string, mixed>> Service health data
      */
     public function getServicesHealthStatus(): array
@@ -328,9 +334,8 @@ final readonly class IntegrationResilienceHandler
 
     /**
      * Perform health check for a specific service.
-     * 
-     * @param string $serviceName The service name
-     * 
+     *
+     * @param  string  $serviceName  The service name
      * @return array<string, mixed> Health check result
      */
     public function performHealthCheck(string $serviceName): array
@@ -340,15 +345,15 @@ final readonly class IntegrationResilienceHandler
 
     /**
      * Enable maintenance mode for a service.
-     * 
-     * @param string $serviceName The service name
-     * @param int $durationMinutes Maintenance duration in minutes
+     *
+     * @param  string  $serviceName  The service name
+     * @param  int  $durationMinutes  Maintenance duration in minutes
      */
     public function enableMaintenanceMode(string $serviceName, int $durationMinutes = 60): void
     {
         $key = "maintenance_mode:{$serviceName}";
         Cache::put($key, true, $durationMinutes * 60);
-        
+
         Log::info("Maintenance mode enabled for service: {$serviceName}", [
             'duration_minutes' => $durationMinutes,
         ]);
@@ -360,44 +365,45 @@ final readonly class IntegrationResilienceHandler
     public function isInMaintenanceMode(string $serviceName): bool
     {
         $key = "maintenance_mode:{$serviceName}";
+
         return Cache::get($key, false);
     }
 
     // Simple stub methods to avoid over-engineering
-    
+
     private function recordSuccess(string $serviceName): void
     {
         // Stub: Record success for health monitoring
     }
-    
+
     private function recordFailureInternal(string $serviceName, Throwable $exception): void
     {
         // Stub: Record failure for health monitoring
     }
-    
+
     private function recordCircuitOpen(string $serviceName): void
     {
         // Stub: Record circuit breaker open event
     }
-    
+
     private function getOfflineData(string $serviceName): array
     {
         // Stub: Return empty offline data
         return ['offline' => true, 'service' => $serviceName];
     }
-    
+
     private function getPendingSyncData(string $serviceName, ?int $tenantId): array
     {
         // Stub: Return empty pending sync data
         return [];
     }
-    
+
     private function synchronizeData(string $serviceName, array $data, ?Organization $tenant): array
     {
         // Stub: Return sync results
         return ['synchronized' => 0, 'errors' => 0];
     }
-    
+
     private function getAllServicesStatus(): array
     {
         // Stub: Return basic services status
@@ -412,15 +418,15 @@ final readonly class IntegrationResilienceHandler
                 ],
                 [
                     'service' => 'billing_service',
-                    'state' => 'closed', 
+                    'state' => 'closed',
                     'failure_count' => 0,
                     'success_count' => 5,
                     'open_since' => null,
                 ],
-            ]
+            ],
         ];
     }
-    
+
     private function performHealthCheckInternal(string $serviceName): array
     {
         // Stub: Return basic health check

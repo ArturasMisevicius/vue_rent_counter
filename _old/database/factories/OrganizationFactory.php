@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends Factory<\App\Models\Organization>
+ * @extends Factory<Organization>
  */
 class OrganizationFactory extends Factory
 {
@@ -22,7 +22,7 @@ class OrganizationFactory extends Factory
         return [
             'name' => $name,
             'slug' => fn (array $attributes) => Str::slug((string) ($attributes['name'] ?? $name)),
-            'domain' => fn (array $attributes) => Str::slug((string) ($attributes['name'] ?? $name)) . '.example.com',
+            'domain' => fn (array $attributes) => Str::slug((string) ($attributes['name'] ?? $name)).'.example.com',
             'email' => fake()->unique()->companyEmail(),
             'phone' => fake()->phoneNumber(),
             'is_active' => true,

@@ -14,7 +14,7 @@ class CreateUser extends CreateRecord
 
     /**
      * Mutate form data before creating the record.
-     * 
+     *
      * Automatically applies tenant_id from authenticated user for non-superadmin users.
      * Requirements: 6.5, 6.6
      */

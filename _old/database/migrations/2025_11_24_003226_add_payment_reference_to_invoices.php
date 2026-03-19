@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('invoices', function (Blueprint $table) {
-            if (!Schema::hasColumn('invoices', 'payment_reference')) {
+            if (! Schema::hasColumn('invoices', 'payment_reference')) {
                 $table->string('payment_reference')->nullable()->after('paid_at');
             }
-            if (!Schema::hasColumn('invoices', 'paid_amount')) {
+            if (! Schema::hasColumn('invoices', 'paid_amount')) {
                 $table->decimal('paid_amount', 10, 2)->nullable()->after('payment_reference');
             }
         });

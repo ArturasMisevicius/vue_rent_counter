@@ -8,7 +8,7 @@ use InvalidArgumentException;
 
 /**
  * Value object representing a tenant identifier with validation.
- * 
+ *
  * Encapsulates tenant ID validation logic and ensures type safety
  * throughout the tenant context system.
  */

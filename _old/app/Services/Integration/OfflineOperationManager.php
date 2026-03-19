@@ -6,11 +6,9 @@ namespace App\Services\Integration;
 
 /**
  * Minimal stub for offline operation management.
- * 
+ *
  * This is a simple stub implementation to ensure project compilation.
  * No complex logic implemented - just basic method signatures.
- * 
- * @package App\Services\Integration
  */
 final readonly class OfflineOperationManager
 {

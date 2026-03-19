@@ -6,6 +6,7 @@ namespace App\Repositories;
 
 use App\Contracts\InvoiceRepositoryInterface;
 use App\Enums\InvoiceStatus;
+use App\Exceptions\RepositoryException;
 use App\Models\Invoice;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -13,18 +14,16 @@ use Illuminate\Support\Carbon;
 
 /**
  * Invoice Repository Implementation
- * 
+ *
  * Provides invoice-specific data access operations with tenant awareness,
  * status-based filtering, and invoice management functionality.
- * 
+ *
  * @extends BaseRepository<Invoice>
  */
 class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInterface
 {
     /**
      * Create a new invoice repository instance.
-     * 
-     * @param Invoice $model
      */
     public function __construct(Invoice $model)
     {
@@ -40,7 +39,8 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             return $this->query->where('status', $status)->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findByStatus', 'status' => $status->value]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -59,9 +59,10 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             $this->handleException($e, [
                 'method' => 'findByDateRange',
                 'startDate' => $startDate->format('Y-m-d'),
-                'endDate' => $endDate->format('Y-m-d')
+                'endDate' => $endDate->format('Y-m-d'),
             ]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -76,7 +77,8 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             return $this->query->forTenant($tenantId)->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findByTenant', 'tenantId' => $tenantId]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -91,7 +93,8 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             return $this->query->draft()->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findDrafts']);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -106,7 +109,8 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             return $this->query->finalized()->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findFinalized']);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -121,7 +125,8 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             return $this->query->paid()->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findPaid']);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -140,7 +145,8 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
                 ->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findOverdue']);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -157,9 +163,10 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             $this->handleException($e, [
                 'method' => 'findForPeriod',
                 'startDate' => $startDate,
-                'endDate' => $endDate
+                'endDate' => $endDate,
             ]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -174,6 +181,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             return $this->query->where('invoice_number', $invoiceNumber)->first();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findByInvoiceNumber', 'invoiceNumber' => $invoiceNumber]);
+
             return null;
         } finally {
             $this->resetQuery();
@@ -187,6 +195,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
     {
         try {
             $dueDate = now()->addDays($days);
+
             return $this->query
                 ->where('status', '!=', InvoiceStatus::PAID)
                 ->where('due_date', '<=', $dueDate)
@@ -194,7 +203,8 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
                 ->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findDueWithinDays', 'days' => $days]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -213,9 +223,10 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             $this->handleException($e, [
                 'method' => 'findByAmountRange',
                 'minAmount' => $minAmount,
-                'maxAmount' => $maxAmount
+                'maxAmount' => $maxAmount,
             ]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -230,6 +241,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             return $this->query->where('status', $status)->count();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'countByStatus', 'status' => $status->value]);
+
             return 0;
         } finally {
             $this->resetQuery();
@@ -247,6 +259,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
                 ->sum('total_amount');
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'getTotalAmountByStatus', 'status' => $status->value]);
+
             return 0.0;
         } finally {
             $this->resetQuery();
@@ -273,6 +286,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             ];
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'getInvoiceStats']);
+
             return [];
         } finally {
             $this->resetQuery();
@@ -291,7 +305,8 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
                 ->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findWithItems']);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -310,7 +325,8 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
                 ->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findByProperty', 'propertyId' => $propertyId]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -324,21 +340,22 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
         try {
             return $this->transaction(function () use ($invoiceId) {
                 $invoice = $this->findOrFail($invoiceId);
-                
+
                 if ($invoice->isFinalized()) {
-                    throw new \App\Exceptions\RepositoryException('Invoice is already finalized');
+                    throw new RepositoryException('Invoice is already finalized');
                 }
-                
+
                 $invoice->finalize();
-                
+
                 $this->logOperation('finalizeInvoice', ['invoiceId' => $invoiceId]);
+
                 return $invoice;
             });
         } catch (ModelNotFoundException $e) {
             throw $e;
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'finalizeInvoice', 'invoiceId' => $invoiceId]);
-            throw new \App\Exceptions\RepositoryException("Failed to finalize invoice with ID: {$invoiceId}", 0, $e);
+            throw new RepositoryException("Failed to finalize invoice with ID: {$invoiceId}", 0, $e);
         }
     }
 
@@ -350,24 +367,24 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
         try {
             return $this->transaction(function () use ($invoiceId, $paidAmount, $paymentReference) {
                 $invoice = $this->findOrFail($invoiceId);
-                
+
                 if ($invoice->isPaid()) {
-                    throw new \App\Exceptions\RepositoryException('Invoice is already paid');
+                    throw new RepositoryException('Invoice is already paid');
                 }
-                
+
                 $invoice->update([
                     'status' => InvoiceStatus::PAID,
                     'paid_at' => now(),
                     'paid_amount' => $paidAmount ?? $invoice->total_amount,
                     'payment_reference' => $paymentReference,
                 ]);
-                
+
                 $this->logOperation('markAsPaid', [
                     'invoiceId' => $invoiceId,
                     'paidAmount' => $paidAmount,
-                    'paymentReference' => $paymentReference
+                    'paymentReference' => $paymentReference,
                 ]);
-                
+
                 return $invoice;
             });
         } catch (ModelNotFoundException $e) {
@@ -376,9 +393,9 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             $this->handleException($e, [
                 'method' => 'markAsPaid',
                 'invoiceId' => $invoiceId,
-                'paidAmount' => $paidAmount
+                'paidAmount' => $paidAmount,
             ]);
-            throw new \App\Exceptions\RepositoryException("Failed to mark invoice as paid with ID: {$invoiceId}", 0, $e);
+            throw new RepositoryException("Failed to mark invoice as paid with ID: {$invoiceId}", 0, $e);
         }
     }
 
@@ -395,9 +412,10 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             $this->handleException($e, [
                 'method' => 'findCreatedBetween',
                 'startDate' => $startDate->format('Y-m-d'),
-                'endDate' => $endDate->format('Y-m-d')
+                'endDate' => $endDate->format('Y-m-d'),
             ]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -417,9 +435,10 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             $this->handleException($e, [
                 'method' => 'findFinalizedBetween',
                 'startDate' => $startDate->format('Y-m-d'),
-                'endDate' => $endDate->format('Y-m-d')
+                'endDate' => $endDate->format('Y-m-d'),
             ]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -439,9 +458,10 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             $this->handleException($e, [
                 'method' => 'findPaidBetween',
                 'startDate' => $startDate->format('Y-m-d'),
-                'endDate' => $endDate->format('Y-m-d')
+                'endDate' => $endDate->format('Y-m-d'),
             ]);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -455,11 +475,11 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
         try {
             $startDate = Carbon::create($year, $month, 1)->startOfMonth();
             $endDate = $startDate->copy()->endOfMonth();
-            
+
             $invoices = $this->query
                 ->whereBetween('created_at', [$startDate, $endDate])
                 ->get();
-            
+
             return [
                 'month' => $month,
                 'year' => $year,
@@ -473,6 +493,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             ];
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'getMonthlyInvoiceSummary', 'year' => $year, 'month' => $month]);
+
             return [];
         } finally {
             $this->resetQuery();
@@ -492,7 +513,8 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
                 ->get();
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'findRequiringOverdueNotification']);
-            return new Collection();
+
+            return new Collection;
         } finally {
             $this->resetQuery();
         }
@@ -507,23 +529,22 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             return $this->transaction(function () use ($invoiceId) {
                 $invoice = $this->findOrFail($invoiceId);
                 $invoice->update(['overdue_notified_at' => now()]);
-                
+
                 $this->logOperation('markOverdueNotificationSent', ['invoiceId' => $invoiceId]);
+
                 return $invoice;
             });
         } catch (ModelNotFoundException $e) {
             throw $e;
         } catch (\Throwable $e) {
             $this->handleException($e, ['method' => 'markOverdueNotificationSent', 'invoiceId' => $invoiceId]);
-            throw new \App\Exceptions\RepositoryException("Failed to mark overdue notification sent for invoice ID: {$invoiceId}", 0, $e);
+            throw new RepositoryException("Failed to mark overdue notification sent for invoice ID: {$invoiceId}", 0, $e);
         }
     }
 
     /**
      * Get revenue statistics for a date range.
-     * 
-     * @param \DateTimeInterface $startDate
-     * @param \DateTimeInterface $endDate
+     *
      * @return array<string, mixed>
      */
     public function getRevenueStats(\DateTimeInterface $startDate, \DateTimeInterface $endDate): array
@@ -532,22 +553,23 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             $invoices = $this->query
                 ->whereBetween('created_at', [$startDate, $endDate])
                 ->get();
-            
+
             return [
                 'period_start' => $startDate->format('Y-m-d'),
                 'period_end' => $endDate->format('Y-m-d'),
                 'total_invoiced' => $invoices->sum('total_amount'),
                 'total_paid' => $invoices->where('status', InvoiceStatus::PAID)->sum('total_amount'),
                 'total_outstanding' => $invoices->whereIn('status', [InvoiceStatus::DRAFT, InvoiceStatus::FINALIZED])->sum('total_amount'),
-                'payment_rate' => $invoices->count() > 0 ? 
+                'payment_rate' => $invoices->count() > 0 ?
                     round(($invoices->where('status', InvoiceStatus::PAID)->count() / $invoices->count()) * 100, 2) : 0,
             ];
         } catch (\Throwable $e) {
             $this->handleException($e, [
                 'method' => 'getRevenueStats',
                 'startDate' => $startDate->format('Y-m-d'),
-                'endDate' => $endDate->format('Y-m-d')
+                'endDate' => $endDate->format('Y-m-d'),
             ]);
+
             return [];
         } finally {
             $this->resetQuery();

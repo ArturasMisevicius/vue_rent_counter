@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 
 final class Tag extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use BelongsToTenant, HasFactory;
 
     protected $fillable = [
         'tenant_id',
@@ -99,8 +99,8 @@ final class Tag extends Model
     public function scopePopular($query, int $limit = 10)
     {
         return $query->withCount('taggables')
-                    ->orderByDesc('taggables_count')
-                    ->limit($limit);
+            ->orderByDesc('taggables_count')
+            ->limit($limit);
     }
 
     // ==================== HELPER METHODS ====================
@@ -117,7 +117,7 @@ final class Tag extends Model
 
     public function canBeDeleted(): bool
     {
-        return !$this->is_system && $this->getUsageCount() === 0;
+        return ! $this->is_system && $this->getUsageCount() === 0;
     }
 
     // ==================== EVENTS ====================
@@ -126,13 +126,13 @@ final class Tag extends Model
     {
         parent::boot();
 
-        static::creating(function (Tag $tag) {
+        self::creating(function (Tag $tag) {
             if (empty($tag->slug)) {
                 $tag->slug = Str::slug($tag->name);
             }
         });
 
-        static::updating(function (Tag $tag) {
+        self::updating(function (Tag $tag) {
             if ($tag->isDirty('name')) {
                 $tag->slug = Str::slug($tag->name);
             }

@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Middleware for setting tenant context based on authenticated user.
- * 
+ *
  * This middleware ensures that the tenant context is properly initialized
  * for each authenticated request, providing the foundation for multi-tenant
  * data isolation throughout the application.
@@ -27,12 +27,12 @@ final readonly class SetTenantContext
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         // Only process for authenticated users
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return $next($request);
         }
 

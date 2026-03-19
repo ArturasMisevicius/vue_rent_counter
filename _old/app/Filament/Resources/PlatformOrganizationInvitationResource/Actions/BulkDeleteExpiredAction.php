@@ -50,7 +50,7 @@ class BulkDeleteExpiredAction extends BulkAction
                 Notification::make()
                     ->success()
                     ->title('Invitations Deleted')
-                    ->body("Successfully deleted {$deleted} invitation(s)" . ($skipped > 0 ? " ({$skipped} skipped - not expired/cancelled)" : ''))
+                    ->body("Successfully deleted {$deleted} invitation(s)".($skipped > 0 ? " ({$skipped} skipped - not expired/cancelled)" : ''))
                     ->send();
             } else {
                 Notification::make()

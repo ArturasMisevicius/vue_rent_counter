@@ -28,22 +28,25 @@ class EditInvoice extends EditRecord
                 ->visible(fn (Invoice $record): bool => $record->isDraft())
                 ->action(function (Invoice $record) {
                     // Create a FinalizeInvoiceRequest instance for validation
-                    $request = new FinalizeInvoiceRequest();
+                    $request = new FinalizeInvoiceRequest;
                     $request->setRouteResolver(function () use ($record) {
-                        return new class($record) {
+                        return new class($record)
+                        {
                             public function __construct(private Invoice $invoice) {}
-                            public function parameter($key) {
+
+                            public function parameter($key)
+                            {
                                 return $key === 'invoice' ? $this->invoice : null;
                             }
                         };
                     });
-                    
+
                     // Create validator
                     $validator = Validator::make([], $request->rules());
-                    
+
                     // Run custom validation
                     $request->withValidator($validator);
-                    
+
                     // Check if validation fails
                     if ($validator->fails()) {
                         Notification::make()
@@ -51,28 +54,28 @@ class EditInvoice extends EditRecord
                             ->body($validator->errors()->first())
                             ->danger()
                             ->send();
-                        
+
                         return;
                     }
-                    
+
                     // Finalize the invoice
                     $record->finalize();
-                    
+
                     Notification::make()
                         ->title(__('invoices.notifications.finalized_title'))
                         ->body(__('invoices.notifications.finalized_body'))
                         ->success()
                         ->send();
-                    
+
                     // Refresh the page to reflect changes
                     $this->redirect($this->getResource()::getUrl('edit', ['record' => $record]));
                 }),
-            
+
             Actions\DeleteAction::make()
                 ->visible(fn (Invoice $record): bool => $record->isDraft()),
         ];
     }
-    
+
     /**
      * Disable form editing for finalized invoices
      */

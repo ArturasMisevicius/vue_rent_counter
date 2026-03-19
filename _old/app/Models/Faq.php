@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -27,9 +30,9 @@ use Illuminate\Support\Facades\Auth;
  * @property int|null $created_by
  * @property int|null $updated_by
  * @property int|null $deleted_by
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  */
 final class Faq extends Model
 {
@@ -95,7 +98,7 @@ final class Faq extends Model
         parent::boot();
 
         // Automatically set created_by on creation
-        static::creating(function (Faq $faq): void {
+        self::creating(function (Faq $faq): void {
             if (Auth::check()) {
                 $faq->created_by = Auth::id();
                 $faq->updated_by = Auth::id();
@@ -103,15 +106,15 @@ final class Faq extends Model
         });
 
         // Automatically set updated_by on update
-        static::updating(function (Faq $faq): void {
+        self::updating(function (Faq $faq): void {
             if (Auth::check()) {
                 $faq->updated_by = Auth::id();
             }
         });
 
         // Automatically set deleted_by on soft delete
-        static::deleting(function (Faq $faq): void {
-            if (Auth::check() && !$faq->isForceDeleting()) {
+        self::deleting(function (Faq $faq): void {
+            if (Auth::check() && ! $faq->isForceDeleting()) {
                 $faq->deleted_by = Auth::id();
                 $faq->saveQuietly();
             }
@@ -124,8 +127,7 @@ final class Faq extends Model
      * Removes dangerous tags and attributes while preserving
      * safe formatting (bold, italic, lists, links).
      *
-     * @param string $value The raw HTML content
-     * @return void
+     * @param  string  $value  The raw HTML content
      */
     public function setAnswerAttribute(string $value): void
     {
@@ -141,49 +143,49 @@ final class Faq extends Model
      * - Removes on* event handlers
      * - Allows only safe HTML tags
      *
-     * @param string $html The HTML to sanitize
+     * @param  string  $html  The HTML to sanitize
      * @return string The sanitized HTML
      */
     private function sanitizeHtml(string $html): string
     {
         // Remove script tags and their content
         $html = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $html);
-        
+
         // Remove javascript: protocol
         $html = preg_replace('/javascript:/i', '', $html);
-        
+
         // Remove on* event handlers
         $html = preg_replace('/\s*on\w+\s*=\s*["\'][^"\']*["\']/i', '', $html);
-        
+
         // Strip tags, allowing only safe ones
         $allowedTags = '<p><br><strong><em><u><ul><ol><li><a>';
         $html = strip_tags($html, $allowedTags);
-        
+
         // Additional link sanitization
         $html = preg_replace_callback(
             '/<a\s+([^>]*?)href\s*=\s*["\']([^"\']*)["\']([^>]*?)>/i',
             function ($matches) {
                 $href = $matches[2];
-                
+
                 // Only allow http, https, and mailto protocols
-                if (!preg_match('/^(https?:\/\/|mailto:)/i', $href)) {
+                if (! preg_match('/^(https?:\/\/|mailto:)/i', $href)) {
                     return '<a>'; // Remove href if protocol is not safe
                 }
-                
+
                 // Add rel="noopener noreferrer" for security
-                return '<a href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '" rel="noopener noreferrer" target="_blank">';
+                return '<a href="'.htmlspecialchars($href, ENT_QUOTES, 'UTF-8').'" rel="noopener noreferrer" target="_blank">';
             },
             $html
         );
-        
+
         return $html;
     }
 
     /**
      * Scope a query to only include published FAQs.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopePublished($query)
     {
@@ -193,8 +195,8 @@ final class Faq extends Model
     /**
      * Scope a query to order by display order.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param  Builder  $query
+     * @return Builder
      */
     public function scopeOrdered($query)
     {
@@ -204,7 +206,7 @@ final class Faq extends Model
     /**
      * Get the user who created this FAQ.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function creator()
     {
@@ -214,7 +216,7 @@ final class Faq extends Model
     /**
      * Get the user who last updated this FAQ.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function updater()
     {
@@ -224,11 +226,10 @@ final class Faq extends Model
     /**
      * Get the user who deleted this FAQ.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function deleter()
     {
         return $this->belongsTo(User::class, 'deleted_by');
     }
 }
-

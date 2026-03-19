@@ -12,9 +12,9 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * Attachment Model - Polymorphic file attachments
- * 
+ *
  * Can attach files to any model (Invoice, Property, Meter, etc.)
- * 
+ *
  * @property int $id
  * @property int $tenant_id
  * @property int $attachable_id
@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\Storage;
  */
 class Attachment extends Model
 {
-    use HasFactory, BelongsToTenant, SoftDeletes;
+    use BelongsToTenant, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'tenant_id',
@@ -84,12 +84,12 @@ class Attachment extends Model
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
         $bytes = $this->size;
-        
+
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
             $bytes /= 1024;
         }
-        
-        return round($bytes, 2) . ' ' . $units[$i];
+
+        return round($bytes, 2).' '.$units[$i];
     }
 
     /**

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends Factory<\App\Models\OrganizationInvitation>
+ * @extends Factory<OrganizationInvitation>
  */
 class OrganizationInvitationFactory extends Factory
 {

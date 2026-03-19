@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\InvoiceStatus;
 use App\Http\Requests\GenerateBulkInvoicesRequest;
 use App\Http\Requests\StoreInvoiceRequest;
-use App\Models\MeterReading;
 use App\Models\Invoice;
+use App\Models\MeterReading;
 use App\Models\Tenant;
-use App\Enums\InvoiceStatus;
 use App\Services\BillingService;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class InvoiceController extends Controller
@@ -37,11 +37,12 @@ class InvoiceController extends Controller
     /**
      * Show the form for creating a new invoice.
      */
-    public function create(): \Illuminate\View\View
+    public function create(): View
     {
         $this->authorize('create', Invoice::class);
 
         $tenants = Tenant::with('property')->get();
+
         return view('invoices.create', compact('tenants'));
     }
 
@@ -55,7 +56,7 @@ class InvoiceController extends Controller
         $validated = $request->validated();
 
         $tenant = Tenant::findOrFail($validated['tenant_renter_id']);
-        
+
         try {
             $invoice = $this->billingService->generateInvoice(
                 $tenant,
@@ -74,7 +75,7 @@ class InvoiceController extends Controller
 
     /**
      * Display the specified invoice.
-     * 
+     *
      * Requirements:
      * - 6.2: Display itemized breakdown by utility type
      * - 6.3: Display chronologically ordered consumption history
@@ -85,62 +86,63 @@ class InvoiceController extends Controller
         $this->authorize('view', $invoice);
 
         $invoice->load(['tenant.property', 'items']);
-        
+
         // Get consumption history for the billing period (Requirement 6.3)
         $consumptionHistory = collect();
         if ($invoice->tenant && $invoice->tenant->property) {
             $consumptionHistory = MeterReading::whereHas('meter', function ($query) use ($invoice) {
                 $query->where('property_id', $invoice->tenant->property_id);
             })
-            ->with(['meter.serviceConfiguration.utilityService'])
-            ->whereBetween('reading_date', [
-                $invoice->billing_period_start,
-                $invoice->billing_period_end
-            ])
-            ->orderBy('reading_date', 'asc')
-            ->get();
-            
+                ->with(['meter.serviceConfiguration.utilityService'])
+                ->whereBetween('reading_date', [
+                    $invoice->billing_period_start,
+                    $invoice->billing_period_end,
+                ])
+                ->orderBy('reading_date', 'asc')
+                ->get();
+
             // Calculate consumption for each reading
             $consumptionHistory = $consumptionHistory->map(function ($reading) {
                 $previousReading = MeterReading::where('meter_id', $reading->meter_id)
                     ->where('reading_date', '<', $reading->reading_date)
                     ->orderBy('reading_date', 'desc')
                     ->first();
-                
-                $reading->consumption = $previousReading 
-                    ? $reading->value - $previousReading->value 
+
+                $reading->consumption = $previousReading
+                    ? $reading->value - $previousReading->value
                     : null;
-                
+
                 return $reading;
             });
         }
-        
+
         return view('invoices.show', compact('invoice', 'consumptionHistory'));
     }
 
     /**
      * Show the form for editing an invoice.
      */
-    public function edit(Invoice $invoice): \Illuminate\Http\RedirectResponse|\Illuminate\View\View
+    public function edit(Invoice $invoice): RedirectResponse|View
     {
         $this->authorize('update', $invoice);
 
-        if (!$invoice->isDraft()) {
+        if (! $invoice->isDraft()) {
             return back()->with('error', __('invoices.errors.edit_draft_only'));
         }
 
         $tenants = Tenant::with('property')->get();
+
         return view('invoices.edit', compact('invoice', 'tenants'));
     }
 
     /**
      * Update the specified invoice.
      */
-    public function update(StoreInvoiceRequest $request, Invoice $invoice): \Illuminate\Http\RedirectResponse
+    public function update(StoreInvoiceRequest $request, Invoice $invoice): RedirectResponse
     {
         $this->authorize('update', $invoice);
 
-        if (!$invoice->isDraft()) {
+        if (! $invoice->isDraft()) {
             return back()->with('error', __('invoices.errors.update_draft_only'));
         }
 
@@ -155,9 +157,9 @@ class InvoiceController extends Controller
     /**
      * Remove the specified invoice.
      */
-    public function destroy(Invoice $invoice): \Illuminate\Http\RedirectResponse
+    public function destroy(Invoice $invoice): RedirectResponse
     {
-        if (!$invoice->isDraft()) {
+        if (! $invoice->isDraft()) {
             return back()->with('error', __('invoices.errors.delete_draft_only'));
         }
 
@@ -189,7 +191,7 @@ class InvoiceController extends Controller
     {
         $this->authorize('processPayment', $invoice);
 
-        if (!$invoice->isFinalized()) {
+        if (! $invoice->isFinalized()) {
             return back()->with('error', __('invoices.errors.mark_paid_finalized'));
         }
 
@@ -204,7 +206,7 @@ class InvoiceController extends Controller
 
         $invoice->paid_amount = $amount;
 
-        if (!empty($validated['payment_reference'])) {
+        if (! empty($validated['payment_reference'])) {
             $invoice->payment_reference = $validated['payment_reference'];
         }
 
@@ -236,11 +238,11 @@ class InvoiceController extends Controller
     /**
      * Send invoice via email.
      */
-    public function send(Invoice $invoice): \Illuminate\Http\RedirectResponse
+    public function send(Invoice $invoice): RedirectResponse
     {
         $this->authorize('view', $invoice);
 
-        if (!$invoice->isFinalized()) {
+        if (! $invoice->isFinalized()) {
             return back()->with('error', __('invoices.errors.send_finalized_only'));
         }
 
@@ -259,7 +261,7 @@ class InvoiceController extends Controller
         $periodStart = Carbon::parse($validated['billing_period_start']);
         $periodEnd = Carbon::parse($validated['billing_period_end']);
 
-        $tenants = isset($validated['tenant_ids']) 
+        $tenants = isset($validated['tenant_ids'])
             ? Tenant::whereIn('id', $validated['tenant_ids'])->get()
             : Tenant::all();
 
@@ -280,36 +282,39 @@ class InvoiceController extends Controller
     /**
      * Display draft invoices.
      */
-    public function drafts(): \Illuminate\View\View
+    public function drafts(): View
     {
         $invoices = Invoice::draft()
             ->with(['tenant.property', 'items'])
             ->latest()
             ->paginate(20);
+
         return view('invoices.drafts', compact('invoices'));
     }
 
     /**
      * Display finalized invoices.
      */
-    public function finalized(): \Illuminate\View\View
+    public function finalized(): View
     {
         $invoices = Invoice::finalized()
             ->with(['tenant.property', 'items'])
             ->latest()
             ->paginate(20);
+
         return view('invoices.finalized', compact('invoices'));
     }
 
     /**
      * Display paid invoices.
      */
-    public function paid(): \Illuminate\View\View
+    public function paid(): View
     {
         $invoices = Invoice::paid()
             ->with(['tenant.property', 'items'])
             ->latest()
             ->paginate(20);
+
         return view('invoices.paid', compact('invoices'));
     }
 }

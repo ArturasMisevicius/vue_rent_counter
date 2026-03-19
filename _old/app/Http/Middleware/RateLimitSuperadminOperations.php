@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -32,44 +33,38 @@ class RateLimitSuperadminOperations
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  string  $operationType The type of operation (dashboard|bulk|export|password-reset)
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param  string  $operationType  The type of operation (dashboard|bulk|export|password-reset)
      */
     public function handle(Request $request, Closure $next, string $operationType = 'dashboard'): Response
     {
         $user = $request->user();
-        
+
         // Only apply rate limiting to authenticated superadmins
-        if (!$user || !$user->isSuperadmin()) {
+        if (! $user || ! $user->isSuperadmin()) {
             return $next($request);
         }
 
         $limits = $this->getRateLimits($operationType);
         $key = $this->getRateLimitKey($operationType, $user->id, $request);
-        
+
         // Check if rate limit exceeded
         if (RateLimiter::tooManyAttempts($key, $limits['max_attempts'])) {
             $this->logRateLimitExceeded($operationType, $user, $request);
-            
+
             return response()->json([
                 'message' => "Too many {$operationType} operations. Please try again later.",
-                'retry_after' => RateLimiter::availableIn($key)
+                'retry_after' => RateLimiter::availableIn($key),
             ], 429);
         }
-        
+
         // Increment attempt counter
         RateLimiter::hit($key, $limits['decay_seconds']);
-        
+
         return $next($request);
     }
 
     /**
      * Get rate limit configuration for operation type.
-     *
-     * @param string $operationType
-     * @return array
      */
     private function getRateLimits(string $operationType): array
     {
@@ -83,6 +78,7 @@ class RateLimitSuperadminOperations
 
         if ($configKey) {
             $config = config($configKey);
+
             return [
                 'max_attempts' => $config['max_attempts'],
                 'decay_seconds' => $config['decay_minutes'] * 60,
@@ -98,11 +94,6 @@ class RateLimitSuperadminOperations
 
     /**
      * Generate rate limit key for the operation.
-     *
-     * @param string $operationType
-     * @param int $userId
-     * @param Request $request
-     * @return string
      */
     private function getRateLimitKey(string $operationType, int $userId, Request $request): string
     {
@@ -110,17 +101,14 @@ class RateLimitSuperadminOperations
         if ($operationType === 'password-reset' && $request->has('user_id')) {
             return "superadmin-{$operationType}:{$userId}:target-{$request->input('user_id')}";
         }
-        
+
         return "superadmin-{$operationType}:{$userId}";
     }
 
     /**
      * Log rate limit exceeded events for security monitoring.
      *
-     * @param string $operationType
-     * @param \App\Models\User $user
-     * @param Request $request
-     * @return void
+     * @param  User  $user
      */
     private function logRateLimitExceeded(string $operationType, $user, Request $request): void
     {

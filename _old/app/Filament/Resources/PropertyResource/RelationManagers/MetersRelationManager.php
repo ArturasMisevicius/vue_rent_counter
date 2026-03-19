@@ -5,14 +5,17 @@ declare(strict_types=1);
 namespace App\Filament\Resources\PropertyResource\RelationManagers;
 
 use App\Enums\MeterType;
+use App\Enums\PricingModel;
+use App\Filament\Resources\MeterReadingResource;
 use App\Models\Meter;
+use App\Models\MeterReading;
 use App\Models\ServiceConfiguration;
 use Filament\Actions;
 use Filament\Forms;
-use Filament\Schemas\Schema;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -54,14 +57,14 @@ class MetersRelationManager extends RelationManager
                     ->nullable()
                     ->live()
                     ->afterStateUpdated(function ($state, Set $set): void {
-                        if (!$state) {
+                        if (! $state) {
                             return;
                         }
 
                         $set('type', MeterType::CUSTOM->value);
 
                         $config = ServiceConfiguration::with('utilityService')->find($state);
-                        if ($config?->pricing_model === \App\Enums\PricingModel::TIME_OF_USE) {
+                        if ($config?->pricing_model === PricingModel::TIME_OF_USE) {
                             $set('supports_zones', true);
                         }
                     })
@@ -75,13 +78,13 @@ class MetersRelationManager extends RelationManager
                     ->default(MeterType::CUSTOM->value)
                     ->disabled(fn (Get $get): bool => filled($get('service_configuration_id')))
                     ->dehydrated(fn (?string $state): bool => true),
-                
+
                 Forms\Components\TextInput::make('serial_number')
                     ->label(__('meters.relation.serial_number'))
                     ->required()
                     ->maxLength(255)
                     ->unique(Meter::class, 'serial_number', ignoreRecord: true),
-                
+
                 Forms\Components\DatePicker::make('installation_date')
                     ->label(__('meters.relation.installation_date'))
                     ->required()
@@ -104,7 +107,7 @@ class MetersRelationManager extends RelationManager
                     ->label(__('meters.relation.type'))
                     ->badge()
                     ->formatStateUsing(fn (?MeterType $state): ?string => $state?->label()),
-                
+
                 Tables\Columns\TextColumn::make('serial_number')
                     ->label(__('meters.relation.serial_number'))
                     ->searchable()
@@ -123,7 +126,7 @@ class MetersRelationManager extends RelationManager
                     ->label('Service')
                     ->toggleable()
                     ->placeholder(__('app.common.na')),
-                
+
                 Tables\Columns\TextColumn::make('readings_count')
                     ->label(__('meters.relation.readings'))
                     ->counts('readings')
@@ -141,7 +144,7 @@ class MetersRelationManager extends RelationManager
                     ->mutateFormDataUsing(function (array $data): array {
                         // Ensure tenant_id is set from property
                         $data['tenant_id'] = $this->getOwnerRecord()->tenant_id;
-                        
+
                         return $data;
                     }),
             ])
@@ -150,16 +153,15 @@ class MetersRelationManager extends RelationManager
                     ->label(__('meters.actions.view_readings'))
                     ->icon('heroicon-o-chart-bar')
                     ->color('info')
-                    ->url(fn (Meter $record): string => 
-                        \App\Filament\Resources\MeterReadingResource::getUrl('index', [
-                            'tableFilters' => [
-                                'meter_id' => ['value' => $record->id]
-                            ]
-                        ])
+                    ->url(fn (Meter $record): string => MeterReadingResource::getUrl('index', [
+                        'tableFilters' => [
+                            'meter_id' => ['value' => $record->id],
+                        ],
+                    ])
                     )
-                    ->visible(fn (): bool => auth()->user()->can('viewAny', \App\Models\MeterReading::class))
+                    ->visible(fn (): bool => auth()->user()->can('viewAny', MeterReading::class))
                     ->openUrlInNewTab(false),
-                    
+
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
             ])

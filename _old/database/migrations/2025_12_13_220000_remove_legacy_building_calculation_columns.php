@@ -73,11 +73,13 @@ return new class extends Migration
 
         if ($driver === 'sqlite') {
             $indexes = Schema::getConnection()->select("PRAGMA index_list({$table})");
+
             return collect($indexes)->pluck('name')->contains($index);
         }
 
         if ($driver === 'mysql') {
             $indexes = Schema::getConnection()->select("SHOW INDEX FROM {$table} WHERE Key_name = ?", [$index]);
+
             return ! empty($indexes);
         }
 
@@ -93,4 +95,3 @@ return new class extends Migration
         return false;
     }
 };
-

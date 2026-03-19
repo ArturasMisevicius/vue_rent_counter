@@ -8,14 +8,14 @@ use App\Enums\InvoiceStatus;
 use App\Enums\UserRole;
 use App\Filament\Tenant\Resources\InvoiceResource\Pages;
 use App\Models\Invoice;
+use Filament\Actions\Action;
+use Filament\Resources\Resource;
 use Filament\Schemas\Components\DatePicker;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Select;
-use Filament\Schemas\Components\TextInput;
-use Filament\Resources\Resource;
 use Filament\Schemas\Components\TextEntry;
+use Filament\Schemas\Components\TextInput;
 use Filament\Schemas\Schema;
-use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * Invoice Resource for Tenant Panel
- * 
+ *
  * Allows tenants to view their invoices and download PDFs.
  * Read-only access - tenants cannot modify invoices.
  */
@@ -65,7 +65,7 @@ final class InvoiceResource extends Resource
     public static function canAccess(): bool
     {
         $user = Auth::user();
-        
+
         return $user && $user->role === UserRole::TENANT && $user->property_id;
     }
 
@@ -87,7 +87,7 @@ final class InvoiceResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $user = Auth::user();
-        
+
         return parent::getEloquentQuery()
             ->where('property_id', $user?->property_id)
             ->with(['property', 'items'])
@@ -103,20 +103,20 @@ final class InvoiceResource extends Resource
                         TextInput::make('number')
                             ->label(__('app.labels.invoice_number'))
                             ->disabled(),
-                        
+
                         Select::make('status')
                             ->label(__('app.labels.status'))
                             ->options(InvoiceStatus::class)
                             ->disabled(),
-                        
+
                         DatePicker::make('issue_date')
                             ->label(__('app.labels.issue_date'))
                             ->disabled(),
-                        
+
                         DatePicker::make('due_date')
                             ->label(__('app.labels.due_date'))
                             ->disabled(),
-                        
+
                         TextInput::make('total_amount')
                             ->label(__('app.labels.total_amount'))
                             ->numeric()
@@ -134,7 +134,7 @@ final class InvoiceResource extends Resource
                     ->schema([
                         TextEntry::make('number')
                             ->label(__('app.labels.invoice_number')),
-                        
+
                         TextEntry::make('status')
                             ->label(__('app.labels.status'))
                             ->badge()
@@ -145,37 +145,37 @@ final class InvoiceResource extends Resource
                                 InvoiceStatus::OVERDUE => 'danger',
                                 InvoiceStatus::CANCELLED => 'gray',
                             }),
-                        
+
                         TextEntry::make('issue_date')
                             ->label(__('app.labels.issue_date'))
                             ->date(),
-                        
+
                         TextEntry::make('due_date')
                             ->label(__('app.labels.due_date'))
                             ->date(),
-                        
+
                         TextEntry::make('total_amount')
                             ->label(__('app.labels.total_amount'))
                             ->money('EUR'),
                     ]),
-                
+
                 Section::make(__('app.sections.billing_period'))
                     ->schema([
                         TextEntry::make('billing_period_start')
                             ->label(__('app.labels.billing_period_start'))
                             ->date(),
-                        
+
                         TextEntry::make('billing_period_end')
                             ->label(__('app.labels.billing_period_end'))
                             ->date(),
-                        
+
                         TextEntry::make('property.name')
                             ->label(__('app.labels.property')),
-                        
+
                         TextEntry::make('property.address')
                             ->label(__('app.labels.address')),
                     ]),
-                
+
                 Section::make(__('app.sections.invoice_items'))
                     ->schema([
                         TextEntry::make('items')
@@ -205,7 +205,7 @@ final class InvoiceResource extends Resource
                     ->label(__('app.labels.invoice_number'))
                     ->searchable()
                     ->sortable(),
-                
+
                 TextColumn::make('status')
                     ->label(__('app.labels.status'))
                     ->badge()
@@ -216,22 +216,22 @@ final class InvoiceResource extends Resource
                         InvoiceStatus::OVERDUE => 'danger',
                         InvoiceStatus::CANCELLED => 'gray',
                     }),
-                
+
                 TextColumn::make('issue_date')
                     ->label(__('app.labels.issue_date'))
                     ->date()
                     ->sortable(),
-                
+
                 TextColumn::make('due_date')
                     ->label(__('app.labels.due_date'))
                     ->date()
                     ->sortable(),
-                
+
                 TextColumn::make('total_amount')
                     ->label(__('app.labels.total_amount'))
                     ->money('EUR')
                     ->sortable(),
-                
+
                 TextColumn::make('billing_period_start')
                     ->label(__('app.labels.billing_period'))
                     ->date()

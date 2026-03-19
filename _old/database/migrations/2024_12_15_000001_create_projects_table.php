@@ -27,7 +27,7 @@ return new class extends Migration
             $table->decimal('actual_cost', 10, 2)->nullable()->default(0);
             $table->json('metadata')->nullable();
             $table->timestamps();
-            
+
             $table->index(['tenant_id', 'status']);
             $table->index(['created_by']);
             $table->index(['assigned_to']);

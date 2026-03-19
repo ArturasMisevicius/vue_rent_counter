@@ -30,7 +30,7 @@ final readonly class ExchangeRateProviderService
         ?Carbon $date = null
     ): ?float {
         $providers = array_keys(self::PROVIDERS);
-        
+
         // Try primary provider first
         if (in_array($this->primaryProvider, $providers)) {
             $rate = $this->fetchFromProvider($this->primaryProvider, $fromCurrency, $toCurrency, $date);
@@ -78,6 +78,7 @@ final readonly class ExchangeRateProviderService
     {
         try {
             $rate = $this->getExchangeRate('USD', 'EUR');
+
             return $rate !== null;
         } catch (\Exception) {
             return false;
@@ -116,17 +117,17 @@ final readonly class ExchangeRateProviderService
      */
     private function fetchFromExchangeRateApi(string $fromCurrency, string $toCurrency): ?float
     {
-        $url = self::PROVIDERS['exchangerate-api'] . $fromCurrency;
-        
+        $url = self::PROVIDERS['exchangerate-api'].$fromCurrency;
+
         $response = Http::timeout(10)->get($url);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             return null;
         }
 
         $data = $response->json();
 
-        if (!isset($data['rates'][$toCurrency])) {
+        if (! isset($data['rates'][$toCurrency])) {
             return null;
         }
 
@@ -138,25 +139,25 @@ final readonly class ExchangeRateProviderService
      */
     private function fetchFromFixer(string $fromCurrency, string $toCurrency): ?float
     {
-        if (!$this->apiKey) {
+        if (! $this->apiKey) {
             return null; // API key required
         }
 
         $url = self::PROVIDERS['fixer'];
-        
+
         $response = Http::timeout(10)->get($url, [
             'access_key' => $this->apiKey,
             'base' => $fromCurrency,
             'symbols' => $toCurrency,
         ]);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             return null;
         }
 
         $data = $response->json();
 
-        if (!isset($data['rates'][$toCurrency])) {
+        if (! isset($data['rates'][$toCurrency])) {
             return null;
         }
 
@@ -168,26 +169,26 @@ final readonly class ExchangeRateProviderService
      */
     private function fetchFromCurrencyLayer(string $fromCurrency, string $toCurrency): ?float
     {
-        if (!$this->apiKey) {
+        if (! $this->apiKey) {
             return null; // API key required
         }
 
         $url = self::PROVIDERS['currencylayer'];
-        
+
         $response = Http::timeout(10)->get($url, [
             'access_key' => $this->apiKey,
             'source' => $fromCurrency,
             'currencies' => $toCurrency,
         ]);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             return null;
         }
 
         $data = $response->json();
-        $key = $fromCurrency . $toCurrency;
+        $key = $fromCurrency.$toCurrency;
 
-        if (!isset($data['quotes'][$key])) {
+        if (! isset($data['quotes'][$key])) {
             return null;
         }
 

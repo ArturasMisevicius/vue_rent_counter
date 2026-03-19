@@ -8,7 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * Form request for filtering meter readings by validation status.
- * 
+ *
  * Provides comprehensive validation for status filtering parameters
  * with proper security constraints and user-friendly error messages.
  */
@@ -89,7 +89,7 @@ class GetReadingsByStatusRequest extends FormRequest
         // Clean up meter_ids array
         if ($this->has('meter_ids') && is_array($this->input('meter_ids'))) {
             $this->merge([
-                'meter_ids' => array_filter($this->input('meter_ids'), 'is_numeric')
+                'meter_ids' => array_filter($this->input('meter_ids'), 'is_numeric'),
             ]);
         }
     }

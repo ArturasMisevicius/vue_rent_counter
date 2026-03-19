@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support\Reporting;
 
+use Carbon\Carbon;
+
 final readonly class UsageReport
 {
     public function __construct(
@@ -15,7 +17,7 @@ final readonly class UsageReport
         return $this->data['filters'] ?? [];
     }
 
-    public function getGeneratedAt(): \Carbon\Carbon
+    public function getGeneratedAt(): Carbon
     {
         return $this->data['generated_at'];
     }

@@ -27,15 +27,11 @@ class RateLimitFilamentAccess
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $key = 'filament-access:' . $request->ip();
-        
+        $key = 'filament-access:'.$request->ip();
+
         // Check if rate limit exceeded
         if (RateLimiter::tooManyAttempts($key, 60)) {
             // Log excessive attempts for security monitoring
@@ -45,15 +41,15 @@ class RateLimitFilamentAccess
                 'path' => $request->path(),
                 'timestamp' => now()->toIso8601String(),
             ]);
-            
+
             return response()->json([
-                'message' => 'Too many access attempts. Please try again later.'
+                'message' => 'Too many access attempts. Please try again later.',
             ], 429);
         }
-        
+
         // Increment attempt counter (expires after 60 seconds)
         RateLimiter::hit($key, 60);
-        
+
         return $next($request);
     }
 }

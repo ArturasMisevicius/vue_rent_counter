@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * Audit Overview Widget
- * 
+ *
  * Displays key audit metrics and compliance status for universal services.
  */
 final class AuditOverviewWidget extends BaseWidget
@@ -22,8 +22,8 @@ final class AuditOverviewWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $cacheKey = 'audit_overview_' . auth()->user()->currentTeam->id;
-        
+        $cacheKey = 'audit_overview_'.auth()->user()->currentTeam->id;
+
         return Cache::remember($cacheKey, 300, function () {
             $auditReporter = app(UniversalServiceAuditReporter::class);
             $report = $auditReporter->generateReport(
@@ -31,30 +31,30 @@ final class AuditOverviewWidget extends BaseWidget
                 startDate: now()->subDays(30),
                 endDate: now(),
             );
-            
+
             $summary = $report->summary;
             $compliance = $report->complianceStatus;
             $performance = $report->performanceMetrics;
-            
+
             return [
                 Stat::make(__('dashboard.audit.total_changes'), $summary->totalChanges)
                     ->description(__('dashboard.audit.last_30_days'))
                     ->descriptionIcon('heroicon-m-arrow-trending-up')
                     ->color($this->getChangesTrendColor($summary->getChangesPerDay()))
                     ->chart($this->getChangesChart()),
-                
-                Stat::make(__('dashboard.audit.compliance_score'), number_format($compliance->overallScore, 1) . '%')
+
+                Stat::make(__('dashboard.audit.compliance_score'), number_format($compliance->overallScore, 1).'%')
                     ->description($this->getComplianceDescription($compliance->getOverallStatus()))
                     ->descriptionIcon($this->getComplianceIcon($compliance->getOverallStatus()))
                     ->color($this->getComplianceColor($compliance->overallScore))
                     ->chart($this->getComplianceChart($compliance)),
-                
+
                 Stat::make(__('dashboard.audit.performance_grade'), $performance->getPerformanceGrade())
                     ->description(__('dashboard.audit.system_performance'))
                     ->descriptionIcon('heroicon-m-cpu-chip')
                     ->color($this->getPerformanceColor($performance->getOverallScore()))
                     ->chart($this->getPerformanceChart($performance)),
-                
+
                 Stat::make(__('dashboard.audit.critical_issues'), count($report->getCriticalAnomalies()))
                     ->description(__('dashboard.audit.requires_attention'))
                     ->descriptionIcon('heroicon-m-exclamation-triangle')
@@ -148,6 +148,7 @@ final class AuditOverviewWidget extends BaseWidget
         for ($i = 6; $i >= 0; $i--) {
             $data[] = rand(5, 25);
         }
+
         return $data;
     }
 
@@ -185,11 +186,11 @@ final class AuditOverviewWidget extends BaseWidget
     private function getIssuesChart($report): array
     {
         $anomalies = $report->anomalies;
-        $criticalCount = count(array_filter($anomalies, fn($a) => $a['severity'] === 'critical'));
-        $highCount = count(array_filter($anomalies, fn($a) => $a['severity'] === 'high'));
-        $mediumCount = count(array_filter($anomalies, fn($a) => $a['severity'] === 'medium'));
+        $criticalCount = count(array_filter($anomalies, fn ($a) => $a['severity'] === 'critical'));
+        $highCount = count(array_filter($anomalies, fn ($a) => $a['severity'] === 'high'));
+        $mediumCount = count(array_filter($anomalies, fn ($a) => $a['severity'] === 'medium'));
         $lowCount = count($anomalies) - $criticalCount - $highCount - $mediumCount;
-        
+
         return [$criticalCount, $highCount, $mediumCount, $lowCount];
     }
 }

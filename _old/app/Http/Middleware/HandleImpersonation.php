@@ -11,7 +11,7 @@ class HandleImpersonation
 {
     /**
      * Handle an incoming request.
-     * 
+     *
      * Requirements: 11.3
      */
     public function handle(Request $request, Closure $next): Response
@@ -21,7 +21,7 @@ class HandleImpersonation
         // Check if impersonation has timed out
         if ($impersonationService->isImpersonating() && $impersonationService->hasTimedOut()) {
             $impersonationService->endImpersonation();
-            
+
             return redirect()->route('dashboard')
                 ->with('warning', __('app.impersonation.timeout'));
         }

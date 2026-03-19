@@ -2,12 +2,11 @@
 
 namespace App\Support\Console\Commands;
 
-use App\Enums\UserRole;
 use App\Enums\SubscriptionPlanType;
 use App\Enums\SubscriptionStatus;
+use App\Enums\UserRole;
 use App\Models\Subscription;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -56,13 +55,13 @@ class MigrateToHierarchicalUsersCommand extends Command
             // Find users with manager role OR admin/manager users without tenant_id
             $users = User::where(function ($query) {
                 $query->where('role', UserRole::MANAGER)
-                      ->orWhere(function ($q) {
-                          $q->whereIn('role', ['admin', 'manager'])
+                    ->orWhere(function ($q) {
+                        $q->whereIn('role', ['admin', 'manager'])
                             ->where(function ($q2) {
                                 $q2->whereNull('tenant_id')
-                                   ->orWhere('tenant_id', 0);
+                                    ->orWhere('tenant_id', 0);
                             });
-                      });
+                    });
             })->get();
 
             if ($users->isEmpty()) {
@@ -100,25 +99,25 @@ class MigrateToHierarchicalUsersCommand extends Command
 
                 // Set organization name if not set
                 if (empty($user->organization_name)) {
-                    $user->organization_name = $user->name . "'s Organization";
+                    $user->organization_name = $user->name."'s Organization";
                 }
 
-                if (!$dryRun) {
+                if (! $dryRun) {
                     $user->save();
                 }
 
                 $this->line("✓ User #{$user->id} ({$user->email}):");
                 $this->line("  - Role: {$oldRole} → {$user->role->value}");
                 if ($needsTenantId) {
-                    $this->line("  - Tenant ID: " . ($oldTenantId ?: 'null') . " → {$user->tenant_id}");
+                    $this->line('  - Tenant ID: '.($oldTenantId ?: 'null')." → {$user->tenant_id}");
                 } else {
                     $this->line("  - Tenant ID: {$user->tenant_id} (unchanged)");
                 }
                 $this->line("  - Organization: {$user->organization_name}");
-                $this->line("  - Active: true");
+                $this->line('  - Active: true');
 
                 // Step 3: Create default active subscription for admin users if they don't have one
-                if ($user->role === UserRole::ADMIN && !$user->subscription) {
+                if ($user->role === UserRole::ADMIN && ! $user->subscription) {
                     $subscription = new Subscription([
                         'user_id' => $user->id,
                         'plan_type' => SubscriptionPlanType::PROFESSIONAL->value,
@@ -129,17 +128,17 @@ class MigrateToHierarchicalUsersCommand extends Command
                         'max_tenants' => 200,
                     ]);
 
-                    if (!$dryRun) {
+                    if (! $dryRun) {
                         $subscription->save();
                     }
 
-                    $this->line("  - Subscription: Professional plan (expires " . $subscription->expires_at->format('Y-m-d') . ")");
+                    $this->line('  - Subscription: Professional plan (expires '.$subscription->expires_at->format('Y-m-d').')');
                     $subscriptionCount++;
                 }
 
                 $this->newLine();
                 $migratedCount++;
-                
+
                 // Only increment tenant_id if we assigned a new one
                 if ($needsTenantId) {
                     $nextTenantId++;
@@ -149,33 +148,33 @@ class MigrateToHierarchicalUsersCommand extends Command
             // Step 4: Set is_active = true for all existing users if not already set
             $inactiveUsersQuery = User::where(function ($query) {
                 $query->where('is_active', false)
-                      ->orWhereNull('is_active');
+                    ->orWhereNull('is_active');
             });
-            
+
             $inactiveUsers = $inactiveUsersQuery->get();
             $inactiveCount = $inactiveUsers->count();
-            
+
             if ($inactiveUsers->isNotEmpty()) {
                 $this->info("Setting is_active = true for {$inactiveCount} users...");
-                
+
                 foreach ($inactiveUsers as $user) {
                     $user->is_active = true;
-                    if (!$dryRun) {
+                    if (! $dryRun) {
                         $user->save();
                     }
                     $this->line("✓ User #{$user->id} ({$user->email}) set to active");
                 }
                 $this->newLine();
             }
-            
+
             // Step 5: Create subscriptions for admin users who don't have one
             $adminsWithoutSubscription = User::where('role', UserRole::ADMIN)
                 ->whereDoesntHave('subscription')
                 ->get();
-            
+
             if ($adminsWithoutSubscription->isNotEmpty()) {
                 $this->info("Creating subscriptions for {$adminsWithoutSubscription->count()} admin users...");
-                
+
                 foreach ($adminsWithoutSubscription as $admin) {
                     $subscription = new Subscription([
                         'user_id' => $admin->id,
@@ -187,7 +186,7 @@ class MigrateToHierarchicalUsersCommand extends Command
                         'max_tenants' => 200,
                     ]);
 
-                    if (!$dryRun) {
+                    if (! $dryRun) {
                         $subscription->save();
                     }
 
@@ -206,7 +205,7 @@ class MigrateToHierarchicalUsersCommand extends Command
             }
 
             $this->newLine();
-            $this->info("Summary:");
+            $this->info('Summary:');
             $this->line("  - Users migrated: {$migratedCount}");
             $this->line("  - Subscriptions created: {$subscriptionCount}");
             $this->line("  - Inactive users activated: {$inactiveCount}");
@@ -215,8 +214,9 @@ class MigrateToHierarchicalUsersCommand extends Command
 
         } catch (\Exception $e) {
             DB::rollback();
-            $this->error('Migration failed: ' . $e->getMessage());
+            $this->error('Migration failed: '.$e->getMessage());
             $this->error($e->getTraceAsString());
+
             return self::FAILURE;
         }
     }
@@ -229,8 +229,9 @@ class MigrateToHierarchicalUsersCommand extends Command
         $this->warn('Rolling back hierarchical user migration...');
         $this->newLine();
 
-        if (!$this->confirm('This will revert admin roles back to manager and remove subscriptions. Continue?')) {
+        if (! $this->confirm('This will revert admin roles back to manager and remove subscriptions. Continue?')) {
             $this->info('Rollback cancelled.');
+
             return self::SUCCESS;
         }
 
@@ -258,7 +259,7 @@ class MigrateToHierarchicalUsersCommand extends Command
 
             // Step 3: Clear tenant_id from all users
             User::whereNotNull('tenant_id')->update(['tenant_id' => null]);
-            $this->info("✓ Cleared tenant_id from all users");
+            $this->info('✓ Cleared tenant_id from all users');
 
             DB::commit();
 
@@ -269,7 +270,8 @@ class MigrateToHierarchicalUsersCommand extends Command
 
         } catch (\Exception $e) {
             DB::rollback();
-            $this->error('Rollback failed: ' . $e->getMessage());
+            $this->error('Rollback failed: '.$e->getMessage());
+
             return self::FAILURE;
         }
     }

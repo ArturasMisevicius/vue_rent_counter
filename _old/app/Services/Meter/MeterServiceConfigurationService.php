@@ -8,11 +8,11 @@ use App\Enums\MeterType;
 use App\Enums\PricingModel;
 use App\Models\Property;
 use App\Models\ServiceConfiguration;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Service for handling meter service configuration logic.
- * 
+ *
  * Provides methods for retrieving and processing service configurations
  * for meter creation and management.
  */
@@ -20,8 +20,8 @@ final readonly class MeterServiceConfigurationService
 {
     /**
      * Get active service configurations for a property.
-     * 
-     * @param Property $property The property to get configurations for
+     *
+     * @param  Property  $property  The property to get configurations for
      * @return array<int, string> Array of configuration ID => label pairs
      */
     public function getActiveConfigurationsForProperty(Property $property): array
@@ -36,15 +36,15 @@ final readonly class MeterServiceConfigurationService
 
     /**
      * Get meter type and zone support for a service configuration.
-     * 
-     * @param int $configurationId The service configuration ID
+     *
+     * @param  int  $configurationId  The service configuration ID
      * @return array{type: string, supports_zones: bool}
      */
     public function getMeterConfigurationDefaults(int $configurationId): array
     {
         $config = ServiceConfiguration::with('utilityService')->find($configurationId);
-        
-        if (!$config) {
+
+        if (! $config) {
             return [
                 'type' => MeterType::CUSTOM->value,
                 'supports_zones' => false,
@@ -60,7 +60,7 @@ final readonly class MeterServiceConfigurationService
     /**
      * Get the base query for service configurations.
      */
-    private function getConfigurationsQuery(int $propertyId): \Illuminate\Database\Eloquent\Builder
+    private function getConfigurationsQuery(int $propertyId): Builder
     {
         return ServiceConfiguration::query()
             ->where('property_id', $propertyId)
@@ -76,7 +76,7 @@ final readonly class MeterServiceConfigurationService
     {
         $service = $config->utilityService;
 
-        if (!$service) {
+        if (! $service) {
             return "Service #{$config->id}";
         }
 

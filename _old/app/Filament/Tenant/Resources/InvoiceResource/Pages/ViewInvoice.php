@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Tenant\Resources\InvoiceResource\Pages;
 
+use App\Enums\InvoiceStatus;
 use App\Filament\Tenant\Resources\InvoiceResource;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ViewRecord;
@@ -20,7 +21,7 @@ final class ViewInvoice extends ViewRecord
                 ->icon('heroicon-o-arrow-down-tray')
                 ->url(fn (): string => route('invoices.download', $this->record))
                 ->openUrlInNewTab()
-                ->visible(fn (): bool => $this->record->status !== \App\Enums\InvoiceStatus::DRAFT),
+                ->visible(fn (): bool => $this->record->status !== InvoiceStatus::DRAFT),
         ];
     }
 }

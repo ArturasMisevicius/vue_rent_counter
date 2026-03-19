@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Models\MeterReading;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -16,7 +17,7 @@ class BatchValidateReadingsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('viewAny', \App\Models\MeterReading::class);
+        return $this->user()->can('viewAny', MeterReading::class);
     }
 
     /**
@@ -29,7 +30,7 @@ class BatchValidateReadingsRequest extends FormRequest
                 'required',
                 'array',
                 'min:1',
-                'max:' . config('service_validation.performance.max_batch_size', 500),
+                'max:'.config('service_validation.performance.max_batch_size', 500),
             ],
             'reading_ids.*' => [
                 'integer',
@@ -53,7 +54,7 @@ class BatchValidateReadingsRequest extends FormRequest
             'reading_ids.array' => __('validation.reading_ids_must_be_array'),
             'reading_ids.min' => __('validation.reading_ids_minimum_one'),
             'reading_ids.max' => __('validation.reading_ids_maximum_exceeded', [
-                'max' => config('service_validation.performance.max_batch_size', 500)
+                'max' => config('service_validation.performance.max_batch_size', 500),
             ]),
             'reading_ids.*.integer' => __('validation.reading_id_must_be_integer'),
         ];
@@ -78,7 +79,7 @@ class BatchValidateReadingsRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $readingIds = $this->input('reading_ids', []);
-            
+
             // Check for duplicate IDs
             if (count($readingIds) !== count(array_unique($readingIds))) {
                 $validator->errors()->add(
@@ -90,14 +91,14 @@ class BatchValidateReadingsRequest extends FormRequest
             // Validate batch size against performance limits
             $batchSize = count($readingIds);
             $optimalBatchSize = config('service_validation.performance.batch_validation_size', 100);
-            
+
             if ($batchSize > $optimalBatchSize) {
                 // Add warning but don't fail validation
                 $this->merge([
                     '_performance_warning' => __('validation.batch_size_exceeds_optimal', [
                         'current' => $batchSize,
-                        'optimal' => $optimalBatchSize
-                    ])
+                        'optimal' => $optimalBatchSize,
+                    ]),
                 ]);
             }
         });
@@ -109,7 +110,7 @@ class BatchValidateReadingsRequest extends FormRequest
     public function validated($key = null, $default = null): array
     {
         $validated = parent::validated($key, $default);
-        
+
         // Ensure reading_ids are unique integers
         if (isset($validated['reading_ids'])) {
             $validated['reading_ids'] = array_unique(

@@ -17,7 +17,7 @@ use Throwable;
 
 /**
  * Base Repository Implementation
- * 
+ *
  * Provides common repository functionality with:
  * - Complete CRUD operations
  * - Query builder pattern support
@@ -26,37 +26,38 @@ use Throwable;
  * - Tenant scope awareness
  * - Soft delete handling
  * - Performance optimizations
- * 
+ *
  * @template TModel of \Illuminate\Database\Eloquent\Model
+ *
  * @implements RepositoryInterface<TModel>
  */
 abstract class BaseRepository implements RepositoryInterface
 {
     /**
      * The Eloquent model instance.
-     * 
+     *
      * @var TModel
      */
     protected Model $model;
 
     /**
      * The current query builder instance.
-     * 
+     *
      * @var Builder<TModel>
      */
     protected Builder $query;
 
     /**
      * Relationships to eager load.
-     * 
+     *
      * @var array<string>
      */
     protected array $with = [];
 
     /**
      * Create a new repository instance.
-     * 
-     * @param TModel $model
+     *
+     * @param  TModel  $model
      */
     public function __construct(Model $model)
     {
@@ -73,6 +74,7 @@ abstract class BaseRepository implements RepositoryInterface
             return $this->query->select($columns)->find($id);
         } catch (Throwable $e) {
             $this->handleException($e, ['method' => 'find', 'id' => $id]);
+
             return null;
         } finally {
             $this->resetQuery();
@@ -87,6 +89,7 @@ abstract class BaseRepository implements RepositoryInterface
         try {
             $result = $this->query->select($columns)->findOrFail($id);
             $this->resetQuery();
+
             return $result;
         } catch (ModelNotFoundException $e) {
             $this->resetQuery();
@@ -106,11 +109,13 @@ abstract class BaseRepository implements RepositoryInterface
         try {
             $result = $this->query->select($columns)->where($field, $value)->get();
             $this->resetQuery();
+
             return $result;
         } catch (Throwable $e) {
             $this->resetQuery();
             $this->handleException($e, ['method' => 'findBy', 'field' => $field, 'value' => $value]);
-            return new Collection();
+
+            return new Collection;
         }
     }
 
@@ -121,7 +126,7 @@ abstract class BaseRepository implements RepositoryInterface
     {
         try {
             $query = $this->query->select($columns);
-            
+
             foreach ($criteria as $field => $value) {
                 if (is_array($value)) {
                     $query->whereIn($field, $value);
@@ -129,14 +134,16 @@ abstract class BaseRepository implements RepositoryInterface
                     $query->where($field, $value);
                 }
             }
-            
+
             $result = $query->get();
             $this->resetQuery();
+
             return $result;
         } catch (Throwable $e) {
             $this->resetQuery();
             $this->handleException($e, ['method' => 'findWhere', 'criteria' => $criteria]);
-            return new Collection();
+
+            return new Collection;
         }
     }
 
@@ -148,11 +155,13 @@ abstract class BaseRepository implements RepositoryInterface
         try {
             $result = $this->query->select($columns)->get();
             $this->resetQuery();
+
             return $result;
         } catch (Throwable $e) {
             $this->resetQuery();
             $this->handleException($e, ['method' => 'all']);
-            return new Collection();
+
+            return new Collection;
         }
     }
 
@@ -164,6 +173,7 @@ abstract class BaseRepository implements RepositoryInterface
         try {
             $result = $this->query->select($columns)->paginate($perPage, $columns, $pageName, $page);
             $this->resetQuery();
+
             return $result;
         } catch (Throwable $e) {
             $this->resetQuery();
@@ -181,8 +191,9 @@ abstract class BaseRepository implements RepositoryInterface
             return DB::transaction(function () use ($data) {
                 $model = $this->model->newInstance($data);
                 $model->save();
-                
+
                 $this->logOperation('create', ['id' => $model->getKey()]);
+
                 return $model;
             });
         } catch (Throwable $e) {
@@ -201,8 +212,9 @@ abstract class BaseRepository implements RepositoryInterface
                 $model = $this->findOrFail($id);
                 $model->fill($data);
                 $model->save();
-                
+
                 $this->logOperation('update', ['id' => $id, 'changes' => $model->getChanges()]);
+
                 return $model;
             });
         } catch (ModelNotFoundException $e) {
@@ -222,8 +234,9 @@ abstract class BaseRepository implements RepositoryInterface
             return DB::transaction(function () use ($id) {
                 $model = $this->findOrFail($id);
                 $result = $model->delete();
-                
+
                 $this->logOperation('delete', ['id' => $id]);
+
                 return $result;
             });
         } catch (ModelNotFoundException $e) {
@@ -241,6 +254,7 @@ abstract class BaseRepository implements RepositoryInterface
     {
         $this->with = array_merge($this->with, is_array($relations) ? $relations : [$relations]);
         $this->query->with($this->with);
+
         return $this;
     }
 
@@ -250,6 +264,7 @@ abstract class BaseRepository implements RepositoryInterface
     public function orderBy(string $column, string $direction = 'asc'): static
     {
         $this->query->orderBy($column, $direction);
+
         return $this;
     }
 
@@ -261,10 +276,12 @@ abstract class BaseRepository implements RepositoryInterface
         try {
             $result = $this->query->chunk($count, $callback);
             $this->resetQuery();
+
             return $result;
         } catch (Throwable $e) {
             $this->resetQuery();
             $this->handleException($e, ['method' => 'chunk', 'count' => $count]);
+
             return false;
         }
     }
@@ -277,10 +294,12 @@ abstract class BaseRepository implements RepositoryInterface
         try {
             $result = $this->query->count();
             $this->resetQuery();
+
             return $result;
         } catch (Throwable $e) {
             $this->resetQuery();
             $this->handleException($e, ['method' => 'count']);
+
             return 0;
         }
     }
@@ -293,10 +312,12 @@ abstract class BaseRepository implements RepositoryInterface
         try {
             $result = $this->query->exists();
             $this->resetQuery();
+
             return $result;
         } catch (Throwable $e) {
             $this->resetQuery();
             $this->handleException($e, ['method' => 'exists']);
+
             return false;
         }
     }
@@ -309,11 +330,11 @@ abstract class BaseRepository implements RepositoryInterface
         try {
             return DB::transaction(function () use ($attributes, $values) {
                 $model = $this->model->firstOrCreate($attributes, $values);
-                
+
                 if ($model->wasRecentlyCreated) {
                     $this->logOperation('firstOrCreate', ['id' => $model->getKey(), 'created' => true]);
                 }
-                
+
                 return $model;
             });
         } catch (Throwable $e) {
@@ -330,10 +351,10 @@ abstract class BaseRepository implements RepositoryInterface
         try {
             return DB::transaction(function () use ($attributes, $values) {
                 $model = $this->model->updateOrCreate($attributes, $values);
-                
+
                 $action = $model->wasRecentlyCreated ? 'created' : 'updated';
                 $this->logOperation('updateOrCreate', ['id' => $model->getKey(), 'action' => $action]);
-                
+
                 return $model;
             });
         } catch (Throwable $e) {
@@ -352,7 +373,7 @@ abstract class BaseRepository implements RepositoryInterface
         } else {
             $this->query->where($column, $operator, $value);
         }
-        
+
         return $this;
     }
 
@@ -362,6 +383,7 @@ abstract class BaseRepository implements RepositoryInterface
     public function whereIn(string $column, array $values): static
     {
         $this->query->whereIn($column, $values);
+
         return $this;
     }
 
@@ -371,6 +393,7 @@ abstract class BaseRepository implements RepositoryInterface
     public function whereNotIn(string $column, array $values): static
     {
         $this->query->whereNotIn($column, $values);
+
         return $this;
     }
 
@@ -380,6 +403,7 @@ abstract class BaseRepository implements RepositoryInterface
     public function whereBetween(string $column, array $values): static
     {
         $this->query->whereBetween($column, $values);
+
         return $this;
     }
 
@@ -389,6 +413,7 @@ abstract class BaseRepository implements RepositoryInterface
     public function whereNull(string $column): static
     {
         $this->query->whereNull($column);
+
         return $this;
     }
 
@@ -398,6 +423,7 @@ abstract class BaseRepository implements RepositoryInterface
     public function whereNotNull(string $column): static
     {
         $this->query->whereNotNull($column);
+
         return $this;
     }
 
@@ -407,6 +433,7 @@ abstract class BaseRepository implements RepositoryInterface
     public function limit(int $limit): static
     {
         $this->query->limit($limit);
+
         return $this;
     }
 
@@ -416,6 +443,7 @@ abstract class BaseRepository implements RepositoryInterface
     public function offset(int $offset): static
     {
         $this->query->offset($offset);
+
         return $this;
     }
 
@@ -425,6 +453,7 @@ abstract class BaseRepository implements RepositoryInterface
     public function fresh(): static
     {
         $this->resetQuery();
+
         return $this;
     }
 
@@ -436,11 +465,13 @@ abstract class BaseRepository implements RepositoryInterface
         try {
             $result = $this->query->select($columns)->get();
             $this->resetQuery();
+
             return $result;
         } catch (Throwable $e) {
             $this->resetQuery();
             $this->handleException($e, ['method' => 'get']);
-            return new Collection();
+
+            return new Collection;
         }
     }
 
@@ -452,10 +483,12 @@ abstract class BaseRepository implements RepositoryInterface
         try {
             $result = $this->query->select($columns)->first();
             $this->resetQuery();
+
             return $result;
         } catch (Throwable $e) {
             $this->resetQuery();
             $this->handleException($e, ['method' => 'first']);
+
             return null;
         }
     }
@@ -475,28 +508,30 @@ abstract class BaseRepository implements RepositoryInterface
     {
         $this->model = $model;
         $this->resetQuery();
+
         return $this;
     }
 
     /**
      * Bulk create multiple models.
-     * 
-     * @param array<array<string, mixed>> $data Array of model data
+     *
+     * @param  array<array<string, mixed>>  $data  Array of model data
      * @return Collection<int, TModel>
      */
     public function bulkCreate(array $data): Collection
     {
         try {
             return DB::transaction(function () use ($data) {
-                $models = new Collection();
-                
+                $models = new Collection;
+
                 foreach ($data as $attributes) {
                     $model = $this->model->newInstance($attributes);
                     $model->save();
                     $models->push($model);
                 }
-                
+
                 $this->logOperation('bulkCreate', ['count' => count($data)]);
+
                 return $models;
             });
         } catch (Throwable $e) {
@@ -507,9 +542,9 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Bulk update multiple models.
-     * 
-     * @param array<mixed> $ids Array of model IDs
-     * @param array<string, mixed> $data Update data
+     *
+     * @param  array<mixed>  $ids  Array of model IDs
+     * @param  array<string, mixed>  $data  Update data
      * @return int Number of updated models
      */
     public function bulkUpdate(array $ids, array $data): int
@@ -517,8 +552,9 @@ abstract class BaseRepository implements RepositoryInterface
         try {
             return DB::transaction(function () use ($ids, $data) {
                 $count = $this->model->whereIn($this->model->getKeyName(), $ids)->update($data);
-                
+
                 $this->logOperation('bulkUpdate', ['ids' => $ids, 'count' => $count]);
+
                 return $count;
             });
         } catch (Throwable $e) {
@@ -529,8 +565,8 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Bulk delete multiple models.
-     * 
-     * @param array<mixed> $ids Array of model IDs
+     *
+     * @param  array<mixed>  $ids  Array of model IDs
      * @return int Number of deleted models
      */
     public function bulkDelete(array $ids): int
@@ -538,8 +574,9 @@ abstract class BaseRepository implements RepositoryInterface
         try {
             return DB::transaction(function () use ($ids) {
                 $count = $this->model->whereIn($this->model->getKeyName(), $ids)->delete();
-                
+
                 $this->logOperation('bulkDelete', ['ids' => $ids, 'count' => $count]);
+
                 return $count;
             });
         } catch (Throwable $e) {
@@ -550,9 +587,6 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Execute a callback within a database transaction.
-     * 
-     * @param callable $callback
-     * @return mixed
      */
     public function transaction(callable $callback): mixed
     {
@@ -566,8 +600,6 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Reset the query builder to a fresh state.
-     * 
-     * @return void
      */
     protected function resetQuery(): void
     {
@@ -577,10 +609,8 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Handle exceptions with logging.
-     * 
-     * @param Throwable $e
-     * @param array<string, mixed> $context
-     * @return void
+     *
+     * @param  array<string, mixed>  $context
      */
     protected function handleException(Throwable $e, array $context = []): void
     {
@@ -596,10 +626,8 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * Log repository operations.
-     * 
-     * @param string $operation
-     * @param array<string, mixed> $context
-     * @return void
+     *
+     * @param  array<string, mixed>  $context
      */
     protected function logOperation(string $operation, array $context = []): void
     {

@@ -10,10 +10,10 @@ use App\Enums\TenantStatus;
 use App\ValueObjects\TenantMetrics;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -129,12 +129,12 @@ class Organization extends Model
         static::creating(function (Organization $org) {
             if (empty($org->slug)) {
                 $org->slug = Str::slug($org->name);
-                
+
                 // Ensure unique slug
                 $originalSlug = $org->slug;
                 $count = 1;
                 while (static::where('slug', $org->slug)->exists()) {
-                    $org->slug = $originalSlug . '-' . $count++;
+                    $org->slug = $originalSlug.'-'.$count++;
                 }
             }
         });
@@ -233,7 +233,7 @@ class Organization extends Model
     // Status checks
     public function isActive(): bool
     {
-        return $this->is_active && !$this->isSuspended();
+        return $this->is_active && ! $this->isSuspended();
     }
 
     public function isSuspended(): bool
@@ -257,7 +257,7 @@ class Organization extends Model
 
     public function isSubscriptionExpired(): bool
     {
-        return !$this->hasActiveSubscription();
+        return ! $this->hasActiveSubscription();
     }
 
     // Limit checks
@@ -332,7 +332,7 @@ class Organization extends Model
 
     public function daysUntilExpiry(): int
     {
-        if (!$this->subscription_ends_at) {
+        if (! $this->subscription_ends_at) {
             return 0;
         }
 
@@ -401,15 +401,15 @@ class Organization extends Model
         if ($this->isSuspended()) {
             return TenantStatus::SUSPENDED;
         }
-        
-        if (!$this->is_active) {
+
+        if (! $this->is_active) {
             return TenantStatus::CANCELLED;
         }
-        
-        if ($this->isOnTrial() || !$this->hasActiveSubscription()) {
+
+        if ($this->isOnTrial() || ! $this->hasActiveSubscription()) {
             return TenantStatus::PENDING;
         }
-        
+
         return TenantStatus::ACTIVE;
     }
 
@@ -466,12 +466,20 @@ class Organization extends Model
     private function calculateHealthStatus(): string
     {
         $issues = 0;
-        
-        if ($this->isOverQuota('storage_mb')) $issues++;
-        if ($this->isOverQuota('api_calls')) $issues++;
-        if ($this->average_response_time > 2000) $issues++; // > 2 seconds
-        if (!$this->hasActiveSubscription()) $issues++;
-        
+
+        if ($this->isOverQuota('storage_mb')) {
+            $issues++;
+        }
+        if ($this->isOverQuota('api_calls')) {
+            $issues++;
+        }
+        if ($this->average_response_time > 2000) {
+            $issues++;
+        } // > 2 seconds
+        if (! $this->hasActiveSubscription()) {
+            $issues++;
+        }
+
         return match (true) {
             $issues === 0 => 'healthy',
             $issues <= 2 => 'warning',

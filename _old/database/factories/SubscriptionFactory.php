@@ -9,7 +9,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Subscription>
+ * @extends Factory<Subscription>
  */
 class SubscriptionFactory extends Factory
 {
@@ -91,7 +91,7 @@ class SubscriptionFactory extends Factory
     public function basic(): static
     {
         $limits = $this->getPlanLimits(SubscriptionPlanType::BASIC->value);
-        
+
         return $this->state(fn (array $attributes) => [
             'plan_type' => SubscriptionPlanType::BASIC->value,
             'max_properties' => $limits['max_properties'],
@@ -105,7 +105,7 @@ class SubscriptionFactory extends Factory
     public function professional(): static
     {
         $limits = $this->getPlanLimits(SubscriptionPlanType::PROFESSIONAL->value);
-        
+
         return $this->state(fn (array $attributes) => [
             'plan_type' => SubscriptionPlanType::PROFESSIONAL->value,
             'max_properties' => $limits['max_properties'],
@@ -119,7 +119,7 @@ class SubscriptionFactory extends Factory
     public function enterprise(): static
     {
         $limits = $this->getPlanLimits(SubscriptionPlanType::ENTERPRISE->value);
-        
+
         return $this->state(fn (array $attributes) => [
             'plan_type' => SubscriptionPlanType::ENTERPRISE->value,
             'max_properties' => $limits['max_properties'],
@@ -139,9 +139,6 @@ class SubscriptionFactory extends Factory
 
     /**
      * Get the limits for a given plan type.
-     *
-     * @param string $planType
-     * @return array
      */
     protected function getPlanLimits(string $planType): array
     {

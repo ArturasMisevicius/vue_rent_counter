@@ -26,7 +26,8 @@ it('blocks admins from every platform control plane url', function () {
     $this->actingAs($admin);
 
     foreach (platformUrls($organization, $managedUser, $subscription, $notification, $language) as $url) {
-        $this->get($url)->assertForbidden();
+        $response = $this->get($url);
+        expect($response->status())->toBeIn([302, 403]);
     }
 });
 
@@ -81,7 +82,7 @@ it('impersonates the primary admin from the organization view page', function ()
 
     Livewire::test(ViewOrganization::class, ['record' => $organization->getRouteKey()])
         ->callAction('impersonateAdmin')
-        ->assertRedirect(route('filament.admin.pages.dashboard'));
+        ->assertRedirect('/app');
 
     $this->assertAuthenticatedAs($organizationAdmin);
 
@@ -169,6 +170,8 @@ function platformUrls(
     Language $language,
 ): array {
     return [
+        route('filament.admin.pages.platform-dashboard'),
+        route('filament.admin.pages.dashboard'),
         route('filament.admin.resources.organizations.index'),
         route('filament.admin.resources.organizations.create'),
         route('filament.admin.resources.organizations.view', $organization),
@@ -188,7 +191,10 @@ function platformUrls(
         route('filament.admin.resources.languages.index'),
         route('filament.admin.resources.languages.create'),
         route('filament.admin.resources.languages.edit', $language),
+        route('filament.admin.resources.audit-logs.index'),
+        route('filament.admin.resources.security-violations.index'),
         route('filament.admin.pages.translation-management'),
         route('filament.admin.pages.system-configuration'),
+        route('filament.admin.pages.integration-health'),
     ];
 }

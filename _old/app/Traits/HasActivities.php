@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 /**
  * HasActivities Trait
- * 
+ *
  * Add this trait to any model that should track activities
  */
 trait HasActivities
@@ -51,7 +51,7 @@ trait HasActivities
         static::created(function ($model) {
             if ($model->shouldLogActivity('created')) {
                 $model->logActivity(
-                    description: class_basename($model) . ' created',
+                    description: class_basename($model).' created',
                     event: 'created',
                     properties: ['attributes' => $model->getAttributes()]
                 );
@@ -61,7 +61,7 @@ trait HasActivities
         static::updated(function ($model) {
             if ($model->shouldLogActivity('updated')) {
                 $model->logActivity(
-                    description: class_basename($model) . ' updated',
+                    description: class_basename($model).' updated',
                     event: 'updated',
                     properties: [
                         'attributes' => $model->getChanges(),
@@ -74,7 +74,7 @@ trait HasActivities
         static::deleted(function ($model) {
             if ($model->shouldLogActivity('deleted')) {
                 $model->logActivity(
-                    description: class_basename($model) . ' deleted',
+                    description: class_basename($model).' deleted',
                     event: 'deleted',
                     properties: ['attributes' => $model->getAttributes()]
                 );

@@ -6,11 +6,9 @@ namespace App\Services;
 
 /**
  * Service Response DTO
- * 
+ *
  * Standardized response object for all service layer operations.
  * Provides consistent structure for success/error responses.
- *
- * @package App\Services
  */
 final readonly class ServiceResponse
 {
@@ -24,8 +22,6 @@ final readonly class ServiceResponse
 
     /**
      * Check if the response indicates success.
-     *
-     * @return bool
      */
     public function isSuccess(): bool
     {
@@ -34,18 +30,15 @@ final readonly class ServiceResponse
 
     /**
      * Check if the response indicates failure.
-     *
-     * @return bool
      */
     public function isFailure(): bool
     {
-        return !$this->success;
+        return ! $this->success;
     }
 
     /**
      * Get the response data or throw if failed.
      *
-     * @return mixed
      * @throws \RuntimeException If response is a failure
      */
     public function getDataOrFail(): mixed
@@ -59,8 +52,6 @@ final readonly class ServiceResponse
 
     /**
      * Convert to array representation.
-     *
-     * @return array
      */
     public function toArray(): array
     {

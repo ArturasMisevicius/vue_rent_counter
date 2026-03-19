@@ -18,7 +18,7 @@ return new class extends Migration
             $table->json('metadata')->nullable(); // billable, rate, category, etc.
             $table->timestamp('logged_at');
             $table->timestamps();
-            
+
             $table->index(['user_id', 'logged_at']);
             $table->index(['task_id', 'logged_at']);
         });

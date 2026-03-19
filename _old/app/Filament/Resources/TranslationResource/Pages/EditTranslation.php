@@ -6,7 +6,10 @@ namespace App\Filament\Resources\TranslationResource\Pages;
 
 use App\Filament\Resources\TranslationResource;
 use App\Filament\Resources\TranslationResource\Concerns\FiltersEmptyLanguageValues;
+use App\Models\Translation;
+use App\Services\TranslationPublisher;
 use Filament\Actions;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 
 /**
@@ -35,10 +38,10 @@ use Filament\Resources\Pages\EditRecord;
  * // After filtering:  ['en' => 'Hello', 'ru' => 'Привет']
  * ```
  *
- * @see \App\Filament\Resources\TranslationResource
- * @see \App\Models\Translation
- * @see \App\Services\TranslationPublisher
- * @see \App\Filament\Resources\TranslationResource\Concerns\FiltersEmptyLanguageValues
+ * @see TranslationResource
+ * @see Translation
+ * @see TranslationPublisher
+ * @see FiltersEmptyLanguageValues
  */
 class EditTranslation extends EditRecord
 {
@@ -53,7 +56,7 @@ class EditTranslation extends EditRecord
      * translation entries. Deletion triggers automatic republishing
      * of language files via the Translation model observer.
      *
-     * @return array<\Filament\Actions\Action>
+     * @return array<Action>
      */
     protected function getHeaderActions(): array
     {

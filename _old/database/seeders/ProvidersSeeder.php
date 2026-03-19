@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Enums\ServiceType;
 use App\Models\Provider;
 use Illuminate\Database\Seeder;
 

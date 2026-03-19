@@ -7,32 +7,31 @@ namespace App\Services\Integration;
 use App\Contracts\CircuitBreakerInterface;
 use App\Exceptions\CircuitBreakerOpenException;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use Illuminate\Support\Facades\Log;
 use Psr\Log\LoggerInterface;
-use Exception;
 
 /**
  * Circuit Breaker Service Implementation
- * 
+ *
  * Prevents cascading failures by monitoring service calls and temporarily
  * blocking requests when failures exceed configured thresholds.
- * 
- * @package App\Services\Integration
  */
 final readonly class CircuitBreakerService implements CircuitBreakerInterface
 {
     private const STATE_CLOSED = 'closed';
+
     private const STATE_OPEN = 'open';
+
     private const STATE_HALF_OPEN = 'half_open';
-    
+
     public function __construct(
         private CacheRepository $cache,
         private ConfigRepository $config,
         private LoggerInterface $logger,
     ) {}
-    
+
     /**
      * Execute a callable with circuit breaker protection
      */
@@ -40,7 +39,7 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
     {
         $this->registerService($serviceName);
         $state = $this->getState($serviceName);
-        
+
         if ($state === self::STATE_OPEN) {
             if ($this->shouldAttemptReset($serviceName)) {
                 $this->setState($serviceName, self::STATE_HALF_OPEN);
@@ -48,22 +47,23 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
                 return $this->handleOpenCircuit($serviceName, $fallback);
             }
         }
-        
+
         try {
             $result = $callback();
             $this->onSuccess($serviceName);
+
             return $result;
         } catch (Exception $e) {
             $this->onFailure($serviceName, $e);
-            
+
             if ($fallback) {
                 return $fallback($e);
             }
-            
+
             throw $e;
         }
     }
-    
+
     /**
      * Get configuration for a specific service or use defaults
      */
@@ -71,10 +71,10 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
     {
         $serviceConfig = $this->config->get("circuit-breaker.services.{$serviceName}", []);
         $defaultConfig = $this->config->get('circuit-breaker.default', []);
-        
+
         return array_merge($defaultConfig, $serviceConfig);
     }
-    
+
     /**
      * Get the current state of the circuit breaker
      */
@@ -82,20 +82,20 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
     {
         return $this->cache->get($this->getStateKey($serviceName), self::STATE_CLOSED);
     }
-    
+
     /**
      * Set the state of the circuit breaker
      */
     private function setState(string $serviceName, string $state): void
     {
         $cacheTtl = $this->getServiceConfig($serviceName)['cache_ttl'] ?? 60;
-        
+
         $this->cache->put($this->getStateKey($serviceName), $state, now()->addMinutes($cacheTtl));
-        
+
         if ($state === self::STATE_OPEN) {
             $this->cache->put($this->getOpenTimeKey($serviceName), now(), now()->addMinutes($cacheTtl));
         }
-        
+
         if ($this->isLoggingEnabled()) {
             $this->logger->info('Circuit breaker state changed', [
                 'service' => $serviceName,
@@ -104,18 +104,18 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
             ]);
         }
     }
-    
+
     /**
      * Handle success response
      */
     private function onSuccess(string $serviceName): void
     {
         $state = $this->getState($serviceName);
-        
+
         if ($state === self::STATE_HALF_OPEN) {
             $successCount = $this->incrementSuccessCount($serviceName);
             $successThreshold = $this->getServiceConfig($serviceName)['success_threshold'] ?? 3;
-            
+
             if ($successCount >= $successThreshold) {
                 $this->reset($serviceName);
             }
@@ -123,7 +123,7 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
             $this->resetFailureCount($serviceName);
         }
     }
-    
+
     /**
      * Handle failure response
      */
@@ -131,7 +131,7 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
     {
         $failureCount = $this->incrementFailureCount($serviceName);
         $failureThreshold = $this->getServiceConfig($serviceName)['failure_threshold'] ?? 5;
-        
+
         if ($this->isLoggingEnabled()) {
             $this->logger->warning('Circuit breaker recorded failure', [
                 'service' => $serviceName,
@@ -142,12 +142,12 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
                 'timestamp' => now()->toISOString(),
             ]);
         }
-        
+
         if ($failureCount >= $failureThreshold) {
             $this->setState($serviceName, self::STATE_OPEN);
         }
     }
-    
+
     /**
      * Check if we should attempt to reset the circuit breaker
      */
@@ -166,7 +166,7 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
 
         return now()->diffInSeconds($openedAt, true) >= $recoveryTimeout;
     }
-    
+
     /**
      * Handle open circuit scenario
      */
@@ -178,14 +178,14 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
                 'timestamp' => now()->toISOString(),
             ]);
         }
-        
+
         if ($fallback) {
             return $fallback(new CircuitBreakerOpenException($serviceName));
         }
-        
+
         throw new CircuitBreakerOpenException($serviceName);
     }
-    
+
     /**
      * Reset the circuit breaker to closed state
      */
@@ -197,12 +197,12 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
             $this->getSuccessCountKey($serviceName),
             $this->getOpenTimeKey($serviceName),
         ];
-        
+
         // Batch delete for better performance
         foreach ($keys as $key) {
             $this->cache->forget($key);
         }
-        
+
         if ($this->isLoggingEnabled()) {
             $this->logger->info('Circuit breaker reset to closed state', [
                 'service' => $serviceName,
@@ -210,7 +210,7 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
             ]);
         }
     }
-    
+
     /**
      * Increment failure count
      */
@@ -219,12 +219,12 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
         $key = $this->getFailureCountKey($serviceName);
         $cacheTtl = $this->getServiceConfig($serviceName)['cache_ttl'] ?? 60;
         $count = $this->cache->get($key, 0) + 1;
-        
+
         $this->cache->put($key, $count, now()->addMinutes($cacheTtl));
-        
+
         return $count;
     }
-    
+
     /**
      * Reset failure count
      */
@@ -232,7 +232,7 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
     {
         $this->cache->forget($this->getFailureCountKey($serviceName));
     }
-    
+
     /**
      * Increment success count
      */
@@ -241,12 +241,12 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
         $key = $this->getSuccessCountKey($serviceName);
         $cacheTtl = $this->getServiceConfig($serviceName)['cache_ttl'] ?? 60;
         $count = $this->cache->get($key, 0) + 1;
-        
+
         $this->cache->put($key, $count, now()->addMinutes($cacheTtl));
-        
+
         return $count;
     }
-    
+
     /**
      * Get circuit breaker status for monitoring
      */
@@ -261,32 +261,32 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
             'config' => $this->getServiceConfig($serviceName),
         ];
     }
-    
+
     /**
      * Get all monitored services status
      */
     public function getAllStatus(): array
     {
         $services = $this->cache->get('circuit_breaker_services', []);
-        
-        return collect($services)->map(fn($service) => $this->getStatus($service))->toArray();
+
+        return collect($services)->map(fn ($service) => $this->getStatus($service))->toArray();
     }
-    
+
     /**
      * Register a service for monitoring
      */
     public function registerService(string $serviceName): void
     {
         $services = $this->cache->get('circuit_breaker_services', []);
-        
-        if (!in_array($serviceName, $services, true)) {
+
+        if (! in_array($serviceName, $services, true)) {
             $services[] = $serviceName;
             $registryTtl = $this->config->get('circuit-breaker.default.registry_ttl', 30);
-            
+
             $this->cache->put('circuit_breaker_services', $services, now()->addDays($registryTtl));
         }
     }
-    
+
     /**
      * Check if logging is enabled
      */
@@ -294,7 +294,7 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
     {
         return $this->config->get('circuit-breaker.logging.enabled', true);
     }
-    
+
     /**
      * Generate cache keys for circuit breaker data
      */
@@ -302,17 +302,17 @@ final readonly class CircuitBreakerService implements CircuitBreakerInterface
     {
         return "circuit_breaker:{$serviceName}:state";
     }
-    
+
     private function getFailureCountKey(string $serviceName): string
     {
         return "circuit_breaker:{$serviceName}:failures";
     }
-    
+
     private function getSuccessCountKey(string $serviceName): string
     {
         return "circuit_breaker:{$serviceName}:successes";
     }
-    
+
     private function getOpenTimeKey(string $serviceName): string
     {
         return "circuit_breaker:{$serviceName}:open_time";

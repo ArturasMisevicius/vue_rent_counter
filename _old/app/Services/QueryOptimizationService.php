@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Organization;
-use App\Models\Subscription;
 use App\Models\OrganizationActivityLog;
+use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -15,13 +15,14 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * QueryOptimizationService provides optimized queries for superadmin dashboard
- * 
+ *
  * Implements eager loading, query result caching, and optimized database queries
  * to improve performance for dashboard widgets and CRUD operations.
  */
 class QueryOptimizationService
 {
     private const QUERY_CACHE_TTL = 300; // 5 minutes
+
     private const CACHE_PREFIX = 'query_cache';
 
     /**
@@ -29,8 +30,8 @@ class QueryOptimizationService
      */
     public function getOrganizationsOptimized(?array $filters = null): Collection
     {
-        $cacheKey = self::CACHE_PREFIX . '.organizations.' . md5(serialize($filters));
-        
+        $cacheKey = self::CACHE_PREFIX.'.organizations.'.md5(serialize($filters));
+
         return Cache::remember($cacheKey, self::QUERY_CACHE_TTL, function () use ($filters) {
             $query = Organization::query()
                 ->with([
@@ -38,7 +39,7 @@ class QueryOptimizationService
                     'properties:id,tenant_id,name,address',
                     'activityLogs' => function ($query) {
                         $query->latest()->limit(5)->select('id', 'organization_id', 'action', 'created_at');
-                    }
+                    },
                 ])
                 ->withCount(['users', 'properties', 'buildings', 'invoices']);
 
@@ -55,8 +56,8 @@ class QueryOptimizationService
      */
     public function getSubscriptionsOptimized(?array $filters = null): Collection
     {
-        $cacheKey = self::CACHE_PREFIX . '.subscriptions.' . md5(serialize($filters));
-        
+        $cacheKey = self::CACHE_PREFIX.'.subscriptions.'.md5(serialize($filters));
+
         return Cache::remember($cacheKey, self::QUERY_CACHE_TTL, function () use ($filters) {
             $query = Subscription::query()
                 ->with([
@@ -64,7 +65,7 @@ class QueryOptimizationService
                     'user.organization:id,name,slug,email',
                     'renewals' => function ($query) {
                         $query->latest()->limit(3)->select('id', 'subscription_id', 'method', 'created_at');
-                    }
+                    },
                 ]);
 
             if ($filters) {
@@ -80,13 +81,13 @@ class QueryOptimizationService
      */
     public function getActivityLogsOptimized(?array $filters = null, int $limit = 50): Collection
     {
-        $cacheKey = self::CACHE_PREFIX . '.activity_logs.' . md5(serialize($filters) . $limit);
-        
+        $cacheKey = self::CACHE_PREFIX.'.activity_logs.'.md5(serialize($filters).$limit);
+
         return Cache::remember($cacheKey, self::QUERY_CACHE_TTL / 2, function () use ($filters, $limit) {
             $query = OrganizationActivityLog::query()
                 ->with([
                     'organization:id,name,slug',
-                    'user:id,name,email,role'
+                    'user:id,name,email,role',
                 ])
                 ->latest()
                 ->limit($limit);
@@ -104,8 +105,8 @@ class QueryOptimizationService
      */
     public function getUsersOptimized(?array $filters = null): Collection
     {
-        $cacheKey = self::CACHE_PREFIX . '.users.' . md5(serialize($filters));
-        
+        $cacheKey = self::CACHE_PREFIX.'.users.'.md5(serialize($filters));
+
         return Cache::remember($cacheKey, self::QUERY_CACHE_TTL, function () use ($filters) {
             $query = User::query()
                 ->whereNotNull('tenant_id') // Only organization users
@@ -128,8 +129,8 @@ class QueryOptimizationService
      */
     public function getDashboardStatsOptimized(): array
     {
-        $cacheKey = self::CACHE_PREFIX . '.dashboard_stats';
-        
+        $cacheKey = self::CACHE_PREFIX.'.dashboard_stats';
+
         return Cache::remember($cacheKey, 60, function () {
             // Single query to get all counts
             $stats = DB::select('
@@ -210,8 +211,8 @@ class QueryOptimizationService
      */
     public function getTopOrganizations(string $metric = 'properties', int $limit = 10): array
     {
-        $cacheKey = self::CACHE_PREFIX . ".top_organizations.{$metric}.{$limit}";
-        
+        $cacheKey = self::CACHE_PREFIX.".top_organizations.{$metric}.{$limit}";
+
         return Cache::remember($cacheKey, self::QUERY_CACHE_TTL, function () use ($metric, $limit) {
             $query = Organization::query()
                 ->select('organizations.id', 'organizations.name', 'organizations.slug');
@@ -219,24 +220,24 @@ class QueryOptimizationService
             switch ($metric) {
                 case 'properties':
                     $query->withCount('properties')
-                          ->orderBy('properties_count', 'desc');
+                        ->orderBy('properties_count', 'desc');
                     break;
-                    
+
                 case 'users':
                     $query->withCount('users')
-                          ->orderBy('users_count', 'desc');
+                        ->orderBy('users_count', 'desc');
                     break;
-                    
+
                 case 'invoices':
                     $query->withCount('invoices')
-                          ->orderBy('invoices_count', 'desc');
+                        ->orderBy('invoices_count', 'desc');
                     break;
-                    
+
                 case 'activity':
                     $query->withCount(['activityLogs' => function ($query) {
                         $query->where('created_at', '>=', now()->subDays(30));
                     }])
-                    ->orderBy('activity_logs_count', 'desc');
+                        ->orderBy('activity_logs_count', 'desc');
                     break;
             }
 
@@ -249,18 +250,18 @@ class QueryOptimizationService
      */
     public function getExpiringSubscriptions(int $days = 14): Collection
     {
-        $cacheKey = self::CACHE_PREFIX . ".expiring_subscriptions.{$days}";
-        
+        $cacheKey = self::CACHE_PREFIX.".expiring_subscriptions.{$days}";
+
         return Cache::remember($cacheKey, 300, function () use ($days) {
             return Subscription::query()
                 ->with([
                     'user:id,tenant_id,name,email',
-                    'user.organization:id,name,slug,email,phone'
+                    'user.organization:id,name,slug,email,phone',
                 ])
                 ->where('status', 'active')
                 ->whereBetween('expires_at', [
                     now()->toDateString(),
-                    now()->addDays($days)->toDateString()
+                    now()->addDays($days)->toDateString(),
                 ])
                 ->orderBy('expires_at')
                 ->get();
@@ -292,8 +293,8 @@ class QueryOptimizationService
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('slug', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('slug', 'like', "%{$search}%");
             });
         }
 
@@ -323,7 +324,7 @@ class QueryOptimizationService
             if ($filters['expiring_soon']) {
                 $query->whereBetween('expires_at', [
                     now()->toDateString(),
-                    now()->addDays(14)->toDateString()
+                    now()->addDays(14)->toDateString(),
                 ]);
             }
         }
@@ -390,7 +391,7 @@ class QueryOptimizationService
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
     }
@@ -401,7 +402,7 @@ class QueryOptimizationService
     public function invalidateQueryCaches(?string $type = null): void
     {
         if ($type) {
-            $pattern = self::CACHE_PREFIX . ".{$type}.*";
+            $pattern = self::CACHE_PREFIX.".{$type}.*";
             // Note: This is a simplified implementation
             // In production, you might want to use cache tags or a more sophisticated cache invalidation
             Cache::flush();

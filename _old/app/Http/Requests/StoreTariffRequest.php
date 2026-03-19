@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Services\TimeRangeValidator;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -23,7 +25,7 @@ class StoreTariffRequest extends FormRequest
         // If configuration is a JSON string, decode it to an array
         if ($this->has('configuration') && is_string($this->configuration)) {
             $decoded = json_decode($this->configuration, true);
-            
+
             if (json_last_error() === JSON_ERROR_NONE) {
                 $this->merge([
                     'configuration' => $decoded,
@@ -35,7 +37,7 @@ class StoreTariffRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -92,7 +94,7 @@ class StoreTariffRequest extends FormRequest
                 $hasOverlapMessage = collect($zoneErrors)
                     ->contains(fn ($msg) => str_contains(strtolower((string) $msg), 'overlap'));
 
-                if (!empty($zoneErrors) && ! $hasOverlapMessage) {
+                if (! empty($zoneErrors) && ! $hasOverlapMessage) {
                     $validator->errors()->add(
                         'configuration.zones',
                         __('tariffs.validation.configuration.zones.errors.overlap')
@@ -109,11 +111,11 @@ class StoreTariffRequest extends FormRequest
      */
     protected function validateTimeOfUseZones(Validator $validator, array $configuration): void
     {
-        if (!isset($configuration['zones']) || !is_array($configuration['zones'])) {
+        if (! isset($configuration['zones']) || ! is_array($configuration['zones'])) {
             return;
         }
 
-        $timeRangeValidator = app(\App\Services\TimeRangeValidator::class);
+        $timeRangeValidator = app(TimeRangeValidator::class);
         $errors = $timeRangeValidator->validate($configuration['zones']);
 
         foreach ($errors as $error) {

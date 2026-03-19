@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace App\Services\Optimized;
 
-use App\Models\MeterReading;
 use App\Models\Meter;
-use App\Enums\ValidationStatus;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
+use App\Models\MeterReading;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Optimized Meter Reading Query Service
- * 
+ *
  * Demonstrates three optimization approaches:
  * 1. Eloquent with eager loading
  * 2. Query Builder with selective columns
@@ -28,24 +27,24 @@ final readonly class MeterReadingQueryService
 
     /**
      * OPTIMIZED VERSION 1: Better Eloquent (using Eloquent features)
-     * 
+     *
      * IMPROVEMENTS:
      * - Eager loading to prevent N+1 queries
      * - Selective column loading
      * - Query scopes for reusability
      * - Caching for repeated queries
-     * 
+     *
      * WHEN TO USE: When you need full model functionality and relationships
      */
     public function getReadingsWithRelationsEloquent(int $tenantId, string $startDate, string $endDate): Collection
     {
         $cacheKey = "readings_eloquent_{$tenantId}_{$startDate}_{$endDate}";
-        
-        return Cache::remember($cacheKey, $this->cacheTtl, function () use ($tenantId, $startDate, $endDate) {
+
+        return Cache::remember($cacheKey, $this->cacheTtl, function () use ($startDate, $endDate) {
             return MeterReading::query()
                 // Tenant scoping (automatically handled by BelongsToTenant trait)
                 ->forPeriod($startDate, $endDate)
-                
+
                 // Eager load relationships with selective columns
                 ->with([
                     'meter:id,serial_number,type,property_id,supports_zones',
@@ -54,39 +53,39 @@ final readonly class MeterReadingQueryService
                     'enteredBy:id,name,email',
                     'validatedBy:id,name,email',
                 ])
-                
+
                 // Select only needed columns
                 ->select([
                     'id', 'meter_id', 'reading_date', 'value', 'zone',
                     'validation_status', 'input_method', 'entered_by', 'validated_by',
-                    'created_at'
+                    'created_at',
                 ])
-                
+
                 // Use database-level ordering
                 ->latest('reading_date')
-                
+
                 // Limit result set
                 ->limit(1000)
-                
+
                 ->get();
         });
     }
 
     /**
      * OPTIMIZED VERSION 2: Query Builder (using DB facade for performance)
-     * 
+     *
      * IMPROVEMENTS:
      * - Manual JOINs for better control
      * - Selective column aliasing
      * - Subquery optimization
      * - No model overhead
-     * 
+     *
      * WHEN TO USE: When you need specific data without model overhead
      */
     public function getReadingsWithRelationsQueryBuilder(int $tenantId, string $startDate, string $endDate): Collection
     {
         $cacheKey = "readings_qb_{$tenantId}_{$startDate}_{$endDate}";
-        
+
         return Cache::remember($cacheKey, $this->cacheTtl, function () use ($tenantId, $startDate, $endDate) {
             return DB::table('meter_readings as mr')
                 ->join('meters as m', 'mr.meter_id', '=', 'm.id')
@@ -94,7 +93,7 @@ final readonly class MeterReadingQueryService
                 ->join('buildings as b', 'p.building_id', '=', 'b.id')
                 ->leftJoin('users as entered_user', 'mr.entered_by', '=', 'entered_user.id')
                 ->leftJoin('users as validated_user', 'mr.validated_by', '=', 'validated_user.id')
-                
+
                 ->select([
                     'mr.id',
                     'mr.reading_date',
@@ -103,49 +102,49 @@ final readonly class MeterReadingQueryService
                     'mr.validation_status',
                     'mr.input_method',
                     'mr.created_at',
-                    
+
                     // Meter info
                     'm.serial_number as meter_serial',
                     'm.type as meter_type',
                     'm.supports_zones',
-                    
+
                     // Property info
                     'p.name as property_name',
                     'b.name as building_name',
                     'b.address as building_address',
-                    
+
                     // User info
                     'entered_user.name as entered_by_name',
                     'validated_user.name as validated_by_name',
                 ])
-                
+
                 ->where('mr.tenant_id', $tenantId)
                 ->whereBetween('mr.reading_date', [$startDate, $endDate])
-                
+
                 ->orderByDesc('mr.reading_date')
                 ->limit(1000)
-                
+
                 ->get();
         });
     }
 
     /**
      * OPTIMIZED VERSION 3: Raw SQL (direct SQL for maximum performance)
-     * 
+     *
      * IMPROVEMENTS:
      * - Hand-optimized SQL
      * - Covering indexes utilization
      * - Minimal data transfer
      * - Database-specific optimizations
-     * 
+     *
      * WHEN TO USE: For high-performance reporting and analytics
      */
     public function getReadingsWithRelationsRawSQL(int $tenantId, string $startDate, string $endDate): Collection
     {
         $cacheKey = "readings_raw_{$tenantId}_{$startDate}_{$endDate}";
-        
+
         return Cache::remember($cacheKey, $this->cacheTtl, function () use ($tenantId, $startDate, $endDate) {
-            $sql = "
+            $sql = '
                 SELECT /*+ USE_INDEX(mr, mr_tenant_date_meter_idx) */
                     mr.id,
                     mr.reading_date,
@@ -192,8 +191,8 @@ final readonly class MeterReadingQueryService
                   
                 ORDER BY mr.reading_date DESC
                 LIMIT 1000
-            ";
-            
+            ';
+
             return collect(DB::select($sql, [$tenantId, $startDate, $endDate]));
         });
     }
@@ -204,10 +203,10 @@ final readonly class MeterReadingQueryService
     public function getDashboardMetrics(int $tenantId, int $days = 30): array
     {
         $cacheKey = "dashboard_metrics_{$tenantId}_{$days}";
-        
+
         return Cache::remember($cacheKey, $this->cacheTtl, function () use ($tenantId, $days) {
             $startDate = Carbon::now()->subDays($days)->startOfDay();
-            
+
             // Use raw SQL for maximum performance on aggregations
             $sql = "
                 SELECT 
@@ -233,15 +232,15 @@ final readonly class MeterReadingQueryService
                 WHERE tenant_id = ? 
                   AND created_at >= ?
             ";
-            
+
             $result = DB::selectOne($sql, [$tenantId, $startDate]);
-            
+
             return [
                 'total_readings' => (int) $result->total_readings,
                 'validated_count' => (int) $result->validated_count,
                 'pending_count' => (int) $result->pending_count,
                 'rejected_count' => (int) $result->rejected_count,
-                'validation_rate' => $result->total_readings > 0 
+                'validation_rate' => $result->total_readings > 0
                     ? round(($result->validated_count / $result->total_readings) * 100, 1)
                     : 0,
                 'avg_reading' => (float) $result->avg_reading,
@@ -262,18 +261,19 @@ final readonly class MeterReadingQueryService
     {
         // Group readings by meter and zone for efficient calculation
         $grouped = $readings->groupBy(function ($reading) {
-            return $reading->meter_id . '_' . ($reading->zone ?? 'default');
+            return $reading->meter_id.'_'.($reading->zone ?? 'default');
         });
-        
+
         return $grouped->map(function ($meterReadings) {
             // Sort by date for proper consumption calculation
             $sorted = $meterReadings->sortBy('reading_date');
             $previous = null;
-            
+
             return $sorted->map(function ($reading) use (&$previous) {
                 $consumption = $previous ? $reading->value - $previous->value : 0;
                 $reading->calculated_consumption = max(0, $consumption); // Prevent negative
                 $previous = $reading;
+
                 return $reading;
             });
         })->flatten();
@@ -290,7 +290,7 @@ final readonly class MeterReadingQueryService
             "readings_raw_{$tenantId}_*",
             "dashboard_metrics_{$tenantId}_*",
         ];
-        
+
         foreach ($patterns as $pattern) {
             Cache::forget($pattern);
         }

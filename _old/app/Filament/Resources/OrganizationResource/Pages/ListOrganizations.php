@@ -47,14 +47,14 @@ class ListOrganizations extends ListRecords
 
                     foreach ($rows as $row) {
                         $csv .= implode(',', [
-                            '"' . str_replace('"', '""', (string) $row->name) . '"',
-                            '"' . str_replace('"', '""', (string) $row->email) . '"',
-                            '"' . str_replace('"', '""', (string) ($row->plan?->value ?? $row->plan)) . '"',
-                            '"' . str_replace('"', '""', (string) $row->created_at) . '"',
-                        ]) . "\n";
+                            '"'.str_replace('"', '""', (string) $row->name).'"',
+                            '"'.str_replace('"', '""', (string) $row->email).'"',
+                            '"'.str_replace('"', '""', (string) ($row->plan?->value ?? $row->plan)).'"',
+                            '"'.str_replace('"', '""', (string) $row->created_at).'"',
+                        ])."\n";
                     }
 
-                    $filename = 'organizations-' . now()->format('Y-m-d-His') . '.csv';
+                    $filename = 'organizations-'.now()->format('Y-m-d-His').'.csv';
 
                     return response()->streamDownload(function () use ($csv) {
                         echo $csv;

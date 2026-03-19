@@ -10,16 +10,23 @@ use App\Filament\Resources\InvoiceResource\RelationManagers;
 use App\Models\Invoice;
 use App\Models\Tenant;
 use App\Notifications\InvoiceReadyNotification;
+use App\Policies\InvoicePolicy;
 use App\Services\InvoicePdfService;
 use App\Support\Filters\FilterStateManager;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Filament resource for managing invoices.
@@ -31,8 +38,8 @@ use Filament\Schemas\Schema;
  * - Bulk status updates
  * - Relationship management (items, tenants)
  *
- * @see \App\Models\Invoice
- * @see \App\Policies\InvoicePolicy
+ * @see Invoice
+ * @see InvoicePolicy
  */
 class InvoiceResource extends Resource
 {
@@ -121,7 +128,7 @@ class InvoiceResource extends Resource
                         'required' => 'Tenant is required',
                         'exists' => 'Selected tenant does not exist',
                     ]),
-                
+
                 Forms\Components\DatePicker::make('billing_period_start')
                     ->label(__('invoices.admin.labels.billing_period_start'))
                     ->required()
@@ -131,7 +138,7 @@ class InvoiceResource extends Resource
                         'required' => 'Billing period start date is required',
                         'date' => 'Billing period start must be a valid date',
                     ]),
-                
+
                 Forms\Components\DatePicker::make('billing_period_end')
                     ->label(__('invoices.admin.labels.billing_period_end'))
                     ->required()
@@ -143,7 +150,7 @@ class InvoiceResource extends Resource
                         'date' => 'Billing period end must be a valid date',
                         'after' => 'Billing period end must be after billing period start',
                     ]),
-                
+
                 Forms\Components\TextInput::make('total_amount')
                     ->label(__('invoices.admin.labels.total_amount'))
                     ->required()
@@ -157,14 +164,14 @@ class InvoiceResource extends Resource
                         'numeric' => 'Total amount must be a number',
                         'min' => 'Total amount must be at least 0',
                     ]),
-                
+
                 Forms\Components\Select::make('status')
                     ->label(__('invoices.admin.labels.status'))
                     ->options(InvoiceStatus::class)
                     ->required()
                     ->native(false)
                     ->default(InvoiceStatus::DRAFT->value)
-                    ->disabled(fn (?Invoice $record): bool => 
+                    ->disabled(fn (?Invoice $record): bool =>
                         // Allow status changes from finalized to paid
                         $record?->isFinalized() ?? false
                     )
@@ -177,8 +184,8 @@ class InvoiceResource extends Resource
     public static function table(Table $table): Table
     {
         // Initialize filter state manager for actionable widget integration
-        $filterManager = new FilterStateManager();
-        
+        $filterManager = new FilterStateManager;
+
         return $table
             ->searchable()
             ->columns([
@@ -187,13 +194,13 @@ class InvoiceResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->formatStateUsing(fn (int $state): string => "INV-{$state}"),
-                
+
                 Tables\Columns\TextColumn::make('tenant.property.address')
                     ->label(__('invoices.admin.labels.property'))
                     ->searchable()
                     ->sortable()
                     ->description(fn (Invoice $record): ?string => $record->tenant?->name),
-                
+
                 Tables\Columns\TextColumn::make('billing_period_start')
                     ->label(__('invoices.admin.labels.billing_period'))
                     ->date('Y-m-d')
@@ -202,12 +209,12 @@ class InvoiceResource extends Resource
                         'from' => $record->billing_period_start->format('Y-m-d'),
                         'to' => $record->billing_period_end->format('Y-m-d'),
                     ])),
-                
+
                 Tables\Columns\TextColumn::make('total_amount')
                     ->label(__('invoices.admin.labels.total_amount'))
                     ->money('EUR')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('status')
                     ->label(__('invoices.admin.labels.status'))
                     ->badge()
@@ -218,7 +225,7 @@ class InvoiceResource extends Resource
                     })
                     ->formatStateUsing(fn (?InvoiceStatus $state): ?string => $state?->label())
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('invoices.admin.labels.created_at'))
                     ->dateTime()
@@ -233,8 +240,8 @@ class InvoiceResource extends Resource
                     ->default($filterManager->getFilterValue('status')),
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
+                ViewAction::make(),
+                EditAction::make(),
                 Action::make('downloadPdf')
                     ->label(__('invoices.admin.actions.download_pdf'))
                     ->icon('heroicon-o-arrow-down-tray')
@@ -249,12 +256,13 @@ class InvoiceResource extends Resource
                     ->modalSubmitActionLabel(__('invoices.admin.modals.send_to_tenant.submit'))
                     ->action(function (Invoice $record) {
                         // Check if tenant renter exists
-                        if (!$record->tenantRenter) {
+                        if (! $record->tenantRenter) {
                             Notification::make()
                                 ->title('Cannot Send Invoice')
                                 ->body('No tenant user assigned to this invoice.')
                                 ->danger()
                                 ->send();
+
                             return;
                         }
 
@@ -270,8 +278,8 @@ class InvoiceResource extends Resource
                     }),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\BulkAction::make('updateStatus')
+                BulkActionGroup::make([
+                    BulkAction::make('updateStatus')
                         ->label(__('invoices.admin.labels.update_status'))
                         ->icon('heroicon-o-pencil-square')
                         ->form([
@@ -284,19 +292,19 @@ class InvoiceResource extends Resource
                         ->action(function (array $data, $records) {
                             foreach ($records as $record) {
                                 // Only allow status updates if not finalized, or if changing from finalized to paid
-                                if (!$record->isFinalized() || $data['status'] === InvoiceStatus::PAID->value) {
+                                if (! $record->isFinalized() || $data['status'] === InvoiceStatus::PAID->value) {
                                     $record->update(['status' => $data['status']]);
                                 }
                             }
                         })
                         ->deselectRecordsAfterCompletion()
                         ->successNotificationTitle(__('invoices.admin.bulk.status_updated')),
-                    
-                    \Filament\Actions\DeleteBulkAction::make()
+
+                    DeleteBulkAction::make()
                         ->action(function ($records) {
                             foreach ($records as $record) {
                                 // Only allow deletion of draft invoices
-                                if (!$record->isFinalized()) {
+                                if (! $record->isFinalized()) {
                                     $record->delete();
                                 }
                             }
@@ -328,16 +336,16 @@ class InvoiceResource extends Resource
         return ['invoice_number', 'payment_reference'];
     }
 
-    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
-            'Total Amount' => number_format((float) $record->total_amount, 2) . ' EUR',
+            'Total Amount' => number_format((float) $record->total_amount, 2).' EUR',
             'Status' => ucfirst($record->status?->value ?? 'Unknown'),
             'Due Date' => $record->due_date?->format('Y-m-d') ?? 'N/A',
         ];
     }
 
-    public static function getGlobalSearchResultActions(\Illuminate\Database\Eloquent\Model $record): array
+    public static function getGlobalSearchResultActions(Model $record): array
     {
         return [
             \Filament\GlobalSearch\Actions\Action::make('view')

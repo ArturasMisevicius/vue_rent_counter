@@ -10,6 +10,7 @@ use App\Http\Requests\SuspendSubscriptionRequest;
 use App\Http\Requests\UpdateSubscriptionRequest;
 use App\Models\Subscription;
 use App\Services\SubscriptionService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -145,7 +146,7 @@ class SubscriptionController extends Controller
 
         $this->subscriptionService->renewSubscription(
             $subscription,
-            \Carbon\Carbon::parse($validated['expires_at'])
+            Carbon::parse($validated['expires_at'])
         );
 
         return redirect()
@@ -247,7 +248,7 @@ class SubscriptionController extends Controller
         $validated = $validator->validated();
 
         Subscription::whereIn('id', $validated['subscription_ids'])->update([
-            'status' => \App\Enums\SubscriptionStatus::SUSPENDED->value,
+            'status' => SubscriptionStatus::SUSPENDED->value,
         ]);
 
         return response()->json(['success' => true]);
@@ -270,7 +271,7 @@ class SubscriptionController extends Controller
         $validated = $validator->validated();
 
         Subscription::whereIn('id', $validated['subscription_ids'])->update([
-            'status' => \App\Enums\SubscriptionStatus::ACTIVE->value,
+            'status' => SubscriptionStatus::ACTIVE->value,
         ]);
 
         return response()->json(['success' => true]);

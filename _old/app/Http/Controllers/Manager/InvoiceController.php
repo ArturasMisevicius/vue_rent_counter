@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers\Manager;
 
+use App\Enums\InvoiceStatus;
+use App\Exceptions\InvoiceAlreadyFinalizedException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FinalizeInvoiceRequest;
 use App\Http\Requests\ManagerMarkInvoicePaidRequest;
 use App\Http\Requests\StoreInvoiceRequest;
 use App\Models\Invoice;
+use App\Models\MeterReading;
+use App\Models\Property;
 use App\Models\Tenant;
 use App\Services\BillingService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -81,7 +86,7 @@ class InvoiceController extends Controller
         $invoices = $query->paginate(20)->withQueryString();
 
         // Get properties for filter dropdown (Requirement 6.5)
-        $properties = \App\Models\Property::orderBy('address')->get();
+        $properties = Property::orderBy('address')->get();
 
         return view('pages.invoices.index', compact('invoices', 'properties'));
     }
@@ -110,8 +115,8 @@ class InvoiceController extends Controller
         $tenant = Tenant::findOrFail($validated['tenant_renter_id']);
 
         // Convert date strings to Carbon instances
-        $periodStart = \Carbon\Carbon::parse($validated['billing_period_start']);
-        $periodEnd = \Carbon\Carbon::parse($validated['billing_period_end']);
+        $periodStart = Carbon::parse($validated['billing_period_start']);
+        $periodEnd = Carbon::parse($validated['billing_period_end']);
 
         $invoice = $this->billingService->generateInvoice(
             $tenant,
@@ -141,7 +146,7 @@ class InvoiceController extends Controller
         // Get consumption history for the billing period (Requirement 6.3)
         $consumptionHistory = collect();
         if ($invoice->tenant && $invoice->tenant->property) {
-            $consumptionHistory = \App\Models\MeterReading::whereHas('meter', function ($query) use ($invoice) {
+            $consumptionHistory = MeterReading::whereHas('meter', function ($query) use ($invoice) {
                 $query->where('property_id', $invoice->tenant->property_id);
             })
                 ->with(['meter'])
@@ -154,7 +159,7 @@ class InvoiceController extends Controller
 
             // Calculate consumption for each reading
             $consumptionHistory = $consumptionHistory->map(function ($reading) {
-                $previousReading = \App\Models\MeterReading::where('meter_id', $reading->meter_id)
+                $previousReading = MeterReading::where('meter_id', $reading->meter_id)
                     ->where('reading_date', '<', $reading->reading_date)
                     ->orderBy('reading_date', 'desc')
                     ->first();
@@ -215,8 +220,8 @@ class InvoiceController extends Controller
             $tenant = Tenant::findOrFail($validated['tenant_renter_id']);
 
             // Convert date strings to Carbon instances
-            $periodStart = \Carbon\Carbon::parse($validated['billing_period_start']);
-            $periodEnd = \Carbon\Carbon::parse($validated['billing_period_end']);
+            $periodStart = Carbon::parse($validated['billing_period_start']);
+            $periodEnd = Carbon::parse($validated['billing_period_end']);
 
             $newInvoice = $this->billingService->generateInvoice(
                 $tenant,
@@ -278,7 +283,7 @@ class InvoiceController extends Controller
             $this->billingService->finalizeInvoice($invoice);
 
             return back()->with('success', __('notifications.invoice.finalized_locked'));
-        } catch (\App\Exceptions\InvoiceAlreadyFinalizedException $e) {
+        } catch (InvoiceAlreadyFinalizedException $e) {
             return back()->with('error', __('invoices.errors.already_finalized'));
         } catch (\Exception $e) {
             return back()->with('error', __('invoices.errors.finalization_failed'));
@@ -340,9 +345,9 @@ class InvoiceController extends Controller
 
         $validated = $request->validated();
 
-        $invoice->status = \App\Enums\InvoiceStatus::PAID;
+        $invoice->status = InvoiceStatus::PAID;
         $invoice->paid_at = ! empty($validated['paid_at'])
-            ? \Carbon\Carbon::parse($validated['paid_at'])
+            ? Carbon::parse($validated['paid_at'])
             : now();
 
         if (! empty($validated['payment_reference'])) {

@@ -27,32 +27,32 @@ class ExportMonthlyReports extends Command
     public function handle(ScheduledExportService $exportService): int
     {
         $this->info('Starting monthly export process...');
-        
+
         try {
             $results = $exportService->executeMonthlyExports();
-            
+
             foreach ($results as $exportType => $result) {
                 if ($result['success']) {
-                    $this->info("✓ {$exportType}: " . count($result['files']) . ' files generated');
-                    
+                    $this->info("✓ {$exportType}: ".count($result['files']).' files generated');
+
                     foreach ($result['files'] as $file) {
-                        $this->line("  - " . basename($file));
+                        $this->line('  - '.basename($file));
                     }
-                    
+
                     if (isset($result['period'])) {
-                        $this->line("  Period: " . $result['period']);
+                        $this->line('  Period: '.$result['period']);
                     }
                 } else {
-                    $this->error("✗ {$exportType}: " . $result['error']);
+                    $this->error("✗ {$exportType}: ".$result['error']);
                 }
             }
-            
+
             $this->info('Monthly export process completed successfully.');
-            
+
             return Command::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('Monthly export process failed: ' . $e->getMessage());
-            
+            $this->error('Monthly export process failed: '.$e->getMessage());
+
             return Command::FAILURE;
         }
     }

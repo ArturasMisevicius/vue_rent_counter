@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Superadmin Subscription Observer
- * 
+ *
  * Handles audit logging for subscription operations performed by superadmins.
  * This observer specifically tracks superadmin actions for security and
  * compliance purposes as part of the superadmin dashboard enhancement.
- * 
+ *
  * Requirements: 16.1, 16.2
  */
 class SuperadminSubscriptionObserver
@@ -48,8 +48,8 @@ class SuperadminSubscriptionObserver
     public function updated(Subscription $subscription): void
     {
         $changes = $subscription->getChanges();
-        
-        if (!empty($changes)) {
+
+        if (! empty($changes)) {
             $this->logSuperadminAction('updated', $subscription, $subscription->getOriginal(), $changes);
         }
     }
@@ -105,23 +105,22 @@ class SuperadminSubscriptionObserver
     /**
      * Log superadmin actions on subscriptions for audit compliance.
      *
-     * @param string $action The action being performed
-     * @param Subscription $subscription The subscription being acted upon
-     * @param array|null $beforeData The data before the change
-     * @param array|null $afterData The data after the change
-     * @return void
+     * @param  string  $action  The action being performed
+     * @param  Subscription  $subscription  The subscription being acted upon
+     * @param  array|null  $beforeData  The data before the change
+     * @param  array|null  $afterData  The data after the change
      */
     private function logSuperadminAction(string $action, Subscription $subscription, ?array $beforeData, ?array $afterData): void
     {
         $user = auth()->user();
-        
+
         // Only log if the action is performed by a superadmin
-        if (!$user || !$user->isSuperadmin()) {
+        if (! $user || ! $user->isSuperadmin()) {
             return;
         }
 
         $request = request();
-        
+
         Log::channel('audit')->info("Superadmin subscription {$action}", [
             'action' => $action,
             'resource_type' => 'subscription',

@@ -1,5 +1,7 @@
 <?php
 
+use App\Support\Queue\ActivityLogCleanupJob;
+use App\Support\Queue\SubscriptionExpiryCheckJob;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -63,15 +65,15 @@ Schedule::command('dashboard:warm-cache')
 // Schedule activity log cleanup monthly on the 1st at 01:00
 // Removes old activity logs to prevent database bloat
 Schedule::call(function () {
-    \App\Support\Queue\ActivityLogCleanupJob::dispatch(365, 1000);
+    ActivityLogCleanupJob::dispatch(365, 1000);
 })->monthlyOn(1, '01:00')
-  ->timezone('Europe/Vilnius')
-  ->name('activity-log-cleanup');
+    ->timezone('Europe/Vilnius')
+    ->name('activity-log-cleanup');
 
 // Schedule subscription expiry check daily at 08:00
 // Sends notifications and processes auto-renewals
 Schedule::call(function () {
-    \App\Support\Queue\SubscriptionExpiryCheckJob::dispatch();
+    SubscriptionExpiryCheckJob::dispatch();
 })->dailyAt('08:00')
-  ->timezone('Europe/Vilnius')
-  ->name('subscription-expiry-check');
+    ->timezone('Europe/Vilnius')
+    ->name('subscription-expiry-check');

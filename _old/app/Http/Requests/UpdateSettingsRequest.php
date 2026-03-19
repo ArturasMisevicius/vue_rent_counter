@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateSettingsRequest extends FormRequest
@@ -17,21 +18,21 @@ class UpdateSettingsRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
             'app_name' => [
-                'nullable', 
-                'string', 
+                'nullable',
+                'string',
                 'max:255',
                 'regex:/^[a-zA-Z0-9\s\-_\.]+$/', // Allow alphanumeric, spaces, hyphens, underscores, dots
             ],
             'timezone' => [
-                'nullable', 
-                'string', 
-                'in:Europe/Vilnius,Europe/Riga,Europe/Tallinn,UTC,Europe/Warsaw,Europe/Berlin'
+                'nullable',
+                'string',
+                'in:Europe/Vilnius,Europe/Riga,Europe/Tallinn,UTC,Europe/Warsaw,Europe/Berlin',
             ],
             'language' => [
                 'nullable',

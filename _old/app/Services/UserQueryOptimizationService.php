@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Enums\UserRole;
 use App\Models\User;
+use Illuminate\Cache\RedisStore;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -13,13 +14,14 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * User Query Optimization Service
- * 
+ *
  * Provides optimized queries for common User operations with caching
  * and performance considerations for multi-tenant architecture.
  */
 class UserQueryOptimizationService
 {
     private const CACHE_TTL = 900; // 15 minutes
+
     private const CACHE_PREFIX = 'user_query:';
 
     /**
@@ -28,7 +30,7 @@ class UserQueryOptimizationService
     public function getUsersForTenant(int $tenantId, ?UserRole $role = null): Collection
     {
         $cacheKey = $this->getCacheKey('tenant', $tenantId, $role?->value);
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($tenantId, $role) {
             $query = User::where('tenant_id', $tenantId)
                 ->active()
@@ -49,7 +51,7 @@ class UserQueryOptimizationService
     public function getHierarchicalUsers(User $admin): array
     {
         $cacheKey = $this->getCacheKey('hierarchy', $admin->id);
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($admin) {
             // Get admin's tenant users with their properties
             $tenantUsers = User::where('tenant_id', $admin->tenant_id)
@@ -77,7 +79,7 @@ class UserQueryOptimizationService
     public function getUserStatistics(int $tenantId): array
     {
         $cacheKey = $this->getCacheKey('stats', $tenantId);
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($tenantId) {
             return DB::table('users')
                 ->where('tenant_id', $tenantId)
@@ -94,7 +96,7 @@ class UserQueryOptimizationService
                     UserRole::ADMIN->value,
                     UserRole::MANAGER->value,
                     UserRole::TENANT->value,
-                    now()->subDays(30)
+                    now()->subDays(30),
                 ])
                 ->first();
         });
@@ -108,8 +110,8 @@ class UserQueryOptimizationService
         return User::where('tenant_id', $tenantId)
             ->where(function (Builder $q) use ($query) {
                 $q->where('name', 'LIKE', "%{$query}%")
-                  ->orWhere('email', 'LIKE', "%{$query}%")
-                  ->orWhere('organization_name', 'LIKE', "%{$query}%");
+                    ->orWhere('email', 'LIKE', "%{$query}%")
+                    ->orWhere('organization_name', 'LIKE', "%{$query}%");
             })
             ->active()
             ->withCommonRelations()
@@ -123,7 +125,7 @@ class UserQueryOptimizationService
     public function getUsersRequiringAttention(int $tenantId): array
     {
         $cacheKey = $this->getCacheKey('attention', $tenantId);
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($tenantId) {
             $baseQuery = User::where('tenant_id', $tenantId);
 
@@ -149,12 +151,12 @@ class UserQueryOptimizationService
     public function getApiTokenStatistics(int $tenantId): array
     {
         $cacheKey = $this->getCacheKey('api_tokens', $tenantId);
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($tenantId) {
             return DB::table('users')
                 ->leftJoin('personal_access_tokens', function ($join) {
                     $join->on('users.id', '=', 'personal_access_tokens.tokenable_id')
-                         ->where('personal_access_tokens.tokenable_type', '=', User::class);
+                        ->where('personal_access_tokens.tokenable_type', '=', User::class);
                 })
                 ->where('users.tenant_id', $tenantId)
                 ->selectRaw('
@@ -174,7 +176,7 @@ class UserQueryOptimizationService
     public function getUserWorkloadSummary(User $user): array
     {
         $cacheKey = $this->getCacheKey('workload_summary', $user->id);
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($user) {
             return [
                 'projects_count' => $user->getProjectsCount(),
@@ -191,7 +193,7 @@ class UserQueryOptimizationService
     public function getSimilarUsers(User $user, int $limit = 10): Collection
     {
         $cacheKey = $this->getCacheKey('similar_users', $user->id, $limit);
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($user, $limit) {
             return User::where('role', $user->role)
                 ->where('tenant_id', $user->tenant_id)
@@ -209,10 +211,10 @@ class UserQueryOptimizationService
     public function getUserActivityMetrics(User $user): array
     {
         $cacheKey = $this->getCacheKey('activity_metrics', $user->id);
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($user) {
             $baseQuery = DB::table('users')->where('id', $user->id);
-            
+
             return [
                 'login_frequency' => $this->calculateLoginFrequency($user),
                 'task_completion_rate' => $this->calculateTaskCompletionRate($user),
@@ -247,13 +249,13 @@ class UserQueryOptimizationService
      */
     private function calculateLoginFrequency(User $user): float
     {
-        if (!$user->last_login_at || !$user->created_at) {
+        if (! $user->last_login_at || ! $user->created_at) {
             return 0.0;
         }
 
         $daysSinceCreation = $user->created_at->diffInDays(now());
         $daysSinceLastLogin = $user->last_login_at->diffInDays(now());
-        
+
         if ($daysSinceCreation === 0) {
             return 1.0;
         }
@@ -268,7 +270,7 @@ class UserQueryOptimizationService
     {
         $tasksSummary = $user->getTasksSummary();
         $totalTasks = $tasksSummary['total'];
-        
+
         if ($totalTasks === 0) {
             return 0.0;
         }
@@ -282,7 +284,7 @@ class UserQueryOptimizationService
     private function calculateCollaborationScore(User $user): float
     {
         $cacheKey = $this->getCacheKey('collaboration_score', $user->id);
-        
+
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($user) {
             $sharedTasks = DB::table('task_assignments as ta1')
                 ->join('task_assignments as ta2', 'ta1.task_id', '=', 'ta2.task_id')
@@ -292,7 +294,7 @@ class UserQueryOptimizationService
                 ->count();
 
             $totalTasks = $user->taskAssignments()->count();
-            
+
             return $totalTasks > 0 ? $sharedTasks / $totalTasks : 0.0;
         });
     }
@@ -305,9 +307,9 @@ class UserQueryOptimizationService
         $loginFreq = $this->calculateLoginFrequency($user);
         $completionRate = $this->calculateTaskCompletionRate($user);
         $collaborationScore = $this->calculateCollaborationScore($user);
-        
+
         $overallScore = ($loginFreq + $completionRate + $collaborationScore) / 3;
-        
+
         return match (true) {
             $overallScore >= 0.8 => 'high',
             $overallScore >= 0.5 => 'medium',
@@ -335,16 +337,16 @@ class UserQueryOptimizationService
     public function clearCacheForTenant(int $tenantId): void
     {
         $patterns = [
-            self::CACHE_PREFIX . "tenant:{$tenantId}:*",
-            self::CACHE_PREFIX . "stats:{$tenantId}",
-            self::CACHE_PREFIX . "attention:{$tenantId}",
-            self::CACHE_PREFIX . "api_tokens:{$tenantId}",
+            self::CACHE_PREFIX."tenant:{$tenantId}:*",
+            self::CACHE_PREFIX."stats:{$tenantId}",
+            self::CACHE_PREFIX."attention:{$tenantId}",
+            self::CACHE_PREFIX."api_tokens:{$tenantId}",
         ];
 
         foreach ($patterns as $pattern) {
-            if (Cache::getStore() instanceof \Illuminate\Cache\RedisStore) {
+            if (Cache::getStore() instanceof RedisStore) {
                 $keys = Cache::getRedis()->keys($pattern);
-                if (!empty($keys)) {
+                if (! empty($keys)) {
                     Cache::getRedis()->del($keys);
                 }
             } else {
@@ -360,6 +362,6 @@ class UserQueryOptimizationService
      */
     private function getCacheKey(string $type, mixed ...$params): string
     {
-        return self::CACHE_PREFIX . $type . ':' . implode(':', $params);
+        return self::CACHE_PREFIX.$type.':'.implode(':', $params);
     }
 }

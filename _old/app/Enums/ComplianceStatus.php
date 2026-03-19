@@ -6,7 +6,7 @@ namespace App\Enums;
 
 /**
  * Compliance Status Types
- * 
+ *
  * Defines the status categories for compliance checks
  * across various security frameworks.
  */

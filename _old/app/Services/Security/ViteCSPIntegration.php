@@ -11,7 +11,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Vite CSP Integration Service
- * 
+ *
  * Integrates Laravel's security nonce system with Vite's CSP nonce
  * requirements for seamless development and production builds.
  */
@@ -37,30 +37,30 @@ final class ViteCSPIntegration
         try {
             // Generate nonce using our security service
             $nonce = $this->nonceGenerator->getNonce($request);
-            
+
             // Configure Vite to use our nonce
             Vite::useCspNonce($nonce->base64Encoded);
-            
+
             // Store for request duration
             $request->attributes->set(self::REQUEST_NONCE_KEY, $nonce);
-            
+
             // Debug logging removed for performance
-            
+
             return $nonce;
-            
+
         } catch (\Exception $e) {
             $this->logger->error('Failed to initialize Vite CSP nonce', [
                 'error' => $e->getMessage(),
                 'path' => $request->getPathInfo(),
             ]);
-            
+
             // Fallback: let Vite generate its own nonce
             Vite::useCspNonce();
-            
+
             // Create a fallback nonce for our system
             $fallbackNonce = SecurityNonce::generate();
             $request->attributes->set(self::REQUEST_NONCE_KEY, $fallbackNonce);
-            
+
             return $fallbackNonce;
         }
     }
@@ -86,6 +86,6 @@ final class ViteCSPIntegration
      */
     public function isConfigured(): bool
     {
-        return !empty(Vite::cspNonce());
+        return ! empty(Vite::cspNonce());
     }
 }

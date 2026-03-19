@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * HasComments Trait
- * 
+ *
  * Add this trait to any model that should support comments
  */
 trait HasComments
@@ -67,13 +67,13 @@ trait HasComments
      * Add a comment
      */
     public function addComment(
-        string $body, 
-        ?User $user = null, 
+        string $body,
+        ?User $user = null,
         bool $isInternal = false,
         ?Comment $parent = null
     ): Comment {
         $depth = $parent ? $parent->depth + 1 : 0;
-        $path = $parent ? $parent->path . '.' . $parent->id : null;
+        $path = $parent ? $parent->path.'.'.$parent->id : null;
 
         $comment = $this->comments()->create([
             'tenant_id' => $this->tenant_id ?? auth()->user()?->tenant_id,
@@ -87,7 +87,7 @@ trait HasComments
         ]);
 
         // Update path after creation if it's a root comment
-        if (!$parent) {
+        if (! $parent) {
             $comment->update(['path' => (string) $comment->id]);
         }
 
@@ -98,9 +98,9 @@ trait HasComments
      * Reply to a comment
      */
     public function replyToComment(
-        Comment $parentComment, 
-        string $body, 
-        ?User $user = null, 
+        Comment $parentComment,
+        string $body,
+        ?User $user = null,
         bool $isInternal = false
     ): Comment {
         return $this->addComment($body, $user, $isInternal, $parentComment);
@@ -166,7 +166,7 @@ trait HasComments
     protected function getNextSortOrder(?Comment $parent = null): int
     {
         $query = $this->comments();
-        
+
         if ($parent) {
             $query->where('parent_id', $parent->id);
         } else {

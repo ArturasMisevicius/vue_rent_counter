@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Enums\UserRole;
-use App\Models\User;
 use App\Models\Property;
 use App\Models\SystemTenant;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 /**
  * User Hierarchy Seeder
- * 
+ *
  * Creates a realistic user hierarchy for testing multi-tenant functionality.
  */
 class UserHierarchySeeder extends Seeder
@@ -45,7 +45,7 @@ class UserHierarchySeeder extends Seeder
 
         // Create multiple tenant organizations
         $tenantIds = [1, 2, 3];
-        
+
         foreach ($tenantIds as $tenantId) {
             // Create admin for each tenant
             $admin = User::firstOrCreate(

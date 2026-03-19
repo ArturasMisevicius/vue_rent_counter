@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace App\Services\Validation;
 
-use App\Services\Validation\Validators\ConsumptionValidator;
-use App\Services\Validation\Validators\SeasonalValidator;
-use App\Services\Validation\Validators\DataQualityValidator;
+use App\Models\UtilityService;
+use App\Services\Validation\Contracts\ValidatorInterface;
 use App\Services\Validation\Validators\BusinessRuleValidator;
+use App\Services\Validation\Validators\ConsumptionValidator;
+use App\Services\Validation\Validators\DataQualityValidator;
 use App\Services\Validation\Validators\InputMethodValidator;
 use App\Services\Validation\Validators\RateChangeValidator;
-use App\Services\Validation\Contracts\ValidatorInterface;
+use App\Services\Validation\Validators\SeasonalValidator;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 
 /**
  * Factory for creating validation rule instances using the Strategy pattern.
- * 
+ *
  * Provides centralized validator creation and dependency injection,
  * enabling runtime selection of validation algorithms based on context.
  */
@@ -45,17 +46,17 @@ final class ValidationRuleFactory
 
     /**
      * Get a specific validator by name.
-     * 
+     *
      * @throws InvalidArgumentException When validator is not found
      */
     public function getValidator(string $name): ValidatorInterface
     {
-        if (!isset($this->validators[$name])) {
+        if (! isset($this->validators[$name])) {
             throw new InvalidArgumentException("Validator '{$name}' not found");
         }
 
         // Use cached instance if available
-        if (!isset($this->instances[$name])) {
+        if (! isset($this->instances[$name])) {
             $this->instances[$name] = $this->container->make($this->validators[$name]);
         }
 
@@ -64,7 +65,7 @@ final class ValidationRuleFactory
 
     /**
      * Get all applicable validators for a validation context.
-     * 
+     *
      * @return array<ValidatorInterface>
      */
     public function getValidatorsForContext(ValidationContext $context): array
@@ -100,7 +101,7 @@ final class ValidationRuleFactory
 
     /**
      * Get all available validator names.
-     * 
+     *
      * @return array<string>
      */
     public function getAvailableValidators(): array
@@ -113,14 +114,14 @@ final class ValidationRuleFactory
      */
     public function registerValidator(string $name, string $className): void
     {
-        if (!is_subclass_of($className, ValidatorInterface::class)) {
+        if (! is_subclass_of($className, ValidatorInterface::class)) {
             throw new InvalidArgumentException(
-                "Validator class must implement " . ValidatorInterface::class
+                'Validator class must implement '.ValidatorInterface::class
             );
         }
 
         $this->validators[$name] = $className;
-        
+
         // Clear cached instance if it exists
         unset($this->instances[$name]);
     }
@@ -135,14 +136,13 @@ final class ValidationRuleFactory
 
     /**
      * Create a validator chain for sequential validation.
-     * 
-     * @param array<string> $validatorNames
-     * @return ValidatorChain
+     *
+     * @param  array<string>  $validatorNames
      */
     public function createChain(array $validatorNames): ValidatorChain
     {
         $validators = array_map(
-            fn(string $name) => $this->getValidator($name),
+            fn (string $name) => $this->getValidator($name),
             $validatorNames
         );
 
@@ -152,12 +152,13 @@ final class ValidationRuleFactory
     /**
      * Check if a utility service supports seasonal validation.
      */
-    private function supportsSeasonal(\App\Models\UtilityService $utilityService): bool
+    private function supportsSeasonal(UtilityService $utilityService): bool
     {
         // Services that typically have seasonal patterns
         $seasonalServices = ['heating', 'electricity', 'water'];
-        
+
         $serviceType = $utilityService->service_type_bridge?->value;
+
         return in_array($serviceType, $seasonalServices, true);
     }
 

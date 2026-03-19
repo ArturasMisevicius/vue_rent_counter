@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Traits\BelongsToTenant;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Billing record model for tracking billing calculations.
- * 
+ *
  * @property int $id
  * @property int $tenant_id
  * @property int $property_id
@@ -23,14 +24,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int|null $meter_reading_start
  * @property int|null $meter_reading_end
  * @property string|null $notes
- * @property \Carbon\Carbon $billing_period_start
- * @property \Carbon\Carbon $billing_period_end
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon $billing_period_start
+ * @property Carbon $billing_period_end
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 final class BillingRecord extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use BelongsToTenant, HasFactory;
 
     protected $fillable = [
         'tenant_id',
@@ -86,6 +87,6 @@ final class BillingRecord extends Model
     public function invoices(): BelongsToMany
     {
         return $this->belongsToMany(Invoice::class, 'invoice_billing_record')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 }

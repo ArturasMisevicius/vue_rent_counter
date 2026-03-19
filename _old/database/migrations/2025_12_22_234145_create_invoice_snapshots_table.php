@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('automation_level');
             $table->json('snapshot_data');
             $table->timestamps();
-            
+
             $table->index(['invoice_id', 'created_at']);
         });
     }

@@ -11,6 +11,7 @@ class BuildingController extends Controller
     public function index()
     {
         $buildings = Building::withCount('properties')->paginate(20);
+
         return view('buildings.index', compact('buildings'));
     }
 
@@ -32,6 +33,7 @@ class BuildingController extends Controller
     public function show(Building $building)
     {
         $building->load('properties');
+
         return view('buildings.show', compact('building'));
     }
 
@@ -61,6 +63,7 @@ class BuildingController extends Controller
     public function properties(Building $building)
     {
         $properties = $building->properties()->paginate(20);
+
         return view('buildings.properties', compact('building', 'properties'));
     }
 }

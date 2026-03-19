@@ -88,7 +88,7 @@ final class InputMethodValidator extends AbstractValidator
         if (empty($context->reading->photo_path)) {
             $errors[] = 'Photo path required for OCR readings';
         }
-        
+
         if ($context->reading->validation_status === ValidationStatus::PENDING) {
             $recommendations[] = 'OCR reading requires manual validation';
         }
@@ -104,7 +104,7 @@ final class InputMethodValidator extends AbstractValidator
         if ($context->reading->validation_status !== ValidationStatus::REQUIRES_REVIEW) {
             $warnings[] = 'Estimated readings should be marked for review';
         }
-        
+
         $recommendations[] = 'Replace estimated reading with actual reading when available';
 
         return ['warnings' => $warnings, 'recommendations' => $recommendations];

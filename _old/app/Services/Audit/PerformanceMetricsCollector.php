@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 /**
  * Performance Metrics Collector
- * 
+ *
  * Collects performance metrics for audit reporting.
  */
 final readonly class PerformanceMetricsCollector

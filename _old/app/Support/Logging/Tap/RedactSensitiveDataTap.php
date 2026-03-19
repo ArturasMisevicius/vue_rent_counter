@@ -14,8 +14,7 @@ final class RedactSensitiveDataTap
         $monolog = $logger->getLogger();
 
         if (method_exists($monolog, 'pushProcessor')) {
-            $monolog->pushProcessor(new RedactSensitiveData());
+            $monolog->pushProcessor(new RedactSensitiveData);
         }
     }
 }
-

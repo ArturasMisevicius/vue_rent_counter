@@ -87,10 +87,10 @@ return new class extends Migration
         });
 
         Schema::table('meter_reading_audits', function (Blueprint $table) {
-            if (!$this->indexExists('meter_reading_audits', 'meter_reading_audits_meter_index')) {
+            if (! $this->indexExists('meter_reading_audits', 'meter_reading_audits_meter_index')) {
                 $table->index('meter_reading_id', 'meter_reading_audits_meter_index');
             }
-            if (!$this->indexExists('meter_reading_audits', 'meter_reading_audits_changed_by_index')) {
+            if (! $this->indexExists('meter_reading_audits', 'meter_reading_audits_changed_by_index')) {
                 $table->index('changed_by_user_id', 'meter_reading_audits_changed_by_index');
             }
         });
@@ -119,21 +119,22 @@ return new class extends Migration
         try {
             $connection = Schema::getConnection();
             $driver = $connection->getDriverName();
-            
+
             if ($driver === 'sqlite') {
                 $indexes = $connection->select("SELECT name FROM sqlite_master WHERE type='index' AND name=?", [$indexName]);
-                return !empty($indexes);
+
+                return ! empty($indexes);
             }
-            
+
             $database = $connection->getDatabaseName();
-            
+
             if ($driver === 'mysql') {
                 $result = $connection->select(
-                    "SELECT COUNT(*) as count 
+                    'SELECT COUNT(*) as count 
                      FROM information_schema.statistics 
                      WHERE table_schema = ? 
                      AND table_name = ? 
-                     AND index_name = ?",
+                     AND index_name = ?',
                     [$database, $table, $indexName]
                 );
             } else {
@@ -146,9 +147,9 @@ return new class extends Migration
                     [$table, $indexName]
                 );
             }
-            
+
             return isset($result[0]) && $result[0]->count > 0;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -160,7 +161,7 @@ return new class extends Migration
     {
         try {
             $table->dropIndex($indexName);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Index doesn't exist, ignore
         }
     }

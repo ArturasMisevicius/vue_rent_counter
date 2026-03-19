@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use App\Models\PlatformNotification;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\Pages\Page;
 use Filament\Tables;
@@ -201,12 +204,12 @@ class NotificationHistory extends Page implements HasTable
                     }),
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make()
+                ViewAction::make()
                     ->url(fn (PlatformNotification $record): string => route('filament.admin.resources.platform-notifications.view', $record)),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make()
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->action(function ($records) {
                             $records->each(function (PlatformNotification $record) {
                                 if ($record->isDraft()) {

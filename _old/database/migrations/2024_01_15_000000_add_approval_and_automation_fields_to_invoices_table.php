@@ -18,9 +18,9 @@ return new class extends Migration
             $table->json('approval_metadata')->nullable()->after('approval_deadline');
             $table->unsignedBigInteger('approved_by')->nullable()->after('approval_metadata');
             $table->timestamp('approved_at')->nullable()->after('approved_by');
-            
+
             $table->foreign('approved_by')->references('id')->on('users')->onDelete('set null');
-            
+
             $table->index(['approval_status']);
             $table->index(['automation_level']);
             $table->index(['approval_deadline']);
@@ -37,7 +37,7 @@ return new class extends Migration
             $table->dropIndex(['approval_status']);
             $table->dropIndex(['automation_level']);
             $table->dropIndex(['approval_deadline']);
-            
+
             $table->dropColumn([
                 'approval_status',
                 'automation_level',

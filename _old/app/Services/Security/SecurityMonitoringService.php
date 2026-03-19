@@ -7,23 +7,24 @@ namespace App\Services\Security;
 use App\Enums\SecuritySeverity;
 use App\Enums\ThreatClassification;
 use App\Models\SecurityViolation;
+use App\Models\User;
 use App\Notifications\SecurityAlertNotification;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Psr\Log\LoggerInterface;
 
 /**
  * Security Monitoring Service
- * 
+ *
  * Provides real-time security monitoring, threat detection,
  * and automated incident response capabilities.
  */
 final class SecurityMonitoringService
 {
     private const ALERT_CACHE_PREFIX = 'security_alert:';
+
     private const THRESHOLD_CACHE_PREFIX = 'security_threshold:';
-    
+
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly SecurityAnalyticsMcpService $analyticsService
@@ -112,7 +113,7 @@ final class SecurityMonitoringService
 
         foreach ($violationsByType as $type => $count) {
             $threshold = $this->getComplianceThreshold($type);
-            
+
             if ($count > $threshold) {
                 $this->triggerComplianceAlert($type, $count, $threshold);
             }
@@ -124,8 +125,8 @@ final class SecurityMonitoringService
      */
     private function triggerCriticalAlert(SecurityViolation $violation): void
     {
-        $alertKey = self::ALERT_CACHE_PREFIX . 'critical:' . $violation->id;
-        
+        $alertKey = self::ALERT_CACHE_PREFIX.'critical:'.$violation->id;
+
         if (Cache::has($alertKey)) {
             return; // Already alerted
         }
@@ -159,8 +160,8 @@ final class SecurityMonitoringService
      */
     private function triggerRateAlert(int $tenantId, int $violationCount): void
     {
-        $alertKey = self::ALERT_CACHE_PREFIX . 'rate:' . $tenantId;
-        
+        $alertKey = self::ALERT_CACHE_PREFIX.'rate:'.$tenantId;
+
         if (Cache::has($alertKey)) {
             return; // Already alerted
         }
@@ -185,8 +186,8 @@ final class SecurityMonitoringService
      */
     private function triggerAnomalyAlert(array $anomaly): void
     {
-        $alertKey = self::ALERT_CACHE_PREFIX . 'anomaly:' . md5(json_encode($anomaly));
-        
+        $alertKey = self::ALERT_CACHE_PREFIX.'anomaly:'.md5(json_encode($anomaly));
+
         if (Cache::has($alertKey)) {
             return; // Already alerted
         }
@@ -210,8 +211,8 @@ final class SecurityMonitoringService
      */
     private function triggerComplianceAlert(string $type, int $count, int $threshold): void
     {
-        $alertKey = self::ALERT_CACHE_PREFIX . 'compliance:' . $type;
-        
+        $alertKey = self::ALERT_CACHE_PREFIX.'compliance:'.$type;
+
         if (Cache::has($alertKey)) {
             return; // Already alerted
         }
@@ -242,12 +243,12 @@ final class SecurityMonitoringService
         $metadata = $violation->metadata;
         $ipHash = $metadata['ip_hash'] ?? null;
 
-        if (!$ipHash) {
+        if (! $ipHash) {
             return;
         }
 
         // Add to blocked IPs cache
-        $blockKey = 'blocked_ip:' . $ipHash;
+        $blockKey = 'blocked_ip:'.$ipHash;
         Cache::put($blockKey, true, 3600); // Block for 1 hour
 
         $this->logger->info('Auto-blocked threat', [
@@ -264,7 +265,7 @@ final class SecurityMonitoringService
     {
         try {
             $recipients = $this->getSecurityNotificationRecipients();
-            
+
             Notification::send($recipients, new SecurityAlertNotification($type, $data));
         } catch (\Exception $e) {
             $this->logger->error('Failed to send security notification', [
@@ -280,7 +281,7 @@ final class SecurityMonitoringService
     private function getSecurityNotificationRecipients(): array
     {
         // Return list of users who should receive security alerts
-        return \App\Models\User::whereHas('permissions', function ($query) {
+        return User::whereHas('permissions', function ($query) {
             $query->where('name', 'receive-security-alerts');
         })->get()->toArray();
     }
@@ -305,7 +306,7 @@ final class SecurityMonitoringService
      */
     private function sanitizeForLog(?string $data): ?string
     {
-        if (!$data) {
+        if (! $data) {
             return null;
         }
 

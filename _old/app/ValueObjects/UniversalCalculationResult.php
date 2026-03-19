@@ -6,20 +6,20 @@ namespace App\ValueObjects;
 
 /**
  * Value object representing a universal billing calculation result.
- * 
+ *
  * Contains comprehensive billing information including base amounts,
  * adjustments, consumption charges, fixed fees, and audit trail data.
  */
 final readonly class UniversalCalculationResult
 {
     /**
-     * @param float $totalAmount Final total amount to be charged
-     * @param float $baseAmount Base amount before adjustments
-     * @param array $adjustments Array of adjustments applied to base amount
-     * @param float $consumptionAmount Amount charged for consumption
-     * @param float $fixedAmount Fixed fee component
-     * @param array $tariffSnapshot Snapshot of tariff/configuration data for audit trail
-     * @param array $calculationDetails Detailed breakdown of calculation steps
+     * @param  float  $totalAmount  Final total amount to be charged
+     * @param  float  $baseAmount  Base amount before adjustments
+     * @param  array  $adjustments  Array of adjustments applied to base amount
+     * @param  float  $consumptionAmount  Amount charged for consumption
+     * @param  float  $fixedAmount  Fixed fee component
+     * @param  array  $tariffSnapshot  Snapshot of tariff/configuration data for audit trail
+     * @param  array  $calculationDetails  Detailed breakdown of calculation steps
      */
     public function __construct(
         public float $totalAmount,
@@ -69,7 +69,7 @@ final readonly class UniversalCalculationResult
         array $calculationDetails = []
     ): self {
         $totalAmount = $fixedAmount + array_sum(array_column($adjustments, 'amount'));
-        
+
         return new self(
             totalAmount: $totalAmount,
             baseAmount: $fixedAmount,
@@ -92,7 +92,7 @@ final readonly class UniversalCalculationResult
     ): self {
         $baseAmount = $fixedAmount + $consumptionAmount;
         $totalAmount = $baseAmount + array_sum(array_column($adjustments, 'amount'));
-        
+
         return new self(
             totalAmount: $totalAmount,
             baseAmount: $baseAmount,
@@ -117,7 +117,7 @@ final readonly class UniversalCalculationResult
      */
     public function hasAdjustments(): bool
     {
-        return !empty($this->adjustments);
+        return ! empty($this->adjustments);
     }
 
     /**
@@ -127,7 +127,7 @@ final readonly class UniversalCalculationResult
     {
         return array_filter(
             $this->adjustments,
-            fn($adjustment) => ($adjustment['type'] ?? '') === $type
+            fn ($adjustment) => ($adjustment['type'] ?? '') === $type
         );
     }
 
@@ -201,22 +201,22 @@ final readonly class UniversalCalculationResult
     public function getBreakdown(): array
     {
         $breakdown = [];
-        
+
         if ($this->hasFixedCharges()) {
             $breakdown['Fixed Charges'] = $this->fixedAmount;
         }
-        
+
         if ($this->hasConsumptionCharges()) {
             $breakdown['Consumption Charges'] = $this->consumptionAmount;
         }
-        
+
         foreach ($this->adjustments as $adjustment) {
             $description = $adjustment['description'] ?? $adjustment['type'] ?? 'Adjustment';
             $breakdown[$description] = $adjustment['amount'] ?? 0;
         }
-        
+
         $breakdown['Total'] = $this->totalAmount;
-        
+
         return $breakdown;
     }
 
@@ -253,9 +253,10 @@ final readonly class UniversalCalculationResult
             if (isset($adjustment['amount'])) {
                 $adjustment['amount'] = round($adjustment['amount'], $precision);
             }
+
             return $adjustment;
         }, $this->adjustments);
-        
+
         return new self(
             totalAmount: round($this->totalAmount, $precision),
             baseAmount: round($this->baseAmount, $precision),

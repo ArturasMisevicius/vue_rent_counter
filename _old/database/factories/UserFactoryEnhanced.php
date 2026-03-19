@@ -14,8 +14,8 @@ use Illuminate\Support\Str;
 
 /**
  * Enhanced User Factory with Multi-Tenant Support
- * 
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ *
+ * @extends Factory<User>
  */
 class UserFactoryEnhanced extends Factory
 {
@@ -88,7 +88,7 @@ class UserFactoryEnhanced extends Factory
     {
         return $this->state(function (array $attributes) use ($tenantId, $propertyId, $parentUserId) {
             $actualTenantId = $tenantId ?? fake()->numberBetween(1, 100);
-            
+
             return [
                 'role' => UserRole::TENANT,
                 'tenant_id' => $actualTenantId,

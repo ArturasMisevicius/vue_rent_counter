@@ -7,12 +7,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * InvoiceGenerationAudit Model
- * 
+ *
  * Audit trail for invoice generation operations.
- * 
+ *
  * @property int $id
  * @property int $invoice_id
  * @property int $tenant_id
@@ -24,9 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property array $metadata
  * @property float $execution_time_ms
  * @property int $query_count
- * @property \Illuminate\Support\Carbon $created_at
- * 
- * @package App\Models
+ * @property Carbon $created_at
  */
 class InvoiceGenerationAudit extends Model
 {

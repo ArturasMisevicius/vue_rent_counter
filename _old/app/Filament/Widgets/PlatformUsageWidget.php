@@ -7,13 +7,12 @@ use App\Models\Property;
 use App\Models\User;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 class PlatformUsageWidget extends ChartWidget
 {
     protected static ?int $sort = 7;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public function getHeading(): ?string
     {
@@ -31,11 +30,11 @@ class PlatformUsageWidget extends ChartWidget
         $data = Cache::remember('superadmin.platform_usage', 300, function () {
             $months = collect();
             $labels = [];
-            
+
             for ($i = 11; $i >= 0; $i--) {
                 $date = now()->subMonths($i);
                 $labels[] = $date->format('M Y');
-                
+
                 $months->push([
                     'properties' => Property::where('created_at', '<=', $date->endOfMonth())->count(),
                     'users' => User::where('created_at', '<=', $date->endOfMonth())->count(),

@@ -5,16 +5,18 @@ declare(strict_types=1);
 namespace App\Filament\Clusters\SuperAdmin\Widgets;
 
 use App\Models\SuperAdminAuditLog;
+use Filament\Actions\ViewAction;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use Illuminate\Database\Eloquent\Builder;
 
 final class RecentActivityWidget extends BaseWidget
 {
     protected static ?string $heading = null;
+
     protected static ?string $pollingInterval = '30s';
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
 
     public function getHeading(): ?string
     {
@@ -45,8 +47,7 @@ final class RecentActivityWidget extends BaseWidget
 
                 Tables\Columns\TextColumn::make('target_type')
                     ->label(__('superadmin.audit.fields.target_type'))
-                    ->formatStateUsing(fn (?string $state): string => 
-                        $state ? class_basename($state) : '—'
+                    ->formatStateUsing(fn (?string $state): string => $state ? class_basename($state) : '—'
                     )
                     ->badge()
                     ->color('gray'),
@@ -63,10 +64,9 @@ final class RecentActivityWidget extends BaseWidget
                     ->sortable(),
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make()
+                ViewAction::make()
                     ->label(__('superadmin.audit.actions.view'))
-                    ->url(fn ($record): string => 
-                        route('filament.superadmin.resources.audit-logs.view', $record)
+                    ->url(fn ($record): string => route('filament.superadmin.resources.audit-logs.view', $record)
                     ),
             ])
             ->emptyStateHeading(__('superadmin.dashboard.widgets.recent_activity.no_activity'))

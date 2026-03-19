@@ -7,7 +7,7 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum AuditAction: string implements HasLabel, HasColor
+enum AuditAction: string implements HasColor, HasLabel
 {
     case TENANT_CREATED = 'tenant_created';
     case TENANT_UPDATED = 'tenant_updated';
@@ -30,10 +30,10 @@ enum AuditAction: string implements HasLabel, HasColor
     case SYSTEM_CONFIG_CREATED = 'system_config_created';
     case SYSTEM_CONFIG_UPDATED = 'system_config_updated';
     case SYSTEM_CONFIG_DELETED = 'system_config_deleted';
-    
+
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::TENANT_CREATED => __('superadmin.audit.action.tenant_created'),
             self::TENANT_UPDATED => __('superadmin.audit.action.tenant_updated'),
             self::TENANT_SUSPENDED => __('superadmin.audit.action.tenant_suspended'),
@@ -57,10 +57,10 @@ enum AuditAction: string implements HasLabel, HasColor
             self::SYSTEM_CONFIG_DELETED => __('superadmin.audit.action.system_config_deleted'),
         };
     }
-    
+
     public function getColor(): string
     {
-        return match($this) {
+        return match ($this) {
             self::TENANT_CREATED => 'success',
             self::TENANT_UPDATED => 'info',
             self::TENANT_SUSPENDED => 'warning',
@@ -84,10 +84,10 @@ enum AuditAction: string implements HasLabel, HasColor
             self::SYSTEM_CONFIG_DELETED => 'danger',
         };
     }
-    
+
     public function getIcon(): string
     {
-        return match($this) {
+        return match ($this) {
             self::TENANT_CREATED => 'heroicon-o-plus-circle',
             self::TENANT_UPDATED => 'heroicon-o-pencil-square',
             self::TENANT_SUSPENDED => 'heroicon-o-pause-circle',
@@ -111,10 +111,10 @@ enum AuditAction: string implements HasLabel, HasColor
             self::SYSTEM_CONFIG_DELETED => 'heroicon-o-trash',
         };
     }
-    
+
     public function getSeverity(): string
     {
-        return match($this) {
+        return match ($this) {
             self::TENANT_DELETED, self::BACKUP_RESTORED, self::USER_SUSPENDED, self::SYSTEM_CONFIG_DELETED => 'high',
             self::USER_FORCE_LOGOUT => 'medium',
             self::TENANT_SUSPENDED, self::USER_IMPERSONATED, self::SYSTEM_CONFIG_CHANGED => 'medium',

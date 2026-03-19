@@ -30,22 +30,22 @@ final readonly class ActivityReport
     public function getActivityScore(): int
     {
         $score = 0;
-        
+
         // Recent login activity
         if ($this->lastLoginAt) {
             $daysSinceLogin = $this->lastLoginAt->diffInDays(now());
             $score += max(0, 30 - $daysSinceLogin);
         }
-        
+
         // Session activity
         $score += min(20, $this->totalSessions);
-        
+
         // Audit log activity
         $score += min(10, $this->auditLogEntries);
-        
+
         // Organization activity
         $score += min(10, count($this->organizationActivity));
-        
+
         return min(100, $score);
     }
 

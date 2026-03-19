@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\InputMethod;
 use App\Enums\ValidationStatus;
+use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\ServiceConfiguration;
 use App\Models\UtilityService;
-use App\Models\Tariff;
-use App\Services\MeterReadingService;
-use App\Services\Validation\ValidationRuleFactory;
 use App\Services\Validation\ValidationContext;
 use App\Services\Validation\ValidationResult;
+use App\Services\Validation\ValidationRuleFactory;
+use App\Services\Validation\Validators\RateChangeValidator;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -22,50 +25,51 @@ use Psr\Log\LoggerInterface;
 
 /**
  * ServiceValidationEngine - Orchestrates utility service validation using the Strategy pattern
- * 
- * This comprehensive validation engine provides modular validation architecture with individual 
+ *
+ * This comprehensive validation engine provides modular validation architecture with individual
  * validators for different validation concerns, improving maintainability and testability while
  * maintaining backward compatibility for legacy meter reading workflows.
- * 
+ *
  * ## Architecture Patterns
  * - **Strategy Pattern**: Runtime selection of validation algorithms based on context
  * - **Factory Pattern**: Centralized validator creation and dependency injection
  * - **Value Objects**: Immutable validation context and results for thread safety
  * - **Chain of Responsibility**: Composable validators with conditional application
- * 
+ *
  * ## Core Features
  * - **Modular Validation**: Single responsibility validators (consumption, seasonal, data quality, etc.)
  * - **Security**: Authorization checks, input sanitization, audit trail logging
  * - **Performance**: Multi-layer caching, batch optimization, eager loading
  * - **Integration**: Multi-tenant isolation and rule composition
  * - **Extensibility**: Plugin architecture for custom validators and rules
- * 
+ *
  * ## Performance Optimizations
  * - **Caching Strategy**: 1-hour TTL for rules, 24-hour for historical data
  * - **Batch Processing**: Optimized bulk validation with eager loading
  * - **Memory Management**: Batch size limits, streaming for large datasets
  * - **Query Optimization**: Selective loading, relationship preloading
- * 
+ *
  * ## Security Features
  * - **Authorization**: Permission-based access control for all operations
  * - **Input Sanitization**: Whitelist-based sanitization preventing injection attacks
  * - **Audit Trail**: Comprehensive logging of all validation operations
  * - **Tenant Isolation**: Automatic tenant scoping for multi-tenant security
- * 
+ *
  * ## Integration Points
  * - **MeterReadingService**: Leverages existing reading management infrastructure
  * - **Audit System**: Extends existing audit trail for validation operations
  * - **Filament Resources**: Compatible with existing admin interfaces
- * 
- * @see \App\Services\Validation\ValidationRuleFactory For validator creation and management
- * @see \App\Services\Validation\ValidationContext For immutable validation context
- * @see \App\Services\Validation\ValidationResult For immutable validation results
- * @see \App\Models\ServiceConfiguration For service configuration model
- * @see \App\Models\UtilityService For utility service model
- * 
- * @package App\Services
+ *
+ * @see ValidationRuleFactory For validator creation and management
+ * @see ValidationContext For immutable validation context
+ * @see ValidationResult For immutable validation results
+ * @see ServiceConfiguration For service configuration model
+ * @see UtilityService For utility service model
+ *
  * @author Universal Utility Management System
+ *
  * @version 1.0.0
+ *
  * @since 2024-12-13
  */
 final class ServiceValidationEngine
@@ -74,7 +78,7 @@ final class ServiceValidationEngine
      * Cache TTL for validation rules (1 hour)
      */
     private const CACHE_TTL_SECONDS = 3600;
-    
+
     /**
      * Cache key prefix for validation rules
      */
@@ -84,6 +88,7 @@ final class ServiceValidationEngine
      * Memoized configuration values for performance
      */
     private ?array $validationConfig = null;
+
     private ?array $seasonalAdjustments = null;
 
     public function __construct(
@@ -92,26 +97,25 @@ final class ServiceValidationEngine
         private readonly LoggerInterface $logger,
         private readonly MeterReadingService $meterReadingService,
         private readonly ValidationRuleFactory $validatorFactory,
-    ) {
-    }
+    ) {}
 
     /**
      * Validate a meter reading against all applicable rules using the Strategy pattern.
-     * 
+     *
      * This method creates a validation context and applies all relevant validators,
      * combining their results into a comprehensive validation result.
-     * 
+     *
      * Enhanced features:
      * - Validation status field support (pending, validated, rejected, requires_review)
      * - Estimated reading validation with true-up calculations
      * - Multi-value reading structure validation
      * - Photo OCR validation support
      * - CSV import and API integration validation
-     * 
-     * @param MeterReading $reading The reading to validate
-     * @param ServiceConfiguration|null $serviceConfig Optional service configuration for enhanced validation
+     *
+     * @param  MeterReading  $reading  The reading to validate
+     * @param  ServiceConfiguration|null  $serviceConfig  Optional service configuration for enhanced validation
      * @return array{is_valid: bool, errors: array<string>, warnings: array<string>, metadata: array<string, mixed>} Array of validation results with errors and warnings
-     * 
+     *
      * @example
      * ```php
      * $result = $validator->validateMeterReading($reading, $serviceConfig);
@@ -126,28 +130,29 @@ final class ServiceValidationEngine
             $this->enforceRateLimit('single_validation', 1);
 
             // Authorization check - ensure user can view/validate this meter reading
-            if (auth()->check() && !auth()->user()->can('view', $reading)) {
+            if (auth()->check() && ! auth()->user()->can('view', $reading)) {
                 $this->logger->warning('Unauthorized meter reading validation attempt', [
                     'user_id' => auth()->id(),
                     'reading_id' => $reading->id,
                     'meter_id' => $reading->meter_id,
                 ]);
+
                 return ValidationResult::withError(__('validation.unauthorized_meter_reading'))->toArray();
             }
 
             // Create validation context with all necessary data
             $context = $this->createValidationContext($reading, $serviceConfig);
-            
+
             // Get applicable validators for this context
             $validators = $this->validatorFactory->getValidatorsForContext($context);
-            
+
             // Apply all validators and combine results
             $combinedResult = ValidationResult::valid();
-            
+
             foreach ($validators as $validator) {
                 $result = $validator->validate($context);
                 $combinedResult = $combinedResult->merge($result);
-                
+
                 // Log individual validator results for debugging
                 $this->logValidatorResult($validator, $result, $context);
             }
@@ -157,7 +162,7 @@ final class ServiceValidationEngine
 
             return $combinedResult->toArray();
 
-        } catch (\Illuminate\Http\Exceptions\ThrottleRequestsException $e) {
+        } catch (ThrottleRequestsException $e) {
             throw $e;
         } catch (\Exception $e) {
             $this->logger->error('Meter reading validation failed', [
@@ -173,19 +178,20 @@ final class ServiceValidationEngine
 
     /**
      * Validate rate change restrictions using the dedicated RateChangeValidator.
-     * 
-     * @param ServiceConfiguration $serviceConfig The service configuration to validate
-     * @param array<string, mixed> $newRateSchedule The proposed new rate schedule
+     *
+     * @param  ServiceConfiguration  $serviceConfig  The service configuration to validate
+     * @param  array<string, mixed>  $newRateSchedule  The proposed new rate schedule
      * @return array{is_valid: bool, errors: array<string>, warnings: array<string>} Validation results
      */
     public function validateRateChangeRestrictions(ServiceConfiguration $serviceConfig, array $newRateSchedule): array
     {
         // Authorization check - ensure user can modify this service configuration
-        if (auth()->check() && !auth()->user()->can('update', $serviceConfig)) {
+        if (auth()->check() && ! auth()->user()->can('update', $serviceConfig)) {
             $this->logger->warning('Unauthorized rate change validation attempt', [
                 'user_id' => auth()->id(),
                 'service_config_id' => $serviceConfig->id,
             ]);
+
             return ValidationResult::withError(__('validation.unauthorized_rate_change'))->toArray();
         }
 
@@ -196,58 +202,60 @@ final class ServiceValidationEngine
 
         // Sanitize input array to prevent injection attacks
         $sanitizedSchedule = $this->sanitizeRateSchedule($newRateSchedule);
-        
+
         $validator = $this->validatorFactory->getValidator('rate_change');
-        
-        if (!$validator instanceof \App\Services\Validation\Validators\RateChangeValidator) {
+
+        if (! $validator instanceof RateChangeValidator) {
             $this->logger->error('RateChangeValidator not found or invalid type');
+
             return ValidationResult::withError(__('validation.validator_unavailable'))->toArray();
         }
 
         $result = $validator->validateRateChangeRestrictions($serviceConfig, $sanitizedSchedule);
+
         return $result->toArray();
     }
 
     /**
      * Batch validate multiple meter readings with optimized performance.
-     * 
+     *
      * Uses eager loading and caching to efficiently validate multiple readings
      * while maintaining the same validation quality as individual validation.
-     * 
+     *
      * SECURITY ENHANCEMENTS:
      * - Pre-validates ALL readings for authorization BEFORE processing
      * - Enforces rate limiting on batch operations
      * - Early termination on authorization failures
      * - Comprehensive audit logging
-     * 
+     *
      * PERFORMANCE OPTIMIZATIONS:
      * - Single query for all previous readings (eliminates N+1)
      * - Bulk cache warming for validation rules
      * - Optimized relationship preloading
      * - Memory-efficient batch processing
-     * 
-     * @param Collection<int, MeterReading> $readings Collection of MeterReading models
-     * @param array<string, mixed> $options Validation options
+     *
+     * @param  Collection<int, MeterReading>  $readings  Collection of MeterReading models
+     * @param  array<string, mixed>  $options  Validation options
      * @return array{total_readings: int, valid_readings: int, invalid_readings: int, warnings_count: int, results: array<int, array>, summary: array<string, float>, performance_metrics: array<string, mixed>} Batch validation results
-     * 
+     *
      * @throws \InvalidArgumentException When readings collection contains invalid models
-     * @throws \Illuminate\Auth\Access\AuthorizationException When user lacks authorization
-     * @throws \Illuminate\Http\Exceptions\ThrottleRequestsException When rate limit exceeded
+     * @throws AuthorizationException When user lacks authorization
+     * @throws ThrottleRequestsException When rate limit exceeded
      */
     public function batchValidateReadings(Collection $readings, array $options = []): array
     {
         // SECURITY: Validate input collection contains only MeterReading models FIRST
         $this->validateReadingsCollection($readings);
-        
+
         // SECURITY: Pre-validate ALL readings for authorization BEFORE processing
         $this->validateBatchAuthorization($readings);
-        
+
         // SECURITY: Enforce rate limiting on batch operations
         $this->enforceRateLimit('batch_validation', 1);
-        
+
         $startTime = microtime(true);
         $queryCount = DB::getQueryLog() ? count(DB::getQueryLog()) : 0;
-        
+
         $batchResult = [
             'total_readings' => $readings->count(),
             'valid_readings' => 0,
@@ -266,32 +274,32 @@ final class ServiceValidationEngine
         try {
             // OPTIMIZATION 1: Bulk preload all data with single optimized query
             $preloadedData = $this->bulkPreloadValidationData($readings);
-            
+
             // OPTIMIZATION 2: Warm validation rule cache for all service configurations
             $this->warmValidationRuleCache($preloadedData['service_configs']);
-            
+
             // OPTIMIZATION 3: Process readings in memory-efficient chunks
             $chunkSize = min(50, $readings->count()); // Prevent memory exhaustion
-            
+
             foreach ($readings->chunk($chunkSize) as $chunk) {
                 foreach ($chunk as $reading) {
                     // Use preloaded data to avoid additional queries
                     $validationResult = $this->validateMeterReadingOptimized(
-                        $reading, 
+                        $reading,
                         $preloadedData
                     );
-                    
+
                     $batchResult['results'][$reading->id] = $validationResult;
-                    
+
                     if ($validationResult['is_valid']) {
                         $batchResult['valid_readings']++;
                     } else {
                         $batchResult['invalid_readings']++;
                     }
-                    
+
                     $batchResult['warnings_count'] += count($validationResult['warnings'] ?? []);
                 }
-                
+
                 // Force garbage collection between chunks
                 if (function_exists('gc_collect_cycles')) {
                     gc_collect_cycles();
@@ -300,18 +308,18 @@ final class ServiceValidationEngine
 
             // Generate summary statistics
             $batchResult['summary'] = $this->generateBatchSummary($batchResult);
-            
+
             // Calculate performance metrics
             $endTime = microtime(true);
             $finalQueryCount = DB::getQueryLog() ? count(DB::getQueryLog()) : 0;
-            
+
             $batchResult['performance_metrics'] = array_merge($batchResult['performance_metrics'], [
                 'end_time' => $endTime,
                 'duration' => $endTime - $startTime,
                 'database_queries' => $finalQueryCount - $queryCount,
                 'memory_peak_mb' => round(memory_get_peak_usage(true) / 1024 / 1024, 2),
                 'cache_hits' => $this->getCacheHitCount(),
-                'queries_per_reading' => $readings->count() > 0 ? 
+                'queries_per_reading' => $readings->count() > 0 ?
                     round(($finalQueryCount - $queryCount) / $readings->count(), 2) : 0,
             ]);
 
@@ -322,7 +330,7 @@ final class ServiceValidationEngine
                 'memory_usage_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
             ]);
 
-            $batchResult['error'] = 'Batch validation system error: ' . $e->getMessage();
+            $batchResult['error'] = 'Batch validation system error: '.$e->getMessage();
         }
 
         return $batchResult;
@@ -330,14 +338,14 @@ final class ServiceValidationEngine
 
     /**
      * Create a validation context with all necessary data for validation.
-     * 
+     *
      * This method efficiently loads all required data for validation including
      * service configuration, historical readings, and configuration values.
      */
     private function createValidationContext(MeterReading $reading, ?ServiceConfiguration $serviceConfig): ValidationContext
     {
         // Get service configuration if not provided
-        if (!$serviceConfig && $reading->meter->service_configuration_id) {
+        if (! $serviceConfig && $reading->meter->service_configuration_id) {
             $serviceConfig = ServiceConfiguration::with(['utilityService', 'tariff', 'provider'])
                 ->find($reading->meter->service_configuration_id);
         }
@@ -371,11 +379,11 @@ final class ServiceValidationEngine
     private function getHistoricalReadings($meter, int $months): Collection
     {
         $cacheKey = $this->buildCacheKey('historical_readings', "{$meter->id}_{$months}");
-        
+
         return $this->cache->remember(
             $cacheKey,
             self::CACHE_TTL_SECONDS,
-            fn() => $meter->readings()
+            fn () => $meter->readings()
                 ->where('reading_date', '>=', now()->subMonths($months))
                 ->where('validation_status', ValidationStatus::VALIDATED)
                 ->orderBy('reading_date', 'desc')
@@ -385,35 +393,35 @@ final class ServiceValidationEngine
 
     /**
      * OPTIMIZED: Bulk preload all validation data with minimal queries.
-     * 
+     *
      * PERFORMANCE IMPROVEMENTS:
      * - Single query for all previous readings (eliminates N+1)
      * - Optimized relationship loading with select() constraints
      * - Bulk cache operations instead of individual cache puts
      * - Memory-efficient data structures
-     * 
-     * @param Collection<int, MeterReading> $readings
+     *
+     * @param  Collection<int, MeterReading>  $readings
      * @return array Preloaded data indexed for fast access
      */
     private function bulkPreloadValidationData(Collection $readings): array
     {
         $meterIds = $readings->pluck('meter_id')->unique()->values();
         $readingIds = $readings->pluck('id')->values();
-        
+
         // OPTIMIZATION 1: Single query for all meters with relationships
-        $meters = \App\Models\Meter::with([
+        $meters = Meter::with([
             'serviceConfiguration' => function ($query) {
                 $query->select([
                     'id', 'property_id', 'utility_service_id', 'pricing_model',
                     'rate_schedule', 'distribution_method', 'is_shared_service',
                     'effective_from', 'effective_until', 'configuration_overrides',
-                    'tariff_id', 'provider_id', 'is_active'
+                    'tariff_id', 'provider_id', 'is_active',
                 ]);
             },
             'serviceConfiguration.utilityService' => function ($query) {
                 $query->select([
                     'id', 'name', 'unit_of_measurement', 'default_pricing_model',
-                    'service_type_bridge', 'validation_rules', 'business_logic_config'
+                    'service_type_bridge', 'validation_rules', 'business_logic_config',
                 ]);
             },
             'serviceConfiguration.tariff' => function ($query) {
@@ -421,22 +429,22 @@ final class ServiceValidationEngine
             },
             'serviceConfiguration.provider' => function ($query) {
                 $query->select(['id', 'name', 'configuration']);
-            }
+            },
         ])
-        ->select(['id', 'property_id', 'type', 'supports_zones', 'reading_structure', 'service_configuration_id'])
-        ->whereIn('id', $meterIds)
-        ->get()
-        ->keyBy('id');
+            ->select(['id', 'property_id', 'type', 'supports_zones', 'reading_structure', 'service_configuration_id'])
+            ->whereIn('id', $meterIds)
+            ->get()
+            ->keyBy('id');
 
         // OPTIMIZATION 2: Bulk query for all previous readings (eliminates N+1)
         $previousReadings = $this->bulkGetPreviousReadings($readings, $meters);
-        
+
         // OPTIMIZATION 3: Bulk query for historical readings with optimized constraints
         $historicalReadings = $this->bulkGetHistoricalReadings($meterIds);
-        
+
         // OPTIMIZATION 4: Extract service configurations for cache warming
         $serviceConfigs = $meters->pluck('serviceConfiguration')->filter()->keyBy('id');
-        
+
         return [
             'meters' => $meters,
             'previous_readings' => $previousReadings,
@@ -453,7 +461,7 @@ final class ServiceValidationEngine
     {
         // Group readings by meter and zone for efficient querying
         $readingGroups = $readings->groupBy(function ($reading) {
-            return $reading->meter_id . '_' . ($reading->zone ?? 'null');
+            return $reading->meter_id.'_'.($reading->zone ?? 'null');
         });
 
         $previousReadings = collect();
@@ -461,12 +469,14 @@ final class ServiceValidationEngine
         foreach ($readingGroups as $groupKey => $groupReadings) {
             [$meterId, $zone] = explode('_', $groupKey, 2);
             $zone = $zone === 'null' ? null : $zone;
-            
+
             // Get all reading dates for this meter/zone combination
             $readingDates = $groupReadings->pluck('reading_date')->sort()->values();
-            
-            if ($readingDates->isEmpty()) continue;
-            
+
+            if ($readingDates->isEmpty()) {
+                continue;
+            }
+
             // Single query to get all previous readings for this meter/zone
             $meterPreviousReadings = MeterReading::query()
                 ->where('meter_id', $meterId)
@@ -482,7 +492,7 @@ final class ServiceValidationEngine
                 $previous = $meterPreviousReadings
                     ->where('reading_date', '<', $reading->reading_date)
                     ->first();
-                
+
                 if ($previous) {
                     $previousReadings->put($reading->id, $previous);
                 }
@@ -498,7 +508,7 @@ final class ServiceValidationEngine
     private function bulkGetHistoricalReadings(Collection $meterIds): Collection
     {
         $cutoffDate = now()->subMonths(12);
-        
+
         return MeterReading::query()
             ->whereIn('meter_id', $meterIds)
             ->where('reading_date', '>=', $cutoffDate)
@@ -517,19 +527,19 @@ final class ServiceValidationEngine
     {
         $cacheKeys = [];
         $cacheData = [];
-        
+
         foreach ($serviceConfigs as $config) {
             $rulesCacheKey = $this->buildCacheKey('validation_rules', $config->id);
             $seasonalCacheKey = $this->buildCacheKey('seasonal_config', $config->id);
-            
+
             $cacheKeys[] = $rulesCacheKey;
             $cacheKeys[] = $seasonalCacheKey;
-            
+
             // Prepare cache data
             $cacheData[$rulesCacheKey] = $config->getMergedConfiguration();
             $cacheData[$seasonalCacheKey] = $this->getSeasonalAdjustments($config);
         }
-        
+
         // Bulk cache operation
         foreach ($cacheData as $key => $data) {
             $this->cache->put($key, $data, self::CACHE_TTL_SECONDS);
@@ -543,12 +553,13 @@ final class ServiceValidationEngine
     {
         try {
             // Authorization check - ensure user can view/validate this meter reading
-            if (auth()->check() && !auth()->user()->can('view', $reading)) {
+            if (auth()->check() && ! auth()->user()->can('view', $reading)) {
                 $this->logger->warning('Unauthorized meter reading validation attempt', [
                     'user_id' => auth()->id(),
                     'reading_id' => $reading->id,
                     'meter_id' => $reading->meter_id,
                 ]);
+
                 return ValidationResult::withError(__('validation.unauthorized_meter_reading'))->toArray();
             }
 
@@ -567,13 +578,13 @@ final class ServiceValidationEngine
                 previousReading: $previousReading,
                 historicalReadings: $historicalReadings,
             );
-            
+
             // Get applicable validators for this context
             $validators = $this->validatorFactory->getValidatorsForContext($context);
-            
+
             // Apply all validators and combine results
             $combinedResult = ValidationResult::valid();
-            
+
             foreach ($validators as $validator) {
                 $result = $validator->validate($context);
                 $combinedResult = $combinedResult->merge($result);
@@ -680,11 +691,11 @@ final class ServiceValidationEngine
     private function generateBatchSummary(array $batchResult): array
     {
         return [
-            'validation_rate' => $batchResult['total_readings'] > 0 
-                ? round(($batchResult['valid_readings'] / $batchResult['total_readings']) * 100, 2) 
+            'validation_rate' => $batchResult['total_readings'] > 0
+                ? round(($batchResult['valid_readings'] / $batchResult['total_readings']) * 100, 2)
                 : 0,
-            'average_warnings_per_reading' => $batchResult['total_readings'] > 0 
-                ? round($batchResult['warnings_count'] / $batchResult['total_readings'], 2) 
+            'average_warnings_per_reading' => $batchResult['total_readings'] > 0
+                ? round($batchResult['warnings_count'] / $batchResult['total_readings'], 2)
                 : 0,
             'error_rate' => $batchResult['total_readings'] > 0
                 ? round(($batchResult['invalid_readings'] / $batchResult['total_readings']) * 100, 2)
@@ -694,16 +705,17 @@ final class ServiceValidationEngine
 
     /**
      * Sanitize rate schedule input to prevent injection attacks.
-     * 
+     *
      * SECURITY ENHANCEMENTS:
      * - Validates array depth to prevent nested injection attacks
      * - Enforces size limits to prevent memory exhaustion
      * - Enhanced type validation with bounds checking
      * - Secure date validation with range limits
      * - Structure-specific validation for time_slots and tiers
-     * 
-     * @param array<string, mixed> $rateSchedule
+     *
+     * @param  array<string, mixed>  $rateSchedule
      * @return array<string, mixed>
+     *
      * @throws \InvalidArgumentException If input is malicious or invalid
      */
     private function sanitizeRateSchedule(array $rateSchedule): array
@@ -731,19 +743,19 @@ final class ServiceValidationEngine
         $allowedKeys = [
             'rate_per_unit', 'monthly_rate', 'base_rate', 'default_rate',
             'effective_from', 'effective_until', 'time_slots', 'tiers',
-            'peak_rate', 'off_peak_rate', 'weekend_rate'
+            'peak_rate', 'off_peak_rate', 'weekend_rate',
         ];
 
         foreach ($rateSchedule as $key => $value) {
             // SECURITY: Strict key validation with type checking
-            if (!is_string($key) || !in_array($key, $allowedKeys, true)) {
+            if (! is_string($key) || ! in_array($key, $allowedKeys, true)) {
                 continue;
             }
 
             // SECURITY: Enhanced type validation with bounds checking
             try {
                 $sanitized[$key] = match ($key) {
-                    'rate_per_unit', 'monthly_rate', 'base_rate', 'default_rate', 
+                    'rate_per_unit', 'monthly_rate', 'base_rate', 'default_rate',
                     'peak_rate', 'off_peak_rate', 'weekend_rate' => $this->validateNumericRate($value),
                     'effective_from', 'effective_until' => $this->validateDateString($value),
                     'time_slots', 'tiers' => $this->validateNestedStructure($value, $key),
@@ -760,6 +772,7 @@ final class ServiceValidationEngine
                     'error' => $e->getMessage(),
                     'user_id' => auth()->id(),
                 ]);
+
                 // Skip invalid values instead of failing completely
                 continue;
             }
@@ -773,22 +786,22 @@ final class ServiceValidationEngine
      */
     private function validateNumericRate(mixed $value): ?float
     {
-        if (!is_numeric($value)) {
+        if (! is_numeric($value)) {
             return null;
         }
-        
+
         $rate = (float) $value;
-        
+
         // SECURITY: Validate reasonable bounds to prevent overflow attacks
         if ($rate < 0 || $rate > 999999.99) {
             throw new \InvalidArgumentException('Rate value out of acceptable range (0-999999.99)');
         }
-        
+
         // SECURITY: Check for NaN and infinite values
-        if (!is_finite($rate)) {
+        if (! is_finite($rate)) {
             throw new \InvalidArgumentException('Rate value must be finite');
         }
-        
+
         return $rate;
     }
 
@@ -797,21 +810,21 @@ final class ServiceValidationEngine
      */
     private function validateDateString(mixed $value): ?string
     {
-        if (!is_string($value) || strlen($value) > 25) { // Reasonable date string length
+        if (! is_string($value) || strlen($value) > 25) { // Reasonable date string length
             return null;
         }
-        
+
         // SECURITY: Validate date format and range
         try {
             $date = new \DateTime($value);
-            $now = new \DateTime();
+            $now = new \DateTime;
             $minDate = (clone $now)->sub(new \DateInterval('P50Y')); // 50 years ago
             $maxDate = (clone $now)->add(new \DateInterval('P10Y')); // 10 years future
-            
+
             if ($date < $minDate || $date > $maxDate) {
                 throw new \InvalidArgumentException('Date out of acceptable range');
             }
-            
+
             return $date->format('Y-m-d H:i:s');
         } catch (\Exception $e) {
             return null;
@@ -823,15 +836,15 @@ final class ServiceValidationEngine
      */
     private function validateNestedStructure(mixed $value, string $type): array
     {
-        if (!is_array($value) || empty($value)) {
+        if (! is_array($value) || empty($value)) {
             return [];
         }
-        
+
         // SECURITY: Limit nested array size
         if (count($value) > 50) {
             throw new \InvalidArgumentException("Too many {$type} entries (max 50)");
         }
-        
+
         // Type-specific validation
         return match ($type) {
             'time_slots' => $this->validateTimeSlots($value),
@@ -846,14 +859,14 @@ final class ServiceValidationEngine
     private function validateTimeSlots(array $timeSlots): array
     {
         $validated = [];
-        
+
         foreach ($timeSlots as $slot) {
-            if (!is_array($slot)) {
+            if (! is_array($slot)) {
                 continue;
             }
-            
+
             $validatedSlot = [];
-            
+
             // Validate required fields
             if (isset($slot['start_hour']) && is_numeric($slot['start_hour'])) {
                 $hour = (int) $slot['start_hour'];
@@ -861,31 +874,31 @@ final class ServiceValidationEngine
                     $validatedSlot['start_hour'] = $hour;
                 }
             }
-            
+
             if (isset($slot['end_hour']) && is_numeric($slot['end_hour'])) {
                 $hour = (int) $slot['end_hour'];
                 if ($hour >= 0 && $hour <= 23) {
                     $validatedSlot['end_hour'] = $hour;
                 }
             }
-            
+
             if (isset($slot['rate']) && is_numeric($slot['rate'])) {
                 $validatedSlot['rate'] = $this->validateNumericRate($slot['rate']);
             }
-            
+
             if (isset($slot['day_type']) && is_string($slot['day_type'])) {
                 $dayType = trim($slot['day_type']);
                 if (in_array($dayType, ['weekday', 'weekend'], true)) {
                     $validatedSlot['day_type'] = $dayType;
                 }
             }
-            
+
             // Only add if has minimum required fields
             if (isset($validatedSlot['start_hour'], $validatedSlot['end_hour'], $validatedSlot['rate'])) {
                 $validated[] = $validatedSlot;
             }
         }
-        
+
         return $validated;
     }
 
@@ -895,31 +908,31 @@ final class ServiceValidationEngine
     private function validateTiers(array $tiers): array
     {
         $validated = [];
-        
+
         foreach ($tiers as $tier) {
-            if (!is_array($tier)) {
+            if (! is_array($tier)) {
                 continue;
             }
-            
+
             $validatedTier = [];
-            
+
             if (isset($tier['limit']) && is_numeric($tier['limit'])) {
                 $limit = (float) $tier['limit'];
                 if ($limit > 0 && $limit <= 999999) {
                     $validatedTier['limit'] = $limit;
                 }
             }
-            
+
             if (isset($tier['rate']) && is_numeric($tier['rate'])) {
                 $validatedTier['rate'] = $this->validateNumericRate($tier['rate']);
             }
-            
+
             // Only add if has required fields
             if (isset($validatedTier['limit'], $validatedTier['rate'])) {
                 $validated[] = $validatedTier;
             }
         }
-        
+
         return $validated;
     }
 
@@ -935,6 +948,7 @@ final class ServiceValidationEngine
                 $maxDepth = max($maxDepth, $depth);
             }
         }
+
         return $maxDepth;
     }
 
@@ -949,19 +963,20 @@ final class ServiceValidationEngine
                 $size += $this->getArraySize($value);
             }
         }
+
         return $size;
     }
 
     /**
      * Sanitize nested arrays in rate schedules.
-     * 
-     * @param array<mixed> $array
+     *
+     * @param  array<mixed>  $array
      * @return array<mixed>
      */
     private function sanitizeNestedArray(array $array): array
     {
         $sanitized = [];
-        
+
         foreach ($array as $key => $value) {
             if (is_array($value)) {
                 $sanitized[$key] = $this->sanitizeNestedArray($value);
@@ -980,19 +995,19 @@ final class ServiceValidationEngine
 
     /**
      * Validate estimated readings and calculate true-up adjustments.
-     * 
+     *
      * This method validates estimated readings against actual readings when available
      * and calculates the necessary adjustments for billing accuracy.
-     * 
-     * @param MeterReading $estimatedReading The estimated reading to validate
-     * @param MeterReading|null $actualReading The actual reading for comparison
+     *
+     * @param  MeterReading  $estimatedReading  The estimated reading to validate
+     * @param  MeterReading|null  $actualReading  The actual reading for comparison
      * @return array{is_valid: bool, true_up_amount: float|null, adjustment_required: bool, errors: array<string>, warnings: array<string>}
      */
     public function validateEstimatedReading(MeterReading $estimatedReading, ?MeterReading $actualReading = null): array
     {
         try {
             // Authorization check
-            if (auth()->check() && !auth()->user()->can('view', $estimatedReading)) {
+            if (auth()->check() && ! auth()->user()->can('view', $estimatedReading)) {
                 return ValidationResult::withError(__('validation.unauthorized_meter_reading'))->toArray();
             }
 
@@ -1002,7 +1017,7 @@ final class ServiceValidationEngine
             $adjustmentRequired = false;
 
             // Validate that this is actually an estimated reading
-            if ($estimatedReading->input_method !== \App\Enums\InputMethod::ESTIMATED) {
+            if ($estimatedReading->input_method !== InputMethod::ESTIMATED) {
                 $errors[] = 'Reading is not marked as estimated';
             }
 
@@ -1010,7 +1025,7 @@ final class ServiceValidationEngine
             if ($actualReading) {
                 $trueUpAmount = $this->calculateTrueUpAmount($estimatedReading, $actualReading);
                 $adjustmentRequired = abs($trueUpAmount) > $this->getTrueUpThreshold();
-                
+
                 if ($adjustmentRequired) {
                     $warnings[] = "True-up adjustment required: {$trueUpAmount} {$this->getReadingUnit($estimatedReading)}";
                 }
@@ -1054,9 +1069,9 @@ final class ServiceValidationEngine
 
     /**
      * Validate readings by validation status with enhanced filtering.
-     * 
-     * @param ValidationStatus $status The validation status to filter by
-     * @param array $options Additional filtering options
+     *
+     * @param  ValidationStatus  $status  The validation status to filter by
+     * @param  array  $options  Additional filtering options
      * @return Collection<int, MeterReading>
      */
     public function getReadingsByValidationStatus(ValidationStatus $status, array $options = []): Collection
@@ -1094,15 +1109,13 @@ final class ServiceValidationEngine
 
     /**
      * Bulk update validation status for multiple readings.
-     * 
-     * @param Collection<int, MeterReading> $readings
-     * @param ValidationStatus $newStatus
-     * @param int $validatedByUserId
+     *
+     * @param  Collection<int, MeterReading>  $readings
      * @return array{updated_count: int, errors: array<string>}
      */
     public function bulkUpdateValidationStatus(
-        Collection $readings, 
-        ValidationStatus $newStatus, 
+        Collection $readings,
+        ValidationStatus $newStatus,
         int $validatedByUserId
     ): array {
         $updatedCount = 0;
@@ -1111,8 +1124,9 @@ final class ServiceValidationEngine
         try {
             foreach ($readings as $reading) {
                 // Authorization check for each reading
-                if (auth()->check() && !auth()->user()->can('update', $reading)) {
+                if (auth()->check() && ! auth()->user()->can('update', $reading)) {
                     $errors[] = "Unauthorized to update reading {$reading->id}";
+
                     continue;
                 }
 
@@ -1138,7 +1152,7 @@ final class ServiceValidationEngine
                 'readings_count' => $readings->count(),
             ]);
 
-            $errors[] = 'System error during bulk update: ' . $e->getMessage();
+            $errors[] = 'System error during bulk update: '.$e->getMessage();
         }
 
         return [
@@ -1154,7 +1168,7 @@ final class ServiceValidationEngine
     {
         $estimatedValue = $estimatedReading->getEffectiveValue();
         $actualValue = $actualReading->getEffectiveValue();
-        
+
         return $actualValue - $estimatedValue;
     }
 
@@ -1184,9 +1198,10 @@ final class ServiceValidationEngine
         try {
             // Get historical readings for pattern analysis
             $historicalReadings = $this->getHistoricalReadings($estimatedReading->meter, 6);
-            
+
             if ($historicalReadings->count() < 3) {
                 $warnings[] = 'Insufficient historical data for estimation accuracy validation';
+
                 return ['warnings' => $warnings];
             }
 
@@ -1196,10 +1211,10 @@ final class ServiceValidationEngine
             });
 
             $estimatedConsumption = $estimatedReading->getConsumption();
-            
+
             if ($estimatedConsumption && $averageConsumption) {
                 $variance = abs($estimatedConsumption - $averageConsumption) / $averageConsumption;
-                
+
                 if ($variance > 0.5) { // 50% variance threshold
                     $warnings[] = 'Estimated reading varies significantly from historical patterns';
                 }
@@ -1217,8 +1232,9 @@ final class ServiceValidationEngine
 
     /**
      * Validate that the collection contains only MeterReading models.
-     * 
-     * @param Collection<int, MeterReading> $readings
+     *
+     * @param  Collection<int, MeterReading>  $readings
+     *
      * @throws \InvalidArgumentException
      */
     private function validateReadingsCollection(Collection $readings): void
@@ -1227,12 +1243,12 @@ final class ServiceValidationEngine
             throw new \InvalidArgumentException('Readings collection cannot be empty');
         }
 
-        $invalidModels = $readings->filter(fn($item) => !$item instanceof MeterReading);
-        
+        $invalidModels = $readings->filter(fn ($item) => ! $item instanceof MeterReading);
+
         if ($invalidModels->isNotEmpty()) {
             throw new \InvalidArgumentException(
-                'All items in readings collection must be MeterReading instances. Found ' . 
-                $invalidModels->count() . ' invalid items.'
+                'All items in readings collection must be MeterReading instances. Found '.
+                $invalidModels->count().' invalid items.'
             );
         }
 
@@ -1247,11 +1263,12 @@ final class ServiceValidationEngine
 
     /**
      * SECURITY: Validate authorization for all readings in batch BEFORE processing.
-     * 
+     *
      * This prevents partial processing and potential information leakage.
-     * 
-     * @param Collection<int, MeterReading> $readings
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @param  Collection<int, MeterReading>  $readings
+     *
+     * @throws AuthorizationException
      */
     private function validateBatchAuthorization(Collection $readings): void
     {
@@ -1264,7 +1281,7 @@ final class ServiceValidationEngine
 
         // Check authorization for ALL readings before processing ANY
         $unauthorizedReadings = $readings->filter(function ($reading) {
-            return !auth()->user()->can('view', $reading);
+            return ! auth()->user()->can('view', $reading);
         });
 
         if ($unauthorizedReadings->isNotEmpty()) {
@@ -1275,8 +1292,8 @@ final class ServiceValidationEngine
                 'unauthorized_ids' => $unauthorizedReadings->pluck('id')->toArray(),
                 'ip_address' => request()->ip(),
             ]);
-            
-            throw new \Illuminate\Auth\Access\AuthorizationException(
+
+            throw new AuthorizationException(
                 'Unauthorized access to one or more meter readings'
             );
         }
@@ -1284,10 +1301,11 @@ final class ServiceValidationEngine
 
     /**
      * SECURITY: Enforce rate limiting on validation operations.
-     * 
-     * @param string $operation Operation type for rate limiting
-     * @param int $itemCount Number of items being processed
-     * @throws \Illuminate\Http\Exceptions\ThrottleRequestsException
+     *
+     * @param  string  $operation  Operation type for rate limiting
+     * @param  int  $itemCount  Number of items being processed
+     *
+     * @throws ThrottleRequestsException
      */
     private function enforceRateLimit(string $operation, int $itemCount): void
     {
@@ -1296,7 +1314,7 @@ final class ServiceValidationEngine
         }
 
         $user = auth()->user();
-        $identifier = $user ? "user:{$user->id}" : "ip:" . request()->ip();
+        $identifier = $user ? "user:{$user->id}" : 'ip:'.request()->ip();
 
         $keySuffix = '';
         if (app()->runningUnitTests()) {
@@ -1307,19 +1325,19 @@ final class ServiceValidationEngine
         }
 
         $key = "rate_limit:{$operation}:{$identifier}{$keySuffix}";
-        
+
         // Get operation-specific limits
         $limits = $this->config->get('security.rate_limiting.limits', [
             'batch_validation' => 100, // items per hour
             'single_validation' => 300, // operations per hour
             'rate_change_validation' => 20, // operations per hour
         ]);
-        
+
         $limit = $limits[$operation] ?? 50;
         $window = 3600; // 1 hour in seconds
-        
+
         $current = $this->cache->get($key, 0);
-        
+
         if ($current + $itemCount > $limit) {
             $this->logger->warning('Rate limit exceeded', [
                 'operation' => $operation,
@@ -1329,14 +1347,14 @@ final class ServiceValidationEngine
                 'attempted_count' => $itemCount,
                 'limit' => $limit,
             ]);
-            
-            throw new \Illuminate\Http\Exceptions\ThrottleRequestsException(
+
+            throw new ThrottleRequestsException(
                 'Rate limit exceeded for validation operations',
                 null,
                 ['Retry-After' => $window - (time() % $window)] // Retry after remaining window time
             );
         }
-        
+
         // Update rate limit counter
         $this->cache->put($key, $current + $itemCount, $window);
     }

@@ -8,9 +8,9 @@ use App\Enums\InputMethod;
 use App\Enums\ValidationStatus;
 use App\Models\Meter;
 use App\Models\MeterReading;
-use App\Models\ServiceConfiguration;
-use App\Services\ServiceValidationEngine;
+use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -20,14 +20,14 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * Universal Reading Collector Service
- * 
+ *
  * Extends existing MeterReading creation to support new input methods including:
  * - Photo upload with OCR processing
  * - CSV import functionality
  * - API integration endpoints
  * - Composite readings with multi-value JSON structure
  * - Backward compatibility with existing single-value readings
- * 
+ *
  * Features:
  * - Multi-input method support (manual, photo OCR, CSV, API, estimated)
  * - Composite reading handling with reading_values JSON field
@@ -41,14 +41,14 @@ final class UniversalReadingCollector
     public function __construct(
         private readonly MeterReadingService $meterReadingService,
         private readonly ServiceValidationEngine $validationEngine,
-    ) {
-    }
+    ) {}
 
     /**
      * Create a new meter reading with universal input method support.
-     * 
-     * @param array $data Reading data including input method and values
+     *
+     * @param  array  $data  Reading data including input method and values
      * @return array Result with success status, reading, and any errors
+     *
      * @throws ValidationException
      */
     public function createReading(array $data): array
@@ -62,8 +62,8 @@ final class UniversalReadingCollector
             // Get the meter with service configuration
             $meter = Meter::with(['serviceConfiguration.utilityService', 'property'])
                 ->find($validatedData['meter_id']);
-                
-            if (!$meter) {
+
+            if (! $meter) {
                 throw new \InvalidArgumentException("Meter with ID {$validatedData['meter_id']} not found");
             }
 
@@ -78,7 +78,7 @@ final class UniversalReadingCollector
 
             // Validate the reading
             $validationResult = $this->validationEngine->validateMeterReading(
-                $reading, 
+                $reading,
                 $meter->serviceConfiguration
             );
 
@@ -105,7 +105,7 @@ final class UniversalReadingCollector
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Universal reading creation failed', [
                 'error' => $e->getMessage(),
                 'data' => $data,
@@ -124,8 +124,8 @@ final class UniversalReadingCollector
 
     /**
      * Collect reading with enhanced result format.
-     * 
-     * @param array $data Reading data
+     *
+     * @param  array  $data  Reading data
      * @return array Result with validation status
      */
     public function collectReading(array $data): array
@@ -135,16 +135,16 @@ final class UniversalReadingCollector
 
     /**
      * Sync offline readings from cache storage.
-     * 
-     * @param int $userId User ID for cache key
-     * @param int|null $maxReadings Maximum readings to sync (for partial sync)
+     *
+     * @param  int  $userId  User ID for cache key
+     * @param  int|null  $maxReadings  Maximum readings to sync (for partial sync)
      * @return array Sync results
      */
     public function syncOfflineReadings(int $userId, ?int $maxReadings = null): array
     {
         $cacheKey = "offline_readings_{$userId}";
         $offlineReadings = Cache::get($cacheKey, []);
-        
+
         if (empty($offlineReadings)) {
             return [
                 'success' => true,
@@ -186,14 +186,14 @@ final class UniversalReadingCollector
 
                 if ($existingReading) {
                     // Handle conflict by creating a new reading with conflict resolution
-                    $readingData['notes'] = ($readingData['notes'] ?? '') . ' [Conflict resolved - offline sync]';
+                    $readingData['notes'] = ($readingData['notes'] ?? '').' [Conflict resolved - offline sync]';
                     $readingData['reading_date'] = date('Y-m-d H:i:s', strtotime($readingData['reading_date']) + 60); // Add 1 minute
                     $results['conflicts_resolved']++;
                 }
 
                 // Create the reading
                 $result = $this->createReading($readingData);
-                
+
                 if ($result['success']) {
                     $results['synced_count']++;
                 } else {
@@ -208,7 +208,7 @@ final class UniversalReadingCollector
         }
 
         // Update cache with remaining readings or clear if all synced
-        if (!empty($remainingReadings)) {
+        if (! empty($remainingReadings)) {
             Cache::put($cacheKey, $remainingReadings, 3600);
         } else {
             Cache::forget($cacheKey);
@@ -219,27 +219,27 @@ final class UniversalReadingCollector
 
     /**
      * Create a new meter reading with universal input method support (legacy method).
-     * 
-     * @param array $data Reading data including input method and values
-     * @return MeterReading
+     *
+     * @param  array  $data  Reading data including input method and values
+     *
      * @throws ValidationException
      */
     public function createReadingLegacy(array $data): MeterReading
     {
         $result = $this->createReading($data);
-        
-        if (!$result['success']) {
+
+        if (! $result['success']) {
             throw new \RuntimeException(implode(', ', $result['errors']));
         }
-        
+
         return $result['reading'];
     }
 
     /**
      * Import readings from CSV file.
-     * 
-     * @param UploadedFile $file CSV file containing readings
-     * @param array $options Import options
+     *
+     * @param  UploadedFile  $file  CSV file containing readings
+     * @param  array  $options  Import options
      * @return array Import results
      */
     public function importFromCsv(UploadedFile $file, array $options = []): array
@@ -265,7 +265,7 @@ final class UniversalReadingCollector
                 try {
                     $readingData = $this->mapCsvRowToReading($rowData, $options);
                     $readingData['input_method'] = InputMethod::CSV_IMPORT;
-                    
+
                     $reading = $this->createReading($readingData);
                     $results['successful_imports']++;
 
@@ -305,10 +305,9 @@ final class UniversalReadingCollector
 
     /**
      * Create reading via API integration.
-     * 
-     * @param array $apiData Data from external API
-     * @param array $mapping Field mapping configuration
-     * @return MeterReading
+     *
+     * @param  array  $apiData  Data from external API
+     * @param  array  $mapping  Field mapping configuration
      */
     public function createFromApi(array $apiData, array $mapping = []): MeterReading
     {
@@ -342,9 +341,9 @@ final class UniversalReadingCollector
 
     /**
      * Process photo with OCR to extract reading values.
-     * 
-     * @param string $photoPath Path to uploaded photo
-     * @param Meter $meter Meter for context
+     *
+     * @param  string  $photoPath  Path to uploaded photo
+     * @param  Meter  $meter  Meter for context
      * @return array Extracted reading values
      */
     public function processPhotoOcr(string $photoPath, Meter $meter): array
@@ -356,7 +355,7 @@ final class UniversalReadingCollector
             // - AWS Textract
             // - Azure Computer Vision
             // - Tesseract OCR
-            
+
             Log::info('Processing photo OCR', [
                 'photo_path' => $photoPath,
                 'meter_id' => $meter->id,
@@ -384,13 +383,10 @@ final class UniversalReadingCollector
 
     /**
      * Create estimated reading based on historical patterns.
-     * 
-     * @param Meter $meter
-     * @param \Carbon\Carbon $readingDate
-     * @param array $options Estimation options
-     * @return MeterReading
+     *
+     * @param  array  $options  Estimation options
      */
-    public function createEstimatedReading(Meter $meter, \Carbon\Carbon $readingDate, array $options = []): MeterReading
+    public function createEstimatedReading(Meter $meter, Carbon $readingDate, array $options = []): MeterReading
     {
         try {
             // Get historical readings for estimation
@@ -454,7 +450,7 @@ final class UniversalReadingCollector
         $rules = [
             'meter_id' => 'required|exists:meters,id',
             'reading_date' => 'required|date|before_or_equal:today',
-            'input_method' => 'required|in:' . implode(',', array_column(InputMethod::cases(), 'value')),
+            'input_method' => 'required|in:'.implode(',', array_column(InputMethod::cases(), 'value')),
             'entered_by' => 'required|exists:users,id',
             'zone' => 'nullable|string|max:50',
             'notes' => 'nullable|string|max:1000',
@@ -548,23 +544,24 @@ final class UniversalReadingCollector
         if ($reading->input_method === InputMethod::ESTIMATED) {
             // Only reject estimated readings for critical validation failures
             // For property-based tests, we want to be more lenient with estimated readings
-            if (!$validationResult['is_valid'] && 
-                !empty($validationResult['errors']) && 
+            if (! $validationResult['is_valid'] &&
+                ! empty($validationResult['errors']) &&
                 $this->hasCriticalErrors($validationResult['errors'])) {
                 $reading->validation_status = ValidationStatus::REJECTED;
                 $reading->save();
             }
+
             // Keep REQUIRES_REVIEW for estimated readings in most cases
             return;
         }
-        
+
         // For other input methods, update status based on validation results
-        if (!$validationResult['is_valid']) {
+        if (! $validationResult['is_valid']) {
             $reading->validation_status = ValidationStatus::REJECTED;
             $reading->save();
         }
         // For warnings, only update if current status allows it
-        elseif (!empty($validationResult['warnings']) && $reading->validation_status === ValidationStatus::PENDING) {
+        elseif (! empty($validationResult['warnings']) && $reading->validation_status === ValidationStatus::PENDING) {
             $reading->validation_status = ValidationStatus::REQUIRES_REVIEW;
             $reading->save();
         }
@@ -618,14 +615,14 @@ final class UniversalReadingCollector
         $csvData = [];
         $handle = fopen($file->getPathname(), 'r');
 
-        if (!$handle) {
+        if (! $handle) {
             throw new \RuntimeException('Could not open CSV file');
         }
 
         $headers = fgetcsv($handle);
         $skipFirstRow = $options['has_headers'] ?? true;
 
-        if (!$skipFirstRow) {
+        if (! $skipFirstRow) {
             rewind($handle);
         }
 
@@ -695,7 +692,7 @@ final class UniversalReadingCollector
     {
         // This is a mock implementation
         // In production, integrate with actual OCR service
-        
+
         return [
             'values' => [
                 'primary' => rand(1000, 9999) + (rand(0, 99) / 100),
@@ -707,11 +704,11 @@ final class UniversalReadingCollector
     /**
      * Calculate estimated value based on historical patterns.
      */
-    private function calculateEstimatedValue($historicalReadings, \Carbon\Carbon $readingDate, array $options): float
+    private function calculateEstimatedValue($historicalReadings, Carbon $readingDate, array $options): float
     {
         // Simple average-based estimation
         // In production, use more sophisticated algorithms
-        
+
         $consumptions = $historicalReadings->map(function ($reading) {
             return $reading->getConsumption();
         })->filter()->values();
@@ -728,9 +725,9 @@ final class UniversalReadingCollector
 
     /**
      * Collect readings for a specific billing period using automated methods.
-     * 
-     * @param BillingPeriod $billingPeriod The period to collect readings for
-     * @param BillingOptions $options Collection options and preferences
+     *
+     * @param  BillingPeriod  $billingPeriod  The period to collect readings for
+     * @param  BillingOptions  $options  Collection options and preferences
      * @return ReadingCollectionResult Results of the collection process
      */
     public function collectReadingsForPeriod(
@@ -747,36 +744,37 @@ final class UniversalReadingCollector
         try {
             // Get all meters that need readings for this period
             $meters = $this->getMetersNeedingReadings($billingPeriod, $options);
-            
+
             foreach ($meters as $meter) {
                 try {
                     // Check if reading already exists for this period
                     $existingReading = $meter->readings()
                         ->whereBetween('reading_date', [
                             $billingPeriod->getStartDate(),
-                            $billingPeriod->getEndDate()
+                            $billingPeriod->getEndDate(),
                         ])
                         ->first();
-                    
-                    if ($existingReading && !$options->shouldRegenerateExisting()) {
+
+                    if ($existingReading && ! $options->shouldRegenerateExisting()) {
                         $results['warnings'][] = "Reading already exists for meter {$meter->id} in period {$billingPeriod->getLabel()}";
+
                         continue;
                     }
-                    
+
                     // Attempt to collect reading using configured method
                     $readingResult = $this->collectReadingForMeter($meter, $billingPeriod, $options);
-                    
+
                     if ($readingResult['success']) {
                         $results['success_count']++;
                     } else {
                         $results['failure_count']++;
                         $results['errors'] = array_merge($results['errors'], $readingResult['errors']);
                     }
-                    
+
                 } catch (\Exception $e) {
                     $results['failure_count']++;
                     $results['errors'][] = "Failed to collect reading for meter {$meter->id}: {$e->getMessage()}";
-                    
+
                     Log::error('Reading collection failed for meter', [
                         'meter_id' => $meter->id,
                         'period' => $billingPeriod->getLabel(),
@@ -784,17 +782,17 @@ final class UniversalReadingCollector
                     ]);
                 }
             }
-            
+
             Log::info('Reading collection completed', [
                 'period' => $billingPeriod->getLabel(),
                 'success_count' => $results['success_count'],
                 'failure_count' => $results['failure_count'],
                 'total_meters' => count($meters),
             ]);
-            
+
         } catch (\Exception $e) {
             $results['errors'][] = "Reading collection process failed: {$e->getMessage()}";
-            
+
             Log::error('Reading collection process failed', [
                 'period' => $billingPeriod->getLabel(),
                 'error' => $e->getMessage(),
@@ -811,20 +809,20 @@ final class UniversalReadingCollector
     private function getMetersNeedingReadings(
         \App\ValueObjects\BillingPeriod $billingPeriod,
         \App\ValueObjects\BillingOptions $options
-    ): \Illuminate\Support\Collection {
-        $query = \App\Models\Meter::query()
+    ): Collection {
+        $query = Meter::query()
             ->with(['property', 'serviceConfiguration'])
             ->whereHas('serviceConfiguration', function ($q) {
                 $q->where('is_active', true);
             });
-        
+
         // Filter by tenant IDs if specified
         if ($tenantIds = $options->getTenantIds()) {
             $query->whereHas('property.tenant', function ($q) use ($tenantIds) {
                 $q->whereIn('id', $tenantIds);
             });
         }
-        
+
         return $query->get();
     }
 
@@ -832,7 +830,7 @@ final class UniversalReadingCollector
      * Collect reading for a specific meter and period.
      */
     private function collectReadingForMeter(
-        \App\Models\Meter $meter,
+        Meter $meter,
         \App\ValueObjects\BillingPeriod $billingPeriod,
         \App\ValueObjects\BillingOptions $options
     ): array {
@@ -843,21 +841,21 @@ final class UniversalReadingCollector
             // - IoT device networks
             // - Third-party data providers
             // - Photo OCR systems
-            
+
             $readingDate = $billingPeriod->getEndDate()->subDays(rand(1, 5));
-            
+
             $reading = $this->createEstimatedReading($meter, $readingDate, [
                 'collection_method' => 'automated',
                 'billing_period' => $billingPeriod->getLabel(),
             ]);
-            
+
             return [
                 'success' => true,
                 'reading' => $reading,
                 'errors' => [],
                 'warnings' => [],
             ];
-            
+
         } catch (\Exception $e) {
             return [
                 'success' => false,
@@ -883,15 +881,13 @@ final class UniversalReadingCollector
         // Simple proportional distribution
         $values = [];
         $fieldCount = count($fields);
-        
+
         foreach ($fields as $field) {
             $values[$field['name']] = $totalValue / $fieldCount;
         }
 
         return $values;
     }
-
-
 }
 
 /**

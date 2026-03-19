@@ -11,11 +11,9 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Validate Meter Reading Action
- * 
+ *
  * Single responsibility: Validate a single meter reading.
  * Applies all validation rules and updates reading status.
- * 
- * @package App\Actions\Enhanced
  */
 final class ValidateMeterReadingAction
 {
@@ -26,8 +24,8 @@ final class ValidateMeterReadingAction
     /**
      * Execute the meter reading validation action.
      *
-     * @param MeterReading $reading The reading to validate
-     * @param bool $autoUpdate Whether to automatically update the reading status
+     * @param  MeterReading  $reading  The reading to validate
+     * @param  bool  $autoUpdate  Whether to automatically update the reading status
      * @return array Validation results
      */
     public function execute(MeterReading $reading, bool $autoUpdate = true): array
@@ -59,7 +57,7 @@ final class ValidateMeterReadingAction
     private function updateReadingStatus(MeterReading $reading, array $validationResult): void
     {
         $newStatus = $this->determineValidationStatus($validationResult);
-        
+
         if ($reading->validation_status !== $newStatus) {
             $reading->update([
                 'validation_status' => $newStatus,
@@ -75,12 +73,12 @@ final class ValidateMeterReadingAction
      */
     private function determineValidationStatus(array $validationResult): ValidationStatus
     {
-        if (!$validationResult['is_valid']) {
+        if (! $validationResult['is_valid']) {
             return ValidationStatus::REJECTED;
         }
 
         $warningCount = count($validationResult['warnings'] ?? []);
-        
+
         if ($warningCount > 0) {
             return ValidationStatus::REQUIRES_REVIEW;
         }
@@ -95,12 +93,12 @@ final class ValidateMeterReadingAction
     {
         $notes = [];
 
-        if (!empty($validationResult['errors'])) {
-            $notes[] = 'Errors: ' . implode('; ', $validationResult['errors']);
+        if (! empty($validationResult['errors'])) {
+            $notes[] = 'Errors: '.implode('; ', $validationResult['errors']);
         }
 
-        if (!empty($validationResult['warnings'])) {
-            $notes[] = 'Warnings: ' . implode('; ', $validationResult['warnings']);
+        if (! empty($validationResult['warnings'])) {
+            $notes[] = 'Warnings: '.implode('; ', $validationResult['warnings']);
         }
 
         return empty($notes) ? null : implode(' | ', $notes);

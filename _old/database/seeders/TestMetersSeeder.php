@@ -12,7 +12,7 @@ class TestMetersSeeder extends Seeder
 {
     /**
      * Seed test meters for all properties.
-     * 
+     *
      * Creates meters for each property:
      * - Electricity meter (supports_zones=true) for all properties
      * - Water cold meter for all properties
@@ -29,7 +29,7 @@ class TestMetersSeeder extends Seeder
             Meter::factory()
                 ->forProperty($property)
                 ->create([
-                    'serial_number' => 'EL-' . str_pad($property->id, 6, '0', STR_PAD_LEFT),
+                    'serial_number' => 'EL-'.str_pad($property->id, 6, '0', STR_PAD_LEFT),
                     'type' => MeterType::ELECTRICITY,
                     'installation_date' => $installationDate,
                     'supports_zones' => true,
@@ -39,7 +39,7 @@ class TestMetersSeeder extends Seeder
             Meter::factory()
                 ->forProperty($property)
                 ->create([
-                    'serial_number' => 'WC-' . str_pad($property->id, 6, '0', STR_PAD_LEFT),
+                    'serial_number' => 'WC-'.str_pad($property->id, 6, '0', STR_PAD_LEFT),
                     'type' => MeterType::WATER_COLD,
                     'installation_date' => $installationDate,
                     'supports_zones' => false,
@@ -49,7 +49,7 @@ class TestMetersSeeder extends Seeder
             Meter::factory()
                 ->forProperty($property)
                 ->create([
-                    'serial_number' => 'WH-' . str_pad($property->id, 6, '0', STR_PAD_LEFT),
+                    'serial_number' => 'WH-'.str_pad($property->id, 6, '0', STR_PAD_LEFT),
                     'type' => MeterType::WATER_HOT,
                     'installation_date' => $installationDate,
                     'supports_zones' => false,
@@ -60,7 +60,7 @@ class TestMetersSeeder extends Seeder
                 Meter::factory()
                     ->forProperty($property)
                     ->create([
-                        'serial_number' => 'HT-' . str_pad($property->id, 6, '0', STR_PAD_LEFT),
+                        'serial_number' => 'HT-'.str_pad($property->id, 6, '0', STR_PAD_LEFT),
                         'type' => MeterType::HEATING,
                         'installation_date' => $installationDate,
                         'supports_zones' => false,

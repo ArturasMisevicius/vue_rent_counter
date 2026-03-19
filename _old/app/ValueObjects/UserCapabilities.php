@@ -9,7 +9,7 @@ use App\Models\User;
 
 /**
  * User Capabilities Value Object
- * 
+ *
  * Encapsulates what a user can do based on their role and status.
  * Provides a clean interface for capability checking without
  * complex conditional logic scattered throughout the codebase.

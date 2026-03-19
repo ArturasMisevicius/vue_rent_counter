@@ -19,12 +19,12 @@ class TestInvoicesSeeder extends Seeder
 {
     /**
      * Seed test invoices for all tenants.
-     * 
+     *
      * Creates invoices in different states:
      * - Draft invoice for current month
      * - Finalized invoice for last month
      * - Paid invoice for 2 months ago
-     * 
+     *
      * Each invoice includes itemized charges with snapshotted tariff rates.
      */
     public function run(): void
@@ -50,9 +50,6 @@ class TestInvoicesSeeder extends Seeder
 
     /**
      * Create a draft invoice for the current month.
-     *
-     * @param Tenant $tenant
-     * @return void
      */
     private function createDraftInvoice(Tenant $tenant): void
     {
@@ -74,9 +71,6 @@ class TestInvoicesSeeder extends Seeder
 
     /**
      * Create a finalized invoice for last month.
-     *
-     * @param Tenant $tenant
-     * @return void
      */
     private function createFinalizedInvoice(Tenant $tenant): void
     {
@@ -98,9 +92,6 @@ class TestInvoicesSeeder extends Seeder
 
     /**
      * Create a paid invoice for 2 months ago.
-     *
-     * @param Tenant $tenant
-     * @return void
      */
     private function createPaidInvoice(Tenant $tenant): void
     {
@@ -116,7 +107,7 @@ class TestInvoicesSeeder extends Seeder
                 'status' => InvoiceStatus::PAID,
                 'finalized_at' => $billingPeriodEnd->copy()->addDay(),
                 'paid_at' => $billingPeriodEnd->copy()->addDays(fake()->numberBetween(1, 10)),
-                'payment_reference' => 'PMT-' . strtoupper(fake()->bothify('####??')),
+                'payment_reference' => 'PMT-'.strtoupper(fake()->bothify('####??')),
                 'paid_amount' => 0,
             ]);
 
@@ -125,11 +116,6 @@ class TestInvoicesSeeder extends Seeder
 
     /**
      * Create invoice items for an invoice based on meter readings.
-     *
-     * @param Invoice $invoice
-     * @param Tenant $tenant
-     * @param Carbon $billingPeriodStart
-     * @return void
      */
     private function createInvoiceItems(Invoice $invoice, Tenant $tenant, Carbon $billingPeriodStart): void
     {
@@ -150,14 +136,14 @@ class TestInvoicesSeeder extends Seeder
                 ->orderBy('reading_date', 'desc')
                 ->first();
 
-            if (!$currentReading || !$previousReading) {
+            if (! $currentReading || ! $previousReading) {
                 continue; // Skip if no readings available
             }
 
             // Get tariff for this meter type
             $tariff = $this->getTariffForMeterType($meter->type);
-            
-            if (!$tariff) {
+
+            if (! $tariff) {
                 continue; // Skip if no tariff found
             }
 
@@ -191,14 +177,6 @@ class TestInvoicesSeeder extends Seeder
 
     /**
      * Create electricity invoice items with day/night zones.
-     *
-     * @param Invoice $invoice
-     * @param Meter $meter
-     * @param MeterReading $currentReading
-     * @param MeterReading $previousReading
-     * @param Tariff $tariff
-     * @param float &$totalAmount
-     * @return void
      */
     private function createElectricityItems(
         Invoice $invoice,
@@ -209,13 +187,13 @@ class TestInvoicesSeeder extends Seeder
         float &$totalAmount
     ): void {
         $config = $tariff->configuration;
-        
+
         // Get day zone readings
         $dayCurrentReading = MeterReading::where('meter_id', $meter->id)
             ->where('reading_date', $currentReading->reading_date)
             ->where('zone', 'day')
             ->first();
-            
+
         $dayPreviousReading = MeterReading::where('meter_id', $meter->id)
             ->where('reading_date', $previousReading->reading_date)
             ->where('zone', 'day')
@@ -251,7 +229,7 @@ class TestInvoicesSeeder extends Seeder
             ->where('reading_date', $currentReading->reading_date)
             ->where('zone', 'night')
             ->first();
-            
+
         $nightPreviousReading = MeterReading::where('meter_id', $meter->id)
             ->where('reading_date', $previousReading->reading_date)
             ->where('zone', 'night')
@@ -285,14 +263,6 @@ class TestInvoicesSeeder extends Seeder
 
     /**
      * Create a standard invoice item for non-zoned meters.
-     *
-     * @param Invoice $invoice
-     * @param Meter $meter
-     * @param MeterReading $currentReading
-     * @param MeterReading $previousReading
-     * @param Tariff $tariff
-     * @param float &$totalAmount
-     * @return void
      */
     private function createStandardItem(
         Invoice $invoice,
@@ -304,7 +274,7 @@ class TestInvoicesSeeder extends Seeder
     ): void {
         $consumption = $currentReading->value - $previousReading->value;
         $config = $tariff->configuration;
-        
+
         // Get rate based on meter type
         $rate = $this->getRateForMeterType($meter->type, $config);
         $total = $consumption * $rate;
@@ -337,21 +307,18 @@ class TestInvoicesSeeder extends Seeder
 
     /**
      * Get tariff for a specific meter type.
-     *
-     * @param MeterType $meterType
-     * @return Tariff|null
      */
     private function getTariffForMeterType(MeterType $meterType): ?Tariff
     {
-        $providerName = match($meterType) {
+        $providerName = match ($meterType) {
             MeterType::ELECTRICITY => 'Ignitis',
             MeterType::WATER_COLD, MeterType::WATER_HOT => 'Vilniaus Vandenys',
             MeterType::HEATING => 'Vilniaus Energija',
         };
 
         $provider = Provider::where('name', $providerName)->first();
-        
-        if (!$provider) {
+
+        if (! $provider) {
             return null;
         }
 
@@ -367,15 +334,11 @@ class TestInvoicesSeeder extends Seeder
 
     /**
      * Get rate for a specific zone from tariff configuration.
-     *
-     * @param array $config
-     * @param string $zone
-     * @return float
      */
     private function getZoneRate(array $config, string $zone): float
     {
         $zones = $config['zones'] ?? [];
-        
+
         foreach ($zones as $zoneConfig) {
             if ($zoneConfig['id'] === $zone) {
                 return $zoneConfig['rate'];
@@ -387,14 +350,10 @@ class TestInvoicesSeeder extends Seeder
 
     /**
      * Get rate for a specific meter type from tariff configuration.
-     *
-     * @param MeterType $meterType
-     * @param array $config
-     * @return float
      */
     private function getRateForMeterType(MeterType $meterType, array $config): float
     {
-        return match($meterType) {
+        return match ($meterType) {
             MeterType::WATER_COLD => $config['supply_rate'] ?? 0.0,
             MeterType::WATER_HOT => $config['supply_rate'] ?? 0.0,
             MeterType::HEATING => $config['rate'] ?? 0.0,
@@ -404,13 +363,10 @@ class TestInvoicesSeeder extends Seeder
 
     /**
      * Get description for a meter type.
-     *
-     * @param MeterType $meterType
-     * @return string
      */
     private function getDescriptionForMeterType(MeterType $meterType): string
     {
-        return match($meterType) {
+        return match ($meterType) {
             MeterType::WATER_COLD => 'Cold Water Supply',
             MeterType::WATER_HOT => 'Hot Water Supply',
             MeterType::HEATING => 'Heating',
@@ -420,13 +376,10 @@ class TestInvoicesSeeder extends Seeder
 
     /**
      * Get unit for a meter type.
-     *
-     * @param MeterType $meterType
-     * @return string
      */
     private function getUnitForMeterType(MeterType $meterType): string
     {
-        return match($meterType) {
+        return match ($meterType) {
             MeterType::ELECTRICITY => 'kWh',
             MeterType::WATER_COLD, MeterType::WATER_HOT => 'm³',
             MeterType::HEATING => 'kWh',

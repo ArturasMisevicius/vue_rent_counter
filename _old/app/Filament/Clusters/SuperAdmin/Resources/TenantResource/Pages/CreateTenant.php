@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Filament\Clusters\SuperAdmin\Resources\TenantResource\Pages;
 
 use App\Contracts\TenantManagementInterface;
-use App\Support\Tenants\CreateTenantData;
 use App\Filament\Clusters\SuperAdmin\Resources\TenantResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Support\Tenants\CreateTenantData;
+use Carbon\Carbon;
 use Filament\Notifications\Notification;
+use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Database\Eloquent\Model;
 
 final class CreateTenant extends CreateRecord
 {
@@ -19,10 +21,10 @@ final class CreateTenant extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 
-    protected function handleRecordCreation(array $data): \Illuminate\Database\Eloquent\Model
+    protected function handleRecordCreation(array $data): Model
     {
         $tenantService = app(TenantManagementInterface::class);
-        
+
         $createData = new CreateTenantData(
             name: $data['name'],
             slug: $data['slug'],
@@ -31,8 +33,8 @@ final class CreateTenant extends CreateRecord
             domain: $data['domain'] ?? null,
             maxProperties: $data['max_properties'],
             maxUsers: $data['max_users'],
-            trialEndsAt: $data['trial_ends_at'] ? \Carbon\Carbon::parse($data['trial_ends_at']) : null,
-            subscriptionEndsAt: $data['subscription_ends_at'] ? \Carbon\Carbon::parse($data['subscription_ends_at']) : null,
+            trialEndsAt: $data['trial_ends_at'] ? Carbon::parse($data['trial_ends_at']) : null,
+            subscriptionEndsAt: $data['subscription_ends_at'] ? Carbon::parse($data['subscription_ends_at']) : null,
             resourceQuotas: $data['resource_quotas'] ?? [],
             timezone: $data['timezone'],
             locale: $data['locale'],

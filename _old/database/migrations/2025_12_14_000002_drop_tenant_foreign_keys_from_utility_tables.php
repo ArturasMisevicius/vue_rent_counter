@@ -25,7 +25,7 @@ return new class extends Migration
             Schema::table('utility_services', function ($table): void {
                 $table->dropForeign(['tenant_id']);
             });
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // Ignore when the FK is already absent.
         }
 
@@ -33,7 +33,7 @@ return new class extends Migration
             Schema::table('service_configurations', function ($table): void {
                 $table->dropForeign(['tenant_id']);
             });
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // Ignore when the FK is already absent.
         }
     }
@@ -43,4 +43,3 @@ return new class extends Migration
         // Intentionally no-op.
     }
 };
-

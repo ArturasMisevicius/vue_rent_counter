@@ -11,7 +11,7 @@ use App\Services\TenantInitialization\SlugGeneratorService;
 
 /**
  * Creates utility services from scratch using default configurations.
- * 
+ *
  * This strategy creates new utility services when no global templates
  * are available, using the provided service definitions.
  */
@@ -22,8 +22,8 @@ final readonly class DefaultServiceCreationStrategy implements ServiceCreationSt
     ) {}
 
     public function createService(
-        Organization $tenant, 
-        string $serviceKey, 
+        Organization $tenant,
+        string $serviceKey,
         array $definition
     ): UtilityService {
         return UtilityService::create([

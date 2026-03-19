@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Filament\Clusters\SuperAdmin\Resources\SystemConfigResource\Pages;
 
+use App\Enums\AuditAction;
 use App\Filament\Clusters\SuperAdmin\Resources\SystemConfigResource;
+use App\Models\SuperAdminAuditLog;
+use App\Models\SystemConfiguration;
 use Filament\Actions;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\ViewRecord;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 final class ViewSystemConfig extends ViewRecord
 {
@@ -39,10 +42,10 @@ final class ViewSystemConfig extends ViewRecord
                 ->successNotificationTitle(__('superadmin.config.notifications.deleted'))
                 ->after(function () {
                     // Log the configuration deletion
-                    \App\Models\SuperAdminAuditLog::create([
+                    SuperAdminAuditLog::create([
                         'admin_id' => auth()->id(),
-                        'action' => \App\Enums\AuditAction::SYSTEM_CONFIG_DELETED,
-                        'target_type' => \App\Models\SystemConfiguration::class,
+                        'action' => AuditAction::SYSTEM_CONFIG_DELETED,
+                        'target_type' => SystemConfiguration::class,
                         'target_id' => $this->getRecord()->id,
                         'changes' => [
                             'key' => $this->getRecord()->key,
@@ -95,8 +98,7 @@ final class ViewSystemConfig extends ViewRecord
                                 ->label(__('superadmin.config.fields.is_sensitive'))
                                 ->badge()
                                 ->color(fn (bool $state): string => $state ? 'danger' : 'success')
-                                ->formatStateUsing(fn (bool $state): string => 
-                                    $state ? __('common.yes') : __('common.no')
+                                ->formatStateUsing(fn (bool $state): string => $state ? __('common.yes') : __('common.no')
                                 ),
                         ]),
                         TextEntry::make('value')
@@ -117,7 +119,7 @@ final class ViewSystemConfig extends ViewRecord
 
                                 return (string) $state;
                             })
-                            ->copyable(fn ($record): bool => !$record->is_sensitive),
+                            ->copyable(fn ($record): bool => ! $record->is_sensitive),
                     ]),
 
                 Section::make(__('superadmin.config.sections.metadata'))

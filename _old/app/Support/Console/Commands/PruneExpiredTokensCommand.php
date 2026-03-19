@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 
 /**
  * Prune Expired API Tokens Command
- * 
+ *
  * Removes expired personal access tokens from the database.
  */
 class PruneExpiredTokensCommand extends Command
@@ -30,13 +30,13 @@ class PruneExpiredTokensCommand extends Command
     public function handle(ApiTokenManager $tokenManager): int
     {
         $hours = (int) $this->option('hours');
-        
+
         $this->info("Pruning tokens expired for more than {$hours} hours...");
-        
+
         $count = $tokenManager->pruneExpiredTokens($hours);
-        
+
         $this->info("Pruned {$count} expired tokens.");
-        
+
         return self::SUCCESS;
     }
 }

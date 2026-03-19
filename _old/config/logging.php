@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Logging\Tap\RedactSensitiveDataTap;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -63,7 +64,7 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
-            'tap' => [\App\Support\Logging\Tap\RedactSensitiveDataTap::class],
+            'tap' => [RedactSensitiveDataTap::class],
         ],
 
         'daily' => [
@@ -72,7 +73,7 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,
-            'tap' => [\App\Support\Logging\Tap\RedactSensitiveDataTap::class],
+            'tap' => [RedactSensitiveDataTap::class],
         ],
 
         'slack' => [
@@ -136,7 +137,7 @@ return [
             'days' => 90,
             'replace_placeholders' => true,
             'permission' => 0640, // Restricted access for security
-            'tap' => [\App\Support\Logging\Tap\RedactSensitiveDataTap::class],
+            'tap' => [RedactSensitiveDataTap::class],
         ],
 
         'security' => [
@@ -146,7 +147,7 @@ return [
             'days' => 90,
             'permission' => 0640, // Restricted access for security
             'replace_placeholders' => true,
-            'tap' => [\App\Support\Logging\Tap\RedactSensitiveDataTap::class],
+            'tap' => [RedactSensitiveDataTap::class],
         ],
 
         'services' => [
@@ -156,7 +157,7 @@ return [
             'days' => env('LOG_SERVICES_DAYS', 14),
             'permission' => 0640, // Restricted access for security
             'replace_placeholders' => true,
-            'tap' => [\App\Support\Logging\Tap\RedactSensitiveDataTap::class],
+            'tap' => [RedactSensitiveDataTap::class],
         ],
 
         'tenant_context' => [
@@ -166,7 +167,7 @@ return [
             'days' => 90, // Keep tenant context logs for 90 days for audit purposes
             'permission' => 0640, // Restricted access for security
             'replace_placeholders' => true,
-            'tap' => [\App\Support\Logging\Tap\RedactSensitiveDataTap::class],
+            'tap' => [RedactSensitiveDataTap::class],
         ],
 
     ],

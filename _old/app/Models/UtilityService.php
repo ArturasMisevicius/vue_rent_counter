@@ -8,12 +8,13 @@ use App\Enums\PricingModel;
 use App\Enums\ServiceType;
 use App\Enums\UserRole;
 use App\Services\TenantContext;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 /**
@@ -160,7 +161,7 @@ class UtilityService extends Model
 
         // Basic validation - can be extended with JSON Schema validation
         foreach ($schema['required'] ?? [] as $field) {
-            if (!isset($configuration[$field])) {
+            if (! isset($configuration[$field])) {
                 $errors[] = "Required field '{$field}' is missing";
             }
         }
@@ -181,7 +182,7 @@ class UtilityService extends Model
      */
     public function createTenantCopy(int $tenantId, array $customizations = []): self
     {
-        if (!$this->is_global_template) {
+        if (! $this->is_global_template) {
             throw new \InvalidArgumentException('Can only create tenant copies of global templates');
         }
 
@@ -226,13 +227,13 @@ class UtilityService extends Model
     /**
      * Get cached service options for form selects.
      */
-    public static function getCachedOptions(bool $globalOnly = false): \Illuminate\Support\Collection
+    public static function getCachedOptions(bool $globalOnly = false): Collection
     {
-        $tenantId = app(\App\Services\TenantContext::class)->get() ?? auth()->user()?->tenant_id;
+        $tenantId = app(TenantContext::class)->get() ?? auth()->user()?->tenant_id;
         $cacheKey = $globalOnly
             ? 'utility_services.global_options'
-            : 'utility_services.form_options.' . ($tenantId ?? 'no-tenant');
-        
+            : 'utility_services.form_options.'.($tenantId ?? 'no-tenant');
+
         return cache()->remember(
             $cacheKey,
             now()->addHour(),
@@ -258,8 +259,8 @@ class UtilityService extends Model
      */
     public static function clearCachedOptions(): void
     {
-        $tenantId = app(\App\Services\TenantContext::class)->get() ?? auth()->user()?->tenant_id;
-        cache()->forget('utility_services.form_options.' . ($tenantId ?? 'no-tenant'));
+        $tenantId = app(TenantContext::class)->get() ?? auth()->user()?->tenant_id;
+        cache()->forget('utility_services.form_options.'.($tenantId ?? 'no-tenant'));
         cache()->forget('utility_services.global_options');
     }
 
@@ -271,12 +272,13 @@ class UtilityService extends Model
         static::addGlobalScope('utility_service_visibility', function (Builder $query): void {
             $user = auth()->user();
 
-            if (!$user) {
+            if (! $user) {
                 if (app()->runningUnitTests() || app()->runningInConsole()) {
                     return;
                 }
 
                 $query->where('is_active', true)->where('is_global_template', true);
+
                 return;
             }
 
@@ -300,15 +302,17 @@ class UtilityService extends Model
         static::creating(function (self $service): void {
             if ($service->is_global_template) {
                 $service->tenant_id = null;
+
                 return;
             }
 
-            if (!empty($service->tenant_id)) {
+            if (! empty($service->tenant_id)) {
                 return;
             }
 
             if (app(TenantContext::class)->get() !== null) {
                 $service->tenant_id = app(TenantContext::class)->get();
+
                 return;
             }
 

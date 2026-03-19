@@ -11,16 +11,14 @@ use App\Services\TenantBoundaryService;
 
 /**
  * InvoicePolicy
- * 
+ *
  * Authorization policy for invoice operations.
- * 
+ *
  * Requirements:
  * - 11.1: Verify user's role using Laravel Policies
  * - 11.3: Manager can create and view invoices
  * - 11.4: Tenant can only view their own invoices
  * - 7.3: Cross-tenant access prevention
- * 
- * @package App\Policies
  */
 final readonly class InvoicePolicy
 {
@@ -30,13 +28,13 @@ final readonly class InvoicePolicy
 
     /**
      * Determine whether the user can view any invoices.
-     * 
+     *
      * All authenticated users can view invoices (filtered by tenant scope).
      * TenantScope global scope ensures users only see their tenant's data.
-     * 
+     *
      * Requirements: 11.1, 11.4
-     * 
-     * @param User $user The authenticated user
+     *
+     * @param  User  $user  The authenticated user
      * @return bool True if authorized
      */
     public function viewAny(User $user): bool
@@ -48,20 +46,20 @@ final readonly class InvoicePolicy
 
     /**
      * Determine whether the user can view the invoice.
-     * 
+     *
      * Adds tenant_id ownership checks.
      * Ensures tenant can only access their property's invoices.
-     * 
+     *
      * Requirements: 11.1, 11.4, 7.3
-     * 
-     * @param User $user The authenticated user
-     * @param Invoice $invoice The invoice to view
+     *
+     * @param  User  $user  The authenticated user
+     * @param  Invoice  $invoice  The invoice to view
      * @return bool True if authorized
      */
     public function view(User $user, Invoice $invoice): bool
     {
         // Must be able to access the invoice's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $invoice)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $invoice)) {
             return false;
         }
 
@@ -87,13 +85,13 @@ final readonly class InvoicePolicy
 
     /**
      * Determine whether the user can create invoices.
-     * 
+     *
      * Admins and Managers can create invoices.
      * Tenants have read-only access.
-     * 
+     *
      * Requirements: 11.1, 11.3
-     * 
-     * @param User $user The authenticated user
+     *
+     * @param  User  $user  The authenticated user
      * @return bool True if authorized
      */
     public function create(User $user): bool
@@ -112,12 +110,12 @@ final readonly class InvoicePolicy
     public function update(User $user, Invoice $invoice): bool
     {
         // Must be able to access the invoice's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $invoice)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $invoice)) {
             return false;
         }
 
         // Finalized invoices cannot be updated (except by superadmin for status changes)
-        if ($invoice->isFinalized() && !$user->hasRole('superadmin')) {
+        if ($invoice->isFinalized() && ! $user->hasRole('superadmin')) {
             return false;
         }
 
@@ -127,25 +125,25 @@ final readonly class InvoicePolicy
 
     /**
      * Determine whether the user can finalize the invoice.
-     * 
+     *
      * Admins and Managers can finalize invoices within their tenant.
      * Only draft invoices can be finalized.
-     * 
+     *
      * Requirements: 11.1, 11.3, 7.3
-     * 
-     * @param User $user The authenticated user
-     * @param Invoice $invoice The invoice to finalize
+     *
+     * @param  User  $user  The authenticated user
+     * @param  Invoice  $invoice  The invoice to finalize
      * @return bool True if authorized
      */
     public function finalize(User $user, Invoice $invoice): bool
     {
         // Must be able to access the invoice's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $invoice)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $invoice)) {
             return false;
         }
 
         // Only draft invoices can be finalized
-        if (!$invoice->isDraft()) {
+        if (! $invoice->isDraft()) {
             return false;
         }
 
@@ -162,7 +160,7 @@ final readonly class InvoicePolicy
     public function processPayment(User $user, Invoice $invoice): bool
     {
         // Must be able to access the invoice's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $invoice)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $invoice)) {
             return false;
         }
 
@@ -173,18 +171,18 @@ final readonly class InvoicePolicy
     /**
      * Determine whether the user can delete the invoice.
      * Managers can delete draft invoices (Permissive workflow).
-     * 
+     *
      * Requirements: 11.1, 13.3
      */
     public function delete(User $user, Invoice $invoice): bool
     {
         // Must be able to access the invoice's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $invoice)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $invoice)) {
             return false;
         }
 
         // Only draft invoices can be deleted
-        if (!$invoice->isDraft()) {
+        if (! $invoice->isDraft()) {
             return false;
         }
 
@@ -194,13 +192,13 @@ final readonly class InvoicePolicy
 
     /**
      * Determine whether the user can restore the invoice.
-     * 
+     *
      * Requirements: 11.1, 13.3
      */
     public function restore(User $user, Invoice $invoice): bool
     {
         // Must be able to access the invoice's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $invoice)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $invoice)) {
             return false;
         }
 
@@ -214,7 +212,7 @@ final readonly class InvoicePolicy
     public function forceDelete(User $user, Invoice $invoice): bool
     {
         // Must be able to access the invoice's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $invoice)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $invoice)) {
             return false;
         }
 

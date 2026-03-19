@@ -11,7 +11,7 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
  * Security Violation Policy
- * 
+ *
  * Defines authorization rules for security violation access and management.
  * Implements least privilege principle with role-based access control.
  */
@@ -47,7 +47,7 @@ final class SecurityViolationPolicy
         }
 
         // Admin and security analysts can view tenant violations
-        return $user->hasAnyRole([UserRole::ADMIN]) || 
+        return $user->hasAnyRole([UserRole::ADMIN]) ||
                $user->hasPermission('view-security-analytics');
     }
 
@@ -77,7 +77,7 @@ final class SecurityViolationPolicy
         }
 
         // Only admin can update violations (mark as resolved, add notes)
-        return $user->hasRole(UserRole::ADMIN) || 
+        return $user->hasRole(UserRole::ADMIN) ||
                $user->hasPermission('manage-security-violations');
     }
 
@@ -125,7 +125,7 @@ final class SecurityViolationPolicy
         }
 
         // Admin and security analysts can resolve violations
-        return $user->hasRole(UserRole::ADMIN) || 
+        return $user->hasRole(UserRole::ADMIN) ||
                $user->hasPermission('resolve-security-violations');
     }
 

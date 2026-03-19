@@ -19,7 +19,7 @@ class ThemeComposer
     public function compose(View $view): void
     {
         $theme = session('theme', config('app.default_theme', 'light'));
-        
+
         $view->with([
             'currentTheme' => $theme,
             'availableThemes' => ['light', 'dark'],

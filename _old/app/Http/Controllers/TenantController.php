@@ -13,12 +13,14 @@ class TenantController extends Controller
     public function index()
     {
         $tenants = Tenant::with('property')->paginate(20);
+
         return view('tenants.index', compact('tenants'));
     }
 
     public function create()
     {
         $properties = Property::all();
+
         return view('tenants.create', compact('properties'));
     }
 
@@ -35,12 +37,14 @@ class TenantController extends Controller
     public function show(Tenant $tenant)
     {
         $tenant->load(['property', 'invoices']);
+
         return view('tenants.show', compact('tenant'));
     }
 
     public function edit(Tenant $tenant)
     {
         $properties = Property::all();
+
         return view('tenants.edit', compact('tenant', 'properties'));
     }
 
@@ -65,6 +69,7 @@ class TenantController extends Controller
     public function invoices(Tenant $tenant)
     {
         $invoices = $tenant->invoices()->latest()->paginate(20);
+
         return view('tenants.invoices', compact('tenant', 'invoices'));
     }
 
@@ -74,7 +79,7 @@ class TenantController extends Controller
             ->with('meter')
             ->latest('reading_date')
             ->paginate(50);
-        
+
         return view('tenants.consumption', compact('tenant', 'readings'));
     }
 

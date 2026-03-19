@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Contracts\SharedServiceCostDistributor;
 use App\Enums\BillingSchedule;
 use App\Enums\InvoiceStatus;
 use App\Exceptions\BillingException;
@@ -14,9 +13,6 @@ use App\Models\ServiceConfiguration;
 use App\Models\Tenant;
 use App\Services\Billing\PropertyBillingProcessor;
 use App\Services\Billing\TenantBillingProcessor;
-use App\Services\HeatingCalculatorService;
-use App\Services\SharedServiceCostDistributorService;
-use App\Services\UniversalReadingCollector;
 use App\ValueObjects\AutomatedBillingResult;
 use App\ValueObjects\BillingOptions;
 use App\ValueObjects\BillingPeriod;
@@ -27,17 +23,16 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Automated billing engine orchestrator.
- * 
+ *
  * Coordinates the automated billing cycle execution by delegating
  * to specialized processors for different aspects of billing.
  * Follows the Single Responsibility Principle by focusing on
  * orchestration rather than implementation details.
- * 
- * @package App\Services
- * @see \App\Services\Billing\TenantBillingProcessor
- * @see \App\ValueObjects\AutomatedBillingResult
- * @see \App\ValueObjects\BillingOptions
- * 
+ *
+ * @see TenantBillingProcessor
+ * @see AutomatedBillingResult
+ * @see BillingOptions
+ *
  * @example
  * ```php
  * $billingEngine = app(AutomatedBillingEngine::class);
@@ -61,38 +56,39 @@ final readonly class AutomatedBillingEngine
 
     /**
      * Process automated billing cycle with enhanced transaction handling.
-     * 
-     * @param BillingPeriod $period The billing period to process
-     * @param BillingOptions $options Configuration options for billing execution
+     *
+     * @param  BillingPeriod  $period  The billing period to process
+     * @param  BillingOptions  $options  Configuration options for billing execution
      * @return AutomatedBillingResult Results of the billing cycle execution
-     * 
+     *
      * @throws BillingException If billing cycle fails
      */
     public function processBillingCycle(BillingPeriod $period, BillingOptions $options): AutomatedBillingResult
     {
         Log::info('Starting automated billing cycle', [
             'period' => $period->toArray(),
-            'options' => $options->toArray()
+            'options' => $options->toArray(),
         ]);
 
         // Check if we're in a test environment or already in a transaction
         $inTransaction = DB::transactionLevel() > 0;
         $isTestEnvironment = app()->environment('testing') || config('app.env') === 'testing';
-        
+
         if ($inTransaction || $isTestEnvironment) {
             // Already in transaction or in test environment, proceed without wrapping
             Log::debug('Skipping transaction wrapper', [
                 'transaction_level' => DB::transactionLevel(),
-                'is_testing' => $isTestEnvironment
+                'is_testing' => $isTestEnvironment,
             ]);
+
             return $this->executeBillingCycle($period, BillingSchedule::MONTHLY, $options);
         }
 
         // Not in transaction and not in test environment, wrap in transaction for data consistency
         Log::debug('Using transaction wrapper', [
-            'transaction_level' => DB::transactionLevel()
+            'transaction_level' => DB::transactionLevel(),
         ]);
-        
+
         return DB::transaction(function () use ($period, $options) {
             return $this->executeBillingCycle($period, BillingSchedule::MONTHLY, $options);
         });
@@ -100,12 +96,12 @@ final readonly class AutomatedBillingEngine
 
     /**
      * Execute automated billing cycle for specified period and schedule.
-     * 
-     * @param BillingPeriod $billingPeriod The billing period to process
-     * @param BillingSchedule|string $schedule Billing schedule type
-     * @param BillingOptions|array|null $options Configuration options for billing execution
+     *
+     * @param  BillingPeriod  $billingPeriod  The billing period to process
+     * @param  BillingSchedule|string  $schedule  Billing schedule type
+     * @param  BillingOptions|array|null  $options  Configuration options for billing execution
      * @return AutomatedBillingResult Results of the billing cycle execution
-     * 
+     *
      * @throws BillingException If billing cycle fails
      */
     public function executeBillingCycle(
@@ -117,13 +113,13 @@ final readonly class AutomatedBillingEngine
         if (is_string($schedule)) {
             $schedule = BillingSchedule::fromString($schedule);
         }
-        
+
         // Normalize options to value object
         if (is_array($options)) {
             $options = BillingOptions::fromArray($options);
         }
         $options ??= BillingOptions::default();
-        
+
         Log::info('Starting automated billing cycle', [
             'period' => $billingPeriod->getLabel(),
             'schedule' => $schedule->value,
@@ -143,7 +139,7 @@ final readonly class AutomatedBillingEngine
             // Step 2: Process tenants
             $tenants = $this->getTenantsForBilling($schedule, $options);
             $tenantResults = $this->processAllTenants($tenants, $billingPeriod, $options);
-            
+
             $results = array_merge($results, $tenantResults);
 
             // Step 3: Handle shared services
@@ -152,9 +148,9 @@ final readonly class AutomatedBillingEngine
             }
 
             $billingResult = AutomatedBillingResult::fromArray($results);
-            
+
             Log::info('Automated billing cycle completed', $billingResult->toArray());
-            
+
             return $billingResult;
 
         } catch (\Exception $e) {
@@ -164,7 +160,7 @@ final readonly class AutomatedBillingEngine
                 'period' => $billingPeriod->getLabel(),
                 'schedule' => $schedule->value,
             ]);
-            
+
             throw BillingException::from($e);
         }
     }
@@ -211,19 +207,19 @@ final readonly class AutomatedBillingEngine
                     $billingPeriod,
                     $options
                 );
-                
+
                 $results['processed_tenants']++;
                 $results['generated_invoices'] += $tenantResult['invoices_generated'];
                 $results['total_amount'] += $tenantResult['total_amount'];
-                
-                if (!empty($tenantResult['warnings'])) {
+
+                if (! empty($tenantResult['warnings'])) {
                     $results['warnings'] = array_merge($results['warnings'], $tenantResult['warnings']);
                 }
-                
+
             } catch (\Exception $e) {
                 $error = "Tenant {$tenant->id} processing failed: {$e->getMessage()}";
                 $results['errors'][] = $error;
-                
+
                 Log::error('Tenant processing failed', [
                     'tenant_id' => $tenant->id,
                     'error' => $e->getMessage(),
@@ -248,11 +244,11 @@ final readonly class AutomatedBillingEngine
 
         try {
             $collectionResult = $this->readingCollector->collectReadingsForPeriod($billingPeriod, $options);
-            
+
             $results['collected_readings'] = $collectionResult->getSuccessCount();
             $results['failed_collections'] = $collectionResult->getFailureCount();
             $results['errors'] = $collectionResult->getErrors();
-            
+
         } catch (\Exception $e) {
             $results['errors'][] = "Reading collection failed: {$e->getMessage()}";
         }
@@ -328,13 +324,13 @@ final readonly class AutomatedBillingEngine
         // This would typically involve complex calculations based on
         // actual usage, provider costs, maintenance costs, etc.
         // For now, return a simple calculation based on configuration
-        
+
         $baseCost = $serviceConfig->rate_schedule['base_cost'] ?? 0.0;
         $variableCost = $serviceConfig->rate_schedule['variable_cost'] ?? 0.0;
-        
+
         // Add seasonal adjustments if applicable
         $seasonalMultiplier = $this->getSeasonalMultiplier($billingPeriod->getStartDate());
-        
+
         return ($baseCost + $variableCost) * $seasonalMultiplier;
     }
 

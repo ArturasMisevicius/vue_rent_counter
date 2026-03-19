@@ -4,31 +4,32 @@ declare(strict_types=1);
 
 namespace App\ValueObjects;
 
+use App\Services\SharedServiceCostDistributorService;
 use Carbon\Carbon;
 use InvalidArgumentException;
+use Tests\Property\SharedServiceCostDistributionPropertyTest;
 
 /**
  * Represents a billing period with start and end dates.
- * 
+ *
  * Immutable value object that ensures billing periods are valid
  * and provides utility methods for period calculations. Used throughout
  * the utility billing system for consistent date range handling.
- * 
- * @package App\ValueObjects
- * @see \App\Services\SharedServiceCostDistributorService
- * @see \Tests\Property\SharedServiceCostDistributionPropertyTest
- * 
+ *
+ * @see SharedServiceCostDistributorService
+ * @see SharedServiceCostDistributionPropertyTest
+ *
  * @example
  * ```php
  * // Create monthly billing period
  * $period = BillingPeriod::forMonth(2024, 3);
- * 
+ *
  * // Create custom range
  * $period = BillingPeriod::fromRange(
  *     Carbon::parse('2024-03-01'),
  *     Carbon::parse('2024-03-31')
  * );
- * 
+ *
  * echo $period->getDays(); // 31
  * echo $period->getLabel(); // "March 2024"
  * ```
@@ -51,7 +52,7 @@ final readonly class BillingPeriod
     {
         $startDate = Carbon::create($year, $month, 1)->startOfMonth();
         $endDate = $startDate->copy()->endOfMonth();
-        
+
         return new self($startDate, $endDate);
     }
 
@@ -69,6 +70,7 @@ final readonly class BillingPeriod
     public static function previousMonth(): self
     {
         $previous = now()->subMonth();
+
         return self::forMonth($previous->year, $previous->month);
     }
 
@@ -163,8 +165,8 @@ final readonly class BillingPeriod
         if ($this->startDate->isSameMonth($this->endDate)) {
             return $this->startDate->format('F Y');
         }
-        
-        return $this->startDate->format('M j, Y') . ' - ' . $this->endDate->format('M j, Y');
+
+        return $this->startDate->format('M j, Y').' - '.$this->endDate->format('M j, Y');
     }
 
     /**
@@ -185,7 +187,7 @@ final readonly class BillingPeriod
      */
     public function toString(): string
     {
-        return $this->startDate->toDateString() . ' to ' . $this->endDate->toDateString();
+        return $this->startDate->toDateString().' to '.$this->endDate->toDateString();
     }
 
     /**
@@ -193,7 +195,7 @@ final readonly class BillingPeriod
      */
     public function equals(BillingPeriod $other): bool
     {
-        return $this->startDate->equalTo($other->startDate) 
+        return $this->startDate->equalTo($other->startDate)
             && $this->endDate->equalTo($other->endDate);
     }
 
@@ -205,7 +207,7 @@ final readonly class BillingPeriod
         $duration = $this->getDays();
         $nextStart = $this->endDate->copy()->addDay();
         $nextEnd = $nextStart->copy()->addDays($duration - 1);
-        
+
         return new self($nextStart, $nextEnd);
     }
 
@@ -217,7 +219,7 @@ final readonly class BillingPeriod
         $duration = $this->getDays();
         $prevEnd = $this->startDate->copy()->subDay();
         $prevStart = $prevEnd->copy()->subDays($duration - 1);
-        
+
         return new self($prevStart, $prevEnd);
     }
 

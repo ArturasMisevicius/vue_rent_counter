@@ -9,13 +9,14 @@ use InvalidArgumentException;
 
 /**
  * Content Security Policy Header Builder
- * 
+ *
  * Fluent builder for constructing CSP headers with proper validation
  * and nonce integration.
  */
 final class CspHeaderBuilder
 {
     private array $directives = [];
+
     private ?SecurityNonce $nonce = null;
 
     /**
@@ -112,6 +113,7 @@ final class CspHeaderBuilder
     public function withNonce(SecurityNonce $nonce): self
     {
         $this->nonce = $nonce;
+
         return $this;
     }
 
@@ -125,6 +127,7 @@ final class CspHeaderBuilder
         }
 
         $this->addNonceToDirective('script-src');
+
         return $this;
     }
 
@@ -138,6 +141,7 @@ final class CspHeaderBuilder
         }
 
         $this->addNonceToDirective('style-src');
+
         return $this;
     }
 
@@ -152,7 +156,7 @@ final class CspHeaderBuilder
 
         $parts = [];
         foreach ($this->directives as $directive => $sources) {
-            $parts[] = $directive . ' ' . implode(' ', $sources);
+            $parts[] = $directive.' '.implode(' ', $sources);
         }
 
         return implode('; ', $parts);
@@ -163,7 +167,7 @@ final class CspHeaderBuilder
      */
     public static function strict(): self
     {
-        return (new self())
+        return (new self)
             ->defaultSrc("'self'")
             ->scriptSrc("'self'")
             ->styleSrc("'self'")
@@ -182,7 +186,7 @@ final class CspHeaderBuilder
      */
     public static function development(): self
     {
-        return (new self())
+        return (new self)
             ->defaultSrc("'self'")
             ->scriptSrc("'self'", 'cdn.tailwindcss.com', 'cdn.jsdelivr.net', 'localhost:*', '127.0.0.1:*')
             ->styleSrc("'self'", 'fonts.googleapis.com', "'unsafe-inline'") // Allow inline styles in dev
@@ -205,6 +209,7 @@ final class CspHeaderBuilder
         $this->validateSources($sources);
 
         $this->directives[$directive] = $sources;
+
         return $this;
     }
 
@@ -213,12 +218,12 @@ final class CspHeaderBuilder
      */
     private function addNonceToDirective(string $directive): void
     {
-        if (!isset($this->directives[$directive])) {
+        if (! isset($this->directives[$directive])) {
             $this->directives[$directive] = ["'self'"];
         }
 
         $nonceValue = $this->nonce->forCsp();
-        if (!in_array($nonceValue, $this->directives[$directive], true)) {
+        if (! in_array($nonceValue, $this->directives[$directive], true)) {
             $this->directives[$directive][] = $nonceValue;
         }
     }
@@ -231,10 +236,10 @@ final class CspHeaderBuilder
         $validDirectives = [
             'default-src', 'script-src', 'style-src', 'img-src', 'font-src',
             'connect-src', 'frame-ancestors', 'frame-src', 'object-src',
-            'base-uri', 'form-action', 'media-src', 'manifest-src', 'worker-src'
+            'base-uri', 'form-action', 'media-src', 'manifest-src', 'worker-src',
         ];
 
-        if (!in_array($directive, $validDirectives, true)) {
+        if (! in_array($directive, $validDirectives, true)) {
             throw new InvalidArgumentException("Invalid CSP directive: {$directive}");
         }
     }
@@ -245,12 +250,12 @@ final class CspHeaderBuilder
     private function validateSources(array $sources): void
     {
         foreach ($sources as $source) {
-            if (!is_string($source) || empty($source)) {
+            if (! is_string($source) || empty($source)) {
                 throw new InvalidArgumentException('CSP sources must be non-empty strings');
             }
 
             // Basic validation for common CSP source patterns
-            if (!preg_match('/^(?:\'[^\']*\'|[a-zA-Z][a-zA-Z0-9+.-]*:|[a-zA-Z0-9.-]+|\*)/', $source)) {
+            if (! preg_match('/^(?:\'[^\']*\'|[a-zA-Z][a-zA-Z0-9+.-]*:|[a-zA-Z0-9.-]+|\*)/', $source)) {
                 throw new InvalidArgumentException("Invalid CSP source format: {$source}");
             }
         }

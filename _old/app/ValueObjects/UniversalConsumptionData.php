@@ -8,16 +8,16 @@ use InvalidArgumentException;
 
 /**
  * Value object representing universal consumption data for billing calculations.
- * 
+ *
  * Supports various consumption patterns including single values, zone-based
  * consumption (time-of-use), and composite readings from multiple meters.
  */
 final readonly class UniversalConsumptionData
 {
     /**
-     * @param float $totalConsumption Total consumption amount
-     * @param array<string, float> $zoneConsumption Zone-based consumption (e.g., day/night rates)
-     * @param array<string, mixed> $metadata Additional consumption metadata
+     * @param  float  $totalConsumption  Total consumption amount
+     * @param  array<string, float>  $zoneConsumption  Zone-based consumption (e.g., day/night rates)
+     * @param  array<string, mixed>  $metadata  Additional consumption metadata
      */
     public function __construct(
         public float $totalConsumption,
@@ -39,13 +39,13 @@ final readonly class UniversalConsumptionData
 
     /**
      * Create from zone-based consumption data.
-     * 
-     * @param array<string, float> $zoneConsumption
+     *
+     * @param  array<string, float>  $zoneConsumption
      */
     public static function fromZones(array $zoneConsumption): self
     {
         $total = array_sum($zoneConsumption);
-        
+
         return new self(
             totalConsumption: $total,
             zoneConsumption: $zoneConsumption,
@@ -61,14 +61,14 @@ final readonly class UniversalConsumptionData
         ?array $zoneReadings = null
     ): self {
         $totalConsumption = max(0, $currentReading - $previousReading);
-        
+
         $zoneConsumption = [];
         if ($zoneReadings) {
             foreach ($zoneReadings as $zone => $readings) {
                 $zoneConsumption[$zone] = max(0, $readings['current'] - $readings['previous']);
             }
         }
-        
+
         return new self(
             totalConsumption: $totalConsumption,
             zoneConsumption: $zoneConsumption,
@@ -90,7 +90,7 @@ final readonly class UniversalConsumptionData
 
     /**
      * Get zone-based consumption data.
-     * 
+     *
      * @return array<string, float>
      */
     public function getZoneConsumption(): array
@@ -111,12 +111,12 @@ final readonly class UniversalConsumptionData
      */
     public function hasZoneData(): bool
     {
-        return !empty($this->zoneConsumption);
+        return ! empty($this->zoneConsumption);
     }
 
     /**
      * Get available zones.
-     * 
+     *
      * @return array<string>
      */
     public function getZones(): array
@@ -154,14 +154,14 @@ final readonly class UniversalConsumptionData
 
     /**
      * Create a new instance with additional zone data.
-     * 
-     * @param array<string, float> $additionalZones
+     *
+     * @param  array<string, float>  $additionalZones
      */
     public function withZones(array $additionalZones): self
     {
         $newZoneConsumption = array_merge($this->zoneConsumption, $additionalZones);
         $newTotal = array_sum($newZoneConsumption);
-        
+
         return new self(
             totalConsumption: $newTotal,
             zoneConsumption: $newZoneConsumption,
@@ -191,17 +191,17 @@ final readonly class UniversalConsumptionData
         }
 
         foreach ($this->zoneConsumption as $zone => $consumption) {
-            if (!is_string($zone) || empty($zone)) {
+            if (! is_string($zone) || empty($zone)) {
                 throw new InvalidArgumentException('Zone names must be non-empty strings');
             }
-            
+
             if ($consumption < 0) {
                 throw new InvalidArgumentException("Zone consumption for '{$zone}' cannot be negative");
             }
         }
 
         // Validate that zone consumption doesn't exceed total (with small tolerance for rounding)
-        if (!empty($this->zoneConsumption)) {
+        if (! empty($this->zoneConsumption)) {
             $zoneTotal = array_sum($this->zoneConsumption);
             if (abs($zoneTotal - $this->totalConsumption) > 0.001) {
                 throw new InvalidArgumentException(

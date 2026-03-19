@@ -11,7 +11,13 @@ use App\Services\ServiceRegistration\RegistrationErrorHandler;
 use App\Services\ServiceRegistration\ServiceRegistrationOrchestrator;
 use App\Support\ServiceRegistration\ObserverRegistry;
 use App\Support\ServiceRegistration\PolicyRegistry;
+use App\View\Composers\NavigationComposer;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Translation\FileLoader;
 
 /**
  * Application Service Provider
@@ -32,9 +38,9 @@ use Illuminate\Support\ServiceProvider;
  * - Configuration-driven: Externalized configuration management
  * - Monitoring Integration: Built-in performance and health monitoring
  *
- * @see \App\Services\ServiceRegistration\ServiceRegistrationOrchestrator
- * @see \App\Services\ServiceRegistration\RegistrationErrorHandler
- * @see \App\Services\PolicyRegistryMonitoringService
+ * @see ServiceRegistrationOrchestrator
+ * @see RegistrationErrorHandler
+ * @see PolicyRegistryMonitoringService
  */
 final class AppServiceProvider extends ServiceProvider
 {
@@ -68,8 +74,8 @@ final class AppServiceProvider extends ServiceProvider
     private function bootRateLimiters(): void
     {
         // Rate limiting for admin routes (120 requests per minute per user)
-        \Illuminate\Support\Facades\RateLimiter::for('admin', function (\Illuminate\Http\Request $request) {
-            return \Illuminate\Cache\RateLimiting\Limit::perMinute(120)
+        RateLimiter::for('admin', function (Request $request) {
+            return Limit::perMinute(120)
                 ->by($request->user()?->id ?: $request->ip())
                 ->response(function () {
                     return response()->json([
@@ -79,8 +85,8 @@ final class AppServiceProvider extends ServiceProvider
         });
 
         // Rate limiting for API routes (60 requests per minute per user)
-        \Illuminate\Support\Facades\RateLimiter::for('api', function (\Illuminate\Http\Request $request) {
-            return \Illuminate\Cache\RateLimiting\Limit::perMinute(60)
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)
                 ->by($request->user()?->id ?: $request->ip())
                 ->response(function () {
                     return response()->json([
@@ -95,9 +101,9 @@ final class AppServiceProvider extends ServiceProvider
      */
     private function bootViewComposers(): void
     {
-        \Illuminate\Support\Facades\View::composer(
+        View::composer(
             'layouts.app',
-            \App\View\Composers\NavigationComposer::class
+            NavigationComposer::class
         );
     }
 
@@ -122,7 +128,7 @@ final class AppServiceProvider extends ServiceProvider
 
         // Ensure translation loader uses the correct path
         $this->app->singleton('translation.loader', function ($app) {
-            return new \Illuminate\Translation\FileLoader($app['files'], base_path('lang'));
+            return new FileLoader($app['files'], base_path('lang'));
         });
     }
 

@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace App\ValueObjects;
 
-use Illuminate\Support\Collection;
-
 /**
  * Result of automated billing cycle execution.
- * 
+ *
  * Immutable value object containing billing cycle results
  * with analysis capabilities and metadata tracking.
- * 
- * @package App\ValueObjects
  */
 final readonly class AutomatedBillingResult
 {
@@ -83,17 +79,17 @@ final readonly class AutomatedBillingResult
 
     public function hasErrors(): bool
     {
-        return !empty($this->errors);
+        return ! empty($this->errors);
     }
 
     public function hasWarnings(): bool
     {
-        return !empty($this->warnings);
+        return ! empty($this->warnings);
     }
 
     public function isSuccessful(): bool
     {
-        return !$this->hasErrors();
+        return ! $this->hasErrors();
     }
 
     public function getErrorCount(): int
@@ -111,8 +107,9 @@ final readonly class AutomatedBillingResult
         if ($this->processedTenants === 0) {
             return 0.0;
         }
-        
+
         $successfulTenants = $this->processedTenants - count($this->errors);
+
         return ($successfulTenants / $this->processedTenants) * 100.0;
     }
 

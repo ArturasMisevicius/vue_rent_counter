@@ -13,7 +13,7 @@ use Illuminate\Notifications\Notification;
 
 /**
  * Configuration Rollback Notification
- * 
+ *
  * Notifies stakeholders when a configuration rollback has been performed,
  * providing details about the rollback and its impact.
  */
@@ -43,7 +43,7 @@ final class ConfigurationRollbackNotification extends Notification implements Sh
         $modelName = $this->getModelDisplayName();
         $rollbackReason = $this->rollbackAudit->metadata['rollback_reason'] ?? 'No reason provided';
         $originalAuditId = $this->rollbackAudit->metadata['original_audit_id'] ?? null;
-        
+
         $message = (new MailMessage)
             ->subject(__('dashboard.audit.notifications.configuration_rollback.subject', [
                 'model' => $modelType,
@@ -62,7 +62,7 @@ final class ConfigurationRollbackNotification extends Notification implements Sh
         // Add rollback details
         if ($this->rollbackAudit->old_values) {
             $message->line(__('dashboard.audit.notifications.configuration_rollback.details_header'));
-            
+
             foreach ($this->rollbackAudit->old_values as $field => $oldValue) {
                 $newValue = $this->rollbackAudit->new_values[$field] ?? 'N/A';
                 $message->line("• {$field}: {$oldValue} → {$newValue}");
@@ -71,13 +71,13 @@ final class ConfigurationRollbackNotification extends Notification implements Sh
 
         // Add impact analysis if available
         $impactAnalysis = $this->rollbackAudit->metadata['impact_analysis'] ?? null;
-        if ($impactAnalysis && !empty($impactAnalysis['affected_systems'])) {
+        if ($impactAnalysis && ! empty($impactAnalysis['affected_systems'])) {
             $message->line(__('dashboard.audit.notifications.configuration_rollback.affected_systems'))
-                   ->line(implode(', ', $impactAnalysis['affected_systems']));
+                ->line(implode(', ', $impactAnalysis['affected_systems']));
         }
 
         // Add warnings if present
-        if ($impactAnalysis && !empty($impactAnalysis['warnings'])) {
+        if ($impactAnalysis && ! empty($impactAnalysis['warnings'])) {
             $message->line(__('dashboard.audit.notifications.configuration_rollback.warnings_header'));
             foreach ($impactAnalysis['warnings'] as $warning) {
                 $message->line("⚠️ {$warning}");
@@ -85,7 +85,7 @@ final class ConfigurationRollbackNotification extends Notification implements Sh
         }
 
         // Add mitigation steps if available
-        if ($impactAnalysis && !empty($impactAnalysis['mitigation_steps'])) {
+        if ($impactAnalysis && ! empty($impactAnalysis['mitigation_steps'])) {
             $message->line(__('dashboard.audit.notifications.configuration_rollback.mitigation_header'));
             foreach ($impactAnalysis['mitigation_steps'] as $step) {
                 $message->line("• {$step}");
@@ -155,7 +155,7 @@ final class ConfigurationRollbackNotification extends Notification implements Sh
         }
 
         // Fallback to model type and ID
-        return class_basename($this->model) . ' #' . $this->model->id;
+        return class_basename($this->model).' #'.$this->model->id;
     }
 
     /**
@@ -165,6 +165,6 @@ final class ConfigurationRollbackNotification extends Notification implements Sh
     {
         // Return URL to audit dashboard or specific audit log view
         // This would typically be a Filament resource URL
-        return url('/admin/audit-logs/' . $this->rollbackAudit->id);
+        return url('/admin/audit-logs/'.$this->rollbackAudit->id);
     }
 }

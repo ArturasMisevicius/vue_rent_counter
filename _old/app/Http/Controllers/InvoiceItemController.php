@@ -11,12 +11,13 @@ class InvoiceItemController extends Controller
     public function index(Invoice $invoice)
     {
         $items = $invoice->items;
+
         return view('invoices.items.index', compact('invoice', 'items'));
     }
 
     public function store(InvoiceItemRequest $request, Invoice $invoice)
     {
-        if (!$invoice->isDraft()) {
+        if (! $invoice->isDraft()) {
             return back()->with('error', __('invoices.errors.add_to_finalized'));
         }
 
@@ -45,7 +46,7 @@ class InvoiceItemController extends Controller
 
     public function update(InvoiceItemRequest $request, Invoice $invoice, InvoiceItem $item)
     {
-        if (!$invoice->isDraft()) {
+        if (! $invoice->isDraft()) {
             return back()->with('error', __('invoices.errors.update_finalized'));
         }
 
@@ -66,7 +67,7 @@ class InvoiceItemController extends Controller
 
     public function destroy(Invoice $invoice, InvoiceItem $item)
     {
-        if (!$invoice->isDraft()) {
+        if (! $invoice->isDraft()) {
             return back()->with('error', __('invoices.errors.delete_finalized'));
         }
 

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Optimized Eloquent repository with batch operations and query optimization.
- * 
+ *
  * Implements performance optimizations including batch inserts,
  * eager loading, and query optimization techniques.
  */
@@ -37,40 +37,40 @@ final readonly class OptimizedEloquentUtilityServiceRepository implements Utilit
         // Use database transaction for batch operations
         return DB::transaction(function () use ($servicesData) {
             $services = collect();
-            
+
             // Prepare data for batch insert
             $insertData = [];
             $now = now();
-            
+
             foreach ($servicesData as $serviceData) {
                 $insertData[] = array_merge($serviceData, [
                     'created_at' => $now,
                     'updated_at' => $now,
                 ]);
             }
-            
+
             // Batch insert for better performance
             DB::table('utility_services')->insert($insertData);
-            
+
             // Retrieve created services with proper models
             foreach ($insertData as $data) {
                 $service = UtilityService::where('tenant_id', $data['tenant_id'])
                     ->where('slug', $data['slug'])
                     ->first();
-                
+
                 if ($service) {
                     $services->push($service);
                 }
             }
-            
+
             return $services;
         });
     }
 
     public function findByTenantAndTypes(Organization $tenant, array $serviceTypes): Collection
     {
-        $serviceTypeValues = array_map(fn($type) => $type->value, $serviceTypes);
-        
+        $serviceTypeValues = array_map(fn ($type) => $type->value, $serviceTypes);
+
         return UtilityService::where('tenant_id', $tenant->id)
             ->whereIn('service_type_bridge', $serviceTypeValues)
             ->select(['id', 'tenant_id', 'name', 'slug', 'service_type_bridge', 'default_pricing_model'])

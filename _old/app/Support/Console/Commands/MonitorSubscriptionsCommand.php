@@ -31,7 +31,7 @@ class MonitorSubscriptionsCommand extends Command
     public function handle(SubscriptionAutomationService $automationService): int
     {
         $this->info('Starting subscription monitoring...');
-        
+
         $dryRun = $this->option('dry-run');
         $notificationsOnly = $this->option('notifications-only');
         $renewalsOnly = $this->option('renewals-only');
@@ -45,10 +45,10 @@ class MonitorSubscriptionsCommand extends Command
         $totalErrors = 0;
 
         // Process expiry notifications unless renewals-only is specified
-        if (!$renewalsOnly) {
+        if (! $renewalsOnly) {
             $this->info('Processing expiry notifications...');
-            
-            if (!$dryRun) {
+
+            if (! $dryRun) {
                 $notificationSummary = $automationService->processExpiryNotifications();
                 $totalNotifications = $notificationSummary['notifications_sent'];
                 $totalErrors += count($notificationSummary['errors']);
@@ -60,10 +60,10 @@ class MonitorSubscriptionsCommand extends Command
         }
 
         // Process auto-renewals unless notifications-only is specified
-        if (!$notificationsOnly) {
+        if (! $notificationsOnly) {
             $this->info('Processing auto-renewals...');
-            
-            if (!$dryRun) {
+
+            if (! $dryRun) {
                 $renewalSummary = $automationService->processAutoRenewals();
                 $totalRenewals = $renewalSummary['renewals_processed'];
                 $totalErrors += count($renewalSummary['failures']);
@@ -77,11 +77,11 @@ class MonitorSubscriptionsCommand extends Command
         // Display final summary
         $this->newLine();
         $this->info('=== MONITORING COMPLETE ===');
-        
-        if (!$dryRun) {
+
+        if (! $dryRun) {
             $this->line("Notifications sent: {$totalNotifications}");
             $this->line("Renewals processed: {$totalRenewals}");
-            
+
             if ($totalErrors > 0) {
                 $this->error("Errors encountered: {$totalErrors}");
                 $this->warn('Check the application logs for detailed error information.');
@@ -97,8 +97,8 @@ class MonitorSubscriptionsCommand extends Command
                 'command_options' => [
                     'notifications_only' => $notificationsOnly,
                     'renewals_only' => $renewalsOnly,
-                    'dry_run' => $dryRun
-                ]
+                    'dry_run' => $dryRun,
+                ],
             ]);
         }
 
@@ -114,14 +114,14 @@ class MonitorSubscriptionsCommand extends Command
         $this->info('--- Notification Summary ---');
         $this->line("Total notifications sent: {$summary['notifications_sent']}");
 
-        if (!empty($summary['processed_subscriptions'])) {
+        if (! empty($summary['processed_subscriptions'])) {
             $this->line('Notifications sent to:');
             foreach ($summary['processed_subscriptions'] as $subscription) {
                 $this->line("  • {$subscription['organization']} (expires in {$subscription['days_until_expiry']} days)");
             }
         }
 
-        if (!empty($summary['errors'])) {
+        if (! empty($summary['errors'])) {
             $this->error('Notification errors:');
             foreach ($summary['errors'] as $error) {
                 $this->line("  • {$error}");
@@ -138,14 +138,14 @@ class MonitorSubscriptionsCommand extends Command
         $this->info('--- Renewal Summary ---');
         $this->line("Total renewals processed: {$summary['renewals_processed']}");
 
-        if (!empty($summary['processed_subscriptions'])) {
+        if (! empty($summary['processed_subscriptions'])) {
             $this->line('Successful renewals:');
             foreach ($summary['processed_subscriptions'] as $subscription) {
                 $this->line("  • {$subscription['organization']} (new expiry: {$subscription['new_expiry_date']})");
             }
         }
 
-        if (!empty($summary['failures'])) {
+        if (! empty($summary['failures'])) {
             $this->error('Renewal failures:');
             foreach ($summary['failures'] as $failure) {
                 $this->line("  • {$failure['organization']}: {$failure['error']}");

@@ -6,7 +6,7 @@ namespace App\Enums;
 
 /**
  * Security Severity Levels
- * 
+ *
  * Defines the severity classification for security violations
  * and incidents in the multi-tenant utility billing platform.
  */

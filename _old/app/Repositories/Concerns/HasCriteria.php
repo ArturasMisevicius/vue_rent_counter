@@ -10,11 +10,11 @@ use Illuminate\Support\Collection;
 
 /**
  * Has Criteria Trait
- * 
+ *
  * Adds criteria/specification pattern support to repositories.
  * Allows for composable, reusable query logic that can be
  * applied to any repository.
- * 
+ *
  * Usage:
  * ```php
  * $repository->pushCriteria(new ActiveUsers())
@@ -26,7 +26,7 @@ trait HasCriteria
 {
     /**
      * Collection of criteria to apply to queries.
-     * 
+     *
      * @var Collection<int, CriteriaInterface>
      */
     protected Collection $criteria;
@@ -38,39 +38,32 @@ trait HasCriteria
 
     /**
      * Initialize criteria collection.
-     * 
-     * @return void
      */
     protected function initializeCriteria(): void
     {
-        $this->criteria = new Collection();
+        $this->criteria = new Collection;
     }
 
     /**
      * Push a new criteria to the collection.
-     * 
-     * @param CriteriaInterface $criteria
-     * @return static
      */
     public function pushCriteria(CriteriaInterface $criteria): static
     {
-        if (!isset($this->criteria)) {
+        if (! isset($this->criteria)) {
             $this->initializeCriteria();
         }
 
         $this->criteria->push($criteria);
-        
+
         return $this;
     }
 
     /**
      * Pop the last criteria from the collection.
-     * 
-     * @return CriteriaInterface|null
      */
     public function popCriteria(): ?CriteriaInterface
     {
-        if (!isset($this->criteria)) {
+        if (! isset($this->criteria)) {
             $this->initializeCriteria();
         }
 
@@ -79,12 +72,12 @@ trait HasCriteria
 
     /**
      * Get all criteria.
-     * 
+     *
      * @return Collection<int, CriteriaInterface>
      */
     public function getCriteria(): Collection
     {
-        if (!isset($this->criteria)) {
+        if (! isset($this->criteria)) {
             $this->initializeCriteria();
         }
 
@@ -93,56 +86,46 @@ trait HasCriteria
 
     /**
      * Apply a criteria by class name.
-     * 
-     * @param string $criteriaClass
-     * @param array<mixed> $parameters
-     * @return static
+     *
+     * @param  array<mixed>  $parameters
      */
     public function getByCriteria(string $criteriaClass, array $parameters = []): static
     {
         $criteria = new $criteriaClass(...$parameters);
-        
+
         return $this->pushCriteria($criteria);
     }
 
     /**
      * Skip applying criteria for the next query.
-     * 
-     * @param bool $skip
-     * @return static
      */
     public function skipCriteria(bool $skip = true): static
     {
         $this->skipCriteria = $skip;
-        
+
         return $this;
     }
 
     /**
      * Clear all criteria.
-     * 
-     * @return static
      */
     public function clearCriteria(): static
     {
-        if (!isset($this->criteria)) {
+        if (! isset($this->criteria)) {
             $this->initializeCriteria();
         }
 
-        $this->criteria = new Collection();
-        
+        $this->criteria = new Collection;
+
         return $this;
     }
 
     /**
      * Apply all criteria to the query builder.
-     * 
-     * @param Builder $query
-     * @return Builder
      */
     protected function applyCriteria(Builder $query): Builder
     {
-        if ($this->skipCriteria || !isset($this->criteria)) {
+        if ($this->skipCriteria || ! isset($this->criteria)) {
             return $query;
         }
 
@@ -157,8 +140,6 @@ trait HasCriteria
 
     /**
      * Reset criteria state after query execution.
-     * 
-     * @return void
      */
     protected function resetCriteriaState(): void
     {
@@ -167,12 +148,12 @@ trait HasCriteria
 
     /**
      * Get criteria summary for debugging.
-     * 
+     *
      * @return array<string, mixed>
      */
     public function getCriteriaSummary(): array
     {
-        if (!isset($this->criteria)) {
+        if (! isset($this->criteria)) {
             $this->initializeCriteria();
         }
 
@@ -191,25 +172,21 @@ trait HasCriteria
 
     /**
      * Apply criteria and execute a callback with the modified query.
-     * 
-     * @param callable $callback
-     * @return mixed
      */
     public function withCriteria(callable $callback): mixed
     {
         $query = $this->applyCriteria($this->query);
         $result = $callback($query);
         $this->resetCriteriaState();
-        
+
         return $result;
     }
 
     /**
      * Execute query with criteria applied.
-     * 
-     * @param string $method Query method to execute
-     * @param array<mixed> $parameters Method parameters
-     * @return mixed
+     *
+     * @param  string  $method  Query method to execute
+     * @param  array<mixed>  $parameters  Method parameters
      */
     protected function executeWithCriteria(string $method, array $parameters = []): mixed
     {

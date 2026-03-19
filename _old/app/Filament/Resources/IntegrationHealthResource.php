@@ -7,25 +7,34 @@ namespace App\Filament\Resources;
 use App\Enums\IntegrationStatus;
 use App\Filament\Resources\IntegrationHealthResource\Pages;
 use App\Models\IntegrationHealthCheck;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\TextInput;
-use Filament\Schemas\Components\Textarea;
-use Filament\Schemas\Components\Select;
-use Filament\Schemas\Components\DateTimePicker;
+use App\Services\Integration\IntegrationResilienceHandler;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\DateTimePicker;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Select;
+use Filament\Schemas\Components\Textarea;
+use Filament\Schemas\Components\TextInput;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Filament resource for managing integration health monitoring.
- * 
+ *
  * Provides CRUD interface for viewing integration health checks,
  * monitoring service status, and managing integration configurations.
- * 
- * @package App\Filament\Resources
+ *
  * @author Laravel Development Team
+ *
  * @since 1.0.0
  */
 final class IntegrationHealthResource extends Resource
@@ -84,7 +93,7 @@ final class IntegrationHealthResource extends Resource
                             ->label(__('app.labels.status'))
                             ->required()
                             ->options(collect(IntegrationStatus::cases())->mapWithKeys(
-                                fn(IntegrationStatus $status) => [$status->value => $status->getLabel()]
+                                fn (IntegrationStatus $status) => [$status->value => $status->getLabel()]
                             ))
                             ->default(IntegrationStatus::UNKNOWN->value),
                     ])
@@ -142,13 +151,13 @@ final class IntegrationHealthResource extends Resource
                         if ($state === null) {
                             return '—';
                         }
-                        
+
                         $color = match (true) {
                             $state < 100 => 'text-success-600',
                             $state < 500 => 'text-warning-600',
                             default => 'text-danger-600',
                         };
-                        
+
                         return "<span class=\"{$color}\">{$state}ms</span>";
                     })
                     ->html()
@@ -159,8 +168,7 @@ final class IntegrationHealthResource extends Resource
                     ->dateTime('M j, Y H:i')
                     ->sortable()
                     ->since()
-                    ->description(fn ($record): string => 
-                        $record->checked_at->format('l, F j, Y')
+                    ->description(fn ($record): string => $record->checked_at->format('l, F j, Y')
                     ),
 
                 Tables\Columns\TextColumn::make('error_message')
@@ -174,53 +182,50 @@ final class IntegrationHealthResource extends Resource
                 Tables\Filters\SelectFilter::make('status')
                     ->label(__('app.labels.status'))
                     ->options(collect(IntegrationStatus::cases())->mapWithKeys(
-                        fn(IntegrationStatus $status) => [$status->value => $status->getLabel()]
+                        fn (IntegrationStatus $status) => [$status->value => $status->getLabel()]
                     ))
                     ->multiple(),
 
                 Tables\Filters\Filter::make('recent')
                     ->label(__('app.filters.recent_checks'))
-                    ->query(fn (Builder $query): Builder => 
-                        $query->where('checked_at', '>=', now()->subHours(24))
+                    ->query(fn (Builder $query): Builder => $query->where('checked_at', '>=', now()->subHours(24))
                     )
                     ->default(),
 
                 Tables\Filters\Filter::make('unhealthy')
                     ->label(__('app.filters.unhealthy_only'))
-                    ->query(fn (Builder $query): Builder => 
-                        $query->whereIn('status', [
-                            IntegrationStatus::UNHEALTHY,
-                            IntegrationStatus::CIRCUIT_OPEN,
-                        ])
+                    ->query(fn (Builder $query): Builder => $query->whereIn('status', [
+                        IntegrationStatus::UNHEALTHY,
+                        IntegrationStatus::CIRCUIT_OPEN,
+                    ])
                     ),
 
                 Tables\Filters\Filter::make('slow_response')
                     ->label(__('app.filters.slow_response'))
-                    ->query(fn (Builder $query): Builder => 
-                        $query->where('response_time_ms', '>', 1000)
+                    ->query(fn (Builder $query): Builder => $query->where('response_time_ms', '>', 1000)
                     ),
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
-                
-                \Filament\Actions\Action::make('health_check')
+                ViewAction::make(),
+                EditAction::make(),
+
+                Action::make('health_check')
                     ->label(__('app.actions.run_health_check'))
                     ->icon('heroicon-o-heart')
                     ->color('info')
                     ->action(function (IntegrationHealthCheck $record) {
-                        $resilienceHandler = app(\App\Services\Integration\IntegrationResilienceHandler::class);
-                        
+                        $resilienceHandler = app(IntegrationResilienceHandler::class);
+
                         try {
                             $result = $resilienceHandler->performHealthCheck($record->service_name);
-                            
-                            \Filament\Notifications\Notification::make()
+
+                            Notification::make()
                                 ->title(__('app.notifications.health_check_completed'))
                                 ->body(__('integration.health.check_completed', ['service' => $record->service_name]))
                                 ->success()
                                 ->send();
                         } catch (\Exception $e) {
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title(__('app.notifications.health_check_failed'))
                                 ->body($e->getMessage())
                                 ->danger()
@@ -231,7 +236,7 @@ final class IntegrationHealthResource extends Resource
                     ->modalHeading(__('app.modals.run_health_check'))
                     ->modalDescription(__('app.modals.health_check_description')),
 
-                \Filament\Actions\Action::make('enable_maintenance')
+                Action::make('enable_maintenance')
                     ->label(__('app.actions.enable_maintenance'))
                     ->icon('heroicon-o-wrench-screwdriver')
                     ->color('warning')
@@ -243,44 +248,43 @@ final class IntegrationHealthResource extends Resource
                             ->default(60)
                             ->minValue(1)
                             ->maxValue(1440),
-                        
+
                         Textarea::make('reason')
                             ->label(__('app.labels.reason'))
                             ->placeholder(__('app.placeholders.maintenance_reason'))
                             ->rows(2),
                     ])
                     ->action(function (IntegrationHealthCheck $record, array $data) {
-                        $resilienceHandler = app(\App\Services\Integration\IntegrationResilienceHandler::class);
-                        
+                        $resilienceHandler = app(IntegrationResilienceHandler::class);
+
                         $resilienceHandler->enableMaintenanceMode(
                             $record->service_name,
                             $data['duration_minutes']
                         );
-                        
-                        \Filament\Notifications\Notification::make()
+
+                        Notification::make()
                             ->title(__('app.notifications.maintenance_enabled'))
                             ->body(__('integration.maintenance.enabled', ['service' => $record->service_name]))
                             ->warning()
                             ->send();
                     })
-                    ->visible(fn (IntegrationHealthCheck $record) => 
-                        !app(\App\Services\Integration\IntegrationResilienceHandler::class)
-                            ->isInMaintenanceMode($record->service_name)
+                    ->visible(fn (IntegrationHealthCheck $record) => ! app(IntegrationResilienceHandler::class)
+                        ->isInMaintenanceMode($record->service_name)
                     ),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
-                    
-                    \Filament\Actions\BulkAction::make('bulk_health_check')
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+
+                    BulkAction::make('bulk_health_check')
                         ->label(__('app.actions.run_health_checks'))
                         ->icon('heroicon-o-heart')
                         ->color('info')
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
-                            $resilienceHandler = app(\App\Services\Integration\IntegrationResilienceHandler::class);
+                        ->action(function (Collection $records) {
+                            $resilienceHandler = app(IntegrationResilienceHandler::class);
                             $successCount = 0;
                             $errorCount = 0;
-                            
+
                             foreach ($records as $record) {
                                 try {
                                     $resilienceHandler->performHealthCheck($record->service_name);
@@ -289,8 +293,8 @@ final class IntegrationHealthResource extends Resource
                                     $errorCount++;
                                 }
                             }
-                            
-                            \Filament\Notifications\Notification::make()
+
+                            Notification::make()
                                 ->title(__('app.notifications.bulk_health_check_completed'))
                                 ->body(__('app.notifications.health_check_results', [
                                     'success' => $successCount,

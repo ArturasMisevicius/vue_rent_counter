@@ -2,14 +2,13 @@
 
 namespace App\Filament\Resources\OrganizationResource\RelationManagers;
 
+use App\Enums\PropertyType;
 use BackedEnum;
-use UnitEnum;
 use Filament\Actions\Action;
-use Filament\Forms;
-use Filament\Schemas\Schema;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class PropertiesRelationManager extends RelationManager
 {
@@ -19,7 +18,7 @@ class PropertiesRelationManager extends RelationManager
 
     protected static string|BackedEnum|null $icon = 'heroicon-o-home';
 
-    public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
         return __('organizations.relations.properties.title');
     }
@@ -35,29 +34,29 @@ class PropertiesRelationManager extends RelationManager
                     ->searchable()
                     ->sortable()
                     ->limit(50),
-                
+
                 Tables\Columns\TextColumn::make('building.name')
                     ->label(__('organizations.relations.properties.building'))
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('property_type')
                     ->badge(),
-                
+
                 Tables\Columns\TextColumn::make('area')
                     ->label(__('organizations.relations.properties.area'))
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('tenants_count')
                     ->counts('tenants')
                     ->label(__('organizations.relations.properties.tenants'))
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('meters_count')
                     ->counts('meters')
                     ->label(__('organizations.relations.properties.meters'))
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -65,7 +64,7 @@ class PropertiesRelationManager extends RelationManager
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('property_type')
-                    ->options(\App\Enums\PropertyType::labels())
+                    ->options(PropertyType::labels())
                     ->native(false),
             ])
             ->actions([

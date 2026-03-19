@@ -19,7 +19,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->foreignId('invited_by')->nullable()->constrained('users');
             $table->timestamps();
-            
+
             $table->unique(['organization_id', 'user_id']);
             $table->index(['user_id', 'is_active']);
             $table->index(['organization_id', 'role']);

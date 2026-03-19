@@ -4,20 +4,19 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Services\TenantInitialization\Contracts\ServiceCreationStrategyInterface;
-use App\Services\TenantInitialization\Strategies\TemplateServiceCreationStrategy;
-use App\Services\TenantInitialization\Strategies\DefaultServiceCreationStrategy;
 use App\Services\TenantInitialization\Factories\UtilityServiceFactory;
-use App\Services\TenantInitialization\Repositories\UtilityServiceRepositoryInterface;
 use App\Services\TenantInitialization\Repositories\EloquentUtilityServiceRepository;
-use App\Services\TenantInitializationService;
+use App\Services\TenantInitialization\Repositories\UtilityServiceRepositoryInterface;
+use App\Services\TenantInitialization\Strategies\DefaultServiceCreationStrategy;
+use App\Services\TenantInitialization\Strategies\TemplateServiceCreationStrategy;
 use App\Services\TenantInitialization\TenantInitializationOrchestrator;
-use Illuminate\Support\ServiceProvider;
+use App\Services\TenantInitializationService;
 use Illuminate\Support\Collection;
+use Illuminate\Support\ServiceProvider;
 
 /**
  * Service provider for tenant initialization services.
- * 
+ *
  * Registers all dependencies and configures the service container
  * for tenant initialization operations.
  */
@@ -52,7 +51,8 @@ final class TenantInitializationServiceProvider extends ServiceProvider
 
         // Bind old service to new orchestrator for backward compatibility
         $this->app->bind(TenantInitializationService::class, function ($app) {
-            return new class($app->make(TenantInitializationOrchestrator::class)) {
+            return new class($app->make(TenantInitializationOrchestrator::class))
+            {
                 public function __construct(
                     private readonly TenantInitializationOrchestrator $orchestrator
                 ) {}

@@ -5,30 +5,28 @@ declare(strict_types=1);
 namespace App\Filament\Clusters\SuperAdmin\Resources\SystemUserResource\Pages;
 
 use App\Contracts\SuperAdminUserInterface;
+use App\Enums\AuditAction;
 use App\Filament\Clusters\SuperAdmin\Resources\SystemUserResource;
 use App\Models\SuperAdminAuditLog;
 use App\Models\User;
 use App\ValueObjects\ActivityReport;
 use Filament\Actions\Action;
+use Filament\Actions\Action as TableAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
-use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\Select;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Components\ViewEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
 use Filament\Schemas\Components\Grid as InfoGrid;
 use Filament\Schemas\Components\Section as InfoSection;
 use Filament\Schemas\Schema;
-use Filament\Actions\Action as TableAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Contracts\HasTable;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
 
 final class UserActivityReport extends Page implements HasTable
 {
@@ -39,6 +37,7 @@ final class UserActivityReport extends Page implements HasTable
     protected static string $view = 'filament.superadmin.pages.user-activity-report';
 
     public User $record;
+
     public ActivityReport $activityReport;
 
     public function mount(int|string $record): void
@@ -73,7 +72,7 @@ final class UserActivityReport extends Page implements HasTable
                 ->color('success')
                 ->action(function () {
                     // TODO: Implement export functionality
-                    \Filament\Notifications\Notification::make()
+                    Notification::make()
                         ->title(__('superadmin.users.notifications.export_started'))
                         ->body(__('superadmin.users.notifications.export_started_body'))
                         ->info()
@@ -84,7 +83,7 @@ final class UserActivityReport extends Page implements HasTable
                 ->label(__('superadmin.users.actions.back_to_user'))
                 ->icon('heroicon-o-arrow-left')
                 ->color('gray')
-                ->url(fn () => static::$resource::getUrl('view', ['record' => $this->record])),
+                ->url(fn () => self::$resource::getUrl('view', ['record' => $this->record])),
         ];
     }
 
@@ -129,7 +128,7 @@ final class UserActivityReport extends Page implements HasTable
                             TextEntry::make('organization.name')
                                 ->label(__('superadmin.users.fields.organization'))
                                 ->icon('heroicon-o-building-office')
-                                ->url(fn () => $this->record->organization ? 
+                                ->url(fn () => $this->record->organization ?
                                     route('filament.superadmin.resources.tenants.view', $this->record->organization) : null)
                                 ->color('primary'),
 
@@ -151,7 +150,7 @@ final class UserActivityReport extends Page implements HasTable
                 SuperAdminAuditLog::query()
                     ->where(function (Builder $query) {
                         $query->where('admin_id', $this->record->id)
-                              ->orWhere('target_id', $this->record->id);
+                            ->orWhere('target_id', $this->record->id);
                     })
                     ->latest()
             )
@@ -178,20 +177,22 @@ final class UserActivityReport extends Page implements HasTable
                 TextColumn::make('target_type')
                     ->label(__('superadmin.audit.fields.target'))
                     ->formatStateUsing(function ($record) {
-                        if (!$record->target_type) {
+                        if (! $record->target_type) {
                             return '—';
                         }
-                        
+
                         $type = class_basename($record->target_type);
                         $id = $record->target_id;
-                        
+
                         return "{$type} #{$id}";
                     })
                     ->description(function ($record) {
                         if ($record->target_type === User::class && $record->target_id) {
                             $user = User::find($record->target_id);
+
                             return $user ? $user->email : null;
                         }
+
                         return null;
                     }),
 
@@ -211,7 +212,7 @@ final class UserActivityReport extends Page implements HasTable
             ->filters([
                 SelectFilter::make('action')
                     ->label(__('superadmin.audit.filters.action'))
-                    ->options(\App\Enums\AuditAction::class)
+                    ->options(AuditAction::class)
                     ->multiple(),
 
                 Filter::make('date_range')
@@ -249,6 +250,7 @@ final class UserActivityReport extends Page implements HasTable
                         if ($data['value'] === 'no') {
                             return $query->whereNull('impersonation_session_id');
                         }
+
                         return $query;
                     }),
             ])
@@ -275,6 +277,6 @@ final class UserActivityReport extends Page implements HasTable
 
     protected function resolveRecord(int|string $id): User
     {
-        return static::$resource::resolveRecordRouteBinding($id);
+        return self::$resource::resolveRecordRouteBinding($id);
     }
 }

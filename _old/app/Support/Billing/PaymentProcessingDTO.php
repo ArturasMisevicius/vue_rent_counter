@@ -10,11 +10,9 @@ use Illuminate\Http\Request;
 
 /**
  * Payment Processing DTO
- * 
+ *
  * Data transfer object for payment processing operations.
  * Provides type safety and validation for payment data.
- * 
- * @package App\Support\Billing
  */
 final readonly class PaymentProcessingDTO
 {
@@ -31,9 +29,6 @@ final readonly class PaymentProcessingDTO
 
     /**
      * Create DTO from HTTP request.
-     *
-     * @param Request $request
-     * @return self
      */
     public static function fromRequest(Request $request): self
     {
@@ -49,21 +44,18 @@ final readonly class PaymentProcessingDTO
 
     /**
      * Create DTO from array.
-     *
-     * @param array $data
-     * @return self
      */
     public static function fromArray(array $data): self
     {
         return new self(
             invoiceId: (int) $data['invoice_id'],
             amount: (float) $data['amount'],
-            paymentMethod: $data['payment_method'] instanceof PaymentMethod 
-                ? $data['payment_method'] 
+            paymentMethod: $data['payment_method'] instanceof PaymentMethod
+                ? $data['payment_method']
                 : PaymentMethod::from($data['payment_method']),
             paymentReference: $data['payment_reference'],
-            paymentDate: $data['payment_date'] instanceof Carbon 
-                ? $data['payment_date'] 
+            paymentDate: $data['payment_date'] instanceof Carbon
+                ? $data['payment_date']
                 : Carbon::parse($data['payment_date']),
             notes: $data['notes'] ?? null
         );
@@ -71,8 +63,6 @@ final readonly class PaymentProcessingDTO
 
     /**
      * Convert to array for model creation.
-     *
-     * @return array
      */
     public function toArray(): array
     {

@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Prune Expired Personal Access Tokens
- * 
+ *
  * Security command to clean up expired API tokens and prevent
  * token table bloat that could impact performance and security.
- * 
+ *
  * Should be scheduled to run daily via Laravel Scheduler.
  */
 class PruneExpiredTokens extends Command
@@ -42,6 +42,7 @@ class PruneExpiredTokens extends Command
 
         if ($hours < 1) {
             $this->error('Hours must be at least 1');
+
             return 1;
         }
 
@@ -53,6 +54,7 @@ class PruneExpiredTokens extends Command
 
         if ($count === 0) {
             $this->info('No expired tokens found to prune.');
+
             return 0;
         }
 
@@ -74,16 +76,18 @@ class PruneExpiredTokens extends Command
             );
 
             if ($count > 10) {
-                $this->info("... and " . ($count - 10) . " more tokens");
+                $this->info('... and '.($count - 10).' more tokens');
             }
 
             $this->info('Dry run completed. Use --force to actually delete tokens.');
+
             return 0;
         }
 
         // Confirm deletion unless forced
-        if (!$force && !$this->confirm("Are you sure you want to delete {$count} expired tokens?")) {
+        if (! $force && ! $this->confirm("Are you sure you want to delete {$count} expired tokens?")) {
             $this->info('Operation cancelled.');
+
             return 0;
         }
 

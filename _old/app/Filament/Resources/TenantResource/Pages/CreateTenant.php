@@ -7,7 +7,6 @@ namespace App\Filament\Resources\TenantResource\Pages;
 use App\Filament\Resources\TenantResource;
 use App\Models\Attachment;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Support\Facades\Storage;
 
 final class CreateTenant extends CreateRecord
 {
@@ -17,7 +16,7 @@ final class CreateTenant extends CreateRecord
     {
         // Ensure tenant_id is unique if not provided
         if (empty($data['tenant_id'])) {
-            $data['tenant_id'] = 'T' . str_pad((string) (rand(10000, 99999)), 5, '0', STR_PAD_LEFT);
+            $data['tenant_id'] = 'T'.str_pad((string) (rand(10000, 99999)), 5, '0', STR_PAD_LEFT);
         }
 
         // Store file upload data for later processing
@@ -42,7 +41,7 @@ final class CreateTenant extends CreateRecord
     private function processFileUploads(): void
     {
         $tenant = $this->getRecord();
-        
+
         // Process tenant photo
         if ($this->fileUploads['tenant_photo']) {
             $this->createAttachment(
@@ -86,9 +85,11 @@ final class CreateTenant extends CreateRecord
 
     private function createAttachment($tenant, $file, string $category, string $description): void
     {
-        if (!$file) return;
+        if (! $file) {
+            return;
+        }
 
-        $filename = time() . '_' . $file->getClientOriginalName();
+        $filename = time().'_'.$file->getClientOriginalName();
         $path = $file->storeAs("tenants/{$category}s", $filename, 'private');
 
         Attachment::create([

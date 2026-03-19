@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Observers;
 
+use App\Filament\Resources\FaqResource;
 use App\Models\Faq;
 use Illuminate\Support\Facades\Cache;
 
@@ -18,8 +19,8 @@ use Illuminate\Support\Facades\Cache;
  * - Real-time category updates in filter dropdowns
  * - No stale data (previously up to 1 hour delay)
  *
- * @see \App\Models\Faq
- * @see \App\Filament\Resources\FaqResource::getCategoryOptions()
+ * @see Faq
+ * @see FaqResource::getCategoryOptions()
  */
 final class FaqObserver
 {
@@ -29,7 +30,7 @@ final class FaqObserver
      * Invalidates category cache when category field changes.
      * This ensures filter dropdowns immediately reflect new categories.
      *
-     * @param Faq $faq The FAQ being saved
+     * @param  Faq  $faq  The FAQ being saved
      */
     public function saved(Faq $faq): void
     {
@@ -44,7 +45,7 @@ final class FaqObserver
      * Invalidates category cache when FAQ is deleted.
      * This ensures deleted categories are removed from filter dropdowns.
      *
-     * @param Faq $faq The FAQ being deleted
+     * @param  Faq  $faq  The FAQ being deleted
      */
     public function deleted(Faq $faq): void
     {

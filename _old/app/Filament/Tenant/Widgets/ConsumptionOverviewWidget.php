@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Filament\Tenant\Widgets;
 
-use App\Models\Property;
-use App\Services\UniversalBillingCalculator;
 use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Auth;
@@ -36,8 +34,8 @@ final class ConsumptionOverviewWidget extends ChartWidget
     protected function getData(): array
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->currentTeam) {
+
+        if (! $user || ! $user->currentTeam) {
             return [
                 'datasets' => [],
                 'labels' => [],
@@ -45,7 +43,7 @@ final class ConsumptionOverviewWidget extends ChartWidget
         }
 
         $cacheKey = "consumption_overview_{$user->currentTeam->id}_{$this->filter}";
-        
+
         return Cache::remember($cacheKey, 300, function () use ($user) {
             $period = $this->getPeriod();
             $properties = $user->currentTeam->properties()
@@ -54,11 +52,11 @@ final class ConsumptionOverviewWidget extends ChartWidget
                     'meters.readings' => function ($query) use ($period) {
                         $query->whereBetween('created_at', $period)
                             ->orderBy('created_at');
-                    }
+                    },
                 ])
                 ->get();
 
-            $utilityServices = $properties->flatMap(fn($p) => $p->meters)
+            $utilityServices = $properties->flatMap(fn ($p) => $p->meters)
                 ->pluck('serviceConfiguration.utilityService')
                 ->unique('id')
                 ->keyBy('id');
@@ -68,17 +66,17 @@ final class ConsumptionOverviewWidget extends ChartWidget
 
             foreach ($utilityServices as $service) {
                 $monthlyData = [];
-                
+
                 foreach ($months as $month) {
                     $monthStart = Carbon::parse($month['start']);
                     $monthEnd = Carbon::parse($month['end']);
-                    
-                    $consumption = $properties->flatMap(fn($p) => $p->meters)
-                        ->filter(fn($m) => $m->serviceConfiguration->utilityService->id === $service->id)
-                        ->flatMap(fn($m) => $m->readings)
-                        ->filter(fn($r) => $r->created_at->between($monthStart, $monthEnd))
+
+                    $consumption = $properties->flatMap(fn ($p) => $p->meters)
+                        ->filter(fn ($m) => $m->serviceConfiguration->utilityService->id === $service->id)
+                        ->flatMap(fn ($m) => $m->readings)
+                        ->filter(fn ($r) => $r->created_at->between($monthStart, $monthEnd))
                         ->sum('value');
-                    
+
                     $monthlyData[] = round($consumption, 2);
                 }
 

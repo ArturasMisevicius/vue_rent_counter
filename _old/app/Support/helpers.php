@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Enums\IconType;
 use App\Models\Organization;
 use App\Services\TenantContext as TenantContextService;
+
 if (! function_exists('tenant')) {
     /**
      * Get the current tenant organization from the tenant context or session.
@@ -17,7 +19,7 @@ if (! function_exists('tenant')) {
 
         try {
             return app(TenantContextService::class)->get();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Prevent errors during bootstrap
             return null;
         }
@@ -37,7 +39,7 @@ if (! function_exists('tenant_id')) {
 
         try {
             return app(TenantContextService::class)->id();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Prevent errors during bootstrap
             return null;
         }
@@ -50,12 +52,12 @@ if (! function_exists('enum_label')) {
      */
     function enum_label(mixed $value, ?string $enumClass = null): string
     {
-        if ($value instanceof \UnitEnum) {
+        if ($value instanceof UnitEnum) {
             if (method_exists($value, 'label')) {
                 return $value->label();
             }
 
-            return $value instanceof \BackedEnum ? (string) $value->value : $value->name;
+            return $value instanceof BackedEnum ? (string) $value->value : $value->name;
         }
 
         if ($enumClass && enum_exists($enumClass)) {
@@ -82,14 +84,14 @@ if (! function_exists('svgIcon')) {
     function svgIcon(string $key): string
     {
         try {
-            $iconType = \App\Enums\IconType::fromLegacyKey($key);
+            $iconType = IconType::fromLegacyKey($key);
 
             return svg($iconType->heroicon(), 'h-5 w-5')->toHtml();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Fallback to default icon if specific icon not found
             try {
-                return svg(\App\Enums\IconType::DEFAULT->heroicon(), 'h-5 w-5')->toHtml();
-            } catch (\Throwable $e) {
+                return svg(IconType::DEFAULT->heroicon(), 'h-5 w-5')->toHtml();
+            } catch (Throwable $e) {
                 // Ultimate fallback
                 return '<svg class="h-5 w-5"><rect width="20" height="20" fill="currentColor"/></svg>';
             }

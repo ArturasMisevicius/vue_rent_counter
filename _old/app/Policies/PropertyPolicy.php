@@ -17,7 +17,7 @@ final readonly class PropertyPolicy
 
     /**
      * Determine whether the user can view any properties.
-     * 
+     *
      * Requirements: 4.3, 8.2
      */
     public function viewAny(User $user): bool
@@ -37,7 +37,7 @@ final readonly class PropertyPolicy
     public function view(User $user, Property $property): bool
     {
         // Must be able to access the property's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $property)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $property)) {
             return false;
         }
 
@@ -61,7 +61,7 @@ final readonly class PropertyPolicy
 
     /**
      * Determine whether the user can create properties.
-     * 
+     *
      * Requirements: 4.1, 13.2
      */
     public function create(User $user): bool
@@ -82,7 +82,7 @@ final readonly class PropertyPolicy
     public function update(User $user, Property $property): bool
     {
         // Must be able to access the property's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $property)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $property)) {
             return false;
         }
 
@@ -98,7 +98,7 @@ final readonly class PropertyPolicy
     public function delete(User $user, Property $property): bool
     {
         // Must be able to access the property's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $property)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $property)) {
             return false;
         }
 
@@ -114,7 +114,7 @@ final readonly class PropertyPolicy
     public function restore(User $user, Property $property): bool
     {
         // Must be able to access the property's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $property)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $property)) {
             return false;
         }
 
@@ -124,13 +124,13 @@ final readonly class PropertyPolicy
 
     /**
      * Determine whether the user can permanently delete the property.
-     * 
+     *
      * Requirements: 13.1
      */
     public function forceDelete(User $user, Property $property): bool
     {
         // Must be able to access the property's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $property)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $property)) {
             return false;
         }
 

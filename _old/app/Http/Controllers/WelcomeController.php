@@ -14,13 +14,13 @@ final class WelcomeController extends Controller
         $brand = config('landing.brand', []);
         $features = config('landing.features', []);
         $currentLocale = app()->getLocale();
-        
+
         $publishedFaqs = Faq::query()
             ->published()
             ->orderBy('display_order')
             ->orderBy('id')
             ->get();
-        
+
         $faqSource = $publishedFaqs->isNotEmpty()
             ? $publishedFaqs
             : collect(config('landing.faq', []));
@@ -28,17 +28,17 @@ final class WelcomeController extends Controller
         $faqItems = $faqSource->map(
             fn ($faq) => $this->formatFaqItem($faq, $currentLocale)
         );
-        
+
         $canLogin = Route::has('login');
         $canRegister = Route::has('register');
-        
+
         $languages = Language::query()
             ->where('is_active', true)
             ->orderBy('display_order')
             ->get();
-        
+
         $canSwitchLocale = Route::has('language.switch');
-        
+
         return view('welcome', compact(
             'brand',
             'features',

@@ -26,4 +26,3 @@ class ViewOrganizationInvitation extends ViewRecord
         ];
     }
 }
-

@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 
 /**
  * Security Alert Notification
- * 
+ *
  * Sends alerts for security violations
  */
 final class SecurityAlertNotification extends Notification
@@ -37,13 +38,13 @@ final class SecurityAlertNotification extends Notification
     {
         $severity = $this->getSeverity();
         $emoji = $this->getEmoji($severity);
-        
-        return (new SlackMessage())
+
+        return (new SlackMessage)
             ->error()
             ->content("{$emoji} **SECURITY ALERT** - {$this->violationType}")
             ->attachment(function ($attachment) use ($severity) {
                 $attachment
-                    ->title("Security Violation Detected")
+                    ->title('Security Violation Detected')
                     ->fields([
                         'Type' => $this->violationType,
                         'Count' => $this->count,
@@ -58,19 +59,19 @@ final class SecurityAlertNotification extends Notification
     /**
      * Get the mail representation of the notification
      */
-    public function toMail(mixed $notifiable): \Illuminate\Notifications\Messages\MailMessage
+    public function toMail(mixed $notifiable): MailMessage
     {
         $severity = $this->getSeverity();
-        
-        return (new \Illuminate\Notifications\Messages\MailMessage())
+
+        return (new MailMessage)
             ->subject("Security Alert: {$this->violationType}")
-            ->greeting("Security Violation Detected")
-            ->line("A security violation has been detected in the application.")
+            ->greeting('Security Violation Detected')
+            ->line('A security violation has been detected in the application.')
             ->line("**Type:** {$this->violationType}")
             ->line("**Count:** {$this->count}")
-            ->line("**Severity:** " . strtoupper($severity))
-            ->line("**Environment:** " . app()->environment())
-            ->line("**Time:** " . now()->format('Y-m-d H:i:s T'))
+            ->line('**Severity:** '.strtoupper($severity))
+            ->line('**Environment:** '.app()->environment())
+            ->line('**Time:** '.now()->format('Y-m-d H:i:s T'))
             ->action('View Security Dashboard', url('/admin/security'))
             ->line('Please investigate this issue immediately.');
     }

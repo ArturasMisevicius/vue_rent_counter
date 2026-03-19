@@ -9,4 +9,3 @@ class ListOrganizationInvitations extends ListRecords
 {
     protected static string $resource = OrganizationInvitationResource::class;
 }
-

@@ -50,15 +50,15 @@ class CacheWarmingService
             $total = Organization::count();
             $active = Organization::where('is_active', true)->count();
             $inactive = Organization::where('is_active', false)->count();
-            
+
             // Calculate growth (new orgs in last 30 days)
             $lastMonth = Organization::where('created_at', '>=', now()->subDays(30))->count();
             $previousMonth = Organization::whereBetween('created_at', [
                 now()->subDays(60),
-                now()->subDays(30)
+                now()->subDays(30),
             ])->count();
-            
-            $growthRate = $previousMonth > 0 
+
+            $growthRate = $previousMonth > 0
                 ? round((($lastMonth - $previousMonth) / $previousMonth) * 100, 1)
                 : 0;
 
@@ -108,11 +108,11 @@ class CacheWarmingService
         Cache::remember('superadmin.platform_usage', 300, function () {
             $months = collect();
             $labels = [];
-            
+
             for ($i = 11; $i >= 0; $i--) {
                 $date = now()->subMonths($i);
                 $labels[] = $date->format('M Y');
-                
+
                 $months->push([
                     'properties' => Property::where('created_at', '<=', $date->endOfMonth())->count(),
                     'users' => User::where('created_at', '<=', $date->endOfMonth())->count(),
@@ -137,7 +137,7 @@ class CacheWarmingService
         try {
             DB::connection()->getPdo();
             $tableCount = count(DB::select('SELECT name FROM sqlite_master WHERE type="table"'));
-            
+
             return [
                 'status' => 'Connected',
                 'message' => "{$tableCount} tables",
@@ -162,7 +162,7 @@ class CacheWarmingService
         try {
             Cache::put('health_check', true, 10);
             $working = Cache::get('health_check');
-            
+
             return [
                 'status' => $working ? 'Operational' : 'Issues',
                 'message' => $working ? 'Cache working' : 'Cache not responding',
@@ -186,7 +186,7 @@ class CacheWarmingService
     {
         try {
             $failedJobs = DB::table('failed_jobs')->count();
-            
+
             if ($failedJobs === 0) {
                 return [
                     'status' => 'Healthy',
@@ -228,10 +228,10 @@ class CacheWarmingService
             $dbPath = database_path('database.sqlite');
             $dbSize = file_exists($dbPath) ? filesize($dbPath) : 0;
             $dbSizeMB = round($dbSize / 1024 / 1024, 2);
-            
+
             $diskFree = disk_free_space(database_path());
             $diskFreeMB = round($diskFree / 1024 / 1024, 2);
-            
+
             if ($diskFreeMB < 100) {
                 return [
                     'status' => 'Low Space',
@@ -240,7 +240,7 @@ class CacheWarmingService
                     'color' => 'warning',
                 ];
             }
-            
+
             return [
                 'status' => 'Healthy',
                 'message' => "DB: {$dbSizeMB} MB",

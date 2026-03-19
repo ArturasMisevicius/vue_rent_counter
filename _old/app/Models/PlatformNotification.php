@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Platform Notification Model
- * 
+ *
  * Manages platform-wide notifications sent by superadmins to organizations.
  * Supports targeting all organizations, specific plans, or individual organizations.
  */
@@ -74,13 +76,13 @@ class PlatformNotification extends Model
 
     public function isReadyToSend(): bool
     {
-        return $this->isScheduled() && 
-               $this->scheduled_at && 
+        return $this->isScheduled() &&
+               $this->scheduled_at &&
                $this->scheduled_at->isPast();
     }
 
     // Target organizations
-    public function getTargetOrganizations(): \Illuminate\Database\Eloquent\Collection
+    public function getTargetOrganizations(): Collection
     {
         return match ($this->target_type) {
             'all' => Organization::active()->get(),
@@ -117,7 +119,7 @@ class PlatformNotification extends Model
         if ($total === 0) {
             return 0;
         }
-        
+
         return ($this->getSentCount() / $total) * 100;
     }
 
@@ -127,7 +129,7 @@ class PlatformNotification extends Model
         if ($sent === 0) {
             return 0;
         }
-        
+
         return ($this->getReadCount() / $sent) * 100;
     }
 
@@ -148,7 +150,7 @@ class PlatformNotification extends Model
         ]);
     }
 
-    public function schedule(\Carbon\Carbon $scheduledAt): void
+    public function schedule(Carbon $scheduledAt): void
     {
         $this->update([
             'status' => 'scheduled',
@@ -180,7 +182,7 @@ class PlatformNotification extends Model
     public function scopeReadyToSend(Builder $query): Builder
     {
         return $query->where('status', 'scheduled')
-                    ->whereNotNull('scheduled_at')
-                    ->where('scheduled_at', '<=', now());
+            ->whereNotNull('scheduled_at')
+            ->where('scheduled_at', '<=', now());
     }
 }

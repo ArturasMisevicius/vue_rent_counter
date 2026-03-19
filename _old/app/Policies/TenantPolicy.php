@@ -67,4 +67,3 @@ final class TenantPolicy
         return $user->role === UserRole::SUPERADMIN;
     }
 }
-

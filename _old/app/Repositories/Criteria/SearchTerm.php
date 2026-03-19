@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Search Term Criteria
- * 
+ *
  * Filters query to search for a term across multiple fields.
  * Supports flexible field configuration and search operators.
  */
@@ -16,11 +16,11 @@ class SearchTerm implements CriteriaInterface
 {
     /**
      * Create a new search term criteria.
-     * 
-     * @param string $searchTerm The term to search for
-     * @param array<string> $fields Fields to search in
-     * @param string $operator Search operator (LIKE, =, etc.)
-     * @param bool $caseSensitive Whether search is case sensitive
+     *
+     * @param  string  $searchTerm  The term to search for
+     * @param  array<string>  $fields  Fields to search in
+     * @param  string  $operator  Search operator (LIKE, =, etc.)
+     * @param  bool  $caseSensitive  Whether search is case sensitive
      */
     public function __construct(
         private readonly string $searchTerm,
@@ -40,8 +40,8 @@ class SearchTerm implements CriteriaInterface
 
         return $query->where(function (Builder $query) {
             foreach ($this->fields as $field) {
-                $searchValue = $this->operator === 'LIKE' 
-                    ? "%{$this->searchTerm}%" 
+                $searchValue = $this->operator === 'LIKE'
+                    ? "%{$this->searchTerm}%"
                     : $this->searchTerm;
 
                 if ($this->caseSensitive) {
@@ -60,7 +60,7 @@ class SearchTerm implements CriteriaInterface
     {
         $fieldsStr = implode(', ', $this->fields);
         $sensitivity = $this->caseSensitive ? 'case-sensitive' : 'case-insensitive';
-        
+
         return "Search for '{$this->searchTerm}' in fields: {$fieldsStr} ({$sensitivity})";
     }
 
@@ -79,9 +79,6 @@ class SearchTerm implements CriteriaInterface
 
     /**
      * Create criteria for user search (name and email).
-     * 
-     * @param string $searchTerm
-     * @return static
      */
     public static function forUsers(string $searchTerm): static
     {
@@ -90,9 +87,6 @@ class SearchTerm implements CriteriaInterface
 
     /**
      * Create criteria for property search (address and unit_number).
-     * 
-     * @param string $searchTerm
-     * @return static
      */
     public static function forProperties(string $searchTerm): static
     {
@@ -101,9 +95,6 @@ class SearchTerm implements CriteriaInterface
 
     /**
      * Create criteria for invoice search (invoice_number and payment_reference).
-     * 
-     * @param string $searchTerm
-     * @return static
      */
     public static function forInvoices(string $searchTerm): static
     {
@@ -112,10 +103,8 @@ class SearchTerm implements CriteriaInterface
 
     /**
      * Create exact match criteria.
-     * 
-     * @param string $searchTerm
-     * @param array<string> $fields
-     * @return static
+     *
+     * @param  array<string>  $fields
      */
     public static function exactMatch(string $searchTerm, array $fields): static
     {
@@ -124,10 +113,8 @@ class SearchTerm implements CriteriaInterface
 
     /**
      * Create case-sensitive search criteria.
-     * 
-     * @param string $searchTerm
-     * @param array<string> $fields
-     * @return static
+     *
+     * @param  array<string>  $fields
      */
     public static function caseSensitive(string $searchTerm, array $fields): static
     {

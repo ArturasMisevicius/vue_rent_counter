@@ -2,20 +2,22 @@
 
 namespace App\Support\Queue;
 
+use App\Models\Organization;
+use App\Models\Subscription;
+use App\Models\User;
+use App\Services\DashboardCacheService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Models\Organization;
-use App\Models\Subscription;
-use App\Models\User;
 
 /**
  * Job for processing bulk operations in the background
- * 
+ *
  * Handles bulk suspend, reactivate, plan changes, and other
  * operations that may take time with large datasets
  */
@@ -24,6 +26,7 @@ class BulkOperationJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 300; // 5 minutes
+
     public $tries = 3;
 
     /**
@@ -76,7 +79,7 @@ class BulkOperationJob implements ShouldQueue
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Bulk operation failed', [
                 'operation' => $this->operation,
                 'error' => $e->getMessage(),
@@ -102,7 +105,7 @@ class BulkOperationJob implements ShouldQueue
                 $organization->suspend($reason);
                 $successCount++;
             } catch (\Exception $e) {
-                $errors[] = "Organization {$id}: " . $e->getMessage();
+                $errors[] = "Organization {$id}: ".$e->getMessage();
             }
         }
 
@@ -127,7 +130,7 @@ class BulkOperationJob implements ShouldQueue
                 $organization->reactivate();
                 $successCount++;
             } catch (\Exception $e) {
-                $errors[] = "Organization {$id}: " . $e->getMessage();
+                $errors[] = "Organization {$id}: ".$e->getMessage();
             }
         }
 
@@ -153,7 +156,7 @@ class BulkOperationJob implements ShouldQueue
                 $organization->upgradePlan($newPlan);
                 $successCount++;
             } catch (\Exception $e) {
-                $errors[] = "Organization {$id}: " . $e->getMessage();
+                $errors[] = "Organization {$id}: ".$e->getMessage();
             }
         }
 
@@ -180,7 +183,7 @@ class BulkOperationJob implements ShouldQueue
                 $subscription->renew($newExpiryDate);
                 $successCount++;
             } catch (\Exception $e) {
-                $errors[] = "Subscription {$id}: " . $e->getMessage();
+                $errors[] = "Subscription {$id}: ".$e->getMessage();
             }
         }
 
@@ -205,7 +208,7 @@ class BulkOperationJob implements ShouldQueue
                 $subscription->suspend();
                 $successCount++;
             } catch (\Exception $e) {
-                $errors[] = "Subscription {$id}: " . $e->getMessage();
+                $errors[] = "Subscription {$id}: ".$e->getMessage();
             }
         }
 
@@ -230,7 +233,7 @@ class BulkOperationJob implements ShouldQueue
                 $subscription->activate();
                 $successCount++;
             } catch (\Exception $e) {
-                $errors[] = "Subscription {$id}: " . $e->getMessage();
+                $errors[] = "Subscription {$id}: ".$e->getMessage();
             }
         }
 
@@ -255,7 +258,7 @@ class BulkOperationJob implements ShouldQueue
                 $user->update(['is_active' => false]);
                 $successCount++;
             } catch (\Exception $e) {
-                $errors[] = "User {$id}: " . $e->getMessage();
+                $errors[] = "User {$id}: ".$e->getMessage();
             }
         }
 
@@ -280,7 +283,7 @@ class BulkOperationJob implements ShouldQueue
                 $user->update(['is_active' => true]);
                 $successCount++;
             } catch (\Exception $e) {
-                $errors[] = "User {$id}: " . $e->getMessage();
+                $errors[] = "User {$id}: ".$e->getMessage();
             }
         }
 
@@ -296,18 +299,18 @@ class BulkOperationJob implements ShouldQueue
      */
     private function invalidateCaches(): void
     {
-        $cacheService = app(\App\Services\DashboardCacheService::class);
-        
+        $cacheService = app(DashboardCacheService::class);
+
         if (str_contains($this->operation, 'organization')) {
             $cacheService->invalidateOrganizationCaches();
         }
-        
+
         if (str_contains($this->operation, 'subscription')) {
             $cacheService->invalidateSubscriptionCaches();
         }
-        
+
         // Always invalidate activity stats since bulk operations create activity
-        \Illuminate\Support\Facades\Cache::forget('superadmin.dashboard.activity_stats');
+        Cache::forget('superadmin.dashboard.activity_stats');
     }
 
     /**

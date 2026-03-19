@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 /**
  * Configuration Change Value Object
- * 
+ *
  * Represents a single configuration change with rollback capabilities
  * and impact assessment information.
  */
@@ -64,6 +64,7 @@ final readonly class ConfigurationChange
     public function affectsBilling(): bool
     {
         $affectedAreas = $this->impactAssessment['affected_areas'] ?? [];
+
         return in_array('billing_calculations', $affectedAreas);
     }
 
@@ -73,6 +74,7 @@ final readonly class ConfigurationChange
     public function affectsServiceAvailability(): bool
     {
         $affectedAreas = $this->impactAssessment['affected_areas'] ?? [];
+
         return in_array('service_availability', $affectedAreas);
     }
 
@@ -123,7 +125,7 @@ final readonly class ConfigurationChange
     {
         $modelName = class_basename($this->modelType);
         $changeCount = $this->getChangeCount();
-        
+
         return match ($this->event) {
             'created' => "Created {$modelName} #{$this->modelId}",
             'updated' => "Updated {$changeCount} field(s) in {$modelName} #{$this->modelId}",
@@ -140,15 +142,15 @@ final readonly class ConfigurationChange
     {
         $level = $this->impactAssessment['level'] ?? 'low';
         $riskFactors = count($this->impactAssessment['risk_factors'] ?? []);
-        
+
         if ($level === 'high' || $riskFactors > 2) {
             return 'high';
         }
-        
+
         if ($level === 'medium' || $riskFactors > 0) {
             return 'medium';
         }
-        
+
         return 'low';
     }
 
@@ -157,8 +159,8 @@ final readonly class ConfigurationChange
      */
     public function requiresApproval(): bool
     {
-        return $this->hasHighImpact() || 
-               $this->affectsBilling() || 
+        return $this->hasHighImpact() ||
+               $this->affectsBilling() ||
                $this->affectsServiceAvailability();
     }
 

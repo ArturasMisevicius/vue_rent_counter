@@ -21,8 +21,6 @@ use Filament\Resources\Pages\ListRecords;
  * - Actionable widget integration
  * - Filter state validation
  * - Tenant-scoped filtering
- *
- * @package App\Filament\Resources\InvoiceResource\Pages
  */
 class ListInvoices extends ListRecords
 {
@@ -47,7 +45,7 @@ class ListInvoices extends ListRecords
      */
     protected function getFilterManager(): FilterStateManager
     {
-        return $this->filterManager ??= new FilterStateManager();
+        return $this->filterManager ??= new FilterStateManager;
     }
 
     /**
@@ -56,8 +54,8 @@ class ListInvoices extends ListRecords
      * Helper method to retrieve filter values for use in table filter defaults.
      * Provides fallback handling for missing or invalid filter parameters.
      *
-     * @param string $filterName The filter name to retrieve
-     * @param mixed $default Default value if filter not found
+     * @param  string  $filterName  The filter name to retrieve
+     * @param  mixed  $default  Default value if filter not found
      * @return mixed The filter value or default
      */
     protected function getFilterFromUrl(string $filterName, mixed $default = null): mixed
@@ -88,12 +86,12 @@ class ListInvoices extends ListRecords
      */
     public function getSubheading(): ?string
     {
-        if (!$this->hasActiveFilters()) {
+        if (! $this->hasActiveFilters()) {
             return null;
         }
 
         $filterCount = $this->getFilterManager()->getFilterCount();
-        
+
         return trans_choice(
             'app.pages.filtered_view_subtitle',
             $filterCount,

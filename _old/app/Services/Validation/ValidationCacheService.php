@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Services\Validation;
 
+use App\Enums\ValidationStatus;
+use App\Models\MeterReading;
 use App\Models\ServiceConfiguration;
-use App\Models\UtilityService;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Support\Collection;
 
 /**
  * Centralized caching service for validation operations.
- * 
+ *
  * PERFORMANCE OPTIMIZATIONS:
  * - Multi-layer caching strategy
  * - Bulk cache operations
@@ -21,18 +22,22 @@ use Illuminate\Support\Collection;
 final class ValidationCacheService
 {
     private const CACHE_TTL_RULES = 3600; // 1 hour for validation rules
+
     private const CACHE_TTL_HISTORICAL = 86400; // 24 hours for historical data
+
     private const CACHE_TTL_CONFIG = 1800; // 30 minutes for configuration
-    
+
     private const PREFIX_RULES = 'validation:rules';
+
     private const PREFIX_HISTORICAL = 'validation:historical';
+
     private const PREFIX_CONFIG = 'validation:config';
+
     private const PREFIX_SEASONAL = 'validation:seasonal';
 
     public function __construct(
         private readonly CacheRepository $cache
-    ) {
-    }
+    ) {}
 
     /**
      * Get validation rules for a service configuration with caching.
@@ -40,11 +45,11 @@ final class ValidationCacheService
     public function getValidationRules(ServiceConfiguration $serviceConfig): array
     {
         $cacheKey = $this->buildCacheKey(self::PREFIX_RULES, $serviceConfig->id);
-        
+
         return $this->cache->remember(
             $cacheKey,
             self::CACHE_TTL_RULES,
-            fn() => $this->buildValidationRules($serviceConfig)
+            fn () => $this->buildValidationRules($serviceConfig)
         );
     }
 
@@ -54,11 +59,11 @@ final class ValidationCacheService
     public function getSeasonalConfig(ServiceConfiguration $serviceConfig): array
     {
         $cacheKey = $this->buildCacheKey(self::PREFIX_SEASONAL, $serviceConfig->id);
-        
+
         return $this->cache->remember(
             $cacheKey,
             self::CACHE_TTL_CONFIG,
-            fn() => $this->buildSeasonalConfig($serviceConfig)
+            fn () => $this->buildSeasonalConfig($serviceConfig)
         );
     }
 
@@ -68,11 +73,11 @@ final class ValidationCacheService
     public function getHistoricalConsumption(int $meterId, int $months = 12): Collection
     {
         $cacheKey = $this->buildCacheKey(self::PREFIX_HISTORICAL, "{$meterId}_{$months}");
-        
+
         return $this->cache->remember(
             $cacheKey,
             self::CACHE_TTL_HISTORICAL,
-            fn() => $this->loadHistoricalConsumption($meterId, $months)
+            fn () => $this->loadHistoricalConsumption($meterId, $months)
         );
     }
 
@@ -82,22 +87,22 @@ final class ValidationCacheService
     public function warmValidationCache(Collection $serviceConfigs): void
     {
         $cacheData = [];
-        
+
         foreach ($serviceConfigs as $config) {
             $rulesKey = $this->buildCacheKey(self::PREFIX_RULES, $config->id);
             $seasonalKey = $this->buildCacheKey(self::PREFIX_SEASONAL, $config->id);
-            
+
             $cacheData[$rulesKey] = [
                 'data' => $this->buildValidationRules($config),
                 'ttl' => self::CACHE_TTL_RULES,
             ];
-            
+
             $cacheData[$seasonalKey] = [
                 'data' => $this->buildSeasonalConfig($config),
                 'ttl' => self::CACHE_TTL_CONFIG,
             ];
         }
-        
+
         // Bulk cache operation
         $this->bulkCacheSet($cacheData);
     }
@@ -111,7 +116,7 @@ final class ValidationCacheService
             $this->buildCacheKey(self::PREFIX_RULES, $serviceConfigId),
             $this->buildCacheKey(self::PREFIX_SEASONAL, $serviceConfigId),
         ];
-        
+
         foreach ($keys as $key) {
             $this->cache->forget($key);
         }
@@ -126,7 +131,7 @@ final class ValidationCacheService
         $patterns = [
             $this->buildCacheKey(self::PREFIX_HISTORICAL, "{$meterId}_*"),
         ];
-        
+
         foreach ($patterns as $pattern) {
             $this->cache->forget($pattern);
         }
@@ -156,7 +161,7 @@ final class ValidationCacheService
             self::PREFIX_CONFIG,
             self::PREFIX_SEASONAL,
         ];
-        
+
         foreach ($prefixes as $prefix) {
             // Implementation depends on cache driver
             $this->cache->flush(); // Simplified - would use prefix-based clearing in production
@@ -179,7 +184,7 @@ final class ValidationCacheService
         $utilityService = $serviceConfig->utilityService;
         $baseRules = $utilityService?->validation_rules ?? [];
         $overrides = $serviceConfig->configuration_overrides ?? [];
-        
+
         return array_merge($baseRules, $overrides);
     }
 
@@ -191,7 +196,7 @@ final class ValidationCacheService
         $utilityType = $serviceConfig->utilityService?->service_type_bridge?->value;
         $defaultConfig = config("service_validation.seasonal_adjustments.{$utilityType}", []);
         $serviceOverrides = $serviceConfig->configuration_overrides['seasonal_adjustments'] ?? [];
-        
+
         return array_merge($defaultConfig, $serviceOverrides);
     }
 
@@ -200,10 +205,10 @@ final class ValidationCacheService
      */
     private function loadHistoricalConsumption(int $meterId, int $months): Collection
     {
-        return \App\Models\MeterReading::query()
+        return MeterReading::query()
             ->where('meter_id', $meterId)
             ->where('reading_date', '>=', now()->subMonths($months))
-            ->where('validation_status', \App\Enums\ValidationStatus::VALIDATED)
+            ->where('validation_status', ValidationStatus::VALIDATED)
             ->select(['id', 'reading_date', 'value', 'zone', 'reading_values'])
             ->orderBy('reading_date', 'desc')
             ->get();

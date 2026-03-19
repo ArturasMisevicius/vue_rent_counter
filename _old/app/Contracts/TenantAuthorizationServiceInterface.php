@@ -10,8 +10,8 @@ use App\ValueObjects\TenantId;
 interface TenantAuthorizationServiceInterface
 {
     public function canSwitchTo(TenantId $tenantId, User $user): bool;
-    
+
     public function canAccessTenant(TenantId $tenantId, User $user): bool;
-    
+
     public function getDefaultTenant(User $user): ?TenantId;
 }

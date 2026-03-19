@@ -7,8 +7,8 @@ use App\Models\MeterReading;
 use App\Services\MeterReadingService;
 use Filament\Actions;
 use Filament\Forms;
-use Filament\Schemas\Schema;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Schemas\Schema;
 
 class EditMeterReading extends EditRecord
 {
@@ -20,8 +20,6 @@ class EditMeterReading extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
-    
-
 
     /**
      * Customize the form for editing to include change_reason.
@@ -31,7 +29,7 @@ class EditMeterReading extends EditRecord
     {
         $minLength = config('billing.validation.change_reason_min_length', 10);
         $maxLength = config('billing.validation.change_reason_max_length', 500);
-        
+
         return $schema
             ->schema([
                 Forms\Components\TextInput::make('value')
@@ -46,8 +44,8 @@ class EditMeterReading extends EditRecord
                         // Validation from UpdateMeterReadingRequest
                         fn (): \Closure => function (string $attribute, $value, \Closure $fail) {
                             $reading = $this->record;
-                            
-                            if (!$reading instanceof MeterReading) {
+
+                            if (! $reading instanceof MeterReading) {
                                 return;
                             }
 
@@ -76,7 +74,7 @@ class EditMeterReading extends EditRecord
                         'numeric' => __('meter_readings.validation.value.numeric'),
                         'min' => __('meter_readings.validation.value.min'),
                     ]),
-                
+
                 Forms\Components\Textarea::make('change_reason')
                     ->label(__('meter_readings.labels.reason'))
                     ->required()
@@ -88,7 +86,7 @@ class EditMeterReading extends EditRecord
                         'min' => __('meter_readings.validation.change_reason.min', ['min' => $minLength]),
                         'max' => __('meter_readings.validation.change_reason.max', ['max' => $maxLength]),
                     ]),
-                
+
                 Forms\Components\DatePicker::make('reading_date')
                     ->label(__('meter_readings.labels.reading_date'))
                     ->maxDate(now())
@@ -97,7 +95,7 @@ class EditMeterReading extends EditRecord
                         'date' => __('meter_readings.validation.reading_date.date'),
                         'before_or_equal' => __('meter_readings.validation.reading_date.before_or_equal'),
                     ]),
-                
+
                 Forms\Components\TextInput::make('zone')
                     ->label(__('meter_readings.labels.zone'))
                     ->maxLength(50)
@@ -116,7 +114,7 @@ class EditMeterReading extends EditRecord
             $this->record->change_reason = $data['change_reason'];
             unset($data['change_reason']);
         }
-        
+
         return $data;
     }
 }

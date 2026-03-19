@@ -9,7 +9,7 @@ use Monolog\Processor\ProcessorInterface;
 
 /**
  * Security Log Processor
- * 
+ *
  * Sanitizes logs to prevent sensitive data exposure
  */
 final class SecurityLogProcessor implements ProcessorInterface
@@ -42,7 +42,7 @@ final class SecurityLogProcessor implements ProcessorInterface
     {
         $record->extra = $this->sanitizeArray($record->extra);
         $record->context = $this->sanitizeArray($record->context);
-        
+
         return $record;
     }
 
@@ -64,7 +64,7 @@ final class SecurityLogProcessor implements ProcessorInterface
     private function isSensitiveKey(string $key): bool
     {
         $key = strtolower($key);
-        
+
         foreach (self::SENSITIVE_KEYS as $sensitiveKey) {
             if (str_contains($key, $sensitiveKey)) {
                 return true;
@@ -77,7 +77,7 @@ final class SecurityLogProcessor implements ProcessorInterface
     private function isPiiKey(string $key): bool
     {
         $key = strtolower($key);
-        
+
         foreach (self::PII_KEYS as $piiKey) {
             if (str_contains($key, $piiKey)) {
                 return true;
@@ -89,10 +89,10 @@ final class SecurityLogProcessor implements ProcessorInterface
 
     private function hashValue(mixed $value): string
     {
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             $value = (string) $value;
         }
 
-        return 'hash:' . substr(hash('sha256', $value), 0, 8);
+        return 'hash:'.substr(hash('sha256', $value), 0, 8);
     }
 }

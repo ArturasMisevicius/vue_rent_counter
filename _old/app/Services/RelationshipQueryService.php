@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\User;
-use App\Models\Project;
-use App\Models\Task;
 use App\Models\Comment;
+use App\Models\Project;
 use App\Models\Tag;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
+use App\Models\Task;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Relationship Query Service
- * 
+ *
  * Provides optimized queries for complex relationship scenarios
  */
 class RelationshipQueryService
@@ -33,23 +32,23 @@ class RelationshipQueryService
                 $projects = Project::whereHas('organization.members', function ($query) use ($user) {
                     $query->where('user_id', $user->id)->where('is_active', true);
                 })
-                ->orWhere('created_by', $user->id)
-                ->orWhere('assigned_to', $user->id)
-                ->orWhere(function ($query) use ($user) {
-                    $query->where('projectable_type', User::class)
-                          ->where('projectable_id', $user->id);
-                })
-                ->withCount([
-                    'tasks',
-                    'tasks as active_tasks_count' => function ($query) {
-                        $query->whereNotIn('status', ['completed', 'cancelled']);
-                    },
-                    'tasks as overdue_tasks_count' => function ($query) {
-                        $query->where('due_date', '<', now())
-                              ->whereNotIn('status', ['completed', 'cancelled']);
-                    }
-                ])
-                ->get();
+                    ->orWhere('created_by', $user->id)
+                    ->orWhere('assigned_to', $user->id)
+                    ->orWhere(function ($query) use ($user) {
+                        $query->where('projectable_type', User::class)
+                            ->where('projectable_id', $user->id);
+                    })
+                    ->withCount([
+                        'tasks',
+                        'tasks as active_tasks_count' => function ($query) {
+                            $query->whereNotIn('status', ['completed', 'cancelled']);
+                        },
+                        'tasks as overdue_tasks_count' => function ($query) {
+                            $query->where('due_date', '<', now())
+                                ->whereNotIn('status', ['completed', 'cancelled']);
+                        },
+                    ])
+                    ->get();
 
                 // Get direct task assignments
                 $taskAssignments = $user->taskAssignments()
@@ -62,7 +61,7 @@ class RelationshipQueryService
                     ->join('time_entries', 'task_assignments.id', '=', 'time_entries.assignment_id')
                     ->whereBetween('time_entries.logged_at', [
                         now()->startOfWeek(),
-                        now()->endOfWeek()
+                        now()->endOfWeek(),
                     ])
                     ->sum('time_entries.hours');
 
@@ -97,7 +96,7 @@ class RelationshipQueryService
 
         // Build collaboration matrix
         $collaborations = [];
-        
+
         foreach ($involvedUsers as $user1) {
             foreach ($involvedUsers as $user2) {
                 if ($user1->id !== $user2->id) {
@@ -154,11 +153,12 @@ class RelationshipQueryService
         $totalComments = $comments->count();
         $totalReplies = $comments->sum('replies_count');
         $totalReactions = $comments->sum('reactions_count');
-        
+
         // Get most active commenters
         $activeCommenters = $comments->groupBy('user_id')
             ->map(function ($userComments, $userId) {
                 $user = $userComments->first()->user;
+
                 return [
                     'user_id' => $userId,
                     'user_name' => $user->name,
@@ -204,7 +204,7 @@ class RelationshipQueryService
         $coOccurringTags = DB::table('taggables as t1')
             ->join('taggables as t2', function ($join) {
                 $join->on('t1.taggable_type', '=', 't2.taggable_type')
-                     ->on('t1.taggable_id', '=', 't2.taggable_id');
+                    ->on('t1.taggable_id', '=', 't2.taggable_id');
             })
             ->join('tags', 't2.tag_id', '=', 'tags.id')
             ->where('t1.tag_id', $tag->id)
@@ -223,6 +223,7 @@ class RelationshipQueryService
             ->get()
             ->mapWithKeys(function ($item) {
                 $modelName = class_basename($item->taggable_type);
+
                 return [$modelName => $item->usage_count];
             });
 
@@ -256,47 +257,47 @@ class RelationshipQueryService
         $projects = Project::whereHas('organization.members', function ($q) use ($user) {
             $q->where('user_id', $user->id);
         })
-        ->where(function ($q) use ($query) {
-            $q->where('name', 'like', "%{$query}%")
-              ->orWhere('description', 'like', "%{$query}%");
-        })
-        ->with(['organization:id,name', 'creator:id,name'])
-        ->limit($limit / 4)
-        ->get()
-        ->map(function ($project) {
-            return [
-                'type' => 'project',
-                'id' => $project->id,
-                'title' => $project->name,
-                'description' => $project->description,
-                'url' => route('projects.show', $project),
-                'context' => $project->organization->name,
-                'created_at' => $project->created_at,
-            ];
-        });
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('description', 'like', "%{$query}%");
+            })
+            ->with(['organization:id,name', 'creator:id,name'])
+            ->limit($limit / 4)
+            ->get()
+            ->map(function ($project) {
+                return [
+                    'type' => 'project',
+                    'id' => $project->id,
+                    'title' => $project->name,
+                    'description' => $project->description,
+                    'url' => route('projects.show', $project),
+                    'context' => $project->organization->name,
+                    'created_at' => $project->created_at,
+                ];
+            });
 
         // Search tasks
         $tasks = Task::whereHas('project.organization.members', function ($q) use ($user) {
             $q->where('user_id', $user->id);
         })
-        ->where(function ($q) use ($query) {
-            $q->where('title', 'like', "%{$query}%")
-              ->orWhere('description', 'like', "%{$query}%");
-        })
-        ->with(['project:id,name', 'creator:id,name'])
-        ->limit($limit / 4)
-        ->get()
-        ->map(function ($task) {
-            return [
-                'type' => 'task',
-                'id' => $task->id,
-                'title' => $task->title,
-                'description' => $task->description,
-                'url' => route('tasks.show', $task),
-                'context' => $task->project->name,
-                'created_at' => $task->created_at,
-            ];
-        });
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'like', "%{$query}%")
+                    ->orWhere('description', 'like', "%{$query}%");
+            })
+            ->with(['project:id,name', 'creator:id,name'])
+            ->limit($limit / 4)
+            ->get()
+            ->map(function ($task) {
+                return [
+                    'type' => 'task',
+                    'id' => $task->id,
+                    'title' => $task->title,
+                    'description' => $task->description,
+                    'url' => route('tasks.show', $task),
+                    'context' => $task->project->name,
+                    'created_at' => $task->created_at,
+                ];
+            });
 
         // Search comments
         $comments = Comment::whereHasMorph('commentable', [Project::class, Task::class], function ($q, $type) use ($user) {
@@ -310,21 +311,21 @@ class RelationshipQueryService
                 });
             }
         })
-        ->where('body', 'like', "%{$query}%")
-        ->with(['user:id,name', 'commentable'])
-        ->limit($limit / 4)
-        ->get()
-        ->map(function ($comment) {
-            return [
-                'type' => 'comment',
-                'id' => $comment->id,
-                'title' => 'Comment by ' . $comment->user->name,
-                'description' => Str::limit($comment->body, 100),
-                'url' => $comment->commentable ? route(Str::plural(Str::lower(class_basename($comment->commentable_type))) . '.show', $comment->commentable) . '#comment-' . $comment->id : '#',
-                'context' => $comment->commentable ? $comment->commentable->name ?? $comment->commentable->title : 'Unknown',
-                'created_at' => $comment->created_at,
-            ];
-        });
+            ->where('body', 'like', "%{$query}%")
+            ->with(['user:id,name', 'commentable'])
+            ->limit($limit / 4)
+            ->get()
+            ->map(function ($comment) {
+                return [
+                    'type' => 'comment',
+                    'id' => $comment->id,
+                    'title' => 'Comment by '.$comment->user->name,
+                    'description' => Str::limit($comment->body, 100),
+                    'url' => $comment->commentable ? route(Str::plural(Str::lower(class_basename($comment->commentable_type))).'.show', $comment->commentable).'#comment-'.$comment->id : '#',
+                    'context' => $comment->commentable ? $comment->commentable->name ?? $comment->commentable->title : 'Unknown',
+                    'created_at' => $comment->created_at,
+                ];
+            });
 
         // Search tags
         $tags = Tag::where('name', 'like', "%{$query}%")

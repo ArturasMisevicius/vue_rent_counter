@@ -2,22 +2,20 @@
 
 namespace App\Filament\Widgets;
 
-use App\Enums\SubscriptionStatus;
-use App\Models\Subscription;
+use App\Services\DashboardCacheService;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Illuminate\Support\Facades\Cache;
 
 class SubscriptionStatsWidget extends BaseWidget
 {
     protected static ?int $sort = 1;
-    
+
     // Enable lazy loading for better performance
     protected static bool $isLazy = true;
 
     protected function getStats(): array
     {
-        $cacheService = app(\App\Services\DashboardCacheService::class);
+        $cacheService = app(DashboardCacheService::class);
         $stats = $cacheService->getSubscriptionStats();
 
         return [

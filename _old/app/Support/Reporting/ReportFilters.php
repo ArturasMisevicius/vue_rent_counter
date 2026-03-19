@@ -18,7 +18,7 @@ final readonly class ReportFilters
     public static function fromArray(array $data): self
     {
         $dateRange = null;
-        if (!empty($data['start_date']) && !empty($data['end_date'])) {
+        if (! empty($data['start_date']) && ! empty($data['end_date'])) {
             $dateRange = DateRange::custom($data['start_date'], $data['end_date']);
         }
 

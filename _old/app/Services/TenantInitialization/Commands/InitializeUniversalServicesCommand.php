@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace App\Services\TenantInitialization\Commands;
 
-use App\Services\TenantInitialization\Results\InitializationResult;
+use App\Exceptions\TenantInitializationException;
 use App\Models\Organization;
 use App\Services\TenantInitialization\Factories\UtilityServiceFactory;
-use App\Services\TenantInitialization\ServiceDefinitionProvider;
 use App\Services\TenantInitialization\MeterConfigurationProvider;
+use App\Services\TenantInitialization\Results\InitializationResult;
+use App\Services\TenantInitialization\ServiceDefinitionProvider;
 use App\Traits\LogsTenantOperations;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Command for initializing universal services for a tenant.
- * 
+ *
  * Implements Command pattern to encapsulate the initialization operation
  * with proper transaction handling and logging.
  */
@@ -32,12 +33,11 @@ final readonly class InitializeUniversalServicesCommand
 
     /**
      * Execute the initialization command.
-     * 
-     * @param Organization $tenant The tenant to initialize services for
-     * 
+     *
+     * @param  Organization  $tenant  The tenant to initialize services for
      * @return InitializationResult The initialization result
-     * 
-     * @throws \App\Exceptions\TenantInitializationException
+     *
+     * @throws TenantInitializationException
      */
     public function execute(Organization $tenant): InitializationResult
     {

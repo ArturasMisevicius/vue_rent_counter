@@ -28,13 +28,13 @@ final readonly class ServiceRegistrationOrchestrator
     {
         try {
             $policyRegistry = $this->app->make(PolicyRegistryInterface::class);
-            
+
             $policyResults = $this->registerModelPolicies($policyRegistry);
             $gateResults = $this->registerSettingsGates($policyRegistry);
-            
+
             $this->logCombinedResults($policyResults, $gateResults);
             $this->recordMetrics($policyResults, $gateResults);
-            
+
         } catch (\Throwable $e) {
             $this->errorHandler->handleCriticalFailure($e, 'policy_orchestration');
         }
@@ -46,7 +46,7 @@ final readonly class ServiceRegistrationOrchestrator
     private function registerModelPolicies(PolicyRegistryInterface $registry): RegistrationResult
     {
         return $this->errorHandler->handleRegistration(
-            operation: fn() => $registry->registerModelPolicies(),
+            operation: fn () => $registry->registerModelPolicies(),
             context: 'model_policies'
         );
     }
@@ -57,7 +57,7 @@ final readonly class ServiceRegistrationOrchestrator
     private function registerSettingsGates(PolicyRegistryInterface $registry): RegistrationResult
     {
         return $this->errorHandler->handleRegistration(
-            operation: fn() => $registry->registerSettingsGates(),
+            operation: fn () => $registry->registerSettingsGates(),
             context: 'settings_gates'
         );
     }
@@ -99,6 +99,7 @@ final readonly class ServiceRegistrationOrchestrator
     {
         try {
             $policyRegistry = $this->app->make(PolicyRegistryInterface::class);
+
             return $policyRegistry->validateConfiguration();
         } catch (\Throwable $e) {
             return [

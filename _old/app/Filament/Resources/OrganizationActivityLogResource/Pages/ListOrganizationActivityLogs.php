@@ -3,14 +3,14 @@
 namespace App\Filament\Resources\OrganizationActivityLogResource\Pages;
 
 use App\Filament\Resources\OrganizationActivityLogResource;
-use Filament\Resources\Pages\ListRecords;
 use Filament\Actions;
+use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Response;
 
 class ListOrganizationActivityLogs extends ListRecords
 {
     protected static string $resource = OrganizationActivityLogResource::class;
-    
+
     protected function getHeaderActions(): array
     {
         return [
@@ -25,7 +25,7 @@ class ListOrganizationActivityLogs extends ListRecords
                 ->modalHeading('Export Activity Logs to CSV')
                 ->modalDescription('This will export all filtered activity logs to a CSV file.')
                 ->modalSubmitActionLabel('Export'),
-            
+
             Actions\Action::make('export_json')
                 ->label('Export JSON')
                 ->icon('heroicon-o-arrow-down-tray')
@@ -39,22 +39,22 @@ class ListOrganizationActivityLogs extends ListRecords
                 ->modalSubmitActionLabel('Export'),
         ];
     }
-    
+
     protected function exportToCsv()
     {
         $query = $this->getFilteredTableQuery();
         $logs = $query->with(['organization', 'user'])->get();
-        
-        $filename = 'activity-logs-' . now()->format('Y-m-d-His') . '.csv';
-        
+
+        $filename = 'activity-logs-'.now()->format('Y-m-d-His').'.csv';
+
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
-        
+
         $callback = function () use ($logs) {
             $file = fopen('php://output', 'w');
-            
+
             // Add CSV headers
             fputcsv($file, [
                 'ID',
@@ -68,7 +68,7 @@ class ListOrganizationActivityLogs extends ListRecords
                 'User Agent',
                 'Metadata',
             ]);
-            
+
             // Add data rows
             foreach ($logs as $log) {
                 fputcsv($file, [
@@ -84,20 +84,20 @@ class ListOrganizationActivityLogs extends ListRecords
                     $log->metadata ? json_encode($log->metadata) : 'N/A',
                 ]);
             }
-            
+
             fclose($file);
         };
-        
+
         return Response::stream($callback, 200, $headers);
     }
-    
+
     protected function exportToJson()
     {
         $query = $this->getFilteredTableQuery();
         $logs = $query->with(['organization', 'user'])->get();
-        
-        $filename = 'activity-logs-' . now()->format('Y-m-d-His') . '.json';
-        
+
+        $filename = 'activity-logs-'.now()->format('Y-m-d-His').'.json';
+
         $data = $logs->map(function ($log) {
             return [
                 'id' => $log->id,
@@ -122,12 +122,12 @@ class ListOrganizationActivityLogs extends ListRecords
                 'metadata' => $log->metadata,
             ];
         });
-        
+
         $headers = [
             'Content-Type' => 'application/json',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
-        
+
         return Response::make(
             json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
             200,

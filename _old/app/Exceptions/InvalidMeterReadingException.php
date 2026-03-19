@@ -21,7 +21,7 @@ class InvalidMeterReadingException extends Exception
      */
     public static function futureDate(): self
     {
-        return new self("Reading date cannot be in the future");
+        return new self('Reading date cannot be in the future');
     }
 
     /**

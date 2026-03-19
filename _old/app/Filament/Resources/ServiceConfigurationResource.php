@@ -14,6 +14,12 @@ use App\Models\ServiceConfiguration;
 use App\Models\User;
 use App\Models\UtilityService;
 use App\Services\Audit\ConfigurationRollbackService;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -393,7 +399,7 @@ class ServiceConfigurationResource extends Resource
                     ->label('Active'),
             ])
             ->actions([
-                \Filament\Actions\Action::make('audit_history')
+                Action::make('audit_history')
                     ->label('Audit History')
                     ->icon('heroicon-o-clock')
                     ->color('gray')
@@ -407,7 +413,7 @@ class ServiceConfigurationResource extends Resource
                     ->modalWidth('7xl')
                     ->slideOver(),
 
-                \Filament\Actions\Action::make('rollback')
+                Action::make('rollback')
                     ->label('Rollback')
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('warning')
@@ -473,15 +479,15 @@ class ServiceConfigurationResource extends Resource
                     ->modalHeading(__('dashboard.audit.rollback_confirmation'))
                     ->modalDescription(__('dashboard.audit.rollback_warning')),
 
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->headerActions([
-                \Filament\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('effective_from', 'desc');

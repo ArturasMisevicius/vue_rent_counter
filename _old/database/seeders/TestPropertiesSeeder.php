@@ -18,11 +18,11 @@ class TestPropertiesSeeder extends Seeder
         $building1 = Building::where('tenant_id', 1)
             ->where('address', 'Gedimino pr. 15, Vilnius')
             ->first();
-        
+
         $building2 = Building::where('tenant_id', 1)
             ->where('address', 'Konstitucijos pr. 7, Vilnius')
             ->first();
-        
+
         $building3 = Building::where('tenant_id', 2)
             ->where('address', 'Pilies g. 22, Vilnius')
             ->first();

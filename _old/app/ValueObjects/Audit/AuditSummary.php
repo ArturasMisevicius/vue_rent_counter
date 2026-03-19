@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 /**
  * Audit Summary Value Object
- * 
+ *
  * Contains summary statistics for audit activities including
  * change counts, event breakdowns, and time period information.
  */
@@ -49,7 +49,7 @@ final readonly class AuditSummary
      */
     public function getUserChangePercentage(): float
     {
-        return $this->totalChanges > 0 
+        return $this->totalChanges > 0
             ? round(($this->userChanges / $this->totalChanges) * 100, 2)
             : 0;
     }
@@ -59,7 +59,7 @@ final readonly class AuditSummary
      */
     public function getSystemChangePercentage(): float
     {
-        return $this->totalChanges > 0 
+        return $this->totalChanges > 0
             ? round(($this->systemChanges / $this->totalChanges) * 100, 2)
             : 0;
     }
@@ -78,6 +78,7 @@ final readonly class AuditSummary
     public function getChangesPerDay(): float
     {
         $days = $this->getPeriodDurationDays();
+
         return $days > 0 ? round($this->totalChanges / $days, 2) : 0;
     }
 
@@ -125,7 +126,7 @@ final readonly class AuditSummary
     public function isHighActivity(): bool
     {
         $changesPerDay = $this->getChangesPerDay();
-        
+
         // Consider high activity if more than 50 changes per day
         return $changesPerDay > 50;
     }
@@ -136,7 +137,7 @@ final readonly class AuditSummary
     public function hasUnusualSystemActivity(): bool
     {
         $systemPercentage = $this->getSystemChangePercentage();
-        
+
         // Consider unusual if system changes exceed 30% of total
         return $systemPercentage > 30;
     }

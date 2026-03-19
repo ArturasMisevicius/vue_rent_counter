@@ -9,22 +9,21 @@ use App\Models\UtilityService;
 
 /**
  * Provides default meter configurations for utility services.
- * 
+ *
  * This class creates meter configuration templates based on utility service
  * types and their specific requirements, including reading structures,
  * validation rules, and photo verification settings.
- * 
- * @package App\Services\TenantInitialization
+ *
  * @author Laravel Development Team
+ *
  * @since 1.0.0
  */
 final readonly class MeterConfigurationProvider
 {
     /**
      * Create default meter configurations for utility services.
-     * 
-     * @param array<string, UtilityService> $utilityServices Array of utility services keyed by service type
-     * 
+     *
+     * @param  array<string, UtilityService>  $utilityServices  Array of utility services keyed by service type
      * @return array<string, array<string, mixed>> Meter configurations keyed by service type
      */
     public function createDefaultMeterConfigurations(array $utilityServices): array
@@ -43,7 +42,7 @@ final readonly class MeterConfigurationProvider
 
     /**
      * Create meter configuration for a specific utility service.
-     * 
+     *
      * @return array<string, mixed>
      */
     private function createMeterConfigurationForService(string $serviceType, UtilityService $utilityService): array
@@ -68,7 +67,7 @@ final readonly class MeterConfigurationProvider
 
     /**
      * Get electricity meter configuration.
-     * 
+     *
      * @return array<string, mixed>
      */
     private function getElectricityMeterConfig(): array
@@ -118,7 +117,7 @@ final readonly class MeterConfigurationProvider
 
     /**
      * Get water meter configuration.
-     * 
+     *
      * @return array<string, mixed>
      */
     private function getWaterMeterConfig(): array
@@ -163,7 +162,7 @@ final readonly class MeterConfigurationProvider
 
     /**
      * Get heating meter configuration.
-     * 
+     *
      * @return array<string, mixed>
      */
     private function getHeatingMeterConfig(): array
@@ -219,7 +218,7 @@ final readonly class MeterConfigurationProvider
 
     /**
      * Get gas meter configuration.
-     * 
+     *
      * @return array<string, mixed>
      */
     private function getGasMeterConfig(): array
@@ -275,7 +274,7 @@ final readonly class MeterConfigurationProvider
 
     /**
      * Get default meter configuration for unknown service types.
-     * 
+     *
      * @return array<string, mixed>
      */
     private function getDefaultMeterConfig(): array
@@ -312,7 +311,7 @@ final readonly class MeterConfigurationProvider
 
     /**
      * Get meter configuration template for a specific service type.
-     * 
+     *
      * @return array<string, mixed>|null
      */
     public function getMeterConfigurationTemplate(string $serviceType): ?array
@@ -328,8 +327,8 @@ final readonly class MeterConfigurationProvider
 
     /**
      * Validate meter configuration against service requirements.
-     * 
-     * @param array<string, mixed> $configuration
+     *
+     * @param  array<string, mixed>  $configuration
      * @return array<string> Array of validation errors, empty if valid
      */
     public function validateMeterConfiguration(array $configuration, string $serviceType): array
@@ -337,15 +336,16 @@ final readonly class MeterConfigurationProvider
         $errors = [];
         $template = $this->getMeterConfigurationTemplate($serviceType);
 
-        if (!$template) {
+        if (! $template) {
             $errors[] = "Unknown service type: {$serviceType}";
+
             return $errors;
         }
 
         // Validate required fields
         $requiredFields = ['meter_type', 'reading_structure', 'validation_rules'];
         foreach ($requiredFields as $field) {
-            if (!isset($configuration[$field])) {
+            if (! isset($configuration[$field])) {
                 $errors[] = "Missing required field: {$field}";
             }
         }
@@ -353,12 +353,12 @@ final readonly class MeterConfigurationProvider
         // Validate reading structure
         if (isset($configuration['reading_structure'])) {
             $readingStructure = $configuration['reading_structure'];
-            
-            if (!isset($readingStructure['fields']) && !isset($readingStructure['zones'])) {
+
+            if (! isset($readingStructure['fields']) && ! isset($readingStructure['zones'])) {
                 $errors[] = 'Reading structure must define either fields or zones';
             }
 
-            if (!isset($readingStructure['total_field'])) {
+            if (! isset($readingStructure['total_field'])) {
                 $errors[] = 'Reading structure must define total_field';
             }
         }
@@ -366,13 +366,13 @@ final readonly class MeterConfigurationProvider
         // Validate validation rules
         if (isset($configuration['validation_rules'])) {
             $validationRules = $configuration['validation_rules'];
-            
-            if (!isset($validationRules['max_consumption']) || $validationRules['max_consumption'] <= 0) {
+
+            if (! isset($validationRules['max_consumption']) || $validationRules['max_consumption'] <= 0) {
                 $errors[] = 'Validation rules must define positive max_consumption';
             }
 
-            if (!isset($validationRules['variance_threshold']) || 
-                $validationRules['variance_threshold'] < 0 || 
+            if (! isset($validationRules['variance_threshold']) ||
+                $validationRules['variance_threshold'] < 0 ||
                 $validationRules['variance_threshold'] > 1) {
                 $errors[] = 'Validation rules must define variance_threshold between 0 and 1';
             }

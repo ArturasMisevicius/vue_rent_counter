@@ -11,14 +11,16 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Nonce Generator Service
- * 
+ *
  * Handles secure nonce generation with request-level caching
  * and performance optimization.
  */
 final class NonceGeneratorService
 {
     private const CACHE_KEY_PREFIX = 'security_nonce:';
+
     private const DEFAULT_NONCE_BYTES = 16;
+
     private const REQUEST_CACHE_KEY = 'current_nonce';
 
     public function __construct(
@@ -39,7 +41,7 @@ final class NonceGeneratorService
 
         // Generate new nonce
         $nonce = $this->generateNonce();
-        
+
         // Cache it for the request duration only
         $request->attributes->set(self::REQUEST_CACHE_KEY, $nonce);
 
@@ -71,6 +73,7 @@ final class NonceGeneratorService
     {
         try {
             $nonce = SecurityNonce::fromBase64($nonceValue);
+
             return $nonce->isValid($maxAge);
         } catch (\Exception $e) {
             $this->logger->warning('Invalid nonce validation attempt', [
@@ -81,8 +84,6 @@ final class NonceGeneratorService
             return false;
         }
     }
-
-
 
     /**
      * Clear expired nonces from cache.

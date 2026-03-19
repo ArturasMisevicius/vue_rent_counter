@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Active Users Criteria
- * 
+ *
  * Filters query to include only active users (is_active = true).
  * This criteria can be applied to any User query to exclude
  * deactivated or suspended accounts.

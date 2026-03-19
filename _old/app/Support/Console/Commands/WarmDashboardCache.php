@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 
 /**
  * Command to warm dashboard caches
- * 
+ *
  * This command can be scheduled to run periodically to ensure
  * dashboard metrics are always cached and ready for fast loading
  */
@@ -30,23 +30,23 @@ class WarmDashboardCache extends Command
     public function handle(DashboardCacheService $cacheService): int
     {
         $this->info('Warming dashboard caches...');
-        
+
         if ($this->option('force')) {
             $this->info('Force refresh enabled - invalidating existing caches');
             $cacheService->invalidateAll();
         }
-        
+
         $startTime = microtime(true);
-        
+
         try {
             // Warm all caches
             $cacheService->warmCaches();
-            
+
             $endTime = microtime(true);
             $duration = round(($endTime - $startTime) * 1000, 2);
-            
+
             $this->info("Dashboard caches warmed successfully in {$duration}ms");
-            
+
             // Show cache statistics
             $stats = $cacheService->getCacheStats();
             $this->table(
@@ -55,14 +55,15 @@ class WarmDashboardCache extends Command
                     return [
                         $name,
                         $stat['exists'] ? '✓ Cached' : '✗ Missing',
-                        $stat['ttl']
+                        $stat['ttl'],
                     ];
                 })->toArray()
             );
-            
+
             return Command::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('Failed to warm dashboard caches: ' . $e->getMessage());
+            $this->error('Failed to warm dashboard caches: '.$e->getMessage());
+
             return Command::FAILURE;
         }
     }

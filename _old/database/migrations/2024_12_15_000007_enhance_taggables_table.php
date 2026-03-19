@@ -13,7 +13,7 @@ return new class extends Migration
                 $table->foreignId('tagged_by')->nullable()->constrained('users')->after('tag_id');
                 $table->timestamp('tagged_at')->useCurrent()->after('tagged_by');
                 $table->json('context')->nullable()->after('tagged_at'); // Additional metadata
-                
+
                 $table->index(['tagged_by']);
                 $table->index(['tagged_at']);
             });
@@ -27,11 +27,11 @@ return new class extends Migration
                 $table->dropForeign(['tagged_by']);
                 $table->dropIndex(['tagged_by']);
                 $table->dropIndex(['tagged_at']);
-                
+
                 $table->dropColumn([
                     'tagged_by',
                     'tagged_at',
-                    'context'
+                    'context',
                 ]);
             });
         }

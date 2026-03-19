@@ -43,7 +43,7 @@ trait HasTranslatableLabel
 
     /**
      * Get all labels keyed by enum value.
-     * 
+     *
      * Performance: Cached for 24 hours since enum labels rarely change.
      * Cache is automatically cleared on deployment via config:clear.
      *
@@ -51,7 +51,7 @@ trait HasTranslatableLabel
      */
     public static function labels(): array
     {
-        $cacheKey = 'enum.labels.' . static::class;
+        $cacheKey = 'enum.labels.'.static::class;
 
         return cache()->remember(
             $cacheKey,

@@ -8,7 +8,6 @@ use App\Filament\Resources\TenantResource;
 use App\Models\Attachment;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Support\Facades\Storage;
 
 final class EditTenant extends EditRecord
 {
@@ -26,7 +25,7 @@ final class EditTenant extends EditRecord
     {
         // Load existing attachments for display
         $tenant = $this->getRecord();
-        
+
         // Get existing files by category
         $photo = $tenant->photo();
         $contract = $tenant->leaseContract();
@@ -37,15 +36,15 @@ final class EditTenant extends EditRecord
         if ($photo) {
             $data['tenant_photo'] = [$photo->path];
         }
-        
+
         if ($contract) {
             $data['lease_contract'] = [$contract->path];
         }
-        
+
         if ($identityDocs->isNotEmpty()) {
             $data['identity_documents'] = $identityDocs->pluck('path')->toArray();
         }
-        
+
         if ($otherDocs->isNotEmpty()) {
             $data['other_documents'] = $otherDocs->pluck('path')->toArray();
         }
@@ -77,7 +76,7 @@ final class EditTenant extends EditRecord
     private function processFileUploads(): void
     {
         $tenant = $this->getRecord();
-        
+
         // Process tenant photo
         if ($this->fileUploads['tenant_photo']) {
             // Remove old photo
@@ -85,7 +84,7 @@ final class EditTenant extends EditRecord
             if ($oldPhoto) {
                 $oldPhoto->delete();
             }
-            
+
             $this->createAttachment(
                 $tenant,
                 $this->fileUploads['tenant_photo'],
@@ -101,7 +100,7 @@ final class EditTenant extends EditRecord
             if ($oldContract) {
                 $oldContract->delete();
             }
-            
+
             $this->createAttachment(
                 $tenant,
                 $this->fileUploads['lease_contract'],
@@ -137,9 +136,11 @@ final class EditTenant extends EditRecord
 
     private function createAttachment($tenant, $file, string $category, string $description): void
     {
-        if (!$file || !is_object($file)) return;
+        if (! $file || ! is_object($file)) {
+            return;
+        }
 
-        $filename = time() . '_' . $file->getClientOriginalName();
+        $filename = time().'_'.$file->getClientOriginalName();
         $path = $file->storeAs("tenants/{$category}s", $filename, 'private');
 
         Attachment::create([

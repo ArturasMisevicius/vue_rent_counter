@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Models\ServiceConfiguration;
+use App\Services\MeterReadingService;
 use App\Services\ServiceValidationEngine;
 use App\Services\Validation\ValidationCacheService;
 use App\Services\Validation\ValidationPerformanceMonitor;
@@ -15,7 +17,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Service provider for validation system components.
- * 
+ *
  * Registers and configures validation services with performance optimizations.
  */
 class ValidationServiceProvider extends ServiceProvider
@@ -50,7 +52,7 @@ class ValidationServiceProvider extends ServiceProvider
                 $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
                 $app->make(LoggerInterface::class),
-                $app->make(\App\Services\MeterReadingService::class),
+                $app->make(MeterReadingService::class),
                 $app->make(ValidationRuleFactory::class)
             );
         });
@@ -79,16 +81,16 @@ class ValidationServiceProvider extends ServiceProvider
     {
         try {
             $cacheService = $this->app->make(ValidationCacheService::class);
-            
+
             // Get active service configurations for cache warming
-            $serviceConfigs = \App\Models\ServiceConfiguration::with(['utilityService'])
+            $serviceConfigs = ServiceConfiguration::with(['utilityService'])
                 ->active()
                 ->limit(config('service_validation.performance.cache_warm_batch_size', 20))
                 ->get();
-            
+
             if ($serviceConfigs->isNotEmpty()) {
                 $cacheService->warmValidationCache($serviceConfigs);
-                
+
                 \Log::info('Validation cache warmed on startup', [
                     'configurations_cached' => $serviceConfigs->count(),
                 ]);
@@ -107,7 +109,7 @@ class ValidationServiceProvider extends ServiceProvider
     {
         // This could be extended to register middleware or event listeners
         // for automatic performance monitoring of validation operations
-        
+
         logger()->info('Validation performance monitoring enabled');
     }
 

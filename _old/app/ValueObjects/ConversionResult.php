@@ -51,6 +51,7 @@ final readonly class ConversionResult
     {
         $symbol = $this->fromCurrency?->symbol ?? '';
         $formatted = $this->fromCurrency?->formatAmount($this->originalAmount) ?? number_format($this->originalAmount, 2);
+
         return "{$symbol} {$formatted}";
     }
 
@@ -61,6 +62,7 @@ final readonly class ConversionResult
     {
         $symbol = $this->toCurrency?->symbol ?? '';
         $formatted = $this->toCurrency?->formatAmount($this->convertedAmount) ?? number_format($this->convertedAmount, 2);
+
         return "{$symbol} {$formatted}";
     }
 
@@ -129,7 +131,7 @@ final readonly class ConversionResult
      */
     public function hasFailed(): bool
     {
-        return !$this->isSuccessful();
+        return ! $this->isSuccessful();
     }
 
     /**
@@ -176,7 +178,7 @@ final readonly class ConversionResult
         $fromCode = $this->fromCurrency?->code ?? 'Unknown';
         $toCode = $this->toCurrency?->code ?? 'Unknown';
 
-        return "1 {$fromCode} = " . number_format($this->exchangeRate, 6) . " {$toCode}";
+        return "1 {$fromCode} = ".number_format($this->exchangeRate, 6)." {$toCode}";
     }
 
     /**

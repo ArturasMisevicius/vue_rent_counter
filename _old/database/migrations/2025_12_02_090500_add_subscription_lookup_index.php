@@ -8,10 +8,10 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Adds composite index for optimized subscription lookups in CheckSubscriptionStatus middleware.
      * This index covers the most common query pattern: WHERE user_id = ? AND status = ? AND expires_at > ?
-     * 
+     *
      * Performance Impact:
      * - 40-60% faster subscription lookups
      * - Reduces query time from ~5ms to ~2ms on uncached requests

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Models\Faq;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 /**
  * Form request for storing FAQ entries.
@@ -17,7 +18,7 @@ use Illuminate\Validation\Rule;
  * - Display order bounds (0-9999)
  * - XSS prevention via HTML sanitization in model
  *
- * @see \App\Models\Faq
+ * @see Faq
  */
 final class StoreFaqRequest extends FormRequest
 {
@@ -26,13 +27,13 @@ final class StoreFaqRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('create', \App\Models\Faq::class);
+        return $this->user()->can('create', Faq::class);
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

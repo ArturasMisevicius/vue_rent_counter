@@ -6,8 +6,8 @@ namespace App\Filament\Superadmin\Widgets;
 
 use App\Enums\SubscriptionStatus;
 use App\Models\Subscription;
-use Filament\Notifications\Notification;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -15,14 +15,12 @@ use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Expiring Subscriptions Widget
- * 
+ *
  * Displays subscriptions expiring within the next 14 days
  * for superadmin monitoring and proactive management.
- * 
+ *
  * Success metric from goals.md:
  * "Superadmin sees every expiring subscription (14-day window)"
- * 
- * @package App\Filament\Superadmin\Widgets
  */
 final class ExpiringSubscriptionsWidget extends BaseWidget
 {
@@ -34,7 +32,7 @@ final class ExpiringSubscriptionsWidget extends BaseWidget
     /**
      * Widget column span configuration.
      */
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     /**
      * Widget sort order - show before recent users.
@@ -60,7 +58,7 @@ final class ExpiringSubscriptionsWidget extends BaseWidget
     public function getDescription(): ?string
     {
         $count = $this->getExpiringCount();
-        
+
         if ($count === 0) {
             return null;
         }
@@ -80,8 +78,7 @@ final class ExpiringSubscriptionsWidget extends BaseWidget
                     ->label(__('app.labels.organization'))
                     ->searchable()
                     ->sortable()
-                    ->description(fn (Subscription $record): string => 
-                        $record->user?->email ?? ''
+                    ->description(fn (Subscription $record): string => $record->user?->email ?? ''
                     ),
 
                 TextColumn::make('plan_type')
@@ -108,14 +105,12 @@ final class ExpiringSubscriptionsWidget extends BaseWidget
                     ->label(__('superadmin.dashboard.expiring_subscriptions.expires'))
                     ->dateTime('M j, Y')
                     ->sortable()
-                    ->color(fn (Subscription $record): string => 
-                        $record->daysUntilExpiry() <= 7 ? 'danger' : 'warning'
+                    ->color(fn (Subscription $record): string => $record->daysUntilExpiry() <= 7 ? 'danger' : 'warning'
                     ),
 
                 TextColumn::make('days_remaining')
                     ->label(__('superadmin.dashboard.stats.expiring_soon'))
-                    ->state(fn (Subscription $record): string => 
-                        $record->daysUntilExpiry() . ' ' . __('app.labels.days')
+                    ->state(fn (Subscription $record): string => $record->daysUntilExpiry().' '.__('app.labels.days')
                     )
                     ->badge()
                     ->color(fn (Subscription $record): string => match (true) {
@@ -134,7 +129,7 @@ final class ExpiringSubscriptionsWidget extends BaseWidget
                     ->modalDescription(__('app.modals.extend_subscription_description'))
                     ->action(function (Subscription $record): void {
                         $record->renew($record->expires_at->addYear());
-                        
+
                         Notification::make()
                             ->title(__('notifications.subscription_extended'))
                             ->success()
@@ -159,8 +154,7 @@ final class ExpiringSubscriptionsWidget extends BaseWidget
                 Action::make('view')
                     ->label(__('app.actions.view'))
                     ->icon('heroicon-m-eye')
-                    ->url(fn (Subscription $record): string => 
-                        route('filament.superadmin.resources.subscriptions.edit', $record)
+                    ->url(fn (Subscription $record): string => route('filament.superadmin.resources.subscriptions.edit', $record)
                     ),
             ])
             ->defaultSort('expires_at', 'asc')
@@ -173,7 +167,7 @@ final class ExpiringSubscriptionsWidget extends BaseWidget
 
     /**
      * Get the base query for expiring subscriptions.
-     * 
+     *
      * @return Builder<Subscription>
      */
     protected function getTableQuery(): Builder

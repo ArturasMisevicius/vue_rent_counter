@@ -10,10 +10,11 @@ use App\Filament\Superadmin\Widgets\SystemOverviewWidget;
 use BackedEnum;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Filament\Widgets;
+use Filament\Widgets\Widget;
 
 /**
  * Superadmin Dashboard Page
- * 
+ *
  * Main dashboard for the superadmin panel.
  * Extends Filament's Dashboard to properly register routes.
  */
@@ -22,7 +23,7 @@ final class Dashboard extends BaseDashboard
     /**
      * Navigation icon for the dashboard.
      */
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-home';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-home';
 
     /**
      * Get the page title.
@@ -50,8 +51,8 @@ final class Dashboard extends BaseDashboard
 
     /**
      * Get the widgets for the dashboard.
-     * 
-     * @return array<class-string<\Filament\Widgets\Widget>>
+     *
+     * @return array<class-string<Widget>>
      */
     public function getWidgets(): array
     {
@@ -66,7 +67,7 @@ final class Dashboard extends BaseDashboard
     /**
      * Get the number of columns for the widgets.
      */
-    public function getColumns(): int | array
+    public function getColumns(): int|array
     {
         return 2;
     }

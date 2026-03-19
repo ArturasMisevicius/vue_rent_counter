@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * Auditable Trait
- * 
+ *
  * Add this trait to any model that needs audit trail tracking.
  * Automatically creates audit logs on create, update, delete, and restore events.
  */
@@ -83,6 +83,7 @@ trait Auditable
     protected function getAuditableAttributes(): array
     {
         $attributes = $this->getAttributes();
+
         return $this->filterAuditableAttributes($attributes);
     }
 

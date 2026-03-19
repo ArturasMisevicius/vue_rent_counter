@@ -11,7 +11,7 @@ use Carbon\Carbon;
  *
  * This VO is kept for backward compatibility with older calculation flows
  * and existing unit tests. New billing calculations should use
- * {@see \App\ValueObjects\UniversalCalculationResult}.
+ * {@see UniversalCalculationResult}.
  */
 final readonly class CalculationResult
 {
@@ -21,7 +21,7 @@ final readonly class CalculationResult
         public int $buildingId,
         public ?string $cacheKey = null,
         public array $metadata = [],
-        public Carbon $calculatedAt = new Carbon(),
+        public Carbon $calculatedAt = new Carbon,
     ) {}
 
     /**
@@ -80,4 +80,3 @@ final readonly class CalculationResult
         return $default;
     }
 }
-

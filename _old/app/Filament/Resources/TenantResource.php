@@ -10,6 +10,12 @@ use App\Models\Tenant;
 use App\Services\BillingService;
 use BackedEnum;
 use Carbon\Carbon;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
@@ -263,9 +269,9 @@ final class TenantResource extends Resource
                     ->label('Active Status'),
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
 
                 \Filament\Actions\Action::make('generate_invoice')
                     ->label('Generate Invoice')
@@ -320,10 +326,10 @@ final class TenantResource extends Resource
                     ->visible(fn (Tenant $record) => $record->is_active),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
 
-                    \Filament\Actions\BulkAction::make('activate')
+                    BulkAction::make('activate')
                         ->label('Activate Tenants')
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
@@ -332,7 +338,7 @@ final class TenantResource extends Resource
                         ->deselectRecordsAfterCompletion()
                         ->requiresConfirmation(),
 
-                    \Filament\Actions\BulkAction::make('deactivate')
+                    BulkAction::make('deactivate')
                         ->label('Deactivate Tenants')
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')

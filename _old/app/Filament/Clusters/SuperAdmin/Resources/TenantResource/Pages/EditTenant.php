@@ -6,8 +6,8 @@ namespace App\Filament\Clusters\SuperAdmin\Resources\TenantResource\Pages;
 
 use App\Filament\Clusters\SuperAdmin\Resources\TenantResource;
 use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
+use Filament\Resources\Pages\EditRecord;
 
 final class EditTenant extends EditRecord
 {

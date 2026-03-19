@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Traits\BelongsToTenant;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Time Entry Model - Track time spent on tasks
- * 
+ *
  * @property int $id
  * @property int $user_id
  * @property int $task_id
@@ -19,17 +20,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property float $hours
  * @property string|null $description
  * @property array|null $metadata
- * @property \Carbon\Carbon $logged_at
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property Carbon $logged_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class TimeEntry extends Model
 {
-    use HasFactory, BelongsToTenant;
+    use BelongsToTenant, HasFactory;
 
     protected $fillable = [
         'user_id',
-        'task_id', 
+        'task_id',
         'assignment_id',
         'hours',
         'description',
@@ -89,6 +90,7 @@ class TimeEntry extends Model
     public function getTotalCost(): float
     {
         $rate = $this->getHourlyRate();
+
         return $rate ? $this->hours * $rate : 0;
     }
 
@@ -123,7 +125,7 @@ class TimeEntry extends Model
     {
         return $query->whereBetween('logged_at', [
             now()->startOfWeek(),
-            now()->endOfWeek()
+            now()->endOfWeek(),
         ]);
     }
 
@@ -134,7 +136,7 @@ class TimeEntry extends Model
     {
         return $query->whereBetween('logged_at', [
             now()->startOfMonth(),
-            now()->endOfMonth()
+            now()->endOfMonth(),
         ]);
     }
 }

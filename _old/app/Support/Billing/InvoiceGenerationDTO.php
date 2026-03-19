@@ -9,11 +9,9 @@ use Illuminate\Http\Request;
 
 /**
  * Invoice Generation DTO
- * 
+ *
  * Data transfer object for invoice generation.
  * Encapsulates all data needed to generate an invoice.
- * 
- * @package App\Support\Billing
  */
 final readonly class InvoiceGenerationDTO
 {
@@ -28,15 +26,12 @@ final readonly class InvoiceGenerationDTO
 
     /**
      * Create DTO from HTTP request.
-     *
-     * @param Request $request
-     * @return self
      */
     public static function fromRequest(Request $request): self
     {
         $periodStart = Carbon::parse($request->input('period_start'));
         $periodEnd = Carbon::parse($request->input('period_end'));
-        
+
         // Calculate due date (default: 14 days after period end)
         $dueDays = config('billing.invoice.default_due_days', 14);
         $dueDate = $request->has('due_date')
@@ -55,9 +50,6 @@ final readonly class InvoiceGenerationDTO
 
     /**
      * Create DTO from array.
-     *
-     * @param array $data
-     * @return self
      */
     public static function fromArray(array $data): self
     {
@@ -85,8 +77,6 @@ final readonly class InvoiceGenerationDTO
 
     /**
      * Convert to array.
-     *
-     * @return array
      */
     public function toArray(): array
     {

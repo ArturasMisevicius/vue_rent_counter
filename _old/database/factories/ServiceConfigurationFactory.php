@@ -12,7 +12,7 @@ use App\Models\UtilityService;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ServiceConfiguration>
+ * @extends Factory<ServiceConfiguration>
  */
 class ServiceConfigurationFactory extends Factory
 {
@@ -32,7 +32,7 @@ class ServiceConfigurationFactory extends Factory
     {
         $pricingModel = $this->faker->randomElement(PricingModel::cases());
         $distributionMethod = $this->faker->randomElement(DistributionMethod::cases());
-        
+
         return [
             'tenant_id' => 1,
             'property_id' => Property::factory(),

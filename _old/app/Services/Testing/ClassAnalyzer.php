@@ -17,7 +17,7 @@ class ClassAnalyzer
      */
     public function analyze(string $className): array
     {
-        if (!class_exists($className)) {
+        if (! class_exists($className)) {
             throw new \InvalidArgumentException("Class {$className} does not exist");
         }
 
@@ -74,8 +74,8 @@ class ClassAnalyzer
                 'name' => $parameter->getName(),
                 'type' => $parameter->getType()?->getName(),
                 'hasDefault' => $parameter->isDefaultValueAvailable(),
-                'default' => $parameter->isDefaultValueAvailable() 
-                    ? $parameter->getDefaultValue() 
+                'default' => $parameter->isDefaultValueAvailable()
+                    ? $parameter->getDefaultValue()
                     : null,
             ];
         }
@@ -116,6 +116,7 @@ class ClassAnalyzer
         if ($property->isProtected()) {
             return 'protected';
         }
+
         return 'private';
     }
 
@@ -140,7 +141,7 @@ class ClassAnalyzer
      */
     private function extractRelationships(ReflectionClass $reflection): array
     {
-        if (!$reflection->isSubclassOf('Illuminate\Database\Eloquent\Model')) {
+        if (! $reflection->isSubclassOf('Illuminate\Database\Eloquent\Model')) {
             return [];
         }
 
@@ -151,7 +152,7 @@ class ClassAnalyzer
         $relationshipTypes = [
             'hasOne', 'hasMany', 'belongsTo', 'belongsToMany',
             'hasOneThrough', 'hasManyThrough', 'morphTo',
-            'morphOne', 'morphMany', 'morphToMany', 'morphedByMany'
+            'morphOne', 'morphMany', 'morphToMany', 'morphedByMany',
         ];
 
         foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
@@ -160,7 +161,7 @@ class ClassAnalyzer
             }
 
             $methodSource = $this->getMethodSource($source, $method->getName());
-            
+
             foreach ($relationshipTypes as $type) {
                 if (str_contains($methodSource, "return \$this->{$type}(")) {
                     $relationships[] = [
@@ -180,7 +181,7 @@ class ClassAnalyzer
      */
     private function extractAttributes(ReflectionClass $reflection): array
     {
-        if (!$reflection->isSubclassOf('Illuminate\Database\Eloquent\Model')) {
+        if (! $reflection->isSubclassOf('Illuminate\Database\Eloquent\Model')) {
             return [];
         }
 
@@ -191,7 +192,7 @@ class ClassAnalyzer
         if (preg_match('/protected\s+\$casts\s*=\s*\[(.*?)\];/s', $source, $matches)) {
             $castsString = $matches[1];
             preg_match_all("/'([^']+)'\s*=>\s*'([^']+)'/", $castsString, $castMatches);
-            
+
             foreach ($castMatches[1] as $index => $attribute) {
                 $attributes[$attribute] = [
                     'cast' => $castMatches[2][$index],
@@ -208,7 +209,7 @@ class ClassAnalyzer
     private function getMethodSource(string $classSource, string $methodName): string
     {
         $pattern = "/function\s+{$methodName}\s*\([^)]*\)[^{]*\{(.*?)\n\s*\}/s";
-        
+
         if (preg_match($pattern, $classSource, $matches)) {
             return $matches[1];
         }

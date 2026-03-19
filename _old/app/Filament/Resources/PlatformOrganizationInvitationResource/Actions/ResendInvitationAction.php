@@ -24,8 +24,7 @@ class ResendInvitationAction extends Action
 
         $this->color('info');
 
-        $this->visible(fn (PlatformOrganizationInvitation $record): bool => 
-            $record->status === 'pending'
+        $this->visible(fn (PlatformOrganizationInvitation $record): bool => $record->status === 'pending'
         );
 
         $this->requiresConfirmation();

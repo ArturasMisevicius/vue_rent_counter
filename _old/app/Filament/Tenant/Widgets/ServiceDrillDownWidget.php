@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Filament\Tenant\Widgets;
 
-use App\Models\Property;
-use Carbon\Carbon;
+use App\Models\Meter;
+use App\Models\MeterReading;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -48,12 +52,12 @@ final class ServiceDrillDownWidget extends BaseWidget
                         $latestReading = $record->readings()
                             ->latest()
                             ->first();
-                        
-                        if (!$latestReading) {
+
+                        if (! $latestReading) {
                             return __('dashboard.no_readings');
                         }
 
-                        return number_format($latestReading->value, 2) . ' ' . 
+                        return number_format($latestReading->value, 2).' '.
                                ($record->serviceConfiguration->utilityService->unit_of_measurement ?? '');
                     })
                     ->sortable(query: function (Builder $query, string $direction): Builder {
@@ -68,18 +72,18 @@ final class ServiceDrillDownWidget extends BaseWidget
                             ->whereMonth('created_at', now()->month)
                             ->whereYear('created_at', now()->year)
                             ->sum('value');
-                        
-                        return number_format($monthlyReadings, 2) . ' ' . 
+
+                        return number_format($monthlyReadings, 2).' '.
                                ($record->serviceConfiguration->utilityService->unit_of_measurement ?? '');
                     })
                     ->sortable(query: function (Builder $query, string $direction): Builder {
                         return $query->withSum([
                             'readings' => function ($query) {
                                 $query->whereMonth('created_at', now()->month)
-                                      ->whereYear('created_at', now()->year);
-                            }
+                                    ->whereYear('created_at', now()->year);
+                            },
                         ], 'value')
-                        ->orderBy('readings_sum_value', $direction);
+                            ->orderBy('readings_sum_value', $direction);
                     }),
 
                 Tables\Columns\TextColumn::make('last_reading_date')
@@ -88,7 +92,7 @@ final class ServiceDrillDownWidget extends BaseWidget
                         $latestReading = $record->readings()
                             ->latest()
                             ->first();
-                        
+
                         return $latestReading?->created_at?->format('M j, Y') ?? __('dashboard.never');
                     })
                     ->sortable(query: function (Builder $query, string $direction): Builder {
@@ -102,13 +106,13 @@ final class ServiceDrillDownWidget extends BaseWidget
                         $latestReading = $record->readings()
                             ->latest()
                             ->first();
-                        
-                        if (!$latestReading) {
+
+                        if (! $latestReading) {
                             return __('dashboard.no_data');
                         }
 
                         $daysSinceReading = $latestReading->created_at->diffInDays(now());
-                        
+
                         return match (true) {
                             $daysSinceReading <= 7 => __('dashboard.current'),
                             $daysSinceReading <= 30 => __('dashboard.recent'),
@@ -120,13 +124,13 @@ final class ServiceDrillDownWidget extends BaseWidget
                         $latestReading = $record->readings()
                             ->latest()
                             ->first();
-                        
-                        if (!$latestReading) {
+
+                        if (! $latestReading) {
                             return 'gray';
                         }
 
                         $daysSinceReading = $latestReading->created_at->diffInDays(now());
-                        
+
                         return match (true) {
                             $daysSinceReading <= 7 => 'success',
                             $daysSinceReading <= 30 => 'warning',
@@ -147,23 +151,21 @@ final class ServiceDrillDownWidget extends BaseWidget
 
                 Tables\Filters\Filter::make('has_recent_readings')
                     ->label(__('dashboard.has_recent_readings'))
-                    ->query(fn (Builder $query): Builder => 
-                        $query->whereHas('readings', function (Builder $query) {
-                            $query->where('created_at', '>=', now()->subDays(30));
-                        })
+                    ->query(fn (Builder $query): Builder => $query->whereHas('readings', function (Builder $query) {
+                        $query->where('created_at', '>=', now()->subDays(30));
+                    })
                     ),
 
                 Tables\Filters\Filter::make('needs_reading')
                     ->label(__('dashboard.needs_reading'))
-                    ->query(fn (Builder $query): Builder => 
-                        $query->whereDoesntHave('readings', function (Builder $query) {
-                            $query->whereMonth('created_at', now()->month)
-                                  ->whereYear('created_at', now()->year);
-                        })
+                    ->query(fn (Builder $query): Builder => $query->whereDoesntHave('readings', function (Builder $query) {
+                        $query->whereMonth('created_at', now()->month)
+                            ->whereYear('created_at', now()->year);
+                    })
                     ),
             ])
             ->actions([
-                \Filament\Actions\Action::make('view_readings')
+                Action::make('view_readings')
                     ->label(__('dashboard.view_readings'))
                     ->icon('heroicon-o-chart-bar')
                     ->url(fn ($record) => route('filament.tenant.resources.meter-readings.index', [
@@ -173,23 +175,23 @@ final class ServiceDrillDownWidget extends BaseWidget
                     ]))
                     ->openUrlInNewTab(),
 
-                \Filament\Actions\Action::make('add_reading')
+                Action::make('add_reading')
                     ->label(__('dashboard.add_reading'))
                     ->icon('heroicon-o-plus')
                     ->url(fn ($record) => route('filament.tenant.resources.meter-readings.create', [
                         'meter_id' => $record->id,
                     ]))
-                    ->visible(fn ($record) => Auth::user()?->can('create', \App\Models\MeterReading::class)),
+                    ->visible(fn ($record) => Auth::user()?->can('create', MeterReading::class)),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\BulkAction::make('export_readings')
+                BulkActionGroup::make([
+                    BulkAction::make('export_readings')
                         ->label(__('dashboard.export_readings'))
                         ->icon('heroicon-o-arrow-down-tray')
                         ->action(function ($records) {
                             // Export functionality would be implemented here
                             // For now, just show a notification
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title(__('dashboard.export_started'))
                                 ->body(__('dashboard.export_will_be_available_shortly'))
                                 ->success()
@@ -205,12 +207,12 @@ final class ServiceDrillDownWidget extends BaseWidget
     protected function getTableQuery(): Builder
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->currentTeam) {
-            return \App\Models\Meter::query()->whereRaw('1 = 0'); // Empty query
+
+        if (! $user || ! $user->currentTeam) {
+            return Meter::query()->whereRaw('1 = 0'); // Empty query
         }
 
-        return \App\Models\Meter::query()
+        return Meter::query()
             ->whereHas('property', function (Builder $query) use ($user) {
                 $query->where('tenant_id', $user->currentTeam->id);
             })

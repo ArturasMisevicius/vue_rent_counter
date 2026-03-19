@@ -54,7 +54,7 @@ class PlatformOrganizationInvitation extends Model
 
     public function isPending(): bool
     {
-        return $this->status === 'pending' && !$this->isExpired();
+        return $this->status === 'pending' && ! $this->isExpired();
     }
 
     public function isExpired(): bool

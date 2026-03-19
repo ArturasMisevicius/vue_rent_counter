@@ -27,13 +27,14 @@ class NotifyOverdueInvoicesCommand extends Command
 
         if ($overdueInvoices->isEmpty()) {
             $this->info('No overdue invoices to notify.');
+
             return self::SUCCESS;
         }
 
         $this->info("Sending notifications for {$overdueInvoices->count()} overdue invoice(s).");
 
         $overdueInvoices->each(function (Invoice $invoice) {
-            if (!$invoice->tenant || empty($invoice->tenant->email)) {
+            if (! $invoice->tenant || empty($invoice->tenant->email)) {
                 return;
             }
 

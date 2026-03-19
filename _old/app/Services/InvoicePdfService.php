@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as DomPDF;
+use Illuminate\Http\Response;
 
 /**
  * InvoicePdfService - Generate PDF documents for invoices
@@ -19,15 +21,15 @@ use Barryvdh\DomPDF\PDF as DomPDF;
  * - Include tenant details, billing period, line items, and totals
  * - Preserve invoice data integrity (use snapshotted values)
  *
- * @see \App\Models\Invoice
- * @see \App\Models\InvoiceItem
+ * @see Invoice
+ * @see InvoiceItem
  */
 class InvoicePdfService
 {
     /**
      * Generate a PDF for the given invoice.
      *
-     * @param Invoice $invoice The invoice to generate PDF for
+     * @param  Invoice  $invoice  The invoice to generate PDF for
      * @return DomPDF The generated PDF instance
      */
     public function generate(Invoice $invoice): DomPDF
@@ -56,11 +58,10 @@ class InvoicePdfService
     /**
      * Generate and download a PDF for the given invoice.
      *
-     * @param Invoice $invoice The invoice to generate PDF for
-     * @param string|null $filename Optional custom filename
-     * @return \Illuminate\Http\Response
+     * @param  Invoice  $invoice  The invoice to generate PDF for
+     * @param  string|null  $filename  Optional custom filename
      */
-    public function download(Invoice $invoice, ?string $filename = null): \Illuminate\Http\Response
+    public function download(Invoice $invoice, ?string $filename = null): Response
     {
         $pdf = $this->generate($invoice);
 
@@ -72,11 +73,10 @@ class InvoicePdfService
     /**
      * Generate and stream a PDF for the given invoice (for inline viewing).
      *
-     * @param Invoice $invoice The invoice to generate PDF for
-     * @param string|null $filename Optional custom filename
-     * @return \Illuminate\Http\Response
+     * @param  Invoice  $invoice  The invoice to generate PDF for
+     * @param  string|null  $filename  Optional custom filename
      */
-    public function stream(Invoice $invoice, ?string $filename = null): \Illuminate\Http\Response
+    public function stream(Invoice $invoice, ?string $filename = null): Response
     {
         $pdf = $this->generate($invoice);
 
@@ -88,12 +88,12 @@ class InvoicePdfService
     /**
      * Generate a filename for the invoice PDF.
      *
-     * @param Invoice $invoice The invoice
+     * @param  Invoice  $invoice  The invoice
      * @return string The generated filename
      */
     protected function generateFilename(Invoice $invoice): string
     {
-        $invoiceNumber = $invoice->invoice_number ?? 'INV-' . $invoice->id;
+        $invoiceNumber = $invoice->invoice_number ?? 'INV-'.$invoice->id;
         $invoiceNumber = preg_replace('/[^a-zA-Z0-9-_]/', '_', $invoiceNumber);
 
         return sprintf('invoice_%s.pdf', $invoiceNumber);

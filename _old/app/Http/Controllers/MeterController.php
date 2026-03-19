@@ -13,12 +13,14 @@ class MeterController extends Controller
     public function index()
     {
         $meters = Meter::with('property')->paginate(20);
+
         return view('meters.index', compact('meters'));
     }
 
     public function create()
     {
         $properties = Property::all();
+
         return view('meters.create', compact('properties'));
     }
 
@@ -35,12 +37,14 @@ class MeterController extends Controller
     public function show(Meter $meter)
     {
         $meter->load(['property', 'readings']);
+
         return view('meters.show', compact('meter'));
     }
 
     public function edit(Meter $meter)
     {
         $properties = Property::all();
+
         return view('meters.edit', compact('meter', 'properties'));
     }
 
@@ -65,6 +69,7 @@ class MeterController extends Controller
     public function readings(Meter $meter)
     {
         $readings = $meter->readings()->latest('reading_date')->paginate(50);
+
         return view('meters.readings', compact('meter', 'readings'));
     }
 

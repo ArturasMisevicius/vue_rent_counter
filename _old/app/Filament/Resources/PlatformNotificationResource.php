@@ -8,6 +8,11 @@ use App\Filament\Actions\SendPlatformNotificationAction;
 use App\Filament\Resources\PlatformNotificationResource\Pages;
 use App\Models\Organization;
 use App\Models\PlatformNotification;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -241,15 +246,15 @@ class PlatformNotificationResource extends Resource
                     }),
             ])
             ->actions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make()
+                ViewAction::make(),
+                EditAction::make()
                     ->visible(fn (PlatformNotification $record) => $record->isDraft()),
-                \Filament\Actions\DeleteAction::make()
+                DeleteAction::make()
                     ->visible(fn (PlatformNotification $record) => $record->isDraft()),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make()
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->action(function ($records) {
                             $records->each(function (PlatformNotification $record) {
                                 if ($record->isDraft()) {

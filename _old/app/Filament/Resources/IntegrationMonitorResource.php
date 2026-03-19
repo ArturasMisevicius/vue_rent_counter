@@ -7,7 +7,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\IntegrationMonitorResource\Pages;
 use App\Services\Integration\IntegrationResilienceHandler;
 use Filament\Actions\Action;
-use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -15,16 +15,16 @@ use Filament\Tables\Table;
 class IntegrationMonitorResource extends Resource
 {
     protected static ?string $model = null; // This is a virtual resource
-    
+
     protected static ?string $navigationLabel = 'Integration Monitor';
-    
+
     protected static ?int $navigationSort = 90;
-    
+
     public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-signal';
     }
-    
+
     public static function getNavigationGroup(): ?string
     {
         return 'System';
@@ -39,7 +39,7 @@ class IntegrationMonitorResource extends Resource
                     ->label('Service Name')
                     ->searchable()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('state')
                     ->label('Status')
                     ->badge()
@@ -55,17 +55,17 @@ class IntegrationMonitorResource extends Resource
                         'open' => 'heroicon-o-x-circle',
                         default => 'heroicon-o-question-mark-circle',
                     }),
-                    
+
                 Tables\Columns\TextColumn::make('failure_count')
                     ->label('Failures')
                     ->numeric()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('success_count')
                     ->label('Successes')
                     ->numeric()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('open_since')
                     ->label('Open Since')
                     ->dateTime()
@@ -89,7 +89,7 @@ class IntegrationMonitorResource extends Resource
                     ->action(function (array $data) {
                         // Reset circuit breaker logic would go here
                         // For now, just show a notification
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->title('Circuit breaker reset')
                             ->success()
                             ->send();
@@ -102,32 +102,32 @@ class IntegrationMonitorResource extends Resource
                     ->color('warning')
                     ->action(function () {
                         // Stub: Enable offline mode
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->title('Offline mode enabled')
                             ->warning()
                             ->send();
                     }),
-                    
+
                 Action::make('disable_offline')
                     ->label('Disable Offline Mode')
                     ->icon('heroicon-o-signal')
                     ->color('success')
                     ->action(function () {
                         // Stub: Disable offline mode
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->title('Offline mode disabled')
                             ->success()
                             ->send();
                     }),
-                    
+
                 Action::make('sync_offline')
                     ->label('Sync Offline Data')
                     ->icon('heroicon-o-arrow-path')
                     ->color('primary')
                     ->action(function () {
                         $results = app(IntegrationResilienceHandler::class)->synchronizeOfflineData('all');
-                        
-                        \Filament\Notifications\Notification::make()
+
+                        Notification::make()
                             ->title('Synchronization completed')
                             ->body("Synchronized: {$results['synchronized']}, Errors: {$results['errors']}")
                             ->success()
@@ -136,12 +136,12 @@ class IntegrationMonitorResource extends Resource
             ])
             ->poll('60s');
     }
-    
+
     protected static function getIntegrationStatusQuery()
     {
         $resilienceHandler = app(IntegrationResilienceHandler::class);
         $healthStatus = $resilienceHandler->getServicesHealthStatus();
-        
+
         return collect($healthStatus['services'])->map(function ($service) {
             return (object) $service;
         });
@@ -153,7 +153,7 @@ class IntegrationMonitorResource extends Resource
             'index' => Pages\ListIntegrationMonitor::route('/'),
         ];
     }
-    
+
     public static function canCreate(): bool
     {
         return false;

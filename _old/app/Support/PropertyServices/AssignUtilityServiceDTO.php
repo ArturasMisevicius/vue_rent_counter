@@ -11,11 +11,9 @@ use Illuminate\Http\Request;
 
 /**
  * Assign Utility Service DTO
- * 
+ *
  * Data transfer object for assigning utility services to properties.
  * Provides type safety and validation for service assignment data.
- * 
- * @package App\Support\PropertyServices
  */
 final readonly class AssignUtilityServiceDTO
 {
@@ -38,9 +36,6 @@ final readonly class AssignUtilityServiceDTO
 
     /**
      * Create DTO from HTTP request.
-     *
-     * @param Request $request
-     * @return self
      */
     public static function fromRequest(Request $request): self
     {
@@ -49,11 +44,11 @@ final readonly class AssignUtilityServiceDTO
             utilityServiceId: (int) $request->input('utility_service_id'),
             pricingModel: PricingModel::from($request->input('pricing_model')),
             rateSchedule: $request->input('rate_schedule'),
-            distributionMethod: $request->has('distribution_method') 
+            distributionMethod: $request->has('distribution_method')
                 ? DistributionMethod::from($request->input('distribution_method'))
                 : null,
             isSharedService: $request->boolean('is_shared_service', false),
-            effectiveFrom: $request->has('effective_from') 
+            effectiveFrom: $request->has('effective_from')
                 ? Carbon::parse($request->input('effective_from'))
                 : now(),
             effectiveUntil: $request->has('effective_until')
@@ -70,17 +65,14 @@ final readonly class AssignUtilityServiceDTO
 
     /**
      * Create DTO from array.
-     *
-     * @param array $data
-     * @return self
      */
     public static function fromArray(array $data): self
     {
         return new self(
             propertyId: (int) $data['property_id'],
             utilityServiceId: (int) $data['utility_service_id'],
-            pricingModel: $data['pricing_model'] instanceof PricingModel 
-                ? $data['pricing_model'] 
+            pricingModel: $data['pricing_model'] instanceof PricingModel
+                ? $data['pricing_model']
                 : PricingModel::from($data['pricing_model']),
             rateSchedule: $data['rate_schedule'] ?? null,
             distributionMethod: isset($data['distribution_method'])
@@ -90,7 +82,7 @@ final readonly class AssignUtilityServiceDTO
                 : null,
             isSharedService: $data['is_shared_service'] ?? false,
             effectiveFrom: isset($data['effective_from'])
-                ? ($data['effective_from'] instanceof Carbon 
+                ? ($data['effective_from'] instanceof Carbon
                     ? $data['effective_from']
                     : Carbon::parse($data['effective_from']))
                 : now(),
@@ -110,8 +102,6 @@ final readonly class AssignUtilityServiceDTO
 
     /**
      * Convert to array for model creation.
-     *
-     * @return array
      */
     public function toArray(): array
     {

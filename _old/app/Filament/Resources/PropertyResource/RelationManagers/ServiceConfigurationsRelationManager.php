@@ -8,6 +8,8 @@ use App\Enums\DistributionMethod;
 use App\Enums\PricingModel;
 use App\Models\UtilityService;
 use Filament\Actions;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Utilities\Get;
@@ -336,8 +338,8 @@ class ServiceConfigurationsRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->defaultSort('effective_from', 'desc');
     }

@@ -7,66 +7,66 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum SubscriptionPlan: string implements HasLabel, HasColor
+enum SubscriptionPlan: string implements HasColor, HasLabel
 {
     case BASIC = 'basic';
     case PROFESSIONAL = 'professional';
     case ENTERPRISE = 'enterprise';
     case CUSTOM = 'custom';
-    
+
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::BASIC => __('superadmin.subscription.plan.basic'),
             self::PROFESSIONAL => __('superadmin.subscription.plan.professional'),
             self::ENTERPRISE => __('superadmin.subscription.plan.enterprise'),
             self::CUSTOM => __('superadmin.subscription.plan.custom'),
         };
     }
-    
+
     public function getColor(): string
     {
-        return match($this) {
+        return match ($this) {
             self::BASIC => 'gray',
             self::PROFESSIONAL => 'info',
             self::ENTERPRISE => 'success',
             self::CUSTOM => 'warning',
         };
     }
-    
+
     public function getMaxProperties(): int
     {
-        return match($this) {
+        return match ($this) {
             self::BASIC => 100,
             self::PROFESSIONAL => 500,
             self::ENTERPRISE => 9999,
             self::CUSTOM => 9999,
         };
     }
-    
+
     public function getMaxUsers(): int
     {
-        return match($this) {
+        return match ($this) {
             self::BASIC => 10,
             self::PROFESSIONAL => 50,
             self::ENTERPRISE => 999,
             self::CUSTOM => 999,
         };
     }
-    
+
     public function getMonthlyPrice(): float
     {
-        return match($this) {
+        return match ($this) {
             self::BASIC => 29.99,
             self::PROFESSIONAL => 99.99,
             self::ENTERPRISE => 299.99,
             self::CUSTOM => 0.00, // Custom pricing
         };
     }
-    
+
     public function getFeatures(): array
     {
-        return match($this) {
+        return match ($this) {
             self::BASIC => [
                 'basic_reporting',
                 'email_support',

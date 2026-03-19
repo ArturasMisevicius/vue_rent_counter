@@ -6,12 +6,12 @@ namespace App\Enums;
 
 /**
  * Integration service health status enumeration.
- * 
+ *
  * Defines the possible health states for external service integrations
  * used by the health monitoring and circuit breaker systems.
- * 
- * @package App\Enums
+ *
  * @author Laravel Development Team
+ *
  * @since 1.0.0
  */
 enum IntegrationStatus: string
@@ -106,7 +106,7 @@ enum IntegrationStatus: string
 
     /**
      * Get all statuses that indicate problems.
-     * 
+     *
      * @return array<self>
      */
     public static function problemStatuses(): array
@@ -121,7 +121,7 @@ enum IntegrationStatus: string
 
     /**
      * Get all statuses that allow operations.
-     * 
+     *
      * @return array<self>
      */
     public static function operationalStatuses(): array

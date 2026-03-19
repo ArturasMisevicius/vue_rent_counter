@@ -5,8 +5,9 @@ namespace App\Filament\Resources\PlatformUserResource\Pages;
 use App\Filament\Resources\PlatformUserResource;
 use App\Models\User;
 use Filament\Actions;
-use Illuminate\Support\Str;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Support\Str;
 
 class ViewPlatformUser extends ViewRecord
 {
@@ -27,7 +28,7 @@ class ViewPlatformUser extends ViewRecord
                         'password' => bcrypt($temporaryPassword),
                     ]);
 
-                    \Filament\Notifications\Notification::make()
+                    Notification::make()
                         ->title('Password Reset')
                         ->body('A temporary password was generated.')
                         ->success()

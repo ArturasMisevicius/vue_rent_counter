@@ -43,7 +43,7 @@ class OrganizationActivityLog extends Model
         ?int $resourceId = null,
         ?array $metadata = null
     ): void {
-        if (!tenant()) {
+        if (! tenant()) {
             return;
         }
 

@@ -8,7 +8,7 @@ use InvalidArgumentException;
 
 /**
  * Security Nonce Value Object
- * 
+ *
  * Immutable value object representing a cryptographically secure nonce
  * for Content Security Policy and other security headers.
  */
@@ -22,7 +22,7 @@ final readonly class SecurityNonce
         if (empty($value)) {
             throw new InvalidArgumentException('Nonce value cannot be empty');
         }
-        
+
         if (strlen($value) < 16) {
             throw new InvalidArgumentException('Nonce must be at least 16 bytes');
         }
@@ -40,14 +40,14 @@ final readonly class SecurityNonce
         try {
             $randomBytes = random_bytes($bytes);
             $base64 = base64_encode($randomBytes);
-            
+
             return new self(
                 value: bin2hex($randomBytes),
                 base64Encoded: $base64,
                 generatedAt: time()
             );
         } catch (\Exception $e) {
-            throw new InvalidArgumentException('Failed to generate secure nonce: ' . $e->getMessage());
+            throw new InvalidArgumentException('Failed to generate secure nonce: '.$e->getMessage());
         }
     }
 
@@ -57,7 +57,7 @@ final readonly class SecurityNonce
     public static function fromBase64(string $base64): self
     {
         $decoded = base64_decode($base64, true);
-        
+
         if ($decoded === false) {
             throw new InvalidArgumentException('Invalid base64 nonce value');
         }

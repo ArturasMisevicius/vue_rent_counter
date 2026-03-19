@@ -11,4 +11,3 @@ class EditServiceConfiguration extends EditRecord
 {
     protected static string $resource = ServiceConfigurationResource::class;
 }
-

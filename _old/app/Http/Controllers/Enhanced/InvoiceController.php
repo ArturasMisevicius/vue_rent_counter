@@ -4,27 +4,25 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Enhanced;
 
-use App\Support\Billing\InvoiceGenerationDTO;
-use App\Support\Billing\PaymentProcessingDTO;
+use App\Actions\Enhanced\ProcessPaymentAction;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreInvoiceRequest;
 use App\Http\Requests\ProcessPaymentRequest;
+use App\Http\Requests\StoreInvoiceRequest;
 use App\Models\Invoice;
 use App\Models\Tenant;
 use App\Services\Enhanced\BillingService;
-use App\Actions\Enhanced\ProcessPaymentAction;
-use Illuminate\Http\Request;
+use App\Support\Billing\InvoiceGenerationDTO;
+use App\Support\Billing\PaymentProcessingDTO;
 use Illuminate\Http\JsonResponse;
-use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 /**
  * Enhanced Invoice Controller
- * 
+ *
  * Thin controller that delegates business logic to services.
  * Handles only HTTP concerns: validation, responses, and routing.
- * 
- * @package App\Http\Controllers\Enhanced
  */
 final class InvoiceController extends Controller
 {
@@ -121,7 +119,7 @@ final class InvoiceController extends Controller
         } catch (\Exception $e) {
             return back()
                 ->withInput()
-                ->withErrors(['error' => 'Payment processing failed: ' . $e->getMessage()]);
+                ->withErrors(['error' => 'Payment processing failed: '.$e->getMessage()]);
         }
     }
 
@@ -139,7 +137,7 @@ final class InvoiceController extends Controller
             'billing_period_end' => 'required|date|after:billing_period_start',
         ]);
 
-        $tenants = isset($request->tenant_ids) 
+        $tenants = isset($request->tenant_ids)
             ? Tenant::whereIn('id', $request->tenant_ids)->get()
             : Tenant::all();
 
@@ -152,6 +150,7 @@ final class InvoiceController extends Controller
         if ($result->success) {
             $data = $result->data;
             $message = "Bulk generation completed. Success: {$data['successful_count']}, Failed: {$data['failed_count']}";
+
             return back()->with('success', $message);
         }
 

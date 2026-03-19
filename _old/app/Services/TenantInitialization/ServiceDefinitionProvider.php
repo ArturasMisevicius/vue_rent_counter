@@ -9,23 +9,23 @@ use App\Enums\ServiceType;
 
 /**
  * Provides default service definitions for tenant initialization.
- * 
+ *
  * This class defines the standard utility services (electricity, water, heating, gas)
  * that are created for new tenants, including their default configurations,
  * pricing models, and business logic settings.
- * 
- * @package App\Services\TenantInitialization
+ *
  * @author Laravel Development Team
+ *
  * @since 1.0.0
  */
 final readonly class ServiceDefinitionProvider
 {
     /**
      * Get default service definitions for tenant initialization.
-     * 
+     *
      * Returns an array of service definitions with all necessary configuration
      * for creating the standard utility services for a new tenant.
-     * 
+     *
      * @return array<string, array<string, mixed>> Service definitions keyed by service type
      */
     public function getDefaultServiceDefinitions(): array
@@ -40,7 +40,7 @@ final readonly class ServiceDefinitionProvider
 
     /**
      * Get electricity service definition.
-     * 
+     *
      * @return array<string, mixed>
      */
     private function getElectricityServiceDefinition(): array
@@ -82,7 +82,7 @@ final readonly class ServiceDefinitionProvider
 
     /**
      * Get water service definition.
-     * 
+     *
      * @return array<string, mixed>
      */
     private function getWaterServiceDefinition(): array
@@ -124,7 +124,7 @@ final readonly class ServiceDefinitionProvider
 
     /**
      * Get heating service definition.
-     * 
+     *
      * @return array<string, mixed>
      */
     private function getHeatingServiceDefinition(): array
@@ -169,7 +169,7 @@ final readonly class ServiceDefinitionProvider
 
     /**
      * Get gas service definition.
-     * 
+     *
      * @return array<string, mixed>
      */
     private function getGasServiceDefinition(): array
@@ -217,19 +217,19 @@ final readonly class ServiceDefinitionProvider
 
     /**
      * Get service definition for a specific service type.
-     * 
+     *
      * @return array<string, mixed>|null
      */
     public function getServiceDefinition(string $serviceType): ?array
     {
         $definitions = $this->getDefaultServiceDefinitions();
-        
+
         return $definitions[$serviceType] ?? null;
     }
 
     /**
      * Get all supported service types.
-     * 
+     *
      * @return array<string>
      */
     public function getSupportedServiceTypes(): array

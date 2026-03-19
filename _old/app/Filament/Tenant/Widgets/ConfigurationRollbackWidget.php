@@ -30,7 +30,7 @@ final class ConfigurationRollbackWidget extends BaseWidget
 
     protected static ?int $sort = 6;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
@@ -43,7 +43,7 @@ final class ConfigurationRollbackWidget extends BaseWidget
                     ->sortable(),
                 TextColumn::make('auditable_type')
                     ->label(__('dashboard.audit.labels.configuration'))
-                    ->formatStateUsing(fn (string $state, AuditLog $record): string => class_basename($state) . " #{$record->auditable_id}")
+                    ->formatStateUsing(fn (string $state, AuditLog $record): string => class_basename($state)." #{$record->auditable_id}")
                     ->badge()
                     ->color('primary'),
                 TextColumn::make('user.name')
@@ -210,7 +210,7 @@ final class ConfigurationRollbackWidget extends BaseWidget
         $fields = array_keys($newValues);
         $preview = array_slice($fields, 0, 3);
 
-        return implode(', ', $preview) . (count($fields) > 3 ? '...' : '');
+        return implode(', ', $preview).(count($fields) > 3 ? '...' : '');
     }
 
     private function canRevertRollback(AuditLog $record): bool
@@ -259,6 +259,7 @@ final class ConfigurationRollbackWidget extends BaseWidget
                 ->title(__('dashboard.audit.notifications.bulk_rollback_partial', ['success' => 0, 'failed' => 0]))
                 ->warning()
                 ->send();
+
             return;
         }
 
@@ -289,7 +290,7 @@ final class ConfigurationRollbackWidget extends BaseWidget
                 ->send();
         }
 
-        Cache::forget('rollback_history:' . (auth()->user()?->currentTeam?->id ?? 'none'));
+        Cache::forget('rollback_history:'.(auth()->user()?->currentTeam?->id ?? 'none'));
         $this->resetTable();
     }
 
@@ -315,6 +316,7 @@ final class ConfigurationRollbackWidget extends BaseWidget
                 ->send();
 
             $this->resetTable();
+
             return;
         }
 

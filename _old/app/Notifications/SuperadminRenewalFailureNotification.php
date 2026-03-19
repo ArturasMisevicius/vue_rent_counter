@@ -42,14 +42,14 @@ class SuperadminRenewalFailureNotification extends Notification implements Shoul
             ->greeting('Hello Superadmin')
             ->line('An automatic subscription renewal has failed and requires your attention.')
             ->line('')
-            ->line('**Organization:** ' . $organizationName)
-            ->line('**Subscription ID:** ' . $this->subscription->id)
-            ->line('**Plan:** ' . ucfirst($this->subscription->plan_type))
-            ->line('**Expiry Date:** ' . $this->subscription->expires_at->format('F j, Y'))
-            ->line('**Failure Reason:** ' . $this->failureReason)
+            ->line('**Organization:** '.$organizationName)
+            ->line('**Subscription ID:** '.$this->subscription->id)
+            ->line('**Plan:** '.ucfirst($this->subscription->plan_type))
+            ->line('**Expiry Date:** '.$this->subscription->expires_at->format('F j, Y'))
+            ->line('**Failure Reason:** '.$this->failureReason)
             ->line('')
             ->line('Please review this subscription and take appropriate action to prevent service disruption.')
-            ->action('View Subscription', url('/admin/subscriptions/' . $this->subscription->id))
+            ->action('View Subscription', url('/admin/subscriptions/'.$this->subscription->id))
             ->line('The organization admin has been notified of this failure.');
     }
 

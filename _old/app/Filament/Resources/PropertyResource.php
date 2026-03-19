@@ -12,10 +12,13 @@ use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\PropertyResource\Pages;
 use App\Filament\Resources\PropertyResource\RelationManagers;
 use App\Models\Property;
-
+use App\Policies\PropertyPolicy;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Forms;
-use Filament\Schemas\Schema;
+use Filament\GlobalSearch\Actions\Action;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -30,9 +33,9 @@ use Illuminate\Database\Eloquent\Model;
  * - Localized validation messages
  * - Relationship management (buildings, tenants, meters)
  *
- * @see \App\Models\Property
- * @see \App\Policies\PropertyPolicy
- * @see \App\Filament\Concerns\HasTranslatedValidation
+ * @see Property
+ * @see PropertyPolicy
+ * @see HasTranslatedValidation
  */
 class PropertyResource extends Resource
 {
@@ -225,8 +228,8 @@ class PropertyResource extends Resource
                 // Table row actions removed - use page header actions instead
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make()
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->requiresConfirmation()
                         ->modalHeading(__('properties.modals.bulk_delete.title'))
                         ->modalDescription(__('properties.modals.bulk_delete.description'))
@@ -266,19 +269,19 @@ class PropertyResource extends Resource
         return ['address', 'unit_number'];
     }
 
-    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
             'Unit Number' => $record->unit_number ?? 'N/A',
             'Type' => ucfirst($record->type?->value ?? 'Unknown'),
-            'Area' => $record->area_sqm ? number_format($record->area_sqm, 2) . ' m²' : 'N/A',
+            'Area' => $record->area_sqm ? number_format($record->area_sqm, 2).' m²' : 'N/A',
         ];
     }
 
-    public static function getGlobalSearchResultActions(\Illuminate\Database\Eloquent\Model $record): array
+    public static function getGlobalSearchResultActions(Model $record): array
     {
         return [
-            \Filament\GlobalSearch\Actions\Action::make('edit')
+            Action::make('edit')
                 ->iconButton()
                 ->icon('heroicon-m-pencil-square')
                 ->url(static::getUrl('edit', ['record' => $record])),

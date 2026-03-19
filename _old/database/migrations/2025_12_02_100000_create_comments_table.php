@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Polymorphic comments system - can attach comments to any model
      * (invoices, properties, meters, buildings, etc.)
      */

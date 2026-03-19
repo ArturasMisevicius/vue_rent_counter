@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Services\Validation;
 
+use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\ServiceConfiguration;
+use App\Models\UtilityService;
 use Illuminate\Support\Collection;
 
 /**
  * Immutable validation context value object.
- * 
+ *
  * Contains all data needed for validation operations in a thread-safe,
  * immutable structure. Prevents side effects and enables safe concurrent validation.
  */
@@ -36,7 +38,7 @@ final readonly class ValidationContext
     /**
      * Get the utility service for this reading.
      */
-    public function getUtilityService(): ?\App\Models\UtilityService
+    public function getUtilityService(): ?UtilityService
     {
         return $this->serviceConfiguration?->utilityService;
     }
@@ -44,7 +46,7 @@ final readonly class ValidationContext
     /**
      * Get the meter for this reading.
      */
-    public function getMeter(): \App\Models\Meter
+    public function getMeter(): Meter
     {
         return $this->reading->meter;
     }
@@ -62,13 +64,13 @@ final readonly class ValidationContext
      */
     public function getHistoricalAverage(): ?float
     {
-        if (!$this->hasHistoricalData()) {
+        if (! $this->hasHistoricalData()) {
             return null;
         }
 
         $consumptions = $this->historicalReadings
-            ->map(fn($reading) => $reading->getConsumption())
-            ->filter(fn($consumption) => $consumption !== null);
+            ->map(fn ($reading) => $reading->getConsumption())
+            ->filter(fn ($consumption) => $consumption !== null);
 
         return $consumptions->isNotEmpty() ? $consumptions->avg() : null;
     }
@@ -79,6 +81,7 @@ final readonly class ValidationContext
     public function getSeasonalConfig(): array
     {
         $serviceType = $this->getUtilityService()?->service_type_bridge?->value ?? 'default';
+
         return $this->seasonalConfig[$serviceType] ?? $this->seasonalConfig['default'] ?? [];
     }
 
@@ -88,6 +91,7 @@ final readonly class ValidationContext
     public function isSummerPeriod(): bool
     {
         $month = $this->reading->reading_date->month;
+
         return $month >= 5 && $month <= 9; // May to September
     }
 
@@ -97,6 +101,7 @@ final readonly class ValidationContext
     public function isWinterPeriod(): bool
     {
         $month = $this->reading->reading_date->month;
+
         return $month <= 3 || $month >= 11; // November to March
     }
 

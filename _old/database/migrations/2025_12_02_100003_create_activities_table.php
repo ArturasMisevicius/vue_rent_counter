@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Activity log with polymorphic relationships
      * Tracks all important actions across the system
      */

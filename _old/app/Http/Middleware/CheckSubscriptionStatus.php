@@ -8,10 +8,12 @@ use App\Enums\UserRole;
 use App\Models\Subscription;
 use App\Services\SubscriptionChecker;
 use App\Services\SubscriptionStatusHandlers\SubscriptionStatusHandlerFactory;
+use App\ValueObjects\SubscriptionCheckResult;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -79,7 +81,7 @@ final class CheckSubscriptionStatus
      *
      * Performance: Resolves log channel once per request instead of on every log call.
      */
-    private ?\Psr\Log\LoggerInterface $auditLogger = null;
+    private ?LoggerInterface $auditLogger = null;
 
     public function __construct(
         private readonly SubscriptionChecker $subscriptionChecker,
@@ -122,8 +124,8 @@ final class CheckSubscriptionStatus
      * Requirements: 3.4, 3.5
      * Security: SEC-001 (Input Validation), SEC-002 (Audit Logging)
      *
-     * @see \App\Services\SubscriptionChecker For subscription retrieval and caching
-     * @see \App\Services\SubscriptionStatusHandlers\SubscriptionStatusHandlerFactory For status handling
+     * @see SubscriptionChecker For subscription retrieval and caching
+     * @see SubscriptionStatusHandlerFactory For status handling
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -294,12 +296,12 @@ final class CheckSubscriptionStatus
      *
      * @param  Request  $request  The incoming HTTP request
      * @param  Subscription|null  $subscription  The subscription if available
-     * @param  \App\ValueObjects\SubscriptionCheckResult  $result  The check result
+     * @param  SubscriptionCheckResult  $result  The check result
      */
     protected function logSubscriptionCheck(
         Request $request,
         ?Subscription $subscription,
-        \App\ValueObjects\SubscriptionCheckResult $result
+        SubscriptionCheckResult $result
     ): void {
         // Memoize audit logger to avoid repeated channel resolution
         if ($this->auditLogger === null) {

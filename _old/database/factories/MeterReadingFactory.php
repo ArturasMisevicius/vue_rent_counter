@@ -3,11 +3,12 @@
 namespace Database\Factories;
 
 use App\Models\Meter;
+use App\Models\MeterReading;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\MeterReading>
+ * @extends Factory<MeterReading>
  */
 class MeterReadingFactory extends Factory
 {
@@ -56,7 +57,7 @@ class MeterReadingFactory extends Factory
      */
     public function configure(): static
     {
-        return $this->afterMaking(function (\App\Models\MeterReading $reading) {
+        return $this->afterMaking(function (MeterReading $reading) {
             $meter = $reading->meter ?? Meter::find($reading->meter_id);
 
             if ($meter && $reading->tenant_id !== $meter->tenant_id) {
@@ -66,7 +67,7 @@ class MeterReadingFactory extends Factory
             if ($reading->enteredBy && $reading->enteredBy->tenant_id !== $reading->tenant_id) {
                 $reading->enteredBy->tenant_id = $reading->tenant_id;
             }
-        })->afterCreating(function (\App\Models\MeterReading $reading) {
+        })->afterCreating(function (MeterReading $reading) {
             $meter = $reading->meter ?? Meter::find($reading->meter_id);
 
             if ($meter && $reading->tenant_id !== $meter->tenant_id) {

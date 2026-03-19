@@ -6,7 +6,7 @@ use App\Models\Building;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Building>
+ * @extends Factory<Building>
  */
 class BuildingFactory extends Factory
 {

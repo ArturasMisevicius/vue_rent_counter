@@ -18,7 +18,7 @@ return new class extends Migration
         DB::table('invoices')
             ->whereNull('due_date')
             ->update([
-                'due_date' => DB::raw("date(billing_period_end, '+15 days')")
+                'due_date' => DB::raw("date(billing_period_end, '+15 days')"),
             ]);
     }
 

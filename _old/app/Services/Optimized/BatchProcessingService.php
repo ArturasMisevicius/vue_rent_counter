@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace App\Services\Optimized;
 
 use App\Models\MeterReading;
-use App\Models\Meter;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\LazyCollection;
-use Illuminate\Database\Eloquent\Collection;
-use Carbon\Carbon;
 
 /**
  * Batch Processing and Connection Optimization Service
- * 
+ *
  * Handles large dataset processing efficiently with memory management
  */
 final readonly class BatchProcessingService
@@ -36,12 +34,12 @@ final readonly class BatchProcessingService
             ->with(['meter:id,serial_number,type'])
             ->chunk($this->chunkSize, function (Collection $readings) use ($processor) {
                 $processor($readings);
-                
+
                 // Force garbage collection after each chunk
                 if (function_exists('gc_collect_cycles')) {
                     gc_collect_cycles();
                 }
-                
+
                 // Check memory usage
                 $this->checkMemoryUsage();
             });
@@ -112,7 +110,7 @@ final readonly class BatchProcessingService
 
         foreach ($cursor as $reading) {
             yield $this->processRawReading($reading);
-            
+
             // Yield control back to prevent memory buildup
             if (memory_get_usage(true) > $this->memoryLimit * 1024 * 1024) {
                 gc_collect_cycles();
@@ -130,16 +128,17 @@ final readonly class BatchProcessingService
     public function batchInsertReadings(array $readingsData): void
     {
         $chunks = array_chunk($readingsData, $this->chunkSize);
-        
+
         DB::transaction(function () use ($chunks) {
             foreach ($chunks as $chunk) {
                 // Add timestamps to each record
                 $chunk = array_map(function ($reading) {
                     $reading['created_at'] = now();
                     $reading['updated_at'] = now();
+
                     return $reading;
                 }, $chunk);
-                
+
                 // Batch insert
                 DB::table('meter_readings')->insert($chunk);
             }
@@ -161,10 +160,10 @@ final readonly class BatchProcessingService
 
         // Build CASE statements for each field
         foreach (['validation_status', 'validated_by', 'validated_at'] as $field) {
-            $case = "CASE id ";
+            $case = 'CASE id ';
             foreach ($updates as $id => $data) {
                 if (isset($data[$field])) {
-                    $case .= "WHEN ? THEN ? ";
+                    $case .= 'WHEN ? THEN ? ';
                     $bindings[] = $id;
                     $bindings[] = $data[$field];
                 }
@@ -174,16 +173,16 @@ final readonly class BatchProcessingService
         }
 
         // Execute batch update
-        $sql = "UPDATE meter_readings SET ";
+        $sql = 'UPDATE meter_readings SET ';
         $setClauses = [];
         foreach ($cases as $field => $case) {
             $setClauses[] = "{$field} = {$case}";
         }
         $sql .= implode(', ', $setClauses);
-        $sql .= " WHERE id IN (" . str_repeat('?,', count($ids) - 1) . "?)";
-        
+        $sql .= ' WHERE id IN ('.str_repeat('?,', count($ids) - 1).'?)';
+
         $bindings = array_merge($bindings, $ids);
-        
+
         DB::update($sql, $bindings);
     }
 
@@ -197,13 +196,13 @@ final readonly class BatchProcessingService
     public function upsertReadingsMySQL(array $readingsData): void
     {
         $chunks = array_chunk($readingsData, $this->chunkSize);
-        
+
         foreach ($chunks as $chunk) {
             $values = [];
             $bindings = [];
-            
+
             foreach ($chunk as $reading) {
-                $values[] = "(?, ?, ?, ?, ?, ?, ?)";
+                $values[] = '(?, ?, ?, ?, ?, ?, ?)';
                 $bindings = array_merge($bindings, [
                     $reading['tenant_id'],
                     $reading['meter_id'],
@@ -214,16 +213,16 @@ final readonly class BatchProcessingService
                     now(),
                 ]);
             }
-            
-            $sql = "
+
+            $sql = '
                 INSERT INTO meter_readings (tenant_id, meter_id, reading_date, value, zone, entered_by, created_at)
-                VALUES " . implode(', ', $values) . "
+                VALUES '.implode(', ', $values).'
                 ON DUPLICATE KEY UPDATE
                     value = VALUES(value),
                     entered_by = VALUES(entered_by),
                     updated_at = NOW()
-            ";
-            
+            ';
+
             DB::statement($sql, $bindings);
         }
     }
@@ -234,13 +233,13 @@ final readonly class BatchProcessingService
     public function upsertReadingsPostgreSQL(array $readingsData): void
     {
         $chunks = array_chunk($readingsData, $this->chunkSize);
-        
+
         foreach ($chunks as $chunk) {
             $values = [];
             $bindings = [];
-            
+
             foreach ($chunk as $reading) {
-                $values[] = "(?, ?, ?, ?, ?, ?, ?)";
+                $values[] = '(?, ?, ?, ?, ?, ?, ?)';
                 $bindings = array_merge($bindings, [
                     $reading['tenant_id'],
                     $reading['meter_id'],
@@ -251,17 +250,17 @@ final readonly class BatchProcessingService
                     now(),
                 ]);
             }
-            
-            $sql = "
+
+            $sql = '
                 INSERT INTO meter_readings (tenant_id, meter_id, reading_date, value, zone, entered_by, created_at)
-                VALUES " . implode(', ', $values) . "
+                VALUES '.implode(', ', $values).'
                 ON CONFLICT (meter_id, reading_date, zone)
                 DO UPDATE SET
                     value = EXCLUDED.value,
                     entered_by = EXCLUDED.entered_by,
                     updated_at = NOW()
-            ";
-            
+            ';
+
             DB::statement($sql, $bindings);
         }
     }
@@ -277,11 +276,11 @@ final readonly class BatchProcessingService
     {
         $currentMemory = memory_get_usage(true) / 1024 / 1024; // MB
         $peakMemory = memory_get_peak_usage(true) / 1024 / 1024; // MB
-        
+
         if ($currentMemory > $this->memoryLimit) {
             // Force garbage collection
             gc_collect_cycles();
-            
+
             // Log memory warning
             \Log::warning('High memory usage during batch processing', [
                 'current_memory_mb' => $currentMemory,
@@ -300,7 +299,7 @@ final readonly class BatchProcessingService
         if (method_exists(MeterReading::class, 'flushEventListeners')) {
             MeterReading::flushEventListeners();
         }
-        
+
         // Clear any static caches
         gc_collect_cycles();
     }
@@ -324,7 +323,7 @@ final readonly class BatchProcessingService
                     'wait_timeout' => 28800,
                     'interactive_timeout' => 28800,
                     'max_allowed_packet' => '64M',
-                ]
+                ],
             ],
             'postgresql' => [
                 'pool_size' => 20,
@@ -334,14 +333,14 @@ final readonly class BatchProcessingService
                 'settings' => [
                     'statement_timeout' => '30s',
                     'idle_in_transaction_session_timeout' => '60s',
-                ]
+                ],
             ],
             'redis' => [
                 'pool_size' => 10,
                 'max_connections' => 50,
                 'connection_timeout' => 5,
                 'read_timeout' => 10,
-            ]
+            ],
         ];
     }
 
@@ -376,7 +375,7 @@ final readonly class BatchProcessingService
         }
 
         // Process remaining items
-        if (!empty($batch)) {
+        if (! empty($batch)) {
             $processor($batch);
         }
     }
@@ -395,10 +394,10 @@ final readonly class BatchProcessingService
         $chunkSize = ceil($totalCount / $workers);
 
         $processes = [];
-        
+
         for ($i = 0; $i < $workers; $i++) {
             $offset = $i * $chunkSize;
-            
+
             // In a real implementation, you'd use process forking or job queues
             $this->processChunk($tenantId, $offset, $chunkSize);
         }
@@ -434,7 +433,7 @@ final readonly class BatchProcessingService
                 'mr.value',
                 'mr.zone',
                 'm.serial_number',
-                'p.name as property_name'
+                'p.name as property_name',
             ])
             ->orderBy('mr.reading_date');
 
@@ -463,7 +462,7 @@ final readonly class BatchProcessingService
                 'processed_at' => now(),
             ];
         }
-        
+
         return null;
     }
 

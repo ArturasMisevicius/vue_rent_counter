@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('invoices', function (Blueprint $table) {
-            if (!Schema::hasColumn('invoices', 'overdue_notified_at')) {
+            if (! Schema::hasColumn('invoices', 'overdue_notified_at')) {
                 $table->timestamp('overdue_notified_at')->nullable()->after('paid_at');
             }
         });

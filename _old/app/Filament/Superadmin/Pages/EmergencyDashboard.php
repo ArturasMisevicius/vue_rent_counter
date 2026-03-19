@@ -12,12 +12,12 @@ use Filament\Pages\Page;
 class EmergencyDashboard extends Page
 {
     protected static string $view = 'filament.superadmin.pages.emergency-dashboard';
-    
+
     public static function shouldRegisterNavigation(): bool
     {
         return false;
     }
-    
+
     public function getTitle(): string
     {
         return 'Emergency Dashboard';

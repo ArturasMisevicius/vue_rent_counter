@@ -37,7 +37,7 @@ class ItemsRelationManager extends RelationManager
                         'required' => 'Description is required',
                         'max' => 'Description cannot exceed 255 characters',
                     ]),
-                
+
                 Forms\Components\TextInput::make('quantity')
                     ->label(__('invoices.admin.items.quantity'))
                     ->required()
@@ -50,7 +50,7 @@ class ItemsRelationManager extends RelationManager
                         'numeric' => 'Quantity must be a number',
                         'min' => 'Quantity must be at least 0',
                     ]),
-                
+
                 Forms\Components\TextInput::make('unit')
                     ->label(__('invoices.admin.items.unit'))
                     ->required()
@@ -60,7 +60,7 @@ class ItemsRelationManager extends RelationManager
                         'required' => 'Unit is required',
                         'max' => 'Unit cannot exceed 50 characters',
                     ]),
-                
+
                 Forms\Components\TextInput::make('unit_price')
                     ->label(__('invoices.admin.items.unit_price'))
                     ->required()
@@ -74,7 +74,7 @@ class ItemsRelationManager extends RelationManager
                         'numeric' => 'Unit price must be a number',
                         'min' => 'Unit price must be at least 0',
                     ]),
-                
+
                 Forms\Components\TextInput::make('total')
                     ->label(__('invoices.admin.items.total'))
                     ->required()
@@ -88,7 +88,7 @@ class ItemsRelationManager extends RelationManager
                         'numeric' => 'Total must be a number',
                         'min' => 'Total must be at least 0',
                     ]),
-                
+
                 Forms\Components\Textarea::make('meter_reading_snapshot')
                     ->label(__('invoices.admin.items.snapshot'))
                     ->rows(3)
@@ -106,30 +106,29 @@ class ItemsRelationManager extends RelationManager
                     ->label(__('invoices.admin.items.description'))
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('quantity')
                     ->label(__('invoices.admin.items.quantity'))
                     ->numeric(decimalPlaces: 2)
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('unit')
                     ->label(__('invoices.admin.items.unit'))
                     ->searchable(),
-                
+
                 Tables\Columns\TextColumn::make('unit_price')
                     ->label(__('invoices.admin.items.unit_price'))
                     ->money('EUR', divideBy: 1)
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('total')
                     ->label(__('invoices.admin.items.total'))
                     ->money('EUR')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('meter_reading_snapshot')
                     ->label(__('invoices.admin.items.snapshot'))
-                    ->formatStateUsing(fn ($state): string => 
-                        $state ? __('invoices.admin.items.snapshot_yes') : __('invoices.admin.items.snapshot_no')
+                    ->formatStateUsing(fn ($state): string => $state ? __('invoices.admin.items.snapshot_yes') : __('invoices.admin.items.snapshot_no')
                     )
                     ->badge()
                     ->color(fn ($state): string => $state ? 'success' : 'gray')
@@ -141,25 +140,22 @@ class ItemsRelationManager extends RelationManager
             ->headerActions([
                 Actions\CreateAction::make()
                     ->disabled(fn (): bool => $this->getOwnerRecord()->isFinalized())
-                    ->tooltip(fn (): ?string => 
-                        $this->getOwnerRecord()->isFinalized() 
-                            ? __('invoices.admin.items.cannot_add_finalized') 
+                    ->tooltip(fn (): ?string => $this->getOwnerRecord()->isFinalized()
+                            ? __('invoices.admin.items.cannot_add_finalized')
                             : null
                     ),
             ])
             ->actions([
                 Actions\EditAction::make()
                     ->disabled(fn (): bool => $this->getOwnerRecord()->isFinalized())
-                    ->tooltip(fn (): ?string => 
-                        $this->getOwnerRecord()->isFinalized() 
-                            ? 'Cannot edit items in finalized invoice' 
+                    ->tooltip(fn (): ?string => $this->getOwnerRecord()->isFinalized()
+                            ? 'Cannot edit items in finalized invoice'
                             : null
                     ),
                 Actions\DeleteAction::make()
                     ->disabled(fn (): bool => $this->getOwnerRecord()->isFinalized())
-                    ->tooltip(fn (): ?string => 
-                        $this->getOwnerRecord()->isFinalized() 
-                            ? 'Cannot delete items from finalized invoice' 
+                    ->tooltip(fn (): ?string => $this->getOwnerRecord()->isFinalized()
+                            ? 'Cannot delete items from finalized invoice'
                             : null
                     ),
             ])

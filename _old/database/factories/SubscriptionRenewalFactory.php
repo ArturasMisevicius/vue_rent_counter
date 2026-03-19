@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 
 /**
- * @extends Factory<\App\Models\SubscriptionRenewal>
+ * @extends Factory<SubscriptionRenewal>
  */
 class SubscriptionRenewalFactory extends Factory
 {
@@ -56,4 +56,3 @@ class SubscriptionRenewalFactory extends Factory
         ];
     }
 }
-

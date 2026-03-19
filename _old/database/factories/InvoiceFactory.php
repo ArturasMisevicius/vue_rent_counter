@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Invoice>
+ * @extends Factory<Invoice>
  */
 class InvoiceFactory extends Factory
 {
@@ -61,7 +61,7 @@ class InvoiceFactory extends Factory
                 'status' => InvoiceStatus::PAID,
                 'finalized_at' => $attributes['finalized_at'] ?? now()->subDays(7),
                 'paid_at' => now()->subDays(fake()->numberBetween(1, 14)),
-                'payment_reference' => 'PAY-' . Str::upper(Str::random(8)),
+                'payment_reference' => 'PAY-'.Str::upper(Str::random(8)),
                 'paid_amount' => $paidAmount,
             ];
         });
@@ -87,7 +87,7 @@ class InvoiceFactory extends Factory
                 $invoice->tenant_id = $tenant->tenant_id;
             }
 
-            if (!$invoice->property_id && $tenant->property_id) {
+            if (! $invoice->property_id && $tenant->property_id) {
                 $invoice->property_id = $tenant->property_id;
             }
         })->afterCreating(function (Invoice $invoice) {
@@ -105,9 +105,9 @@ class InvoiceFactory extends Factory
                 $invoice->update(['tenant_id' => $tenant->tenant_id]);
             }
 
-            if (!$invoice->property_id && $tenant?->property_id) {
+            if (! $invoice->property_id && $tenant?->property_id) {
                 $invoice->update(['property_id' => $tenant->property_id]);
-            } elseif (!$invoice->property_id) {
+            } elseif (! $invoice->property_id) {
                 $property = Property::factory()->create([
                     'tenant_id' => $invoice->tenant_id ?? 1,
                 ]);

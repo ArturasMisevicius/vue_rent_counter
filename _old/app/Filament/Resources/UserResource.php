@@ -9,6 +9,11 @@ use App\Filament\Concerns\HasTranslatedValidation;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use App\Policies\UserPolicy;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
@@ -448,18 +453,18 @@ class UserResource extends Resource
                     ->falseLabel(__('users.filters.inactive_only')),
             ])
             ->recordActions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
+                ViewAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateHeading(__('users.empty_state.heading'))
             ->emptyStateDescription(__('users.empty_state.description'))
             ->emptyStateActions([
-                \Filament\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
             ->defaultSort('name', 'asc')
             ->persistSortInSession()

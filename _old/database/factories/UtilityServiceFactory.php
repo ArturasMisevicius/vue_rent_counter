@@ -9,9 +9,10 @@ use App\Enums\ServiceType;
 use App\Models\Tenant;
 use App\Models\UtilityService;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\UtilityService>
+ * @extends Factory<UtilityService>
  */
 class UtilityServiceFactory extends Factory
 {
@@ -29,14 +30,14 @@ class UtilityServiceFactory extends Factory
      */
     public function definition(): array
     {
-        $name = $this->faker->words(2, true) . ' Service';
+        $name = $this->faker->words(2, true).' Service';
         $pricingModel = $this->faker->randomElement(PricingModel::cases());
 
         return [
             // tenant_id is the Organization (multi-tenancy scope)
             'tenant_id' => 1,
             'name' => $name,
-            'slug' => \Illuminate\Support\Str::slug($name),
+            'slug' => Str::slug($name),
             'unit_of_measurement' => $this->faker->randomElement(['kWh', 'L', 'kW', 'm3', 'units']),
             'default_pricing_model' => $pricingModel,
             'calculation_formula' => $this->getCalculationFormula($pricingModel),

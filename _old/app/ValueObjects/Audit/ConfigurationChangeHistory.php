@@ -6,7 +6,7 @@ namespace App\ValueObjects\Audit;
 
 /**
  * Configuration Change History Value Object
- * 
+ *
  * Represents the complete history of configuration changes
  * with rollback capabilities and impact analysis.
  */
@@ -25,7 +25,7 @@ final readonly class ConfigurationChangeHistory
      */
     public function getChangesByImpact(string $impactLevel): array
     {
-        return array_filter($this->changes, fn($change) => $change['impact_level'] === $impactLevel);
+        return array_filter($this->changes, fn ($change) => $change['impact_level'] === $impactLevel);
     }
 
     /**
@@ -33,7 +33,7 @@ final readonly class ConfigurationChangeHistory
      */
     public function getRollbackableChanges(): array
     {
-        return array_filter($this->changes, fn($change) => $change['rollback_available']);
+        return array_filter($this->changes, fn ($change) => $change['rollback_available']);
     }
 
     /**
@@ -41,7 +41,7 @@ final readonly class ConfigurationChangeHistory
      */
     public function getChangesByUser(string $userName): array
     {
-        return array_filter($this->changes, fn($change) => $change['user'] === $userName);
+        return array_filter($this->changes, fn ($change) => $change['user'] === $userName);
     }
 
     /**
@@ -49,7 +49,7 @@ final readonly class ConfigurationChangeHistory
      */
     public function getChangesByModelType(string $modelType): array
     {
-        return array_filter($this->changes, fn($change) => $change['model_type'] === $modelType);
+        return array_filter($this->changes, fn ($change) => $change['model_type'] === $modelType);
     }
 
     /**
@@ -57,7 +57,7 @@ final readonly class ConfigurationChangeHistory
      */
     public function getHighPriorityRecommendations(): array
     {
-        return array_filter($this->recommendations, fn($rec) => $rec['priority'] === 'high');
+        return array_filter($this->recommendations, fn ($rec) => $rec['priority'] === 'high');
     }
 
     /**
@@ -104,6 +104,7 @@ final readonly class ConfigurationChangeHistory
     {
         return array_filter($this->changes, function ($change) use ($startDate, $endDate) {
             $changeDate = substr($change['timestamp'], 0, 10); // Extract date part
+
             return $changeDate >= $startDate && $changeDate <= $endDate;
         });
     }

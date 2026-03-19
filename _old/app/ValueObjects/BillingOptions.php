@@ -4,20 +4,22 @@ declare(strict_types=1);
 
 namespace App\ValueObjects;
 
+use App\Enums\AutomationLevel;
+use App\Enums\BillingSchedule;
+use Carbon\Carbon;
+
 /**
  * Configuration options for automated billing execution.
- * 
+ *
  * Immutable value object that encapsulates all billing
  * configuration options with validation and defaults.
- * 
- * @package App\ValueObjects
  */
 final readonly class BillingOptions
 {
     public function __construct(
-        public readonly \Carbon\Carbon $startDate,
-        public readonly \Carbon\Carbon $endDate,
-        public readonly \App\Enums\BillingSchedule $schedule = \App\Enums\BillingSchedule::MONTHLY,
+        public readonly Carbon $startDate,
+        public readonly Carbon $endDate,
+        public readonly BillingSchedule $schedule = BillingSchedule::MONTHLY,
         public readonly bool $generateInvoices = true,
         public readonly bool $includeSharedServices = true,
         private readonly bool $autoCollectReadings = false,
@@ -37,8 +39,8 @@ final readonly class BillingOptions
     public static function default(): self
     {
         return new self(
-            startDate: \Carbon\Carbon::now()->startOfMonth(),
-            endDate: \Carbon\Carbon::now()->endOfMonth(),
+            startDate: Carbon::now()->startOfMonth(),
+            endDate: Carbon::now()->endOfMonth(),
         );
     }
 
@@ -46,9 +48,9 @@ final readonly class BillingOptions
      * Create a new BillingOptions instance.
      */
     public static function create(
-        ?\Carbon\Carbon $startDate = null,
-        ?\Carbon\Carbon $endDate = null,
-        \App\Enums\BillingSchedule $schedule = \App\Enums\BillingSchedule::MONTHLY,
+        ?Carbon $startDate = null,
+        ?Carbon $endDate = null,
+        BillingSchedule $schedule = BillingSchedule::MONTHLY,
         bool $generateInvoices = true,
         bool $includeSharedServices = true,
         bool $autoCollectReadings = false,
@@ -64,9 +66,9 @@ final readonly class BillingOptions
         array $excludedServices = [],
         array $customRates = [],
     ): self {
-        $startDate = $startDate ?? \Carbon\Carbon::now()->startOfMonth();
-        $endDate = $endDate ?? \Carbon\Carbon::now()->endOfMonth();
-        
+        $startDate = $startDate ?? Carbon::now()->startOfMonth();
+        $endDate = $endDate ?? Carbon::now()->endOfMonth();
+
         return new self(
             startDate: $startDate,
             endDate: $endDate,
@@ -91,9 +93,9 @@ final readonly class BillingOptions
     public static function fromArray(array $options): self
     {
         return new self(
-            startDate: isset($options['start_date']) ? \Carbon\Carbon::parse($options['start_date']) : \Carbon\Carbon::now()->startOfMonth(),
-            endDate: isset($options['end_date']) ? \Carbon\Carbon::parse($options['end_date']) : \Carbon\Carbon::now()->endOfMonth(),
-            schedule: $options['schedule'] ?? \App\Enums\BillingSchedule::MONTHLY,
+            startDate: isset($options['start_date']) ? Carbon::parse($options['start_date']) : Carbon::now()->startOfMonth(),
+            endDate: isset($options['end_date']) ? Carbon::parse($options['end_date']) : Carbon::now()->endOfMonth(),
+            schedule: $options['schedule'] ?? BillingSchedule::MONTHLY,
             generateInvoices: $options['generate_invoices'] ?? true,
             includeSharedServices: $options['include_shared_services'] ?? true,
             autoCollectReadings: $options['auto_collect_readings'] ?? false,
@@ -310,22 +312,22 @@ final readonly class BillingOptions
     /**
      * Get automation level for billing operations.
      */
-    public function getAutomationLevel(): \App\Enums\AutomationLevel
+    public function getAutomationLevel(): AutomationLevel
     {
         // Determine automation level based on configuration
-        if ($this->autoApprove && !$this->requireApproval) {
-            return \App\Enums\AutomationLevel::FULLY_AUTOMATED;
+        if ($this->autoApprove && ! $this->requireApproval) {
+            return AutomationLevel::FULLY_AUTOMATED;
         }
-        
+
         if ($this->requireApproval) {
-            return \App\Enums\AutomationLevel::APPROVAL_REQUIRED;
+            return AutomationLevel::APPROVAL_REQUIRED;
         }
-        
+
         if ($this->autoCollectReadings || $this->processSharedServices) {
-            return \App\Enums\AutomationLevel::SEMI_AUTOMATED;
+            return AutomationLevel::SEMI_AUTOMATED;
         }
-        
-        return \App\Enums\AutomationLevel::MANUAL;
+
+        return AutomationLevel::MANUAL;
     }
 
     /**
@@ -486,7 +488,7 @@ final readonly class BillingOptions
             $errors[] = 'Cannot have both auto-approve and require approval enabled';
         }
 
-        if ($this->tenantIds !== null && !is_array($this->tenantIds)) {
+        if ($this->tenantIds !== null && ! is_array($this->tenantIds)) {
             $errors[] = 'Tenant IDs must be an array or null';
         }
 

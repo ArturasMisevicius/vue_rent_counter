@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Enums\ValidationStatus;
 use App\Models\MeterReading;
 use App\Models\User;
 use App\Services\TenantBoundaryService;
@@ -33,7 +34,7 @@ final readonly class MeterReadingPolicy
     public function view(User $user, MeterReading $meterReading): bool
     {
         // Must be able to access the meter reading's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $meterReading)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $meterReading)) {
             return false;
         }
 
@@ -70,12 +71,12 @@ final readonly class MeterReadingPolicy
     public function update(User $user, MeterReading $meterReading): Response
     {
         // Must be able to access the meter reading's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $meterReading)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $meterReading)) {
             return Response::deny('You do not have access to this meter reading.');
         }
 
         // Cannot update validated readings
-        if ($meterReading->validation_status === \App\Enums\ValidationStatus::VALIDATED) {
+        if ($meterReading->validation_status === ValidationStatus::VALIDATED) {
             return Response::deny('Cannot update validated meter readings.');
         }
 
@@ -93,12 +94,12 @@ final readonly class MeterReadingPolicy
     public function delete(User $user, MeterReading $meterReading): Response
     {
         // Must be able to access the meter reading's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $meterReading)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $meterReading)) {
             return Response::deny('You do not have access to this meter reading.');
         }
 
         // Cannot delete validated readings
-        if ($meterReading->validation_status === \App\Enums\ValidationStatus::VALIDATED) {
+        if ($meterReading->validation_status === ValidationStatus::VALIDATED) {
             return Response::deny('Cannot delete validated meter readings.');
         }
 
@@ -116,7 +117,7 @@ final readonly class MeterReadingPolicy
     public function restore(User $user, MeterReading $meterReading): bool
     {
         // Must be able to access the meter reading's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $meterReading)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $meterReading)) {
             return false;
         }
 
@@ -130,7 +131,7 @@ final readonly class MeterReadingPolicy
     public function forceDelete(User $user, MeterReading $meterReading): bool
     {
         // Must be able to access the meter reading's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $meterReading)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $meterReading)) {
             return false;
         }
 
@@ -144,12 +145,12 @@ final readonly class MeterReadingPolicy
     public function finalize(User $user, MeterReading $meterReading): Response
     {
         // Must be able to access the meter reading's tenant
-        if (!$this->tenantBoundaryService->canAccessModel($user, $meterReading)) {
+        if (! $this->tenantBoundaryService->canAccessModel($user, $meterReading)) {
             return Response::deny('You do not have access to this meter reading.');
         }
 
         // Cannot finalize already validated readings
-        if ($meterReading->validation_status === \App\Enums\ValidationStatus::VALIDATED) {
+        if ($meterReading->validation_status === ValidationStatus::VALIDATED) {
             return Response::deny('Meter reading is already validated.');
         }
 
@@ -181,10 +182,10 @@ final readonly class MeterReadingPolicy
     {
         // Load the meter and property relationships if not already loaded
         $meterReading->loadMissing('meter.property');
-        
+
         $property = $meterReading->meter?->property;
-        
-        if (!$property) {
+
+        if (! $property) {
             return false;
         }
 

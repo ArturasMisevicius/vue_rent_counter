@@ -2,20 +2,24 @@
 
 namespace App\Support\Queue;
 
+use App\Models\Organization;
+use App\Models\OrganizationActivityLog;
+use App\Models\Subscription;
+use App\Models\User;
+use App\Services\ExportService;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
-use App\Services\ExportService;
-use App\Models\User;
 
 /**
  * Job for generating exports in the background
- * 
+ *
  * Handles CSV, Excel, and PDF export generation that may take
  * time with large datasets, and optionally emails the results
  */
@@ -24,6 +28,7 @@ class ExportGenerationJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 600; // 10 minutes
+
     public $tries = 2;
 
     /**
@@ -89,7 +94,7 @@ class ExportGenerationJob implements ShouldQueue
     private function exportOrganizations(ExportService $exportService): string
     {
         $query = $this->buildOrganizationsQuery();
-        
+
         return match ($this->format) {
             'csv' => $exportService->exportOrganizationsCSV($query),
             'excel' => $exportService->exportOrganizationsExcel($query),
@@ -103,7 +108,7 @@ class ExportGenerationJob implements ShouldQueue
     private function exportSubscriptions(ExportService $exportService): string
     {
         $query = $this->buildSubscriptionsQuery();
-        
+
         return match ($this->format) {
             'csv' => $exportService->exportSubscriptionsCSV($query),
             'excel' => $exportService->exportSubscriptionsExcel($query),
@@ -117,9 +122,9 @@ class ExportGenerationJob implements ShouldQueue
     private function exportActivityLogs(ExportService $exportService): string
     {
         $query = $this->buildActivityLogsQuery();
-        $startDate = isset($this->filters['date_from']) ? \Carbon\Carbon::parse($this->filters['date_from']) : null;
-        $endDate = isset($this->filters['date_to']) ? \Carbon\Carbon::parse($this->filters['date_to']) : null;
-        
+        $startDate = isset($this->filters['date_from']) ? Carbon::parse($this->filters['date_from']) : null;
+        $endDate = isset($this->filters['date_to']) ? Carbon::parse($this->filters['date_to']) : null;
+
         return match ($this->format) {
             'csv' => $exportService->exportActivityLogsCSV($query, $startDate, $endDate),
             'json' => $exportService->exportActivityLogsJSON($query, $startDate, $endDate),
@@ -139,13 +144,13 @@ class ExportGenerationJob implements ShouldQueue
     /**
      * Build organizations query with filters
      */
-    private function buildOrganizationsQuery(): ?\Illuminate\Database\Eloquent\Builder
+    private function buildOrganizationsQuery(): ?Builder
     {
         if (empty($this->filters)) {
             return null;
         }
 
-        $query = \App\Models\Organization::query();
+        $query = Organization::query();
 
         if (isset($this->filters['plan'])) {
             $query->where('plan', $this->filters['plan']);
@@ -177,13 +182,13 @@ class ExportGenerationJob implements ShouldQueue
     /**
      * Build subscriptions query with filters
      */
-    private function buildSubscriptionsQuery(): ?\Illuminate\Database\Eloquent\Builder
+    private function buildSubscriptionsQuery(): ?Builder
     {
         if (empty($this->filters)) {
             return null;
         }
 
-        $query = \App\Models\Subscription::query();
+        $query = Subscription::query();
 
         if (isset($this->filters['status'])) {
             $query->where('status', $this->filters['status']);
@@ -197,7 +202,7 @@ class ExportGenerationJob implements ShouldQueue
             if ($this->filters['expiring_soon']) {
                 $query->whereBetween('expires_at', [
                     now()->toDateString(),
-                    now()->addDays(14)->toDateString()
+                    now()->addDays(14)->toDateString(),
                 ]);
             }
         }
@@ -208,13 +213,13 @@ class ExportGenerationJob implements ShouldQueue
     /**
      * Build activity logs query with filters
      */
-    private function buildActivityLogsQuery(): ?\Illuminate\Database\Eloquent\Builder
+    private function buildActivityLogsQuery(): ?Builder
     {
         if (empty($this->filters)) {
             return null;
         }
 
-        $query = \App\Models\OrganizationActivityLog::query();
+        $query = OrganizationActivityLog::query();
 
         if (isset($this->filters['organization_id'])) {
             $query->where('organization_id', $this->filters['organization_id']);
@@ -238,8 +243,9 @@ class ExportGenerationJob implements ShouldQueue
     {
         try {
             $user = User::find($this->userId);
-            if (!$user) {
+            if (! $user) {
                 Log::warning('Cannot email export results - user not found', ['user_id' => $this->userId]);
+
                 return;
             }
 
@@ -249,14 +255,14 @@ class ExportGenerationJob implements ShouldQueue
 
             // Simple email notification (in production, you'd create a proper Mailable)
             Mail::raw(
-                "Your {$this->exportType} export ({$this->format}) is ready.\n\n" .
-                "File: {$fileName}\n" .
-                "Size: {$fileSizeMB} MB\n" .
-                "Generated: " . now()->format('Y-m-d H:i:s'),
+                "Your {$this->exportType} export ({$this->format}) is ready.\n\n".
+                "File: {$fileName}\n".
+                "Size: {$fileSizeMB} MB\n".
+                'Generated: '.now()->format('Y-m-d H:i:s'),
                 function ($message) use ($user, $filePath, $fileName) {
                     $message->to($user->email)
-                           ->subject('Export Ready - ' . ucfirst($this->exportType))
-                           ->attach($filePath, ['as' => $fileName]);
+                        ->subject('Export Ready - '.ucfirst($this->exportType))
+                        ->attach($filePath, ['as' => $fileName]);
                 }
             );
 

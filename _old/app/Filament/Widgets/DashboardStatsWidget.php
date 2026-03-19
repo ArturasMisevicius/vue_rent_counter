@@ -8,7 +8,6 @@ use App\Enums\UserRole;
 use App\Filament\Resources\BuildingResource;
 use App\Filament\Resources\InvoiceResource;
 use App\Filament\Resources\PropertyResource;
-use App\Filament\Resources\TenantResource;
 use App\Filament\Resources\UserResource;
 use App\Models\Building;
 use App\Models\Invoice;
@@ -37,20 +36,18 @@ use Illuminate\Support\Facades\Cache;
  * - **Properties**: Navigates to property list
  * - **Buildings**: Navigates to building list
  * - **Recent Invoices**: Navigates to recent invoice list
- *
- * @package App\Filament\Widgets
  */
 class DashboardStatsWidget extends CachedStatsWidget
 {
     protected static ?int $sort = 1;
-    
+
     protected int $cacheTtl = 300; // 5 minutes cache
 
     protected function calculateStats(): array
     {
         $user = auth()->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return [];
         }
 
@@ -79,7 +76,7 @@ class DashboardStatsWidget extends CachedStatsWidget
                     ->color('success'),
                 PropertyResource::class
             ),
-            
+
             $this->makeStatActionable(
                 Stat::make('Total Buildings', number_format($totalBuildings))
                     ->description('Across all organizations')
@@ -87,7 +84,7 @@ class DashboardStatsWidget extends CachedStatsWidget
                     ->color('info'),
                 BuildingResource::class
             ),
-            
+
             $this->makeStatActionable(
                 Stat::make('Active Users', number_format($activeUsers))
                     ->description('Active tenant users')
@@ -96,7 +93,7 @@ class DashboardStatsWidget extends CachedStatsWidget
                 UserResource::class,
                 ['tenant_id' => ['operator' => 'isNotNull']]
             ),
-            
+
             $this->makeStatActionable(
                 Stat::make('Outstanding Debt', number_format($unpaidInvoices))
                     ->description('Unpaid invoices')
@@ -128,7 +125,7 @@ class DashboardStatsWidget extends CachedStatsWidget
                     ->color('success'),
                 PropertyResource::class
             ),
-            
+
             $this->makeStatActionable(
                 Stat::make('Buildings', number_format($totalBuildings))
                     ->description('In your organization')
@@ -136,7 +133,7 @@ class DashboardStatsWidget extends CachedStatsWidget
                     ->color('info'),
                 BuildingResource::class
             ),
-            
+
             $this->makeStatActionable(
                 Stat::make('Team Members', number_format($totalUsers))
                     ->description('In your organization')
@@ -144,7 +141,7 @@ class DashboardStatsWidget extends CachedStatsWidget
                     ->color('warning'),
                 UserResource::class
             ),
-            
+
             $this->makeStatActionable(
                 Stat::make('Outstanding Debt', number_format($unpaidInvoices))
                     ->description('Unpaid invoices')
@@ -175,7 +172,7 @@ class DashboardStatsWidget extends CachedStatsWidget
                     ->color('success'),
                 PropertyResource::class
             ),
-            
+
             $this->makeStatActionable(
                 Stat::make('Buildings', number_format($totalBuildings))
                     ->description('Under management')
@@ -183,7 +180,7 @@ class DashboardStatsWidget extends CachedStatsWidget
                     ->color('info'),
                 BuildingResource::class
             ),
-            
+
             $this->makeStatActionable(
                 Stat::make('Recent Invoices', number_format($recentInvoices))
                     ->description('Last 30 days')
@@ -192,7 +189,7 @@ class DashboardStatsWidget extends CachedStatsWidget
                 InvoiceResource::class,
                 ['created_at' => ['from' => now()->subDays(30)->format('Y-m-d')]]
             ),
-            
+
             $this->makeStatActionable(
                 Stat::make('Draft Invoices', number_format($draftInvoices))
                     ->description('Pending finalization')
@@ -250,6 +247,7 @@ class DashboardStatsWidget extends CachedStatsWidget
 
         return $stats;
     }
+
     /**
      * Format revenue amount in euros
      */
@@ -257,6 +255,6 @@ class DashboardStatsWidget extends CachedStatsWidget
     {
         $cents = (float) $amountInCents;
 
-        return '€' . number_format($cents / 100, 2);
+        return '€'.number_format($cents / 100, 2);
     }
 }

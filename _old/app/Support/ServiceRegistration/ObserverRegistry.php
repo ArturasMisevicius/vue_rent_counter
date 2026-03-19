@@ -4,9 +4,28 @@ declare(strict_types=1);
 
 namespace App\Support\ServiceRegistration;
 
+use App\Models\Faq;
+use App\Models\Language;
+use App\Models\MeterReading;
+use App\Models\Organization;
+use App\Models\OrganizationActivityLog;
+use App\Models\Subscription;
+use App\Models\Tariff;
+use App\Models\User;
+use App\Observers\CacheInvalidationObserver;
+use App\Observers\FaqObserver;
+use App\Observers\LanguageObserver;
+use App\Observers\MeterReadingObserver;
+use App\Observers\SubscriptionObserver;
+use App\Observers\SuperadminOrganizationObserver;
+use App\Observers\SuperadminSubscriptionObserver;
+use App\Observers\SuperadminUserObserver;
+use App\Observers\TariffObserver;
+use App\Observers\UserObserver;
+
 /**
  * Observer Registry for organized observer registration
- * 
+ *
  * Centralizes Eloquent observer registration following
  * Laravel 12 patterns and multi-tenancy requirements.
  */
@@ -14,38 +33,38 @@ final readonly class ObserverRegistry
 {
     /**
      * Model to Observer mappings
-     * 
+     *
      * @var array<class-string, class-string>
      */
     private const MODEL_OBSERVERS = [
-        \App\Models\MeterReading::class => \App\Observers\MeterReadingObserver::class,
-        \App\Models\Faq::class => \App\Observers\FaqObserver::class,
-        \App\Models\Tariff::class => \App\Observers\TariffObserver::class,
-        \App\Models\User::class => \App\Observers\UserObserver::class,
-        \App\Models\Language::class => \App\Observers\LanguageObserver::class,
-        \App\Models\Subscription::class => \App\Observers\SubscriptionObserver::class,
+        MeterReading::class => MeterReadingObserver::class,
+        Faq::class => FaqObserver::class,
+        Tariff::class => TariffObserver::class,
+        User::class => UserObserver::class,
+        Language::class => LanguageObserver::class,
+        Subscription::class => SubscriptionObserver::class,
     ];
 
     /**
      * Superadmin audit observers
-     * 
+     *
      * @var array<class-string, class-string>
      */
     private const SUPERADMIN_OBSERVERS = [
-        \App\Models\Organization::class => \App\Observers\SuperadminOrganizationObserver::class,
-        \App\Models\Subscription::class => \App\Observers\SuperadminSubscriptionObserver::class,
-        \App\Models\User::class => \App\Observers\SuperadminUserObserver::class,
+        Organization::class => SuperadminOrganizationObserver::class,
+        Subscription::class => SuperadminSubscriptionObserver::class,
+        User::class => SuperadminUserObserver::class,
     ];
 
     /**
      * Cache invalidation observer models
-     * 
+     *
      * @var array<class-string>
      */
     private const CACHE_INVALIDATION_MODELS = [
-        \App\Models\Organization::class,
-        \App\Models\Subscription::class,
-        \App\Models\OrganizationActivityLog::class,
+        Organization::class,
+        Subscription::class,
+        OrganizationActivityLog::class,
     ];
 
     /**
@@ -73,8 +92,8 @@ final readonly class ObserverRegistry
      */
     public function registerCacheInvalidationObservers(): void
     {
-        $cacheObserver = app(\App\Observers\CacheInvalidationObserver::class);
-        
+        $cacheObserver = app(CacheInvalidationObserver::class);
+
         foreach (self::CACHE_INVALIDATION_MODELS as $model) {
             $model::observe($cacheObserver);
         }
@@ -82,7 +101,7 @@ final readonly class ObserverRegistry
 
     /**
      * Get all registered model observers
-     * 
+     *
      * @return array<class-string, class-string>
      */
     public function getModelObservers(): array
@@ -92,7 +111,7 @@ final readonly class ObserverRegistry
 
     /**
      * Get all registered superadmin observers
-     * 
+     *
      * @return array<class-string, class-string>
      */
     public function getSuperadminObservers(): array
@@ -102,7 +121,7 @@ final readonly class ObserverRegistry
 
     /**
      * Get cache invalidation models
-     * 
+     *
      * @return array<class-string>
      */
     public function getCacheInvalidationModels(): array

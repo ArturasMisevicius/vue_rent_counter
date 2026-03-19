@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,7 +16,7 @@ use Illuminate\Support\Str;
 
 class Tenant extends Model
 {
-    use HasFactory, BelongsToTenant, Auditable;
+    use Auditable, BelongsToTenant, HasFactory;
 
     /**
      * Attributes to exclude from audit logging.
@@ -37,12 +38,12 @@ class Tenant extends Model
                 return;
             }
 
-            $baseSlug = Str::slug($tenant->name ?? 'tenant-' . Str::random(8));
+            $baseSlug = Str::slug($tenant->name ?? 'tenant-'.Str::random(8));
             $slug = $baseSlug;
             $counter = 1;
 
             while (static::where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $counter++;
+                $slug = $baseSlug.'-'.$counter++;
             }
 
             $tenant->slug = $slug;
@@ -204,10 +205,10 @@ class Tenant extends Model
     /**
      * Check if tenant is active for a given period.
      */
-    public function isActiveForPeriod(\Carbon\Carbon $startDate, \Carbon\Carbon $endDate): bool
+    public function isActiveForPeriod(Carbon $startDate, Carbon $endDate): bool
     {
         // Check if tenant has active status
-        if (!($this->is_active ?? true)) {
+        if (! ($this->is_active ?? true)) {
             return false;
         }
 
@@ -216,13 +217,13 @@ class Tenant extends Model
         $leaseEnd = $this->lease_end ?? $this->occupancy_end_date;
 
         // If no lease start, assume active
-        if (!$leaseStart) {
+        if (! $leaseStart) {
             return true;
         }
 
         // Check if lease period overlaps with billing period
-        $leaseStartCarbon = \Carbon\Carbon::parse($leaseStart);
-        $leaseEndCarbon = $leaseEnd ? \Carbon\Carbon::parse($leaseEnd) : null;
+        $leaseStartCarbon = Carbon::parse($leaseStart);
+        $leaseEndCarbon = $leaseEnd ? Carbon::parse($leaseEnd) : null;
 
         // Lease starts before or during the billing period
         if ($leaseStartCarbon->gt($endDate)) {
@@ -240,7 +241,7 @@ class Tenant extends Model
     /**
      * Get the occupancy start date (alias for lease_start).
      */
-    public function getOccupancyStartDateAttribute(): ?\Carbon\Carbon
+    public function getOccupancyStartDateAttribute(): ?Carbon
     {
         return $this->lease_start;
     }
@@ -248,7 +249,7 @@ class Tenant extends Model
     /**
      * Get the occupancy end date (alias for lease_end).
      */
-    public function getOccupancyEndDateAttribute(): ?\Carbon\Carbon
+    public function getOccupancyEndDateAttribute(): ?Carbon
     {
         return $this->lease_end;
     }

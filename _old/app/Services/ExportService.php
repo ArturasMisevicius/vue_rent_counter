@@ -5,25 +5,23 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Organization;
-use App\Models\Subscription;
 use App\Models\OrganizationActivityLog;
+use App\Models\Subscription;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Collection as SupportCollection;
-use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Font;
-use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 /**
  * ExportService handles data export functionality for superadmin dashboard
- * 
+ *
  * Supports CSV and Excel exports for:
  * - Organizations with complete details and metrics
  * - Subscriptions with plan details, dates, limits, and renewal history
@@ -37,13 +35,13 @@ class ExportService
     public function exportOrganizationsCSV(?Builder $query = null): string
     {
         $organizations = $query ? $query->get() : Organization::all();
-        
+
         $export = new OrganizationsExport($organizations);
-        $filename = 'organizations_' . now()->format('Y-m-d_H-i-s') . '.csv';
-        
+        $filename = 'organizations_'.now()->format('Y-m-d_H-i-s').'.csv';
+
         Excel::store($export, $filename, 'local', \Maatwebsite\Excel\Excel::CSV);
-        
-        return storage_path('app/' . $filename);
+
+        return storage_path('app/'.$filename);
     }
 
     /**
@@ -52,13 +50,13 @@ class ExportService
     public function exportOrganizationsExcel(?Builder $query = null): string
     {
         $organizations = $query ? $query->get() : Organization::all();
-        
+
         $export = new OrganizationsExport($organizations);
-        $filename = 'organizations_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
-        
+        $filename = 'organizations_'.now()->format('Y-m-d_H-i-s').'.xlsx';
+
         Excel::store($export, $filename, 'local');
-        
-        return storage_path('app/' . $filename);
+
+        return storage_path('app/'.$filename);
     }
 
     /**
@@ -66,15 +64,15 @@ class ExportService
      */
     public function exportSubscriptionsCSV(?Builder $query = null): string
     {
-        $subscriptions = $query ? $query->with(['user'])->get() : 
+        $subscriptions = $query ? $query->with(['user'])->get() :
                         Subscription::with(['user'])->get();
-        
+
         $export = new SubscriptionsExport($subscriptions);
-        $filename = 'subscriptions_' . now()->format('Y-m-d_H-i-s') . '.csv';
-        
+        $filename = 'subscriptions_'.now()->format('Y-m-d_H-i-s').'.csv';
+
         Excel::store($export, $filename, 'local', \Maatwebsite\Excel\Excel::CSV);
-        
-        return storage_path('app/' . $filename);
+
+        return storage_path('app/'.$filename);
     }
 
     /**
@@ -82,15 +80,15 @@ class ExportService
      */
     public function exportSubscriptionsExcel(?Builder $query = null): string
     {
-        $subscriptions = $query ? $query->with(['user'])->get() : 
+        $subscriptions = $query ? $query->with(['user'])->get() :
                         Subscription::with(['user'])->get();
-        
+
         $export = new SubscriptionsExport($subscriptions);
-        $filename = 'subscriptions_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
-        
+        $filename = 'subscriptions_'.now()->format('Y-m-d_H-i-s').'.xlsx';
+
         Excel::store($export, $filename, 'local');
-        
-        return storage_path('app/' . $filename);
+
+        return storage_path('app/'.$filename);
     }
 
     /**
@@ -99,13 +97,13 @@ class ExportService
     public function exportActivityLogsCSV(?Builder $query = null, ?Carbon $startDate = null, ?Carbon $endDate = null): string
     {
         $logs = $this->buildActivityLogsQuery($query, $startDate, $endDate)->get();
-        
+
         $export = new ActivityLogsExport($logs);
-        $filename = 'activity_logs_' . now()->format('Y-m-d_H-i-s') . '.csv';
-        
+        $filename = 'activity_logs_'.now()->format('Y-m-d_H-i-s').'.csv';
+
         Excel::store($export, $filename, 'local', \Maatwebsite\Excel\Excel::CSV);
-        
-        return storage_path('app/' . $filename);
+
+        return storage_path('app/'.$filename);
     }
 
     /**
@@ -114,7 +112,7 @@ class ExportService
     public function exportActivityLogsJSON(?Builder $query = null, ?Carbon $startDate = null, ?Carbon $endDate = null): string
     {
         $logs = $this->buildActivityLogsQuery($query, $startDate, $endDate)->get();
-        
+
         $data = $logs->map(function ($log) {
             return [
                 'id' => $log->id,
@@ -131,12 +129,12 @@ class ExportService
                 'user_agent' => $log->user_agent,
             ];
         });
-        
-        $filename = 'activity_logs_' . now()->format('Y-m-d_H-i-s') . '.json';
-        $filepath = storage_path('app/' . $filename);
-        
+
+        $filename = 'activity_logs_'.now()->format('Y-m-d_H-i-s').'.json';
+        $filepath = storage_path('app/'.$filename);
+
         file_put_contents($filepath, json_encode($data, JSON_PRETTY_PRINT));
-        
+
         return $filepath;
     }
 
@@ -146,15 +144,15 @@ class ExportService
     private function buildActivityLogsQuery(?Builder $query = null, ?Carbon $startDate = null, ?Carbon $endDate = null): Builder
     {
         $logsQuery = $query ?: OrganizationActivityLog::with(['organization', 'user']);
-        
+
         if ($startDate) {
             $logsQuery->where('created_at', '>=', $startDate);
         }
-        
+
         if ($endDate) {
             $logsQuery->where('created_at', '<=', $endDate);
         }
-        
+
         return $logsQuery->orderBy('created_at', 'desc');
     }
 
@@ -177,13 +175,13 @@ class ExportService
     private function getLastExportTime(): ?Carbon
     {
         $files = glob(storage_path('app/*_*.{csv,xlsx,json}'), GLOB_BRACE);
-        
+
         if (empty($files)) {
             return null;
         }
-        
+
         $latestFile = max(array_map('filemtime', $files));
-        
+
         return Carbon::createFromTimestamp($latestFile);
     }
 }
@@ -191,7 +189,7 @@ class ExportService
 /**
  * Organizations Export Class
  */
-class OrganizationsExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnWidths
+class OrganizationsExport implements FromCollection, WithColumnWidths, WithHeadings, WithMapping, WithStyles
 {
     protected Collection $organizations;
 
@@ -306,7 +304,7 @@ class OrganizationsExport implements FromCollection, WithHeadings, WithMapping, 
 /**
  * Subscriptions Export Class
  */
-class SubscriptionsExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnWidths
+class SubscriptionsExport implements FromCollection, WithColumnWidths, WithHeadings, WithMapping, WithStyles
 {
     protected Collection $subscriptions;
 
@@ -400,7 +398,7 @@ class SubscriptionsExport implements FromCollection, WithHeadings, WithMapping, 
 /**
  * Activity Logs Export Class
  */
-class ActivityLogsExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnWidths
+class ActivityLogsExport implements FromCollection, WithColumnWidths, WithHeadings, WithMapping, WithStyles
 {
     protected Collection $logs;
 

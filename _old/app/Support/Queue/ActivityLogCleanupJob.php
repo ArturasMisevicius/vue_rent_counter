@@ -2,6 +2,7 @@
 
 namespace App\Support\Queue;
 
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -9,12 +10,10 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Models\OrganizationActivityLog;
-use Carbon\Carbon;
 
 /**
  * Job for cleaning up old activity logs
- * 
+ *
  * Removes activity logs older than the configured retention period
  * to prevent database bloat while maintaining audit trail integrity
  */
@@ -23,6 +22,7 @@ class ActivityLogCleanupJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 300; // 5 minutes
+
     public $tries = 2;
 
     /**
@@ -41,7 +41,7 @@ class ActivityLogCleanupJob implements ShouldQueue
     public function handle(): void
     {
         $cutoffDate = Carbon::now()->subDays($this->retentionDays);
-        
+
         Log::info('Starting activity log cleanup', [
             'retention_days' => $this->retentionDays,
             'cutoff_date' => $cutoffDate->toDateString(),
@@ -124,6 +124,7 @@ class ActivityLogCleanupJob implements ShouldQueue
             Log::warning('Failed to get cleanup stats', [
                 'error' => $e->getMessage(),
             ]);
+
             return null;
         }
     }

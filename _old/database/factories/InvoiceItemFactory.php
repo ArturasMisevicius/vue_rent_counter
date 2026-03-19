@@ -7,7 +7,7 @@ use App\Models\InvoiceItem;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\InvoiceItem>
+ * @extends Factory<InvoiceItem>
  */
 class InvoiceItemFactory extends Factory
 {
@@ -27,7 +27,7 @@ class InvoiceItemFactory extends Factory
     {
         $quantity = fake()->randomFloat(2, 10, 500);
         $unitPrice = fake()->randomFloat(4, 0.05, 2.00);
-        
+
         return [
             'invoice_id' => Invoice::factory(),
             'description' => fake()->randomElement([
@@ -62,7 +62,7 @@ class InvoiceItemFactory extends Factory
             $currentReading = $previousReading + $quantity;
             $endReadingDate = fake()->dateTimeBetween('-1 month', 'now');
             $startReadingDate = (clone $endReadingDate)->modify('-1 month');
-            
+
             return [
                 'meter_reading_snapshot' => [
                     'service_configuration' => [

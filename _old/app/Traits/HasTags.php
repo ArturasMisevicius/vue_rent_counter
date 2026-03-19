@@ -8,7 +8,7 @@ use Illuminate\Support\Collection;
 
 /**
  * HasTags Trait
- * 
+ *
  * Add this trait to any model that should support tagging
  */
 trait HasTags
@@ -25,29 +25,28 @@ trait HasTags
 
     /**
      * Attach tags to the model
-     * 
-     * @param array|Collection|Tag $tags
-     * @param int|null $taggedBy
+     *
+     * @param  array|Collection|Tag  $tags
      */
     public function attachTags($tags, ?int $taggedBy = null): void
     {
         $tagIds = $this->parseTagIds($tags);
-        
+
         $pivotData = [];
         foreach ($tagIds as $tagId) {
             $pivotData[$tagId] = ['tagged_by' => $taggedBy ?? auth()->id()];
         }
 
         $this->tags()->syncWithoutDetaching($pivotData);
-        
+
         // Update usage counts efficiently using bulk operations
         Tag::bulkUpdateUsageCounts($tagIds);
     }
 
     /**
      * Detach tags from the model
-     * 
-     * @param array|Collection|Tag|null $tags
+     *
+     * @param  array|Collection|Tag|null  $tags
      */
     public function detachTags($tags = null): void
     {
@@ -65,23 +64,22 @@ trait HasTags
 
     /**
      * Sync tags (replace all existing tags)
-     * 
-     * @param array|Collection $tags
-     * @param int|null $taggedBy
+     *
+     * @param  array|Collection  $tags
      */
     public function syncTags($tags, ?int $taggedBy = null): void
     {
         $oldTagIds = $this->tags()->pluck('tags.id');
-        
+
         $tagIds = $this->parseTagIds($tags);
-        
+
         $pivotData = [];
         foreach ($tagIds as $tagId) {
             $pivotData[$tagId] = ['tagged_by' => $taggedBy ?? auth()->id()];
         }
 
         $this->tags()->sync($pivotData);
-        
+
         // Update usage counts for old and new tags
         $affectedTagIds = $oldTagIds->merge($tagIds)->unique();
         Tag::bulkUpdateUsageCounts($affectedTagIds->toArray());
@@ -89,8 +87,8 @@ trait HasTags
 
     /**
      * Check if model has a specific tag
-     * 
-     * @param string|Tag $tag
+     *
+     * @param  string|Tag  $tag
      */
     public function hasTag($tag): bool
     {
@@ -103,23 +101,21 @@ trait HasTags
 
     /**
      * Check if model has any of the given tags
-     * 
-     * @param array $tags
      */
     public function hasAnyTag(array $tags): bool
     {
         $tagIds = $this->parseTagIds($tags);
+
         return $this->tags()->whereIn('tags.id', $tagIds)->exists();
     }
 
     /**
      * Check if model has all of the given tags
-     * 
-     * @param array $tags
      */
     public function hasAllTags(array $tags): bool
     {
         $tagIds = $this->parseTagIds($tags);
+
         return $this->tags()->whereIn('tags.id', $tagIds)->count() === count($tagIds);
     }
 
@@ -153,7 +149,7 @@ trait HasTags
     public function scopeWithAnyTag($query, array $tags)
     {
         $tagIds = $this->parseTagIds($tags);
-        
+
         return $query->whereHas('tags', function ($q) use ($tagIds) {
             $q->whereIn('tags.id', $tagIds);
         });
@@ -165,7 +161,7 @@ trait HasTags
     public function scopeWithAllTags($query, array $tags)
     {
         $tagIds = $this->parseTagIds($tags);
-        
+
         foreach ($tagIds as $tagId) {
             $query->whereHas('tags', function ($q) use ($tagId) {
                 $q->where('tags.id', $tagId);
@@ -196,6 +192,7 @@ trait HasTags
                 if (is_numeric($tag)) {
                     return $tag;
                 }
+
                 // Assume it's a slug
                 return Tag::where('slug', $tag)->first()?->id;
             })->filter()->toArray();

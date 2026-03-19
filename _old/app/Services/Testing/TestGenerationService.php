@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Testing;
 
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 use ReflectionClass;
 
 /**
@@ -24,13 +22,13 @@ class TestGenerationService
     public function generateTests(string $className, string $type): array
     {
         $analysis = $this->analyzer->analyze($className);
-        
+
         $requirements = $this->determineRequirements($analysis, $type);
-        
+
         $requirements = $this->applyTenancyRules($requirements);
-        
+
         $requirements = $this->applySecurityRules($requirements);
-        
+
         return $this->renderer->render($requirements);
     }
 
@@ -86,7 +84,7 @@ class TestGenerationService
     {
         $requirements['tests'][] = 'authorization';
         $requirements['tests'][] = 'input_validation';
-        
+
         if ($requirements['type'] === 'controller') {
             $requirements['tests'][] = 'csrf_protection';
             $requirements['tests'][] = 'xss_prevention';
@@ -182,11 +180,12 @@ class TestGenerationService
      */
     private function usesBelongsToTenant(string $className): bool
     {
-        if (!class_exists($className)) {
+        if (! class_exists($className)) {
             return false;
         }
 
         $traits = class_uses_recursive($className);
+
         return in_array('App\Traits\BelongsToTenant', $traits);
     }
 
@@ -195,7 +194,7 @@ class TestGenerationService
      */
     private function usesHierarchicalScope(string $className): bool
     {
-        if (!class_exists($className)) {
+        if (! class_exists($className)) {
             return false;
         }
 
@@ -203,7 +202,7 @@ class TestGenerationService
             $reflection = new ReflectionClass($className);
             $bootMethod = $reflection->getMethod('boot');
             $source = file_get_contents($reflection->getFileName());
-            
+
             return str_contains($source, 'HierarchicalScope');
         } catch (\Exception $e) {
             return false;

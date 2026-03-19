@@ -9,25 +9,34 @@ use Throwable;
 
 /**
  * Exception thrown when external service integration operations fail.
- * 
+ *
  * Provides specific error types for different integration failure scenarios
  * with appropriate error codes and messages for proper error handling.
- * 
- * @package App\Exceptions
+ *
  * @author Laravel Development Team
+ *
  * @since 1.0.0
  */
 final class IntegrationException extends Exception
 {
     public const CODE_OPERATION_FAILED = 1001;
+
     public const CODE_SERVICE_UNAVAILABLE = 1002;
+
     public const CODE_CIRCUIT_BREAKER_OPEN = 1003;
+
     public const CODE_NO_FALLBACK_AVAILABLE = 1004;
+
     public const CODE_SYNC_FAILED = 1005;
+
     public const CODE_INVALID_CONFIGURATION = 1006;
+
     public const CODE_AUTHENTICATION_FAILED = 1007;
+
     public const CODE_RATE_LIMIT_EXCEEDED = 1008;
+
     public const CODE_DATA_VALIDATION_FAILED = 1009;
+
     public const CODE_TIMEOUT = 1010;
 
     /**
@@ -134,7 +143,7 @@ final class IntegrationException extends Exception
     public static function dataValidationFailed(string $serviceName, array $errors): self
     {
         $errorMessages = implode(', ', $errors);
-        
+
         return new self(
             message: "Data validation failed for service {$serviceName}: {$errorMessages}",
             code: self::CODE_DATA_VALIDATION_FAILED
@@ -204,7 +213,7 @@ final class IntegrationException extends Exception
 
     /**
      * Convert to array for logging or API responses.
-     * 
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array

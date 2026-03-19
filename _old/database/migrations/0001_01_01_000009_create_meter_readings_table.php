@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('zone')->nullable();
             $table->foreignId('entered_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
-            
+
             $table->index(['meter_id', 'reading_date']);
         });
     }

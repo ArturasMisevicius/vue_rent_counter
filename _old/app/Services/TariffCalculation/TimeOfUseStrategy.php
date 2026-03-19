@@ -9,24 +9,17 @@ class TimeOfUseStrategy implements TariffCalculationStrategy
 {
     /**
      * Calculate the cost for a time-of-use tariff.
-     *
-     * @param Tariff $tariff
-     * @param float $consumption
-     * @param Carbon $timestamp
-     * @return float
      */
     public function calculate(Tariff $tariff, float $consumption, Carbon $timestamp): float
     {
         $config = $tariff->configuration;
         $zone = $this->determineZone($config['zones'], $timestamp, $config['weekend_logic'] ?? null);
+
         return $consumption * $zone['rate'];
     }
 
     /**
      * Check if this strategy supports time-of-use tariffs.
-     *
-     * @param string $tariffType
-     * @return bool
      */
     public function supports(string $tariffType): bool
     {
@@ -35,11 +28,6 @@ class TimeOfUseStrategy implements TariffCalculationStrategy
 
     /**
      * Determine which tariff zone applies for a given timestamp.
-     *
-     * @param array $zones
-     * @param Carbon $timestamp
-     * @param string|null $weekendLogic
-     * @return array
      */
     private function determineZone(array $zones, Carbon $timestamp, ?string $weekendLogic): array
     {
@@ -55,10 +43,6 @@ class TimeOfUseStrategy implements TariffCalculationStrategy
 
     /**
      * Get the zone to apply for weekend based on weekend logic.
-     *
-     * @param array $zones
-     * @param string $weekendLogic
-     * @return array|null
      */
     private function getWeekendZone(array $zones, string $weekendLogic): ?array
     {
@@ -84,10 +68,6 @@ class TimeOfUseStrategy implements TariffCalculationStrategy
 
     /**
      * Get the zone that matches the current time.
-     *
-     * @param array $zones
-     * @param Carbon $timestamp
-     * @return array
      */
     private function getZoneByTime(array $zones, Carbon $timestamp): array
     {
@@ -105,11 +85,6 @@ class TimeOfUseStrategy implements TariffCalculationStrategy
     /**
      * Check if a time falls within a given range.
      * Handles ranges that cross midnight (e.g., 23:00 to 07:00).
-     *
-     * @param string $time
-     * @param string $start
-     * @param string $end
-     * @return bool
      */
     private function isTimeInRange(string $time, string $start, string $end): bool
     {

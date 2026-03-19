@@ -6,27 +6,26 @@ namespace App\Services;
 
 use App\Contracts\SharedServiceCostDistributor;
 use App\Enums\DistributionMethod;
-use App\Exceptions\DistributionException;
+use App\Models\Property;
 use App\Models\ServiceConfiguration;
-use App\Services\FormulaEvaluator;
 use App\ValueObjects\BillingPeriod;
 use App\ValueObjects\SharedServiceCostDistributionResult;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
+use Tests\Property\SharedServiceCostDistributionPropertyTest;
 
 /**
  * Service for distributing shared utility costs among properties.
- * 
+ *
  * Implements various distribution methods: equal, area-based,
  * consumption-based, and custom formula distribution. Ensures accurate
  * cost allocation according to configured business rules while maintaining
  * mathematical precision and audit trail requirements.
- * 
- * @package App\Services
- * @see \App\Contracts\SharedServiceCostDistributor
- * @see \App\ValueObjects\SharedServiceCostDistributionResult
- * @see \Tests\Property\SharedServiceCostDistributionPropertyTest
- * 
+ *
+ * @see SharedServiceCostDistributor
+ * @see SharedServiceCostDistributionResult
+ * @see SharedServiceCostDistributionPropertyTest
+ *
  * @example
  * ```php
  * $costDistributor = app(SharedServiceCostDistributorService::class);
@@ -55,11 +54,11 @@ final readonly class SharedServiceCostDistributorService implements SharedServic
     ): SharedServiceCostDistributionResult {
         // Validate inputs
         $this->validateInputs($serviceConfig, $properties, $totalCost);
-        
+
         // Validate properties for this distribution method
         $validationErrors = $this->validateProperties($serviceConfig, $properties);
-        if (!empty($validationErrors)) {
-            throw new InvalidArgumentException('Property validation failed: ' . implode(', ', $validationErrors));
+        if (! empty($validationErrors)) {
+            throw new InvalidArgumentException('Property validation failed: '.implode(', ', $validationErrors));
         }
 
         // Handle edge cases
@@ -97,7 +96,7 @@ final readonly class SharedServiceCostDistributorService implements SharedServic
         // Check area data requirements
         if ($method->requiresAreaData()) {
             foreach ($properties as $property) {
-                if (!isset($property->area_sqm) || $property->area_sqm <= 0) {
+                if (! isset($property->area_sqm) || $property->area_sqm <= 0) {
                     $errors[] = "Property {$property->id} missing or invalid area data";
                 }
             }
@@ -106,7 +105,7 @@ final readonly class SharedServiceCostDistributorService implements SharedServic
         // Check consumption data requirements
         if ($method->requiresConsumptionData()) {
             foreach ($properties as $property) {
-                if (!isset($property->historical_consumption) || $property->historical_consumption < 0) {
+                if (! isset($property->historical_consumption) || $property->historical_consumption < 0) {
                     $errors[] = "Property {$property->id} missing or invalid consumption data";
                 }
             }
@@ -117,7 +116,7 @@ final readonly class SharedServiceCostDistributorService implements SharedServic
             $formula = $serviceConfig->rate_schedule['formula'] ?? '';
             if (empty($formula)) {
                 $errors[] = 'Custom formula is required but not provided';
-            } elseif (!$this->formulaEvaluator->validateFormula($formula)) {
+            } elseif (! $this->formulaEvaluator->validateFormula($formula)) {
                 $errors[] = 'Invalid custom formula syntax';
             }
         }
@@ -161,12 +160,12 @@ final readonly class SharedServiceCostDistributorService implements SharedServic
      * Distribute cost based on property areas.
      */
     private function distributeByArea(
-        Collection $properties, 
-        float $totalCost, 
+        Collection $properties,
+        float $totalCost,
         ServiceConfiguration $serviceConfig
     ): SharedServiceCostDistributionResult {
         $totalArea = $properties->sum('area_sqm');
-        
+
         if ($totalArea <= 0) {
             // Fallback to equal distribution
             return $this->distributeEqually($properties, $totalCost)
@@ -194,12 +193,12 @@ final readonly class SharedServiceCostDistributorService implements SharedServic
      * Distribute cost based on historical consumption.
      */
     private function distributeByConsumption(
-        Collection $properties, 
-        float $totalCost, 
+        Collection $properties,
+        float $totalCost,
         BillingPeriod $billingPeriod
     ): SharedServiceCostDistributionResult {
         $totalConsumption = $properties->sum('historical_consumption');
-        
+
         if ($totalConsumption <= 0) {
             // Fallback to equal distribution
             return $this->distributeEqually($properties, $totalCost)
@@ -227,13 +226,13 @@ final readonly class SharedServiceCostDistributorService implements SharedServic
      * Distribute cost using custom formula.
      */
     private function distributeByFormula(
-        Collection $properties, 
-        float $totalCost, 
+        Collection $properties,
+        float $totalCost,
         ServiceConfiguration $serviceConfig,
         BillingPeriod $billingPeriod
     ): SharedServiceCostDistributionResult {
         $formula = $serviceConfig->rate_schedule['formula'] ?? '';
-        
+
         if (empty($formula)) {
             // Fallback to equal distribution
             return $this->distributeEqually($properties, $totalCost)
@@ -332,7 +331,7 @@ final readonly class SharedServiceCostDistributorService implements SharedServic
             throw new InvalidArgumentException('Total cost cannot be negative');
         }
 
-        if (!in_array($serviceConfig->distribution_method, $this->getSupportedMethods())) {
+        if (! in_array($serviceConfig->distribution_method, $this->getSupportedMethods())) {
             throw new InvalidArgumentException(
                 "Unsupported distribution method: {$serviceConfig->distribution_method->value}"
             );
@@ -340,7 +339,7 @@ final readonly class SharedServiceCostDistributorService implements SharedServic
 
         // Validate property collection contains Property models
         foreach ($properties as $property) {
-            if (!$property instanceof \App\Models\Property) {
+            if (! $property instanceof Property) {
                 throw new InvalidArgumentException('Properties collection must contain Property models');
             }
         }

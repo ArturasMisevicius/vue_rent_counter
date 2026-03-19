@@ -21,20 +21,20 @@ final class UtilityAnalyticsWidget extends Widget
     public function getAnalyticsData(): array
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->currentTeam) {
+
+        if (! $user || ! $user->currentTeam) {
             return [];
         }
 
         $cacheKey = "utility_analytics_{$user->currentTeam->id}";
-        
+
         return Cache::remember($cacheKey, 600, function () use ($user) {
             $properties = $user->currentTeam->properties()
                 ->with([
                     'meters.serviceConfiguration.utilityService',
                     'meters.readings' => function ($query) {
                         $query->where('created_at', '>=', now()->subMonths(12));
-                    }
+                    },
                 ])
                 ->get();
 
@@ -55,8 +55,8 @@ final class UtilityAnalyticsWidget extends Widget
         foreach ($properties as $property) {
             foreach ($property->meters as $meter) {
                 $serviceConfig = $meter->serviceConfiguration;
-                
-                if (!$serviceConfig) {
+
+                if (! $serviceConfig) {
                     continue;
                 }
 
@@ -103,7 +103,7 @@ final class UtilityAnalyticsWidget extends Widget
                     ];
                 }
 
-                if (!isset($trends[$service->name])) {
+                if (! isset($trends[$service->name])) {
                     $trends[$service->name] = [
                         'service' => $service->name,
                         'unit' => $service->unit_of_measurement,
@@ -115,7 +115,7 @@ final class UtilityAnalyticsWidget extends Widget
 
                 // Merge data for same service type
                 foreach ($monthlyData as $index => $data) {
-                    if (!isset($trends[$service->name]['data'][$index])) {
+                    if (! isset($trends[$service->name]['data'][$index])) {
                         $trends[$service->name]['data'][$index] = $data;
                     } else {
                         $trends[$service->name]['data'][$index]['consumption'] += $data['consumption'];
@@ -131,11 +131,11 @@ final class UtilityAnalyticsWidget extends Widget
             if (count($data) >= 2) {
                 $firstMonth = $data[0];
                 $lastMonth = end($data);
-                
+
                 if ($firstMonth['cost'] > 0) {
                     $changePercentage = (($lastMonth['cost'] - $firstMonth['cost']) / $firstMonth['cost']) * 100;
                     $trend['change_percentage'] = round($changePercentage, 1);
-                    
+
                     $trend['trend'] = match (true) {
                         $changePercentage > 10 => 'increasing',
                         $changePercentage < -10 => 'decreasing',
@@ -156,8 +156,8 @@ final class UtilityAnalyticsWidget extends Widget
         foreach ($properties as $property) {
             foreach ($property->meters as $meter) {
                 $serviceConfig = $meter->serviceConfiguration;
-                
-                if (!$serviceConfig) {
+
+                if (! $serviceConfig) {
                     continue;
                 }
 
@@ -173,7 +173,7 @@ final class UtilityAnalyticsWidget extends Widget
                 }
 
                 $averageMonthlyConsumption = $recentReadings->sum('value') / 3;
-                
+
                 try {
                     $predictedMonthlyCost = $billingCalculator->calculateCost(
                         $averageMonthlyConsumption,
@@ -182,7 +182,7 @@ final class UtilityAnalyticsWidget extends Widget
                         now()->endOfMonth()
                     );
 
-                    if (!isset($predictions[$service->name])) {
+                    if (! isset($predictions[$service->name])) {
                         $predictions[$service->name] = [
                             'service' => $service->name,
                             'predicted_monthly_cost' => 0,
@@ -221,8 +221,8 @@ final class UtilityAnalyticsWidget extends Widget
         foreach ($properties as $property) {
             foreach ($property->meters as $meter) {
                 $serviceConfig = $meter->serviceConfiguration;
-                
-                if (!$serviceConfig) {
+
+                if (! $serviceConfig) {
                     continue;
                 }
 
@@ -239,7 +239,7 @@ final class UtilityAnalyticsWidget extends Widget
                     $dayReadings = $readings->filter(function ($reading) use ($i) {
                         return $reading->created_at->dayOfWeek === $i;
                     });
-                    
+
                     $dayOfWeekUsage[] = [
                         'day' => Carbon::now()->startOfWeek()->addDays($i)->format('l'),
                         'average_usage' => $dayReadings->avg('value') ?? 0,
@@ -254,7 +254,7 @@ final class UtilityAnalyticsWidget extends Widget
                         return $reading->created_at->month === $month->month &&
                                $reading->created_at->year === $month->year;
                     });
-                    
+
                     $monthlyUsage[] = [
                         'month' => $month->format('M Y'),
                         'total_usage' => $monthReadings->sum('value'),
@@ -262,7 +262,7 @@ final class UtilityAnalyticsWidget extends Widget
                     ];
                 }
 
-                if (!isset($patterns[$service->name])) {
+                if (! isset($patterns[$service->name])) {
                     $patterns[$service->name] = [
                         'service' => $service->name,
                         'unit' => $service->unit_of_measurement,
@@ -276,7 +276,7 @@ final class UtilityAnalyticsWidget extends Widget
                     foreach ($dayOfWeekUsage as $index => $dayData) {
                         $patterns[$service->name]['day_of_week_usage'][$index]['average_usage'] += $dayData['average_usage'];
                     }
-                    
+
                     foreach ($monthlyUsage as $index => $monthData) {
                         $patterns[$service->name]['monthly_usage'][$index]['total_usage'] += $monthData['total_usage'];
                         $patterns[$service->name]['monthly_usage'][$index]['average_usage'] += $monthData['average_usage'];
@@ -306,8 +306,8 @@ final class UtilityAnalyticsWidget extends Widget
         foreach ($properties as $property) {
             foreach ($property->meters as $meter) {
                 $serviceConfig = $meter->serviceConfiguration;
-                
-                if (!$serviceConfig) {
+
+                if (! $serviceConfig) {
                     continue;
                 }
 
@@ -323,6 +323,7 @@ final class UtilityAnalyticsWidget extends Widget
                         'action' => __('dashboard.add_reading'),
                         'service' => $service->name,
                     ];
+
                     continue;
                 }
 
@@ -337,7 +338,7 @@ final class UtilityAnalyticsWidget extends Widget
 
                 if ($previousMonthUsage > 0) {
                     $changePercentage = (($currentMonthUsage - $previousMonthUsage) / $previousMonthUsage) * 100;
-                    
+
                     if ($changePercentage > 50) {
                         $recommendations[] = [
                             'type' => 'high_usage',
@@ -382,6 +383,7 @@ final class UtilityAnalyticsWidget extends Widget
         // Sort by priority
         usort($recommendations, function ($a, $b) {
             $priorities = ['high' => 3, 'medium' => 2, 'low' => 1];
+
             return ($priorities[$b['priority']] ?? 0) <=> ($priorities[$a['priority']] ?? 0);
         });
 

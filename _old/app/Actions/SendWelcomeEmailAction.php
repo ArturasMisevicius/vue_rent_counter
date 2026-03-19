@@ -11,20 +11,18 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Send Welcome Email Action
- * 
+ *
  * Single responsibility: Send welcome email to a new user.
  * Handles notification queuing and error logging.
- * 
- * @package App\Actions
  */
 final class SendWelcomeEmailAction
 {
     /**
      * Execute the action to send a welcome email.
      *
-     * @param User $user The user to send email to
-     * @param Property|null $property The associated property (for tenants)
-     * @param string|null $temporaryPassword Temporary password to include
+     * @param  User  $user  The user to send email to
+     * @param  Property|null  $property  The associated property (for tenants)
+     * @param  string|null  $temporaryPassword  Temporary password to include
      * @return bool True if email was queued successfully
      */
     public function execute(User $user, ?Property $property = null, ?string $temporaryPassword = null): bool

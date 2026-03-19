@@ -18,7 +18,7 @@ class EnsureTenantContext
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -57,6 +57,7 @@ class EnsureTenantContext
         // Validate tenant is active (simplified check since we only have tenant_id)
         if ($tenantId === null) {
             auth()->logout();
+
             return redirect()->route('login')
                 ->with('error', 'Invalid tenant context.');
         }

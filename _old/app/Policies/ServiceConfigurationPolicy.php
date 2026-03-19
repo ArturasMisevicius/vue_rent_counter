@@ -19,7 +19,7 @@ class ServiceConfigurationPolicy
             return true;
         }
 
-        if (!in_array($user->role, [UserRole::ADMIN, UserRole::MANAGER], true)) {
+        if (! in_array($user->role, [UserRole::ADMIN, UserRole::MANAGER], true)) {
             return false;
         }
 
@@ -32,11 +32,10 @@ class ServiceConfigurationPolicy
             return true;
         }
 
-        if (!in_array($user->role, [UserRole::ADMIN, UserRole::MANAGER], true)) {
+        if (! in_array($user->role, [UserRole::ADMIN, UserRole::MANAGER], true)) {
             return false;
         }
 
         return $user->tenant_id !== null && $serviceConfiguration->tenant_id === $user->tenant_id;
     }
 }
-

@@ -58,7 +58,7 @@ final class ExchangeRate extends Model
     public function scopeForDate($query, Carbon $date)
     {
         return $query->whereDate('effective_date', '<=', $date->toDateString())
-                    ->orderBy('effective_date', 'desc');
+            ->orderBy('effective_date', 'desc');
     }
 
     /**
@@ -67,7 +67,7 @@ final class ExchangeRate extends Model
     public function scopeBetweenCurrencies($query, int $fromCurrencyId, int $toCurrencyId)
     {
         return $query->where('from_currency_id', $fromCurrencyId)
-                    ->where('to_currency_id', $toCurrencyId);
+            ->where('to_currency_id', $toCurrencyId);
     }
 
     /**
@@ -76,8 +76,8 @@ final class ExchangeRate extends Model
     public static function getLatestRate(int $fromCurrencyId, int $toCurrencyId, ?Carbon $date = null): ?self
     {
         $date = $date ?? now();
-        
-        return static::active()
+
+        return self::active()
             ->betweenCurrencies($fromCurrencyId, $toCurrencyId)
             ->forDate($date)
             ->first();

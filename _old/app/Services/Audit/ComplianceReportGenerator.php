@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 /**
  * Compliance Report Generator
- * 
+ *
  * Generates compliance status reports for audit purposes.
  */
 final readonly class ComplianceReportGenerator

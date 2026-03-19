@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * User permissions with pivot data for granular access control
      */
     public function up(): void

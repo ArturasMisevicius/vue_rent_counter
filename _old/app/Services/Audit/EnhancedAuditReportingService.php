@@ -13,11 +13,10 @@ use App\ValueObjects\Audit\PerformanceTrendData;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Enhanced Audit Reporting Service
- * 
+ *
  * Provides advanced audit reporting capabilities including:
  * - Configuration change tracking with rollback capabilities
  * - Performance metrics visualization
@@ -39,8 +38,8 @@ final readonly class EnhancedAuditReportingService
         ?Carbon $startDate = null,
         ?Carbon $endDate = null,
     ): ConfigurationChangeHistory {
-        $cacheKey = "config_history_{$tenantId}_{$serviceId}_" . 
-                   ($startDate?->format('Y-m-d') ?? 'all') . '_' . 
+        $cacheKey = "config_history_{$tenantId}_{$serviceId}_".
+                   ($startDate?->format('Y-m-d') ?? 'all').'_'.
                    ($endDate?->format('Y-m-d') ?? 'all');
 
         return Cache::remember($cacheKey, 300, function () use ($tenantId, $serviceId, $startDate, $endDate) {
@@ -57,18 +56,18 @@ final readonly class EnhancedAuditReportingService
                 $query->where(function ($q) use ($serviceId) {
                     $q->where(function ($subQ) use ($serviceId) {
                         $subQ->where('auditable_type', UtilityService::class)
-                             ->where('auditable_id', $serviceId);
+                            ->where('auditable_id', $serviceId);
                     })->orWhere(function ($subQ) use ($serviceId) {
                         $subQ->where('auditable_type', ServiceConfiguration::class)
-                             ->whereHas('auditable', function ($configQ) use ($serviceId) {
-                                 $configQ->where('utility_service_id', $serviceId);
-                             });
+                            ->whereHas('auditable', function ($configQ) use ($serviceId) {
+                                $configQ->where('utility_service_id', $serviceId);
+                            });
                     });
                 });
             }
 
             $changes = $query->get();
-            
+
             return new ConfigurationChangeHistory(
                 changes: $this->formatChangeHistory($changes),
                 rollbackCapabilities: $this->analyzeRollbackCapabilities($changes),
@@ -87,8 +86,8 @@ final readonly class EnhancedAuditReportingService
         ?Carbon $startDate = null,
         ?Carbon $endDate = null,
     ): PerformanceTrendData {
-        $cacheKey = "performance_metrics_{$tenantId}_" . 
-                   ($startDate?->format('Y-m-d') ?? 'all') . '_' . 
+        $cacheKey = "performance_metrics_{$tenantId}_".
+                   ($startDate?->format('Y-m-d') ?? 'all').'_'.
                    ($endDate?->format('Y-m-d') ?? 'all');
 
         return Cache::remember($cacheKey, 300, function () use ($tenantId, $startDate, $endDate) {
@@ -97,10 +96,10 @@ final readonly class EnhancedAuditReportingService
 
             // Get billing calculation performance metrics
             $billingMetrics = $this->getBillingCalculationMetrics($tenantId, $startDate, $endDate);
-            
+
             // Get system response time metrics
             $responseMetrics = $this->getSystemResponseMetrics($tenantId, $startDate, $endDate);
-            
+
             // Get error rate metrics
             $errorMetrics = $this->getErrorRateMetrics($tenantId, $startDate, $endDate);
 
@@ -123,8 +122,8 @@ final readonly class EnhancedAuditReportingService
         ?Carbon $startDate = null,
         ?Carbon $endDate = null,
     ): AuditVisualizationData {
-        $cacheKey = "audit_visualization_{$tenantId}_" . 
-                   ($startDate?->format('Y-m-d') ?? 'all') . '_' . 
+        $cacheKey = "audit_visualization_{$tenantId}_".
+                   ($startDate?->format('Y-m-d') ?? 'all').'_'.
                    ($endDate?->format('Y-m-d') ?? 'all');
 
         return Cache::remember($cacheKey, 300, function () use ($tenantId, $startDate, $endDate) {
@@ -155,7 +154,7 @@ final readonly class EnhancedAuditReportingService
         $endDate ??= now();
 
         $report = $this->auditReporter->generateReport($tenantId, $startDate, $endDate);
-        
+
         return [
             'report_metadata' => [
                 'tenant_id' => $tenantId,
@@ -205,12 +204,12 @@ final readonly class EnhancedAuditReportingService
      */
     private function analyzeRollbackCapabilities(Collection $changes): array
     {
-        $rollbackable = $changes->filter(fn($change) => $this->canRollback($change));
-        
+        $rollbackable = $changes->filter(fn ($change) => $this->canRollback($change));
+
         return [
             'total_changes' => $changes->count(),
             'rollbackable_changes' => $rollbackable->count(),
-            'rollback_percentage' => $changes->count() > 0 ? 
+            'rollback_percentage' => $changes->count() > 0 ?
                 round(($rollbackable->count() / $changes->count()) * 100, 2) : 0,
             'recent_rollbacks' => $this->getRecentRollbacks($changes),
         ];
@@ -272,7 +271,7 @@ final readonly class EnhancedAuditReportingService
         }
 
         // Frequent rollbacks
-        $rollbacks = $changes->filter(fn($change) => $this->isRollbackChange($change));
+        $rollbacks = $changes->filter(fn ($change) => $this->isRollbackChange($change));
         if ($rollbacks->count() > 5) {
             $recommendations[] = [
                 'type' => 'rollbacks',
@@ -552,7 +551,7 @@ final readonly class EnhancedAuditReportingService
         }
 
         $criticalAnomalies = $report->getCriticalAnomalies();
-        if (!empty($criticalAnomalies)) {
+        if (! empty($criticalAnomalies)) {
             $actionItems[] = [
                 'priority' => 'critical',
                 'category' => 'anomalies',
@@ -569,7 +568,7 @@ final readonly class EnhancedAuditReportingService
      */
     private function formatFieldChanges(?array $oldValues, ?array $newValues): array
     {
-        if (!$oldValues || !$newValues) {
+        if (! $oldValues || ! $newValues) {
             return [];
         }
 
@@ -596,7 +595,7 @@ final readonly class EnhancedAuditReportingService
 
         $criticalFields = ['pricing_model', 'rate_schedule', 'configuration'];
         $changedFields = array_keys($change->new_values ?? []);
-        
+
         if (array_intersect($criticalFields, $changedFields)) {
             return 'high';
         }
@@ -626,12 +625,12 @@ final readonly class EnhancedAuditReportingService
     {
         $trends = [];
         $current = $startDate->copy();
-        
+
         while ($current <= $endDate) {
             $trends[$current->format('Y-m-d')] = rand($min, $max);
             $current->addDay();
         }
-        
+
         return $trends;
     }
 }

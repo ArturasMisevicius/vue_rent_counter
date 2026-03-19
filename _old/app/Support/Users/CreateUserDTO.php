@@ -9,11 +9,9 @@ use Illuminate\Http\Request;
 
 /**
  * Create User DTO
- * 
+ *
  * Data transfer object for user creation.
  * Provides type safety and validation for user data.
- * 
- * @package App\Support\Users
  */
 final readonly class CreateUserDTO
 {
@@ -31,9 +29,6 @@ final readonly class CreateUserDTO
 
     /**
      * Create DTO from HTTP request.
-     *
-     * @param Request $request
-     * @return self
      */
     public static function fromRequest(Request $request): self
     {
@@ -52,9 +47,6 @@ final readonly class CreateUserDTO
 
     /**
      * Create DTO from array.
-     *
-     * @param array $data
-     * @return self
      */
     public static function fromArray(array $data): self
     {
@@ -73,8 +65,6 @@ final readonly class CreateUserDTO
 
     /**
      * Convert to array for model creation.
-     *
-     * @return array
      */
     public function toArray(): array
     {

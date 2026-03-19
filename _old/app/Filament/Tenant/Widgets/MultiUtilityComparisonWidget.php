@@ -38,8 +38,8 @@ final class MultiUtilityComparisonWidget extends ChartWidget
     protected function getData(): array
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->currentTeam) {
+
+        if (! $user || ! $user->currentTeam) {
             return [
                 'datasets' => [],
                 'labels' => [],
@@ -47,7 +47,7 @@ final class MultiUtilityComparisonWidget extends ChartWidget
         }
 
         $cacheKey = "utility_comparison_{$user->currentTeam->id}_{$this->filter}";
-        
+
         return Cache::remember($cacheKey, 300, function () use ($user) {
             $period = $this->getPeriod();
             $properties = $user->currentTeam->properties()
@@ -55,7 +55,7 @@ final class MultiUtilityComparisonWidget extends ChartWidget
                     'meters.serviceConfiguration.utilityService',
                     'meters.readings' => function ($query) use ($period) {
                         $query->whereBetween('created_at', $period);
-                    }
+                    },
                 ])
                 ->get();
 
@@ -63,7 +63,7 @@ final class MultiUtilityComparisonWidget extends ChartWidget
             $serviceCosts = [];
             $serviceColors = [];
 
-            $utilityServices = $properties->flatMap(fn($p) => $p->meters)
+            $utilityServices = $properties->flatMap(fn ($p) => $p->meters)
                 ->pluck('serviceConfiguration.utilityService')
                 ->unique('id')
                 ->keyBy('id');
@@ -71,8 +71,8 @@ final class MultiUtilityComparisonWidget extends ChartWidget
             foreach ($utilityServices as $service) {
                 $totalCost = 0;
 
-                $serviceMeters = $properties->flatMap(fn($p) => $p->meters)
-                    ->filter(fn($m) => $m->serviceConfiguration->utilityService->id === $service->id);
+                $serviceMeters = $properties->flatMap(fn ($p) => $p->meters)
+                    ->filter(fn ($m) => $m->serviceConfiguration->utilityService->id === $service->id);
 
                 foreach ($serviceMeters as $meter) {
                     $serviceConfig = $meter->serviceConfiguration;
@@ -86,7 +86,7 @@ final class MultiUtilityComparisonWidget extends ChartWidget
                                 Carbon::parse($period[0]),
                                 Carbon::parse($period[1])
                             );
-                            
+
                             $totalCost += $cost;
                         } catch (\Exception $e) {
                             logger()->warning('Utility comparison cost calculation failed', [

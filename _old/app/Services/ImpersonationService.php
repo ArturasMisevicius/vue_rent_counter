@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\OrganizationActivityLog;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
@@ -11,14 +12,14 @@ class ImpersonationService
 {
     /**
      * Start impersonating a user.
-     * 
+     *
      * Requirements: 11.1, 11.2, 11.3, 11.4
      */
     public function startImpersonation(User $targetUser, ?string $reason = null): void
     {
         $superadmin = Auth::user();
 
-        if (!$superadmin || !$superadmin->isSuperadmin()) {
+        if (! $superadmin || ! $superadmin->isSuperadmin()) {
             throw new \RuntimeException('Only superadmins can impersonate users');
         }
 
@@ -59,21 +60,21 @@ class ImpersonationService
 
     /**
      * End impersonation and restore superadmin session.
-     * 
+     *
      * Requirements: 11.4
      */
     public function endImpersonation(): void
     {
         $impersonationData = Session::get('impersonation');
 
-        if (!$impersonationData) {
+        if (! $impersonationData) {
             throw new \RuntimeException('No active impersonation session');
         }
 
         $currentUser = Auth::user();
         $superadminId = $impersonationData['superadmin_id'];
         $targetUser = User::find($impersonationData['target_user_id']);
-        $startedAt = \Carbon\Carbon::parse($impersonationData['started_at']);
+        $startedAt = Carbon::parse($impersonationData['started_at']);
         $duration = now()->diffInSeconds($startedAt, true);
 
         // Log the impersonation end
@@ -126,18 +127,18 @@ class ImpersonationService
 
     /**
      * Check if impersonation has timed out (30 minutes).
-     * 
+     *
      * Requirements: 11.4
      */
     public function hasTimedOut(): bool
     {
         $impersonationData = Session::get('impersonation');
 
-        if (!$impersonationData) {
+        if (! $impersonationData) {
             return false;
         }
 
-        $startedAt = \Carbon\Carbon::parse($impersonationData['started_at']);
+        $startedAt = Carbon::parse($impersonationData['started_at']);
         $timeoutMinutes = 30;
 
         return now()->diffInMinutes($startedAt, true) >= $timeoutMinutes;
@@ -150,7 +151,7 @@ class ImpersonationService
     {
         $impersonationData = Session::get('impersonation');
 
-        if (!$impersonationData) {
+        if (! $impersonationData) {
             return null;
         }
 
@@ -164,7 +165,7 @@ class ImpersonationService
     {
         $impersonationData = Session::get('impersonation');
 
-        if (!$impersonationData) {
+        if (! $impersonationData) {
             return null;
         }
 
