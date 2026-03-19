@@ -73,6 +73,7 @@ Recent decisions affecting current work:
 - 2026-03-19: verify the public debug surface lockdown by confirming only `public/index.php` remains, `/test-debug` stays absent, translation artifact files are gone, and the existing security regression coverage still passes.
 - Phase 03: canonicalize entry paths, navigation, and workspace-aware read builders now that Phase 02 boundary contracts are in place.
 - 2026-03-19: finalize the unified `/app` Filament panel by removing panel-level subscription enforcement, routing all roles through the shared dashboard entrypoint, and keeping the unified panel tests aligned with the live implementation.
+- 2026-03-19: finish the shared design-system migration by adding the missing tenant bottom navigation component, wiring it into the tenant-facing Filament pages, and verifying the shared component namespaces remain clean.
 
 ### Blockers/Concerns
 
