@@ -171,6 +171,10 @@ final class FormRequestScenarioFactory
                         'field' => 'email',
                         'input' => self::withField($valid, 'email', $context['duplicateUser']->email),
                     ],
+                    'email disposable' => static fn (array $valid, array $context): array => [
+                        'field' => 'email',
+                        'input' => self::withField($valid, 'email', 'new-owner@10minutemail.com'),
+                    ],
                 ],
             ],
             'ResetPasswordRequest' => [
@@ -216,6 +220,10 @@ final class FormRequestScenarioFactory
                         'field' => 'email',
                         'input' => self::withField($valid, 'email', $context['duplicateUser']->email),
                     ],
+                    'email disposable' => static fn (array $valid, array $context): array => [
+                        'field' => 'email',
+                        'input' => self::withField($valid, 'email', 'profile-owner@10minutemail.com'),
+                    ],
                 ],
             ],
             'SearchQueryRequest' => [
@@ -256,6 +264,12 @@ final class FormRequestScenarioFactory
                 ],
                 'required' => ['name', 'owner_email', 'owner_name', 'plan', 'duration'],
                 'authorize' => self::superadminOnly(),
+                'invalid' => [
+                    'owner email disposable' => static fn (array $valid, array $context): array => [
+                        'field' => 'owner_email',
+                        'input' => self::withField($valid, 'owner_email', 'owner@10minutemail.com'),
+                    ],
+                ],
             ],
             'UpdateOrganizationRequest' => [
                 'request' => static fn (array $context): FormRequest => new UpdateOrganizationRequest,
@@ -267,6 +281,12 @@ final class FormRequestScenarioFactory
                 ],
                 'required' => ['name'],
                 'authorize' => self::superadminOnly(),
+                'invalid' => [
+                    'owner email disposable' => static fn (array $valid, array $context): array => [
+                        'field' => 'owner_email',
+                        'input' => self::withField($valid, 'owner_email', 'updated-owner@10minutemail.com'),
+                    ],
+                ],
             ],
             'ImpersonateUserRequest' => [
                 'request' => static fn (array $context): FormRequest => new ImpersonateUserRequest,
@@ -546,6 +566,10 @@ final class FormRequestScenarioFactory
                         'field' => 'email',
                         'input' => self::withField($valid, 'email', $context['duplicateUser']->email),
                     ],
+                    'email disposable' => static fn (array $valid, array $context): array => [
+                        'field' => 'email',
+                        'input' => self::withField($valid, 'email', 'portal-tenant@10minutemail.com'),
+                    ],
                 ],
             ],
             'UpdateTenantRequest' => [
@@ -564,6 +588,10 @@ final class FormRequestScenarioFactory
                     'email unique' => static fn (array $valid, array $context): array => [
                         'field' => 'email',
                         'input' => self::withField($valid, 'email', $context['duplicateUser']->email),
+                    ],
+                    'email disposable' => static fn (array $valid, array $context): array => [
+                        'field' => 'email',
+                        'input' => self::withField($valid, 'email', 'tenant@10minutemail.com'),
                     ],
                 ],
             ],

@@ -1,11 +1,4 @@
 <?php return array (
-  'anourvalar/eloquent-serialize' => 
-  array (
-    'aliases' => 
-    array (
-      'EloquentSerialize' => 'AnourValar\\EloquentSerialize\\Facades\\EloquentSerializeFacade',
-    ),
-  ),
   'blade-ui-kit/blade-heroicons' => 
   array (
     'providers' => 
@@ -18,6 +11,17 @@
     'providers' => 
     array (
       0 => 'BladeUI\\Icons\\BladeIconsServiceProvider',
+    ),
+  ),
+  'erag/laravel-disposable-email' => 
+  array (
+    'aliases' => 
+    array (
+      'DisposableEmail' => 'EragLaravelDisposableEmail\\Facades\\DisposableEmail',
+    ),
+    'providers' => 
+    array (
+      0 => 'EragLaravelDisposableEmail\\LaravelDisposableEmailServiceProvider',
     ),
   ),
   'filament/actions' => 
@@ -155,17 +159,6 @@
     'providers' => 
     array (
       0 => 'Pest\\Laravel\\PestServiceProvider',
-    ),
-  ),
-  'ryangjchandler/blade-capture-directive' => 
-  array (
-    'aliases' => 
-    array (
-      'BladeCaptureDirective' => 'RyanChandler\\BladeCaptureDirective\\Facades\\BladeCaptureDirective',
-    ),
-    'providers' => 
-    array (
-      0 => 'RyanChandler\\BladeCaptureDirective\\BladeCaptureDirectiveServiceProvider',
     ),
   ),
 );

@@ -20,6 +20,15 @@ it('renders tenant pages inside the authenticated shell', function () {
         ->assertDontSeeText('Organizations');
 });
 
+it('does not register echo listeners when broadcasting is configured to log', function () {
+    $tenant = User::factory()->tenant()->create();
+
+    $this->actingAs($tenant)
+        ->get(route('filament.admin.pages.dashboard'))
+        ->assertSuccessful()
+        ->assertDontSee('echo-private:org.', false);
+});
+
 it('renders role-aware shared chrome around organization admin pages', function () {
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([

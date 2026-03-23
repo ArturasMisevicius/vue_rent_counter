@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Organization;
+use App\Models\Property;
+use App\Models\PropertyAssignment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
@@ -131,7 +134,13 @@ it('redirects users to the unified app entrypoint for their role context', funct
     ],
     'tenant' => [
         fn () => User::factory()->tenant()->create(),
-        'filament.admin.pages.dashboard',
+        'filament.admin.pages.tenant-dashboard',
+    ],
+    'tenant without organization' => [
+        fn () => User::factory()->tenant()->create([
+            'organization_id' => null,
+        ]),
+        'filament.admin.pages.tenant-dashboard',
     ],
 ]);
 
@@ -157,4 +166,94 @@ it('allows tenant users to enter the unified app panel', function () {
     $this->actingAs($tenant)
         ->get('/app')
         ->assertSuccessful();
+});
+
+it('allows tenant users without an organization assignment to access the unified app entrypoint', function () {
+    registerLoginDestinationFixtures();
+
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => null,
+    ]);
+
+    $this->actingAs($tenant)
+        ->get('/app')
+        ->assertSuccessful()
+        ->assertSeeText('Dashboard');
+});
+
+it('logs in tenant users without an organization assignment and redirects to tenant dashboard', function () {
+    registerLoginDestinationFixtures();
+
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => null,
+    ]);
+
+    $this->post(route('login.store'), [
+        'email' => $tenant->email,
+        'password' => 'password',
+    ])->assertRedirect(route('filament.admin.pages.tenant-dashboard'));
+
+    $this->assertAuthenticatedAs($tenant);
+});
+
+it('shows tenant dashboard interface after successful tenant login', function () {
+    registerLoginDestinationFixtures();
+
+    $tenant = User::factory()->tenant()->create();
+
+    $this->followingRedirects()
+        ->post(route('login.store'), [
+            'email' => $tenant->email,
+            'password' => 'password',
+        ])
+        ->assertSuccessful()
+        ->assertSeeText('Home')
+        ->assertSeeText('Readings')
+        ->assertSeeText('Invoices');
+});
+
+it('shows tenant empty dashboard state after login when tenant has no organization assignment', function () {
+    registerLoginDestinationFixtures();
+
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => null,
+    ]);
+
+    $this->followingRedirects()
+        ->post(route('login.store'), [
+            'email' => $tenant->email,
+            'password' => 'password',
+        ])
+        ->assertSuccessful()
+        ->assertSeeText('Home')
+        ->assertSeeText('No property assigned yet');
+});
+
+it('renders the tenant dashboard even when the latest assignment belongs to another organization', function () {
+    registerLoginDestinationFixtures();
+
+    $tenantOrganization = Organization::factory()->create();
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $tenantOrganization->id,
+    ]);
+
+    $foreignOrganization = Organization::factory()->create();
+    $foreignProperty = Property::factory()->create([
+        'organization_id' => $foreignOrganization->id,
+    ]);
+
+    PropertyAssignment::factory()
+        ->for($foreignOrganization)
+        ->for($foreignProperty)
+        ->for($tenant, 'tenant')
+        ->create([
+            'assigned_at' => now()->subMonth(),
+            'unassigned_at' => null,
+        ]);
+
+    $this->actingAs($tenant)
+        ->get('/app')
+        ->assertSuccessful()
+        ->assertSeeText('Dashboard')
+        ->assertSeeText('Tenant Summary');
 });

@@ -38,7 +38,7 @@ class StoreMeterReadingRequest extends FormRequest
         return [
             'meterId' => ['required', 'string', Rule::in($this->availableMeterIds)],
             'readingValue' => ['required', 'numeric', 'gt:0'],
-            'readingDate' => ['required', 'date'],
+            'readingDate' => ['required', 'date', 'before_or_equal:'.now()->toDateString()],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];
     }
@@ -56,6 +56,7 @@ class StoreMeterReadingRequest extends FormRequest
             'readingValue.gt' => ['gt.numeric', 'reading_value', ['value' => 0]],
             'readingDate.required' => ['required', 'reading_date'],
             'readingDate.date' => ['date', 'reading_date'],
+            'readingDate.before_or_equal' => ['before_or_equal', 'reading_date', ['date' => now()->toDateString()]],
             'notes.max' => ['max.string', 'notes', ['max' => 1000]],
         ]);
     }

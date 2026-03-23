@@ -14,6 +14,11 @@ class MeterConsumptionChart extends ChartWidget
 
     public int $meterId;
 
+    public function getHeading(): ?string
+    {
+        return __('admin.meters.sections.chart');
+    }
+
     protected function getData(): array
     {
         $meter = Meter::query()
@@ -95,4 +100,3 @@ class MeterConsumptionChart extends ChartWidget
         ];
     }
 }
-

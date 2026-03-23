@@ -2,6 +2,7 @@
 
 use App\Filament\Resources\AuditLogs\AuditLogResource;
 use App\Filament\Resources\Buildings\BuildingResource;
+use App\Filament\Resources\FrameworkShowcases\FrameworkShowcaseResource;
 use App\Filament\Resources\Invoices\InvoiceResource;
 use App\Filament\Resources\Languages\LanguageResource;
 use App\Filament\Resources\MeterReadings\MeterReadingResource;
@@ -29,6 +30,10 @@ it('keeps every Filament resource mapped to regression coverage and its expected
         BuildingResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Admin/BuildingsResourceTest.php',
+        ],
+        FrameworkShowcaseResource::class => [
+            'pages' => ['index', 'create', 'view', 'edit'],
+            'test' => 'tests/Feature/Filament/FrameworkStudioTest.php',
         ],
         InvoiceResource::class => [
             'pages' => ['index', 'view', 'edit'],

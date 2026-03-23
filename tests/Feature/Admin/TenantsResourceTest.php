@@ -115,11 +115,11 @@ it('shows organization-scoped tenant resource pages and assignment-aware tenant 
 
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.tenants.view', $otherTenant))
-        ->assertNotFound();
+        ->assertForbidden();
 
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.tenants.edit', $otherTenant))
-        ->assertNotFound();
+        ->assertForbidden();
 
     $this->actingAs($manager)
         ->get(route('filament.admin.resources.tenants.create'))
@@ -255,4 +255,31 @@ it('keeps the tenant create page reachable at the limit and prevents deleting te
     app(DeleteTenantAction::class)->handle($deletableTenant);
 
     expect(User::query()->whereKey($deletableTenant->id)->exists())->toBeFalse();
+});
+
+it('rejects creating tenants with disposable email domains', function () {
+    Notification::fake();
+
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    Subscription::factory()->for($organization)->active()->create([
+        'tenant_limit_snapshot' => 5,
+    ]);
+
+    expect(fn () => app(CreateTenantAction::class)->handle($admin, [
+        'name' => 'Disposable Tenant',
+        'email' => 'tenant@10minutemail.com',
+        'locale' => 'en',
+        'status' => UserStatus::INACTIVE,
+        'property_id' => null,
+        'unit_area_sqm' => null,
+    ]))->toThrow(ValidationException::class);
+
+    expect(User::query()->where('email', 'tenant@10minutemail.com')->exists())->toBeFalse()
+        ->and(OrganizationInvitation::query()->where('email', 'tenant@10minutemail.com')->exists())->toBeFalse();
+
+    Notification::assertNothingSent();
 });

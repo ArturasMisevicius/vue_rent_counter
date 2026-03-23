@@ -36,7 +36,7 @@
             }
         },
         resultItems() {
-            return Array.from(this.$el.querySelectorAll('[data-search-result=\"item\"]'));
+            return Array.from(this.$el.querySelectorAll('[data-search-result=item]'));
         },
     }"
     class="relative w-full max-w-xl"

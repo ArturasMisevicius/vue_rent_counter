@@ -71,7 +71,7 @@ class LoginPage extends Component
     {
         return view('auth.login', [
             'demoAccounts' => $this->demoAccounts,
-        ]);
+        ])->extends('layouts.guest');
     }
 
     /**

@@ -10,6 +10,7 @@ use App\Filament\Actions\Superadmin\Organizations\ReinstateOrganizationAction;
 use App\Filament\Actions\Superadmin\Organizations\SendOrganizationNotificationAction;
 use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
 use App\Filament\Actions\Superadmin\Organizations\SuspendOrganizationAction;
+use App\Filament\Actions\Superadmin\Organizations\UpdateOrganizationAction;
 use App\Models\Organization;
 use App\Models\PlatformNotification;
 use App\Models\PlatformNotificationDelivery;
@@ -81,6 +82,36 @@ it('creates platform invitations for new owner emails and blocks ownership theft
         'plan' => SubscriptionPlan::BASIC,
         'duration' => SubscriptionDuration::MONTHLY,
     ]))->toThrow(ValidationException::class);
+});
+
+it('rejects disposable owner emails when creating organizations', function () {
+    $superadmin = User::factory()->superadmin()->create();
+
+    expect(fn () => app(CreateOrganizationAction::class)->handle($superadmin, [
+        'name' => 'Disposable Harbor',
+        'owner_email' => 'owner@10minutemail.com',
+        'owner_name' => 'Disposable Owner',
+        'plan' => SubscriptionPlan::BASIC,
+        'duration' => SubscriptionDuration::MONTHLY,
+    ]))->toThrow(ValidationException::class);
+
+    expect(Organization::query()->count())->toBe(0)
+        ->and(PlatformOrganizationInvitation::query()->count())->toBe(0);
+});
+
+it('rejects disposable owner emails when updating organizations', function () {
+    $organization = Organization::factory()->create([
+        'name' => 'Northwind Towers',
+    ]);
+
+    expect(fn () => app(UpdateOrganizationAction::class)->handle($organization, [
+        'name' => 'Northwind Towers Updated',
+        'owner_email' => 'updated-owner@10minutemail.com',
+        'owner_name' => 'Disposable Owner',
+        'plan' => SubscriptionPlan::PROFESSIONAL,
+    ]))->toThrow(ValidationException::class);
+
+    expect($organization->fresh()?->name)->toBe('Northwind Towers');
 });
 
 it('suspends reinstates notifies impersonates and exports organizations', function () {

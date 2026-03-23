@@ -41,6 +41,7 @@ final class BuildingSearchProvider implements GlobalSearchProvider
             ->when(
                 ! $user->isSuperadmin(),
                 fn (Builder $builder): Builder => $builder->forOrganization((int) $user->organization_id),
+                fn (Builder $builder): Builder => $builder,
             )
             ->with([
                 'organization:id,name',

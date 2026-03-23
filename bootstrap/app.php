@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\SyncTranslationsCommand;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\BlockBlockedIpAddresses;
 use App\Http\Middleware\EnsureAccountIsAccessible;
@@ -19,6 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
+    ->withCommands([
+        SyncTranslationsCommand::class,
+    ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(prepend: [
             BlockBlockedIpAddresses::class,

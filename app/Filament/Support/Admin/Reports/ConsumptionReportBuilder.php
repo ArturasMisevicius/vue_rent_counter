@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Filament\Support\Admin\Reports;
 
+use App\Enums\MeterReadingValidationStatus;
 use App\Enums\MeterType;
-use App\Models\Meter;
+use App\Models\MeterReading;
 use App\Models\PropertyAssignment;
+use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 final class ConsumptionReportBuilder extends AbstractReportBuilder
@@ -25,183 +28,153 @@ final class ConsumptionReportBuilder extends AbstractReportBuilder
      */
     public function build(int $organizationId, CarbonInterface $startDate, CarbonInterface $endDate, array $filters): array
     {
-        $assignments = PropertyAssignment::query()
+        $comparables = MeterReadingValidationStatus::comparableValues();
+        $tenantFilter = filled($filters['tenant_id'] ?? null)
+            ? (int) $filters['tenant_id']
+            : null;
+
+        $readings = MeterReading::query()
             ->select([
                 'id',
                 'organization_id',
                 'property_id',
-                'tenant_user_id',
-                'assigned_at',
-                'unassigned_at',
-            ])
-            ->with([
-                'tenant:id,organization_id,name,email',
-                'property:id,organization_id,building_id,name,unit_number',
-                'property.building:id,organization_id,name',
-                'property.meters' => fn ($query) => $query
-                    ->select([
-                        'id',
-                        'organization_id',
-                        'property_id',
-                        'name',
-                        'type',
-                        'unit',
-                    ])
-                    ->when(
-                        filled($filters['meter_type'] ?? null),
-                        fn ($query) => $query->where('type', $filters['meter_type']),
-                    )
-                    ->with([
-                        'readings' => fn ($query) => $query
-                            ->select([
-                                'id',
-                                'organization_id',
-                                'property_id',
-                                'meter_id',
-                                'reading_value',
-                                'reading_date',
-                                'validation_status',
-                            ])
-                            ->forOrganization($organizationId)
-                            ->betweenDates($startDate, $endDate)
-                            ->comparable()
-                            ->orderBy('reading_date')
-                            ->orderBy('id'),
-                    ]),
+                'meter_id',
+                'reading_value',
+                'reading_date',
+                'validation_status',
             ])
             ->forOrganization($organizationId)
-            ->activeDuring($startDate, $endDate)
+            ->betweenDates($startDate, $endDate)
+            ->whereIn('validation_status', $comparables)
+            ->with([
+                'meter:id,organization_id,property_id,type,unit',
+                'meter.property:id,organization_id,building_id,name,unit_number',
+                'meter.property.building:id,organization_id,name',
+            ])
+            ->when(
+                filled($filters['meter_type'] ?? null),
+                fn (Builder $query): Builder => $query->whereHas(
+                    'meter',
+                    fn (Builder $meterQuery): Builder => $meterQuery->where('type', (string) $filters['meter_type']),
+                ),
+            )
             ->when(
                 filled($filters['building_id'] ?? null),
-                fn ($query) => $query->whereHas(
-                    'property',
-                    fn ($query) => $query->where('building_id', $filters['building_id']),
+                fn (Builder $query): Builder => $query->whereHas(
+                    'meter.property',
+                    fn (Builder $propertyQuery): Builder => $propertyQuery->where('building_id', (int) $filters['building_id']),
                 ),
             )
             ->when(
                 filled($filters['property_id'] ?? null),
-                fn ($query) => $query->forProperty($filters['property_id']),
+                fn (Builder $query): Builder => $query->where('property_id', (int) $filters['property_id']),
             )
-            ->when(
-                filled($filters['tenant_id'] ?? null),
-                fn ($query) => $query->forTenant($filters['tenant_id']),
-            )
-            ->get()
-            ->values();
+            ->orderBy('reading_date')
+            ->orderBy('id')
+            ->get();
 
-        /** @var array<string, array<string, mixed>> $aggregated */
-        $aggregated = [];
+        $assignmentMap = $this->assignmentMap($organizationId, $readings, $startDate, $endDate, $tenantFilter);
+        $groupedRows = [];
 
-        $assignments->each(function (PropertyAssignment $assignment) use (&$aggregated): void {
-            $property = $assignment->property;
-            $tenant = $assignment->tenant;
+        foreach ($readings as $reading) {
+            $meter = $reading->meter;
 
-            if ($property === null || $tenant === null) {
-                return;
+            if ($meter === null || $reading->property_id === null) {
+                continue;
             }
 
-            $property->meters
-                ->groupBy(fn (Meter $meter): string => $meter->type?->value ?? MeterType::WATER->value)
-                ->each(function (Collection $meters, string $typeValue) use (&$aggregated, $property, $tenant): void {
-                    $firstReading = null;
-                    $lastReading = null;
-                    $consumption = 0.0;
-                    $readingCount = 0;
-                    $unit = null;
+            $assignments = $assignmentMap->get($reading->property_id, collect());
+            $assignment = $this->resolveTenantAssignment($assignments, $reading->reading_date);
+            $tenant = $assignment?->tenant;
 
-                    $meters->each(function (Meter $meter) use (&$consumption, &$firstReading, &$lastReading, &$readingCount, &$unit): void {
-                        $readings = $meter->readings
-                            ->sortBy('reading_date')
-                            ->values();
+            if ($assignment === null || $tenant === null) {
+                continue;
+            }
 
-                        if ($readings->isEmpty()) {
-                            return;
-                        }
+            if ($tenantFilter !== null && (int) $assignment->tenant_user_id !== $tenantFilter) {
+                continue;
+            }
 
-                        $first = $readings->first();
-                        $last = $readings->last();
+            $meterType = $meter->type;
+            $meterTypeValue = $meterType instanceof MeterType
+                ? $meterType->value
+                : (string) $meterType;
+            $groupKey = $assignment->tenant_user_id.'|'.$meterTypeValue;
 
-                        if ($first === null || $last === null) {
-                            return;
-                        }
+            if (! array_key_exists($groupKey, $groupedRows)) {
+                $groupedRows[$groupKey] = [
+                    'tenant_id' => (int) $assignment->tenant_user_id,
+                    'tenant' => (string) $tenant->name,
+                    'tenant_email' => (string) $tenant->email,
+                    'meter_type' => (string) $meterTypeValue,
+                    'unit' => (string) ($meter->unit ?? ''),
+                    'building_names' => [],
+                    'property_names' => [],
+                    'raw_reading_count' => 0,
+                    'first_reading' => null,
+                    'last_reading' => null,
+                    'first_sort_key' => null,
+                    'last_sort_key' => null,
+                ];
+            }
 
-                        $firstValue = (float) $first->reading_value;
-                        $lastValue = (float) $last->reading_value;
+            $group = $groupedRows[$groupKey];
+            $sortKey = $this->readingSortKey($reading->reading_date, (int) $reading->id);
+            $readingValue = (float) $reading->reading_value;
+            $propertyName = (string) ($meter->property?->name ?? '');
+            $buildingName = (string) ($meter->property?->building?->name ?? '');
 
-                        $consumption += max($lastValue - $firstValue, 0.0);
-                        $readingCount += $readings->count();
-                        $unit ??= $meter->unit;
-                        $firstReading = $firstReading === null ? $firstValue : min($firstReading, $firstValue);
-                        $lastReading = $lastReading === null ? $lastValue : max($lastReading, $lastValue);
-                    });
+            $group['raw_reading_count']++;
 
-                    if ($readingCount === 0) {
-                        return;
-                    }
+            if ($propertyName !== '') {
+                $group['property_names'][$propertyName] = $propertyName;
+            }
 
-                    $key = $tenant->id.'|'.$typeValue;
-                    $propertyLabel = $this->propertyLabel($property);
-                    $buildingName = (string) ($property->building?->name ?? __('dashboard.not_available'));
+            if ($buildingName !== '') {
+                $group['building_names'][$buildingName] = $buildingName;
+            }
 
-                    if (! array_key_exists($key, $aggregated)) {
-                        $aggregated[$key] = [
-                            'tenant_id' => $tenant->id,
-                            'tenant' => $tenant->name,
-                            'tenant_email' => $tenant->email,
-                            'building_labels' => [$buildingName],
-                            'property_labels' => [$propertyLabel],
-                            'type' => MeterType::tryFrom($typeValue)?->label() ?? $typeValue,
-                            'raw_first_reading' => $firstReading,
-                            'raw_last_reading' => $lastReading,
-                            'raw_consumption' => $consumption,
-                            'unit' => $unit ?? __('dashboard.not_available'),
-                            'reading_count' => $readingCount,
-                        ];
+            if ($group['first_sort_key'] === null || $sortKey < $group['first_sort_key']) {
+                $group['first_sort_key'] = $sortKey;
+                $group['first_reading'] = $readingValue;
+            }
 
-                        return;
-                    }
+            if ($group['last_sort_key'] === null || $sortKey > $group['last_sort_key']) {
+                $group['last_sort_key'] = $sortKey;
+                $group['last_reading'] = $readingValue;
+            }
 
-                    $aggregated[$key]['building_labels'] = array_values(array_unique([
-                        ...$aggregated[$key]['building_labels'],
-                        $buildingName,
-                    ]));
-                    $aggregated[$key]['property_labels'] = array_values(array_unique([
-                        ...$aggregated[$key]['property_labels'],
-                        $propertyLabel,
-                    ]));
-                    $aggregated[$key]['raw_first_reading'] = min(
-                        (float) $aggregated[$key]['raw_first_reading'],
-                        (float) $firstReading,
-                    );
-                    $aggregated[$key]['raw_last_reading'] = max(
-                        (float) $aggregated[$key]['raw_last_reading'],
-                        (float) $lastReading,
-                    );
-                    $aggregated[$key]['raw_consumption'] = (float) $aggregated[$key]['raw_consumption'] + $consumption;
-                    $aggregated[$key]['reading_count'] = (int) $aggregated[$key]['reading_count'] + $readingCount;
-                });
-        });
+            $groupedRows[$groupKey] = $group;
+        }
 
         /** @var Collection<int, array<string, mixed>> $rowData */
-        $rowData = collect($aggregated)
-            ->values()
+        $rowData = collect($groupedRows)
+            ->map(function (array $group): array {
+                $firstReading = (float) ($group['first_reading'] ?? 0.0);
+                $lastReading = (float) ($group['last_reading'] ?? 0.0);
+                $rawConsumption = max($lastReading - $firstReading, 0.0);
+                $type = MeterType::tryFrom((string) $group['meter_type']);
+                $buildings = implode(', ', array_values($group['building_names']));
+                $properties = implode(', ', array_values($group['property_names']));
+
+                return [
+                    'tenant_id' => (int) $group['tenant_id'],
+                    'tenant' => (string) $group['tenant'],
+                    'tenant_email' => (string) $group['tenant_email'],
+                    'building' => $buildings !== '' ? $buildings : __('dashboard.not_available'),
+                    'property' => $properties !== '' ? $properties : __('dashboard.not_available'),
+                    'type' => (string) ($type?->label() ?? $group['meter_type']),
+                    'first_reading' => $this->formatNumber($firstReading, 3),
+                    'last_reading' => $this->formatNumber($lastReading, 3),
+                    'consumption' => $this->formatNumber($rawConsumption, 3),
+                    'unit' => $group['unit'] !== '' ? (string) $group['unit'] : __('dashboard.not_available'),
+                    'reading_count' => (string) (int) $group['raw_reading_count'],
+                    'raw_consumption' => $rawConsumption,
+                ];
+            })
             ->sortBy([
-                fn (array $row): string => (string) $row['tenant'],
-                fn (array $row): string => (string) $row['type'],
-            ])
-            ->map(fn (array $row): array => [
-                'tenant_id' => $row['tenant_id'],
-                'tenant' => $row['tenant'],
-                'tenant_email' => $row['tenant_email'],
-                'building' => implode(', ', $row['building_labels']),
-                'property' => implode(', ', $row['property_labels']),
-                'type' => $row['type'],
-                'first_reading' => $this->formatNumber((float) $row['raw_first_reading'], 3),
-                'last_reading' => $this->formatNumber((float) $row['raw_last_reading'], 3),
-                'consumption' => $this->formatNumber((float) $row['raw_consumption'], 3),
-                'unit' => $row['unit'],
-                'reading_count' => (string) $row['reading_count'],
-                'raw_consumption' => $row['raw_consumption'],
+                ['tenant', 'asc'],
+                ['type', 'asc'],
             ])
             ->values();
 
@@ -236,5 +209,94 @@ final class ConsumptionReportBuilder extends AbstractReportBuilder
             'rows' => $rowData->all(),
             'empty_state' => __('admin.reports.empty.consumption'),
         ];
+    }
+
+    /**
+     * @param  Collection<int, MeterReading>  $readings
+     * @return Collection<int, Collection<int, PropertyAssignment>>
+     */
+    private function assignmentMap(
+        int $organizationId,
+        Collection $readings,
+        CarbonInterface $startDate,
+        CarbonInterface $endDate,
+        ?int $tenantFilter = null,
+    ): Collection {
+        $propertyIds = $readings
+            ->pluck('property_id')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($propertyIds === []) {
+            return collect();
+        }
+
+        /** @var Collection<int, PropertyAssignment> $assignments */
+        $assignments = PropertyAssignment::query()
+            ->select([
+                'id',
+                'organization_id',
+                'property_id',
+                'tenant_user_id',
+                'assigned_at',
+                'unassigned_at',
+            ])
+            ->forOrganization($organizationId)
+            ->whereIn('property_id', $propertyIds)
+            ->where('assigned_at', '<=', $endDate->copy()->endOfDay())
+            ->when(
+                $tenantFilter !== null,
+                fn (Builder $query): Builder => $query->where('tenant_user_id', $tenantFilter),
+            )
+            ->where(function (Builder $query) use ($startDate): void {
+                $query
+                    ->whereNull('unassigned_at')
+                    ->orWhere('unassigned_at', '>=', $startDate->copy()->startOfDay());
+            })
+            ->with([
+                'tenant:id,organization_id,name,email',
+            ])
+            ->orderBy('property_id')
+            ->orderByDesc('assigned_at')
+            ->orderByDesc('id')
+            ->get();
+
+        return $assignments->groupBy('property_id');
+    }
+
+    /**
+     * @param  Collection<int, PropertyAssignment>  $assignments
+     */
+    private function resolveTenantAssignment(Collection $assignments, CarbonInterface|string|null $readingDate): ?PropertyAssignment
+    {
+        if (! filled($readingDate)) {
+            return null;
+        }
+
+        $readingDay = $readingDate instanceof CarbonInterface
+            ? $readingDate->copy()->startOfDay()
+            : Carbon::parse((string) $readingDate)->startOfDay();
+
+        return $assignments->first(function (PropertyAssignment $assignment) use ($readingDay): bool {
+            $assignedAt = $assignment->assigned_at?->copy()->startOfDay();
+            $unassignedAt = $assignment->unassigned_at?->copy()->startOfDay();
+
+            if ($assignedAt !== null && $assignedAt->greaterThan($readingDay)) {
+                return false;
+            }
+
+            return $unassignedAt === null || $unassignedAt->greaterThanOrEqualTo($readingDay);
+        });
+    }
+
+    private function readingSortKey(CarbonInterface|string|null $readingDate, int $readingId): string
+    {
+        $dateKey = $readingDate instanceof CarbonInterface
+            ? $readingDate->toDateString()
+            : (filled($readingDate) ? Carbon::parse((string) $readingDate)->toDateString() : '0000-00-00');
+
+        return $dateKey.'|'.str_pad((string) $readingId, 10, '0', STR_PAD_LEFT);
     }
 }

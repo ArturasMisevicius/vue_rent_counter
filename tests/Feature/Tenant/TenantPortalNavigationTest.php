@@ -40,6 +40,17 @@ it('serves the tenant portal route set for authenticated tenants', function (str
     'filament.admin.pages.profile',
 ]);
 
+it('shows the tenant dashboard empty state when tenant has no organization assignment', function () {
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => null,
+    ]);
+
+    $this->actingAs($tenant)
+        ->get(route('filament.admin.pages.tenant-dashboard'))
+        ->assertSuccessful()
+        ->assertSeeText('No property assigned yet');
+});
+
 it('keeps the home navigation item active on the secondary property page', function () {
     $tenant = TenantPortalFactory::new()
         ->withAssignedProperty()

@@ -19,6 +19,7 @@ class ForgotPasswordPage extends Component
 
     public function render(): View
     {
-        return view('auth.forgot-password');
+        return view('auth.forgot-password')
+            ->extends('layouts.guest');
     }
 }

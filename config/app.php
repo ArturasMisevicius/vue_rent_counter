@@ -86,6 +86,7 @@ return [
         'en' => 'EN',
         'lt' => 'LT',
         'ru' => 'RU',
+        'es' => 'ES',
     ],
 
     'guest_locale_session_key' => 'guest_locale',

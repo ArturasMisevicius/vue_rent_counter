@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace App\Filament\Support\Admin\Reports;
 
 use App\Enums\MeterReadingValidationStatus;
+use App\Enums\MeterType;
 use App\Models\Meter;
+use App\Models\MeterReading;
+use App\Models\PropertyAssignment;
 use App\Models\SystemConfiguration;
 use App\Models\SystemSetting;
+use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 final class MeterComplianceReportBuilder extends AbstractReportBuilder
@@ -27,6 +32,10 @@ final class MeterComplianceReportBuilder extends AbstractReportBuilder
     public function build(int $organizationId, CarbonInterface $startDate, CarbonInterface $endDate, array $filters): array
     {
         $thresholdDays = $this->thresholdDays();
+        $statusFilter = (string) ($filters['status_filter'] ?? 'all');
+        $tenantFilter = filled($filters['tenant_id'] ?? null)
+            ? (int) $filters['tenant_id']
+            : null;
 
         $meters = Meter::query()
             ->select([
@@ -34,85 +43,76 @@ final class MeterComplianceReportBuilder extends AbstractReportBuilder
                 'organization_id',
                 'property_id',
                 'name',
-                'identifier',
                 'type',
-                'status',
-                'unit',
-                'installed_at',
             ])
+            ->forOrganization($organizationId)
             ->with([
                 'property:id,organization_id,building_id,name,unit_number',
                 'property.building:id,organization_id,name',
-                'property.currentAssignment:id,organization_id,property_id,tenant_user_id,assigned_at,unassigned_at',
-                'property.currentAssignment.tenant:id,organization_id,name,email',
-                'latestReading' => fn ($query) => $query
-                    ->select([
-                        'id',
-                        'organization_id',
-                        'property_id',
-                        'meter_id',
-                        'reading_value',
-                        'reading_date',
-                        'validation_status',
-                    ])
-                    ->forOrganization($organizationId)
-                    ->beforeOrOnDate($endDate)
-                    ->latestFirst(),
             ])
-            ->forOrganization($organizationId)
             ->when(
                 filled($filters['building_id'] ?? null),
-                fn ($query) => $query->whereHas(
+                fn (Builder $query): Builder => $query->whereHas(
                     'property',
-                    fn ($query) => $query->where('building_id', $filters['building_id']),
+                    fn (Builder $propertyQuery): Builder => $propertyQuery->where('building_id', (int) $filters['building_id']),
                 ),
             )
             ->when(
                 filled($filters['property_id'] ?? null),
-                fn ($query) => $query->forProperty($filters['property_id']),
+                fn (Builder $query): Builder => $query->where('property_id', (int) $filters['property_id']),
             )
             ->when(
                 filled($filters['meter_type'] ?? null),
-                fn ($query) => $query->where('type', $filters['meter_type']),
+                fn (Builder $query): Builder => $query->where('type', (string) $filters['meter_type']),
             )
-            ->orderBy('name')
-            ->orderBy('id')
+            ->ordered()
             ->get();
+
+        $latestReadingsByMeter = $this->latestReadingsByMeter($organizationId, $meters);
+        $currentAssignmentsByProperty = $this->currentAssignmentsByProperty($organizationId, $meters);
 
         /** @var Collection<int, array<string, mixed>> $rowData */
         $rowData = $meters
-            ->map(function (Meter $meter) use ($filters, $thresholdDays): ?array {
-                $assignment = $meter->property?->currentAssignment;
+            ->map(function (Meter $meter) use (
+                $latestReadingsByMeter,
+                $currentAssignmentsByProperty,
+                $tenantFilter,
+                $statusFilter,
+                $thresholdDays
+            ): ?array {
+                $latestReading = $latestReadingsByMeter->get($meter->id);
+                $assignment = $meter->property_id !== null
+                    ? $currentAssignmentsByProperty->get($meter->property_id)
+                    : null;
 
-                if (
-                    filled($filters['tenant_id'] ?? null)
-                    && (int) ($assignment?->tenant_user_id ?? 0) !== (int) $filters['tenant_id']
-                ) {
+                if ($tenantFilter !== null && (int) ($assignment?->tenant_user_id ?? 0) !== $tenantFilter) {
                     return null;
                 }
 
-                $latestReading = $meter->latestReading;
-                $daysSinceLastReading = $latestReading?->reading_date instanceof CarbonInterface
-                    ? $latestReading->reading_date->startOfDay()->diffInDays(now()->startOfDay())
-                    : null;
+                $daysSinceLastReading = $this->daysSinceLastReading($latestReading?->reading_date);
+                $complianceState = $this->complianceState(
+                    $latestReading?->validation_status,
+                    $daysSinceLastReading,
+                    $thresholdDays,
+                );
 
-                $complianceState = match (true) {
-                    $latestReading === null => 'missing',
-                    in_array($latestReading->validation_status, [
-                        MeterReadingValidationStatus::PENDING,
-                        MeterReadingValidationStatus::REJECTED,
-                    ], true) => 'needs_attention',
-                    $daysSinceLastReading !== null && $daysSinceLastReading > $thresholdDays => 'needs_attention',
-                    default => 'compliant',
-                };
+                if ($statusFilter !== 'all' && $statusFilter !== $complianceState) {
+                    return null;
+                }
+
+                $meterType = $meter->type;
+                $typeValue = $meterType instanceof MeterType
+                    ? $meterType->value
+                    : (string) $meterType;
+                $typeLabel = MeterType::tryFrom($typeValue)?->label() ?? $typeValue;
 
                 return [
-                    'meter_id' => $meter->id,
+                    'meter_id' => (int) $meter->id,
                     'compliance_state' => $complianceState,
-                    'meter' => $meter->name,
-                    'tenant' => (string) ($assignment?->tenant?->name ?? __('dashboard.not_available')),
+                    'meter' => (string) $meter->name,
+                    'tenant' => (string) ($assignment?->tenant?->name ?: __('dashboard.not_available')),
                     'property' => $this->propertyLabel($meter->property),
-                    'type' => $meter->type->label(),
+                    'type' => (string) $typeLabel,
                     'latest_reading' => $this->formatDate($latestReading?->reading_date),
                     'days_since_last_reading' => $daysSinceLastReading === null
                         ? __('dashboard.not_available')
@@ -122,10 +122,6 @@ final class MeterComplianceReportBuilder extends AbstractReportBuilder
                 ];
             })
             ->filter()
-            ->when(
-                filled($filters['status_filter'] ?? null) && $filters['status_filter'] !== 'all',
-                fn (Collection $rows): Collection => $rows->where('compliance_state', $filters['status_filter']),
-            )
             ->sortByDesc('raw_days_since_last_reading')
             ->values();
 
@@ -158,6 +154,127 @@ final class MeterComplianceReportBuilder extends AbstractReportBuilder
             'rows' => $rowData->all(),
             'empty_state' => __('admin.reports.empty.meter_compliance'),
         ];
+    }
+
+    /**
+     * @param  Collection<int, Meter>  $meters
+     * @return Collection<int, MeterReading>
+     */
+    private function latestReadingsByMeter(int $organizationId, Collection $meters): Collection
+    {
+        $meterIds = $meters->pluck('id')->filter()->values()->all();
+
+        if ($meterIds === []) {
+            return collect();
+        }
+
+        /** @var Collection<int, MeterReading> $readings */
+        $readings = MeterReading::query()
+            ->select([
+                'id',
+                'organization_id',
+                'meter_id',
+                'reading_value',
+                'reading_date',
+                'validation_status',
+            ])
+            ->forOrganization($organizationId)
+            ->whereIn('meter_id', $meterIds)
+            ->orderBy('meter_id')
+            ->orderByDesc('reading_date')
+            ->orderByDesc('id')
+            ->get();
+
+        return $readings
+            ->groupBy('meter_id')
+            ->map(fn (Collection $meterReadings): MeterReading => $meterReadings->first())
+            ->values()
+            ->keyBy('meter_id');
+    }
+
+    /**
+     * @param  Collection<int, Meter>  $meters
+     * @return Collection<int, PropertyAssignment>
+     */
+    private function currentAssignmentsByProperty(int $organizationId, Collection $meters): Collection
+    {
+        $propertyIds = $meters->pluck('property_id')->filter()->unique()->values()->all();
+
+        if ($propertyIds === []) {
+            return collect();
+        }
+
+        /** @var Collection<int, PropertyAssignment> $assignments */
+        $assignments = PropertyAssignment::query()
+            ->select([
+                'id',
+                'organization_id',
+                'property_id',
+                'tenant_user_id',
+                'assigned_at',
+                'unassigned_at',
+            ])
+            ->forOrganization($organizationId)
+            ->whereIn('property_id', $propertyIds)
+            ->current()
+            ->with([
+                'tenant:id,organization_id,name,email',
+            ])
+            ->orderBy('property_id')
+            ->orderByDesc('assigned_at')
+            ->orderByDesc('id')
+            ->get();
+
+        return $assignments
+            ->groupBy('property_id')
+            ->map(fn (Collection $propertyAssignments): PropertyAssignment => $propertyAssignments->first())
+            ->values()
+            ->keyBy('property_id');
+    }
+
+    private function daysSinceLastReading(CarbonInterface|string|null $readingDate): ?int
+    {
+        if (! filled($readingDate)) {
+            return null;
+        }
+
+        $readingDay = $readingDate instanceof CarbonInterface
+            ? $readingDate->copy()->startOfDay()
+            : Carbon::parse((string) $readingDate)->startOfDay();
+        $today = now()->startOfDay();
+
+        if ($readingDay->greaterThan($today)) {
+            return 0;
+        }
+
+        return $readingDay->diffInDays($today);
+    }
+
+    private function complianceState(
+        MeterReadingValidationStatus|string|null $validationStatus,
+        ?int $daysSinceLastReading,
+        int $thresholdDays,
+    ): string {
+        if ($validationStatus === null || $validationStatus === '') {
+            return 'missing';
+        }
+
+        $statusValue = $validationStatus instanceof MeterReadingValidationStatus
+            ? $validationStatus->value
+            : (string) $validationStatus;
+
+        if (in_array($statusValue, [
+            MeterReadingValidationStatus::PENDING->value,
+            MeterReadingValidationStatus::REJECTED->value,
+        ], true)) {
+            return 'needs_attention';
+        }
+
+        if (($daysSinceLastReading ?? 0) > $thresholdDays) {
+            return 'needs_attention';
+        }
+
+        return 'compliant';
     }
 
     private function thresholdDays(): int

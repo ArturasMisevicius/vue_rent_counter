@@ -187,6 +187,11 @@ return [
         'enterprise' => 'Корпоративный',
         'custom' => 'Индивидуальный',
     ],
+    'tenant_status' => [
+        'active' => 'Активен',
+        'inactive' => 'Неактивен',
+        'suspended' => 'Приостановлен',
+    ],
     'subscription_status' => [
         'trialing' => 'Пробный',
         'active' => 'Активна',

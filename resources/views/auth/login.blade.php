@@ -1,8 +1,4 @@
-@extends('layouts.guest')
-
 @section('title', __('auth.login_title'))
-
-@section('content')
     @php($loginError = $errors->first('email'))
 
     <div class="space-y-8">
@@ -136,4 +132,3 @@
             </section>
         @endif
     </div>
-@endsection

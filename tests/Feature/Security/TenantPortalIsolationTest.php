@@ -9,6 +9,7 @@ use App\Models\Meter;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\Support\TenantPortalFactory;
 
@@ -94,6 +95,16 @@ it('keeps the filament tenant portal and its actions isolated per tenant account
         ->set('readingDate', now()->toDateString())
         ->call('submit')
         ->assertHasErrors(['meterId']);
+
+    Storage::fake(config('filesystems.default', 'local'));
+    $foreignInvoice->forceFill(['document_path' => 'tenant-invoices/forbidden-invoice.pdf']);
+    $foreignInvoice->save();
+
+    Storage::disk(config('filesystems.default', 'local'))->put('tenant-invoices/forbidden-invoice.pdf', 'pdf-content');
+
+    $this->actingAs($tenantA->user)
+        ->get(route('tenant.invoices.download', $foreignInvoice))
+        ->assertForbidden();
 });
 
 it('forbids non-tenant accounts from opening tenant portal filament pages', function () {

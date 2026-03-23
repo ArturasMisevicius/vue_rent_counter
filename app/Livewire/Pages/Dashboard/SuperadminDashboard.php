@@ -1,18 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Pages\Dashboard;
 
 use App\Filament\Support\Superadmin\Dashboard\PlatformDashboardData;
+use App\Livewire\Concerns\ListensForDashboardRefreshes;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
-class SuperadminDashboard extends Component
+final class SuperadminDashboard extends Component
 {
-    public function mount(): void
+    use ListensForDashboardRefreshes;
+
+    /**
+     * @var array<string, mixed>
+     */
+    #[Locked]
+    public array $dashboardData = [];
+
+    public function mount(array $dashboardData = []): void
     {
         abort_unless($this->user()->isSuperadmin(), 403);
+        $this->dashboardData = $dashboardData['data'] ?? $dashboardData;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getListeners(): array
+    {
+        return $this->dashboardRefreshListeners();
     }
 
     public function render(): View
@@ -28,9 +49,11 @@ class SuperadminDashboard extends Component
     #[Computed]
     public function dashboard(): array
     {
+        $data = $this->dashboardData ?: app(PlatformDashboardData::class)->for($this->user());
+
         return array_replace_recursive(
             $this->defaultDashboard(),
-            app(PlatformDashboardData::class)->for($this->user()),
+            $data,
         );
     }
 

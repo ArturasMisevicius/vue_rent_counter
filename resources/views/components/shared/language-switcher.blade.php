@@ -15,11 +15,11 @@
                 name="locale"
                 value="{{ $locale }}"
                 aria-current="{{ $isActive ? 'true' : 'false' }}"
-                class="@class([
+                @class([
                     'rounded-full px-3 py-1.5 text-[0.72rem] font-semibold uppercase tracking-[0.22em] transition',
                     'bg-white text-brand-ink shadow-sm' => $isActive,
                     'text-white/72 hover:bg-white/12 hover:text-white' => ! $isActive,
-                ])"
+                ])
             >
                 {{ $label }}
             </button>

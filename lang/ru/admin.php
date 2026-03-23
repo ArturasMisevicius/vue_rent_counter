@@ -427,6 +427,7 @@ return [
             'email_sent' => 'Отправка счета по email успешно зафиксирована.',
             'email_subject' => 'Счет :number',
             'reminder_sent' => 'Письмо-напоминание успешно отправлено.',
+            'send_email_confirmation' => 'Confirm sending this invoice to :email before continuing.',
         ],
         'pdf' => [
             'title' => 'Счет :number',

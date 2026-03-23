@@ -171,7 +171,6 @@ function platformUrls(
 ): array {
     return [
         route('filament.admin.pages.platform-dashboard'),
-        route('filament.admin.pages.dashboard'),
         route('filament.admin.resources.organizations.index'),
         route('filament.admin.resources.organizations.create'),
         route('filament.admin.resources.organizations.view', $organization),

@@ -42,6 +42,7 @@ final class PropertySearchProvider implements GlobalSearchProvider
             ->when(
                 ! $user->isSuperadmin(),
                 fn (Builder $builder): Builder => $builder->forOrganization((int) $user->organization_id),
+                fn (Builder $builder): Builder => $builder,
             )
             ->with([
                 'building:id,organization_id,name,address_line_1,city',

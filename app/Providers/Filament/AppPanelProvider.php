@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Support\Workspace\WorkspaceContext;
 use App\Filament\Support\Workspace\WorkspaceResolver;
 use App\Http\Middleware\AuthenticateAdminPanel;
+use App\Http\Middleware\CheckSubscriptionStatus;
 use App\Http\Middleware\EnsureAccountIsAccessible;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
 use App\Http\Middleware\SecurityHeaders;
@@ -27,7 +28,7 @@ use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
@@ -41,10 +42,15 @@ class AppPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('app')
+            ->favicon('/favicon')
             ->login(fn () => redirect()->route('login'))
+            ->viteTheme('resources/css/app.css')
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->sidebarCollapsibleOnDesktop()
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->topbarLivewireComponent(Topbar::class)
             ->sidebarLivewireComponent(Sidebar::class)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
@@ -71,7 +77,7 @@ class AppPanelProvider extends PanelProvider
                 AuthenticateSession::class,
                 SetAuthenticatedUserLocale::class,
                 ShareErrorsFromSession::class,
-                VerifyCsrfToken::class,
+                PreventRequestForgery::class,
                 SubstituteBindings::class,
                 SecurityHeaders::class,
                 DisableBladeIconComponents::class,
@@ -81,6 +87,7 @@ class AppPanelProvider extends PanelProvider
                 AuthenticateAdminPanel::class,
                 EnsureAccountIsAccessible::class,
                 EnsureOnboardingIsComplete::class,
+                CheckSubscriptionStatus::class,
             ]);
     }
 
@@ -148,6 +155,16 @@ class AppPanelProvider extends PanelProvider
                         icon: Heroicon::OutlinedCog6Tooth,
                         routeName: 'filament.admin.pages.system-configuration',
                         activePatterns: ['filament.admin.pages.system-configuration'],
+                        visible: fn (): bool => $this->isSuperadmin(),
+                    ),
+                    $this->navigationItem(
+                        label: 'Framework Studio',
+                        icon: Heroicon::OutlinedCpuChip,
+                        routeName: 'filament.admin.pages.framework-studio',
+                        activePatterns: [
+                            'filament.admin.pages.framework-studio',
+                            'filament.admin.resources.framework-showcases.*',
+                        ],
                         visible: fn (): bool => $this->isSuperadmin(),
                     ),
                 ],

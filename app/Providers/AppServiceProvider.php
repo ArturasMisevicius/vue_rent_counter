@@ -19,15 +19,18 @@ use App\Filament\Support\Superadmin\Integration\Probes\MailProbe;
 use App\Filament\Support\Superadmin\Integration\Probes\QueueProbe;
 use App\Models\Organization;
 use App\Models\PlatformNotification;
+use App\Models\PropertyAssignment;
 use App\Models\Subscription;
 use App\Models\SystemSetting;
 use App\Models\User;
 use App\Observers\OrganizationObserver;
 use App\Observers\PlatformNotificationObserver;
+use App\Observers\PropertyAssignmentObserver;
 use App\Observers\SubscriptionObserver;
 use App\Observers\SystemSettingObserver;
 use App\Observers\UserObserver;
 use App\Services\Billing\BillingService;
+use App\Services\TranslationCacheService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -42,10 +45,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->registerDisposableEmailFacadeCompatibilityAlias();
+
         $this->app->singleton(AuditLogger::class);
         $this->app->singleton(BillingServiceInterface::class, BillingService::class);
         $this->app->singleton(ImpersonationManager::class);
         $this->app->scoped(DashboardCacheService::class);
+        $this->app->singleton(TranslationCacheService::class, function (): TranslationCacheService {
+            return new TranslationCacheService(
+                cache()->store(),
+                config('app.locale', 'en'),
+                config('app.supported_locales', ['en' => 'EN', 'lt' => 'LT', 'ru' => 'RU']),
+            );
+        });
         $this->app->singleton(IntegrationProbeRegistry::class, function ($app): IntegrationProbeRegistry {
             return new IntegrationProbeRegistry([
                 $app->make(DatabaseProbe::class),
@@ -66,6 +78,16 @@ class AppServiceProvider extends ServiceProvider
         });
     }
 
+    private function registerDisposableEmailFacadeCompatibilityAlias(): void
+    {
+        $expectedFacade = 'EragLaravelDisposableEmail\\Facades\\DisposableEmail';
+        $actualFacade = 'EragLaravelDisposableEmail\\Facade\\DisposableEmail';
+
+        if (! class_exists($expectedFacade) && class_exists($actualFacade)) {
+            class_alias($actualFacade, $expectedFacade);
+        }
+    }
+
     /**
      * Bootstrap any application services.
      */
@@ -83,6 +105,7 @@ class AppServiceProvider extends ServiceProvider
         User::observe(UserObserver::class);
         SystemSetting::observe(SystemSettingObserver::class);
         PlatformNotification::observe(PlatformNotificationObserver::class);
+        PropertyAssignment::observe(PropertyAssignmentObserver::class);
     }
 
     private function configureAuthRateLimiters(): void

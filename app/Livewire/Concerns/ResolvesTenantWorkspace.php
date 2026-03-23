@@ -11,27 +11,32 @@ use App\Models\User;
 
 trait ResolvesTenantWorkspace
 {
-    protected function tenantWorkspace(): WorkspaceContext
+    protected function tenantWorkspace(bool $requireOrganization = true): WorkspaceContext
     {
         $workspace = app(WorkspaceResolver::class)->current();
 
-        abort_unless(
-            $workspace?->isTenant() && $workspace->organizationId !== null,
-            403,
-        );
+        abort_unless($workspace?->isTenant(), 403);
+
+        if ($requireOrganization) {
+            abort_unless($workspace->organizationId !== null, 403);
+        }
 
         return $workspace;
     }
 
     protected function currentTenant(): User
     {
-        $workspace = $this->tenantWorkspace();
+        $workspace = $this->tenantWorkspace(requireOrganization: false);
 
-        return User::query()
+        $tenantQuery = User::query()
             ->select(['id', 'organization_id', 'role'])
             ->whereKey($workspace->userId)
-            ->where('organization_id', $workspace->organizationId)
-            ->where('role', UserRole::TENANT)
-            ->firstOrFail();
+            ->where('role', UserRole::TENANT);
+
+        if ($workspace->organizationId !== null) {
+            $tenantQuery->where('organization_id', $workspace->organizationId);
+        }
+
+        return $tenantQuery->firstOrFail();
     }
 }

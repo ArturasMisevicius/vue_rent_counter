@@ -187,6 +187,11 @@ return [
         'enterprise' => 'Verslo',
         'custom' => 'Individualus',
     ],
+    'tenant_status' => [
+        'active' => 'Aktyvus',
+        'inactive' => 'Neaktyvus',
+        'suspended' => 'Sustabdytas',
+    ],
     'subscription_status' => [
         'trialing' => 'Bandomasis',
         'active' => 'Aktyvi',

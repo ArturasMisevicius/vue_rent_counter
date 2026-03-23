@@ -1,3 +1,4 @@
+completed: 2026-03-19
 ---
 created: 2026-03-19T14:34:17.054Z
 title: Connect MCP and activate skills

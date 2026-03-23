@@ -22,6 +22,20 @@ it('renders the global search field in the shared topbar', function () {
         ->assertSeeText('Search anything');
 });
 
+it('renders a valid alpine selector expression for search result navigation', function () {
+    $organization = Organization::factory()->create();
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $markup = Livewire::actingAs($tenant)
+        ->test(GlobalSearch::class)
+        ->html();
+
+    expect($markup)
+        ->toContain("querySelectorAll('[data-search-result=item]')");
+});
+
 it('shows model type group labels for admins and clears on escape', function () {
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([

@@ -20,14 +20,29 @@ class TenantDashboard extends Component
 
     public bool $showIntro = true;
 
+    /**
+     * @var array<string, mixed>
+     */
+    #[Locked]
+    public array $summaryData = [];
+
     #[Locked]
     public int $organizationId = 0;
 
-    public function mount(): void
+    public function mount(array $dashboardData = []): void
     {
-        $workspace = $this->tenantWorkspace();
+        $workspace = $this->tenantWorkspace(requireOrganization: false);
 
         $this->organizationId = (int) $workspace->organizationId;
+        $this->summaryData = $dashboardData['data'] ?? $dashboardData;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getListeners(): array
+    {
+        return $this->dashboardRefreshListeners();
     }
 
     public function render(): View
@@ -44,9 +59,11 @@ class TenantDashboard extends Component
     #[Computed]
     public function summary(): array
     {
+        $data = $this->summaryData ?: app(TenantHomePresenter::class)->for($this->tenant());
+
         return array_replace_recursive(
             $this->defaultSummary(),
-            app(TenantHomePresenter::class)->for($this->tenant()),
+            $data,
         );
     }
 

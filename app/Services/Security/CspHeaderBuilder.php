@@ -18,11 +18,23 @@ final class CspHeaderBuilder
             "'self'",
             sprintf("'nonce-%s'", $nonce),
             "'unsafe-inline'",
+            "'unsafe-eval'",
+        ];
+
+        $scriptElementSources = [
+            "'self'",
+            "'unsafe-inline'",
         ];
 
         $styleSources = [
             "'self'",
             sprintf("'nonce-%s'", $nonce),
+            "'unsafe-inline'",
+            'https://fonts.bunny.net',
+        ];
+
+        $styleElementSources = [
+            "'self'",
             "'unsafe-inline'",
             'https://fonts.bunny.net',
         ];
@@ -34,7 +46,9 @@ final class CspHeaderBuilder
 
         if ($viteOrigin !== null) {
             $scriptSources[] = $viteOrigin;
+            $scriptElementSources[] = $viteOrigin;
             $styleSources[] = $viteOrigin;
+            $styleElementSources[] = $viteOrigin;
             $connectSources[] = $viteOrigin;
 
             if ($websocketOrigin !== null) {
@@ -54,7 +68,10 @@ final class CspHeaderBuilder
             'media-src' => ["'self'", 'data:', 'https:'],
             'object-src' => ["'none'"],
             'script-src' => $scriptSources,
+            'script-src-elem' => $scriptElementSources,
+            'script-src-attr' => ["'unsafe-inline'"],
             'style-src' => $styleSources,
+            'style-src-elem' => $styleElementSources,
             'style-src-attr' => ["'unsafe-inline'"],
         ];
 

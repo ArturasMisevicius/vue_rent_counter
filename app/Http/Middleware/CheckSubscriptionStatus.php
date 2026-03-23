@@ -43,7 +43,7 @@ class CheckSubscriptionStatus
         Closure $next,
         SubscriptionAccessState $state,
     ): Response {
-        if ($this->isReadRequest($request) || $this->isRenewalRequest($request)) {
+        if ($this->isReadRequest($request)) {
             return $next($request);
         }
 
@@ -62,7 +62,7 @@ class CheckSubscriptionStatus
         Closure $next,
         SubscriptionAccessState $state,
     ): Response {
-        if ($this->isAllowedPostGraceRequest($request) || $this->isRenewalRequest($request)) {
+        if ($this->isAllowedPostGraceRequest($request)) {
             return $next($request);
         }
 
@@ -104,39 +104,6 @@ class CheckSubscriptionStatus
                 'filament.admin.pages.profile',
                 'filament.admin.pages.settings',
             );
-    }
-
-    private function isRenewalRequest(Request $request): bool
-    {
-        if (! $request->isMethod('POST')) {
-            return false;
-        }
-
-        $components = $request->input('components', []);
-
-        if (! is_array($components)) {
-            return false;
-        }
-
-        foreach ($components as $component) {
-            if (! is_array($component)) {
-                continue;
-            }
-
-            $calls = $component['calls'] ?? [];
-
-            if (! is_array($calls)) {
-                continue;
-            }
-
-            foreach ($calls as $call) {
-                if (($call['method'] ?? null) === 'renewSubscription') {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     private function subscriptionSettingsUrl(): string

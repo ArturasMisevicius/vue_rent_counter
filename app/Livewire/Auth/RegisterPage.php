@@ -26,6 +26,7 @@ class RegisterPage extends Component
 
     public function render(): View
     {
-        return view('auth.register');
+        return view('auth.register')
+            ->extends('layouts.guest');
     }
 }

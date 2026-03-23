@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Route;
 
 uses(RefreshDatabase::class);
 
+const GUEST_LOCALE_CSRF_TOKEN = 'guest-locale-test-token';
+
 it('renders the shared locale switcher on each guest auth page', function (Closure $urlFactory) {
     $this->get($urlFactory())
         ->assertSuccessful()
@@ -61,8 +63,10 @@ it('redirects back to the same reset password page after changing the locale', f
     ]);
 
     $this->from($resetPasswordUrl)
+        ->withSession(['_token' => GUEST_LOCALE_CSRF_TOKEN])
         ->post(route('locale.update'), [
             'locale' => 'ru',
+            '_token' => GUEST_LOCALE_CSRF_TOKEN,
         ])
         ->assertRedirect($resetPasswordUrl);
 
@@ -77,8 +81,10 @@ it('redirects back to the same invitation page after changing the locale', funct
     $invitationUrl = route('invitation.show', $invitation->token);
 
     $this->from($invitationUrl)
+        ->withSession(['_token' => GUEST_LOCALE_CSRF_TOKEN])
         ->post(route('locale.update'), [
             'locale' => 'ru',
+            '_token' => GUEST_LOCALE_CSRF_TOKEN,
         ])
         ->assertRedirect($invitationUrl);
 
@@ -132,10 +138,12 @@ it('applies the guest locale to the invitation page', function () {
 
 it('keeps the previous valid guest locale when an unsupported locale is submitted', function () {
     $this->withSession([
+        '_token' => GUEST_LOCALE_CSRF_TOKEN,
         'guest_locale' => 'ru',
     ])->from(route('register'))
         ->post(route('locale.update'), [
             'locale' => 'de',
+            '_token' => GUEST_LOCALE_CSRF_TOKEN,
         ])
         ->assertRedirect(route('register'))
         ->assertSessionHasErrors(['locale']);
@@ -148,9 +156,11 @@ it('keeps the previous valid guest locale when an unsupported locale is submitte
 });
 
 it('falls back to the public homepage when locale switching has no guest referrer', function () {
-    $this->post(route('locale.update'), [
-        'locale' => 'ru',
-    ])->assertRedirect(route('home'));
+    $this->withSession(['_token' => GUEST_LOCALE_CSRF_TOKEN])
+        ->post(route('locale.update'), [
+            'locale' => 'ru',
+            '_token' => GUEST_LOCALE_CSRF_TOKEN,
+        ])->assertRedirect(route('home'));
 });
 
 it('falls back to the public homepage when locale switching comes from a non-guest page', function () {
@@ -162,16 +172,20 @@ it('falls back to the public homepage when locale switching comes from a non-gue
     }
 
     $this->from(route('test.private'))
+        ->withSession(['_token' => GUEST_LOCALE_CSRF_TOKEN])
         ->post(route('locale.update'), [
             'locale' => 'ru',
+            '_token' => GUEST_LOCALE_CSRF_TOKEN,
         ])
         ->assertRedirect(route('home'));
 });
 
 it('falls back to the public homepage when locale switching comes from an external referrer', function () {
     $this->withHeader('referer', 'https://evil.example/phish')
+        ->withSession(['_token' => GUEST_LOCALE_CSRF_TOKEN])
         ->post(route('locale.update'), [
             'locale' => 'ru',
+            '_token' => GUEST_LOCALE_CSRF_TOKEN,
         ])
         ->assertRedirect(route('home'));
 });

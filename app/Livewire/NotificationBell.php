@@ -6,6 +6,7 @@ namespace App\Livewire;
 
 use App\Filament\Actions\Notifications\MarkPlatformNotificationReadAction;
 use App\Http\Controllers\NotificationTrackingController;
+use App\Livewire\Concerns\SupportsEchoListeners;
 use App\Models\PlatformNotificationRecipient;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
@@ -14,6 +15,8 @@ use Livewire\Component;
 
 final class NotificationBell extends Component
 {
+    use SupportsEchoListeners;
+
     public ?int $organizationId = null;
 
     public function mount(): void
@@ -40,7 +43,7 @@ final class NotificationBell extends Component
             'platform-notification.sent' => 'refreshNotifications',
         ];
 
-        if ($this->organizationId !== null) {
+        if ($this->shouldUseEchoListeners() && $this->organizationId !== null) {
             $listeners['echo-private:org.'.$this->organizationId.',.platform-notification.sent'] = 'refreshNotifications';
         }
 

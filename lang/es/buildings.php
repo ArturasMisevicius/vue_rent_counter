@@ -1,0 +1,180 @@
+<?php
+
+return [
+    'labels' => [
+        'name' => 'Name',
+        'address' => 'Address',
+        'total_apartments' => 'Total Units',
+        'property_count' => 'Properties',
+        'created_at' => 'Created',
+        'building' => 'Edificio',
+        'buildings' => 'Edificios',
+    ],
+    'validation' => [
+        'tenant_id' => [
+            'required' => 'Organización is required.',
+            'integer' => 'Organización ID must be a number.',
+            'exists' => 'The selected organización does not exist.',
+        ],
+        'name' => [
+            'required' => 'Edificio name is required.',
+            'string' => 'Edificio name must be text.',
+            'max' => 'Edificio name may not be greater than 255 characters.',
+            'regex' => 'Edificio name may only contain letters, numbers, spaces, hyphens, underscores, dots, and hash symbols.',
+            'unique' => 'A edificio with this name already exists in your organización.',
+        ],
+        'address' => [
+            'required' => 'Address is required.',
+            'string' => 'Address must be text.',
+            'max' => 'Address may not be greater than 500 characters.',
+            'regex' => 'Address contains invalid characters.',
+        ],
+        'city' => [
+            'regex' => 'City name may only contain letters, spaces, and hyphens.',
+        ],
+        'postal_code' => [
+            'regex' => 'Postal code format is invalid.',
+        ],
+        'country' => [
+            'size' => 'Country code must be exactly 2 characters.',
+        ],
+        'total_apartments' => [
+            'required' => 'Total number of units is required.',
+            'integer' => 'Total units must be a number.',
+            'min' => 'Edificio must have at least 1 unit.',
+            'max' => 'Edificio cannot have more than 1000 units.',
+        ],
+        'built_year' => [
+            'min' => 'Built year cannot be earlier than 1800.',
+            'max' => 'Built year cannot be more than 5 years in the future.',
+        ],
+        'heating_type' => [
+            'in' => 'The selected heating type is invalid.',
+        ],
+        'parking_spaces' => [
+            'max' => 'Parking spaces cannot exceed 500.',
+        ],
+        'notes' => [
+            'max' => 'Notes may not be greater than 2000 characters.',
+        ],
+        'apartments_per_floor_excessive' => 'The number of units per floor seems excessive. Please verify.',
+        'central_heating_anachronistic' => 'Central heating was not common in edificios built before 1900.',
+    ],
+    'attributes' => [
+        'tenant_id' => 'organización',
+        'name' => 'edificio name',
+        'address' => 'address',
+        'city' => 'city',
+        'postal_code' => 'postal code',
+        'country' => 'country',
+        'total_apartments' => 'total units',
+        'floors' => 'floors',
+        'built_year' => 'year built',
+        'heating_type' => 'heating type',
+        'elevator' => 'elevator',
+        'parking_spaces' => 'parking spaces',
+        'notes' => 'notes',
+    ],
+    'errors' => [
+        'has_properties' => 'Has properties',
+    ],
+    'pages' => [
+        'superadmin_index' => [
+            'description' => 'Edificio overview across all organizacións',
+        ],
+        'superadmin_show' => [
+            'sections' => [
+                'meters_description' => 'Contadors across all properties in this edificio',
+                'properties_description' => 'All properties linked to this edificio',
+            ],
+        ],
+        'manager_form' => [
+            'actions' => [
+                'cancel' => 'Cancel',
+                'save_create' => 'Save Create',
+                'save_edit' => 'Save Edit',
+            ],
+            'create_subtitle' => 'Create subtitles',
+            'create_title' => 'Create title',
+            'edit_subtitle' => 'Edit subtitles',
+            'edit_title' => 'Change title',
+            'labels' => [
+                'address' => 'Address',
+                'name' => 'Name',
+                'total_apartments' => 'Total units',
+            ],
+            'placeholders' => [
+                'address' => 'Address',
+                'name' => 'Name',
+                'total_apartments' => 'Total units',
+            ],
+        ],
+        'manager_index' => [
+            'add' => 'Add',
+            'create_now' => 'Create now',
+            'description' => 'Description',
+            'empty' => 'Empty',
+            'headers' => [
+                'actions' => 'Actions',
+                'building' => 'Edificio',
+                'last_calculated' => 'Last calculation',
+                'properties' => 'Characteristics',
+                'total_apartments' => 'Total units',
+            ],
+            'mobile' => [
+                'apartments' => 'Units',
+                'edit' => 'Edit',
+                'last' => 'Last',
+                'properties' => 'Characteristics',
+                'view' => 'View',
+            ],
+            'never' => 'Never',
+            'not_calculated' => 'Not calculated',
+            'table_caption' => 'Table title',
+            'title' => 'Heading',
+        ],
+        'manager_show' => [
+            'add_property' => 'Add propiedad',
+            'calculated' => 'Calculated',
+            'delete_building' => 'Delete edificio',
+            'delete_confirm' => 'Delete Confirm',
+            'description' => 'Description',
+            'edit_building' => 'Edit edificio',
+            'empty_properties' => 'Empty properties',
+            'form' => [
+                'end_date' => 'End date',
+                'start_date' => 'start date',
+                'submit' => 'Submit for consideration',
+            ],
+            'info_title' => 'Information Name',
+            'labels' => [
+                'address' => 'Address',
+                'name' => 'Name',
+                'properties_registered' => 'The propiedad is registered',
+                'total_apartments' => 'Total units',
+            ],
+            'last_calculated' => 'Last calculation',
+            'never' => 'Never',
+            'not_calculated' => 'Not calculated',
+            'pending' => 'Waiting',
+            'properties_headers' => [
+                'actions' => 'Actions',
+                'address' => 'Address',
+                'area' => 'Region',
+                'meters' => 'Contadors',
+                'tenant' => 'Inquilino',
+                'type' => 'Type',
+            ],
+            'properties_title' => 'Propiedad name',
+            'status' => 'Status',
+            'summer_average' => 'Summer average',
+            'title' => 'Heading',
+            'vacant' => 'Vacant',
+            'view' => 'View',
+        ],
+        'show' => [
+            'heading' => 'Heading',
+            'title' => 'Heading',
+        ],
+    ],
+];

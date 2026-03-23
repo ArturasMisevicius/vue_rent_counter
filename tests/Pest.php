@@ -22,12 +22,14 @@ beforeEach(function (): void {
         'en' => 'EN',
         'lt' => 'LT',
         'ru' => 'RU',
+        'es' => 'ES',
     ]);
 
     config()->set('tenanto.locales', [
         'en' => 'English',
         'lt' => 'Lietuvių',
         'ru' => 'Русский',
+        'es' => 'Español',
     ]);
 
     app()->setLocale(config('app.locale', 'en'));

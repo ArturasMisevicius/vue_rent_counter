@@ -63,6 +63,27 @@ it('updates the admin profile details and locale', function () {
         ->locale->toBe('lt');
 });
 
+it('rejects disposable email domains when updating the admin profile', function () {
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+        'locale' => 'en',
+    ]);
+
+    Livewire::actingAs($admin)
+        ->test(Profile::class)
+        ->set('profileForm.name', 'Taylor Updated')
+        ->set('profileForm.email', 'profile-owner@10minutemail.com')
+        ->set('profileForm.locale', 'lt')
+        ->call('saveProfile')
+        ->assertHasErrors(['email']);
+
+    expect($admin->fresh())
+        ->name->toBe($admin->name)
+        ->email->toBe($admin->email)
+        ->locale->toBe('en');
+});
+
 it('updates the admin password from the profile page', function () {
     $organization = Organization::factory()->create();
     $admin = User::factory()->admin()->create([

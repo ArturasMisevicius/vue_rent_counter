@@ -26,7 +26,7 @@ class StoreOrganizationRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'owner_email' => ['required', 'email:rfc', 'max:255'],
+            'owner_email' => ['required', 'email:rfc', 'max:255', 'disposable_email'],
             'owner_name' => ['required', 'string', 'max:255'],
             'plan' => ['required', Rule::enum(SubscriptionPlan::class)],
             'duration' => ['required', Rule::enum(SubscriptionDuration::class)],
@@ -44,6 +44,7 @@ class StoreOrganizationRequest extends FormRequest
             'owner_email.required' => ['required', 'owner_email'],
             'owner_email.email' => ['email', 'owner_email'],
             'owner_email.max' => ['max.string', 'owner_email', ['max' => 255]],
+            'owner_email.disposable_email' => ['disposable_email', 'owner_email'],
             'owner_name.required' => ['required', 'owner_name'],
             'owner_name.max' => ['max.string', 'owner_name', ['max' => 255]],
             'plan.required' => ['required', 'subscription_plan'],

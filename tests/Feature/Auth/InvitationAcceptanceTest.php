@@ -130,7 +130,7 @@ it('accepts a valid invitation and logs the user in', function (UserRole $role, 
         ->and($invitation->fresh()->accepted_at)->not->toBeNull();
 })->with([
     'manager' => [UserRole::MANAGER, 'filament.admin.pages.dashboard'],
-    'tenant' => [UserRole::TENANT, 'filament.admin.pages.dashboard'],
+    'tenant' => [UserRole::TENANT, 'filament.admin.pages.tenant-dashboard'],
 ]);
 
 it('activates an existing tenant placeholder when accepting an invitation', function () {
@@ -160,7 +160,7 @@ it('activates an existing tenant placeholder when accepting an invitation', func
         'name' => 'Pat Tenant',
         'password' => 'new-password',
         'password_confirmation' => 'new-password',
-    ])->assertRedirect(route('filament.admin.pages.dashboard'));
+    ])->assertRedirect(route('filament.admin.pages.tenant-dashboard'));
 
     $tenant = $tenant->fresh();
 
@@ -267,6 +267,29 @@ it('rejects invitation creation for an existing user email', function () {
         'email' => 'tenant@example.com',
         'role' => UserRole::TENANT,
         'full_name' => 'Existing Tenant',
+    ]))->toThrow(ValidationException::class);
+
+    expect(OrganizationInvitation::query()->count())->toBe(0);
+
+    Notification::assertNothingSent();
+});
+
+it('rejects invitation creation for disposable email domains', function () {
+    Notification::fake();
+
+    $organization = Organization::factory()->create();
+    $admin = User::factory()->admin()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $organization->update([
+        'owner_user_id' => $admin->id,
+    ]);
+
+    expect(fn () => app(CreateOrganizationInvitationAction::class)->handle($admin, [
+        'email' => 'invitee@10minutemail.com',
+        'role' => UserRole::TENANT,
+        'full_name' => 'Disposable Invitee',
     ]))->toThrow(ValidationException::class);
 
     expect(OrganizationInvitation::query()->count())->toBe(0);

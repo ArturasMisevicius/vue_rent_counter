@@ -70,11 +70,11 @@ it('shows organization-scoped buildings resource pages to admin and manager user
 
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.buildings.view', $otherBuilding))
-        ->assertNotFound();
+        ->assertForbidden();
 
     $this->actingAs($admin)
         ->get(route('filament.admin.resources.buildings.edit', $otherBuilding))
-        ->assertNotFound();
+        ->assertForbidden();
 
     $this->actingAs($superadmin)
         ->get(route('filament.admin.resources.buildings.index'))

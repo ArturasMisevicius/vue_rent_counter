@@ -92,6 +92,7 @@ it('loads organization billing records with related summaries and latest billing
 it('exposes acceptance portal invitations through pending translated summary scopes', function (): void {
     $organization = Organization::factory()->create(['name' => 'North House']);
     $inviter = User::factory()->admin()->for($organization)->create(['name' => 'Alice Inviter']);
+    $activeToken = OrganizationInvitation::issueToken();
 
     OrganizationInvitation::factory()->for($organization)->for($inviter, 'inviter')->create([
         'email' => 'expired@example.test',
@@ -100,13 +101,14 @@ it('exposes acceptance portal invitations through pending translated summary sco
 
     $activeInvitation = OrganizationInvitation::factory()->for($organization)->for($inviter, 'inviter')->create([
         'email' => 'active@example.test',
+        'token' => OrganizationInvitation::hashToken($activeToken),
         'expires_at' => now()->addDay(),
     ]);
 
     $loadedInvitation = OrganizationInvitation::query()
         ->forAcceptancePortal()
         ->pending()
-        ->forToken($activeInvitation->token)
+        ->forToken($activeToken)
         ->firstOrFail();
 
     expect($loadedInvitation->is($activeInvitation))->toBeTrue()

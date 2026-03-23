@@ -41,6 +41,7 @@ class WelcomePage extends Component
 
     public function render(): View
     {
-        return view('onboarding.welcome');
+        return view('onboarding.welcome')
+            ->extends('layouts.guest');
     }
 }

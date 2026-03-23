@@ -31,6 +31,8 @@ class OrganizationInvitation extends Model
         'updated_at',
     ];
 
+    private const HASHED_TOKEN_LENGTH = 64;
+
     protected $fillable = [
         'organization_id',
         'inviter_user_id',
@@ -76,11 +78,18 @@ class OrganizationInvitation extends Model
 
     public function scopeForToken(Builder $query, string $token): Builder
     {
-        return $query->where(function (Builder $query) use ($token): void {
-            $query
-                ->where('token', static::hashToken($token))
-                ->orWhere('token', $token);
-        });
+        $normalizedToken = trim($token);
+
+        if ($normalizedToken === '') {
+            return $query->whereKey(0);
+        }
+
+        return $query->where(
+            'token',
+            self::isHashedToken($normalizedToken)
+                ? $normalizedToken
+                : self::hashToken($normalizedToken),
+        );
     }
 
     public function scopeAccepted(Builder $query): Builder
@@ -150,5 +159,10 @@ class OrganizationInvitation extends Model
     public static function hashToken(string $token): string
     {
         return hash('sha256', $token);
+    }
+
+    public static function isHashedToken(string $token): bool
+    {
+        return (bool) preg_match('/^[a-f0-9]{'.self::HASHED_TOKEN_LENGTH.'}$/', (string) $token);
     }
 }

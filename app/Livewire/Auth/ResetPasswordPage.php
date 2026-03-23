@@ -57,6 +57,6 @@ class ResetPasswordPage extends Component
         return view('auth.reset-password', [
             'token' => $this->token,
             'email' => $this->email,
-        ]);
+        ])->extends('layouts.guest');
     }
 }

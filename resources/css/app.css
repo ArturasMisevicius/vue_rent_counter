@@ -21,10 +21,45 @@
         'Noto Color Emoji';
     --font-display:
         'Space Grotesk', 'Sora', ui-sans-serif, system-ui, sans-serif;
+    --breakpoint-3xl: 120rem;
     --color-brand-ink: oklch(0.28 0.05 255);
     --color-brand-warm: oklch(0.79 0.16 74);
     --color-brand-mint: oklch(0.77 0.12 186);
     --color-brand-cream: oklch(0.97 0.02 86);
+    --color-framework-500: oklch(0.63 0.2 255);
+    --color-framework-400: oklch(0.73 0.16 236);
+    --color-framework-300: oklch(0.84 0.11 220);
+}
+
+@property --framework-tilt {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 18deg;
+}
+
+@layer base {
+    :root {
+        --framework-surface: color-mix(in oklab, white 88%, var(--color-framework-500) 12%);
+        --framework-outline: color-mix(in oklab, white 72%, var(--color-framework-500) 28%);
+    }
 }
 
 @variant dark (&:where(.dark, .dark *));
+@variant data-live (&[data-live='true']);
+
+@utility framework-panel {
+    border-radius: 1.75rem;
+    border: 1px solid var(--framework-outline);
+    background:
+        linear-gradient(145deg, color-mix(in oklab, white 94%, var(--color-framework-300) 6%), var(--framework-surface));
+    box-shadow:
+        0 24px 80px color-mix(in oklab, var(--color-brand-ink) 12%, transparent),
+        inset 0 1px 0 color-mix(in oklab, white 82%, transparent);
+}
+
+@utility framework-grid {
+    background-image:
+        linear-gradient(to right, color-mix(in srgb, var(--color-framework-500) 10%, transparent) 1px, transparent 1px),
+        linear-gradient(to bottom, color-mix(in srgb, var(--color-framework-500) 10%, transparent) 1px, transparent 1px);
+    background-size: 1.25rem 1.25rem;
+}

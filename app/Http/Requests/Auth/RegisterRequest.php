@@ -30,7 +30,7 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email', 'disposable_email'],
             'password' => ['required', 'confirmed', Password::min(8)],
         ];
     }
@@ -47,6 +47,7 @@ class RegisterRequest extends FormRequest
             'email.email' => ['email', 'email'],
             'email.max' => ['max.string', 'email', ['max' => 255]],
             'email.unique' => ['unique', 'email'],
+            'email.disposable_email' => ['disposable_email', 'email'],
             'password.required' => ['required', 'password'],
             'password.confirmed' => ['confirmed', 'password'],
             'password.min' => ['min.string', 'password', ['min' => 8]],

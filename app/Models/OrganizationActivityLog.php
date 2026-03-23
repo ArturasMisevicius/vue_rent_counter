@@ -40,6 +40,35 @@ class OrganizationActivityLog extends Model
             ->orderByDesc('id');
     }
 
+    public function scopeForOrganization(Builder $query, int $organizationId): Builder
+    {
+        return $query->where('organization_id', $organizationId);
+    }
+
+    public function scopeForResource(
+        Builder $query,
+        object $resource,
+        int|string|null $resourceId = null,
+    ): Builder {
+        $resourceType = is_string($resource) ? $resource : $resource::class;
+        $resolvedResourceId = $resourceId !== null
+            ? (int) $resourceId
+            : (is_string($resource) ? null : (int) $resource->getKey());
+
+        $query = $query->where('resource_type', $resourceType);
+
+        return $resolvedResourceId !== null
+            ? $query->where('resource_id', $resolvedResourceId)
+            : $query;
+    }
+
+    public function scopeWithActorSummary(Builder $query): Builder
+    {
+        return $query->with([
+            'user:id,organization_id,name,email,role',
+        ]);
+    }
+
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);

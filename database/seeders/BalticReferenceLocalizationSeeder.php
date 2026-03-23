@@ -12,8 +12,12 @@ class BalticReferenceLocalizationSeeder extends Seeder
 {
     public function run(): void
     {
+        $locales = array_keys(config('tenanto.locales', ['en' => true, 'lt' => true, 'ru' => true, 'es' => true]));
+
         $countries = collect(BalticReferenceCatalog::countries())
-            ->mapWithKeys(function (array $country): array {
+            ->mapWithKeys(function (array $country) use ($locales): array {
+                $translations = array_replace(array_fill_keys($locales, null), $country['name_translations']);
+
                 $record = Country::query()->updateOrCreate(
                     ['code' => $country['code']],
                     [
@@ -34,7 +38,7 @@ class BalticReferenceLocalizationSeeder extends Seeder
                         'key' => $country['code'],
                     ],
                     [
-                        'values' => $country['name_translations'],
+                        'values' => $translations,
                     ],
                 );
 
@@ -42,6 +46,7 @@ class BalticReferenceLocalizationSeeder extends Seeder
             });
 
         foreach (BalticReferenceCatalog::cities() as $city) {
+            $translations = array_replace(array_fill_keys($locales, null), $city['name_translations']);
             $country = $countries[$city['country_code']];
 
             City::query()->updateOrCreate(
@@ -68,7 +73,7 @@ class BalticReferenceLocalizationSeeder extends Seeder
                     'key' => $city['slug'],
                 ],
                 [
-                    'values' => $city['name_translations'],
+                    'values' => $translations,
                 ],
             );
         }

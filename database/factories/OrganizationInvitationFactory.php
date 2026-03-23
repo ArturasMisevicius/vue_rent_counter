@@ -7,7 +7,6 @@ use App\Models\Organization;
 use App\Models\OrganizationInvitation;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 /**
  * @extends Factory<OrganizationInvitation>
@@ -21,6 +20,7 @@ class OrganizationInvitationFactory extends Factory
      */
     public function definition(): array
     {
+        $acceptanceToken = OrganizationInvitation::issueToken();
         $organization = Organization::factory();
 
         return [
@@ -29,7 +29,7 @@ class OrganizationInvitationFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'role' => UserRole::TENANT,
             'full_name' => fake()->name(),
-            'token' => (string) Str::uuid(),
+            'token' => OrganizationInvitation::hashToken($acceptanceToken),
             'expires_at' => now()->addDays(7),
             'accepted_at' => null,
         ];

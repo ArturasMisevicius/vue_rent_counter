@@ -9,6 +9,7 @@ use App\Filament\Support\Shell\Search\Data\GlobalSearchResultData;
 use App\Filament\Support\Shell\Search\SearchQueryPattern;
 use App\Models\Invoice;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Route;
 
 final class InvoiceSearchProvider implements GlobalSearchProvider
@@ -28,6 +29,9 @@ final class InvoiceSearchProvider implements GlobalSearchProvider
         }
 
         $pattern = SearchQueryPattern::from($query)->likePattern();
+        $tenantPropertyId = (int) ($user->currentPropertyAssignment?->property_id ?? 0);
+        $hasTenantWorkspace = $tenantPropertyId > 0 && $user->organization_id !== null;
+        $isOrganizationUser = $user->isAdmin() || $user->isManager();
 
         $queryBuilder = Invoice::query()
             ->select([
@@ -54,26 +58,28 @@ final class InvoiceSearchProvider implements GlobalSearchProvider
             ])
             ->where('invoice_number', 'like', $pattern)
             ->latestBillingFirst()
-            ->limit((int) config('tenanto.search.limit', 5));
-
-        if ($user->isTenant()) {
-            $propertyId = (int) ($user->currentPropertyAssignment?->property_id ?? 0);
-
-            if ($propertyId === 0 || $user->organization_id === null) {
-                return [];
-            }
-
-            $queryBuilder
-                ->forOrganization((int) $user->organization_id)
-                ->forTenant($user->id)
-                ->forProperty($propertyId);
-        } elseif ($user->isSuperadmin()) {
-            // No additional scope for the control plane search.
-        } elseif ($user->isAdmin() || $user->isManager()) {
-            $queryBuilder->forOrganization((int) $user->organization_id);
-        } else {
-            return [];
-        }
+            ->limit((int) config('tenanto.search.limit', 5))
+            ->when(
+                $user->isTenant(),
+                fn (Builder $builder): Builder => $builder->when(
+                    $hasTenantWorkspace,
+                    fn (Builder $tenantBuilder): Builder => $tenantBuilder
+                        ->forOrganization((int) $user->organization_id)
+                        ->forTenant($user->id)
+                        ->forProperty($tenantPropertyId),
+                    fn (Builder $tenantBuilder): Builder => $tenantBuilder->whereKey(-1),
+                ),
+                fn (Builder $builder): Builder => $builder->when(
+                    $isOrganizationUser,
+                    fn (Builder $organizationBuilder): Builder => $organizationBuilder
+                        ->forOrganization((int) $user->organization_id),
+                    fn (Builder $organizationBuilder): Builder => $organizationBuilder->when(
+                        $user->isSuperadmin(),
+                        fn (Builder $superadminBuilder): Builder => $superadminBuilder,
+                        fn (Builder $deniedBuilder): Builder => $deniedBuilder->whereKey(-1),
+                    ),
+                ),
+            );
 
         return $queryBuilder
             ->get()

@@ -105,6 +105,23 @@ it('drops malformed tenant property assignments from the resolved workspace cont
         ]);
 });
 
+it('keeps tenant shell access even when tenant has no organization assignment', function () {
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => null,
+    ]);
+
+    $this->actingAs($tenant)
+        ->get(route('test.security.workspace-context'))
+        ->assertOk()
+        ->assertJson([
+            'scope' => 'tenant',
+            'role' => UserRole::TENANT->value,
+            'organization_id' => null,
+            'property_id' => null,
+            'user_id' => $tenant->id,
+        ]);
+});
+
 it('includes the tenants current property when the assignment belongs to the same workspace', function () {
     $organization = Organization::factory()->create();
     $property = Property::factory()->create([
@@ -133,4 +150,36 @@ it('includes the tenants current property when the assignment belongs to the sam
             'property_id' => $property->id,
             'user_id' => $tenant->id,
         ]);
+});
+
+it('recovers tenant organization context from a valid current assignment when the user organization is missing', function () {
+    $organization = Organization::factory()->create();
+    $property = Property::factory()->create([
+        'organization_id' => $organization->id,
+    ]);
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => null,
+    ]);
+
+    PropertyAssignment::factory()
+        ->for($organization)
+        ->for($property)
+        ->for($tenant, 'tenant')
+        ->create([
+            'assigned_at' => now()->subWeek(),
+            'unassigned_at' => null,
+        ]);
+
+    $this->actingAs($tenant)
+        ->get(route('test.security.workspace-context'))
+        ->assertOk()
+        ->assertJson([
+            'scope' => 'tenant',
+            'role' => UserRole::TENANT->value,
+            'organization_id' => $organization->id,
+            'property_id' => $property->id,
+            'user_id' => $tenant->id,
+        ]);
+
+    expect($tenant->fresh()?->organization_id)->toBe($organization->id);
 });

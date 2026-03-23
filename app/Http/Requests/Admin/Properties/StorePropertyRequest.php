@@ -12,6 +12,11 @@ class StorePropertyRequest extends PropertyRequest
 {
     use InteractsWithValidationPayload;
 
+    public function authorize(): bool
+    {
+        return parent::authorize();
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -21,6 +26,11 @@ class StorePropertyRequest extends PropertyRequest
             ...parent::rules(),
             'subscription_limit' => [new WithinPropertyLimit(app(SubscriptionChecker::class))],
         ];
+    }
+
+    public function messages(): array
+    {
+        return parent::messages();
     }
 
     /**

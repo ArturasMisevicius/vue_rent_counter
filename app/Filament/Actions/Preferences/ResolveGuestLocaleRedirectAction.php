@@ -15,6 +15,7 @@ class ResolveGuestLocaleRedirectAction
         '#^/register$#',
         '#^/forgot-password$#',
         '#^/reset-password/[^/]+$#',
+        '#^/invitations/[^/]+/accept$#',
         '#^/invite/[^/]+$#',
     ];
 

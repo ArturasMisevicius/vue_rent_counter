@@ -2,11 +2,12 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @php($cspNonce = \Illuminate\Support\Facades\Vite::cspNonce())
+        @php($faviconUrl = app(\App\Filament\Support\FaviconUrlResolver::class)->resolve())
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>@yield('title', config('app.name', 'Tenanto'))</title>
-        <link rel="icon" href="{{ route('favicon') }}" type="image/x-icon">
-        <link rel="shortcut icon" href="{{ route('favicon') }}" type="image/x-icon">
+        <link rel="icon" href="{{ $faviconUrl }}" type="image/x-icon">
+        <link rel="shortcut icon" href="{{ $faviconUrl }}" type="image/x-icon">
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=sora:400,500,600,700|space-grotesk:500,700" rel="stylesheet" />
 

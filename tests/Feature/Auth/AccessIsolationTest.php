@@ -118,7 +118,7 @@ it('routes users to the correct starting page', function () {
         ->and($redirector->for(User::factory()->manager()->make()))
         ->toBe(route('filament.admin.pages.dashboard'))
         ->and($redirector->for(User::factory()->tenant()->make()))
-        ->toBe(route('filament.admin.pages.dashboard'));
+        ->toBe(route('filament.admin.pages.tenant-dashboard'));
 });
 
 it('forbids non-tenant users from the tenant home route', function () {

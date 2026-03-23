@@ -63,11 +63,22 @@ final class WorkspaceResolver
             );
         }
 
+        if ($user->isTenant()) {
+            $tenantScope = $this->resolveTenantScope($user);
+
+            return new WorkspaceContext(
+                userId: $user->id,
+                role: $user->role,
+                organizationId: $tenantScope['organization_id'],
+                propertyId: $tenantScope['property_id'],
+            );
+        }
+
         return new WorkspaceContext(
             userId: $user->id,
             role: $user->role,
             organizationId: $user->organization_id,
-            propertyId: $user->isTenant() ? $this->resolveTenantPropertyId($user) : null,
+            propertyId: null,
         );
     }
 
@@ -81,15 +92,18 @@ final class WorkspaceResolver
             return true;
         }
 
+        if ($user->isTenant()) {
+            return true;
+        }
+
         return $this->resolveFor($user)->organizationId !== null;
     }
 
-    private function resolveTenantPropertyId(User $tenant): ?int
+    /**
+     * @return array{organization_id: int|null, property_id: int|null}
+     */
+    private function resolveTenantScope(User $tenant): array
     {
-        if ($tenant->organization_id === null) {
-            return null;
-        }
-
         $assignment = $tenant->relationLoaded('currentPropertyAssignment')
             ? $tenant->currentPropertyAssignment
             : $tenant->currentPropertyAssignment()
@@ -105,11 +119,26 @@ final class WorkspaceResolver
                 ->first();
 
         if (! $assignment instanceof PropertyAssignment) {
-            return null;
+            return [
+                'organization_id' => $tenant->organization_id,
+                'property_id' => null,
+            ];
         }
 
-        if ($assignment->organization_id !== $tenant->organization_id) {
-            return null;
+        $organizationId = $tenant->organization_id ?? $assignment->organization_id;
+
+        if ($organizationId === null) {
+            return [
+                'organization_id' => null,
+                'property_id' => null,
+            ];
+        }
+
+        if ($assignment->organization_id !== $organizationId) {
+            return [
+                'organization_id' => $organizationId,
+                'property_id' => null,
+            ];
         }
 
         $property = $assignment->relationLoaded('property')
@@ -119,13 +148,28 @@ final class WorkspaceResolver
                 ->first();
 
         if (! $property instanceof Property) {
-            return null;
+            return [
+                'organization_id' => $organizationId,
+                'property_id' => null,
+            ];
         }
 
-        if ($property->organization_id !== $tenant->organization_id) {
-            return null;
+        if ($property->organization_id !== $organizationId) {
+            return [
+                'organization_id' => $organizationId,
+                'property_id' => null,
+            ];
         }
 
-        return $assignment->property_id;
+        if ($tenant->organization_id === null) {
+            $tenant->forceFill([
+                'organization_id' => $organizationId,
+            ])->saveQuietly();
+        }
+
+        return [
+            'organization_id' => $organizationId,
+            'property_id' => $assignment->property_id,
+        ];
     }
 }

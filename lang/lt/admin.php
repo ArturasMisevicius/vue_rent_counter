@@ -427,6 +427,7 @@ return [
             'email_sent' => 'Sąskaitos laiškas sėkmingai užregistruotas.',
             'email_subject' => 'Sąskaita :number',
             'reminder_sent' => 'Priminimo laiškas sėkmingai išsiųstas.',
+            'send_email_confirmation' => 'Confirm sending this invoice to :email before continuing.',
         ],
         'pdf' => [
             'title' => 'Sąskaita :number',

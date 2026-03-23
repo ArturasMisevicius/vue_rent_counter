@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: unknown
 stopped_at: Completed plan 07-01 in Phase 7
-last_updated: "2026-03-19T17:10:00.000Z"
+last_updated: "2026-03-19T16:26:10.367Z"
 progress:
   total_phases: 7
   completed_phases: 1
@@ -68,7 +68,6 @@ Recent decisions affecting current work:
 ### Pending Todos
 
 - Phase 01 `01-05`: have a repo admin require the `Phase 1 Guardrails` status check on `main`, or provide admin-scoped GitHub credentials so it can be applied and verified.
-- 2026-03-19: connect MCP and activate skills before work sessions by verifying Boost and Laravel MCP startup, mapping the requested session skills to installed equivalents, and recording the baseline route, Filament, and test state.
 - Phase 03: canonicalize entry paths, navigation, and workspace-aware read builders now that Phase 02 boundary contracts are in place.
 - 2026-03-19: finalize the unified `/app` Filament panel by removing panel-level subscription enforcement, routing all roles through the shared dashboard entrypoint, and keeping the unified panel tests aligned with the live implementation.
 - 2026-03-19: finish the shared design-system migration by adding the missing tenant bottom navigation component, wiring it into the tenant-facing Filament pages, and verifying the shared component namespaces remain clean.
@@ -76,6 +75,7 @@ Recent decisions affecting current work:
 ### Blockers/Concerns
 
 - Phase 01 is functionally complete in code and remote CI, but branch-protection enforcement remains deferred because the current GitHub identity has push access without admin rights.
+- Session bootstrap was verified on 2026-03-19, but test execution still needs safer isolation because direct `php artisan test` runs are honoring cached sqlite file config instead of the `:memory:` PHPUnit setting; a parallel verification run left `database/database.sqlite` malformed.
 - Phase 3 execution will touch navigation, read builders, and invoice-display surfaces that currently mix Filament resources, Livewire components, and presenter classes.
 - Phase 5 execution still needs careful handling because billing behavior remains concentrated in a few large orchestration services with a wide regression surface.
 - Phase 6 execution still needs environment-aware validation for queue workers, dependency probes, and backup/restore readiness.

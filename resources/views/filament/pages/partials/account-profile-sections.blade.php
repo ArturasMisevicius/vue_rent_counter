@@ -12,6 +12,7 @@
                 type="text"
                 wire:model="profileForm.name"
                 value="{!! $profileNameValue !!}"
+                autocomplete="name"
                 class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900"
             >
         </label>
@@ -22,6 +23,7 @@
                 type="email"
                 wire:model="profileForm.email"
                 value="{!! $profileEmailValue !!}"
+                autocomplete="email"
                 class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900"
             >
         </label>
@@ -51,11 +53,22 @@
     <p class="mt-2 text-sm leading-6 text-slate-600">{{ __('shell.profile.password.description') }}</p>
 
     <form wire:submit="updatePassword" class="mt-5 grid gap-4 md:grid-cols-2">
+        <input
+            type="email"
+            value="{!! $profileEmailValue !!}"
+            autocomplete="username"
+            tabindex="-1"
+            aria-hidden="true"
+            class="sr-only"
+            readonly
+        >
+
         <label class="space-y-2 text-sm font-medium text-slate-700 md:col-span-2">
             <span>{{ __('shell.profile.fields.current_password') }}</span>
             <input
                 type="password"
                 wire:model="passwordForm.current_password"
+                autocomplete="current-password"
                 class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900"
             >
         </label>
@@ -65,6 +78,7 @@
             <input
                 type="password"
                 wire:model="passwordForm.password"
+                autocomplete="new-password"
                 class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900"
             >
         </label>
@@ -74,6 +88,7 @@
             <input
                 type="password"
                 wire:model="passwordForm.password_confirmation"
+                autocomplete="new-password"
                 class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900"
             >
         </label>

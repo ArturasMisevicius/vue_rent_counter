@@ -96,13 +96,26 @@ final class SubscriptionChecker
             return $this->defaultSnapshot();
         }
 
-        $cacheKey = "subscription-checker:user:{$user->id}";
+        $cacheKey = $this->cacheKeyForUser($user);
 
-        return $this->userSnapshots[$cacheKey] ??= Cache::remember(
+        if (array_key_exists($cacheKey, $this->userSnapshots)) {
+            return $this->userSnapshots[$cacheKey];
+        }
+
+        $snapshot = Cache::remember(
             $cacheKey,
             now()->addMinutes(5),
             fn (): array => $this->snapshotForOrganizationId($user->organization_id),
         );
+
+        $this->userSnapshots[$cacheKey] = $snapshot;
+
+        return $snapshot;
+    }
+
+    private function cacheKeyForUser(User $user): string
+    {
+        return "subscription-checker:user:{$user->id}";
     }
 
     /**

@@ -28,10 +28,10 @@ it('seeds baltic-only locales together with multilingual country and city transl
         ->pluck('code')
         ->all();
 
-    expect(array_keys(config('app.supported_locales')))->toEqualCanonicalizing(['en', 'lt', 'ru'])
-        ->and(array_keys(config('tenanto.locales')))->toEqualCanonicalizing(['en', 'lt', 'ru'])
-        ->and($activeLanguages)->toEqualCanonicalizing(['en', 'lt', 'ru'])
-        ->and(Language::query()->whereNotIn('code', ['en', 'lt', 'ru'])->exists())->toBeFalse()
+    expect(array_keys(config('app.supported_locales')))->toEqualCanonicalizing(['en', 'lt', 'ru', 'es'])
+        ->and(array_keys(config('tenanto.locales')))->toEqualCanonicalizing(['en', 'lt', 'ru', 'es'])
+        ->and($activeLanguages)->toEqualCanonicalizing(['en', 'lt', 'ru', 'es'])
+        ->and(Language::query()->whereNotIn('code', ['en', 'lt', 'ru', 'es'])->exists())->toBeFalse()
         ->and(Country::query()->count())->toBe(3)
         ->and(City::query()->count())->toBe(count(BalticReferenceCatalog::cities()))
         ->and(Country::query()->baltic()->with('cities')->get()->pluck('code')->all())->toEqualCanonicalizing(['EE', 'LT', 'LV'])
@@ -41,11 +41,13 @@ it('seeds baltic-only locales together with multilingual country and city transl
             'en' => 'Lithuania',
             'lt' => 'Lietuva',
             'ru' => 'Литва',
+            'es' => null,
         ])
         ->and(Translation::query()->where('group', 'cities')->where('key', 'tallinn')->firstOrFail()->values)->toBe([
             'en' => 'Tallinn',
             'lt' => 'Talinas',
             'ru' => 'Таллин',
+            'es' => null,
         ]);
 });
 

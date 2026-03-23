@@ -187,6 +187,11 @@ return [
         'enterprise' => 'Enterprise',
         'custom' => 'Custom',
     ],
+    'tenant_status' => [
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+        'suspended' => 'Suspended',
+    ],
     'subscription_status' => [
         'trialing' => 'Trialing',
         'active' => 'Active',

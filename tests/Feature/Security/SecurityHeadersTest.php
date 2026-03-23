@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Testing\TestResponse;
 
 uses(RefreshDatabase::class);
 
@@ -47,26 +48,45 @@ it('adds security headers with a csp nonce to authenticated page responses', fun
     $response->assertHeader('X-Content-Type-Options', 'nosniff');
 });
 
+it('allows filament and livewire runtime directives required by the app shell', function (): void {
+    $organization = Organization::factory()->create();
+    $tenant = User::factory()->tenant()->create([
+        'organization_id' => $organization->id,
+    ]);
+
+    $response = $this->actingAs($tenant)->get(route('filament.admin.pages.dashboard'));
+
+    $response->assertSuccessful();
+
+    $cspHeader = (string) $response->headers->get('Content-Security-Policy');
+
+    expect($cspHeader)
+        ->toContain("script-src 'self'")
+        ->toContain("'unsafe-eval'")
+        ->toContain("script-src-elem 'self' 'unsafe-inline'")
+        ->toContain("style-src-elem 'self' 'unsafe-inline' https://fonts.bunny.net")
+        ->toContain("style-src-attr 'unsafe-inline'");
+});
+
 it('rate limits repeated login failures with a 429 response', function (): void {
     $user = User::factory()->create([
         'email' => 'security@example.test',
     ]);
 
+    $this->from(route('login'))->get(route('login'));
+    $token = csrf_token();
+
+    $postWithWrongPassword = fn (): TestResponse => $this->withSession(['_token' => $token])->from(route('login'))->post(route('login.store'), [
+        '_token' => $token,
+        'email' => $user->email,
+        'password' => 'wrong-password',
+    ]);
+
     foreach (range(1, 5) as $attempt) {
-        $this->from(route('login'))
-            ->post(route('login.store'), [
-                'email' => $user->email,
-                'password' => 'wrong-password',
-            ])
-            ->assertRedirect(route('login'));
+        $postWithWrongPassword()->assertRedirect(route('login'));
     }
 
-    $this->from(route('login'))
-        ->post(route('login.store'), [
-            'email' => $user->email,
-            'password' => 'wrong-password',
-        ])
-        ->assertTooManyRequests();
+    $postWithWrongPassword()->assertTooManyRequests();
 });
 
 it('accepts valid csp violation reports and records a security violation', function (): void {

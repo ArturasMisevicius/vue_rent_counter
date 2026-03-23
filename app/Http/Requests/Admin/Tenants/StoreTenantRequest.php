@@ -39,7 +39,7 @@ class StoreTenantRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email:rfc', 'max:255', Rule::unique('users', 'email')],
+            'email' => ['required', 'email:rfc', 'max:255', Rule::unique('users', 'email'), 'disposable_email'],
             'locale' => ['required', Rule::in(array_keys(config('tenanto.locales', [])))],
             'status' => ['required', Rule::enum(UserStatus::class)],
             'property_id' => [
@@ -66,6 +66,7 @@ class StoreTenantRequest extends FormRequest
             'email.email' => ['email', 'email'],
             'email.max' => ['max.string', 'email', ['max' => 255]],
             'email.unique' => ['unique', 'email'],
+            'email.disposable_email' => ['disposable_email', 'email'],
             'locale.required' => ['required', 'locale'],
             'locale.in' => ['in', 'locale'],
             'status.required' => ['required', 'status'],

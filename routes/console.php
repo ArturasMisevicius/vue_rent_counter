@@ -11,3 +11,7 @@ Artisan::command('inspire', function () {
 
 Schedule::command('model:prune', ['--model' => [SecurityViolation::class]])
     ->daily();
+
+Schedule::command('erag:sync-disposable-email-list')
+    ->dailyAt('03:30')
+    ->withoutOverlapping();

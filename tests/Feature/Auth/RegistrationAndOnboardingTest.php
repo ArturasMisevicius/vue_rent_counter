@@ -114,6 +114,20 @@ it('registers an admin and redirects to welcome', function () {
         ->and($user->organization_id)->toBeNull();
 });
 
+it('rejects registration with disposable email domains', function () {
+    $this->from(route('register'))
+        ->post(route('register.store'), [
+            'name' => 'Disposable Owner',
+            'email' => 'owner@10minutemail.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])
+        ->assertRedirect(route('register'))
+        ->assertSessionHasErrors(['email']);
+
+    expect(User::query()->where('email', 'owner@10minutemail.com')->exists())->toBeFalse();
+});
+
 it('allows an incomplete admin to view onboarding', function () {
     $admin = User::factory()->admin()->create([
         'organization_id' => null,

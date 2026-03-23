@@ -1,8 +1,4 @@
-@extends('layouts.guest')
-
 @section('title', __('auth.forgot_password_title'))
-
-@section('content')
     <div class="space-y-8">
         <div class="space-y-3 text-center">
             <h1 class="font-display text-4xl tracking-tight text-slate-950">{{ __('auth.forgot_password_title') }}</h1>
@@ -48,4 +44,3 @@
             </button>
         </form>
     </div>
-@endsection

@@ -64,6 +64,7 @@ return [
         'en' => 'English',
         'lt' => 'Lietuvių',
         'ru' => 'Русский',
+        'es' => 'Español',
     ],
 
     'subscription' => [

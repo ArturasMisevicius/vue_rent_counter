@@ -76,11 +76,7 @@ class InvoicesTable
                     ->label(__('admin.invoices.actions.process_payment'))
                     ->icon('heroicon-m-banknotes')
                     ->color('success')
-                    ->visible(fn (Invoice $record): bool => in_array($record->status, [
-                        InvoiceStatus::FINALIZED,
-                        InvoiceStatus::PARTIALLY_PAID,
-                        InvoiceStatus::OVERDUE,
-                    ], true))
+                    ->visible(fn (Invoice $record): bool => $record->status === InvoiceStatus::FINALIZED)
                     ->authorize(fn (Invoice $record): bool => InvoiceResource::canEdit($record))
                     ->schema([
                         TextInput::make('amount_paid')
@@ -111,6 +107,11 @@ class InvoicesTable
                     ->label(__('admin.invoices.actions.send_email'))
                     ->icon('heroicon-m-envelope')
                     ->visible(fn (Invoice $record): bool => InvoiceResource::canEdit($record))
+                    ->requiresConfirmation()
+                    ->modalHeading(__('admin.invoices.actions.send_email'))
+                    ->modalDescription(fn (Invoice $record): string => __('admin.invoices.messages.send_email_confirmation', [
+                        'email' => (string) ($record->tenant?->email ?: ''),
+                    ]))
                     ->schema([
                         TextInput::make('recipient_email')
                             ->label(__('admin.invoices.fields.recipient_email'))

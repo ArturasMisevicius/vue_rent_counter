@@ -33,10 +33,7 @@ class AcceptInvitationPage extends Component
         LoginRedirector $loginRedirector,
         AuthenticatedSessionHistory $authenticatedSessionHistory,
     ): RedirectResponse {
-        $invitation = OrganizationInvitation::query()
-            ->with(['organization', 'inviter'])
-            ->forToken($token)
-            ->first();
+        $invitation = $this->findInvitation($token);
 
         if ($invitation?->isAccepted()) {
             return redirect()
@@ -78,15 +75,36 @@ class AcceptInvitationPage extends Component
             'invitation' => $invitation,
             'statusMessage' => $statusMessage,
             'token' => $this->token,
-        ]);
+        ])->extends('layouts.guest');
     }
 
     #[Computed]
     public function invitation(): ?OrganizationInvitation
     {
+        return $this->findInvitation($this->token);
+    }
+
+    private function findInvitation(?string $token): ?OrganizationInvitation
+    {
+        $normalizedToken = $this->normalizeInvitationToken((string) $token);
+
+        if (! $this->isPlausibleInvitationToken($normalizedToken)) {
+            return null;
+        }
+
         return OrganizationInvitation::query()
             ->forAcceptancePortal()
-            ->forToken($this->token)
+            ->forToken($normalizedToken)
             ->first();
+    }
+
+    private function normalizeInvitationToken(string $token): string
+    {
+        return trim($token);
+    }
+
+    private function isPlausibleInvitationToken(string $token): bool
+    {
+        return strlen($token) === 64 && ctype_alnum($token);
     }
 }

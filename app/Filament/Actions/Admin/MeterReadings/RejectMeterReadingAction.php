@@ -60,8 +60,7 @@ class RejectMeterReadingAction
                 'reason' => $reason,
                 'previous_status' => is_string($previousStatus)
                     ? $previousStatus
-                    : $previousStatus?->value,
-                    : MeterReadingValidationStatus::PENDING->value,
+                    : ($previousStatus?->value ?? MeterReadingValidationStatus::PENDING->value),
                 'new_status' => MeterReadingValidationStatus::REJECTED->value,
             ],
             'ip_address' => request()?->ip(),

@@ -25,7 +25,7 @@ class UpdateOrganizationRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'owner_email' => ['nullable', 'email:rfc', 'max:255'],
+            'owner_email' => ['nullable', 'email:rfc', 'max:255', 'disposable_email'],
             'owner_name' => ['nullable', 'string', 'max:255'],
             'plan' => ['nullable', Rule::enum(SubscriptionPlan::class)],
         ];
@@ -41,6 +41,7 @@ class UpdateOrganizationRequest extends FormRequest
             'name.max' => ['max.string', 'name', ['max' => 255]],
             'owner_email.email' => ['email', 'owner_email'],
             'owner_email.max' => ['max.string', 'owner_email', ['max' => 255]],
+            'owner_email.disposable_email' => ['disposable_email', 'owner_email'],
             'owner_name.max' => ['max.string', 'owner_name', ['max' => 255]],
             'plan.enum' => ['enum', 'subscription_plan'],
         ]);

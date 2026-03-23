@@ -121,6 +121,11 @@ class BuildingResource extends Resource
         return parent::getEloquentQuery()->forOrganizationWorkspace($organizationId);
     }
 
+    public static function getRecordRouteBindingEloquentQuery(): Builder
+    {
+        return parent::getModel()::query();
+    }
+
     public static function getRelations(): array
     {
         return [

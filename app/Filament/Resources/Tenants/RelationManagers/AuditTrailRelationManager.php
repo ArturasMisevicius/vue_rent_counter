@@ -3,7 +3,8 @@
 namespace App\Filament\Resources\Tenants\RelationManagers;
 
 use App\Filament\Resources\Tenants\TenantResource;
-use App\Models\AuditLog;
+use App\Models\OrganizationActivityLog;
+use App\Models\User;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -27,9 +28,13 @@ class AuditTrailRelationManager extends RelationManager
     {
         $tenant = $this->getOwnerRecord();
 
-        return AuditLog::query()
+        if (! $tenant instanceof User) {
+            return OrganizationActivityLog::query()->whereKey(-1);
+        }
+
+        return OrganizationActivityLog::query()
             ->forOrganization($tenant->organization_id)
-            ->forSubject($tenant)
+            ->forResource($tenant)
             ->withActorSummary()
             ->recent();
     }
@@ -42,7 +47,7 @@ class AuditTrailRelationManager extends RelationManager
                     ->label(__('admin.tenants.audit.columns.occurred_at'))
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('actor.name')
+                TextColumn::make('user.name')
                     ->label(__('admin.tenants.audit.columns.actor'))
                     ->default(__('admin.tenants.audit.empty.system'))
                     ->searchable(),

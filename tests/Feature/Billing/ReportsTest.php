@@ -3,7 +3,6 @@
 use App\Enums\InvoiceStatus;
 use App\Enums\MeterType;
 use App\Filament\Pages\Reports;
-use App\Filament\Support\Admin\Reports\ReportExportService;
 use App\Models\Building;
 use App\Models\Invoice;
 use App\Models\Meter;
@@ -12,6 +11,7 @@ use App\Models\Organization;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
 use App\Models\User;
+use App\Services\ExportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
@@ -69,6 +69,30 @@ it('matches monthly paid totals in the revenue report', function () {
         ->toBe('EUR 200.00');
 });
 
+it('keeps the revenue report strictly bounded to the selected billing period end date range', function () {
+    [
+        'admin' => $admin,
+        'paidInvoiceCurrentMonth' => $paidInvoiceCurrentMonth,
+        'paidInvoicePreviousMonth' => $paidInvoicePreviousMonth,
+    ] = seedBillingReportsFeatureWorkspace();
+
+    $component = Livewire::actingAs($admin)
+        ->test(Reports::class)
+        ->set('activeTab', 'revenue')
+        ->set('dateFrom', now()->startOfMonth()->toDateString())
+        ->set('dateTo', now()->endOfMonth()->toDateString())
+        ->set('statusFilter', InvoiceStatus::PAID->value);
+
+    $rows = collect($component->instance()->report()['rows'])->keyBy('month');
+
+    expect($rows->keys()->all())
+        ->toBe([(string) $paidInvoiceCurrentMonth->billing_period_end?->format('Y-m')])
+        ->and($rows->has((string) $paidInvoicePreviousMonth->billing_period_end?->format('Y-m')))
+        ->toBeFalse()
+        ->and($rows[(string) $paidInvoiceCurrentMonth->billing_period_end?->format('Y-m')]['total_paid'] ?? null)
+        ->toBe('EUR 120.00');
+});
+
 it('identifies overdue invoices in the outstanding balances report', function () {
     [
         'admin' => $admin,
@@ -105,7 +129,7 @@ it('streams a csv export with the expected report headers', function () {
         ->set('dateFrom', now()->startOfMonth()->toDateString())
         ->set('dateTo', now()->endOfMonth()->toDateString());
 
-    $response = $component->instance()->exportCsv(app(ReportExportService::class));
+    $response = $component->instance()->exportCsv(app(ExportService::class));
 
     ob_start();
     $response->sendContent();

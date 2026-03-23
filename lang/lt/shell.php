@@ -153,15 +153,15 @@ return [
     ],
     'errors' => [
         'eyebrow' => 'Klaida :status',
-        '403' => [
+        403 => [
             'title' => 'Jūs neturite teisės peržiūrėti šio puslapio',
             'description' => 'Jūsų paskyra šiuo metu neturi prieigos prie šios srities. Jei manote, kad tai klaida, susisiekite su administratoriumi arba grįžkite į tinkamą skydelį.',
         ],
-        '404' => [
+        404 => [
             'title' => 'Jūsų ieškomas puslapis neegzistuoja',
             'description' => 'Nuoroda gali būti pasenusi, nepilna arba nebepasiekiama. Grįžkite į savo skydelį ir tęskite darbą saugiai.',
         ],
-        '500' => [
+        500 => [
             'title' => 'Mūsų pusėje kažkas nutiko',
             'description' => 'Šiuo metu negalėjome įvykdyti šios užklausos. Pabandykite dar kartą po akimirkos arba susisiekite su pagalba, jei problema kartosis.',
         ],

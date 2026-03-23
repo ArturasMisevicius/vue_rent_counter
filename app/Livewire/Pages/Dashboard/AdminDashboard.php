@@ -18,10 +18,16 @@ final class AdminDashboard extends Component
 
     public bool $showSubscriptionUsage = true;
 
+    /**
+     * @var array<string, mixed>
+     */
+    #[Locked]
+    public array $dashboardData = [];
+
     #[Locked]
     public int $organizationId = 0;
 
-    public function mount(): void
+    public function mount(array $dashboardData = []): void
     {
         $user = $this->user();
 
@@ -29,6 +35,15 @@ final class AdminDashboard extends Component
 
         $this->organizationId = (int) $user->organization_id;
         $this->showSubscriptionUsage = $user->isAdmin();
+        $this->dashboardData = $dashboardData['data'] ?? $dashboardData;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getListeners(): array
+    {
+        return $this->dashboardRefreshListeners();
     }
 
     public function render(): View
@@ -45,9 +60,11 @@ final class AdminDashboard extends Component
     #[Computed]
     public function dashboard(): array
     {
+        $data = $this->dashboardData ?: app(AdminDashboardStats::class)->dashboardFor($this->user(), 10, 10);
+
         return array_replace_recursive(
             $this->defaultDashboard(),
-            app(AdminDashboardStats::class)->dashboardFor($this->user(), 10, 10),
+            $data,
         );
     }
 

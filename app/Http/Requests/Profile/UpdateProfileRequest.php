@@ -32,6 +32,7 @@ class UpdateProfileRequest extends FormRequest
                 'email:rfc',
                 'max:255',
                 Rule::unique('users', 'email')->ignore($this->user()?->id),
+                'disposable_email',
             ],
             'locale' => [
                 'required',
@@ -53,6 +54,7 @@ class UpdateProfileRequest extends FormRequest
             'email.email' => ['email', 'email'],
             'email.max' => ['max.string', 'email', ['max' => 255]],
             'email.unique' => ['unique', 'email'],
+            'email.disposable_email' => ['disposable_email', 'email'],
             'locale.required' => ['required', 'locale'],
             'locale.in' => ['in', 'locale'],
         ]);

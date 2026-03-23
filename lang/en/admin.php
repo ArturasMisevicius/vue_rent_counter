@@ -423,6 +423,7 @@ return [
         'messages' => [
             'finalized' => 'Invoice finalized successfully.',
             'finalized_locked' => 'Finalized invoices keep payment and status updates available, but commercial content can no longer be changed.',
+            'send_email_confirmation' => 'Confirm sending this invoice to :email before continuing.',
             'payment_recorded' => 'Payment recorded successfully.',
             'email_sent' => 'Invoice email logged successfully.',
             'email_subject' => 'Invoice :number',

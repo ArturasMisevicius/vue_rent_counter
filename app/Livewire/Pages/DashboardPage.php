@@ -25,7 +25,11 @@ final class DashboardPage extends Component
 
     public function render(): View
     {
-        return view('livewire.pages.dashboard-page');
+        return view('livewire.pages.dashboard-page', [
+            'dashboardComponent' => $this->getRoleDashboardComponent(),
+            'roleDashboardData' => $this->dashboardData(),
+            'dashboardRole' => $this->dashboardData()['role'] ?? 'default',
+        ]);
     }
 
     #[Computed]
@@ -76,16 +80,6 @@ final class DashboardPage extends Component
         };
     }
 
-    public function getRoleDashboardData(): array
-    {
-        return match ($this->user()->role) {
-            UserRole::SUPERADMIN => $this->dashboardData()['data'],
-            UserRole::ADMIN, UserRole::MANAGER => $this->dashboardData()['data'],
-            UserRole::TENANT => $this->dashboardData()['data'],
-            default => [],
-        };
-    }
-
     public function shouldRenderDashboard(): bool
     {
         return in_array($this->user()->role, [
@@ -107,4 +101,3 @@ final class DashboardPage extends Component
         abort(403);
     }
 }
-

@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Tenants\Tables;
 
-use App\Enums\UserStatus;
+use App\Enums\TenantStatus;
 use App\Filament\Actions\Admin\Tenants\DeleteTenantAction;
 use App\Filament\Resources\Tenants\TenantResource;
 use App\Filament\Support\Admin\OrganizationContext;
@@ -48,7 +48,7 @@ class TenantsTable
             ->filters([
                 SelectFilter::make('status')
                     ->label(__('admin.tenants.columns.status'))
-                    ->options(UserStatus::options()),
+                    ->options(TenantStatus::options()),
                 SelectFilter::make('property_id')
                     ->label(__('admin.tenants.columns.property'))
                     ->query(function ($query, array $data): void {

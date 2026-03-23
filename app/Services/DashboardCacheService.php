@@ -18,6 +18,8 @@ class DashboardCacheService
 
     private const ORGANIZATION_VERSION_PREFIX = 'dashboard:organization-version';
 
+    private const ORGANIZATION_VERSION_TTL_DAYS = 30;
+
     /**
      * @var array<string, mixed>
      */
@@ -80,11 +82,16 @@ class DashboardCacheService
 
         $key = $this->organizationVersionKey($organizationId);
 
-        if (! Cache::has($key)) {
-            Cache::forever($key, 1);
+        if (! $this->addOrganizationVersion($key)) {
+            $nextVersion = Cache::increment($key);
+
+            if (! is_int($nextVersion)) {
+                $nextVersion = 1;
+            }
+
+            $this->refreshOrganizationVersionTtl($key, $nextVersion);
         }
 
-        Cache::increment($key);
         $this->memoized = [];
     }
 
@@ -92,15 +99,38 @@ class DashboardCacheService
     {
         $key = $this->organizationVersionKey($organizationId);
 
-        if (! Cache::has($key)) {
-            Cache::forever($key, 1);
+        if ($this->addOrganizationVersion($key)) {
+            return 1;
         }
 
-        return (int) Cache::get($key, 1);
+        $version = (int) Cache::get($key, 1);
+        $this->refreshOrganizationVersionTtl($key, $version);
+
+        return $version;
     }
 
     private function organizationVersionKey(int $organizationId): string
     {
         return self::ORGANIZATION_VERSION_PREFIX.':'.$organizationId;
+    }
+
+    private function addOrganizationVersion(string $key): bool
+    {
+        return Cache::add(
+            $key,
+            1,
+            now()->addDays(self::ORGANIZATION_VERSION_TTL_DAYS),
+        );
+    }
+
+    private function refreshOrganizationVersionTtl(string $key, int $version): void
+    {
+        $ttl = now()->addDays(self::ORGANIZATION_VERSION_TTL_DAYS);
+
+        if (Cache::touch($key, $ttl)) {
+            return;
+        }
+
+        Cache::put($key, $version, $ttl);
     }
 }

@@ -66,7 +66,7 @@ class TenantResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('shell.navigation.groups.properties');
+        return __('app.nav_groups.property_management');
     }
 
     public static function getNavigationLabel(): string
@@ -98,6 +98,11 @@ class TenantResource extends Resource
         }
 
         return parent::getEloquentQuery()->withTenantWorkspaceSummary($organizationId);
+    }
+
+    public static function getRecordRouteBindingEloquentQuery(): Builder
+    {
+        return parent::getModel()::query();
     }
 
     public static function canViewAny(): bool

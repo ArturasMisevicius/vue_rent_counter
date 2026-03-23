@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Models\OrganizationInvitation;
 use App\Models\User;
 use App\Notifications\Auth\OrganizationInvitationNotification;
+use EragLaravelDisposableEmail\Rules\DisposableEmailRule;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
@@ -30,6 +31,12 @@ class CreateOrganizationInvitationAction
         if (! in_array($attributes['role'], [UserRole::MANAGER, UserRole::TENANT], true)) {
             throw ValidationException::withMessages([
                 'role' => __('validation.in', ['attribute' => 'role']),
+            ]);
+        }
+
+        if (DisposableEmailRule::isDisposable((string) $attributes['email'])) {
+            throw ValidationException::withMessages([
+                'email' => __('validation.disposable_email', ['attribute' => __('requests.attributes.email')]),
             ]);
         }
 
