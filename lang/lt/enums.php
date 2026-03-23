@@ -95,19 +95,6 @@ return [
         'cash' => 'Grynieji',
         'other' => 'Kita',
     ],
-    'platform_notification_severity' => [
-        'info' => 'Informacija',
-        'success' => 'Sėkminga',
-        'warning' => 'Įspėjimas',
-        'error' => 'Klaida',
-        'critical' => 'Kritinė',
-    ],
-    'platform_notification_status' => [
-        'draft' => 'Juodraštis',
-        'scheduled' => 'Suplanuota',
-        'sent' => 'Išsiųsta',
-        'failed' => 'Nepavyko',
-    ],
     'pricing_model' => [
         'fixed_monthly' => 'Fiksuotas mėnesinis',
         'fixed_daily' => 'Fiksuotas dieninis',

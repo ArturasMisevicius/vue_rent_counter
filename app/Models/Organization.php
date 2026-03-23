@@ -174,11 +174,6 @@ class Organization extends Model
         return $this->hasMany(ServiceConfiguration::class);
     }
 
-    public function platformNotificationRecipients(): HasMany
-    {
-        return $this->hasMany(PlatformNotificationRecipient::class);
-    }
-
     public function auditLogs(): HasMany
     {
         return $this->hasMany(AuditLog::class);

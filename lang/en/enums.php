@@ -95,19 +95,6 @@ return [
         'cash' => 'Cash',
         'other' => 'Other',
     ],
-    'platform_notification_severity' => [
-        'info' => 'Info',
-        'success' => 'Success',
-        'warning' => 'Warning',
-        'error' => 'Error',
-        'critical' => 'Critical',
-    ],
-    'platform_notification_status' => [
-        'draft' => 'Draft',
-        'scheduled' => 'Scheduled',
-        'sent' => 'Sent',
-        'failed' => 'Failed',
-    ],
     'pricing_model' => [
         'fixed_monthly' => 'Fixed monthly',
         'fixed_daily' => 'Fixed daily',

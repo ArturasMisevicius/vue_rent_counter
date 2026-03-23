@@ -110,10 +110,6 @@ return [
                             'label' => 'Audit Logs',
                         ],
                         [
-                            'route' => 'filament.admin.resources.platform-notifications.index',
-                            'label' => 'Platform Notifications',
-                        ],
-                        [
                             'route' => 'filament.admin.resources.languages.index',
                             'label' => 'Languages',
                         ],

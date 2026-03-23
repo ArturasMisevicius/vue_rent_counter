@@ -24,8 +24,6 @@
                         </span>
                     @endif
 
-                    @livewire(\App\Livewire\NotificationBell::class)
-
                     @livewire(\App\Livewire\Shell\LanguageSwitcher::class)
 
                     @if ($profileUrl && ! $isCurrentProfileRoute)
@@ -98,8 +96,6 @@
                             {{ $roleLabel }}
                         </span>
                     @endif
-
-                    @livewire(\App\Livewire\NotificationBell::class)
 
                     @livewire(\App\Livewire\Shell\LanguageSwitcher::class)
 

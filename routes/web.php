@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\CspViolationReportController;
 use App\Http\Controllers\DashboardRedirectController;
-use App\Http\Controllers\NotificationTrackingController;
 use App\Http\Controllers\SwitchGuestLocaleController;
 use App\Http\Controllers\TenantInvoiceDownloadController;
 use App\Http\Controllers\TenantPortalRouteController;
@@ -71,9 +70,6 @@ Route::get('/profile', EditProfilePage::class)->middleware('auth')->name('profil
 Route::get('/language/{locale}', SwitchGuestLocaleController::class)->name('language.switch');
 
 Route::post('/locale', [UpdateGuestLocaleEndpoint::class, 'update'])->name('locale.update');
-
-Route::post('/notification-track/{platformNotificationRecipient}', NotificationTrackingController::class)
-    ->name('notifications.track');
 
 Route::get('/tenant/invoices/{invoice}/download', TenantInvoiceDownloadController::class)
     ->middleware('auth')

@@ -9,8 +9,6 @@ use App\Enums\MeterReadingValidationStatus;
 use App\Enums\MeterStatus;
 use App\Enums\MeterType;
 use App\Enums\OrganizationStatus;
-use App\Enums\PlatformNotificationSeverity;
-use App\Enums\PlatformNotificationStatus;
 use App\Enums\PricingModel;
 use App\Enums\PropertyType;
 use App\Enums\ServiceType;
@@ -28,8 +26,6 @@ use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\OrganizationSetting;
-use App\Models\PlatformNotification;
-use App\Models\PlatformNotificationRecipient;
 use App\Models\Project;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
@@ -52,7 +48,6 @@ class OperationalDemoDatasetSeeder extends Seeder
     {
         $superadmin = $this->upsertPlatformSuperadmin();
         $systemTenant = $this->upsertSystemTenant($superadmin);
-        $platformNotification = $this->upsertPlatformNotification();
 
         $cities = BalticReferenceCatalog::cities();
         $locales = BalticReferenceCatalog::supportedLocaleCodes();
@@ -374,19 +369,6 @@ class OperationalDemoDatasetSeeder extends Seeder
                 );
             });
 
-            PlatformNotificationRecipient::query()->updateOrCreate(
-                [
-                    'platform_notification_id' => $platformNotification->id,
-                    'organization_id' => $organization->id,
-                    'email' => $admin->email,
-                ],
-                [
-                    'delivery_status' => 'sent',
-                    'sent_at' => Carbon::create(2026, 3, 1)->addDays($organizationIndex),
-                    'read_at' => null,
-                    'failure_reason' => null,
-                ],
-            );
         }
     }
 
@@ -610,20 +592,6 @@ class OperationalDemoDatasetSeeder extends Seeder
         ])->save();
 
         return $systemTenant;
-    }
-
-    private function upsertPlatformNotification(): PlatformNotification
-    {
-        return PlatformNotification::query()->updateOrCreate(
-            ['title' => 'Baltic demo dataset is ready'],
-            [
-                'body' => 'The seeded Baltic workspace now includes operational data for organizations, tenants, meters, and invoices.',
-                'severity' => PlatformNotificationSeverity::INFO,
-                'status' => PlatformNotificationStatus::SENT,
-                'scheduled_for' => null,
-                'sent_at' => Carbon::create(2026, 3, 1, 9, 0, 0),
-            ],
-        );
     }
 
     private function upsertOrganizationUser(

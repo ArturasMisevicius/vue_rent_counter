@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\PlatformNotificationStatus;
 use App\Models\AuditLog;
 use App\Models\BillingRecord;
 use App\Models\Building;
@@ -9,9 +8,6 @@ use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
-use App\Models\PlatformNotification;
-use App\Models\PlatformNotificationDelivery;
-use App\Models\PlatformNotificationRecipient;
 use App\Models\PlatformOrganizationInvitation;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
@@ -159,30 +155,4 @@ it('loads audit feeds with actor and organization summaries', function (): void 
         ->and($loadedLog->relationLoaded('organization'))->toBeTrue()
         ->and(AuditLog::query()->forSubject($subject)->whereKey($log->id)->exists())->toBeTrue()
         ->and($loadedLog->subject?->is($subject))->toBeTrue();
-});
-
-it('aggregates platform notification delivery counts and nested user summaries', function (): void {
-    $user = User::factory()->superadmin()->create();
-    $organization = Organization::factory()->create();
-    $notification = PlatformNotification::factory()->create([
-        'status' => PlatformNotificationStatus::SENT,
-        'sent_at' => now(),
-    ]);
-
-    PlatformNotificationDelivery::factory()->for($notification, 'notification')->for($user)->create();
-    PlatformNotificationRecipient::factory()->for($notification, 'notification')->for($organization)->create([
-        'delivery_status' => 'sent',
-        'sent_at' => now(),
-    ]);
-
-    $loadedNotification = PlatformNotification::query()
-        ->sent()
-        ->withDeliverySummary()
-        ->withDeliveryRelations()
-        ->firstOrFail();
-
-    expect($loadedNotification->deliveries_count)->toBe(1)
-        ->and($loadedNotification->recipients_count)->toBe(1)
-        ->and($loadedNotification->relationLoaded('deliveries'))->toBeTrue()
-        ->and($loadedNotification->deliveries->first()?->relationLoaded('user'))->toBeTrue();
 });

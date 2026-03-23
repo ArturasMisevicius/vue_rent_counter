@@ -18,13 +18,11 @@ use App\Filament\Support\Superadmin\Integration\Probes\DatabaseProbe;
 use App\Filament\Support\Superadmin\Integration\Probes\MailProbe;
 use App\Filament\Support\Superadmin\Integration\Probes\QueueProbe;
 use App\Models\Organization;
-use App\Models\PlatformNotification;
 use App\Models\PropertyAssignment;
 use App\Models\Subscription;
 use App\Models\SystemSetting;
 use App\Models\User;
 use App\Observers\OrganizationObserver;
-use App\Observers\PlatformNotificationObserver;
 use App\Observers\PropertyAssignmentObserver;
 use App\Observers\SubscriptionObserver;
 use App\Observers\SystemSettingObserver;
@@ -104,7 +102,6 @@ class AppServiceProvider extends ServiceProvider
         Subscription::observe(SubscriptionObserver::class);
         User::observe(UserObserver::class);
         SystemSetting::observe(SystemSettingObserver::class);
-        PlatformNotification::observe(PlatformNotificationObserver::class);
         PropertyAssignment::observe(PropertyAssignmentObserver::class);
     }
 

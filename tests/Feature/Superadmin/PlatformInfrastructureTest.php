@@ -6,7 +6,6 @@ use App\Models\BlockedIpAddress;
 use App\Models\IntegrationHealthCheck;
 use App\Models\Language;
 use App\Models\Organization;
-use App\Models\PlatformNotification;
 use App\Models\SecurityViolation;
 use App\Models\Subscription;
 use App\Models\SystemSetting;
@@ -39,7 +38,6 @@ it('registers superadmin-only platform policies', function () {
         AuditLog::class,
         IntegrationHealthCheck::class,
         Language::class,
-        PlatformNotification::class,
         SecurityViolation::class,
         Subscription::class,
         SystemSetting::class,
@@ -93,7 +91,6 @@ it('writes audit logs for observed models and sanitizes user password changes', 
 
     $organization = Organization::factory()->create();
     $subscription = Subscription::factory()->for($organization)->create();
-    $platformNotification = PlatformNotification::factory()->create();
     $systemSetting = SystemSetting::factory()->create();
     $user = User::factory()->manager()->create([
         'organization_id' => $organization->id,
@@ -118,12 +115,6 @@ it('writes audit logs for observed models and sanitizes user password changes', 
         ->where('action', AuditLogAction::CREATED)
         ->first();
 
-    $platformNotificationLog = AuditLog::query()
-        ->where('subject_type', PlatformNotification::class)
-        ->where('subject_id', $platformNotification->id)
-        ->where('action', AuditLogAction::CREATED)
-        ->first();
-
     $systemSettingLog = AuditLog::query()
         ->where('subject_type', SystemSetting::class)
         ->where('subject_id', $systemSetting->id)
@@ -142,8 +133,6 @@ it('writes audit logs for observed models and sanitizes user password changes', 
         ->and($organizationLog?->actor_user_id)->toBe($superadmin->id)
         ->and($subscriptionLog)->not->toBeNull()
         ->and($subscriptionLog?->organization_id)->toBe($organization->id)
-        ->and($platformNotificationLog)->not->toBeNull()
-        ->and($platformNotificationLog?->organization_id)->toBeNull()
         ->and($systemSettingLog)->not->toBeNull()
         ->and($systemSettingLog?->organization_id)->toBeNull()
         ->and($userUpdateLog)->not->toBeNull()

@@ -3,8 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Organization;
-use App\Models\PlatformNotification;
-use App\Models\PlatformNotificationRecipient;
 use App\Models\PlatformOrganizationInvitation;
 use App\Models\SuperAdminAuditLog;
 use App\Models\SystemConfiguration;
@@ -67,31 +65,6 @@ class LegacyPlatformFoundationSeeder extends Seeder
                 'is_tenant_configurable' => false,
                 'requires_restart' => false,
                 'updated_by_admin_id' => $superadmin->id,
-            ],
-        );
-
-        $notification = PlatformNotification::query()->updateOrCreate(
-            ['title' => 'Platform Foundation Ready'],
-            [
-                'body' => 'Legacy platform support foundation has been imported.',
-                'severity' => 'info',
-                'status' => 'sent',
-                'scheduled_for' => null,
-                'sent_at' => now(),
-            ],
-        );
-
-        PlatformNotificationRecipient::query()->updateOrCreate(
-            [
-                'platform_notification_id' => $notification->id,
-                'organization_id' => $organization->id,
-                'email' => 'admin@example.com',
-            ],
-            [
-                'delivery_status' => 'sent',
-                'sent_at' => now(),
-                'read_at' => null,
-                'failure_reason' => null,
             ],
         );
 

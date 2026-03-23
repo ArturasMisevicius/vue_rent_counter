@@ -8,7 +8,6 @@ use App\Enums\InvoiceStatus;
 use App\Enums\MeterReadingSubmissionMethod;
 use App\Enums\MeterStatus;
 use App\Enums\MeterType;
-use App\Enums\PlatformNotificationSeverity;
 use App\Enums\PropertyType;
 use App\Enums\ServiceType;
 use App\Enums\SubscriptionDuration;
@@ -30,6 +29,7 @@ use App\Http\Requests\Admin\Reports\ConsumptionReportRequest;
 use App\Http\Requests\Admin\Reports\ExportReportRequest;
 use App\Http\Requests\Admin\Reports\MeterComplianceReportRequest;
 use App\Http\Requests\Admin\Reports\OutstandingBalancesReportRequest;
+use App\Http\Requests\Admin\Reports\ReportExportRequest;
 use App\Http\Requests\Admin\Reports\RevenueReportRequest;
 use App\Http\Requests\Admin\Settings\RenewSubscriptionRequest;
 use App\Http\Requests\Admin\Settings\UpdateNotificationPreferencesRequest;
@@ -49,7 +49,6 @@ use App\Http\Requests\Profile\UpdatePasswordRequest;
 use App\Http\Requests\Profile\UpdateProfileRequest;
 use App\Http\Requests\Security\CspViolationRequest;
 use App\Http\Requests\Shell\SearchQueryRequest;
-use App\Http\Requests\Superadmin\Notifications\SendPlatformNotificationRequest;
 use App\Http\Requests\Superadmin\Organizations\ImpersonateUserRequest;
 use App\Http\Requests\Superadmin\Organizations\StoreOrganizationRequest;
 use App\Http\Requests\Superadmin\Organizations\UpdateOrganizationRequest;
@@ -296,16 +295,6 @@ final class FormRequestScenarioFactory
                 'required' => ['user_id'],
                 'authorize' => self::superadminOnly(),
             ],
-            'SendPlatformNotificationRequest' => [
-                'request' => static fn (array $context): FormRequest => (new SendPlatformNotificationRequest)->requireSeverity(),
-                'valid' => static fn (array $context): array => [
-                    'title' => 'Scheduled maintenance',
-                    'body' => 'The platform will restart at midnight.',
-                    'severity' => PlatformNotificationSeverity::WARNING->value,
-                ],
-                'required' => ['title', 'body', 'severity'],
-                'authorize' => self::superadminOnly(),
-            ],
             'BlockIpAddressRequest' => [
                 'request' => static fn (array $context): FormRequest => new BlockIpAddressRequest,
                 'valid' => static fn (array $context): array => [
@@ -390,7 +379,7 @@ final class FormRequestScenarioFactory
                     'country_code' => 'lt',
                 ],
                 'required' => ['name', 'address_line_1', 'city', 'postal_code', 'country_code'],
-                'authorize' => self::adminManagerOnly(),
+                'authorize' => self::adminLikeOnly(),
             ],
             'ProcessPaymentRequest' => [
                 'request' => static fn (array $context): FormRequest => new ProcessPaymentRequest,
@@ -484,7 +473,7 @@ final class FormRequestScenarioFactory
                     'floor_area_sqm' => '58.50',
                 ],
                 'required' => ['building_id', 'name', 'unit_number', 'type'],
-                'authorize' => self::adminManagerOnly(),
+                'authorize' => self::adminLikeOnly(),
             ],
             'StorePropertyRequest' => [
                 'request' => static fn (array $context): FormRequest => (new StorePropertyRequest)->forOrganization($context['organization']->id),
@@ -496,7 +485,7 @@ final class FormRequestScenarioFactory
                     'floor_area_sqm' => '58.50',
                 ],
                 'required' => ['building_id', 'name', 'unit_number', 'type'],
-                'authorize' => self::adminManagerOnly(),
+                'authorize' => self::adminLikeOnly(),
             ],
             'ProviderRequest' => [
                 'request' => static fn (array $context): FormRequest => new ProviderRequest,
@@ -515,6 +504,13 @@ final class FormRequestScenarioFactory
             'ConsumptionReportRequest' => self::reportScenario(ConsumptionReportRequest::class),
             'ExportReportRequest' => self::reportScenario(
                 ExportReportRequest::class,
+                ['format'],
+                static fn (array $context): array => [
+                    'format' => 'csv',
+                ],
+            ),
+            'ReportExportRequest' => self::reportScenario(
+                ReportExportRequest::class,
                 ['format'],
                 static fn (array $context): array => [
                     'format' => 'csv',

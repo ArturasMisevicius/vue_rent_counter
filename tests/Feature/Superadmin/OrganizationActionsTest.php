@@ -1,19 +1,15 @@
 <?php
 
 use App\Enums\OrganizationStatus;
-use App\Enums\PlatformNotificationSeverity;
 use App\Enums\SubscriptionDuration;
 use App\Enums\SubscriptionPlan;
 use App\Filament\Actions\Superadmin\Organizations\CreateOrganizationAction;
 use App\Filament\Actions\Superadmin\Organizations\ExportOrganizationDataAction;
 use App\Filament\Actions\Superadmin\Organizations\ReinstateOrganizationAction;
-use App\Filament\Actions\Superadmin\Organizations\SendOrganizationNotificationAction;
 use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
 use App\Filament\Actions\Superadmin\Organizations\SuspendOrganizationAction;
 use App\Filament\Actions\Superadmin\Organizations\UpdateOrganizationAction;
 use App\Models\Organization;
-use App\Models\PlatformNotification;
-use App\Models\PlatformNotificationDelivery;
 use App\Models\PlatformOrganizationInvitation;
 use App\Models\Subscription;
 use App\Models\User;
@@ -140,15 +136,6 @@ it('suspends reinstates notifies impersonates and exports organizations', functi
 
     expect($suspended->status)->toBe(OrganizationStatus::SUSPENDED)
         ->and($reinstated->status)->toBe(OrganizationStatus::ACTIVE);
-
-    $notification = app(SendOrganizationNotificationAction::class)->handle($organization, [
-        'title' => 'Maintenance window',
-        'body' => 'Please review your billing contact before Friday.',
-        'severity' => PlatformNotificationSeverity::WARNING,
-    ]);
-
-    expect($notification)->toBeInstanceOf(PlatformNotification::class)
-        ->and(PlatformNotificationDelivery::query()->where('platform_notification_id', $notification->id)->count())->toBe(2);
 
     $this->actingAs($superadmin);
 

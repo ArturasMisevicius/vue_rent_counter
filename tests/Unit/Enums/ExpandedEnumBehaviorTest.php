@@ -9,7 +9,6 @@ use App\Enums\MeterStatus;
 use App\Enums\MeterType;
 use App\Enums\OrganizationStatus;
 use App\Enums\PaymentMethod;
-use App\Enums\PlatformNotificationSeverity;
 use App\Enums\PricingModel;
 use App\Enums\PropertyType;
 use App\Enums\SecurityViolationType;
@@ -56,10 +55,6 @@ dataset('expanded-enum-values', [
     'payment methods' => [
         PaymentMethod::class,
         ['bank_transfer', 'direct_debit', 'card', 'digital_wallet', 'cheque', 'cash', 'other'],
-    ],
-    'platform notification severities' => [
-        PlatformNotificationSeverity::class,
-        ['info', 'success', 'warning', 'error', 'critical'],
     ],
     'pricing models' => [
         PricingModel::class,

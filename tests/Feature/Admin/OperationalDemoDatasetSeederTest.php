@@ -9,7 +9,6 @@ use App\Models\Lease;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
-use App\Models\PlatformNotificationRecipient;
 use App\Models\Project;
 use App\Models\Property;
 use App\Models\PropertyAssignment;
@@ -55,8 +54,6 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
     $projectCount = Project::query()->whereIn('organization_id', $demoOrganizationIds)->count();
     $taskAssignmentCount = TaskAssignment::query()->whereIn('task_id', $demoTaskIds)->count();
     $timeEntryCount = TimeEntry::query()->whereIn('task_id', $demoTaskIds)->count();
-    $recipientCount = PlatformNotificationRecipient::query()->whereIn('organization_id', $demoOrganizationIds)->count();
-
     $datasetTotal = $demoOrganizations->count()
         + $demoUserCount
         + $subscriptionCount
@@ -74,8 +71,7 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
         + $projectCount
         + $demoTasks->count()
         + $taskAssignmentCount
-        + $timeEntryCount
-        + $recipientCount;
+        + $timeEntryCount;
 
     expect($demoOrganizations)->toHaveCount(10)
         ->and($demoUserCount)->toBe(101)
@@ -95,7 +91,6 @@ it('seeds a 1000 plus logical baltic demo dataset without breaking organization 
         ->and($demoTasks->count())->toBe(20)
         ->and($taskAssignmentCount)->toBe(20)
         ->and($timeEntryCount)->toBe(20)
-        ->and($recipientCount)->toBe(10)
         ->and($datasetTotal)->toBeGreaterThanOrEqual(1000)
         ->and(User::query()->where('email', 'like', '%@tenanto-demo.test')->pluck('locale')->unique()->sort()->values()->all())->toEqual(['en', 'lt', 'ru']);
 

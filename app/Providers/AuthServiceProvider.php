@@ -10,11 +10,11 @@ use App\Models\Language;
 use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
-use App\Models\PlatformNotification;
 use App\Models\Property;
 use App\Models\SecurityViolation;
 use App\Models\Subscription;
 use App\Models\SystemSetting;
+use App\Models\Tariff;
 use App\Models\User;
 use App\Policies\AuditLogPolicy;
 use App\Policies\BuildingPolicy;
@@ -24,11 +24,11 @@ use App\Policies\LanguagePolicy;
 use App\Policies\MeterPolicy;
 use App\Policies\MeterReadingPolicy;
 use App\Policies\OrganizationPolicy;
-use App\Policies\PlatformNotificationPolicy;
 use App\Policies\PropertyPolicy;
 use App\Policies\SecurityViolationPolicy;
 use App\Policies\SubscriptionPolicy;
 use App\Policies\SystemSettingPolicy;
+use App\Policies\TariffPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -46,11 +46,11 @@ class AuthServiceProvider extends ServiceProvider
         Meter::class => MeterPolicy::class,
         MeterReading::class => MeterReadingPolicy::class,
         Organization::class => OrganizationPolicy::class,
-        PlatformNotification::class => PlatformNotificationPolicy::class,
         Property::class => PropertyPolicy::class,
         SecurityViolation::class => SecurityViolationPolicy::class,
         Subscription::class => SubscriptionPolicy::class,
         SystemSetting::class => SystemSettingPolicy::class,
+        Tariff::class => TariffPolicy::class,
         User::class => UserPolicy::class,
     ];
 

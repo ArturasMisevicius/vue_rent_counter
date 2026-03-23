@@ -31,7 +31,6 @@ return [
             'organizations' => 'Organizacijos',
             'users' => 'Naudotojai',
             'subscriptions' => 'Prenumeratos',
-            'platform_notifications' => 'Platformos pranešimai',
             'languages' => 'Kalbos',
             'translation_management' => 'Vertimų valdymas',
             'system_configuration' => 'Sistemos konfigūracija',

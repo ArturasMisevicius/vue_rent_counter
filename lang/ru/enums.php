@@ -95,19 +95,6 @@ return [
         'cash' => 'Наличные',
         'other' => 'Другое',
     ],
-    'platform_notification_severity' => [
-        'info' => 'Информация',
-        'success' => 'Успешно',
-        'warning' => 'Предупреждение',
-        'error' => 'Ошибка',
-        'critical' => 'Критическая',
-    ],
-    'platform_notification_status' => [
-        'draft' => 'Черновик',
-        'scheduled' => 'Запланировано',
-        'sent' => 'Отправлено',
-        'failed' => 'Сбой',
-    ],
     'pricing_model' => [
         'fixed_monthly' => 'Фиксированная ежемесячная',
         'fixed_daily' => 'Фиксированная ежедневная',

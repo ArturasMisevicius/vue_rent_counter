@@ -48,6 +48,26 @@
 - EXCLUDE (tentative): implementation changes until plan is approved.
 - EXCLUDE (tentative): `_old/` legacy code unless user asks to port or revive it.
 
+## Implementation Status (executed after scope confirmation)
+- User-confirmed direction: **Harden existing Tariff CRUD** (not broad new-surface expansion).
+- User-confirmed quality mode: **TDD**.
+- Implemented hardening changes:
+  - Added explicit `TariffPolicy` and mapped it in `AuthServiceProvider`.
+  - Updated `TariffResource` authorization to use centralized Gate policy checks.
+  - Hardened `DeleteTariffAction` to enforce delete authorization when authenticated context exists.
+  - Added policy coverage test: `tests/Feature/Admin/TariffPolicyTest.php`.
+  - Added cross-organization delete guard test: `tests/Feature/Admin/DeleteTariffAuthorizationTest.php`.
+
+## Verification Evidence
+- Focused tests (Pest):
+  - `tests/Feature/Admin/TariffPolicyTest.php`
+  - `tests/Feature/Admin/TariffsResourceTest.php`
+  - `tests/Feature/Admin/TariffsAndProvidersTest.php`
+  - `tests/Feature/Admin/DeleteTariffAuthorizationTest.php`
+  - Result: **7 passed (81 assertions)**.
+- Pint formatting: `vendor/bin/pint --dirty --format agent` → **pass**.
+- LSP diagnostics (all touched files) → **no diagnostics found**.
+
 ## Open Questions
 - Which tariff domains are in scope (Filament admin only vs API endpoints + tenant/manager UI + exports/imports + permissions)?
 - Should this include tenant-specific tariffs, global tariffs, or both?

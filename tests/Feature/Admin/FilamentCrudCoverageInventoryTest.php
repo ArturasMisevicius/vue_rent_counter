@@ -8,7 +8,6 @@ use App\Filament\Resources\Languages\LanguageResource;
 use App\Filament\Resources\MeterReadings\MeterReadingResource;
 use App\Filament\Resources\Meters\MeterResource;
 use App\Filament\Resources\Organizations\OrganizationResource;
-use App\Filament\Resources\PlatformNotifications\PlatformNotificationResource;
 use App\Filament\Resources\Properties\PropertyResource;
 use App\Filament\Resources\Providers\ProviderResource;
 use App\Filament\Resources\SecurityViolations\SecurityViolationResource;
@@ -54,10 +53,6 @@ it('keeps every Filament resource mapped to regression coverage and its expected
         OrganizationResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],
             'test' => 'tests/Feature/Superadmin/OrganizationsResourceTest.php',
-        ],
-        PlatformNotificationResource::class => [
-            'pages' => ['index', 'create', 'view', 'edit'],
-            'test' => 'tests/Feature/Superadmin/PlatformNotificationsResourceTest.php',
         ],
         PropertyResource::class => [
             'pages' => ['index', 'create', 'view', 'edit'],

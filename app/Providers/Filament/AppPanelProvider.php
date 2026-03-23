@@ -148,13 +148,6 @@ class AppPanelProvider extends PanelProvider
                         visible: fn (): bool => $this->isSuperadmin(),
                     ),
                     $this->navigationItem(
-                        label: __('shell.navigation.items.platform_notifications'),
-                        icon: Heroicon::OutlinedBellAlert,
-                        routeName: 'filament.admin.resources.platform-notifications.index',
-                        activePatterns: ['filament.admin.resources.platform-notifications.*'],
-                        visible: fn (): bool => $this->isSuperadmin(),
-                    ),
-                    $this->navigationItem(
                         label: __('shell.navigation.items.languages'),
                         icon: Heroicon::OutlinedLanguage,
                         routeName: 'filament.admin.resources.languages.index',
@@ -189,7 +182,7 @@ class AppPanelProvider extends PanelProvider
                             'filament.admin.pages.dashboard',
                             'filament.admin.pages.organization-dashboard',
                         ],
-                        visible: fn (): bool => $this->isAdminLike(),
+                        visible: fn (): bool => $this->isAdminOrManager(),
                     ),
                     $this->navigationItem(
                         label: __('admin.buildings.plural'),

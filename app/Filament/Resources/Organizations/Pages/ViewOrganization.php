@@ -3,19 +3,14 @@
 namespace App\Filament\Resources\Organizations\Pages;
 
 use App\Enums\OrganizationStatus;
-use App\Enums\PlatformNotificationSeverity;
 use App\Enums\UserRole;
 use App\Filament\Actions\Superadmin\Organizations\ReinstateOrganizationAction;
-use App\Filament\Actions\Superadmin\Organizations\SendOrganizationNotificationAction;
 use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
 use App\Filament\Actions\Superadmin\Organizations\SuspendOrganizationAction;
 use App\Filament\Resources\Organizations\OrganizationResource;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 
@@ -108,36 +103,6 @@ class ViewOrganization extends ViewRecord
 
                     Notification::make()
                         ->title('Organization reinstated')
-                        ->success()
-                        ->send();
-                }),
-            Action::make('sendNotification')
-                ->label('Send Notification')
-                ->icon('heroicon-o-bell-alert')
-                ->authorize(fn (): bool => $this->authenticatedUser()?->can('sendNotification', $this->record) ?? false)
-                ->schema([
-                    TextInput::make('title')
-                        ->label('Title')
-                        ->required()
-                        ->maxLength(255),
-                    Textarea::make('body')
-                        ->label('Body')
-                        ->required()
-                        ->rows(5),
-                    Select::make('severity')
-                        ->label('Severity')
-                        ->options(PlatformNotificationSeverity::options())
-                        ->required(),
-                ])
-                ->action(function (array $data, SendOrganizationNotificationAction $sendOrganizationNotificationAction): void {
-                    $sendOrganizationNotificationAction->handle($this->record, [
-                        'title' => $data['title'],
-                        'body' => $data['body'],
-                        'severity' => PlatformNotificationSeverity::from($data['severity']),
-                    ]);
-
-                    Notification::make()
-                        ->title('Notification sent')
                         ->success()
                         ->send();
                 }),

@@ -37,7 +37,6 @@ class EnsureOnboardingIsComplete
             'filament.admin.resources.audit-logs.',
             'filament.admin.resources.languages.',
             'filament.admin.resources.organizations.',
-            'filament.admin.resources.platform-notifications.',
             'filament.admin.resources.security-violations.',
             'filament.admin.resources.subscriptions.',
             'filament.admin.resources.users.',

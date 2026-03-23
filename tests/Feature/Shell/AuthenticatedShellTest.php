@@ -62,6 +62,7 @@ it('renders platform navigation for superadmins without organization navigation'
         ->assertSeeText('Search anything')
         ->assertSee('data-shell-nav="sidebar"', false)
         ->assertSee('data-shell-group="platform"', false)
+        ->assertDontSee('data-shell-group="properties"', false)
         ->assertSee('data-shell-group="account"', false)
         ->assertSee(route('filament.admin.resources.organizations.index'), false)
         ->assertSee('data-shell-current="filament.admin.pages.dashboard"', false);

@@ -31,7 +31,6 @@ return [
             'organizations' => 'Organizations',
             'users' => 'Users',
             'subscriptions' => 'Subscriptions',
-            'platform_notifications' => 'Platform Notifications',
             'languages' => 'Languages',
             'translation_management' => 'Translation Management',
             'system_configuration' => 'System Configuration',

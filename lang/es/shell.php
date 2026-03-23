@@ -40,7 +40,6 @@ return [
             'organizations' => 'Organizacións',
             'users' => 'Users',
             'subscriptions' => 'Suscripcións',
-            'platform_notifications' => 'Platform Notifications',
             'languages' => 'Languages',
             'translation_management' => 'Translation Management',
             'system_configuration' => 'System Configuration',

@@ -281,11 +281,6 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(SuperAdminAuditLog::class, 'admin_id');
     }
 
-    public function platformNotificationDeliveries(): HasMany
-    {
-        return $this->hasMany(PlatformNotificationDelivery::class);
-    }
-
     public function securityViolations(): HasMany
     {
         return $this->hasMany(SecurityViolation::class);

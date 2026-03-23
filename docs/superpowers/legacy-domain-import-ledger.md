@@ -35,8 +35,6 @@ depends on the legacy concept yet.
 | OrganizationInvitation | merge | `App\Models\OrganizationInvitation` | legacy invitation columns only if missing | inviter/invitee support | Preserve current invitation flow |
 | OrganizationUser | import | `App\Models\OrganizationUser` | organization-user membership table | membership roles, status casts, and relations | Supplements current `users.organization_id` model |
 | PersonalAccessToken | defer | `Laravel\Sanctum\PersonalAccessToken` | none | none | Current Sanctum implementation is authoritative; add a local model only if customization becomes necessary |
-| PlatformNotification | merge | `App\Models\PlatformNotification` | legacy delivery/support columns only if missing | recipients and delivery relations | Preserve current notification surface |
-| PlatformNotificationRecipient | import | `App\Models\PlatformNotificationRecipient` | notification recipients table | notification and user relations | Platform foundation |
 | PlatformOrganizationInvitation | import | `App\Models\PlatformOrganizationInvitation` | platform organization invitations table | inviter, invitee, and organization relations | Platform foundation |
 | Project | import | `App\Models\Project` | projects table | organization, owner, and task relations | Collaboration foundation |
 | Property | merge | `App\Models\Property` | legacy billing/currency fields only if missing | lease, tariff, and utility relations | Keep current property model canonical |

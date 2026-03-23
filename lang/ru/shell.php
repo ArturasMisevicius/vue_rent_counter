@@ -31,7 +31,6 @@ return [
             'organizations' => 'Организации',
             'users' => 'Пользователи',
             'subscriptions' => 'Подписки',
-            'platform_notifications' => 'Платформенные уведомления',
             'languages' => 'Языки',
             'translation_management' => 'Управление переводами',
             'system_configuration' => 'Системная конфигурация',

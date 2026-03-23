@@ -23,8 +23,6 @@ use App\Models\Meter;
 use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\OrganizationActivityLog;
-use App\Models\PlatformNotification;
-use App\Models\PlatformNotificationRecipient;
 use App\Models\Property;
 use App\Models\Provider;
 use App\Models\SecurityViolation;
@@ -733,36 +731,6 @@ class ComprehensiveTenantSeeder extends Seeder
                 'policy_directive' => 'script-src',
                 'document_uri' => 'https://tenanto.test/admin/dashboard',
                 'blocked_uri' => 'http://suspicious.example.com/script.js',
-            ])->getAttributes(),
-        );
-
-        $notification = PlatformNotification::query()->updateOrCreate(
-            ['title' => 'Scheduled maintenance for billing recalculation'],
-            PlatformNotification::factory()->make([
-                'title' => 'Scheduled maintenance for billing recalculation',
-                'message' => 'Billing recalculation will run tonight at 23:00.',
-                'target_type' => 'organization',
-                'target_criteria' => [$organization->id],
-                'status' => 'sent',
-                'scheduled_at' => now()->subDay(),
-                'sent_at' => now()->subDay()->addHour(),
-                'created_by' => $superadmin->id,
-                'delivery_stats' => ['sent' => 1, 'read' => 1],
-            ])->getAttributes(),
-        );
-
-        PlatformNotificationRecipient::query()->updateOrCreate(
-            [
-                'platform_notification_id' => $notification->id,
-                'organization_id' => $organization->id,
-            ],
-            PlatformNotificationRecipient::factory()->make([
-                'platform_notification_id' => $notification->id,
-                'organization_id' => $organization->id,
-                'email' => $organization->email,
-                'delivery_status' => 'read',
-                'sent_at' => now()->subDay()->addHour(),
-                'read_at' => now()->subDay()->addHours(2),
             ])->getAttributes(),
         );
 

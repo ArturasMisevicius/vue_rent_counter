@@ -42,11 +42,6 @@ class OrganizationPolicy
         return $user->isSuperadmin();
     }
 
-    public function sendNotification(User $user, Organization $organization): bool
-    {
-        return $user->isSuperadmin();
-    }
-
     public function impersonate(User $user, Organization $organization): bool
     {
         return $user->isSuperadmin();

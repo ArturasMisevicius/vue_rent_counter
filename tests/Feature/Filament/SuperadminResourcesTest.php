@@ -1,13 +1,11 @@
 <?php
 
 use App\Enums\OrganizationStatus;
-use App\Enums\PlatformNotificationSeverity;
 use App\Filament\Actions\Superadmin\Organizations\StartOrganizationImpersonationAction;
 use App\Filament\Pages\TranslationManagement;
 use App\Filament\Resources\Organizations\Pages\ViewOrganization;
 use App\Models\Language;
 use App\Models\Organization;
-use App\Models\PlatformNotification;
 use App\Models\Subscription;
 use App\Models\SystemSetting;
 use App\Models\Translation;
@@ -19,7 +17,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 uses(RefreshDatabase::class);
 
 it('blocks admins from every platform control plane url', function () {
-    [$organization, $managedUser, $subscription, $notification, $language] = seedPlatformResourceFixtures();
+    [$organization, $managedUser, $subscription, $language] = seedPlatformResourceFixtures();
 
     $admin = User::factory()->admin()->create([
         'organization_id' => $organization->id,
@@ -27,20 +25,20 @@ it('blocks admins from every platform control plane url', function () {
 
     $this->actingAs($admin);
 
-    foreach (platformUrls($organization, $managedUser, $subscription, $notification, $language) as $url) {
+    foreach (platformUrls($organization, $managedUser, $subscription, $language) as $url) {
         $response = $this->get($url);
         expect($response->status())->toBeIn([302, 403]);
     }
 });
 
 it('allows superadmins to access every platform control plane url', function () {
-    [$organization, $managedUser, $subscription, $notification, $language] = seedPlatformResourceFixtures();
+    [$organization, $managedUser, $subscription, $language] = seedPlatformResourceFixtures();
 
     $superadmin = User::factory()->superadmin()->create();
 
     $this->actingAs($superadmin);
 
-    foreach (platformUrls($organization, $managedUser, $subscription, $notification, $language) as $url) {
+    foreach (platformUrls($organization, $managedUser, $subscription, $language) as $url) {
         $this->get($url)->assertOk();
     }
 });
@@ -188,10 +186,6 @@ function seedPlatformResourceFixtures(): array
 
     $subscription = Subscription::factory()->for($organization)->active()->create();
 
-    $notification = PlatformNotification::factory()->create([
-        'severity' => PlatformNotificationSeverity::INFO,
-    ]);
-
     $language = Language::factory()->create([
         'code' => 'de',
         'name' => 'German',
@@ -204,14 +198,13 @@ function seedPlatformResourceFixtures(): array
         'value' => ['value' => 'Tenanto'],
     ]);
 
-    return [$organization, $managedUser, $subscription, $notification, $language];
+    return [$organization, $managedUser, $subscription, $language];
 }
 
 function platformUrls(
     Organization $organization,
     User $managedUser,
     Subscription $subscription,
-    PlatformNotification $notification,
     Language $language,
 ): array {
     return [
@@ -228,10 +221,6 @@ function platformUrls(
         route('filament.admin.resources.subscriptions.create'),
         route('filament.admin.resources.subscriptions.view', $subscription),
         route('filament.admin.resources.subscriptions.edit', $subscription),
-        route('filament.admin.resources.platform-notifications.index'),
-        route('filament.admin.resources.platform-notifications.create'),
-        route('filament.admin.resources.platform-notifications.view', $notification),
-        route('filament.admin.resources.platform-notifications.edit', $notification),
         route('filament.admin.resources.languages.index'),
         route('filament.admin.resources.languages.create'),
         route('filament.admin.resources.languages.edit', $language),
