@@ -1,6 +1,11 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Models\Invoice;
+use App\Models\InvoiceItem;
+use App\Models\Lease;
+use App\Models\Meter;
+use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\PropertyAssignment;
 use App\Models\User;
@@ -74,7 +79,7 @@ it('default database seeder creates demo accounts for every role', function () {
     $this->seed(DatabaseSeeder::class);
 
     $usersByEmail = User::query()
-        ->select(['email', 'role', 'password', 'organization_id'])
+        ->select(['id', 'email', 'role', 'password', 'organization_id'])
         ->whereIn('email', [
             'superadmin@example.com',
             'admin@example.com',
@@ -95,4 +100,21 @@ it('default database seeder creates demo accounts for every role', function () {
         ->and($usersByEmail['admin@example.com']->organization_id)->not->toBeNull()
         ->and(Hash::check('password', $usersByEmail['superadmin@example.com']->password))->toBeTrue()
         ->and(PropertyAssignment::query()->count())->toBeGreaterThanOrEqual(2);
+
+    $demoTenantIds = [
+        $usersByEmail['tenant.alina@example.com']->id,
+        $usersByEmail['tenant.marius@example.com']->id,
+    ];
+
+    $demoTenantPropertyIds = PropertyAssignment::query()
+        ->whereIn('tenant_user_id', $demoTenantIds)
+        ->whereNull('unassigned_at')
+        ->pluck('property_id')
+        ->all();
+
+    expect(Lease::query()->whereIn('tenant_user_id', $demoTenantIds)->count())->toBeGreaterThanOrEqual(2)
+        ->and(Meter::query()->whereIn('property_id', $demoTenantPropertyIds)->count())->toBeGreaterThanOrEqual(4)
+        ->and(MeterReading::query()->whereIn('property_id', $demoTenantPropertyIds)->count())->toBeGreaterThanOrEqual(24)
+        ->and(Invoice::query()->whereIn('tenant_user_id', $demoTenantIds)->count())->toBeGreaterThanOrEqual(4)
+        ->and(InvoiceItem::query()->whereHas('invoice', fn ($query) => $query->whereIn('tenant_user_id', $demoTenantIds))->count())->toBeGreaterThanOrEqual(12);
 });

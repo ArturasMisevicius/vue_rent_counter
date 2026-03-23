@@ -153,7 +153,7 @@ class OperationalDemoDatasetSeeder extends Seeder
                 );
             });
 
-            $properties = collect(range(1, 8))->map(function (int $propertyIndex) use ($buildings, $manager, $organization, $sequence, $tenants): Property {
+            $properties = collect(range(1, 8))->map(function (int $propertyIndex) use ($buildings, $manager, $organization, $sequence, $tenants, $organizationUtilityServices): Property {
                 $building = $buildings[($propertyIndex - 1) % $buildings->count()];
                 $tenant = $tenants[$propertyIndex - 1];
                 $propertyType = PropertyType::cases()[($propertyIndex - 1) % count(PropertyType::cases())];
@@ -390,25 +390,22 @@ class OperationalDemoDatasetSeeder extends Seeder
         }
     }
 
-    /**
-     * @return Collection<string, UtilityService>
-     */
     private function upsertOrganizationUtilityServices(Organization $organization, int $sequence): Collection
     {
         $definitions = [
-            ServiceType::ELECTRICITY => [
+            ServiceType::ELECTRICITY->value => [
                 'name' => sprintf('Org %02d Electricity', $sequence),
                 'slug' => sprintf('org-%02d-electricity', $sequence),
                 'pricing_model' => PricingModel::CONSUMPTION_BASED,
                 'description' => 'Electricity utility for tenant consumption billing.',
             ],
-            ServiceType::WATER => [
+            ServiceType::WATER->value => [
                 'name' => sprintf('Org %02d Water', $sequence),
                 'slug' => sprintf('org-%02d-water', $sequence),
                 'pricing_model' => PricingModel::HYBRID,
                 'description' => 'Water utility with fixed and variable components.',
             ],
-            ServiceType::HEATING => [
+            ServiceType::HEATING->value => [
                 'name' => sprintf('Org %02d Heating', $sequence),
                 'slug' => sprintf('org-%02d-heating', $sequence),
                 'pricing_model' => PricingModel::CONSUMPTION_BASED,
@@ -416,13 +413,15 @@ class OperationalDemoDatasetSeeder extends Seeder
             ],
         ];
 
-        return collect($definitions)->mapWithKeys(function (array $definition, ServiceType $serviceType) use ($organization): array {
+        return collect($definitions)->mapWithKeys(function (array $definition, string $serviceType) use ($organization): array {
+            $serviceTypeEnum = ServiceType::from($serviceType);
+
             $service = UtilityService::query()->updateOrCreate(
                 ['slug' => $definition['slug']],
                 [
                     'organization_id' => $organization->id,
                     'name' => $definition['name'],
-                    'unit_of_measurement' => $serviceType->defaultUnit(),
+                    'unit_of_measurement' => $serviceTypeEnum->defaultUnit(),
                     'default_pricing_model' => $definition['pricing_model'],
                     'calculation_formula' => null,
                     'is_global_template' => false,
@@ -430,19 +429,16 @@ class OperationalDemoDatasetSeeder extends Seeder
                     'configuration_schema' => ['required' => ['rate_schedule']],
                     'validation_rules' => ['rate_schedule' => 'array'],
                     'business_logic_config' => ['auto_validation' => true],
-                    'service_type_bridge' => $serviceType,
+                    'service_type_bridge' => $serviceTypeEnum,
                     'description' => $definition['description'],
                     'is_active' => true,
                 ],
             );
 
-            return [$serviceType->value => $service];
+            return [$serviceType => $service];
         });
     }
 
-    /**
-     * @param  Collection<string, UtilityService>  $utilityServices
-     */
     private function upsertPropertyServiceConfigurations(
         Organization $organization,
         Property $property,
@@ -475,10 +471,6 @@ class OperationalDemoDatasetSeeder extends Seeder
         }
     }
 
-    /**
-     * @param  Collection<string, UtilityService>  $utilityServices
-     * @param  Collection<int, Meter>  $meters
-     */
     private function upsertInvoiceDetailRecords(
         Organization $organization,
         Property $property,
@@ -559,9 +551,6 @@ class OperationalDemoDatasetSeeder extends Seeder
         }
     }
 
-    /**
-     * @return array<string, float>
-     */
     private function serviceRateSchedule(string $serviceType): array
     {
         return match ($serviceType) {

@@ -2,11 +2,21 @@
 
 namespace Database\Seeders;
 
+use App\Enums\InvoiceStatus;
+use App\Enums\MeterReadingSubmissionMethod;
+use App\Enums\MeterReadingValidationStatus;
+use App\Enums\MeterStatus;
+use App\Enums\MeterType;
 use App\Enums\OrganizationStatus;
 use App\Enums\PropertyType;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Models\Building;
+use App\Models\Invoice;
+use App\Models\InvoiceItem;
+use App\Models\Lease;
+use App\Models\Meter;
+use App\Models\MeterReading;
 use App\Models\Organization;
 use App\Models\OrganizationSetting;
 use App\Models\Property;
@@ -122,6 +132,9 @@ class LoginDemoUsersSeeder extends Seeder
         $this->assignProperty($organization, $propertyAlina, $tenantAlina);
         $this->assignProperty($organization, $propertyMarius, $tenantMarius);
 
+        $this->seedTenantPortfolioData($organization, $manager, $propertyAlina, $tenantAlina, 1);
+        $this->seedTenantPortfolioData($organization, $manager, $propertyMarius, $tenantMarius, 2);
+
         if ($this->command === null) {
             return;
         }
@@ -168,5 +181,128 @@ class LoginDemoUsersSeeder extends Seeder
                 'unassigned_at' => null,
             ],
         );
+    }
+
+    private function seedTenantPortfolioData(
+        Organization $organization,
+        User $manager,
+        Property $property,
+        User $tenant,
+        int $seedIndex,
+    ): void {
+        Lease::query()->updateOrCreate(
+            [
+                'organization_id' => $organization->id,
+                'property_id' => $property->id,
+                'tenant_user_id' => $tenant->id,
+            ],
+            [
+                'start_date' => now()->subMonths(9)->toDateString(),
+                'end_date' => now()->addMonths(15)->toDateString(),
+                'monthly_rent' => 620 + ($seedIndex * 40),
+                'deposit' => 900 + ($seedIndex * 120),
+                'is_active' => true,
+            ],
+        );
+
+        $meters = collect(range(1, 2))->map(function (int $meterIndex) use ($organization, $property, $seedIndex): Meter {
+            $meterType = $meterIndex === 1 ? MeterType::ELECTRICITY : MeterType::WATER;
+
+            return Meter::query()->updateOrCreate(
+                [
+                    'identifier' => sprintf('LOGIN-%02d-%02d', $seedIndex, $meterIndex),
+                ],
+                [
+                    'organization_id' => $organization->id,
+                    'property_id' => $property->id,
+                    'name' => sprintf('Demo %s Meter', $meterType->label()),
+                    'type' => $meterType,
+                    'status' => MeterStatus::ACTIVE,
+                    'unit' => $meterType->defaultUnit(),
+                    'installed_at' => now()->subYear()->toDateString(),
+                ],
+            );
+        });
+
+        $meters->each(function (Meter $meter, int $meterOffset) use ($organization, $property, $tenant, $manager, $seedIndex): void {
+            collect(range(0, 5))->each(function (int $readingIndex) use ($meter, $meterOffset, $organization, $property, $tenant, $manager, $seedIndex): void {
+                $readingDate = now()
+                    ->startOfMonth()
+                    ->subMonths(5 - $readingIndex)
+                    ->addDays($seedIndex);
+
+                MeterReading::query()->updateOrCreate(
+                    [
+                        'meter_id' => $meter->id,
+                        'reading_date' => $readingDate->toDateString(),
+                    ],
+                    [
+                        'organization_id' => $organization->id,
+                        'property_id' => $property->id,
+                        'submitted_by_user_id' => $readingIndex < 2 ? $manager->id : $tenant->id,
+                        'reading_value' => 120 + ($seedIndex * 30) + ($meterOffset * 20) + (($readingIndex + 1) * 4.25),
+                        'validation_status' => MeterReadingValidationStatus::VALID,
+                        'submission_method' => $readingIndex < 2
+                            ? MeterReadingSubmissionMethod::ADMIN_MANUAL
+                            : MeterReadingSubmissionMethod::TENANT_PORTAL,
+                        'notes' => null,
+                    ],
+                );
+            });
+        });
+
+        collect(range(0, 1))->each(function (int $invoiceIndex) use ($organization, $property, $tenant, $seedIndex): void {
+            $periodStart = now()->startOfMonth()->subMonths(1 - $invoiceIndex);
+            $periodEnd = $periodStart->copy()->endOfMonth();
+            $status = $invoiceIndex === 0 ? InvoiceStatus::PAID : InvoiceStatus::OVERDUE;
+            $totalAmount = 95 + ($seedIndex * 15) + ($invoiceIndex * 10);
+
+            $invoice = Invoice::query()->updateOrCreate(
+                [
+                    'invoice_number' => sprintf('LOGIN-INV-%02d-%02d', $seedIndex, $invoiceIndex + 1),
+                ],
+                [
+                    'organization_id' => $organization->id,
+                    'property_id' => $property->id,
+                    'tenant_user_id' => $tenant->id,
+                    'billing_period_start' => $periodStart->toDateString(),
+                    'billing_period_end' => $periodEnd->toDateString(),
+                    'status' => $status,
+                    'currency' => 'EUR',
+                    'total_amount' => $totalAmount,
+                    'amount_paid' => $status === InvoiceStatus::PAID ? $totalAmount : 0,
+                    'due_date' => $periodEnd->copy()->addDays(14)->toDateString(),
+                    'finalized_at' => $periodEnd->copy()->addDay(),
+                    'paid_at' => $status === InvoiceStatus::PAID ? $periodEnd->copy()->addDays(4) : null,
+                    'document_path' => null,
+                    'notes' => sprintf('Seeded login demo invoice %d', $invoiceIndex + 1),
+                ],
+            );
+
+            $invoiceItems = [
+                ['description' => 'Electricity charge', 'quantity' => 155.00, 'unit' => 'kWh', 'unit_price' => 0.1900],
+                ['description' => 'Water supply', 'quantity' => 8.20, 'unit' => 'm3', 'unit_price' => 2.1000],
+                ['description' => 'Shared services fee', 'quantity' => 1.00, 'unit' => 'month', 'unit_price' => 22.5000],
+            ];
+
+            foreach ($invoiceItems as $item) {
+                InvoiceItem::query()->updateOrCreate(
+                    [
+                        'invoice_id' => $invoice->id,
+                        'description' => $item['description'],
+                    ],
+                    [
+                        'quantity' => $item['quantity'],
+                        'unit' => $item['unit'],
+                        'unit_price' => $item['unit_price'],
+                        'total' => round($item['quantity'] * $item['unit_price'], 2),
+                        'meter_reading_snapshot' => [
+                            'billing_period_start' => $invoice->billing_period_start?->toDateString(),
+                            'billing_period_end' => $invoice->billing_period_end?->toDateString(),
+                        ],
+                    ],
+                );
+            }
+        });
     }
 }
